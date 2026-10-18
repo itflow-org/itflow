@@ -331,12 +331,23 @@ if (isset($_POST['email_invoice'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_sales', 2);
+    // Sending the invoice is Sales; a reminder of what is still owed on one
+    // already sent is the money side, which accounting can do too
+    $asks_reminder = ($_POST['kind'] ?? '') === 'reminder';
+    if ($asks_reminder) {
+        enforceBillingMoney('remind');
+    } else {
+        enforceUserPermission('module_sales', 2);
+    }
 
     $invoice = billingRow('invoice', intval($_POST['invoice_id'] ?? 0));
     if (!$invoice) {
         flashAlert('That invoice no longer exists.', 'error');
         redirect('invoices.php');
+    }
+    // A draft has nothing to remind about - sending one sends the invoice
+    if ($asks_reminder && $invoice['invoice_status'] === 'Draft') {
+        enforceUserPermission('module_sales', 2);
     }
     $invoice_id = intval($invoice['invoice_id']);
     $client_id = intval($invoice['client_id']);
@@ -370,6 +381,10 @@ if (isset($_POST['email_invoice'])) {
     if ($attach_pdf && ($file = billingEmailPdf(billingPdf('invoice', $invoice)))) {
         $attach[] = $file;
     }
+    // Nothing owed after all, so it would go as the invoice - Sales again
+    if ($kind === 'reminder' && $email['kind'] !== 'Payment reminder') {
+        enforceUserPermission('module_sales', 2);
+    }
     $sent = billingEmailQueue($recipients, $subject, $email, ['attach' => $attach]);
     $reminder = $kind === 'reminder' && $email['kind'] === 'Payment reminder';
 
@@ -396,7 +411,7 @@ if (isset($_POST['send_statement'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_sales', 2);
+    enforceBillingMoney('statement');
 
     $client_id = intval($_POST['client_id'] ?? 0);
 

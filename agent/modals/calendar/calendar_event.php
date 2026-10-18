@@ -39,6 +39,9 @@ $meeting = calendarMeetingUrl($event);
 $color = calendarColor($event['calendar_color']);
 $client_id = intval($event['event_client_id']);
 $csrf = $_SESSION['csrf_token'];
+// What the role allows with it (calendarEventCan())
+$can_edit = calendarEventCan($event, 'edit');
+$can_delete = calendarEventCan($event, 'delete');
 
 ob_start();
 
@@ -99,7 +102,7 @@ ob_start();
 
         <?php if ($client_id) { ?>
             <dt>Client</dt>
-            <dd><a href="client_overview.php?client_id=<?= $client_id ?>"><?= escapeHtml($event['client_name']) ?></a></dd>
+            <dd><?php if (lookupUserPermission('module_client') >= 1) { ?><a href="client_overview.php?client_id=<?= $client_id ?>"><?= escapeHtml($event['client_name']) ?></a><?php } else { ?><?= escapeHtml($event['client_name']) ?><?php } ?></dd>
         <?php } ?>
 
         <dt>Who</dt>
@@ -147,22 +150,24 @@ ob_start();
         <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-ellipsis-h"></i></button>
         <div class="dropdown-menu">
             <a class="dropdown-item" href="post.php?export_event_ics=<?= $event_id ?>"><i class="fas fa-fw fa-download me-2"></i>Download .ics</a>
-            <?php if ($repeats) { ?>
+            <?php if ($repeats && $can_edit) { ?>
                 <a class="dropdown-item confirm-link" href="post.php?skip_event_occurrence=<?= $event_id ?>&date=<?= escapeHtml($occurrence) ?>&csrf_token=<?= $csrf ?>"
                     data-confirm-title="Skip <?= date('D, M j', strtotime($occurrence)) ?>?" data-confirm-button="Skip it"
                     data-confirm-text="Only this one is dropped - the rest of the series stays.<?= $invited ? ' Everyone who has the invitation is sent the update.' : '' ?>">
                     <i class="fas fa-fw fa-forward me-2"></i>Skip this one
                 </a>
             <?php } ?>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_event=<?= $event_id ?>&csrf_token=<?= $csrf ?>"
-                data-confirm-title="Delete <?= escapeHtml($event['event_title']) ?>?" data-confirm-button="Delete"
-                <?php if ($invited) { ?>data-confirm-text="Everyone who was sent the invitation is emailed the cancellation."<?php } ?>>
-                <i class="fas fa-fw fa-trash-alt me-2"></i><?= $repeats ? 'Delete series' : 'Delete' ?>
-            </a>
+            <?php if ($can_delete) { ?>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_event=<?= $event_id ?>&csrf_token=<?= $csrf ?>"
+                    data-confirm-title="Delete <?= escapeHtml($event['event_title']) ?>?" data-confirm-button="Delete"
+                    <?php if ($invited) { ?>data-confirm-text="Everyone who was sent the invitation is emailed the cancellation."<?php } ?>>
+                    <i class="fas fa-fw fa-trash-alt me-2"></i><?= $repeats ? 'Delete series' : 'Delete' ?>
+                </a>
+            <?php } ?>
         </div>
     </div>
-    <?php if ($emailable && calendarCanEmail()) { ?>
+    <?php if ($can_edit && $emailable && calendarCanEmail()) { ?>
         <form action="post.php" method="post" class="m-0">
             <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
             <input type="hidden" name="event_id" value="<?= $event_id ?>">
@@ -173,7 +178,11 @@ ob_start();
             </button>
         </form>
     <?php } ?>
-    <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/calendar/calendar_event_edit.php?id=<?= $event_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+    <?php if ($can_edit) { ?>
+        <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/calendar/calendar_event_edit.php?id=<?= $event_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+    <?php } else { ?>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
+    <?php } ?>
 </div>
 
 <?php

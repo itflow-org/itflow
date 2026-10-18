@@ -50,6 +50,61 @@ function calendarCanManage() {
     return !empty($session_is_admin);
 }
 
+/*
+ * Events follow the role of what they belong to. A client's event is the
+ * client's: Clients at Read to see it, Modify to add, change, move, skip or
+ * send it, Full to delete it - or Modify, for the agent who added it. An
+ * event with no client is anyone's. An agent always sees the events they are
+ * on or added, as their own schedule. $event: the row (event_id,
+ * event_client_id, event_created_by), or ['event_client_id' => id] for a new
+ * one. $action: view, edit or delete.
+ */
+function calendarEventCan($event, $action = 'view') {
+    global $session_user_id;
+    if (!intval($event['event_client_id'] ?? 0)) {
+        return true;
+    }
+    $clients = intval(lookupUserPermission('module_client'));
+    $own = intval($event['event_id'] ?? 0) && intval($event['event_created_by'] ?? 0) === intval($session_user_id ?? 0);
+    if ($action === 'delete') {
+        return $clients >= 3 || ($clients >= 2 && $own);
+    }
+    if ($action === 'edit') {
+        return $clients >= 2;
+    }
+    return $clients >= 1 || $own || calendarIsOn(intval($event['event_id'] ?? 0));
+}
+
+/** Turn the agent away unless calendarEventCan(), saying what it takes. */
+function enforceCalendarEvent($event, $action = 'view') {
+    if (!calendarEventCan($event, $action)) {
+        permissionRefuse(permissionRefusedText('module_client', ['view' => 1, 'edit' => 2, 'delete' => 3][$action] ?? 1, intval(lookupUserPermission('module_client'))));
+    }
+}
+
+/** Is the signed-in agent one of the event's attendees? */
+function calendarIsOn($event_id) {
+    global $mysqli, $session_user_id;
+    $event_id = intval($event_id);
+    $user_id = intval($session_user_id ?? 0);
+    return $event_id && $user_id && mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM calendar_event_attendees WHERE attendee_event_id = $event_id AND attendee_user_id = $user_id LIMIT 1")) > 0;
+}
+
+/*
+ * For a list of events: " AND ..." keeping a client's events to agents whose
+ * role can see Clients, and their own - '' when it can. calendar_events must
+ * be in the query unaliased.
+ */
+function calendarEventScopeSql() {
+    global $session_user_id;
+    if (intval(lookupUserPermission('module_client')) >= 1) {
+        return '';
+    }
+    $user_id = intval($session_user_id ?? 0);
+    return " AND (calendar_events.event_client_id = 0 OR calendar_events.event_created_by = $user_id
+        OR EXISTS (SELECT 1 FROM calendar_event_attendees scope_a WHERE scope_a.attendee_event_id = calendar_events.event_id AND scope_a.attendee_user_id = $user_id))";
+}
+
 /** May this agent move scheduled tickets on the calendar? The same as rescheduling one on the ticket. */
 function calendarCanScheduleTickets() {
     return lookupUserPermission('module_support') >= 2;
@@ -111,10 +166,10 @@ function calendarEventRow($event_id) {
 
 /**
  * For post handlers: the event a request names, after the client check (an
- * event with no client is anyone's) - or back with an error if it is gone.
- * Sets the global $client_id.
+ * event with no client is anyone's) and the role's (calendarEventCan() for
+ * $action) - or back with an error if it is gone. Sets the global $client_id.
  */
-function calendarEventForRequest($event_id) {
+function calendarEventForRequest($event_id, $action = 'view') {
     global $client_id;
     $row = calendarEventRow($event_id);
     if (!$row) {
@@ -125,11 +180,12 @@ function calendarEventForRequest($event_id) {
     if ($client_id) {
         enforceClientAccess();
     }
+    enforceCalendarEvent($row, $action);
     return $row;
 }
 
 /** For modals: the same, or the modal's error. */
-function calendarEventForModal($event_id) {
+function calendarEventForModal($event_id, $action = 'view') {
     global $client_id;
     $row = calendarEventRow($event_id);
     if (!$row) {
@@ -141,6 +197,7 @@ function calendarEventForModal($event_id) {
         echo json_encode(['error' => 'You do not have access to that client.']);
         exit;
     }
+    enforceCalendarEvent($row, $action);
     return $row;
 }
 
@@ -708,7 +765,7 @@ function calendarEventItems(array $calendar_ids, $from, $to, array $opts = []) {
     $user_query = $user_id ? "AND (event_created_by = $user_id OR EXISTS (SELECT 1 FROM calendar_event_attendees a WHERE a.attendee_event_id = event_id AND a.attendee_user_id = $user_id))" : '';
 
     $sql = mysqli_query($mysqli, "SELECT event_id, event_title, event_start, event_end, event_all_day, event_repeat, event_repeat_interval, event_repeat_until, event_repeat_skip,
-            event_location, event_client_id, event_calendar_id, calendar_color, client_name, location_name,
+            event_location, event_client_id, event_calendar_id, event_created_by, calendar_color, client_name, location_name,
             (SELECT COUNT(*) FROM calendar_event_attendees a WHERE a.attendee_event_id = event_id) AS attendee_count,
             (SELECT COUNT(*) FROM calendar_event_attendees a WHERE a.attendee_event_id = event_id AND a.attendee_invited_at IS NOT NULL) AS invited_count
         FROM calendar_events
@@ -719,7 +776,7 @@ function calendarEventItems(array $calendar_ids, $from, $to, array $opts = []) {
         AND event_start <= '$to' AND ((event_repeat IS NOT NULL AND event_repeat <> '') OR COALESCE(event_end, event_start) >= '$from')
         " . ($client_id ? "AND event_client_id = $client_id" : '') . "
         $user_query
-        " . clientScopeSql('event_client_id'));
+        " . clientScopeSql('event_client_id') . calendarEventScopeSql());
 
     $items = [];
     while ($row = mysqli_fetch_assoc($sql)) {
@@ -740,7 +797,7 @@ function calendarEventItems(array $calendar_ids, $from, $to, array $opts = []) {
                 'allDay' => $all_day,
                 'color' => calendarColor($row['calendar_color']),
                 // A repeat is moved from its form, so a drag cannot shift the whole series by accident
-                'editable' => !$repeats,
+                'editable' => !$repeats && calendarEventCan($row, 'edit'),
                 'extendedProps' => [
                     'kind' => 'event', 'event_id' => $event_id, 'calendar_id' => intval($row['event_calendar_id']), 'occurrence' => substr($occurrence['start'], 0, 10),
                     'invited' => intval($row['invited_count']),
@@ -1260,7 +1317,7 @@ function calendarUserFeedItems(array $feed, $from, $to) {
             WHERE event_archived_at IS NULL
             AND ((event_repeat IS NOT NULL AND event_repeat <> '') OR event_start BETWEEN '$from' AND '$to')
             " . ($everyone ? '' : "AND (event_created_by = $user_id OR EXISTS (SELECT 1 FROM calendar_event_attendees a WHERE a.attendee_event_id = event_id AND a.attendee_user_id = $user_id))") . "
-            " . clientScopeSql('event_client_id') . "
+            " . clientScopeSql('event_client_id') . calendarEventScopeSql() . "
             ORDER BY event_start");
         while ($row = mysqli_fetch_assoc($sql)) {
             $items[] = calendarEventIcsItem($row, $busy);

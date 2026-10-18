@@ -23,6 +23,8 @@
     const clientId = Number(root.dataset.clientId) || 0;
     const myId = Number(root.dataset.userId) || 0;
     const canSchedule = root.dataset.canSchedule === '1';
+    // A client's calendar takes Clients at Modify to add to (calendarEventCan())
+    const canAdd = root.dataset.canAdd !== '0';
     const mobile = root.dataset.mobile === '1' || window.innerWidth < 768;
     const sourceDefaults = JSON.parse(root.dataset.sources || '{}');
     const agentSelect = document.getElementById('calendarAgent');
@@ -181,7 +183,7 @@
         navLinks: true,
         nowIndicator: true,
         dayMaxEvents: true,
-        selectable: true,
+        selectable: canAdd,
         selectMirror: true,
         editable: true,
         droppable: canSchedule,

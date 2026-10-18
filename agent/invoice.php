@@ -54,8 +54,11 @@ $history = billingHistory('invoice', $invoice_id);
 
 $can_edit = lookupUserPermission('module_sales') >= 2;
 $can_delete = lookupUserPermission('module_sales') >= 3;
-$can_take_payment = $can_edit && lookupUserPermission('module_financial') >= 2 && invoiceCanPay($invoice, $state);
-$can_manage_payments = lookupUserPermission('module_sales') >= 3 && lookupUserPermission('module_financial') >= 3;
+// The money on it is accounting's too - Financial, with Sales at Read (billingMoneyCan())
+$can_take_payment = billingMoneyCan('take') && invoiceCanPay($invoice, $state);
+$can_edit_payments = billingMoneyCan('edit');
+$can_delete_payments = billingMoneyCan('delete');
+$can_remind = billingMoneyCan('remind');
 $can_edit_lines = billingCanEditItems('invoice', $invoice);
 $mail_ready = !empty($config_smtp_provider) && billingEmailableContacts('invoice', $client_id) > 0;
 $saved_card = $can_take_payment && in_array($status, ['Sent', 'Viewed'], true) && invoiceHasSavedCard($client_id);
@@ -229,12 +232,12 @@ $paper = [
                     <a class="dropdown-item" href="<?= escapeHtml($guest_url) ?>" target="_blank" rel="noopener">
                         <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>View as Client
                     </a>
+                    <?php if ($can_remind && $mail_ready && $owed && $state['balance'] > 0) { ?>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/invoice/invoice_email.php?invoice_id=<?= $invoice_id ?>&amp;kind=reminder">
+                            <i class="fas fa-fw fa-bell text-secondary me-2"></i>Send Reminder<span class="text-body-secondary">...</span>
+                        </a>
+                    <?php } ?>
                     <?php if ($can_edit) { ?>
-                        <?php if ($mail_ready && $owed && $state['balance'] > 0) { ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/invoice/invoice_email.php?invoice_id=<?= $invoice_id ?>&amp;kind=reminder">
-                                <i class="fas fa-fw fa-bell text-secondary me-2"></i>Send Reminder<span class="text-body-secondary">...</span>
-                            </a>
-                        <?php } ?>
                         <?php if ($status !== 'Draft' && $mail_ready && !in_array($status, invoiceOpenStatuses(), true)) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/invoice/invoice_email.php?invoice_id=<?= $invoice_id ?>">
                                 <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send Again<span class="text-body-secondary">...</span>
@@ -355,24 +358,30 @@ $paper = [
                                     <?= escapeHtml(implode(' · ', array_filter([$payment['payment_date'], $payment['payment_method'], $payment['payment_reference'], $payment['account_name']]))) ?>
                                 </div>
                             </div>
-                            <?php if ($can_manage_payments) { ?>
+                            <?php if ($can_edit_payments || $can_delete_payments) { ?>
                                 <div class="dropdown dropstart">
                                     <button class="btn btn-sm btn-link text-body-secondary" type="button" data-bs-toggle="dropdown" title="Payment actions"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/payment/payment_edit.php?id=<?= $payment_id ?>">
-                                            <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
-                                        </a>
-                                        <?php if ($payment['payment_method'] === 'Stripe') { ?>
-                                            <a class="dropdown-item text-warning confirm-link" href="post.php?refund_payment_stripe=<?= $payment_id ?>&csrf_token=<?= $csrf ?>"
-                                                data-confirm-text="The payment is refunded to the client's card through Stripe.">
-                                                <i class="fas fa-fw fa-undo me-2"></i>Refund through Stripe
+                                        <?php if ($can_edit_payments) { ?>
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/payment/payment_edit.php?id=<?= $payment_id ?>">
+                                                <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                             </a>
                                         <?php } ?>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger confirm-link" href="post.php?delete_payment=<?= $payment_id ?>&csrf_token=<?= $csrf ?>"
-                                            data-confirm-text="The payment comes off the invoice and its account. No money moves.">
-                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                        </a>
+                                        <?php if ($can_delete_payments) { ?>
+                                            <?php if ($payment['payment_method'] === 'Stripe') { ?>
+                                                <a class="dropdown-item text-warning confirm-link" href="post.php?refund_payment_stripe=<?= $payment_id ?>&csrf_token=<?= $csrf ?>"
+                                                    data-confirm-text="The payment is refunded to the client's card through Stripe.">
+                                                    <i class="fas fa-fw fa-undo me-2"></i>Refund through Stripe
+                                                </a>
+                                            <?php } ?>
+                                            <?php if ($can_edit_payments) { ?>
+                                                <div class="dropdown-divider"></div>
+                                            <?php } ?>
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_payment=<?= $payment_id ?>&csrf_token=<?= $csrf ?>"
+                                                data-confirm-text="The payment comes off the invoice and its account. No money moves.">
+                                                <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                            </a>
+                                        <?php } ?>
                                     </div>
                                 </div>
                             <?php } ?>

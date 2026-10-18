@@ -22,9 +22,8 @@ $state = invoiceState($invoice, invoicePaid($invoice_id));
 $currency = (string) $invoice['invoice_currency_code'];
 $total = floatval($invoice['invoice_amount']);
 $progress = $state['paid'] > 0 && $total > 0 ? min(100, round($state['paid'] / $total * 100)) : 0;
-$can_edit = lookupUserPermission('module_sales') >= 2 && lookupUserPermission('module_financial') >= 2;
-$can_manage = lookupUserPermission('module_sales') >= 3 && lookupUserPermission('module_financial') >= 3;
-$can_pay = $can_edit && invoiceCanPay($invoice, $state);
+$can_manage = billingMoneyCan('edit');
+$can_pay = billingMoneyCan('take') && invoiceCanPay($invoice, $state);
 
 ob_start();
 

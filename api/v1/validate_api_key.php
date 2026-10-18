@@ -10,6 +10,10 @@
 require_once __DIR__ . '../../../functions.php';
 require_once __DIR__ . "../../../config.php";
 
+// ITFlow's timezone on both clocks, as the pages and cron have it - what the API
+// stamps, the SLA times it works out and when a key expires all go by it
+require_once __DIR__ . "/../../includes/inc_set_timezone.php";
+
 // JSON header
 header('Content-Type: application/json');
 
@@ -96,16 +100,9 @@ if (isset($api_key)) {
         $api_key_decrypt_hash = $row['api_key_decrypt_hash']; // No sanitization
         $api_key_user_id = intval($row['api_key_user_id']);
 
-        // When it was last used, for Admin > API Keys - at most once a minute, not every call. In
-        // ITFlow's own timezone, as the pages show it: the API doesn't set the clocks to it.
-        $api_tz = mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_timezone FROM settings WHERE company_id = 1"))[0] ?? '';
-        try {
-            $api_now = (new DateTime('now', new DateTimeZone($api_tz ?: 'UTC')))->format('Y-m-d H:i:s');
-        } catch (Exception $e) {
-            $api_now = date('Y-m-d H:i:s');
-        }
-        mysqli_query($mysqli, "UPDATE api_keys SET api_key_last_used_at = '$api_now' WHERE api_key_id = " . intval($row['api_key_id']) . "
-            AND (api_key_last_used_at IS NULL OR api_key_last_used_at < '$api_now' - INTERVAL 1 MINUTE)");
+        // When it was last used, for Admin > API Keys - at most once a minute, not every call
+        mysqli_query($mysqli, "UPDATE api_keys SET api_key_last_used_at = NOW() WHERE api_key_id = " . intval($row['api_key_id']) . "
+            AND (api_key_last_used_at IS NULL OR api_key_last_used_at < NOW() - INTERVAL 1 MINUTE)");
 
         // Set limit & offset for queries
         if (isset($_GET['limit'])) {

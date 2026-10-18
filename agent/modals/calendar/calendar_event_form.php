@@ -132,12 +132,17 @@ $form_can_email = calendarCanEmail();
                 <select class="form-select select2" name="client_id" id="eventClientSelect">
                     <option value="0">- Internal, no client -</option>
                     <?php
-                    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL OR client_id = $form_client_id) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql)) { ?>
+                    // A client's event takes Clients at Modify (calendarEventCan())
+                    $form_can_clients = calendarEventCan(['event_client_id' => -1], 'edit');
+                    $sql = $form_can_clients ? mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL OR client_id = $form_client_id) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC") : false;
+                    while ($sql && $row = mysqli_fetch_assoc($sql)) { ?>
                         <option value="<?= intval($row['client_id']) ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?> <?= intval($row['client_id']) === $form_client_id ? 'selected' : '' ?>><?= escapeHtml($row['client_name']) ?></option>
                     <?php } ?>
                 </select>
             </div>
+            <?php if (!$form_can_clients) { ?>
+                <div class="form-text">An event for a client takes Clients at Modify in your role.</div>
+            <?php } ?>
         </div>
     <?php } ?>
     <div class="<?= $form_locked_client ? 'col-md-6' : 'col-md-6' ?>" id="eventSiteField" <?= $form_client_id ? '' : 'hidden' ?>>

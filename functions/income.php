@@ -33,9 +33,14 @@ function incomeCanDelete() {
     return lookupUserPermission('module_financial') >= 3;
 }
 
-/** May this agent change and delete payments - the invoice's own rule. */
+/** May this agent change payments - Financial at Modify, with Sales at Read (billingMoneyCan()). */
 function incomeCanEditPayments() {
-    return lookupUserPermission('module_sales') >= 3 && lookupUserPermission('module_financial') >= 3;
+    return billingMoneyCan('edit');
+}
+
+/** May this agent delete payments - Financial at Full, with Sales at Read. */
+function incomeCanDeletePayments() {
+    return billingMoneyCan('delete');
 }
 
 /** Was a payment made online - through a payment provider? */

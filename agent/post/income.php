@@ -5,11 +5,11 @@
  * payments and other income together, so the ticked rows come as
  * payment-12 / revenue-7 (incomeBulkIds()).
  *
- * Other income is changed with write access to Financial. A payment keeps
- * the invoice's own rules - full access to Sales and Financial - and its
- * category and client are its invoice's: Set Category sets the invoice's,
- * Set Client leaves payments alone, and payments are deleted from their
- * invoice, not here.
+ * Other income is changed with write access to Financial. So is a payment,
+ * with Sales at Read (incomeCanEditPayments()) - but its category and client
+ * are its invoice's: Set Category sets the invoice's, which takes write access
+ * to Sales too, Set Client leaves payments alone, and payments are deleted
+ * from their invoice, not here.
  */
 
 if (!defined('FROM_POST_HANDLER')) {
@@ -27,7 +27,8 @@ if (isset($_POST['bulk_edit_income'])) {
     $field = (string) ($_POST['field'] ?? '');
     $raw = (string) ($_POST['value'] ?? '');
     $value = intval($raw);
-    $can_payments = incomeCanEditPayments();
+    // A payment's category is its invoice's - setting it changes the invoice
+    $can_payments = incomeCanEditPayments() && ($field !== 'category' || lookupUserPermission('module_sales') >= 2);
     $label = '';
     if ($field === 'category') {
         $categories = incomeCategories();
@@ -130,7 +131,7 @@ if (isset($_POST['bulk_edit_income'])) {
     }
     if ($kept) {
         $notes[] = "$kept payment" . ($kept === 1 ? '' : 's') . ' left as ' . ($kept === 1 ? 'it was' : 'they were')
-            . ($field === 'client' ? " - a payment's client is its invoice's" : ($can_payments ? ' - not on an invoice' : ' - changing a payment takes full access to Sales and Financial'));
+            . ($field === 'client' ? " - a payment's client is its invoice's" : ($can_payments ? ' - not on an invoice' : ($field === 'category' ? " - a payment's category is its invoice's, and changing the invoice takes write access to Sales" : ' - changing a payment takes write access to Financial')));
     }
     if ($cleared) {
         $notes[] = "$cleared left on " . ($cleared === 1 ? 'its account - it' : 'their accounts - they') . ' cleared on a reconciled statement';

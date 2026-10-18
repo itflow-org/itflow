@@ -18,7 +18,8 @@ $payments = count($ids['payment']);
 $others = count($ids['revenue']);
 $count = $payments + $others;
 $field = (string) ($_GET['field'] ?? '');
-$can_payments = incomeCanEditPayments();
+// A payment's category is its invoice's - setting it changes the invoice
+$can_payments = incomeCanEditPayments() && ($field !== 'category' || lookupUserPermission('module_sales') >= 2);
 
 $fields = [
     'category' => ['label' => 'Category', 'icon' => 'fa-tag'],
@@ -44,7 +45,7 @@ $notes = [];
 if ($payments && $field === 'client') {
     $notes[] = "A payment's client is its invoice's - the " . ($payments === 1 ? 'payment stays' : "$payments payments stay") . ' as ' . ($payments === 1 ? 'it is' : 'they are') . '.';
 } elseif ($payments && !$can_payments) {
-    $notes[] = 'Changing a payment takes full access to Sales and Financial - the ' . ($payments === 1 ? 'payment stays' : "$payments payments stay") . ' as ' . ($payments === 1 ? 'it is' : 'they are') . '.';
+    $notes[] = ($field === 'category' ? "A payment's category is its invoice's, and changing the invoice takes write access to Sales" : 'Changing a payment takes write access to Financial') . ' - the ' . ($payments === 1 ? 'payment stays' : "$payments payments stay") . ' as ' . ($payments === 1 ? 'it is' : 'they are') . '.';
 } elseif ($payments && $field === 'category') {
     $notes[] = "A payment's category is its invoice's - the invoice" . ($payments === 1 ? '' : 's') . ' behind the ' . ($payments === 1 ? 'payment takes' : 'payments take') . ' it, and with it every payment on ' . ($payments === 1 ? 'it' : 'them') . '.';
 }

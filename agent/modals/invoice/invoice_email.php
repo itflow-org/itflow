@@ -8,7 +8,15 @@
 
 require_once '../../../includes/modal_header.php';
 
-enforceUserPermission('module_sales', 2);
+// Sending the invoice is Sales; a reminder for one still owed is the money
+// side, which accounting can send without Sales at Modify (billingMoneyCan())
+$can_send_invoice = lookupUserPermission('module_sales') >= 2;
+if (!$can_send_invoice) {
+    if (($_GET['kind'] ?? '') !== 'reminder') {
+        enforceUserPermission('module_sales', 2);
+    }
+    enforceBillingMoney('remind');
+}
 
 $invoice_id = intval($_GET['invoice_id']);
 
@@ -66,7 +74,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-paper-plane me-2"></i>Send Invoice <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber('invoice', $doc)) ?> &middot; <?= escapeHtml($doc['client_name']) ?></span></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-paper-plane me-2"></i><?= $can_send_invoice ? 'Send Invoice' : 'Send Reminder' ?> <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber('invoice', $doc)) ?> &middot; <?= escapeHtml($doc['client_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -89,8 +97,14 @@ ob_start();
             <?php $doc_state = invoiceState($doc, invoicePaid($invoice_id));
             $can_remind = $doc_state['balance'] > 0 && in_array($doc['invoice_status'], invoiceOpenStatuses(), true);
             $kind = $can_remind && ($_GET['kind'] ?? '') === 'reminder' ? 'reminder' : 'invoice';
-            $reminder_when = $can_remind ? billingReminderWhen(-$doc_state['days']) : ''; ?>
-            <?php if ($can_remind) { ?>
+            $reminder_when = $can_remind ? billingReminderWhen(-$doc_state['days']) : '';
+            if (!$can_send_invoice && !$can_remind) {
+                enforceUserPermission('module_sales', 2);
+            } ?>
+            <?php if ($can_remind && !$can_send_invoice) { ?>
+                <input type="hidden" name="kind" value="reminder">
+                <div class="small text-body-secondary mb-2"><i class="fas fa-fw fa-bell me-1"></i>A payment reminder - it is <?= escapeHtml($reminder_when) ?>.</div>
+            <?php } elseif ($can_remind) { ?>
                 <div class="btn-group w-100 itflow-product-type mb-3" role="group" aria-label="What to send">
                     <input type="radio" class="btn-check" name="kind" value="invoice" id="invoiceEmailKindInvoice<?= $invoice_id ?>" autocomplete="off" <?= $kind === 'invoice' ? 'checked' : '' ?>>
                     <label class="btn btn-outline-secondary text-start d-flex align-items-center gap-2" for="invoiceEmailKindInvoice<?= $invoice_id ?>">

@@ -192,10 +192,10 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                                     <i class="fa fa-fw fa-life-ring text-secondary me-2"></i>Ticket here
                                 </a>
                             <?php } ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/calendar/calendar_event_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>&lock_client=1&title=Onsite+visit">
-                                <i class="far fa-fw fa-calendar-plus text-secondary me-2"></i>Visit here
-                            </a>
                             <?php if ($can_edit) { ?>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/calendar/calendar_event_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>&lock_client=1&title=Onsite+visit">
+                                    <i class="far fa-fw fa-calendar-plus text-secondary me-2"></i>Visit here
+                                </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
                                     <i class="fa fa-fw fa-user text-secondary me-2"></i>Contact
                                 </a>

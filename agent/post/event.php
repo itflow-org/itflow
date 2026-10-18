@@ -3,8 +3,9 @@
 /*
  * ITFlow - GET/POST request handler for calendars, events and calendar links
  *
- * Calendars themselves (add, rename, delete, publish) are an admin's. Events
- * are anyone's to add, and a client's events need access to that client.
+ * Calendars themselves (add, rename, delete, publish) are an admin's. An event
+ * with no client is anyone's; a client's event follows the role's Clients
+ * level, and needs access to that client (calendarEventCan()).
  * Attendees are agents, the client's contacts and anyone by email; ticking
  * "Email the invitation" sends each of them an iCalendar invitation, and from
  * then on a change, a skipped occurrence or the deletion goes to the people
@@ -215,6 +216,7 @@ if (isset($_POST['add_event'])) {
     $client_id = intval($_POST['client_id'] ?? 0);
     if ($client_id) {
         enforceClientAccess();
+        enforceCalendarEvent(['event_client_id' => $client_id], 'edit');
     }
 
     $set = calendarEventFormSet($_POST, $client_id, $error);
@@ -244,13 +246,14 @@ if (isset($_POST['edit_event'])) {
 
     validateCSRFToken();
 
-    $old = calendarEventForRequest($_POST['event_id'] ?? 0);
+    $old = calendarEventForRequest($_POST['event_id'] ?? 0, 'edit');
     $event_id = intval($old['event_id']);
 
     // It can move to another client - which needs access too
     $client_id = intval($_POST['client_id'] ?? 0);
     if ($client_id) {
         enforceClientAccess();
+        enforceCalendarEvent(['event_client_id' => $client_id], 'edit');
     }
 
     $set = calendarEventFormSet($_POST, $client_id, $error);
@@ -313,7 +316,7 @@ if (isset($_POST['send_event_invites'])) {
 
     validateCSRFToken();
 
-    $event = calendarEventForRequest($_POST['event_id'] ?? 0);
+    $event = calendarEventForRequest($_POST['event_id'] ?? 0, 'edit');
     $event_id = intval($event['event_id']);
 
     if (!calendarCanEmail()) {
@@ -343,7 +346,7 @@ if (isset($_GET['skip_event_occurrence'])) {
 
     validateCSRFToken();
 
-    $event = calendarEventForRequest($_GET['skip_event_occurrence']);
+    $event = calendarEventForRequest($_GET['skip_event_occurrence'], 'edit');
     $event_id = intval($event['event_id']);
     $date = (string) ($_GET['date'] ?? '');
 
@@ -375,7 +378,7 @@ if (isset($_GET['delete_event'])) {
 
     validateCSRFToken();
 
-    $event = calendarEventForRequest($_GET['delete_event']);
+    $event = calendarEventForRequest($_GET['delete_event'], 'delete');
     $event_id = intval($event['event_id']);
 
     // The people who have it in their calendar are told it is off

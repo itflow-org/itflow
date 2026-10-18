@@ -39,6 +39,8 @@ $can_edit = incomeCanEdit();
 $can_delete = incomeCanDelete();
 $can_bulk = $can_edit;
 $can_sales = lookupUserPermission('module_sales') >= 1;
+$can_edit_payments = incomeCanEditPayments();
+$can_delete_payments = incomeCanDeletePayments();
 
 $client_filter = $client_page ? intval($client_id) : intval($_GET['client'] ?? 0);
 $category_filter = intval($_GET['category'] ?? 0);
@@ -362,9 +364,13 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                                     <?php if ($can_sales && $row['invoice_number'] !== null) { ?>
                                         <a class="dropdown-item" href="invoice.php?invoice_id=<?= intval($row['income_invoice_id']) ?>"><i class="fas fa-fw fa-file-invoice text-secondary me-2"></i>Open Invoice</a>
                                     <?php } ?>
-                                    <?php if (incomeCanEditPayments() && $row['invoice_number'] !== null) { ?>
+                                    <?php if ($row['invoice_number'] !== null && ($can_edit_payments || $can_delete_payments)) { ?>
                                         <div class="dropdown-divider"></div>
+                                    <?php } ?>
+                                    <?php if ($can_edit_payments && $row['invoice_number'] !== null) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/payment/payment_edit.php?id=<?= $income_id ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
+                                    <?php } ?>
+                                    <?php if ($can_delete_payments && $row['invoice_number'] !== null) { ?>
                                         <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_payment=<?= $income_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                             data-confirm-text="The payment of <?= $money($row_amount, $row_currency) ?> comes off <?= escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?>, which is owed again.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete

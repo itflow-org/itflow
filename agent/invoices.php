@@ -32,7 +32,9 @@ enforceUserPermission('module_sales');
 
 $can_edit = lookupUserPermission('module_sales') >= 2;
 $can_delete = lookupUserPermission('module_sales') >= 3;
-$can_pay = $can_edit && lookupUserPermission('module_financial') >= 2;
+// Taking payments and sending statements are accounting's too (billingMoneyCan())
+$can_pay = billingMoneyCan('take');
+$can_statement = billingMoneyCan('statement');
 $mail_ready = !empty($config_smtp_provider);
 
 // Client Filter (all clients)
@@ -194,7 +196,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                         data-modal-url="<?= buildExportModalUrl('modals/invoice/invoice_export.php', ['client_id', 'status', 'category', 'q'], ['dtf' => $dtf, 'dtt' => $dtt, 'client_id' => $client ?: '']) ?>">
                         <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
-                    <?php if ($client_url && $can_edit && $mail_ready) { ?>
+                    <?php if ($client_url && $can_statement && $mail_ready) { ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_statement.php?client_id=<?= $client_id ?>">
                             <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Send Statement
                         </a>

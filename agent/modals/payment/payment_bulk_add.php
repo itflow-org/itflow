@@ -8,8 +8,7 @@
 
 require_once '../../../includes/modal_header.php';
 
-enforceUserPermission('module_sales', 2);
-enforceUserPermission('module_financial', 2);
+enforceBillingMoney('take');
 
 $client_id = intval($_GET['client_id'] ?? 0);
 enforceClientAccess();

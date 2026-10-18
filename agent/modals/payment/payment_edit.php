@@ -7,8 +7,7 @@
 
 require_once '../../../includes/modal_header.php';
 
-enforceUserPermission('module_sales', 3);
-enforceUserPermission('module_financial', 3);
+enforceBillingMoney('edit');
 
 $payment_id = intval($_GET['id'] ?? 0);
 $payment = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payments.*, invoice_id FROM payments LEFT JOIN invoices ON invoice_id = payment_invoice_id WHERE payment_id = $payment_id LIMIT 1"));

@@ -2217,6 +2217,9 @@ if (isset($_POST['calendar_move'])) {
     if (intval($event['event_client_id']) && !hasClientAccess($event['event_client_id'])) {
         $fail('You do not have access to that client.', 403);
     }
+    if (!calendarEventCan($event, 'edit')) {
+        $fail(permissionRefusedText('module_client', 2, intval(lookupUserPermission('module_client'))), 403);
+    }
     if (calendarEventRepeats($event)) {
         $fail('A repeating event is moved from Edit, so the whole series moves together.');
     }

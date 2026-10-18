@@ -7,8 +7,7 @@
 
 require_once '../../../includes/modal_header.php';
 
-enforceUserPermission('module_sales', 2);
-enforceUserPermission('module_financial', 2);
+enforceBillingMoney('take');
 
 $invoice_id = intval($_GET['id'] ?? 0);
 $invoice = billingRow('invoice', $invoice_id);

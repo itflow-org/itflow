@@ -26,6 +26,8 @@ $calendars = calendarList();
 $sources = calendarSources();
 $can_manage = calendarCanManage();
 $can_schedule = calendarCanScheduleTickets();
+// Inside a client, a new event is the client's - Clients at Modify (calendarEventCan())
+$can_add_event = calendarEventCan(['event_client_id' => $page_client_id], 'edit');
 $csrf = $_SESSION['csrf_token'];
 
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_config_calendar_first_day FROM user_settings WHERE user_id = $session_user_id"));
@@ -53,6 +55,7 @@ foreach ($sources as $key => $source) {
     data-user-id="<?= intval($session_user_id) ?>"
     data-first-day="<?= $first_day ?>"
     data-can-schedule="<?= $can_schedule ? 1 : 0 ?>"
+    data-can-add="<?= $can_add_event ? 1 : 0 ?>"
     data-mobile="<?= !empty($session_mobile) ? 1 : 0 ?>"
     data-initial-date="<?= calendarIsDate($_GET['date'] ?? '') ? escapeHtml($_GET['date']) : '' ?>"
     data-sources="<?= escapeHtml(json_encode($page_sources)) ?>">
@@ -62,7 +65,9 @@ foreach ($sources as $key => $source) {
         <div class="card mb-3">
             <div class="card-body">
 
-                <button type="button" class="btn btn-primary w-100 mb-3" id="calendarNewEvent"><i class="fas fa-plus me-2"></i>New event</button>
+                <?php if ($can_add_event) { ?>
+                    <button type="button" class="btn btn-primary w-100 mb-3" id="calendarNewEvent"><i class="fas fa-plus me-2"></i>New event</button>
+                <?php } ?>
 
                 <label class="form-label small text-body-secondary text-uppercase fw-semibold mb-1" for="calendarAgent">Whose</label>
                 <select class="form-select select2 mb-3" id="calendarAgent">

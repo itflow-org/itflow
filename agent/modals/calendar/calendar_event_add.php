@@ -22,6 +22,7 @@ if ($form_client_id) {
         echo json_encode(['error' => 'You do not have access to that client.']);
         exit;
     }
+    enforceCalendarEvent(['event_client_id' => $client_id], 'edit');
 }
 $form_locked_client = $form_client_id && !empty($_GET['lock_client']);
 

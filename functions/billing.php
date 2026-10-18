@@ -768,6 +768,53 @@ function invoiceDuePill($state) {
 }
 
 /** May a payment be recorded against this invoice? */
+/*
+ * The money on invoices - taking payments, changing and deleting them, and
+ * the receipts, reminders and statements that ask for or confirm them - is
+ * accounting work. Each needs Financial at a level, with Sales at Read to see
+ * the invoices; or Sales at a level (with Financial at a level), which is
+ * what reminders, statements and receipts took before. Changing an invoice's
+ * lines, sending it and deleting it stay with Sales.
+ *
+ * [action => [Financial level with Sales Read, [Sales level, Financial level] that will also do, or null]]
+ */
+function billingMoneyRules() {
+    return [
+        'take' => [2, null],          // record a payment, charge a saved card, a batch payment
+        'edit' => [2, null],          // change a payment
+        'delete' => [3, null],        // delete a payment, or refund it through Stripe
+        'receipt' => [2, [2, 1]],     // email a payment's receipt
+        'remind' => [2, [2, 0]],      // email a payment reminder for a sent invoice
+        'statement' => [2, [2, 0]],   // email a client their statement
+    ];
+}
+
+/** May the agent do this with the money on invoices (billingMoneyRules())? */
+function billingMoneyCan($action) {
+    $rule = billingMoneyRules()[$action] ?? null;
+    if (!$rule) {
+        return false;
+    }
+    $sales = intval(lookupUserPermission('module_sales'));
+    $financial = intval(lookupUserPermission('module_financial'));
+    if ($financial >= $rule[0] && $sales >= 1) {
+        return true;
+    }
+    return $rule[1] !== null && $sales >= $rule[1][0] && $financial >= $rule[1][1];
+}
+
+/** Turn the agent away unless billingMoneyCan($action), saying what it takes. */
+function enforceBillingMoney($action) {
+    if (billingMoneyCan($action)) {
+        return;
+    }
+    $rule = billingMoneyRules()[$action] ?? [2, null];
+    $sales = intval(lookupUserPermission('module_sales'));
+    permissionRefuse($sales < 1
+        ? permissionRefusedText('module_sales', 1, 0)
+        : permissionRefusedText('module_financial', $rule[0], intval(lookupUserPermission('module_financial'))));
+}
+
 function invoiceCanPay($row, $state) {
     return in_array($row['invoice_status'], invoiceOpenStatuses(), true) && $state['balance'] > 0;
 }

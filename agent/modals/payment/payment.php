@@ -29,9 +29,10 @@ $currency = (string) ($row['payment_currency_code'] ?: $row['invoice_currency_co
 $has_invoice = $row['invoice_number'] !== null;
 $can_sales = lookupUserPermission('module_sales') >= 1;
 $can_edit = incomeCanEditPayments() && $has_invoice;
+$can_delete = incomeCanDeletePayments() && $has_invoice;
 $online = preg_match('/^Stripe - pi_/', (string) $row['payment_reference']) === 1;
 $state = $has_invoice ? invoiceState($row, $row['invoice_paid']) : null;
-$can_receipt = $has_invoice && lookupUserPermission('module_sales') >= 2 && $client_id;
+$can_receipt = $has_invoice && billingMoneyCan('receipt') && $client_id;
 $receipt_to = $can_receipt ? array_column(billingEmailRecipients($client_id), 'email') : [];
 $money = function ($value, $code = null) use ($currency) {
     return escapeHtml(billingMoney($value, $code ?? $currency));
@@ -173,6 +174,8 @@ ob_start();
     <?php } ?>
     <?php if ($can_edit) { ?>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/payment/payment_edit.php?id=<?= $payment_id ?>"><i class="fas fa-edit"></i><span class="d-none d-sm-inline ms-2">Edit</span></button>
+    <?php } ?>
+    <?php if ($can_delete) { ?>
         <?php if ($cleared) { ?>
             <?= reconcileLockedButtonHtml($cleared) ?>
         <?php } else { ?>

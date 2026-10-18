@@ -487,7 +487,7 @@ function dashboardSchedule($days = 7, $limit = 30) {
         AND ((event_repeat IS NOT NULL AND event_repeat != '') OR event_start >= '$from' OR event_end >= '$from')
         AND (event_created_by = $user_id
             OR EXISTS (SELECT 1 FROM calendar_event_attendees a WHERE a.attendee_event_id = event_id AND a.attendee_user_id = $user_id)
-            OR (event_created_by = 0 AND NOT EXISTS (SELECT 1 FROM calendar_event_attendees a WHERE a.attendee_event_id = event_id AND a.attendee_user_id > 0))) " . clientScopeSql('event_client_id')
+            OR (event_created_by = 0 AND NOT EXISTS (SELECT 1 FROM calendar_event_attendees a WHERE a.attendee_event_id = event_id AND a.attendee_user_id > 0))) " . clientScopeSql('event_client_id') . calendarEventScopeSql()
     );
     while ($row = mysqli_fetch_assoc($sql)) {
         foreach (expandRecurringEvent($row, $from, $to) as $occurrence) {

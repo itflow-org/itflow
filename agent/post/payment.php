@@ -2,6 +2,10 @@
 
 /*
  * ITFlow - GET/POST request handler for credits & payments
+ *
+ * Payments are accounting work - Financial, with Sales at Read to see the
+ * invoices (billingMoneyCan()). Credits keep their old checks until the
+ * feature is finished.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -10,8 +14,7 @@ if (isset($_POST['add_payment'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_sales', 2);
-    enforceUserPermission('module_financial', 2);
+    enforceBillingMoney('take');
 
     $invoice_id = intval($_POST['invoice_id']);
     $balance = floatval($_POST['balance']);
@@ -86,8 +89,7 @@ if (isset($_POST['edit_payment'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_sales', 3);
-    enforceUserPermission('module_financial', 3);
+    enforceBillingMoney('edit');
 
     $payment_id = intval($_POST['payment_id']);
     $date = escapeSql($_POST['date']);
@@ -239,8 +241,7 @@ if (isset($_POST['add_payment_stripe'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_sales', 2);
-    enforceUserPermission('module_financial', 2);
+    enforceBillingMoney('take');
 
     $invoice_id = intval($_POST['invoice_id']);
     $saved_payment_id = intval($_POST['saved_payment_id']);
@@ -399,8 +400,7 @@ if (isset($_POST['add_bulk_payment'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_sales', 2);
-    enforceUserPermission('module_financial', 2);
+    enforceBillingMoney('take');
 
     $client_id = intval($_POST['client_id']);
     $date = escapeSql($_POST['date']);
@@ -517,8 +517,7 @@ if (isset($_GET['delete_payment'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_sales', 3);
-    enforceUserPermission('module_financial', 3);
+    enforceBillingMoney('delete');
 
     $payment_id = intval($_GET['delete_payment']);
 
@@ -560,8 +559,7 @@ if (isset($_GET['refund_payment_stripe'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_sales', 3);
-    enforceUserPermission('module_financial', 3);
+    enforceBillingMoney('delete');
 
     $payment_id = intval($_GET['refund_payment_stripe']);
 
@@ -664,8 +662,7 @@ if (isset($_GET['payment_send_receipt'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_sales', 2);
-    enforceUserPermission('module_financial');
+    enforceBillingMoney('receipt');
 
     $row = incomePaymentRow(intval($_GET['payment_send_receipt']));
     if (!$row || $row['invoice_number'] === null) {
