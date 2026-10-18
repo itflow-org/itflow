@@ -5,6 +5,9 @@
  * $template (documentTemplateRow(), or [] for a new one) before including it.
  * Posts what documentTemplateFields() reads (functions/document_template.php).
  * With an AI model set up for documentation, it can be drafted from a prompt.
+ * Under the editor, the placeholders filled in from the client and the tables
+ * of its records put themselves in where the cursor is
+ * (js/document_template_form.js).
  *
  * Should not be accessed directly.
  */
@@ -49,7 +52,20 @@ $ai_model = getAiModel('Documentation');
     <label class="form-label" for="documentTemplateContent">What it says</label>
     <textarea class="form-control tinymce" id="documentTemplateContent" name="content"><?= escapeHtml($t['document_template_content'] ?? '') ?></textarea>
 </div>
-<div class="small text-secondary">Words in square brackets - <span class="font-monospace">[Client]</span>, <span class="font-monospace">[Date]</span> - are left in the document for whoever writes it to fill in. Pasted images are kept with the template and copied into each document made from it.</div>
+<div class="small text-secondary mb-1">Filled in from the client as a document is made - click one to put it where the cursor is:</div>
+<div class="d-flex flex-wrap gap-1 mb-2">
+    <?php foreach (DOCUMENT_TEMPLATE_PLACEHOLDERS as $placeholder => $means) { ?>
+        <button type="button" class="btn btn-sm btn-light border font-monospace" data-document-template-word="<?= escapeHtml($placeholder) ?>" title="<?= escapeHtml(ucfirst($means)) ?>">[<?= escapeHtml($placeholder) ?>]</button>
+    <?php } ?>
+</div>
+<div class="small text-secondary mb-1">The client's records as a table, on a line of their own - as they are when the document is made:</div>
+<div class="d-flex flex-wrap gap-1 mb-2">
+    <?php foreach (DOCUMENT_TEMPLATE_TABLES as $table => $holds) { ?>
+        <button type="button" class="btn btn-sm btn-light border font-monospace text-info-emphasis" data-document-template-word="<?= escapeHtml($table) ?>" data-document-template-table title="<?= escapeHtml(ucfirst($holds)) ?>">[<?= escapeHtml($table) ?>]</button>
+    <?php } ?>
+</div>
+<div class="small text-secondary">Any other word in square brackets - <span class="font-monospace">[Firewall Model]</span> - is asked for when a document is made, and set up on the template's page. Pasted images are kept with the template and copied into each document made from it.</div>
+<script src="/js/document_template_form.js"></script>
 
 <?php if ($ai_model) { ?>
 <script>

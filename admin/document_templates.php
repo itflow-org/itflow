@@ -140,7 +140,7 @@ $csrf = $_SESSION['csrf_token'];
                                     <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                 </a>
                                 <?php if (!$row['document_template_archived_at']) { ?>
-                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document_template/document_template_use.php?id=<?= $template_id ?>">
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document_template/document_template_use.php?id=<?= $template_id ?>">
                                         <i class="fas fa-fw fa-plus text-secondary me-2"></i>New document for a client
                                     </a>
                                 <?php } ?>

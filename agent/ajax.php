@@ -1025,6 +1025,72 @@ if (isset($_GET['global_search'])) {
  * than rendered into every ticket page, because the bodies are full HTML replies and an
  * install can have a lot of them.
  */
+/*
+ * What making a document from a template asks for, for a client - the site
+ * and contact its placeholders come from (when it uses them; the client's
+ * primary ones picked), and its fill-ins - as the window's fields (HTML), with
+ * a line on what is filled in from the client. agent/js/document_template_make.js
+ * draws it in the Document from template and New document for a client windows.
+ */
+if (isset($_GET['document_template_asks'])) {
+    header('Content-Type: application/json');
+
+    $asks_template = documentTemplateRow($_GET['document_template_asks']);
+    $asks_client_id = intval($_GET['client_id'] ?? 0);
+    if (intval(lookupUserPermission('module_support')) < 2 || !$asks_template || $asks_template['document_template_archived_at'] || !$asks_client_id || !hasClientAccess($asks_client_id)) {
+        echo json_encode(['html' => '']);
+        exit;
+    }
+    $asks_used = documentTemplateWordsUsed($asks_template);
+    $asks_fill_ins = documentTemplateFillIns($asks_template, documentTemplateFillInRowsFor([$asks_template['document_template_id']])[$asks_template['document_template_id']]);
+    $asks_site = array_intersect(array_keys($asks_used['placeholder']), DOCUMENT_TEMPLATE_SITE_PLACEHOLDERS);
+    $asks_contact = array_intersect(array_keys($asks_used['placeholder']), DOCUMENT_TEMPLATE_CONTACT_PLACEHOLDERS);
+
+    $html = '';
+    if ($asks_used['placeholder'] || $asks_used['table']) {
+        $filled = array_map(function ($word) {
+            return '[' . $word . ']';
+        }, array_values($asks_used['placeholder'] + $asks_used['table']));
+        $html .= '<div class="small text-secondary mb-2"><i class="fas fa-fw fa-magic me-1"></i>Filled in from the client: <span class="font-monospace">' . escapeHtml(implode(' ', $filled)) . '</span>'
+            . ($asks_used['table'] ? ' - its records as they are now' : '') . '</div>';
+    }
+    if ($asks_site || $asks_contact) {
+        $html .= '<div class="row g-2 mb-2">';
+        if ($asks_site) {
+            $html .= '<div class="col-md-6"><label class="form-label mb-1">Site</label><div class="input-group"><span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>'
+                . '<select class="form-select select2" name="location_id"><option value="-1">- None -</option>';
+            $first = true;
+            foreach (documentTemplateClientLocations($asks_client_id) as $location_id => $location) {
+                $html .= '<option value="' . $location_id . '"' . ($first ? ' selected' : '') . '>' . escapeHtml($location['location_name']) . (intval($location['location_primary']) ? ' (primary)' : '') . '</option>';
+                $first = false;
+            }
+            $html .= '</select></div></div>';
+        }
+        if ($asks_contact) {
+            $html .= '<div class="col-md-6"><label class="form-label mb-1">Contact</label><div class="input-group"><span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>'
+                . '<select class="form-select select2" name="contact_id"><option value="-1">- None -</option>';
+            $first = true;
+            foreach (documentTemplateClientContacts($asks_client_id) as $contact_id => $contact) {
+                $html .= '<option value="' . $contact_id . '"' . ($first ? ' selected' : '') . '>' . escapeHtml($contact['contact_name']) . (intval($contact['contact_primary']) ? ' (primary)' : '') . '</option>';
+                $first = false;
+            }
+            $html .= '</select></div></div>';
+        }
+        $html .= '</div>';
+    }
+    if ($asks_fill_ins) {
+        $html .= '<div class="fw-semibold mt-2 mb-1"><i class="fas fa-fw fa-pen-square text-secondary me-1"></i>It asks for</div>'
+            . '<div class="small text-secondary mb-2">Each answer goes in wherever its [Name] is. Leave one blank to fill it in on the document later.</div><div class="row g-2">';
+        foreach ($asks_fill_ins as $fill_in) {
+            $html .= '<div class="col-md-6">' . ticketFillInFieldHtml($fill_in, '') . '</div>';
+        }
+        $html .= '</div>';
+    }
+
+    echo json_encode(['html' => $html !== '' ? '<div class="border rounded p-3 bg-body-tertiary">' . $html . '</div>' : '']);
+    exit;
+}
+
 if (isset($_GET['get_canned_response'])) {
     enforceUserPermission('module_support');
 
@@ -1939,7 +2005,15 @@ if (isset($_GET['ai_create_document_template'])) {
     }
 
     // Prepare prompt
-    $system_message = "You are a helpful IT documentation assistant. You will create a well-structured HTML template for IT documentation based on a given prompt. Include headings, subheadings, bullet points, and possibly tables for clarity. No Lorem Ipsum, use realistic placeholders and professional language.";
+    // It writes in the words a document template fills in from the client, and asks for the rest
+    $system_message = "You are a helpful IT documentation assistant. You will create a well-structured HTML template for IT documentation based on a given prompt. Include headings, subheadings, bullet points, and possibly tables for clarity. No Lorem Ipsum, professional language."
+        . " These words in square brackets are filled in from the client when a document is made from the template - use them where those details belong: " . implode(', ', array_map(function ($word) {
+            return "[$word]";
+        }, array_keys(DOCUMENT_TEMPLATE_PLACEHOLDERS))) . "."
+        . " These put in the client's records, as a table when on a line of their own (<p>[Networks]</p>) and as a list of names in a sentence - use them instead of drawing those tables yourself: " . implode(', ', array_map(function ($word) {
+            return "[$word]";
+        }, array_keys(DOCUMENT_TEMPLATE_TABLES))) . "."
+        . " For anything else someone fills in, use a short name of its own in square brackets, like [Firewall Model] or [Backup Schedule] - letters, digits and spaces, starting with a letter.";
     $user_message = "Create an HTML formatted IT documentation template based on the following request:\n\n\"$prompt\"\n\nThe template should be structured, professional, and useful for IT staff. Include relevant sections, instructions, prerequisites, and best practices.";
 
     $result = callAiApi($model, [

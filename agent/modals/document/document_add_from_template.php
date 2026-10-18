@@ -4,7 +4,9 @@
  * New document from one of the admin's document templates - its content and
  * its images, copied, in the folder it was opened from (add_document_from_template,
  * functions/document_template.php). Each template is offered with its summary
- * and how often it has been used; ?document_template_id picks one.
+ * and how often it has been used; ?document_template_id picks one. What the
+ * one picked asks for - the site and contact its placeholders come from, and
+ * its fill-ins - is drawn under it (agent/js/document_template_make.js).
  */
 
 require_once '../../../includes/modal_header.php';
@@ -33,9 +35,9 @@ ob_start();
     <h5 class="modal-title"><i class="fas fa-fw fa-puzzle-piece me-2"></i>New document from a template</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-<form action="post.php" method="post" autocomplete="off">
+<form action="post.php" method="post" autocomplete="off" data-doc-template-make>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="client_id" value="<?= $client_id ?>">
+    <input type="hidden" name="client_id" value="<?= $client_id ?>" data-doc-template-client>
     <div class="modal-body">
 
         <?php if (!$templates) { ?>
@@ -52,7 +54,7 @@ ob_start();
                 <label class="form-label">Template <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-puzzle-piece"></i></span>
-                    <select class="form-select select2" name="document_template_id" required data-template-select>
+                    <select class="form-select select2" name="document_template_id" required data-doc-template-select>
                         <option value="">- Pick a template -</option>
                         <?php foreach ($templates as $template_id => $template) {
                             $used = $usage[$template_id]['count'] ?? 0;
@@ -62,6 +64,9 @@ ob_start();
                     </select>
                 </div>
             </div>
+
+            <!-- What the template picked asks for - agent/js/document_template_make.js -->
+            <div class="mb-3" data-doc-template-asks hidden></div>
 
             <div class="mb-3">
                 <label class="form-label">Name</label>
@@ -99,6 +104,8 @@ ob_start();
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i><?= $templates ? 'Cancel' : 'Close' ?></button>
     </div>
 </form>
+
+<script src="/agent/js/document_template_make.js"></script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

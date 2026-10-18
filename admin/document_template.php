@@ -1,10 +1,12 @@
 <?php
 
 /*
- * One document template - what it says, with the words in square brackets
- * left to fill in marked, who made it and last changed it, and its use: how
- * many documents have been made from it, for how many clients, and the latest
- * of them. A new document for a client can be made from here. The work is in
+ * One document template - what it says, with its [words] marked: the
+ * placeholders filled in from the client, the tables of the client's records,
+ * and what it asks for when a document is made (its fill-ins: set up, dragged
+ * into order) - who made it and last changed it, and its use: how many
+ * documents have been made from it, for how many clients, and the latest of
+ * them. A new document for a client can be made from here. The work is in
  * functions/document_template.php.
  */
 
@@ -23,7 +25,9 @@ $name = escapeHtml($template['document_template_name']);
 $archived = !empty($template['document_template_archived_at']);
 $usage = documentTemplateUsage([$document_template_id])[$document_template_id] ?? ['count' => 0, 'clients' => 0, 'last' => null];
 $content = trim((string) $template['document_template_content']) !== '' ? documentTemplateMarkBrackets(documentHtmlPurify($template['document_template_content'])) : '';
-$brackets = documentTemplateBracketsIn($template['document_template_content']);
+$used = documentTemplateWordsUsed($template);
+$fill_ins = documentTemplateFillIns($template, documentTemplateFillInRowsFor([$document_template_id])[$document_template_id]);
+$fill_in_url = "modals/document_template/document_template_fill_in.php?document_template_id=$document_template_id";
 $images = is_dir(documentTemplateDir($document_template_id)) ? count(glob(documentTemplateDir($document_template_id) . '/*')) : 0;
 $csrf = $_SESSION['csrf_token'];
 
@@ -64,7 +68,7 @@ $use_url = "modals/document_template/document_template_use.php?id=$document_temp
         </div>
         <div class="d-flex flex-wrap gap-2 d-print-none">
             <?php if (!$archived) { ?>
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $use_url ?>"><i class="fas fa-fw fa-plus me-2"></i>New document for a client</button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $use_url ?>"><i class="fas fa-fw fa-plus me-2"></i>New document for a client</button>
             <?php } ?>
             <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="xl" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</button>
             <div class="dropdown">
@@ -124,16 +128,84 @@ $use_url = "modals/document_template/document_template_use.php?id=$document_temp
             </div>
         </div>
 
-        <?php if ($brackets) { ?>
-            <div class="card mb-3">
-                <div class="card-header"><h3 class="card-title mb-0"><i class="fas fa-fw fa-pen-square me-2"></i>Left to fill in</h3></div>
-                <div class="card-body small">
-                    <div class="d-flex flex-wrap gap-1 mb-2">
-                        <?php foreach ($brackets as $word) { ?>
-                            <span class="badge rounded-pill text-bg-light border font-monospace fw-normal">[<?= escapeHtml($word) ?>]</span>
+        <div class="card mb-3">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title mb-0"><i class="fas fa-fw fa-pen-square me-2"></i>Fill-ins</h3>
+                <span class="ms-auto small text-secondary me-2"><?= $fill_ins ? count($fill_ins) . ' asked for' : '' ?></span>
+                <button type="button" class="btn btn-sm btn-link ajax-modal" data-modal-url="<?= $fill_in_url ?>"><i class="fas fa-plus me-1"></i>Add</button>
+            </div>
+            <div class="card-body">
+                <?php if ($fill_ins) { ?>
+                    <p class="small text-secondary">Asked for when a document is made from it - each answer goes in wherever its <span class="font-monospace">[Name]</span> is, and one left blank stays for whoever writes it. Drag to change the order they are asked in.</p>
+                    <div class="list-group" id="documentTemplateFillIns">
+                        <?php foreach ($fill_ins as $fill_in) {
+                            $kind = TICKET_FILL_IN_TYPES[$fill_in['type']];
+                            $about = [];
+                            if ($fill_in['type'] === 'list') {
+                                $about[] = escapeHtml(implode(' · ', $fill_in['options']));
+                            }
+                            if ($fill_in['help'] !== '') {
+                                $about[] = escapeHtml($fill_in['help']);
+                            }
+                            ?>
+                            <div class="list-group-item d-flex align-items-center gap-2" data-fill-in-name="<?= escapeHtml($fill_in['name']) ?>">
+                                <span class="drag-handle text-secondary" title="Drag to reorder" style="cursor: grab;"><i class="fas fa-fw fa-grip-vertical"></i></span>
+                                <div class="min-w-0 flex-grow-1">
+                                    <div class="d-flex flex-wrap align-items-center gap-1">
+                                        <span class="fw-semibold me-1"><?= escapeHtml($fill_in['name']) ?></span>
+                                        <span class="badge rounded-pill text-bg-light border fw-normal"><i class="fas fa-fw <?= $kind['icon'] ?> me-1 text-secondary"></i><?= $kind['label'] ?></span>
+                                        <?php if ($fill_in['required']) { ?><span class="badge rounded-pill text-bg-light border fw-normal"><i class="fas fa-fw fa-asterisk me-1 text-danger"></i>Required</span><?php } ?>
+                                        <?php if (!$fill_in['in_text']) { ?><span class="badge rounded-pill text-bg-warning fw-normal" title="Not in what it says - asked for, but put in nowhere">Not in the text</span><?php } ?>
+                                    </div>
+                                    <?php if ($about) { ?><div class="small text-secondary text-truncate"><?= implode(' - ', $about) ?></div><?php } ?>
+                                </div>
+                                <div class="dropdown dropstart">
+                                    <button class="btn btn-light text-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $fill_in_url ?>&name=<?= urlencode($fill_in['name']) ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</a>
+                                        <?php if ($fill_in['id']) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <?php if ($fill_in['in_text']) { ?>
+                                                <a class="dropdown-item confirm-link" href="post.php?delete_document_template_fill_in=<?= $fill_in['id'] ?>&csrf_token=<?= $csrf ?>"
+                                                    data-confirm-title="Reset <?= escapeHtml($fill_in['name']) ?>?" data-confirm-text="It is still in what it says, so it stays asked for - as plain, optional text." data-confirm-button="Reset"><i class="fas fa-fw fa-undo me-2"></i>Reset</a>
+                                            <?php } else { ?>
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_document_template_fill_in=<?= $fill_in['id'] ?>&csrf_token=<?= $csrf ?>"
+                                                    data-confirm-title="Remove <?= escapeHtml($fill_in['name']) ?>?" data-confirm-text="It is no longer asked for." data-confirm-button="Remove"><i class="fas fa-fw fa-trash-alt me-2"></i>Remove</a>
+                                            <?php } ?>
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            </div>
                         <?php } ?>
                     </div>
-                    <div class="text-secondary">Words in square brackets stay in each document made from it, for whoever writes it to fill in.</div>
+                <?php } else { ?>
+                    <div class="text-secondary small">Nothing to ask. Put a word in square brackets in what it says - <span class="font-monospace">[Firewall Model]</span>, <span class="font-monospace">[Review Date]</span> - and it is asked for when a document is made from it, then filled in. Add one here to make it a date, a choice from a list or yes or no, or to make it required.</div>
+                <?php } ?>
+            </div>
+        </div>
+
+        <?php if ($used['placeholder'] || $used['table']) { ?>
+            <div class="card mb-3">
+                <div class="card-header"><h3 class="card-title mb-0"><i class="fas fa-fw fa-magic me-2"></i>Filled in from the client</h3></div>
+                <div class="card-body small">
+                    <?php if ($used['placeholder']) { ?>
+                        <div class="d-flex flex-wrap gap-1 mb-2">
+                            <?php foreach ($used['placeholder'] as $key => $word) { ?>
+                                <span class="badge rounded-pill text-bg-light border font-monospace fw-normal" title="<?= escapeHtml(ucfirst(array_change_key_case(DOCUMENT_TEMPLATE_PLACEHOLDERS)[$key] ?? '')) ?>">[<?= escapeHtml($word) ?>]</span>
+                            <?php } ?>
+                        </div>
+                        <?php if (array_intersect(array_keys($used['placeholder']), DOCUMENT_TEMPLATE_SITE_PLACEHOLDERS) || array_intersect(array_keys($used['placeholder']), DOCUMENT_TEMPLATE_CONTACT_PLACEHOLDERS)) { ?>
+                            <div class="text-secondary mb-2">The <?= implode(' and ', array_filter([array_intersect(array_keys($used['placeholder']), DOCUMENT_TEMPLATE_SITE_PLACEHOLDERS) ? 'site' : '', array_intersect(array_keys($used['placeholder']), DOCUMENT_TEMPLATE_CONTACT_PLACEHOLDERS) ? 'contact' : ''])) ?> - the client's primary, unless another is picked when the document is made.</div>
+                        <?php } ?>
+                    <?php } ?>
+                    <?php if ($used['table']) { ?>
+                        <div class="text-secondary mb-1">The client's records, as they are then</div>
+                        <ul class="list-unstyled mb-0">
+                            <?php foreach ($used['table'] as $key => $word) { ?>
+                                <li class="mb-1"><span class="badge rounded-pill text-info-emphasis bg-info-subtle border border-info-subtle font-monospace fw-normal">[<?= escapeHtml($word) ?>]</span> <span class="text-secondary"><?= escapeHtml(array_change_key_case(DOCUMENT_TEMPLATE_TABLES)[$key] ?? '') ?></span></li>
+                            <?php } ?>
+                        </ul>
+                    <?php } ?>
                 </div>
             </div>
         <?php } ?>
@@ -158,6 +230,29 @@ $use_url = "modals/document_template/document_template_use.php?id=$document_temp
 </div>
 
 <script src="../js/pretty_content.js"></script>
+<script src="../libs/SortableJS/Sortable.min.js"></script>
+<script>
+    (function () {
+        var list = document.getElementById('documentTemplateFillIns');
+        if (!list) {
+            return;
+        }
+        new Sortable(list, {
+            handle: '.drag-handle',
+            animation: 150,
+            onEnd: function () {
+                itflowPost('post.php', {
+                    reorder_document_template_fill_ins: 1,
+                    csrf_token: <?= json_encode($csrf) ?>,
+                    document_template_id: <?= $document_template_id ?>,
+                    names: Array.from(list.querySelectorAll('[data-fill-in-name]')).map(function (row) {
+                        return row.dataset.fillInName;
+                    })
+                });
+            }
+        });
+    })();
+</script>
 
 <?php
 require_once "../includes/footer.php";

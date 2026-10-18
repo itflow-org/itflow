@@ -250,7 +250,7 @@ if (isset($_POST['save_ticket_template_fill_in'])) {
 
     logAudit("Ticket Template", "Edit", "$session_name " . ($original === '' ? 'added' : 'changed') . " fill-in " . escapeSql($name) . " on ticket template $template_name", 0, $ticket_template_id);
 
-    flashAlert("Fill-in <strong>" . escapeHtml($name) . "</strong> saved" . ($original === '' ? " - put <span class='font-monospace'>[" . escapeHtml($name) . "]</span> in the text where the answer goes" : ''));
+    flashAlert("Fill-in <strong>" . escapeHtml($name) . "</strong> saved" . ($original === '' ? " - put <code>[" . escapeHtml($name) . "]</code> in the text where the answer goes" : ''));
 
     redirect();
 
@@ -278,7 +278,7 @@ if (isset($_GET['delete_ticket_template_fill_in'])) {
     logAudit("Ticket Template", "Edit", "$session_name removed fill-in " . escapeSql($name) . " from ticket template " . escapeSql($row['ticket_template_name']), 0, $ticket_template_id);
 
     flashAlert($still_asked
-        ? "Fill-in <strong>" . escapeHtml($name) . "</strong> reset - <span class='font-monospace'>[" . escapeHtml($name) . "]</span> is still in the text, so it is asked for as plain, optional text"
+        ? "Fill-in <strong>" . escapeHtml($name) . "</strong> reset - <code>[" . escapeHtml($name) . "]</code> is still in the text, so it is asked for as plain, optional text"
         : "Fill-in <strong>" . escapeHtml($name) . "</strong> removed", 'error');
 
     redirect();

@@ -132,13 +132,22 @@ if (isset($_POST['add_document_from_template'])) {
 
     $folder = folderOwnedId($_POST['folder'] ?? 0, $client_id);
 
-    // A copy of what it says and its images, remembering the template (functions/document_template.php)
     $template = documentTemplateRow($document_template_id);
-    $document_id = documentTemplateMakeDocument($document_template_id, $client_id, $_POST['name'] ?? '', $_POST['description'] ?? '', $folder);
-    if (!$document_id) {
+    if (!$template || $template['document_template_archived_at']) {
         flashAlert('That template is gone or archived.', 'error');
         redirect();
     }
+
+    // What it asks for, answered - a required one left blank, or an answer that isn't one, says so
+    $answers = ticketFillInAnswers(documentTemplateFillInsFor($document_template_id), $_POST['fill_ins'] ?? [], $fill_in_error);
+    if ($answers === null) {
+        flashAlert($fill_in_error, 'error');
+        redirect();
+    }
+
+    // A copy of what it says and its images, filled in for the client and remembering the template (functions/document_template.php)
+    $document_id = documentTemplateMakeDocument($document_template_id, $client_id, $_POST['name'] ?? '', $_POST['description'] ?? '', $folder,
+        intval($_POST['location_id'] ?? 0), intval($_POST['contact_id'] ?? 0), $answers);
     $document_name = (string) getFieldById('documents', $document_id, 'document_name');
 
     logAudit("Document", "Create", "$session_name created document " . escapeSql($document_name) . " from template " . escapeSql($template['document_template_name']), $client_id, $document_id);

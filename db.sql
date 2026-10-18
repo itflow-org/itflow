@@ -1272,6 +1272,28 @@ CREATE TABLE `document_tags` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `document_template_fill_ins`
+--
+
+DROP TABLE IF EXISTS `document_template_fill_ins`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `document_template_fill_ins` (
+  `document_fill_in_id` int(11) NOT NULL AUTO_INCREMENT,
+  `document_fill_in_document_template_id` int(11) NOT NULL,
+  `document_fill_in_name` varchar(50) NOT NULL,
+  `document_fill_in_type` varchar(10) NOT NULL DEFAULT 'text',
+  `document_fill_in_options` text DEFAULT NULL,
+  `document_fill_in_required` tinyint(1) NOT NULL DEFAULT 0,
+  `document_fill_in_help` varchar(255) DEFAULT NULL,
+  `document_fill_in_order` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`document_fill_in_id`),
+  UNIQUE KEY `document_fill_in_template_name` (`document_fill_in_document_template_id`,`document_fill_in_name`),
+  CONSTRAINT `document_template_fill_ins_ibfk_1` FOREIGN KEY (`document_fill_in_document_template_id`) REFERENCES `document_templates` (`document_template_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `document_templates`
 --
 

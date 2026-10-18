@@ -324,7 +324,7 @@ $preview = []; // the grid's previewer payload
                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="xl" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&folder_id=<?= $folder_id ?>">
                             <i class="fas fa-fw fa-file-alt me-2"></i>New document
                         </a>
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_add_from_template.php?client_id=<?= $client_id ?>&folder_id=<?= $folder_id ?>">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document/document_add_from_template.php?client_id=<?= $client_id ?>&folder_id=<?= $folder_id ?>">
                             <i class="fas fa-fw fa-puzzle-piece me-2"></i>Document from template
                         </a>
                         <div class="dropdown-divider"></div>
