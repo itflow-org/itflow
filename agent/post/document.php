@@ -233,6 +233,62 @@ if (isset($_POST['move_document'])) {
 
 }
 
+if (isset($_GET['mark_document_reviewed'])) {
+
+    // Looked over and still right - due again a review period from now
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $row = documentForHandler($_GET['mark_document_reviewed']);
+    $document_id = intval($row['document_id']);
+    if ($row['document_archived_at']) {
+        flashAlert('That document is archived.', 'error');
+        redirect();
+    }
+
+    mysqli_query($mysqli, "UPDATE documents SET document_reviewed_at = NOW(), document_reviewed_by = " . intval($session_user_id) . ", document_updated_at = document_updated_at WHERE document_id = $document_id");
+
+    logAudit("Document", "Edit", "$session_name marked document " . escapeSql($row['document_name']) . " as reviewed", $client_id, $document_id);
+
+    $review = documentReviewState(mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_created_at, document_updated_at, document_reviewed_at, document_template_review_months, document_template_archived_at
+        FROM documents LEFT JOIN document_templates USING (document_template_id) WHERE document_id = $document_id")));
+
+    flashAlert("Document <strong>" . escapeHtml($row['document_name']) . "</strong> marked as reviewed" . ($review ? " - next due " . date('M j, Y', strtotime($review['next'])) : ''));
+
+    redirect();
+
+}
+
+if (isset($_POST['set_document_template'])) {
+
+    // The template it counts as made from - what it says stays as it is
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $row = documentForHandler($_POST['document_id']);
+    $document_id = intval($row['document_id']);
+    $current_id = intval(getFieldById('documents', $document_id, 'document_template_id'));
+
+    // A current template, or the one it is from already - or none
+    $template_id = intval($_POST['document_template_id'] ?? 0);
+    $template = $template_id ? documentTemplateRow($template_id) : null;
+    if ($template_id && (!$template || ($template['document_template_archived_at'] && $template_id !== $current_id))) {
+        flashAlert('That template is gone or archived.', 'error');
+        redirect();
+    }
+
+    mysqli_query($mysqli, "UPDATE documents SET document_template_id = $template_id, document_updated_at = document_updated_at WHERE document_id = $document_id");
+
+    logAudit("Document", "Edit", "$session_name " . ($template ? "set document " . escapeSql($row['document_name']) . " as made from template " . escapeSql($template['document_template_name']) : "set document " . escapeSql($row['document_name']) . " as not from a template"), $client_id, $document_id);
+
+    flashAlert("Document <strong>" . escapeHtml($row['document_name']) . "</strong> " . ($template ? "counts as made from <strong>" . escapeHtml($template['document_template_name']) . "</strong>" : "no longer counts as made from a template"));
+
+    redirect();
+
+}
+
 if (isset($_POST['rename_document'])) {
 
     validateCSRFToken();

@@ -661,8 +661,8 @@ function tagDelete($tag_id, &$error = '') {
 
 /*
  * Merge tags into one of the same kind: every record with one of them gets
- * $into_id instead, recurring invoice lines counting by them count by it, and
- * they are deleted. How many records changed hands.
+ * $into_id instead, recurring invoice lines counting by them count by it, the
+ * ticket and document templates going by them go by it, and they are deleted. How many records changed hands.
  */
 function tagMerge(array $from_ids, $into_id) {
     global $mysqli;
@@ -690,6 +690,10 @@ function tagMerge(array $from_ids, $into_id) {
     $moved = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(DISTINCT {$config['link_record']}) FROM {$config['link_table']} WHERE {$config['link_tag']} IN ($from_list)"))[0]);
     mysqli_query($mysqli, "INSERT IGNORE INTO {$config['link_table']} ({$config['link_record']}, {$config['link_tag']})
         SELECT DISTINCT {$config['link_record']}, $into_id FROM {$config['link_table']} WHERE {$config['link_tag']} IN ($from_list)");
+    // Templates that go by these tags - a ticket template's tags, the clients a document template is required of - go by the one they are merged into
+    foreach (['ticket_template_tags' => 'ticket_template_id', 'document_template_required_tags' => 'document_template_id'] as $table => $column) {
+        mysqli_query($mysqli, "INSERT IGNORE INTO $table ($column, tag_id) SELECT DISTINCT $column, $into_id FROM $table WHERE tag_id IN ($from_list)");
+    }
     foreach (tagSeatLineItems($from_ids) as $item_id => $filter) {
         $filter['tag'] = $into_id;
         mysqli_query($mysqli, "UPDATE recurring_invoice_items SET item_seat_filter = '" . escapeSql(json_encode($filter)) . "' WHERE item_id = " . intval($item_id));

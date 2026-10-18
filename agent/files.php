@@ -12,6 +12,11 @@
  * Documents can be tagged; filtering by a tag shows the documents with it -
  * from every folder at the top level, like a search.
  *
+ * Documents due a review (their template says how often) are marked, and the
+ * Review due tab lists them from every folder. The document templates the
+ * client should have a document from, and has none, are listed across the
+ * top, each a click from making one.
+ *
  * Open to anyone with access to the client (contracts and the like live here),
  * changes need support write access, like the handlers behind them.
  */
@@ -35,9 +40,9 @@ if (!isset($folder_tree[$folder_id])) {
 $folder_path = folderPath($folder_tree, $folder_id);
 $folder_name = $folder_id ? escapeHtml($folder_tree[$folder_id]['folder_name']) : 'Top level';
 
-// '' everything, 'file' uploads only, 'document' created documents only
+// '' everything, 'file' uploads only, 'document' created documents only, 'due' documents due a review
 $type_filter = $_GET['type'] ?? '';
-if (!in_array($type_filter, ['file', 'document'], true)) {
+if (!in_array($type_filter, ['file', 'document', 'due'], true)) {
     $type_filter = '';
 }
 
@@ -55,7 +60,7 @@ $search_everywhere = $search !== '' && $folder_id === 0;
 // Tags - documents with any of them, and no uploads, which have none. At the
 // top level that is in every folder, like a search
 $tag_filter_ids = tagFilterIds();
-$look_everywhere = $search_everywhere || ($tag_filter_ids && $folder_id === 0);
+$look_everywhere = $search_everywhere || ($tag_filter_ids && $folder_id === 0) || $type_filter === 'due';
 
 /** This page's URL with some parameters changed - the rest (folder, type, view, search, archived) ride along. */
 function filesUrl($changes = []) {
@@ -80,11 +85,16 @@ foreach ([['files', 'file'], ['documents', 'document']] as [$table, $prefix]) {
     }
 }
 
+// ---- Documents due a review, and the required templates the client has no document from ----
+$due_documents = $archived ? [] : documentsReviewDue("documents.document_client_id = $client_id");
+$missing_templates = $archived ? [] : documentTemplatesMissingFor($client_id);
+
 // ---- What is on show: files and documents, merged and sorted here ----
 $search_sql = escapeSql($search);
-$file_where = "file_client_id = $client_id AND file_$archive_query" . ($look_everywhere ? '' : " AND file_folder_id = $folder_id") . ($tag_filter_ids ? ' AND 0' : '');
+$file_where = "file_client_id = $client_id AND file_$archive_query" . ($look_everywhere ? '' : " AND file_folder_id = $folder_id") . ($tag_filter_ids || $type_filter === 'due' ? ' AND 0' : '');
 $document_where = "document_client_id = $client_id AND document_$archive_query" . ($look_everywhere ? '' : " AND document_folder_id = $folder_id")
-    . ' ' . tagFilterSql('document', $tag_filter_ids, 'documents.document_id');
+    . ' ' . tagFilterSql('document', $tag_filter_ids, 'documents.document_id')
+    . ($type_filter === 'due' ? ' AND documents.document_id IN (' . ($due_documents ? implode(',', array_keys($due_documents)) : '0') . ')' : '');
 if ($search !== '') {
     $file_where .= " AND (file_name LIKE '%$search_sql%' OR file_ext LIKE '%$search_sql%' OR file_description LIKE '%$search_sql%')";
     $document_where .= " AND (MATCH(document_content_raw) AGAINST ('$search_sql') OR document_name LIKE '%$search_sql%' OR document_description LIKE '%$search_sql%'
@@ -337,20 +347,41 @@ $preview = []; // the grid's previewer payload
         </div>
     </div>
 
-    <!-- Documents, uploads or both -->
+    <!-- Documents, uploads or both - or the documents due a review, from every folder -->
     <div class="card-header py-2 itflow-asset-tabs">
         <nav class="nav nav-pills flex-nowrap overflow-auto">
             <a class="nav-link text-nowrap <?= $type_filter === '' ? 'active' : '' ?>" href="<?= escapeHtml(filesUrl(['type' => ''])) ?>">
-                All <span class="badge rounded-pill ms-1"><?= $type_counts['file'] + $type_counts['document'] ?></span>
+                All<?php if ($type_filter !== 'due') { ?> <span class="badge rounded-pill ms-1"><?= $type_counts['file'] + $type_counts['document'] ?></span><?php } ?>
             </a>
             <a class="nav-link text-nowrap <?= $type_filter === 'document' ? 'active' : '' ?>" href="<?= escapeHtml(filesUrl(['type' => 'document'])) ?>">
-                <i class="fas fa-fw fa-file-alt me-1"></i>Documents <span class="badge rounded-pill ms-1"><?= $type_counts['document'] ?></span>
+                <i class="fas fa-fw fa-file-alt me-1"></i>Documents<?php if ($type_filter !== 'due') { ?> <span class="badge rounded-pill ms-1"><?= $type_counts['document'] ?></span><?php } ?>
             </a>
             <a class="nav-link text-nowrap <?= $type_filter === 'file' ? 'active' : '' ?>" href="<?= escapeHtml(filesUrl(['type' => 'file'])) ?>">
-                <i class="fas fa-fw fa-paperclip me-1"></i>Uploads <span class="badge rounded-pill ms-1"><?= $type_counts['file'] ?></span>
+                <i class="fas fa-fw fa-paperclip me-1"></i>Uploads<?php if ($type_filter !== 'due') { ?> <span class="badge rounded-pill ms-1"><?= $type_counts['file'] ?></span><?php } ?>
             </a>
+            <?php if ($due_documents || $type_filter === 'due') { ?>
+                <a class="nav-link text-nowrap <?= $type_filter === 'due' ? 'active' : '' ?>" href="<?= escapeHtml(filesUrl(['type' => 'due'])) ?>" title="Documents their template says are due a review - from every folder">
+                    <i class="fas fa-fw fa-calendar-check me-1"></i>Review due <span class="badge rounded-pill ms-1 <?= $due_documents ? 'text-bg-warning' : '' ?>"><?= count($due_documents) ?></span>
+                </a>
+            <?php } ?>
         </nav>
     </div>
+
+    <?php if ($missing_templates) { ?>
+        <!-- The document templates this client should have a document from, and hasn't -->
+        <div class="card-header py-2 bg-warning-subtle d-flex flex-wrap align-items-center gap-2 itflow-files-missing">
+            <span class="small text-warning-emphasis fw-semibold"><i class="fas fa-fw fa-clipboard-check me-1"></i><?= count($missing_templates) === 1 ? 'A document it should have' : 'Documents it should have' ?>:</span>
+            <?php foreach ($missing_templates as $missing_id => $missing_name) { ?>
+                <?php if ($can_edit) { ?>
+                    <button type="button" class="btn btn-sm btn-light border py-0 ajax-modal" data-modal-size="lg" data-modal-url="modals/document/document_add_from_template.php?client_id=<?= $client_id ?>&document_template_id=<?= $missing_id ?>" title="Make it from the template" data-missing-template-id="<?= $missing_id ?>">
+                        <i class="fas fa-plus me-1 text-secondary"></i><?= escapeHtml($missing_name) ?>
+                    </button>
+                <?php } else { ?>
+                    <span class="badge rounded-pill text-bg-light border fw-normal" data-missing-template-id="<?= $missing_id ?>"><?= escapeHtml($missing_name) ?></span>
+                <?php } ?>
+            <?php } ?>
+        </div>
+    <?php } ?>
 
     <div class="card-header py-3">
         <form autocomplete="off">
@@ -492,10 +523,13 @@ $preview = []; // the grid's previewer payload
                     'archived_title' => 'Nothing archived ' . ($folder_id ? 'in ' . $folder_name : 'here'),
                     'title' => $folder_id ? $folder_name . ' is empty' : 'No files or documents yet',
                     'text' => $can_edit ? 'Drop files here to upload them, or start a document.' : '',
-                    'view' => $type_filter && !$folder_id ? [
+                    'view' => $type_filter === 'due' ? [
+                        'title' => 'Nothing due a review',
+                        'text' => 'Every document is within the review its template asks for.',
+                    ] : ($type_filter && !$folder_id ? [
                         'title' => $type_filter === 'document' ? 'No documents yet' : 'No uploads yet',
                         'text' => $can_edit ? ($type_filter === 'document' ? 'Write one here - a procedure, a how-to, notes on the site.' : 'Drop files here to upload them.') : '',
-                    ] : null,
+                    ] : null),
                     'actions' => $can_edit ? [
                         ['label' => 'Upload files', 'modal' => $upload_url, 'icon' => 'fa-cloud-upload-alt'],
                         ['label' => 'New document', 'modal' => "modals/document/document_add.php?client_id=$client_id&folder_id=$folder_id", 'size' => 'xl', 'icon' => 'fa-file-alt'],
@@ -578,6 +612,9 @@ $preview = []; // the grid's previewer payload
                                                     <a class="fw-semibold small d-block text-truncate text-body ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $id ?>" title="<?= $name ?>"><?= $name ?></a>
                                                 <?php } ?>
                                                 <div class="small text-body-secondary text-truncate"><?= escapeHtml($meta) ?> &middot; <?= timeAgo($item['updated']) ?></div>
+                                                <?php if ($item['kind'] === 'document' && isset($due_documents[$id])) { ?>
+                                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal mt-1"><i class="fas fa-calendar-check me-1"></i>Review due</span>
+                                                <?php } ?>
                                                 <?php if ($item['kind'] === 'document' && !empty($documents_tags[$id])) { ?>
                                                     <div class="mt-1"><?= tagPills('document', $id, $documents_tags[$id], "files.php?client_id=$client_id&", false) ?></div>
                                                 <?php } ?>
@@ -641,6 +678,9 @@ $preview = []; // the grid's previewer payload
                                                             <a class="fw-semibold text-body stretched-link text-break" href="document.php?client_id=<?= $client_id ?>&document_id=<?= $id ?>"><?= $name ?></a>
                                                             <?php if (!empty($row['document_client_visible'])) { ?>
                                                                 <span class="badge rounded-pill bg-info-subtle text-info-emphasis fw-normal" title="Technical contacts can read this in the client portal">Portal</span>
+                                                            <?php } ?>
+                                                            <?php if (isset($due_documents[$id])) { ?>
+                                                                <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal" title="Last edited or reviewed <?= escapeHtml(date('M j, Y', strtotime($due_documents[$id]['reviewed_at']))) ?> - <?= escapeHtml($due_documents[$id]['document_template_name']) ?> is reviewed <?= lcfirst(DOCUMENT_TEMPLATE_REVIEW_MONTHS[intval($due_documents[$id]['document_template_review_months'])] ?? '') ?>"><i class="fas fa-calendar-check me-1"></i>Review due</span>
                                                             <?php } ?>
                                                         <?php } else { ?>
                                                             <a class="fw-semibold text-body stretched-link text-break ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $id ?>"><?= $name ?></a>

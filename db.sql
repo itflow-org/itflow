@@ -1294,6 +1294,23 @@ CREATE TABLE `document_template_fill_ins` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `document_template_required_tags`
+--
+
+DROP TABLE IF EXISTS `document_template_required_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `document_template_required_tags` (
+  `document_template_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`document_template_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `document_template_required_tags_ibfk_1` FOREIGN KEY (`document_template_id`) REFERENCES `document_templates` (`document_template_id`) ON DELETE CASCADE,
+  CONSTRAINT `document_template_required_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `document_templates`
 --
 
@@ -1305,6 +1322,8 @@ CREATE TABLE `document_templates` (
   `document_template_name` varchar(200) NOT NULL,
   `document_template_description` text DEFAULT NULL,
   `document_template_content` longtext NOT NULL,
+  `document_template_required` tinyint(1) NOT NULL DEFAULT 0,
+  `document_template_review_months` int(11) NOT NULL DEFAULT 0,
   `document_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `document_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `document_template_archived_at` datetime DEFAULT NULL,
@@ -1352,9 +1371,11 @@ CREATE TABLE `documents` (
   `document_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `document_archived_at` datetime DEFAULT NULL,
   `document_accessed_at` datetime DEFAULT NULL,
+  `document_reviewed_at` datetime DEFAULT NULL,
   `document_folder_id` int(11) NOT NULL DEFAULT 0,
   `document_created_by` int(11) NOT NULL DEFAULT 0,
   `document_updated_by` int(11) NOT NULL DEFAULT 0,
+  `document_reviewed_by` int(11) NOT NULL DEFAULT 0,
   `document_client_id` int(11) NOT NULL DEFAULT 0,
   `document_template_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`document_id`),

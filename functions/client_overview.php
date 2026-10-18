@@ -132,6 +132,20 @@ function clientOverviewAttention($client_id, $access, $renewals) {
             'detail' => 'Next ' . SERVICE_REVIEW_SOON_DAYS . ' days or overdue',
             'url' => "/agent/services.php?client_id=$client_id&show=review",
         ];
+        // Document templates it should have a document from - the strip across the top of its Files
+        $items[] = [
+            'count' => count(documentTemplatesMissingFor($client_id)),
+            'label' => 'Documents missing', 'icon' => 'file-medical', 'tone' => 'warning',
+            'detail' => 'Ones every client like it should have',
+            'url' => "/agent/files.php?client_id=$client_id",
+        ];
+        // The same rule as files.php?type=due
+        $items[] = [
+            'count' => count(documentsReviewDue("documents.document_client_id = $client_id")),
+            'label' => 'Document reviews due', 'icon' => 'calendar-check', 'tone' => 'warning',
+            'detail' => 'As their templates ask',
+            'url' => "/agent/files.php?client_id=$client_id&type=due",
+        ];
     }
 
     if ($access['credentials']) {

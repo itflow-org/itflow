@@ -6,12 +6,14 @@
  * template asks for - the site and contact its placeholders come from, and its
  * fill-ins - is drawn under it (agent/js/document_template_make.js). It goes in
  * the client's Files, at the top level, and opens (add_document_from_template,
- * agent/post/document.php).
+ * agent/post/document.php). &client_id= picks the client - from the
+ * template's list of clients missing one.
  */
 
 require_once '../../includes/modal_header.php';
 
 $template = documentTemplateRow($_GET['id'] ?? 0);
+$picked_client_id = intval($_GET['client_id'] ?? 0);
 
 ob_start();
 
@@ -41,7 +43,7 @@ if (!$template || $template['document_template_archived_at']) { ?>
                     <?php
                     $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_clients)) { ?>
-                        <option value="<?= intval($row['client_id']) ?>"><?= escapeHtml($row['client_name']) ?></option>
+                        <option value="<?= intval($row['client_id']) ?>" <?= intval($row['client_id']) === $picked_client_id ? 'selected' : '' ?>><?= escapeHtml($row['client_name']) ?></option>
                     <?php } ?>
                 </select>
             </div>

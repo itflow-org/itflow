@@ -2,8 +2,10 @@
 
 /*
  * Document templates (Admin > Document Templates) - making, changing,
- * copying, archiving and deleting them, with their images, and setting up
- * what they ask for when a document is made (their fill-ins). The work is in
+ * copying, archiving and deleting them, with their images, setting up what
+ * they ask for when a document is made (their fill-ins), who should have a
+ * document from one and how often those are reviewed, and making documents
+ * from one for several clients at once. The work is in
  * functions/document_template.php; a document is made from one by
  * add_document_from_template (agent/post/document.php).
  */
@@ -220,5 +222,71 @@ if (isset($_POST['reorder_document_template_fill_ins'])) {
 
     echo json_encode(['ok' => true]);
     exit;
+
+}
+
+if (isset($_POST['save_document_template_required'])) {
+
+    // Who should have a document from it, and how often those documents are reviewed
+    validateCSRFToken();
+
+    $row = documentTemplateForRequest($_POST['document_template_id'] ?? 0);
+    $document_template_id = intval($row['document_template_id']);
+    $required = intval($_POST['required'] ?? 0);
+    $tag_ids = array_map('intval', (array) ($_POST['tags'] ?? []));
+    if ($required === DOCUMENT_TEMPLATE_REQUIRED_TAGGED && !array_filter($tag_ids)) {
+        flashAlert('Pick the client tags - or Every client.', 'error');
+        redirect();
+    }
+    documentTemplateSetRequired($document_template_id, $required, $required === DOCUMENT_TEMPLATE_REQUIRED_TAGGED ? $tag_ids : [], $_POST['review_months'] ?? 0);
+
+    $saved = documentTemplateRow($document_template_id);
+    $scope = documentTemplateScopeText($saved['document_template_required'], documentTemplateRequiredTags([$document_template_id])[$document_template_id]);
+    $months = intval($saved['document_template_review_months']);
+    $said = ($scope !== '' ? "required of " . lcfirst($scope) : 'not required of anyone') . ($months ? ", reviewed " . lcfirst(DOCUMENT_TEMPLATE_REVIEW_MONTHS[$months]) : ', with no reviews');
+
+    logAudit("Document Template", "Edit", "$session_name set document template " . escapeSql($row['document_template_name']) . " " . escapeSql($said), 0, $document_template_id);
+
+    flashAlert("<strong>" . escapeHtml($row['document_template_name']) . "</strong> is " . escapeHtml($said));
+
+    redirect();
+
+}
+
+if (isset($_POST['make_documents_from_template'])) {
+
+    // One for each client picked, filled in from each - the fill-ins answered once for all
+    validateCSRFToken();
+
+    $row = documentTemplateForRequest($_POST['document_template_id'] ?? 0);
+    $document_template_id = intval($row['document_template_id']);
+    if ($row['document_template_archived_at']) {
+        flashAlert('That template is archived - restore it to make documents from it.', 'error');
+        redirect();
+    }
+    $client_ids = array_values(array_filter(array_map('intval', (array) ($_POST['client_ids'] ?? []))));
+    if (!$client_ids) {
+        flashAlert('Pick the clients to make one for.', 'error');
+        redirect();
+    }
+    $answers = ticketFillInAnswers(documentTemplateFillInsFor($document_template_id), $_POST['fill_ins'] ?? [], $fill_in_error);
+    if ($answers === null) {
+        flashAlert($fill_in_error, 'error');
+        redirect();
+    }
+
+    $result = documentTemplateMakeForClients($document_template_id, $client_ids, $answers, !empty($_POST['skip_existing']));
+
+    foreach ($result['made'] as $client_id => $document_id) {
+        $document_name = (string) getFieldById('documents', $document_id, 'document_name');
+        logAudit("Document", "Create", "$session_name created document " . escapeSql($document_name) . " from template " . escapeSql($row['document_template_name']), $client_id, $document_id);
+    }
+
+    $made = count($result['made']);
+    $skipped = count($result['skipped']);
+    flashAlert(($made ? "Made $made document" . ($made === 1 ? '' : 's') : 'Made no documents') . " from <strong>" . escapeHtml($row['document_template_name']) . "</strong>"
+        . ($skipped ? " - skipped " . ($skipped === 1 ? escapeHtml(reset($result['skipped'])) . ", which already has one" : "$skipped clients that already have one") : ''), $made ? 'success' : 'warning');
+
+    redirect("document_template.php?document_template_id=$document_template_id");
 
 }

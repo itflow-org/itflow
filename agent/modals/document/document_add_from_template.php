@@ -26,6 +26,11 @@ while ($row = mysqli_fetch_assoc($sql)) {
 }
 $usage = documentTemplateUsage(array_keys($templates));
 $picked = intval($_GET['document_template_id'] ?? 0);
+// The ones this client should have a document from, and hasn't - marked, and first
+$missing = documentTemplatesMissingFor($client_id);
+uksort($templates, function ($a, $b) use ($missing, $templates) {
+    return [!isset($missing[$a]), strtolower($templates[$a]['document_template_name'])] <=> [!isset($missing[$b]), strtolower($templates[$b]['document_template_name'])];
+});
 
 ob_start();
 
@@ -58,8 +63,8 @@ ob_start();
                         <option value="">- Pick a template -</option>
                         <?php foreach ($templates as $template_id => $template) {
                             $used = $usage[$template_id]['count'] ?? 0;
-                            $about = trim(implode(' · ', array_filter([trim((string) $template['document_template_description']), $used ? 'used ' . $used . ' time' . ($used === 1 ? '' : 's') : '']))); ?>
-                            <option value="<?= $template_id ?>"<?= $template_id === $picked ? ' selected' : '' ?><?= selectOptionData(['icon' => 'fas fa-file-alt', 'description' => $about]) ?>><?= escapeHtml($template['document_template_name']) ?></option>
+                            $about = trim(implode(' · ', array_filter([isset($missing[$template_id]) ? 'this client should have one' : '', trim((string) $template['document_template_description']), $used ? 'used ' . $used . ' time' . ($used === 1 ? '' : 's') : '']))); ?>
+                            <option value="<?= $template_id ?>"<?= $template_id === $picked ? ' selected' : '' ?><?= selectOptionData(['icon' => isset($missing[$template_id]) ? 'fas fa-clipboard-check' : 'fas fa-file-alt', 'description' => $about]) ?>><?= escapeHtml($template['document_template_name']) ?></option>
                         <?php } ?>
                     </select>
                 </div>

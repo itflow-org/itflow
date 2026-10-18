@@ -17,6 +17,14 @@
  * a list or yes or no, required or with help (document_template_fill_ins,
  * from database 3.2.6 on). One left unanswered stays in the document.
  *
+ * A template can say who should have a document from it - every client, or
+ * the ones with a client tag - and how often the documents made from it are
+ * reviewed (database 3.2.7). Its page shows which clients are missing one and
+ * which documents are due a review; a client's Files and overview say the
+ * same for that client. A document is reviewed when it is edited or marked as
+ * reviewed (documents.document_reviewed_at), and can be linked to the template
+ * it came from after the fact, so one written by hand counts too.
+ *
  * Shared by admin/document_templates.php, admin/document_template.php,
  * admin/modals/document_template/*, admin/post/document_template.php and the
  * New document from a template window and its handler on the agent side
@@ -36,7 +44,7 @@ function documentTemplateRow($document_template_id) {
         return null;
     }
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_template_id, document_template_name, document_template_description, document_template_content,
-            document_template_created_at, document_template_updated_at, document_template_archived_at, document_template_created_by, document_template_updated_by,
+            document_template_required, document_template_review_months, document_template_created_at, document_template_updated_at, document_template_archived_at, document_template_created_by, document_template_updated_by,
             creator.user_name AS created_by_name, updater.user_name AS updated_by_name
         FROM document_templates
         LEFT JOIN users creator ON creator.user_id = document_template_created_by AND document_template_created_by > 0
@@ -124,7 +132,11 @@ function documentTemplateCopyImages($document_template_id, $to_dir, $to_web, $ht
     return str_replace("/uploads/document_templates/$document_template_id/", $to_web, (string) $html);
 }
 
-/* A new template starting from this one - "Copy of", with copies of its images and its fill-ins. Its id, or 0. */
+/*
+ * A new template starting from this one - "Copy of", with copies of its images
+ * and its fill-ins, and how often its documents are reviewed. A copy isn't
+ * required of anyone until it is set up to be (its tags come along for that). Its id, or 0.
+ */
 function documentTemplateCopy($document_template_id) {
     global $mysqli, $session_user_id;
     $row = documentTemplateRow($document_template_id);
@@ -133,8 +145,11 @@ function documentTemplateCopy($document_template_id) {
     }
     $user_id = intval($session_user_id ?? 0);
     mysqli_query($mysqli, "INSERT INTO document_templates SET document_template_name = '" . escapeSql(mb_substr('Copy of ' . $row['document_template_name'], 0, 200)) . "',
-        document_template_description = '" . escapeSql((string) $row['document_template_description']) . "', document_template_content = '', document_template_created_by = $user_id");
+        document_template_description = '" . escapeSql((string) $row['document_template_description']) . "', document_template_content = '',
+        document_template_review_months = " . intval($row['document_template_review_months']) . ", document_template_created_by = $user_id");
     $new_id = intval(mysqli_insert_id($mysqli));
+    mysqli_query($mysqli, "INSERT INTO document_template_required_tags (document_template_id, tag_id)
+        SELECT $new_id, tag_id FROM document_template_required_tags WHERE document_template_id = " . intval($row['document_template_id']));
     $content = documentTemplateCopyImages($row['document_template_id'], documentTemplateDir($new_id), "/uploads/document_templates/$new_id/", $row['document_template_content']);
     mysqli_query($mysqli, "UPDATE document_templates SET document_template_content = '" . mysqli_real_escape_string($mysqli, $content) . "', document_template_updated_at = NULL WHERE document_template_id = $new_id");
     // And what it asks for
@@ -149,7 +164,7 @@ function documentTemplateDelete($document_template_id) {
     global $mysqli;
     $document_template_id = intval($document_template_id);
     mysqli_query($mysqli, "DELETE FROM document_templates WHERE document_template_id = $document_template_id");
-    mysqli_query($mysqli, "UPDATE documents SET document_template_id = 0 WHERE document_template_id = $document_template_id");
+    mysqli_query($mysqli, "UPDATE documents SET document_template_id = 0, document_updated_at = document_updated_at WHERE document_template_id = $document_template_id");
     removeDirectory(documentTemplateDir($document_template_id));
 }
 
@@ -603,4 +618,241 @@ function documentTemplateFill($html, $client_id, array $values) {
         }, $html);
     }
     return ticketPlaceholderFill($html, $values, true);
+}
+
+/* ---------------------------------------------------------------- who should have one, and reviews */
+
+/** Who should have a document from a template (document_template_required). */
+const DOCUMENT_TEMPLATE_REQUIRED_NONE = 0;
+const DOCUMENT_TEMPLATE_REQUIRED_EVERY = 1;
+const DOCUMENT_TEMPLATE_REQUIRED_TAGGED = 2;
+
+/** How often the documents made from a template are reviewed - months => what it says; 0 never. */
+const DOCUMENT_TEMPLATE_REVIEW_MONTHS = [0 => 'Never', 3 => 'Every 3 months', 6 => 'Every 6 months', 12 => 'Every year', 24 => 'Every 2 years'];
+
+/** The client tags templates are required by - [template id => [tag id => tag name]], in name order. */
+function documentTemplateRequiredTags(array $document_template_ids) {
+    global $mysqli;
+    $ids = array_values(array_filter(array_map('intval', $document_template_ids)));
+    $tags = array_fill_keys($ids, []);
+    if (!$ids) {
+        return $tags;
+    }
+    $sql = mysqli_query($mysqli, "SELECT document_template_id, tags.tag_id, tag_name FROM document_template_required_tags
+        JOIN tags ON tags.tag_id = document_template_required_tags.tag_id
+        WHERE document_template_id IN (" . implode(',', $ids) . ") ORDER BY tag_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $tags[intval($row['document_template_id'])][intval($row['tag_id'])] = (string) $row['tag_name'];
+    }
+    return $tags;
+}
+
+/*
+ * Set who should have a document from a template - $required one of the
+ * DOCUMENT_TEMPLATE_REQUIRED_ values, $tag_ids the client tags for TAGGED -
+ * and how often its documents are reviewed. Not a change to what it says, so
+ * when it last changed stays as it was.
+ */
+function documentTemplateSetRequired($document_template_id, $required, array $tag_ids, $review_months) {
+    global $mysqli;
+    $document_template_id = intval($document_template_id);
+    $required = in_array(intval($required), [DOCUMENT_TEMPLATE_REQUIRED_EVERY, DOCUMENT_TEMPLATE_REQUIRED_TAGGED], true) ? intval($required) : DOCUMENT_TEMPLATE_REQUIRED_NONE;
+    $review_months = isset(DOCUMENT_TEMPLATE_REVIEW_MONTHS[intval($review_months)]) ? intval($review_months) : 0;
+    mysqli_query($mysqli, "UPDATE document_templates SET document_template_required = $required, document_template_review_months = $review_months,
+        document_template_updated_at = document_template_updated_at WHERE document_template_id = $document_template_id");
+    // Client tags only - any others are left out
+    $tag_ids = array_values(array_unique(array_filter(array_map('intval', $tag_ids))));
+    mysqli_query($mysqli, "DELETE FROM document_template_required_tags WHERE document_template_id = $document_template_id");
+    if ($tag_ids) {
+        mysqli_query($mysqli, "INSERT INTO document_template_required_tags (document_template_id, tag_id)
+            SELECT $document_template_id, tag_id FROM tags WHERE tag_type = 1 AND tag_id IN (" . implode(',', $tag_ids) . ")");
+    }
+}
+
+/*
+ * The clients a template is required of, as SQL on clients: current clients,
+ * not leads - every one, or the ones with any of its tags (none when it has
+ * no tags left, or isn't required).
+ */
+function documentTemplateScopeSql($required, array $tag_ids) {
+    $sql = "clients.client_archived_at IS NULL AND clients.client_lead = 0";
+    if (intval($required) === DOCUMENT_TEMPLATE_REQUIRED_EVERY) {
+        return $sql;
+    }
+    $tag_ids = array_values(array_filter(array_map('intval', $tag_ids)));
+    if (intval($required) !== DOCUMENT_TEMPLATE_REQUIRED_TAGGED || !$tag_ids) {
+        return '0';
+    }
+    return "$sql AND EXISTS (SELECT 1 FROM client_tags WHERE client_tags.client_id = clients.client_id AND client_tags.tag_id IN (" . implode(',', $tag_ids) . "))";
+}
+
+/** Who a template is required of, in words - '' when it isn't. */
+function documentTemplateScopeText($required, array $tags) {
+    if (intval($required) === DOCUMENT_TEMPLATE_REQUIRED_EVERY) {
+        return 'Every client';
+    }
+    if (intval($required) !== DOCUMENT_TEMPLATE_REQUIRED_TAGGED) {
+        return '';
+    }
+    return $tags ? 'Clients tagged ' . implode(' or ', $tags) : 'Clients with a tag - none picked';
+}
+
+/*
+ * How far a required template reaches - ['clients' => how many it is
+ * required of, 'covered' => how many of them have a current document from
+ * it, 'missing' => [client id => name] the rest, by name].
+ */
+function documentTemplateCoverage($document_template_id, $required, array $tag_ids) {
+    global $mysqli;
+    $document_template_id = intval($document_template_id);
+    $coverage = ['clients' => 0, 'covered' => 0, 'missing' => []];
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, EXISTS (SELECT 1 FROM documents WHERE document_client_id = clients.client_id
+            AND document_template_id = $document_template_id AND document_archived_at IS NULL) AS covered
+        FROM clients WHERE " . documentTemplateScopeSql($required, $tag_ids) . " ORDER BY client_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $coverage['clients']++;
+        if (intval($row['covered'])) {
+            $coverage['covered']++;
+        } else {
+            $coverage['missing'][intval($row['client_id'])] = (string) $row['client_name'];
+        }
+    }
+    return $coverage;
+}
+
+/*
+ * The required templates a client has no current document from - [template
+ * id => name]. None for an archived client or a lead.
+ */
+function documentTemplatesMissingFor($client_id) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    $missing = [];
+    $sql = mysqli_query($mysqli, "SELECT document_template_id, document_template_name FROM document_templates
+        WHERE document_template_archived_at IS NULL AND document_template_required IN (" . DOCUMENT_TEMPLATE_REQUIRED_EVERY . ", " . DOCUMENT_TEMPLATE_REQUIRED_TAGGED . ")
+        AND EXISTS (SELECT 1 FROM clients WHERE clients.client_id = $client_id AND clients.client_archived_at IS NULL AND clients.client_lead = 0)
+        AND (document_template_required = " . DOCUMENT_TEMPLATE_REQUIRED_EVERY . " OR EXISTS (SELECT 1 FROM document_template_required_tags rt
+            JOIN client_tags ON client_tags.tag_id = rt.tag_id AND client_tags.client_id = $client_id
+            WHERE rt.document_template_id = document_templates.document_template_id))
+        AND NOT EXISTS (SELECT 1 FROM documents WHERE document_client_id = $client_id AND documents.document_template_id = document_templates.document_template_id AND document_archived_at IS NULL)
+        ORDER BY document_template_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $missing[intval($row['document_template_id'])] = (string) $row['document_template_name'];
+    }
+    return $missing;
+}
+
+/* When a document was last looked at - made, edited or marked as reviewed - as SQL on documents. */
+function documentReviewedAtSql() {
+    return "GREATEST(documents.document_created_at, COALESCE(documents.document_updated_at, documents.document_created_at), COALESCE(documents.document_reviewed_at, documents.document_created_at))";
+}
+
+/*
+ * A document due a review, as SQL on documents joined to document_templates:
+ * its template - a current one - says how often, and it has been longer than
+ * that since it was last looked at.
+ */
+function documentReviewDueSql() {
+    return "document_templates.document_template_archived_at IS NULL AND document_templates.document_template_review_months > 0
+        AND " . documentReviewedAtSql() . " < NOW() - INTERVAL document_templates.document_template_review_months MONTH";
+}
+
+/*
+ * The current documents due a review, the longest overdue first - for one
+ * template, or one client ($where: SQL on documents, document_templates and
+ * clients). Each with document_id, document_name, document_client_id,
+ * client_name, document_template_id, document_template_name, reviewed_at and
+ * document_template_review_months.
+ */
+function documentsReviewDue($where) {
+    global $mysqli;
+    $due = [];
+    $sql = mysqli_query($mysqli, "SELECT documents.document_id, document_name, document_client_id, client_name, documents.document_template_id, document_template_name,
+            " . documentReviewedAtSql() . " AS reviewed_at, document_template_review_months
+        FROM documents
+        JOIN document_templates ON document_templates.document_template_id = documents.document_template_id
+        JOIN clients ON clients.client_id = documents.document_client_id AND clients.client_archived_at IS NULL
+        WHERE documents.document_archived_at IS NULL AND " . documentReviewDueSql() . " AND ($where)
+        ORDER BY reviewed_at ASC, documents.document_id ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $due[intval($row['document_id'])] = $row;
+    }
+    return $due;
+}
+
+/** How many current documents from each template are due a review - [template id => count]; ones with none aren't in it. */
+function documentTemplateDueCounts(array $document_template_ids) {
+    global $mysqli;
+    $ids = array_values(array_filter(array_map('intval', $document_template_ids)));
+    $counts = [];
+    if (!$ids) {
+        return $counts;
+    }
+    $sql = mysqli_query($mysqli, "SELECT documents.document_template_id, COUNT(*) FROM documents
+        JOIN document_templates ON document_templates.document_template_id = documents.document_template_id
+        JOIN clients ON clients.client_id = documents.document_client_id AND clients.client_archived_at IS NULL
+        WHERE documents.document_template_id IN (" . implode(',', $ids) . ") AND documents.document_archived_at IS NULL AND " . documentReviewDueSql() . "
+        GROUP BY documents.document_template_id");
+    while ($row = mysqli_fetch_row($sql)) {
+        $counts[intval($row[0])] = intval($row[1]);
+    }
+    return $counts;
+}
+
+/*
+ * Where a document stands for review, from its row (document_created_at,
+ * document_updated_at, document_reviewed_at, and its template's
+ * document_template_review_months and document_template_archived_at) -
+ * ['last' => when it was last looked at, 'reviewed' => whether that was a
+ * review rather than an edit, 'next' => when it is due, 'due' => bool], or
+ * null when its template doesn't ask for reviews.
+ */
+function documentReviewState(array $row) {
+    $months = intval($row['document_template_review_months'] ?? 0);
+    if ($months <= 0 || !empty($row['document_template_archived_at'])) {
+        return null;
+    }
+    $times = array_filter([$row['document_created_at'] ?? null, $row['document_updated_at'] ?? null, $row['document_reviewed_at'] ?? null]);
+    $last = max(array_map('strtotime', $times));
+    $next = strtotime("+$months months", $last);
+    return [
+        'last' => date('Y-m-d H:i:s', $last),
+        'reviewed' => !empty($row['document_reviewed_at']) && strtotime($row['document_reviewed_at']) === $last,
+        'next' => date('Y-m-d H:i:s', $next),
+        'due' => $next < time(),
+    ];
+}
+
+/*
+ * Documents from a template for several clients at once, each filled in from
+ * its own client (its primary site and contact), the answers to the fill-ins
+ * the same for all ($answers, from ticketFillInAnswers()), at the top level of
+ * its Files. With $skip_existing, a client with a current document from it is
+ * passed over. ['made' => [client id => document id], 'skipped' => [client id
+ * => name]] - only current clients.
+ */
+function documentTemplateMakeForClients($document_template_id, array $client_ids, array $answers, $skip_existing = true) {
+    global $mysqli;
+    $document_template_id = intval($document_template_id);
+    $result = ['made' => [], 'skipped' => []];
+    $client_ids = array_values(array_unique(array_filter(array_map('intval', $client_ids))));
+    if (!$client_ids) {
+        return $result;
+    }
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, EXISTS (SELECT 1 FROM documents WHERE document_client_id = client_id
+            AND document_template_id = $document_template_id AND document_archived_at IS NULL) AS has_one
+        FROM clients WHERE client_archived_at IS NULL AND client_id IN (" . implode(',', $client_ids) . ") ORDER BY client_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $client_id = intval($row['client_id']);
+        if ($skip_existing && intval($row['has_one'])) {
+            $result['skipped'][$client_id] = (string) $row['client_name'];
+            continue;
+        }
+        $document_id = documentTemplateMakeDocument($document_template_id, $client_id, '', '', 0, 0, 0, $answers);
+        if (!$document_id) {
+            break;
+        }
+        $result['made'][$client_id] = $document_id;
+    }
+    return $result;
 }
