@@ -11,21 +11,41 @@
  * replaced it. A rate nothing has used can be deleted.
  */
 
+// Default Column Sortby Filter
+$sort = "tax_name";
+$order = "ASC";
+
 require_once "includes/inc_all_admin.php";
 
-$show_archived = isset($_GET['archived']);
-$search_sql = $q !== '' ? "AND (tax_name LIKE '%$q%' OR tax_description LIKE '%$q%' OR tax_registration_number LIKE '%$q%')" : '';
-$sql = mysqli_query(
-    $mysqli,
-    "SELECT tax_id FROM taxes
-    WHERE tax_archived_at IS " . ($show_archived ? 'NOT NULL' : 'NULL') . " $search_sql
-    ORDER BY " . ($show_archived ? 'tax_archived_at DESC, ' : '') . "tax_name ASC, tax_percent ASC"
-);
+// ?archived=1 is how older links asked for the archived ones
+$show_archived = ($_GET['show'] ?? '') === 'archived' || !empty($_GET['archived']);
+
+// Only these sort - an unknown column would take the page down. Used on sorts by the invoices with a line at it
+$sortable_columns = [
+    'tax_name' => "tax_name $order, tax_percent ASC",
+    'tax_percent' => "tax_percent $order, tax_name ASC",
+    'invoice_count' => "invoice_count $order, tax_name ASC",
+];
+if (!isset($sortable_columns[$sort])) {
+    $sort = 'tax_name';
+}
+
+$search = "(tax_name LIKE '%$q%' OR tax_description LIKE '%$q%' OR tax_registration_number LIKE '%$q%')";
+
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS tax_id, COALESCE(invoices.invoice_count, 0) AS invoice_count
+    FROM taxes
+    LEFT JOIN (SELECT item_tax_id, COUNT(DISTINCT item_invoice_id) AS invoice_count FROM invoice_items WHERE item_tax_id > 0 GROUP BY item_tax_id) invoices ON invoices.item_tax_id = tax_id
+    WHERE $search AND tax_archived_at IS " . ($show_archived ? 'NOT NULL' : 'NULL') . "
+    ORDER BY {$sortable_columns[$sort]}, tax_id ASC
+    LIMIT $record_from, $record_to");
+
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+
 $rates = [];
 while ($row = mysqli_fetch_row($sql)) {
     $rates[] = taxRow($row[0]);
 }
-$archived_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM taxes WHERE tax_archived_at IS NOT NULL"))[0]);
+$counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(tax_archived_at IS NULL), 0), COALESCE(SUM(tax_archived_at IS NOT NULL), 0) FROM taxes WHERE $search"));
 $usage = taxUsageAll();
 $tax_settings = taxSettings();
 $active_taxes = billingTaxes();
@@ -43,6 +63,11 @@ $used_text = function (array $u) {
     return $parts;
 };
 
+$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
+    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
+        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
+};
+
 ?>
 
 <div class="row">
@@ -54,32 +79,34 @@ $used_text = function (array $u) {
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/tax/tax_add.php" data-modal-size="lg"><i class="fas fa-plus me-2"></i>New Tax</button>
                 </div>
             </div>
-            <div class="card-header py-2">
-                <form autocomplete="off" class="d-flex flex-wrap align-items-center gap-2">
-                    <?php if ($show_archived) { ?><input type="hidden" name="archived" value="1"><?php } ?>
-                    <div class="input-group input-group-sm w-auto me-auto">
-                        <input type="search" class="form-control" name="q" value="<?= escapeHtml(stripslashes($q)) ?>" placeholder="Search taxes">
-                        <button class="btn btn-primary" title="Search"><i class="fa fa-search"></i></button>
-                    </div>
-                    <div class="btn-group btn-group-sm">
-                        <a class="btn btn-outline-secondary<?= $show_archived ? '' : ' active' ?>" href="tax_rates.php">Current</a>
-                        <a class="btn btn-outline-secondary<?= $show_archived ? ' active' : '' ?>" href="tax_rates.php?archived=1">Archived <span class="badge text-bg-secondary ms-1"><?= $archived_count ?></span></a>
+            <div class="card-header py-3">
+                <form autocomplete="off">
+                    <?php if ($show_archived) { ?><input type="hidden" name="show" value="archived"><?php } ?>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-7">
+                            <div class="input-group">
+                                <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search taxes..." title="Name, description or registration number">
+                                <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
                     </div>
                 </form>
+                <nav class="nav nav-pills itflow-asset-tabs mt-2">
+                    <a class="nav-link <?= $show_archived ? '' : 'active' ?>" href="?<?= escapeHtml(http_build_query(array_filter(['q' => $_GET['q'] ?? '']))) ?>"><i class="fas fa-fw fa-balance-scale me-1"></i>Active <span class="badge rounded-pill ms-1"><?= intval($counts[0]) ?></span></a>
+                    <a class="nav-link <?= $show_archived ? 'active' : '' ?>" href="?<?= escapeHtml(http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => 'archived']))) ?>" title="Kept on what was billed with them, not offered for new lines"><i class="fas fa-fw fa-archive me-1"></i>Archived <span class="badge rounded-pill ms-1"><?= intval($counts[1]) ?></span></a>
+                </nav>
             </div>
 
-            <div class="table-responsive-sm">
-                <table class="table table-borderless table-hover mb-0 align-middle">
-                    <?php if ($rates) { ?>
-                        <thead class="text-dark">
-                        <tr>
-                            <th class="ps-3">Tax</th>
-                            <th>Rate</th>
-                            <th>Used on</th>
-                            <th class="text-center">Action</th>
-                        </tr>
-                        </thead>
-                    <?php } ?>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                    <tr>
+                        <th class="ps-3"><?= $sort_link('tax_name', 'Tax') ?></th>
+                        <th><?= $sort_link('tax_percent', 'Rate') ?></th>
+                        <th class="d-none d-sm-table-cell"><?= $sort_link('invoice_count', 'Used on') ?></th>
+                        <th></th>
+                    </tr>
+                    </thead>
                     <tbody>
                     <?php foreach ($rates as $rate) {
                         $tax_id = intval($rate['tax_id']);
@@ -89,45 +116,52 @@ $used_text = function (array $u) {
                         $unused = !$used && !$u['default'] && taxUnused($tax_id); ?>
                         <tr>
                             <td class="ps-3">
-                                <a class="ajax-modal fw-semibold" href="#" data-modal-url="modals/tax/tax_edit.php?id=<?= $tax_id ?>" data-modal-size="lg"><?= escapeHtml($rate['tax_name']) ?></a>
-                                <?php if ($u['default']) { ?>
-                                    <span class="badge rounded-pill text-bg-primary ms-1" title="New lines get this rate unless the client or product has its own">Default</span>
-                                <?php } ?>
-                                <?php if ($rate['tax_description']) { ?>
-                                    <div class="small text-secondary"><?= escapeHtml($rate['tax_description']) ?></div>
-                                <?php } ?>
-                                <?php if ($rate['tax_registration_number']) { ?>
-                                    <div class="small text-secondary" title="Registration number - printed on invoices"><i class="fas fa-fw fa-id-card me-1"></i><?= escapeHtml($rate['tax_registration_number']) ?></div>
-                                <?php } ?>
-                                <?php if ($rate['tax_archived_at']) { ?>
-                                    <div class="small text-secondary">
-                                        <i class="fas fa-fw fa-archive me-1"></i><?= $replaced_by ? 'Replaced by ' . escapeHtml(taxLabel($replaced_by)) . ' on ' : 'Archived ' ?><?= date('M j, Y', strtotime($rate['tax_archived_at'])) ?>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="itflow-asset-icon itflow-asset-tone-other d-none d-sm-inline-flex" aria-hidden="true"><i class="fas fa-fw fa-balance-scale"></i></span>
+                                    <div class="min-w-0">
+                                        <a class="ajax-modal fw-semibold text-body" href="#" data-modal-url="modals/tax/tax_edit.php?id=<?= $tax_id ?>" data-modal-size="lg"><?= escapeHtml($rate['tax_name']) ?></a>
+                                        <?php if ($u['default']) { ?>
+                                            <span class="badge rounded-pill text-bg-primary ms-1" title="New lines get this rate unless the client or product has its own">Default</span>
+                                        <?php } ?>
+                                        <?php if ($rate['tax_description']) { ?>
+                                            <div class="small text-body-secondary"><?= escapeHtml($rate['tax_description']) ?></div>
+                                        <?php } ?>
+                                        <?php if ($rate['tax_registration_number']) { ?>
+                                            <div class="small text-body-secondary" title="Registration number - printed on invoices"><i class="fas fa-fw fa-id-card me-1"></i><?= escapeHtml($rate['tax_registration_number']) ?></div>
+                                        <?php } ?>
+                                        <?php if ($rate['tax_archived_at']) { ?>
+                                            <div class="small text-body-secondary">
+                                                <i class="fas fa-fw fa-archive me-1"></i><?= $replaced_by ? 'Replaced by ' . escapeHtml(taxLabel($replaced_by)) . ' on ' : 'Archived ' ?><?= date('M j, Y', strtotime($rate['tax_archived_at'])) ?>
+                                            </div>
+                                        <?php } ?>
+                                        <!-- On a phone what uses it comes along under the name -->
+                                        <div class="d-sm-none small text-body-secondary mt-1"><?= $used ? escapeHtml(implode(', ', $used)) : 'Not used yet' ?></div>
                                     </div>
-                                <?php } ?>
+                                </div>
                             </td>
                             <td>
                                 <span class="fw-semibold"><?= taxPercentText($rate['tax_percent']) ?>%</span>
                                 <?php if ($rate['grouped']) { ?>
-                                    <div class="small text-secondary">
+                                    <div class="small text-body-secondary">
                                         <?php foreach ($rate['components'] as $i => $part) { ?>
                                             <?= $i ? '<span class="mx-1">+</span>' : '' ?><span class="text-nowrap"<?= $part['registration'] !== '' ? ' title="Registration number ' . escapeHtml($part['registration']) . '"' : '' ?>><?= escapeHtml($part['name']) ?> <?= taxPercentText($part['percent']) ?>%<?= $part['compound'] ? ' <em>on top</em>' : '' ?><?= $part['registration'] !== '' ? '<i class="fas fa-id-card ms-1"></i>' : '' ?></span>
                                         <?php } ?>
                                     </div>
                                 <?php } ?>
                             </td>
-                            <td class="small">
-                                <?= $used ? escapeHtml(implode(', ', $used)) : '<span class="text-secondary">Not used yet</span>' ?>
+                            <td class="d-none d-sm-table-cell small">
+                                <?= $used ? escapeHtml(implode(', ', $used)) : '<span class="text-body-secondary">Not used yet</span>' ?>
                             </td>
-                            <td>
-                                <div class="dropdown dropstart text-center">
-                                    <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
+                            <td class="text-end">
+                                <div class="dropdown dropstart">
+                                    <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/tax/tax_edit.php?id=<?= $tax_id ?>" data-modal-size="lg"><i class="fas fa-fw fa-edit me-2"></i>Edit</a>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/tax/tax_edit.php?id=<?= $tax_id ?>" data-modal-size="lg"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
                                         <?php if ($rate['tax_archived_at']) { ?>
-                                            <a class="dropdown-item" href="post.php?restore_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-redo me-2"></i>Restore</a>
+                                            <a class="dropdown-item" href="post.php?restore_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore</a>
                                         <?php } else { ?>
                                             <?php if (!$u['default']) { ?>
-                                                <a class="dropdown-item" href="post.php?default_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-star me-2"></i>Make default</a>
+                                                <a class="dropdown-item" href="post.php?default_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-star text-secondary me-2"></i>Make default</a>
                                             <?php } ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/tax/tax_archive.php?id=<?= $tax_id ?>"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
@@ -144,17 +178,18 @@ $used_text = function (array $u) {
                     </tbody>
                 </table>
             </div>
-            <?php if (!$rates) { ?>
-                <?= emptyStateHtml([
-                    'thing' => 'taxes',
-                    'title' => $show_archived ? 'No archived taxes' : 'No taxes yet',
-                    'text' => $show_archived ? '' : 'Sales tax, VAT or GST - one rate, or parts like a state\'s and a county\'s charged together.',
-                    'icon' => 'fa-balance-scale',
-                    'filtered' => $q !== '',
-                    'clear_url' => 'tax_rates.php' . ($show_archived ? '?archived=1' : ''),
-                    'actions' => $show_archived ? [] : [['label' => 'New Tax', 'modal' => 'modals/tax/tax_add.php', 'size' => 'lg']],
-                ]) ?>
-            <?php } ?>
+            <?php
+            $empty_state = [
+                'thing' => 'taxes',
+                'icon' => 'fa-balance-scale',
+                'filtered' => $q !== '',
+                'archived' => $show_archived,
+                'views' => ['show'],
+                'text' => 'Sales tax, VAT or GST - one rate, or parts like a state\'s and a county\'s charged together.',
+                'actions' => [['label' => 'New Tax', 'modal' => 'modals/tax/tax_add.php', 'size' => 'lg']],
+            ];
+            require_once "../includes/filter_footer.php";
+            ?>
         </div>
     </div>
 

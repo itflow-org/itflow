@@ -9,24 +9,7 @@
  * Shared by admin/api_keys.php, admin/modals/api/* and admin/post/api_keys.php.
  */
 
-/** The keys, by name - the row with its agent's name, picture, type, status, archived and role. */
-function apiKeyRows($search = '') {
-    global $mysqli;
-    $where = $search !== '' ? "WHERE api_key_name LIKE '%" . escapeSql($search) . "%' OR user_name LIKE '%" . escapeSql($search) . "%'" : '';
-    $rows = [];
-    $sql = mysqli_query($mysqli, "SELECT api_key_id, api_key_name, api_key_secret, api_key_created_at, api_key_expire, api_key_user_id, api_key_last_used_at,
-            user_name, user_avatar, user_type, user_status, user_archived_at, user_role_id
-        FROM api_keys
-        LEFT JOIN users ON user_id = api_key_user_id
-        $where
-        ORDER BY api_key_name ASC");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $rows[intval($row['api_key_id'])] = $row;
-    }
-    return $rows;
-}
-
-/* One key as apiKeyRows() gives it, or null. */
+/* One key - the row with its agent's name, picture, type, status, archived and role - or null. Admin > API Keys lists them the same way. */
 function apiKeyRow($api_key_id) {
     global $mysqli;
     $api_key_id = intval($api_key_id);

@@ -67,7 +67,7 @@ if (isset($_POST['edit_tag'])) {
 
     flashAlert("Tag <strong>" . escapeHtml($fields['name']) . "</strong> saved" . ($moved ? " - it's " . tagKindPhrase($fields['type']) . " now" : ''));
 
-    redirect($moved ? "tags.php?type=" . intval($fields['type']) . ($row['tag_archived_at'] ? '&archived=1' : '') : null);
+    redirect($moved ? "tags.php?type=" . intval($fields['type']) . ($row['tag_archived_at'] ? '&show=archived' : '') : null);
 
 }
 

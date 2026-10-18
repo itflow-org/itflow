@@ -14,7 +14,7 @@ $category_kind_word = function ($row) {
 
 // Admin > Categories on a kind, to go back to after making one
 $category_page = function ($kind, $archived = false) {
-    return 'categories.php?category=' . urlencode($kind) . ($archived ? '&archived=1' : '');
+    return 'categories.php?category=' . urlencode($kind) . ($archived ? '&show=archived' : '');
 };
 
 if (isset($_POST['add_category'])) {
@@ -221,12 +221,16 @@ if (isset($_POST['reorder_categories'])) {
         exit;
     }
 
-    // The current ones in the order dragged, the archived ones after them
+    // The ones dragged, a page of them, in the order dragged in their place among the current ones - offset is how many
+    // come before them, on the pages before - and the archived ones after them all
     $rows = categoryRows($config['kind']);
-    $ids = array_values(array_filter(array_map('intval', (array) ($_POST['category_ids'] ?? [])), function ($id) use ($rows) {
-        return isset($rows[$id]);
+    $current = array_keys(array_filter($rows, function ($row) {
+        return !$row['category_archived_at'];
     }));
-    if (categoryReorder($config['kind'], $ids)) {
+    $ids = array_values(array_intersect(array_unique(array_map('intval', (array) ($_POST['category_ids'] ?? []))), $current));
+    $new_order = array_values(array_diff($current, $ids));
+    array_splice($new_order, min(max(0, intval($_POST['offset'] ?? 0)), count($new_order)), 0, $ids);
+    if (categoryReorder($config['kind'], $new_order)) {
         logAudit("Category", "Edit", "$session_name reordered the " . $config['many']);
     }
 
