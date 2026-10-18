@@ -1,5 +1,5 @@
 /*
- * The canned response window (admin/modals/canned_response/canned_response_form.php):
+ * The canned response window (includes/canned_response_form.php):
  * a placeholder under the editor goes in where the cursor is. The window is an
  * ajax modal that runs this each time it opens, so the listener is bound once.
  */

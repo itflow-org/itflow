@@ -151,6 +151,10 @@ function reportCatalog() {
                     'title' => 'Ticket Templates', 'icon' => 'fa-cube', 'module' => 'module_support', 'feature' => ['ticketing'],
                     'description' => 'How often each template is used and how - by agents, from the client portal, on a schedule or by projects - with the time spent and how long its tickets take, and the ones not used.',
                 ],
+                'canned_responses' => [
+                    'title' => 'Canned Responses', 'icon' => 'fa-comment-dots', 'module' => 'module_support', 'feature' => ['ticketing'],
+                    'description' => 'How often each canned response goes into a reply, on how many tickets and by whom, which agents reach for them, and the ones not used.',
+                ],
             ],
         ],
         'clients' => [

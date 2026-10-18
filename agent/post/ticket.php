@@ -846,6 +846,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
     // The placeholders are filled in for each ticket, below
     $reply_raw = (string) ($_POST['bulk_reply_details'] ?? '');
     $canned_response_ids = (array) ($_POST['canned_response_ids'] ?? []);
+    $canned_response_file_ids = (array) ($_POST['canned_response_file_ids'] ?? []);
     $status_input = intval($_POST['bulk_status'] ?? 0);
     $time_worked = escapeSql(ticketTimeWorked($_POST['time'] ?? ''));
     $private_note = intval($_POST['bulk_private_reply'] ?? 0);
@@ -875,7 +876,10 @@ if (isset($_POST['bulk_ticket_reply'])) {
         $reply_text = cannedResponsePlaceholders($reply_raw, $ticket_id, stripslashes($session_name));
         $reply = mysqli_real_escape_string($mysqli, $reply_text);
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$reply', ticket_reply_time_worked = '$time_worked', ticket_reply_type = '$reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+        $bulk_reply_id = mysqli_insert_id($mysqli);
         cannedResponseRecordUses($canned_response_ids, $ticket_id, $session_user_id);
+        // The files of the canned responses that went into it, on each ticket and in its email
+        $bulk_attachments = filterEmailableAttachments(cannedResponseAttachFiles($canned_response_file_ids, $ticket_id, $bulk_reply_id, $session_user_id));
 
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $ticket_status, ticket_updated_at = NOW() WHERE ticket_id = $ticket_id");
         syncTicketSlaClock($ticket_id);
@@ -899,7 +903,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
         // Email the client and watchers about a public update
         if (!$private_note) {
-            ticketMailReply($ticket_id, $reply_text, stripslashes($session_name));
+            ticketMailReply($ticket_id, $reply_text, stripslashes($session_name), false, $bulk_attachments['send']);
         }
 
         // Tell the agent it is assigned to, and whoever opened it
@@ -1101,8 +1105,9 @@ if (isset($_POST['add_ticket_reply'])) {
         $ticket_reply_id = mysqli_insert_id($mysqli);
 
         // Store any attached files against this reply before the email is built, so
-        // a public reply can carry them
-        $emailable_attachments = filterEmailableAttachments(saveTicketAttachments($ticket_id, $ticket_reply_id));
+        // a public reply can carry them - the canned responses' that went into it too
+        $emailable_attachments = filterEmailableAttachments(array_merge(saveTicketAttachments($ticket_id, $ticket_reply_id),
+            cannedResponseAttachFiles((array) ($_POST['canned_response_file_ids'] ?? []), $ticket_id, $ticket_reply_id, $session_user_id)));
 
         // The canned responses picked into it, for how often each is used
         cannedResponseRecordUses((array) ($_POST['canned_response_ids'] ?? []), $ticket_id, $session_user_id);
@@ -1132,7 +1137,8 @@ if (isset($_POST['add_ticket_reply'])) {
     } else {
         // A file uploaded without any accompanying text has no reply to hang off,
         // so it attaches to the ticket itself
-        $emailable_attachments = filterEmailableAttachments(saveTicketAttachments($ticket_id, null));
+        $emailable_attachments = filterEmailableAttachments(array_merge(saveTicketAttachments($ticket_id, null),
+            cannedResponseAttachFiles((array) ($_POST['canned_response_file_ids'] ?? []), $ticket_id, null, $session_user_id)));
         flashAlert("Ticket updated");
     }
 

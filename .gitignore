@@ -29,6 +29,8 @@ uploads/tickets/*
 !uploads/tickets/index.php
 uploads/ticket_templates/*
 !uploads/ticket_templates/index.php
+uploads/canned_responses/*
+!uploads/canned_responses/index.php
 .idea/*
 plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/HTML/*
 !plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/HTML/.gitkeep

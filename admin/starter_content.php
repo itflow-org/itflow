@@ -43,8 +43,8 @@ foreach ($starter_content_status as $pack_status) {
             Adding never overwrites or deletes anything. Anything already present under the same name is
             skipped, so a pack can be added again later to pick up entries you removed by mistake, and
             adding twice never produces duplicates. Everything added is editable and deletable
-            afterwards like any other record. Ticket templates added from an earlier version can be
-            brought up to this one with Update - that one does replace what they hold.
+            afterwards like any other record. Ticket templates and canned responses added from an earlier
+            version can be brought up to this one with Update - that one does replace what they hold.
         </p>
 
         <div class="table-responsive">
@@ -93,14 +93,14 @@ foreach ($starter_content_status as $pack_status) {
                                     <i class="fas fa-fw fa-plus me-2"></i>Add
                                 </button>
                             </form>
-                            <?php } elseif ($pack !== 'ticket_templates' || !$pack_status['present']) { ?>
+                            <?php } elseif (empty($pack_details['update']) || !$pack_status['present']) { ?>
                                 <span class="text-muted">Nothing to add</span>
                             <?php } ?>
-                            <?php if ($pack === 'ticket_templates' && $pack_status['present']) { ?>
+                            <?php if (!empty($pack_details['update']) && $pack_status['present']) { ?>
                             <!-- The ones already here brought up to this version - asked for, never done by Add -->
-                            <form action="post.php" method="POST" autocomplete="off" onsubmit="return confirm('Bring the <?= intval($pack_status['present']) ?> starter ticket templates you have up to date? Their subject, details, setup, tasks, fill-ins and request form are replaced with this version - changes you made to them are lost. Their tickets, who they go to and whether their request form is on stay as they are.');">
+                            <form action="post.php" method="POST" autocomplete="off" onsubmit="return confirm(<?= escapeHtml(json_encode(sprintf($pack_details['update']['confirm'], intval($pack_status['present'])))) ?>);">
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                                <button type="submit" name="update_starter_ticket_templates" value="1" class="btn btn-outline-secondary btn-sm text-nowrap">
+                                <button type="submit" name="<?= escapeHtml($pack_details['update']['button']) ?>" value="1" class="btn btn-outline-secondary btn-sm text-nowrap">
                                     <i class="fas fa-fw fa-sync-alt me-2"></i>Update the <?= intval($pack_status['present']) ?> you have
                                 </button>
                             </form>
@@ -115,7 +115,8 @@ foreach ($starter_content_status as $pack_status) {
 
         <p class="text-muted mb-0">
             Ticket templates bring their task lists, what they ask for and their request forms with them -
-            the request forms come in turned off, ready to turn on in each template's Client portal tab. Products are filed under income
+            the request forms come in turned off, ready to turn on in each template's Client portal tab. Canned responses
+            come in shared, offered to every agent on the ticket categories they are for. Products are filed under income
             categories and priced as starting points only - hardware and resold licensing come in at
             zero because they are quoted per deal.
         </p>

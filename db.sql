@@ -551,6 +551,26 @@ CREATE TABLE `canned_response_categories` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `canned_response_files`
+--
+
+DROP TABLE IF EXISTS `canned_response_files`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `canned_response_files` (
+  `canned_response_file_id` int(11) NOT NULL AUTO_INCREMENT,
+  `canned_response_file_canned_response_id` int(11) NOT NULL,
+  `canned_response_file_name` varchar(255) NOT NULL,
+  `canned_response_file_reference_name` varchar(255) NOT NULL,
+  `canned_response_file_size` int(11) NOT NULL DEFAULT 0,
+  `canned_response_file_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`canned_response_file_id`),
+  KEY `canned_response_file_canned_response_id` (`canned_response_file_canned_response_id`),
+  CONSTRAINT `canned_response_files_ibfk_1` FOREIGN KEY (`canned_response_file_canned_response_id`) REFERENCES `canned_responses` (`canned_response_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `canned_response_uses`
 --
 
@@ -584,10 +604,13 @@ CREATE TABLE `canned_responses` (
   `canned_response_reply_type` tinyint(1) DEFAULT NULL,
   `canned_response_ticket_status` int(11) DEFAULT NULL,
   `canned_response_minutes` int(11) NOT NULL DEFAULT 0,
+  `canned_response_user_id` int(11) NOT NULL DEFAULT 0,
+  `canned_response_created_by` int(11) NOT NULL DEFAULT 0,
   `canned_response_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `canned_response_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `canned_response_archived_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`canned_response_id`)
+  PRIMARY KEY (`canned_response_id`),
+  KEY `canned_response_user_id` (`canned_response_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

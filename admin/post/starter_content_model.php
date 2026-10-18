@@ -36,12 +36,25 @@ function starterContentPacks() {
             'label' => 'Ticket Templates',
             'icon' => 'fa-life-ring',
             'description' => 'Onboarding, offboarding, deployments, maintenance, incident response and client requests - each with its tasks, what it asks for and how it sets the ticket up, and a request form for the client portal on the ones clients raise.',
+            'update' => [
+                'button' => 'update_starter_ticket_templates',
+                'confirm' => 'Bring the %d starter ticket templates you have up to date? Their subject, details, setup, tasks, fill-ins and request form are replaced with this version - changes you made to them are lost. Their tickets, who they go to and whether their request form is on stay as they are.',
+            ],
         ],
         'project_templates' => [
             'label' => 'Project Templates',
             'icon' => 'fa-project-diagram',
             'description' => 'Common MSP projects, built out of the ticket templates above.',
             'requires' => 'ticket_templates',
+        ],
+        'canned_responses' => [
+            'label' => 'Canned Responses',
+            'icon' => 'fa-comment-dots',
+            'description' => 'Replies agents put into a ticket in one go - received, waiting on you, resolved, password reset done, phishing reported and more - filled in from the ticket, setting the reply up, and offered on the ticket categories they are for.',
+            'update' => [
+                'button' => 'update_starter_canned_responses',
+                'confirm' => 'Bring the %d starter canned responses you have up to date? What they say, where they are offered and what they set up are replaced with this version - changes you made to them are lost. How often they have been used stays.',
+            ],
         ],
         'vendor_templates' => [
             'label' => 'Vendor Templates',
@@ -142,6 +155,8 @@ function starterContentLoad($mysqli, $pack, $dry_run = false) {
             return starterLoadTicketTemplates($mysqli, $dry_run);
         case 'project_templates':
             return starterLoadProjectTemplates($mysqli, $dry_run);
+        case 'canned_responses':
+            return starterLoadCannedResponses($mysqli, $dry_run);
         case 'vendor_templates':
             return starterLoadVendorTemplates($mysqli, $dry_run);
         case 'document_templates':
@@ -184,6 +199,8 @@ function starterContentTotal($pack) {
             return count(starterContentTicketTemplates());
         case 'project_templates':
             return count(starterContentProjectTemplates());
+        case 'canned_responses':
+            return count(starterContentCannedResponses());
         case 'vendor_templates':
             return count(starterContentVendorTemplates());
         case 'document_templates':
@@ -279,6 +296,38 @@ function starterLoadTicketTemplates($mysqli, $dry_run = false) {
 function starterUpdateTicketTemplates() {
     $templates = ticketTemplatesImportRead(['format' => TICKET_TEMPLATE_FILE_FORMAT, 'version' => TICKET_TEMPLATE_FILE_VERSION, 'templates' => starterContentTicketTemplates()]);
     return ticketTemplatesImport($templates, 'replace', true);
+}
+
+// ------------------------------
+// starterLoadCannedResponses
+// Through the canned response import, as shared responses. One whose name a
+// shared one here already has is left alone.
+// ------------------------------
+function starterLoadCannedResponses($mysqli, $dry_run = false) {
+    $responses = cannedResponsesImportRead(['format' => CANNED_RESPONSE_FILE_FORMAT, 'version' => CANNED_RESPONSE_FILE_VERSION, 'responses' => starterContentCannedResponses()]);
+    if ($dry_run) {
+        $existing = [];
+        $sql = mysqli_query($mysqli, "SELECT canned_response_name FROM canned_responses WHERE canned_response_user_id = 0");
+        while ($row = mysqli_fetch_row($sql)) {
+            $existing[mb_strtolower($row[0])] = true;
+        }
+        return count(array_filter($responses, function ($response) use ($existing) {
+            return !isset($existing[mb_strtolower($response['name'])]);
+        }));
+    }
+    return cannedResponsesImport($responses, 'skip')['added'];
+}
+
+// ------------------------------
+// starterUpdateCannedResponses
+// The starter canned responses already here, brought up to this library's
+// version - what they say, where they are offered and what they set up
+// replaced. Their record of use, files and whether they are archived stay.
+// Returns the import's counts (cannedResponsesImport()).
+// ------------------------------
+function starterUpdateCannedResponses() {
+    $responses = cannedResponsesImportRead(['format' => CANNED_RESPONSE_FILE_FORMAT, 'version' => CANNED_RESPONSE_FILE_VERSION, 'responses' => starterContentCannedResponses()]);
+    return cannedResponsesImport($responses, 'replace', true);
 }
 
 // ------------------------------
@@ -1158,6 +1207,134 @@ function starterContentTicketTemplates() {
     ];
 
     return $ticket_templates;
+
+}
+
+// ------------------------------
+// starterContentCannedResponses
+// In the canned response file format (functions/canned_response_transfer.php),
+// loaded through the same import, as shared responses. What they say is HTML -
+// the window edits it through TinyMCE. [Contact], [First Name], [Ticket],
+// [Ticket Link] and the other placeholders are filled in from the ticket as a
+// response goes in; anything else in square brackets is left for the agent
+// to fill in before sending. Categories are this library's own, so they carry
+// their colour and icon and are made when the Categories pack has not been
+// added. Statuses are the built-in ones, by name.
+// ------------------------------
+function starterContentCannedResponses() {
+
+    // This library's ticket categories, by name
+    $category = function ($name) {
+        foreach (starterContentCategories() as $row) {
+            if ($row['type'] === 'Ticket' && $row['name'] === $name) {
+                return ['name' => $row['name'], 'color' => $row['color'], 'icon' => $row['icon'], 'description' => $row['description']];
+            }
+        }
+        return ['name' => $name, 'color' => '', 'icon' => '', 'description' => ''];
+    };
+    $response = function ($name, $body, array $categories = [], $reply_type = 'email', $status = null, $minutes = 0) use ($category) {
+        return ['name' => $name, 'body' => $body, 'categories' => array_map($category, $categories), 'reply_type' => $reply_type, 'status' => $status, 'minutes' => $minutes];
+    };
+    $signed = '<p>Thanks,<br>[Agent]</p>';
+
+    return [
+
+        // Every ticket
+        $response('Received - looking into it',
+            '<p>Hi [First Name],</p><p>Thanks for getting in touch. We have logged this as [Ticket] - [Subject], and I am looking into it now. I will update you as soon as I know more.</p><p>You can follow it here: [Ticket Link]</p>' . $signed,
+            [], 'email', 'Open', 5),
+        $response('Waiting on you',
+            '<p>Hi [First Name],</p><p>Just checking in on [Ticket] - [Subject]. Before we can go any further we need [What we need from them].</p><p>Reply to this email when you have it, and we will pick it straight back up.</p>' . $signed,
+            [], 'email', 'On Hold', 5),
+        $response('Following up - no reply yet',
+            '<p>Hi [First Name],</p><p>We have not heard back about [Ticket] - [Subject], so I wanted to follow up. Is this still a problem?</p><p>If we do not hear from you by [Date we close it], we will close the ticket - you can reopen it any time by replying to this email.</p>' . $signed,
+            [], 'email', 'On Hold', 5),
+        $response('Resolved - let us know if not',
+            '<p>Hi [First Name],</p><p>Good news - [Subject] should be sorted now. [What was done].</p><p>If anything is not right, just reply to this email and the ticket will reopen.</p>' . $signed,
+            [], 'email', 'Resolved', 5),
+        $response('Closing - no response',
+            '<p>Hi [First Name],</p><p>As we have not heard back, we are closing [Ticket] - [Subject]. If you still need help with it, reply to this email and it will reopen where we left off.</p>' . $signed,
+            [], 'email', 'Resolved', 0),
+        $response('Remote session - when suits you?',
+            '<p>Hi [First Name],</p><p>I would like to connect to your computer to take a look at this. When you are ready, go to [Remote support link] and read me the code it shows, or reply with a time that suits you and I will call.</p><p>You will be able to see everything I do, and you can end the session at any time.</p>' . $signed,
+            [], 'email', null, 5),
+        $response('Onsite visit booked',
+            '<p>Hi [First Name],</p><p>We have booked an engineer to come to [Site] on [Date of visit] at [Time of visit] for [Subject]. They will need [What they need on site].</p><p>If that time no longer works, reply to this email and we will rearrange.</p>' . $signed,
+            [], 'email', 'On Hold', 5),
+        $response('Escalated to the vendor',
+            '<p>Hi [First Name],</p><p>We have raised [Subject] with [Vendor], under their case number [Vendor case number]. We will chase them and update you as soon as they come back to us.</p>' . $signed,
+            [], 'email', 'On Hold', 10),
+        $response('Escalation - handing over',
+            '<p><strong>Escalating to [Escalate to].</strong></p><p>What is wrong: [What is wrong]</p><p>Tried so far: [What has been tried]</p><p>Next step: [Suggested next step]</p>',
+            [], 'internal', null, 5),
+        $response('Outside the agreement - billable',
+            '<p>Hi [First Name],</p><p>[Subject] falls outside what your agreement with us covers, so the time on it would be billed at our standard rate. We estimate it at [Estimate].</p><p>Reply to say you are happy for us to go ahead, and we will get started.</p>' . $signed,
+            [], 'email', 'On Hold', 0),
+
+        // Accounts and access
+        $response('Password reset done',
+            '<p>Hi [First Name],</p><p>I have reset the password for [Account]. The temporary password is coming to you separately - you will be asked to choose a new one when you sign in.</p><p>Make it at least 14 characters, and not one you use anywhere else.</p>' . $signed,
+            ['Account and Access'], 'email', 'Resolved', 10),
+        $response('Multi-factor sign-in set up again',
+            '<p>Hi [First Name],</p><p>I have cleared the sign-in methods on [Account], so you can set up multi-factor sign-in again on your new phone. The next time you sign in, you will be walked through it - have your phone with the Microsoft Authenticator app installed to hand.</p>' . $signed,
+            ['Account and Access', 'Microsoft 365'], 'email', 'Resolved', 10),
+        $response('Account unlocked',
+            '<p>Hi [First Name],</p><p>[Account] was locked after too many wrong passwords, and I have unlocked it - you can sign in again now.</p><p>If it locks again without you mistyping, let us know straight away, as someone else may be trying to sign in as you.</p>' . $signed,
+            ['Account and Access'], 'email', 'Resolved', 5),
+        $response('Licence assigned',
+            '<p>Hi [First Name],</p><p>I have assigned a [Licence] licence to [Person]. It can take up to an hour for everything to appear - signing out and back in usually speeds it up.</p>' . $signed,
+            ['Microsoft 365'], 'email', 'Resolved', 10),
+
+        // Security
+        $response('Phishing report - it was phishing',
+            '<p>Hi [First Name],</p><p>Thank you for reporting this - it was a phishing email. We have removed it from everyone\'s mailbox and blocked the sender.</p><p>If you clicked a link in it or entered a password, tell us right away and we will secure your account. Reporting it was exactly the right thing to do.</p>' . $signed,
+            ['Phishing Report'], 'email', 'Resolved', 15),
+        $response('Phishing report - safe',
+            '<p>Hi [First Name],</p><p>Thank you for checking with us. We have looked at the email and it is genuine - it is safe to use.</p><p>Always ask if one looks off - it is much better to check than to click.</p>' . $signed,
+            ['Phishing Report'], 'email', 'Resolved', 10),
+        $response('Possible security incident - first steps',
+            '<p>Hi [First Name],</p><p>We are treating this as a possible security incident and are on it now. Until we tell you otherwise:</p><ul><li>Leave the computer switched on, but unplug its network cable or turn off its Wi-Fi.</li><li>Do not delete anything, or try to fix it yourself.</li><li>Change no passwords from that computer.</li></ul><p>I will call you on [Phone number] in the next few minutes.</p>' . $signed,
+            ['Security Incident'], 'email', 'Open', 10),
+
+        // Onboarding and offboarding
+        $response('New starter ready',
+            '<p>Hi [First Name],</p><p>Everything is ready for [New starter] to start on [Start date]: their account, email and the access they need. Their sign-in details are coming to you separately, to hand over on their first day.</p><p>They will be asked to set up multi-factor sign-in the first time they sign in, so they will need their phone.</p>' . $signed,
+            ['Onboarding'], 'email', 'Resolved', 15),
+        $response('Leaver done',
+            '<p>Hi [First Name],</p><p>[Leaver]\'s account is now disabled and they are signed out everywhere. Their mailbox has been shared with [Mailbox shared with], and their files are with [Files moved to].</p><p>Their [Equipment] still needs to come back to us - let us know when it is ready to collect.</p>' . $signed,
+            ['Offboarding'], 'email', 'Resolved', 15),
+
+        // Hardware, printing and backups
+        $response('Sent for warranty repair',
+            '<p>Hi [First Name],</p><p>[Asset] has gone back to the manufacturer under warranty, under their return number [RMA number]. They usually take [How long] - I will let you know as soon as it is back.</p>' . $signed,
+            ['Hardware Failure'], 'email', 'On Hold', 15),
+        $response('Printer working again',
+            '<p>Hi [First Name],</p><p>The printer is working again - [What was done]. Print a test page when you get a moment and let us know if anything still looks wrong.</p>' . $signed,
+            ['Printer'], 'email', 'Resolved', 15),
+        $response('File restored',
+            '<p>Hi [First Name],</p><p>I have restored [File or folder] as it was on [Restore point], to [Where it is now]. Have a look and check it is the version you need.</p>' . $signed,
+            ['Backup and Recovery'], 'email', 'Resolved', 15),
+        $response('Monitoring alert - cleared, nothing to do',
+            '<p>The alert cleared on its own after [How long]. Checked [Asset]: [What was checked]. No action needed.</p>',
+            ['Monitoring Alert'], 'internal', 'Resolved', 5),
+
+        // Network and phones
+        $response('Internet down - with the provider',
+            '<p>Hi [First Name],</p><p>The internet connection at [Site] is down because of a fault on [Provider]\'s side - they have it logged as [Provider reference] and expect it back by [When they expect it back].</p><p>We are keeping an eye on it and will let you know when it is back up.</p>' . $signed,
+            ['Network', 'Firewall'], 'email', 'On Hold', 10),
+        $response('Voicemail PIN reset',
+            '<p>Hi [First Name],</p><p>I have reset the voicemail PIN for extension [Extension] to [Temporary PIN]. You will be asked to choose a new one the next time you check your voicemail.</p>' . $signed,
+            ['Phone and VoIP'], 'email', 'Resolved', 5),
+
+        // Purchasing and billing
+        $response('Quote sent',
+            '<p>Hi [First Name],</p><p>I have sent over the quote for [What it is for]. Accept it from the link in that email and we will place the order - [How long it usually takes] from then.</p>' . $signed,
+            ['Procurement'], 'email', 'On Hold', 10),
+        $response('Invoice question passed on',
+            '<p>Hi [First Name],</p><p>Thank you for your question about invoice [Invoice number]. I have passed it to our accounts team, who will come back to you by [When].</p>' . $signed,
+            ['Billing'], 'email', 'On Hold', 0),
+
+    ];
 
 }
 

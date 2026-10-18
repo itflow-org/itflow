@@ -8,8 +8,12 @@
  *   get_canned_response), puts it in the reply where the cursor is, notes it on
  *   the form (canned_response_ids[], for how often each is used) and sets up
  *   what it sets up - who sees the reply, the status after it and time worked
- *   added - saying under the picker what it did. Typing / in the reply box
+ *   added - saying under the picker what it did. The files that go with it
+ *   show under the picker, each with an x to leave it off; the ones left go
+ *   with the reply (canned_response_file_ids[]). Typing / in the reply box
  *   picks through window.itflowCannedPick (js/app.js).
+ * - Save your reply as a canned response, at the foot of the list, closes the list as its
+ *   window opens (agent/js/canned_response_save.js).
  * - Sending a reply a response went into, with [something] in square brackets
  *   still in it, asks first - Fill them in selects the first one in the reply.
  *   In Update & Reply the placeholders are filled in for each ticket as it is
@@ -48,7 +52,8 @@
         });
         const none = picker.querySelector('[data-canned-none]');
         if (none) {
-            none.hidden = shown > 0;
+            // With none on offer at all the list says so already
+            none.hidden = shown > 0 || itemsOf(picker).length === 0;
         }
     }
 
@@ -83,6 +88,47 @@
             select.value = value;
             select.dispatchEvent(new Event('change', { bubbles: true }));
         }
+    }
+
+    // The files that go with a response, under the picker - each once
+    function addFiles(picker, files) {
+        const box = picker.querySelector('[data-canned-files]');
+        let added = 0;
+        if (!box || !files || !files.length) {
+            return added;
+        }
+        files.forEach(function (file) {
+            if (box.querySelector('[data-canned-file-id="' + file.id + '"]')) {
+                return;
+            }
+            const chip = document.createElement('span');
+            chip.className = 'badge rounded-pill text-bg-light border fw-normal d-inline-flex align-items-center gap-1 itflow-canned-file';
+            chip.dataset.cannedFileId = file.id;
+            chip.title = 'Copied onto the ticket, and sent with the reply when it is emailed';
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-fw fa-paperclip text-secondary';
+            const name = document.createElement('span');
+            name.className = 'text-truncate';
+            name.textContent = file.name;
+            const size = document.createElement('span');
+            size.className = 'text-body-secondary';
+            size.textContent = file.size;
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'btn-close';
+            remove.title = 'Leave it off';
+            remove.setAttribute('aria-label', 'Leave ' + file.name + ' off');
+            remove.setAttribute('data-canned-file-remove', '');
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'canned_response_file_ids[]';
+            input.value = file.id;
+            chip.append(icon, name, size, remove, input);
+            box.appendChild(chip);
+            added++;
+        });
+        box.hidden = !box.querySelector('[data-canned-file-id]');
+        return added;
     }
 
     function pad(n) {
@@ -187,6 +233,10 @@
                 }
                 insert(picker.dataset.editor, data.body);
                 const done = apply(form, data);
+                const files = addFiles(picker, data.files);
+                if (files) {
+                    done.push('put ' + (files === 1 ? 'a file' : files + ' files') + ' with it');
+                }
                 say(picker, data.name + ' went in' + (done.length ? ', and ' + done.join(', ') : '') + '.');
             })
             .catch(function () {
@@ -243,12 +293,27 @@
         }
     });
 
-    // A click on one picks it
+    // A click on one picks it; a file's x leaves it off; Save your reply as a canned response closes the list as its window opens
     document.addEventListener('click', function (e) {
         const item = e.target.closest('[data-canned-picker] [data-canned-id]');
         if (item) {
             e.preventDefault();
             pick(item.closest('[data-canned-picker]'), item.dataset.cannedId);
+            return;
+        }
+        const remove = e.target.closest('[data-canned-picker] [data-canned-file-remove]');
+        if (remove) {
+            const box = remove.closest('[data-canned-files]');
+            remove.closest('[data-canned-file-id]').remove();
+            box.hidden = !box.querySelector('[data-canned-file-id]');
+            return;
+        }
+        const save = e.target.closest('[data-canned-picker] [data-canned-save-open]');
+        if (save && window.bootstrap) {
+            const toggle = save.closest('[data-canned-picker]').querySelector('[data-canned-toggle]');
+            if (toggle) {
+                bootstrap.Dropdown.getOrCreateInstance(toggle).hide();
+            }
         }
     });
 

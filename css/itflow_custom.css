@@ -3157,6 +3157,21 @@ a:focus-visible .itflow-category-name {
 .itflow-canned-item.active .text-body-secondary {
     color: inherit !important;
 }
+/* A file that goes with a picked response - its x leaves it off */
+.itflow-canned-file {
+    max-width: 100%;
+    font-size: .8125rem;
+}
+.itflow-canned-file .text-truncate {
+    max-width: 16rem;
+}
+.itflow-canned-file .btn-close {
+    width: .5rem;
+    height: .5rem;
+    padding: .25rem;
+    background-size: .5rem;
+    margin-left: .125rem;
+}
 .tox .itflow-canned-ac-name {
     font-weight: 600;
 }

@@ -30,6 +30,10 @@
                     'user_preferences.php' => ['fa-sliders-h', 'Preferences'],
                     'user_activity.php' => ['fa-history', 'Activity'],
                 ];
+                // Your own canned responses - for those who reply on tickets
+                if (intval(lookupUserPermission('module_support')) >= 2) {
+                    $account_pages = array_slice($account_pages, 0, 3, true) + ['user_canned_responses.php' => ['fa-comment-dots', 'Canned Responses']] + $account_pages;
+                }
                 foreach ($account_pages as $page => [$icon, $label]) { ?>
                     <li class="nav-item">
                         <a href="/agent/user/<?= $page ?>" class="nav-link <?= basename($_SERVER["PHP_SELF"]) === $page ? 'active' : '' ?>">

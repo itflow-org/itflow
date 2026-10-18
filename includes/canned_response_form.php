@@ -1,14 +1,17 @@
 <?php
 /*
- * A canned response's fields - shared by canned_response_add.php and
- * canned_response_edit.php, which set $response (cannedResponseRow(), or []
- * for a new one) and $response_category_ids before including this. Posts
- * what cannedResponseFields() reads (functions/canned_response.php).
+ * A canned response's fields - shared by the New and Edit windows of Admin >
+ * Canned Responses (admin/modals/canned_response/) and of an agent's own in
+ * Your account (agent/user/modals/), which set $response (cannedResponseRow(),
+ * or [] for a new one) and $response_category_ids before including this, in
+ * a form posted as multipart/form-data. Posts what cannedResponseFields()
+ * reads (functions/canned_response.php), files[] and remove_file_ids[].
  *
- * Two tabs: Response (its name, where it is offered and what it says, with
+ * Three tabs: Response (its name, where it is offered and what it says, with
  * the placeholders under the editor putting themselves in where the cursor
- * is - js/canned_response_form.js) and Sets up (what picking it sets up on
- * the reply: who sees it, the status after it and time worked added).
+ * is - js/canned_response_form.js), Sets up (what picking it sets up on the
+ * reply: who sees it, the status after it and time worked added) and Files
+ * (what goes out with it).
  *
  * Should not be accessed directly.
  */
@@ -20,6 +23,7 @@ $picked = array_map('intval', $response_category_ids);
 $reply_type = isset($r['canned_response_reply_type']) && $r['canned_response_reply_type'] !== null ? (string) intval($r['canned_response_reply_type']) : '';
 $ticket_status = isset($r['canned_response_ticket_status']) && $r['canned_response_ticket_status'] !== null ? intval($r['canned_response_ticket_status']) : 0;
 $minutes = intval($r['canned_response_minutes'] ?? 0);
+$files = !empty($r['canned_response_id']) ? cannedResponseFiles($r['canned_response_id']) : [];
 
 ?>
 
@@ -29,6 +33,9 @@ $minutes = intval($r['canned_response_minutes'] ?? 0);
     </li>
     <li class="nav-item">
         <a class="nav-link" data-bs-toggle="pill" href="#cannedResponseFormSetsUp"><i class="fas fa-fw fa-sliders-h me-2 d-none d-sm-inline"></i>Sets up</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="pill" href="#cannedResponseFormFiles"><i class="fas fa-fw fa-paperclip me-2 d-none d-sm-inline"></i>Files<?= $files ? ' <span class="badge rounded-pill text-bg-secondary ms-1">' . count($files) . '</span>' : '' ?></a>
     </li>
 </ul>
 
@@ -111,6 +118,36 @@ $minutes = intval($r['canned_response_minutes'] ?? 0);
         </div>
         <small class="text-secondary">Added to the reply's time worked.</small>
     </div>
+</div>
+
+<div class="tab-pane fade" id="cannedResponseFormFiles">
+    <p class="small text-secondary">Copied onto the ticket with the reply it goes into, and sent with its email - a how-to, a form to fill in. Up to <?= CANNED_RESPONSE_MAX_FILES ?>; the agent can leave any of them off.</p>
+
+    <?php if ($files) { ?>
+        <ul class="list-group mb-3">
+            <?php foreach ($files as $file) {
+                $file_id = intval($file['canned_response_file_id']); ?>
+                <li class="list-group-item d-flex align-items-center gap-2">
+                    <i class="far fa-fw fa-<?= getFileIcon(pathinfo($file['canned_response_file_name'], PATHINFO_EXTENSION)) ?> text-secondary"></i>
+                    <a class="text-truncate" href="/agent/canned_response_file.php?file_id=<?= $file_id ?>" target="_blank"><?= escapeHtml($file['canned_response_file_name']) ?></a>
+                    <span class="small text-secondary text-nowrap"><?= cannedResponseFileSizeText($file['canned_response_file_size']) ?></span>
+                    <div class="form-check ms-auto mb-0">
+                        <input class="form-check-input" type="checkbox" name="remove_file_ids[]" value="<?= $file_id ?>" id="cannedResponseRemoveFile<?= $file_id ?>">
+                        <label class="form-check-label small" for="cannedResponseRemoveFile<?= $file_id ?>">Remove</label>
+                    </div>
+                </li>
+            <?php } ?>
+        </ul>
+    <?php } ?>
+
+    <label class="form-label" for="cannedResponseFiles">Add files</label>
+    <div class="input-group">
+        <span class="input-group-text"><i class="fa fa-fw fa-paperclip"></i></span>
+        <input type="file" class="form-control" id="cannedResponseFiles" name="files[]" multiple accept="<?= escapeHtml(implode(', ', array_map(function ($extension) {
+            return ".$extension";
+        }, TICKET_ATTACHMENT_EXTENSIONS))) ?>">
+    </div>
+    <small class="text-secondary">The kinds a ticket takes - PDFs, documents, spreadsheets, images, zips.</small>
 </div>
 
 </div>

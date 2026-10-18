@@ -1028,8 +1028,9 @@ if (isset($_GET['global_search'])) {
 if (isset($_GET['get_canned_response'])) {
     enforceUserPermission('module_support');
 
+    // A current one this agent may use - shared, or their own
     $canned_row = cannedResponseRow($_GET['get_canned_response']);
-    if ($canned_row && $canned_row['canned_response_archived_at']) {
+    if ($canned_row && ($canned_row['canned_response_archived_at'] || !cannedResponseUsable($canned_row, $session_user_id))) {
         $canned_row = null;
     }
 
@@ -1061,11 +1062,42 @@ if (isset($_GET['get_canned_response'])) {
             'status_name' => $actions['status_name'],
             'minutes' => $actions['minutes'],
             'minutes_text' => $actions['minutes'] ? cannedResponseMinutesText($actions['minutes']) : '',
+            // The files that go with it - copied onto the ticket when the reply is sent
+            'files' => array_map(function ($file) {
+                return ['id' => intval($file['canned_response_file_id']), 'name' => $file['canned_response_file_name'], 'size' => cannedResponseFileSizeText($file['canned_response_file_size'])];
+            }, cannedResponseFiles($canned_row['canned_response_id'])),
         ];
     }
 
     echo json_encode($response);
 
+}
+
+/*
+ * A reply being written on a ticket, for saving as a canned response (Save
+ * your reply as a canned response - agent/js/canned_response_save.js): made safe, with this
+ * ticket's details in it swapped for placeholders (cannedResponseUnfill()).
+ * POST html and ticket_id; answers html and the placeholders put in. Nothing
+ * is kept.
+ */
+if (isset($_GET['canned_response_unfill'])) {
+    header('Content-Type: application/json');
+
+    if (intval(lookupUserPermission('module_support')) < 2 || !hash_equals($_SESSION['csrf_token'] ?? '', (string) ($_POST['csrf_token'] ?? ''))) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'html' => '', 'placeholders' => []]);
+        exit;
+    }
+
+    $unfill_html = documentHtmlPurify((string) ($_POST['html'] ?? ''));
+    $unfill_ticket = ticketRow(intval($_POST['ticket_id'] ?? 0));
+    if ($unfill_ticket && intval($unfill_ticket['ticket_client_id']) && !hasClientAccess($unfill_ticket['ticket_client_id'])) {
+        $unfill_ticket = null;
+    }
+    [$unfilled, $placeholders] = $unfill_ticket ? cannedResponseUnfill($unfill_html, $unfill_ticket['ticket_id'], stripslashes($session_name)) : [$unfill_html, []];
+
+    echo json_encode(['ok' => true, 'html' => $unfilled, 'original' => $unfill_html, 'placeholders' => $placeholders]);
+    exit;
 }
 
 /*

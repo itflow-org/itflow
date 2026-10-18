@@ -66,6 +66,26 @@ if (isset($_POST['update_starter_ticket_templates'])) {
 
 }
 
+if (isset($_POST['update_starter_canned_responses'])) {
+
+    // The starter canned responses already here, brought up to this version
+    validateCSRFToken();
+
+    require_once 'starter_content_model.php';
+
+    $counts = starterUpdateCannedResponses();
+
+    if ($counts['replaced']) {
+        logAudit("Starter Content", "Edit", "$session_name brought {$counts['replaced']} starter canned responses up to date");
+        flashAlert("Brought <strong>{$counts['replaced']}</strong> starter canned responses up to date");
+    } else {
+        flashAlert("None of the starter canned responses are here to update - add them instead", 'info');
+    }
+
+    redirect();
+
+}
+
 if (isset($_POST['load_demo_data'])) {
 
     validateCSRFToken();

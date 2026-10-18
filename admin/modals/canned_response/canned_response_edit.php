@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Edit a canned response - the fields are canned_response_form.php.
+ * Edit a canned response, shared or an agent's own - the fields are includes/canned_response_form.php.
  */
 
 require_once '../../includes/modal_header.php';
@@ -20,12 +20,16 @@ if (!$response) { ?>
     <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-comment-dots me-2"></i>Canned response: <strong><?= escapeHtml($response['canned_response_name']) ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-<form action="post.php" method="post" autocomplete="off">
+<form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="canned_response_id" value="<?= $canned_response_id ?>">
 
     <div class="modal-body">
-        <?php require __DIR__ . '/canned_response_form.php'; ?>
+        <?php if (intval($response['canned_response_user_id'])) {
+            $owner_name = getFieldById('users', intval($response['canned_response_user_id']), 'user_name'); ?>
+            <div class="small text-body-secondary mb-3"><i class="fas fa-fw fa-user me-1"></i><?= $owner_name !== null && $owner_name !== '' ? escapeHtml($owner_name) . "'s own" : "A removed agent's own" ?> - offered to them alone. Share it with everyone from its menu in the list.</div>
+        <?php } ?>
+        <?php require __DIR__ . '/../../../includes/canned_response_form.php'; ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="edit_canned_response" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>

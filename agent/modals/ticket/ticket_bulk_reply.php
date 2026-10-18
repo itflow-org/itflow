@@ -16,7 +16,7 @@ if ($ticket_ids) {
         $bulk_category_ids[] = intval($row[0]);
     }
 }
-$canned_picker_groups = cannedResponsePickerGroups($bulk_category_ids);
+$canned_picker_groups = cannedResponsePickerGroups($bulk_category_ids, $session_user_id);
 $canned_picker_id = 'cannedPickerBulk';
 $canned_picker_editor = 'bulkReplyDetails';
 $canned_picker_ticket_id = 0;

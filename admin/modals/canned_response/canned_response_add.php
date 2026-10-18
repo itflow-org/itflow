@@ -1,7 +1,7 @@
 <?php
 
 /*
- * New canned response - the fields are canned_response_form.php. ?category
+ * New shared canned response - the fields are includes/canned_response_form.php. ?category
  * starts it on a ticket category.
  */
 
@@ -17,11 +17,11 @@ ob_start();
     <h5 class="modal-title"><i class="fa fa-fw fa-comment-dots me-2"></i>New Canned Response</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-<form action="post.php" method="post" autocomplete="off">
+<form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
-        <?php require __DIR__ . '/canned_response_form.php'; ?>
+        <?php require __DIR__ . '/../../../includes/canned_response_form.php'; ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_canned_response" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create Canned Response</button>

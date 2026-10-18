@@ -749,13 +749,15 @@ if (isset($_GET['ticket_id'])) {
 
                                         <?php
                                         /*
-                                         * Canned responses offered on this ticket: the ones for its
-                                         * category, then the ones offered on every ticket. Names only -
-                                         * the body is fetched, filled in for this ticket, when one is
-                                         * picked, so a shelf of long responses does not ride along with
-                                         * every ticket. / in the reply box offers the same ones.
+                                         * Canned responses offered on this ticket: the agent's own, then
+                                         * the ones for its category, then the ones offered on every
+                                         * ticket. Names only - the body is fetched, filled in for this
+                                         * ticket, when one is picked, so a shelf of long responses does
+                                         * not ride along with every ticket. / in the reply box offers the
+                                         * same ones. The picker is there with none on offer too, to save
+                                         * the reply as one.
                                          */
-                                        $canned_picker_groups = cannedResponsesForTicket(intval($ticket_category));
+                                        $canned_picker_groups = cannedResponsesForTicket(intval($ticket_category), $session_user_id);
                                         $canned_picker_id = 'cannedPickerReply';
                                         $canned_picker_editor = 'ticket_reply';
                                         $canned_picker_ticket_id = intval($ticket_id);
@@ -763,7 +765,7 @@ if (isset($_GET['ticket_id'])) {
                                         ?>
 
                                         <div class="mb-3">
-                                            <textarea class="form-control tinymceTicket" id="ticket_reply" name="ticket_reply" placeholder="Type a response"<?= $canned_picker_groups ? ' data-canned-picker="cannedPickerReply"' : '' ?>></textarea>
+                                            <textarea class="form-control tinymceTicket" id="ticket_reply" name="ticket_reply" placeholder="Type a response" data-canned-picker="cannedPickerReply"></textarea>
                                         </div>
 
                                         <div class="mb-3">

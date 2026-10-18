@@ -4,6 +4,13 @@
 // Split from the former monolithic functions.php
 
 
+/** What a file attached to a ticket can be - by its extension. Canned responses' files too. */
+const TICKET_ATTACHMENT_EXTENSIONS = [
+    'jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx',
+    'odt', 'csv', 'xls', 'xlsx', 'ods', 'pptx', 'odp', 'zip', 'tar', 'gz',
+    'xml', 'msg', 'json', 'wav', 'mp3', 'ogg', 'mov', 'mp4', 'av1', 'ovpn'
+];
+
 function removeDirectory($path) {
     if (!file_exists($path)) {
         return;
@@ -198,11 +205,7 @@ function saveTicketAttachments($ticket_id, $reply_id = null, $field_name = 'atta
         return $stored_attachments;
     }
 
-    $allowed_extensions = array(
-        'jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx',
-        'odt', 'csv', 'xls', 'xlsx', 'ods', 'pptx', 'odp', 'zip', 'tar', 'gz',
-        'xml', 'msg', 'json', 'wav', 'mp3', 'ogg', 'mov', 'mp4', 'av1', 'ovpn'
-    );
+    $allowed_extensions = TICKET_ATTACHMENT_EXTENSIONS;
 
     // A single-file input posts scalars, a multiple one posts arrays - normalize
     $names = $_FILES[$field_name]['name'];
