@@ -48,7 +48,7 @@ function incomeOnlineSql($reference = 'payment_reference') {
  * client scope - a row each with income_type (payment or revenue),
  * income_id, income_date, income_created_at, income_invoice_id,
  * invoice_prefix, invoice_number, invoice_status, income_description,
- * income_category_id, category_name, category_color, income_client_id,
+ * income_category_id, category_name, category_color, category_icon, income_client_id,
  * client_name, income_amount, income_currency_code, income_method,
  * income_reference, income_account_id, account_name, account_archived_at
  * and income_online. Select from it as a derived table.
@@ -56,7 +56,7 @@ function incomeOnlineSql($reference = 'payment_reference') {
 function incomeUnionSql() {
     return "SELECT 'payment' AS income_type, payment_id AS income_id, payment_date AS income_date, payment_created_at AS income_created_at,
             payment_invoice_id AS income_invoice_id, invoice_prefix, invoice_number, invoice_status, invoice_scope AS income_description,
-            COALESCE(invoice_category_id, 0) AS income_category_id, category_name, category_color,
+            COALESCE(invoice_category_id, 0) AS income_category_id, category_name, category_color, category_icon,
             COALESCE(invoice_client_id, 0) AS income_client_id, client_name, payment_amount AS income_amount, payment_currency_code AS income_currency_code,
             payment_method AS income_method, payment_reference AS income_reference, payment_account_id AS income_account_id, account_name, account_archived_at,
             IF(" . incomeOnlineSql() . ", 1, 0) AS income_online
@@ -69,7 +69,7 @@ function incomeUnionSql() {
         UNION ALL
         SELECT 'revenue', revenue_id, revenue_date, revenue_created_at,
             0, NULL, NULL, NULL, revenue_description,
-            revenue_category_id, category_name, category_color,
+            revenue_category_id, category_name, category_color, category_icon,
             revenue_client_id, client_name, revenue_amount, revenue_currency_code,
             revenue_payment_method, revenue_reference, revenue_account_id, account_name, account_archived_at,
             0
@@ -216,7 +216,7 @@ function incomeRevenueRow($revenue_id, $scoped = true) {
     if (!$revenue_id) {
         return null;
     }
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT revenues.*, client_name, client_abbreviation, category_name, category_color, account_name,
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT revenues.*, client_name, client_abbreviation, category_name, category_color, category_icon, account_name,
             account_archived_at, account_currency_code, creator.user_name AS created_by_name
         FROM revenues
         LEFT JOIN clients ON client_id = revenue_client_id
@@ -336,7 +336,7 @@ function incomePaymentRow($payment_id) {
         return null;
     }
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payments.*, invoice_id, invoice_prefix, invoice_number, invoice_status, invoice_amount, invoice_currency_code,
-            invoice_date, invoice_due, invoice_scope, invoice_client_id, client_name, category_name, category_color, invoice_category_id, account_name, account_archived_at
+            invoice_date, invoice_due, invoice_scope, invoice_client_id, client_name, category_name, category_color, category_icon, invoice_category_id, account_name, account_archived_at
         FROM payments
         LEFT JOIN invoices ON invoice_id = payment_invoice_id
         LEFT JOIN clients ON client_id = invoice_client_id

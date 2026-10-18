@@ -96,7 +96,7 @@ if (!isset($sortable_columns[$sort])) {
 }
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS recurring_tickets.*, client_name, contact_name, contact_photo, asset_name,
-        category_name, category_color, user_name, user_avatar, ticket_template_name,
+        category_name, category_color, category_icon, user_name, user_avatar, ticket_template_name,
         (SELECT COUNT(*) FROM recurring_ticket_tasks WHERE recurring_ticket_task_recurring_ticket_id = recurring_ticket_id) AS recurring_ticket_task_count
     FROM recurring_tickets $joins
     WHERE $filters $show_query
@@ -183,13 +183,7 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                 <div class="col-lg-2 col-md-6">
                     <select class="form-select select2" name="category" onchange="this.form.submit()">
                         <option value="">- Any category -</option>
-                        <?php
-                        $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories
-                            WHERE category_type = 'Ticket' AND (EXISTS (SELECT 1 FROM recurring_tickets WHERE recurring_ticket_category = category_id) OR category_id = $category_filter) ORDER BY category_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
-                            $category_id = intval($row['category_id']); ?>
-                            <option <?= $category_filter === $category_id ? 'selected' : '' ?> value="<?= $category_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= escapeHtml($row['category_name']) ?></option>
-                        <?php } ?>
+                        <?= categoryFilterOptionsHtml('Ticket', $category_filter, "SELECT DISTINCT recurring_ticket_category FROM recurring_tickets WHERE recurring_ticket_category <> ''") ?>
                     </select>
                 </div>
                 <?php if (!$client_url) { ?>
@@ -297,7 +291,6 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                     $paused = recurringTicketPaused($row);
                     $last = $last_tickets[$recurring_ticket_id] ?? null;
                     $edit_url = "modals/recurring_ticket/recurring_ticket_edit.php?id=$recurring_ticket_id";
-                    $category_color = preg_match('/^#[0-9a-f]{3,8}$/i', (string) $row['category_color']) ? $row['category_color'] : '';
                     $task_count = intval($row['recurring_ticket_task_count']);
                     $next = recurringTicketNextRunText($row);
                     $assignee = formatAssignee($row['recurring_ticket_assigned_to'], $row['user_name'], $row['user_avatar'], !$paused);
@@ -319,7 +312,7 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                             <div class="itflow-ticket-meta small text-body-secondary">
                                 <?= ticketPriorityHtml($row['recurring_ticket_priority'], 'detail') ?>
                                 <?php if ($row['category_name'] !== null && $row['category_name'] !== '') { ?>
-                                    <span class="text-nowrap"><i class="fas fa-circle itflow-ticket-dot" <?= $category_color ? 'style="color: ' . $category_color . '"' : '' ?>></i><?= escapeHtml($row['category_name']) ?></span>
+                                    <span class="text-nowrap"><?= categoryMarkHtml($row['category_color'], $row['category_icon'] ?? '', '<i class="fas fa-circle itflow-ticket-dot"%s aria-hidden="true"></i>') ?><?= escapeHtml($row['category_name']) ?></span>
                                 <?php } ?>
                                 <?php if (!empty($row['asset_name'])) { ?>
                                     <span class="text-nowrap text-truncate itflow-ticket-asset"><i class="fas fa-desktop me-1"></i><?= escapeHtml($row['asset_name']) ?></span>

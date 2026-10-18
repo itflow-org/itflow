@@ -196,9 +196,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                         <div class="flex-grow-1 min-w-0">
                             <select class="form-select select2" name="category" onchange="this.form.submit()" aria-label="Category">
                                 <option value="">- Any category -</option>
-                                <?php foreach (incomeCategories($category_filter) as $option_id => $category) { ?>
-                                    <option <?= $category_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?></option>
-                                <?php } ?>
+                                <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT revenue_category_id FROM revenues UNION SELECT invoice_category_id FROM payments JOIN invoices ON invoice_id = payment_invoice_id", ['exclude' => ['Account Transfer']]) ?>
                             </select>
                         </div>
                         <?php if ($client_page && $can_bulk) { ?>
@@ -334,7 +332,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                     </td>
                     <td>
                         <?php if (intval($row['income_category_id']) && $row['category_name'] !== null) { ?>
-                            <div class="text-truncate" style="max-width: 10rem;" title="<?= escapeHtml($row['category_name']) ?>"><?= expenseCategoryDot($row['category_color']) ?><?= escapeHtml($row['category_name']) ?></div>
+                            <div class="text-truncate" style="max-width: 10rem;" title="<?= escapeHtml($row['category_name']) ?>"><?= expenseCategoryDot($row['category_color'], $row['category_icon'] ?? '') ?><?= escapeHtml($row['category_name']) ?></div>
                         <?php } else { ?>
                             <span class="text-warning-emphasis small" title="Not in a category - the reports show it as No category">No category</span>
                         <?php } ?>

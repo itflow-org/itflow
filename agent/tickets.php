@@ -248,7 +248,7 @@ $ticket_select_columns =
     ticket_response_sla_alert_stage, ticket_resolution_sla_alert_stage,
     ticket_status_id, ticket_status_name, ticket_status_color, ticket_status_pauses_sla,
     client_name, contact_id, contact_name, contact_email, contact_photo,
-    user_name, user_avatar, asset_name, category_name, category_color, project_prefix, project_number, project_name,
+    user_name, user_avatar, asset_name, category_name, category_color, category_icon, project_prefix, project_number, project_name,
     " . ticketLastSpokeSql() . " AS ticket_last_spoke";
 
 $ticket_joins =
@@ -444,12 +444,7 @@ $export_extra = [
                         <label class="form-label small text-body-secondary mb-1">Category</label>
                         <select onchange="this.form.submit()" class="form-select select2" name="category">
                             <option value="">Any category</option>
-                            <?php
-                            $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Ticket' AND (category_archived_at IS NULL OR category_id = $category_filter) ORDER BY category_name");
-                            while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
-                                $filter_category_id = intval($row['category_id']); ?>
-                                <option value="<?= $filter_category_id ?>" <?= $category_filter === $filter_category_id ? 'selected' : '' ?><?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= escapeHtml($row['category_name']) ?></option>
-                            <?php } ?>
+                            <?= categoryFilterOptionsHtml('Ticket', $category_filter, "SELECT DISTINCT ticket_category FROM tickets WHERE ticket_category <> ''") ?>
                         </select>
                     </div>
                     <div class="col-lg-3 col-md-6">

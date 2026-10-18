@@ -403,12 +403,7 @@ $total_leads = intval($row['leads']);
                         <label class="form-label">Referral</label>
                         <select class="form-select select2" name="referral" onchange="this.form.submit()">
                             <option value="">Any referral</option>
-                            <?php
-                            $sql_referrals_filter = mysqli_query($mysqli, "SELECT DISTINCT client_referral FROM clients WHERE client_$archive_query AND client_referral != '' $leads_query ORDER BY client_referral ASC");
-                            while ($row = mysqli_fetch_assoc($sql_referrals_filter)) {
-                                $referral_name = escapeHtml($row['client_referral']); ?>
-                                <option <?php if ($referral_name == $referral_filter) { echo "selected"; } ?>><?= $referral_name ?></option>
-                            <?php } ?>
+                            <?= categoryFilterOptionsHtml('Referral', (string) ($_GET['referral'] ?? ''), "SELECT DISTINCT client_referral FROM clients WHERE client_$archive_query AND client_referral != '' $leads_query") ?>
                         </select>
                     </div>
                     <div class="col-md-3">

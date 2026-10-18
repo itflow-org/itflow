@@ -80,12 +80,7 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                     <select class="form-select select2" name="category">
                         <option value="">- Any category -</option>
-                        <?php
-                        $sql = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql)) {
-                            $option_id = intval($row['category_id']); ?>
-                            <option <?= $category_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= escapeHtml($row['category_name']) ?></option>
-                        <?php } ?>
+                        <?= categoryFilterOptionsHtml('Expense', $category_filter, "SELECT DISTINCT expense_category_id FROM expenses") ?>
                     </select>
                 </div>
             </div>

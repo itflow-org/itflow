@@ -90,9 +90,7 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                     <select class="form-select select2" name="category">
                         <option value="">- Any category -</option>
-                        <?php foreach (incomeCategories($category_filter) as $option_id => $category) { ?>
-                            <option <?= $category_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?></option>
-                        <?php } ?>
+                        <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT revenue_category_id FROM revenues UNION SELECT invoice_category_id FROM payments JOIN invoices ON invoice_id = payment_invoice_id", ['exclude' => ['Account Transfer']]) ?>
                     </select>
                 </div>
             </div>

@@ -194,13 +194,9 @@ function expenseStats() {
     ];
 }
 
-/** A category's colour as a small dot - names like "lightblue" or a hex value; nothing for anything else. */
-function expenseCategoryDot($color) {
-    $color = trim((string) $color);
-    if (!preg_match('/^(#[0-9a-f]{3,8}|[a-z]{3,24})$/i', $color)) {
-        return '<span class="itflow-category-dot" aria-hidden="true"></span>';
-    }
-    return '<span class="itflow-category-dot" style="background-color: ' . $color . '" aria-hidden="true"></span>';
+/** A category's mark beside its name - its icon in its colour, or a dot of it (categoryMarkHtml()). */
+function expenseCategoryDot($color, $icon = '') {
+    return categoryMarkHtml($color, $icon);
 }
 
 /**
@@ -1291,7 +1287,7 @@ function recurringExpensesCovering($recurring_invoice_id) {
     global $mysqli;
     $id = intval($recurring_invoice_id);
     $rows = [];
-    $sql = mysqli_query($mysqli, "SELECT recurring_expenses.*, vendor_name, category_name, category_color, " . expenseRecurringMonthlySql() . " AS monthly
+    $sql = mysqli_query($mysqli, "SELECT recurring_expenses.*, vendor_name, category_name, category_color, category_icon, " . expenseRecurringMonthlySql() . " AS monthly
         FROM recurring_expenses
         LEFT JOIN vendors ON vendor_id = recurring_expense_vendor_id
         LEFT JOIN categories ON category_id = recurring_expense_category_id

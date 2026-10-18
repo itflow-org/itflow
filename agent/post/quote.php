@@ -487,16 +487,25 @@ if (isExportRequest('export_quotes')) {
         $filter_summary['Search'] = $_POST['q'];
     }
 
+    // Category Filter
+    $category_query = '';
+    if (!empty($_POST['category'])) {
+        $filter_category_id = intval($_POST['category']);
+        $category_query = "AND quote_category_id = $filter_category_id";
+        $filter_summary['Category'] = getFieldById('categories', $filter_category_id, 'category_name');
+    }
+
     $sql = mysqli_query(
         $mysqli,
         "SELECT client_name, quote_id, quote_amount, quote_discount_amount, quote_monthly_amount, quote_date, quote_number, quote_prefix, quote_scope,
-        quote_status FROM quotes
+        quote_status, category_name FROM quotes
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN categories ON quote_category_id = category_id
         WHERE (CONCAT(quote_prefix,quote_number) LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%' OR quote_amount LIKE '%$q%' OR client_name LIKE '%$q%')
         AND DATE(quote_date) BETWEEN '$dtf' AND '$dtt'
         " . clientScopeSql('quote_client_id') . "
         $client_query
+        $category_query
         ORDER BY quote_number ASC"
     );
 

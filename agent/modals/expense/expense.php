@@ -131,7 +131,7 @@ ob_start();
             <?php } ?>
             <div class="itflow-glance-item" title="Category">
                 <i class="fas fa-fw fa-list"></i>
-                <span><?= expenseCategoryDot($row['category_color']) ?><?= escapeHtml($row['category_name'] ?: 'No category') ?></span>
+                <span><?= expenseCategoryDot($row['category_color'], $row['category_icon'] ?? '') ?><?= escapeHtml($row['category_name'] ?: 'No category') ?></span>
             </div>
             <?php if (floatval($row['expense_tax_amount']) != 0) { ?>
                 <div class="itflow-glance-item" title="Tax included">

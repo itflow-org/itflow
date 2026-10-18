@@ -45,7 +45,7 @@ $joins = "LEFT JOIN vendors ON recurring_expense_vendor_id = vendor_id
 $where = recurringExpenseFiltersSql($_GET);
 $monthly_sql = expenseRecurringMonthlySql();
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS recurring_expenses.*, vendor_name, vendor_archived_at, category_name, category_color, account_name, client_name,
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS recurring_expenses.*, vendor_name, vendor_archived_at, category_name, category_color, category_icon, account_name, client_name,
         $monthly_sql AS monthly, recurring_invoice_prefix, recurring_invoice_number
     FROM recurring_expenses $joins
     LEFT JOIN recurring_invoices ON recurring_invoice_id = recurring_expense_recurring_invoice_id
@@ -174,13 +174,7 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="category" onchange="this.form.submit()" aria-label="Category">
                         <option value="">- Any category -</option>
-                        <?php
-                        $sql_filter = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories
-                            WHERE EXISTS (SELECT 1 FROM recurring_expenses WHERE recurring_expense_category_id = category_id AND recurring_expense_archived_at IS NULL) ORDER BY category_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql_filter)) {
-                            $option_id = intval($row['category_id']); ?>
-                            <option <?= $category_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= escapeHtml($row['category_name']) ?></option>
-                        <?php } ?>
+                        <?= categoryFilterOptionsHtml('Expense', $category_filter, "SELECT DISTINCT recurring_expense_category_id FROM recurring_expenses WHERE recurring_expense_archived_at IS NULL") ?>
                     </select>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -241,7 +235,7 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
                         </div>
                         <div class="small text-body-secondary text-truncate" style="max-width: 18rem;" title="<?= escapeHtml((string) $row['recurring_expense_description']) ?>"><?= escapeHtml((string) $row['recurring_expense_description']) ?: '&nbsp;' ?></div>
                     </td>
-                    <td><div class="text-truncate" style="max-width: 11rem;" title="<?= escapeHtml((string) $row['category_name']) ?>"><?= expenseCategoryDot($row['category_color']) ?><?= escapeHtml($row['category_name'] ?: '-') ?></div></td>
+                    <td><div class="text-truncate" style="max-width: 11rem;" title="<?= escapeHtml((string) $row['category_name']) ?>"><?= expenseCategoryDot($row['category_color'], $row['category_icon'] ?? '') ?><?= escapeHtml($row['category_name'] ?: '-') ?></div></td>
                     <td>
                         <?php if (intval($row['recurring_expense_client_id'])) { ?>
                             <div class="text-truncate" style="max-width: 10rem;"><a class="text-reset" href="<?= escapeHtml($filter_url(['client' => intval($row['recurring_expense_client_id'])])) ?>"><?= escapeHtml($row['client_name']) ?></a></div>

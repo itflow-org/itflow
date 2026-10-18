@@ -27,6 +27,7 @@ $archived_filter = (isset($_GET['archived']) && $_GET['archived'] == 1) ? 1 : 0;
 $status_filters = softwareStatusFilters();
 $status_filter = isset($status_filters[$_GET['status'] ?? '']) ? $_GET['status'] : '';
 $license_type_filter = (string) ($_GET['license_type'] ?? '');
+$software_type_filter = trim(strip_tags((string) ($_GET['software_type'] ?? '')));
 $tag_filter = tagFilterIds();
 
 ob_start();
@@ -101,6 +102,17 @@ ob_start();
                     <?php foreach ($status_filters as $status_key => $status_option) { ?>
                         <option <?php if ($status_filter === $status_key) { echo "selected"; } ?> value="<?= $status_key ?>"<?= selectOptionData(['icon' => 'fas ' . $status_option['icon']]) ?>><?= $status_option['label'] ?></option>
                     <?php } ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Software Type</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                <select class="form-select select2" name="software_type">
+                    <option value="">- Any -</option>
+                    <?= categoryFilterOptionsHtml('software_type', $software_type_filter, "SELECT DISTINCT software_type FROM software WHERE software_type IS NOT NULL AND software_type <> ''" . ($client_id ? " AND software_client_id = $client_id" : '') . clientScopeSql('software_client_id')) ?>
                 </select>
             </div>
         </div>

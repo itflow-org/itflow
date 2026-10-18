@@ -152,6 +152,8 @@ $resource_module = [
     // Each kind of tag is its record's module - api/v1/tags/ checks the kind
     // asked about (tagApiKind()), so there is no one module to check here
     'tags'          => '',
+    // Likewise each kind of category - api/v1/categories/ checks the kind (categoryApiKind())
+    'categories'    => '',
 ];
 
 // Operation -> required permission level (read = 1, create/update = 2, delete = 3).

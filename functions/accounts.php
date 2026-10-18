@@ -348,7 +348,7 @@ function accountLedgerKinds() {
  * expense or reimbursement), txn_transfer_id, txn_account_id, account_name,
  * txn_date, txn_created_at, txn_amount (in positive, out negative), txn_what
  * (who or what - the invoice, the vendor, the agent paid back, the other
- * account), txn_description, txn_category_id, category_name, category_color,
+ * account), txn_description, txn_category_id, category_name, category_color, category_icon,
  * txn_client_id, client_name, txn_other_account_id, other_account_name,
  * other_account_type (a transfer's other account's kind), txn_line (the row
  * behind it - payment-12, revenue-5 or expense-9), txn_reconciliation_id (the
@@ -405,7 +405,7 @@ function accountLedgerSql($account_id = 0) {
         LEFT JOIN reimbursements ON reimbursement_expense_id = expenses.expense_id
         LEFT JOIN users AS payee ON payee.user_id = reimbursement_user_id
         WHERE expenses.expense_archived_at IS NULL AND " . $on('expenses.expense_account_id');
-    return "SELECT ledger_lines.*, accounts.account_name, accounts.account_type, accounts.account_currency_code, category_name, category_color, client_name,
+    return "SELECT ledger_lines.*, accounts.account_name, accounts.account_type, accounts.account_currency_code, category_name, category_color, category_icon, client_name,
             ledger_lines.txn_other_name AS other_account_name, other_account.account_type AS other_account_type,
             cleared.reconciliation_id AS txn_cleared_id, cleared.reconciliation_statement_date AS txn_cleared_date, cleared.reconciliation_opening AS txn_cleared_opening,
             accounts.opening_balance + SUM(ledger_lines.txn_amount) OVER (PARTITION BY ledger_lines.txn_account_id ORDER BY ledger_lines.txn_date ASC, ledger_lines.txn_created_at ASC,

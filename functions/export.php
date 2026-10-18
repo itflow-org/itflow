@@ -142,6 +142,7 @@ function getExportColumns($export_type) {
             'client_name'             => ['label' => 'Client', 'default' => false],
             'interface_ip'            => ['label' => 'Primary IP', 'default' => false],
             'interface_mac'           => ['label' => 'Primary MAC', 'default' => false],
+            'asset_status'            => ['label' => 'Status', 'default' => false],
         ],
 
         'asset_interfaces' => [
@@ -338,6 +339,7 @@ function getExportColumns($export_type) {
             'invoice_due'            => ['label' => 'Due Date'],
             'invoice_status'         => ['label' => 'Status'],
             'client_name'            => ['label' => 'Client', 'weight' => 2],
+            'category_name'          => ['label' => 'Category', 'default' => false],
             'invoice_currency_code'  => ['label' => 'Currency', 'default' => false],
             'amount_paid'            => ['label' => 'Paid', 'format' => 'money', 'default' => false],
             'invoice_balance'        => ['label' => 'Balance', 'format' => 'money', 'default' => false],
@@ -352,6 +354,7 @@ function getExportColumns($export_type) {
             'quote_date'           => ['label' => 'Date'],
             'quote_status'         => ['label' => 'Status'],
             'client_name'          => ['label' => 'Client', 'weight' => 2, 'default' => false],
+            'category_name'        => ['label' => 'Category', 'default' => false],
         ],
 
         'recurring_invoices' => [
@@ -362,6 +365,7 @@ function getExportColumns($export_type) {
             'recurring_invoice_frequency_display' => ['label' => 'Frequency'],
             'recurring_invoice_created_at'     => ['label' => 'Date Created'],
             'client_name'                      => ['label' => 'Client', 'weight' => 2, 'default' => false],
+            'category_name'                    => ['label' => 'Category', 'default' => false],
         ],
 
         'products' => [

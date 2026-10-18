@@ -246,13 +246,7 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="category" onchange="this.form.submit()" aria-label="Category">
                         <option value="">- All Categories -</option>
-                        <?php
-                        $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories
-                            WHERE category_type = 'Income' AND EXISTS (SELECT 1 FROM products WHERE product_category_id = category_id AND product_$archive_query) ORDER BY category_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
-                            $category_option_id = intval($row['category_id']); ?>
-                            <option <?= $category_filter === $category_option_id ? 'selected' : '' ?> value="<?= $category_option_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= escapeHtml($row['category_name']) ?></option>
-                        <?php } ?>
+                        <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT DISTINCT product_category_id FROM products WHERE product_$archive_query") ?>
                     </select>
                 </div>
                 <div class="col-lg-3 col-md-6">

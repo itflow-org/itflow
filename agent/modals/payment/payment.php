@@ -118,7 +118,7 @@ ob_start();
             <div class="itflow-glance-item" title="Category - the invoice's">
                 <i class="fas fa-fw fa-tag"></i>
                 <?php if (intval($row['invoice_category_id']) && $row['category_name'] !== null) { ?>
-                    <span class="text-truncate"><?= expenseCategoryDot($row['category_color']) ?><?= escapeHtml($row['category_name']) ?></span>
+                    <span class="text-truncate"><?= expenseCategoryDot($row['category_color'], $row['category_icon'] ?? '') ?><?= escapeHtml($row['category_name']) ?></span>
                 <?php } else { ?>
                     <span class="text-warning-emphasis">No category<?= $has_invoice ? ' - set one on the invoice' : '' ?></span>
                 <?php } ?>

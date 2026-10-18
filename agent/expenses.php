@@ -53,7 +53,7 @@ $where = expenseFiltersSql($filter_src);
 $show_query = $shows[$show]['where'] ? "AND {$shows[$show]['where']}" : '';
 $joins = expenseJoinsSql();
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS expenses.*, vendor_name, vendor_archived_at, category_name, category_color, account_name, client_name, user_name,
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS expenses.*, vendor_name, vendor_archived_at, category_name, category_color, category_icon, account_name, client_name, user_name,
         invoice_prefix, invoice_number, (SELECT payer.user_name FROM users AS payer WHERE payer.user_id = expense_paid_by) AS paid_by_name
     FROM expenses $joins
     LEFT JOIN invoices ON invoice_id = expense_invoice_id
@@ -209,13 +209,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                 <div class="col-lg-2 col-md-4">
                     <select class="form-select select2" name="category" onchange="this.form.submit()" aria-label="Category">
                         <option value="">- Any category -</option>
-                        <?php
-                        $sql_filter = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories
-                            WHERE category_type = 'Expense' AND EXISTS (SELECT 1 FROM expenses WHERE expense_category_id = category_id AND expense_vendor_id > 0) ORDER BY category_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql_filter)) {
-                            $option_id = intval($row['category_id']); ?>
-                            <option <?= $category_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= escapeHtml($row['category_name']) ?></option>
-                        <?php } ?>
+                        <?= categoryFilterOptionsHtml('Expense', $category_filter, "SELECT DISTINCT expense_category_id FROM expenses WHERE expense_vendor_id > 0") ?>
                     </select>
                 </div>
                 <div class="col-lg-3 col-md-4">
@@ -376,7 +370,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                             <?= escapeHtml(implode(' · ', array_filter([truncate((string) $row['expense_description'], 80), $row['expense_reference'] ? '#' . $row['expense_reference'] : '']))) ?: '&nbsp;' ?>
                         </div>
                     </td>
-                    <td><div class="text-truncate" style="max-width: 10rem;" title="<?= escapeHtml((string) $row['category_name']) ?>"><?= expenseCategoryDot($row['category_color']) ?><?= escapeHtml($row['category_name'] ?: '-') ?></div></td>
+                    <td><div class="text-truncate" style="max-width: 10rem;" title="<?= escapeHtml((string) $row['category_name']) ?>"><?= expenseCategoryDot($row['category_color'], $row['category_icon'] ?? '') ?><?= escapeHtml($row['category_name'] ?: '-') ?></div></td>
                     <td>
                         <?php if (intval($row['expense_client_id'])) { ?>
                             <div class="text-truncate" style="max-width: 10rem;"><a class="text-reset" href="<?= escapeHtml($filter_url(['client' => intval($row['expense_client_id'])])) ?>" title="<?= escapeHtml((string) $row['client_name']) ?> - their expenses"><?= escapeHtml($row['client_name']) ?></a></div>

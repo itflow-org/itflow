@@ -23,6 +23,9 @@ $client_filter = intval($_GET['client'] ?? 0);
 // Location Filter
 $location_filter = intval($_GET['location'] ?? 0);
 
+// Status Filter
+$status_filter = trim(strip_tags((string) ($_GET['status'] ?? '')));
+
 // Tags Filter
 $tag_filter = (isset($_GET['tags']) && is_array($_GET['tags'])) ? array_map('intval', $_GET['tags']) : [];
 
@@ -118,6 +121,17 @@ ob_start();
             </div>
         </div>
         <?php } ?>
+
+        <div class="mb-3">
+            <label>Status</label>
+            <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-circle"></i></span>
+                <select class="form-select select2" name="status">
+                    <option value="">- All Statuses -</option>
+                    <?= categoryFilterOptionsHtml('asset_status', $status_filter, "SELECT DISTINCT asset_status FROM assets WHERE asset_status IS NOT NULL AND asset_status <> ''" . ($client_id ? " AND asset_client_id = $client_id" : '') . clientScopeSql('asset_client_id')) ?>
+                </select>
+            </div>
+        </div>
 
         <div class="mb-3">
             <label>Tags</label>

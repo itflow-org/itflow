@@ -1214,6 +1214,16 @@ if (isExportRequest('export_assets')) {
         $location_query = '';
     }
 
+    // Status Filter
+    $status_filter = trim(strip_tags((string) ($_POST['status'] ?? '')));
+    if ($status_filter !== '') {
+        $status_query = "AND asset_status = '" . escapeSql($status_filter) . "'";
+        $filter_summary['Status'] = $status_filter;
+    } else {
+        // Default - any
+        $status_query = '';
+    }
+
     // Tags Filter
     if (isset($_POST['tags']) && is_array($_POST['tags']) && !empty($_POST['tags'])) {
         $tag_filter = implode(",", array_map('intval', $_POST['tags']));
@@ -1266,6 +1276,7 @@ if (isExportRequest('export_assets')) {
         AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR interface_mac LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
         AND ($type_query)
         " . clientScopeSql('asset_client_id') . "
+        $status_query
         $location_query
         $expire_query
         $client_query

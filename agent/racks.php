@@ -52,6 +52,10 @@ if ($client_url && !empty($_GET['location'])) {
     $location_query = "AND rack_location_id = $location_filter";
 }
 
+// Type filter - the rack types (Admin > Categories), held by name
+$type_filter = trim(strip_tags((string) ($_GET['type'] ?? '')));
+$type_query = $type_filter !== '' ? "AND rack_type = '" . escapeSql($type_filter) . "'" : '';
+
 // Only these sort - filter_header.php will hand through any lowercase word
 if (!in_array($sort, ['rack_name', 'rack_units', 'client_name', 'location_name', 'rack_created_at'], true)) {
     $sort = 'rack_name';
@@ -72,6 +76,7 @@ $sql = mysqli_query(
     " . clientScopeSql('rack_client_id') . "
     $client_query
     $location_query
+    $type_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -117,7 +122,7 @@ foreach ($racks as $rack_id => $row) {
             <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row g-2 align-items-center">
 
-                <div class="col-md-4">
+                <div class="col-lg-3 col-md-4">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search racks and what's in them">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
@@ -125,7 +130,7 @@ foreach ($racks as $rack_id => $row) {
                 </div>
 
                 <?php if ($client_url) { ?>
-                    <div class="col-md-3">
+                    <div class="col-lg-2 col-md-4">
                         <select class="form-select select2" name="location" onchange="this.form.submit()">
                             <option value="">- All Locations -</option>
                             <?php
@@ -141,7 +146,7 @@ foreach ($racks as $rack_id => $row) {
                         </select>
                     </div>
                 <?php } else { ?>
-                    <div class="col-md-3">
+                    <div class="col-lg-2 col-md-4">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
                             <option value="">- All Clients -</option>
                             <?php
@@ -159,13 +164,23 @@ foreach ($racks as $rack_id => $row) {
                     </div>
                 <?php } ?>
 
-                <div class="col-md-5 d-flex align-items-center justify-content-md-end gap-3">
+                <div class="col-lg-2 col-md-4">
+                    <select class="form-select select2" name="type" onchange="this.form.submit()">
+                        <option value="">- All Types -</option>
+                        <?= categoryFilterOptionsHtml('rack_type', $type_filter, "SELECT DISTINCT rack_type FROM racks
+                            LEFT JOIN clients ON client_id = rack_client_id
+                            WHERE rack_type IS NOT NULL AND rack_type <> '' AND $archive_query
+                            " . clientScopeSql('rack_client_id') . " $client_query") ?>
+                    </select>
+                </div>
+
+                <div class="col-lg-5 col-md-12 d-flex align-items-center justify-content-md-end gap-3">
                     <?php if ($racks) { ?>
-                        <span class="small text-body-secondary d-none d-lg-inline">
+                        <span class="small text-body-secondary d-none d-xl-inline">
                             <?= number_format($total_used) ?> of <?= number_format($total_units) ?>U in use &middot; <?= number_format($total_items) ?> items<?= intval($num_rows[0]) > count($racks) ? ' on this page' : '' ?>
                         </span>
                     <?php } ?>
-                    <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>" class="btn btn-<?= $archived ? 'primary' : 'default' ?>">
+                    <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>" class="btn btn-<?= $archived ? 'primary' : 'default' ?> text-nowrap">
                         <i class="fa fa-fw fa-archive me-2"></i>Archived
                     </a>
                 </div>
@@ -181,7 +196,7 @@ foreach ($racks as $rack_id => $row) {
             <?= emptyStateHtml([
                 'thing' => 'racks',
                 'icon' => 'fa-server',
-                'filtered' => $q || $location_filter || $client_filter,
+                'filtered' => $q || $location_filter || $client_filter || $type_filter !== '',
                 'archived' => $archived,
                 'text' => "Document the comms closet: what's racked where, front and rear, and how much room and power is left.",
                 'actions' => $client_url && $can_edit ? [['label' => 'New Rack', 'modal' => "modals/rack/rack_add.php?client_id=$client_id", 'size' => 'lg']] : [],

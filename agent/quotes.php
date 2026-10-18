@@ -41,6 +41,10 @@ if (!$client_url && !empty($_GET['client'])) {
     $client_query = "AND quote_client_id = $client";
 }
 
+// Category Filter
+$category_filter = intval($_GET['category'] ?? 0);
+$category_query = $category_filter ? "AND quote_category_id = $category_filter" : '';
+
 $unanswered_sql = "quote_status IN ('Draft', 'Sent', 'Viewed')";
 $statuses = [
     '' => ['label' => 'All', 'where' => ''],
@@ -63,7 +67,7 @@ if (!isset($sortable_columns[$sort])) {
 $scope_query = clientScopeSql('quote_client_id');
 $search_query = "AND (CONCAT(quote_prefix, quote_number) LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%' OR quote_amount LIKE '%$q%' OR client_name LIKE '%$q%')";
 $date_query = "AND DATE(quote_date) BETWEEN '$dtf' AND '$dtt'";
-$filters = "$scope_query $client_query $date_query $search_query";
+$filters = "$scope_query $client_query $category_query $date_query $search_query";
 $joins = "LEFT JOIN clients ON quote_client_id = client_id LEFT JOIN categories ON quote_category_id = category_id";
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS quotes.*, client_name, category_name
@@ -162,7 +166,7 @@ $stat_monthly = function ($amount) use ($stat_money) {
                 <?php if ($num_rows[0] > 0) { ?>
                     <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/quote/quote_export.php', ['client_id', 'q'], ['dtf' => $dtf, 'dtt' => $dtt, 'client_id' => $client ?: '']) ?>">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/quote/quote_export.php', ['client_id', 'category', 'q'], ['dtf' => $dtf, 'dtt' => $dtt, 'client_id' => $client ?: '']) ?>">
                             <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
                         </a>
                     </div>
@@ -189,6 +193,12 @@ $stat_monthly = function ($amount) use ($stat_money) {
                     <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">
                     <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
                     <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
+                </div>
+                <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-2' ?> col-md-6">
+                    <select class="form-select select2" name="category" onchange="this.form.submit()" aria-label="Category">
+                        <option value="">- Any category -</option>
+                        <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT DISTINCT quote_category_id FROM quotes") ?>
+                    </select>
                 </div>
                 <?php if (!$client_url) { ?>
                     <div class="col-lg-3 col-md-6">

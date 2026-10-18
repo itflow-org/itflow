@@ -40,6 +40,10 @@ if (!$client_url && !empty($_GET['client'])) {
     $client_query = "AND recurring_invoice_client_id = $client";
 }
 
+// Category Filter
+$category_filter = intval($_GET['category'] ?? 0);
+$category_query = $category_filter ? "AND recurring_invoice_category_id = $category_filter" : '';
+
 $statuses = [
     'active' => ['label' => 'Active', 'icon' => 'fa-play', 'where' => 'recurring_invoice_status = 1'],
     'soon' => ['label' => 'Next 7 days', 'icon' => 'fa-calendar-day', 'where' => 'recurring_invoice_status = 1 AND recurring_invoice_next_date BETWEEN CURDATE() AND CURDATE() + INTERVAL 7 DAY',
@@ -62,7 +66,7 @@ if (!isset($sortable_columns[$sort])) {
 $monthly_sql = recurringInvoiceMonthlySql();
 $scope_query = clientScopeSql('recurring_invoice_client_id');
 $search_query = "AND (CONCAT(recurring_invoice_prefix, recurring_invoice_number) LIKE '%$q%' OR recurring_invoice_frequency LIKE '%$q%' OR recurring_invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%')";
-$filters = "AND recurring_invoice_archived_at IS NULL $scope_query $client_query $search_query";
+$filters = "AND recurring_invoice_archived_at IS NULL $scope_query $client_query $category_query $search_query";
 $joins = "LEFT JOIN clients ON recurring_invoice_client_id = client_id LEFT JOIN categories ON recurring_invoice_category_id = category_id";
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS recurring_invoices.*, client_name, category_name, recurring_payment_id, $monthly_sql AS monthly
@@ -153,7 +157,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                 <?php if ($num_rows[0] > 0) { ?>
                     <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/recurring_invoice/recurring_invoice_export.php', ['client_id', 'q'], ['status' => in_array($status, ['active', 'inactive'], true) ? $status : '', 'client_id' => $client ?: '']) ?>">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/recurring_invoice/recurring_invoice_export.php', ['client_id', 'category', 'q'], ['status' => in_array($status, ['active', 'inactive'], true) ? $status : '', 'client_id' => $client ?: '']) ?>">
                             <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
                         </a>
                     </div>
@@ -169,11 +173,17 @@ $stat_money = function ($amount) use ($session_company_currency) {
             <?php } ?>
             <input type="hidden" name="status" value="<?= escapeHtml($status) ?>">
             <div class="row g-2 align-items-center">
-                <div class="<?= $client_url ? 'col-lg-6' : 'col-lg-5' ?> col-md-6">
+                <div class="<?= $client_url ? 'col-lg-8' : 'col-lg-6' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search number, scope, client, category...">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
+                </div>
+                <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">
+                    <select class="form-select select2" name="category" onchange="this.form.submit()" aria-label="Category">
+                        <option value="">- Any category -</option>
+                        <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT DISTINCT recurring_invoice_category_id FROM recurring_invoices WHERE recurring_invoice_archived_at IS NULL") ?>
+                    </select>
                 </div>
                 <?php if (!$client_url) { ?>
                     <div class="col-lg-3 col-md-6">

@@ -397,7 +397,7 @@ if ($transfer_cards) {
                         <?php if ($transfer) { ?>
                             <span class="small text-body-secondary" title="Money moved between your accounts - not income or spending">Transfer</span>
                         <?php } elseif (intval($row['txn_category_id']) && $row['category_name'] !== null) { ?>
-                            <div class="text-truncate" style="max-width: 11rem;" title="<?= escapeHtml($row['category_name']) ?>"><?= expenseCategoryDot($row['category_color']) ?><?= escapeHtml($row['category_name']) ?></div>
+                            <div class="text-truncate" style="max-width: 11rem;" title="<?= escapeHtml($row['category_name']) ?>"><?= expenseCategoryDot($row['category_color'], $row['category_icon'] ?? '') ?><?= escapeHtml($row['category_name']) ?></div>
                         <?php } else { ?>
                             <span class="text-body-secondary">-</span>
                         <?php } ?>

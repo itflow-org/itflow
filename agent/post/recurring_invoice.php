@@ -358,17 +358,26 @@ if (isExportRequest('export_recurring_invoices')) {
         $filter_summary['Search'] = $_POST['q'];
     }
 
+    // Category Filter
+    $category_query = '';
+    if (!empty($_POST['category'])) {
+        $filter_category_id = intval($_POST['category']);
+        $category_query = "AND recurring_invoice_category_id = $filter_category_id";
+        $filter_summary['Category'] = getFieldById('categories', $filter_category_id, 'category_name');
+    }
+
     $sql = mysqli_query(
         $mysqli,
         "SELECT client_name, recurring_invoice_id, recurring_invoice_amount, recurring_invoice_created_at,
         recurring_invoice_frequency, recurring_invoice_number, recurring_invoice_prefix,
-        recurring_invoice_scope FROM recurring_invoices
+        recurring_invoice_scope, category_name FROM recurring_invoices
         LEFT JOIN clients ON recurring_invoice_client_id = client_id
         LEFT JOIN categories ON recurring_invoice_category_id = category_id
         WHERE (CONCAT(recurring_invoice_prefix,recurring_invoice_number) LIKE '%$q%' OR recurring_invoice_frequency LIKE '%$q%' OR recurring_invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%')
         AND DATE(recurring_invoice_created_at) BETWEEN '$dtf' AND '$dtt'
         $status_query
         $client_query
+        $category_query
         " . clientScopeSql('recurring_invoice_client_id') . "
         ORDER BY recurring_invoice_number ASC"
     );

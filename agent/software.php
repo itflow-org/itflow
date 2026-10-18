@@ -70,6 +70,10 @@ $tag_query = tagFilterSql('license', $tag_filter_ids, 'software.software_id');
 $license_type_filter = (string) ($_GET['license_type'] ?? '');
 $license_type_query = $license_type_filter !== '' ? "AND software_license_type = '" . escapeSql($license_type_filter) . "'" : '';
 
+// Software type filter - the software types (Admin > Categories), held by name
+$software_type_filter = trim(strip_tags((string) ($_GET['software_type'] ?? '')));
+$software_type_query = $software_type_filter !== '' ? "AND software_type = '" . escapeSql($software_type_filter) . "'" : '';
+
 // Expiring In Filter - the dashboard links here with expire_days=30
 if (!empty($_GET['expire_days'])) {
     if ($_GET['expire_days'] == "expired") {
@@ -110,7 +114,7 @@ $order_by = $sort === 'software_expire' ? "software_expire IS NULL, software_exp
 
 $seats_used_sql = softwareSeatsUsedSql('software.software_id');
 
-// Tab counts - within the client, tag and archive scope, before the search narrows it
+// Tab counts - within the client, type, tag and archive scope, before the search narrows it
 $count_columns = ["COUNT(*) AS all_count"];
 foreach ($status_filters as $status_key => $status_filter) {
     $count_columns[] = "COALESCE(SUM({$status_filter['sql']}), 0) AS {$status_key}_count";
@@ -123,6 +127,8 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
     " . clientScopeSql('software_client_id') . "
     $client_query
     $tag_query
+    $software_type_query
+    $license_type_query
 "));
 $tab_counts = ['' => intval($row['all_count'])];
 foreach (array_keys($status_filters) as $status_key) {
@@ -148,6 +154,7 @@ $sql = mysqli_query(
     $client_query
     $tag_query
     $status_query
+    $software_type_query
     $license_type_query
     $expire_query
     ORDER BY $order_by LIMIT $record_from, $record_to");
@@ -192,7 +199,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                     <?php if ($num_rows[0] > 0) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
-                            data-modal-url="<?= buildExportModalUrl('modals/software/software_export.php', ['client_id', 'client', 'status', 'license_type', 'tags', 'expire_days', 'archived', 'q']) ?>">
+                            data-modal-url="<?= buildExportModalUrl('modals/software/software_export.php', ['client_id', 'client', 'status', 'software_type', 'license_type', 'tags', 'expire_days', 'archived', 'q']) ?>">
                             <i class="fa fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
@@ -230,14 +237,14 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
             <input type="hidden" name="status" value="<?= $status ?>">
             <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row g-2 align-items-center">
-                <div class="<?= $client_url ? 'col-lg-3' : 'col-lg-4' ?> col-md-6">
+                <div class="<?= $client_url ? 'col-xl-3 col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search licenses, keys, vendors, tags...">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
                 <?php if (!$client_url) { ?>
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="client" onchange="this.form.submit()">
                         <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
                         <?php
@@ -258,7 +265,16 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                     </select>
                 </div>
                 <?php } ?>
-                <div class="<?= $client_url ? 'col-lg-2' : 'col-lg-4' ?> col-md-4">
+                <div class="<?= $client_url ? 'col-xl col-lg-4' : 'col-lg-3' ?> col-md-6">
+                    <select class="form-select select2" name="software_type" onchange="this.form.submit()">
+                        <option value="">- Software Type -</option>
+                        <?= categoryFilterOptionsHtml('software_type', $software_type_filter, "SELECT DISTINCT software_type FROM software
+                            LEFT JOIN clients ON client_id = software_client_id
+                            WHERE software_type IS NOT NULL AND software_type <> '' AND $archive_query
+                            " . clientScopeSql('software_client_id') . " $client_query") ?>
+                    </select>
+                </div>
+                <div class="<?= $client_url ? 'col-xl col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <select class="form-select select2" name="license_type" onchange="this.form.submit()">
                         <option value="">- License Type -</option>
                         <?php foreach ($license_type_options as $license_type_option) { ?>
@@ -266,7 +282,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                         <?php } ?>
                     </select>
                 </div>
-                <div class="<?= $client_url ? 'col-lg-2' : 'col-lg-3' ?> col-md-4">
+                <div class="<?= $client_url ? 'col-xl col-lg-3' : 'col-lg-3' ?> col-md-6">
                     <select class="form-select select2" name="expire_days" onchange="this.form.submit()">
                         <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Renewal -</option>
                         <option value="expired" <?php if ($expire_days === "expired") { echo "selected"; } ?>>Expired</option>
@@ -275,19 +291,19 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                         <?php } ?>
                     </select>
                 </div>
-                <div class="<?= $client_url ? 'col-lg-2' : 'col-lg-3' ?> col-md-4">
+                <div class="<?= $client_url ? 'col-xl col-lg-3' : 'col-lg-3' ?> col-md-6">
                     <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
                         <?= tagFilterOptionsHtml('license', $tag_filter_ids, "$archive_query " . clientScopeSql('software_client_id') . " $client_query") ?>
                     </select>
                 </div>
-                <div class="<?= $client_url ? 'col-lg-2' : 'col-lg-3' ?> col-md-4">
+                <div class="<?= $client_url ? 'col-xl col-lg-3' : 'col-lg-3' ?> col-md-6">
                     <select onchange="this.form.submit()" class="form-select select2" name="show_column[]" data-placeholder="- More columns -" multiple>
                         <?php foreach ($extra_column_options as $column_key => $column_label) { ?>
                             <option value="<?= $column_key ?>" <?php if (in_array($column_key, $extra_columns, true)) { echo 'selected'; } ?>><?= $column_label ?></option>
                         <?php } ?>
                     </select>
                 </div>
-                <div class="<?= $client_url ? 'col-lg-1' : 'col-lg-3' ?> col-md-12">
+                <div class="<?= $client_url ? 'col-xl-auto col-lg-3' : 'col-lg-3' ?> col-md-12">
                     <div class="d-flex justify-content-end gap-2">
                         <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>"
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active licenses' : 'Show archived licenses' ?>">

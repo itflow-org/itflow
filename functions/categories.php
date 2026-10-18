@@ -26,6 +26,8 @@
  *   by       'id' or 'name' - how records hold it
  *   ordered  whether pickers list them in the order set here (else by name)
  *   max      the longest name the records' columns hold
+ *   modules  the modules whose records hold it - a user with any of them
+ *            can read the kind (the API's categories/read.php)
  *   uses     where records hold it - table, column, one/many (the record,
  *            in a sentence), url (the list showing them, {id} or {name}
  *            filled in; null when there is no such list), archived and
@@ -39,7 +41,7 @@ function categoryKinds() {
         'Expense' => [
             'label' => 'Expense', 'one' => 'expense category', 'many' => 'expense categories', 'icon' => 'fa-shopping-cart',
             'about' => 'What money goes out on. Every expense, recurring expense and budget line has one, and the expense reports add up by them.',
-            'by' => 'id', 'ordered' => false, 'max' => 200,
+            'by' => 'id', 'ordered' => false, 'max' => 200, 'modules' => ['module_financial'],
             'uses' => [
                 $use('expenses', 'expense_category_id', 'expense', 'expenses', '/agent/expenses.php?category={id}', 'expense_archived_at', 'expense_updated_at'),
                 $use('recurring_expenses', 'recurring_expense_category_id', 'recurring expense', 'recurring expenses', '/agent/recurring_expenses.php?category={id}&status=all', 'recurring_expense_archived_at', 'recurring_expense_updated_at'),
@@ -52,11 +54,11 @@ function categoryKinds() {
         'Income' => [
             'label' => 'Income', 'one' => 'income category', 'many' => 'income categories', 'icon' => 'fa-hand-holding-usd',
             'about' => 'What money comes in for. Invoices, quotes, recurring invoices, products and other income each have one, and the income reports add up by them.',
-            'by' => 'id', 'ordered' => false, 'max' => 200,
+            'by' => 'id', 'ordered' => false, 'max' => 200, 'modules' => ['module_sales', 'module_financial'],
             'uses' => [
                 $use('invoices', 'invoice_category_id', 'invoice', 'invoices', '/agent/invoices.php?category={id}', 'invoice_archived_at', 'invoice_updated_at'),
-                $use('quotes', 'quote_category_id', 'quote', 'quotes', null, 'quote_archived_at', 'quote_updated_at'),
-                $use('recurring_invoices', 'recurring_invoice_category_id', 'recurring invoice', 'recurring invoices', null, 'recurring_invoice_archived_at', 'recurring_invoice_updated_at'),
+                $use('quotes', 'quote_category_id', 'quote', 'quotes', '/agent/quotes.php?category={id}', 'quote_archived_at', 'quote_updated_at'),
+                $use('recurring_invoices', 'recurring_invoice_category_id', 'recurring invoice', 'recurring invoices', '/agent/recurring_invoices.php?category={id}&status=all', 'recurring_invoice_archived_at', 'recurring_invoice_updated_at'),
                 $use('revenues', 'revenue_category_id', 'other income entry', 'other income entries', '/agent/income.php?category={id}&show=other', 'revenue_archived_at', 'revenue_updated_at'),
                 $use('products', 'product_category_id', 'product', 'products', '/agent/products.php?category={id}', 'product_archived_at', 'product_updated_at'),
                 $use('income_import_rules', 'import_rule_category_id', 'import rule', 'import rules', null, null, 'import_rule_updated_at'),
@@ -65,7 +67,7 @@ function categoryKinds() {
         'Referral' => [
             'label' => 'Referral', 'one' => 'referral', 'many' => 'referrals', 'icon' => 'fa-share-alt',
             'about' => 'How a client found you - picked on the client, and a filter on the clients list.',
-            'by' => 'name', 'ordered' => false, 'max' => 200,
+            'by' => 'name', 'ordered' => false, 'max' => 200, 'modules' => ['module_client'],
             'uses' => [
                 $use('clients', 'client_referral', 'client', 'clients', '/agent/clients.php?referral={name}', 'client_archived_at', 'client_updated_at'),
             ],
@@ -73,7 +75,7 @@ function categoryKinds() {
         'Ticket' => [
             'label' => 'Ticket', 'one' => 'ticket category', 'many' => 'ticket categories', 'icon' => 'fa-life-ring',
             'about' => 'What a ticket is about. Tickets, recurring tickets and canned responses have one, and the ticket reports add up by them.',
-            'by' => 'id', 'ordered' => false, 'max' => 200,
+            'by' => 'id', 'ordered' => false, 'max' => 200, 'modules' => ['module_support'],
             'uses' => [
                 $use('tickets', 'ticket_category', 'ticket', 'tickets', '/agent/tickets.php?category={id}&show=all', 'ticket_archived_at', 'ticket_updated_at', true),
                 $use('recurring_tickets', 'recurring_ticket_category', 'recurring ticket', 'recurring tickets', '/agent/recurring_tickets.php?category={id}', null, 'recurring_ticket_updated_at', true),
@@ -83,7 +85,7 @@ function categoryKinds() {
         'network_interface' => [
             'label' => 'Network Interface', 'one' => 'interface type', 'many' => 'interface types', 'icon' => 'fa-ethernet',
             'about' => 'The kinds of port on an asset - Ethernet, SFP+, WiFi - picked on each of its interfaces.',
-            'by' => 'name', 'ordered' => true, 'max' => 50,
+            'by' => 'name', 'ordered' => true, 'max' => 50, 'modules' => ['module_support'],
             'uses' => [
                 $use('asset_interfaces', 'interface_type', 'interface', 'interfaces', null, 'interface_archived_at', 'interface_updated_at'),
             ],
@@ -91,32 +93,32 @@ function categoryKinds() {
         'asset_status' => [
             'label' => 'Asset Status', 'one' => 'asset status', 'many' => 'asset statuses', 'icon' => 'fa-heartbeat',
             'about' => 'Where an asset stands - deployed, out for repair, retired. Its colour is the status badge\'s; without one the built-in statuses keep theirs.',
-            'by' => 'name', 'ordered' => true, 'max' => 200,
+            'by' => 'name', 'ordered' => true, 'max' => 200, 'modules' => ['module_support'],
             'uses' => [
-                $use('assets', 'asset_status', 'asset', 'assets', null, 'asset_archived_at', 'asset_updated_at'),
+                $use('assets', 'asset_status', 'asset', 'assets', '/agent/assets.php?status={name}', 'asset_archived_at', 'asset_updated_at'),
             ],
         ],
         'software_type' => [
             'label' => 'Software Type', 'one' => 'software type', 'many' => 'software types', 'icon' => 'fa-cube',
             'about' => 'What kind of software a license is for - SaaS, security, operating system. Its icon is the license\'s.',
-            'by' => 'name', 'ordered' => true, 'max' => 200,
+            'by' => 'name', 'ordered' => true, 'max' => 200, 'modules' => ['module_support'],
             'uses' => [
-                $use('software', 'software_type', 'license', 'licenses', null, 'software_archived_at', 'software_updated_at'),
+                $use('software', 'software_type', 'license', 'licenses', '/agent/software.php?software_type={name}', 'software_archived_at', 'software_updated_at'),
                 $use('software_templates', 'software_template_type', 'license template', 'license templates', '/admin/software_templates.php', 'software_template_archived_at', 'software_template_updated_at'),
             ],
         ],
         'rack_type' => [
             'label' => 'Rack Type', 'one' => 'rack type', 'many' => 'rack types', 'icon' => 'fa-server',
             'about' => 'The kinds of rack - open frame, enclosed cabinet, wall mount - picked on each rack.',
-            'by' => 'name', 'ordered' => true, 'max' => 50,
+            'by' => 'name', 'ordered' => true, 'max' => 50, 'modules' => ['module_support'],
             'uses' => [
-                $use('racks', 'rack_type', 'rack', 'racks', null, 'rack_archived_at', 'rack_updated_at'),
+                $use('racks', 'rack_type', 'rack', 'racks', '/agent/racks.php?type={name}', 'rack_archived_at', 'rack_updated_at'),
             ],
         ],
         'contact_note_type' => [
             'label' => 'Contact Note Type', 'one' => 'contact note type', 'many' => 'contact note types', 'icon' => 'fa-address-book',
             'about' => 'What a note on a contact records - a call, an email, a meeting. Its icon marks the note.',
-            'by' => 'name', 'ordered' => true, 'max' => 200,
+            'by' => 'name', 'ordered' => true, 'max' => 200, 'modules' => ['module_client'],
             'uses' => [
                 $use('contact_notes', 'contact_note_type', 'contact note', 'contact notes', null, 'contact_note_archived_at', 'contact_note_updated_at'),
             ],
@@ -124,7 +126,7 @@ function categoryKinds() {
         'asset_note_type' => [
             'label' => 'Asset Note Type', 'one' => 'asset note type', 'many' => 'asset note types', 'icon' => 'fa-desktop',
             'about' => 'What a note on an asset records - maintenance, a repair, an upgrade. Its icon marks the note.',
-            'by' => 'name', 'ordered' => true, 'max' => 200,
+            'by' => 'name', 'ordered' => true, 'max' => 200, 'modules' => ['module_support'],
             'uses' => [
                 $use('asset_notes', 'asset_note_type', 'asset note', 'asset notes', null, 'asset_note_archived_at', 'asset_note_updated_at'),
             ],
@@ -751,4 +753,67 @@ function categoryEnsure($kind, $name) {
     $category_id = categoryCreate(['type' => $config['kind'], 'name' => $name, 'description' => '', 'color' => categoryNextColor($config['kind']), 'icon' => '']);
     logAudit("Category", "Create", ($session_name ?? 'ITFlow') . " created " . $config['one'] . " " . escapeSql($name), 0, $category_id);
     return $name;
+}
+
+/*
+ * A list's category filter <option>s - the kind's categories its records
+ * have ($used_sql: a query giving the ids, or the names for a kind held by
+ * name, on the list's records), archived ones too as records keep them, and
+ * a name that is no category marked so; plus $selected, chosen. In the
+ * kind's order, each with its colour and icon. Without $used_sql, the
+ * current ones. $opts as categoryPicker()'s - names in 'exclude' are left
+ * out even when records have them, unless chosen. The list writes its own
+ * "any" option first. HTML.
+ */
+function categoryFilterOptionsHtml($kind, $selected = null, $used_sql = '', array $opts = []) {
+    global $mysqli;
+    $config = categoryKind($kind);
+    if (!$config) {
+        return '';
+    }
+    $by_name = $config['by'] === 'name';
+    $used = null;
+    if ($used_sql !== '') {
+        $used = [];
+        $sql = mysqli_query($mysqli, $used_sql);
+        while ($row = mysqli_fetch_row($sql)) {
+            $value = $by_name ? trim((string) $row[0]) : intval($row[0]);
+            if ($value !== '' && $value !== 0) {
+                $used[$by_name ? categoryNameKey($value) : $value] = $value;
+            }
+        }
+    }
+    $selected_key = $by_name ? categoryNameKey(trim((string) $selected)) : intval($selected);
+    $keep = array_values($used ?? []);
+    if ($selected_key !== '' && $selected_key !== 0) {
+        $keep[] = $selected;
+    }
+    $exclude = array_map('categoryNameKey', (array) ($opts['exclude'] ?? []));
+    $html = '';
+    foreach (categoryPicker($kind, $keep, $opts) as $value => $row) {
+        $key = $by_name ? categoryNameKey($value) : intval($value);
+        if ($key !== $selected_key && (($used !== null && !isset($used[$key])) || in_array(categoryNameKey($row['category_name']), $exclude, true))) {
+            continue;
+        }
+        $html .= categoryOptionHtml($row, $key === $selected_key && $selected_key !== '' && $selected_key !== 0) . "\n";
+    }
+    return $html;
+}
+
+/*
+ * A category's mark beside its name in a list or quick look - its icon in
+ * its colour, or a dot of its colour (an empty one without). $dot: the
+ * page's own dot to use instead when it has no icon - the ticket lists' -
+ * written for a colour (%s: a style attribute, or ''). HTML.
+ */
+function categoryMarkHtml($color, $icon = '', $dot = '') {
+    $color = categoryColor($color);
+    $icon = categoryIcon($icon);
+    if ($icon !== '') {
+        return '<i class="fas fa-fw fa-' . $icon . ' itflow-category-icon"' . ($color ? ' style="color: ' . $color . '"' : '') . ' aria-hidden="true"></i>';
+    }
+    if ($dot !== '') {
+        return sprintf($dot, $color ? ' style="color: ' . $color . '"' : '');
+    }
+    return '<span class="itflow-category-dot"' . ($color ? ' style="background-color: ' . $color . '"' : '') . ' aria-hidden="true"></span>';
 }

@@ -70,7 +70,7 @@ ob_start();
             <div class="itflow-glance-item" title="Category">
                 <i class="fas fa-fw fa-tag"></i>
                 <?php if (intval($row['revenue_category_id']) && $row['category_name'] !== null) { ?>
-                    <a class="text-reset text-truncate" href="income.php?category=<?= intval($row['revenue_category_id']) ?>"><?= expenseCategoryDot($row['category_color']) ?><?= escapeHtml($row['category_name']) ?></a>
+                    <a class="text-reset text-truncate" href="income.php?category=<?= intval($row['revenue_category_id']) ?>"><?= expenseCategoryDot($row['category_color'], $row['category_icon'] ?? '') ?><?= escapeHtml($row['category_name']) ?></a>
                 <?php } else { ?>
                     <span class="text-warning-emphasis">No category - the reports show it as No category</span>
                 <?php } ?>

@@ -18,7 +18,7 @@ $ticket_id = intval($_GET['id'] ?? 0);
 $ticket = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tickets.*, client_name, contact_name, contact_email, contact_photo, contact_title,
         contact_phone, contact_phone_country_code, contact_extension, contact_mobile, contact_mobile_country_code,
         ticket_status_name, ticket_status_color, ticket_status_pauses_sla, user_name, user_avatar, asset_name, location_name,
-        vendor_name, category_name, category_color, project_prefix, project_number, project_name, project_client_id, sla_name,
+        vendor_name, category_name, category_color, category_icon, project_prefix, project_number, project_name, project_client_id, sla_name,
         " . ticketLastSpokeSql() . " AS ticket_last_spoke
     FROM tickets
     LEFT JOIN clients ON client_id = ticket_client_id
@@ -167,7 +167,7 @@ ob_start();
 
         <?php if ($ticket['category_name'] !== null && $ticket['category_name'] !== '') { ?>
             <dt>Category</dt>
-            <dd><i class="fas fa-circle itflow-ticket-dot" <?= preg_match('/^#[0-9a-f]{3,8}$/i', (string) $ticket['category_color']) ? 'style="color: ' . $ticket['category_color'] . '"' : '' ?>></i><?= escapeHtml($ticket['category_name']) ?></dd>
+            <dd><?= categoryMarkHtml($ticket['category_color'], $ticket['category_icon'] ?? '', '<i class="fas fa-circle itflow-ticket-dot"%s aria-hidden="true"></i>') ?><?= escapeHtml($ticket['category_name']) ?></dd>
         <?php } ?>
 
         <?php if (!empty($ticket['ticket_schedule'])) { ?>

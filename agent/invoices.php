@@ -243,13 +243,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="category" onchange="this.form.submit()">
                         <option value="">- Any category -</option>
-                        <?php
-                        $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories
-                            WHERE category_type = 'Income' AND EXISTS (SELECT 1 FROM invoices WHERE invoice_category_id = category_id) ORDER BY category_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
-                            $category_option_id = intval($row['category_id']); ?>
-                            <option <?= $category_filter === $category_option_id ? 'selected' : '' ?> value="<?= $category_option_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= escapeHtml($row['category_name']) ?></option>
-                        <?php } ?>
+                        <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT DISTINCT invoice_category_id FROM invoices") ?>
                     </select>
                 </div>
                 <?php if (!$client_url) { ?>

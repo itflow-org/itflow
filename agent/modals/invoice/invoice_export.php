@@ -72,16 +72,7 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                 <select class="form-select select2" name="category">
                     <option value="">- All Categories -</option>
-                    <?php
-                    $sql_category_filter = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Income' ORDER BY category_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql_category_filter)) {
-                        $filter_option_id = intval($row['category_id']);
-                        $filter_option_name = escapeHtml($row['category_name']);
-                    ?>
-                        <option <?php if ($category_filter == $filter_option_id) { echo "selected"; } ?> value="<?= $filter_option_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $filter_option_name ?></option>
-                    <?php
-                    }
-                    ?>
+                    <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT DISTINCT invoice_category_id FROM invoices") ?>
                 </select>
             </div>
         </div>

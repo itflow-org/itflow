@@ -123,7 +123,6 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                 $attention = $is_open ? ticketAttention($sla, $due) : '';
                 $schedule = $row['ticket_schedule'];
                 $scheduled_today = $schedule && substr($schedule, 0, 10) === date('Y-m-d');
-                $category_color = preg_match('/^#[0-9a-f]{3,8}$/i', (string) $row['category_color']) ? $row['category_color'] : '';
                 $ticket_invoice_id = intval($row['ticket_invoice_id']);
                 $ticket_quote_id = intval($row['ticket_quote_id']);
 
@@ -152,7 +151,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                                     <span title="Opened <?= escapeHtml($row['ticket_created_at']) ?>"><?= timeAgo($row['ticket_created_at']) ?></span>
                                     <?= ticketSourceIcon($row['ticket_source']) ?>
                                     <?php if ($row['category_name'] !== null && $row['category_name'] !== '') { ?>
-                                        <span class="text-nowrap"><i class="fas fa-circle itflow-ticket-dot" <?= $category_color ? 'style="color: ' . $category_color . '"' : '' ?>></i><?= escapeHtml($row['category_name']) ?></span>
+                                        <span class="text-nowrap"><?= categoryMarkHtml($row['category_color'], $row['category_icon'] ?? '', '<i class="fas fa-circle itflow-ticket-dot"%s aria-hidden="true"></i>') ?><?= escapeHtml($row['category_name']) ?></span>
                                     <?php } ?>
                                     <?php if (!empty($row['asset_name'])) { ?>
                                         <span class="text-nowrap text-truncate itflow-ticket-asset" title="Asset"><i class="fas fa-desktop me-1"></i><?= escapeHtml($row['asset_name']) ?></span>

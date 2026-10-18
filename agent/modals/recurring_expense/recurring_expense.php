@@ -95,7 +95,7 @@ ob_start();
             </div>
             <div class="itflow-glance-item" title="Category">
                 <i class="fas fa-fw fa-list"></i>
-                <span><?= expenseCategoryDot($row['category_color']) ?><?= escapeHtml($row['category_name'] ?: 'No category') ?></span>
+                <span><?= expenseCategoryDot($row['category_color'], $row['category_icon'] ?? '') ?><?= escapeHtml($row['category_name'] ?: 'No category') ?></span>
             </div>
             <?php if ($row['recurring_expense_reference']) { ?>
                 <div class="itflow-glance-item" title="Reference">

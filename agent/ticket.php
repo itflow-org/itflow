@@ -1051,7 +1051,7 @@ if (isset($_GET['ticket_id'])) {
                             <div class="ticket-prop">
                                 <dt>Category</dt>
                                 <dd>
-                                    <?php $category_value = $ticket_category ? $ticket_category_display : "<span class='text-muted'>None</span>"; ?>
+                                    <?php $category_value = $ticket_category ? categoryMarkHtml($ticket['category_color'] ?? '', $ticket['category_icon'] ?? '', '<i class="fas fa-circle itflow-ticket-dot"%s aria-hidden="true"></i>') . $ticket_category_display : "<span class='text-muted'>None</span>"; ?>
                                     <?php if ($can_change_fields) { ?>
                                         <a href="#" class="ticket-prop-edit ajax-modal" data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>" data-modal-size="lg" title="Change category">
                                             <span><?= $category_value ?></span>

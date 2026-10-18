@@ -505,6 +505,14 @@ if (isExportRequest('export_software')) {
         $filter_summary['Showing'] = $status_filters[$status]['label'];
     }
 
+    // Software type
+    $software_type_filter = trim(strip_tags((string) ($_POST['software_type'] ?? '')));
+    $software_type_query = '';
+    if ($software_type_filter !== '') {
+        $software_type_query = "AND software_type = '" . escapeSql($software_type_filter) . "'";
+        $filter_summary['Software Type'] = $software_type_filter;
+    }
+
     // License type
     $license_type_query = '';
     if (!empty($_POST['license_type'])) {
@@ -547,6 +555,7 @@ if (isExportRequest('export_software')) {
         $tag_query
         $expire_query
         $status_query
+        $software_type_query
         $license_type_query
         ORDER BY software_name ASC"
     );

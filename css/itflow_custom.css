@@ -3083,6 +3083,12 @@ a.itflow-dash-rail-item:focus-visible {
 .itflow-category .itflow-category-dot {
     margin-right: 0;
 }
+/* A category's icon beside its name in a list (categoryMarkHtml()) - in its
+   colour, set as the dot it stands in for is */
+.itflow-category-icon {
+    margin-right: .3rem;
+    color: var(--bs-secondary-color);
+}
 .itflow-category-name {
     min-width: 0;
     overflow-wrap: anywhere;

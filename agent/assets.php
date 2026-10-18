@@ -77,6 +77,10 @@ if ($client_url && !empty($_GET['location'])) {
     $location_filter = 0;
 }
 
+// Status Filter - the asset statuses (Admin > Categories), held by name
+$status_filter = trim(strip_tags((string) ($_GET['status'] ?? '')));
+$status_query = $status_filter !== '' ? "AND asset_status = '" . escapeSql($status_filter) . "'" : '';
+
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
     $tag_filter = implode(",", array_map('intval', $_GET['tags']));
@@ -131,7 +135,7 @@ if (!in_array($sort, $sortable_columns, true)) {
 // Addresses sort by value - .9 before .10 - and this works for IPv4 and IPv6 alike
 $order_by = $sort === 'interface_ip' ? "INET6_ATON(interface_ip) $order, interface_ip $order" : "$sort $order";
 
-// Tab counts - within the client, tag and archive scope, before the search narrows it
+// Tab counts - within the client, status, tag and archive scope, before the search narrows it
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
     SELECT
         COUNT(*) AS all_count,
@@ -144,6 +148,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
     FROM assets
     LEFT JOIN clients ON client_id = asset_client_id
     WHERE $archive_query
+    $status_query
     $tag_query
     " . clientScopeSql('asset_client_id') . "
     $client_query
@@ -176,6 +181,7 @@ $sql = mysqli_query(
         OR asset_id IN (SELECT asset_tag_asset_id FROM asset_tags JOIN tags ON tag_id = asset_tag_tag_id WHERE tag_name LIKE '%$q%'))
     AND ($type_query)
     " . clientScopeSql('asset_client_id') . "
+    $status_query
     $location_query
     $expire_query
     $client_query
@@ -228,7 +234,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                             <div class="dropdown-divider"></div>
                         <?php } ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
-                            data-modal-url="<?= buildExportModalUrl('modals/asset/asset_export.php', ['client_id', 'type', 'client', 'location', 'tags', 'expire_days', 'archived', 'q']) ?>">
+                            data-modal-url="<?= buildExportModalUrl('modals/asset/asset_export.php', ['client_id', 'type', 'client', 'location', 'status', 'tags', 'expire_days', 'archived', 'q']) ?>">
                             <i class="fa fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
@@ -265,14 +271,14 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
             <input type="hidden" name="type" value="<?= $type_filter ?>">
             <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row g-2 align-items-center">
-                <div class="col-lg-3 col-md-6">
+                <div class="col-xl-3 col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?= strtolower($search_noun) ?>, IPs, serials...">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
                 <?php if ($client_url) { ?>
-                <div class="col-lg-2 col-md-6">
+                <div class="col-xl col-lg-4 col-md-6">
                     <select class="form-select select2" name="location" onchange="this.form.submit()">
                         <option value="">- All Locations -</option>
                         <?php
@@ -292,7 +298,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                     </select>
                 </div>
                 <?php } else { ?>
-                <div class="col-lg-2 col-md-6">
+                <div class="col-xl col-lg-4 col-md-6">
                     <select class="form-select select2" name="client" onchange="this.form.submit()">
                         <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
                         <?php
@@ -313,7 +319,16 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                     </select>
                 </div>
                 <?php } ?>
-                <div class="col-lg-2 col-md-4">
+                <div class="col-xl col-lg-4 col-md-6">
+                    <select class="form-select select2" name="status" onchange="this.form.submit()">
+                        <option value="">- Status -</option>
+                        <?= categoryFilterOptionsHtml('asset_status', $status_filter, "SELECT DISTINCT asset_status FROM assets
+                            LEFT JOIN clients ON client_id = asset_client_id
+                            WHERE $archive_query AND asset_status IS NOT NULL AND asset_status <> ''
+                            " . clientScopeSql('asset_client_id') . " $client_query") ?>
+                    </select>
+                </div>
+                <div class="col-xl col-lg-3 col-md-6">
                     <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
                         <?php
                         // Tags in use on assets in this scope, plus any already picked
@@ -335,7 +350,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                         <?php } ?>
                     </select>
                 </div>
-                <div class="col-lg-2 col-md-4">
+                <div class="col-xl col-lg-3 col-md-6">
                     <select class="form-select select2" name="expire_days" onchange="this.form.submit()">
                         <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Warranty -</option>
                         <option value="expired" <?php if ($expire_days === "expired") { echo "selected"; } ?>>Expired</option>
@@ -344,14 +359,14 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                         <?php } ?>
                     </select>
                 </div>
-                <div class="col-lg-2 col-md-4">
+                <div class="col-xl col-lg-3 col-md-6">
                     <select onchange="this.form.submit()" class="form-select select2" name="show_column[]" data-placeholder="- More columns -" multiple>
                         <?php foreach ($extra_column_options as $column_key => $column_label) { ?>
                             <option value="<?= $column_key ?>" <?php if (in_array($column_key, $extra_columns, true)) { echo 'selected'; } ?>><?= $column_label ?></option>
                         <?php } ?>
                     </select>
                 </div>
-                <div class="col-lg-1 col-md-12">
+                <div class="col-xl-auto col-lg-3 col-md-12">
                     <div class="d-flex justify-content-end gap-2">
                         <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>"
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active assets' : 'Show archived assets' ?>">
