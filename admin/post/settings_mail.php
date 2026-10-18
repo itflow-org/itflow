@@ -217,41 +217,27 @@ if (isset($_POST['test_email_smtp'])) {
 
     $test_email = intval($_POST['test_email']);
 
-    if($test_email == 1) {
-        $email_from = escapeSql($config_mail_from_email);
-        $email_from_name = escapeSql($config_mail_from_name);
-    } elseif ($test_email == 2) {
-        $email_from = escapeSql($config_invoice_from_email);
-        $email_from_name = escapeSql($config_invoice_from_name);
-    } elseif ($test_email == 3) {
-        $email_from = escapeSql($config_quote_from_email);
-        $email_from_name = escapeSql($config_quote_from_name);
-    } else {
-        $email_from = escapeSql($config_ticket_from_email);
-        $email_from_name = escapeSql($config_ticket_from_name);
+    // From the mailbox picked - the system's, invoices', quotes' or tickets'
+    $which = [1 => 'the system mailbox', 2 => 'the invoice mailbox', 3 => 'the quote mailbox'][$test_email] ?? 'the ticket mailbox';
+    $from = $test_email == 1 ? emailFrom() : ($test_email == 2 ? billingEmailFrom('invoice') : ($test_email == 3 ? billingEmailFrom('quote') : emailFrom('ticket')));
+    $to = trim((string) ($_POST['email_to'] ?? ''));
+
+    if (!emailReady()) {
+        flashAlert('Set up how mail is sent first, then send the test', 'error');
+        redirect($mail_tab_redirect);
     }
 
-    $email_to = escapeSql($_POST['email_to']);
-    $subject = "Test email from ITFlow";
-    $body = "This is a test email from ITFlow. If you are reading this, it worked!";
+    $sent = emailQueue([['email' => $to, 'greet' => '', 'footnote' => 'You get this because someone sent a test from Admin > Mail in ITFlow.']], "Test email from ITFlow", [
+        'kind' => 'Test', 'tone' => 'success', 'preview' => "A test from $which",
+        'title' => 'Mail is working',
+        'intro' => ["This is a test email from ITFlow, sent from $which. If you are reading this, it worked."],
+        'summary' => ['From' => trim($from['name'] . ' <' . $from['email'] . '>'), 'To' => $to, 'Sent' => date('D j M Y, g:i A')],
+    ], ['from' => $from]);
 
-    $data = [
-        [
-            'from' => $email_from,
-            'from_name' => $email_from_name,
-            'recipient' => $email_to,
-            'recipient_name' => 'Chap',
-            'subject' => $subject,
-            'body' => $body
-        ]
-    ];
-
-    $mail = addToMailQueue($data);
-
-    if ($mail === true) {
+    if ($sent) {
         flashAlert("Test email queued! Check <strong>Admin &gt; Mail queue</strong>");
     } else {
-        flashAlert("Failed to add test mail to queue", 'error');
+        flashAlert(escapeHtml($to) . " isn't an email address - nothing was queued", 'error');
     }
 
     redirect($mail_tab_redirect);

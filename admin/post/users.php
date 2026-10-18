@@ -62,19 +62,12 @@ if (isset($_POST['add_user'])) {
     }
 
     // Their sign in details by email - the password goes as typed, so it is theirs to change
-    if (!empty($_POST['send_email']) && !empty($config_smtp_host)) {
-        $company_name = (string) mysqli_fetch_row(mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1"))[0];
-        $login_url = "https://$config_base_url/login.php" . ($config_login_key_required == 1 ? "?key=$config_login_key_secret" : '');
-        $mail = userQueueMail($email, $name, "Your new $company_name ITFlow account",
-            'Hello ' . escapeHtml($name) . ',<br><br>An ITFlow account has been set up for you. Please change your password after you sign in'
-            . ($force_mfa ? ', and have an authenticator app ready - you will set up multi-factor authentication the first time' : '') . '.<br><br>'
-            . 'Email: ' . escapeHtml($email) . '<br>Password: ' . escapeHtml($password) . '<br>Sign in at: ' . escapeHtml($login_url)
-            . '<br><br>--<br>' . escapeHtml($company_name) . ' - Support<br>' . escapeHtml($config_ticket_from_email));
-        if ($mail === true) {
+    if (!empty($_POST['send_email']) && emailReady()) {
+        if (userMailNewAccount($name, $email, $password, $force_mfa)) {
             $notes[] = 'their sign in details were emailed to them';
         } else {
             $notes[] = 'the email with their sign in details could not be queued';
-            logApp('Mail', 'error', 'Failed to queue the new account email for ' . $email . ": $mail");
+            logApp('Mail', 'error', 'Failed to queue the new account email for ' . escapeSql($email));
         }
     }
 

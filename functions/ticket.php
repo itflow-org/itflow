@@ -345,6 +345,7 @@ function ticketEmailSla($ticket_id) {
  *   resolved  marked resolved, pending closure - message (the agent's note, HTML, or ''), by
  *   closed    closed - asking how we did
  *   watcher   they were made a watcher - by (who added them)
+ *   scheduled the work was booked - when (words), where (the site's address), or cancelled: true
  */
 function ticketEmailContent(array $row, $kind, array $opts = []) {
     global $config_ticket_autoclose_hours;
@@ -404,6 +405,15 @@ function ticketEmailContent(array $row, $kind, array $opts = []) {
         $email['summary'] = $summary;
         $email['button']['label'] = 'Tell us how we did';
         $email['after'] = ['Need more help with this? Raise a new ticket - replies to this email do not reach us.'];
+    } elseif ($kind === 'scheduled') {
+        $cancelled = !empty($opts['cancelled']);
+        $email['kind'] = $cancelled ? 'Visit cancelled' : 'Work booked';
+        $email['tone'] = $cancelled ? 'secondary' : 'primary';
+        $email['title'] = $cancelled ? 'The booked work is cancelled' : 'Your ticket is booked in';
+        $email['intro'] = [$cancelled
+            ? "The work booked on ticket $reference is cancelled - the calendar file with this email takes it out of your calendar. We will be in touch to book it again."
+            : "We have booked the work on ticket $reference for " . $opts['when'] . ". The calendar file with this email adds it to your calendar."];
+        $email['summary'] = $summary + ($cancelled ? [] : ['When' => (string) $opts['when'], 'Where' => !empty($row['ticket_onsite']) ? (trim((string) ($opts['where'] ?? '')) !== '' ? (string) $opts['where'] : 'Onsite') : 'Remote']);
     } elseif ($kind === 'watcher') {
         $email['kind'] = 'Watching';
         $email['title'] = 'You were added to a ticket';
@@ -431,8 +441,8 @@ function ticketEmailContent(array $row, $kind, array $opts = []) {
  *                (ticketColleagueRecipients())
  */
 function ticketMailSend($ticket_id, $subject, array $email, array $opts = []) {
-    global $mysqli, $config_smtp_provider;
-    if (empty($config_smtp_provider)) {
+    global $mysqli;
+    if (!emailReady()) {
         return 0;
     }
     $ticket_id = intval($ticket_id);
@@ -465,7 +475,7 @@ function ticketMailSend($ticket_id, $subject, array $email, array $opts = []) {
             }
         }
     }
-    return count(emailQueue($recipients, $subject, $email, ['from' => ticketEmailFrom(), 'attachments' => $opts['attachments'] ?? []]));
+    return count(emailQueue($recipients, $subject, $email, ['from' => ticketEmailFrom(), 'attachments' => $opts['attachments'] ?? [], 'cal_str' => $opts['cal_str'] ?? '']));
 }
 
 /** Whether a ticket's contact gets an email of this $kind - no 'created' or 'closed' email for one who asked for replies only. */
@@ -511,8 +521,8 @@ function ticketColleagueRecipients($ticket_id, $kind) {
  * notifications have to be on (Admin > Ticket). How many were queued.
  */
 function ticketMailColleaguesNew($ticket_id) {
-    global $config_smtp_provider, $config_ticket_client_general_notifications, $config_base_url;
-    if (empty($config_smtp_provider) || intval($config_ticket_client_general_notifications) !== 1) {
+    global $config_ticket_client_general_notifications, $config_base_url;
+    if (!emailReady() || intval($config_ticket_client_general_notifications) !== 1) {
         return 0;
     }
     $ticket = ticketRow($ticket_id);
@@ -538,6 +548,170 @@ function ticketMailColleaguesNew($ticket_id) {
         ], ['from' => ticketEmailFrom()]));
     }
     return $sent;
+}
+
+/* ------------------------------------------------------------ Emails about a ticket, to agents */
+
+/** Where an agent opens a ticket - in ITFlow. */
+function ticketAgentUrl(array $row) {
+    global $config_base_url;
+    return "https://$config_base_url/agent/" . ticketUrl($row['ticket_id'], $row['ticket_client_id'] ?? 0);
+}
+
+/** An agent to email - ['email', 'name'] of an active one, or null. */
+function ticketMailAgent($user_id) {
+    global $mysqli;
+    $user_id = intval($user_id);
+    $row = $user_id ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_email FROM users
+        WHERE user_id = $user_id AND user_type = 1 AND user_status = 1 AND user_archived_at IS NULL LIMIT 1")) : null;
+    return $row && filter_var($row['user_email'], FILTER_VALIDATE_EMAIL) ? ['email' => $row['user_email'], 'name' => $row['user_name']] : null;
+}
+
+/*
+ * What an email to an agent about a ticket says - emailHtml()'s fields
+ * (functions/email.php), all but who it is to and why. $row is ticketRow().
+ * $kind and its $opts:
+ *   new       it was raised - how: portal, email or scheduled
+ *   replied   the client replied - how: portal or email, message (the reply, HTML), by (who)
+ *   assigned  it was assigned to them - by (who)
+ *   sla       an SLA alert - track: response or resolution, breached: true once missed, due (when)
+ *   scheduled the work was booked - when, where, or cancelled: true
+ */
+function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
+    $reference = ticketReference($row);
+    $subject = (string) $row['ticket_subject'];
+    $client = !empty($row['client_name']) ? (string) $row['client_name'] : (intval($row['ticket_client_id'] ?? 0) ? 'A client' : 'No client');
+    $by = trim((string) ($opts['by'] ?? ''));
+    $email = [
+        'kind' => 'Ticket', 'tone' => 'primary', 'title' => $subject, 'preview' => "$reference - $subject",
+        'summary' => ['Client' => $client, 'Ticket' => $reference, 'Priority' => (string) $row['ticket_priority'], 'Status' => (string) ($row['ticket_status_name'] ?? '')],
+        'button' => ['label' => 'Open in ITFlow', 'url' => ticketAgentUrl($row)],
+    ];
+    if ($kind === 'new') {
+        $how = ['portal' => ' in the client portal', 'email' => ' by email', 'scheduled' => ', as scheduled'][$opts['how'] ?? ''] ?? '';
+        $who = ($opts['how'] ?? '') === 'scheduled' ? 'A recurring ticket was raised' : (trim((string) ($row['contact_name'] ?? '')) !== '' ? $row['contact_name'] . ' raised a ticket' : 'A ticket was raised');
+        $email['kind'] = 'New ticket';
+        $email['intro'] = [($opts['how'] ?? '') === 'scheduled' ? "$who for $client, as scheduled." : "$who$how for $client."];
+        $email['message'] = ['html' => (string) $row['ticket_details'], 'label' => 'Details'];
+        $email['summary'] = ['Client' => $client, 'Ticket' => $reference, 'Priority' => (string) $row['ticket_priority']]
+            + (trim((string) ($row['contact_name'] ?? '')) !== '' ? ['Contact' => (string) $row['contact_name']] : []);
+    } elseif ($kind === 'replied') {
+        $how = ['portal' => ' in the client portal', 'email' => ' by email'][$opts['how'] ?? ''] ?? '';
+        $email['kind'] = 'Client replied';
+        $email['intro'] = [($by !== '' ? $by : 'The client') . " replied to $reference$how."];
+        $email['message'] = ['html' => (string) ($opts['message'] ?? ''), 'label' => ($by !== '' ? $by : 'They') . ' wrote'];
+        $email['after'] = ['Answer it in ITFlow, so the client gets your reply.'];
+    } elseif ($kind === 'assigned') {
+        $email['kind'] = 'Assigned to you';
+        $email['intro'] = [($by !== '' ? $by : 'Someone') . " assigned $reference to you."];
+        $email['message'] = ['html' => (string) $row['ticket_details'], 'label' => 'Details'];
+    } elseif ($kind === 'scheduled') {
+        $cancelled = !empty($opts['cancelled']);
+        $email['kind'] = $cancelled ? 'Visit cancelled' : 'Work booked';
+        $email['tone'] = $cancelled ? 'secondary' : 'primary';
+        $email['intro'] = [$cancelled ? "The work booked on $reference is cancelled - the calendar file with this email takes it out of your calendar." : "$reference is booked for " . $opts['when'] . " - the calendar file with this email adds it to your calendar."];
+        if (!$cancelled) {
+            $email['summary'] += ['When' => (string) $opts['when'], 'Where' => !empty($row['ticket_onsite']) ? (trim((string) ($opts['where'] ?? '')) !== '' ? (string) $opts['where'] : 'Onsite') : 'Remote'];
+        }
+    } elseif ($kind === 'sla') {
+        $track = ($opts['track'] ?? 'response') === 'resolution' ? 'resolution' : 'response';
+        $due = !empty($opts['due']) ? date('D j M, g:i A', strtotime($opts['due'])) : '';
+        $breached = !empty($opts['breached']);
+        $email['kind'] = ucfirst($track) . ($breached ? ' SLA missed' : ' SLA at risk');
+        $email['tone'] = $breached ? 'danger' : 'warning';
+        $email['intro'] = [$breached
+            ? "The $track due on $reference by $due was missed."
+            : "$reference is close to its $track SLA - it is due by $due."];
+        $email['summary'] += ['Assigned' => !empty($row['user_name']) ? (string) $row['user_name'] : 'Nobody', ucfirst($track) . ' due' => $due];
+    }
+    return $email;
+}
+
+/** Queue an email to agents (ticketAgentEmailContent()) from the ticket mailbox - [['email', 'name', 'footnote'], ...]. How many went. */
+function ticketMailAgents(array $recipients, $subject, array $email) {
+    return count(emailQueue($recipients, $subject, $email, ['from' => ticketEmailFrom()]));
+}
+
+/*
+ * Tell the new-ticket address (Admin > Ticket) a ticket was raised - $how:
+ * portal, email or scheduled. Nothing when it isn't set.
+ */
+function ticketMailNewTicketAddress($ticket_id, $how) {
+    global $mysqli, $config_app_name;
+    $address = (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_ticket_new_ticket_notification_email FROM settings WHERE company_id = 1"))[0] ?? '');
+    $row = ticketRow($ticket_id);
+    if (!filter_var($address, FILTER_VALIDATE_EMAIL) || !$row) {
+        return 0;
+    }
+    $client = !empty($row['client_name']) ? $row['client_name'] : 'Guest';
+    $subject = ($config_app_name ?: 'ITFlow') . ($how === 'scheduled' ? ' - New Recurring Ticket - ' : ' - New Ticket - ') . "$client: " . $row['ticket_subject'];
+    return ticketMailAgents([['email' => $address, 'greet' => '', 'footnote' => 'You get this at the new-ticket address in Admin > Ticket.']],
+        $subject, ticketAgentEmailContent($row, 'new', ['how' => $how]));
+}
+
+/** Tell the agent a ticket is assigned to that the client replied - $how portal or email, $reply its HTML, $by who. */
+function ticketMailAssigneeReplied($ticket_id, $how, $reply, $by) {
+    global $config_app_name;
+    $row = ticketRow($ticket_id);
+    $agent = $row ? ticketMailAgent($row['ticket_assigned_to']) : null;
+    if (!$agent) {
+        return 0;
+    }
+    return ticketMailAgents([$agent + ['footnote' => 'You get this as the agent ' . ticketReference($row) . ' is assigned to.']],
+        ($config_app_name ?: 'ITFlow') . " - Ticket updated - [" . ticketReference($row) . "] " . $row['ticket_subject'],
+        ticketAgentEmailContent($row, 'replied', ['how' => $how, 'message' => (string) $reply, 'by' => (string) $by]));
+}
+
+/*
+ * Tell an agent tickets are theirs now - one email for any number. Not when
+ * they assigned them themselves. $ticket_ids, $by raw. How many went.
+ */
+function ticketMailAssigned($user_id, array $ticket_ids, $by) {
+    global $session_user_id, $config_app_name, $config_base_url;
+    $agent = intval($user_id) !== intval($session_user_id ?? 0) ? ticketMailAgent($user_id) : null;
+    $rows = array_values(array_filter(array_map('ticketRow', array_unique(array_map('intval', $ticket_ids)))));
+    if (!$agent || !$rows) {
+        return 0;
+    }
+    $app = $config_app_name ?: 'ITFlow';
+    $agent['footnote'] = 'You get this because ' . (count($rows) === 1 ? 'the ticket was' : 'they were') . ' assigned to you in ITFlow.';
+    if (count($rows) === 1) {
+        $row = $rows[0];
+        return ticketMailAgents([$agent], "$app - Ticket " . ticketReference($row) . " assigned to you - " . $row['ticket_subject'], ticketAgentEmailContent($row, 'assigned', ['by' => $by]));
+    }
+    $lines = [];
+    foreach ($rows as $row) {
+        $lines[] = [['text' => ticketReference($row), 'url' => ticketAgentUrl($row)], (string) $row['ticket_subject'], !empty($row['client_name']) ? (string) $row['client_name'] : '-', (string) $row['ticket_priority']];
+    }
+    return ticketMailAgents([$agent], "$app - " . count($rows) . " tickets have been assigned to you", [
+        'kind' => 'Assigned to you', 'tone' => 'primary', 'preview' => "$by assigned " . count($rows) . ' tickets to you',
+        'title' => count($rows) . ' tickets are yours',
+        'intro' => ["$by assigned these tickets to you."],
+        'lines' => ['head' => ['Ticket', 'Subject', 'Client', 'Priority'], 'rows' => $lines],
+        'button' => ['label' => 'Open your tickets', 'url' => "https://$config_base_url/agent/tickets.php?assigned=" . intval($user_id)],
+    ]);
+}
+
+/*
+ * Tell an agent recurring tickets are theirs now - the tickets they raise
+ * will be. $subjects (raw) of the recurring tickets, $by who did it. Not when
+ * they did it themselves.
+ */
+function recurringTicketMailAssigned($user_id, array $subjects, $by) {
+    global $session_user_id, $config_app_name, $config_base_url;
+    $agent = intval($user_id) !== intval($session_user_id ?? 0) ? ticketMailAgent($user_id) : null;
+    if (!$agent || !$subjects) {
+        return 0;
+    }
+    $count = count($subjects);
+    $agent['footnote'] = 'You get this because ' . ($count === 1 ? 'it was' : 'they were') . ' assigned to you in ITFlow.';
+    return ticketMailAgents([$agent], ($config_app_name ?: 'ITFlow') . ($count === 1 ? " - Recurring ticket " . $subjects[0] . " assigned to you" : " - $count recurring tickets assigned to you"), [
+        'kind' => 'Assigned to you', 'tone' => 'primary', 'preview' => "$by assigned recurring tickets to you",
+        'title' => $count === 1 ? 'A recurring ticket is yours' : "$count recurring tickets are yours",
+        'intro' => ["$by assigned " . ($count === 1 ? 'this recurring ticket' : 'these recurring tickets') . " to you - the tickets " . ($count === 1 ? 'it raises' : 'they raise') . " will be yours."],
+        'lines' => ['head' => ['Recurring ticket'], 'rows' => array_map(function ($subject) { return [(string) $subject]; }, array_values($subjects))],
+        'button' => ['label' => 'Open Recurring Tickets', 'url' => "https://$config_base_url/agent/recurring_tickets.php?assigned_agent=" . intval($user_id)],
+    ]);
 }
 
 /** Time worked as posted - HH:MM:SS, or H:MM - normalised to HH:MM:SS; nothing sensible is 00:00:00. */
@@ -1079,7 +1253,7 @@ function recurringTicketNextRunPill($row) {
  * log. Does not move the next run - the caller does. The new ticket's id, or 0.
  */
 function recurringTicketRaise($recurring_ticket_id, $by = 'Cron') {
-    global $mysqli, $config_base_url, $config_ticket_client_general_notifications, $config_ticket_new_ticket_notification_email, $config_ticket_from_email, $config_ticket_from_name;
+    global $mysqli, $config_ticket_client_general_notifications;
 
     $row = recurringTicketRow($recurring_ticket_id);
     if (!$row) {
@@ -1143,26 +1317,8 @@ function recurringTicketRaise($recurring_ticket_id, $by = 'Cron') {
             ticketEmailContent($new, 'created', ['how' => 'scheduled']), ['kind' => 'created', 'to_watchers' => false]);
     }
 
-    // The new-ticket address
-    $client_name = escapeSql($new['client_name'] ?? '');
-    $from_email = escapeSql($config_ticket_from_email);
-    $from_name = escapeSql($config_ticket_from_name);
-    $base_url = escapeSql($config_base_url);
-    $data = [];
-    if (filter_var($config_ticket_new_ticket_notification_email, FILTER_VALIDATE_EMAIL)) {
-        $client_uri = $client_id ? "&client_id=$client_id" : '';
-        $data[] = [
-            'from' => $from_email,
-            'from_name' => $from_name,
-            'recipient' => escapeSql($config_ticket_new_ticket_notification_email),
-            'recipient_name' => $from_name,
-            'subject' => "ITFlow - New Recurring Ticket - $client_name: $subject",
-            'body' => "Hello, <br><br>This is a notification that a recurring (scheduled) ticket has been raised in ITFlow. <br>Ticket: $prefix$ticket_number<br>Client: $client_name<br>Priority: $priority<br>Link: https://$base_url/agent/ticket.php?ticket_id=$ticket_id$client_uri <br><br>--------------------------------<br><br><b>$subject</b><br>$details",
-        ];
-    }
-    if ($data) {
-        addToMailQueue($data);
-    }
+    // The new-ticket address (Admin > Ticket), when there is one
+    ticketMailNewTicketAddress($ticket_id, 'scheduled');
 
     return $ticket_id;
 }
@@ -1279,59 +1435,27 @@ function ticketScheduleValue($input) {
     return $sql === 'NULL' ? '' : trim($sql, "'");
 }
 
-/** The scheduled-visit emails - the agent, the contact and the watchers - with the calendar invite (or its cancellation). */
+/*
+ * The scheduled-work emails, each with the calendar file - the invite, or its
+ * cancellation: to the agent doing the work, and when client notifications
+ * are on (Admin > Ticket) to the contact and the watchers. $row has the
+ * ticket's id and, for a booking, location_address.
+ */
 function ticketMailSchedule($row, $cal_str, $cancelled, $when_text) {
-    global $mysqli, $config_smtp_provider, $config_ticket_from_email, $config_ticket_from_name, $config_base_url, $config_ticket_client_general_notifications, $session_company_name;
-    if (empty($config_smtp_provider)) {
+    global $config_ticket_client_general_notifications;
+    $ticket = ticketRow($row['ticket_id']);
+    if (!$ticket || !emailReady()) {
         return;
     }
-    // Built as plain text and HTML, then escaped once for the mail queue
-    $sql = function ($value) use ($mysqli) {
-        return mysqli_real_escape_string($mysqli, (string) $value);
-    };
-    $html = function ($value) {
-        return escapeHtml((string) $value);
-    };
-    $ticket_id = intval($row['ticket_id']);
-    $client_id = intval($row['ticket_client_id']);
-    $reference = ticketReference($row);
-    $subject = (string) $row['ticket_subject'];
-    $company_name = (string) $session_company_name;
-    $from_email = (string) $config_ticket_from_email;
-    $agent_link = "https://$config_base_url/agent/ticket.php?ticket_id=$ticket_id" . ($client_id ? "&client_id=$client_id" : '');
-    $client_link = "https://$config_base_url/client/ticket.php?id=$ticket_id";
-    $what = $cancelled ? 'Scheduled work for the ticket regarding ' . $html($subject) . ' has been cancelled.' : 'The ticket regarding ' . $html($subject) . ' has been scheduled for ' . $html($when_text) . '.';
-    $what_yours = $cancelled ? 'Scheduled work for your ticket regarding ' . $html($subject) . ' has been cancelled.' : 'Your ticket regarding ' . $html($subject) . ' has been scheduled for ' . $html($when_text) . '.';
-    $mail_subject = $sql(($cancelled ? 'Ticket Schedule Cancelled' : 'Ticket Scheduled') . " - [$reference] - $subject");
-    $footer = "<div class='footer'>~<br>" . $html($company_name) . "<br>Support Department<br>" . $html($from_email) . "<br></div><div class='no-reply'>This is an automated message. Please do not reply directly to this email.</div>";
-    $from = ['from' => $sql($from_email), 'from_name' => $sql($config_ticket_from_name), 'subject' => $mail_subject, 'cal_str' => $cal_str];
-    $data = [];
-
-    // The agent doing the work
-    if (filter_var($row['user_email'] ?? '', FILTER_VALIDATE_EMAIL)) {
-        $data[] = $from + ['recipient' => $sql($row['user_email']), 'recipient_name' => $sql($row['user_name']),
-            'body' => $sql('Hello, ' . $html($row['user_name']) . "<br><br>$what<br><br>--------------------------------<br><a href=\"$agent_link\">" . $html($reference) . "</a><br>--------------------------------<br><br>Please do not reply to this email. <br><br>Ticket: " . $html($reference) . "<br>Subject: " . $html($subject) . "<br>Portal: $agent_link<br><br>~<br>" . $html($company_name) . "<br>Support Department<br>" . $html($from_email))];
+    $reference = ticketReference($ticket);
+    $opts = ['cancelled' => $cancelled, 'when' => $when_text, 'where' => (string) ($row['location_address'] ?? '')];
+    $subject = ($cancelled ? 'Ticket Schedule Cancelled' : 'Ticket Scheduled') . " - [$reference] - " . $ticket['ticket_subject'];
+    if ($agent = ticketMailAgent($ticket['ticket_assigned_to'])) {
+        emailQueue([$agent + ['footnote' => "You get this as the agent $reference is assigned to."]], $subject,
+            ticketAgentEmailContent($ticket, 'scheduled', $opts), ['from' => ticketEmailFrom(), 'cal_str' => $cal_str]);
     }
-
     if (intval($config_ticket_client_general_notifications) === 1) {
-        // The contact
-        if (filter_var($row['contact_email'] ?? '', FILTER_VALIDATE_EMAIL)) {
-            $data[] = $from + ['recipient' => $sql($row['contact_email']), 'recipient_name' => $sql($row['contact_name']),
-                'body' => $sql("<div class='header'>Hello, " . $html($row['contact_name']) . "</div>$what_yours<br><br><a href='$client_link' class='link-button'>Access your ticket here</a><br><br>Please do not reply to this email.<br><br><strong>Ticket:</strong> " . $html($reference) . "<br><strong>Subject:</strong> " . $html($subject) . "<br><br><br>$footer")];
-        }
-        // And the watchers
-        $watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
-        foreach (ticketWatcherEmails(array_column(mysqli_fetch_all($watchers, MYSQLI_ASSOC), 'watcher_email')) as $watcher_email) {
-            if (strcasecmp($watcher_email, (string) ($row['contact_email'] ?? '')) === 0) {
-                continue;
-            }
-            $data[] = $from + ['recipient' => $sql($watcher_email), 'recipient_name' => $sql($watcher_email),
-                'body' => $sql("<div class='header'>Hello,</div>$what<br><br><a href='$client_link' class='link-button'>" . $html($reference) . "</a><br><br>Please do not reply to this email.<br><br><strong>Ticket:</strong> " . $html($reference) . "<br><strong>Subject:</strong> " . $html($subject) . "<br><strong>Portal:</strong> <a href='$client_link'>Access the ticket here</a><br><br>$footer")];
-        }
-    }
-
-    if ($data) {
-        addToMailQueue($data);
+        ticketMailSend($ticket['ticket_id'], $subject, ticketEmailContent($ticket, 'scheduled', $opts), ['cal_str' => $cal_str]);
     }
 }
 

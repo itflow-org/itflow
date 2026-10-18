@@ -76,7 +76,7 @@ function recurringTicketSetTasks($recurring_ticket_id) {
 
 /** Tell an agent some recurring tickets are theirs now - not themselves, not nobody. $subjects are raw. */
 function recurringTicketNotifyAgent($user_id, array $subjects) {
-    global $mysqli, $session_user_id, $session_name, $session_company_name, $config_smtp_provider, $config_ticket_from_email, $config_ticket_from_name, $config_app_name;
+    global $mysqli, $session_user_id, $session_name;
     $user_id = intval($user_id);
     if (!$user_id || $user_id == $session_user_id || !$subjects) {
         return;
@@ -85,18 +85,7 @@ function recurringTicketNotifyAgent($user_id, array $subjects) {
     $what = $count === 1 ? 'Recurring ticket ' . escapeSql($subjects[0]) . ' has' : "$count recurring tickets have";
     mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Ticket', notification = '$what been assigned to you by " . escapeSql($session_name) . "', notification_action = 'recurring_tickets.php?assigned_agent=$user_id', notification_user_id = $user_id");
 
-    $agent = quickPickAgent($user_id);
-    if ($agent && !empty($config_smtp_provider) && filter_var($agent['user_email'], FILTER_VALIDATE_EMAIL)) {
-        $list = implode('<br>', array_map(function ($subject) { return escapeSql(escapeHtml($subject)); }, $subjects));
-        addToMailQueue([[
-            'from' => escapeSql($config_ticket_from_email),
-            'from_name' => escapeSql($config_ticket_from_name),
-            'recipient' => escapeSql($agent['user_email']),
-            'recipient_name' => escapeSql($agent['user_name']),
-            'subject' => escapeSql("$config_app_name - $count recurring ticket" . ($count === 1 ? '' : 's') . " assigned to you"),
-            'body' => "Hi " . escapeSql($agent['user_name']) . ", <br><br>" . escapeSql($session_name) . " assigned $count recurring ticket" . ($count === 1 ? '' : 's') . " to you:<br><br>$list<br><br>Thanks, <br>" . escapeSql($session_name) . "<br>" . escapeSql($session_company_name),
-        ]]);
-    }
+    recurringTicketMailAssigned($user_id, $subjects, stripslashes($session_name));
 }
 
 if (isset($_POST['add_recurring_ticket'])) {

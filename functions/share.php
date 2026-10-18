@@ -678,9 +678,15 @@ function shareNotifyCreator($row, $title, $details, $email = false, $always = fa
     }
     mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = '" . escapeSql(mb_substr($title, 0, 200)) . "', notification = '" . escapeSql(mb_substr($details, 0, 1000)) . "',
         notification_action = '" . escapeSql($action) . "', notification_client_id = $client_id, notification_entity_id = " . intval($row['item_id']) . ", notification_user_id = $user_id");
-    if ($email && shareMailReady() && filter_var($user['user_email'], FILTER_VALIDATE_EMAIL)) {
+    if ($email && shareMailReady()) {
         global $config_base_url;
-        shareQueueMail($user['user_email'], "$title - " . $row['client_name'], shareMailHtml(escapeHtml($title), [escapeHtml($details), 'Open it in Shared Links to save it to the client\'s credentials, or discard it.'], 'Review it', "https://$config_base_url$action"));
+        emailQueue([['email' => $user['user_email'], 'name' => $user['user_name'], 'footnote' => 'You get this because you asked for this login with a shared link.']],
+            "$title - " . $row['client_name'], [
+                'kind' => 'Shared links', 'tone' => 'primary', 'preview' => $details,
+                'title' => $title, 'intro' => [$details, "Open it in Shared Links to save it to the client's credentials, or discard it."],
+                'summary' => ['Client' => (string) $row['client_name'], 'Asked for' => (string) shareName($row)],
+                'button' => ['label' => 'Review it', 'url' => "https://$config_base_url$action"],
+            ]);
     }
 }
 

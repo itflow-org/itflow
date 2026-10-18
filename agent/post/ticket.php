@@ -180,6 +180,7 @@ if (isset($_POST['add_ticket'])) {
     if ($assigned_to) {
         $row = ticketRow($ticket_id);
         ticketNotifyAgent($assigned_to, $row, "Ticket " . ticketReference($row) . " - Subject: " . $row['ticket_subject'] . " has been assigned to you by $session_name");
+        ticketMailAssigned($assigned_to, [$ticket_id], stripslashes($session_name));
     }
 
     logAudit("Ticket", "Create", "$session_name created ticket $ticket_prefix$ticket_number - $subject", $client_id, $ticket_id);
@@ -290,6 +291,7 @@ if (isset($_POST['edit_ticket'])) {
         if ($assigned_to) {
             logTicketHistory($ticket_id, "$session_name assigned the ticket to " . escapeSql(getFieldById('users', $assigned_to, 'user_name')));
             ticketNotifyAgent($assigned_to, $row, "Ticket " . ticketReference($row) . " - Subject: " . $subject_input . " has been assigned to you by $session_name");
+            ticketMailAssigned($assigned_to, [$ticket_id], stripslashes($session_name));
         } else {
             logTicketHistory($ticket_id, "$session_name unassigned the ticket");
         }
@@ -620,7 +622,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
     $agent_name_sql = escapeSql($agent_name);
 
     $count = $skipped = 0;
-    $assigned_list = '';
+    $assigned_ids = [];
     foreach (ticketsForBulk(2) as $ticket_id => $row) {
         // A closed ticket keeps who closed it
         if (!empty($row['ticket_closed_at'])) {
@@ -644,7 +646,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
 
         triggerCustomAction('ticket_assign', $ticket_id);
 
-        $assigned_list .= escapeSql(ticketReference($row) . ' - ' . $row['ticket_subject']) . "<br>";
+        $assigned_ids[] = $ticket_id;
         $count++;
     }
 
@@ -652,18 +654,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
     if ($count && $assign_to && $assign_to != $session_user_id) {
         mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '$count ticket" . ($count === 1 ? ' has' : 's have') . " been assigned to you by $session_name', notification_action = '/agent/tickets.php?assigned=$assign_to', notification_user_id = $assign_to");
 
-        $agent_email = (string) getFieldById('users', $assign_to, 'user_email');
-        if (!empty($config_smtp_provider) && filter_var($agent_email, FILTER_VALIDATE_EMAIL)) {
-            $company_name = escapeSql($session_company_name);
-            addToMailQueue([[
-                'from' => escapeSql($config_ticket_from_email),
-                'from_name' => escapeSql($config_ticket_from_name),
-                'recipient' => escapeSql($agent_email),
-                'recipient_name' => $agent_name_sql,
-                'subject' => escapeSql($config_app_name) . " - $count tickets have been assigned to you",
-                'body' => "Hi $agent_name_sql, <br><br>$session_name assigned $count tickets to you!<br><br>$assigned_list<br>Thanks, <br>$session_name<br>$company_name",
-            ]]);
-        }
+        ticketMailAssigned($assign_to, $assigned_ids, stripslashes($session_name));
     }
 
     flashAlert("Assigned <strong>$count</strong> ticket" . ($count === 1 ? '' : 's') . " to <strong>" . escapeHtml($agent_name) . "</strong>" . ($skipped ? ", <strong>$skipped</strong> closed left as they were" : ''));

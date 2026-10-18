@@ -475,35 +475,72 @@ function userHandOverWork($user_id, $to_user_id, $why) {
     }
 }
 
-/**
- * Queue an email to an agent from the system mailbox. addToMailQueue() takes
- * values ready for SQL, so they are escaped here - the body with
- * mysqli_real_escape_string(), not escapeSql(), which would strip its HTML.
- * True when queued, or the error.
- */
-function userQueueMail($recipient, $recipient_name, $subject, $body_html) {
-    global $mysqli, $config_mail_from_email, $config_mail_from_name;
-    $escape = function ($value) use ($mysqli) {
-        return mysqli_real_escape_string($mysqli, (string) $value);
-    };
-    return addToMailQueue([[
-        'from' => $escape($config_mail_from_email),
-        'from_name' => $escape($config_mail_from_name),
-        'recipient' => $escape($recipient),
-        'recipient_name' => $escape($recipient_name),
-        'subject' => $escape($subject),
-        'body' => $escape($body_html),
-    ]]);
+/* ------------------------------------------------------------ Emails to an agent about their account */
+
+/** Where an agent signs in - with the login key when one is required. */
+function userSignInUrl() {
+    global $mysqli, $config_base_url;
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_login_key_required, config_login_key_secret FROM settings WHERE company_id = 1")) ?: [];
+    return "https://$config_base_url/login.php" . (!empty($row['config_login_key_required']) ? '?key=' . rawurlencode((string) $row['config_login_key_secret']) : '');
 }
 
-/** An agent's own email, sent from the system - their account was changed. Queued; nothing when mail is not set up. */
+/** The app's name for these emails - Admin > Settings, ITFlow by default. */
+function userMailAppName() {
+    global $config_app_name;
+    return trim((string) ($config_app_name ?? '')) !== '' ? (string) $config_app_name : 'ITFlow';
+}
+
+/*
+ * A new agent's sign in details - their email, the password as it was set
+ * (theirs to change) and where to sign in. True when queued.
+ */
+function userMailNewAccount($name, $email, $password, $force_mfa) {
+    $company_name = (string) (billingCompany()['company_name'] ?? '');
+    $app = userMailAppName();
+    return (bool) emailQueue([['email' => $email, 'name' => $name, 'footnote' => "You get this because an account was set up for you in $company_name's $app."]],
+        "Your new $company_name $app account", [
+            'kind' => 'Your account', 'tone' => 'primary', 'preview' => "Your $app sign in details",
+            'title' => "Your $app account is ready",
+            'intro' => ["An $app account has been set up for you. Sign in with these details, then change your password."
+                . ($force_mfa ? ' Have an authenticator app ready - you will set up multi-factor authentication the first time.' : '')],
+            'summary' => ['Email' => (string) $email, 'Password' => (string) $password],
+            'button' => ['label' => 'Sign in', 'url' => userSignInUrl()],
+            'after' => ['This email has your password in it - delete it once you have changed it.'],
+        ]);
+}
+
+/** An agent's own email, sent from the system - their account was changed ($what, raw). Queued; nothing when mail is not set up. */
 function userNotifyChange($name, $email, $what) {
-    global $config_smtp_host, $config_app_name, $session_company_name;
-    if (empty($config_smtp_host) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        return;
-    }
-    $app = $config_app_name ?: 'ITFlow';
-    userQueueMail($email, $name, "$app account update for $name",
-        'Hi ' . escapeHtml($name) . ',<br><br>Your ' . escapeHtml($app) . ' account was changed: <b>' . escapeHtml($what) . '</b><br><br>'
-        . 'If this was not you, contact your ' . escapeHtml($app) . ' administrator straight away.<br><br>Thanks,<br>' . escapeHtml($session_company_name ?? $app));
+    $app = userMailAppName();
+    emailQueue([['email' => $email, 'name' => $name, 'footnote' => "You get this about your own $app account."]], "$app account update for $name", [
+        'kind' => 'Your account', 'tone' => 'warning', 'preview' => "Your $app account was changed",
+        'title' => 'Your account was changed',
+        'intro' => ["Your $app account was changed: " . $what . '.'],
+        'callout' => "If this was not you, tell your $app administrator straight away.",
+        'button' => ['label' => "Sign in to $app", 'url' => userSignInUrl()],
+    ]);
+}
+
+/*
+ * Tell an agent about a sign in to their account - $kind new (a device and
+ * address they hadn't signed in from) or mfa (the right password, a wrong
+ * code). Raw values in.
+ */
+function userMailSignInAlert($name, $email, $kind, $ip, $user_agent) {
+    global $config_base_url;
+    $app = userMailAppName();
+    $mfa = $kind === 'mfa';
+    $device = trim(strip_tags(userDeviceHtml((string) $user_agent)));
+    emailQueue([['email' => $email, 'name' => $name, 'footnote' => "You get this about your own $app account."]],
+        $mfa ? "Important: $app failed 2FA login attempt for $name" : "$app new login for $name", [
+            'kind' => 'Security', 'tone' => $mfa ? 'danger' : 'warning',
+            'preview' => $mfa ? 'Your password was used, but the 2FA code was wrong' : 'A sign in from a new device',
+            'title' => $mfa ? 'Someone used your password' : 'A new sign in to your account',
+            'intro' => [$mfa
+                ? "Someone signed in to your $app account with your password, but the multi-factor code was wrong, so they were stopped."
+                : "Someone signed in to your $app account from a device and address it hasn't seen before. If that was you, there is nothing to do."],
+            'summary' => ['When' => date('D j M Y, g:i A'), 'Device' => $device !== '' ? $device : 'Unknown device', 'IP address' => (string) $ip],
+            'callout' => $mfa ? 'If that was not you, your password is known to someone else - change it now.' : 'If that was not you, change your password now and tell your administrator.',
+            'button' => ['label' => 'Review your sign in security', 'url' => "https://$config_base_url/agent/user/user_security.php"],
+        ]);
 }

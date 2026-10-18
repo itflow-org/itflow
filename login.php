@@ -452,19 +452,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                         "));
                         $ua_prev_logins = escapeSql($sql_ua_prev_logins['ua_previous_logins']);
 
-                        if (!empty($config_smtp_provider) && $ip_previous_logins == 0 && $ua_prev_logins == 0) {
-                            $subject = "$config_app_name new login for $user_name";
-                            $body    = "Hi $user_name, <br><br>A recent successful login to your $config_app_name account was considered a little unusual. If this was you, you can safely ignore this email!<br><br>IP Address: $session_ip<br> User Agent: $session_user_agent <br><br>If you did not perform this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
-
-                            $data = [[
-                                'from'           => $config_mail_from_email,
-                                'from_name'      => $config_mail_from_name,
-                                'recipient'      => $user_email,
-                                'recipient_name' => $user_name,
-                                'subject'        => $subject,
-                                'body'           => $body
-                            ]];
-                            addToMailQueue($data);
+                        if ($ip_previous_logins == 0 && $ua_prev_logins == 0) {
+                            userMailSignInAlert($selectedRow['user_name'], $selectedRow['user_email'], 'new', getIP(), $_SERVER['HTTP_USER_AGENT'] ?? '');
                         }
 
                         // Option B: set session_user_id BEFORE logAudit()
@@ -587,19 +576,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                             $session_user_id = $user_id;
                             logAudit("Login", "MFA Failed", "$user_email failed MFA", 0, $user_id);
 
-                            if (!empty($config_smtp_provider)) {
-                                $subject = "Important: $config_app_name failed 2FA login attempt for $user_name";
-                                $body    = "Hi $user_name, <br><br>A recent login to your $config_app_name account was unsuccessful due to an incorrect 2FA code. If you did not attempt this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
-                                $data    = [[
-                                    'from'           => $config_mail_from_email,
-                                    'from_name'      => $config_mail_from_name,
-                                    'recipient'      => $user_email,
-                                    'recipient_name' => $user_name,
-                                    'subject'        => $subject,
-                                    'body'           => $body
-                                ]];
-                                addToMailQueue($data);
-                            }
+                            userMailSignInAlert($selectedRow['user_name'], $selectedRow['user_email'], 'mfa', getIP(), $_SERVER['HTTP_USER_AGENT'] ?? '');
 
                             $response = "
                                   <div class='alert alert-danger'>

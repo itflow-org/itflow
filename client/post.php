@@ -94,27 +94,8 @@ if (isset($_POST['add_ticket'])) {
     // Screenshots and files sent with it belong to the ticket itself
     saveTicketAttachments($ticket_id, null, 'file');
 
-    // Notify agent DL of the new ticket, if populated with a valid email
-    if ($config_ticket_new_ticket_notification_email) {
-
-        $client_name = escapeSql($session_client_name);
-
-        $email_subject = "ITFlow - New Ticket - $client_name: $subject";
-        $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/agent/ticket.php?ticket_id=$ticket_id&client_id=$session_client_id <br><br><b>$subject</b><br>$details";
-
-        // Queue Mail
-        $data = [
-            [
-                'from' => $config_ticket_from_email,
-                'from_name' => $config_ticket_from_name,
-                'recipient' => $config_ticket_new_ticket_notification_email,
-                'recipient_name' => $config_ticket_from_name,
-                'subject' => $email_subject,
-                'body' => $email_body,
-            ]
-        ];
-        addToMailQueue($data);
-        }
+    // The new-ticket address (Admin > Ticket), when there is one
+    ticketMailNewTicketAddress($ticket_id, 'portal');
 
     // The primary and technical contacts who asked to hear about new tickets at their company
     ticketMailColleaguesNew($ticket_id);
@@ -164,38 +145,8 @@ if (isset($_POST['add_ticket_comment'])) {
         }
 
 
-        // Get ticket details &  Notify the assigned tech (if any)
-        $ticket_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name, ticket_assigned_to, ticket_number, ticket_subject FROM tickets LEFT JOIN clients ON ticket_client_id = client_id WHERE ticket_id = $ticket_id LIMIT 1"));
-
-        $ticket_number = intval($ticket_details['ticket_number']);
-        $ticket_assigned_to = intval($ticket_details['ticket_assigned_to']);
-        $ticket_subject = escapeSql($ticket_details['ticket_subject']);
-        $client_name = escapeSql($ticket_details['client_name']);
-
-        if ($ticket_details && $ticket_assigned_to !== 0) {
-
-            // Get tech details
-            $tech_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_email, user_name FROM users WHERE user_id = $ticket_assigned_to LIMIT 1"));
-            $tech_email = escapeSql($tech_details['user_email']);
-            $tech_name = escapeSql($tech_details['user_name']);
-
-            $subject = "$config_app_name Ticket updated - [$config_ticket_prefix$ticket_number] $ticket_subject";
-            $body    = "Hello $tech_name,<br><br>A new reply has been added to the below ticket, check ITFlow for full details.<br><br>Client: $client_name<br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $ticket_subject<br><br>https://$config_base_url/agent/ticket.php?ticket_id=$ticket_id&client_id=$session_client_id";
-
-            $data = [
-                [
-                    'from' => $config_ticket_from_email,
-                    'from_name' => $config_ticket_from_name,
-                    'recipient' => $tech_email,
-                    'recipient_name' => $tech_name,
-                    'subject' => $subject,
-                    'body' => $body
-                ]
-            ];
-
-            addToMailQueue($data);
-
-        }
+        // The agent it is assigned to, with what they wrote
+        ticketMailAssigneeReplied($ticket_id, 'portal', (string) getFieldById('ticket_replies', $ticket_reply_id, 'ticket_reply'), stripslashes($session_contact_name));
 
         // Store any attached files against this reply
         saveTicketAttachments($ticket_id, $ticket_reply_id, 'file');
@@ -1269,39 +1220,16 @@ if (isset($_GET['stripe_save_card'])) {
         redirect("saved_payment_methods.php");
     }
 
-    // Email Confirmation
-    $sql_settings = mysqli_query($mysqli, "
-        SELECT company_name, company_phone, company_phone_country_code, config_invoice_from_email,
-            config_invoice_from_name, config_smtp_host FROM companies, settings
-        WHERE companies.company_id = settings.company_id
-        AND companies.company_id = 1
-    ");
-    $row = mysqli_fetch_assoc($sql_settings);
-
-    $company_name = escapeSql($row['company_name']);
-    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-    $config_invoice_from_email = escapeSql($row['config_invoice_from_email']);
-    $config_invoice_from_name = escapeSql($row['config_invoice_from_name']);
-
-    if (!empty($row['config_smtp_host'])) {
-        $subject = "Payment method saved";
-        $body = "Hello $session_contact_name<br><br>
-        Were writing to confirm that your payment details have been securely stored with Stripe our trusted payment processor.<br><br>
-        You authorized us to automatically bill your card ($saved_payment_description) for future invoices.<br><br>
-        You may update or remove your payment method at any time via the client portal.<br><br>
-        Thank you for your business!<br><br>
-        --<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
-
-        $data = [[
-            'from' => $config_invoice_from_email,
-            'from_name' => $config_invoice_from_name,
-            'recipient' => $session_contact_email,
-            'recipient_name' => $session_contact_name,
-            'subject' => $subject,
-            'body' => $body
-        ]];
-
-        $mail = addToMailQueue($data);
+    // Their confirmation, in the billing emails' look - from the invoice mailbox
+    if (billingEmailReady()) {
+        billingEmailQueue([['email' => stripslashes($session_contact_email), 'name' => stripslashes($session_contact_name)]], 'Payment method saved', [
+            'kind' => 'Payment method', 'tone' => 'success', 'preview' => 'Your card is saved for future invoices',
+            'title' => 'Your payment method is saved',
+            'intro' => ['Your payment details are stored securely with Stripe, our payment processor, and you authorized us to bill this card automatically for future invoices.'],
+            'summary' => ['Card' => ucfirst(stripslashes((string) $card_brand)) . ' ending ' . stripslashes((string) $last4), 'Expires' => sprintf('%02d/%d', intval($exp_month), intval($exp_year))],
+            'after' => ['You can change or remove it at any time in the client portal.', 'Thank you for your business!'],
+            'footnote' => billingEmailFootnote(stripslashes((string) $session_client_name)),
+        ]);
     }
 
     logAudit("Stripe", "Update", "$session_contact_name saved payment method ($saved_payment_description) (PM: $payment_method_id)", $session_client_id);

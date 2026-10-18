@@ -170,17 +170,29 @@ function emailHtml(array $email) {
         . '</td></tr></table></body></html>';
 }
 
+/** The mail settings, read once, as saved - cron scripts load their own copies, or none. */
+function emailSettings() {
+    global $mysqli;
+    static $row = null;
+    if ($row === null) {
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_smtp_provider, config_mail_from_email, config_mail_from_name, config_ticket_from_email, config_ticket_from_name
+            FROM settings WHERE company_id = 1")) ?: [];
+    }
+    return $row;
+}
+
+/** Can mail go out - is a mail provider set up (Admin > Mail)? */
+function emailReady() {
+    return !empty(emailSettings()['config_smtp_provider']);
+}
+
 /**
  * Who an email comes from, read from the settings as saved (cron scripts keep
  * SQL-escaped copies): system - the mailbox for everything else (Admin >
  * Mail), or ticket - the ticket mailbox. ['email' => ..., 'name' => ...].
  */
 function emailFrom($which = 'system') {
-    global $mysqli;
-    static $row = null;
-    if ($row === null) {
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_mail_from_email, config_mail_from_name, config_ticket_from_email, config_ticket_from_name FROM settings WHERE company_id = 1")) ?: [];
-    }
+    $row = emailSettings();
     if ($which === 'ticket') {
         return ['email' => (string) ($row['config_ticket_from_email'] ?? ''), 'name' => (string) ($row['config_ticket_from_name'] ?? '')];
     }
@@ -213,11 +225,12 @@ function emailMessageHtml($html) {
  * $email is emailHtml()'s, its values raw. $opts:
  *   from         ['email' => ..., 'name' => ...] - the system mailbox (emailFrom()) when not given
  *   attachments  [['path' => app-relative, 'name' => ...], ...]
+ *   cal_str      a calendar file (iCalendar) to go with it - an invite or its cancellation
  * Who it was queued to, "Name (email)". Nothing is queued without mail set up.
  */
 function emailQueue(array $recipients, $subject, array $email, array $opts = []) {
-    global $mysqli, $config_smtp_provider;
-    if (empty($config_smtp_provider)) {
+    global $mysqli;
+    if (!emailReady()) {
         return [];
     }
     $from = $opts['from'] ?? emailFrom();
@@ -241,7 +254,7 @@ function emailQueue(array $recipients, $subject, array $email, array $opts = [])
             'subject' => mysqli_real_escape_string($mysqli, (string) $subject),
             'body' => mysqli_real_escape_string($mysqli, $html),
             'attachments' => $attachments,
-        ];
+        ] + (!empty($opts['cal_str']) ? ['cal_str' => (string) $opts['cal_str']] : []);
         $sent[strtolower($address)] = $name !== '' ? "$name ($address)" : $address;
     }
     if ($data) {
