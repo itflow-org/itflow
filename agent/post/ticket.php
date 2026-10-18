@@ -1099,6 +1099,9 @@ if (isset($_POST['add_ticket_reply'])) {
         // a public reply can carry them
         $emailable_attachments = filterEmailableAttachments(saveTicketAttachments($ticket_id, $ticket_reply_id));
 
+        // The canned responses picked into it, for how often each is used
+        cannedResponseRecordUses((array) ($_POST['canned_response_ids'] ?? []), $ticket_id, $session_user_id);
+
         // Email the client and the watchers
         if ($send_email) {
             // The reply as saved - with the signature - read back

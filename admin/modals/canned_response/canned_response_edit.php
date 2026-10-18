@@ -1,25 +1,23 @@
 <?php
 
+/*
+ * Edit a canned response - the fields are canned_response_form.php.
+ */
+
 require_once '../../includes/modal_header.php';
 
-$canned_response_id = intval($_GET['id']);
+$response = cannedResponseRow($_GET['id'] ?? 0);
 
-$sql = mysqli_query($mysqli, "SELECT canned_response_name, canned_response_body, canned_response_category_id
-    FROM canned_responses WHERE canned_response_id = $canned_response_id LIMIT 1");
-$row = mysqli_fetch_assoc($sql);
-
-$canned_response_name = escapeHtml($row['canned_response_name']);
-$canned_response_category_id = intval($row['canned_response_category_id']);
-
-// Into a textarea, so escaped rather than purified - it is markup being edited, not rendered
-$canned_response_body = escapeHtml($row['canned_response_body']);
-
-// Generate the HTML form content using output buffering.
 ob_start();
-?>
+
+if (!$response) { ?>
+    <div class="modal-body text-center text-secondary py-5">That canned response is gone - it may have been deleted.</div>
+<?php } else {
+    $canned_response_id = intval($response['canned_response_id']);
+    $response_category_ids = cannedResponseCategoryIds($canned_response_id); ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-comment-dots me-2"></i>Editing Canned Response: <strong><?= $canned_response_name ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-comment-dots me-2"></i>Canned response: <strong><?= escapeHtml($response['canned_response_name']) ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -27,33 +25,7 @@ ob_start();
     <input type="hidden" name="canned_response_id" value="<?= $canned_response_id ?>">
 
     <div class="modal-body">
-
-        <div class="mb-3">
-            <label>Name <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-comment-dots"></i></span>
-                <input type="text" class="form-control" name="name" maxlength="200" value="<?= $canned_response_name ?>" required>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Ticket Category</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <select class="form-select select2" name="category">
-                    <option value="0" <?php if ($canned_response_category_id == 0) { echo "selected"; } ?>>- All ticket categories -</option>
-                    <?= categoryOptionsHtml('Ticket', $canned_response_category_id) ?>
-                </select>
-                <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
-            </div>
-            <small class="text-secondary">Leave this on all categories for a response that should be offered on every ticket.</small>
-        </div>
-
-        <div class="mb-3">
-            <label>Response</label>
-            <textarea class="form-control tinymceTicket" name="body"><?= $canned_response_body ?></textarea>
-        </div>
-
+        <?php require __DIR__ . '/canned_response_form.php'; ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="edit_canned_response" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
@@ -61,5 +33,6 @@ ob_start();
     </div>
 </form>
 
-<?php
+<?php }
+
 require_once '../../../includes/modal_footer.php';

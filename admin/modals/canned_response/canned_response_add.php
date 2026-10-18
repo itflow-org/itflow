@@ -1,6 +1,14 @@
 <?php
 
+/*
+ * New canned response - the fields are canned_response_form.php. ?category
+ * starts it on a ticket category.
+ */
+
 require_once '../../includes/modal_header.php';
+
+$response = [];
+$response_category_ids = array_filter([intval($_GET['category'] ?? 0)]);
 
 ob_start();
 
@@ -13,33 +21,7 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
-
-        <div class="mb-3">
-            <label>Name <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-comment-dots"></i></span>
-                <input type="text" class="form-control" name="name" placeholder="What an agent picks it by" maxlength="200" required autofocus>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Ticket Category</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <select class="form-select select2" name="category">
-                    <option value="0">- All ticket categories -</option>
-                    <?= categoryOptionsHtml('Ticket') ?>
-                </select>
-                <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
-            </div>
-            <small class="text-secondary">Leave this on all categories for a response that should be offered on every ticket.</small>
-        </div>
-
-        <div class="mb-3">
-            <label>Response</label>
-            <textarea class="form-control tinymceTicket" name="body"></textarea>
-        </div>
-
+        <?php require __DIR__ . '/canned_response_form.php'; ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_canned_response" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create Canned Response</button>

@@ -534,6 +534,43 @@ CREATE TABLE `calendars` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `canned_response_categories`
+--
+
+DROP TABLE IF EXISTS `canned_response_categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `canned_response_categories` (
+  `canned_response_id` int(11) NOT NULL,
+  `category_id` int(11) NOT NULL,
+  PRIMARY KEY (`canned_response_id`,`category_id`),
+  KEY `category_id` (`category_id`),
+  CONSTRAINT `canned_response_categories_ibfk_1` FOREIGN KEY (`canned_response_id`) REFERENCES `canned_responses` (`canned_response_id`) ON DELETE CASCADE,
+  CONSTRAINT `canned_response_categories_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `canned_response_uses`
+--
+
+DROP TABLE IF EXISTS `canned_response_uses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `canned_response_uses` (
+  `canned_response_use_id` int(11) NOT NULL AUTO_INCREMENT,
+  `canned_response_use_canned_response_id` int(11) NOT NULL,
+  `canned_response_use_user_id` int(11) NOT NULL DEFAULT 0,
+  `canned_response_use_ticket_id` int(11) NOT NULL DEFAULT 0,
+  `canned_response_use_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`canned_response_use_id`),
+  KEY `canned_response_use_canned_response_id` (`canned_response_use_canned_response_id`,`canned_response_use_created_at`),
+  KEY `canned_response_use_user_id` (`canned_response_use_user_id`),
+  CONSTRAINT `canned_response_uses_ibfk_1` FOREIGN KEY (`canned_response_use_canned_response_id`) REFERENCES `canned_responses` (`canned_response_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `canned_responses`
 --
 
@@ -544,12 +581,10 @@ CREATE TABLE `canned_responses` (
   `canned_response_id` int(11) NOT NULL AUTO_INCREMENT,
   `canned_response_name` varchar(200) NOT NULL,
   `canned_response_body` longtext DEFAULT NULL,
-  `canned_response_category_id` int(11) NOT NULL DEFAULT 0,
   `canned_response_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `canned_response_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `canned_response_archived_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`canned_response_id`),
-  KEY `canned_response_category_id` (`canned_response_category_id`)
+  PRIMARY KEY (`canned_response_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

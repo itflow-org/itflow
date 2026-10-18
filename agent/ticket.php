@@ -750,32 +750,20 @@ if (isset($_GET['ticket_id'])) {
                                         <?php
 
                                         /*
-                                         * Canned responses offered on this ticket: the ones tied to its
-                                         * category, plus the general ones that are offered everywhere.
-                                         * Names only - the body is fetched when one is picked, so a
-                                         * shelf of long responses does not ride along with every ticket.
+                                         * Canned responses offered on this ticket: the ones for its
+                                         * category, plus the ones offered on every ticket. Names only -
+                                         * the body is fetched, filled in for this ticket, when one is
+                                         * picked, so a shelf of long responses does not ride along with
+                                         * every ticket (functions/canned_response.php).
                                          */
-                                        $sql_canned_responses = mysqli_query($mysqli, "SELECT canned_response_id, canned_response_name, canned_response_category_id
-                                            FROM canned_responses
-                                            WHERE canned_response_archived_at IS NULL
-                                            AND (canned_response_category_id = 0 OR canned_response_category_id = $ticket_category)
-                                            ORDER BY canned_response_name ASC");
-
-                                        $canned_responses_for_category = [];
-                                        $canned_responses_general = [];
-
-                                        while ($canned_row = mysqli_fetch_assoc($sql_canned_responses)) {
-                                            if (intval($canned_row['canned_response_category_id']) === 0) {
-                                                $canned_responses_general[] = $canned_row;
-                                            } else {
-                                                $canned_responses_for_category[] = $canned_row;
-                                            }
-                                        }
+                                        $canned_offered = cannedResponsesForTicket(intval($ticket_category));
+                                        $canned_responses_for_category = $canned_offered['category'];
+                                        $canned_responses_general = $canned_offered['general'];
 
                                         if ($canned_responses_for_category || $canned_responses_general) { ?>
 
                                             <div class="mb-3">
-                                                <select class="form-select" id="canned_response_picker" aria-label="Insert a canned response">
+                                                <select class="form-select" id="canned_response_picker" data-ticket-id="<?= intval($ticket_id) ?>" aria-label="Insert a canned response">
                                                     <option value="">- Insert a canned response -</option>
                                                     <?php if ($canned_responses_for_category) { ?>
                                                         <optgroup label="<?= $ticket_category_display ?>">
@@ -785,7 +773,7 @@ if (isset($_GET['ticket_id'])) {
                                                         </optgroup>
                                                     <?php } ?>
                                                     <?php if ($canned_responses_general) { ?>
-                                                        <optgroup label="All categories">
+                                                        <optgroup label="Every ticket">
                                                             <?php foreach ($canned_responses_general as $canned_row) { ?>
                                                                 <option value="<?= intval($canned_row['canned_response_id']) ?>"><?= escapeHtml($canned_row['canned_response_name']) ?></option>
                                                             <?php } ?>
@@ -1799,8 +1787,9 @@ if (!empty($can_edit_ticket) && !empty($ticket_is_open)) { ?>
     }
 
     // Canned responses - insert at the cursor rather than replacing, so picking one into a
-    // half-written reply adds to it. The body is fetched on demand; TinyMCE owns the field
-    // by now, so setting the textarea value directly would do nothing visible.
+    // half-written reply adds to it. The body is fetched on demand, filled in for this
+    // ticket; TinyMCE owns the field by now, so setting the textarea value directly would
+    // do nothing visible. The reply carries which ones went in, for how often each is used.
     const cannedPicker = document.getElementById('canned_response_picker');
     if (cannedPicker) {
         cannedPicker.addEventListener('change', function () {
@@ -1809,9 +1798,18 @@ if (!empty($can_edit_ticket) && !empty($ticket_is_open)) { ?>
 
             cannedPicker.disabled = true;
 
-            fetch('ajax.php?get_canned_response=' + encodeURIComponent(cannedId))
+            fetch('ajax.php?get_canned_response=' + encodeURIComponent(cannedId) + '&ticket_id=' + encodeURIComponent(cannedPicker.dataset.ticketId || ''))
                 .then(response => response.json())
                 .then(data => {
+                    const form = cannedPicker.closest('form');
+                    if (form && !form.querySelector('input[name="canned_response_ids[]"][value="' + cannedId + '"]')) {
+                        const used = document.createElement('input');
+                        used.type = 'hidden';
+                        used.name = 'canned_response_ids[]';
+                        used.value = cannedId;
+                        form.appendChild(used);
+                    }
+
                     const editor = window.tinymce ? tinymce.get('ticket_reply') : null;
 
                     if (editor) {

@@ -60,7 +60,7 @@ function categoryApiRow(array $row, $usage) {
         $used_by = [];
         foreach ($config['uses'] ?? [] as $index => $use) {
             if (!empty($mine['uses'][$index]['all'])) {
-                $used_by[$use['table']] = intval($mine['uses'][$index]['all']);
+                $used_by[$use['records']] = intval($mine['uses'][$index]['all']);
             }
         }
         // {} rather than [] when nothing has it

@@ -1020,31 +1020,34 @@ if (isset($_GET['global_search'])) {
 }
 
 /*
- * Returns the body of one canned response, for the picker on the ticket reply form.
- * Fetched on demand rather than rendered into every ticket page, because the bodies are
- * full HTML replies and an install can have a lot of them.
+ * Returns the body of one canned response, for the picker on the ticket reply form,
+ * filled in for the ticket (ticket_id) - cannedResponseFill(). Fetched on demand rather
+ * than rendered into every ticket page, because the bodies are full HTML replies and an
+ * install can have a lot of them.
  */
 if (isset($_GET['get_canned_response'])) {
     enforceUserPermission('module_support');
 
-    $canned_response_id = intval($_GET['get_canned_response']);
+    $canned_row = cannedResponseRow($_GET['get_canned_response']);
+    if ($canned_row && $canned_row['canned_response_archived_at']) {
+        $canned_row = null;
+    }
 
-    $canned_sql = mysqli_query($mysqli, "SELECT canned_response_body FROM canned_responses
-        WHERE canned_response_id = $canned_response_id AND canned_response_archived_at IS NULL LIMIT 1");
-
-    $canned_row = mysqli_fetch_assoc($canned_sql);
+    // The ticket it goes into, if this agent may see it - otherwise nothing is filled in
+    $canned_ticket_id = 0;
+    $canned_ticket = ticketRow(intval($_GET['ticket_id'] ?? 0));
+    if ($canned_ticket) {
+        $client_id = intval($canned_ticket['ticket_client_id']);
+        if ($client_id) {
+            enforceClientAccess();
+        }
+        $canned_ticket_id = intval($canned_ticket['ticket_id']);
+    }
 
     // Purified here rather than at save time, the same way ticket replies and ticket
     // template details are - what lands in the editor is what would have been rendered
-    require_once "../libs/htmlpurifier/HTMLPurifier.standalone.php";
-
-    $canned_purifier_config = HTMLPurifier_Config::createDefault();
-    $canned_purifier_config->set('Cache.DefinitionImpl', null);
-    $canned_purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $canned_purifier = new HTMLPurifier($canned_purifier_config);
-
     $response = [];
-    $response['body'] = $canned_row ? $canned_purifier->purify($canned_row['canned_response_body']) : '';
+    $response['body'] = $canned_row ? cannedResponseFill($canned_row['canned_response_body'], $canned_ticket_id, stripslashes($session_name)) : '';
 
     echo json_encode($response);
 

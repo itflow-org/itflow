@@ -1,48 +1,76 @@
 <?php
 
-// Canned Responses
+/*
+ * Canned responses (Admin > Canned Responses) - making, changing, copying,
+ * archiving and deleting them. The work is in functions/canned_response.php.
+ */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
-if (isset($_POST['add_canned_response'])) {
+/* The response a request is for - or back to the list, saying it is gone. */
+function cannedResponseForRequest($canned_response_id) {
+    $row = cannedResponseRow($canned_response_id);
+    if (!$row) {
+        flashAlert('That canned response no longer exists.', 'error');
+        redirect('canned_responses.php');
+    }
+    return $row;
+}
+
+if (isset($_POST['add_canned_response']) || isset($_POST['edit_canned_response'])) {
 
     validateCSRFToken();
 
-    $name = escapeSql($_POST['name']);
+    $editing = isset($_POST['edit_canned_response']);
+    $canned_response_id = $editing ? intval(cannedResponseForRequest($_POST['canned_response_id'] ?? 0)['canned_response_id']) : 0;
 
-    // The body is TinyMCE HTML, so it goes in the way ticket replies and ticket template
-    // details do - escaped for the query only, and purified where it is rendered
-    $body = mysqli_real_escape_string($mysqli, $_POST['body']);
+    $fields = cannedResponseFields($_POST, $error);
+    if (!$fields) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
+    }
+    $canned_response_id = cannedResponseSave($canned_response_id, $fields);
+    $name = escapeSql($fields['name']);
 
-    // 0 is the general case: offered on every ticket whatever its category
-    $category_id = intval($_POST['category']);
+    logAudit("Canned Response", $editing ? "Edit" : "Create", "$session_name " . ($editing ? 'edited' : 'created') . " canned response $name", 0, $canned_response_id);
 
-    mysqli_query($mysqli, "INSERT INTO canned_responses SET canned_response_name = '$name', canned_response_body = '$body', canned_response_category_id = $category_id");
-
-    $canned_response_id = mysqli_insert_id($mysqli);
-
-    logAudit("Canned Response", "Create", "$session_name created canned response $name", 0, $canned_response_id);
-
-    flashAlert("Canned Response <strong>$name</strong> created");
+    flashAlert("Canned response <strong>" . escapeHtml($fields['name']) . "</strong> " . ($editing ? 'saved' : 'created'));
 
     redirect();
 
 }
 
-if (isset($_POST['edit_canned_response'])) {
+if (isset($_GET['copy_canned_response'])) {
 
     validateCSRFToken();
 
-    $canned_response_id = intval($_POST['canned_response_id']);
-    $name = escapeSql($_POST['name']);
-    $body = mysqli_real_escape_string($mysqli, $_POST['body']);
-    $category_id = intval($_POST['category']);
+    $row = cannedResponseForRequest($_GET['copy_canned_response']);
+    $new_id = cannedResponseCopy($row['canned_response_id']);
+    $new_name = (string) cannedResponseRow($new_id)['canned_response_name'];
 
-    mysqli_query($mysqli, "UPDATE canned_responses SET canned_response_name = '$name', canned_response_body = '$body', canned_response_category_id = $category_id WHERE canned_response_id = $canned_response_id");
+    logAudit("Canned Response", "Create", "$session_name copied canned response " . escapeSql($row['canned_response_name']) . " as " . escapeSql($new_name), 0, $new_id);
 
-    logAudit("Canned Response", "Edit", "$session_name edited canned response $name", 0, $canned_response_id);
+    flashAlert("Canned response <strong>" . escapeHtml($row['canned_response_name']) . "</strong> copied as <strong>" . escapeHtml($new_name) . "</strong>");
 
-    flashAlert("Canned Response <strong>$name</strong> edited");
+    redirect();
+
+}
+
+if (isset($_GET['archive_canned_response']) || isset($_GET['restore_canned_response'])) {
+
+    validateCSRFToken();
+
+    $archive = isset($_GET['archive_canned_response']);
+    $row = cannedResponseForRequest($archive ? $_GET['archive_canned_response'] : $_GET['restore_canned_response']);
+    $canned_response_id = intval($row['canned_response_id']);
+    $name = escapeSql($row['canned_response_name']);
+
+    // Archived, it isn't offered on tickets; restoring it is all it takes to offer it again
+    mysqli_query($mysqli, "UPDATE canned_responses SET canned_response_archived_at = " . ($archive ? 'NOW()' : 'NULL') . " WHERE canned_response_id = $canned_response_id");
+
+    logAudit("Canned Response", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " canned response $name", 0, $canned_response_id);
+
+    flashAlert("Canned response <strong>" . escapeHtml($row['canned_response_name']) . "</strong> " . ($archive ? 'archived' : 'restored'), $archive ? 'error' : 'success');
 
     redirect();
 
@@ -52,15 +80,15 @@ if (isset($_GET['delete_canned_response'])) {
 
     validateCSRFToken();
 
-    $canned_response_id = intval($_GET['delete_canned_response']);
+    $row = cannedResponseForRequest($_GET['delete_canned_response']);
+    $canned_response_id = intval($row['canned_response_id']);
 
-    $name = escapeSql(getFieldById('canned_responses', $canned_response_id, 'canned_response_name'));
-
+    // Its categories and its record of use go with it, by their foreign keys; replies it went into stay as they are
     mysqli_query($mysqli, "DELETE FROM canned_responses WHERE canned_response_id = $canned_response_id");
 
-    logAudit("Canned Response", "Delete", "$session_name deleted canned response $name", 0, $canned_response_id);
+    logAudit("Canned Response", "Delete", "$session_name deleted canned response " . escapeSql($row['canned_response_name']));
 
-    flashAlert("Canned Response <strong>$name</strong> deleted", 'error');
+    flashAlert("Canned response <strong>" . escapeHtml($row['canned_response_name']) . "</strong> deleted", 'error');
 
     redirect();
 

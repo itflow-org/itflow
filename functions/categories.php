@@ -31,11 +31,16 @@
  *   uses     where records hold it - table, column, one/many (the record,
  *            in a sentence), url (the list showing them, {id} or {name}
  *            filled in; null when there is no such list), archived and
- *            updated (columns, or null), text (an id held as text)
+ *            updated (columns, or null), text (an id held as text), and for
+ *            records that take several of a kind through a table of their
+ *            own (canned_response_categories), link - that table's column
+ *            for the record (owner), the records' table (records) and the
+ *            join to it (join); records is what the API counts them as
  */
 function categoryKinds() {
-    $use = function ($table, $column, $one, $many, $url = null, $archived = null, $updated = null, $text = false) {
-        return ['table' => $table, 'column' => $column, 'one' => $one, 'many' => $many, 'url' => $url, 'archived' => $archived, 'updated' => $updated, 'text' => $text];
+    $use = function ($table, $column, $one, $many, $url = null, $archived = null, $updated = null, $text = false, $link = null) {
+        return ['table' => $table, 'column' => $column, 'one' => $one, 'many' => $many, 'url' => $url, 'archived' => $archived, 'updated' => $updated, 'text' => $text,
+            'link' => $link, 'records' => $link['records'] ?? $table, 'join' => $link['join'] ?? ''];
     };
     return [
         'Expense' => [
@@ -74,12 +79,13 @@ function categoryKinds() {
         ],
         'Ticket' => [
             'label' => 'Ticket', 'one' => 'ticket category', 'many' => 'ticket categories', 'icon' => 'fa-life-ring',
-            'about' => 'What a ticket is about. Tickets, recurring tickets and canned responses have one, and the ticket reports add up by them.',
+            'about' => 'What a ticket is about. Tickets and recurring tickets have one, canned responses are offered by them, and the ticket reports add up by them.',
             'by' => 'id', 'ordered' => false, 'max' => 200, 'modules' => ['module_support'],
             'uses' => [
                 $use('tickets', 'ticket_category', 'ticket', 'tickets', '/agent/tickets.php?category={id}&show=all', 'ticket_archived_at', 'ticket_updated_at', true),
                 $use('recurring_tickets', 'recurring_ticket_category', 'recurring ticket', 'recurring tickets', '/agent/recurring_tickets.php?category={id}', null, 'recurring_ticket_updated_at', true),
-                $use('canned_responses', 'canned_response_category_id', 'canned response', 'canned responses', '/admin/canned_responses.php', 'canned_response_archived_at', 'canned_response_updated_at'),
+                $use('canned_response_categories', 'category_id', 'canned response', 'canned responses', '/admin/canned_responses.php?category={id}', 'canned_response_archived_at', null, false,
+                    ['owner' => 'canned_response_id', 'records' => 'canned_responses', 'join' => 'JOIN canned_responses USING (canned_response_id)']),
             ],
         ],
         'network_interface' => [
@@ -277,7 +283,7 @@ function categoryUsage($kind) {
     $usage = [];
     foreach ($config['uses'] as $index => $use) {
         $archived = $use['archived'] ? "SUM({$use['archived']} IS NOT NULL)" : '0';
-        $sql = mysqli_query($mysqli, "SELECT {$use['column']}, COUNT(*), $archived FROM {$use['table']}
+        $sql = mysqli_query($mysqli, "SELECT {$use['column']}, COUNT(*), $archived FROM {$use['table']} {$use['join']}
             WHERE {$use['column']} IS NOT NULL AND {$use['column']} <> " . ($config['by'] === 'name' || $use['text'] ? "''" : '0') . "
             GROUP BY {$use['column']}");
         while ($row = mysqli_fetch_row($sql)) {
@@ -319,7 +325,7 @@ function categoryLooseNames($kind) {
     $spelling = [];
     foreach ($config['uses'] as $index => $use) {
         $archived = $use['archived'] ? "SUM({$use['archived']} IS NOT NULL)" : '0';
-        $sql = mysqli_query($mysqli, "SELECT {$use['column']}, COUNT(*), $archived FROM {$use['table']}
+        $sql = mysqli_query($mysqli, "SELECT {$use['column']}, COUNT(*), $archived FROM {$use['table']} {$use['join']}
             WHERE {$use['column']} IS NOT NULL AND TRIM({$use['column']}) <> '' GROUP BY {$use['column']} ORDER BY COUNT(*) DESC");
         while ($row = mysqli_fetch_row($sql)) {
             $key = categoryNameKey($row[0]);
@@ -473,12 +479,21 @@ function categoryUpdate(array $row, array $fields) {
 /*
  * Point every record of a kind whose category matches $where_sql (" = 'x'",
  * " IN (1, 2)") at $to_sql instead - leaving when each was last changed as
- * it was, as the record itself didn't change. How many records moved.
+ * it was, as the record itself didn't change. A record that takes several
+ * (a use with a link) has the new one added - once, if it had it already -
+ * and the old ones taken off. How many records moved.
  */
 function categoryMoveRecords(array $config, $where_sql, $to_sql) {
     global $mysqli;
     $moved = 0;
     foreach ($config['uses'] as $use) {
+        if (!empty($use['link'])) {
+            mysqli_query($mysqli, "INSERT IGNORE INTO {$use['table']} ({$use['link']['owner']}, {$use['column']})
+                SELECT {$use['link']['owner']}, $to_sql FROM {$use['table']} WHERE {$use['column']} $where_sql");
+            mysqli_query($mysqli, "DELETE FROM {$use['table']} WHERE {$use['column']} $where_sql");
+            $moved += max(0, mysqli_affected_rows($mysqli));
+            continue;
+        }
         $keep = $use['updated'] ? ", {$use['updated']} = {$use['updated']}" : '';
         mysqli_query($mysqli, "UPDATE {$use['table']} SET {$use['column']} = $to_sql$keep WHERE {$use['column']} $where_sql");
         $moved += max(0, mysqli_affected_rows($mysqli));
