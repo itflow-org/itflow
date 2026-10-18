@@ -3582,7 +3582,8 @@ DROP TABLE IF EXISTS `user_role_permissions`;
 CREATE TABLE `user_role_permissions` (
   `user_role_id` int(11) NOT NULL,
   `module_id` int(11) NOT NULL,
-  `user_role_permission_level` int(11) NOT NULL
+  `user_role_permission_level` int(11) NOT NULL,
+  PRIMARY KEY (`user_role_id`,`module_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

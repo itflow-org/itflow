@@ -3083,6 +3083,21 @@ a.itflow-dash-rail-item:focus-visible {
 .itflow-category .itflow-category-dot {
     margin-right: 0;
 }
+/* Admin > Roles - a role's agents as overlapping faces, and in the role
+   window what a level lets them do, the lines it doesn't greyed out */
+.itflow-role-agents {
+    display: inline-flex;
+}
+.itflow-role-agents > .itflow-contact-avatar + .itflow-contact-avatar {
+    margin-left: -.5rem;
+}
+.itflow-role-agents > .itflow-contact-avatar {
+    box-shadow: 0 0 0 2px var(--bs-body-bg);
+}
+.itflow-role-level-list li.is-off {
+    color: var(--bs-secondary-color);
+    opacity: .7;
+}
 /* A category's icon beside its name in a list (categoryMarkHtml()) - in its
    colour, set as the dot it stands in for is */
 .itflow-category-icon {

@@ -3,38 +3,29 @@
 // Role and permission enforcement
 // Split from the former monolithic functions.php
 
-// When provided a module name (e.g. module_support), returns the associated permission level (false=none, 1=read, 2=write, 3=full)
+// When provided a module name (e.g. module_support), returns the associated permission level (false=none, 1=read, 2=write, 3=full).
+// The role's levels are read once a request - a page asks dozens of times.
 function lookupUserPermission($module) {
     global $mysqli, $session_is_admin, $session_user_role;
+    static $levels = [];
 
     if (isset($session_is_admin) && $session_is_admin === true) {
         return 3;
     }
 
-    $module = escapeSql($module);
-
-    $sql = mysqli_query(
-        $mysqli,
-        "SELECT
-			user_role_permissions.user_role_permission_level
-		FROM
-			modules
-		JOIN
-			user_role_permissions
-		ON
-			modules.module_id = user_role_permissions.module_id
-		WHERE
-			module_name = '$module' AND user_role_permissions.user_role_id = $session_user_role"
-    );
-
-    $row = mysqli_fetch_assoc($sql);
-
-    if (isset($row['user_role_permission_level'])) {
-        return intval($row['user_role_permission_level']);
+    $role_id = intval($session_user_role ?? 0);
+    if (!isset($levels[$role_id])) {
+        $levels[$role_id] = [];
+        $sql = mysqli_query($mysqli, "SELECT module_name, MAX(user_role_permission_level) FROM modules
+            JOIN user_role_permissions ON modules.module_id = user_role_permissions.module_id
+            WHERE user_role_permissions.user_role_id = $role_id GROUP BY module_name");
+        while ($row = mysqli_fetch_row($sql)) {
+            $levels[$role_id][$row[0]] = intval($row[1]);
+        }
     }
 
     // Default return for no module permission
-    return false;
+    return !empty($levels[$role_id][$module]) ? $levels[$role_id][$module] : false;
 }
 
 // Enforce admin portal access - single canonical admin gate ($session_is_admin)

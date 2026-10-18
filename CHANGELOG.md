@@ -6,7 +6,7 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.1.5) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.1.6) in the same pass. Nothing else is required.
 
 This is a big release, with thirty-six database steps in one go, so take a backup before you update.
 
@@ -805,6 +805,15 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - The invoice, quote and recurring invoice exports have a Category column, and the asset export a Status column, to tick.
   - Admin > Categories links what uses a category to these lists filtered by it too: quotes, recurring invoices, assets, licenses and racks.
   - API: read the categories - every kind the key can see, one kind, one by id or by name, archived ones too - with how many records have each.
+- **Roles** (rebuilt)
+  - Admin > Roles shows what each role opens at a glance - its level of each part of ITFlow in that level's color, or Admin - everything - and its agents, opening Users filtered to them. Search, and Current and Archived tabs.
+  - New, Edit and Copy are one window. Admin is a switch; otherwise each part of ITFlow - Clients, Support, Credentials, Sales, Financial and Reports - gets None, Read, Modify or Full, with a line for each level saying what it lets them do, ticked as you pick. Reports only has None and Read, all it uses. A change reaches the role's agents from the next page they open.
+  - Copy starts a new role from another's levels.
+  - Archive a role nobody has to stop it being given out, and Restore it. Delete one no agent has, archived ones included. Archive and Delete are greyed out with the reason when they can't be used.
+  - The Administrator role can now be opened and renamed. No admin role can lose admin while it is your own, so nobody can lock themselves out of Admin.
+  - Role names are unique, in any case, and the description is optional.
+  - The audit log says what changed on a role: "Sales Read to Modify, Reports None to Read".
+  - A page reads the agent's role once, where it used to ask the database again at every check - dozens of times on a busy page.
 
 ### Bug Fixes
 
@@ -899,6 +908,8 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Clients: saving a client with no referral made a referral with no name, and typing one that matched an archived referral made a second of it.
 - Licenses: the tab counts ignored the license type filter, so a tab could say more than it showed.
 - Racks: the Archived button broke onto two lines on a laptop-sized screen.
+- Roles: a role's name went into the "created" and "edited" messages as it was typed, so markup in it ran on the page.
+- Roles: an admin role could have admin taken off while its agents were the admins using it, your own included, shutting them out of Admin. Archived roles couldn't be seen or brought back.
 - License templates: the type picker showed a stray "<" at the top.
 - Admin > Settings > Defaults: Payment Method and Expense Payment Method listed the payment method categories that moved to Admin > Payment Methods in 2.3.1, so a new install had nothing to pick. They list Admin > Payment Methods now.
 - Messages, hints and window titles were reworded where they were unclear, and bulk windows say "1 asset" or "3 assets" correctly.
@@ -1297,6 +1308,13 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - `selectOptionColor()` turns an icon kept as `fa-name` into `fas fa-name`.
   - `admin/settings_default.php` reads `paymentMethods()`, keeping a saved value that is no longer one.
   - CSS: `.itflow-category`, `-mark`, `-name` and `-badge` (`categoryChip()`), `.itflow-category-swatch-none`, `.itflow-category-kinds` and `.itflow-category-grip`.
+- Roles (database 3.1.6):
+  - The migration deletes `user_role_permissions` rows of a role or module that is gone or of level 0 or less, keeps the highest level (held to 3) where a role has a module twice, and adds `PRIMARY KEY (user_role_id, module_id)`.
+  - `lookupUserPermission()` reads the session role's levels in one query and keeps them for the request (a `static`, keyed by role). It still returns `3` for an admin and `false` for none.
+  - New `functions/roles.php`, loaded by `functions.php`: `ROLE_LEVELS`, `ROLE_LEVEL_TONES`, `roleModuleInfo()` (by `module_name`: `label`, `icon`, `about`, `levels` - what each adds - and `max`), `roleModules()` (`module_id` => that, from the `modules` table, a module it doesn't know named from its row), `roleLevels($role_ids)`, `roleRows($archived)` (with `levels`, `agents` and `agents_archived`), `roleRow()`, `roleAgents($role_ids, $limit)`, `roleAccessHtml($row)`, `roleFromInput($in, $role_id)` (`[$fields, $error]`: `name`, `description`, `admin`, `levels`), `roleAdminBlocker()`, `roleArchiveBlocker()`, `roleDeleteBlocker()`, `roleChangeText($before, $fields)`, `roleSave($fields, $role_id)` (an admin role keeps its levels), `roleSetArchived()` and `roleDelete()`.
+  - Admin: `admin/roles.php` is rebuilt (`q`, `archived`; no paging or sorting). `admin/modals/role/role_form.php` is shared by `role_add.php` (`copy` - a role to start from) and `role_edit.php` (`id`), with `js/role_form.js`. `admin/post/roles.php`: `add_role` and `edit_role` (`role_id`, `name`, `description`, `admin`, `levels[module_id]` 0 to 3 - the old `role_name`, `role_description`, `role_is_admin` and `module_id##module_name` fields are gone), and GET `archive_role`, `restore_role` and `delete_role`. Audit entries are User Role Create, Edit (with what changed), Archive, Restore and Delete.
+  - The hard-coded `role_id !== 3` checks on the roles page are gone; the guards are `roleAdminBlocker()` and the archive and delete blockers.
+  - CSS: `.itflow-role-agents` and `.itflow-role-level-list`.
 - Empty states: every list page sets `$empty_state` before including `includes/filter_footer.php`, and `includes/inc_empty_state.php` draws it with `emptyStateHtml()` (`functions/format.php`) when the list has nothing - `thing`, `icon`, `title`, `text`, `actions` (`label`, `modal` or `href`, `size`, `icon`; the first is the main one), `archived`, `view`, `filtered`, `views`, `match_title`, `match_text` and `clear_url`. `emptyStateFiltered($views)` reads the GET string for a search or filter, leaving out paging, sorting, `client_id`, `archived` and the page's views, and `emptyStateClearUrl($views)` is the page without them. `emptyStatePill($pills, $key, $default, $good)` builds a pill's own state from the page's pill array (`label`, `icon`, `title`, `alarm`), with a tick for `alarm` pills and the keys in `$good`. Files, notifications and racks call `emptyStateHtml()` in their own layout; files and notifications set `$empty_state_skip`. A page that sets nothing still gets one, worded from `$page_title`. The pages' own empty blocks (`.itflow-asset-empty` under a list) are gone. CSS: `.itflow-empty-state` with `-icon` (a grey round tile), `-title`, `-text` and `-actions`.
 - Removed unused helpers and files:
   - `credentialLink()`, `projectLink()`, `linkCounts()`, `assetContactAvatar()`, `clientOverviewPersonInitials()`, and `getMonthlyTax()` and `getQuarterlyTax()`, which looked a tax up by name
