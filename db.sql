@@ -119,6 +119,7 @@ CREATE TABLE `api_keys` (
   `api_key_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `api_key_expire` date NOT NULL,
   `api_key_user_id` int(11) NOT NULL DEFAULT 0,
+  `api_key_last_used_at` datetime DEFAULT NULL,
   PRIMARY KEY (`api_key_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

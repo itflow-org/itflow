@@ -1,7 +1,8 @@
 <?php
 
 /*
- * ITFlow - GET/POST request handler for API settings
+ * API keys (Admin > API Keys) - making, changing, revoking and deleting
+ * them. The checks are in functions/api_keys.php.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -10,21 +11,29 @@ if (isset($_POST['add_api_key'])) {
 
     validateCSRFToken();
 
-    $name = escapeSql($_POST['name']);
-    $expire = escapeSql($_POST['expire']);
-    $user_id = intval($_POST['run_as_user']);
-    $secret = escapeSql($_POST['key']); // API Key
+    [$fields, $error] = apiKeyFromInput($_POST);
+    $secret = (string) ($_POST['key'] ?? '');
+    $password = trim((string) ($_POST['password'] ?? ''));
+    if ($error === '' && (!preg_match('/^[A-Za-z0-9_-]{32}$/', $secret) || $password === '')) {
+        $error = 'The window was missing its key - open New API Key again.';
+    }
+    if ($error !== '') {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
+    }
 
     // Credential decryption password
-    $apikey_specific_encryption_ciphertext = encryptUserSpecificKey(trim($_POST['password']));
+    $apikey_specific_encryption_ciphertext = encryptUserSpecificKey($password);
 
-    mysqli_query($mysqli,"INSERT INTO api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_decrypt_hash = '$apikey_specific_encryption_ciphertext', api_key_expire = '$expire', api_key_user_id = $user_id");
+    mysqli_query($mysqli, "INSERT INTO api_keys SET api_key_name = '" . escapeSql($fields['name']) . "', api_key_secret = '" . escapeSql($secret) . "',
+        api_key_decrypt_hash = '$apikey_specific_encryption_ciphertext', api_key_expire = '" . escapeSql($fields['expire']) . "', api_key_user_id = " . intval($fields['user_id']));
 
     $api_key_id = mysqli_insert_id($mysqli);
+    $agent = apiKeyAgents()[$fields['user_id']]['user_name'];
 
-    logAudit("API Key", "Create", "$session_name created API key $name set to expire on $expire", 0, $api_key_id);
+    logAudit("API Key", "Create", "$session_name created API key " . escapeSql($fields['name']) . " acting as " . escapeSql($agent) . ", expiring " . $fields['expire'], 0, $api_key_id);
 
-    flashAlert("API Key <strong>$name</strong> created");
+    flashAlert("API key <strong>" . escapeHtml($fields['name']) . "</strong> created");
 
     redirect();
 
@@ -34,16 +43,38 @@ if (isset($_POST['edit_api_key'])) {
 
     validateCSRFToken();
 
-    $api_key_id = intval($_POST['api_key_id']);
-    $name = escapeSql($_POST['name']);
-    $expire = escapeSql($_POST['expire']);
-    $user_id = intval($_POST['run_as_user']);
+    $row = apiKeyRow($_POST['api_key_id'] ?? 0);
+    if (!$row) {
+        flashAlert("That key is gone - it may have been deleted", 'error');
+        redirect();
+    }
+    $api_key_id = intval($row['api_key_id']);
 
-    mysqli_query($mysqli,"UPDATE api_keys SET api_key_name = '$name', api_key_expire = '$expire', api_key_user_id = $user_id WHERE api_key_id = $api_key_id");
+    [$fields, $error] = apiKeyFromInput($_POST, $row['api_key_expire']);
+    if ($error !== '') {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
+    }
 
-    logAudit("API Key", "Edit", "$session_name edited API key $name", 0, $api_key_id);
+    mysqli_query($mysqli, "UPDATE api_keys SET api_key_name = '" . escapeSql($fields['name']) . "', api_key_expire = '" . escapeSql($fields['expire']) . "',
+        api_key_user_id = " . intval($fields['user_id']) . " WHERE api_key_id = $api_key_id");
 
-    flashAlert("API Key <strong>$name</strong> updated");
+    // What changed, for the audit log
+    $changes = [];
+    if ($row['api_key_name'] !== $fields['name']) {
+        $changes[] = 'renamed from ' . $row['api_key_name'];
+    }
+    if ((string) $row['api_key_expire'] !== $fields['expire']) {
+        $changes[] = 'expiring ' . $fields['expire'] . ' (was ' . $row['api_key_expire'] . ')';
+    }
+    if (intval($row['api_key_user_id']) !== $fields['user_id']) {
+        $changes[] = 'acting as ' . apiKeyAgents()[$fields['user_id']]['user_name'] . ' (was ' . ($row['user_name'] ?? 'nobody') . ')';
+    }
+    if ($changes) {
+        logAudit("API Key", "Edit", "$session_name edited API key " . escapeSql($fields['name']) . " - " . escapeSql(implode(', ', $changes)), 0, $api_key_id);
+    }
+
+    flashAlert("API key <strong>" . escapeHtml($fields['name']) . "</strong> " . ($changes ? 'saved' : 'unchanged'));
 
     redirect();
 
@@ -53,17 +84,18 @@ if (isset($_GET['revoke_api_key'])) {
 
     validateCSRFToken();
 
-    $api_key_id = intval($_GET['revoke_api_key']);
+    $row = apiKeyRow($_GET['revoke_api_key']);
+    if (!$row) {
+        flashAlert("That key is gone - it may have been deleted", 'error');
+        redirect();
+    }
 
-    // Get API Key Name
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT api_key_name FROM api_keys WHERE api_key_id = $api_key_id"));
-    $api_key_name = escapeSql($row['api_key_name']);
+    // Expires today - it works until the start of its expiry day
+    mysqli_query($mysqli, "UPDATE api_keys SET api_key_expire = CURDATE() WHERE api_key_id = " . intval($row['api_key_id']));
 
-    mysqli_query($mysqli,"UPDATE api_keys SET api_key_expire = NOW() WHERE api_key_id = $api_key_id");
+    logAudit("API Key", "Revoke", "$session_name revoked API key " . escapeSql($row['api_key_name']), 0, $row['api_key_id']);
 
-    logAudit("API Key", "Revoke", "$session_name revoked API key $name", 0);
-
-    flashAlert("API Key <strong>$name</strong> revoked", 'error');
+    flashAlert("API key <strong>" . escapeHtml($row['api_key_name']) . "</strong> revoked", 'error');
 
     redirect();
 
@@ -73,17 +105,17 @@ if (isset($_GET['delete_api_key'])) {
 
     validateCSRFToken();
 
-    $api_key_id = intval($_GET['delete_api_key']);
+    $row = apiKeyRow($_GET['delete_api_key']);
+    if (!$row) {
+        flashAlert("That key is gone - it may have been deleted", 'error');
+        redirect();
+    }
 
-    // Get API Key Name
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT api_key_name FROM api_keys WHERE api_key_id = $api_key_id"));
-    $api_key_name = escapeSql($row['api_key_name']);
+    mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_id = " . intval($row['api_key_id']));
 
-    mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_id = $api_key_id");
+    logAudit("API Key", "Delete", "$session_name deleted API key " . escapeSql($row['api_key_name']), 0, $row['api_key_id']);
 
-    logAudit("API Key", "Delete", "$session_name deleted API key $name", 0);
-
-    flashAlert("API Key <strong>$name</strong> deleted", 'error');
+    flashAlert("API key <strong>" . escapeHtml($row['api_key_name']) . "</strong> deleted", 'error');
 
     redirect();
 
@@ -93,30 +125,18 @@ if (isset($_POST['bulk_delete_api_keys'])) {
 
     validateCSRFToken();
 
-    if (isset($_POST['api_key_ids'])) {
-
-        $count = count($_POST['api_key_ids']);
-
-        // Cycle through array and delete each record
-        foreach ($_POST['api_key_ids'] as $api_key_id) {
-
-            $api_key_id = intval($api_key_id);
-
-            // Get API Key Name
-            $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT api_key_name FROM api_keys WHERE api_key_id = $api_key_id"));
-            $api_key_name = escapeSql($row['api_key_name']);
-
-            mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_id = $api_key_id");
-
-            logAudit("API Key", "Delete", "$session_name deleted API key $name", 0);
-
+    $count = 0;
+    foreach (array_unique(array_map('intval', (array) ($_POST['api_key_ids'] ?? []))) as $api_key_id) {
+        $row = apiKeyRow($api_key_id);
+        if (!$row) {
+            continue;
         }
-
-        logAudit("API Key", "Bulk Delete", "$session_name deleted $count API key(s)");
-
-        flashAlert("Deleted <strong>$count</strong> API keys(s)", 'error');
-
+        mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_id = $api_key_id");
+        logAudit("API Key", "Delete", "$session_name deleted API key " . escapeSql($row['api_key_name']), 0, $api_key_id);
+        $count++;
     }
+
+    flashAlert("Deleted <strong>$count</strong> API key" . ($count === 1 ? '' : 's'), 'error');
 
     redirect();
 

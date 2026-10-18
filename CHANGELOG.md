@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.1.6) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.1.7) in the same pass. Nothing else is required.
 
-This is a big release, with thirty-six database steps in one go, so take a backup before you update.
+This is a big release, with thirty-seven database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -36,6 +36,8 @@ Taxes keep their names and rates, now kept to four decimal places. No client has
 Tags keep their names, colors, icons and records. A color saved as a word, such as dark or primary, becomes the color it stands for, a short one such as #abc is written out in full, and a tag with no color, or one that isn't a color, turns grey, so its pills can be read (see Bug Fixes). An icon saved with `fas fa-` in front keeps just its name. A tag archived in an older version now counts as archived (see Breaking Changes, Tags). Licenses, services, networks, documents and tickets can now be tagged too, and start with no tags - the Tags pack in Maintenance > Starter Content adds a few for each.
 
 Categories keep their names, colors, icons, order and records. A color saved as a word, such as lightblue or gray, becomes the same color written as #rrggbb, and a short one such as #abc is written out in full, so nothing looks different, but the ticket lists and the reports, which only read colors written that way, now show it (see Bug Fixes). A color that isn't one is taken off, and a category with no color stays without one. Interface types, asset statuses, software types, rack types and note types keep the order they are offered in.
+
+API keys keep their names, end dates and the agent they act as. Admin > API Keys shows each as never used until its next call. A key acting as an agent who is disabled or archived, or has no role, was already turned away by the API, and is now marked Won't work with the reason (see New Features, API Keys).
 
 If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
 
@@ -184,6 +186,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Domains: an update no longer wipes the expiry date and DNS records when the lookup comes back empty. A domain name the client already has is refused.
   - Deleting an asset, contact, client or location through the API now also cleans up whatever pointed at it, the same as deleting it in ITFlow.
   - New endpoint to read services, under the Support permission. Vendors take the account manager's phone and email.
+  - A call the key's role doesn't allow is refused with what it needs and what the key's user has - "This needs Modify on Support - the key's user, Tess Tech (Technician), has Read." - in place of "The user linked to this API key does not have permission for this action." It is still a 403. Anything that matches on the old text needs changing.
 
 ### New Features & Updates
 
@@ -818,6 +821,14 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Agents aren't offered what their role can't do: the Clients and Assets bulk menus at Read, Delete among archived assets below Full, editing an asset's recurring tickets at Read, and links into a report for an agent who can't open it.
   - The role window warns when a role is given Support, Credentials, Sales or Financial with Clients at None, as each client's pages need Clients.
   - A user's quick look shows what they can open, from their role, and the user form shows what the role picked opens.
+  - API: read the roles - an admin key every role, with its level of each part of ITFlow and how many agents have it, archived ones too; any other key only its own user's role. Read the agents, with their role, under the Support permission.
+  - API: a call the key's role doesn't allow says what it needs and what the key's user has, with how to get it changed (see Breaking Changes, API).
+- **API Keys** (rebuilt)
+  - Admin > API Keys shows, for each key, the agent it acts as and their role, what it can open and for which clients, whether it works and when it was last used. Whether it works reads Works until a day, Expires in so many days in its last two weeks, Expired, or Won't work with why: its agent is disabled, archived or has no role, or it acts as nobody. Search finds keys by their name or their agent's.
+  - The New API Key and Edit windows show what the picked agent can open as you pick them, and offer only active agents. A new key lasts a year unless you change it, and its last day has to be after today. An expired key can be renamed and stays expired; a later day brings it back.
+  - Create on the Details tab before ticking that the key and password were copied opens the Key tab, rather than doing nothing.
+  - Revoke ends a key today. Delete is for expired keys, as before, one at a time or several from the bulk menu.
+  - The audit log says who a new key acts as and when it ends, and what an edit changed: "renamed from RMM, expiring 2027-06-01 (was 2026-12-01), acting as Tess Tech (was Johnny Test)".
 
 ### Bug Fixes
 
@@ -915,6 +926,9 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Roles: a role's name went into the "created" and "edited" messages as it was typed, so markup in it ran on the page.
 - Roles: an admin role could have admin taken off while its agents were the admins using it, your own included, shutting them out of Admin. Archived roles couldn't be seen or brought back.
 - Roles: being turned away left "You are not permitted to do that!" waiting on the next page opened.
+- API keys: revoking, deleting and bulk deleting keys showed and logged no name ("API Key revoked"), and the bulk message counted the keys ticked rather than those deleted. A name with an apostrophe showed with a backslash in the created and updated messages.
+- API keys: a new key could be given today as its last day, so it never worked. An expired key couldn't be renamed without giving it a new day, as Edit wouldn't save the one it had.
+- API: reading an agent's time (`technicians/time.php`) needed Modify on Support, though it only reads.
 - Contacts: an agent without Support saw a contact's Assets, Documents, Files and Services tabs, which led to pages they were refused. A document's or file's linked assets, licenses, services, domains and certificates were listed to them too.
 - All Client Docs listed Credentials to agents who can't open it.
 - Notifications: shared-link notifications reached agents without Support, with a link they couldn't open.
@@ -1328,6 +1342,12 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - `LINK_ENTITIES` has a `view` module for asset, software, service, domain and certificate (Support) and contact and vendor (Clients), so `linkTypesFor()` leaves them out for an agent without it. `notificationTypeModules()` files `Shared link opened`, `Shared link locked`, `Login sent back` and `Share Viewed` under Support.
   - `agent/includes/inc_client_top_head.php` includes `modals/client/client_delete.php` only where Delete Client is in the menu. `agent/includes/client_overview_side_nav.php` checks Credentials.
   - The role window marks each module `data-role-module="module_name"` and has `data-role-needs-clients`; the user form has a `data-user-role-access` block per role.
+- API Keys (database 3.1.7):
+  - The migration adds `api_keys.api_key_last_used_at` (DATETIME, null). `api/v1/validate_api_key.php` sets it on a call that gets past the key check, at most once a minute, in `config_timezone`, as the API doesn't set PHP's or MySQL's clock to it.
+  - New `functions/api_keys.php`, loaded by `functions.php`: `apiKeyRows($search)` and `apiKeyRow($id)` (the key with its agent's `user_name`, `user_avatar`, `user_type`, `user_status`, `user_archived_at` and `user_role_id`), `apiKeyExpired($row)`, `apiKeyAgentProblem($row, $role)`, `apiKeyStatePill($row, $role)`, `apiKeyAgents()` (active agents), `apiKeyFromInput($in, $current_expire)` (`[$fields, $error]`: `name`, `expire`, `user_id`) and `apiKeyAgentFieldHtml($selected)` (the `run_as_user` picker, with a `data-api-key-access` block per agent).
+  - Admin: `admin/api_keys.php` is rebuilt (`q`; no paging or sorting). `admin/post/api_keys.php`: `add_api_key` (`name`, `expire`, `run_as_user`, `key` - 32 of `A-Za-z0-9_-` - and `password`), `edit_api_key` (`api_key_id`, `name`, `expire`, `run_as_user`), GET `revoke_api_key` (`api_key_expire` to today) and `delete_api_key`, and `bulk_delete_api_keys` (`api_key_ids[]`). Each checks the key exists, and add and edit take an active agent only. Audit entries are API Key Create, Edit (with what changed, and only when something did), Revoke and Delete, each linked to its key. The Bulk Delete summary entry is gone, as each key logs its own Delete.
+  - API: `api/v1/roles/read.php` (GET; `role_id`, `archived`, `limit`, `offset`) answers `role_id`, `role_name`, `role_description`, `role_is_admin`, `role_levels` (`module_name` => 0 to 3), `role_agents`, `role_created_at`, `role_updated_at` and `role_archived_at`. A key whose user isn't an admin gets only `$session_user_role`. `enforce_api_rbac.php` maps `roles` to `''`. `api/v1/technicians/read.php` (GET, `module_support`; `technician_id`, `archived`, `limit`, `offset`) answers `technician_id`, `technician_name`, `technician_email`, `technician_status`, `role_id`, `role_name`, `role_is_admin`, `technician_created_at` and `technician_archived_at`.
+  - `enforce_api_rbac.php`: `apiPermissionText($module, $level)` words the module refusal, and `$operation_level` maps `time.php` to 1.
 - Empty states: every list page sets `$empty_state` before including `includes/filter_footer.php`, and `includes/inc_empty_state.php` draws it with `emptyStateHtml()` (`functions/format.php`) when the list has nothing - `thing`, `icon`, `title`, `text`, `actions` (`label`, `modal` or `href`, `size`, `icon`; the first is the main one), `archived`, `view`, `filtered`, `views`, `match_title`, `match_text` and `clear_url`. `emptyStateFiltered($views)` reads the GET string for a search or filter, leaving out paging, sorting, `client_id`, `archived` and the page's views, and `emptyStateClearUrl($views)` is the page without them. `emptyStatePill($pills, $key, $default, $good)` builds a pill's own state from the page's pill array (`label`, `icon`, `title`, `alarm`), with a tick for `alarm` pills and the keys in `$good`. Files, notifications and racks call `emptyStateHtml()` in their own layout; files and notifications set `$empty_state_skip`. A page that sets nothing still gets one, worded from `$page_title`. The pages' own empty blocks (`.itflow-asset-empty` under a list) are gone. CSS: `.itflow-empty-state` with `-icon` (a grey round tile), `-title`, `-text` and `-actions`.
 - Removed unused helpers and files:
   - `credentialLink()`, `projectLink()`, `linkCounts()`, `assetContactAvatar()`, `clientOverviewPersonInitials()`, and `getMonthlyTax()` and `getQuarterlyTax()`, which looked a tax up by name
