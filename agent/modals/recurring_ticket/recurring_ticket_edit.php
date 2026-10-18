@@ -143,17 +143,9 @@ ob_start();
                                 <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                                 <select class="form-select select2" name="category_id">
                                     <option value="0">- Not categorized -</option>
-                                    <?php
-                                    $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories
-                                        WHERE category_type = 'Ticket' AND (category_archived_at IS NULL OR category_id = $category_id) ORDER BY category_name ASC");
-                                    while ($row = mysqli_fetch_assoc($sql_categories)) {
-                                        $category_id_select = intval($row['category_id']); ?>
-                                        <option <?= $category_id === $category_id_select ? 'selected' : '' ?> value="<?= $category_id_select ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= escapeHtml($row['category_name']) ?></option>
-                                    <?php } ?>
+                                    <?= categoryOptionsHtml('Ticket', $category_id) ?>
                                 </select>
-                                <button class="btn btn-secondary ajax-modal" title="New category" type="button" data-modal-url="../admin/modals/category/category_add.php?category=Ticket">
-                                    <i class="fas fa-fw fa-plus"></i>
-                                </button>
+                                <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
                             </div>
                         </div>
                     </div>

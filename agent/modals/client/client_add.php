@@ -5,9 +5,6 @@ require_once '../../../includes/modal_header.php';
 // Filters
 $leads_filter = intval($_GET['lead'] ?? 0);
 
-// Selects
-$referral_sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL ORDER BY category_name ASC");
-
 $net_terms_array = array (
     '0'=>'On Receipt',
     '7'=>'7 Days',
@@ -92,18 +89,9 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                         <select class="form-select select2" data-tags="true" name="referral">
                             <option value="">- Select Referral -</option>
-                            <?php
-
-                            while ($row = mysqli_fetch_assoc($referral_sql)) {
-                                $referral = escapeHtml($row['category_name']); ?>
-                                <option><?= $referral ?></option>
-                            <?php } ?>
-
+                            <?= categoryOptionsHtml('Referral') ?>
                         </select>
-                            <button class="btn btn-secondary ajax-modal" title="New category" type="button"
-                                data-modal-url="../admin/modals/category/category_add.php?category=Referral">
-                                <i class="fas fa-fw fa-plus"></i>
-                            </button>
+                        <?= categoryAddButtonHtml('Referral', 'btn btn-secondary') ?>
                     </div>
                 </div>
 

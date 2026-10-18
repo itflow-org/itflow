@@ -622,3 +622,133 @@ function categoryReorder($kind, array $ids) {
     }
     return $moved;
 }
+
+/*
+ * The categories a picker in a form offers - a kind's current ones, in its
+ * order, plus those in $keep (what the record already has: ids, or names
+ * for a kind held by name) even when archived. A kept name that isn't one
+ * of the kind's categories (typed in before there was a picker, or since
+ * deleted) is offered as it is, with no id, so saving the record keeps it.
+ * Rows keyed by the value the picker posts - the id, or the name. $opts:
+ * 'since' - also the ones archived after then (a billing record offers what
+ * was current when it was made); 'exclude' - names never offered unless kept.
+ */
+function categoryPicker($kind, $keep = [], array $opts = []) {
+    $config = categoryKind($kind);
+    if (!$config) {
+        return [];
+    }
+    $by_name = $config['by'] === 'name';
+    $keep_keys = [];
+    foreach ((array) $keep as $value) {
+        $value = $by_name ? trim((string) $value) : intval($value);
+        if ($value !== '' && $value !== 0) {
+            $keep_keys[$by_name ? categoryNameKey($value) : $value] = $value;
+        }
+    }
+    $since = !empty($opts['since']) ? strtotime($opts['since']) : null;
+    $exclude = array_map('categoryNameKey', (array) ($opts['exclude'] ?? []));
+    $rows = [];
+    foreach (categoryRows($kind) as $category_id => $row) {
+        $key = $by_name ? categoryNameKey($row['category_name']) : $category_id;
+        $kept = isset($keep_keys[$key]);
+        if (!$kept && in_array(categoryNameKey($row['category_name']), $exclude, true)) {
+            continue;
+        }
+        if (!$kept && $row['category_archived_at'] && !($since && strtotime($row['category_archived_at']) > $since)) {
+            continue;
+        }
+        $value = $by_name ? $row['category_name'] : $category_id;
+        if (!isset($rows[$value])) {
+            $rows[$value] = $row;
+        }
+        unset($keep_keys[$key]);
+    }
+    // Kept names no category has
+    if ($by_name) {
+        foreach ($keep_keys as $name) {
+            $rows[$name] = ['category_id' => 0, 'category_name' => $name, 'category_description' => null, 'category_type' => $config['kind'],
+                'category_color' => null, 'category_icon' => null, 'category_archived_at' => null, 'loose' => true];
+        }
+    }
+    return $rows;
+}
+
+/* One picker <option> for a categoryPicker() row - its colour, icon and description, the value as the kind is held, and a note when archived or not set up. */
+function categoryOptionHtml(array $row, $selected = false) {
+    $config = categoryKind($row['category_type'] ?? '');
+    $value = $config && $config['by'] === 'name' ? (string) $row['category_name'] : (string) intval($row['category_id']);
+    $note = !empty($row['loose']) ? ' (not set up)' : ($row['category_archived_at'] ? ' (archived)' : '');
+    // An asset status in its badge's colour - its own, or the built-in status's
+    $color = categoryColor($row['category_color'] ?? '');
+    if (($row['category_type'] ?? '') === 'asset_status') {
+        $color = assetStatusColor((string) $row['category_name'], $color);
+    }
+    $icon = categoryIcon($row['category_icon'] ?? '');
+    if ($icon === '' && ($row['category_type'] ?? '') === 'software_type') {
+        // A software type without one of its own: the icon read from its name, as its licenses show
+        $icon = categoryIcon(softwareTypeStyle((string) $row['category_name'])['icon']);
+    }
+    $data = selectOptionData(['color' => $color, 'icon' => $icon !== '' ? "fas fa-$icon" : '', 'description' => trim((string) ($row['category_description'] ?? ''))]);
+    return '<option value="' . escapeHtml($value) . '"' . ($selected ? ' selected' : '') . $data . '>' . escapeHtml($row['category_name'] . $note) . '</option>';
+}
+
+/*
+ * A picker's <option>s for a kind - categoryPicker() with $selected kept and
+ * chosen (an id, or a name for a kind held by name). The form writes its own
+ * "nothing picked" option first. $opts as categoryPicker(). HTML.
+ */
+function categoryOptionsHtml($kind, $selected = null, array $opts = []) {
+    $config = categoryKind($kind);
+    if (!$config) {
+        return '';
+    }
+    $by_name = $config['by'] === 'name';
+    $selected_key = $by_name ? categoryNameKey(trim((string) $selected)) : intval($selected);
+    $html = '';
+    foreach (categoryPicker($kind, $selected === null ? [] : [$selected], $opts) as $value => $row) {
+        $key = $by_name ? categoryNameKey($value) : intval($value);
+        $html .= categoryOptionHtml($row, $selected !== null && $selected_key !== '' && $selected_key !== 0 && $key === $selected_key) . "\n";
+    }
+    return $html;
+}
+
+/*
+ * The + beside a category picker in a form: it opens the category window
+ * over the form, and what is made there is put in the picker and picked
+ * (js/category_form.js) - nothing reloads, nothing typed is lost. Admins
+ * only, as Admin > Categories is; '' for anyone else. $class matches the
+ * form's other buttons.
+ */
+function categoryAddButtonHtml($kind, $class = 'btn btn-outline-secondary') {
+    global $session_is_admin;
+    $config = categoryKind($kind);
+    if (empty($session_is_admin) || !$config) {
+        return '';
+    }
+    return '<button type="button" class="' . escapeHtml($class) . ' ajax-modal" title="New ' . escapeHtml($config['one']) . '" aria-label="New ' . escapeHtml($config['one']) . '"'
+        . ' data-modal-url="/admin/modals/category/category_add.php?category=' . urlencode($config['kind']) . '&amp;inline=1" data-category-add><i class="fas fa-fw fa-plus"></i></button>';
+}
+
+/*
+ * A name typed into a picker for a kind held by name (a client's referral)
+ * as the kind's category: the one with that name, any case, archived or not,
+ * or a new one made for it. The name to keep on the record - its
+ * category's own spelling - or '' for none.
+ */
+function categoryEnsure($kind, $name) {
+    global $mysqli, $session_name;
+    $config = categoryKind($kind);
+    $name = trim(mb_substr(preg_replace('/\s+/u', ' ', strip_tags((string) $name)), 0, $config['max'] ?? 200));
+    if (!$config || $config['by'] !== 'name' || $name === '') {
+        return $name;
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = '" . escapeSql($config['kind']) . "'
+        AND category_name = '" . escapeSql($name) . "' ORDER BY category_archived_at IS NOT NULL, category_id LIMIT 1"));
+    if ($row) {
+        return $row['category_name'];
+    }
+    $category_id = categoryCreate(['type' => $config['kind'], 'name' => $name, 'description' => '', 'color' => categoryNextColor($config['kind']), 'icon' => '']);
+    logAudit("Category", "Create", ($session_name ?? 'ITFlow') . " created " . $config['one'] . " " . escapeSql($name), 0, $category_id);
+    return $name;
+}

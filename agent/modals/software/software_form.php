@@ -17,16 +17,9 @@
 
 isset($mysqli) || die("Direct file access is not allowed");
 
-// Software types - from Admin > Categories, keeping a retired value that is still set
-$type_options = [];
-$sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'software_type' AND category_archived_at IS NULL ORDER BY category_order ASC, category_name ASC");
-while ($row = mysqli_fetch_assoc($sql)) {
-    $type_options[] = $row['category_name'];
-}
+// Software types - from Admin > Categories, keeping one the license has that is archived or isn't a type any more
 $software_type_raw = html_entity_decode($software_type, ENT_QUOTES, 'UTF-8');
-if ($software_type_raw !== '' && !in_array($software_type_raw, $type_options, true)) {
-    $type_options[] = $software_type_raw;
-}
+$type_options = array_map('strval', array_keys(categoryPicker('software_type', [$software_type_raw])));
 
 // License types - the usual ones, keeping whatever this one already has
 $license_type_options = array_keys(SOFTWARE_LICENSE_TYPES);
@@ -165,10 +158,9 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
                 <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="type" required>
                     <option value="">- Select Type -</option>
-                    <?php foreach ($type_options as $type_option) { ?>
-                        <option <?= $type_option === $software_type_raw ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas ' . softwareTypeStyle($type_option)['icon']]) ?>><?= escapeHtml($type_option) ?></option>
-                    <?php } ?>
+                    <?= categoryOptionsHtml('software_type', $software_type_raw) ?>
                 </select>
+                <?= categoryAddButtonHtml('software_type', 'btn btn-secondary') ?>
             </div>
         </div>
         <?php if ($client_id) { ?>

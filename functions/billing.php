@@ -141,17 +141,9 @@ function billingTaxes($since = null) {
     return $taxes;
 }
 
-/** The income categories to offer - the same rule as billingTaxes(). */
-function billingCategories($since = null) {
-    global $mysqli;
-    $since_sql = $since ? "OR category_archived_at > '" . escapeSql($since) . "'" : '';
-    $categories = [];
-    $sql = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories
-        WHERE category_type = 'Income' AND (category_archived_at IS NULL $since_sql) ORDER BY category_name ASC");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $categories[intval($row['category_id'])] = $row;
-    }
-    return $categories;
+/** The income categories to offer - the same rule as billingTaxes(): current ones, and those archived since $since (categoryPicker()). */
+function billingCategories($since = null, $keep_id = 0) {
+    return categoryPicker('Income', [$keep_id], ['since' => $since]);
 }
 
 /** A line's subtotal, tax and total, each to the cent, at a single percent. */

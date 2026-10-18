@@ -8,6 +8,12 @@
 // held by name says the records will be renamed with it. The server checks
 // it all again.
 //
+// Opened from the + beside a picker in a form (categoryAddButtonHtml() in
+// functions/categories.php - js/app.js notes which picker), New Category
+// saves in the background: the new category goes into that picker, picked,
+// and the window closes, leaving the form underneath as it was. A refusal
+// (a name already taken) shows in the window.
+//
 // Wrapped in an IIFE because a modal can be opened, closed and opened again
 // in one page load, which re-runs this file.
 
@@ -195,6 +201,74 @@
             } else if (visible.length === 1) {
                 setIcon(visible[0].dataset.categoryIconChoice);
             }
+        });
+
+        // From the + beside a picker - saved in the background, into that picker
+        const inline = form.closest('form[data-category-inline]');
+        if (!inline) {
+            return;
+        }
+        const picker = window.itflowCategoryTarget || null;
+        window.itflowCategoryTarget = null;
+        const error = inline.querySelector('[data-category-error]');
+        inline.addEventListener('submit', function (e) {
+            if (!picker || !picker.isConnected) {
+                // Nothing to put it in - a plain post, back to the page
+                const flag = inline.querySelector('input[name="inline"]');
+                if (flag) {
+                    flag.remove();
+                }
+                return;
+            }
+            e.preventDefault();
+            const button = inline.querySelector('button[name="add_category"]');
+            button.disabled = true;
+            const data = new FormData(inline);
+            data.append('add_category', '1');
+            fetch(inline.getAttribute('action'), { method: 'POST', body: data, credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+                .then(function (res) {
+                    if (!res.ok) {
+                        throw new Error('HTTP ' + res.status);
+                    }
+                    return res.json();
+                })
+                .then(function (result) {
+                    if (!result.ok) {
+                        throw new Error(result.error || 'It was not saved');
+                    }
+                    // Picked in the picker - an option already there for it is used as it is
+                    let option = Array.prototype.find.call(picker.options, function (o) {
+                        return o.value === result.value;
+                    });
+                    if (!option) {
+                        const holder = document.createElement('select');
+                        holder.innerHTML = result.option;
+                        option = holder.options[0];
+                        picker.appendChild(option);
+                    }
+                    if (!picker.multiple) {
+                        Array.prototype.forEach.call(picker.options, function (o) {
+                            o.selected = false;
+                        });
+                    }
+                    option.selected = true;
+                    picker.dispatchEvent(new Event('input', { bubbles: true }));
+                    picker.dispatchEvent(new Event('change', { bubbles: true }));
+                    const modal = inline.closest('.modal');
+                    if (modal && window.bootstrap) {
+                        bootstrap.Modal.getOrCreateInstance(modal).hide();
+                    }
+                    if (typeof itflowToast === 'function') {
+                        itflowToast(result.message, 'success');
+                    }
+                })
+                .catch(function (err) {
+                    button.disabled = false;
+                    if (error) {
+                        error.textContent = err.message.indexOf('HTTP ') === 0 ? 'It could not be saved - reload the page and try again.' : err.message;
+                        error.hidden = false;
+                    }
+                });
         });
     });
 

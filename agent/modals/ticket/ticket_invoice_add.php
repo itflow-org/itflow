@@ -51,7 +51,6 @@ $sql = mysqli_query($mysqli, "SELECT invoice_id, invoice_prefix, invoice_number,
 while ($draft = mysqli_fetch_assoc($sql)) {
     $drafts[intval($draft['invoice_id'])] = $draft;
 }
-$categories = billingCategories();
 $taxes = billingTaxes();
 $scopes = ["Ticket $reference - " . $row['ticket_subject'], 'Support - ' . date('F Y')];
 
@@ -125,10 +124,9 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                     <select class="form-select" name="category" required>
                         <option value="">- Category -</option>
-                        <?php foreach ($categories as $category_id => $category) { ?>
-                            <option value="<?= intval($category_id) ?>"<?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?></option>
-                        <?php } ?>
+                        <?= categoryOptionsHtml('Income') ?>
                     </select>
+                    <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
                 </div>
             </div>
             <div class="col-12" data-ticket-invoice-new>

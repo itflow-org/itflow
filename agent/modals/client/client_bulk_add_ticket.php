@@ -58,17 +58,9 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                         <select class="form-select select2" name="bulk_category">
                             <option value="0">- Not Categorized -</option>
-                            <?php
-                            $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL");
-                            while ($row = mysqli_fetch_assoc($sql_categories)) {
-                                $category_id = intval($row['category_id']);
-                                $category_name = escapeHtml($row['category_name']);
-
-                                ?>
-                                <option value="<?= $category_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name ?></option>
-                            <?php } ?>
-
+                            <?= categoryOptionsHtml('Ticket') ?>
                         </select>
+                        <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
                     </div>
                 </div>
             </div>

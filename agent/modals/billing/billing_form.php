@@ -27,7 +27,6 @@ $form_value = function ($column, $default = '') use ($form_row, $form_c) {
 };
 $form_currency = $form_edit ? (string) $form_row["{$form_c}_currency_code"] : (string) $session_company_currency;
 $form_category_id = intval($form_value('category_id', '0'));
-$form_categories = billingCategories($form_edit ? $form_value('created_at') : null);
 $form_discount = floatval($form_value('discount_amount', '0'));
 
 // Net terms for a new invoice's due date - the client's (0 is On Receipt), as
@@ -91,13 +90,9 @@ $form_scope_placeholder = [
             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
             <select class="form-select select2" name="category" required>
                 <option value="">- Category -</option>
-                <?php foreach ($form_categories as $category_id => $category) { ?>
-                    <option value="<?= intval($category_id) ?>" <?= $form_category_id === intval($category_id) ? 'selected' : '' ?><?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?></option>
-                <?php } ?>
+                <?= categoryOptionsHtml('Income', $form_category_id, ['since' => $form_edit ? $form_value('created_at') : null]) ?>
             </select>
-            <button class="btn btn-secondary ajax-modal" title="New category" type="button" data-modal-url="../admin/modals/category/category_add.php?category=Income">
-                <i class="fas fa-fw fa-plus"></i>
-            </button>
+            <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
         </div>
     </div>
 

@@ -48,19 +48,9 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                 <select class="form-select select2" name="type" required>
                     <option value="">- Select Type -</option>
-                    <<?php
-                    $sql_software_types_select = mysqli_query($mysqli, "
-                        SELECT category_name, category_color, category_icon FROM categories
-                        WHERE category_type = 'software_type'
-                        AND category_archived_at IS NULL
-                        ORDER BY category_order ASC, category_name ASC
-                    ");
-                    while ($row = mysqli_fetch_assoc($sql_software_types_select)) {
-                        $software_type_select = escapeHtml($row['category_name']);
-                        ?>
-                        <option<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $software_type_select ?></option>
-                    <?php } ?>
+                    <?= categoryOptionsHtml('software_type') ?>
                 </select>
+                <?= categoryAddButtonHtml('software_type', 'btn btn-secondary') ?>
             </div>
         </div>
 

@@ -7,20 +7,6 @@
 
 isset($mysqli) || die("Direct file access is not allowed");
 
-// Rack types come from Admin > Categories. A rack saved with a type that has
-// since been renamed or archived keeps it as an option, or the required select
-// would force the type to change on every edit.
-$rack_type_options = [];
-$sql_rack_types_select = mysqli_query($mysqli, "SELECT category_name, category_color, category_icon FROM categories
-    WHERE category_type = 'rack_type' AND category_archived_at IS NULL
-    ORDER BY category_order ASC, category_name ASC");
-while ($row = mysqli_fetch_assoc($sql_rack_types_select)) {
-    $rack_type_options[escapeHtml($row['category_name'])] = selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '');
-}
-if ($rack_type !== '' && !isset($rack_type_options[$rack_type])) {
-    $rack_type_options = [$rack_type => ''] + $rack_type_options;
-}
-
 ?>
 
 <ul class="nav nav-pills nav-justified mb-3">
@@ -52,10 +38,10 @@ if ($rack_type !== '' && !isset($rack_type_options[$rack_type])) {
                     <span class="input-group-text"><i class="fas fa-fw fa-server"></i></span>
                     <select class="form-select select2" name="type" required>
                         <option value="">- Type -</option>
-                        <?php foreach ($rack_type_options as $rack_type_option => $rack_type_option_data) { ?>
-                            <option <?php if ($rack_type === $rack_type_option) { echo "selected"; } ?><?= $rack_type_option_data ?>><?= $rack_type_option ?></option>
-                        <?php } ?>
+                        <?php // Rack types from Admin > Categories - one the rack has that is archived or isn't a type any more stays an option, or the required select would change it on every edit ?>
+                        <?= categoryOptionsHtml('rack_type', html_entity_decode($rack_type, ENT_QUOTES, 'UTF-8')) ?>
                     </select>
+                    <?= categoryAddButtonHtml('rack_type', 'btn btn-secondary') ?>
                 </div>
             </div>
 

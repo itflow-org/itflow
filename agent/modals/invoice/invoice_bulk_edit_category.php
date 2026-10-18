@@ -10,7 +10,6 @@ enforceUserPermission('module_sales', 2);
 
 $invoice_ids = array_values(array_filter(array_map('intval', (array) ($_GET['invoice_ids'] ?? []))));
 $count = count($invoice_ids);
-$categories = billingCategories();
 
 ob_start();
 
@@ -28,10 +27,10 @@ ob_start();
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
             <select class="form-select select2" name="bulk_category_id" required>
-                <?php foreach ($categories as $category_id => $category) { ?>
-                    <option value="<?= intval($category_id) ?>"<?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?></option>
-                <?php } ?>
+                <option value="">- Pick a category -</option>
+                <?= categoryOptionsHtml('Income') ?>
             </select>
+            <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
         </div>
         <div class="form-text">Reports group income by it.</div>
     </div>

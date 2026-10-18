@@ -26,19 +26,9 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-circle"></i></span>
                 <select class="form-select select2" name="bulk_status">
                     <option value="">- Select Status -</option>
-                    <?php
-                    $sql_interface_types_select = mysqli_query($mysqli, "
-                        SELECT category_name, category_color, category_icon FROM categories
-                        WHERE category_type = 'asset_status'
-                        AND category_archived_at IS NULL
-                        ORDER BY category_order ASC, category_name ASC
-                    ");
-                    while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
-                        $asset_status_select = escapeHtml($row['category_name']);
-                        ?>
-                        <option<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $asset_status_select ?></option>
-                    <?php } ?>
+                    <?= categoryOptionsHtml('asset_status') ?>
                 </select>
+                <?= categoryAddButtonHtml('asset_status', 'btn btn-secondary') ?>
             </div>
         </div>
 

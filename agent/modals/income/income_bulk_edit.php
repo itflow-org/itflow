@@ -76,10 +76,9 @@ ob_start();
             <?php if ($field === 'category') { ?>
                 <select class="form-select select2" name="value" required>
                     <option value="">- Pick a category -</option>
-                    <?php foreach (incomeCategories() as $option_id => $category) { ?>
-                        <option value="<?= $option_id ?>"<?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?></option>
-                    <?php } ?>
+                    <?= categoryOptionsHtml('Income', null, ['exclude' => ['Account Transfer']]) ?>
                 </select>
+                <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
             <?php } elseif ($field === 'account') { ?>
                 <select class="form-select select2" name="value" required>
                     <option value="">- Pick the account it went into -</option>

@@ -42,7 +42,6 @@ $form_end = $form_value('recurring_expense_end_date');
 $form_currency = $form_edit ? $form_value('recurring_expense_currency_code') : (string) $session_company_currency;
 
 $form_vendors = expenseVendors($form_edit ? $form_vendor : 0);
-$form_categories = expenseCategories($form_edit ? $form_category : 0);
 $form_accounts = paymentAccounts($form_edit ? $form_account : 0);
 $form_methods = paymentMethods();
 if ($form_method !== '' && !in_array($form_method, $form_methods, true)) {
@@ -146,13 +145,9 @@ while ($row = mysqli_fetch_assoc($sql)) {
             <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
             <select class="form-select select2" name="category" required data-expense-category>
                 <option value="">- What it is for -</option>
-                <?php foreach ($form_categories as $category_id => $category) { ?>
-                    <option value="<?= $category_id ?>" <?= $form_category === $category_id ? 'selected' : '' ?><?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?><?= $category['category_archived_at'] ? ' (archived)' : '' ?></option>
-                <?php } ?>
+                <?= categoryOptionsHtml('Expense', $form_category) ?>
             </select>
-            <?php if ($session_is_admin) { ?>
-                <button class="btn btn-outline-secondary ajax-modal" title="New category" type="button" data-modal-url="../admin/modals/category/category_add.php?category=Expense"><i class="fas fa-fw fa-plus"></i></button>
-            <?php } ?>
+            <?= categoryAddButtonHtml('Expense') ?>
         </div>
     </div>
 

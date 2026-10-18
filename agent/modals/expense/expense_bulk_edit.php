@@ -52,10 +52,9 @@ ob_start();
             <?php if ($field === 'category') { ?>
                 <select class="form-select select2" name="value" required>
                     <option value="">- Pick a category -</option>
-                    <?php foreach (expenseCategories() as $category_id => $category) { ?>
-                        <option value="<?= $category_id ?>"<?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?></option>
-                    <?php } ?>
+                    <?= categoryOptionsHtml('Expense') ?>
                 </select>
+                <?= categoryAddButtonHtml('Expense', 'btn btn-secondary') ?>
             <?php } elseif ($field === 'account') { ?>
                 <select class="form-select select2" name="value" required>
                     <option value="">- Pick an account -</option>

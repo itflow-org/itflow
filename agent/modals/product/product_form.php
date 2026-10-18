@@ -39,12 +39,6 @@ $form_currency = $form_edit ? (string) $form_product['product_currency_code'] : 
 $form_asset_type = $form_value('product_asset_type');
 $form_warranty = $form_edit && intval($form_product['product_warranty_months']) > 0 ? intval($form_product['product_warranty_months']) : '';
 
-$form_categories = [];
-$sql = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories
-    WHERE category_type = 'Income' AND (category_archived_at IS NULL OR category_id = $form_category_id) ORDER BY category_name ASC");
-while ($row = mysqli_fetch_assoc($sql)) {
-    $form_categories[] = $row;
-}
 $form_taxes = billingTaxes();
 $form_vendors = productVendors();
 if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('vendor_name') !== '') {
@@ -84,13 +78,9 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
             <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
             <select class="form-select select2" name="category" required>
                 <option value="">- Category -</option>
-                <?php foreach ($form_categories as $category) { ?>
-                    <option value="<?= intval($category['category_id']) ?>" <?= $form_category_id === intval($category['category_id']) ? 'selected' : '' ?><?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?></option>
-                <?php } ?>
+                <?= categoryOptionsHtml('Income', $form_category_id) ?>
             </select>
-            <button class="btn btn-secondary ajax-modal" title="New category" type="button" data-modal-size="sm" data-modal-url="../admin/modals/category/category_add.php?category=Income">
-                <i class="fas fa-fw fa-plus"></i>
-            </button>
+            <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
         </div>
     </div>
     <div class="col-sm-5">

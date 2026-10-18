@@ -70,7 +70,7 @@ ob_start();
 <?php } elseif (!$into) { ?>
     <div class="modal-body text-center text-secondary py-5">There's no other <?= escapeHtml($config['one']) ?> to merge it into yet.</div>
 <?php } else { ?>
-    <form action="post.php" method="post" autocomplete="off">
+    <form action="/admin/post.php" method="post" autocomplete="off">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <?php foreach ($merging as $merge_id => $row) { ?>
             <input type="hidden" name="category_ids[]" value="<?= $merge_id ?>">

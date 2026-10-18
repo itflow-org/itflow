@@ -308,12 +308,11 @@ require_once "includes/inc_all_admin.php";
                         <label>Mileage goes under</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                            <select class="form-select" name="config_mileage_category_id">
+                            <select class="form-select select2" name="config_mileage_category_id">
                                 <option value="0">- Mileage, or Travel -</option>
-                                <?php foreach (expenseCategories($trip_rules['category_id']) as $category_id => $category) { ?>
-                                    <option value="<?= intval($category_id) ?>" <?= intval($category_id) === $trip_rules['category_id'] ? 'selected' : '' ?>><?= escapeHtml($category['category_name']) ?></option>
-                                <?php } ?>
+                                <?= categoryOptionsHtml('Expense', $trip_rules['category_id']) ?>
                             </select>
+                            <?= categoryAddButtonHtml('Expense', 'btn btn-secondary') ?>
                         </div>
                         <small class="text-secondary">The expense category of the mileage paid back. The expenses are to the vendor Mileage, made the first time.</small>
                     </div>

@@ -83,7 +83,6 @@ $markup_text = function ($markup) {
     return rtrim(rtrim(number_format(floatval($markup), 2, '.', ''), '0'), '.') . '%';
 };
 
-$categories = billingCategories();
 $taxes = billingTaxes();
 $scope_options = ['Support - ' . date('F Y'), 'Support - ' . date('F Y', strtotime('first day of last month'))];
 
@@ -500,10 +499,9 @@ $hours_text = function ($hours) {
                                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                     <select class="form-select" name="category" required>
                                         <option value="">- Category -</option>
-                                        <?php foreach ($categories as $category_id => $category) { ?>
-                                            <option value="<?= intval($category_id) ?>"<?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?></option>
-                                        <?php } ?>
+                                        <?= categoryOptionsHtml('Income') ?>
                                     </select>
+                                    <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
                                 </div>
                             </div>
                             <div class="col-12" data-unbilled-new>

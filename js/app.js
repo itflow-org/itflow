@@ -722,6 +722,43 @@ itflowBindOnce('itflowModalFocus', 'shown.bs.modal', '.modal', function () {
 });
 
 /**
+ * A window opened over another - the + beside a category picker opens the
+ * category window over the form - goes above it with its backdrop, so the
+ * form underneath is dimmed rather than drawn over the new window's shade.
+ * Bootstrap gives every modal the same z-index. Closing the top one takes the
+ * page's modal-open class off, so it is put back while one is still open.
+ */
+itflowBindOnce('itflowModalStack', 'show.bs.modal', '.modal', function () {
+    const below = document.querySelectorAll('.modal.show').length;
+    if (!below) {
+        return;
+    }
+    const z = 1055 + 20 * below;
+    this.style.zIndex = z;
+    // Bootstrap adds the backdrop straight after this event
+    setTimeout(function () {
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        if (backdrops.length) {
+            backdrops[backdrops.length - 1].style.zIndex = z - 5;
+        }
+    });
+});
+itflowBindOnce('itflowModalStackHidden', 'hidden.bs.modal', '.modal', function () {
+    if (document.querySelector('.modal.show')) {
+        document.body.classList.add('modal-open');
+    }
+});
+
+/**
+ * The + beside a category picker (categoryAddButtonHtml()): note which
+ * picker it is beside, for js/category_form.js to put the new category in.
+ */
+itflowBindOnce('itflowCategoryAdd', 'click', '[data-category-add]', function () {
+    const group = this.closest('.input-group') || this.parentElement;
+    window.itflowCategoryTarget = group ? group.querySelector('select') : null;
+});
+
+/**
  * Warn before leaving the page with unsaved editor content.
  *
  * Each TinyMCE config used to assign window.onbeforeunload for its own editor.

@@ -18,18 +18,10 @@
 
 isset($mysqli) || die("Direct file access is not allowed");
 
-// Status - from Admin > Categories, keeping a retired value that is still set
-$status_options = [];
-$sql_status_select = mysqli_query($mysqli, "SELECT category_name, category_color, category_icon FROM categories
-    WHERE category_type = 'asset_status' AND category_archived_at IS NULL
-    ORDER BY category_order ASC, category_name ASC");
+// Status - from Admin > Categories, keeping one the asset has that is archived or isn't a status any more
 $status_colors = [];
-while ($row = mysqli_fetch_assoc($sql_status_select)) {
-    $status_options[escapeHtml($row['category_name'])] = selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '');
-    $status_colors[$row['category_name']] = assetStatusColor($row['category_name'], $row['category_color'] ?? '');
-}
-if ($asset_status !== '' && !isset($status_options[$asset_status])) {
-    $status_options[$asset_status] = '';
+foreach (categoryPicker('asset_status', [html_entity_decode($asset_status)]) as $status_name => $status_row) {
+    $status_colors[$status_name] = assetStatusColor($status_name, $status_row['category_color'] ?? '');
 }
 
 // The client's own lists - only once the client is known
@@ -169,10 +161,9 @@ $asset_form_icons = [
                 <span class="input-group-text"><i class="fas fa-circle fa-fw" data-asset-form-icon="status" style="color: <?= $asset_form_icons['status'] ?>"></i></span>
                 <select class="form-select select2" name="status">
                     <option value="">- Status -</option>
-                    <?php foreach ($status_options as $status_option => $status_option_data) { ?>
-                        <option <?php if ($status_option === $asset_status) { echo "selected"; } ?><?= $status_option_data ?>><?= $status_option ?></option>
-                    <?php } ?>
+                    <?= categoryOptionsHtml('asset_status', html_entity_decode($asset_status)) ?>
                 </select>
+                <?= categoryAddButtonHtml('asset_status', 'btn btn-secondary') ?>
             </div>
         </div>
         <div class="col-md-7">

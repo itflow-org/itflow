@@ -38,6 +38,9 @@ if (isset($_POST['add_client'])) {
 
     $extended_log_description = '';
 
+    // A referral typed in that isn't one yet is made one; one that is takes its own spelling
+    $referral = escapeSql(categoryEnsure('Referral', $_POST['referral'] ?? ''));
+
     // Create client
     mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$session_company_currency', client_net_terms = $net_terms, client_reminders = " . ($reminders ?? 1) . ", client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes', client_accessed_at = NOW()" . ($tax_input !== null ? ", " . taxClientSetSql($tax_input) : ''));
 
@@ -48,14 +51,6 @@ if (isset($_POST['add_client'])) {
     if (!file_exists($client_folder)) {
         mkdir($client_folder);
         file_put_contents("$client_folder/index.php", "");
-    }
-
-    // Create referral category if it doesn't exist
-    $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
-    if (mysqli_num_rows($sql) == 0) {
-        mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
-
-        logAudit("Category", "Create", "$session_name created referral category $referral");
     }
 
     // Create primary location
@@ -128,16 +123,11 @@ if (isset($_POST['edit_client'])) {
         $tax_set_sql = ", " . taxClientSetSql($tax_input, $tax_current);
     }
 
+    // A referral typed in that isn't one yet is made one; one that is takes its own spelling
+    $referral = escapeSql(categoryEnsure('Referral', $_POST['referral'] ?? ''));
+
     // Update client
     mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_net_terms = $net_terms" . ($reminders !== null ? ", client_reminders = $reminders" : '') . ", client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes'$tax_set_sql WHERE client_id = $client_id");
-
-    // Create referral category if it doesn't exist
-    $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
-    if (mysqli_num_rows($sql) == 0) {
-        mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
-
-        logAudit("Category", "Create", "$session_name created referral category $referral");
-    }
 
     // Tags - client tags only, and an admin can type a new one in (functions/tags.php)
     tagSetForRecord('client', $client_id, (array) ($_POST['tags'] ?? []));
@@ -549,7 +539,7 @@ if (isset($_POST["import_clients_csv"])) {
 
             $referral = '';
             if (isset($column[2])) {
-                $referral = escapeSql($column[2]);
+                $referral = (string) $column[2];
             }
 
             $website = '';
@@ -650,6 +640,9 @@ if (isset($_POST["import_clients_csv"])) {
             // Check if duplicate was detected
             if ($duplicate_detect == 0) {
                 //Add
+                // A referral that isn't one yet is made one; one that is takes its own spelling
+                $referral = escapeSql(categoryEnsure('Referral', $referral));
+
                 // Create client
                 mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$industry', client_website = '$website', client_referral = '$referral', client_rate = $hourly_rate, client_currency_code = '$currency_code', client_net_terms = $payment_terms, client_tax_id_number = '$tax_id_number', client_abbreviation = '$abbreviation'");
 
@@ -658,14 +651,6 @@ if (isset($_POST["import_clients_csv"])) {
                 if (!file_exists("../uploads/clients/$client_id")) {
                     mkdir("../uploads/clients/$client_id");
                     file_put_contents("../uploads/clients/$client_id/index.php", "");
-                }
-
-                // Create Referral if it doesn't exist
-                $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
-                if(mysqli_num_rows($sql) == 0) {
-                    mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
-                    // Logging
-                    logAudit("Category", "Create", "$session_name created new refferal category $referral");
                 }
 
                 // Create Location

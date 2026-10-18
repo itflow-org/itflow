@@ -240,18 +240,9 @@ function expenseVendors($keep_id = 0) {
     return $vendors;
 }
 
-/** Expense categories for a picker - not archived, plus $keep_id. */
+/** Expense categories for a picker - not archived, plus $keep_id (categoryPicker()). */
 function expenseCategories($keep_id = 0) {
-    global $mysqli;
-    $keep_id = intval($keep_id);
-    $categories = [];
-    $sql = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon, category_archived_at FROM categories
-        WHERE category_type = 'Expense' AND (category_archived_at IS NULL OR category_id = $keep_id)
-        ORDER BY category_name ASC");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $categories[intval($row['category_id'])] = $row;
-    }
-    return $categories;
+    return categoryPicker('Expense', [$keep_id]);
 }
 
 /**

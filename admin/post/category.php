@@ -21,8 +21,16 @@ if (isset($_POST['add_category'])) {
 
     validateCSRFToken();
 
+    // From the + beside a picker in a form - answered with JSON, the picker's new option included (js/category_form.js)
+    $inline = !empty($_POST['inline']);
+
     [$fields, $error] = categoryFromInput($_POST);
     if ($error !== '') {
+        if ($inline) {
+            header('Content-Type: application/json');
+            echo json_encode(['ok' => false, 'error' => $error]);
+            exit;
+        }
         flashAlert(escapeHtml($error), 'error');
         redirect();
     }
@@ -32,9 +40,22 @@ if (isset($_POST['add_category'])) {
 
     logAudit("Category", "Create", "$session_name created $kind " . escapeSql($fields['name']), 0, $category_id);
 
+    if ($inline) {
+        $row = categoryRow($category_id);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'ok' => true,
+            'value' => categoryKind($fields['type'])['by'] === 'name' ? $row['category_name'] : (string) $category_id,
+            'option' => categoryOptionHtml($row, true),
+            'message' => ucfirst($kind) . ' ' . $row['category_name'] . ' created',
+        ]);
+        exit;
+    }
+
     flashAlert(ucfirst($kind) . " <strong>" . escapeHtml($fields['name']) . "</strong> created");
 
-    redirect($category_page($fields['type']));
+    // Back to its kind in Admin > Categories, or to the page the window was opened on
+    redirect(str_contains($_SERVER['HTTP_REFERER'] ?? '', '/admin/categories.php') ? $category_page($fields['type']) : null);
 
 }
 

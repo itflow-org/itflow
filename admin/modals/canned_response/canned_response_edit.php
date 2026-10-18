@@ -42,16 +42,9 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                 <select class="form-select select2" name="category">
                     <option value="0" <?php if ($canned_response_category_id == 0) { echo "selected"; } ?>>- All ticket categories -</option>
-                    <?php
-
-                    $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
-                    while ($category_row = mysqli_fetch_assoc($sql_categories)) {
-                        $category_id_select = intval($category_row['category_id']);
-                        $category_name_select = escapeHtml($category_row['category_name']); ?>
-                        <option value="<?= $category_id_select ?>" <?php if ($canned_response_category_id == $category_id_select) { echo "selected"; } ?><?= selectOptionColor($category_row['category_color'] ?? '', $category_row['category_icon'] ?? '') ?>><?= $category_name_select ?></option>
-
-                    <?php } ?>
+                    <?= categoryOptionsHtml('Ticket', $canned_response_category_id) ?>
                 </select>
+                <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
             </div>
             <small class="text-secondary">Leave this on all categories for a response that should be offered on every ticket.</small>
         </div>

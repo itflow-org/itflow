@@ -38,7 +38,6 @@ $form_lock = $form_edit ? reconcileLock('revenue', $form_row['revenue_id']) : nu
 if (!isset($form_accounts[$form_account])) {
     $form_account = 0;
 }
-$form_categories = incomeCategories($form_edit ? $form_category : 0);
 $form_methods = paymentMethods();
 if ($form_method !== '' && !in_array($form_method, $form_methods, true)) {
     if ($form_edit) {
@@ -65,13 +64,9 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
             <select class="form-select select2" name="category" required>
                 <option value="">- What it was -</option>
-                <?php foreach ($form_categories as $category_id => $category) { ?>
-                    <option value="<?= $category_id ?>" <?= $form_category === $category_id ? 'selected' : '' ?><?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?><?= $category['category_archived_at'] ? ' (archived)' : '' ?></option>
-                <?php } ?>
+                <?= categoryOptionsHtml('Income', $form_category, ['exclude' => ['Account Transfer']]) ?>
             </select>
-            <?php if ($session_is_admin) { ?>
-                <button class="btn btn-outline-secondary ajax-modal" title="New category" type="button" data-modal-url="../admin/modals/category/category_add.php?category=Income"><i class="fas fa-fw fa-plus"></i></button>
-            <?php } ?>
+            <?= categoryAddButtonHtml('Income') ?>
         </div>
     </div>
 

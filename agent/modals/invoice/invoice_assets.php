@@ -38,9 +38,8 @@ if (!$lines) {
 }
 
 $statuses = [];
-$sql = mysqli_query($mysqli, "SELECT category_name, category_color FROM categories WHERE category_type = 'asset_status' AND category_archived_at IS NULL ORDER BY category_name ASC");
-while ($row = mysqli_fetch_assoc($sql)) {
-    $statuses[$row['category_name']] = assetStatusColor($row['category_name'], $row['category_color'] ?? '');
+foreach (categoryPicker('asset_status') as $status_name => $status_row) {
+    $statuses[$status_name] = assetStatusColor($status_name, $status_row['category_color'] ?? '');
 }
 $status_default = isset($statuses['Deployed']) ? 'Deployed' : (isset($statuses['Ready to Deploy']) ? 'Ready to Deploy' : (string) array_key_first($statuses));
 

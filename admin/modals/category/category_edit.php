@@ -23,7 +23,7 @@ if (!$category) { ?>
     <h5 class="modal-title"><i class="fas fa-fw <?= $kind_config['icon'] ?? 'fa-list-ul' ?> me-2"></i><?= escapeHtml(ucwords($kind_config['one'] ?? 'Category')) ?>: <strong><?= escapeHtml($category['category_name']) ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-<form action="post.php" method="post" autocomplete="off">
+<form action="/admin/post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="category_id" value="<?= $category_id ?>">
 

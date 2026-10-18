@@ -20,6 +20,7 @@ $client_is_lead = intval($row['client_lead']);
 $client_type = escapeHtml($row['client_type']);
 $client_website = escapeHtml($row['client_website']);
 $client_referral = escapeHtml($row['client_referral']);
+$row_referral = (string) $row['client_referral'];
 $client_net_terms = intval($row['client_net_terms']);
 $client_reminders = intval($row['client_reminders'] ?? 1);
 $client_tax_id_number = escapeHtml($row['client_tax_id_number']);
@@ -123,26 +124,9 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                         <select class="form-select select2" data-tags="true" name="referral">
                             <option value="">- Select Referral -</option>
-                            <?php
-
-                            $referral_sql = mysqli_query($mysqli, "SELECT category_name, category_color, category_icon FROM categories WHERE category_type = 'Referral' AND (category_archived_at > '$client_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
-                            while ($row = mysqli_fetch_assoc($referral_sql)) {
-                                $referral = escapeHtml($row['category_name']);
-                                ?>
-                                <option <?php if ($client_referral == $referral) {
-                                    echo "selected";
-                                } ?><?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>>
-                                    <?= $referral ?>
-                                </option>
-
-                                <?php
-                            }
-                            ?>
+                            <?= categoryOptionsHtml('Referral', $row_referral) ?>
                         </select>
-                            <button class="btn btn-secondary ajax-modal" title="New category" type="button"
-                                data-modal-url="../admin/modals/category/category_add.php?category=Referral">
-                                <i class="fas fa-fw fa-plus"></i>
-                            </button>
+                        <?= categoryAddButtonHtml('Referral', 'btn btn-secondary') ?>
                     </div>
                 </div>
 

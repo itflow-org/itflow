@@ -56,7 +56,6 @@ if ($form_refund) {
 $form_currency = $form_row ? $form_value('expense_currency_code') : (string) $session_company_currency;
 
 $form_vendors = expenseVendors($form_edit ? $form_vendor : 0);
-$form_categories = expenseCategories($form_edit ? $form_category : 0);
 $form_accounts = paymentAccounts($form_edit ? $form_account : 0);
 // Cleared on a reconciled statement - its amount, date and account stay
 $form_lock = $form_edit ? reconcileLock('expense', $form_row['expense_id']) : null;
@@ -148,13 +147,9 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
             <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
             <select class="form-select select2" name="category" required data-expense-category>
                 <option value="">- What it was for -</option>
-                <?php foreach ($form_categories as $category_id => $category) { ?>
-                    <option value="<?= $category_id ?>" <?= $form_category === $category_id ? 'selected' : '' ?><?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?><?= $category['category_archived_at'] ? ' (archived)' : '' ?></option>
-                <?php } ?>
+                <?= categoryOptionsHtml('Expense', $form_category) ?>
             </select>
-            <?php if ($session_is_admin) { ?>
-                <button class="btn btn-outline-secondary ajax-modal" title="New category" type="button" data-modal-url="../admin/modals/category/category_add.php?category=Expense"><i class="fas fa-fw fa-plus"></i></button>
-            <?php } ?>
+            <?= categoryAddButtonHtml('Expense') ?>
         </div>
     </div>
 

@@ -102,10 +102,9 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
                     <select class="form-select select2" name="type">
                         <option value="">- No type -</option>
-                        <?php foreach ($types as $type => [$color, $icon]) { ?>
-                            <option <?= $type === 'Ethernet' ? 'selected' : '' ?><?= selectOptionColor($color ?? '', $icon ?? '') ?>><?= escapeHtml($type) ?></option>
-                        <?php } ?>
+                        <?= categoryOptionsHtml('network_interface', isset($types['Ethernet']) ? 'Ethernet' : null) ?>
                     </select>
+                    <?= categoryAddButtonHtml('network_interface', 'btn btn-secondary') ?>
                 </div>
             </div>
             <div class="col-md-7">

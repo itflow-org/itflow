@@ -29,19 +29,9 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
                 <select class="form-select select2" id="interface_type" name="bulk_type">
                     <option value="">- No type -</option>
-                    <?php
-                    $sql_interface_types_select = mysqli_query($mysqli, "
-                        SELECT category_name, category_color, category_icon FROM categories
-                        WHERE category_type = 'network_interface'
-                        AND category_archived_at IS NULL
-                        ORDER BY category_order ASC, category_name ASC
-                    ");
-                    while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
-                        $interface_type_select = escapeHtml($row['category_name']);
-                        ?>
-                        <option<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $interface_type_select ?></option>
-                    <?php } ?>
+                    <?= categoryOptionsHtml('network_interface') ?>
                 </select>
+                <?= categoryAddButtonHtml('network_interface', 'btn btn-secondary') ?>
             </div>
         </div>
 

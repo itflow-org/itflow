@@ -26,7 +26,6 @@ $form_id = 'interfaceForm' . ($form_interface_id ?: 'New');
 
 $networks = interfaceNetworkOptions($form_client_id, $form_network_id);
 $connections = interfaceConnectionOptions($form_client_id, $form_asset_id, $form_interface_id);
-$types = interfaceTypes();
 $form_type = (string) ($form['interface_type'] ?? '');
 
 ?>
@@ -68,13 +67,9 @@ $form_type = (string) ($form['interface_type'] ?? '');
                 <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
                 <select class="form-select select2" name="type">
                     <option value="">- No type -</option>
-                    <?php foreach ($types as $type => [$color, $icon]) { ?>
-                        <option <?= $form_type === $type ? 'selected' : '' ?><?= selectOptionColor($color ?? '', $icon ?? '') ?>><?= escapeHtml($type) ?></option>
-                    <?php }
-                    if ($form_type !== '' && !isset($types[$form_type])) { ?>
-                        <option selected><?= escapeHtml($form_type) ?></option>
-                    <?php } ?>
+                    <?= categoryOptionsHtml('network_interface', $form_type) ?>
                 </select>
+                <?= categoryAddButtonHtml('network_interface', 'btn btn-secondary') ?>
             </div>
         </div>
         <div class="col-md-7">

@@ -134,23 +134,9 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                         <select class="form-select select2" name="expense_category" required>
                             <option value="">- Select a Category -</option>
-                            <?php
-
-                            $sql_category = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql_category)) {
-                                $category_id_select = intval($row['category_id']);
-                                $category_name = escapeHtml($row['category_name']);
-                                ?>
-                                <option <?php if ($category_id === $category_id_select) { echo "selected"; } ?> value="<?= $category_id_select ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name ?></option>
-
-                                <?php
-                            }
-                            ?>
+                            <?= categoryOptionsHtml('Expense', $category_id) ?>
                         </select>
-                            <button class="btn btn-secondary ajax-modal" title="New category" type="button"
-                                data-modal-url="../admin/modals/category/category_add.php?category=Expense">
-                                <i class="fas fa-plus"></i>
-                            </button>
+                        <?= categoryAddButtonHtml('Expense', 'btn btn-secondary') ?>
                     </div>
                     <small class="form-text text-muted">Processing Fee, Credit Card Fee etc</small>
                 </div>
