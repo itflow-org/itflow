@@ -5,10 +5,11 @@
  * invoice, a receipt for one paid, a quote, a payment reminder, a payment
  * received and a statement.
  *
- * Each has the company's logo (or name), what it is about, a summary box with
- * what it comes to, any note from the agent, a button to open it online - to
- * pay an invoice when online payments are on, or answer a quote - and the
- * company's details at the foot. The PDF can go with it.
+ * Each is drawn by emailHtml() (functions/email.php), as every email is: the
+ * company's logo (or name), what it is about, a summary box with what it
+ * comes to, any note from the agent, a button to open it online - to pay an
+ * invoice when online payments are on, or answer a quote - and the company's
+ * details at the foot. The PDF can go with it.
  *
  * Reminders follow a schedule from the invoice settings: days before and
  * after the due date, then every so many days while it is owed. Statements
@@ -160,117 +161,14 @@ function billingEmailDate($date) {
 }
 
 /**
- * One billing email as HTML. $email, every value raw - it is escaped here:
- *   kind     the small heading - Invoice, Payment reminder, Receipt
- *   tone     its colour - primary, success, warning or danger
- *   title    the heading
- *   name     who it is to - "Hello Name," (none for an internal one)
- *   intro    paragraphs before the summary
- *   note     the agent's own words, kept as typed
- *   summary  label => value; strong names the label to make stand out
- *   lines    a table - ['head' => [...], 'align' => [...], 'rows' => [[cell, ...]]], a cell
- *            plain text or ['text' => ..., 'url' => ..., 'tone' => danger]
- *   button   ['label' => ..., 'url' => ...]
- *   after    paragraphs after the button
- *   footnote a line under the card - why they got it
+ * One billing email as HTML - emailHtml() (functions/email.php), greeting
+ * nobody when it has no name, as an internal one has none.
  */
 function billingEmailHtml(array $email) {
-    global $config_base_url;
-    $e = function ($value) {
-        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-    };
-    $tones = ['primary' => '#0d6efd', 'success' => '#198754', 'warning' => '#b35c00', 'danger' => '#c42b37'];
-    $accent = $tones[$email['tone'] ?? 'primary'] ?? $tones['primary'];
-    $text = '#212529';
-    $muted = '#6c757d';
-    $line = '#e5e7eb';
-    $font = "font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;";
-    $company = billingCompany();
-    $company_name = (string) ($company['company_name'] ?? '');
-    $paragraph = function ($text_value) use ($e, $text) {
-        return '<p style="margin:0 0 14px;font-size:15px;line-height:1.55;color:' . $text . ';">' . nl2br($e($text_value)) . '</p>';
-    };
-
-    $logo = !empty($company['logo_url']) && !empty($config_base_url)
-        ? '<img src="' . $e('https://' . $config_base_url . $company['logo_url']) . '" alt="' . $e($company_name) . '" style="display:block;max-height:48px;max-width:220px;border:0;">'
-        : '<div style="font-size:18px;font-weight:700;color:' . $text . ';">' . $e($company_name) . '</div>';
-
-    $body = '';
-    if (!empty($email['name'])) {
-        $body .= $paragraph('Hello ' . $email['name'] . ',');
+    if (empty($email['name'])) {
+        $email['name'] = null;
     }
-    foreach ((array) ($email['intro'] ?? []) as $text_value) {
-        $body .= $paragraph($text_value);
-    }
-    if (trim((string) ($email['note'] ?? '')) !== '') {
-        $body .= '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;"><tr>'
-            . '<td style="border-left:3px solid ' . $accent . ';background:#f8f9fa;padding:12px 16px;font-size:15px;line-height:1.55;color:' . $text . ';white-space:pre-line;">' . $e(trim($email['note'])) . '</td></tr></table>';
-    }
-    if (!empty($email['summary'])) {
-        $rows = '';
-        $strong = (string) ($email['strong'] ?? '');
-        $first = true;
-        foreach ($email['summary'] as $label => $value) {
-            $big = $label === $strong;
-            // The figure that matters stands out - with a rule above it when it closes the box
-            $rule = $big && !$first ? 'border-top:1px solid ' . $line . ';padding-top:11px;' : '';
-            $rows .= '<tr><td style="padding:7px 0;font-size:14px;color:' . $muted . ';' . $rule . '">' . $e($label) . '</td>'
-                . '<td align="right" style="padding:7px 0;font-size:' . ($big ? '18px;font-weight:700' : '14px') . ';color:' . $text . ';' . $rule . '">' . $e($value) . '</td></tr>';
-            $first = false;
-        }
-        $body .= '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:4px 0 20px;background:#f8f9fa;border:1px solid ' . $line . ';border-radius:8px;">'
-            . '<tr><td style="padding:10px 18px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">' . $rows . '</table></td></tr></table>';
-    }
-    if (!empty($email['lines']['rows'])) {
-        $align = (array) ($email['lines']['align'] ?? []);
-        $head = '';
-        foreach ((array) $email['lines']['head'] as $i => $heading) {
-            $head .= '<th align="' . ($align[$i] ?? 'left') . '" style="padding:8px 6px;font-size:12px;font-weight:600;color:' . $muted . ';border-bottom:1px solid ' . $line . ';text-transform:uppercase;letter-spacing:.04em;">' . $e($heading) . '</th>';
-        }
-        $rows = '';
-        foreach ($email['lines']['rows'] as $cells) {
-            $rows .= '<tr>';
-            foreach (array_values($cells) as $i => $cell) {
-                $cell = is_array($cell) ? $cell : ['text' => $cell];
-                $color = !empty($cell['tone']) ? ($tones[$cell['tone']] ?? $text) : $text;
-                $content = !empty($cell['url'])
-                    ? '<a href="' . $e($cell['url']) . '" style="color:' . $tones['primary'] . ';text-decoration:none;font-weight:600;">' . $e($cell['text']) . '</a>'
-                    : $e($cell['text']);
-                $rows .= '<td align="' . ($align[$i] ?? 'left') . '" style="padding:8px 6px;font-size:14px;color:' . $color . ';border-bottom:1px solid ' . $line . ';">' . $content . '</td>';
-            }
-            $rows .= '</tr>';
-        }
-        $body .= '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;border-collapse:collapse;"><tr>' . $head . '</tr>' . $rows . '</table>';
-    }
-    if (!empty($email['button']['url'])) {
-        $body .= '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:4px 0 22px;"><tr><td bgcolor="' . $accent . '" style="border-radius:6px;">'
-            . '<a href="' . $e($email['button']['url']) . '" style="display:inline-block;padding:12px 26px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:6px;' . $font . '">' . $e($email['button']['label']) . '</a>'
-            . '</td></tr></table>';
-    }
-    foreach ((array) ($email['after'] ?? []) as $text_value) {
-        $body .= '<p style="margin:0 0 12px;font-size:13px;line-height:1.55;color:' . $muted . ';">' . nl2br($e($text_value)) . '</p>';
-    }
-
-    $foot = array_filter([
-        $company_name,
-        formatAddress($company['company_address'] ?? '', $company['company_city'] ?? '', $company['company_state'] ?? '', $company['company_zip'] ?? '', $company['company_country'] ?? '', ', '),
-        implode('  ·  ', array_filter([$company['phone_display'] ?? '', $company['company_email'] ?? '', $company['company_website'] ?? ''])),
-    ]);
-
-    return '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>' . $e($email['title'] ?? '') . '</title></head>'
-        . '<body style="margin:0;padding:0;background:#f1f3f5;' . $font . '">'
-        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f1f3f5"><tr><td align="center" style="padding:28px 12px;">'
-        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border:1px solid ' . $line . ';border-radius:10px;border-top:4px solid ' . $accent . ';">'
-        . '<tr><td style="padding:26px 32px 6px;">' . $logo . '</td></tr>'
-        . '<tr><td style="padding:14px 32px 10px;' . $font . '">'
-        . '<div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:' . $accent . ';">' . $e($email['kind'] ?? '') . '</div>'
-        . '<h1 style="margin:4px 0 18px;font-size:24px;line-height:1.25;font-weight:700;color:' . $text . ';">' . $e($email['title'] ?? '') . '</h1>'
-        . $body
-        . '</td></tr>'
-        . '<tr><td style="padding:18px 32px 24px;border-top:1px solid ' . $line . ';font-size:12px;line-height:1.6;color:' . $muted . ';' . $font . '">' . implode('<br>', array_map($e, $foot)) . '</td></tr>'
-        . '</table>'
-        . (!empty($email['footnote']) ? '<div style="max-width:600px;padding:12px 8px 0;font-size:11px;line-height:1.5;color:#8a9199;' . $font . '">' . $e($email['footnote']) . '</div>' : '')
-        . '</td></tr></table></body></html>';
+    return emailHtml($email);
 }
 
 /** Who billing emails come from - invoices and quotes each have their own address. */

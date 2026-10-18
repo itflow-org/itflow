@@ -16,24 +16,12 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 /** The "a ticket was created for you" email - to its contact, and its watchers unless $to_watchers is false. */
 function ticketMailCreated($ticket_id, $subject_prefix, $attachments = [], $to_watchers = true) {
-    global $mysqli, $config_base_url, $config_ticket_from_email;
     $row = ticketRow($ticket_id);
     if (!$row) {
         return 0;
     }
-    [$company_name, $company_phone] = ticketMailCompany();
-    $contact_name = escapeSql($row['contact_name']);
-    $reference = escapeSql(ticketReference($row));
-    $subject = escapeSql($row['ticket_subject']);
-    $details = mysqli_real_escape_string($mysqli, (string) $row['ticket_details']);
-    $status = escapeSql($row['ticket_status_name']);
-    $url_key = escapeSql($row['ticket_url_key']);
-    $base_url = escapeSql($config_base_url);
-    $from_email = escapeSql($config_ticket_from_email);
-    $ticket_id = intval($ticket_id);
-    $sla_notice = escapeSql(getTicketSlaEmailNotice($ticket_id, $company_phone));
-    $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $reference<br>Subject: $subject<br>Status: $status<br>Portal: <a href=\'https://$base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>View ticket</a>$sla_notice<br><br>--<br>$company_name - Support<br>$from_email<br>$company_phone";
-    return ticketMailContactAndWatchers($ticket_id, "$subject_prefix [$reference] - $subject", $body, $attachments, true, 'YOU HAVE BEEN ADDED AS A COLLABORATOR FOR THIS TICKET', $to_watchers, 'created');
+    return ticketMailSend($row['ticket_id'], "$subject_prefix [" . ticketReference($row) . "] - " . $row['ticket_subject'], ticketEmailContent($row, 'created'),
+        ['attachments' => $attachments, 'to_watchers' => $to_watchers, 'kind' => 'created']);
 }
 
 /** Tell an agent about a ticket - an app notification linking to it. Not themselves, not nobody. */
@@ -431,26 +419,11 @@ if (isset($_POST['add_ticket_watcher'])) {
     $added = ticketAddWatchers($ticket_id, ticketWatcherEmails($_POST['watcher_email'] ?? ''));
 
     // Let each new watcher know, when asked
-    if ($added && $notify && !empty($config_smtp_provider)) {
-        [$company_name, $company_phone] = ticketMailCompany();
-        $subject = escapeSql($row['ticket_subject']);
-        $details = mysqli_real_escape_string($mysqli, (string) $row['ticket_details']);
-        $status = escapeSql($row['ticket_status_name']);
-        $url_key = escapeSql($row['ticket_url_key']);
-        $base_url = escapeSql($config_base_url);
-        $from_email = escapeSql($config_ticket_from_email);
-        $data = [];
-        foreach ($added as $watcher_email) {
-            $data[] = [
-                'from' => $from_email,
-                'from_name' => escapeSql($config_ticket_from_name),
-                'recipient' => escapeSql($watcher_email),
-                'recipient_name' => escapeSql($watcher_email),
-                'subject' => "Ticket Notification - [$reference] - $subject",
-                'body' => "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello,<br><br>You have been added as a collaborator on this ticket regarding \"$subject\".<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $reference<br>Subject: $subject<br>Status: $status<br>Guest link: https://$base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key<br><br>--<br>$company_name - Support<br>$from_email<br>$company_phone",
-            ];
-        }
-        addToMailQueue($data);
+    if ($added && $notify) {
+        $company_name = (string) (billingCompany()['company_name'] ?? 'us');
+        emailQueue(array_map(function ($watcher_email) use ($row, $company_name) {
+            return ['email' => $watcher_email, 'greet' => '', 'footnote' => "You get this because you are watching ticket " . ticketReference($row) . " - ask $company_name if you would like to stop."];
+        }, $added), "Ticket Notification - [" . ticketReference($row) . "] - " . $row['ticket_subject'], ticketEmailContent($row, 'watcher', ['by' => stripslashes($session_name)]), ['from' => ticketEmailFrom()]);
     }
 
     foreach ($added as $watcher_email) {
@@ -815,7 +788,7 @@ if (isset($_POST['bulk_resolve_tickets'])) {
 
         // Client notification email
         if (intval($config_ticket_client_general_notifications) === 1 && !$private_note) {
-            ticketMailResolved($ticket_id, $details);
+            ticketMailResolved($ticket_id, (string) ($_POST['bulk_details'] ?? ''));
         }
         $count++;
     }
@@ -883,14 +856,9 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
         // Email the client and watchers about a public update
         if (!$private_note) {
-            [$company_name, $company_phone] = ticketMailCompany();
-            $contact_name = escapeSql($row['contact_name']);
-            $status_name = escapeSql(getTicketStatusName($ticket_status));
-            $url_key = escapeSql($row['ticket_url_key']);
-            $base_url = escapeSql($config_base_url);
-            $from_email = escapeSql($config_ticket_from_email);
-            ticketMailContactAndWatchers($ticket_id, "Ticket update - [$reference] - $subject",
-                "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $subject has been updated.<br><br>--------------------------------<br>$reply<br>--------------------------------<br><br>Ticket: $reference<br>Subject: $subject<br>Status: $status_name<br>Portal: <a href=\'https://$base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>View ticket</a><br><br>--<br>$company_name - Support<br>$from_email<br>$company_phone");
+            $now = ticketRow($ticket_id);
+            ticketMailSend($ticket_id, "Ticket update - [" . ticketReference($now) . "] - " . $now['ticket_subject'],
+                ticketEmailContent($now, 'reply', ['message' => (string) ($_POST['bulk_reply_details'] ?? ''), 'by' => stripslashes($session_name)]));
         }
 
         // Tell the agent it is assigned to, and whoever opened it
@@ -1084,21 +1052,12 @@ if (isset($_POST['add_ticket_reply'])) {
 
         // Email the client and the watchers
         if ($send_email) {
-            [$company_name, $company_phone] = ticketMailCompany();
-            $contact_name = escapeSql($row['contact_name']);
-            $status_name = escapeSql(getTicketStatusName($ticket_status));
-            $url_key = escapeSql($row['ticket_url_key']);
-            $base_url = escapeSql($config_base_url);
-            $from_email = escapeSql($config_ticket_from_email);
-            $portal = "<a href=\'https://$base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>View ticket</a>";
-            if ($ticket_status === TICKET_STATUS_RESOLVED) {
-                $mail_subject = "Ticket resolved - [$reference] - $subject | (pending closure)";
-                $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $subject has been marked as solved and is pending closure.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $reference<br>Subject: $subject<br>Status: $status_name<br>Portal: $portal<br><br>--<br>$company_name - Support<br>$from_email<br>$company_phone";
-            } else {
-                $mail_subject = "Ticket update - [$reference] - $subject";
-                $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $subject has been updated.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>Ticket: $reference<br>Subject: $subject<br>Status: $status_name<br>Portal: $portal<br><br>--<br>$company_name - Support<br>$from_email<br>$company_phone";
-            }
-            ticketMailContactAndWatchers($ticket_id, $mail_subject, $body, $emailable_attachments['send']);
+            // The reply as saved - with the signature - read back
+            $reply_html = (string) getFieldById('ticket_replies', $ticket_reply_id, 'ticket_reply');
+            $now = ticketRow($ticket_id);
+            $resolved = $ticket_status === TICKET_STATUS_RESOLVED;
+            ticketMailSend($ticket_id, ($resolved ? 'Ticket resolved' : 'Ticket update') . " - [" . ticketReference($now) . "] - " . $now['ticket_subject'] . ($resolved ? ' | (pending closure)' : ''),
+                ticketEmailContent($now, $resolved ? 'resolved' : 'reply', ['message' => $reply_html, 'by' => stripslashes($session_name)]), ['attachments' => $emailable_attachments['send']]);
         }
 
         // Tell the agent it is assigned to, and whoever opened it
@@ -1413,15 +1372,7 @@ if (isset($_GET['close_ticket'])) {
 
     // Client notification email
     if (intval($config_ticket_client_general_notifications) === 1) {
-        [$company_name, $company_phone] = ticketMailCompany();
-        $contact_name = escapeSql($row['contact_name']);
-        $subject = escapeSql($row['ticket_subject']);
-        $url_key = escapeSql($row['ticket_url_key']);
-        $base_url = escapeSql($config_base_url);
-        $from_email = escapeSql($config_ticket_from_email);
-        ticketMailContactAndWatchers($ticket_id, "Ticket closed - [$reference] - $subject | (do not reply)",
-            "Hello $contact_name,<br><br>Your ticket regarding \"$subject\" has been closed. <br><br> We hope the request/issue was resolved to your satisfaction, please provide your feedback <a href=\'https://$base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>here</a>. <br>If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $reference<br>Subject: $subject<br>Portal: https://$base_url/client/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$from_email<br>$company_phone",
-            [], true, 'YOU ARE A COLLABORATOR ON THIS TICKET', true, 'closed');
+        ticketMailClosed($ticket_id);
     }
 
     flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> closed - for more work on it, start a new ticket");

@@ -603,57 +603,6 @@ function formatSlaMinutes($minutes)
     return $text;
 }
 
-// Client-facing SLA block for a "ticket created" email. Returns '' when no SLA
-// applies to the ticket or the plan carries no response target, so callers can
-// append it unconditionally.
-//
-// Call this AFTER applyTicketSla(), which is what stamps ticket_response_due_at.
-//
-// The returned HTML deliberately contains NO single or double quotes. Most of
-// these email bodies are assembled pre-escaped and handed to addToMailQueue,
-// which interpolates the body straight into its INSERT without escaping it, so
-// a stray quote here would break the query at those call sites.
-function getTicketSlaEmailNotice($ticket_id, $company_phone = '')
-{
-    global $mysqli;
-
-    $ticket_id = intval($ticket_id);
-
-    $sql = mysqli_query($mysqli, "SELECT ticket_priority, ticket_response_due_at, sla_response_minutes
-        FROM tickets
-        LEFT JOIN slas ON ticket_sla_id = sla_id
-        WHERE ticket_id = $ticket_id LIMIT 1");
-    if (!$sql || !mysqli_num_rows($sql)) {
-        return '';
-    }
-    $row = mysqli_fetch_assoc($sql);
-
-    $response_minutes = intval($row['sla_response_minutes']);
-
-    if (empty($row['ticket_response_due_at']) || $response_minutes <= 0) {
-        return '';
-    }
-
-    // The only value in this notice that comes from the database rather than a
-    // literal - escaped so the quote-free guarantee above holds for it too
-    $priority = escapeHtml($row['ticket_priority']);
-    $target = formatSlaMinutes($response_minutes);
-    $due = date('D j M, g:i A', strtotime($row['ticket_response_due_at']));
-
-    $notice = "<br><br>Priority: $priority<br>Target response: within $target (by $due)";
-
-    // Higher priorities get told to phone rather than sit on an email thread
-    if (!empty($company_phone) && ($priority == 'Urgent' || $priority == 'High')) {
-        if ($priority == 'Urgent') {
-            $notice .= "<br><br><strong>This ticket is marked Urgent.</strong> If the issue is stopping work right now, please call us on $company_phone rather than waiting for a reply to this email.";
-        } else {
-            $notice .= "<br><br><strong>This ticket is marked High priority.</strong> If it is business-impacting, calling us on $company_phone will get you the fastest response.";
-        }
-    }
-
-    return $notice;
-}
-
 // Record the ticket's first response (if not already recorded) and judge the
 // response SLA against the stored due date. Replaces the previous inline
 // ticket_first_response_at updates so the SLA verdict can never drift from

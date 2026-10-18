@@ -408,7 +408,10 @@ while ($row = mysqli_fetch_assoc($sql_resolved_tickets_to_close)) {
 
     triggerCustomAction('ticket_close', $ticket_id);
 
-    //TODO: Add client notifs if $config_ticket_client_general_notifications is on
+    // The client is told, as when an agent closes it
+    if (intval($config_ticket_client_general_notifications) === 1) {
+        ticketMailClosed($ticket_id);
+    }
 }
 
 /*

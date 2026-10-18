@@ -160,145 +160,37 @@ if (isset($_POST['add_ticket_task_approver'])) {
 
     $approval_id = mysqli_insert_id($mysqli);
 
-    // Task/Ticket Info
     $task_name = escapeSql($task['task_name']);
     $ticket_id = intval($row['ticket_id']);
-    $ticket_prefix = escapeSql($row['ticket_prefix']);
-    $ticket_number = intval($row['ticket_number']);
-    $ticket_subject = escapeSql($row['ticket_subject']);
-    $ticket_status = escapeSql($row['ticket_status_name']);
-    $ticket_url_key = escapeSql($row['ticket_url_key']);
-    $ticket_contact_id = intval($row['ticket_contact_id']);
-    $data = [];
+    $reference = ticketReference($row);
+    $by = stripslashes($session_name);
 
-    // --Notifications--
-
-    // Sanitize Config vars from get_settings.php
-    $config_ticket_from_name = escapeSql($config_ticket_from_name);
-    $config_ticket_from_email = escapeSql($config_ticket_from_email);
-    $config_base_url = escapeSql($config_base_url);
-
-    // Get Company Info
-    $crow = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1"));
-    $company_name = escapeSql($crow['company_name']);
-    $company_phone = escapeSql(formatPhoneNumber($crow['company_phone'], $crow['company_phone_country_code']));
-
-    // Email contents
-    $subject = "Ticket task approval required - [$ticket_prefix$ticket_number] - $ticket_subject";
-    $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello,<br><br>A ticket regarding $ticket_subject has a task requiring your approval:- <br>Task name: $task_name<br>Scope/Type: $scope - $type <br><br>To approve this task, please click <a href=\'https://$config_base_url/guest/guest_approve_ticket_task.php?task_approval_id=$approval_id&url_key=$approval_url_key\'>here</a>.<br>If you require further information, please reply to this e-mail.<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$ticket_url_key\'>View ticket</a><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
+    // Who is asked: the agent named, or the client's - the ticket's contact, or its technical or billing contacts
+    $recipients = [];
     if ($scope == 'internal' && $type == 'specific' && $session_user_id !== $required_user_id) {
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name needs your approval for ticket $ticket_prefix$ticket_number task $task_name', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_client_id = 0, notification_user_id = $required_user_id");
-
-        if (!empty($config_smtp_provider)) {
-            $agent_contact = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_email FROM users WHERE user_id = $required_user_id AND user_archived_at IS NULL"));
-            $name = escapeSql($agent_contact['user_name']);
-            $email = escapeSql($agent_contact['user_email']);
-
-            // Only add contact to email queue if email is valid
-            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $data[] = [
-                    'from' => $config_ticket_from_email,
-                    'from_name' => $config_ticket_from_name,
-                    'recipient' => $email,
-                    'recipient_name' => $name,
-                    'subject' => $subject,
-                    'body' => $body
-                ];
-
-                addToMailQueue($data);
-            }
-
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name needs your approval for ticket " . escapeSql($reference) . " task $task_name', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_client_id = 0, notification_user_id = $required_user_id");
+        $agent = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_email FROM users WHERE user_id = $required_user_id AND user_archived_at IS NULL"));
+        if ($agent) {
+            $recipients[] = ['email' => $agent['user_email'], 'name' => $agent['user_name'], 'footnote' => "You get this because $by asked you to approve it."];
+        }
+    } elseif ($scope == 'client') {
+        $where = $type == 'technical' ? "contact_client_id = $client_id AND contact_technical = 1"
+            : ($type == 'billing' ? "contact_client_id = $client_id AND contact_billing = 1" : "contact_id = " . intval($row['ticket_contact_id']));
+        $sql_contacts = mysqli_query($mysqli, "SELECT contact_name, contact_email FROM contacts WHERE $where AND contact_archived_at IS NULL AND contact_email != ''");
+        while ($contact = mysqli_fetch_assoc($sql_contacts)) {
+            $recipients[] = ['email' => $contact['contact_email'], 'name' => $contact['contact_name'],
+                'footnote' => $type == 'any' ? "You get this as the contact on ticket $reference." : "You get this as a " . $type . " contact for " . $row['client_name'] . "."];
         }
     }
-
-    if (!empty($config_smtp_provider) && $scope == 'client' && $type == 'any') {
-
-        $contact_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_name, contact_email FROM contacts WHERE contact_id = $ticket_contact_id LIMIT 1"));
-        $contact_name = escapeSql($contact_row['contact_name']);
-        $contact_email = escapeSql($contact_row['contact_email']);
-
-        $data = [];
-
-        if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
-            $data[] = [
-                'from' => $config_ticket_from_email,
-                'from_name' => $config_ticket_from_name,
-                'recipient' => $contact_email,
-                'recipient_name' => $contact_name,
-                'subject' => $subject,
-                'body' => $body
-            ];
-            addToMailQueue($data);
-        }
-
-    }
-
-    if (!empty($config_smtp_provider) && $scope == 'client' && $type == 'technical') {
-
-        $sql_technical_contacts = mysqli_query(
-            $mysqli,
-            "SELECT contact_name, contact_email FROM contacts
-            WHERE contact_technical = 1
-            AND contact_email != ''
-            AND contact_client_id = $client_id"
-        );
-
-        $data = [];
-
-        while ($technical_contact = mysqli_fetch_assoc($sql_technical_contacts)) {
-            $technical_contact_name = escapeSql($technical_contact['contact_name']);
-            $technical_contact_email = escapeSql($technical_contact['contact_email']);
-
-            if (filter_var($technical_contact_email, FILTER_VALIDATE_EMAIL)) {
-                $data[] = [
-                    'from' => $config_ticket_from_email,
-                    'from_name' => $config_ticket_from_name,
-                    'recipient' => $technical_contact_email,
-                    'recipient_name' => $technical_contact_name,
-                    'subject' => $subject,
-                    'body' => $body
-                ];
-            }
-
-        }
-
-        addToMailQueue($data);
-
-    }
-
-    if (!empty($config_smtp_provider) && $scope == 'client' && $type == 'billing') {
-
-        $sql_billing_contacts = mysqli_query(
-            $mysqli,
-            "SELECT contact_name, contact_email FROM contacts
-            WHERE contact_billing = 1
-            AND contact_email != ''
-            AND contact_client_id = $client_id"
-        );
-
-        $data = [];
-
-        while ($billing_contact = mysqli_fetch_assoc($sql_billing_contacts)) {
-            $billing_contact_name = escapeSql($billing_contact['contact_name']);
-            $billing_contact_email = escapeSql($billing_contact['contact_email']);
-
-            if (filter_var($billing_contact_email, FILTER_VALIDATE_EMAIL)) {
-                $data[] = [
-                        'from' => $config_ticket_from_email,
-                        'from_name' => $config_ticket_from_name,
-                        'recipient' => $billing_contact_email,
-                        'recipient_name' => $billing_contact_name,
-                        'subject' => $subject,
-                        'body' => $body
-                ];
-            }
-
-        }
-
-        addToMailQueue($data);
-
-    }
+    emailQueue($recipients, "Ticket task approval required - [$reference] - " . $row['ticket_subject'], [
+        'marker' => true, 'kind' => 'Approval needed', 'tone' => 'warning', 'preview' => "$by needs your approval - " . $task['task_name'],
+        'title' => 'Your approval is needed',
+        'intro' => ["$by needs your approval for a task on ticket $reference before the work goes ahead."],
+        'summary' => ['Task' => (string) $task['task_name'], 'Ticket' => $reference, 'Subject' => (string) $row['ticket_subject'], 'Status' => (string) $row['ticket_status_name']],
+        'button' => ['label' => 'Review and approve', 'url' => "https://$config_base_url/guest/guest_approve_ticket_task.php?task_approval_id=$approval_id&url_key=$approval_url_key"],
+        'after' => ['Want to know more first? Just reply to this email.'],
+        'contact' => ticketEmailContactLine(),
+    ], ['from' => ticketEmailFrom()]);
 
     // Logging
     logAudit("Task", "Edit", "$session_name added task approver for $task_name", $client_id, $task_id);
