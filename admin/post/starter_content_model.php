@@ -35,7 +35,7 @@ function starterContentPacks() {
         'ticket_templates' => [
             'label' => 'Ticket Templates',
             'icon' => 'fa-life-ring',
-            'description' => 'Onboarding, offboarding, deployments, maintenance and incident response, each with its task list.',
+            'description' => 'Onboarding, offboarding, deployments, maintenance, incident response and client requests - each with its tasks, what it asks for and how it sets the ticket up, and a request form for the client portal on the ones clients raise.',
         ],
         'project_templates' => [
             'label' => 'Project Templates',
@@ -259,38 +259,26 @@ function starterLoadTags($mysqli, $dry_run = false) {
 // rather than having its task list topped up.
 // ------------------------------
 function starterLoadTicketTemplates($mysqli, $dry_run = false) {
-    $existing = starterExistingNames($mysqli, 'ticket_templates', 'ticket_template_name');
-    $added = 0;
-
-    foreach (starterContentTicketTemplates() as $ticket_template) {
-        if (isset($existing[mb_strtolower($ticket_template['name'])])) {
-            continue;
-        }
-        $added++;
-        if ($dry_run) {
-            continue;
-        }
-
-        $ticket_template_id = starterInsert($mysqli, 'ticket_templates', [
-            'ticket_template_name' => $ticket_template['name'],
-            'ticket_template_description' => $ticket_template['description'],
-            'ticket_template_subject' => $ticket_template['subject'],
-            'ticket_template_details' => $ticket_template['details'],
-        ], ['ticket_template_details']);
-
-        $order = 1;
-        foreach ($ticket_template['tasks'] as $task) {
-            starterInsert($mysqli, 'task_templates', [
-                'task_template_name' => $task[0],
-                'task_template_order' => $order,
-                'task_template_completion_estimate' => $task[1],
-                'task_template_ticket_template_id' => $ticket_template_id,
-            ]);
-            $order++;
-        }
+    $templates = ticketTemplatesImportRead(['format' => TICKET_TEMPLATE_FILE_FORMAT, 'version' => TICKET_TEMPLATE_FILE_VERSION, 'templates' => starterContentTicketTemplates()]);
+    if ($dry_run) {
+        $existing = starterExistingNames($mysqli, 'ticket_templates', 'ticket_template_name');
+        return count(array_filter($templates, function ($template) use ($existing) {
+            return !isset($existing[mb_strtolower($template['name'])]);
+        }));
     }
+    return ticketTemplatesImport($templates, 'skip')['added'];
+}
 
-    return $added;
+// ------------------------------
+// starterUpdateTicketTemplates
+// The starter templates already here, brought up to this library's version -
+// their subject, details, setup, tasks, fill-ins and request form replaced.
+// Their tickets, who they go to and whether their form is on stay. Returns
+// the import's counts (ticketTemplatesImport()).
+// ------------------------------
+function starterUpdateTicketTemplates() {
+    $templates = ticketTemplatesImportRead(['format' => TICKET_TEMPLATE_FILE_FORMAT, 'version' => TICKET_TEMPLATE_FILE_VERSION, 'templates' => starterContentTicketTemplates()]);
+    return ticketTemplatesImport($templates, 'replace', true);
 }
 
 // ------------------------------
@@ -730,268 +718,442 @@ function starterContentTags() {
 
 // ------------------------------
 // starterContentTicketTemplates
-// Details are stored as HTML - the modals edit them through TinyMCE.
-// Task estimates are in minutes.
+// In the ticket template file format (functions/ticket_template_transfer.php),
+// loaded through the same import. Details are HTML - the modals edit them
+// through TinyMCE - and task estimates are in minutes. Categories and tags
+// are this library's own, so they carry their colour and icon and are made
+// when the Categories or Tags pack has not been added. Request forms come in
+// turned off; the admin turns each on in its Client portal tab.
 // ------------------------------
 function starterContentTicketTemplates() {
+
+    // This library's ticket categories and ticket tags, by name
+    $category = function ($name) {
+        foreach (starterContentCategories() as $row) {
+            if ($row['type'] === 'Ticket' && $row['name'] === $name) {
+                return ['name' => $row['name'], 'color' => $row['color'], 'icon' => $row['icon'], 'description' => $row['description']];
+            }
+        }
+        return null;
+    };
+    $tag = function ($name) {
+        foreach (starterContentTags() as $row) {
+            if ($row[0] === 12 && $row[1] === $name) {
+                return ['name' => $row[1], 'color' => $row[2], 'icon' => $row[3]];
+            }
+        }
+        return ['name' => $name, 'color' => '', 'icon' => ''];
+    };
+    $fill_in = function ($name, $type = 'text', array $o = []) {
+        return ['name' => $name, 'type' => $type, 'options' => $o['options'] ?? [], 'required' => !empty($o['required']),
+            'client' => $o['client'] ?? true, 'help' => $o['help'] ?? ''];
+    };
+    $task = function ($name, $minutes, $when = null) {
+        return ['name' => $name, 'estimate' => $minutes, 'when' => $when ? ['fill_in' => $when[0], 'value' => $when[1]] : null];
+    };
 
     $ticket_templates = [
         [
             'name' => 'New Hire Onboarding',
             'description' => 'Standard setup for a new employee joining a client',
             'subject' => 'New hire onboarding - [Employee Name]',
-            'details' => '<p>New user setup. Confirm the following with the client before starting:</p><ul><li>Full name and preferred display name</li><li>Job title, department and manager</li><li>Start date and working hours</li><li>Who to mirror permissions from</li><li>Hardware and phone requirements</li></ul>',
-            'tasks' => [
-                ['Confirm start date and written approval from an authorized contact', 15],
-                ['Create the directory account and set the initial password', 15],
-                ['Assign licenses', 10],
-                ['Create the mailbox, signature and alias', 20],
-                ['Add to security and distribution groups', 15],
-                ['Configure file share and application permissions', 20],
-                ['Image and enroll the workstation', 60],
-                ['Install the standard application stack', 30],
-                ['Install line of business applications', 30],
-                ['Enroll multi-factor authentication', 15],
-                ['Configure the phone extension and voicemail', 15],
-                ['Add to RMM, endpoint protection and backup', 20],
-                ['Hand over credentials to the user securely', 10],
-                ['Create the contact record and document the setup', 15],
+            'details' => '<p>[Employee Name] starts on [Start Date] as [Job Title], reporting to [Manager]. Mirror their access from [Copy Access From].</p><ul><li>Computer: [Needs a Computer]</li><li>Phone extension: [Needs a Phone Extension]</li><li>Licence: [Licence]</li></ul><p>Do not create anything until an authorized contact has approved the request in writing.</p>',
+            'category' => $category('Onboarding'),
+            'priority' => 'Medium',
+            'tags' => [$tag('Onboarding')],
+            'fill_ins' => [
+                $fill_in('Employee Name', 'text', ['required' => true, 'help' => 'As it should appear in their email address and display name']),
+                $fill_in('Start Date', 'date', ['required' => true]),
+                $fill_in('Job Title'),
+                $fill_in('Manager'),
+                $fill_in('Copy Access From', 'text', ['help' => 'Someone whose access to files, groups and applications they should match']),
+                $fill_in('Needs a Computer', 'yesno', ['required' => true, 'help' => 'We order it, set it up and have it on their desk']),
+                $fill_in('Needs a Phone Extension', 'yesno'),
+                $fill_in('Licence', 'list', ['options' => ['Business Basic', 'Business Standard', 'Business Premium', 'Exchange Online only'], 'client' => false]),
             ],
+            'tasks' => [
+                $task('Confirm start date and written approval from an authorized contact', 15),
+                $task('Create the directory account and set the initial password', 15),
+                $task('Assign the [Licence] licence', 10),
+                $task('Create the mailbox, signature and alias', 20),
+                $task('Add to security and distribution groups, matching [Copy Access From]', 15),
+                $task('Configure file share and application permissions', 20),
+                $task('Order the computer', 15, ['Needs a Computer', 'Yes']),
+                $task('Image and enroll the workstation', 60, ['Needs a Computer', 'Yes']),
+                $task('Install the standard application stack', 30, ['Needs a Computer', 'Yes']),
+                $task('Install line of business applications', 30),
+                $task('Enroll multi-factor authentication', 15),
+                $task('Configure the phone extension and voicemail', 15, ['Needs a Phone Extension', 'Yes']),
+                $task('Add to RMM, endpoint protection and backup', 20, ['Needs a Computer', 'Yes']),
+                $task('Hand over credentials to [Employee Name] securely', 10),
+                $task('Create the contact record and document the setup', 15),
+            ],
+            'portal' => ['title' => 'Onboard a new employee', 'description' => 'Tell us who is starting and we will have their account and computer ready for their first day', 'icon' => 'user-plus', 'who' => 'managers'],
         ],
         [
             'name' => 'Employee Offboarding',
             'description' => 'Standard process for a departing employee',
             'subject' => 'Employee offboarding - [Employee Name]',
-            'details' => '<p>Departing user. Do not start until written authorization has been received from an authorized contact.</p><p>Confirm the last working day, who inherits the mailbox and data, and whether the account should be deleted or retained.</p>',
-            'tasks' => [
-                ['Obtain written authorization and confirm the effective date', 15],
-                ['Disable the account and reset the password', 10],
-                ['Revoke multi-factor authentication and active sessions', 10],
-                ['Convert the mailbox to shared or set forwarding', 15],
-                ['Remove group, share and application access', 20],
-                ['Reclaim and reassign licenses', 15],
-                ['Collect hardware, keys and access cards', 30],
-                ['Back up and hand over user data', 30],
-                ['Wipe and reimage the workstation', 60],
-                ['Remove the device from RMM, endpoint protection and backup', 15],
-                ['Update documentation and contact records', 15],
-                ['Notify billing of the license change', 10],
+            'details' => '<p>[Employee Name] leaves on [Last Day]. Cut off access straight away: [Cut Off Access Now]. Their email and files go to [Mail and Files Go To]. A company computer to collect: [Has a Company Computer].</p><p>Do not start until written authorization has been received from an authorized contact.</p>',
+            'category' => $category('Offboarding'),
+            'priority' => 'High',
+            'tags' => [$tag('Offboarding')],
+            'fill_ins' => [
+                $fill_in('Employee Name', 'text', ['required' => true]),
+                $fill_in('Last Day', 'date', ['required' => true]),
+                $fill_in('Cut Off Access Now', 'yesno', ['required' => true, 'help' => 'Yes and we act today, before their last day']),
+                $fill_in('Mail and Files Go To', 'text', ['help' => 'Who takes over their mailbox and files - leave it blank to keep them as they are']),
+                $fill_in('Has a Company Computer', 'yesno', ['required' => true]),
             ],
+            'tasks' => [
+                $task('Obtain written authorization and confirm the effective date', 15),
+                $task('Disable the account and reset the password', 10),
+                $task('Revoke multi-factor authentication and active sessions', 10),
+                $task('Convert the mailbox to shared or set forwarding to [Mail and Files Go To]', 15),
+                $task('Remove group, share and application access', 20),
+                $task('Reclaim and reassign licenses', 15),
+                $task('Collect the computer, keys and access cards', 30, ['Has a Company Computer', 'Yes']),
+                $task('Back up and hand over user data', 30),
+                $task('Wipe and reimage the computer', 60, ['Has a Company Computer', 'Yes']),
+                $task('Remove the device from RMM, endpoint protection and backup', 15, ['Has a Company Computer', 'Yes']),
+                $task('Update documentation and contact records', 15),
+                $task('Notify billing of the license change', 10),
+            ],
+            'portal' => ['title' => 'Someone is leaving', 'description' => 'Close down their accounts, hand over their email and files, and get their computer back', 'icon' => 'user-minus', 'who' => 'managers'],
         ],
         [
             'name' => 'Workstation Deployment',
             'description' => 'Build and deploy a new desktop or laptop',
             'subject' => 'Workstation deployment - [Client] - [User]',
-            'details' => '<p>New workstation build. Confirm the order reference, the user it is for, and whether an existing machine is being replaced.</p>',
-            'tasks' => [
-                ['Confirm the quote or purchase order', 10],
-                ['Receive, inventory and create the asset record', 20],
-                ['Record the serial number and warranty expiry', 10],
-                ['Image the device and apply all updates', 60],
-                ['Join the domain or cloud directory', 15],
-                ['Install the standard application stack', 30],
-                ['Install line of business applications', 30],
-                ['Map printers and network drives', 15],
-                ['Enroll in RMM, endpoint protection and backup', 20],
-                ['Migrate the user profile and data', 60],
-                ['Verify mail, file sync and printing', 20],
-                ['Deliver, walk the user through it and wipe the old device', 45],
+            'details' => '<p>New [Kind of Computer] for [User], needed by [Needed By]. Replaces an existing computer: [Replaces One].</p><p>Order reference: [Order Reference]</p>',
+            'category' => $category('Workstation'),
+            'priority' => 'Medium',
+            'fill_ins' => [
+                $fill_in('User', 'text', ['required' => true, 'help' => 'Who it is for']),
+                $fill_in('Kind of Computer', 'list', ['required' => true, 'options' => ['Laptop', 'Desktop']]),
+                $fill_in('Needed By', 'date'),
+                $fill_in('Replaces One', 'yesno', ['required' => true, 'help' => 'Yes if it takes the place of a computer they have now']),
+                $fill_in('Order Reference', 'text', ['client' => false, 'help' => 'The quote or purchase order']),
             ],
+            'tasks' => [
+                $task('Confirm the quote or purchase order', 10),
+                $task('Receive, inventory and create the asset record', 20),
+                $task('Record the serial number and warranty expiry', 10),
+                $task('Image the device and apply all updates', 60),
+                $task('Join the domain or cloud directory', 15),
+                $task('Install the standard application stack', 30),
+                $task('Install line of business applications', 30),
+                $task('Map printers and network drives', 15),
+                $task('Enroll in RMM, endpoint protection and backup', 20),
+                $task('Migrate the user profile and data', 60, ['Replaces One', 'Yes']),
+                $task('Verify mail, file sync and printing', 20),
+                $task('Deliver it and walk [User] through it', 30),
+                $task('Wipe and retire the old computer', 30, ['Replaces One', 'Yes']),
+            ],
+            'portal' => ['title' => 'Ask for a new computer', 'description' => 'A laptop or desktop for someone, set up and ready to use', 'icon' => 'laptop', 'who' => 'managers'],
         ],
         [
             'name' => 'Server Deployment',
             'description' => 'Build and commission a new physical or virtual server',
             'subject' => 'Server deployment - [Client] - [Server Name]',
-            'details' => '<p>New server build. Confirm the role, sizing, network placement and maintenance window before starting.</p>',
+            'details' => '<p>New [Physical or Virtual] server for [Role]. Maintenance window: [Maintenance Window].</p><p>Confirm the sizing and network placement before starting.</p>',
+            'category' => $category('Server'),
+            'priority' => 'Medium',
+            'fill_ins' => [
+                $fill_in('Server Name', 'text', ['required' => true]),
+                $fill_in('Role', 'text', ['help' => 'What it is for - file server, domain controller, line of business application']),
+                $fill_in('Physical or Virtual', 'list', ['required' => true, 'options' => ['Physical', 'Virtual']]),
+                $fill_in('Maintenance Window'),
+            ],
             'tasks' => [
-                ['Confirm the specification, role and sizing', 30],
-                ['Rack, cable and label the hardware', 60],
-                ['Configure out of band management', 30],
-                ['Install the operating system or hypervisor and patch fully', 90],
-                ['Configure storage, RAID and volumes', 45],
-                ['Set the static addressing, DNS and time source', 20],
-                ['Install the server role and application software', 60],
-                ['Add to RMM, monitoring and endpoint protection', 20],
-                ['Add to the backup job and run a first full backup', 45],
-                ['Document the build and hand over to the client', 30],
+                $task('Confirm the specification, role and sizing', 30),
+                $task('Rack, cable and label the hardware', 60, ['Physical or Virtual', 'Physical']),
+                $task('Configure out of band management', 30, ['Physical or Virtual', 'Physical']),
+                $task('Create the virtual machine and assign its resources', 30, ['Physical or Virtual', 'Virtual']),
+                $task('Install the operating system and patch fully', 90),
+                $task('Configure storage, RAID and volumes', 45),
+                $task('Set the static addressing, DNS and time source', 20),
+                $task('Install the server role and application software', 60),
+                $task('Add to RMM, monitoring and endpoint protection', 20),
+                $task('Add to the backup job and run a first full backup', 45),
+                $task('Document the build and hand over to the client', 30),
             ],
         ],
         [
             'name' => 'Monthly Maintenance',
             'description' => 'Recurring monthly maintenance pass for a managed client',
             'subject' => 'Monthly maintenance - [Client] - [Month]',
-            'details' => '<p>Scheduled monthly maintenance. Work the checklist and send the client a summary when complete.</p>',
+            'details' => '<p>Scheduled monthly maintenance for [Client], [Month]. Work the checklist and send the client a summary when complete.</p>',
+            'category' => $category('Maintenance'),
+            'priority' => 'Low',
+            'due_hours' => 7 * 24,
             'tasks' => [
-                ['Review patch compliance across the fleet', 20],
-                ['Approve and deploy pending patches', 30],
-                ['Reboot within the agreed maintenance window', 30],
-                ['Verify services and applications after reboot', 30],
-                ['Check disk space and clear down where needed', 20],
-                ['Review endpoint protection alerts and quarantine', 20],
-                ['Verify backup jobs completed and spot check a restore', 30],
-                ['Check UPS battery health and runtime', 15],
-                ['Review firewall firmware and license expiry', 15],
-                ['Review certificate and domain expiry', 15],
-                ['Update documentation and send the client a summary', 30],
+                $task('Review patch compliance across the fleet', 20),
+                $task('Approve and deploy pending patches', 30),
+                $task('Reboot within the agreed maintenance window', 30),
+                $task('Verify services and applications after reboot', 30),
+                $task('Check disk space and clear down where needed', 20),
+                $task('Review endpoint protection alerts and quarantine', 20),
+                $task('Verify backup jobs completed and spot check a restore', 30),
+                $task('Check UPS battery health and runtime', 15),
+                $task('Review firewall firmware and license expiry', 15),
+                $task('Review certificate and domain expiry', 15),
+                $task('Update documentation and send the client a summary', 30),
             ],
         ],
         [
             'name' => 'Backup Failure Investigation',
             'description' => 'Triage and resolve a failed or missed backup job',
             'subject' => 'Backup failure - [Client] - [Job Name]',
-            'details' => '<p>Backup job failed or did not report. Establish the last known good restore point first, then work the cause.</p>',
+            'details' => '<p>Backup job [Job Name] failed or did not report. Last known good backup: [Last Good Backup]. Establish the last restore point first, then work the cause.</p>',
+            'category' => $category('Backup and Recovery'),
+            'priority' => 'High',
+            'due_hours' => 24,
+            'fill_ins' => [
+                $fill_in('Job Name', 'text', ['required' => true]),
+                $fill_in('Last Good Backup', 'date'),
+            ],
             'tasks' => [
-                ['Identify the last successful restore point', 15],
-                ['Review the job log and error detail', 20],
-                ['Check source, target and network availability', 20],
-                ['Check free space on the backup target', 10],
-                ['Check agent and service health on the protected system', 20],
-                ['Apply the fix and re-run the job', 30],
-                ['Verify the job completes and the restore point is valid', 20],
-                ['Document the cause and update the client', 20],
+                $task('Identify the last successful restore point', 15),
+                $task('Review the job log and error detail', 20),
+                $task('Check source, target and network availability', 20),
+                $task('Check free space on the backup target', 10),
+                $task('Check agent and service health on the protected system', 20),
+                $task('Apply the fix and re-run the job', 30),
+                $task('Verify the job completes and the restore point is valid', 20),
+                $task('Document the cause and update the client', 20),
             ],
         ],
         [
             'name' => 'Backup Restore Test',
             'description' => 'Scheduled proof that backups can actually be restored',
             'subject' => 'Restore test - [Client] - [Quarter]',
-            'details' => '<p>Scheduled restore test. The goal is a documented, dated proof of recoverability - record the actual recovery time achieved.</p>',
+            'details' => '<p>Scheduled restore test for [Client], [Quarter]. The goal is a documented, dated proof of recoverability - record the actual recovery time achieved.</p>',
+            'category' => $category('Backup and Recovery'),
+            'priority' => 'Low',
+            'due_hours' => 14 * 24,
             'tasks' => [
-                ['Agree the restore targets and test window with the client', 20],
-                ['Restore a file level sample and verify contents', 30],
-                ['Perform a full system or virtual machine test restore', 90],
-                ['Verify the restored system boots and services start', 45],
-                ['Verify application and database integrity', 45],
-                ['Record the recovery time actually achieved', 15],
-                ['Tear down the test environment', 20],
-                ['Document the result and report to the client', 30],
+                $task('Agree the restore targets and test window with the client', 20),
+                $task('Restore a file level sample and verify contents', 30),
+                $task('Perform a full system or virtual machine test restore', 90),
+                $task('Verify the restored system boots and services start', 45),
+                $task('Verify application and database integrity', 45),
+                $task('Record the recovery time actually achieved', 15),
+                $task('Tear down the test environment', 20),
+                $task('Document the result and report to the client', 30),
             ],
         ],
         [
             'name' => 'Phishing Report',
             'description' => 'User reported a suspicious email',
             'subject' => 'Reported phishing email - [Client] - [User]',
-            'details' => '<p>User reported a suspicious message. Treat as credential compromise until proven otherwise - the first question is always whether credentials were entered.</p>',
-            'tasks' => [
-                ['Obtain the message with full headers', 15],
-                ['Analyze the sender, links and attachments', 20],
-                ['Establish whether credentials were entered or attachments opened', 15],
-                ['Force a password reset and revoke sessions if in doubt', 20],
-                ['Audit mailbox rules and forwarding', 20],
-                ['Review sign-in logs for anomalous access', 30],
-                ['Block the sender and domain at the mail gateway', 15],
-                ['Purge the message from all affected mailboxes', 20],
-                ['Feed back to the reporting user and management', 15],
-                ['Document the outcome', 15],
+            'details' => '<p>[User] reported a suspicious email: [Email Subject]. Clicked a link or opened an attachment: [Clicked or Opened]. Entered a password: [Entered a Password].</p><p>Treat as credential compromise until proven otherwise.</p>',
+            'category' => $category('Phishing Report'),
+            'priority' => 'High',
+            'due_hours' => 4,
+            'tags' => [$tag('Security')],
+            'fill_ins' => [
+                $fill_in('User', 'text', ['required' => true, 'help' => 'Who got the email']),
+                $fill_in('Email Subject', 'text', ['help' => 'Its subject line, or who it says it is from']),
+                $fill_in('Clicked or Opened', 'yesno', ['required' => true, 'help' => 'Did anyone click a link or open an attachment in it?']),
+                $fill_in('Entered a Password', 'yesno', ['required' => true, 'help' => 'Did anyone type a password into a page it opened?']),
             ],
+            'tasks' => [
+                $task('Obtain the message with full headers', 15),
+                $task('Analyze the sender, links and attachments', 20),
+                $task('Force a password reset and revoke sessions for [User]', 20, ['Entered a Password', 'Yes']),
+                $task('Scan the computer the attachment was opened on', 30, ['Clicked or Opened', 'Yes']),
+                $task('Audit mailbox rules and forwarding', 20),
+                $task('Review sign-in logs for anomalous access', 30),
+                $task('Block the sender and domain at the mail gateway', 15),
+                $task('Purge the message from all affected mailboxes', 20),
+                $task('Feed back to the reporting user and management', 15),
+                $task('Document the outcome', 15),
+            ],
+            'portal' => ['title' => 'Report a suspicious email', 'description' => 'Got an email that does not look right? Tell us - and tell us straight away if you clicked anything in it', 'icon' => 'shield-alt', 'who' => 'everyone'],
         ],
         [
             'name' => 'Security Incident Response',
             'description' => 'Suspected or confirmed compromise',
             'subject' => 'Security incident - [Client] - [Summary]',
-            'details' => '<p>Suspected or confirmed compromise. Preserve evidence before remediating, and check the client cyber insurance policy for notification requirements and approved responders before acting.</p>',
+            'details' => '<p>Suspected or confirmed compromise: [Summary]. First noticed [First Noticed].</p><p>Preserve evidence before remediating, and check the client cyber insurance policy for notification requirements and approved responders before acting.</p>',
+            'category' => $category('Security Incident'),
+            'priority' => 'Urgent',
+            'due_hours' => 4,
+            'tags' => [$tag('Security'), $tag('Escalated')],
+            'fill_ins' => [
+                $fill_in('Summary', 'text', ['required' => true]),
+                $fill_in('First Noticed', 'date'),
+            ],
             'tasks' => [
-                ['Declare the incident and establish scope and impact', 30],
-                ['Isolate affected systems and accounts', 30],
-                ['Preserve logs, images and evidence', 60],
-                ['Notify the client, insurer and any required authority', 30],
-                ['Contain the spread and close the entry point', 120],
-                ['Eradicate persistence and reset all affected credentials', 120],
-                ['Restore from a known good backup and verify', 180],
-                ['Monitor for reinfection', 60],
-                ['Produce the post incident report and remediation plan', 90],
+                $task('Declare the incident and establish scope and impact', 30),
+                $task('Isolate affected systems and accounts', 30),
+                $task('Preserve logs, images and evidence', 60),
+                $task('Notify the client, insurer and any required authority', 30),
+                $task('Contain the spread and close the entry point', 120),
+                $task('Eradicate persistence and reset all affected credentials', 120),
+                $task('Restore from a known good backup and verify', 180),
+                $task('Monitor for reinfection', 60),
+                $task('Produce the post incident report and remediation plan', 90),
             ],
         ],
         [
             'name' => 'Client Onboarding',
             'description' => 'Bring a newly signed client under management',
             'subject' => 'Client onboarding - [Client]',
-            'details' => '<p>New client onboarding. Nothing goes live until the agreement is countersigned. The output of this ticket is a fully documented client that can be supported by anyone on the team.</p>',
+            'details' => '<p>New client onboarding for [Client]. Nothing goes live until the agreement is countersigned. The output of this ticket is a fully documented client that can be supported by anyone on the team.</p>',
+            'category' => $category('Project Work'),
+            'priority' => 'Medium',
             'tasks' => [
-                ['Confirm the countersigned agreement is on file', 15],
-                ['Hold the kickoff call and agree the escalation path', 60],
-                ['Collect contacts, locations, hours and authorized approvers', 60],
-                ['Discover and document the network', 180],
-                ['Inventory assets and create asset records', 180],
-                ['Deploy RMM and endpoint protection', 120],
-                ['Move all credentials into the vault', 120],
-                ['Configure and verify backups', 120],
-                ['Run a security baseline audit', 120],
-                ['Review DNS, mail records and certificate expiry', 60],
-                ['Set up billing, invoicing and autopay', 45],
-                ['Schedule the review cadence', 20],
-                ['Hold the 30 day review', 60],
+                $task('Confirm the countersigned agreement is on file', 15),
+                $task('Hold the kickoff call and agree the escalation path', 60),
+                $task('Collect contacts, locations, hours and authorized approvers', 60),
+                $task('Discover and document the network', 180),
+                $task('Inventory assets and create asset records', 180),
+                $task('Deploy RMM and endpoint protection', 120),
+                $task('Move all credentials into the vault', 120),
+                $task('Configure and verify backups', 120),
+                $task('Run a security baseline audit', 120),
+                $task('Review DNS, mail records and certificate expiry', 60),
+                $task('Set up billing, invoicing and autopay', 45),
+                $task('Set up the client portal and its request forms', 30),
+                $task('Schedule the review cadence', 20),
+                $task('Hold the 30 day review', 60),
             ],
         ],
         [
             'name' => 'Client Offboarding',
             'description' => 'Cleanly exit a departing client',
             'subject' => 'Client offboarding - [Client]',
-            'details' => '<p>Departing client. Agree in writing what is handed over, what is retained and for how long, and settle the final invoice before access is removed.</p>',
+            'details' => '<p>[Client] is leaving on [Termination Date]. Handing over to: [Incoming Provider].</p><p>Agree in writing what is handed over, what is retained and for how long, and settle the final invoice before access is removed.</p>',
+            'category' => $category('Project Work'),
+            'priority' => 'Medium',
+            'fill_ins' => [
+                $fill_in('Termination Date', 'date', ['required' => true]),
+                $fill_in('Incoming Provider', 'text', ['help' => 'Who takes over - or the client themselves']),
+            ],
             'tasks' => [
-                ['Confirm the notice period and termination date in writing', 20],
-                ['Agree the handover scope with the client or incoming provider', 45],
-                ['Raise and settle the final invoice', 30],
-                ['Export and hand over documentation', 60],
-                ['Hand over credentials securely and confirm receipt', 45],
-                ['Remove RMM, endpoint protection and monitoring agents', 60],
-                ['Release or transfer licenses and subscriptions', 45],
-                ['Agree the backup retention and destruction date', 20],
-                ['Revoke all remaining access and delegated permissions', 45],
-                ['Archive the client record and close out', 30],
+                $task('Confirm the notice period and termination date in writing', 20),
+                $task('Agree the handover scope with the client or incoming provider', 45),
+                $task('Raise and settle the final invoice', 30),
+                $task('Export and hand over documentation', 60),
+                $task('Hand over credentials securely and confirm receipt', 45),
+                $task('Remove RMM, endpoint protection and monitoring agents', 60),
+                $task('Release or transfer licenses and subscriptions', 45),
+                $task('Agree the backup retention and destruction date', 20),
+                $task('Revoke all remaining access and delegated permissions', 45),
+                $task('Archive the client record and close out', 30),
             ],
         ],
         [
             'name' => 'Firewall Deployment',
             'description' => 'Replace or deploy a perimeter firewall',
             'subject' => 'Firewall deployment - [Client] - [Site]',
-            'details' => '<p>Firewall deployment or replacement. Capture the existing configuration and public addressing before the change window, and agree a rollback plan.</p>',
+            'details' => '<p>Firewall deployment or replacement at [Site]: [Firewall Model]. Change window: [Change Window]. Remote access users: [Has VPN Users].</p><p>Capture the existing configuration and public addressing before the change window, and agree a rollback plan.</p>',
+            'category' => $category('Firewall'),
+            'priority' => 'Medium',
+            'fill_ins' => [
+                $fill_in('Firewall Model'),
+                $fill_in('Change Window', 'text', ['help' => 'When the cutover can happen']),
+                $fill_in('Has VPN Users', 'yesno', ['required' => true]),
+            ],
             'tasks' => [
-                ['Capture the current configuration, rules and public addressing', 60],
-                ['Confirm the license, subscription and support entitlement', 20],
-                ['Stage and update the firmware on the bench', 45],
-                ['Build the base configuration, interfaces and routing', 90],
-                ['Recreate firewall rules, NAT and port forwards', 90],
-                ['Configure VPN tunnels and remote access', 60],
-                ['Agree the change window and notify the client', 20],
-                ['Cut over and verify connectivity and services', 60],
-                ['Verify VPN, remote access and any published services', 45],
-                ['Document the configuration and store the credentials', 45],
+                $task('Capture the current configuration, rules and public addressing', 60),
+                $task('Confirm the license, subscription and support entitlement', 20),
+                $task('Stage and update the firmware on the bench', 45),
+                $task('Build the base configuration, interfaces and routing', 90),
+                $task('Recreate firewall rules, NAT and port forwards', 90),
+                $task('Configure VPN tunnels and remote access', 60, ['Has VPN Users', 'Yes']),
+                $task('Agree the change window and notify the client', 20),
+                $task('Cut over and verify connectivity and services', 60),
+                $task('Verify VPN, remote access and any published services', 45, ['Has VPN Users', 'Yes']),
+                $task('Document the configuration and store the credentials', 45),
             ],
         ],
         [
             'name' => 'Microsoft 365 Tenant Onboarding',
             'description' => 'Bring a client tenant under management and to a security baseline',
             'subject' => 'Microsoft 365 tenant onboarding - [Client]',
-            'details' => '<p>Tenant onboarding. Establish delegated access, document the licensing position, then bring the tenant to the agreed security baseline.</p>',
+            'details' => '<p>Tenant onboarding for [Client]. Establish delegated access, document the licensing position, then bring the tenant to the agreed security baseline.</p>',
+            'category' => $category('Microsoft 365'),
+            'priority' => 'Medium',
             'tasks' => [
-                ['Establish delegated administrative access', 30],
-                ['Document the tenant ID, domains and license position', 45],
-                ['Create the break glass administrator account and vault it', 30],
-                ['Enforce multi-factor authentication for all users', 60],
-                ['Review and harden the conditional access policy', 60],
-                ['Review mail flow, connectors and forwarding rules', 45],
-                ['Verify SPF, DKIM and DMARC records', 45],
-                ['Enable and configure audit logging and alerting', 45],
-                ['Configure tenant backup', 60],
-                ['Document the tenant and report the baseline findings', 60],
+                $task('Establish delegated administrative access', 30),
+                $task('Document the tenant ID, domains and license position', 45),
+                $task('Create the break glass administrator account and vault it', 30),
+                $task('Enforce multi-factor authentication for all users', 60),
+                $task('Review and harden the conditional access policy', 60),
+                $task('Review mail flow, connectors and forwarding rules', 45),
+                $task('Verify SPF, DKIM and DMARC records', 45),
+                $task('Enable and configure audit logging and alerting', 45),
+                $task('Configure tenant backup', 60),
+                $task('Document the tenant and report the baseline findings', 60),
             ],
         ],
         [
             'name' => 'Quarterly Business Review',
             'description' => 'Prepare and deliver a client review meeting',
             'subject' => 'Quarterly business review - [Client] - [Quarter]',
-            'details' => '<p>Client review meeting. Pull the numbers before the meeting and lead with outcomes rather than activity - ticket volume, uptime, risks closed and what is coming next.</p>',
-            'tasks' => [
-                ['Pull ticket volume, response and resolution figures', 45],
-                ['Review asset age, warranty and end of life exposure', 45],
-                ['Review the security posture and any open risks', 45],
-                ['Review backup and restore test results for the period', 30],
-                ['Review spend against budget and the license position', 30],
-                ['Build the roadmap and budget recommendations', 60],
-                ['Circulate the pack and hold the meeting', 90],
-                ['Log the agreed actions and raise the follow up work', 45],
+            'details' => '<p>Review meeting with [Client] for [Quarter], on [Meeting Date]. Pull the numbers before the meeting - the Client Review report has them - and lead with outcomes rather than activity: ticket volume, uptime, risks closed and what is coming next.</p>',
+            'priority' => 'Low',
+            'fill_ins' => [
+                $fill_in('Meeting Date', 'date'),
             ],
+            'tasks' => [
+                $task('Pull ticket volume, response and resolution figures', 45),
+                $task('Review asset age, warranty and end of life exposure', 45),
+                $task('Review the security posture and any open risks', 45),
+                $task('Review backup and restore test results for the period', 30),
+                $task('Review spend against budget and the license position', 30),
+                $task('Build the roadmap and budget recommendations', 60),
+                $task('Circulate the pack and hold the meeting', 90),
+                $task('Log the agreed actions and raise the follow up work', 45),
+            ],
+        ],
+        [
+            'name' => 'Software Request',
+            'description' => 'Install an application for a user',
+            'subject' => 'Software request - [Software] - [Asset]',
+            'details' => '<p>[Contact] asked for [Software] on [Asset], for [Who It Is For]. Already licensed: [Already Licensed]. What it is for: [What It Is For].</p>',
+            'category' => $category('Software'),
+            'priority' => 'Low',
+            'due_hours' => 3 * 24,
+            'fill_ins' => [
+                $fill_in('Software', 'text', ['required' => true, 'help' => 'Its name, and the version if it matters']),
+                $fill_in('Who It Is For', 'text', ['help' => 'Leave it blank if it is for you']),
+                $fill_in('Already Licensed', 'yesno', ['required' => true, 'help' => 'Do you have a licence or subscription for it already?']),
+                $fill_in('What It Is For'),
+            ],
+            'tasks' => [
+                $task('Check it is compatible and approved for the client', 10),
+                $task('Quote and order the licence', 15, ['Already Licensed', 'No']),
+                $task('Install and license [Software]', 30),
+                $task('Verify it works with the user', 10),
+                $task('Record the licence and update the asset', 10),
+            ],
+            'portal' => ['title' => 'Install some software', 'description' => 'An application you need on your computer', 'icon' => 'cube', 'who' => 'everyone'],
+        ],
+        [
+            'name' => 'Access Change Request',
+            'description' => 'Give, change or remove someone\'s access to a share, mailbox or application',
+            'subject' => 'Access change - [Person] - [Access To]',
+            'details' => '<p>[Change] for [Person] to [Access To], needed by [Needed By]. Asked for by [Contact].</p><p>Changes to access need the approval of an authorized contact.</p>',
+            'category' => $category('Account and Access'),
+            'priority' => 'Medium',
+            'due_hours' => 2 * 24,
+            'fill_ins' => [
+                $fill_in('Person', 'text', ['required' => true]),
+                $fill_in('Access To', 'text', ['required' => true, 'help' => 'The shared drive, mailbox, application or system']),
+                $fill_in('Change', 'list', ['required' => true, 'options' => ['Give access', 'Change what they can do', 'Remove access']]),
+                $fill_in('Needed By', 'date'),
+            ],
+            'tasks' => [
+                $task('Confirm approval from an authorized contact', 10),
+                $task('Make the change', 15),
+                $task('Confirm with [Person] that it works', 10, ['Change', 'Give access']),
+                $task('Document the change', 10),
+            ],
+            'portal' => ['title' => 'Change someone\'s access', 'description' => 'Give someone access to a shared drive, mailbox or application - or take it away', 'icon' => 'key', 'who' => 'managers'],
         ],
     ];
 

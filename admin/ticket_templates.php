@@ -57,8 +57,18 @@ $csrf = $_SESSION['csrf_token'];
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring me-2"></i>Ticket Templates</h3>
-        <div class="card-tools">
+        <div class="card-tools d-flex gap-2">
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/ticket_template/ticket_template_add.php" data-modal-size="lg"><i class="fas fa-plus me-2"></i>New Ticket Template</button>
+            <div class="dropdown">
+                <button class="btn btn-outline-light" type="button" data-bs-toggle="dropdown" title="More"><i class="fas fa-fw fa-ellipsis-h"></i></button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket_template/ticket_template_import.php"><i class="fas fa-fw fa-file-upload me-2"></i>Import</a>
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket_template/ticket_template_export.php"><i class="fas fa-fw fa-file-download me-2"></i>Export</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/agent/reports/ticket_templates.php"><i class="fas fa-fw fa-chart-bar me-2"></i>How they are used</a>
+                    <a class="dropdown-item" href="starter_content.php"><i class="fas fa-fw fa-seedling me-2"></i>Starter templates</a>
+                </div>
+            </div>
         </div>
     </div>
 

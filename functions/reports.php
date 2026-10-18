@@ -147,6 +147,10 @@ function reportCatalog() {
                     'title' => 'Customer Satisfaction', 'icon' => 'fa-smile', 'module' => 'module_support', 'feature' => ['ticketing'],
                     'description' => 'How clients rated their closed tickets, by agent and client.',
                 ],
+                'ticket_templates' => [
+                    'title' => 'Ticket Templates', 'icon' => 'fa-cube', 'module' => 'module_support', 'feature' => ['ticketing'],
+                    'description' => 'How often each template is used and how - by agents, from the client portal, on a schedule or by projects - with the time spent and how long its tickets take, and the ones not used.',
+                ],
             ],
         ],
         'clients' => [

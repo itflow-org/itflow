@@ -46,6 +46,26 @@ if (isset($_POST['load_starter_content'])) {
 
 }
 
+if (isset($_POST['update_starter_ticket_templates'])) {
+
+    // The starter ticket templates already here, brought up to this version
+    validateCSRFToken();
+
+    require_once 'starter_content_model.php';
+
+    $counts = starterUpdateTicketTemplates();
+
+    if ($counts['replaced']) {
+        logAudit("Starter Content", "Edit", "$session_name brought {$counts['replaced']} starter ticket templates up to date");
+        flashAlert("Brought <strong>{$counts['replaced']}</strong> starter ticket templates up to date" . ($counts['forms'] ? " - <strong>{$counts['forms']}</strong> have a request form, turned off until you turn it on in their Client portal tab" : ''));
+    } else {
+        flashAlert("None of the starter ticket templates are here to update - add them instead", 'info');
+    }
+
+    redirect();
+
+}
+
 if (isset($_POST['load_demo_data'])) {
 
     validateCSRFToken();

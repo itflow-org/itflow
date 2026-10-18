@@ -323,3 +323,60 @@ if (isset($_POST['reorder_ticket_template_fill_ins'])) {
     exit;
 
 }
+
+if (isset($_POST['export_ticket_templates']) || isset($_GET['export_ticket_template'])) {
+
+    // A file of templates to import into another ITFlow - every current one, the ones picked, or one
+    validateCSRFToken();
+
+    if (isset($_GET['export_ticket_template'])) {
+        $row = ticketTemplateForRequest($_GET['export_ticket_template']);
+        $export = ticketTemplatesExport([intval($row['ticket_template_id'])]);
+    } else {
+        $export = ticketTemplatesExport((array) ($_POST['ticket_template_ids'] ?? []), !empty($_POST['archived']));
+    }
+    if (!$export['templates']) {
+        flashAlert('There are no ticket templates to export.', 'error');
+        redirect();
+    }
+
+    $count = count($export['templates']);
+    logAudit("Ticket Template", "Export", "$session_name exported $count ticket template" . ($count === 1 ? ' ' . escapeSql($export['templates'][0]['name']) : 's'));
+
+    header('Content-Type: application/json; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . ticketTemplatesExportFileName($export) . '"');
+    header('Cache-Control: no-store');
+    echo json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    exit;
+
+}
+
+if (isset($_POST['import_ticket_templates'])) {
+
+    // Templates from a file exported by ITFlow
+    validateCSRFToken();
+
+    $file = $_FILES['file'] ?? null;
+    if (!$file || $file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) {
+        flashAlert('Pick the file to import.', 'error');
+        redirect('ticket_templates.php');
+    }
+    if ($file['size'] > 5 * 1024 * 1024) {
+        flashAlert('That file is too big to be ticket templates.', 'error');
+        redirect('ticket_templates.php');
+    }
+    $templates = ticketTemplatesImportRead(file_get_contents($file['tmp_name']), $import_error);
+    if ($templates === null) {
+        flashAlert($import_error, 'error');
+        redirect('ticket_templates.php');
+    }
+    $existing = in_array($_POST['existing'] ?? '', ['skip', 'copy', 'replace'], true) ? $_POST['existing'] : 'skip';
+    $counts = ticketTemplatesImport($templates, $existing);
+
+    logAudit("Ticket Template", "Import", "$session_name imported ticket templates from " . escapeSql(mb_substr((string) $file['name'], 0, 100)) . " - {$counts['added']} added, {$counts['replaced']} replaced, {$counts['skipped']} skipped");
+
+    flashAlert(ticketTemplatesImportSummary($counts), $counts['added'] || $counts['replaced'] ? 'success' : 'info');
+
+    redirect('ticket_templates.php');
+
+}

@@ -40,10 +40,11 @@ foreach ($starter_content_status as $pack_status) {
             brand new install or on one that has been running for years.
         </p>
         <p class="text-muted">
-            Nothing here is overwritten or deleted. Anything already present under the same name is
+            Adding never overwrites or deletes anything. Anything already present under the same name is
             skipped, so a pack can be added again later to pick up entries you removed by mistake, and
             adding twice never produces duplicates. Everything added is editable and deletable
-            afterwards like any other record.
+            afterwards like any other record. Ticket templates added from an earlier version can be
+            brought up to this one with Update - that one does replace what they hold.
         </p>
 
         <div class="table-responsive">
@@ -84,6 +85,7 @@ foreach ($starter_content_status as $pack_status) {
                             <?php } ?>
                         </td>
                         <td class="text-end">
+                            <div class="d-inline-flex flex-wrap justify-content-end gap-2">
                             <?php if ($pack_status['missing']) { ?>
                             <form action="post.php" method="POST" autocomplete="off">
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -91,9 +93,19 @@ foreach ($starter_content_status as $pack_status) {
                                     <i class="fas fa-fw fa-plus me-2"></i>Add
                                 </button>
                             </form>
-                            <?php } else { ?>
+                            <?php } elseif ($pack !== 'ticket_templates' || !$pack_status['present']) { ?>
                                 <span class="text-muted">Nothing to add</span>
                             <?php } ?>
+                            <?php if ($pack === 'ticket_templates' && $pack_status['present']) { ?>
+                            <!-- The ones already here brought up to this version - asked for, never done by Add -->
+                            <form action="post.php" method="POST" autocomplete="off" onsubmit="return confirm('Bring the <?= intval($pack_status['present']) ?> starter ticket templates you have up to date? Their subject, details, setup, tasks, fill-ins and request form are replaced with this version - changes you made to them are lost. Their tickets, who they go to and whether their request form is on stay as they are.');">
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                <button type="submit" name="update_starter_ticket_templates" value="1" class="btn btn-outline-secondary btn-sm text-nowrap">
+                                    <i class="fas fa-fw fa-sync-alt me-2"></i>Update the <?= intval($pack_status['present']) ?> you have
+                                </button>
+                            </form>
+                            <?php } ?>
+                            </div>
                         </td>
                     </tr>
                     <?php } ?>
@@ -102,7 +114,8 @@ foreach ($starter_content_status as $pack_status) {
         </div>
 
         <p class="text-muted mb-0">
-            Ticket templates bring their task lists with them. Products are filed under income
+            Ticket templates bring their task lists, what they ask for and their request forms with them -
+            the request forms come in turned off, ready to turn on in each template's Client portal tab. Products are filed under income
             categories and priced as starting points only - hardware and resold licensing come in at
             zero because they are quoted per deal.
         </p>

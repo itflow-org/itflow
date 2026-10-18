@@ -130,6 +130,7 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
                 <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-h"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="post.php?copy_ticket_template=<?= $ticket_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
+                    <a class="dropdown-item" href="post.php?export_ticket_template=<?= $ticket_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-file-download me-2"></i>Export</a>
                     <?php if ($archived) { ?>
                         <a class="dropdown-item" href="post.php?restore_ticket_template=<?= $ticket_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo me-2"></i>Restore</a>
                     <?php } else { ?>
