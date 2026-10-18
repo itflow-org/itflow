@@ -667,6 +667,44 @@ if (isset($_GET['ticket_id'])) {
                     </div>
                 </div>
 
+                <!-- Fill-ins - what its template asked for when it was raised, and the answers -->
+                <?php
+                $ticket_fill_ins = ticketFillInsStored('ticket', $ticket_id);
+                if ($ticket_fill_ins) {
+                    $fill_in_template = intval($ticket['ticket_template_id'] ?? 0) ? ticketTemplateRow($ticket['ticket_template_id']) : null;
+                    ?>
+                    <div class="card mb-3 itflow-ticket-fill-ins">
+                        <div class="card-header px-3 py-2">
+                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-pen-square me-2"></i>Fill-ins<?php if ($fill_in_template) { ?> <span class="small fw-normal text-secondary ms-1">from <?= escapeHtml($fill_in_template['ticket_template_name']) ?></span><?php } ?></h5>
+                            <div class="card-tools">
+                                <?php if ($can_edit_ticket && !$ticket_is_closed) { ?>
+                                    <a class="btn btn-tool ajax-modal" href="#" data-modal-url="modals/ticket/ticket_fill_ins.php?id=<?= $ticket_id ?>" title="Answer or change">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                <?php } ?>
+                                <button type="button" class="btn btn-tool" title="Show/hide" data-lte-toggle="card-collapse">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="row row-cols-1 row-cols-sm-2 g-2">
+                                <?php foreach ($ticket_fill_ins as $answer) {
+                                    $answer_text = ticketFillInText($answer); ?>
+                                    <div>
+                                        <div class="small text-secondary"><?= escapeHtml($answer['name']) ?></div>
+                                        <?php if ($answer_text !== '') { ?>
+                                            <div class="text-break"><?= escapeHtml($answer_text) ?></div>
+                                        <?php } else { ?>
+                                            <div class="<?= $answer['required'] ? 'text-warning-emphasis' : 'text-secondary' ?> fst-italic">Not answered<?= $answer['required'] ? ' yet' : '' ?></div>
+                                        <?php } ?>
+                                    </div>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+
                 <!-- Reply composer - only while the ticket is still being worked -->
                 <?php if ($can_edit_ticket && $ticket_is_open) { ?>
 

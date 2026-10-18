@@ -17,7 +17,9 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 /**
  * The schedule fields from New / Edit Recurring Ticket, checked, as SQL for
  * a SET clause - or back to the form with what is wrong. $current is the
- * recurring ticket being edited (null for a new one).
+ * recurring ticket being edited (null for a new one). 'fill_ins': the answers
+ * to what its template asks for, raised with every ticket - null with no
+ * template, when any it has are kept as they are.
  */
 function recurringTicketFromPost($client_id, $current = null) {
     global $mysqli;
@@ -37,6 +39,14 @@ function recurringTicketFromPost($client_id, $current = null) {
     if ($template_id && !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM ticket_templates WHERE ticket_template_id = $template_id"))) {
         $template_id = 0;
     }
+    $fill_ins = null;
+    if ($template_id) {
+        $fill_ins = ticketFillInAnswers(ticketTemplateFillInsFor($template_id), $_POST['fill_ins'] ?? [], $fill_in_error);
+        if ($fill_ins === null) {
+            flashAlert($fill_in_error, 'error');
+            redirect();
+        }
+    }
     // Billing is the sales module's to change - without it a schedule keeps what it has
     $billable = lookupUserPermission('module_sales') >= 2 ? (intval($_POST['billable'] ?? 0) ? 1 : 0) : intval($current['recurring_ticket_billable'] ?? 0);
 
@@ -51,6 +61,7 @@ function recurringTicketFromPost($client_id, $current = null) {
         'asset_id' => ticketClientOwnedId('asset', $_POST['asset_id'] ?? 0, $client_id),
         'category_id' => ticketCategoryId($_POST['category_id'] ?? 0),
         'template_id' => $template_id,
+        'fill_ins' => $fill_ins,
     ];
 }
 
@@ -119,6 +130,9 @@ if (isset($_POST['add_recurring_ticket'])) {
 
     recurringTicketSetOtherAssets($recurring_ticket_id, ticketClientOwnedAssetIds($_POST['additional_assets'] ?? [], $client_id, $f['asset_id']));
     recurringTicketSetTasks($recurring_ticket_id);
+    if ($f['fill_ins'] !== null) {
+        ticketFillInsStore('recurring_ticket', $recurring_ticket_id, $f['fill_ins']);
+    }
 
     if ($f['assigned_to']) {
         recurringTicketNotifyAgent($f['assigned_to'], [trim($_POST['subject'])]);
@@ -164,6 +178,9 @@ if (isset($_POST['edit_recurring_ticket'])) {
     }
     if (isset($_POST['tasks_submitted'])) {
         recurringTicketSetTasks($recurring_ticket_id);
+    }
+    if ($f['fill_ins'] !== null) {
+        ticketFillInsStore('recurring_ticket', $recurring_ticket_id, $f['fill_ins']);
     }
     if ($f['assigned_to'] && $f['assigned_to'] !== intval($row['recurring_ticket_assigned_to'])) {
         recurringTicketNotifyAgent($f['assigned_to'], [trim($_POST['subject'])]);

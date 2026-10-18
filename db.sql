@@ -2366,6 +2366,28 @@ CREATE TABLE `recurring_ticket_assets` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `recurring_ticket_fill_ins`
+--
+
+DROP TABLE IF EXISTS `recurring_ticket_fill_ins`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `recurring_ticket_fill_ins` (
+  `recurring_ticket_fill_in_id` int(11) NOT NULL AUTO_INCREMENT,
+  `recurring_ticket_fill_in_recurring_ticket_id` int(11) NOT NULL,
+  `recurring_ticket_fill_in_name` varchar(50) NOT NULL,
+  `recurring_ticket_fill_in_type` varchar(10) NOT NULL DEFAULT 'text',
+  `recurring_ticket_fill_in_options` text DEFAULT NULL,
+  `recurring_ticket_fill_in_required` tinyint(1) NOT NULL DEFAULT 0,
+  `recurring_ticket_fill_in_value` text DEFAULT NULL,
+  `recurring_ticket_fill_in_order` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`recurring_ticket_fill_in_id`),
+  KEY `recurring_ticket_fill_in_recurring_ticket_id` (`recurring_ticket_fill_in_recurring_ticket_id`),
+  CONSTRAINT `recurring_ticket_fill_ins_ibfk_1` FOREIGN KEY (`recurring_ticket_fill_in_recurring_ticket_id`) REFERENCES `recurring_tickets` (`recurring_ticket_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `recurring_ticket_tasks`
 --
 
@@ -3180,6 +3202,8 @@ CREATE TABLE `task_templates` (
   `task_template_name` varchar(200) NOT NULL,
   `task_template_order` int(11) NOT NULL DEFAULT 0,
   `task_template_completion_estimate` int(11) NOT NULL DEFAULT 0,
+  `task_template_when_fill_in` varchar(50) DEFAULT NULL,
+  `task_template_when_value` varchar(255) DEFAULT NULL,
   `task_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `task_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `task_template_archived_at` datetime DEFAULT NULL,
@@ -3289,6 +3313,28 @@ CREATE TABLE `ticket_attachments` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ticket_fill_ins`
+--
+
+DROP TABLE IF EXISTS `ticket_fill_ins`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ticket_fill_ins` (
+  `ticket_fill_in_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ticket_fill_in_ticket_id` int(11) NOT NULL,
+  `ticket_fill_in_name` varchar(50) NOT NULL,
+  `ticket_fill_in_type` varchar(10) NOT NULL DEFAULT 'text',
+  `ticket_fill_in_options` text DEFAULT NULL,
+  `ticket_fill_in_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ticket_fill_in_value` text DEFAULT NULL,
+  `ticket_fill_in_order` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`ticket_fill_in_id`),
+  KEY `ticket_fill_in_ticket_id` (`ticket_fill_in_ticket_id`),
+  CONSTRAINT `ticket_fill_ins_ibfk_1` FOREIGN KEY (`ticket_fill_in_ticket_id`) REFERENCES `tickets` (`ticket_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `ticket_history`
 --
 
@@ -3360,6 +3406,28 @@ CREATE TABLE `ticket_tags` (
   KEY `tag_id` (`tag_id`),
   CONSTRAINT `ticket_tags_ibfk_1` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`ticket_id`) ON DELETE CASCADE,
   CONSTRAINT `ticket_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ticket_template_fill_ins`
+--
+
+DROP TABLE IF EXISTS `ticket_template_fill_ins`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ticket_template_fill_ins` (
+  `fill_in_id` int(11) NOT NULL AUTO_INCREMENT,
+  `fill_in_ticket_template_id` int(11) NOT NULL,
+  `fill_in_name` varchar(50) NOT NULL,
+  `fill_in_type` varchar(10) NOT NULL DEFAULT 'text',
+  `fill_in_options` text DEFAULT NULL,
+  `fill_in_required` tinyint(1) NOT NULL DEFAULT 0,
+  `fill_in_help` varchar(255) DEFAULT NULL,
+  `fill_in_order` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`fill_in_id`),
+  UNIQUE KEY `fill_in_template_name` (`fill_in_ticket_template_id`,`fill_in_name`),
+  CONSTRAINT `ticket_template_fill_ins_ibfk_1` FOREIGN KEY (`fill_in_ticket_template_id`) REFERENCES `ticket_templates` (`ticket_template_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

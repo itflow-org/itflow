@@ -107,7 +107,12 @@ ob_start();
 
                 <?php
                 $selected_ticket_template_id = intval($recurring['recurring_ticket_ticket_template_id']);
-                $ticket_template_hint = "Picking one fills in the recurring ticket - change anything before it is saved. <span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like are filled in each time it raises a ticket.";
+                // The answers it raises its tickets with
+                $ticket_template_fill_in_values = [];
+                foreach (ticketFillInsStored('recurring_ticket', $recurring['recurring_ticket_id']) as $answer) {
+                    $ticket_template_fill_in_values[$answer['name']] = $answer['value'];
+                }
+                $ticket_template_hint = "Picking one fills in the recurring ticket - change anything before it is saved. <span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like are filled in each time it raises a ticket, and what the template asks for is answered once here.";
                 require_once '../../includes/inc_ticket_template_select.php';
                 ?>
 

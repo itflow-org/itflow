@@ -2,10 +2,12 @@
 
 /*
  * One ticket template - the ticket it starts (subject and details, with its
- * placeholders marked), how it sets the ticket up, its tasks (added, changed,
- * dragged into order) and their time, and its use: how many tickets it has
- * raised, the latest of them, and the recurring tickets and project templates
- * that raise it. The work is in functions/ticket_template.php.
+ * placeholders marked), what it asks for when a ticket is raised (its
+ * fill-ins: set up, dragged into order), how it sets the ticket up, its tasks
+ * (added, changed, dragged into order, some for one answer only) and their
+ * time, and its use: how many tickets it has raised, the latest of them, and
+ * the recurring tickets and project templates that raise it. The work is in
+ * functions/ticket_template.php.
  */
 
 require_once "includes/inc_all_admin.php";
@@ -62,18 +64,23 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $projects[] = $row;
 }
 
-// Its placeholders - filled in from the ticket, or left for whoever picks it up
+// Its placeholders - filled in from the ticket - and what it asks for: its fill-ins
 $known = array_map('strtolower', array_keys(TICKET_PLACEHOLDERS));
 $found = ticketTemplatePlaceholdersIn($template['ticket_template_subject'] . ' ' . $template['ticket_template_details'] . ' ' . implode(' ', array_column($tasks, 'name')));
 $filled = array_values(array_filter($found, function ($word) use ($known) {
     return in_array(strtolower($word), $known, true);
 }));
-$left = array_values(array_diff($found, $filled));
+$fill_ins = ticketTemplateFillIns($template, $tasks, ticketTemplateFillInRowsFor([$ticket_template_id])[$ticket_template_id]);
+$when_select = ticketTemplateWhenSelectHtml($fill_ins);
 
-// [Words] marked where they appear - escaped text, or HTML already made safe
-$mark = function ($html) {
-    return preg_replace('/\[([A-Za-z][A-Za-z0-9 _\-\/]{0,40})\]/', '<span class="badge rounded-pill text-bg-light border font-monospace fw-normal">[$1]</span>', $html);
+// [Words] marked where they appear - escaped text, or HTML already made safe. Fill-ins in blue.
+$mark = function ($html) use ($known) {
+    return preg_replace_callback('/\[(' . TICKET_PLACEHOLDER_NAME . ')\]/', function ($match) use ($known) {
+        $tone = in_array(strtolower(trim($match[1])), $known, true) ? 'text-bg-light border' : 'text-primary-emphasis bg-primary-subtle border border-primary-subtle';
+        return '<span class="badge rounded-pill ' . $tone . ' font-monospace fw-normal">[' . $match[1] . ']</span>';
+    }, $html);
 };
+$fill_in_url = "modals/ticket_template/ticket_template_fill_in.php?ticket_template_id=$ticket_template_id";
 $details = trim((string) $template['ticket_template_details']) !== '' ? $mark(documentHtmlPurify($template['ticket_template_details'])) : '';
 
 $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template_id";
@@ -140,6 +147,62 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
 
         <div class="card mb-3">
             <div class="card-header d-flex align-items-center">
+                <h3 class="card-title mb-0"><i class="fas fa-fw fa-pen-square me-2"></i>Fill-ins</h3>
+                <span class="ms-auto small text-secondary me-2"><?= $fill_ins ? count($fill_ins) . ' asked for' : '' ?></span>
+                <button type="button" class="btn btn-sm btn-link ajax-modal" data-modal-url="<?= $fill_in_url ?>"><i class="fas fa-plus me-1"></i>Add</button>
+            </div>
+            <div class="card-body">
+                <?php if ($fill_ins) { ?>
+                    <p class="small text-secondary">Asked for when a ticket is raised from it - on New Ticket, the New Tickets windows and recurring tickets - and kept on the ticket. Each answer goes in wherever its <span class="font-monospace">[Name]</span> is. Drag to change the order they are asked in.</p>
+                    <div class="list-group" id="ticketTemplateFillIns">
+                        <?php foreach ($fill_ins as $fill_in) {
+                            $kind = TICKET_FILL_IN_TYPES[$fill_in['type']];
+                            $about = [];
+                            if ($fill_in['type'] === 'list') {
+                                $about[] = escapeHtml(implode(' · ', $fill_in['options']));
+                            }
+                            if ($fill_in['help'] !== '') {
+                                $about[] = escapeHtml($fill_in['help']);
+                            }
+                            ?>
+                            <div class="list-group-item d-flex align-items-center gap-2" data-fill-in-name="<?= escapeHtml($fill_in['name']) ?>">
+                                <span class="drag-handle text-secondary" title="Drag to reorder" style="cursor: grab;"><i class="fas fa-fw fa-grip-vertical"></i></span>
+                                <div class="min-w-0 flex-grow-1">
+                                    <div class="d-flex flex-wrap align-items-center gap-1">
+                                        <span class="fw-semibold me-1"><?= escapeHtml($fill_in['name']) ?></span>
+                                        <span class="badge rounded-pill text-bg-light border fw-normal"><i class="fas fa-fw <?= $kind['icon'] ?> me-1 text-secondary"></i><?= $kind['label'] ?></span>
+                                        <?php if ($fill_in['required']) { ?><span class="badge rounded-pill text-bg-light border fw-normal"><i class="fas fa-fw fa-asterisk me-1 text-danger"></i>Required</span><?php } ?>
+                                        <?php if (!$fill_in['in_text']) { ?><span class="badge rounded-pill text-bg-warning fw-normal" title="Not in the subject, details or tasks - asked for, and kept on the ticket, but put in nowhere">Not in the text</span><?php } ?>
+                                    </div>
+                                    <?php if ($about) { ?><div class="small text-secondary text-truncate"><?= implode(' - ', $about) ?></div><?php } ?>
+                                </div>
+                                <div class="dropdown dropstart">
+                                    <button class="btn btn-light text-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $fill_in_url ?>&name=<?= urlencode($fill_in['name']) ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</a>
+                                        <?php if ($fill_in['id']) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <?php if ($fill_in['in_text']) { ?>
+                                                <a class="dropdown-item confirm-link" href="post.php?delete_ticket_template_fill_in=<?= $fill_in['id'] ?>&csrf_token=<?= $csrf ?>"
+                                                    data-confirm-title="Reset <?= escapeHtml($fill_in['name']) ?>?" data-confirm-text="It is still in the text, so it stays asked for - as plain, optional text." data-confirm-button="Reset"><i class="fas fa-fw fa-undo me-2"></i>Reset</a>
+                                            <?php } else { ?>
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_ticket_template_fill_in=<?= $fill_in['id'] ?>&csrf_token=<?= $csrf ?>"
+                                                    data-confirm-title="Remove <?= escapeHtml($fill_in['name']) ?>?" data-confirm-text="It is no longer asked for. Tickets already raised keep their answers." data-confirm-button="Remove"><i class="fas fa-fw fa-trash-alt me-2"></i>Remove</a>
+                                            <?php } ?>
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                <?php } else { ?>
+                    <div class="text-secondary small">Nothing to ask. Put a word in square brackets in the subject, details or a task - <span class="font-monospace">[Employee Name]</span>, <span class="font-monospace">[Start Date]</span> - and it is asked for when a ticket is raised from it, then filled in. Add one here to make it a date, a choice from a list or yes or no, or to make it required.</div>
+                <?php } ?>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header d-flex align-items-center">
                 <h3 class="card-title mb-0"><i class="fas fa-fw fa-tasks me-2"></i>Tasks</h3>
                 <span class="ms-auto small text-secondary"><?= count($tasks) ?> task<?= count($tasks) === 1 ? '' : 's' ?><?= $task_minutes ? ' · <i class="far fa-clock me-1"></i>' . escapeHtml(ticketTemplateMinutesText($task_minutes)) : '' ?></span>
             </div>
@@ -163,6 +226,14 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
                         <div class="col-4 col-sm-auto">
                             <button type="submit" name="add_ticket_template_task" class="btn btn-primary w-100"><i class="fas fa-fw fa-plus me-1"></i>Add</button>
                         </div>
+                        <?php if ($when_select !== '') { ?>
+                            <div class="col-12">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-fw fa-code-branch"></i></span>
+                                    <?= $when_select ?>
+                                </div>
+                            </div>
+                        <?php } ?>
                     </div>
                 </form>
                 <?php if ($tasks) { ?>
@@ -171,7 +242,12 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
                             <div class="list-group-item d-flex align-items-center gap-2" data-task-id="<?= $task['id'] ?>">
                                 <span class="drag-handle text-secondary" title="Drag to reorder" style="cursor: grab;"><i class="fas fa-fw fa-grip-vertical"></i></span>
                                 <span class="text-secondary small" style="min-width: 1.5rem;"><?= $number + 1 ?>.</span>
-                                <span class="flex-grow-1 min-w-0 text-break"><?= $mark(escapeHtml($task['name'])) ?></span>
+                                <span class="flex-grow-1 min-w-0 text-break">
+                                    <?= $mark(escapeHtml($task['name'])) ?>
+                                    <?php if ($task['when']) { ?>
+                                        <span class="d-block small <?= ticketTemplateTaskWhenOffered($task, $fill_ins) ? 'text-secondary' : 'text-warning-emphasis' ?>"><i class="fas fa-fw fa-code-branch me-1"></i><?= ticketTemplateTaskWhenText($task) ?><?= ticketTemplateTaskWhenOffered($task, $fill_ins) ? '' : ' - no longer an answer it offers, so it is always added' ?></span>
+                                    <?php } ?>
+                                </span>
                                 <?php if ($task['estimate']) { ?><span class="small text-secondary text-nowrap"><i class="far fa-clock me-1"></i><?= escapeHtml(ticketTemplateMinutesText($task['estimate'])) ?></span><?php } ?>
                                 <div class="dropdown dropstart">
                                     <button class="btn btn-light text-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
@@ -185,7 +261,7 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
                         <?php } ?>
                     </div>
                 <?php } else { ?>
-                    <div class="text-secondary small">No tasks yet. A ticket raised from it gets a copy of each, in this order - and later changes here don't touch tickets already raised.</div>
+                    <div class="text-secondary small">No tasks yet. A ticket raised from it gets a copy of each, in this order - and later changes here don't touch tickets already raised. A task can be for one answer only - "Order a laptop" when Needs a laptop is Yes.</div>
                 <?php } ?>
             </div>
         </div>
@@ -224,26 +300,16 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
             </div>
         </div>
 
-        <?php if ($found) { ?>
+        <?php if ($filled) { ?>
             <div class="card mb-3">
                 <div class="card-header"><h3 class="card-title mb-0"><i class="fas fa-fw fa-code me-2"></i>Placeholders</h3></div>
                 <div class="card-body small">
-                    <?php if ($filled) { ?>
-                        <div class="text-secondary mb-1">Filled in from the ticket</div>
-                        <div class="d-flex flex-wrap gap-1 mb-3">
-                            <?php foreach ($filled as $word) { ?>
-                                <span class="badge rounded-pill text-bg-light border font-monospace fw-normal" title="<?= escapeHtml(ucfirst(TICKET_PLACEHOLDERS[ucfirst(strtolower($word))] ?? '')) ?>">[<?= escapeHtml($word) ?>]</span>
-                            <?php } ?>
-                        </div>
-                    <?php } ?>
-                    <?php if ($left) { ?>
-                        <div class="text-secondary mb-1">Left for whoever picks it up</div>
-                        <div class="d-flex flex-wrap gap-1">
-                            <?php foreach ($left as $word) { ?>
-                                <span class="badge rounded-pill text-bg-warning font-monospace fw-normal">[<?= escapeHtml($word) ?>]</span>
-                            <?php } ?>
-                        </div>
-                    <?php } ?>
+                    <div class="text-secondary mb-1">Filled in from the ticket</div>
+                    <div class="d-flex flex-wrap gap-1">
+                        <?php foreach ($filled as $word) { ?>
+                            <span class="badge rounded-pill text-bg-light border font-monospace fw-normal" title="<?= escapeHtml(ucfirst(TICKET_PLACEHOLDERS[ucfirst(strtolower($word))] ?? '')) ?>">[<?= escapeHtml($word) ?>]</span>
+                        <?php } ?>
+                    </div>
                 </div>
             </div>
         <?php } ?>
@@ -286,6 +352,26 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
 <script src="../js/pretty_content.js"></script>
 <script src="../libs/SortableJS/Sortable.min.js"></script>
 <script>
+    (function () {
+        var list = document.getElementById('ticketTemplateFillIns');
+        if (!list) {
+            return;
+        }
+        new Sortable(list, {
+            handle: '.drag-handle',
+            animation: 150,
+            onEnd: function () {
+                itflowPost('post.php', {
+                    reorder_ticket_template_fill_ins: 1,
+                    csrf_token: <?= json_encode($csrf) ?>,
+                    ticket_template_id: <?= $ticket_template_id ?>,
+                    names: Array.from(list.querySelectorAll('[data-fill-in-name]')).map(function (row) {
+                        return row.dataset.fillInName;
+                    })
+                });
+            }
+        });
+    })();
     (function () {
         var list = document.getElementById('ticketTemplateTasks');
         if (!list) {

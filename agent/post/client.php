@@ -736,11 +736,17 @@ if (isset($_POST['bulk_add_client_ticket'])) {
     $billable = intval($_POST['bulk_billable'] ?? 0) ? 1 : 0;
     $ticket_prefix = escapeSql($config_ticket_prefix);
 
-    // A template fills in what was left empty
+    // A template fills in what was left empty, and what it asks for is answered once for them all
     $template = ticketTemplateRow($ticket_template_id);
+    $fill_in_answers = null;
     if ($template) {
         $subject_input = $subject_input !== '' ? $subject_input : (string) $template['ticket_template_subject'];
         $details = trim((string) ($_POST['bulk_details'] ?? '')) !== '' ? $details : mysqli_real_escape_string($mysqli, (string) $template['ticket_template_details']);
+        $fill_in_answers = ticketFillInAnswers(ticketTemplateFillInsFor($ticket_template_id), $_POST['fill_ins'] ?? [], $fill_in_error);
+        if ($fill_in_answers === null) {
+            flashAlert($fill_in_error, 'error');
+            redirect();
+        }
     }
     if ($subject_input === '') {
         flashAlert('The tickets need a subject.', 'error');
@@ -782,7 +788,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
             }
         }
         if ($template) {
-            ticketTemplateFinish($ticket_id, $ticket_template_id, true, true);
+            ticketTemplateFinish($ticket_id, $ticket_template_id, true, true, $fill_in_answers);
         }
 
         logAudit("Ticket", "Create", "$session_name created ticket $ticket_prefix$ticket_number - $subject", $client_id, $ticket_id);

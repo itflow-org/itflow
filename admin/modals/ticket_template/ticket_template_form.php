@@ -66,7 +66,7 @@ $placeholder_help = implode(', ', array_map(function ($name) {
             <textarea class="form-control tinymceTicket" name="details"><?= escapeHtml($t['ticket_template_details'] ?? '') ?></textarea>
             <div class="form-text">
                 Filled in when a ticket is raised: <span class="font-monospace"><?= escapeHtml($placeholder_help) ?></span>.
-                Anything else in square brackets - <span class="font-monospace">[Employee Name]</span> - stays for whoever picks it up.
+                Anything else in square brackets - <span class="font-monospace">[Employee Name]</span> - is asked for when a ticket is raised from it; make it a date, a list or yes or no, or required, under Fill-ins on the template's page.
             </div>
         </div>
         <?php if (empty($t)) { ?>

@@ -93,7 +93,7 @@ ob_start();
                 <?php } ?>
 
                 <?php
-                $ticket_template_hint = "Picking one fills in the recurring ticket - change anything before it is saved. <span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like are filled in each time it raises a ticket.";
+                $ticket_template_hint = "Picking one fills in the recurring ticket - change anything before it is saved. <span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like are filled in each time it raises a ticket, and what the template asks for is answered once here.";
                 require_once '../../includes/inc_ticket_template_select.php';
                 ?>
 

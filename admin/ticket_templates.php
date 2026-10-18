@@ -32,6 +32,9 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $templates[intval($row['ticket_template_id'])] = $row;
 }
 $usage = ticketTemplateUsage(array_keys($templates));
+// What each asks for - its fill-ins, from its rows and the bracketed words in its text
+$template_tasks = ticketTemplateTasksFor(array_keys($templates));
+$template_fill_in_rows = ticketTemplateFillInRowsFor(array_keys($templates));
 $archived_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM ticket_templates WHERE ticket_template_archived_at IS NOT NULL"))[0]);
 $tag_rows = [];
 $sql_tags = mysqli_query($mysqli, "SELECT ticket_template_id, tags.* FROM ticket_template_tags JOIN tags ON tags.tag_id = ticket_template_tags.tag_id ORDER BY tag_name");
@@ -98,6 +101,10 @@ $csrf = $_SESSION['csrf_token'];
                 $used = $usage[$template_id] ?? ['count' => 0, 'open' => 0, 'last' => null];
                 $tags = $tag_rows[$template_id] ?? [];
                 $defaults = ticketTemplateDefaultsHtml($row);
+                $fill_in_count = count(ticketTemplateFillIns($row, $template_tasks[$template_id] ?? [], $template_fill_in_rows[$template_id] ?? []));
+                if ($fill_in_count) {
+                    $defaults .= ($defaults !== '' ? ' ' : '') . '<span class="badge rounded-pill text-bg-light border fw-normal"><i class="fas fa-fw fa-pen-square text-secondary me-1"></i>Asks for ' . $fill_in_count . ' thing' . ($fill_in_count === 1 ? '' : 's') . '</span>';
+                }
                 $tags_html = $tags ? '<span class="d-inline-flex flex-wrap gap-1">' . implode('', array_map('tagPill', $tags)) . '</span>' : '';
                 $set_up = trim($defaults . ($defaults !== '' && $tags_html !== '' ? ' ' : '') . $tags_html);
                 $linked = [];

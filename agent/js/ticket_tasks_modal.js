@@ -1,20 +1,26 @@
 // Editable task rows for the ticket and recurring ticket add/edit modals, and the
 // ticket template picker (agent/includes/inc_ticket_template_select.php) that
-// fills in the form - its fields marked data-template-field.
+// fills in the form - its fields marked data-template-field - and draws what the
+// template asks for (its fill-ins) under it.
 //
 // Rows submit as parallel tasks[] and task_estimates[] arrays, aligned by their
-// order in the form, so removing a row removes both of its inputs together.
+// order in the form, so removing a row removes both of its inputs together. A
+// template task that is only for some answers - "Order a laptop" when Needs a
+// laptop is Yes - is hidden, and left out of the form, while the answer is
+// another one; until it is answered it stays.
 //
 // Wrapped in an IIFE because a modal can be opened, closed and opened again in one
 // page load, which re-runs this file - top-level const/let would throw on the
-// second run. Delegated handlers are namespaced and unbound first for the same
-// reason, otherwise "Add Task" would add one row per time the modal was opened.
+// second run. The document-wide listeners are bound on the first run only (the
+// window flag), or every modal opened would add one more of each and "Add Task"
+// would add a row per time the window had been opened.
 
 (function () {
 
     // Builds one task row. Values are assigned as properties rather than built into
     // markup, so a task name containing quotes or angle brackets needs no escaping.
-    function buildTaskRow(taskName, taskEstimate) {
+    // when: {fill_in, value} - the answer the task is for, or nothing.
+    function buildTaskRow(taskName, taskEstimate, when) {
 
         const row = document.createElement("div");
         row.className = "row g-2 mb-2 ticket-task-row";
@@ -30,6 +36,16 @@
         nameInput.maxLength = 255;
         nameInput.value = taskName || '';
         nameColumn.appendChild(nameInput);
+
+        if (when && when.fill_in) {
+            row.dataset.whenFillIn = when.fill_in;
+            row.dataset.whenValue = when.value || '';
+            const note = document.createElement("div");
+            note.className = "form-text mt-1";
+            note.innerHTML = '<i class="fas fa-fw fa-code-branch me-1"></i>';
+            note.appendChild(document.createTextNode('Only when ' + when.fill_in + ' is ' + (when.value || '')));
+            nameColumn.appendChild(note);
+        }
 
         const estimateColumn = document.createElement("div");
         estimateColumn.className = "col-3";
@@ -60,7 +76,7 @@
         return row;
     }
 
-    function addTaskRow(taskName, taskEstimate) {
+    function addTaskRow(taskName, taskEstimate, when) {
 
         const container = document.getElementById("ticketTasksContainer");
 
@@ -68,7 +84,7 @@
             return;
         }
 
-        container.appendChild(buildTaskRow(taskName, taskEstimate));
+        container.appendChild(buildTaskRow(taskName, taskEstimate, when));
     }
 
     // Replaces the whole list - used when a template is picked
@@ -83,27 +99,9 @@
         container.innerHTML = '';
 
         (tasks || []).forEach(task => {
-            addTaskRow(task.name, task.estimate);
+            addTaskRow(task.name, task.estimate, task.when);
         });
     }
-
-    document.addEventListener('click', function (e) {
-        if (!e.target.closest('#ticketTaskAdd')) {
-            return;
-        }
-        addTaskRow('', '');
-    });
-
-    document.addEventListener('click', function (e) {
-        const remove = e.target.closest('.ticket-task-remove');
-        if (!remove) {
-            return;
-        }
-        const row = remove.closest('.ticket-task-row');
-        if (row) {
-            row.remove();
-        }
-    });
 
     // The form's field for one thing a template sets - marked data-template-field
     function templateField(form, name) {
@@ -122,6 +120,155 @@
         }
     }
 
+    function parseJson(text, fallback) {
+        try {
+            return JSON.parse(text || '') || fallback;
+        } catch (error) {
+            return fallback;
+        }
+    }
+
+    /* ---------- fill-ins ---------- */
+
+    const FILL_IN_ICONS = { text: 'fa-font', date: 'fa-calendar-day', list: 'fa-list-ul', yesno: 'fa-toggle-on' };
+
+    function fillInBox(select) {
+        const form = select.closest('form');
+        return form ? form.querySelector('[data-fill-ins-box]') : null;
+    }
+
+    // The answers in the form now - lowercase name => value
+    function fillInAnswers(form) {
+        const answers = {};
+        form.querySelectorAll('[data-fill-in-name]').forEach(function (control) {
+            answers[control.dataset.fillInName.toLowerCase()] = control.value;
+        });
+        return answers;
+    }
+
+    // The fill-in's field in the form, by name, whatever its case
+    function fillInControl(form, name) {
+        return Array.from(form.querySelectorAll('[data-fill-in-name]')).find(c => c.dataset.fillInName.toLowerCase() === name.toLowerCase()) || null;
+    }
+
+    function buildFillInControl(fillIn, value) {
+        let control;
+        if (fillIn.type === 'list' || fillIn.type === 'yesno') {
+            control = document.createElement('select');
+            control.className = 'form-select' + (fillIn.type === 'list' ? ' select2' : '');
+            const choices = fillIn.type === 'yesno' ? ['Yes', 'No'] : (fillIn.options || []);
+            control.appendChild(new Option('- Choose -', ''));
+            choices.forEach(function (choice) {
+                control.appendChild(new Option(choice, choice));
+            });
+            const match = choices.find(c => c.toLowerCase() === String(value || '').toLowerCase());
+            control.value = match || '';
+        } else {
+            control = document.createElement('input');
+            control.type = fillIn.type === 'date' ? 'date' : 'text';
+            control.className = 'form-control';
+            if (fillIn.type !== 'date') {
+                control.maxLength = 500;
+            }
+            control.value = value || '';
+        }
+        control.name = 'fill_ins[' + fillIn.name + ']';
+        control.dataset.fillInName = fillIn.name;
+        control.required = !!fillIn.required;
+        control.setAttribute('aria-label', fillIn.name);
+        return control;
+    }
+
+    // Draw what the picked template asks for - keeping anything already answered
+    // under the same name, or the answers the form was opened with
+    function renderFillIns(select) {
+        const box = fillInBox(select);
+        if (!box) {
+            return;
+        }
+        const form = select.closest('form');
+        const option = select.options[select.selectedIndex];
+        const fillIns = option && parseInt(option.value, 10) ? parseJson(option.dataset.templateFillIns, []) : [];
+        const values = box.dataset.rendered ? fillInAnswers(form) : {};
+        if (!box.dataset.rendered) {
+            const start = parseJson(box.dataset.fillInValues, {});
+            Object.keys(start).forEach(function (name) {
+                values[name.toLowerCase()] = start[name];
+            });
+        }
+        box.dataset.rendered = '1';
+        box.innerHTML = '';
+        box.hidden = !fillIns.length;
+        if (!fillIns.length) {
+            updateTaskConditions(form);
+            return;
+        }
+
+        box.className = 'itflow-fill-ins border rounded p-3 mt-2 bg-body-tertiary';
+        const heading = document.createElement('div');
+        heading.className = 'fw-semibold mb-1';
+        heading.innerHTML = '<i class="fas fa-fw fa-pen-square text-secondary me-1"></i>';
+        heading.appendChild(document.createTextNode(option.text.replace(/ \(archived\)$/, '') + ' asks for'));
+        box.appendChild(heading);
+        const intro = document.createElement('div');
+        intro.className = 'small text-secondary mb-2';
+        intro.textContent = 'Each answer goes in wherever its [Name] is, and stays on the ticket. Leave one blank to answer it later.';
+        box.appendChild(intro);
+
+        const grid = document.createElement('div');
+        grid.className = 'row g-2';
+        fillIns.forEach(function (fillIn) {
+            const col = document.createElement('div');
+            col.className = 'col-md-6';
+
+            const label = document.createElement('label');
+            label.className = 'form-label mb-1';
+            label.textContent = fillIn.name;
+            if (fillIn.required) {
+                label.insertAdjacentHTML('beforeend', ' <strong class="text-danger">*</strong>');
+            }
+            col.appendChild(label);
+
+            const group = document.createElement('div');
+            group.className = 'input-group';
+            const icon = document.createElement('span');
+            icon.className = 'input-group-text';
+            icon.innerHTML = '<i class="fas fa-fw ' + (FILL_IN_ICONS[fillIn.type] || 'fa-font') + '"></i>';
+            group.appendChild(icon);
+            group.appendChild(buildFillInControl(fillIn, values[fillIn.name.toLowerCase()]));
+            col.appendChild(group);
+
+            if (fillIn.help) {
+                const help = document.createElement('div');
+                help.className = 'form-text';
+                help.textContent = fillIn.help;
+                col.appendChild(help);
+            }
+            grid.appendChild(col);
+        });
+        box.appendChild(grid);
+        updateTaskConditions(form);
+    }
+
+    // Hide, and leave out of the form, the template tasks for another answer. One
+    // not answered yet stays, as does one for an answer its fill-in no longer offers.
+    function updateTaskConditions(form) {
+        if (!form) {
+            return;
+        }
+        form.querySelectorAll('.ticket-task-row[data-when-fill-in]').forEach(function (row) {
+            const control = fillInControl(form, row.dataset.whenFillIn);
+            const want = (row.dataset.whenValue || '').toLowerCase();
+            const offered = control && control.tagName === 'SELECT' && Array.from(control.options).some(o => o.value !== '' && o.value.toLowerCase() === want);
+            const answer = control ? control.value : '';
+            const applies = !offered || answer === '' || answer.toLowerCase() === want;
+            row.hidden = !applies;
+            row.querySelectorAll('input').forEach(function (input) {
+                input.disabled = !applies;
+            });
+        });
+    }
+
     // Write a template into its form: what it sets, field by field. A field
     // the form doesn't have is skipped, and anything the template leaves
     // alone ('' on the option) stays as it is.
@@ -131,8 +278,9 @@
         const form = select.closest('form');
 
         // Selecting "- No Template -" only unlinks the template - it must not wipe
-        // whatever the user has already written or added
+        // whatever the user has already written or added. Its questions go.
         if (!option || !parseInt(option.value, 10) || !form) {
+            renderFillIns(select);
             return;
         }
         const data = option.dataset;
@@ -178,28 +326,59 @@
             tags.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
-        if (document.getElementById('ticketTasksContainer')) {
-            let tasks = [];
-            try {
-                tasks = JSON.parse(data.templateTasks || '[]');
-            } catch (error) {
-                tasks = [];
-            }
-            setTaskRows(tasks);
+        if (form.querySelector('#ticketTasksContainer')) {
+            setTaskRows(parseJson(data.templateTasks, []));
         }
+
+        renderFillIns(select);
     }
 
-    document.addEventListener('change', function (e) {
-        const select = e.target.closest('[data-template-picker]');
-        if (select) {
-            applyTemplate(select);
-        }
-    });
+    if (!window.itflowTicketTemplateBound) {
+        window.itflowTicketTemplateBound = true;
 
-    // Opened for one template - New ticket from it - it is filled in straight away
-    document.querySelectorAll('[data-template-picker][data-template-apply]').forEach(function (select) {
-        select.removeAttribute('data-template-apply');
-        applyTemplate(select);
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('#ticketTaskAdd')) {
+                return;
+            }
+            addTaskRow('', '');
+        });
+
+        document.addEventListener('click', function (e) {
+            const remove = e.target.closest('.ticket-task-remove');
+            if (!remove) {
+                return;
+            }
+            const row = remove.closest('.ticket-task-row');
+            if (row) {
+                row.remove();
+            }
+        });
+
+        document.addEventListener('change', function (e) {
+            const select = e.target.closest('[data-template-picker]');
+            if (select) {
+                applyTemplate(select);
+                return;
+            }
+            if (e.target.closest('[data-fill-in-name]')) {
+                updateTaskConditions(e.target.closest('form'));
+            }
+        });
+    }
+
+    // Opened for one template - New ticket from it - it is filled in straight
+    // away; a form opened with a template already chosen (a recurring ticket
+    // being edited) just gets its questions, with the answers it has
+    document.querySelectorAll('[data-template-picker]').forEach(function (select) {
+        if (select.hasAttribute('data-template-apply')) {
+            select.removeAttribute('data-template-apply');
+            applyTemplate(select);
+        } else {
+            const box = fillInBox(select);
+            if (box && !box.dataset.rendered) {
+                renderFillIns(select);
+            }
+        }
     });
 
 })();

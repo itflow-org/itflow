@@ -103,6 +103,16 @@ if (isset($_POST['add_ticket'])) {
     $vendor_ticket_number = escapeSql(mb_substr(trim((string) ($_POST['vendor_ticket_number'] ?? '')), 0, 255));
     $ticket_template_id = intval($_POST['ticket_template_id'] ?? 0);
 
+    // What the template asks for, answered - checked before anything is saved
+    $fill_in_answers = null;
+    if ($ticket_template_id) {
+        $fill_in_answers = ticketFillInAnswers(ticketTemplateFillInsFor($ticket_template_id), $_POST['fill_ins'] ?? [], $fill_in_error);
+        if ($fill_in_answers === null) {
+            flashAlert($fill_in_error, 'error');
+            redirect();
+        }
+    }
+
     // What it is about - the client's own only
     $contact_id = ticketClientOwnedId('contact', $_POST['contact_id'] ?? 0, $client_id);
     if (intval($_POST['use_primary_contact'] ?? 0)) {
@@ -147,10 +157,10 @@ if (isset($_POST['add_ticket'])) {
     ticketSetOtherAssets($ticket_id, $other_asset_ids);
     tagSetForRecord('ticket', $ticket_id, (array) ($_POST['tags'] ?? []));
 
-    // Raised from a template - kept for the template's use, and its [Client] and the like filled in.
-    // The form had the template's fields in it already, so nothing more is added here.
+    // Raised from a template - kept for the template's use, its answers kept and everything in
+    // brackets filled in. The form had the template's fields in it already, so nothing more is added.
     if ($ticket_template_id) {
-        ticketTemplateFinish($ticket_id, $ticket_template_id, false, !isset($_POST['tasks_submitted']));
+        ticketTemplateFinish($ticket_id, $ticket_template_id, false, !isset($_POST['tasks_submitted']), $fill_in_answers);
     }
 
     // Raised about a service - from the service page's "Report a problem"
@@ -191,6 +201,52 @@ if (isset($_POST['add_ticket'])) {
     }
 
     redirect("ticket.php?client_id=$client_id&ticket_id=$ticket_id");
+
+}
+
+if (isset($_POST['edit_ticket_fill_ins'])) {
+
+    // What the ticket's template asked for, answered or changed on the ticket
+    validateCSRFToken();
+
+    $row = ticketForRequest($_POST['ticket_id'] ?? 0, 2);
+    $ticket_id = intval($row['ticket_id']);
+    $reference = escapeSql(ticketReference($row));
+
+    if (!empty($row['ticket_closed_at'])) {
+        flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> is closed - a closed ticket stays as it was.", 'error');
+        redirect();
+    }
+
+    $before = ticketFillInsStored('ticket', $ticket_id);
+    $answers = ticketFillInAnswers($before, $_POST['fill_ins'] ?? [], $fill_in_error, false);
+    if ($answers === null) {
+        flashAlert($fill_in_error, 'error');
+        redirect();
+    }
+    $changed = array_values(array_filter($answers, function ($answer) use ($before) {
+        foreach ($before as $old) {
+            if ($old['name'] === $answer['name']) {
+                return (string) $old['value'] !== (string) $answer['value'];
+            }
+        }
+        return true;
+    }));
+
+    if ($changed) {
+        ticketFillInsStore('ticket', $ticket_id, $answers);
+        // An answer given now goes in wherever its [Name] is still waiting
+        ticketPlaceholdersFill($ticket_id);
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $ticket_id");
+        foreach ($changed as $answer) {
+            logTicketHistory($ticket_id, "$session_name " . escapeSql($answer['value'] === '' ? "cleared {$answer['name']}" : "set {$answer['name']} to " . ticketFillInText($answer)));
+        }
+        logAudit("Ticket", "Edit", "$session_name answered the fill-ins on ticket $reference", intval($row['ticket_client_id']), $ticket_id);
+    }
+
+    flashAlert($changed ? "Fill-ins on <strong>" . escapeHtml(ticketReference($row)) . "</strong> saved" : "Nothing changed");
+
+    redirect();
 
 }
 
@@ -903,11 +959,17 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
     $billable = intval($_POST['bulk_billable'] ?? 0) ? 1 : 0;
     $ticket_prefix = escapeSql($config_ticket_prefix);
 
-    // A template fills in what was left empty
+    // A template fills in what was left empty, and what it asks for is answered once for them all
     $template = ticketTemplateRow($ticket_template_id);
+    $fill_in_answers = null;
     if ($template) {
         $subject_input = $subject_input !== '' ? $subject_input : (string) $template['ticket_template_subject'];
         $details = $details !== '' ? $details : mysqli_real_escape_string($mysqli, (string) $template['ticket_template_details']);
+        $fill_in_answers = ticketFillInAnswers(ticketTemplateFillInsFor($ticket_template_id), $_POST['fill_ins'] ?? [], $fill_in_error);
+        if ($fill_in_answers === null) {
+            flashAlert($fill_in_error, 'error');
+            redirect();
+        }
     }
 
     $ticket_ids = [];
@@ -945,7 +1007,7 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
             }
         }
         if ($template) {
-            ticketTemplateFinish($ticket_id, $ticket_template_id, true, true);
+            ticketTemplateFinish($ticket_id, $ticket_template_id, true, true, $fill_in_answers);
         }
 
         logAudit("Ticket", "Create", "$session_name created ticket $ticket_prefix$ticket_number - $subject", $client_id, $ticket_id);

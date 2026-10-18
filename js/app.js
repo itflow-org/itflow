@@ -750,6 +750,29 @@ itflowBindOnce('itflowModalStackHidden', 'hidden.bs.modal', '.modal', function (
 });
 
 /**
+ * A required field left empty on a tab that isn't showing - the Ticket tab of
+ * a template while Sets up is open, a fill-in on Details while Tasks is -
+ * would stop the form going with nothing to see: the browser can't point at
+ * a field it can't show. Its tab is opened, so the browser's message lands on
+ * it. 'invalid' doesn't bubble, hence the capture.
+ */
+if (!window.itflowInvalidTab) {
+    window.itflowInvalidTab = true;
+    document.addEventListener('invalid', function (e) {
+        const pane = e.target.closest ? e.target.closest('.tab-pane') : null;
+        if (!pane || pane.classList.contains('active') || !pane.id || !window.bootstrap) {
+            return;
+        }
+        const scope = pane.closest('form, .modal, .tab-content') || document;
+        const root = scope.parentElement || document;
+        const trigger = root.querySelector('[data-bs-toggle][href="#' + pane.id + '"], [data-bs-toggle][data-bs-target="#' + pane.id + '"]');
+        if (trigger) {
+            bootstrap.Tab.getOrCreateInstance(trigger).show();
+        }
+    }, true);
+}
+
+/**
  * The + beside a category picker (categoryAddButtonHtml()): note which
  * picker it is beside, for js/category_form.js to put the new category in.
  */

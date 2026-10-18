@@ -1,14 +1,21 @@
 <?php
 
 /*
- * One of a ticket template's tasks - its name and how long it takes. Its place
- * in the list is changed by dragging it on the template's page.
+ * One of a ticket template's tasks - its name, how long it takes, and the
+ * answer it is for when it isn't for every ticket (one of the template's list
+ * or yes-or-no fill-ins). Its place in the list is changed by dragging it on
+ * the template's page.
  */
 
 require_once '../../includes/modal_header.php';
 
 $task_template_id = intval($_GET['id'] ?? 0);
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT task_template_completion_estimate, task_template_name FROM task_templates WHERE task_template_id = $task_template_id LIMIT 1"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT task_template_completion_estimate, task_template_name, task_template_ticket_template_id, task_template_when_fill_in, task_template_when_value FROM task_templates WHERE task_template_id = $task_template_id LIMIT 1"));
+$when_html = '';
+if ($row) {
+    $when = trim((string) $row['task_template_when_fill_in']) !== '' ? ['fill_in' => $row['task_template_when_fill_in'], 'value' => (string) $row['task_template_when_value']] : null;
+    $when_html = ticketTemplateWhenSelectHtml(ticketTemplateFillInsFor($row['task_template_ticket_template_id']), $when);
+}
 
 ob_start();
 
@@ -41,6 +48,19 @@ if (!$row) { ?>
                 <input type="number" class="form-control" name="completion_estimate" min="0" placeholder="Minutes" value="<?= intval($row['task_template_completion_estimate']) ?: '' ?>">
                 <span class="input-group-text">minutes</span>
             </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">For</label>
+            <?php if ($when_html !== '') { ?>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-code-branch"></i></span>
+                    <?= $when_html ?>
+                </div>
+                <div class="form-text">A task for one answer only is left off tickets given another. Until it is answered, the task is added.</div>
+            <?php } else { ?>
+                <div class="form-text mt-0">Every ticket. A task can be for one answer only once the template has a list or yes-or-no fill-in.</div>
+            <?php } ?>
         </div>
 
     </div>
