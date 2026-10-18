@@ -1334,8 +1334,10 @@ CREATE TABLE `documents` (
   `document_created_by` int(11) NOT NULL DEFAULT 0,
   `document_updated_by` int(11) NOT NULL DEFAULT 0,
   `document_client_id` int(11) NOT NULL DEFAULT 0,
+  `document_template_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`document_id`),
   KEY `document_client_id` (`document_client_id`,`document_archived_at`),
+  KEY `document_template_id` (`document_template_id`),
   FULLTEXT KEY `document_content_raw` (`document_content_raw`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

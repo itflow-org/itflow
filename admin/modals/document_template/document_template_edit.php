@@ -1,46 +1,40 @@
 <?php
 
+/*
+ * Edit a document template - the fields are document_template_form.php.
+ */
+
 require_once '../../includes/modal_header.php';
 
-$document_template_id = intval($_GET['id']);
-
-$sql = mysqli_query($mysqli, "SELECT document_template_content, document_template_description, document_template_name FROM document_templates WHERE document_template_id = $document_template_id LIMIT 1");
-$row = mysqli_fetch_assoc($sql);
-$document_template_name = escapeHtml($row['document_template_name']);
-$document_template_description = escapeHtml($row['document_template_description']);
-$document_template_content = escapeHtml($row['document_template_content']);
+$template = documentTemplateRow($_GET['id'] ?? 0);
 
 ob_start();
-?>
+
+if (!$template) { ?>
+    <div class="modal-header bg-dark">
+        <h5 class="modal-title"><i class="fa fa-fw fa-file-alt me-2"></i>Document template</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center text-secondary py-5">That document template is gone - it may have been deleted.</div>
+<?php } else { ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-alt me-2"></i>Editing template: <strong><?= $document_template_name ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-file-alt me-2"></i>Document template: <strong><?= escapeHtml($template['document_template_name']) ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="document_template_id" value="<?= $document_template_id ?>">
+    <input type="hidden" name="document_template_id" value="<?= intval($template['document_template_id']) ?>">
 
     <div class="modal-body">
-
-        <div class="mb-3">
-            <input type="text" class="form-control" name="name" maxlength="200" value="<?= $document_template_name ?>" placeholder="Name" required>
-        </div>
-
-        <div class="mb-3">
-            <textarea class="form-control tinymce" name="content"><?= $document_template_content ?></textarea>
-        </div>
-
-        <div class="mb-3">
-            <input type="text" class="form-control" name="description" value="<?= $document_template_description ?>" placeholder="Short summary">
-        </div>
-
+        <?php require __DIR__ . '/document_template_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_document_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save template</button>
+        <button type="submit" name="edit_document_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 
-<?php
+<?php }
+
 require_once '../../../includes/modal_footer.php';

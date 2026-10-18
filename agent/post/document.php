@@ -121,53 +121,31 @@ if (isset($_POST['add_document_from_template'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $client_id = intval($_POST['client_id']);
-    $document_name = trim($_POST['name'] ?? '');
-    $document_description = escapeSql($_POST['description'] ?? '');
+    $client_id = intval($_POST['client_id'] ?? 0);
     $document_template_id = intval($_POST['document_template_id'] ?? 0);
 
     enforceClientAccess();
-
-    $folder = folderOwnedId($_POST['folder'] ?? 0, $client_id);
-
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_template_content, document_template_name FROM document_templates
-        WHERE document_template_id = $document_template_id AND document_template_archived_at IS NULL"));
-    if (!$row) {
-        flashAlert('That template no longer exists.', 'error');
+    if (!mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM clients WHERE client_id = $client_id"))) {
+        flashAlert('Pick the client it is for.', 'error');
         redirect();
     }
 
-    // No name given - the template's
-    if ($document_name === '') {
-        $document_name = $row['document_template_name'];
+    $folder = folderOwnedId($_POST['folder'] ?? 0, $client_id);
+
+    // A copy of what it says and its images, remembering the template (functions/document_template.php)
+    $template = documentTemplateRow($document_template_id);
+    $document_id = documentTemplateMakeDocument($document_template_id, $client_id, $_POST['name'] ?? '', $_POST['description'] ?? '', $folder);
+    if (!$document_id) {
+        flashAlert('That template is gone or archived.', 'error');
+        redirect();
     }
-    $document_name_sql = escapeSql($document_name);
+    $document_name = (string) getFieldById('documents', $document_id, 'document_name');
 
-    mysqli_query($mysqli, "INSERT INTO documents SET
-        document_name = '$document_name_sql',
-        document_description = '$document_description',
-        document_content = '',
-        document_content_raw = '',
-        document_folder_id = $folder,
-        document_created_by = $session_user_id,
-        document_client_id = $client_id");
+    logAudit("Document", "Create", "$session_name created document " . escapeSql($document_name) . " from template " . escapeSql($template['document_template_name']), $client_id, $document_id);
 
-    $document_id = mysqli_insert_id($mysqli);
+    flashAlert("Document <strong>" . escapeHtml($document_name) . "</strong> created from template <strong>" . escapeHtml($template['document_template_name']) . "</strong>");
 
-    // The template's images come along, and its HTML is pointed at the copies
-    copyDirectory($_SERVER['DOCUMENT_ROOT'] . "/uploads/document_templates/$document_template_id", $_SERVER['DOCUMENT_ROOT'] . "/uploads/documents/$document_id");
-    $processed_html = str_replace("/uploads/document_templates/$document_template_id/", "/uploads/documents/$document_id/", (string) $row['document_template_content']);
-
-    $content = mysqli_real_escape_string($mysqli, $processed_html);
-    $content_raw = escapeSql(documentContentRaw($document_name, $processed_html));
-
-    mysqli_query($mysqli, "UPDATE documents SET document_content = '$content', document_content_raw = '$content_raw' WHERE document_id = $document_id");
-
-    logAudit("Document", "Create", "$session_name created document $document_name_sql from template " . escapeSql($row['document_template_name']), $client_id, $document_id);
-
-    flashAlert("Document <strong>$document_name</strong> created from template");
-
-    redirect("document.php?client_id=$client_id&document_id=$document_id");
+    redirect("/agent/document.php?client_id=$client_id&document_id=$document_id");
 }
 
 if (isset($_POST['edit_document'])) {

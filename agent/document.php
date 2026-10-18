@@ -15,11 +15,12 @@ require_once "includes/inc_all_client.php";
 $document_id = intval($_GET['document_id'] ?? 0);
 
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_archived_at, document_client_visible, document_content, document_created_at,
-    document_description, document_folder_id, document_name, document_updated_at,
+    document_description, document_folder_id, document_name, document_updated_at, document_template_id, document_template_name,
     creator.user_name AS created_by_name, updater.user_name AS updated_by_name
     FROM documents
     LEFT JOIN users creator ON document_created_by = creator.user_id
     LEFT JOIN users updater ON document_updated_by = updater.user_id
+    LEFT JOIN document_templates USING (document_template_id)
     WHERE document_client_id = $client_id AND document_id = $document_id
     LIMIT 1"));
 
@@ -88,6 +89,9 @@ $page_title = $row['document_name'];
             <div class="small text-body-secondary mt-1">
                 <span title="<?= escapeHtml($document_updated_at) ?>">Updated <?= timeAgo($document_updated_at) ?></span><?= $document_updated_by ? " by $document_updated_by" : '' ?>
                 &middot; Created <?= date('M j, Y', strtotime($row['document_created_at'])) ?><?= $row['created_by_name'] ? ' by ' . escapeHtml($row['created_by_name']) : '' ?>
+                <?php if ($row['document_template_name'] !== null) { ?>
+                    &middot; From template <?= $session_is_admin ? '<a class="text-reset" href="/admin/document_template.php?document_template_id=' . intval($row['document_template_id']) . '">' . escapeHtml($row['document_template_name']) . '</a>' : escapeHtml($row['document_template_name']) ?>
+                <?php } ?>
                 <?php if ($versions) { ?>&middot; <a class="text-reset" href="#documentHistory"><?= count($versions) ?> earlier version<?= count($versions) === 1 ? '' : 's' ?></a><?php } ?>
             </div>
         </div>
