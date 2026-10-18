@@ -748,44 +748,22 @@ if (isset($_GET['ticket_id'])) {
                                         </div>
 
                                         <?php
-
                                         /*
                                          * Canned responses offered on this ticket: the ones for its
-                                         * category, plus the ones offered on every ticket. Names only -
+                                         * category, then the ones offered on every ticket. Names only -
                                          * the body is fetched, filled in for this ticket, when one is
                                          * picked, so a shelf of long responses does not ride along with
-                                         * every ticket (functions/canned_response.php).
+                                         * every ticket. / in the reply box offers the same ones.
                                          */
-                                        $canned_offered = cannedResponsesForTicket(intval($ticket_category));
-                                        $canned_responses_for_category = $canned_offered['category'];
-                                        $canned_responses_general = $canned_offered['general'];
-
-                                        if ($canned_responses_for_category || $canned_responses_general) { ?>
-
-                                            <div class="mb-3">
-                                                <select class="form-select" id="canned_response_picker" data-ticket-id="<?= intval($ticket_id) ?>" aria-label="Insert a canned response">
-                                                    <option value="">- Insert a canned response -</option>
-                                                    <?php if ($canned_responses_for_category) { ?>
-                                                        <optgroup label="<?= $ticket_category_display ?>">
-                                                            <?php foreach ($canned_responses_for_category as $canned_row) { ?>
-                                                                <option value="<?= intval($canned_row['canned_response_id']) ?>"><?= escapeHtml($canned_row['canned_response_name']) ?></option>
-                                                            <?php } ?>
-                                                        </optgroup>
-                                                    <?php } ?>
-                                                    <?php if ($canned_responses_general) { ?>
-                                                        <optgroup label="Every ticket">
-                                                            <?php foreach ($canned_responses_general as $canned_row) { ?>
-                                                                <option value="<?= intval($canned_row['canned_response_id']) ?>"><?= escapeHtml($canned_row['canned_response_name']) ?></option>
-                                                            <?php } ?>
-                                                        </optgroup>
-                                                    <?php } ?>
-                                                </select>
-                                            </div>
-
-                                        <?php } ?>
+                                        $canned_picker_groups = cannedResponsesForTicket(intval($ticket_category));
+                                        $canned_picker_id = 'cannedPickerReply';
+                                        $canned_picker_editor = 'ticket_reply';
+                                        $canned_picker_ticket_id = intval($ticket_id);
+                                        require __DIR__ . "/includes/inc_canned_response_picker.php";
+                                        ?>
 
                                         <div class="mb-3">
-                                            <textarea class="form-control tinymceTicket" id="ticket_reply" name="ticket_reply" placeholder="Type a response"></textarea>
+                                            <textarea class="form-control tinymceTicket" id="ticket_reply" name="ticket_reply" placeholder="Type a response"<?= $canned_picker_groups ? ' data-canned-picker="cannedPickerReply"' : '' ?>></textarea>
                                         </div>
 
                                         <div class="mb-3">
@@ -1783,53 +1761,6 @@ if (!empty($can_edit_ticket) && !empty($ticket_is_open)) { ?>
                     positions: positions
                 });
             }
-        });
-    }
-
-    // Canned responses - insert at the cursor rather than replacing, so picking one into a
-    // half-written reply adds to it. The body is fetched on demand, filled in for this
-    // ticket; TinyMCE owns the field by now, so setting the textarea value directly would
-    // do nothing visible. The reply carries which ones went in, for how often each is used.
-    const cannedPicker = document.getElementById('canned_response_picker');
-    if (cannedPicker) {
-        cannedPicker.addEventListener('change', function () {
-            const cannedId = cannedPicker.value;
-            if (!cannedId) return;
-
-            cannedPicker.disabled = true;
-
-            fetch('ajax.php?get_canned_response=' + encodeURIComponent(cannedId) + '&ticket_id=' + encodeURIComponent(cannedPicker.dataset.ticketId || ''))
-                .then(response => response.json())
-                .then(data => {
-                    const form = cannedPicker.closest('form');
-                    if (form && !form.querySelector('input[name="canned_response_ids[]"][value="' + cannedId + '"]')) {
-                        const used = document.createElement('input');
-                        used.type = 'hidden';
-                        used.name = 'canned_response_ids[]';
-                        used.value = cannedId;
-                        form.appendChild(used);
-                    }
-
-                    const editor = window.tinymce ? tinymce.get('ticket_reply') : null;
-
-                    if (editor) {
-                        editor.insertContent(data.body);
-                        editor.focus();
-                    } else {
-                        // TinyMCE failed to load - fall back to the plain textarea
-                        const textarea = document.getElementById('ticket_reply');
-                        if (textarea) {
-                            textarea.value += data.body;
-                        }
-                    }
-                })
-                .catch(() => {
-                    alert('Could not load that canned response.');
-                })
-                .finally(() => {
-                    cannedPicker.disabled = false;
-                    cannedPicker.value = '';
-                });
         });
     }
 

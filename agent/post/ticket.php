@@ -843,7 +843,9 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
     validateCSRFToken();
 
-    $reply = mysqli_real_escape_string($mysqli, (string) ($_POST['bulk_reply_details'] ?? ''));
+    // The placeholders are filled in for each ticket, below
+    $reply_raw = (string) ($_POST['bulk_reply_details'] ?? '');
+    $canned_response_ids = (array) ($_POST['canned_response_ids'] ?? []);
     $status_input = intval($_POST['bulk_status'] ?? 0);
     $time_worked = escapeSql(ticketTimeWorked($_POST['time'] ?? ''));
     $private_note = intval($_POST['bulk_private_reply'] ?? 0);
@@ -870,7 +872,10 @@ if (isset($_POST['bulk_ticket_reply'])) {
             setTicketFirstResponse($ticket_id);
         }
 
+        $reply_text = cannedResponsePlaceholders($reply_raw, $ticket_id, stripslashes($session_name));
+        $reply = mysqli_real_escape_string($mysqli, $reply_text);
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$reply', ticket_reply_time_worked = '$time_worked', ticket_reply_type = '$reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+        cannedResponseRecordUses($canned_response_ids, $ticket_id, $session_user_id);
 
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $ticket_status, ticket_updated_at = NOW() WHERE ticket_id = $ticket_id");
         syncTicketSlaClock($ticket_id);
@@ -894,7 +899,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
         // Email the client and watchers about a public update
         if (!$private_note) {
-            ticketMailReply($ticket_id, (string) ($_POST['bulk_reply_details'] ?? ''), stripslashes($session_name));
+            ticketMailReply($ticket_id, $reply_text, stripslashes($session_name));
         }
 
         // Tell the agent it is assigned to, and whoever opened it

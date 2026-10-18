@@ -190,10 +190,16 @@
             });
         }
 
+        // Reset once the reply actually goes - not on a click of Send that is held back (the
+        // composer shut, or a canned response's [word] still to fill in), which lost the time
         const addReplyBtn = document.getElementById("ticket_add_reply");
-        if (addReplyBtn) {
-            addReplyBtn.addEventListener('click', function() {
-                setTimeout(forceResetTimer, 100);
+        if (addReplyBtn && addReplyBtn.form) {
+            addReplyBtn.form.addEventListener('submit', function(e) {
+                setTimeout(function() {
+                    if (!e.defaultPrevented) {
+                        forceResetTimer();
+                    }
+                }, 0);
             });
         }
 

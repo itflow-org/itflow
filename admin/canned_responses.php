@@ -5,7 +5,8 @@
  * from the picker above the reply box. Each is offered on tickets in the
  * ticket categories it is set to, or on every ticket, and its placeholders
  * are filled in from the ticket as it goes in. Each row shows what it says,
- * where it is offered, and how often it has gone into a reply. A response
+ * where it is offered, what picking it sets up on the reply (who sees it,
+ * the status after it, time worked) and how often it has gone into a reply. A response
  * can be changed, copied as the start of another, archived - not offered on
  * tickets - or deleted. The work is in functions/canned_response.php; the
  * handlers are admin/post/canned_response.php.
@@ -40,7 +41,7 @@ if ($category_filter === 'every') {
     $filters .= " AND EXISTS (SELECT 1 FROM canned_response_categories c WHERE c.canned_response_id = canned_responses.canned_response_id AND c.category_id = " . intval($category_filter) . ")";
 }
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS canned_responses.canned_response_id, canned_response_name, canned_response_body, canned_response_created_at, canned_response_updated_at, canned_response_archived_at,
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS canned_responses.canned_response_id, canned_response_name, canned_response_body, canned_response_reply_type, canned_response_ticket_status, canned_response_minutes, canned_response_created_at, canned_response_updated_at, canned_response_archived_at,
         COALESCE(used.use_count, 0) AS use_count, used.last_used
     FROM canned_responses
     LEFT JOIN (
@@ -131,6 +132,7 @@ $csrf = $_SESSION['csrf_token'];
                     }, $categories)) . '</span>'
                     : '<span class="badge rounded-pill text-bg-light border fw-normal"><i class="fas fa-fw fa-globe text-secondary me-1"></i>Every ticket</span>';
                 $preview = cannedResponsePreview($row['canned_response_body']);
+                $sets_up = cannedResponseSetsUpHtml($row);
                 ?>
                 <tr data-canned-response-id="<?= $canned_response_id ?>">
                     <td class="ps-3">
@@ -140,6 +142,9 @@ $csrf = $_SESSION['csrf_token'];
                                 <a class="ajax-modal fw-semibold text-body" href="#" data-modal-size="lg" data-modal-url="<?= $edit_url ?>" title="Edit <?= $name ?>"><?= $name ?></a>
                                 <?php if ($preview !== '') { ?>
                                     <div class="small text-body-secondary"><?= escapeHtml($preview) ?></div>
+                                <?php } ?>
+                                <?php if ($sets_up !== '') { ?>
+                                    <div class="mt-1" title="Set on the reply when it is picked"><?= $sets_up ?></div>
                                 <?php } ?>
                                 <?php if ($row['canned_response_archived_at']) { ?>
                                     <div class="small text-body-secondary"><i class="fas fa-fw fa-archive me-1"></i>Archived <?= date('M j, Y', strtotime($row['canned_response_archived_at'])) ?></div>

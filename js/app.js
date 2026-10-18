@@ -25,6 +25,65 @@ function itflowStep(name, fn) {
 }
 
 /**
+ * Typing / in a reply box offers the canned responses of the picker above it
+ * (agent/includes/inc_canned_response_picker.php) - its textarea names the
+ * picker in data-canned-picker. The list narrows as you type after the /;
+ * picking one takes the / and what was typed out again and puts the response
+ * in, as the picker does (agent/js/canned_response_picker.js). Called from the
+ * reply editors' setup, so it is there before the editor is drawn.
+ */
+function itflowCannedAutocompleter(editor) {
+    var element = editor.getElement ? editor.getElement() : null;
+    var pickerId = element && element.dataset ? element.dataset.cannedPicker : '';
+    if (!pickerId) {
+        return;
+    }
+    editor.ui.registry.addAutocompleter('itflowCanned', {
+        trigger: '/',
+        minChars: 0,
+        columns: 1,
+        highlightOn: ['canned_name'],
+        fetch: function (pattern) {
+            var picker = document.getElementById(pickerId);
+            var words = String(pattern || '').toLowerCase().split(/\s+/).filter(Boolean);
+            var items = picker ? Array.prototype.slice.call(picker.querySelectorAll('[data-canned-id]')) : [];
+            var seen = {};
+            return Promise.resolve(items.filter(function (item) {
+                if (seen[item.dataset.cannedId]) {
+                    return false;
+                }
+                seen[item.dataset.cannedId] = true;
+                return words.every(function (word) {
+                    return item.dataset.cannedSearchText.indexOf(word) !== -1;
+                });
+            }).slice(0, 8).map(function (item) {
+                return {
+                    type: 'cardmenuitem',
+                    value: item.dataset.cannedId,
+                    label: item.dataset.cannedName,
+                    items: [{
+                        type: 'cardcontainer',
+                        direction: 'vertical',
+                        items: [
+                            { type: 'cardtext', text: item.dataset.cannedName, name: 'canned_name', classes: ['itflow-canned-ac-name'] },
+                            { type: 'cardtext', text: (item.dataset.cannedPreview || '').slice(0, 90), classes: ['itflow-canned-ac-preview'] }
+                        ]
+                    }]
+                };
+            }));
+        },
+        onAction: function (api, range, value) {
+            api.hide();
+            editor.selection.setRng(range);
+            editor.insertContent('');
+            if (window.itflowCannedPick) {
+                window.itflowCannedPick(pickerId, value);
+            }
+        }
+    });
+}
+
+/**
  * TinyMCE skin options for the current colour mode.
  *
  * TinyMCE renders its chrome in its own DOM and its content inside an iframe,
@@ -244,6 +303,7 @@ function itflowInit() {
         plugins: 'link image lists table code codesample fullscreen autoresize',
         license_key: 'gpl',
         setup: function(editor) {
+            itflowCannedAutocompleter(editor);
             editor.on('init', function() {
                 // When the modal closes, mark editor clean
                 const modal = editor.getContainer()?.closest('.modal');
@@ -365,6 +425,7 @@ function itflowInit() {
         plugins: 'link image lists table code codesample fullscreen autoresize code',
         license_key: 'gpl',
         setup: function(editor) {
+            itflowCannedAutocompleter(editor);
             editor.on('init', function() {
                 // When the modal closes, mark editor clean
                 const modal = editor.getContainer()?.closest('.modal');

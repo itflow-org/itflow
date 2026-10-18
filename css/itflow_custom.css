@@ -3131,6 +3131,40 @@ a:focus-visible .itflow-category-name {
 [data-category-sortable] .sortable-ghost > * {
     background-color: var(--bs-tertiary-bg) !important;
 }
+/* The canned response picker above a reply box - a searchable list, each
+   response with a line or two of what it says - and the / menu in the reply */
+.itflow-canned-menu {
+    width: 30rem;
+    max-width: calc(100vw - 2rem);
+}
+.itflow-canned-list {
+    max-height: 22rem;
+    overflow-y: auto;
+    padding-bottom: .25rem;
+}
+.itflow-canned-item {
+    white-space: normal;
+    padding-top: .375rem;
+    padding-bottom: .375rem;
+}
+.itflow-canned-preview {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.itflow-canned-item:active .text-body-secondary,
+.itflow-canned-item.active .text-body-secondary {
+    color: inherit !important;
+}
+.tox .itflow-canned-ac-name {
+    font-weight: 600;
+}
+.tox .itflow-canned-ac-preview {
+    font-size: .8125rem;
+    opacity: .75;
+    white-space: normal;
+}
 .itflow-clients-street {
     max-width: 16rem;
 }

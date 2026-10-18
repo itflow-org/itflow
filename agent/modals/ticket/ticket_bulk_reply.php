@@ -8,6 +8,19 @@ $ticket_ids = array_map('intval', $_GET['ticket_ids'] ?? []);
 
 $count = count($ticket_ids);
 
+// The canned responses for the tickets' categories, and the ones for every ticket - filled in for each ticket as it is sent
+$bulk_category_ids = [];
+if ($ticket_ids) {
+    $sql_bulk_categories = mysqli_query($mysqli, "SELECT DISTINCT ticket_category FROM tickets WHERE ticket_id IN (" . implode(',', array_filter($ticket_ids) ?: [0]) . ")");
+    while ($row = mysqli_fetch_row($sql_bulk_categories)) {
+        $bulk_category_ids[] = intval($row[0]);
+    }
+}
+$canned_picker_groups = cannedResponsePickerGroups($bulk_category_ids);
+$canned_picker_id = 'cannedPickerBulk';
+$canned_picker_editor = 'bulkReplyDetails';
+$canned_picker_ticket_id = 0;
+
 ob_start();
 
 ?>
@@ -41,9 +54,12 @@ ob_start();
 
         </div>
 
-        <div class="mb-3">
-            <textarea class="form-control tinymce" rows="5" name="bulk_reply_details" placeholder="Type an update here"></textarea>
+        <?php require __DIR__ . '/../../includes/inc_canned_response_picker.php'; ?>
+
+        <div class="mb-1">
+            <textarea class="form-control tinymce" rows="5" id="bulkReplyDetails" name="bulk_reply_details" placeholder="Type an update here"<?= $canned_picker_groups ? ' data-canned-picker="cannedPickerBulk"' : '' ?>></textarea>
         </div>
+        <div class="small text-secondary mb-3">[First Name], [Ticket], [Subject] and the other placeholders are filled in for each ticket as it is sent.</div>
 
         <div class="col-3">
             <div class="mb-3">

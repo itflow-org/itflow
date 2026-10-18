@@ -1045,9 +1045,24 @@ if (isset($_GET['get_canned_response'])) {
     }
 
     // Purified here rather than at save time, the same way ticket replies and ticket
-    // template details are - what lands in the editor is what would have been rendered
-    $response = [];
-    $response['body'] = $canned_row ? cannedResponseFill($canned_row['canned_response_body'], $canned_ticket_id, stripslashes($session_name)) : '';
+    // template details are - what lands in the editor is what would have been rendered.
+    // With what picking it sets up on the reply (cannedResponseActions())
+    $response = ['found' => false, 'body' => ''];
+    if ($canned_row) {
+        $actions = cannedResponseActions($canned_row);
+        $response = [
+            'found' => true,
+            'id' => intval($canned_row['canned_response_id']),
+            'name' => $canned_row['canned_response_name'],
+            'body' => cannedResponseFill($canned_row['canned_response_body'], $canned_ticket_id, stripslashes($session_name)),
+            'reply_type' => $actions['reply_type'],
+            'reply_type_name' => $actions['reply_type'] === null ? '' : CANNED_RESPONSE_REPLY_TYPES[$actions['reply_type']][0],
+            'ticket_status' => $actions['ticket_status'],
+            'status_name' => $actions['status_name'],
+            'minutes' => $actions['minutes'],
+            'minutes_text' => $actions['minutes'] ? cannedResponseMinutesText($actions['minutes']) : '',
+        ];
+    }
 
     echo json_encode($response);
 
