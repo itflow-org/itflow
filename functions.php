@@ -27,6 +27,7 @@ require_once __DIR__ . '/functions/rack.php';
 require_once __DIR__ . '/functions/asset.php';
 require_once __DIR__ . '/functions/contact.php';
 require_once __DIR__ . '/functions/software.php';
+require_once __DIR__ . '/functions/software_template.php';
 require_once __DIR__ . '/functions/location.php';
 require_once __DIR__ . '/functions/vendor.php';
 require_once __DIR__ . '/functions/credential.php';

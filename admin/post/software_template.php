@@ -1,49 +1,78 @@
 <?php
 
-// Software/License Templates
+/*
+ * License templates (Admin > License Templates) - making, changing, copying,
+ * archiving and deleting them. The work is in functions/software_template.php;
+ * a license is made from one by add_software or add_software_from_template
+ * (agent/post/software.php).
+ */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
-if (isset($_POST['add_software_template'])) {
+/* The template a request is for - or back to the list, saying it is gone. */
+function softwareTemplateForRequest($software_template_id) {
+    $row = softwareTemplateRow($software_template_id);
+    if (!$row) {
+        flashAlert('That license template no longer exists.', 'error');
+        redirect('software_templates.php');
+    }
+    return $row;
+}
+
+if (isset($_POST['add_software_template']) || isset($_POST['edit_software_template'])) {
 
     validateCSRFToken();
 
-    $name = escapeSql($_POST['name']);
-    $version = escapeSql($_POST['version']);
-    $description = escapeSql($_POST['description']);
-    $type = escapeSql($_POST['type']);
-    $license_type = escapeSql($_POST['license_type']);
-    $notes = escapeSql($_POST['notes']);
+    $editing = isset($_POST['edit_software_template']);
+    $software_template_id = $editing ? intval(softwareTemplateForRequest($_POST['software_template_id'] ?? 0)['software_template_id']) : 0;
 
-    mysqli_query($mysqli,"INSERT INTO software_templates SET software_template_name = '$name', software_template_version = '$version', software_template_description = '$description', software_template_type = '$type', software_template_license_type = '$license_type', software_template_notes = '$notes'");
+    $fields = softwareTemplateFields($_POST, $error);
+    if (!$fields) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
+    }
+    $software_template_id = softwareTemplateSave($software_template_id, $fields);
 
-    $software_template_id = mysqli_insert_id($mysqli);
+    logAudit("Software Template", $editing ? "Edit" : "Create", "$session_name " . ($editing ? 'edited' : 'created') . " license template " . escapeSql($fields['name']), 0, $software_template_id);
 
-    logAudit("Software Template", "Create", "$session_name created software template $name", 0, $software_template_id);
+    flashAlert("License template <strong>" . escapeHtml($fields['name']) . "</strong> " . ($editing ? 'saved' : 'created'));
 
-    flashAlert("Software template <strong>$name</strong> created");
-
-    redirect();
+    // A new one opens on its page
+    redirect($editing ? null : "software_template.php?software_template_id=$software_template_id");
 
 }
 
-if (isset($_POST['edit_software_template'])) {
+if (isset($_GET['copy_software_template'])) {
 
     validateCSRFToken();
 
-    $software_template_id = intval($_POST['software_template_id']);
-    $name = escapeSql($_POST['name']);
-    $version = escapeSql($_POST['version']);
-    $description = escapeSql($_POST['description']);
-    $type = escapeSql($_POST['type']);
-    $license_type = escapeSql($_POST['license_type']);
-    $notes = escapeSql($_POST['notes']);
+    $row = softwareTemplateForRequest($_GET['copy_software_template']);
+    $new_id = softwareTemplateCopy($row['software_template_id']);
+    $new_name = (string) softwareTemplateRow($new_id)['software_template_name'];
 
-    mysqli_query($mysqli,"UPDATE software_templates SET software_template_name = '$name', software_template_version = '$version', software_template_description = '$description', software_template_type = '$type', software_template_license_type = '$license_type', software_template_notes = '$notes' WHERE software_template_id = $software_template_id");
+    logAudit("Software Template", "Create", "$session_name copied license template " . escapeSql($row['software_template_name']) . " as " . escapeSql($new_name), 0, $new_id);
 
-    logAudit("Software Template", "Edit", "$session_name edited software template $name", 0, $software_template_id);
+    flashAlert("License template <strong>" . escapeHtml($row['software_template_name']) . "</strong> copied as <strong>" . escapeHtml($new_name) . "</strong>");
 
-    flashAlert("Software template <strong>$name</strong> edited");
+    redirect("software_template.php?software_template_id=$new_id");
+
+}
+
+if (isset($_GET['archive_software_template']) || isset($_GET['restore_software_template'])) {
+
+    validateCSRFToken();
+
+    $archive = isset($_GET['archive_software_template']);
+    $row = softwareTemplateForRequest($archive ? $_GET['archive_software_template'] : $_GET['restore_software_template']);
+    $software_template_id = intval($row['software_template_id']);
+
+    // Archived, it isn't offered for new licenses; the ones made from it stay
+    mysqli_query($mysqli, "UPDATE software_templates SET software_template_archived_at = " . ($archive ? 'NOW()' : 'NULL') . ", software_template_updated_at = software_template_updated_at
+        WHERE software_template_id = $software_template_id");
+
+    logAudit("Software Template", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " license template " . escapeSql($row['software_template_name']), 0, $software_template_id);
+
+    flashAlert("License template <strong>" . escapeHtml($row['software_template_name']) . "</strong> " . ($archive ? 'archived' : 'restored'), $archive ? 'error' : 'success');
 
     redirect();
 
@@ -53,19 +82,16 @@ if (isset($_GET['delete_software_template'])) {
 
     validateCSRFToken();
 
-    $software_template_id = intval($_GET['delete_software_template']);
+    $row = softwareTemplateForRequest($_GET['delete_software_template']);
 
-    // Get Software Template Name for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT software_template_name FROM software_templates WHERE software_template_id = $software_template_id");
-    $row = mysqli_fetch_assoc($sql);
-    $software_template_name = escapeSql($row['software_template_name']);
+    // The licenses made from it stay, no longer linked to it
+    softwareTemplateDelete($row['software_template_id']);
 
-    mysqli_query($mysqli,"DELETE FROM software_templates WHERE software_template_id = $software_template_id");
+    logAudit("Software Template", "Delete", "$session_name deleted license template " . escapeSql($row['software_template_name']));
 
-    logAudit("Software Template", "Delete", "$session_name deleted software template $software_template_name");
+    flashAlert("License template <strong>" . escapeHtml($row['software_template_name']) . "</strong> deleted", 'error');
 
-    flashAlert("Software Template <strong>$software_template_name</strong> deleted", 'error');
-
-    redirect();
+    // From its own page, back to the list
+    redirect(!empty($_GET['from_page']) ? 'software_templates.php' : null);
 
 }

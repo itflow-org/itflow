@@ -6,6 +6,7 @@
  * search. Header with renewal and seat state, the facts to copy (key, order
  * reference, vendor account and phone), quick notes, then tabs for only what
  * has something in it: devices, users, keys, credentials, documents, files.
+ * A license made from a license template says which.
  */
 
 require_once '../../../includes/modal_header.php';
@@ -33,6 +34,7 @@ $vendor_account = escapeHtml($license['vendor_account_number']);
 $vendor_phone = contactPhoneLink($license['vendor_phone'], $license['vendor_phone_country_code'], $license['vendor_extension']);
 
 $seats = softwareSeats($license['seats_used'], $license['software_seats']);
+$template = intval($license['software_template_id']) ? softwareTemplateRow($license['software_template_id']) : null;
 $renewal = softwareRenewal($license['software_expire']);
 
 $can_edit = lookupUserPermission('module_support') >= 2 && !$software_archived;
@@ -80,6 +82,9 @@ ob_start();
                 <?php if ($license['software_type']) { ?><span><?= escapeHtml($license['software_type']) ?></span><?php } ?>
                 <?php if ($license['software_license_type']) { ?><span><i class="fas fa-fw <?= softwareLicenseTypeIcon($license['software_license_type']) ?> me-1"></i><?= escapeHtml($license['software_license_type']) ?></span><?php } ?>
                 <span><?= escapeHtml($license['client_name']) ?></span>
+                <?php if ($template) { ?>
+                    <span title="The license template it was made from"><i class="fas fa-fw fa-puzzle-piece me-1"></i>From <?= !empty($session_is_admin) ? '<a class="text-reset" href="/admin/software_template.php?software_template_id=' . intval($template['software_template_id']) . '">' . escapeHtml($template['software_template_name']) . '</a>' : escapeHtml($template['software_template_name']) ?></span>
+                <?php } ?>
             </div>
         </div>
     </div>

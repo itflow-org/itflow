@@ -5,9 +5,10 @@
  *
  * The license itself, its seats (the devices and users on it), its individual
  * keys and who each is handed to, renewals one at a time or in bulk, and the
- * export. Every handler checks the license's own client, and every device,
- * user and vendor a form names must be that client's - a form posting another
- * client's asset id gets nothing. Links to documents, files and credentials,
+ * export - and a license made from a license template (Admin > License
+ * Templates), which it remembers. Every handler checks the license's own
+ * client, and every device, user and vendor a form names must be that
+ * client's - a form posting another client's asset id gets nothing. Links to documents, files and credentials,
  * and single seats from the asset and contact pages, go through post/link.php.
  */
 
@@ -61,7 +62,8 @@ if (isset($_POST['add_software'])) {
         redirect();
     }
 
-    mysqli_query($mysqli, "INSERT INTO software SET $set, software_client_id = $client_id");
+    // Started from a template, it remembers which
+    mysqli_query($mysqli, "INSERT INTO software SET $set, software_client_id = $client_id, software_template_id = " . softwareTemplateLiveId($_POST['software_template_id'] ?? 0));
     $software_id = mysqli_insert_id($mysqli);
 
     $changes = softwareSyncSeats($software_id, $client_id, $_POST['assets'] ?? [], $_POST['contacts'] ?? []);
@@ -84,36 +86,27 @@ if (isset($_POST['add_software_from_template'])) {
 
     enforceUserPermission('module_support', 2);
 
+    // From a license template - Admin's New license for a client: its details from the template, the seats, key and dates from the window
     $client_id = intval($_POST['client_id'] ?? 0);
-    $software_template_id = intval($_POST['software_template_id'] ?? 0);
 
     enforceClientAccess();
 
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT software_template_description, software_template_license_type, software_template_name,
-        software_template_notes, software_template_type, software_template_version FROM software_templates
-        WHERE software_template_id = $software_template_id AND software_template_archived_at IS NULL"));
-    if (!$row) {
-        flashAlert('That template no longer exists.', 'error');
+    if (!mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM clients WHERE client_id = $client_id AND client_archived_at IS NULL"))) {
+        flashAlert('Pick the client it is for.', 'error');
+        redirect();
+    }
+    $template = softwareTemplateRow($_POST['software_template_id'] ?? 0);
+    $software_id = softwareTemplateMakeLicense($_POST['software_template_id'] ?? 0, $client_id, $_POST);
+    if (!$software_id) {
+        flashAlert('That license template is gone or archived.', 'error');
         redirect();
     }
 
-    $name = escapeSql($row['software_template_name']);
-    $version = escapeSql($row['software_template_version']);
-    $description = escapeSql($row['software_template_description']);
-    $type = escapeSql($row['software_template_type']);
-    $license_type = escapeSql($row['software_template_license_type']);
-    $notes = escapeSql($row['software_template_notes']);
-    $vendor = assetClientOwnedId('vendor', $_POST['vendor'] ?? 0, $client_id);
+    logAudit("Software", "Create", "$session_name created license " . escapeSql($template['software_template_name']) . " from template " . escapeSql($template['software_template_name']), $client_id, $software_id);
 
-    mysqli_query($mysqli, "INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_vendor_id = $vendor, software_client_id = $client_id");
+    flashAlert("License <strong>" . escapeHtml($template['software_template_name']) . "</strong> created from template <strong>" . escapeHtml($template['software_template_name']) . "</strong> - put its devices and users on it");
 
-    $software_id = mysqli_insert_id($mysqli);
-
-    logAudit("Software", "Create", "$session_name created license $name from a template", $client_id, $software_id);
-
-    flashAlert("License <strong>{$row['software_template_name']}</strong> created from template");
-
-    redirect();
+    redirect("/agent/software.php?client_id=$client_id");
 
 }
 

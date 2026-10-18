@@ -3073,8 +3073,10 @@ CREATE TABLE `software` (
   `software_accessed_at` datetime DEFAULT NULL,
   `software_vendor_id` int(11) DEFAULT 0,
   `software_client_id` int(11) NOT NULL,
+  `software_template_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`software_id`),
-  KEY `software_client_id` (`software_client_id`,`software_archived_at`)
+  KEY `software_client_id` (`software_client_id`,`software_archived_at`),
+  KEY `software_template_id` (`software_template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3251,6 +3253,8 @@ CREATE TABLE `software_templates` (
   `software_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `software_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `software_template_archived_at` datetime DEFAULT NULL,
+  `software_template_created_by` int(11) NOT NULL DEFAULT 0,
+  `software_template_updated_by` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`software_template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

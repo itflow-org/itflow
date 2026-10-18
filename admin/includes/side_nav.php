@@ -150,7 +150,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/admin/software_templates.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'software_templates.php' ? 'active' : '') ?>">
+                        <a href="/admin/software_templates.php" class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['software_templates.php', 'software_template.php']) ? 'active' : '') ?>">
                             <i class="nav-icon fas fa-box-open"></i>
                             <p>License Templates</p>
                         </a>

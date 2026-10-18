@@ -9,8 +9,9 @@
  *
  * Tabs: Details (with its tags), License (type, seats, key, dates), Seats (the client's
  * devices and users, with a running count against the seats bought) and
- * Notes. A new license can start from a template, which fills in the details,
- * and take a batch of individual keys, one per line.
+ * Notes. A new license can start from a template, which fills in the details
+ * and is remembered (software_template_id), and take a batch of individual
+ * keys, one per line.
  *
  * Should not be accessed directly.
  */
@@ -122,14 +123,14 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
                 <label class="form-label">Start from a template</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-puzzle-piece"></i></span>
-                    <select class="form-select select2" data-software-template data-placeholder="- None - fill it in yourself -">
+                    <select class="form-select select2" name="software_template_id" data-software-template data-placeholder="- None - fill it in yourself -">
                         <option value="">- None -</option>
                         <?php foreach ($template_options as $template_id => $template) { ?>
                             <option value="<?= $template_id ?>" <?= intval($_GET['template_id'] ?? 0) === $template_id ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas ' . softwareTypeStyle($template['type'])['icon'], 'description' => implode(' · ', array_filter([$template['type'], $template['license_type']]))]) ?>><?= escapeHtml($template['name']) ?></option>
                         <?php } ?>
                     </select>
                 </div>
-                <div class="form-text">Fills in the name, type, license type, description and notes - change anything after.</div>
+                <div class="form-text">Fills in the name, type, license type, description and notes - change anything after. The license remembers it.</div>
             </div>
         <?php } ?>
 
