@@ -17,8 +17,10 @@
  * (agent/post/link.php) and one list (linkGroupsHtml()) on the document page
  * and the file and document quick looks.
  *
- * A type with a 'view' module (credentials) is only offered, listed or
- * linked for an agent who may see that module.
+ * A type with a 'view' module is only offered, listed or linked for an
+ * agent who may see that module - an agent with Clients but not Support
+ * sees a document's contacts, not its assets. Documents and files are open
+ * to every agent (contracts and the like), so they have none.
  *
  * A link only ever joins two records of the same client, and never to an
  * archived one; linkAdd() checks both rather than trusting the form.
@@ -26,17 +28,17 @@
 
 /** The record types a link can join. */
 const LINK_ENTITIES = [
-    'asset' => ['table' => 'assets', 'id' => 'asset_id', 'name' => 'asset_name', 'client' => 'asset_client_id', 'archived' => 'asset_archived_at', 'label' => 'asset', 'plural' => 'Assets', 'icon' => 'fa-desktop'],
-    'contact' => ['table' => 'contacts', 'id' => 'contact_id', 'name' => 'contact_name', 'client' => 'contact_client_id', 'archived' => 'contact_archived_at', 'label' => 'contact', 'plural' => 'Contacts', 'icon' => 'fa-user'],
+    'asset' => ['table' => 'assets', 'id' => 'asset_id', 'name' => 'asset_name', 'client' => 'asset_client_id', 'archived' => 'asset_archived_at', 'label' => 'asset', 'plural' => 'Assets', 'icon' => 'fa-desktop', 'view' => 'module_support'],
+    'contact' => ['table' => 'contacts', 'id' => 'contact_id', 'name' => 'contact_name', 'client' => 'contact_client_id', 'archived' => 'contact_archived_at', 'label' => 'contact', 'plural' => 'Contacts', 'icon' => 'fa-user', 'view' => 'module_client'],
     'document' => ['table' => 'documents', 'id' => 'document_id', 'name' => 'document_name', 'client' => 'document_client_id', 'archived' => 'document_archived_at', 'label' => 'document', 'plural' => 'Documents', 'icon' => 'fa-file-alt'],
     'file' => ['table' => 'files', 'id' => 'file_id', 'name' => 'file_name', 'client' => 'file_client_id', 'archived' => 'file_archived_at', 'label' => 'file', 'plural' => 'Files', 'icon' => 'fa-paperclip'],
-    'software' => ['table' => 'software', 'id' => 'software_id', 'name' => 'software_name', 'client' => 'software_client_id', 'archived' => 'software_archived_at', 'label' => 'license', 'plural' => 'Licenses', 'icon' => 'fa-cube'],
+    'software' => ['table' => 'software', 'id' => 'software_id', 'name' => 'software_name', 'client' => 'software_client_id', 'archived' => 'software_archived_at', 'label' => 'license', 'plural' => 'Licenses', 'icon' => 'fa-cube', 'view' => 'module_support'],
     'location' => ['table' => 'locations', 'id' => 'location_id', 'name' => 'location_name', 'client' => 'location_client_id', 'archived' => 'location_archived_at', 'label' => 'location', 'plural' => 'Locations', 'icon' => 'fa-map-marker-alt', 'view' => 'module_client'],
     'credential' => ['table' => 'credentials', 'id' => 'credential_id', 'name' => 'credential_name', 'client' => 'credential_client_id', 'archived' => 'credential_archived_at', 'label' => 'credential', 'plural' => 'Credentials', 'icon' => 'fa-key', 'view' => 'module_credential'],
-    'vendor' => ['table' => 'vendors', 'id' => 'vendor_id', 'name' => 'vendor_name', 'client' => 'vendor_client_id', 'archived' => 'vendor_archived_at', 'label' => 'vendor', 'plural' => 'Vendors', 'icon' => 'fa-building'],
-    'service' => ['table' => 'services', 'id' => 'service_id', 'name' => 'service_name', 'client' => 'service_client_id', 'archived' => 'service_archived_at', 'label' => 'service', 'plural' => 'Services', 'icon' => 'fa-stream'],
-    'domain' => ['table' => 'domains', 'id' => 'domain_id', 'name' => 'domain_name', 'client' => 'domain_client_id', 'archived' => 'domain_archived_at', 'label' => 'domain', 'plural' => 'Domains', 'icon' => 'fa-globe'],
-    'certificate' => ['table' => 'certificates', 'id' => 'certificate_id', 'name' => 'certificate_name', 'client' => 'certificate_client_id', 'archived' => 'certificate_archived_at', 'label' => 'certificate', 'plural' => 'Certificates', 'icon' => 'fa-lock'],
+    'vendor' => ['table' => 'vendors', 'id' => 'vendor_id', 'name' => 'vendor_name', 'client' => 'vendor_client_id', 'archived' => 'vendor_archived_at', 'label' => 'vendor', 'plural' => 'Vendors', 'icon' => 'fa-building', 'view' => 'module_client'],
+    'service' => ['table' => 'services', 'id' => 'service_id', 'name' => 'service_name', 'client' => 'service_client_id', 'archived' => 'service_archived_at', 'label' => 'service', 'plural' => 'Services', 'icon' => 'fa-stream', 'view' => 'module_support'],
+    'domain' => ['table' => 'domains', 'id' => 'domain_id', 'name' => 'domain_name', 'client' => 'domain_client_id', 'archived' => 'domain_archived_at', 'label' => 'domain', 'plural' => 'Domains', 'icon' => 'fa-globe', 'view' => 'module_support'],
+    'certificate' => ['table' => 'certificates', 'id' => 'certificate_id', 'name' => 'certificate_name', 'client' => 'certificate_client_id', 'archived' => 'certificate_archived_at', 'label' => 'certificate', 'plural' => 'Certificates', 'icon' => 'fa-lock', 'view' => 'module_support'],
 ];
 
 /**

@@ -49,10 +49,20 @@ $r_admin_locked = ($role_admin_blocker ?? '') !== '';
 
     <div data-role-levels<?= $r_admin ? ' hidden' : '' ?>>
         <label class="mb-2">What its agents can open</label>
+        <?php
+        // Each client's pages need Clients - most of the rest is on them
+        $r_by_name = [];
+        foreach (roleModules() as $module_id => $module) {
+            $r_by_name[$module['module_name']] = intval($r_levels[$module_id] ?? 0);
+        }
+        $r_needs_clients = empty($r_by_name['module_client'])
+            && max($r_by_name['module_support'] ?? 0, $r_by_name['module_credential'] ?? 0, $r_by_name['module_sales'] ?? 0, $r_by_name['module_financial'] ?? 0) > 0;
+        ?>
+        <div class="alert alert-warning small py-2" data-role-needs-clients<?= $r_needs_clients ? '' : ' hidden' ?>><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Each client's pages need Clients at Read, and most of what is picked here is on them - with Clients at None, its agents are turned away from most of it.</div>
         <?php foreach (roleModules() as $module_id => $module) {
             $level = min(intval($r_levels[$module_id] ?? 0), $module['max']);
             $label = escapeHtml($module['label']); ?>
-            <div class="border rounded p-2 mb-2" data-role-module>
+            <div class="border rounded p-2 mb-2" data-role-module="<?= escapeHtml($module['module_name']) ?>">
                 <div class="d-flex flex-wrap align-items-center gap-2">
                     <div class="d-flex align-items-center gap-2 flex-grow-1 min-w-0">
                         <span class="itflow-asset-icon itflow-asset-icon-sm itflow-asset-tone-other" aria-hidden="true"><i class="fas fa-fw <?= $module['icon'] ?>"></i></span>

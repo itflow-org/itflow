@@ -178,7 +178,7 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
                     <?php if ($pay_back && $can_manage) { ?>
                         <a class="dropdown-item" href="<?= escapeHtml($filter_url(['show' => 'to_pay'])) ?>"><i class="fa fa-fw fa-hand-holding-usd text-secondary me-2"></i>Pay Mileage</a>
                     <?php } ?>
-                    <?php if (lookupUserPermission('module_reporting') >= 1 && lookupUserPermission('module_financial') >= 1) { ?>
+                    <?php if (reportCanOpen('mileage')) { ?>
                         <a class="dropdown-item" href="reports/mileage.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Mileage Report</a>
                     <?php } ?>
                     <?php if ($session_is_admin) { ?>

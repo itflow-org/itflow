@@ -123,6 +123,7 @@ $num_vendors = $row['num'];
 
                     <li class="nav-header mt-3">WEB & SECURITY</li>
 
+                    <?php if (lookupUserPermission("module_credential") >= 1) { ?>
                     <li class="nav-item">
                         <a href="credentials.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "credentials.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-key"></i>
@@ -135,6 +136,7 @@ $num_vendors = $row['num'];
                             </p>
                         </a>
                     </li>
+                    <?php } ?>
                     
                     <li class="nav-item">
                         <a href="certificates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "certificates.php") { echo "active"; } ?>">

@@ -688,7 +688,8 @@ function dashboardMoneyCards($access, $period) {
         $cards[] = ['label' => 'Expenses', 'value' => $expenses, 'change' => dashboardChange($expenses, $expenses_prev), 'good' => 'down',
             'url' => '/agent/expenses.php?canned_date=custom&dtf=' . $period['start'] . '&dtt=' . $period['end']];
         $cards[] = ['label' => 'Profit', 'value' => $income - $expenses, 'change' => dashboardChange($income - $expenses, $income_prev - $expenses_prev), 'good' => 'up',
-            'url' => '/agent/reports/profit_loss.php'];
+            // Profit & Loss for those who may open reports, the period's money in and out for anyone else
+            'url' => reportCanOpen('profit_loss') ? '/agent/reports/profit_loss.php' : '/agent/transactions.php?canned_date=custom&dtf=' . $period['start'] . '&dtt=' . $period['end']];
     }
 
     if ($access['sales']) {

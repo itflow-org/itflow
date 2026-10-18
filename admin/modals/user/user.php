@@ -18,6 +18,7 @@ $access = userClientAccess([$user_id])[$user_id];
 $remembered = userRememberCounts([$user_id])[$user_id];
 [$open_tickets, $recurring_tickets] = userOpenWork($user_id);
 $recent = userRecentLogins($user_id, 6);
+$role = roleRow($user['user_role_id'] ?? 0);
 
 ob_start();
 
@@ -45,6 +46,16 @@ ob_start();
     </div>
 
     <dl class="itflow-asset-dl mb-0">
+        <dt>Can open</dt>
+        <dd>
+            <?php if ($role) { ?>
+                <?= roleAccessHtml($role) ?>
+                <div class="small mt-1"><a href="roles.php<?= $role['role_archived_at'] ? '?archived=1' : '' ?>">From their role, <?= escapeHtml($role['role_name']) ?></a></div>
+            <?php } else { ?>
+                <span class="text-danger-emphasis small"><i class="fas fa-exclamation-triangle me-1"></i>No role - nothing until they are given one</span>
+            <?php } ?>
+        </dd>
+
         <dt>Clients</dt>
         <dd>
             <?= escapeHtml(userClientAccessText($access, $is_admin)) ?>

@@ -33,8 +33,9 @@ function notificationTypeModules() {
         'module_support' => [
             'Ticket', 'Ticket SLA', 'Pending Tickets', 'Feedback', 'Recurring Ticket', 'Project',
             'Domain Expiring', 'Certificate Expiring', 'Asset Warranty Expiring', 'Service Review',
+            // Shared links - they open Shared Links (agent/shares.php), which is Support's
+            'Shared link opened', 'Shared link locked', 'Login sent back', 'Share Viewed',
         ],
-        'module_client' => ['Share Viewed'],
     ];
 }
 

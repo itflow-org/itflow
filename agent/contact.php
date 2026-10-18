@@ -186,7 +186,9 @@ if (!$can_credentials) {
     unset($contact_tabs['credentials']);
 }
 if (!$can_support) {
-    unset($contact_tabs['tickets'], $contact_tabs['recurring'], $contact_tabs['licenses']);
+    // Assets and documentation are Support's too
+    unset($contact_tabs['assets'], $contact_tabs['tickets'], $contact_tabs['recurring'], $contact_tabs['licenses'],
+        $contact_tabs['documents'], $contact_tabs['files'], $contact_tabs['services']);
 }
 
 ?>
@@ -456,6 +458,7 @@ if (!$can_support) {
             </div>
             <div class="tab-content">
 
+                <?php if ($can_support) { ?>
                 <!-- Assets -->
                 <div class="tab-pane fade" id="contact-pane-assets" role="tabpanel">
                     <div class="itflow-asset-pane-bar">
@@ -534,6 +537,7 @@ if (!$can_support) {
                         <div class="itflow-asset-empty">No assets assigned.</div>
                     <?php } ?>
                 </div>
+                <?php } ?>
 
                 <?php if ($can_credentials) { ?>
                 <!-- Credentials -->
@@ -668,6 +672,7 @@ if (!$can_support) {
                 </div>
                 <?php } ?>
 
+                <?php if ($can_support) { ?>
                 <!-- Documents -->
                 <div class="tab-pane fade" id="contact-pane-documents" role="tabpanel">
                     <div class="itflow-asset-pane-bar">
@@ -766,6 +771,7 @@ if (!$can_support) {
                         <div class="itflow-asset-empty">Not a contact for any service.</div>
                     <?php } ?>
                 </div>
+                <?php } ?>
 
                 <!-- Notes -->
                 <div class="tab-pane fade" id="contact-pane-notes" role="tabpanel">

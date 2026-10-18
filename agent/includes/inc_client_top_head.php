@@ -125,4 +125,7 @@ if (empty($client_top_head_skip)) {
 
 <?php
 // require_once "modals/client/client_credit_add.php"; --Credit Not Ready 2025-08-27
-require_once "modals/client/client_delete.php";
+// Only where Delete Client is in the menu (includes/client_actions_menu.php)
+if (lookupUserPermission("module_client") >= 3 && !empty($client_archived_at)) {
+    require_once "modals/client/client_delete.php";
+}

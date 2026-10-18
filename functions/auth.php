@@ -32,7 +32,8 @@ function lookupUserPermission($module) {
 function enforceAdminPermission() {
     global $session_is_admin;
     if (!isset($session_is_admin) || !$session_is_admin) {
-        exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
+        $role = permissionRoleName();
+        permissionRefuse("Only an admin can do that - your role" . ($role !== '' ? ", $role," : '') . " isn't an admin role.");
     }
     return true;
 }
@@ -42,15 +43,93 @@ function enforceUserPermission($module, $check_access_level = 1) {
     $permitted_access_level = lookupUserPermission($module);
 
     if (!$permitted_access_level || $permitted_access_level < $check_access_level) {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-        $map = [
-            "1" => "read",
-            "2" => "write",
-            "3" => "full"
-        ];
-        exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: $map[$check_access_level] access to $module is not permitted for your role.");
+        permissionRefuse(permissionRefusedText($module, $check_access_level, intval($permitted_access_level)));
     }
+}
+
+/** The signed-in agent's role's name, raw - '' when they have none. */
+function permissionRoleName() {
+    global $mysqli, $session_user_role;
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT role_name FROM user_roles WHERE role_id = " . intval($session_user_role ?? 0)));
+    return $row ? (string) $row[0] : '';
+}
+
+/*
+ * Why a role was turned away, in words - "Your role, Accountant, can only
+ * view Support, not change it." Plain text.
+ */
+function permissionRefusedText($module, $level, $has = 0) {
+    $label = roleModuleInfo()[$module]['label'] ?? ucfirst(str_replace('module_', '', (string) $module));
+    $role = permissionRoleName();
+    $who = 'Your role' . ($role !== '' ? ", $role," : '');
+    $level = max(1, min(3, intval($level)));
+    if ($has <= 0) {
+        $why = "$who can't open $label.";
+    } elseif ($level === 2) {
+        $why = "$who can only view $label, not change it.";
+    } else {
+        $why = "$who can't delete in $label - that takes Full access.";
+    }
+    return "$why An admin can change what your role allows in Admin > Roles.";
+}
+
+/*
+ * Turn the agent away, in the way that fits what they asked for: a window
+ * says why in the window; a form or link goes back to its page, which says
+ * why; a page already being drawn says why in its place; ajax.php answers
+ * JSON with a 403. $message is plain text. Doesn't return.
+ */
+function permissionRefuse($message) {
+    $html = escapeHtml($message);
+
+    // A window - includes/modal_header.php
+    if (defined('ITFLOW_MODAL')) {
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        echo json_encode(['content' => '<div class="modal-header bg-dark"><h5 class="modal-title"><i class="fas fa-fw fa-lock me-2"></i>Not for your role</h5>'
+            . '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>'
+            . '<div class="modal-body"><p class="mb-0">' . $html . '</p></div>'
+            . '<div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button></div>']);
+        exit;
+    }
+
+    if (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'ajax.php') {
+        if (!headers_sent()) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+        }
+        echo json_encode(['ok' => false, 'error' => $message]);
+        exit;
+    }
+
+    // A handler, or a page that checks before drawing anything - back where they came from, which says why
+    if (defined('FROM_POST_HANDLER') || !headers_sent()) {
+        flashAlert($html, 'error');
+        redirect(permissionBackUrl());
+    }
+
+    // A page already under way - why, where the page would be, then the rest of the layout so its menus work
+    echo '<div class="card my-3 mx-auto itflow-refused" style="max-width: 36rem;"><div class="card-body text-center py-5">'
+        . '<span class="itflow-asset-icon itflow-asset-icon-lg itflow-asset-tone-other mb-3" aria-hidden="true"><i class="fas fa-lock"></i></span>'
+        . '<h2 class="h5">Not for your role</h2><p class="text-body-secondary">' . $html . '</p>'
+        . '<a class="btn btn-outline-secondary" href="' . escapeHtml(permissionBackUrl()) . '"><i class="fas fa-arrow-left me-2"></i>Back</a>'
+        . '</div></div>';
+    extract($GLOBALS, EXTR_SKIP);
+    require $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+    exit;
+}
+
+/* Where to send someone turned away - the page they came from on this site, unless it is this one; the dashboard otherwise. */
+function permissionBackUrl() {
+    $referer = (string) ($_SERVER['HTTP_REFERER'] ?? '');
+    $from = parse_url($referer);
+    $here = parse_url((string) ($_SERVER['REQUEST_URI'] ?? ''));
+    $host = parse_url('http://' . ($_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? '')), PHP_URL_HOST);
+    if ($referer !== '' && ($from['host'] ?? '') === $host && ($from['path'] ?? '') !== ($here['path'] ?? '')) {
+        return $referer;
+    }
+    return '/agent/dashboard.php';
 }
 
 // Client-scope SQL fragment for a list query, built from the signed-in user's allow / deny lists.

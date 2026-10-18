@@ -814,6 +814,10 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Role names are unique, in any case, and the description is optional.
   - The audit log says what changed on a role: "Sales Read to Modify, Reports None to Read".
   - A page reads the agent's role once, where it used to ask the database again at every check - dozens of times on a busy page.
+  - When a role doesn't allow something, ITFlow says so plainly - "Your role, Technician, can only view Support, not change it" - with how to get it changed: on a page, in a card where the page would be, with Back; in a window, in the window; after a button, back on its page. It used to show a bare line of text on a blank page, and a window it refused only said it couldn't load.
+  - Agents aren't offered what their role can't do: the Clients and Assets bulk menus at Read, Delete among archived assets below Full, editing an asset's recurring tickets at Read, and links into a report for an agent who can't open it.
+  - The role window warns when a role is given Support, Credentials, Sales or Financial with Clients at None, as each client's pages need Clients.
+  - A user's quick look shows what they can open, from their role, and the user form shows what the role picked opens.
 
 ### Bug Fixes
 
@@ -910,6 +914,10 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Racks: the Archived button broke onto two lines on a laptop-sized screen.
 - Roles: a role's name went into the "created" and "edited" messages as it was typed, so markup in it ran on the page.
 - Roles: an admin role could have admin taken off while its agents were the admins using it, your own included, shutting them out of Admin. Archived roles couldn't be seen or brought back.
+- Roles: being turned away left "You are not permitted to do that!" waiting on the next page opened.
+- Contacts: an agent without Support saw a contact's Assets, Documents, Files and Services tabs, which led to pages they were refused. A document's or file's linked assets, licenses, services, domains and certificates were listed to them too.
+- All Client Docs listed Credentials to agents who can't open it.
+- Notifications: shared-link notifications reached agents without Support, with a link they couldn't open.
 - License templates: the type picker showed a stray "<" at the top.
 - Admin > Settings > Defaults: Payment Method and Expense Payment Method listed the payment method categories that moved to Admin > Payment Methods in 2.3.1, so a new install had nothing to pick. They list Admin > Payment Methods now.
 - Messages, hints and window titles were reworded where they were unclear, and bulk windows say "1 asset" or "3 assets" correctly.
@@ -1315,6 +1323,11 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Admin: `admin/roles.php` is rebuilt (`q`, `archived`; no paging or sorting). `admin/modals/role/role_form.php` is shared by `role_add.php` (`copy` - a role to start from) and `role_edit.php` (`id`), with `js/role_form.js`. `admin/post/roles.php`: `add_role` and `edit_role` (`role_id`, `name`, `description`, `admin`, `levels[module_id]` 0 to 3 - the old `role_name`, `role_description`, `role_is_admin` and `module_id##module_name` fields are gone), and GET `archive_role`, `restore_role` and `delete_role`. Audit entries are User Role Create, Edit (with what changed), Archive, Restore and Delete.
   - The hard-coded `role_id !== 3` checks on the roles page are gone; the guards are `roleAdminBlocker()` and the archive and delete blockers.
   - CSS: `.itflow-role-agents` and `.itflow-role-level-list`.
+  - Refusals: `enforceUserPermission()` and `enforceAdminPermission()` go through `permissionRefuse($message)` in `functions/auth.php`. It answers a window (`ITFLOW_MODAL`, now defined by `includes/modal_header.php`) with its own JSON `content`, `ajax.php` with a 403 and `{ok: false, error}`, a handler or a page that hasn't drawn anything yet with `flashAlert()` and `redirect(permissionBackUrl())`, and a page already drawing with a `.itflow-refused` card and the footer. Also `permissionRefusedText($module, $level, $has)`, `permissionRoleName()` and `permissionBackUrl()` (the referrer on this host unless it is this page, else the dashboard). The session alert is no longer set before the old `exit`. `WORDING_ROLECHECK_FAILED` is kept but no longer used.
+  - `reportCanOpen($key)` in `functions/reports.php`, for links into a report. The credentials, unbilled time, expenses, recurring expenses, income and trips pages use it, and the dashboard's Profit card opens Transactions for the period without it.
+  - `LINK_ENTITIES` has a `view` module for asset, software, service, domain and certificate (Support) and contact and vendor (Clients), so `linkTypesFor()` leaves them out for an agent without it. `notificationTypeModules()` files `Shared link opened`, `Shared link locked`, `Login sent back` and `Share Viewed` under Support.
+  - `agent/includes/inc_client_top_head.php` includes `modals/client/client_delete.php` only where Delete Client is in the menu. `agent/includes/client_overview_side_nav.php` checks Credentials.
+  - The role window marks each module `data-role-module="module_name"` and has `data-role-needs-clients`; the user form has a `data-user-role-access` block per role.
 - Empty states: every list page sets `$empty_state` before including `includes/filter_footer.php`, and `includes/inc_empty_state.php` draws it with `emptyStateHtml()` (`functions/format.php`) when the list has nothing - `thing`, `icon`, `title`, `text`, `actions` (`label`, `modal` or `href`, `size`, `icon`; the first is the main one), `archived`, `view`, `filtered`, `views`, `match_title`, `match_text` and `clear_url`. `emptyStateFiltered($views)` reads the GET string for a search or filter, leaving out paging, sorting, `client_id`, `archived` and the page's views, and `emptyStateClearUrl($views)` is the page without them. `emptyStatePill($pills, $key, $default, $good)` builds a pill's own state from the page's pill array (`label`, `icon`, `title`, `alarm`), with a tick for `alarm` pills and the keys in `$good`. Files, notifications and racks call `emptyStateHtml()` in their own layout; files and notifications set `$empty_state_skip`. A page that sets nothing still gets one, worded from `$page_title`. The pages' own empty blocks (`.itflow-asset-empty` under a list) are gone. CSS: `.itflow-empty-state` with `-icon` (a grey round tile), `-title`, `-text` and `-actions`.
 - Removed unused helpers and files:
   - `credentialLink()`, `projectLink()`, `linkCounts()`, `assetContactAvatar()`, `clientOverviewPersonInitials()`, and `getMonthlyTax()` and `getQuarterlyTax()`, which looked a tax up by name

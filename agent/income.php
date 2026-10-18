@@ -161,7 +161,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                         data-modal-url="<?= buildExportModalUrl('modals/income/income_export.php', ['client_id', 'client', 'category', 'account', 'method', 'show', 'type', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
                         <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
-                    <?php if (lookupUserPermission('module_reporting') >= 1) { ?>
+                    <?php if (reportCanOpen('income_summary')) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="reports/income_summary.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Income Summary</a>
                         <a class="dropdown-item" href="reports/income_by_client.php<?= $client_page ? "?client_id=$client_id" : '' ?>"><i class="fa fa-fw fa-users text-secondary me-2"></i>Income by Client</a>

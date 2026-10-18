@@ -825,7 +825,11 @@ if (mysqli_num_rows($sql) == 0) {
                                         ?>
                                         <tr>
                                             <td>
-                                                <a class="text-body fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id ?>"><?= $recurring_ticket_subject ?></a>
+                                                <?php if ($can_edit) { ?>
+                                                    <a class="text-body fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id ?>"><?= $recurring_ticket_subject ?></a>
+                                                <?php } else { ?>
+                                                    <span class="fw-semibold"><?= $recurring_ticket_subject ?></span>
+                                                <?php } ?>
                                             </td>
                                             <td><?= ticketPriorityHtml($row['recurring_ticket_priority'], 'detail') ?></td>
                                             <td><?= $recurring_ticket_frequency ?></td>

@@ -306,7 +306,7 @@ $hours_text = function ($hours) {
                     <?php if ($client_view) { ?>
                         <a class="btn btn-dark btn-sm me-1" href="unbilled_time.php" title="Every client's unbilled time"><i class="fas fa-users me-1"></i>All clients</a>
                     <?php } ?>
-                    <?php if ($with_time) { ?>
+                    <?php if ($with_time && reportCanOpen('tickets_unbilled')) { ?>
                         <a class="btn btn-dark btn-sm" href="reports/tickets_unbilled.php<?= $client_view ? "?client_id=$client_id" : '' ?>" title="The Unbilled Work report"><i class="fas fa-chart-bar me-1"></i>Report</a>
                     <?php } ?>
                 </div>

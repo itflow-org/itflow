@@ -372,6 +372,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active assets' : 'Show archived assets' ?>">
                             <i class="fa fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
                         </a>
+                        <?php if ($can_edit) { // every bulk action changes them ?>
                         <div class="dropdown" id="bulkActionButton" hidden>
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount"></span>)
@@ -429,10 +430,12 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                         type="submit" form="bulkActions" name="bulk_restore_assets">
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
+                                    <?php if ($can_delete) { ?>
                                     <button class="dropdown-item text-danger text-bold"
                                         type="submit" form="bulkActions" name="bulk_delete_assets">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </button>
+                                    <?php } ?>
                                 <?php } else { ?>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-danger confirm-link"
@@ -442,6 +445,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                 <?php } ?>
                             </div>
                         </div>
+                        <?php } ?>
                     </div>
                 </div>
 
@@ -455,11 +459,13 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
             <table class="table table-hover align-middle mb-0 itflow-asset-table">
                 <thead class="<?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap table-light">
                 <tr>
+                    <?php if ($can_edit) { ?>
                     <th class="checkbox-column border-end">
                         <div class="form-check">
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" title="Select all on this page">
                         </div>
                     </th>
+                    <?php } ?>
                     <th>
                         <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=asset_name&order=<?= $disp ?>">
                             Name <?php if ($sort == 'asset_name') { echo $order_icon; } ?>
@@ -576,11 +582,13 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
 
                     ?>
                     <tr>
+                        <?php if ($can_edit) { ?>
                         <td class="checkbox-column bg-light border-end">
                             <div class="form-check">
                                 <input class="form-check-input bulk-select" type="checkbox" name="asset_ids[]" value="<?= $asset_id ?>" aria-label="Select <?= $asset_name ?>">
                             </div>
                         </td>
+                        <?php } ?>
                         <!-- The whole cell opens the asset (stretched-link); the tag pills sit above it -->
                         <td class="position-relative itflow-asset-name-cell">
                             <div class="d-flex align-items-center gap-3">

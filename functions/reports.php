@@ -217,6 +217,12 @@ function reportCan(array $report) {
     return reportPermission('module_reporting') >= 1 && reportPermission($report['module']) >= 1;
 }
 
+/** May this user open the report with this key (its file's name)? For links into a report from other pages. */
+function reportCanOpen($key) {
+    $report = reportFind($key);
+    return $report !== null && reportCan($report);
+}
+
 /** The catalogue with only the reports this user may open, and only the groups left with any. */
 function reportCatalogForUser() {
     $groups = [];

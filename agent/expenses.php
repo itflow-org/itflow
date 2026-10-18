@@ -165,7 +165,9 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                         <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <a class="dropdown-item" href="recurring_expenses.php"><i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Expenses</a>
-                    <a class="dropdown-item" href="reports/expense_summary.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Expenses Report</a>
+                    <?php if (reportCanOpen('expense_summary')) { ?>
+                        <a class="dropdown-item" href="reports/expense_summary.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Expenses Report</a>
+                    <?php } ?>
                 </div>
             </div>
         </div>

@@ -324,12 +324,15 @@ $total_leads = intval($row['leads']);
                                 <i class="fas fa-fw fa-layer-group"></i><span class="d-none d-sm-inline ms-2">Action</span> (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
+                                <?php if ($can_add_ticket) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_bulk_add_ticket.php" data-modal-size="lg" data-bulk="true">
                                     <i class="fas fa-fw fa-life-ring me-2"></i>Open Tickets
                                 </a>
+                                <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_bulk_email.php" data-modal-size="lg" data-bulk="true">
                                     <i class="fas fa-fw fa-paper-plane me-2"></i>Send Email
                                 </a>
+                                <?php if ($can_edit) { ?>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="client" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-tags me-2"></i>Tags
@@ -356,6 +359,7 @@ $total_leads = intval($row['leads']);
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                 <?php } ?>
+                                <?php } // can_edit ?>
                             </div>
                         </div>
                         <a href="<?= clientsFilterUrl(['archived' => $archived ? null : 1]) ?>" class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active ' . ($leads_filter ? 'leads' : 'clients') : 'Show archived ' . ($leads_filter ? 'leads' : 'clients') ?>">

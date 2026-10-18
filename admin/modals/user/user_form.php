@@ -103,6 +103,14 @@ $value = function ($key) use ($form) {
                     <?php } ?>
                 </select>
             </div>
+            <?php
+            // What each role opens, under the picker - the one picked shows
+            $form_role_rows = roleRows();
+            foreach (array_keys($form_roles) as $role_id) {
+                if (isset($form_role_rows[$role_id])) { ?>
+                    <div class="mt-2" data-user-role-access="<?= $role_id ?>"<?= $form_role_id === $role_id ? '' : ' hidden' ?>><?= roleAccessHtml($form_role_rows[$role_id]) ?></div>
+                <?php }
+            } ?>
             <div class="form-text">What they can see and change. <a href="roles.php" target="_blank">Roles <i class="fas fa-external-link-alt small"></i></a></div>
         </div>
     </div>
@@ -304,6 +312,10 @@ $value = function ($key) use ($form) {
         var isAdmin = option && option.dataset.roleAdmin === '1';
         adminNote.hidden = !isAdmin;
         rules.classList.toggle('opacity-50', isAdmin);
+        // What the role picked opens
+        root.querySelectorAll('[data-user-role-access]').forEach(function (access) {
+            access.hidden = access.dataset.userRoleAccess !== role.value;
+        });
     }
     role.addEventListener('change', roleChanged);
     roleChanged();

@@ -143,7 +143,9 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="expenses.php"><i class="fa fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses</a>
-                    <a class="dropdown-item" href="reports/expense_by_vendor.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Spend by Vendor</a>
+                    <?php if (reportCanOpen('expense_by_vendor')) { ?>
+                        <a class="dropdown-item" href="reports/expense_by_vendor.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Spend by Vendor</a>
+                    <?php } ?>
                 </div>
             </div>
         </div>
