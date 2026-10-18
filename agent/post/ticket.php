@@ -138,8 +138,6 @@ if (isset($_POST['add_ticket'])) {
         foreach (parseSubmittedTasks() as $task) {
             mysqli_query($mysqli, "INSERT INTO tasks SET task_name = '{$task['name']}', task_order = {$task['order']}, task_completion_estimate = {$task['estimate']}, task_ticket_id = $ticket_id");
         }
-    } else {
-        addTasksFromTicketTemplate($ticket_id, $ticket_template_id);
     }
 
     // Store any attached files against the ticket itself
@@ -148,6 +146,12 @@ if (isset($_POST['add_ticket'])) {
     ticketAddWatchers($ticket_id, ticketWatcherEmails($_POST['watchers'] ?? []));
     ticketSetOtherAssets($ticket_id, $other_asset_ids);
     tagSetForRecord('ticket', $ticket_id, (array) ($_POST['tags'] ?? []));
+
+    // Raised from a template - kept for the template's use, and its [Client] and the like filled in.
+    // The form had the template's fields in it already, so nothing more is added here.
+    if ($ticket_template_id) {
+        ticketTemplateFinish($ticket_id, $ticket_template_id, false, !isset($_POST['tasks_submitted']));
+    }
 
     // Raised about a service - from the service page's "Report a problem"
     foreach (array_unique(array_map('intval', (array) ($_POST['service_ids'] ?? []))) as $service_id) {
@@ -900,15 +904,13 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
     $ticket_prefix = escapeSql($config_ticket_prefix);
 
     // A template fills in what was left empty
-    if ($ticket_template_id) {
-        $template = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_template_details, ticket_template_subject FROM ticket_templates WHERE ticket_template_id = $ticket_template_id"));
-        if ($template) {
-            $subject_input = $subject_input !== '' ? $subject_input : (string) $template['ticket_template_subject'];
-            $details = $details !== '' ? $details : mysqli_real_escape_string($mysqli, (string) $template['ticket_template_details']);
-        }
+    $template = ticketTemplateRow($ticket_template_id);
+    if ($template) {
+        $subject_input = $subject_input !== '' ? $subject_input : (string) $template['ticket_template_subject'];
+        $details = $details !== '' ? $details : mysqli_real_escape_string($mysqli, (string) $template['ticket_template_details']);
     }
 
-    $count = 0;
+    $ticket_ids = [];
     foreach (array_unique(array_map('intval', (array) ($_POST['asset_ids'] ?? []))) as $asset_id) {
         $asset = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT asset_client_id, asset_name, asset_contact_id, asset_location_id FROM assets WHERE asset_id = $asset_id"));
         if (!$asset) {
@@ -921,7 +923,8 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
         $contact_id = ticketClientOwnedId('contact', $asset['asset_contact_id'], $client_id);
         $location_id = ticketClientOwnedId('location', $asset['asset_location_id'], $client_id);
         $project_id = ticketClientOwnedId('project', $project_input, $client_id);
-        $subject = escapeSql(mb_substr($asset['asset_name'] . ' - ' . $subject_input, 0, 500));
+        // The asset's name goes in front - unless the subject says where, with [Asset]
+        $subject = escapeSql(mb_substr(stripos($subject_input, '[asset]') !== false ? $subject_input : $asset['asset_name'] . ' - ' . $subject_input, 0, 500));
 
         mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = LAST_INSERT_ID(config_ticket_next_number), config_ticket_next_number = config_ticket_next_number + 1 WHERE company_id = 1");
         $ticket_number = mysqli_insert_id($mysqli);
@@ -934,18 +937,26 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
         $ticket_id = mysqli_insert_id($mysqli);
         applyTicketSla($ticket_id);
 
-        // Tasks from the modal, then the template's
+        // Tasks from the modal, then the template's - its tags and due time too, and [Asset] filled in
         foreach ((array) ($_POST['tasks'] ?? []) as $task) {
             $task_name = escapeSql(mb_substr(trim((string) $task), 0, 255));
             if ($task_name !== '') {
                 mysqli_query($mysqli, "INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
             }
         }
-        addTasksFromTicketTemplate($ticket_id, $ticket_template_id);
+        if ($template) {
+            ticketTemplateFinish($ticket_id, $ticket_template_id, true, true);
+        }
 
         logAudit("Ticket", "Create", "$session_name created ticket $ticket_prefix$ticket_number - $subject", $client_id, $ticket_id);
         triggerCustomAction('ticket_create', $ticket_id);
-        $count++;
+        $ticket_ids[] = $ticket_id;
+    }
+    $count = count($ticket_ids);
+
+    // The agent they went to hears once, about all of them
+    if ($ticket_ids && $assigned_to) {
+        ticketMailAssigned($assigned_to, $ticket_ids, stripslashes($session_name));
     }
 
     logAudit("Ticket", "Bulk Create", "$session_name created $count ticket(s) for the assets picked");

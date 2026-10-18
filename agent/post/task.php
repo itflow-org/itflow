@@ -68,27 +68,6 @@ if (isset($_POST['edit_ticket_task'])) {
 
 }
 
-if (isset($_POST['edit_ticket_template_task'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $task_template_id = intval($_POST['task_template_id']);
-    $task_name = escapeSql($_POST['name']);
-    $task_order = intval($_POST['order']);
-    $task_completion_estimate = intval($_POST['completion_estimate']);
-
-    mysqli_query($mysqli, "UPDATE task_templates SET task_template_name = '$task_name', task_template_order = $task_order, task_template_completion_estimate = $task_completion_estimate WHERE task_template_id = $task_template_id");
-
-    logAudit("Task", "Edit", "$session_name edited task $task_name", 0, $task_template_id);
-
-    flashAlert("Task <strong>" . stripslashes($task_name) . "</strong> saved");
-
-    redirect();
-
-}
-
 if (isset($_GET['delete_task'])) {
 
     validateCSRFToken();

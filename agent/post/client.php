@@ -718,116 +718,87 @@ if (isset($_POST['bulk_add_client_ticket'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $assigned_to = intval($_POST['bulk_assigned_to']);
-    if ($assigned_to == 0) {
-        $ticket_status = 1;
-    } else {
-        $ticket_status = 2;
-    }
-    $subject = escapeSql($_POST['bulk_subject']);
-    $priority = escapeSql($_POST['bulk_priority']);
-    $category_id = intval($_POST['bulk_category']);
-    $details = mysqli_real_escape_string($mysqli, $_POST['bulk_details']);
-    $project_id = intval($_POST['bulk_project']);
-    $use_primary_contact = intval($_POST['use_primary_contact']);
-    $ticket_template_id = intval($_POST['bulk_ticket_template_id']);
-    $billable = intval($_POST['bulk_billable'] ?? 0);
-
-    // Check to see if adding a ticket by template
-    if($ticket_template_id) {
-        $sql = mysqli_query($mysqli, "SELECT ticket_template_details, ticket_template_subject FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
-        $row = mysqli_fetch_assoc($sql);
-
-        // Override Template Subject
-        if(empty($subject)) {
-            $subject = escapeSql($row['ticket_template_subject']);
-        }
-        $details = mysqli_escape_string($mysqli, $row['ticket_template_details']);
-
-        // Get Associated Tasks from the ticket template
-        $sql_task_templates = mysqli_query($mysqli, "SELECT task_template_name, task_template_order FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
-
+    // Every client picked, checked before any ticket is made
+    $client_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_POST['client_ids'] ?? [])))));
+    foreach ($client_ids as $client_id) {
+        enforceClientAccess($client_id);
     }
 
-    // Create ticket for each selected asset
-    if (isset($_POST['client_ids'])) {
+    $assigned_to = ticketAgentId($_POST['bulk_assigned_to'] ?? 0);
+    $ticket_status = $assigned_to ? TICKET_STATUS_OPEN : TICKET_STATUS_NEW;
+    $subject_input = trim((string) ($_POST['bulk_subject'] ?? ''));
+    $priority = escapeSql(ticketPriority($_POST['bulk_priority'] ?? ''));
+    $category_id = ticketCategoryId($_POST['bulk_category'] ?? 0);
+    $details = mysqli_real_escape_string($mysqli, (string) ($_POST['bulk_details'] ?? ''));
+    $project_id = intval($_POST['bulk_project'] ?? 0);
+    $use_primary_contact = !empty($_POST['use_primary_contact']);
+    $ticket_template_id = intval($_POST['bulk_ticket_template_id'] ?? 0);
+    $billable = intval($_POST['bulk_billable'] ?? 0) ? 1 : 0;
+    $ticket_prefix = escapeSql($config_ticket_prefix);
 
-        // Check every selected client before creating any tickets
-        foreach ($_POST['client_ids'] as $client_id) {
-            enforceClientAccess(intval($client_id));
+    // A template fills in what was left empty
+    $template = ticketTemplateRow($ticket_template_id);
+    if ($template) {
+        $subject_input = $subject_input !== '' ? $subject_input : (string) $template['ticket_template_subject'];
+        $details = trim((string) ($_POST['bulk_details'] ?? '')) !== '' ? $details : mysqli_real_escape_string($mysqli, (string) $template['ticket_template_details']);
+    }
+    if ($subject_input === '') {
+        flashAlert('The tickets need a subject.', 'error');
+        redirect();
+    }
+    $subject = escapeSql(mb_substr($subject_input, 0, 500));
+
+    $ticket_ids = [];
+    foreach ($client_ids as $client_id) {
+        if (!getFieldById('clients', $client_id, 'client_name')) {
+            continue;
         }
 
-        // Get a Asset Count
-        $client_count = count($_POST['client_ids']);
+        // Each client's primary contact, when asked; a shared project only when it is internal
+        $contact_id = 0;
+        if ($use_primary_contact) {
+            $primary = mysqli_fetch_row(mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_primary = 1 AND contact_archived_at IS NULL LIMIT 1"));
+            $contact_id = $primary ? intval($primary[0]) : 0;
+        }
+        $ticket_project_id = ticketClientOwnedId('project', $project_id, $client_id);
 
-        foreach ($_POST['client_ids'] as $client_id) {
-            $client_id = intval($client_id);
+        // Atomically increment and get the new ticket number
+        mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = LAST_INSERT_ID(config_ticket_next_number), config_ticket_next_number = config_ticket_next_number + 1 WHERE company_id = 1");
+        $ticket_number = mysqli_insert_id($mysqli);
+        $url_key = randomString(32);
 
-            $sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
-            $row = mysqli_fetch_assoc($sql);
+        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Agent', ticket_category = $category_id,
+            ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $ticket_status,
+            ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_url_key = '$url_key',
+            ticket_client_id = $client_id, ticket_invoice_id = 0, ticket_project_id = $ticket_project_id");
+        $ticket_id = mysqli_insert_id($mysqli);
+        applyTicketSla($ticket_id);
 
-            $client_name = escapeSql($row['client_name']);
-
-            // Atomically increment and get the new ticket number
-            mysqli_query($mysqli, "
-                UPDATE settings
-                SET
-                    config_ticket_next_number = LAST_INSERT_ID(config_ticket_next_number),
-                    config_ticket_next_number = config_ticket_next_number + 1
-                WHERE company_id = 1
-            ");
-
-            $ticket_number = mysqli_insert_id($mysqli);
-
-            // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-            $config_ticket_prefix = escapeSql($config_ticket_prefix);
-            $config_ticket_from_name = escapeSql($config_ticket_from_name);
-            $config_ticket_from_email = escapeSql($config_ticket_from_email);
-            $config_base_url = escapeSql($config_base_url);
-
-            //Generate a unique URL key for clients to access
-            $url_key = randomString(32);
-
-            // Only a project of this client's, or an internal one
-            $ticket_project_id = ticketClientOwnedId('project', $project_id, $client_id);
-
-            mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $ticket_status, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_project_id = $ticket_project_id");
-
-            $ticket_id = mysqli_insert_id($mysqli);
-            applyTicketSla($ticket_id);
-
-            // Add Tasks
-            if (!empty($_POST['tasks'])) {
-                foreach ($_POST['tasks'] as $task) {
-                    $task_name = escapeSql($task);
-                    // Check that task_name is not-empty (For some reason the !empty on the array doesnt work here like in watchers)
-                    if (!empty($task_name)) {
-                        mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
-                    }
-                }
+        // Tasks typed in, then the template's - its tags and due time too, and [Client] filled in
+        foreach ((array) ($_POST['tasks'] ?? []) as $task) {
+            $task_name = escapeSql(mb_substr(trim((string) $task), 0, 255));
+            if ($task_name !== '') {
+                mysqli_query($mysqli, "INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
             }
-
-            // Add Tasks from Template if Template was selected
-            if($ticket_template_id) {
-                if (mysqli_num_rows($sql_task_templates) > 0) {
-                    while ($row = mysqli_fetch_assoc($sql_task_templates)) {
-                        $task_order = intval($row['task_template_order']);
-                        $task_name = escapeSql($row['task_template_name']);
-
-                        mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_order = $task_order, task_ticket_id = $ticket_id");
-                    }
-                }
-            }
-
-            // Custom action/notif handler
-            triggerCustomAction('ticket_create', $ticket_id);
+        }
+        if ($template) {
+            ticketTemplateFinish($ticket_id, $ticket_template_id, true, true);
         }
 
-        logAudit("Ticket", "Bulk Create", "$session_name created $client_count tickets for $client_name");
-
-        flashAlert("<strong>$client_count</strong> tickets created for selected clients");
-
+        logAudit("Ticket", "Create", "$session_name created ticket $ticket_prefix$ticket_number - $subject", $client_id, $ticket_id);
+        triggerCustomAction('ticket_create', $ticket_id);
+        $ticket_ids[] = $ticket_id;
     }
+    $count = count($ticket_ids);
+
+    // The agent they went to hears once, about all of them
+    if ($ticket_ids && $assigned_to) {
+        ticketMailAssigned($assigned_to, $ticket_ids, stripslashes($session_name));
+    }
+
+    logAudit("Ticket", "Bulk Create", "$session_name created $count ticket(s) for the clients picked");
+
+    flashAlert("Created <strong>$count</strong> ticket" . ($count === 1 ? '' : 's') . " for the clients picked");
 
     redirect();
 

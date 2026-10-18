@@ -536,15 +536,16 @@ $export_extra = [
     ?>
 </div>
 
-<?php if (!empty($_GET['open'])) { ?>
+<?php if (!empty($_GET['open']) || !empty($_GET['new_from_template'])) { ?>
     <script>
-        // Opened from somewhere that wants one ticket's quick look
+        // Opened from somewhere that wants one ticket's quick look - or a new
+        // ticket from a template (New ticket from it, Admin > Ticket Templates)
         document.addEventListener('DOMContentLoaded', function () {
             var open = document.createElement('a');
             open.className = 'ajax-modal';
             open.href = '#';
             open.dataset.modalSize = 'lg';
-            open.dataset.modalUrl = 'modals/ticket/ticket.php?id=<?= intval($_GET['open']) ?>';
+            open.dataset.modalUrl = <?= json_encode(!empty($_GET['open']) ? 'modals/ticket/ticket.php?id=' . intval($_GET['open']) : 'modals/ticket/ticket_add.php?ticket_template_id=' . intval($_GET['new_from_template'])) ?>;
             document.body.appendChild(open);
             open.click();
             open.remove();

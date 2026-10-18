@@ -107,6 +107,7 @@ ob_start();
 
                 <?php
                 $selected_ticket_template_id = intval($recurring['recurring_ticket_ticket_template_id']);
+                $ticket_template_hint = "Picking one fills in the recurring ticket - change anything before it is saved. <span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like are filled in each time it raises a ticket.";
                 require_once '../../includes/inc_ticket_template_select.php';
                 ?>
 
@@ -114,12 +115,12 @@ ob_start();
                     <label>Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" maxlength="500" value="<?= escapeHtml($recurring['recurring_ticket_subject']) ?>" required>
+                        <input type="text" class="form-control" id="subjectInput" name="subject" data-template-field="subject" placeholder="Subject" maxlength="500" value="<?= escapeHtml($recurring['recurring_ticket_subject']) ?>" required>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <textarea class="form-control tinymceTicket" id="detailsInput" name="details"><?= escapeHtml($recurring['recurring_ticket_details']) ?></textarea>
+                    <textarea class="form-control tinymceTicket" id="detailsInput" name="details" data-template-field="details"><?= escapeHtml($recurring['recurring_ticket_details']) ?></textarea>
                 </div>
 
                 <div class="row">
@@ -128,7 +129,7 @@ ob_start();
                             <label>Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                                <select class="form-select select2" name="priority" required>
+                                <select class="form-select select2" name="priority" data-template-field="priority" required>
                                     <?php foreach (['Low' => 'var(--bs-info)', 'Medium' => 'var(--bs-warning)', 'High' => 'var(--bs-danger)', 'Urgent' => 'var(--bs-emphasis-color)'] as $priority => $color) { ?>
                                         <option <?= $recurring['recurring_ticket_priority'] === $priority ? 'selected' : '' ?> data-color="<?= $color ?>"><?= $priority ?></option>
                                     <?php } ?>
@@ -141,7 +142,7 @@ ob_start();
                             <label>Category</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                                <select class="form-select select2" name="category_id">
+                                <select class="form-select select2" name="category_id" data-template-field="category">
                                     <option value="0">- Not categorized -</option>
                                     <?= categoryOptionsHtml('Ticket', $category_id) ?>
                                 </select>
@@ -155,7 +156,7 @@ ob_start();
                     <label>Assign to</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                        <select class="form-select select2" name="assigned_to">
+                        <select class="form-select select2" name="assigned_to" data-template-field="assigned">
                             <option value="0">- Unassigned -</option>
                             <?php
                             $sql_agents = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users
@@ -170,7 +171,7 @@ ob_start();
 
                 <?php if ($config_module_enable_accounting && lookupUserPermission('module_sales') >= 2) { ?>
                     <div class="form-check form-switch">
-                        <input type="checkbox" class="form-check-input" id="recurringBillable<?= $recurring_ticket_id ?>" name="billable" <?= $billable ? 'checked' : '' ?> value="1">
+                        <input type="checkbox" class="form-check-input" id="recurringBillable<?= $recurring_ticket_id ?>" name="billable" <?= $billable ? 'checked' : '' ?> value="1" data-template-field="billable">
                         <label class="form-check-label" for="recurringBillable<?= $recurring_ticket_id ?>">The tickets it raises are billable</label>
                     </div>
                 <?php } ?>

@@ -1436,6 +1436,14 @@ function recurringTicketRaise($recurring_ticket_id, $by = 'Cron') {
         WHERE recurring_ticket_id = $recurring_ticket_id AND recurring_ticket_assets.asset_id <> $asset_id");
     addTasksFromRecurringTicket($ticket_id, $recurring_ticket_id);
 
+    // The template it was made from, kept for the template's use, and its [Client], [Month]
+    // and the like filled in - every time it is raised (functions/ticket_template.php)
+    $template_id = intval($row['recurring_ticket_ticket_template_id'] ?? 0);
+    if ($template_id && ticketTemplateRow($template_id)) {
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_template_id = $template_id WHERE ticket_id = $ticket_id");
+    }
+    ticketPlaceholdersFill($ticket_id);
+
     logAudit("Ticket", "Create", escapeSql($by) . " created recurring $frequency ticket $prefix$ticket_number - $subject", $client_id, $ticket_id);
     triggerCustomAction('ticket_create', $ticket_id);
 

@@ -487,11 +487,12 @@ function projectContactId($contact_id, $client_id) {
 
 /**
  * Raise the tickets of a project template on a project, in the template's
- * order, each with the template's tasks. They go to the project's client
- * contact, and to its manager when $assign_to is given (an agent id).
- * The client is not emailed - a project's tickets are planned work, not a
- * request. [Client] and the like in a subject are filled in
- * (projectTemplateSubject()). How many tickets were raised.
+ * order, each set up as its ticket template says (category, priority,
+ * billing, agent, due time, tags) with the template's tasks. They go to the
+ * project's client contact, and to its manager when $assign_to is given (an
+ * agent id) - else to the template's agent. The client is not emailed - a
+ * project's tickets are planned work, not a request. [Client], [Project] and
+ * the like are filled in (ticketTemplateFinish()). How many tickets were raised.
  */
 function projectApplyTemplate($project, $project_template_id, $assign_to = 0) {
     global $mysqli, $session_user_id, $session_name, $config_ticket_prefix, $config_ticket_default_billable;
@@ -500,57 +501,40 @@ function projectApplyTemplate($project, $project_template_id, $assign_to = 0) {
     $client_id = intval($project['project_client_id']);
     $contact_id = projectContactId($project['project_contact_id'] ?? 0, $client_id);
     $assign_to = ticketAgentId($assign_to);
-    $status = $assign_to ? TICKET_STATUS_OPEN : TICKET_STATUS_NEW;
-    $billable = intval($config_ticket_default_billable) === 1 ? 1 : 0;
     $prefix = escapeSql($config_ticket_prefix);
     $template_name = escapeSql((string) getFieldById('project_templates', $project_template_id, 'project_template_name'));
 
-    $sql = mysqli_query($mysqli, "SELECT ticket_templates.ticket_template_id, ticket_template_subject, ticket_template_name, ticket_template_details
+    $sql = mysqli_query($mysqli, "SELECT project_template_ticket_templates.ticket_template_id
         FROM project_template_ticket_templates
         JOIN ticket_templates ON ticket_templates.ticket_template_id = project_template_ticket_templates.ticket_template_id
         WHERE project_template_ticket_templates.project_template_id = $project_template_id
         ORDER BY ticket_template_order ASC, ticket_template_name ASC");
     $raised = 0;
-    while ($row = mysqli_fetch_assoc($sql)) {
+    while ($link = mysqli_fetch_row($sql)) {
+        $row = ticketTemplateRow($link[0]);
         $subject = trim((string) $row['ticket_template_subject']) !== '' ? $row['ticket_template_subject'] : $row['ticket_template_name'];
-        $subject = escapeSql(mb_substr(projectTemplateSubject($subject, $project), 0, 500));
+        $subject = escapeSql(mb_substr($subject, 0, 500));
         $details = mysqli_real_escape_string($mysqli, (string) $row['ticket_template_details']);
+        $priority = escapeSql(ticketPriority($row['ticket_template_priority'] ?? ''));
+        $category_id = ticketCategoryId($row['ticket_template_category_id']);
+        $billable = $row['ticket_template_billable'] !== null ? intval($row['ticket_template_billable']) : (intval($config_ticket_default_billable) === 1 ? 1 : 0);
+        $agent = $assign_to ?: ticketAgentId($row['ticket_template_assigned_to']);
+        $status = $agent ? TICKET_STATUS_OPEN : TICKET_STATUS_NEW;
         mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = LAST_INSERT_ID(config_ticket_next_number), config_ticket_next_number = config_ticket_next_number + 1 WHERE company_id = 1");
         $ticket_number = intval(mysqli_insert_id($mysqli));
         $url_key = randomString(32);
-        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$prefix', ticket_number = $ticket_number, ticket_source = 'Project',
-            ticket_subject = '$subject', ticket_details = '$details', ticket_priority = 'Medium', ticket_billable = $billable, ticket_status = $status,
-            ticket_created_by = " . intval($session_user_id) . ", ticket_assigned_to = $assign_to, ticket_contact_id = $contact_id, ticket_url_key = '$url_key',
+        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$prefix', ticket_number = $ticket_number, ticket_source = 'Project', ticket_category = $category_id,
+            ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $status,
+            ticket_created_by = " . intval($session_user_id) . ", ticket_assigned_to = $agent, ticket_contact_id = $contact_id, ticket_url_key = '$url_key',
             ticket_client_id = $client_id, ticket_invoice_id = 0, ticket_project_id = $project_id");
         $ticket_id = mysqli_insert_id($mysqli);
         applyTicketSla($ticket_id);
-        addTasksFromTicketTemplate($ticket_id, $row['ticket_template_id']);
+        ticketTemplateFinish($ticket_id, $row['ticket_template_id'], true, true);
         logTicketHistory($ticket_id, "$session_name raised the ticket from project template $template_name");
         triggerCustomAction('ticket_create', $ticket_id);
         $raised++;
     }
     return $raised;
-}
-
-/**
- * A template ticket's subject with what is known filled in: [Client], [Project],
- * [Month], [Quarter] and [Year]. Anything else in brackets ([User], [Server
- * Name]) is the agent's to fill in, and stays.
- */
-function projectTemplateSubject($subject, $project) {
-    $month = intval(date('n'));
-    $known = [
-        'project' => (string) $project['project_name'],
-        'month' => date('F Y'),
-        'quarter' => 'Q' . intval(ceil($month / 3)) . ' ' . date('Y'),
-        'year' => date('Y'),
-    ];
-    if (intval($project['project_client_id']) && !empty($project['client_name'])) {
-        $known['client'] = (string) $project['client_name'];
-    }
-    return preg_replace_callback('/\[(client|project|month|quarter|year)\]/i', function ($match) use ($known) {
-        return $known[strtolower($match[1])] ?? $match[0];
-    }, (string) $subject);
 }
 
 /**

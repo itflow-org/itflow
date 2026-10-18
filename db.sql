@@ -3364,6 +3364,23 @@ CREATE TABLE `ticket_tags` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ticket_template_tags`
+--
+
+DROP TABLE IF EXISTS `ticket_template_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ticket_template_tags` (
+  `ticket_template_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`ticket_template_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `ticket_template_tags_ibfk_1` FOREIGN KEY (`ticket_template_id`) REFERENCES `ticket_templates` (`ticket_template_id`) ON DELETE CASCADE,
+  CONSTRAINT `ticket_template_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `ticket_templates`
 --
 
@@ -3376,6 +3393,11 @@ CREATE TABLE `ticket_templates` (
   `ticket_template_description` text DEFAULT NULL,
   `ticket_template_subject` varchar(500) DEFAULT NULL,
   `ticket_template_details` longtext DEFAULT NULL,
+  `ticket_template_category_id` int(11) NOT NULL DEFAULT 0,
+  `ticket_template_priority` varchar(20) DEFAULT NULL,
+  `ticket_template_billable` tinyint(1) DEFAULT NULL,
+  `ticket_template_assigned_to` int(11) NOT NULL DEFAULT 0,
+  `ticket_template_due_hours` int(11) NOT NULL DEFAULT 0,
   `ticket_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ticket_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `ticket_template_archived_at` datetime DEFAULT NULL,
@@ -3465,12 +3487,14 @@ CREATE TABLE `tickets` (
   `ticket_invoice_id` int(11) NOT NULL DEFAULT 0,
   `ticket_project_id` int(11) NOT NULL DEFAULT 0,
   `ticket_recurring_ticket_id` int(11) DEFAULT 0,
+  `ticket_template_id` int(11) NOT NULL DEFAULT 0,
   `ticket_order` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ticket_id`),
   KEY `ticket_response_due_at` (`ticket_response_due_at`),
   KEY `ticket_resolution_due_at` (`ticket_resolution_due_at`),
   KEY `ticket_client_id` (`ticket_client_id`,`ticket_archived_at`),
-  KEY `ticket_project_id` (`ticket_project_id`)
+  KEY `ticket_project_id` (`ticket_project_id`),
+  KEY `ticket_template_id` (`ticket_template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

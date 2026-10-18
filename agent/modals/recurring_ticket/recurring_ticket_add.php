@@ -92,18 +92,21 @@ ob_start();
 
                 <?php } ?>
 
-                <?php require_once '../../includes/inc_ticket_template_select.php'; ?>
+                <?php
+                $ticket_template_hint = "Picking one fills in the recurring ticket - change anything before it is saved. <span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like are filled in each time it raises a ticket.";
+                require_once '../../includes/inc_ticket_template_select.php';
+                ?>
 
                 <div class="mb-3">
                     <label>Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" maxlength="500" required>
+                        <input type="text" class="form-control" id="subjectInput" name="subject" data-template-field="subject" placeholder="Subject" maxlength="500" required>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <textarea class="form-control tinymceTicket" id="detailsInput" name="details"></textarea>
+                    <textarea class="form-control tinymceTicket" id="detailsInput" name="details" data-template-field="details"></textarea>
                 </div>
 
                 <div class="row">
@@ -113,7 +116,7 @@ ob_start();
                             <label>Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                                <select class="form-select select2" name="priority" required>
+                                <select class="form-select select2" name="priority" data-template-field="priority" required>
                                     <option data-color="var(--bs-info)">Low</option>
                                     <option selected data-color="var(--bs-warning)">Medium</option>
                                     <option data-color="var(--bs-danger)">High</option>
@@ -128,7 +131,7 @@ ob_start();
                             <label>Category</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                                <select class="form-select select2" name="category_id">
+                                <select class="form-select select2" name="category_id" data-template-field="category">
                                     <option value="0">- Not Categorized -</option>
                                     <?= categoryOptionsHtml('Ticket') ?>
                                 </select>
@@ -143,7 +146,7 @@ ob_start();
                     <label>Assign to</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                        <select class="form-select select2" name="assigned_to">
+                        <select class="form-select select2" name="assigned_to" data-template-field="assigned">
                             <option value="0">- Unassigned -</option>
                             <?php
 
@@ -164,7 +167,7 @@ ob_start();
                 <?php if ($config_module_enable_accounting && lookupUserPermission('module_sales') >= 2) { ?>
                 <div class="mb-3">
                     <div class="form-check form-switch">
-                        <input type="checkbox" class="form-check-input" name="billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="billable">
+                        <input type="checkbox" class="form-check-input" name="billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="billable" data-template-field="billable">
                         <label class="form-check-label" for="billable">The tickets it raises are billable</label>
                     </div>
                 </div>

@@ -21,16 +21,22 @@ ob_start();
 
     <div class="modal-body">
 
+        <?php
+        $ticket_template_field = 'bulk_ticket_template_id';
+        $ticket_template_hint = "Picking one fills in the tickets - change anything before they are made. <span class=\"font-monospace\">[Asset]</span>, <span class=\"font-monospace\">[Contact]</span> and the like are filled in for each; with <span class=\"font-monospace\">[Asset]</span> in the subject, the asset's name isn't put in front.";
+        require_once '../../includes/inc_ticket_template_select.php';
+        ?>
+
         <div class="mb-3">
             <label>Subject <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <input type="text" class="form-control" name="bulk_subject" placeholder="Asset Name will be prepended to Subject" maxlength="200" required>
+                <input type="text" class="form-control" name="bulk_subject" data-template-field="subject" placeholder="Asset Name will be prepended to Subject" maxlength="500" required>
             </div>
         </div>
 
         <div class="mb-3">
-            <textarea class="form-control tinymceTicket" id="textInput" name="bulk_details"></textarea>
+            <textarea class="form-control tinymceTicket" id="textInput" name="bulk_details" data-template-field="details"></textarea>
         </div>
 
         <div class="row">
@@ -40,7 +46,7 @@ ob_start();
                     <label>Priority <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                        <select class="form-select select2" name="bulk_priority" required>
+                        <select class="form-select select2" name="bulk_priority" data-template-field="priority" required>
                             <option data-color="var(--bs-info)">Low</option>
                             <option selected data-color="var(--bs-warning)">Medium</option>
                             <option data-color="var(--bs-danger)">High</option>
@@ -55,7 +61,7 @@ ob_start();
                     <label>Category</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                        <select class="form-select select2" name="bulk_category">
+                        <select class="form-select select2" name="bulk_category" data-template-field="category">
                             <option value="0">- Not Categorized -</option>
                             <?= categoryOptionsHtml('Ticket') ?>
                         </select>
@@ -70,7 +76,7 @@ ob_start();
             <label>Assign to</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                <select class="form-select select2" name="bulk_assigned_to">
+                <select class="form-select select2" name="bulk_assigned_to" data-template-field="assigned">
                     <option value="0">Not Assigned</option>
                     <?php
 
@@ -117,7 +123,7 @@ ob_start();
         <?php if ($config_module_enable_accounting) { ?>
         <div class="mb-3">
             <div class="form-check form-switch">
-                <input type="checkbox" class="form-check-input" name="bulk_billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="billableSwitch">
+                <input type="checkbox" class="form-check-input" name="bulk_billable" data-template-field="billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="billableSwitch">
                 <label class="form-check-label" for="billableSwitch">Billable</label>
             </div>
         </div>
@@ -130,6 +136,8 @@ ob_start();
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
+
+<script src="/agent/js/ticket_tasks_modal.js"></script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

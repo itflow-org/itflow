@@ -248,11 +248,11 @@ function tagSearchSql($entity, $like, $column = null) {
  * an admin, typing a new one in. The tags_form marker tells the save the
  * field was there, so a form without it leaves the tags alone.
  */
-function tagFormFieldHtml($entity, array $selected, $placeholder = '', $label = 'Tags') {
+function tagFormFieldHtml($entity, array $selected, $placeholder = '', $label = 'Tags', $attributes = '') {
     global $session_is_admin;
     return '<label class="form-label">' . $label . '</label><input type="hidden" name="tags_form" value="1">'
         . '<div class="input-group"><span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>'
-        . '<select class="form-select select2" name="tags[]" data-placeholder="' . escapeHtml($placeholder) . '" multiple' . (!empty($session_is_admin) ? ' data-tags="true"' : '') . '>'
+        . '<select class="form-select select2" name="tags[]" data-placeholder="' . escapeHtml($placeholder) . '" multiple' . (!empty($session_is_admin) ? ' data-tags="true"' : '') . ($attributes !== '' ? ' ' . $attributes : '') . '>'
         . tagOptionsHtml($entity, $selected) . '</select></div>';
 }
 
@@ -747,7 +747,7 @@ function tagOptionHtml(array $row, array $selected = []) {
  * stays when the record already had it. Returns the tag ids it now has.
  */
 function tagSetForRecord($entity, $record_id, array $values) {
-    global $mysqli, $session_is_admin, $session_name;
+    global $mysqli;
     $config = tagEntity($entity);
     $record_id = intval($record_id);
     if (!$config || !$record_id) {
@@ -756,14 +756,37 @@ function tagSetForRecord($entity, $record_id, array $values) {
     $link = $config['link_table'];
     $link_record = $config['link_record'];
     $link_tag = $config['link_tag'];
-    $type = $config['type'];
 
     $had = [];
     $sql = mysqli_query($mysqli, "SELECT $link_tag FROM $link WHERE $link_record = $record_id");
     while ($row = mysqli_fetch_row($sql)) {
         $had[] = intval($row[0]);
     }
+    $keep = tagKeepIds($entity, tagIdsFromValues($entity, $values), $had);
 
+    $remove = array_diff($had, $keep);
+    if ($remove) {
+        mysqli_query($mysqli, "DELETE FROM $link WHERE $link_record = $record_id AND $link_tag IN (" . implode(',', $remove) . ")");
+    }
+    foreach (array_diff($keep, $had) as $tag_id) {
+        mysqli_query($mysqli, "INSERT IGNORE INTO $link SET $link_record = $record_id, $link_tag = $tag_id");
+    }
+    sort($keep);
+    return $keep;
+}
+
+/*
+ * A Tags field's values as tag ids - ids, or the names of new tags typed in
+ * by an admin, made with the next colour (or brought back when archived).
+ * Not yet checked to be this kind's - tagKeepIds() does that.
+ */
+function tagIdsFromValues($entity, array $values) {
+    global $mysqli, $session_is_admin, $session_name;
+    $config = tagEntity($entity);
+    if (!$config) {
+        return [];
+    }
+    $type = $config['type'];
     $ids = [];
     foreach ($values as $value) {
         $value = trim((string) $value);
@@ -790,26 +813,22 @@ function tagSetForRecord($entity, $record_id, array $values) {
             }
         }
     }
-    $ids = array_values(array_unique($ids));
+    return array_values(array_unique($ids));
+}
 
-    // This kind's tags only; archived ones only when already there
+/* Of $ids, this kind's tags - an archived one only when it is among $had, what the record already has. */
+function tagKeepIds($entity, array $ids, array $had = []) {
+    global $mysqli;
+    $config = tagEntity($entity);
+    $ids = array_values(array_filter(array_map('intval', $ids)));
     $keep = [];
-    if ($ids) {
-        $sql = mysqli_query($mysqli, "SELECT tag_id, tag_archived_at FROM tags WHERE tag_type = $type AND tag_id IN (" . implode(',', $ids) . ")");
+    if ($config && $ids) {
+        $sql = mysqli_query($mysqli, "SELECT tag_id, tag_archived_at FROM tags WHERE tag_type = {$config['type']} AND tag_id IN (" . implode(',', $ids) . ")");
         while ($row = mysqli_fetch_assoc($sql)) {
             if (!$row['tag_archived_at'] || in_array(intval($row['tag_id']), $had, true)) {
                 $keep[] = intval($row['tag_id']);
             }
         }
     }
-
-    $remove = array_diff($had, $keep);
-    if ($remove) {
-        mysqli_query($mysqli, "DELETE FROM $link WHERE $link_record = $record_id AND $link_tag IN (" . implode(',', $remove) . ")");
-    }
-    foreach (array_diff($keep, $had) as $tag_id) {
-        mysqli_query($mysqli, "INSERT IGNORE INTO $link SET $link_record = $record_id, $link_tag = $tag_id");
-    }
-    sort($keep);
     return $keep;
 }

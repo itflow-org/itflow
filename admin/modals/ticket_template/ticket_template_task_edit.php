@@ -1,24 +1,23 @@
 <?php
 
+/*
+ * One of a ticket template's tasks - its name and how long it takes. Its place
+ * in the list is changed by dragging it on the template's page.
+ */
+
 require_once '../../includes/modal_header.php';
 
-$task_template_id = intval($_GET['id']);
+$task_template_id = intval($_GET['id'] ?? 0);
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT task_template_completion_estimate, task_template_name FROM task_templates WHERE task_template_id = $task_template_id LIMIT 1"));
 
-$sql = mysqli_query($mysqli, "SELECT task_template_completion_estimate, task_template_name, task_template_order FROM task_templates WHERE task_template_id = $task_template_id LIMIT 1");
-
-$row = mysqli_fetch_assoc($sql);
-$task_template_name = escapeHtml($row['task_template_name']);
-$task_template_order = intval($row['task_template_order']);
-$task_template_completion_estimate = intval($row['task_template_completion_estimate']);
-//$task_template_description = escapeHtml($row['task_template_description']);
-
-// Generate the HTML form content using output buffering.
 ob_start();
 
-?>
+if (!$row) { ?>
+    <div class="modal-body text-center text-secondary py-5">That task is gone - it may have been deleted.</div>
+<?php } else { ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-tasks me-2"></i>Editing task</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-tasks me-2"></i>Task</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -28,18 +27,19 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Name <strong class="text-danger">*</strong></label>
+            <label class="form-label">Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <input type="text" class="form-control" name="name" placeholder="Name the task" maxlength="255" value="<?= $task_template_name ?>" required autofocus>
+                <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
+                <input type="text" class="form-control" name="name" placeholder="Name the task" maxlength="200" value="<?= escapeHtml($row['task_template_name']) ?>" required autofocus>
             </div>
         </div>
 
         <div class="mb-3">
-            <label>Estimated Completion Time <span class="text-secondary">(Minutes)</span></label>
+            <label class="form-label">How long it takes</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                <input type="number" class="form-control" name="completion_estimate" placeholder="Estimated time to complete task in mins" value="<?= $task_template_completion_estimate ?>">
+                <span class="input-group-text"><i class="far fa-fw fa-clock"></i></span>
+                <input type="number" class="form-control" name="completion_estimate" min="0" placeholder="Minutes" value="<?= intval($row['task_template_completion_estimate']) ?: '' ?>">
+                <span class="input-group-text">minutes</span>
             </div>
         </div>
 
@@ -52,6 +52,6 @@ ob_start();
 
 </form>
 
-<?php
+<?php }
 
 require_once '../../../includes/modal_footer.php';

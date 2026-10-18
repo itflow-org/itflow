@@ -1,5 +1,6 @@
 // Editable task rows for the ticket and recurring ticket add/edit modals, and the
-// ticket template picker that pre-fills them.
+// ticket template picker (agent/includes/inc_ticket_template_select.php) that
+// fills in the form - its fields marked data-template-field.
 //
 // Rows submit as parallel tasks[] and task_estimates[] arrays, aligned by their
 // order in the form, so removing a row removes both of its inputs together.
@@ -86,27 +87,6 @@
         });
     }
 
-    // dataset always gives a string; jQuery used to auto-parse JSON here, so
-    // parse it explicitly and still tolerate an already-parsed value
-    function readTemplateTasks(option) {
-
-        const tasks = option.dataset.tasks;
-
-        if (!tasks) {
-            return [];
-        }
-
-        if (typeof tasks === 'string') {
-            try {
-                return JSON.parse(tasks);
-            } catch (error) {
-                return [];
-            }
-        }
-
-        return tasks;
-    }
-
     document.addEventListener('click', function (e) {
         if (!e.target.closest('#ticketTaskAdd')) {
             return;
@@ -125,38 +105,101 @@
         }
     });
 
-    // Ticket template picker - fills in the subject, details and task rows
-    document.addEventListener('change', function (e) {
-        const select = e.target.closest('#ticket_template_select');
-        if (!select) {
+    // The form's field for one thing a template sets - marked data-template-field
+    function templateField(form, name) {
+        return form.querySelector('[data-template-field="' + name + '"]');
+    }
+
+    // Pick a value in a <select> when it has it - the picker redraws by itself
+    function pickOption(select, value) {
+        if (!select || value === '' || value === undefined) {
             return;
         }
+        const option = Array.from(select.options).find(o => o.value === String(value));
+        if (option) {
+            select.value = option.value;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+
+    // Write a template into its form: what it sets, field by field. A field
+    // the form doesn't have is skipped, and anything the template leaves
+    // alone ('' on the option) stays as it is.
+    function applyTemplate(select) {
 
         const option = select.options[select.selectedIndex];
+        const form = select.closest('form');
 
         // Selecting "- No Template -" only unlinks the template - it must not wipe
         // whatever the user has already written or added
-        if (!parseInt(option.value, 10)) {
+        if (!option || !parseInt(option.value, 10) || !form) {
             return;
         }
+        const data = option.dataset;
 
-        const templateSubject = option.dataset.subject || '';
-        const templateDetails = option.dataset.details || '';
-
-        document.getElementById('subjectInput').value = templateSubject;
-
-        if (window.tinymce) {
-            const editor = tinymce.get('detailsInput');
-            if (editor) {
-                editor.setContent(templateDetails);
-            } else {
-                document.getElementById('detailsInput').value = templateDetails;
-            }
-        } else {
-            document.getElementById('detailsInput').value = templateDetails;
+        const subject = templateField(form, 'subject') || document.getElementById('subjectInput');
+        if (subject && data.templateSubject) {
+            subject.value = data.templateSubject;
         }
 
-        setTaskRows(readTemplateTasks(option));
+        const details = templateField(form, 'details') || document.getElementById('detailsInput');
+        if (details && data.templateDetails) {
+            const editor = window.tinymce && details.id ? tinymce.get(details.id) : null;
+            if (editor) {
+                editor.setContent(data.templateDetails);
+            } else {
+                details.value = data.templateDetails;
+            }
+        }
+
+        pickOption(templateField(form, 'priority'), data.templatePriority);
+        pickOption(templateField(form, 'category'), data.templateCategory);
+        pickOption(templateField(form, 'assigned'), data.templateAssigned);
+
+        const billable = templateField(form, 'billable');
+        if (billable && data.templateBillable !== '' && data.templateBillable !== undefined) {
+            billable.checked = data.templateBillable === '1';
+        }
+
+        const due = templateField(form, 'due');
+        if (due && data.templateDue) {
+            due.value = data.templateDue;
+        }
+
+        // Its tags are added to any already picked
+        const tags = templateField(form, 'tags');
+        if (tags && data.templateTags) {
+            data.templateTags.split(',').forEach(function (id) {
+                const tag = Array.from(tags.options).find(o => o.value === id);
+                if (tag) {
+                    tag.selected = true;
+                }
+            });
+            tags.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        if (document.getElementById('ticketTasksContainer')) {
+            let tasks = [];
+            try {
+                tasks = JSON.parse(data.templateTasks || '[]');
+            } catch (error) {
+                tasks = [];
+            }
+            setTaskRows(tasks);
+        }
+    }
+
+    document.addEventListener('change', function (e) {
+        const select = e.target.closest('[data-template-picker]');
+        if (select) {
+            applyTemplate(select);
+        }
+    });
+
+    // Opened for one template - New ticket from it - it is filled in straight away
+    document.querySelectorAll('[data-template-picker][data-template-apply]').forEach(function (select) {
+        select.removeAttribute('data-template-apply');
+        applyTemplate(select);
     });
 
 })();

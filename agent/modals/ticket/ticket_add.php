@@ -20,6 +20,10 @@ $asset_id = intval($_GET['asset_id'] ?? 0);
 $location_id = intval($_GET['location_id'] ?? 0);
 $vendor_id = intval($_GET['vendor_id'] ?? 0);
 
+// Opened for one template - New ticket from it, on the template's page - it starts filled in
+$selected_ticket_template_id = intval($_GET['ticket_template_id'] ?? 0);
+$ticket_template_apply_on_load = $selected_ticket_template_id > 0;
+
 // A ticket started from somewhere that knows what it is about (a license's
 // Renewal Ticket) - plain text in, escaped here
 $prefill_subject = mb_substr(trim((string) ($_GET['subject'] ?? '')), 0, 500);
@@ -148,12 +152,12 @@ ob_start();
                     <label>Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" maxlength="500" value="<?= escapeHtml($prefill_subject) ?>" required>
+                        <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" maxlength="500" value="<?= escapeHtml($prefill_subject) ?>" data-template-field="subject" required>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <textarea class="form-control tinymceTicket" id="detailsInput" name="details"><?= escapeHtml($prefill_details_html) ?></textarea>
+                    <textarea class="form-control tinymceTicket" id="detailsInput" name="details" data-template-field="details"><?= escapeHtml($prefill_details_html) ?></textarea>
                 </div>
 
                 <div class="row">
@@ -163,7 +167,7 @@ ob_start();
                             <label>Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                                <select class="form-select select2" name="priority" required>
+                                <select class="form-select select2" name="priority" data-template-field="priority" required>
                                     <option data-color="var(--bs-info)">Low</option>
                                     <option selected data-color="var(--bs-warning)">Medium</option>
                                     <option data-color="var(--bs-danger)">High</option>
@@ -178,7 +182,7 @@ ob_start();
                             <label>Category</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                                <select class="form-select select2" name="category_id">
+                                <select class="form-select select2" name="category_id" data-template-field="category">
                                     <option value="0">- Not Categorized -</option>
                                     <?= categoryOptionsHtml('Ticket') ?>
                                 </select>
@@ -195,7 +199,7 @@ ob_start();
                             <label>Assign to</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                                <select class="form-select select2" name="assigned_to">
+                                <select class="form-select select2" name="assigned_to" data-template-field="assigned">
                                     <option value="0">- Unassigned -</option>
                                     <?php
 
@@ -218,20 +222,20 @@ ob_start();
                             <label>Due</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
-                                <input type="datetime-local" class="form-control" name="due">
+                                <input type="datetime-local" class="form-control" name="due" data-template-field="due">
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <?= tagFormFieldHtml('ticket', [], 'Onboarding, Hardware, Escalated') ?>
+                    <?= tagFormFieldHtml('ticket', [], 'Onboarding, Hardware, Escalated', 'Tags', 'data-template-field="tags"') ?>
                 </div>
 
                 <?php if ($config_module_enable_accounting) { ?>
                 <div class="mb-3">
                     <div class="form-check form-switch">
-                        <input type="checkbox" class="form-check-input" name="billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="billable">
+                        <input type="checkbox" class="form-check-input" name="billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="billable" data-template-field="billable">
                         <label class="form-check-label" for="billable">Mark Billable</label>
                     </div>
                 </div>
