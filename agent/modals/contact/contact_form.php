@@ -216,14 +216,13 @@ $contact_roles = [
                             <i class="fas fa-fw fa-magic"></i>
                         </button>
                     </div>
-                    <div class="form-text">Leave it empty and they can set their own with a password reset.</div>
+                    <div class="form-text">Leave it empty and they set their own from the invite, or with Forgot password.</div>
                 </div>
-                <?php if ($contact_form_mode === 'edit') { ?>
-                    <div class="form-check mt-3">
-                        <input type="checkbox" class="form-check-input" name="send_email" value="1" id="contactFormSendEmail">
-                        <label class="form-check-label" for="contactFormSendEmail">Email them their login details</label>
-                    </div>
-                <?php } ?>
+                <div class="form-check mt-3 inviteGroup" style="display: none;">
+                    <input type="checkbox" class="form-check-input" name="send_email" value="1" id="contactFormSendEmail">
+                    <label class="form-check-label" for="contactFormSendEmail">Email them an invite to the portal</label>
+                    <div class="form-text mt-0">With a password login, a link to set their own password, good for <?= PORTAL_INVITE_LINK_DAYS ?> days - the email never has the password in it. With Microsoft, a link to sign in.</div>
+                </div>
             </div>
         <?php } ?>
     </div>
@@ -272,11 +271,17 @@ $contact_roles = [
     itflowReady(function () {
         var form = document.getElementById('contactFormDetails').closest('form');
 
-        // Client portal: the password only matters for a password login
+        // Client portal: the password only matters for a password login, and an invite needs a login
         form.querySelectorAll('.authMethod').forEach(function (select) {
             function sync() {
                 select.closest('.authForm').querySelectorAll('.passwordGroup').forEach(function (group) {
                     group.style.display = select.value === 'local' ? '' : 'none';
+                });
+                select.closest('.authForm').querySelectorAll('.inviteGroup').forEach(function (group) {
+                    group.style.display = select.value !== '' ? '' : 'none';
+                    if (select.value === '') {
+                        group.querySelector('input').checked = false;
+                    }
                 });
             }
             select.addEventListener('change', sync);

@@ -1358,8 +1358,7 @@ function calendarUserFeedItems(array $feed, $from, $to) {
 
 /** Can mail go out from this install? */
 function calendarCanEmail() {
-    global $config_smtp_provider;
-    return !empty($config_smtp_provider);
+    return emailReady();
 }
 
 /**
@@ -1371,7 +1370,7 @@ function calendarCanEmail() {
  * Returns how many were queued.
  */
 function calendarSendInvites(array $event, $kind = 'invite', $attendees = null) {
-    global $mysqli, $config_mail_from_email, $config_mail_from_name, $config_timezone, $session_company_name, $session_name;
+    global $mysqli, $config_timezone, $session_company_name, $session_name;
 
     if (!calendarCanEmail()) {
         return 0;
@@ -1388,9 +1387,10 @@ function calendarSendInvites(array $event, $kind = 'invite', $attendees = null) 
     }
 
     $cancel = $kind === 'cancel';
+    $from = emailFrom();
     $item = calendarEventIcsItem($event);
     $item['stamp'] = date('Y-m-d H:i:s');
-    $item['organizer'] = [$config_mail_from_name ?: $session_company_name, $config_mail_from_email];
+    $item['organizer'] = [$from['name'] ?: stripslashes((string) $session_company_name), $from['email']];
     $item['attendees'] = array_map(function ($attendee) {
         return [$attendee['name'], $attendee['email']];
     }, $attendees);
@@ -1401,35 +1401,27 @@ function calendarSendInvites(array $event, $kind = 'invite', $attendees = null) 
     $repeat = calendarRepeatText($event);
     $where = calendarWhereText($event);
     $meeting = calendarMeetingUrl($event);
-    $html = function ($value) {
-        return escapeHtml((string) $value);
-    };
-    $headline = [
+    $description = trim(html_entity_decode(strip_tags((string) $event['event_description']), ENT_QUOTES, 'UTF-8'));
+    $intro = [
         'invite' => 'You are invited to the event below. The invitation is attached, so it can go straight into your calendar.',
         'update' => 'The event below has changed. The attached invitation updates the one in your calendar.',
         'cancel' => 'The event below has been cancelled. The attached cancellation takes it off your calendar.',
     ][$kind] ?? '';
     $subject_prefix = ['invite' => 'Invitation', 'update' => 'Updated', 'cancel' => 'Cancelled'][$kind] ?? 'Invitation';
-    $details = '<strong>' . $html($event['event_title']) . '</strong><br>'
-        . '<strong>When:</strong> ' . $html($when) . ($repeat ? '<br><strong>Repeats:</strong> ' . $html($repeat) : '')
-        . ($where !== '' ? '<br><strong>Where:</strong> ' . $html($where) : '')
-        . ($meeting && !$cancel ? '<br><strong>Join:</strong> <a href="' . $html($meeting) . '">' . $html($meeting) . '</a>' : '')
-        . (!$cancel && trim((string) $event['event_description']) !== '' ? '<br><br>' . nl2br($html(trim(strip_tags((string) $event['event_description'])))) : '');
 
-    $data = [];
-    foreach ($attendees as $attendee) {
-        $body = 'Hello ' . $html($attendee['name']) . ',<br><br>' . $headline . '<br><br>' . $details . '<br><br>--<br>' . $html($session_company_name);
-        $data[] = [
-            'from' => mysqli_real_escape_string($mysqli, (string) $config_mail_from_email),
-            'from_name' => mysqli_real_escape_string($mysqli, (string) $config_mail_from_name),
-            'recipient' => mysqli_real_escape_string($mysqli, $attendee['email']),
-            'recipient_name' => mysqli_real_escape_string($mysqli, (string) $attendee['name']),
-            'subject' => mysqli_real_escape_string($mysqli, mb_substr("$subject_prefix: " . $event['event_title'] . ' - ' . $when, 0, 250)),
-            'body' => mysqli_real_escape_string($mysqli, $body),
-            'cal_str' => $ics,
-        ];
-    }
-    addToMailQueue($data);
+    $recipients = array_map(function ($attendee) use ($cancel) {
+        return ['email' => $attendee['email'], 'name' => (string) $attendee['name'], 'footnote' => $cancel ? 'You get this because you were invited to this event.' : 'You get this because you are invited to this event.'];
+    }, $attendees);
+    emailQueue($recipients, mb_substr("$subject_prefix: " . $event['event_title'] . ' - ' . $when, 0, 250), [
+        'kind' => ['invite' => 'Invitation', 'update' => 'Event changed', 'cancel' => 'Event cancelled'][$kind] ?? 'Invitation',
+        'tone' => $cancel ? 'secondary' : 'primary',
+        'preview' => "$when" . ($where !== '' ? " - $where" : ''),
+        'title' => (string) $event['event_title'],
+        'intro' => [$intro],
+        'summary' => array_filter(['When' => $when, 'Repeats' => (string) $repeat, 'Where' => $where]),
+        'note' => !$cancel ? $description : '',
+        'button' => $meeting && !$cancel ? ['label' => 'Join the meeting', 'url' => $meeting, 'show_url' => true] : null,
+    ], ['from' => $from, 'cal_str' => $ics]);
 
     $ids = array_filter(array_map(function ($attendee) {
         return intval($attendee['attendee_id'] ?? 0);

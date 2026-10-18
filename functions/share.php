@@ -135,10 +135,9 @@ function shareVisibleTypesSql() {
     return $types ? "'" . implode("','", $types) . "'" : "''";
 }
 
-/** Is mail set up to send with? */
+/** Is mail set up to send with - a mail provider, and a system mailbox? */
 function shareMailReady() {
-    global $config_smtp_provider, $config_mail_from_email;
-    return !empty($config_smtp_provider) && filter_var($config_mail_from_email ?? '', FILTER_VALIDATE_EMAIL);
+    return emailCapturing() || (emailReady() && filter_var(emailFrom()['email'], FILTER_VALIDATE_EMAIL));
 }
 
 /** A new link secret - 256 bits, URL-safe. */
@@ -521,7 +520,7 @@ function shareCreate(array $in, &$error = '') {
 
     $emailed = false;
     if ($send) {
-        $emailed = shareEmailLink($row, $url, $protect) === true;
+        $emailed = shareEmailLink($row, $url, $protect);
     }
 
     // Logging - on the link, and on the credential, so its history says who it went to
@@ -568,49 +567,6 @@ function shareCompany() {
     return $company;
 }
 
-/**
- * An email in the shared links' style - a heading, paragraphs (HTML, already
- * escaped), a button, and who it is from. Tables and inline styles, so it
- * looks the same in Outlook.
- */
-function shareMailHtml($heading, array $paragraphs, $button_label = '', $button_url = '') {
-    $company = shareCompany();
-    $html = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:24px 0;font-family:Segoe UI,Helvetica,Arial,sans-serif;">'
-        . '<tr><td align="center"><table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border:1px solid #dee2e6;border-radius:8px;">'
-        . '<tr><td style="padding:20px 28px;border-bottom:1px solid #dee2e6;font-size:16px;font-weight:600;color:#212529;">' . escapeHtml($company['name']) . '</td></tr>'
-        . '<tr><td style="padding:24px 28px;font-size:15px;line-height:1.55;color:#212529;">'
-        . '<h1 style="font-size:20px;margin:0 0 16px;color:#212529;">' . $heading . '</h1>';
-    foreach ($paragraphs as $paragraph) {
-        $html .= '<p style="margin:0 0 14px;">' . $paragraph . '</p>';
-    }
-    if ($button_url !== '') {
-        $html .= '<p style="margin:22px 0;"><a href="' . escapeHtml($button_url) . '" style="background:#0d6efd;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:6px;font-weight:600;display:inline-block;">' . escapeHtml($button_label) . '</a></p>'
-            . '<p style="margin:0 0 14px;font-size:12px;color:#6c757d;word-break:break-all;">Or paste this into your browser: ' . escapeHtml($button_url) . '</p>';
-    }
-    $contact = array_filter([$company['phone'], $company['email']]);
-    $html .= '</td></tr><tr><td style="padding:16px 28px;border-top:1px solid #dee2e6;font-size:12px;color:#6c757d;">'
-        . escapeHtml($company['name']) . ($contact ? ' &middot; ' . escapeHtml(implode(' · ', $contact)) : '')
-        . '<br>This email is for the person it was sent to. If it reached you by mistake, delete it and let us know.'
-        . '</td></tr></table></td></tr></table>';
-    return $html;
-}
-
-/** Queue an email from the system mailbox - values raw, escaped here for addToMailQueue(). */
-function shareQueueMail($recipient, $subject, $body_html) {
-    global $mysqli, $config_mail_from_email, $config_mail_from_name;
-    $escape = function ($value) use ($mysqli) {
-        return mysqli_real_escape_string($mysqli, (string) $value);
-    };
-    return addToMailQueue([[
-        'from' => $escape($config_mail_from_email),
-        'from_name' => $escape($config_mail_from_name ?: shareCompany()['name']),
-        'recipient' => $escape($recipient),
-        'recipient_name' => $escape($recipient),
-        'subject' => $escape($subject),
-        'body' => $escape($body_html),
-    ]]);
-}
-
 /** "3:00 PM today", "9:00 AM tomorrow", "Oct 20 at 3:00 PM" - when a link stops working, for the emails. */
 function shareExpiryText($expire_at) {
     $at = strtotime((string) $expire_at);
@@ -620,40 +576,71 @@ function shareExpiryText($expire_at) {
     return date('M j', $at) . ' at ' . date('g:i A', $at);
 }
 
-/** Email the link to its recipient. Never the passphrase - that goes another way. */
+/** Who the shared links' emails come from - the system mailbox, under the company's name when it has none. */
+function shareMailFrom() {
+    $from = emailFrom();
+    return ['email' => $from['email'], 'name' => $from['name'] !== '' ? $from['name'] : shareCompany()['name']];
+}
+
+/**
+ * Email the link to its recipient, in the email look (functions/email.php).
+ * Never the passphrase - that goes another way. True when it was queued.
+ */
 function shareEmailLink($row, $url, $protect) {
     global $session_name;
     $company = shareCompany();
-    $from = escapeHtml((string) $session_name) . ' at ' . escapeHtml($company['name']);
-    $name = escapeHtml(shareName($row));
+    $agent = stripslashes((string) $session_name);
+    $from = "$agent at " . $company['name'];
+    $name = shareName($row);
     $expiry = shareExpiryText($row['item_expire_at']);
     $limit = intval($row['item_view_limit']);
-    $note = trim((string) $row['item_note']);
-    $paragraphs = [];
+    $intro = [];
 
     if ($row['item_type'] === 'Request') {
-        $subject = "$company[name] is asking for a login - $row[item_name]";
-        $heading = 'Please send us a login';
-        $paragraphs[] = "$from is asking you for <strong>$name</strong>. Use the secure link below rather than email - what you type is encrypted and goes straight to us.";
-        $paragraphs[] = "The link works once, until $expiry.";
+        $subject = $company['name'] . ' is asking for a login - ' . $row['item_name'];
+        $email = ['kind' => 'Login request', 'title' => 'Please send us a login', 'preview' => "$from is asking you for $name"];
+        $intro[] = "$from is asking you for $name. Use the secure link below rather than email - what you type is encrypted and goes straight to us.";
+        $summary = ['For' => $name, 'Link works' => "Once, until $expiry"];
         $button = 'Send it securely';
     } else {
         $what = ['Credential' => 'login details', 'Note' => 'a secure note', 'Document' => 'a document', 'File' => 'a file'][$row['item_type']] ?? 'something';
-        $subject = "$company[name] sent you " . ($row['item_type'] === 'Credential' ? 'login details' : $what) . ' - secure link';
-        $heading = $row['item_type'] === 'Credential' ? 'Login details for you' : 'Something to open securely';
-        $paragraphs[] = "$from sent you $what" . ($row['item_type'] === 'Credential' || $row['item_type'] === 'Document' || $row['item_type'] === 'File' ? ": <strong>$name</strong>" : '') . '.';
-        $paragraphs[] = 'The link works until ' . $expiry . ($limit === 1 ? ', and only once - copy what you need when you open it.' : ($limit > 1 ? ", and can be opened $limit times." : '.'));
+        $subject = $company['name'] . ' sent you ' . $what . ' - secure link';
+        $email = ['kind' => 'Secure link', 'title' => $row['item_type'] === 'Credential' ? 'Login details for you' : 'Something to open securely', 'preview' => "$from sent you $what"];
+        $named = in_array($row['item_type'], ['Credential', 'Document', 'File'], true);
+        $intro[] = "$from sent you $what" . ($named ? ": $name" : '') . '.';
+        $summary = ($named ? ['What' => $name] : []) + ['Link works' => "Until $expiry" . ($limit === 1 ? ', once' : ($limit > 1 ? ", $limit times" : ''))];
+        if ($limit === 1) {
+            $intro[] = 'It opens only once - copy what you need when you open it.';
+        }
         $button = 'Open it securely';
     }
+    $callout = '';
     if ($protect === 'passphrase') {
-        $paragraphs[] = 'You will need a passphrase to open it - ' . escapeHtml((string) $session_name) . ' will give it to you another way, such as by phone or text.';
+        $callout = "You will need a passphrase to open it - $agent will give it to you another way, such as by phone or text.";
     } elseif ($protect === 'code') {
-        $paragraphs[] = 'To open it, we will email a code to this address.';
+        $intro[] = 'To open it, we will email a code to this address.';
     }
-    if ($note !== '') {
-        $paragraphs[] = '<em>' . nl2br(escapeHtml($note)) . '</em>';
-    }
-    return shareQueueMail($row['item_recipient'], $subject, shareMailHtml($heading, $paragraphs, $button, $url));
+    return (bool) emailQueue([['email' => (string) $row['item_recipient'], 'greet' => '',
+        'footnote' => 'This email is for the person it was sent to. If it reached you by mistake, delete it and let us know.']], $subject, $email + [
+        'tone' => 'primary',
+        'intro' => $intro,
+        'note' => trim((string) $row['item_note']),
+        'summary' => $summary,
+        'callout' => $callout,
+        'button' => ['label' => $button, 'url' => (string) $url, 'show_url' => true],
+    ], ['from' => shareMailFrom()]);
+}
+
+/** The code that opens a link protected by one, to its recipient. True when it was queued. */
+function shareEmailCode($row, $code) {
+    $company = shareCompany();
+    return (bool) emailQueue([['email' => (string) $row['item_recipient'], 'greet' => '',
+        'footnote' => 'This email is for the person it was sent to. If it reached you by mistake, delete it and let us know.']], "Your code: $code - " . $company['name'], [
+        'kind' => 'Secure link', 'tone' => 'primary', 'preview' => "Your code is $code",
+        'title' => "Your code is $code",
+        'intro' => ['Enter it on the page that asked for it, to open the secure link ' . $company['name'] . ' sent you. It works for ' . SHARE_CODE_MINUTES . ' minutes.'],
+        'callout' => 'If you did not ask for it, someone else has the link - ignore this email and let us know.',
+    ], ['from' => shareMailFrom()]);
 }
 
 /**

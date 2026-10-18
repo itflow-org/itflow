@@ -165,32 +165,13 @@ if (isset($_POST['add_ticket_task_approver'])) {
     $reference = ticketReference($row);
     $by = stripslashes($session_name);
 
-    // Who is asked: the agent named, or the client's - the ticket's contact, or its technical or billing contacts
-    $recipients = [];
+    // The agent named hears in the app too
     if ($scope == 'internal' && $type == 'specific' && $session_user_id !== $required_user_id) {
         mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name needs your approval for ticket " . escapeSql($reference) . " task $task_name', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_client_id = 0, notification_user_id = $required_user_id");
-        $agent = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_email FROM users WHERE user_id = $required_user_id AND user_archived_at IS NULL"));
-        if ($agent) {
-            $recipients[] = ['email' => $agent['user_email'], 'name' => $agent['user_name'], 'footnote' => "You get this because $by asked you to approve it."];
-        }
-    } elseif ($scope == 'client') {
-        $where = $type == 'technical' ? "contact_client_id = $client_id AND contact_technical = 1"
-            : ($type == 'billing' ? "contact_client_id = $client_id AND contact_billing = 1" : "contact_id = " . intval($row['ticket_contact_id']));
-        $sql_contacts = mysqli_query($mysqli, "SELECT contact_name, contact_email FROM contacts WHERE $where AND contact_archived_at IS NULL AND contact_email != ''");
-        while ($contact = mysqli_fetch_assoc($sql_contacts)) {
-            $recipients[] = ['email' => $contact['contact_email'], 'name' => $contact['contact_name'],
-                'footnote' => $type == 'any' ? "You get this as the contact on ticket $reference." : "You get this as a " . $type . " contact for " . $row['client_name'] . "."];
-        }
     }
-    emailQueue($recipients, "Ticket task approval required - [$reference] - " . $row['ticket_subject'], [
-        'marker' => true, 'kind' => 'Approval needed', 'tone' => 'warning', 'preview' => "$by needs your approval - " . $task['task_name'],
-        'title' => 'Your approval is needed',
-        'intro' => ["$by needs your approval for a task on ticket $reference before the work goes ahead."],
-        'summary' => ['Task' => (string) $task['task_name'], 'Ticket' => $reference, 'Subject' => (string) $row['ticket_subject'], 'Status' => (string) $row['ticket_status_name']],
-        'button' => ['label' => 'Review and approve', 'url' => "https://$config_base_url/guest/guest_approve_ticket_task.php?task_approval_id=$approval_id&url_key=$approval_url_key"],
-        'after' => ['Want to know more first? Just reply to this email.'],
-        'contact' => ticketEmailContactLine(),
-    ], ['from' => ticketEmailFrom()]);
+
+    // Who is asked, by email (functions/ticket.php)
+    ticketMailTaskApproval($approval_id, $by);
 
     // Logging
     logAudit("Task", "Edit", "$session_name added task approver for $task_name", $client_id, $task_id);

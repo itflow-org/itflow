@@ -1003,13 +1003,6 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
         enforceClientAccess($client_id);
     }
 
-    // Email metadata
-    $mail_from = escapeSql($_POST['mail_from']);
-    $mail_from_name = escapeSql($_POST['mail_from_name']);
-    $subject = escapeSql($_POST['subject']);
-    $body = mysqli_real_escape_string($mysqli, $_POST['body']);
-    $queued_at = escapeSql($_POST['queued_at']);
-
     // Build contact type filters
     $filters = [];
 
@@ -1034,52 +1027,21 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
     // Prepare client ID list for SQL
     $client_ids_str = implode(',', $client_ids);
 
-    // SQL to fetch matching contacts
-    $sql = "SELECT * FROM contacts
-            WHERE contact_client_id IN ($client_ids_str)
-            $contact_filter_query";
+    // The clients' contacts that match, not archived - emailBulkSend() sends each address once
+    $result = mysqli_query($mysqli, "SELECT contact_email, contact_name, client_name FROM contacts
+        JOIN clients ON client_id = contact_client_id
+        WHERE contact_client_id IN ($client_ids_str) AND contact_archived_at IS NULL
+        $contact_filter_query
+        ORDER BY client_name ASC, contact_primary DESC, contact_name ASC");
 
-    $result = mysqli_query($mysqli, $sql);
-
-    $data = [];
-    $unique_contacts = [];
-
+    $recipients = [];
+    $company_name = (string) (billingCompany()['company_name'] ?? '');
     while ($row = mysqli_fetch_assoc($result)) {
-        $contact_email = escapeSql($row['contact_email']);
-
-        // Skip if email is missing or invalid
-        if (empty($contact_email) || !filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
-            continue;
-        }
-
-        // Skip duplicates (same email)
-        if (isset($unique_contacts[$contact_email])) {
-            continue;
-        }
-        $unique_contacts[$contact_email] = true;
-
-        $contact_name = escapeSql($row['contact_name']);
-
-        $data[] = [
-            'from' => $mail_from,
-            'from_name' => $mail_from_name,
-            'recipient' => $contact_email,
-            'recipient_name' => $contact_name,
-            'subject' => $subject,
-            'body' => $body,
-            'queued_at' => $queued_at
-        ];
+        $recipients[] = ['email' => trim((string) $row['contact_email']), 'name' => (string) $row['contact_name'],
+            'footnote' => "You received this as a contact for {$row['client_name']} with $company_name."];
     }
 
-    if (!empty($data)) {
-        addToMailQueue($data);
-        logAudit("Bulk Mail", "Send", "$session_name sent " . count($data) . " messages via bulk mail");
-        flashAlert("<strong>" . count($data) . "</strong> messages queued");
-    } else {
-        flashAlert("No valid contacts found to queue emails.", 'error');
-    }
-
-    redirect();
+    emailBulkPost($recipients, count($recipients));
 
 }
 

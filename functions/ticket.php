@@ -550,6 +550,46 @@ function ticketMailColleaguesNew($ticket_id) {
     return $sent;
 }
 
+/*
+ * The "a ticket was created for you" email - to its contact, and its watchers
+ * unless $to_watchers is false; or to $to (ticketMailSend()'s) in their
+ * place. $how agent, email or scheduled (ticketEmailContent()).
+ */
+function ticketMailCreated($ticket_id, $subject_prefix, $attachments = [], $to_watchers = true, $how = 'agent', ?array $to = null) {
+    $row = ticketRow($ticket_id);
+    if (!$row) {
+        return 0;
+    }
+    return ticketMailSend($row['ticket_id'], "$subject_prefix [" . ticketReference($row) . "] - " . $row['ticket_subject'], ticketEmailContent($row, 'created', ['how' => $how]),
+        ['attachments' => $attachments, 'to_watchers' => $to_watchers, 'kind' => 'created'] + ($to !== null ? ['to' => $to] : []));
+}
+
+/*
+ * A public reply on a ticket, to its contact and watchers - $reply_html as
+ * saved (with the signature), $by who wrote it (raw). $resolved when the
+ * reply resolved it.
+ */
+function ticketMailReply($ticket_id, $reply_html, $by, $resolved = false, $attachments = []) {
+    $row = ticketRow($ticket_id);
+    if (!$row) {
+        return 0;
+    }
+    return ticketMailSend($row['ticket_id'], ($resolved ? 'Ticket resolved' : 'Ticket update') . " - [" . ticketReference($row) . "] - " . $row['ticket_subject'] . ($resolved ? ' | (pending closure)' : ''),
+        ticketEmailContent($row, $resolved ? 'resolved' : 'reply', ['message' => (string) $reply_html, 'by' => (string) $by]), ['attachments' => $attachments]);
+}
+
+/** Tell people just made watchers of a ticket - $emails, by $by (raw). How many it went to. */
+function ticketMailWatchersAdded($ticket_id, array $emails, $by) {
+    $row = ticketRow($ticket_id);
+    if (!$row || !$emails) {
+        return 0;
+    }
+    $company_name = (string) (billingCompany()['company_name'] ?? 'us');
+    return count(emailQueue(array_map(function ($watcher_email) use ($row, $company_name) {
+        return ['email' => $watcher_email, 'greet' => '', 'footnote' => "You get this because you are watching ticket " . ticketReference($row) . " - ask $company_name if you would like to stop."];
+    }, $emails), "Ticket Notification - [" . ticketReference($row) . "] - " . $row['ticket_subject'], ticketEmailContent($row, 'watcher', ['by' => (string) $by]), ['from' => ticketEmailFrom()]));
+}
+
 /* ------------------------------------------------------------ Emails about a ticket, to agents */
 
 /** Where an agent opens a ticket - in ITFlow. */
@@ -712,6 +752,95 @@ function recurringTicketMailAssigned($user_id, array $subjects, $by) {
         'lines' => ['head' => ['Recurring ticket'], 'rows' => array_map(function ($subject) { return [(string) $subject]; }, array_values($subjects))],
         'button' => ['label' => 'Open Recurring Tickets', 'url' => "https://$config_base_url/agent/recurring_tickets.php?assigned_agent=" . intval($user_id)],
     ]);
+}
+
+/*
+ * Ask for a task's approval by email - the agent named, or the client's: the
+ * ticket's contact, or its technical or billing contacts. $by (raw) asked.
+ * How many it went to.
+ */
+function ticketMailTaskApproval($approval_id, $by) {
+    global $mysqli, $config_base_url, $session_user_id;
+    $approval = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT approval_id, approval_scope, approval_type, approval_required_user_id, approval_url_key, task_name, task_ticket_id
+        FROM task_approvals JOIN tasks ON task_id = approval_task_id WHERE approval_id = " . intval($approval_id)));
+    $row = $approval ? ticketRow($approval['task_ticket_id']) : null;
+    if (!$row) {
+        return 0;
+    }
+    $reference = ticketReference($row);
+    $client_id = intval($row['ticket_client_id']);
+    $type = (string) $approval['approval_type'];
+    $recipients = [];
+    if ($approval['approval_scope'] === 'internal' && $type === 'specific' && intval($approval['approval_required_user_id']) !== intval($session_user_id)) {
+        if ($agent = ticketMailAgent($approval['approval_required_user_id'])) {
+            $recipients[] = $agent + ['footnote' => "You get this because $by asked you to approve it."];
+        }
+    } elseif ($approval['approval_scope'] === 'client') {
+        $where = $type === 'technical' ? "contact_client_id = $client_id AND contact_technical = 1"
+            : ($type === 'billing' ? "contact_client_id = $client_id AND contact_billing = 1" : "contact_id = " . intval($row['ticket_contact_id']));
+        $sql_contacts = mysqli_query($mysqli, "SELECT contact_name, contact_email FROM contacts WHERE $where AND contact_archived_at IS NULL AND contact_email != ''");
+        while ($contact = mysqli_fetch_assoc($sql_contacts)) {
+            $recipients[] = ['email' => $contact['contact_email'], 'name' => $contact['contact_name'],
+                'footnote' => $type === 'any' ? "You get this as the contact on ticket $reference." : "You get this as a $type contact for " . $row['client_name'] . "."];
+        }
+    }
+    return count(emailQueue($recipients, "Ticket task approval required - [$reference] - " . $row['ticket_subject'], [
+        'marker' => true, 'kind' => 'Approval needed', 'tone' => 'warning', 'preview' => "$by needs your approval - " . $approval['task_name'],
+        'title' => 'Your approval is needed',
+        'intro' => ["$by needs your approval for a task on ticket $reference before the work goes ahead."],
+        'summary' => ['Task' => (string) $approval['task_name'], 'Ticket' => $reference, 'Subject' => (string) $row['ticket_subject'], 'Status' => (string) $row['ticket_status_name']],
+        'button' => ['label' => 'Review and approve', 'url' => "https://$config_base_url/guest/guest_approve_ticket_task.php?task_approval_id=" . intval($approval['approval_id']) . '&url_key=' . rawurlencode((string) $approval['approval_url_key'])],
+        'after' => ['Want to know more first? Just reply to this email.'],
+        'contact' => ticketEmailContactLine(),
+    ], ['from' => ticketEmailFrom()]));
+}
+
+/*
+ * Tell someone who replied to a closed ticket by email that it is closed, so
+ * their reply reached nobody - and how to raise a new one. $from_email raw.
+ */
+function ticketMailClosedReply($ticket_id, $from_email) {
+    $closed = ticketRow($ticket_id);
+    if (!$closed) {
+        return 0;
+    }
+    $support = ticketEmailFrom()['email'];
+    return count(emailQueue([['email' => (string) $from_email, 'greet' => '', 'footnote' => 'You get this because you replied to a closed ticket.']], "Action required: This ticket is already closed", [
+        'kind' => 'Ticket closed', 'tone' => 'warning', 'preview' => 'Your reply did not reach us - raise a new ticket instead',
+        'title' => 'That ticket is closed',
+        'intro' => ["You replied to ticket " . ticketReference($closed) . " - \"" . $closed['ticket_subject'] . "\" - which is closed, so your reply won't reach us.", "To raise a new ticket, send a new email to $support."],
+        'button' => ['label' => 'Email us', 'url' => "mailto:$support"],
+        'contact' => ticketEmailContactLine(),
+    ], ['from' => ticketEmailFrom()]));
+}
+
+/*
+ * An SLA alert on a ticket - in the app, and by email to the SLA alert address
+ * (Admin > SLAs, $address) and the agent it is assigned to. $track response or
+ * resolution; $breached true once it was missed; $due when it is or was due.
+ */
+function ticketSlaAlert($ticket_id, $track, $breached, $due, $address) {
+    $row = ticketRow($ticket_id);
+    if (!$row) {
+        return 0;
+    }
+    $ticket_id = intval($row['ticket_id']);
+    $ticket_ref = ticketReference($row);
+    $subject_line = ucfirst($track) . ' SLA ' . ($breached ? 'breached' : 'at risk');
+
+    // appNotify inserts what it is given - escape at the boundary
+    appNotify("Ticket SLA", escapeSql("$subject_line - $ticket_ref - " . $row['ticket_subject']), "/agent/ticket.php?ticket_id=$ticket_id", intval($row['ticket_client_id']), $ticket_id);
+
+    $recipients = [];
+    if (filter_var($address, FILTER_VALIDATE_EMAIL)) {
+        $recipients[] = ['email' => $address, 'greet' => '', 'footnote' => 'You get this at the SLA alert address in Admin > SLAs.'];
+    }
+    // The assigned agent - once, if they are also the alert address
+    if ($agent = ticketMailAgent($row['ticket_assigned_to'])) {
+        $recipients[] = $agent + ['footnote' => "You get this as the agent $ticket_ref is assigned to."];
+    }
+    return ticketMailAgents($recipients, "$subject_line: $ticket_ref - " . $row['ticket_subject'],
+        ticketAgentEmailContent($row, 'sla', ['track' => $track, 'breached' => $breached, 'due' => $due]));
 }
 
 /** Time worked as posted - HH:MM:SS, or H:MM - normalised to HH:MM:SS; nothing sensible is 00:00:00. */

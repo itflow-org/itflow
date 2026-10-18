@@ -543,7 +543,7 @@ function portalSignInMethods() {
  * doing it. ['ok' => bool, 'error' => why not, 'emailed' => bool].
  */
 function portalContactInvite($contact_id, $method, $by) {
-    global $mysqli, $session_client_id, $config_base_url, $config_smtp_provider, $config_mail_from_email, $config_mail_from_name;
+    global $mysqli, $session_client_id;
     $contact_id = intval($contact_id);
     $client_id = intval($session_client_id);
     $contact = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_email, contact_user_id, client_name, user_id, user_auth_method
@@ -573,38 +573,10 @@ function portalContactInvite($contact_id, $method, $by) {
         mysqli_query($mysqli, "UPDATE contacts SET contact_user_id = $user_id WHERE contact_id = $contact_id AND contact_client_id = $client_id");
     }
 
-    // The email - a link to set their password, which is the reset page's own
-    // link, good for PORTAL_INVITE_LINK_DAYS (functions/portal.php)
-    $company = billingCompany();
-    $company_name = (string) ($company['company_name'] ?? '');
-    if ($method === 'local') {
-        $button = ['label' => 'Set your password', 'url' => portalPasswordLink($user_id, PORTAL_INVITE_LINK_DAYS * 1440)];
-        $how = 'Set a password with the button below, then sign in with this email address.';
-    } else {
+    // The email - a link to set their password, or for Microsoft the sign-in page (functions/portal.php)
+    $emailed = portalMailInvite($user_id, $by);
+    if (!$emailed && $method !== 'local') {
         portalPasswordLinkClear($user_id);
-        $button = ['label' => 'Sign in', 'url' => "https://$config_base_url/login.php"];
-        $how = 'Sign in with your Microsoft 365 account - choose Login with Microsoft on the sign-in page.';
-    }
-    $emailed = false;
-    if (!empty($config_smtp_provider) && filter_var($config_mail_from_email, FILTER_VALIDATE_EMAIL)) {
-        $html = billingEmailHtml([
-            'kind' => 'Client portal', 'tone' => 'primary', 'name' => $name,
-            'title' => "Your $company_name client portal",
-            'intro' => [trim($by) . " has given you access to the $company_name client portal for {$contact['client_name']} - where you can raise and follow support tickets.", $how],
-            'summary' => ['Sign in as' => $email],
-            'button' => $button,
-            'after' => [$method === 'local' ? "The link works once, for " . PORTAL_INVITE_LINK_DAYS . " days. After that, choose Forgot password on the sign-in page." : "Questions? Reply to this email."],
-            'footnote' => "You received this because " . trim($by) . " added you to the $company_name client portal.",
-        ]);
-        addToMailQueue([[
-            'from' => escapeSql($config_mail_from_email),
-            'from_name' => escapeSql($config_mail_from_name),
-            'recipient' => $email_sql,
-            'recipient_name' => $name_sql,
-            'subject' => escapeSql("Your $company_name client portal"),
-            'body' => mysqli_real_escape_string($mysqli, $html), // escapeSql() would strip the HTML
-        ]]);
-        $emailed = true;
     }
     return ['ok' => true, 'error' => '', 'emailed' => $emailed];
 }

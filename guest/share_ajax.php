@@ -229,14 +229,7 @@ if ($action === 'send_code') {
     }
     $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     mysqli_query($mysqli, "UPDATE shared_items SET item_code = '" . escapeSql(password_hash($code, PASSWORD_DEFAULT)) . "', item_code_sent_at = NOW() WHERE item_id = " . intval($row['item_id']));
-    $company = shareCompany();
-    shareQueueMail($row['item_recipient'], "Your code: $code - " . $company['name'], shareMailHtml(
-        'Your code is ' . $code,
-        [
-            'Enter it on the page that asked for it, to open the secure link ' . escapeHtml($company['name']) . ' sent you. It works for ' . SHARE_CODE_MINUTES . ' minutes.',
-            'If you did not ask for it, someone else has the link - ignore this email and let us know.',
-        ]
-    ));
+    shareEmailCode($row, $code);
     shareGuestRecord($row, 'Code', 'A code was emailed to ' . $row['item_recipient']);
     exit(json_encode(['sent' => true]));
 }

@@ -5,6 +5,10 @@
 
 
 function triggerCustomAction($trigger, $entity) {
+    // Not for the sample records an email preview makes and throws away (functions/email_preview.php)
+    if (function_exists('emailCapturing') && emailCapturing()) {
+        return;
+    }
     $original_dir = getcwd(); // Save
 
     chdir(dirname(__FILE__));

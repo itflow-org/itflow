@@ -229,38 +229,18 @@ function billingEmailRecipients($client_id, ?array $contact_ids = null, $type = 
 }
 
 /**
- * Queue a billing email to each recipient, greeting each by name. $opts:
- * from ('invoice' or 'quote' - whose address it comes from) and attach (a
- * list of billingEmailPdf() files). Who it was queued to, "Name (email)".
+ * Queue a billing email to each recipient, greeting each by name - nobody
+ * without one - through emailQueue(), whether or not mail is set up yet, as
+ * the Send windows always have. $opts: from ('invoice' or 'quote' -
+ * whose address it comes from) and attach (a list of billingEmailPdf()
+ * files). Who it was queued to, "Name (email)".
  */
 function billingEmailQueue(array $recipients, $subject, array $email, array $opts = []) {
-    global $mysqli;
-    $from = billingEmailFrom($opts['from'] ?? 'invoice');
-    $attachments = array_values(array_filter((array) ($opts['attach'] ?? [])));
-    $data = [];
-    $sent = [];
-    foreach ($recipients as $recipient) {
-        $address = trim((string) ($recipient['email'] ?? ''));
-        if (!filter_var($address, FILTER_VALIDATE_EMAIL) || isset($sent[strtolower($address)])) {
-            continue;
-        }
-        $name = (string) ($recipient['name'] ?? '');
-        $html = billingEmailHtml(['name' => array_key_exists('greet', $recipient) ? $recipient['greet'] : $name] + $email);
-        $data[] = [
-            'from' => mysqli_real_escape_string($mysqli, $from['email']),
-            'from_name' => mysqli_real_escape_string($mysqli, $from['name']),
-            'recipient' => mysqli_real_escape_string($mysqli, $address),
-            'recipient_name' => mysqli_real_escape_string($mysqli, $name),
-            'subject' => mysqli_real_escape_string($mysqli, $subject),
-            'body' => mysqli_real_escape_string($mysqli, $html),
-            'attachments' => $attachments,
-        ];
-        $sent[strtolower($address)] = $name !== '' ? "$name ($address)" : $address;
-    }
-    if ($data) {
-        addToMailQueue($data);
-    }
-    return array_values($sent);
+    $recipients = array_map(function ($recipient) {
+        $greet = array_key_exists('greet', $recipient) ? $recipient['greet'] : ($recipient['name'] ?? '');
+        return ['greet' => trim((string) $greet) !== '' ? (string) $greet : null] + $recipient;
+    }, $recipients);
+    return emailQueue($recipients, $subject, $email, ['from' => billingEmailFrom($opts['from'] ?? 'invoice'), 'attachments' => (array) ($opts['attach'] ?? []), 'always' => true]);
 }
 
 /**
@@ -478,6 +458,18 @@ function billingPaymentEmail(array $applied, array $payment) {
         'lines' => ['head' => ['Invoice', 'Applied', 'Balance'], 'align' => ['left', 'right', 'right'], 'rows' => $rows],
         'after' => ['Please keep this email as your receipt.'],
     ]];
+}
+
+/** Confirm a card a contact saved in the client portal - its brand, last four digits and expiry. Who it went to. */
+function billingMailCardSaved($email, $name, $client_name, $brand, $last4, $exp_month, $exp_year) {
+    return billingEmailQueue([['email' => (string) $email, 'name' => (string) $name]], 'Payment method saved', [
+        'kind' => 'Payment method', 'tone' => 'success', 'preview' => 'Your card is saved for future invoices',
+        'title' => 'Your payment method is saved',
+        'intro' => ['Your payment details are stored securely with Stripe, our payment processor, and you authorized us to bill this card automatically for future invoices.'],
+        'summary' => ['Card' => ucfirst((string) $brand) . ' ending ' . $last4, 'Expires' => sprintf('%02d/%d', intval($exp_month), intval($exp_year))],
+        'after' => ['You can change or remove it at any time in the client portal.', 'Thank you for your business!'],
+        'footnote' => billingEmailFootnote((string) $client_name),
+    ]);
 }
 
 /** An email to one of our own addresses - no greeting, from the invoice or quote address. Who it went to. */

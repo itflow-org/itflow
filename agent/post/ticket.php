@@ -14,16 +14,6 @@
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
-/** The "a ticket was created for you" email - to its contact, and its watchers unless $to_watchers is false. */
-function ticketMailCreated($ticket_id, $subject_prefix, $attachments = [], $to_watchers = true) {
-    $row = ticketRow($ticket_id);
-    if (!$row) {
-        return 0;
-    }
-    return ticketMailSend($row['ticket_id'], "$subject_prefix [" . ticketReference($row) . "] - " . $row['ticket_subject'], ticketEmailContent($row, 'created'),
-        ['attachments' => $attachments, 'to_watchers' => $to_watchers, 'kind' => 'created']);
-}
-
 /** Tell an agent about a ticket - an app notification linking to it. Not themselves, not nobody. */
 function ticketNotifyAgent($user_id, $row, $text) {
     global $mysqli, $session_user_id;
@@ -422,10 +412,7 @@ if (isset($_POST['add_ticket_watcher'])) {
 
     // Let each new watcher know, when asked
     if ($added && $notify) {
-        $company_name = (string) (billingCompany()['company_name'] ?? 'us');
-        emailQueue(array_map(function ($watcher_email) use ($row, $company_name) {
-            return ['email' => $watcher_email, 'greet' => '', 'footnote' => "You get this because you are watching ticket " . ticketReference($row) . " - ask $company_name if you would like to stop."];
-        }, $added), "Ticket Notification - [" . ticketReference($row) . "] - " . $row['ticket_subject'], ticketEmailContent($row, 'watcher', ['by' => stripslashes($session_name)]), ['from' => ticketEmailFrom()]);
+        ticketMailWatchersAdded($ticket_id, $added, stripslashes($session_name));
     }
 
     foreach ($added as $watcher_email) {
@@ -847,9 +834,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
         // Email the client and watchers about a public update
         if (!$private_note) {
-            $now = ticketRow($ticket_id);
-            ticketMailSend($ticket_id, "Ticket update - [" . ticketReference($now) . "] - " . $now['ticket_subject'],
-                ticketEmailContent($now, 'reply', ['message' => (string) ($_POST['bulk_reply_details'] ?? ''), 'by' => stripslashes($session_name)]));
+            ticketMailReply($ticket_id, (string) ($_POST['bulk_reply_details'] ?? ''), stripslashes($session_name));
         }
 
         // Tell the agent it is assigned to, and whoever opened it
@@ -1044,11 +1029,8 @@ if (isset($_POST['add_ticket_reply'])) {
         // Email the client and the watchers
         if ($send_email) {
             // The reply as saved - with the signature - read back
-            $reply_html = (string) getFieldById('ticket_replies', $ticket_reply_id, 'ticket_reply');
-            $now = ticketRow($ticket_id);
-            $resolved = $ticket_status === TICKET_STATUS_RESOLVED;
-            ticketMailSend($ticket_id, ($resolved ? 'Ticket resolved' : 'Ticket update') . " - [" . ticketReference($now) . "] - " . $now['ticket_subject'] . ($resolved ? ' | (pending closure)' : ''),
-                ticketEmailContent($now, $resolved ? 'resolved' : 'reply', ['message' => $reply_html, 'by' => stripslashes($session_name)]), ['attachments' => $emailable_attachments['send']]);
+            ticketMailReply($ticket_id, (string) getFieldById('ticket_replies', $ticket_reply_id, 'ticket_reply'), stripslashes($session_name),
+                $ticket_status === TICKET_STATUS_RESOLVED, $emailable_attachments['send']);
         }
 
         // Tell the agent it is assigned to, and whoever opened it

@@ -160,8 +160,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     // The sender is told it is a ticket now - unless they asked for replies only (Your account in the client portal)
     $contact_wants = !$contact_id || ticketContactWantsEmail(getFieldById('contacts', intval($contact_id), 'contact_ticket_emails'), 'created');
     if ($config_ticket_client_general_notifications == 1 && !preg_match($bad_pattern, $contact_email) && $contact_wants && ($new = ticketRow($id))) {
-        ticketMailSend($id, "Ticket created - [" . ticketReference($new) . "] - " . $new['ticket_subject'], ticketEmailContent($new, 'created', ['how' => 'email']),
-            ['kind' => 'created', 'to_watchers' => false, 'to' => [['email' => stripslashes($contact_email), 'name' => stripslashes($contact_name)]]]);
+        ticketMailCreated($id, 'Ticket created -', [], false, 'email', [['email' => stripslashes($contact_email), 'name' => stripslashes($contact_name)]]);
     }
 
     // The new-ticket address (Admin > Ticket), when there is one
@@ -239,15 +238,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
             appNotify("Ticket", "Email parser: $from_email attempted to re-open ticket $config_ticket_prefix_esc$ticket_number_esc2 (ID $ticket_id) - check inbox manually to see email", "/agent/ticket.php?ticket_id=$ticket_id$client_uri", $client_id);
 
             // They are told it didn't reach anyone, and how to raise a new one
-            $closed = ticketRow($ticket_id);
-            $support = ticketEmailFrom()['email'];
-            emailQueue([['email' => stripslashes($from_email), 'greet' => '', 'footnote' => 'You get this because you replied to a closed ticket.']], "Action required: This ticket is already closed", [
-                'kind' => 'Ticket closed', 'tone' => 'warning', 'preview' => 'Your reply did not reach us - raise a new ticket instead',
-                'title' => 'That ticket is closed',
-                'intro' => ["You replied to ticket " . ticketReference($closed) . " - \"" . $closed['ticket_subject'] . "\" - which is closed, so your reply won't reach us.", "To raise a new ticket, send a new email to $support."],
-                'button' => ['label' => 'Email us', 'url' => "mailto:$support"],
-                'contact' => ticketEmailContactLine(),
-            ], ['from' => ticketEmailFrom()]);
+            ticketMailClosedReply($ticket_id, stripslashes($from_email));
             return true;
         }
 

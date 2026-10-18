@@ -121,9 +121,7 @@ if (!empty($ticket_id) && !empty($reply)) {
 
             // Email the contact and watchers on a public reply, as the agent reply handler does
             if ($reply_type == 'Public') {
-                $now = ticketRow($ticket_id);
-                ticketMailSend($ticket_id, "Ticket update - [" . ticketReference($now) . "] - " . $now['ticket_subject'],
-                    ticketEmailContent($now, 'reply', ['message' => (string) getFieldById('ticket_replies', $insert_id, 'ticket_reply'), 'by' => stripslashes($session_name)]));
+                ticketMailReply($ticket_id, (string) getFieldById('ticket_replies', $insert_id, 'ticket_reply'), stripslashes($session_name));
             }
 
         }

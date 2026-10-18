@@ -28,7 +28,7 @@ require_once "../includes/inc_set_timezone.php";
 
 $ip = escapeSql(getIP());
 $user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
-$can_email = !empty($config_smtp_provider) && filter_var($config_mail_from_email, FILTER_VALIDATE_EMAIL);
+$can_email = portalMailReady();
 
 $company = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_name, company_logo FROM companies WHERE company_id = 1"));
 $company_name = (string) ($company['company_name'] ?? '');
@@ -69,23 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password_reset_email_
         $recent = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM logs WHERE log_type = 'Client Login' AND log_action = 'Reset Sent'
             AND log_user_id = $user_id AND log_created_at > NOW() - INTERVAL " . PORTAL_RESET_REQUEST_GAP_MINUTES . " MINUTE"))[0]);
         if (!$recent) {
-            $url = portalPasswordLink($user_id, PORTAL_RESET_LINK_MINUTES);
-            $html = billingEmailHtml([
-                'kind' => 'Client portal', 'tone' => 'primary', 'name' => (string) $row['contact_name'],
-                'title' => "Reset your $company_name client portal password",
-                'intro' => ["Someone - probably you - asked to reset the password for your $company_name client portal account.", 'Choose a new one with the button below.'],
-                'summary' => ['Account' => (string) $row['user_email']],
-                'button' => ['label' => 'Set a new password', 'url' => $url],
-                'after' => ['The link works once, for the next ' . PORTAL_RESET_LINK_MINUTES . ' minutes. If you did not ask for it, ignore this email - your password stays as it is.'],
-            ]);
-            addToMailQueue([[
-                'from' => mysqli_real_escape_string($mysqli, (string) $config_mail_from_email),
-                'from_name' => mysqli_real_escape_string($mysqli, (string) $config_mail_from_name),
-                'recipient' => mysqli_real_escape_string($mysqli, (string) $row['user_email']),
-                'recipient_name' => mysqli_real_escape_string($mysqli, (string) $row['contact_name']),
-                'subject' => mysqli_real_escape_string($mysqli, "Reset your $company_name client portal password"),
-                'body' => mysqli_real_escape_string($mysqli, $html),
-            ]]);
+            portalMailPasswordReset($user_id);
             $reset_log('Reset Sent', 'Emailed a portal password link to ' . $row['user_email'], $user_id, intval($row['contact_client_id']));
         }
     }
@@ -111,8 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password_reset_email_
         mysqli_query($mysqli, "UPDATE users SET user_password = '$hash' WHERE user_id = $user_id AND user_type = 2");
         portalPasswordLinkClear($user_id);
         $reset_log('Password Reset', 'Set a new portal password from an emailed link', $user_id, $link['client']);
-        portalAccountEmail($link_user['user_email'], $link_user['contact_name'], "Your $company_name client portal password was changed",
-            ["The password for your $company_name client portal account (" . $link_user['user_email'] . ") was just set from an emailed link.", 'If that was you, there is nothing more to do.']);
+        portalMailAccountChange($link_user['user_email'], $link_user['contact_name'], 'password_link');
         $_SESSION['login_message'] = 'Your password is set - sign in with it below.';
         $_SESSION['login_message_type'] = 'success';
         header("Location: /login.php");

@@ -518,8 +518,7 @@ if (isset($_POST['portal_password_change'])) {
     portalPasswordLinkClear($session_user_id);
 
     logAudit("Contact", "Edit", "Client contact $session_contact_name changed their password in the client portal", $session_client_id, $session_contact_id);
-    portalAccountEmail(stripslashes($session_contact_email), stripslashes($session_contact_name), "Your $session_company_name client portal password was changed",
-        ["The password for your $session_company_name client portal account was just changed from Your account.", 'If that was you, there is nothing more to do.']);
+    portalMailAccountChange(stripslashes($session_contact_email), stripslashes($session_contact_name), 'password');
 
     flashAlert("Your password is changed");
     redirect('profile.php');
@@ -549,8 +548,7 @@ if (isset($_POST['portal_mfa_enable'])) {
     unset($_SESSION['portal_mfa_secret']);
 
     logAudit("Contact", "Edit", "Client contact $session_contact_name turned on two-step sign-in in the client portal", $session_client_id, $session_contact_id);
-    portalAccountEmail(stripslashes($session_contact_email), stripslashes($session_contact_name), 'Two-step sign-in is on for your client portal account',
-        ['Signing in to the ' . $session_company_name . ' client portal now asks for a code from your authenticator app, as well as your password.', 'Lost your phone? Ask us and we will reset it.']);
+    portalMailAccountChange(stripslashes($session_contact_email), stripslashes($session_contact_name), 'mfa_on');
 
     flashAlert("Two-step sign-in is on - signing in will ask for a code from your app");
     redirect('profile.php');
@@ -576,8 +574,7 @@ if (isset($_POST['portal_mfa_disable'])) {
     portalMfaReset($session_user_id);
 
     logAudit("Contact", "Edit", "Client contact $session_contact_name turned off two-step sign-in in the client portal", $session_client_id, $session_contact_id);
-    portalAccountEmail(stripslashes($session_contact_email), stripslashes($session_contact_name), 'Two-step sign-in is off for your client portal account',
-        ['Signing in to the ' . $session_company_name . ' client portal now asks for your password alone.', 'You can turn two-step sign-in back on from Your account.']);
+    portalMailAccountChange(stripslashes($session_contact_email), stripslashes($session_contact_name), 'mfa_off');
 
     flashAlert("Two-step sign-in is off");
     redirect('profile.php');
@@ -1222,14 +1219,8 @@ if (isset($_GET['stripe_save_card'])) {
 
     // Their confirmation, in the billing emails' look - from the invoice mailbox
     if (billingEmailReady()) {
-        billingEmailQueue([['email' => stripslashes($session_contact_email), 'name' => stripslashes($session_contact_name)]], 'Payment method saved', [
-            'kind' => 'Payment method', 'tone' => 'success', 'preview' => 'Your card is saved for future invoices',
-            'title' => 'Your payment method is saved',
-            'intro' => ['Your payment details are stored securely with Stripe, our payment processor, and you authorized us to bill this card automatically for future invoices.'],
-            'summary' => ['Card' => ucfirst(stripslashes((string) $card_brand)) . ' ending ' . stripslashes((string) $last4), 'Expires' => sprintf('%02d/%d', intval($exp_month), intval($exp_year))],
-            'after' => ['You can change or remove it at any time in the client portal.', 'Thank you for your business!'],
-            'footnote' => billingEmailFootnote(stripslashes((string) $session_client_name)),
-        ]);
+        billingMailCardSaved(stripslashes($session_contact_email), stripslashes($session_contact_name), stripslashes((string) $session_client_name),
+            stripslashes((string) $card_brand), stripslashes((string) $last4), intval($exp_month), intval($exp_year));
     }
 
     logAudit("Stripe", "Update", "$session_contact_name saved payment method ($saved_payment_description) (PM: $payment_method_id)", $session_client_id);

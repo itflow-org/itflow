@@ -16,7 +16,7 @@ $oauth_needed = in_array($config_smtp_provider, ['google_oauth', 'microsoft_oaut
 // ---- Active tab -------------------------------------------------------------
 // The tab lives in the URL (?tab=receiving) so it can be linked, bookmarked, survives a
 //  reload, and lets the POST handlers send you back to the tab you saved from
-$mail_tabs = ['sending', 'receiving', 'oauth', 'from', 'tests'];
+$mail_tabs = ['sending', 'receiving', 'oauth', 'from', 'tests', 'previews'];
 $active_tab = isset($_GET['tab']) && in_array($_GET['tab'], $mail_tabs, true) ? $_GET['tab'] : 'sending';
 
 // A direct link to the OAuth tab reveals it even when no OAuth provider is selected yet
@@ -96,6 +96,11 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
             <li class="nav-item">
                 <a class="nav-link <?php if ($active_tab === 'tests') { echo 'active'; } ?>" href="?tab=tests" data-bs-target="#tab-tests">
                     <i class="fas fa-fw fa-vial me-1"></i>Tests
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?php if ($active_tab === 'previews') { echo 'active'; } ?>" href="?tab=previews" data-bs-target="#tab-previews">
+                    <i class="fas fa-fw fa-eye me-1"></i>Previews
                 </a>
             </li>
         </ul>
@@ -410,9 +415,202 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
 
             </div>
 
+            <!-- ============================ PREVIEWS ============================ -->
+            <?php
+            // Every email ITFlow sends, made on sample records that are thrown away again (functions/email_preview.php)
+            $preview_catalog = emailPreviewCatalog();
+            $preview_groups = [];
+            foreach ($preview_catalog as $preview_key => $preview_entry) {
+                $preview_groups[$preview_entry['group']][$preview_key] = $preview_entry;
+            }
+            $preview_first = isset($_GET['email'], $preview_catalog[$_GET['email']]) ? (string) $_GET['email'] : (string) array_key_first($preview_catalog);
+            ?>
+            <div class="tab-pane fade <?php if ($active_tab === 'previews') { echo 'show active'; } ?>" id="tab-previews" role="tabpanel">
+
+                <p class="text-body-secondary">
+                    Every email ITFlow sends, as it goes out - your logo, your details and your From addresses. Each is made just now on sample records
+                    (<?= escapeHtml(EMAIL_PREVIEW_PEOPLE['client']) ?>, its contact <?= escapeHtml(EMAIL_PREVIEW_PEOPLE['contact'][0]) ?> and an agent, <?= escapeHtml(EMAIL_PREVIEW_PEOPLE['agent'][0]) ?>)
+                    that are thrown away again, so looking sends and saves nothing.
+                </p>
+
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <div class="input-group mb-2">
+                            <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
+                            <input type="search" class="form-control" placeholder="Find an email" data-preview-filter aria-label="Find an email">
+                        </div>
+                        <div class="list-group itflow-mail-preview-list" style="max-height: 75vh; overflow-y: auto;">
+                            <?php foreach ($preview_groups as $preview_group => $preview_entries) { ?>
+                                <div class="list-group-item bg-body-tertiary small fw-semibold text-uppercase text-body-secondary py-1" data-preview-group><?= escapeHtml($preview_group) ?></div>
+                                <?php foreach ($preview_entries as $preview_key => $preview_entry) { ?>
+                                    <button type="button" class="list-group-item list-group-item-action <?= $preview_key === $preview_first ? 'active' : '' ?>" data-preview="<?= escapeHtml($preview_key) ?>"
+                                        data-preview-text="<?= escapeHtml(strtolower($preview_group . ' ' . $preview_entry['label'] . ' ' . $preview_entry['to'] . ' ' . $preview_entry['when'])) ?>">
+                                        <div class="fw-semibold"><?= escapeHtml($preview_entry['label']) ?></div>
+                                        <div class="small opacity-75"><?= escapeHtml($preview_entry['to']) ?></div>
+                                    </button>
+                                <?php } ?>
+                            <?php } ?>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="card mb-0" id="mailPreview">
+                            <div class="card-header">
+                                <div class="d-flex flex-wrap align-items-start gap-2">
+                                    <div class="flex-grow-1 min-w-0">
+                                        <div class="fw-semibold text-break" data-preview-subject></div>
+                                        <div class="small text-body-secondary text-break"><span class="fw-semibold">From</span> <span data-preview-from></span></div>
+                                        <div class="small text-body-secondary text-break"><span class="fw-semibold">To</span> <span data-preview-to></span> <span data-preview-also></span></div>
+                                        <div class="small text-body-secondary"><i class="fas fa-fw fa-bolt me-1"></i><span data-preview-when></span><span class="ms-2 badge text-bg-secondary d-none" data-preview-calendar><i class="fas fa-calendar-alt me-1"></i>Calendar file attached</span></div>
+                                    </div>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="Width">
+                                            <button type="button" class="btn btn-outline-secondary active" data-preview-width="100%" title="As on a computer"><i class="fas fa-fw fa-desktop"></i></button>
+                                            <button type="button" class="btn btn-outline-secondary" data-preview-width="390px" title="As on a phone"><i class="fas fa-fw fa-mobile-alt"></i></button>
+                                        </div>
+                                        <form action="post.php" method="post" class="m-0">
+                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                            <input type="hidden" name="email" value="<?= escapeHtml($preview_first) ?>" data-preview-key>
+                                            <button type="submit" name="send_email_preview" class="btn btn-sm btn-primary" <?= emailReady() ? '' : 'disabled title="Set up Sending first"' ?>>
+                                                <i class="fas fa-fw fa-paper-plane me-1"></i>Send me a copy
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-0 bg-body-tertiary text-center">
+                                <div class="alert alert-warning m-3 d-none" data-preview-error></div>
+                                <iframe title="Email preview" sandbox="allow-same-origin" data-preview-frame style="width: 100%; height: 600px; border: 0; display: block; margin: 0 auto; background: #f1f3f5;"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
     </div>
 </div>
+
+<script>
+    // Admin > Mail > Previews - each email fetched as it is picked (admin/mail_preview.php)
+    (function () {
+        var card = document.getElementById('mailPreview');
+        if (!card) {
+            return;
+        }
+        var frame = card.querySelector('[data-preview-frame]');
+        var csrf = <?= json_encode($_SESSION['csrf_token']) ?>;
+        var items = Array.from(document.querySelectorAll('[data-preview]'));
+        var loading = 0;
+
+        function fit() {
+            try {
+                var doc = frame.contentDocument;
+                if (doc && doc.documentElement) {
+                    frame.style.height = Math.max(400, doc.documentElement.scrollHeight) + 'px';
+                }
+            } catch (e) {
+                // nothing to measure
+            }
+        }
+        frame.addEventListener('load', fit);
+
+        function show(key, push) {
+            items.forEach(function (item) {
+                item.classList.toggle('active', item.getAttribute('data-preview') === key);
+            });
+            card.querySelector('[data-preview-key]').value = key;
+            var url = new URL(window.location.href);
+            url.searchParams.set('tab', 'previews');
+            url.searchParams.set('email', key);
+            history.replaceState(history.state, '', url);
+            var mine = ++loading;
+            card.style.opacity = '0.6';
+            fetch('mail_preview.php?email=' + encodeURIComponent(key) + '&csrf_token=' + encodeURIComponent(csrf), { credentials: 'same-origin' })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    if (mine !== loading) {
+                        return;
+                    }
+                    card.style.opacity = '';
+                    card.querySelector('[data-preview-subject]').textContent = data.subject || data.label || '';
+                    card.querySelector('[data-preview-from]').textContent = data.from || '-';
+                    card.querySelector('[data-preview-to]').textContent = data.to || data.to_who || '-';
+                    card.querySelector('[data-preview-also]').textContent = data.also && data.also.length ? '(and ' + data.also.join(', ') + ')' : '';
+                    card.querySelector('[data-preview-when]').textContent = 'Sent when: ' + (data.when || '');
+                    card.querySelector('[data-preview-calendar]').classList.toggle('d-none', !data.calendar);
+                    var error = card.querySelector('[data-preview-error]');
+                    error.textContent = data.error || '';
+                    error.classList.toggle('d-none', !data.error);
+                    frame.srcdoc = data.html || '';
+                })
+                .catch(function () {
+                    card.style.opacity = '';
+                    var error = card.querySelector('[data-preview-error]');
+                    error.textContent = 'The preview could not be loaded.';
+                    error.classList.remove('d-none');
+                });
+        }
+
+        items.forEach(function (item) {
+            item.addEventListener('click', function () {
+                show(item.getAttribute('data-preview'));
+            });
+        });
+        card.querySelectorAll('[data-preview-width]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                card.querySelectorAll('[data-preview-width]').forEach(function (other) {
+                    other.classList.toggle('active', other === button);
+                });
+                frame.style.width = button.getAttribute('data-preview-width');
+                setTimeout(fit, 50);
+            });
+        });
+
+        // Find an email - its group heading stays while any of its emails show
+        var filter = document.querySelector('[data-preview-filter]');
+        filter.addEventListener('input', function () {
+            var words = filter.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+            var heading = null;
+            var any = false;
+            Array.from(document.querySelector('.itflow-mail-preview-list').children).forEach(function (row) {
+                if (row.hasAttribute('data-preview-group')) {
+                    if (heading) {
+                        heading.classList.toggle('d-none', !any);
+                    }
+                    heading = row;
+                    any = false;
+                    return;
+                }
+                var text = row.getAttribute('data-preview-text');
+                var match = words.every(function (word) { return text.indexOf(word) !== -1; });
+                row.classList.toggle('d-none', !match);
+                any = any || match;
+            });
+            if (heading) {
+                heading.classList.toggle('d-none', !any);
+            }
+        });
+
+        // The first one, when the tab is opened
+        var started = false;
+        function start() {
+            if (!started && document.getElementById('tab-previews').classList.contains('active')) {
+                started = true;
+                show(<?= json_encode($preview_first) ?>);
+            }
+        }
+        document.querySelectorAll('#mailTabs .nav-link').forEach(function (link) {
+            link.addEventListener('click', function () {
+                setTimeout(start, 0);
+            });
+        });
+        window.addEventListener('popstate', function () {
+            setTimeout(start, 0);
+        });
+        start();
+    })();
+</script>
 
 <script>
 (function () {
@@ -432,7 +630,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
     // Set when the page was opened directly on the OAuth tab - stops the provider pass hiding it
     const forcedOauthTab = <?= $active_tab === 'oauth' ? 'true' : 'false' ?>;
     const navLinks = Array.from(document.querySelectorAll('#mailTabs .nav-link'));
-    const panes = ['tab-sending', 'tab-receiving', 'tab-oauth', 'tab-from', 'tab-tests']
+    const panes = ['tab-sending', 'tab-receiving', 'tab-oauth', 'tab-from', 'tab-tests', 'tab-previews']
         .map(id => document.getElementById(id)).filter(Boolean);
 
     // Server rendered the initial tab; keep the URL honest as the user clicks around

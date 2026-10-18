@@ -70,11 +70,17 @@ if (isset($_POST['add_contact'])) {
         }
     }
 
-    logAudit("Contact", "Create", "$session_name created contact $name", $client_id, $contact_id);
+    // Their invite to the portal - a link to set a password, never the password (functions/portal.php)
+    $invited = null;
+    if ($user_id && !empty($_POST['send_email'])) {
+        $invited = portalMailInvite($user_id);
+    }
+
+    logAudit("Contact", "Create", "$session_name created contact $name" . ($invited ? ' and emailed a client portal invite' : ''), $client_id, $contact_id);
 
     triggerCustomAction('contact_create', $contact_id);
 
-    flashAlert("Contact <strong>" . stripslashes($name) . "</strong> created");
+    flashAlert("Contact <strong>" . stripslashes($name) . "</strong> created" . ($invited ? ' and invited to the client portal' : ($invited === false ? ' - the portal invite was not sent, as ' . (portalMailReady() ? 'their email address is not valid' : 'outgoing mail is not set up') : '')), $invited === false ? 'warning' : 'success');
 
     redirect();
 
@@ -178,57 +184,17 @@ if (isset($_POST['edit_contact'])) {
         mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 1, contact_important = 1 WHERE contact_id = $contact_id");
     }
 
-    // Send contact a welcome e-mail, if specified
-    if ($send_email && $auth_method && $config_smtp_provider && $contact_user_id) {
-
-        // Sanitize Config vars from get_settings.php
-        $config_ticket_from_email = escapeSql($config_ticket_from_email);
-        $config_ticket_from_name = escapeSql($config_ticket_from_name);
-        $config_mail_from_email = escapeSql($config_mail_from_email);
-        $config_mail_from_name = escapeSql($config_mail_from_name);
-        $config_base_url = escapeSql($config_base_url);
-
-        // Get Company Phone Number
-        $sql = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = 1");
-        $row = mysqli_fetch_assoc($sql);
-        $company_name = escapeSql($row['company_name']);
-        $company_phone = escapeSql(formatPhoneNumber($row['company_phone']));
-
-        // Authentication info (azure, reset password, or tech-provided temporary password)
-
-        if ($auth_method == 'azure') {
-            $password_info = "Login with your Microsoft (Azure AD) account.";
-        } elseif ($contact_password === '') {
-            $password_info = "Request a password reset at https://$config_base_url/client/login_reset.php";
-        } else {
-            $password_info = mysqli_real_escape_string($mysqli, $contact_password . " -- Please change on first login");
-        }
-
-        $subject = "Your new $company_name portal account";
-        $body = "Hello $name,<br><br>$company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/client/<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
-        // Queue Mail
-        $data = [
-            [
-                'from' => $config_mail_from_email,
-                'from_name' => $config_mail_from_name,
-                'recipient' => $email,
-                'recipient_name' => $name,
-                'subject' => $subject,
-                'body' => $body,
-            ]
-        ];
-        addToMailQueue($data);
-        // Get Email ID for reference
-        $email_id = mysqli_insert_id($mysqli);
-
+    // Their invite to the portal - a link to set a password, never the password (functions/portal.php)
+    $invited = null;
+    if ($send_email && $auth_method && $contact_user_id) {
+        $invited = portalMailInvite($contact_user_id);
     }
 
-    logAudit("Contact", "Edit", "$session_name edited contact $name", $client_id, $contact_id);
+    logAudit("Contact", "Edit", "$session_name edited contact $name" . ($invited ? ' and emailed a client portal invite' : ''), $client_id, $contact_id);
 
     triggerCustomAction('contact_update', $contact_id);
 
-    flashAlert("Contact <strong>" . stripslashes($name) . "</strong> updated");
+    flashAlert("Contact <strong>" . stripslashes($name) . "</strong> updated" . ($invited ? ' and invited to the client portal' : ($invited === false ? ' - the portal invite was not sent, as ' . (portalMailReady() ? 'their email address is not valid' : 'outgoing mail is not set up') : '')), $invited === false ? 'warning' : 'success');
 
     redirect();
 
@@ -528,48 +494,23 @@ if (isset($_POST['send_bulk_mail_now'])) {
 
     enforceUserPermission('module_client');
 
-    if (isset($_POST['contact_ids'])) {
+    $contact_ids = array_values(array_filter(array_map('intval', (array) ($_POST['contact_ids'] ?? []))));
 
-        $count = count($_POST['contact_ids']);
-
-        $mail_from = escapeSql($_POST['mail_from']);
-        $mail_from_name = escapeSql($_POST['mail_from_name']);
-        $subject = escapeSql($_POST['subject']);
-        $body = mysqli_escape_string($mysqli, $_POST['body']);
-        $queued_at = escapeSql($_POST['queued_at']);
-
-        // Add Emails
-        foreach($_POST['contact_ids'] as $contact_id) {
-            $contact_id = intval($contact_id);
-
-            $sql = mysqli_query($mysqli,"SELECT contact_client_id, contact_email, contact_name FROM contacts WHERE contact_id = $contact_id");
-            $row = mysqli_fetch_assoc($sql);
-            $contact_name = escapeSql($row['contact_name']);
-            $contact_email = escapeSql($row['contact_email']);
-            $client_id = intval($row['contact_client_id']);
-
-            enforceClientAccess();
-
-            // Queue Mail
-            $data[] = [
-                'from' => $mail_from,
-                'from_name' => $mail_from_name,
-                'recipient' => $contact_email,
-                'recipient_name' => $contact_name,
-                'subject' => $subject,
-                'body' => $body,
-                'queued_at' => $queued_at
-            ];
+    // Every contact picked - checked before anything is queued
+    $recipients = [];
+    $company_name = (string) (billingCompany()['company_name'] ?? '');
+    foreach ($contact_ids as $contact_id) {
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_client_id, contact_email, contact_name, client_name FROM contacts
+            JOIN clients ON client_id = contact_client_id WHERE contact_id = $contact_id AND contact_archived_at IS NULL"));
+        if (!$row) {
+            continue;
         }
-        addToMailQueue($data);
-
-        logAudit("Bulk Mail", "Send", "$session_name sent $count messages via bulk mail");
-
-        flashAlert("<strong>$count</strong> messages queued");
-
+        enforceClientAccess(intval($row['contact_client_id']));
+        $recipients[] = ['email' => trim((string) $row['contact_email']), 'name' => (string) $row['contact_name'],
+            'footnote' => "You received this as a contact for {$row['client_name']} with $company_name."];
     }
 
-    redirect();
+    emailBulkPost($recipients, count($contact_ids));
 
 }
 
@@ -869,8 +810,7 @@ if (isset($_GET['reset_contact_portal_mfa'])) {
 
     portalMfaReset(intval($row['contact_user_id']));
     logAudit("Contact", "Edit", "$session_name turned off two-step sign-in for " . escapeSql($row['contact_name']) . " in the client portal", $client_id, $contact_id);
-    portalAccountEmail($row['contact_email'], $row['contact_name'], 'Two-step sign-in was turned off for your client portal account',
-        ['We turned off two-step sign-in for your client portal account, so it asks only for your password now.', 'You can turn it back on from Your account in the portal.']);
+    portalMailAccountChange($row['contact_email'], $row['contact_name'], 'mfa_off_by_us');
 
     flashAlert("Two-step sign-in is off for <strong>" . escapeHtml($row['contact_name']) . "</strong> - they sign in with their password alone until they set it up again");
 

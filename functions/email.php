@@ -32,13 +32,16 @@ const EMAIL_REPLY_MARKER = '##- Please type your reply above this line -##';
  *   title    the heading
  *   name     who it is to - "Hello Name,"; '' greets nobody by name ("Hello,"), null not at all
  *   intro    paragraphs before the summary
+ *   content  HTML someone wrote that is the email itself - a bulk email, say - made safe
+ *            (emailMessageHtml()) and shown as it is, not quoted
  *   note     the agent's own words, kept as typed
  *   message  ['html' => what someone wrote, as HTML, 'by' => who, 'when' => when, 'label' => the line over it]
  *   summary  label => value; strong names the label to make stand out
  *   lines    a table - ['head' => [...], 'align' => [...], 'rows' => [[cell, ...]]], a cell
  *            plain text or ['text' => ..., 'url' => ..., 'tone' => danger]
  *   callout  a paragraph that stands out, in the tone's colour
- *   button   ['label' => ..., 'url' => ...]
+ *   button   ['label' => ..., 'url' => ..., 'show_url' => true to print the address under it,
+ *            for a link that has to be copied whole]
  *   after    paragraphs after the button, smaller
  *   contact  the foot's contact line, in place of the company's phone, email and website
  *   footnote a line under the card - why they got it
@@ -70,6 +73,9 @@ function emailHtml(array $email) {
     }
     foreach ((array) ($email['intro'] ?? []) as $text_value) {
         $body .= $paragraph($text_value);
+    }
+    if (trim(strip_tags((string) ($email['content'] ?? ''), '<img>')) !== '') {
+        $body .= '<div style="margin:0 0 18px;font-size:15px;line-height:1.55;color:' . $text . ';overflow-wrap:anywhere;word-break:break-word;' . $font . '">' . emailMessageHtml($email['content']) . '</div>';
     }
     if (trim((string) ($email['note'] ?? '')) !== '') {
         $body .= '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;"><tr>'
@@ -129,6 +135,9 @@ function emailHtml(array $email) {
         $body .= '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:4px 0 22px;"><tr><td bgcolor="' . $accent . '" style="border-radius:6px;">'
             . '<a href="' . $e($email['button']['url']) . '" style="display:inline-block;padding:12px 26px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:6px;' . $font . '">' . $e($email['button']['label']) . '</a>'
             . '</td></tr></table>';
+        if (!empty($email['button']['show_url'])) {
+            $body .= '<p style="margin:-10px 0 18px;font-size:12px;line-height:1.5;color:' . $muted . ';word-break:break-all;">Or copy this into your browser: ' . $e($email['button']['url']) . '</p>';
+        }
     }
     foreach ((array) ($email['after'] ?? []) as $text_value) {
         $body .= '<p style="margin:0 0 12px;font-size:13px;line-height:1.55;color:' . $muted . ';">' . nl2br($e($text_value)) . '</p>';
@@ -160,7 +169,7 @@ function emailHtml(array $email) {
         . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border:1px solid ' . $line . ';border-radius:10px;border-top:4px solid ' . $accent . ';">'
         . '<tr><td style="padding:26px 32px 6px;">' . $logo . '</td></tr>'
         . '<tr><td style="padding:14px 32px 10px;' . $font . '">'
-        . '<div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:' . $accent . ';">' . $e($email['kind'] ?? '') . '</div>'
+        . (trim((string) ($email['kind'] ?? '')) !== '' ? '<div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:' . $accent . ';">' . $e($email['kind']) . '</div>' : '')
         . '<h1 style="margin:4px 0 18px;font-size:24px;line-height:1.25;font-weight:700;color:' . $text . ';">' . $e($email['title'] ?? '') . '</h1>'
         . $body
         . '</td></tr>'
@@ -181,9 +190,56 @@ function emailSettings() {
     return $row;
 }
 
-/** Can mail go out - is a mail provider set up (Admin > Mail)? */
+/** Can mail go out - is a mail provider set up (Admin > Mail)? Always, while emails are being captured for a preview. */
 function emailReady() {
-    return !empty(emailSettings()['config_smtp_provider']);
+    return emailCapturing() || !empty(emailSettings()['config_smtp_provider']);
+}
+
+/*
+ * Capturing - for the previews in Admin > Mail (functions/email_preview.php).
+ * While it is on, emailQueue() keeps what it would have queued instead of
+ * queuing it, as if mail were set up.
+ */
+function emailCaptureStart() {
+    $GLOBALS['itflow_email_capture'] = [];
+}
+
+function emailCapturing() {
+    return isset($GLOBALS['itflow_email_capture']) && is_array($GLOBALS['itflow_email_capture']);
+}
+
+/** Stop capturing - what was captured: [['to', 'to_name', 'from', 'from_name', 'subject', 'html', 'attachments', 'cal_str'], ...]. */
+function emailCaptureStop() {
+    $captured = $GLOBALS['itflow_email_capture'] ?? [];
+    unset($GLOBALS['itflow_email_capture']);
+    return is_array($captured) ? $captured : [];
+}
+
+/**
+ * The mailboxes ITFlow sends from (Admin > Mail), as saved - for a pick of
+ * which one an email comes from. key => ['label', 'email', 'name'], the ones
+ * with an address.
+ */
+function emailMailboxes() {
+    $system = emailFrom();
+    $invoice = billingEmailFrom('invoice');
+    $quote = billingEmailFrom('quote');
+    $ticket = emailFrom('ticket');
+    $boxes = [
+        'system' => ['label' => 'System'] + $system,
+        'ticket' => ['label' => 'Tickets'] + $ticket,
+        'invoice' => ['label' => 'Invoices'] + $invoice,
+        'quote' => ['label' => 'Quotes'] + $quote,
+    ];
+    $seen = [];
+    foreach ($boxes as $key => $box) {
+        $same = strtolower($box['email']) . '|' . $box['name'];
+        if (!filter_var($box['email'], FILTER_VALIDATE_EMAIL) || isset($seen[$same])) {
+            unset($boxes[$key]);
+        }
+        $seen[$same] = true;
+    }
+    return $boxes;
 }
 
 /**
@@ -226,14 +282,18 @@ function emailMessageHtml($html) {
  *   from         ['email' => ..., 'name' => ...] - the system mailbox (emailFrom()) when not given
  *   attachments  [['path' => app-relative, 'name' => ...], ...]
  *   cal_str      a calendar file (iCalendar) to go with it - an invite or its cancellation
+ *   queued_at    when to send it, 'Y-m-d H:i:s' - now when not given
+ *   always       queue it even without mail set up, to go once it is - billing's Send
+ *                windows have always done that (billingEmailQueue())
  * Who it was queued to, "Name (email)". Nothing is queued without mail set up.
  */
 function emailQueue(array $recipients, $subject, array $email, array $opts = []) {
     global $mysqli;
-    if (!emailReady()) {
+    if (!emailReady() && empty($opts['always'])) {
         return [];
     }
     $from = $opts['from'] ?? emailFrom();
+    $queued_at = !empty($opts['queued_at']) && strtotime((string) $opts['queued_at']) ? date('Y-m-d H:i:s', strtotime((string) $opts['queued_at'])) : '';
     $attachments = array_values(array_filter((array) ($opts['attachments'] ?? [])));
     $data = [];
     $sent = [];
@@ -246,6 +306,12 @@ function emailQueue(array $recipients, $subject, array $email, array $opts = [])
         $html = emailHtml(array_merge($email, [
             'name' => array_key_exists('greet', $recipient) ? $recipient['greet'] : $name,
         ], isset($recipient['footnote']) ? ['footnote' => $recipient['footnote']] : []));
+        $sent[strtolower($address)] = $name !== '' ? "$name ($address)" : $address;
+        if (emailCapturing()) {
+            $GLOBALS['itflow_email_capture'][] = ['to' => $address, 'to_name' => $name, 'from' => (string) $from['email'], 'from_name' => (string) $from['name'],
+                'subject' => (string) $subject, 'html' => $html, 'attachments' => $attachments, 'cal_str' => (string) ($opts['cal_str'] ?? '')];
+            continue;
+        }
         $data[] = [
             'from' => mysqli_real_escape_string($mysqli, (string) $from['email']),
             'from_name' => mysqli_real_escape_string($mysqli, (string) $from['name']),
@@ -254,11 +320,88 @@ function emailQueue(array $recipients, $subject, array $email, array $opts = [])
             'subject' => mysqli_real_escape_string($mysqli, (string) $subject),
             'body' => mysqli_real_escape_string($mysqli, $html),
             'attachments' => $attachments,
-        ] + (!empty($opts['cal_str']) ? ['cal_str' => (string) $opts['cal_str']] : []);
-        $sent[strtolower($address)] = $name !== '' ? "$name ($address)" : $address;
+        ] + (!empty($opts['cal_str']) ? ['cal_str' => (string) $opts['cal_str']] : [])
+          + ($queued_at !== '' ? ['queued_at' => $queued_at] : []);
     }
     if ($data) {
         addToMailQueue($data);
     }
     return array_values($sent);
+}
+
+/** The test email in Admin > Mail, from one of the mailboxes - system, ticket, invoice or quote. Who it went to - [] when it didn't. */
+function emailTestSend($to, $mailbox) {
+    $box = ['ticket' => emailFrom('ticket'), 'invoice' => billingEmailFrom('invoice'), 'quote' => billingEmailFrom('quote')][$mailbox] ?? emailFrom();
+    $which = ['system' => 'the system mailbox', 'ticket' => 'the ticket mailbox', 'invoice' => 'the invoice mailbox', 'quote' => 'the quote mailbox'][$mailbox] ?? 'the system mailbox';
+    return emailQueue([['email' => trim((string) $to), 'greet' => '', 'footnote' => 'You get this because someone sent a test from Admin > Mail in ITFlow.']], 'Test email from ITFlow', [
+        'kind' => 'Test', 'tone' => 'success', 'preview' => "A test from $which",
+        'title' => 'Mail is working',
+        'intro' => ["This is a test email from ITFlow, sent from $which. If you are reading this, it worked."],
+        'summary' => ['From' => trim($box['name'] . ' <' . $box['email'] . '>'), 'To' => trim((string) $to), 'Sent' => date('D j M Y, g:i A')],
+    ], ['from' => ['email' => $box['email'], 'name' => $box['name']]]);
+}
+
+/*
+ * Send an email from the contacts or clients list (agent/includes/bulk_email_fields.php)
+ * to $recipients (emailBulkSend()'s), $picked how many were asked for - then
+ * say what happened and go back. Refuses without mail set up, a mailbox, a
+ * subject or a message.
+ */
+function emailBulkPost(array $recipients, $picked) {
+    global $session_name;
+    $mailbox = (string) ($_POST['mailbox'] ?? '');
+    $subject = trim((string) ($_POST['subject'] ?? ''));
+    $body = (string) ($_POST['body'] ?? '');
+    $at = trim((string) ($_POST['queued_at'] ?? ''));
+    $queued_at = $at !== '' && strtotime($at) ? date('Y-m-d H:i:s', strtotime($at)) : '';
+    if (!emailReady()) {
+        flashAlert('Outgoing mail is not set up, so nothing was sent', 'error');
+        redirect();
+    }
+    if (!isset(emailMailboxes()[$mailbox])) {
+        flashAlert('Pick the mailbox it comes from', 'error');
+        redirect();
+    }
+    if ($subject === '' || trim(strip_tags($body, '<img>')) === '') {
+        flashAlert('Give it a subject and a message - nothing was sent', 'error');
+        redirect();
+    }
+    $sent = emailBulkSend($recipients, $mailbox, $_POST['mail_from_name'] ?? '', $subject, $body, !empty($_POST['greet']), $queued_at);
+    $count = count($sent);
+    if (!$count) {
+        flashAlert('None of them has an email address, so nothing was sent', 'error');
+        redirect();
+    }
+    $later = $queued_at !== '' && strtotime($queued_at) > time() ? ' to go ' . date('M j \a\t g:i A', strtotime($queued_at)) : '';
+    logAudit("Bulk Mail", "Send", "$session_name sent " . escapeSql($subject) . " to $count " . ($count === 1 ? 'contact' : 'contacts') . " via bulk mail" . ($later !== '' ? escapeSql($later) : ''));
+    $left_out = max(0, intval($picked) - $count);
+    flashAlert("<strong>$count</strong> email" . ($count === 1 ? '' : 's') . " queued$later" . ($left_out ? " - $left_out left out with no email address, or the same one" : ''));
+    redirect();
+}
+
+/*
+ * An email an agent writes to many contacts - Email on the contacts or clients
+ * list - in the email look, with the logo and the company's details. Each
+ * $recipients entry: email, name and footnote (why they get it). $body is the
+ * agent's HTML; $greet starts it "Hello Name,"; $from_name '' keeps the
+ * mailbox's own; $queued_at when to send ('' for now). Who it was queued to.
+ */
+function emailBulkSend(array $recipients, $mailbox, $from_name, $subject, $body, $greet = false, $queued_at = '') {
+    $boxes = emailMailboxes();
+    // A preview shows it before any mailbox is set up
+    $box = $boxes[$mailbox] ?? (emailCapturing() ? emailFrom() : null);
+    if (!$box) {
+        return [];
+    }
+    $from_name = trim((string) $from_name);
+    if (!$greet) {
+        $recipients = array_map(function ($recipient) {
+            return ['greet' => null] + $recipient;
+        }, $recipients);
+    }
+    return emailQueue($recipients, trim((string) $subject), [
+        'title' => trim((string) $subject),
+        'preview' => mb_substr(trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags((string) $body), ENT_QUOTES, 'UTF-8'))), 0, 140),
+        'content' => (string) $body,
+    ], ['from' => ['email' => $box['email'], 'name' => $from_name !== '' ? $from_name : $box['name']], 'queued_at' => $queued_at]);
 }

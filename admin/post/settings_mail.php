@@ -3,7 +3,7 @@
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 // Saves and tests return to the tab they were submitted from (see settings_mail.php)
-$mail_tabs = ['sending', 'receiving', 'oauth', 'from', 'tests'];
+$mail_tabs = ['sending', 'receiving', 'oauth', 'from', 'tests', 'previews'];
 $mail_tab_redirect = 'settings_mail.php';
 if (isset($_POST['tab']) && in_array($_POST['tab'], $mail_tabs, true)) {
     $mail_tab_redirect .= '?tab=' . $_POST['tab'];
@@ -211,15 +211,39 @@ if (isset($_POST['edit_mail_from_settings'])) {
 
 }
 
+// A copy of one of the previews (Admin > Mail > Previews), to the admin asking
+if (isset($_POST['send_email_preview'])) {
+
+    validateCSRFToken();
+
+    $key = (string) ($_POST['email'] ?? '');
+    $catalog = emailPreviewCatalog();
+    if (!isset($catalog[$key])) {
+        flashAlert('There is no such email', 'error');
+        redirect('settings_mail.php?tab=previews');
+    }
+    if (!emailReady()) {
+        flashAlert('Set up how mail is sent first, then send yourself a copy', 'error');
+        redirect('settings_mail.php?tab=previews&email=' . rawurlencode($key));
+    }
+    if (emailPreviewSendCopy($key, $session_email, stripslashes($session_name))) {
+        logAudit("Settings", "Edit", "$session_name sent themselves a preview of the " . escapeSql($catalog[$key]['group'] . ' - ' . $catalog[$key]['label']) . " email");
+        flashAlert('A copy of <strong>' . escapeHtml($catalog[$key]['label']) . '</strong> is queued to ' . escapeHtml($session_email));
+    } else {
+        flashAlert('The copy could not be sent - check your own email address in Your account', 'error');
+    }
+    redirect('settings_mail.php?tab=previews&email=' . rawurlencode($key));
+
+}
+
 if (isset($_POST['test_email_smtp'])) {
 
     validateCSRFToken();
 
     $test_email = intval($_POST['test_email']);
 
-    // From the mailbox picked - the system's, invoices', quotes' or tickets'
-    $which = [1 => 'the system mailbox', 2 => 'the invoice mailbox', 3 => 'the quote mailbox'][$test_email] ?? 'the ticket mailbox';
-    $from = $test_email == 1 ? emailFrom() : ($test_email == 2 ? billingEmailFrom('invoice') : ($test_email == 3 ? billingEmailFrom('quote') : emailFrom('ticket')));
+    // From the mailbox picked - the system's, invoices', quotes' or tickets' (emailTestSend(), functions/email.php)
+    $mailbox = [1 => 'system', 2 => 'invoice', 3 => 'quote'][$test_email] ?? 'ticket';
     $to = trim((string) ($_POST['email_to'] ?? ''));
 
     if (!emailReady()) {
@@ -227,12 +251,7 @@ if (isset($_POST['test_email_smtp'])) {
         redirect($mail_tab_redirect);
     }
 
-    $sent = emailQueue([['email' => $to, 'greet' => '', 'footnote' => 'You get this because someone sent a test from Admin > Mail in ITFlow.']], "Test email from ITFlow", [
-        'kind' => 'Test', 'tone' => 'success', 'preview' => "A test from $which",
-        'title' => 'Mail is working',
-        'intro' => ["This is a test email from ITFlow, sent from $which. If you are reading this, it worked."],
-        'summary' => ['From' => trim($from['name'] . ' <' . $from['email'] . '>'), 'To' => $to, 'Sent' => date('D j M Y, g:i A')],
-    ], ['from' => $from]);
+    $sent = emailTestSend($to, $mailbox);
 
     if ($sent) {
         flashAlert("Test email queued! Check <strong>Admin &gt; Mail queue</strong>");
