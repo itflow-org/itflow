@@ -5,7 +5,9 @@
  * archiving and deleting them, making licenses from one for several clients
  * at once, saying who should have one, and looking after its licenses across
  * clients - their seats trued up, and billed on the clients' recurring
- * invoices. The work is in functions/software_template.php; a single license
+ * invoices - and exporting them to a file and importing them from one
+ * (functions/software_template_transfer.php). The work is in
+ * functions/software_template.php; a single license
  * is made from one by add_software or add_software_from_template, and
  * licenses are renewed by renew_software (agent/post/software.php).
  */
@@ -248,5 +250,67 @@ if (isset($_GET['delete_software_template'])) {
 
     // From its own page, back to the list
     redirect(!empty($_GET['from_page']) ? 'software_templates.php' : null);
+
+}
+
+if (isset($_POST['export_software_templates']) || isset($_GET['export_software_template'])) {
+
+    // A file of templates to import into another ITFlow - every current one, the ones picked, or one
+    validateCSRFToken();
+
+    if (isset($_GET['export_software_template'])) {
+        $row = softwareTemplateForRequest($_GET['export_software_template']);
+        $export = softwareTemplatesExport([intval($row['software_template_id'])]);
+    } else {
+        $export = softwareTemplatesExport((array) ($_POST['software_template_ids'] ?? []), !empty($_POST['archived']));
+    }
+    if (!$export['templates']) {
+        flashAlert('There are no license templates to export.', 'error');
+        redirect();
+    }
+
+    $count = count($export['templates']);
+    logAudit("Software Template", "Export", "$session_name exported $count license template" . ($count === 1 ? ' ' . escapeSql($export['templates'][0]['name']) : 's'));
+
+    header('Content-Type: application/json; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . softwareTemplatesExportFileName($export) . '"');
+    header('Cache-Control: no-store');
+    echo json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    exit;
+
+}
+
+if (isset($_POST['import_software_templates'])) {
+
+    // Templates from a file exported by ITFlow
+    validateCSRFToken();
+
+    $file = $_FILES['file'] ?? null;
+    if ($file && in_array($file['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+        flashAlert('That file is bigger than this server takes in an upload - export a few at a time.', 'error');
+        redirect('software_templates.php');
+    }
+    if (!$file || $file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) {
+        flashAlert('Pick the file to import.', 'error');
+        redirect('software_templates.php');
+    }
+    if ($file['size'] > 20 * 1024 * 1024) {
+        flashAlert('That file is too big to be license templates.', 'error');
+        redirect('software_templates.php');
+    }
+    $templates = softwareTemplatesImportRead(file_get_contents($file['tmp_name']), $import_error);
+    if ($templates === null) {
+        flashAlert(escapeHtml($import_error), 'error');
+        redirect('software_templates.php');
+    }
+    $existing = in_array($_POST['existing'] ?? '', ['skip', 'copy', 'replace'], true) ? $_POST['existing'] : 'skip';
+    $counts = softwareTemplatesImport($templates, $existing);
+
+    logAudit("Software Template", "Import", "$session_name imported license templates from " . escapeSql(mb_substr((string) $file['name'], 0, 100)) . " - {$counts['added']} added, {$counts['replaced']} replaced, {$counts['skipped']} skipped"
+        . ($counts['vendors'] ? ", {$counts['vendors']} vendor templates added" : ''));
+
+    flashAlert(softwareTemplatesImportSummary($counts), $counts['products'] ? 'warning' : ($counts['added'] || $counts['replaced'] ? 'success' : 'info'));
+
+    redirect('software_templates.php');
 
 }

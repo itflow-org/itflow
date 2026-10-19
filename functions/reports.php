@@ -180,6 +180,10 @@ function reportCatalog() {
                     'title' => 'Document Templates', 'icon' => 'fa-file-alt', 'module' => 'module_support', 'feature' => ['itdoc'],
                     'description' => 'How often each document template is used, how many of the clients that should have a document from one do, and the documents due a review - by template and by client.',
                 ],
+                'license_templates' => [
+                    'title' => 'License Templates', 'icon' => 'fa-cube', 'module' => 'module_support', 'feature' => ['itdoc'],
+                    'description' => 'How much each license template is used, the seats on its licenses against the ones bought, how many of the clients that should have one do, and how many are billed - by template and by client.',
+                ],
                 'credential_rotation' => [
                     'title' => 'Credential Rotation', 'icon' => 'fa-key', 'module' => 'module_credential', 'feature' => ['itdoc'],
                     'description' => 'Passwords that have not changed in a while, oldest first.',

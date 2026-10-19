@@ -76,6 +76,15 @@ function starterContentPacks() {
             'description' => 'Recurring services, labor rates, project work and hardware lines. Prices are starting points - hardware and resold SKUs come in at zero.',
             'requires' => 'categories',
         ],
+        'license_templates' => [
+            'label' => 'License Templates',
+            'icon' => 'fa-cube',
+            'description' => "The licenses an MSP sells and looks after - Microsoft 365, Google Workspace, endpoint protection, email security, backup, password management and the desktop apps clients run - each with its type, how it is licensed, how often it renews and what to know about it, its vendor, and the product it is sold as once Products & Services is here. Who should have each is yours to set on its page.",
+            'update' => [
+                'button' => 'update_starter_license_templates',
+                'confirm' => 'Bring the %d starter license templates you have up to date? Their summary, type, license type, seats, renewal term, vendor and notes are replaced with this version - changes you made to them are lost. Their licenses and who should have them stay as they are.',
+            ],
+        ],
     ];
 }
 
@@ -167,6 +176,8 @@ function starterContentLoad($mysqli, $pack, $dry_run = false) {
             return starterLoadDocumentTemplates($mysqli, $dry_run);
         case 'products':
             return starterLoadProducts($mysqli, $dry_run);
+        case 'license_templates':
+            return starterLoadLicenseTemplates($mysqli, $dry_run);
     }
     return 0;
 }
@@ -211,6 +222,8 @@ function starterContentTotal($pack) {
             return count(starterContentDocumentTemplates());
         case 'products':
             return count(starterContentProducts());
+        case 'license_templates':
+            return count(starterContentLicenseTemplates());
     }
     return 0;
 }
@@ -426,6 +439,37 @@ function starterLoadDocumentTemplates($mysqli, $dry_run = false) {
 function starterUpdateDocumentTemplates() {
     $templates = documentTemplatesImportRead(['format' => DOCUMENT_TEMPLATE_FILE_FORMAT, 'version' => DOCUMENT_TEMPLATE_FILE_VERSION, 'templates' => starterContentDocumentTemplates()]);
     return documentTemplatesImport($templates, 'replace', true);
+}
+
+// ------------------------------
+// starterLoadLicenseTemplates
+// Through the license template import. One whose name a template here
+// already has, archived or not, is left alone. Its vendor is the vendor
+// template of that name - added from here when there is none - and it is
+// sold as the product of that name when there is one.
+// ------------------------------
+function starterLoadLicenseTemplates($mysqli, $dry_run = false) {
+    $templates = softwareTemplatesImportRead(['format' => SOFTWARE_TEMPLATE_FILE_FORMAT, 'version' => SOFTWARE_TEMPLATE_FILE_VERSION, 'templates' => starterContentLicenseTemplates()]);
+    if ($dry_run) {
+        $existing = starterExistingNames($mysqli, 'software_templates', 'software_template_name');
+        return count(array_filter($templates, function ($template) use ($existing) {
+            return !isset($existing[mb_strtolower($template['name'])]);
+        }));
+    }
+    return softwareTemplatesImport($templates, 'skip')['added'];
+}
+
+// ------------------------------
+// starterUpdateLicenseTemplates
+// The starter license templates already here, brought up to this library's
+// version - their summary, type, license type, seats, renewal term, vendor
+// and notes replaced, and the product they are sold as when it is here. Their
+// licenses, and who should have them, stay.
+// Returns the import's counts (softwareTemplatesImport()).
+// ------------------------------
+function starterUpdateLicenseTemplates() {
+    $templates = softwareTemplatesImportRead(['format' => SOFTWARE_TEMPLATE_FILE_FORMAT, 'version' => SOFTWARE_TEMPLATE_FILE_VERSION, 'templates' => starterContentLicenseTemplates()]);
+    return softwareTemplatesImport($templates, 'replace', true);
 }
 
 // ------------------------------
@@ -1855,5 +1899,119 @@ function starterContentProducts() {
     ];
 
     return $products;
+
+}
+
+// ------------------------------
+// starterContentLicenseTemplates
+// In the license templates file format (functions/software_template_transfer.php):
+// name, version, description, type (a software type from the categories every
+// install starts with), license_type, notes, seats (none - each client has its
+// own), term (how often it renews, from when it was bought), vendor (as in the
+// vendor templates pack, made from here when it isn't) and product (the one
+// of that name in the Products & Services pack, when it is here). Who should
+// have each is left to the MSP, on the template's page.
+// ------------------------------
+function starterContentLicenseTemplates() {
+
+    $vendors = [];
+    foreach (starterContentVendorTemplates() as $vendor) {
+        $vendors[$vendor[0]] = ['name' => $vendor[0], 'description' => $vendor[1], 'website' => $vendor[2]];
+    }
+    $template = function ($name, $description, $type, $license_type, $term, $vendor, $product, array $notes) use ($vendors) {
+        return [
+            'name' => $name, 'version' => '', 'description' => $description, 'type' => $type, 'license_type' => $license_type,
+            'notes' => implode("\n\n", $notes), 'seats' => null, 'term' => $term, 'vendor' => $vendors[$vendor] ?? null, 'product' => $product,
+        ];
+    };
+    $m365_notes = [
+        'Licenses are assigned to users in the Microsoft 365 admin center (admin.microsoft.com), under Billing > Licenses - each user with one takes a seat.',
+        'On an annual commitment seats can be added at any time but only taken away at renewal, so true up the seats before the renewal date.',
+        "The tenant's global admin login belongs in Credentials, and its domains under Domains.",
+    ];
+
+    return [
+
+        // Productivity and email
+        $template('Microsoft 365 Business Basic', 'Web and mobile Office apps, Exchange mail, Teams and OneDrive', 'Productivity Suite', 'User', '1y', 'Microsoft', 'Microsoft 365 Business Basic', $m365_notes),
+        $template('Microsoft 365 Business Standard', 'Desktop Office apps, Exchange mail, Teams and OneDrive', 'Productivity Suite', 'User', '1y', 'Microsoft', 'Microsoft 365 Business Standard', $m365_notes),
+        $template('Microsoft 365 Business Premium', 'Business Standard with Intune, Entra ID P1 and Defender for Business', 'Productivity Suite', 'User', '1y', 'Microsoft', 'Microsoft 365 Business Premium', array_merge($m365_notes, [
+            "Devices are enrolled in Intune - keep the enrolment, compliance and conditional access policies with the client's documentation.",
+        ])),
+        $template('Exchange Online (Plan 1)', 'A mailbox, without the Office apps - for staff who only need mail', 'Software as a Service (SaaS)', 'User', '1y', 'Microsoft', 'Microsoft 365 Exchange Online Plan 1', [
+            'Assigned to users in the Microsoft 365 admin center, under Billing > Licenses. Shared mailboxes need no license until they pass their size limit or need an archive.',
+            "The tenant's global admin login belongs in Credentials.",
+        ]),
+        $template('Google Workspace Business Standard', 'Gmail, Drive, Meet and the Docs editors', 'Productivity Suite', 'User', '1y', 'Google', null, [
+            'Licenses are assigned in the Google Admin console (admin.google.com), under Billing. Every active user takes one.',
+            'On the Annual plan seats can be added at any time but not taken away until it renews; the Flexible plan is billed monthly for the users there are.',
+            "The super admin login belongs in Credentials, and the client's domain under Domains.",
+        ]),
+
+        // Security
+        $template('Bitdefender GravityZone Business Security', 'Endpoint protection for workstations and servers', 'Security Software', 'Device', '1y', 'Bitdefender', 'Endpoint Protection', [
+            'Agents are installed from a package made in the GravityZone console - each device with an agent takes a seat.',
+            'Removing the agent needs the uninstall password set in its policy - keep it in Credentials.',
+        ]),
+        $template('ESET PROTECT', 'Endpoint protection managed from the ESET PROTECT console', 'Security Software', 'Device', '1y', 'ESET', 'Endpoint Protection', [
+            'Devices are deployed and managed from the ESET PROTECT console - each activated device takes a seat.',
+            'The license is in ESET PRO (or the MSP portal); keep that login and the console login in Credentials.',
+        ]),
+        $template('Proofpoint Essentials', 'Email security - spam, phishing and malware filtering in front of the mailboxes', 'Software as a Service (SaaS)', 'User', '1y', 'Proofpoint', 'Email Security', [
+            "Licensed per protected mailbox. The client's MX records point at Proofpoint, and the mail server only takes mail from it - keep the connector settings with the client's documentation.",
+            'Users added in the Proofpoint console, or synced from the directory, take a seat.',
+        ]),
+        $template('Bitwarden Teams', 'Shared password vault for the business', 'Software as a Service (SaaS)', 'User', '1y', 'Bitwarden', 'Password Manager', [
+            "Each member of the client's organization takes a seat. Collections decide who sees which logins.",
+            "The organization owner's login, and its recovery code, belong in Credentials.",
+        ]),
+        $template('Fortinet FortiGate Security Bundle', 'Threat protection, web filtering and support for a FortiGate firewall', 'Security Software', 'Device', '1y', 'Fortinet', null, [
+            "Registered to the firewall's serial number in FortiCare - one per firewall. When it lapses the firewall keeps passing traffic, but its threat and web filtering signatures stop updating.",
+            'Renewal is by the contract code applied in FortiCare - keep the FortiCare login in Credentials.',
+        ]),
+
+        // Backup
+        $template('Veeam Backup & Replication', 'Image based backup and replication for servers and virtual machines', 'System Software', 'Device', '1y', 'Veeam', 'Managed Backup - Server', [
+            'Licensed per protected workload - each server or virtual machine backed up takes an instance. The license file is installed on the backup server.',
+            'Keep the Veeam account login, and the encryption password for the backup jobs, in Credentials - without it encrypted backups cannot be restored.',
+        ]),
+        $template('Veeam Backup for Microsoft 365', "Backup of the client's Exchange Online, OneDrive, SharePoint and Teams", 'System Software', 'User', '1y', 'Veeam', 'Microsoft 365 Backup', [
+            'Licensed per protected user. It reaches the tenant through an app registration in Entra ID, and backs up to its own repository.',
+            "Keep the repository location and the app registration with the client's documentation.",
+        ]),
+        $template('Acronis Cyber Protect Cloud', 'Backup and protection for workstations and servers, billed on use', 'System Software', 'Usage-based', '1m', 'Acronis', 'Managed Backup - Workstation', [
+            'Billed monthly on what is protected and stored, from the Acronis partner portal - the seats here are what was protected at the last count.',
+            'Agents are installed from the client tenant in the Acronis console.',
+        ]),
+        $template('Synology Active Backup for Business', 'Backup of PCs, servers and Microsoft 365 to a Synology NAS', 'System Software', 'Site', '', 'Synology', null, [
+            'Comes with a Synology NAS - there is no key and nothing to renew. Agents installed on each device back up to the NAS.',
+            "Keep the NAS login in Credentials, and the NAS itself in the client's assets.",
+        ]),
+
+        // Business applications
+        $template('Adobe Acrobat Pro', 'Create, edit, sign and convert PDFs', 'Desktop Application', 'User', '1y', 'Adobe', null, [
+            'Named user licensing - assigned to users in the Adobe Admin Console (adminconsole.adobe.com). A user signs in to Acrobat to use it.',
+        ]),
+        $template('Adobe Creative Cloud All Apps', 'Photoshop, Illustrator, InDesign and the rest of the Creative Cloud apps', 'Desktop Application', 'User', '1y', 'Adobe', null, [
+            'Named user licensing - assigned to users in the Adobe Admin Console. Each user can sign in on two computers at once.',
+        ]),
+        $template('QuickBooks Online Plus', 'Accounting, invoicing and bill paying', 'Software as a Service (SaaS)', 'Subscription', '1m', 'Intuit', null, [
+            'Usually the client\'s own subscription, billed to them by Intuit each month - the plan sets how many users it has.',
+            "The primary admin is normally the client's owner or accountant; note who it is here.",
+        ]),
+        $template('Zoom Workplace Pro', 'Meetings, chat and whiteboards', 'Software as a Service (SaaS)', 'User', '1y', 'Zoom', null, [
+            "Licensed users are assigned in the Zoom admin portal; basic users don't take a seat.",
+        ]),
+
+        // Operating systems
+        $template('Windows Server Standard', 'The server operating system, licensed by core', 'Operating System', 'Perpetual', '', 'Microsoft', null, [
+            'Licensed by the physical cores in the server - at least 8 cores per processor and 16 per server. Standard covers two virtual machines on the licensed server; licensing its cores again covers two more.',
+            'Users and devices that use the server need Windows Server CALs as well.',
+        ]),
+        $template('Windows Server CAL', 'Client access licenses for users or devices that use a Windows Server', 'Operating System', 'User', '', 'Microsoft', null, [
+            'One per user, or per device, that reaches a Windows Server - not per server. Remote Desktop sessions need Remote Desktop Services CALs on top.',
+        ]),
+
+    ];
 
 }

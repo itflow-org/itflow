@@ -106,6 +106,26 @@ if (isset($_POST['update_starter_document_templates'])) {
 
 }
 
+if (isset($_POST['update_starter_license_templates'])) {
+
+    // The starter license templates already here, brought up to this version
+    validateCSRFToken();
+
+    require_once 'starter_content_model.php';
+
+    $counts = starterUpdateLicenseTemplates();
+
+    if ($counts['replaced']) {
+        logAudit("Starter Content", "Edit", "$session_name brought {$counts['replaced']} starter license templates up to date");
+        flashAlert("Brought <strong>{$counts['replaced']}</strong> starter license templates up to date" . ($counts['vendors'] ? " - with <strong>{$counts['vendors']}</strong> vendor template" . ($counts['vendors'] === 1 ? '' : 's') . " they come from" : ''));
+    } else {
+        flashAlert("None of the starter license templates are here to update - add them instead", 'info');
+    }
+
+    redirect();
+
+}
+
 if (isset($_POST['load_demo_data'])) {
 
     validateCSRFToken();

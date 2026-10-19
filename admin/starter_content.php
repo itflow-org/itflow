@@ -43,7 +43,7 @@ foreach ($starter_content_status as $pack_status) {
             Adding never overwrites or deletes anything. Anything already present under the same name is
             skipped, so a pack can be added again later to pick up entries you removed by mistake, and
             adding twice never produces duplicates. Everything added is editable and deletable
-            afterwards like any other record. Ticket templates, canned responses and document templates added
+            afterwards like any other record. Ticket templates, canned responses, document templates and license templates added
             from an earlier version can be brought up to this one with Update - that one does replace what they hold.
         </p>
 
@@ -117,7 +117,9 @@ foreach ($starter_content_status as $pack_status) {
             Ticket templates bring their task lists, what they ask for and their request forms with them -
             the request forms come in turned off, ready to turn on in each template's Client portal tab. Canned responses
             come in shared, offered to every agent on the ticket categories they are for. Document templates come with what
-            they ask for and how often their documents are reviewed - who should have each is yours to set. Products are filed under income
+            they ask for and how often their documents are reviewed - who should have each is yours to set. License templates come with
+            their vendor - added from the vendor templates when it isn't here - and are sold as the products of the same name once those are
+            here; who should have each is yours to set too. Products are filed under income
             categories and priced as starting points only - hardware and resold licensing come in at
             zero because they are quoted per deal.
         </p>

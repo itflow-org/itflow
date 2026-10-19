@@ -10,7 +10,8 @@
  * was last used and last changed. A template every client, or the clients
  * with a tag, should have shows how many of them have it; the Required tab
  * lists those. New licenses can be made from one for a client or several at
- * once.
+ * once. They can be exported to a file and imported from one, and the MSP
+ * starter pack added from Maintenance > Starter Content.
  * A template can be changed, copied as the start of another, archived - not
  * offered for new licenses, while the licenses made from it stay - or
  * deleted. The work is in functions/software_template.php; the handlers are
@@ -111,7 +112,25 @@ $csrf = $_SESSION['csrf_token'];
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-cube me-2"></i>License Templates</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New License Template</span></button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New License Template</span></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software_template/software_template_import.php">
+                        <i class="fas fa-fw fa-file-upload text-secondary me-2"></i>Import
+                    </a>
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software_template/software_template_export.php">
+                        <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/agent/reports/license_templates.php">
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How they are used
+                    </a>
+                    <a class="dropdown-item" href="starter_content.php">
+                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter license templates
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     <div class="card-header py-3">
@@ -229,6 +248,9 @@ $csrf = $_SESSION['csrf_token'];
                                 <a class="dropdown-item" href="post.php?copy_software_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">
                                     <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
+                                <a class="dropdown-item" href="post.php?export_software_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow">
+                                    <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
+                                </a>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['software_template_archived_at']) { ?>
                                     <a class="dropdown-item" href="post.php?restore_software_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>">
@@ -260,7 +282,8 @@ $csrf = $_SESSION['csrf_token'];
         'views' => ['show'],
         'view' => $show === 'required' ? ['title' => 'No required templates', 'text' => 'Set one up from its page - <strong>Who should have it</strong> - to see which clients are missing a license from it.'] : null,
         'text' => 'A license you sell or look after again and again - Microsoft 365 Business Premium, an endpoint protection agent, a backup product - ready to start a client\'s from. Agents start one from <strong>New License</strong> on a client\'s Licenses.',
-        'actions' => [['label' => 'New License Template', 'modal' => $add_url, 'size' => 'lg']],
+        'actions' => [['label' => 'New License Template', 'modal' => $add_url, 'size' => 'lg'], ['label' => 'Import', 'modal' => 'modals/software_template/software_template_import.php', 'icon' => 'fa-file-upload'],
+            ['label' => 'Starter license templates', 'href' => 'starter_content.php', 'icon' => 'fa-seedling']],
     ];
     require_once "../includes/filter_footer.php";
     ?>

@@ -134,6 +134,7 @@ $facts = array_filter([
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $required_url ?>"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who should have it</a>
                     <a class="dropdown-item" href="post.php?copy_software_template=<?= $software_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
+                    <a class="dropdown-item" href="post.php?export_software_template=<?= $software_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-file-download me-2"></i>Export</a>
                     <?php if ($archived) { ?>
                         <a class="dropdown-item" href="post.php?restore_software_template=<?= $software_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo me-2"></i>Restore</a>
                     <?php } else { ?>
