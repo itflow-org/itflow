@@ -89,6 +89,7 @@ if (isset($api_key)) {
         }
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = '$failed_description', log_ip = '$ip', log_user_agent = '$user_agent',
             log_entity_id = " . intval($expired_key['api_key_id'] ?? 0));
+        logForwardQueue('audit', mysqli_insert_id($mysqli));
         apiKeyWatch();
 
         $return_arr['success'] = "False";

@@ -150,7 +150,7 @@
                     </li>
                     -->
                     <li class="nav-item">
-                        <a href="/admin/vendor_templates.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'vendor_templates.php' ? 'active' : '') ?>">
+                        <a href="/admin/vendor_templates.php" class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['vendor_templates.php', 'vendor_template.php']) ? 'active' : '') ?>">
                             <i class="nav-icon fas fa-building"></i>
                             <p>Vendor Templates</p>
                         </a>
@@ -221,7 +221,7 @@
                 </li>
 
                 <!-- SETTINGS Section -->
-                <li class="nav-item mt-2 <?= (in_array(basename($_SERVER['PHP_SELF']), ['settings_company.php', 'settings_localization.php', 'settings_theme.php', 'settings_security.php', 'settings_mail.php', 'settings_notification.php', 'settings_default.php', 'settings_invoice.php', 'settings_quote.php', 'settings_online_payment.php', 'settings_online_payment_clients.php', 'settings_project.php', 'settings_ticket.php', 'settings_ai.php', 'identity_providers.php', 'settings_telemetry.php', 'settings_module.php', 'settings_client_portal.php']) ? 'menu-open' : '') ?>">
+                <li class="nav-item mt-2 <?= (in_array(basename($_SERVER['PHP_SELF']), ['settings_company.php', 'settings_localization.php', 'settings_theme.php', 'settings_security.php', 'settings_logs.php', 'settings_mail.php', 'settings_notification.php', 'settings_default.php', 'settings_invoice.php', 'settings_quote.php', 'settings_online_payment.php', 'settings_online_payment_clients.php', 'settings_project.php', 'settings_ticket.php', 'settings_ai.php', 'identity_providers.php', 'settings_telemetry.php', 'settings_module.php', 'settings_client_portal.php']) ? 'menu-open' : '') ?>">
                     <a href="#" class="nav-link">
                         <p>
                             SETTINGS
@@ -251,6 +251,12 @@
                             <a href="/admin/settings_security.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_security.php' ? 'active' : '') ?>">
                                 <i class="nav-icon fas fa-shield-alt"></i>
                                 <p>Security</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/settings_logs.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_logs.php' ? 'active' : '') ?>">
+                                <i class="nav-icon fas fa-scroll"></i>
+                                <p>Logs</p>
                             </a>
                         </li>
                         <li class="nav-item">

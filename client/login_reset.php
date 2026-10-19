@@ -42,6 +42,7 @@ $link = ['email' => '', 'token' => '', 'client' => 0];
 $reset_log = function ($action, $description, $user_id, $client_id) use ($mysqli, $ip, $user_agent) {
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = '" . escapeSql($action) . "', log_description = '" . escapeSql($description) . "',
         log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = " . intval($client_id) . ", log_user_id = " . intval($user_id));
+    logForwardQueue('audit', mysqli_insert_id($mysqli));
 };
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password_reset_email_request']) && $can_email) {

@@ -251,6 +251,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         $extended_log_desc = '(DEV MODE)';
     }
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = 'Stripe payment of $pi_currency $pi_amount_paid against invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $pi_client_id");
+    logForwardQueue('audit', mysqli_insert_id($mysqli));
 
     // The client's receipt, and the paid notification address - functions/billing_email.php
     $config_smtp_host = mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_smtp_host FROM settings WHERE company_id = 1"))[0] ?? '';

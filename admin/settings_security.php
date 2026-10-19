@@ -43,14 +43,6 @@ $config_login_alert_failures = signInAlertLimit();
             </div>
 
             <div class="mb-3">
-                <label>Log retention <small class="text-secondary">(The amount of days before app and audit logs, and API key use, are deleted during nightly cron)</small></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                    <input type="number" class="form-control" name="config_log_retention" placeholder="Enter days to retain" value="<?= intval($config_log_retention) ?>">
-                </div>
-            </div>
-
-            <div class="mb-3">
                 <label>Tell administrators about failed sign-ins <small class="text-secondary">(In <?= SIGN_IN_WINDOW_MINUTES ?> minutes, from one IP address or against one account - each admin gets a notification and an email. An address is turned away after <?= SIGN_IN_LOCKOUT ?>.)</small></label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>

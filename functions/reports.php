@@ -190,6 +190,15 @@ function reportCatalog() {
                 ],
             ],
         ],
+        'activity' => [
+            'label' => 'Activity',
+            'reports' => [
+                'audit_activity' => [
+                    'title' => 'Audit Activity', 'icon' => 'fa-history', 'module' => 'module_client', 'feature' => [],
+                    'description' => 'What was done in ITFlow - changes, deletions, passwords looked at, exports and sign-ins - over time, out of hours, and by person, client and kind of record.',
+                ],
+            ],
+        ],
     ];
 }
 

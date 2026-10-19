@@ -30,7 +30,7 @@ $sql_companies = mysqli_query($mysqli, "SELECT company_city, company_country, co
     company_name, company_phone, company_phone_country_code, company_state, company_website,
     config_enable_alert_domain_expire, config_enable_cron, config_invoice_from_email,
     config_invoice_from_name, config_invoice_late_fee_enable, config_invoice_late_fee_percent,
-    config_invoice_prefix, config_log_retention, config_login_remember_me_expire,
+    config_invoice_prefix, config_login_remember_me_expire,
     config_mail_from_email, config_mail_from_name, config_module_enable_accounting,
     config_module_enable_itdoc, config_module_enable_ticketing,
     config_recurring_auto_send_invoice, config_send_invoice_reminders, config_smtp_encryption,
@@ -95,9 +95,6 @@ $config_send_invoice_reminders = intval($row['config_send_invoice_reminders']);
 
 // Remember-me Token Expiry
 $config_login_remember_me_expire = intval($row['config_login_remember_me_expire']);
-
-// Log retention
-$config_log_retention = intval($row['config_log_retention']);
 
 // Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
@@ -179,14 +176,19 @@ mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_created_
 // delete the archive it was supposed to replace.
 backupRunRetention($mysqli);
 
-// Cleanup old audit logs
-mysqli_query($mysqli, "DELETE FROM logs WHERE log_created_at < CURDATE() - INTERVAL $config_log_retention DAY");
+// Cleanup old logs - each kept for its own number of days, 0 for keep forever (Admin > Settings > Logs, functions/app_log.php)
+$log_retention = appLogRetention();
 
-// Cleanup old app/debug logs
-mysqli_query($mysqli, "DELETE FROM app_logs WHERE app_log_created_at < CURDATE() - INTERVAL $config_log_retention DAY");
+// The audit log, and API key use with it
+if ($log_retention['audit'] > 0) {
+    mysqli_query($mysqli, "DELETE FROM logs WHERE log_created_at < CURDATE() - INTERVAL {$log_retention['audit']} DAY");
+    mysqli_query($mysqli, "DELETE FROM api_key_usage WHERE api_key_usage_date < CURDATE() - INTERVAL {$log_retention['audit']} DAY");
+}
 
-// Cleanup old API key use - the days kept as long as the audit log
-mysqli_query($mysqli, "DELETE FROM api_key_usage WHERE api_key_usage_date < CURDATE() - INTERVAL $config_log_retention DAY");
+// The app logs
+if ($log_retention['app'] > 0) {
+    mysqli_query($mysqli, "DELETE FROM app_logs WHERE app_log_created_at < CURDATE() - INTERVAL {$log_retention['app']} DAY");
+}
 
 // CLeanup old domain history
 $sql = mysqli_query($mysqli, "SELECT domain_id FROM domains");

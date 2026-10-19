@@ -57,6 +57,7 @@ function auditLogKinds() {
         'Project Template' => ['icon' => 'fa-project-diagram', 'table' => 'project_templates', 'id' => 'project_template_id', 'name' => 'project_template_name', 'url' => '/admin/project_template.php?project_template_id={id}'],
         'Document Template' => ['icon' => 'fa-file-alt', 'table' => 'document_templates', 'id' => 'document_template_id', 'name' => 'document_template_name', 'url' => '/admin/document_template.php?document_template_id={id}'],
         'Software Template' => ['icon' => 'fa-cube', 'table' => 'software_templates', 'id' => 'software_template_id', 'name' => 'software_template_name', 'url' => '/admin/software_template.php?software_template_id={id}'],
+        'Vendor Template' => ['icon' => 'fa-building', 'table' => 'vendor_templates', 'id' => 'vendor_template_id', 'name' => 'vendor_template_name', 'url' => '/admin/vendor_template.php?vendor_template_id={id}'],
 
         // Not one record to open, or nothing to open it with - just an icon
         'Login' => ['icon' => 'fa-sign-in-alt'],
@@ -92,7 +93,7 @@ function auditLogKinds() {
         'Reconciliation' => ['icon' => 'fa-balance-scale', 'module' => 'module_financial'],
         'Budget' => ['icon' => 'fa-chart-pie', 'module' => 'module_financial'],
         'Tax' => ['icon' => 'fa-percent'],
-        'Stripe' => ['icon' => 'fa-stripe-s', 'module' => 'module_financial'],
+        'Stripe' => ['icon' => 'fa-credit-card', 'module' => 'module_financial'],
         'Payment Provider' => ['icon' => 'fa-credit-card'],
         'Payment Method' => ['icon' => 'fa-credit-card', 'module' => 'module_financial'],
         'Email' => ['icon' => 'fa-envelope'],
@@ -105,7 +106,6 @@ function auditLogKinds() {
         'SLA' => ['icon' => 'fa-stopwatch'],
         'Canned Response' => ['icon' => 'fa-comment-dots'],
         'Contract Template' => ['icon' => 'fa-file-contract'],
-        'Vendor Template' => ['icon' => 'fa-building'],
         'Custom Field' => ['icon' => 'fa-th-list'],
         'Custom Link' => ['icon' => 'fa-external-link-alt'],
         'AI Provider' => ['icon' => 'fa-robot'],
@@ -115,6 +115,7 @@ function auditLogKinds() {
         'Report' => ['icon' => 'fa-chart-bar', 'module' => 'module_reporting'],
         'Sharing' => ['icon' => 'fa-share-alt'],
         'Audit Log' => ['icon' => 'fa-history'],
+        'App Log' => ['icon' => 'fa-clipboard-list'],
     ];
 }
 
@@ -165,9 +166,9 @@ function auditLogActionPill($action) {
  * them. Sign-ins are agents and portal contacts signing in and out; security
  * is the sign-ins that failed or were turned away and the admins told about
  * them, API calls turned away, access denied, the portal viewed as a contact,
- * and changes to users, roles, API keys, the master key, settings and
- * backups; data out is passwords looked at, exports, downloads and shared
- * links.
+ * app log entries cleared, and changes to users, roles, API keys, the master
+ * key, settings and backups; data out is passwords looked at, exports,
+ * downloads and shared links.
  */
 function auditLogViews() {
     $signins = "log_type IN ('Login', 'Login 2FA', 'Logout', 'Client Login')";
@@ -177,8 +178,8 @@ function auditLogViews() {
         'changes' => ['label' => 'Changes', 'icon' => 'fa-pen', 'title' => 'Records made, changed, archived, restored and deleted', 'where' => "NOT $signins AND NOT $data_out"],
         'deletions' => ['label' => 'Deletions', 'icon' => 'fa-trash-alt', 'title' => 'Records deleted for good', 'where' => "log_action IN ('Delete', 'Bulk Delete')"],
         'signins' => ['label' => 'Sign-ins', 'icon' => 'fa-sign-in-alt', 'title' => 'Agents and portal contacts signing in and out', 'where' => $signins],
-        'security' => ['label' => 'Security', 'icon' => 'fa-shield-alt', 'title' => 'Failed and turned away sign-ins and the alerts about them, API calls turned away, access denied, the portal viewed as a contact, and changes to users, roles, API keys, the master key, settings and backups',
-            'where' => "(($signins AND log_action IN ('Failed', 'MFA Failed', 'Blocked', 'Alert')) OR (log_type = 'API' AND log_action = 'Failed') OR log_action IN ('Denied', 'View As') OR log_type IN ('User', 'User Account', 'User Role', 'API Key', 'Master Key', 'Settings', 'Backup', 'Identity Provider'))"],
+        'security' => ['label' => 'Security', 'icon' => 'fa-shield-alt', 'title' => 'Failed and turned away sign-ins and the alerts about them, API calls turned away, access denied, the portal viewed as a contact, app logs cleared, and changes to users, roles, API keys, the master key, settings and backups',
+            'where' => "(($signins AND log_action IN ('Failed', 'MFA Failed', 'Blocked', 'Alert')) OR (log_type = 'API' AND log_action = 'Failed') OR log_action IN ('Denied', 'View As') OR (log_type = 'App Log' AND log_action = 'Delete') OR log_type IN ('User', 'User Account', 'User Role', 'API Key', 'Master Key', 'Settings', 'Backup', 'Identity Provider'))"],
         'data' => ['label' => 'Data out', 'icon' => 'fa-file-export', 'title' => 'Passwords looked at, exports, downloads and shared links', 'where' => $data_out],
     ];
 }

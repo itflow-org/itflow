@@ -100,9 +100,23 @@ $view_empty = [
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-history me-2"></i>Audit Logs</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= buildExportModalUrl('modals/audit_log/audit_log_export.php', ['client', 'user', 'type', 'action', 'entity', 'q'], ['dtf' => $dtf, 'dtt' => $dtt, 'view' => $view]) ?>">
-                <i class="fas fa-fw fa-download"></i><span class="d-none d-lg-inline ms-2">Export</span>
-            </button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= buildExportModalUrl('modals/audit_log/audit_log_export.php', ['client', 'user', 'type', 'action', 'entity', 'q'], ['dtf' => $dtf, 'dtt' => $dtt, 'view' => $view]) ?>">
+                    <i class="fas fa-fw fa-download"></i><span class="d-none d-lg-inline ms-2">Export</span>
+                </button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item" href="/agent/reports/audit_activity.php">
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Activity report
+                    </a>
+                    <a class="dropdown-item" href="settings_logs.php">
+                        <i class="fas fa-fw fa-cog text-secondary me-2"></i>Keeping and forwarding
+                    </a>
+                    <a class="dropdown-item" href="app_logs.php">
+                        <i class="fas fa-fw fa-clipboard-list text-secondary me-2"></i>App Logs
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     <div class="card-header py-3">

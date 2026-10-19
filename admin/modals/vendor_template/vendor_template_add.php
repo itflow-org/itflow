@@ -1,147 +1,57 @@
 <?php
 
+/*
+ * New vendor template - the fields are vendor_template_form.php. With
+ * from_vendor (a vendor's id) it starts from that vendor - not its account
+ * number, PIN or account manager, which are its client's own - and the
+ * vendor is linked to the new template.
+ */
+
 require_once '../../includes/modal_header.php';
+
+$vt_id = 0;
+$vt = [];
+$from_vendor = null;
+$from_vendor_id = intval($_GET['from_vendor'] ?? 0);
+if ($from_vendor_id) {
+    $from_vendor = vendorRow($from_vendor_id);
+    if ($from_vendor) {
+        $vt = [
+            'name' => $from_vendor['vendor_name'],
+            'description' => $from_vendor['vendor_description'],
+            'phone_country_code' => $from_vendor['vendor_phone_country_code'],
+            'phone' => $from_vendor['vendor_phone'],
+            'extension' => $from_vendor['vendor_extension'],
+            'hours' => $from_vendor['vendor_hours'],
+            'sla' => $from_vendor['vendor_sla'],
+            'email' => $from_vendor['vendor_email'],
+            'website' => $from_vendor['vendor_website'],
+            'notes' => $from_vendor['vendor_notes'],
+        ];
+    }
+}
 
 ob_start();
 
 ?>
-
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-building me-2"></i>New Vendor Template</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-building me-2"></i>New Vendor Template</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-<form action="post.php" method="post" autocomplete="off">
+<form action="/admin/post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
-
-        <ul class="nav nav-pills nav-justified mb-3">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-details">Details</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-support">Support</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-notes">Notes</a>
-            </li>
-        </ul>
-
-        <hr>
-
-        <div class="tab-content">
-
-            <div class="tab-pane fade show active" id="pills-details">
-
-                <div class="mb-3">
-                    <label>Vendor Name <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        <input type="text" class="form-control" name="name" placeholder="Vendor Name" maxlength="200" required autofocus>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Description</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
-                        <input type="text" class="form-control" name="description" placeholder="Description" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Account Number</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-fingerprint"></i></span>
-                        <input type="text" class="form-control" name="account_number" placeholder="Account number" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Account Manager</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <input type="text" class="form-control" name="contact_name" placeholder="Account manager's name" maxlength="200">
-                    </div>
-                </div>
-
+        <?php if ($from_vendor) { ?>
+            <input type="hidden" name="from_vendor" value="<?= intval($from_vendor['vendor_id']) ?>">
+            <div class="alert alert-info small py-2" data-from-vendor>
+                <i class="fas fa-fw fa-info-circle me-1"></i>Starting from <strong><?= escapeHtml($from_vendor['vendor_name']) ?></strong><?= $from_vendor['client_name'] !== null ? ' for ' . escapeHtml($from_vendor['client_name']) : '' ?> - its account number, PIN and account manager stay its own. It is linked to the new template.
             </div>
-
-            <div class="tab-pane fade" id="pills-support">
-
-                <label>Support Phone / <span class="text-secondary">Extension</span></label>
-                <div class="row g-2">
-                    <div class="col-9">
-                        <div class="mb-3">
-                            <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                <input type="hidden" name="phone_country_code">
-                                <input type="tel" class="form-control" name="phone" placeholder="Phone Number" maxlength="200" data-itflow-phone="phone_country_code">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3">
-                        <div class="mb-3">
-                            <input type="text" class="form-control" name="extension" placeholder="ext." maxlength="200">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Support Hours</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                        <input type="text" class="form-control" name="hours" placeholder="Support Hours" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Support Email</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        <input type="email" class="form-control" name="email" placeholder="Support Email" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Support Website URL</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                        <input type="text" class="form-control" name="website" placeholder="Do not include http(s)://" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Pin/Code</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        <input type="text" class="form-control" name="code" placeholder="Access Code or Pin" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>SLA</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-handshake"></i></span>
-                        <input type="text" class="form-control" name="sla" placeholder="SLA Response Time" maxlength="200">
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-notes">
-
-                <div class="mb-3">
-                    <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"></textarea>
-                </div>
-
-            </div>
-
-        </div>
-
+        <?php } ?>
+        <?php require __DIR__ . '/vendor_template_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_vendor_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create Template</button>
+        <button type="submit" name="add_vendor_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create Vendor Template</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>

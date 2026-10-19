@@ -494,6 +494,14 @@ function getExportColumns($export_type) {
             'log_id'             => ['label' => 'Entry', 'default' => false],
         ],
 
+        'app_logs' => [
+            'app_log_created_at' => ['label' => 'When'],
+            'app_log_type'       => ['label' => 'Level'],
+            'app_log_category'   => ['label' => 'Category'],
+            'app_log_details'    => ['label' => 'Details', 'weight' => 4],
+            'app_log_id'         => ['label' => 'Entry', 'default' => false],
+        ],
+
     ];
 
     return $registry[$export_type] ?? [];

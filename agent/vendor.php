@@ -249,7 +249,13 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                 <div class="text-body-secondary small d-flex flex-wrap column-gap-3 row-gap-1">
                     <?php if ($vendor_description) { ?><span><?= $vendor_description ?></span><?php } ?>
                     <?php if ($vendor_hours) { ?><span><i class="fas fa-fw fa-clock me-1"></i><?= $vendor_hours ?></span><?php } ?>
-                    <?php if ($vendor['vendor_template_name']) { ?><span title="Made from this template"><i class="fas fa-fw fa-puzzle-piece me-1"></i><?= escapeHtml($vendor['vendor_template_name']) ?></span><?php } ?>
+                    <?php if ($vendor['vendor_template_name']) { ?>
+                        <?php if (!empty($session_is_admin)) { ?>
+                            <a class="text-reset" href="/admin/vendor_template.php?vendor_template_id=<?= intval($vendor['vendor_template_id']) ?>" title="Made from this template - open it" data-vendor-template-link><i class="fas fa-fw fa-puzzle-piece me-1"></i><?= escapeHtml($vendor['vendor_template_name']) ?></a>
+                        <?php } else { ?>
+                            <span title="Made from this template"><i class="fas fa-fw fa-puzzle-piece me-1"></i><?= escapeHtml($vendor['vendor_template_name']) ?></span>
+                        <?php } ?>
+                    <?php } ?>
                 </div>
                 <?php if ($vendor_tags_display) { ?>
                     <div class="mt-2"><?= $vendor_tags_display ?></div>
@@ -316,6 +322,12 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                             <i class="fas fa-fw fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
+                            <?php if (!empty($session_is_admin) && !$vendor['vendor_template_name'] && !$vendor_archived_at) { ?>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="/admin/modals/vendor_template/vendor_template_add.php?from_vendor=<?= $vendor_id ?>" title="A vendor template starting from this vendor, so other clients can have it">
+                                    <i class="fas fa-fw fa-puzzle-piece text-secondary me-2"></i>Make a template from it
+                                </a>
+                                <div class="dropdown-divider"></div>
+                            <?php } ?>
                             <?php if ($vendor_archived_at) { ?>
                                 <a class="dropdown-item" href="post.php?restore_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore

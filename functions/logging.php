@@ -86,6 +86,9 @@ function logAudit($type, $action, $description, $client_id = 0, $entity_id = 0) 
     }
 
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = '$type', log_action = '$action', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $entity_id");
+
+    // On to a syslog server or SIEM, when that is set up (functions/log_forward.php)
+    logForwardQueue('audit', mysqli_insert_id($mysqli));
 }
 
 /*
@@ -164,11 +167,29 @@ function logHistory($status, $description, $invoice_id = 0, $quote_id = 0, $recu
     mysqli_query($mysqli, "INSERT INTO history SET history_status = '$status', history_description = '$description', history_invoice_id = $invoice_id, history_quote_id = $quote_id, history_recurring_invoice_id = $recurring_invoice_id");
 }
 
+/*
+ * Writes an app log entry - what ITFlow itself does: cron runs, mail, payment
+ * providers, the API, errors (Admin > App Logs, functions/app_log.php).
+ * Unlike logAudit(), it takes plain text and escapes it here. $type is the
+ * level - info, warning, error or debug; anything else is put to the nearest,
+ * as the column takes only those.
+ */
 function logApp($category, $type, $details) {
     global $mysqli;
 
-    $category = mysqli_real_escape_string($mysqli, substr($category, 0, 200));
-    $details = mysqli_real_escape_string($mysqli, substr($details, 0, 1000));
+    $type = strtolower(trim((string) $type));
+    if (!in_array($type, ['info', 'warning', 'error', 'debug'], true)) {
+        $type = in_array($type, ['critical', 'fatal', 'alert', 'emergency'], true) ? 'error' : ($type === 'warn' ? 'warning' : 'info');
+    }
 
-    mysqli_query($mysqli, "INSERT INTO app_logs SET app_log_category = '$category', app_log_type = '$type', app_log_details = '$details'");
+    // Cut by character, so a name or message with accents isn't cut through the middle of one
+    $category = mb_substr((string) $category, 0, 200);
+    $details = mb_substr((string) $details, 0, 1000);
+    $category_sql = mysqli_real_escape_string($mysqli, $category);
+    $details_sql = mysqli_real_escape_string($mysqli, $details);
+
+    mysqli_query($mysqli, "INSERT INTO app_logs SET app_log_category = '$category_sql', app_log_type = '$type', app_log_details = '$details_sql'");
+
+    // On to a syslog server or SIEM, from the level picked (functions/log_forward.php)
+    logForwardQueue('app', mysqli_insert_id($mysqli), $type, $category);
 }

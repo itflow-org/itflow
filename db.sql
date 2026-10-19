@@ -155,7 +155,8 @@ CREATE TABLE `app_logs` (
   `app_log_type` enum('info','warning','error','debug') NOT NULL DEFAULT 'info',
   `app_log_details` varchar(1000) DEFAULT NULL,
   `app_log_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`app_log_id`)
+  PRIMARY KEY (`app_log_id`),
+  KEY `app_log_created_at` (`app_log_created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2945,6 +2946,15 @@ CREATE TABLE `settings` (
   `config_share_max_hours` int(11) NOT NULL DEFAULT 720,
   `config_share_require_protection` tinyint(1) NOT NULL DEFAULT 0,
   `config_login_alert_failures` int(11) NOT NULL DEFAULT 10,
+  `config_app_log_retention` int(11) NOT NULL DEFAULT 90,
+  `config_log_forward_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `config_log_forward_host` varchar(200) DEFAULT NULL,
+  `config_log_forward_port` int(11) NOT NULL DEFAULT 514,
+  `config_log_forward_protocol` varchar(10) NOT NULL DEFAULT 'udp',
+  `config_log_forward_format` varchar(10) NOT NULL DEFAULT 'json',
+  `config_log_forward_audit` tinyint(1) NOT NULL DEFAULT 1,
+  `config_log_forward_app_level` varchar(10) NOT NULL DEFAULT 'warning',
+  `config_log_forward_tls_verify` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4003,6 +4013,8 @@ CREATE TABLE `vendor_templates` (
   `vendor_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `vendor_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `vendor_template_archived_at` datetime DEFAULT NULL,
+  `vendor_template_created_by` int(11) NOT NULL DEFAULT 0,
+  `vendor_template_updated_by` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`vendor_template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
