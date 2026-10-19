@@ -2,8 +2,9 @@
 
 /*
  * License templates (Admin > License Templates) - making, changing, copying,
- * archiving and deleting them. The work is in functions/software_template.php;
- * a license is made from one by add_software or add_software_from_template
+ * archiving and deleting them, and making licenses from one for several
+ * clients at once. The work is in functions/software_template.php; a single
+ * license is made from one by add_software or add_software_from_template
  * (agent/post/software.php).
  */
 
@@ -39,6 +40,50 @@ if (isset($_POST['add_software_template']) || isset($_POST['edit_software_templa
 
     // A new one opens on its page
     redirect($editing ? null : "software_template.php?software_template_id=$software_template_id");
+
+}
+
+if (isset($_POST['make_licenses_from_template'])) {
+
+    // The same license for each client picked - the seats, dates and order reference given once for all
+    validateCSRFToken();
+
+    $row = softwareTemplateForRequest($_POST['software_template_id'] ?? 0);
+    $software_template_id = intval($row['software_template_id']);
+    if ($row['software_template_archived_at']) {
+        flashAlert('That template is archived - restore it to make licenses from it.', 'error');
+        redirect();
+    }
+    $client_ids = array_values(array_filter(array_map('intval', (array) ($_POST['client_ids'] ?? []))));
+    if (!$client_ids) {
+        flashAlert('Pick the clients to make one for.', 'error');
+        redirect();
+    }
+
+    $post = [
+        'seats' => $_POST['seats'] ?? '',
+        'purchase_reference' => $_POST['purchase_reference'] ?? '',
+        'purchase' => $_POST['purchase'] ?? '',
+        'expire' => $_POST['expire'] ?? '',
+    ];
+    $result = softwareTemplateMakeForClients($software_template_id, $client_ids, $post, !empty($_POST['skip_existing']));
+
+    foreach ($result['made'] as $client_id => $software_id) {
+        if (isset($result['vendors'][$client_id])) {
+            $vendor_id = intval(getFieldById('software', $software_id, 'software_vendor_id'));
+            logAudit("Vendor", "Create", "$session_name created vendor " . escapeSql((string) getFieldById('vendors', $vendor_id, 'vendor_name')) . " from a template for license " . escapeSql($row['software_template_name']), $client_id, $vendor_id);
+        }
+        logAudit("Software", "Create", "$session_name created license " . escapeSql($row['software_template_name']) . " from template " . escapeSql($row['software_template_name']), $client_id, $software_id);
+    }
+
+    $made = count($result['made']);
+    $skipped = count($result['skipped']);
+    $vendors = count($result['vendors']);
+    flashAlert(($made ? "Made $made license" . ($made === 1 ? '' : 's') : 'Made no licenses') . " from <strong>" . escapeHtml($row['software_template_name']) . "</strong>"
+        . ($vendors ? ", adding vendor <strong>" . escapeHtml((string) $row['vendor_template_name']) . "</strong> for $vendors client" . ($vendors === 1 ? '' : 's') : '')
+        . ($skipped ? " - skipped " . ($skipped === 1 ? escapeHtml(reset($result['skipped'])) . ", which already has one" : "$skipped clients that already have one") : ''), $made ? 'success' : 'warning');
+
+    redirect("software_template.php?software_template_id=$software_template_id");
 
 }
 

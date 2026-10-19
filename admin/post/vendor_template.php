@@ -157,6 +157,9 @@ if (isset($_GET['delete_vendor_template'])) {
     // If its a template reset all vendors based off this template to no template base
     mysqli_query($mysqli,"UPDATE vendors SET vendor_template_id = 0 WHERE vendor_template_id = $vendor_template_id");
 
+    // License templates that took their vendor from it no longer have one
+    mysqli_query($mysqli, "UPDATE software_templates SET software_template_vendor_template_id = 0, software_template_updated_at = software_template_updated_at WHERE software_template_vendor_template_id = $vendor_template_id");
+
     mysqli_query($mysqli,"DELETE FROM vendor_templates WHERE vendor_template_id = $vendor_template_id");
 
     logAudit("Vendor Template", "Delete", "$session_name deleted vendor template $vendor_template_name");

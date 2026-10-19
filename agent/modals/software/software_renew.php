@@ -5,7 +5,8 @@
  * Move each renewal date on by a term - from its current date, or from today
  * if there is none or it has passed - or set one date for all of them. The
  * new date for each shows before you save. Optionally record the new order
- * or invoice reference.
+ * or invoice reference. Licenses from license templates that renew on the
+ * same term start on that term; the rest on a year.
  */
 
 require_once '../../../includes/modal_header.php';
@@ -30,7 +31,14 @@ if (!$licenses) {
 }
 
 $single = count($licenses) === 1;
-$default_term = '1y';
+
+// The term their templates renew on, when they all share one
+$terms = [];
+foreach ($licenses as $row) {
+    $term = intval($row['software_template_id'] ?? 0) ? (string) getFieldById('software_templates', $row['software_template_id'], 'software_template_term') : '';
+    $terms[$term] = true;
+}
+$default_term = count($terms) === 1 && isset(SOFTWARE_RENEWAL_TERMS[(string) array_key_first($terms)]) ? (string) array_key_first($terms) : '1y';
 
 ob_start();
 

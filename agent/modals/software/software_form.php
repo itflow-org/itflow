@@ -9,9 +9,11 @@
  *
  * Tabs: Details (with its tags), License (type, seats, key, dates), Seats (the client's
  * devices and users, with a running count against the seats bought) and
- * Notes. A new license can start from a template, which fills in the details
- * and is remembered (software_template_id), and take a batch of individual
- * keys, one per line.
+ * Notes. A new license can start from a template, which fills in the details,
+ * seats, vendor (the client's own one made from the template's vendor
+ * template, or "template:N" to make it - add_software) and renewal date (its
+ * term from the purchase date) and is remembered (software_template_id), and
+ * take a batch of individual keys, one per line.
  *
  * Should not be accessed directly.
  */
@@ -32,7 +34,7 @@ if ($software_license_type_raw !== '' && !in_array($software_license_type_raw, $
 // The client's own lists - only once the client is known
 $vendor_options = $asset_options = $contact_options = [];
 if ($client_id) {
-    $sql = mysqli_query($mysqli, "SELECT vendor_archived_at, vendor_id, vendor_name, vendor_description FROM vendors
+    $sql = mysqli_query($mysqli, "SELECT vendor_archived_at, vendor_id, vendor_name, vendor_description, vendor_template_id FROM vendors
         WHERE vendor_client_id = $client_id AND (vendor_archived_at IS NULL OR vendor_id = $software_vendor_id)
         ORDER BY vendor_favorite DESC, vendor_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
@@ -63,8 +65,11 @@ if ($client_id) {
 $template_options = [];
 if ($software_form_mode === 'add') {
     $sql = mysqli_query($mysqli, "SELECT software_template_id, software_template_name, software_template_version, software_template_description,
-            software_template_type, software_template_license_type, software_template_notes
-        FROM software_templates WHERE software_template_archived_at IS NULL ORDER BY software_template_name ASC");
+            software_template_type, software_template_license_type, software_template_notes, software_template_seats, software_template_term,
+            vendor_template_id, vendor_template_name
+        FROM software_templates
+        LEFT JOIN vendor_templates ON vendor_template_id = software_template_vendor_template_id AND software_template_vendor_template_id > 0 AND vendor_template_archived_at IS NULL
+        WHERE software_template_archived_at IS NULL ORDER BY software_template_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $template_options[intval($row['software_template_id'])] = [
             'name' => $row['software_template_name'],
@@ -73,9 +78,15 @@ if ($software_form_mode === 'add') {
             'type' => $row['software_template_type'],
             'license_type' => (string) $row['software_template_license_type'],
             'notes' => (string) $row['software_template_notes'],
+            'seats' => $row['software_template_seats'] === null ? '' : (string) intval($row['software_template_seats']),
+            'term' => (string) $row['software_template_term'],
+            'vendor_template_id' => intval($row['vendor_template_id']),
+            'vendor' => (string) $row['vendor_template_name'],
         ];
     }
 }
+// Who may have a template's vendor made for the client as the license is saved
+$vendor_can_make = intval(lookupUserPermission('module_client')) >= 2;
 
 $software_type_style = softwareTypeStyle($software_type);
 $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'New');
@@ -130,7 +141,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
                         <?php } ?>
                     </select>
                 </div>
-                <div class="form-text">Fills in the name, type, license type, description and notes - change anything after. The license remembers it.</div>
+                <div class="form-text">Fills in the name, type, license type, description, seats, vendor, renewal date and notes - change anything after. The license remembers it.</div>
             </div>
         <?php } ?>
 
@@ -169,11 +180,11 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
                 <label class="form-label">Vendor</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                    <select class="form-select select2" name="vendor">
+                    <select class="form-select select2" name="vendor" data-software-vendor<?= $vendor_can_make ? ' data-vendor-can-make' : '' ?>>
                         <option value="">- Select Vendor -</option>
                         <?php foreach ($vendor_options as $vendor_option) {
                             $vendor_option_id = intval($vendor_option['vendor_id']); ?>
-                            <option value="<?= $vendor_option_id ?>" <?= $software_vendor_id === $vendor_option_id ? 'selected' : '' ?><?= selectOptionVendor($vendor_option['vendor_name'], $vendor_option['vendor_description']) ?>><?= escapeHtml($vendor_option['vendor_name']) ?><?= $vendor_option['vendor_archived_at'] ? ' (archived)' : '' ?></option>
+                            <option value="<?= $vendor_option_id ?>" <?= $software_vendor_id === $vendor_option_id ? 'selected' : '' ?><?= selectOptionVendor($vendor_option['vendor_name'], $vendor_option['vendor_description']) ?> data-vendor-template-id="<?= intval($vendor_option['vendor_template_id']) ?>"><?= escapeHtml($vendor_option['vendor_name']) ?><?= $vendor_option['vendor_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -366,20 +377,72 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
         // Renewal a term after it was bought - or after today
         var purchase = form.querySelector('[data-software-purchase]');
         var expire = form.querySelector('[data-software-expire]');
+        function renewOn(term) {
+            var from = purchase.value ? new Date(purchase.value + 'T00:00:00') : new Date();
+            if (term.slice(-1) === 'y') {
+                from.setFullYear(from.getFullYear() + parseInt(term, 10));
+            } else {
+                from.setMonth(from.getMonth() + parseInt(term, 10));
+            }
+            var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+            expire.value = from.getFullYear() + '-' + pad(from.getMonth() + 1) + '-' + pad(from.getDate());
+            expire.dispatchEvent(new Event('change', { bubbles: true }));
+        }
         form.querySelectorAll('[data-renew-term]').forEach(function (button) {
             button.addEventListener('click', function () {
-                var from = purchase.value ? new Date(purchase.value + 'T00:00:00') : new Date();
-                var term = button.dataset.renewTerm;
-                if (term.slice(-1) === 'y') {
-                    from.setFullYear(from.getFullYear() + parseInt(term, 10));
-                } else {
-                    from.setMonth(from.getMonth() + parseInt(term, 10));
-                }
-                var pad = function (n) { return (n < 10 ? '0' : '') + n; };
-                expire.value = from.getFullYear() + '-' + pad(from.getMonth() + 1) + '-' + pad(from.getDate());
-                expire.dispatchEvent(new Event('change', { bubbles: true }));
+                renewOn(button.dataset.renewTerm);
             });
         });
+
+        // A template's term keeps the renewal date in step with the purchase date - until the date is typed in
+        var templateTerm = '';
+        purchase.addEventListener('change', function () {
+            if (templateTerm) {
+                renewOn(templateTerm);
+            }
+        });
+        expire.addEventListener('input', function () {
+            templateTerm = '';
+        });
+
+        // The client's vendor for a template: theirs made from its vendor template, or of its name - else one to make as it is saved
+        var vendor = form.querySelector('[data-software-vendor]');
+        var vendorPicked = '';
+        function templateVendor(t) {
+            if (!vendor) {
+                return;
+            }
+            var made = vendor.querySelector('option[data-vendor-from-template]');
+            if (made) {
+                made.remove();
+            }
+            if (vendor.value !== '' && vendor.value !== vendorPicked) {
+                return;
+            }
+            var value = '';
+            if (t.vendor_template_id) {
+                var options = Array.prototype.slice.call(vendor.options);
+                var match = options.filter(function (o) { return o.dataset.vendorTemplateId === String(t.vendor_template_id); })[0]
+                    || options.filter(function (o) { return o.value !== '' && o.text.trim().toLowerCase() === t.vendor.toLowerCase(); })[0];
+                if (match) {
+                    value = match.value;
+                } else if (vendor.hasAttribute('data-vendor-can-make')) {
+                    var option = new Option(t.vendor, 'template:' + t.vendor_template_id);
+                    option.dataset.vendorFromTemplate = '1';
+                    option.dataset.description = 'New - added for the client from the vendor template';
+                    option.dataset.icon = 'fas fa-plus';
+                    vendor.add(option);
+                    value = option.value;
+                }
+            }
+            vendorPicked = value;
+            if (vendor.itflowSelect) {
+                vendor.itflowSelect.setValue(value);
+            } else {
+                vendor.value = value;
+                vendor.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
 
         // Starting from a template fills in what it knows
         var templates = <?= json_encode($template_options ?: new stdClass(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
@@ -393,6 +456,13 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
             form.querySelector('[name="version"]').value = t.version;
             form.querySelector('[name="description"]').value = t.description;
             form.querySelector('[name="notes"]').value = t.notes;
+            total.value = t.seats;
+            seats();
+            templateTerm = t.term;
+            if (t.term) {
+                renewOn(t.term);
+            }
+            templateVendor(t);
             [['type', t.type], ['license_type', t.license_type]].forEach(function (pair) {
                 var select = form.querySelector('[name="' + pair[0] + '"]');
                 if (!pair[1]) {

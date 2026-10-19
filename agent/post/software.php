@@ -56,11 +56,17 @@ if (isset($_POST['add_software'])) {
 
     enforceClientAccess();
 
-    $set = softwareFormSet($_POST, $client_id);
-    if ($set === null) {
+    if (trim((string) ($_POST['name'] ?? '')) === '') {
         flashAlert('A license needs a name.', 'error');
         redirect();
     }
+
+    // A template's vendor the client hasn't got yet is made for them from its vendor template - by someone who can add vendors
+    $vendor_made = false;
+    if (preg_match('/^template:(\d+)$/', (string) ($_POST['vendor'] ?? ''), $match)) {
+        $_POST['vendor'] = softwareVendorFromTemplate($match[1], $client_id, intval(lookupUserPermission('module_client')) >= 2, $vendor_made);
+    }
+    $set = softwareFormSet($_POST, $client_id);
 
     // Started from a template, it remembers which
     mysqli_query($mysqli, "INSERT INTO software SET $set, software_client_id = $client_id, software_template_id = " . softwareTemplateLiveId($_POST['software_template_id'] ?? 0));
@@ -71,10 +77,14 @@ if (isset($_POST['add_software'])) {
     tagSetForRecord('license', $software_id, (array) ($_POST['tags'] ?? []));
 
     $name = trim($_POST['name']);
+    $vendor_name = $vendor_made ? (string) getFieldById('vendors', $_POST['vendor'], 'vendor_name') : '';
+    if ($vendor_made) {
+        logAudit("Vendor", "Create", "$session_name created vendor " . escapeSql($vendor_name) . " from a template for license " . escapeSql($name), $client_id, intval($_POST['vendor']));
+    }
     logAudit("Software", "Create", "$session_name created license " . escapeSql($name . softwareSeatChangeText($changes)), $client_id, $software_id);
 
     $warning = softwareSeatWarning($software_id);
-    flashAlert("License <strong>$name</strong> created" . ($keys_added ? " with $keys_added key" . ($keys_added === 1 ? '' : 's') : '') . $warning, $warning ? 'warning' : 'success');
+    flashAlert("License <strong>$name</strong> created" . ($keys_added ? " with $keys_added key" . ($keys_added === 1 ? '' : 's') : '') . ($vendor_made ? ", and vendor <strong>" . escapeHtml($vendor_name) . "</strong> added for the client" : '') . $warning, $warning ? 'warning' : 'success');
 
     redirect();
 
@@ -96,15 +106,20 @@ if (isset($_POST['add_software_from_template'])) {
         redirect();
     }
     $template = softwareTemplateRow($_POST['software_template_id'] ?? 0);
-    $software_id = softwareTemplateMakeLicense($_POST['software_template_id'] ?? 0, $client_id, $_POST);
+    $software_id = softwareTemplateMakeLicense($_POST['software_template_id'] ?? 0, $client_id, $_POST, intval(lookupUserPermission('module_client')) >= 2, $vendor_made);
     if (!$software_id) {
         flashAlert('That license template is gone or archived.', 'error');
         redirect();
     }
 
+    $vendor_id = intval(getFieldById('software', $software_id, 'software_vendor_id'));
+    $vendor_name = $vendor_made ? (string) getFieldById('vendors', $vendor_id, 'vendor_name') : '';
+    if ($vendor_made) {
+        logAudit("Vendor", "Create", "$session_name created vendor " . escapeSql($vendor_name) . " from a template for license " . escapeSql($template['software_template_name']), $client_id, $vendor_id);
+    }
     logAudit("Software", "Create", "$session_name created license " . escapeSql($template['software_template_name']) . " from template " . escapeSql($template['software_template_name']), $client_id, $software_id);
 
-    flashAlert("License <strong>" . escapeHtml($template['software_template_name']) . "</strong> created from template <strong>" . escapeHtml($template['software_template_name']) . "</strong> - put its devices and users on it");
+    flashAlert("License <strong>" . escapeHtml($template['software_template_name']) . "</strong> created from template <strong>" . escapeHtml($template['software_template_name']) . "</strong>" . ($vendor_made ? ", with vendor <strong>" . escapeHtml($vendor_name) . "</strong> added for the client" : '') . " - put its devices and users on it");
 
     redirect("/agent/software.php?client_id=$client_id");
 

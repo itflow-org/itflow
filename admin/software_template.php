@@ -2,11 +2,12 @@
 
 /*
  * One license template - what a license made from it starts with (its name,
- * version, summary, type, license type and notes), who made it and last
- * changed it, and its use: how many licenses have been made from it, for how
- * many clients, the seats on them, the ones renewing soon or lapsed, and the
- * latest of them. A new license for a client can be made from here. The work
- * is in functions/software_template.php.
+ * version, summary, type, license type, seats, how often it renews, its vendor,
+ * the product it is sold as and its notes), who made it and last changed it,
+ * and its use: how many licenses have been made from it, for how many
+ * clients, the seats on them, the ones renewing soon or lapsed, and the latest
+ * of them. New licenses can be made from here for a client or several at
+ * once. The work is in functions/software_template.php.
  */
 
 require_once "includes/inc_all_admin.php";
@@ -41,11 +42,21 @@ while ($row = mysqli_fetch_assoc($sql)) {
 
 $edit_url = "modals/software_template/software_template_edit.php?id=$software_template_id";
 $use_url = "modals/software_template/software_template_use.php?id=$software_template_id";
+$several_url = "modals/software_template/software_template_use_several.php?id=$software_template_id";
 
+$term = (string) $template['software_template_term'];
+$vendor_name = (string) $template['vendor_template_name'];
+$product_name = (string) $template['product_name'];
 $facts = array_filter([
     'Type' => $template['software_template_type'] !== '' ? '<i class="fas fa-fw ' . $type_style['icon'] . ' text-secondary me-1"></i>' . escapeHtml($template['software_template_type']) : '',
     'License type' => (string) $template['software_template_license_type'] !== '' ? '<i class="fas fa-fw ' . softwareLicenseTypeIcon($template['software_template_license_type']) . ' text-secondary me-1"></i>' . escapeHtml($template['software_template_license_type']) : '',
     'Version' => escapeHtml((string) $template['software_template_version']),
+    'Seats' => $template['software_template_seats'] !== null ? '<i class="fas fa-fw fa-users text-secondary me-1"></i>' . intval($template['software_template_seats']) : '',
+    'Renews every' => isset(SOFTWARE_RENEWAL_TERMS[$term]) ? '<i class="fas fa-fw fa-redo-alt text-secondary me-1"></i>' . escapeHtml(SOFTWARE_RENEWAL_TERMS[$term]) . ' <span class="small text-secondary">- from when it was bought</span>' : '',
+    'Vendor' => $vendor_name !== '' ? '<span class="d-inline-flex align-items-center gap-2">' . vendorTile($vendor_name, 'xs') . escapeHtml($vendor_name) . '</span>'
+        . ($template['vendor_template_archived_at'] ? ' <span class="small text-secondary">- its vendor template is archived, so licenses from it get no vendor</span>' : '') : '',
+    'Sold as' => $product_name !== '' ? '<a href="/agent/product.php?product_id=' . intval($template['software_template_product_id']) . '">' . escapeHtml($product_name) . '</a> <span class="small text-secondary">' . escapeHtml(softwareTemplatePriceText($template)) . '</span>'
+        . ($template['product_archived_at'] ? ' <span class="small text-secondary">- archived</span>' : '') : '',
 ]);
 
 ?>
@@ -71,7 +82,13 @@ $facts = array_filter([
         </div>
         <div class="d-flex flex-wrap gap-2 d-print-none">
             <?php if (!$archived) { ?>
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $use_url ?>"><i class="fas fa-fw fa-plus me-2"></i>New license for a client</button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $use_url ?>"><i class="fas fa-fw fa-plus me-2"></i>New license for a client</button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More ways to make one"></button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>"><i class="fas fa-fw fa-copy me-2"></i>For several clients</a>
+                    </div>
+                </div>
             <?php } ?>
             <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</button>
             <div class="dropdown">

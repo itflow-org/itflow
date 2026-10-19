@@ -4,8 +4,11 @@
  * Admin > License Templates - the licenses an MSP sells or looks after again
  * and again, ready to start a client's from: Microsoft 365 Business Premium,
  * an endpoint protection agent, a backup product. Each row shows what it is,
- * its type and license type, how many licenses have been made from it and for
- * how many clients, with their seats, when it was last used and last changed.
+ * its type and license type, what a license from it starts with (seats, how
+ * often it renews, its vendor, the product it is sold as), how many licenses
+ * have been made from it and for how many clients, with their seats, when it
+ * was last used and last changed. New licenses can be made from one for a
+ * client or several at once.
  * A template can be changed, copied as the start of another, archived - not
  * offered for new licenses, while the licenses made from it stay - or
  * deleted. The work is in functions/software_template.php; the handlers are
@@ -37,14 +40,19 @@ if (!isset($sortable_columns[$sort])) {
 }
 
 $search = "(software_template_name LIKE '%$q%' OR software_template_version LIKE '%$q%' OR software_template_description LIKE '%$q%' OR software_template_type LIKE '%$q%'
-    OR software_template_license_type LIKE '%$q%' OR software_template_notes LIKE '%$q%')";
+    OR software_template_license_type LIKE '%$q%' OR software_template_notes LIKE '%$q%' OR vendor_template_name LIKE '%$q%' OR product_name LIKE '%$q%')";
+// Its vendor template and product - searched, and shown under the name
+$joins = "LEFT JOIN vendor_templates ON vendor_template_id = software_template_vendor_template_id AND software_template_vendor_template_id > 0
+    LEFT JOIN products ON product_id = software_template_product_id AND software_template_product_id > 0";
 
 // Its use is the current licenses made from it, for current clients - as softwareTemplateUsage() counts them
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS software_templates.software_template_id, software_template_name, software_template_version, software_template_description,
         software_template_type, software_template_license_type, software_template_notes, software_template_created_at, software_template_updated_at, software_template_archived_at,
+        software_template_seats, software_template_term, vendor_template_name, product_name, product_price, product_currency_code, product_frequency, product_seat_source,
         COALESCE(software_template_updated_at, software_template_created_at) AS changed_at, COALESCE(updater.user_name, creator.user_name) AS changed_by,
         COALESCE(used.used_count, 0) AS used_count, used.last_used
     FROM software_templates
+    $joins
     LEFT JOIN users creator ON creator.user_id = software_template_created_by AND software_template_created_by > 0
     LEFT JOIN users updater ON updater.user_id = software_template_updated_by AND software_template_updated_by > 0
     LEFT JOIN (
@@ -64,7 +72,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
 }
 $usage = softwareTemplateUsage(array_keys($rows));
 
-$counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(software_template_archived_at IS NULL), 0), COALESCE(SUM(software_template_archived_at IS NOT NULL), 0) FROM software_templates WHERE $search"));
+$counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(software_template_archived_at IS NULL), 0), COALESCE(SUM(software_template_archived_at IS NOT NULL), 0) FROM software_templates $joins WHERE $search"));
 
 $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
     return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
@@ -92,7 +100,7 @@ $csrf = $_SESSION['csrf_token'];
             <div class="row g-2 align-items-center">
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search license templates..." title="Name, version, summary, type, license type or notes">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search license templates..." title="Name, version, summary, type, license type, notes, vendor or product">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
@@ -125,6 +133,13 @@ $csrf = $_SESSION['csrf_token'];
                 $seats_text = $use && $use['seats'] ? $use['used'] . ' of ' . $use['seats'] . ' seats in use' : ($use && $use['used'] ? $use['used'] . ' seats in use' : '');
                 $summary = trim((string) $row['software_template_description']);
                 $edit_url = "modals/software_template/software_template_edit.php?id=$template_id";
+                // What a license from it starts with
+                $starts = array_filter([
+                    $row['software_template_seats'] !== null ? '<i class="fas fa-fw fa-users me-1"></i>' . intval($row['software_template_seats']) . ' seat' . (intval($row['software_template_seats']) === 1 ? '' : 's') : '',
+                    isset(SOFTWARE_RENEWAL_TERMS[(string) $row['software_template_term']]) ? '<i class="fas fa-fw fa-redo-alt me-1"></i>' . escapeHtml(SOFTWARE_RENEWAL_TERMS[$row['software_template_term']]) . ' term' : '',
+                    (string) $row['vendor_template_name'] !== '' ? '<i class="fas fa-fw fa-building me-1"></i>' . escapeHtml($row['vendor_template_name']) : '',
+                    (string) $row['product_name'] !== '' ? '<i class="fas fa-fw fa-box-open me-1"></i>' . escapeHtml($row['product_name']) . ' · ' . escapeHtml(softwareTemplatePriceText($row)) : '',
+                ]);
                 ?>
                 <tr data-software-template-id="<?= $template_id ?>">
                     <td class="ps-3">
@@ -135,6 +150,9 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php if ($row['software_template_version'] !== null && $row['software_template_version'] !== '') { ?><span class="text-body-secondary ms-1"><?= escapeHtml($row['software_template_version']) ?></span><?php } ?>
                                 <?php if ($summary !== '') { ?>
                                     <div class="small text-body-secondary"><?= escapeHtml($summary) ?></div>
+                                <?php } ?>
+                                <?php if ($starts) { ?>
+                                    <div class="small text-body-secondary d-flex flex-wrap column-gap-3" data-template-starts><?php foreach ($starts as $start) { ?><span class="text-nowrap"><?= $start ?></span><?php } ?></div>
                                 <?php } ?>
                                 <?php if ($row['software_template_archived_at']) { ?>
                                     <div class="small text-body-secondary"><i class="fas fa-fw fa-archive me-1"></i>Archived <?= date('M j, Y', strtotime($row['software_template_archived_at'])) ?></div>
@@ -170,6 +188,9 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php if (!$row['software_template_archived_at']) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software_template/software_template_use.php?id=<?= $template_id ?>">
                                         <i class="fas fa-fw fa-plus text-secondary me-2"></i>New license for a client
+                                    </a>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software_template/software_template_use_several.php?id=<?= $template_id ?>">
+                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>For several clients
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item" href="post.php?copy_software_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">

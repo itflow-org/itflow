@@ -3,10 +3,11 @@
 /*
  * New license for a client from a license template - from Admin > License
  * Templates and the template's page. The template gives it its name, type,
- * license type, summary and notes; this window the client, seats, key, order
- * reference and dates. It goes on the client's Licenses
- * (add_software_from_template, agent/post/software.php). &client_id= picks
- * the client.
+ * license type, summary, notes and vendor, and starts its seats and renewal
+ * date (its term from the purchase date, when left blank); this window the
+ * client, seats, key, order reference and dates. It goes on the client's
+ * Licenses (add_software_from_template, agent/post/software.php). &client_id=
+ * picks the client.
  */
 
 require_once '../../includes/modal_header.php';
@@ -22,7 +23,10 @@ if (!$template || $template['software_template_archived_at']) { ?>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That license template is gone or archived.</div>
-<?php } else { ?>
+<?php } else {
+    $term = (string) $template['software_template_term'];
+    $vendor_name = $template['vendor_template_archived_at'] ? '' : (string) $template['vendor_template_name'];
+    ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-cube me-2"></i>New license from <strong><?= escapeHtml($template['software_template_name']) ?></strong></h5>
@@ -52,7 +56,7 @@ if (!$template || $template['software_template_archived_at']) { ?>
                 <label class="form-label">Seats</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                    <input type="number" class="form-control" name="seats" min="0" step="1" placeholder="No limit">
+                    <input type="number" class="form-control" name="seats" min="0" step="1" placeholder="No limit" value="<?= $template['software_template_seats'] === null ? '' : intval($template['software_template_seats']) ?>">
                 </div>
             </div>
             <div class="col-md-8">
@@ -75,6 +79,7 @@ if (!$template || $template['software_template_archived_at']) { ?>
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-alt"></i></span>
                     <input type="date" class="form-control" name="expire" max="2999-12-31">
                 </div>
+                <?php if (isset(SOFTWARE_RENEWAL_TERMS[$term])) { ?><div class="form-text">Blank is <?= escapeHtml(SOFTWARE_RENEWAL_TERMS[$term]) ?> after it was bought (or today).</div><?php } ?>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Order reference</label>
@@ -84,7 +89,7 @@ if (!$template || $template['software_template_archived_at']) { ?>
                 </div>
             </div>
         </div>
-        <div class="small text-secondary mt-3">Its name, type, license type, summary and notes come from the template. Put devices and users on it, and pick its vendor, from the client's Licenses.</div>
+        <div class="small text-secondary mt-3">Its name, type, license type, summary and notes come from the template<?= $vendor_name !== '' ? ', and its vendor is the client\'s <strong>' . escapeHtml($vendor_name) . '</strong> - added for them if they haven\'t got it' : '' ?>. Put devices and users on it from the client's Licenses.</div>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_software_from_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>

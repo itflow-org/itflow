@@ -338,10 +338,11 @@ function productCopy($product_id) {
     ], 0, $error);
 }
 
-/** Delete a product, its stock and its price history. Lines it is on keep their text and amounts. */
+/** Delete a product, its stock and its price history. Lines it is on keep their text and amounts; license templates sold as it no longer are. */
 function productDelete($product_id) {
     global $mysqli;
     $product_id = intval($product_id);
+    mysqli_query($mysqli, "UPDATE software_templates SET software_template_product_id = 0, software_template_updated_at = software_template_updated_at WHERE software_template_product_id = $product_id");
     mysqli_query($mysqli, "DELETE FROM product_stock WHERE stock_product_id = $product_id");
     mysqli_query($mysqli, "DELETE FROM product_prices WHERE price_product_id = $product_id");
     mysqli_query($mysqli, "DELETE FROM products WHERE product_id = $product_id");

@@ -6,7 +6,8 @@
  * search. Header with renewal and seat state, the facts to copy (key, order
  * reference, vendor account and phone), quick notes, then tabs for only what
  * has something in it: devices, users, keys, credentials, documents, files.
- * A license made from a license template says which.
+ * A license made from a license template says which - and, for someone who
+ * sees Sales, the product it is sold as.
  */
 
 require_once '../../../includes/modal_header.php';
@@ -84,6 +85,9 @@ ob_start();
                 <span><?= escapeHtml($license['client_name']) ?></span>
                 <?php if ($template) { ?>
                     <span title="The license template it was made from"><i class="fas fa-fw fa-puzzle-piece me-1"></i>From <?= !empty($session_is_admin) ? '<a class="text-reset" href="/admin/software_template.php?software_template_id=' . intval($template['software_template_id']) . '">' . escapeHtml($template['software_template_name']) . '</a>' : escapeHtml($template['software_template_name']) ?></span>
+                    <?php if (!empty($template['product_name']) && !$template['product_archived_at'] && lookupUserPermission('module_sales') >= 1) { ?>
+                        <span title="The product it is sold as"><i class="fas fa-fw fa-box-open me-1"></i>Sold as <a class="text-reset" href="/agent/product.php?product_id=<?= intval($template['software_template_product_id']) ?>"><?= escapeHtml($template['product_name']) ?></a> · <?= escapeHtml(softwareTemplatePriceText($template)) ?></span>
+                    <?php } ?>
                 <?php } ?>
             </div>
         </div>
