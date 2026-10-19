@@ -146,6 +146,13 @@ function clientOverviewAttention($client_id, $access, $renewals) {
             'detail' => 'As their templates ask',
             'url' => "/agent/files.php?client_id=$client_id&type=due",
         ];
+        // License templates it should have a license from - the strip across the top of its Licenses
+        $items[] = [
+            'count' => count(softwareTemplatesMissingFor($client_id)),
+            'label' => 'Licenses missing', 'icon' => 'cube', 'tone' => 'warning',
+            'detail' => 'Ones every client like it should have',
+            'url' => "/agent/software.php?client_id=$client_id",
+        ];
     }
 
     if ($access['credentials']) {

@@ -7,8 +7,10 @@
  * its type and license type, what a license from it starts with (seats, how
  * often it renews, its vendor, the product it is sold as), how many licenses
  * have been made from it and for how many clients, with their seats, when it
- * was last used and last changed. New licenses can be made from one for a
- * client or several at once.
+ * was last used and last changed. A template every client, or the clients
+ * with a tag, should have shows how many of them have it; the Required tab
+ * lists those. New licenses can be made from one for a client or several at
+ * once.
  * A template can be changed, copied as the start of another, archived - not
  * offered for new licenses, while the licenses made from it stay - or
  * deleted. The work is in functions/software_template.php; the handlers are
@@ -21,7 +23,15 @@ $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
-$show_archived = ($_GET['show'] ?? '') === 'archived';
+// '' current, 'required' the current ones someone should have, 'archived'
+$show = (string) ($_GET['show'] ?? '');
+$show = in_array($show, ['required', 'archived'], true) ? $show : '';
+$show_archived = $show === 'archived';
+$show_where = [
+    '' => 'software_template_archived_at IS NULL',
+    'required' => 'software_template_archived_at IS NULL AND software_template_required > 0',
+    'archived' => 'software_template_archived_at IS NOT NULL',
+][$show];
 
 // Tab title - the file is named for the table, the page for what it holds
 $page_title = 'License Templates';
@@ -48,7 +58,7 @@ $joins = "LEFT JOIN vendor_templates ON vendor_template_id = software_template_v
 // Its use is the current licenses made from it, for current clients - as softwareTemplateUsage() counts them
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS software_templates.software_template_id, software_template_name, software_template_version, software_template_description,
         software_template_type, software_template_license_type, software_template_notes, software_template_created_at, software_template_updated_at, software_template_archived_at,
-        software_template_seats, software_template_term, vendor_template_name, product_name, product_price, product_currency_code, product_frequency, product_seat_source,
+        software_template_seats, software_template_term, software_template_required, vendor_template_name, product_name, product_price, product_currency_code, product_frequency, product_seat_source,
         COALESCE(software_template_updated_at, software_template_created_at) AS changed_at, COALESCE(updater.user_name, creator.user_name) AS changed_by,
         COALESCE(used.used_count, 0) AS used_count, used.last_used
     FROM software_templates
@@ -60,7 +70,7 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS software_templates.soft
         FROM software JOIN clients ON client_id = software_client_id AND client_archived_at IS NULL
         WHERE software_template_id > 0 AND software_archived_at IS NULL GROUP BY software_template_id
     ) used ON used.used_template_id = software_templates.software_template_id
-    WHERE $search AND software_template_archived_at IS " . ($show_archived ? 'NOT NULL' : 'NULL') . "
+    WHERE $search AND $show_where
     ORDER BY {$sortable_columns[$sort]}, software_templates.software_template_id ASC
     LIMIT $record_from, $record_to");
 
@@ -72,14 +82,24 @@ while ($row = mysqli_fetch_assoc($sql)) {
 }
 $usage = softwareTemplateUsage(array_keys($rows));
 
-$counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(software_template_archived_at IS NULL), 0), COALESCE(SUM(software_template_archived_at IS NOT NULL), 0) FROM software_templates $joins WHERE $search"));
+// How many of the clients a required one is for have it
+$required_tags = softwareTemplateRequiredTags(array_keys($rows));
+$coverage = [];
+foreach ($rows as $template_id => $row) {
+    if (intval($row['software_template_required']) && !$row['software_template_archived_at']) {
+        $coverage[$template_id] = softwareTemplateCoverage($template_id, $row['software_template_required'], array_keys($required_tags[$template_id]));
+    }
+}
+
+$counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(software_template_archived_at IS NULL), 0), COALESCE(SUM(software_template_archived_at IS NOT NULL), 0),
+    COALESCE(SUM(software_template_archived_at IS NULL AND software_template_required > 0), 0) FROM software_templates $joins WHERE $search"));
 
 $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
     return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
         . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
 };
-$pill_url = function ($archived) {
-    return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $archived ? 'archived' : '']));
+$pill_url = function ($show) {
+    return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $show]));
 };
 
 $add_url = 'modals/software_template/software_template_add.php';
@@ -96,7 +116,7 @@ $csrf = $_SESSION['csrf_token'];
     </div>
     <div class="card-header py-3">
         <form autocomplete="off">
-            <?php if ($show_archived) { ?><input type="hidden" name="show" value="archived"><?php } ?>
+            <?php if ($show !== '') { ?><input type="hidden" name="show" value="<?= $show ?>"><?php } ?>
             <div class="row g-2 align-items-center">
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
@@ -107,8 +127,9 @@ $csrf = $_SESSION['csrf_token'];
             </div>
         </form>
         <nav class="nav nav-pills itflow-asset-tabs mt-2">
-            <a class="nav-link <?= $show_archived ? '' : 'active' ?>" href="<?= escapeHtml($pill_url(false)) ?>"><i class="fas fa-fw fa-cube me-1"></i>Active <span class="badge rounded-pill ms-1"><?= intval($counts[0]) ?></span></a>
-            <a class="nav-link <?= $show_archived ? 'active' : '' ?>" href="<?= escapeHtml($pill_url(true)) ?>" title="Not offered for new licenses - the licenses made from them stay"><i class="fas fa-fw fa-archive me-1"></i>Archived <span class="badge rounded-pill ms-1"><?= intval($counts[1]) ?></span></a>
+            <a class="nav-link <?= $show === '' ? 'active' : '' ?>" href="<?= escapeHtml($pill_url('')) ?>"><i class="fas fa-fw fa-cube me-1"></i>Active <span class="badge rounded-pill ms-1"><?= intval($counts[0]) ?></span></a>
+            <a class="nav-link <?= $show === 'required' ? 'active' : '' ?>" href="<?= escapeHtml($pill_url('required')) ?>" title="Every client, or the clients with a tag, should have it"><i class="fas fa-fw fa-clipboard-check me-1"></i>Required <span class="badge rounded-pill ms-1"><?= intval($counts[2]) ?></span></a>
+            <a class="nav-link <?= $show_archived ? 'active' : '' ?>" href="<?= escapeHtml($pill_url('archived')) ?>" title="Not offered for new licenses - the licenses made from them stay"><i class="fas fa-fw fa-archive me-1"></i>Archived <span class="badge rounded-pill ms-1"><?= intval($counts[1]) ?></span></a>
         </nav>
     </div>
     <div class="table-responsive">
@@ -154,6 +175,15 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php if ($starts) { ?>
                                     <div class="small text-body-secondary d-flex flex-wrap column-gap-3" data-template-starts><?php foreach ($starts as $start) { ?><span class="text-nowrap"><?= $start ?></span><?php } ?></div>
                                 <?php } ?>
+                                <?php if (isset($coverage[$template_id])) {
+                                    $reach = $coverage[$template_id]; ?>
+                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                        <a class="badge rounded-pill fw-normal text-decoration-none <?= $reach['missing'] ? 'bg-warning-subtle text-warning-emphasis border border-warning-subtle' : 'bg-success-subtle text-success-emphasis border border-success-subtle' ?>"
+                                            href="software_template.php?software_template_id=<?= $template_id ?>#softwareTemplateCoverage" title="<?= escapeHtml(softwareTemplateScopeText($row['software_template_required'], $required_tags[$template_id])) ?>" data-template-reach>
+                                            <i class="fas fa-clipboard-check me-1"></i><?= $reach['covered'] ?> of <?= $reach['clients'] ?> clients
+                                        </a>
+                                    </div>
+                                <?php } ?>
                                 <?php if ($row['software_template_archived_at']) { ?>
                                     <div class="small text-body-secondary"><i class="fas fa-fw fa-archive me-1"></i>Archived <?= date('M j, Y', strtotime($row['software_template_archived_at'])) ?></div>
                                 <?php } ?>
@@ -193,6 +223,9 @@ $csrf = $_SESSION['csrf_token'];
                                         <i class="fas fa-fw fa-copy text-secondary me-2"></i>For several clients
                                     </a>
                                 <?php } ?>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software_template/software_template_required.php?id=<?= $template_id ?>">
+                                    <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Who should have it
+                                </a>
                                 <a class="dropdown-item" href="post.php?copy_software_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">
                                     <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
@@ -225,6 +258,7 @@ $csrf = $_SESSION['csrf_token'];
         'filtered' => $q !== '',
         'archived' => $show_archived,
         'views' => ['show'],
+        'view' => $show === 'required' ? ['title' => 'No required templates', 'text' => 'Set one up from its page - <strong>Who should have it</strong> - to see which clients are missing a license from it.'] : null,
         'text' => 'A license you sell or look after again and again - Microsoft 365 Business Premium, an endpoint protection agent, a backup product - ready to start a client\'s from. Agents start one from <strong>New License</strong> on a client\'s Licenses.',
         'actions' => [['label' => 'New License Template', 'modal' => $add_url, 'size' => 'lg']],
     ];

@@ -7,8 +7,8 @@
  * vendor made from the template's vendor template, or one made for them),
  * with the seats, dates and order reference given here once for all of them.
  * Keys and who is on each are put on from the client's Licenses. ?id= the
- * template. Made by make_licenses_from_template
- * (admin/post/software_template.php).
+ * template; &missing=1 picks the clients it is required of that have none
+ * yet. Made by make_licenses_from_template (admin/post/software_template.php).
  */
 
 require_once '../../includes/modal_header.php';
@@ -34,6 +34,13 @@ if (!$template || $template['software_template_archived_at']) { ?>
     while ($row = mysqli_fetch_row($sql)) {
         $has_one[intval($row[0])] = true;
     }
+
+    // The clients it is required of with none yet
+    $picked = [];
+    if (!empty($_GET['missing'])) {
+        $tag_ids = array_keys(softwareTemplateRequiredTags([$software_template_id])[$software_template_id]);
+        $picked = array_keys(softwareTemplateCoverage($software_template_id, $template['software_template_required'], $tag_ids)['missing']);
+    }
     ?>
 
 <div class="modal-header bg-dark">
@@ -55,10 +62,13 @@ if (!$template || $template['software_template_archived_at']) { ?>
                         $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_clients)) {
                             $client_option_id = intval($row['client_id']); ?>
-                            <option value="<?= $client_option_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?><?= isset($has_one[$client_option_id]) ? ' data-description="Already has one"' : '' ?>><?= escapeHtml($row['client_name']) ?></option>
+                            <option value="<?= $client_option_id ?>" <?= in_array($client_option_id, $picked, true) ? 'selected' : '' ?><?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?><?= isset($has_one[$client_option_id]) ? ' data-description="Already has one"' : '' ?>><?= escapeHtml($row['client_name']) ?></option>
                         <?php } ?>
                     </select>
                 </div>
+                <?php if (!empty($_GET['missing'])) { ?>
+                    <div class="form-text"><?= $picked ? 'The ' . count($picked) . ' client' . (count($picked) === 1 ? '' : 's') . ' it is required of with none yet.' : 'Every client it is required of has one.' ?></div>
+                <?php } ?>
             </div>
             <div class="col-12">
                 <div class="form-check form-switch">

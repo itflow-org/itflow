@@ -2,10 +2,12 @@
 
 /*
  * License templates (Admin > License Templates) - making, changing, copying,
- * archiving and deleting them, and making licenses from one for several
- * clients at once. The work is in functions/software_template.php; a single
- * license is made from one by add_software or add_software_from_template
- * (agent/post/software.php).
+ * archiving and deleting them, making licenses from one for several clients
+ * at once, saying who should have one, and looking after its licenses across
+ * clients - their seats trued up, and billed on the clients' recurring
+ * invoices. The work is in functions/software_template.php; a single license
+ * is made from one by add_software or add_software_from_template, and
+ * licenses are renewed by renew_software (agent/post/software.php).
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -84,6 +86,114 @@ if (isset($_POST['make_licenses_from_template'])) {
         . ($skipped ? " - skipped " . ($skipped === 1 ? escapeHtml(reset($result['skipped'])) . ", which already has one" : "$skipped clients that already have one") : ''), $made ? 'success' : 'warning');
 
     redirect("software_template.php?software_template_id=$software_template_id");
+
+}
+
+if (isset($_POST['save_software_template_required'])) {
+
+    // Who should have a license from it
+    validateCSRFToken();
+
+    $row = softwareTemplateForRequest($_POST['software_template_id'] ?? 0);
+    $software_template_id = intval($row['software_template_id']);
+    $required = intval($_POST['required'] ?? 0);
+    $tag_ids = array_map('intval', (array) ($_POST['tags'] ?? []));
+    if ($required === SOFTWARE_TEMPLATE_REQUIRED_TAGGED && !array_filter($tag_ids)) {
+        flashAlert('Pick the client tags - or Every client.', 'error');
+        redirect();
+    }
+    softwareTemplateSetRequired($software_template_id, $required, $tag_ids);
+
+    $saved = softwareTemplateRow($software_template_id);
+    $scope = softwareTemplateScopeText($saved['software_template_required'], softwareTemplateRequiredTags([$software_template_id])[$software_template_id]);
+    $said = $scope !== '' ? "required of " . lcfirst($scope) : 'not required of anyone';
+
+    logAudit("Software Template", "Edit", "$session_name set license template " . escapeSql($row['software_template_name']) . " " . escapeSql($said), 0, $software_template_id);
+
+    flashAlert("<strong>" . escapeHtml($row['software_template_name']) . "</strong> is " . escapeHtml($said));
+
+    redirect();
+
+}
+
+if (isset($_POST['true_up_software_template'])) {
+
+    // The seats bought on the licenses ticked set to what was given - each its own
+    validateCSRFToken();
+
+    $row = softwareTemplateForRequest($_POST['software_template_id'] ?? 0);
+    $software_template_id = intval($row['software_template_id']);
+    $seats = [];
+    foreach (array_unique(array_filter(array_map('intval', (array) ($_POST['software_ids'] ?? [])))) as $software_id) {
+        $seats[$software_id] = $_POST['seats'][$software_id] ?? '';
+    }
+    if (!$seats) {
+        flashAlert('Tick the licenses to true up.', 'error');
+        redirect();
+    }
+
+    $changes = softwareTemplateTrueUp($software_template_id, $seats);
+    foreach ($changes as $software_id => $change) {
+        logAudit("Software", "Edit", "$session_name trued up license " . escapeSql($change['name']) . " from " . softwareTemplateSeatsText($change['from']) . " to " . softwareTemplateSeatsText($change['to']), $change['client_id'], $software_id);
+    }
+
+    $count = count($changes);
+    if ($count === 1) {
+        $change = reset($changes);
+        flashAlert("<strong>" . escapeHtml($change['client_name']) . "</strong> trued up from " . softwareTemplateSeatsText($change['from']) . " to " . softwareTemplateSeatsText($change['to']));
+    } else {
+        flashAlert($count ? "Trued up <strong>$count</strong> licenses from <strong>" . escapeHtml($row['software_template_name']) . "</strong>" : 'Nothing to change - they have those seats already', $count ? 'success' : 'warning');
+    }
+
+    redirect();
+
+}
+
+if (isset($_POST['bill_software_template'])) {
+
+    // A line for the product it is sold as on each license's recurring invoice, counting its seats
+    validateCSRFToken();
+
+    $row = softwareTemplateForRequest($_POST['software_template_id'] ?? 0);
+    $software_template_id = intval($row['software_template_id']);
+    $software_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_POST['software_ids'] ?? [])))));
+    if (!$software_ids) {
+        flashAlert('Tick the licenses to bill.', 'error');
+        redirect();
+    }
+    $count = ($_POST['count'] ?? '') === 'used' ? 'used' : 'total';
+
+    // Not the ones billed already - a second line would bill them twice
+    $licenses = softwareTemplateLicenses($software_template_id, $row['software_template_product_id']);
+    $added = 0;
+    $skipped = 0;
+    $errors = [];
+    foreach ($software_ids as $software_id) {
+        if (!isset($licenses[$software_id]) || !empty($licenses[$software_id]['billing'])) {
+            $skipped++;
+            continue;
+        }
+        $recurring_invoice_id = intval($_POST['recurring'][$software_id] ?? 0);
+        $item_id = softwareTemplateBill($software_template_id, $software_id, $recurring_invoice_id, $count, $error);
+        if (!$item_id) {
+            $errors[$error] = true;
+            continue;
+        }
+        $added++;
+        $client_id = intval($licenses[$software_id]['software_client_id']);
+        $number = billingNumber('recurring', billingRow('recurring', $recurring_invoice_id, false));
+        $line = (string) $row['product_name'];
+        logAudit("Recurring Invoice", "Edit", escapeSql("$session_name added line $line to $number, counting the seats " . ($count === 'total' ? 'bought' : 'in use') . " on license {$licenses[$software_id]['software_name']}"), $client_id, $recurring_invoice_id);
+    }
+
+    if ($errors && !$added) {
+        flashAlert(escapeHtml(implode(' ', array_keys($errors))), 'error');
+        redirect();
+    }
+    flashAlert("Billed <strong>$added</strong> license" . ($added === 1 ? '' : 's') . " as <strong>" . escapeHtml((string) $row['product_name']) . "</strong>"
+        . ($skipped ? " - $skipped billed already" : '') . ($errors ? ' - ' . escapeHtml(implode(' ', array_keys($errors))) : ''), $errors ? 'warning' : 'success');
+
+    redirect();
 
 }
 

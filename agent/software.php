@@ -6,7 +6,9 @@
  * coming up, what has lapsed) and seats (bought against in use - over means a
  * true-up, none in use means paying for nothing). Tabs along the top pull
  * those out; each row shows its seats as a bar and its renewal in colour.
- * Names open the license page.
+ * Names open the license page. A client's own list says which licenses it
+ * should have and hasn't (license templates required of every client, or of
+ * the clients with its tags), each a button to make it from the template.
  */
 
 // Default Column Sortby Filter
@@ -44,6 +46,8 @@ if (isset($_GET['client_id'])) {
 enforceUserPermission('module_support');
 
 $can_edit = lookupUserPermission('module_support') >= 2;
+// The license templates this client should have a license from, and hasn't
+$missing_templates = $client_url && !$archived ? softwareTemplatesMissingFor($client_id) : [];
 // Deleting for good also needs Admin > Settings to allow destructive deletes
 $can_delete = lookupUserPermission('module_support') >= 3 && !empty($config_destructive_deletes_enable);
 
@@ -208,6 +212,22 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
             <?php } ?>
         </div>
     </div>
+
+    <?php if ($missing_templates) { ?>
+        <!-- The license templates this client should have a license from, and hasn't -->
+        <div class="card-header py-2 bg-warning-subtle d-flex flex-wrap align-items-center gap-2 itflow-licenses-missing">
+            <span class="small text-warning-emphasis fw-semibold"><i class="fas fa-fw fa-clipboard-check me-1"></i><?= count($missing_templates) === 1 ? 'A license it should have' : 'Licenses it should have' ?>:</span>
+            <?php foreach ($missing_templates as $missing_id => $missing_name) { ?>
+                <?php if ($can_edit) { ?>
+                    <button type="button" class="btn btn-sm btn-light border py-0 ajax-modal" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&template_id=<?= $missing_id ?>" title="Start it from the template" data-missing-template-id="<?= $missing_id ?>">
+                        <i class="fas fa-plus me-1 text-secondary"></i><?= escapeHtml($missing_name) ?>
+                    </button>
+                <?php } else { ?>
+                    <span class="badge rounded-pill text-bg-light border fw-normal" data-missing-template-id="<?= $missing_id ?>"><?= escapeHtml($missing_name) ?></span>
+                <?php } ?>
+            <?php } ?>
+        </div>
+    <?php } ?>
 
     <?php if ($tab_counts['']) { ?>
         <!-- What needs a look -->

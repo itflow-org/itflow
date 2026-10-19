@@ -3236,6 +3236,23 @@ CREATE TABLE `software_tags` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `software_template_required_tags`
+--
+
+DROP TABLE IF EXISTS `software_template_required_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `software_template_required_tags` (
+  `software_template_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`software_template_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `software_template_required_tags_ibfk_1` FOREIGN KEY (`software_template_id`) REFERENCES `software_templates` (`software_template_id`) ON DELETE CASCADE,
+  CONSTRAINT `software_template_required_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `software_templates`
 --
 
@@ -3254,6 +3271,7 @@ CREATE TABLE `software_templates` (
   `software_template_term` varchar(10) DEFAULT NULL,
   `software_template_vendor_template_id` int(11) NOT NULL DEFAULT 0,
   `software_template_product_id` int(11) NOT NULL DEFAULT 0,
+  `software_template_required` tinyint(1) NOT NULL DEFAULT 0,
   `software_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `software_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `software_template_archived_at` datetime DEFAULT NULL,
