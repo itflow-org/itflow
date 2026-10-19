@@ -39,7 +39,7 @@ $product_id = intval($template['software_template_product_id']);
 $has_product = $template['product_name'] !== null;
 $all_licenses = softwareTemplateLicenses($software_template_id, $product_id);
 $views = softwareTemplateLicenseViews($has_product);
-$view = isset($views[(string) ($_GET['view'] ?? '')]) ? (string) $_GET['view'] : '';
+$view = is_string($_GET['view'] ?? null) && isset($views[$_GET['view']]) ? $_GET['view'] : '';
 $view_counts = [];
 foreach ($views as $key => $definition) {
     $view_counts[$key] = count(array_filter($all_licenses, $definition['test']));

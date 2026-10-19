@@ -63,6 +63,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $rows[] = $row;
 }
 $records = auditLogRecords($rows);
+$new_ips = signInNewIpIds($rows);
 $kinds = auditLogKinds();
 
 // Each view counted for the rest of the filters
@@ -225,7 +226,7 @@ $view_empty = [
                     <td class="small" style="max-width: 14rem;"><?= $who['html'] ?></td>
                     <td class="text-nowrap">
                         <div class="small mb-1"><i class="fas fa-fw <?= auditLogTypeIcon($type) ?> text-secondary me-1"></i><?= escapeHtml($type) ?></div>
-                        <?= auditLogActionPill($row['log_action']) ?>
+                        <?= auditLogActionPill($row['log_action']) ?><?= isset($new_ips[intval($row['log_id'])]) ? ' ' . signInNewIpBadge() : '' ?>
                     </td>
                     <td class="small" style="min-width: 16rem;">
                         <div class="text-break"><?= escapeHtml(auditLogDescription($row)) ?></div>

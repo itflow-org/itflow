@@ -39,6 +39,12 @@
                         <p>API Keys</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="/admin/sign_ins.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'sign_ins.php' ? 'active' : '') ?>">
+                        <i class="nav-icon fas fa-sign-in-alt"></i>
+                        <p>Sign-ins</p>
+                    </a>
+                </li>
 
                 <li class="nav-header">LISTS</li>
                 <li class="nav-item">

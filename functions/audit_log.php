@@ -137,7 +137,7 @@ function auditLogActionStyle($action) {
         'Reply' => ['primary', 'fa-reply'], 'Resolve' => ['success', 'fa-check'], 'Close' => ['secondary', 'fa-check-double'], 'Reopen' => ['primary', 'fa-redo'],
         'Delete' => ['danger', 'fa-trash-alt'], 'Bulk Delete' => ['danger', 'fa-trash-alt'], 'Revoke' => ['danger', 'fa-ban'],
         'Archive' => ['secondary', 'fa-archive'], 'Bulk Archive' => ['secondary', 'fa-archive'], 'Restore' => ['info', 'fa-redo'], 'Bulk Restore' => ['info', 'fa-redo'],
-        'Success' => ['success', 'fa-check-circle'], 'Failed' => ['danger', 'fa-times-circle'], 'Failure' => ['danger', 'fa-times-circle'], 'MFA Failed' => ['danger', 'fa-shield-alt'], 'Blocked' => ['danger', 'fa-ban'], 'Denied' => ['danger', 'fa-ban'],
+        'Success' => ['success', 'fa-check-circle'], 'Alert' => ['danger', 'fa-bell'], 'Failed' => ['danger', 'fa-times-circle'], 'Failure' => ['danger', 'fa-times-circle'], 'MFA Failed' => ['danger', 'fa-shield-alt'], 'Blocked' => ['danger', 'fa-ban'], 'Denied' => ['danger', 'fa-ban'],
         'View' => ['warning', 'fa-eye'], 'View TOTP' => ['warning', 'fa-eye'], 'View As' => ['warning', 'fa-user-secret'], 'Export' => ['warning', 'fa-download'], 'Download' => ['warning', 'fa-download'],
         'Share' => ['warning', 'fa-share-alt'], 'Send' => ['primary', 'fa-paper-plane'], 'Email' => ['primary', 'fa-envelope'], 'Payment' => ['success', 'fa-credit-card'], 'Auto Payment' => ['success', 'fa-credit-card'],
         'Error' => ['danger', 'fa-exclamation-triangle'],
@@ -163,10 +163,11 @@ function auditLogActionPill($action) {
 /*
  * The list's views - key => label, icon, title and the SQL on logs that picks
  * them. Sign-ins are agents and portal contacts signing in and out; security
- * is the sign-ins that failed or were blocked, access denied, the portal
- * viewed as a contact, and changes to users, roles, API keys, the master key,
- * settings and backups; data out is passwords looked at, exports, downloads
- * and shared links.
+ * is the sign-ins that failed or were turned away and the admins told about
+ * them, API calls turned away, access denied, the portal viewed as a contact,
+ * and changes to users, roles, API keys, the master key, settings and
+ * backups; data out is passwords looked at, exports, downloads and shared
+ * links.
  */
 function auditLogViews() {
     $signins = "log_type IN ('Login', 'Login 2FA', 'Logout', 'Client Login')";
@@ -176,8 +177,8 @@ function auditLogViews() {
         'changes' => ['label' => 'Changes', 'icon' => 'fa-pen', 'title' => 'Records made, changed, archived, restored and deleted', 'where' => "NOT $signins AND NOT $data_out"],
         'deletions' => ['label' => 'Deletions', 'icon' => 'fa-trash-alt', 'title' => 'Records deleted for good', 'where' => "log_action IN ('Delete', 'Bulk Delete')"],
         'signins' => ['label' => 'Sign-ins', 'icon' => 'fa-sign-in-alt', 'title' => 'Agents and portal contacts signing in and out', 'where' => $signins],
-        'security' => ['label' => 'Security', 'icon' => 'fa-shield-alt', 'title' => 'Failed and blocked sign-ins, access denied, the portal viewed as a contact, and changes to users, roles, API keys, the master key, settings and backups',
-            'where' => "(($signins AND log_action IN ('Failed', 'MFA Failed', 'Blocked')) OR log_action IN ('Denied', 'View As') OR log_type IN ('User', 'User Account', 'User Role', 'API Key', 'Master Key', 'Settings', 'Backup', 'Identity Provider'))"],
+        'security' => ['label' => 'Security', 'icon' => 'fa-shield-alt', 'title' => 'Failed and turned away sign-ins and the alerts about them, API calls turned away, access denied, the portal viewed as a contact, and changes to users, roles, API keys, the master key, settings and backups',
+            'where' => "(($signins AND log_action IN ('Failed', 'MFA Failed', 'Blocked', 'Alert')) OR (log_type = 'API' AND log_action = 'Failed') OR log_action IN ('Denied', 'View As') OR log_type IN ('User', 'User Account', 'User Role', 'API Key', 'Master Key', 'Settings', 'Backup', 'Identity Provider'))"],
         'data' => ['label' => 'Data out', 'icon' => 'fa-file-export', 'title' => 'Passwords looked at, exports, downloads and shared links', 'where' => $data_out],
     ];
 }
@@ -316,7 +317,8 @@ function auditLogDescription(array $row) {
 /*
  * Who did it - ['name', 'kind' (agent, portal - a client contact - or
  * system), 'html' (their avatar or tile and name)]. No one is ITFlow itself:
- * cron, the API, the email parser.
+ * cron, the API, the email parser. A failed sign in names the account it was
+ * to, marked Their account - it may not have been them.
  */
 function auditLogWho(array $row) {
     $user_id = intval($row['log_user_id']);
@@ -325,9 +327,12 @@ function auditLogWho(array $row) {
         return ['name' => $name, 'kind' => 'system', 'html' => '<span class="d-inline-flex align-items-center gap-2 text-body-secondary"><span class="itflow-asset-icon itflow-asset-icon-xs itflow-asset-tone-other" aria-hidden="true"><i class="fas fa-fw ' . ($user_id ? 'fa-user-slash' : 'fa-cog') . '"></i></span>' . escapeHtml($name) . '</span>'];
     }
     $portal = intval($row['user_type'] ?? 1) === 2;
+    // A failed sign in is to their account, not necessarily by them
+    $against = in_array($row['log_type'] ?? '', SIGN_IN_TYPES, true) && in_array($row['log_action'] ?? '', SIGN_IN_FAILED, true);
     $html = '<span class="d-inline-flex align-items-center gap-2 text-nowrap">' . userAvatar($user_id, $row['user_name'], (string) ($row['user_avatar'] ?? ''), 'xs')
         . '<span class="text-truncate">' . escapeHtml($row['user_name']) . '</span>'
-        . ($portal ? '<span class="badge rounded-pill text-bg-light border fw-normal" title="A client contact, in the client portal">Portal</span>' : '') . '</span>';
+        . ($portal ? '<span class="badge rounded-pill text-bg-light border fw-normal" title="A client contact, in the client portal">Portal</span>' : '')
+        . ($against ? '<span class="badge rounded-pill bg-danger-subtle text-danger-emphasis border border-danger-subtle fw-normal" title="A failed sign in to their account - not necessarily by them" data-their-account>Their account</span>' : '') . '</span>';
     return ['name' => (string) $row['user_name'], 'kind' => $portal ? 'portal' : 'agent', 'html' => $html];
 }
 

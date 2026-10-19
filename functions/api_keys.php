@@ -155,3 +155,138 @@ function apiKeyAgentFieldHtml($selected = 0) {
     <?php
     return ob_get_clean();
 }
+
+/* ------------------------------------------------------------- What each key is used for */
+
+/** The endpoint a call went to, from its address - "/api/v1/clients/read.php" is "clients/read". */
+function apiKeyUsageEndpoint($uri) {
+    $path = (string) parse_url((string) $uri, PHP_URL_PATH);
+    $path = preg_replace('#^.*?/api/v1/#', '', $path);
+    $path = preg_replace('/\.php$/', '', $path);
+    return substr(preg_replace('#[^a-z0-9_/-]#', '', strtolower($path)), 0, 100);
+}
+
+/*
+ * Count a call with a key - to its day and endpoint, with when and from
+ * where (api/v1/validate_api_key.php). Never in the way of the call: before
+ * the update that adds the table, nothing is counted.
+ */
+function apiKeyUsageRecord($api_key_id, $endpoint, $ip) {
+    global $mysqli;
+    $api_key_id = intval($api_key_id);
+    $endpoint = escapeSql(substr((string) $endpoint, 0, 100));
+    $ip = escapeSql(substr((string) $ip, 0, 200));
+    try {
+        mysqli_query($mysqli, "INSERT INTO api_key_usage SET api_key_usage_key_id = $api_key_id, api_key_usage_date = CURDATE(), api_key_usage_endpoint = '$endpoint',
+                api_key_usage_calls = 1, api_key_usage_last_at = NOW(), api_key_usage_last_ip = '$ip'
+            ON DUPLICATE KEY UPDATE api_key_usage_calls = api_key_usage_calls + 1, api_key_usage_last_at = NOW(), api_key_usage_last_ip = '$ip'");
+    } catch (Throwable $e) {
+        error_log('ITFlow: API key use not counted - ' . $e->getMessage());
+    }
+}
+
+/*
+ * Each key's use over the last $days days - [api_key_id => ['calls',
+ * 'endpoints', 'last_at', 'last_ip']], nothing for a key not used.
+ */
+function apiKeyUsageSummary(array $api_key_ids, $days = 30) {
+    global $mysqli;
+    $ids = array_values(array_filter(array_map('intval', $api_key_ids)));
+    $usage = [];
+    if (!$ids) {
+        return $usage;
+    }
+    $days = max(1, intval($days));
+    $sql = mysqli_query($mysqli, "SELECT api_key_usage_key_id, SUM(api_key_usage_calls) AS calls, COUNT(DISTINCT api_key_usage_endpoint) AS endpoints, MAX(api_key_usage_last_at) AS last_at
+        FROM api_key_usage WHERE api_key_usage_key_id IN (" . implode(',', $ids) . ") AND api_key_usage_date > CURDATE() - INTERVAL $days DAY
+        GROUP BY api_key_usage_key_id");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $usage[intval($row['api_key_usage_key_id'])] = ['calls' => intval($row['calls']), 'endpoints' => intval($row['endpoints']), 'last_at' => $row['last_at'], 'last_ip' => ''];
+    }
+    // Where the last call came from - the row it was counted on
+    $sql = mysqli_query($mysqli, "SELECT u.api_key_usage_key_id, u.api_key_usage_last_ip FROM api_key_usage u
+        JOIN (SELECT api_key_usage_key_id, MAX(api_key_usage_last_at) AS last_at FROM api_key_usage WHERE api_key_usage_key_id IN (" . implode(',', $ids) . ") GROUP BY api_key_usage_key_id) m
+            ON m.api_key_usage_key_id = u.api_key_usage_key_id AND m.last_at = u.api_key_usage_last_at");
+    while ($row = mysqli_fetch_row($sql)) {
+        if (isset($usage[intval($row[0])])) {
+            $usage[intval($row[0])]['last_ip'] = (string) $row[1];
+        }
+    }
+    return $usage;
+}
+
+/* A key's calls each day over the last $days days, oldest first - [Y-m-d => calls], every day there. */
+function apiKeyUsageDaily($api_key_id, $days = 30) {
+    global $mysqli;
+    $days = max(1, intval($days));
+    $daily = [];
+    for ($i = $days - 1; $i >= 0; $i--) {
+        $daily[date('Y-m-d', strtotime("-$i days"))] = 0;
+    }
+    $sql = mysqli_query($mysqli, "SELECT api_key_usage_date, SUM(api_key_usage_calls) FROM api_key_usage
+        WHERE api_key_usage_key_id = " . intval($api_key_id) . " AND api_key_usage_date > CURDATE() - INTERVAL $days DAY GROUP BY api_key_usage_date");
+    while ($row = mysqli_fetch_row($sql)) {
+        if (isset($daily[$row[0]])) {
+            $daily[$row[0]] = intval($row[1]);
+        }
+    }
+    return $daily;
+}
+
+/* The endpoints a key called over the last $days days, busiest first - rows of endpoint, calls, last_at. */
+function apiKeyUsageEndpoints($api_key_id, $days = 30) {
+    global $mysqli;
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT api_key_usage_endpoint AS endpoint, SUM(api_key_usage_calls) AS calls, MAX(api_key_usage_last_at) AS last_at FROM api_key_usage
+        WHERE api_key_usage_key_id = " . intval($api_key_id) . " AND api_key_usage_date > CURDATE() - INTERVAL " . max(1, intval($days)) . " DAY
+        GROUP BY api_key_usage_endpoint ORDER BY calls DESC, endpoint ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/* The IP addresses a key was last called from on each day, over the last $days days - rows of ip and last_at, latest first. */
+function apiKeyUsageIps($api_key_id, $days = 30) {
+    global $mysqli;
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT api_key_usage_last_ip AS ip, MAX(api_key_usage_last_at) AS last_at FROM api_key_usage
+        WHERE api_key_usage_key_id = " . intval($api_key_id) . " AND api_key_usage_date > CURDATE() - INTERVAL " . max(1, intval($days)) . " DAY AND api_key_usage_last_ip <> ''
+        GROUP BY api_key_usage_last_ip ORDER BY last_at DESC LIMIT 10");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/* Calls turned away with a key after it expired, over the last $days days - ['count', 'last_at']. */
+function apiKeyTurnedAway($api_key_id, $days = 30) {
+    global $mysqli;
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), MAX(log_created_at) FROM logs
+        WHERE log_type = 'API' AND log_action = 'Failed' AND log_entity_id = " . intval($api_key_id) . " AND log_created_at > NOW() - INTERVAL " . max(1, intval($days)) . " DAY"));
+    return ['count' => intval($row[0]), 'last_at' => $row[1]];
+}
+
+/*
+ * After an API call is turned away: when this IP address has just reached
+ * the admins' number of them in SIGN_IN_WINDOW_MINUTES, tell them
+ * (signInAlertAdmins()).
+ */
+function apiKeyWatch() {
+    global $mysqli, $session_ip;
+    $limit = signInAlertLimit();
+    $ip = escapeSql((string) $session_ip);
+    if ($limit <= 0 || $ip === '') {
+        return;
+    }
+    $count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM logs WHERE log_type = 'API' AND log_action = 'Failed' AND log_ip = '$ip'
+        AND log_created_at > NOW() - INTERVAL " . SIGN_IN_WINDOW_MINUTES . " MINUTE"))[0]);
+    if ($count === $limit) {
+        signInAlertAdmins(
+            "$limit API calls turned away from $session_ip",
+            "$limit API calls in " . SIGN_IN_WINDOW_MINUTES . " minutes from $session_ip were turned away - with a key that is wrong or has expired.",
+            ['IP address' => (string) $session_ip],
+            '/admin/audit_logs.php?view=security&q=' . rawurlencode((string) $session_ip)
+        );
+    }
+}

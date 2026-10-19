@@ -112,6 +112,7 @@ if (isset($_GET['delete_api_key'])) {
     }
 
     mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_id = " . intval($row['api_key_id']));
+    mysqli_query($mysqli, "DELETE FROM api_key_usage WHERE api_key_usage_key_id = " . intval($row['api_key_id']));
 
     logAudit("API Key", "Delete", "$session_name deleted API key " . escapeSql($row['api_key_name']), 0, $row['api_key_id']);
 
@@ -132,6 +133,7 @@ if (isset($_POST['bulk_delete_api_keys'])) {
             continue;
         }
         mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_id = $api_key_id");
+        mysqli_query($mysqli, "DELETE FROM api_key_usage WHERE api_key_usage_key_id = $api_key_id");
         logAudit("API Key", "Delete", "$session_name deleted API key " . escapeSql($row['api_key_name']), 0, $api_key_id);
         $count++;
     }

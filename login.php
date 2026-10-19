@@ -53,20 +53,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Agents' and portal contacts' failures alike (functions/sign_in.php)
 $row = mysqli_fetch_assoc(mysqli_query(
     $mysqli,
     "SELECT COUNT(log_id) AS failed_login_count
      FROM logs
      WHERE log_ip = '$session_ip'
-       AND log_type = 'Login'
-       AND log_action IN ('Failed', 'MFA Failed')
-       AND log_created_at > (NOW() - INTERVAL 10 MINUTE)"
+       AND log_type IN ('" . implode("', '", SIGN_IN_TYPES) . "')
+       AND log_action IN ('" . implode("', '", SIGN_IN_FAILED) . "')
+       AND log_created_at > (NOW() - INTERVAL " . SIGN_IN_WINDOW_MINUTES . " MINUTE)"
 ));
 $failed_login_count = intval($row['failed_login_count']);
 
-if ($failed_login_count >= 15) {
+if ($failed_login_count >= SIGN_IN_LOCKOUT) {
     // Make sure global session_user_id is not required here (will be 0 anyway)
-    logAudit("Login", "Blocked", "$session_ip was blocked access to login due to IP lockout");
+    logAudit("Login", "Blocked", "Sign in turned away from $session_ip - " . SIGN_IN_LOCKOUT . " failed sign-ins in " . SIGN_IN_WINDOW_MINUTES . " minutes");
     header("HTTP/1.1 429 Too Many Requests");
     exit("<h2>$config_app_name</h2>Your IP address has been blocked due to repeated failed login attempts. Please try again later. <br><br>This action has been logged.");
 }
@@ -141,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
               </div>";
         } else {
             $email = escapeSql($sess['email'] ?? '');
+            $email_raw = (string) ($sess['email'] ?? '');
         }
     }
 
@@ -161,6 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
               </div>";
         } else {
             $email = escapeSql($sess['email'] ?? '');
+            $email_raw = (string) ($sess['email'] ?? '');
             // A client portal user's code, or an agent's
             $role_choice = ($sess['type'] ?? 'agent') === 'client' ? 'client' : 'agent';
         }
@@ -171,6 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
     // -----------------------------------
     if ($is_login_step && empty($response)) {
         $email    = escapeSql($_POST['email'] ?? '');
+        $email_raw = trim((string) ($_POST['email'] ?? ''));
         $password = $_POST['password'] ?? '';
 
         if (empty($email) || empty($password) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -261,8 +265,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
         if ($agentRow === null && $clientRow === null) {
             header("HTTP/1.1 401 Unauthorized");
 
-            // Option B not possible here (we don't know user_id reliably)
-            logAudit("Login", "Failed", "Failed login attempt using $email");
+            // Why, and whose account it was - so it counts against the account too
+            $failed_why = signInFailureReason($email_raw ?? '');
+            signInLogFailure($failed_why['type'], 'Failed', escapeSql('Failed sign in as ' . ($email_raw ?? '') . ' - ' . $failed_why['reason']), $failed_why['user_id'], $failed_why['client_id']);
 
             $response = "
               <div class='alert alert-danger'>
@@ -572,9 +577,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
 
                         } elseif ($current_code !== 0) {
 
-                            // Option B: set session_user_id BEFORE logAudit()
-                            $session_user_id = $user_id;
-                            logAudit("Login", "MFA Failed", "$user_email failed MFA", 0, $user_id);
+                            signInLogFailure('Login', 'MFA Failed', "$user_email entered a wrong MFA code - the password was right", $user_id);
 
                             userMailSignInAlert($selectedRow['user_name'], $selectedRow['user_email'], 'mfa', getIP(), $_SERVER['HTTP_USER_AGENT'] ?? '');
 
@@ -593,7 +596,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                     if ($config_client_portal_enable != 1) {
                         header("HTTP/1.1 401 Unauthorized");
 
-                        logAudit("Client Login", "Failed", "Client portal disabled; login attempt using $email");
+                        $failed_user_id = intval($selectedRow['contact_user_id'] ?? 0) ?: intval($selectedRow['user_id'] ?? 0);
+                        signInLogFailure('Client Login', 'Failed', "Failed sign in as $email - the client portal is turned off", $failed_user_id, intval($selectedRow['contact_client_id'] ?? 0));
 
                         $response = "
                           <div class='alert alert-danger'>
@@ -677,8 +681,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                                 header("HTTP/1.1 429 Too Many Requests");
                                 $response = "<div class='alert alert-danger'>Too many wrong codes. Wait 10 minutes and sign in again.</div>";
                             } elseif ($client_code !== '' || isset($_POST['current_code'])) {
-                                $session_user_id = $user_id;
-                                logAudit("Client Login", "MFA Failed", "Client contact $user_email entered a wrong two-step sign-in code", $client_id, $user_id);
+                                signInLogFailure('Client Login', 'MFA Failed', "Client contact $user_email entered a wrong two-step sign-in code - the password was right", $user_id, $client_id);
                                 $response = "<div class='alert alert-danger'>That code is not right - try the newest one in your app.</div>";
                             }
 
@@ -720,15 +723,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
 
                         } else {
 
-                            // if we have a users.user_id, log it
-                            $session_user_id = $user_id ?: 0;
-                            logAudit(
-                                "Client Login",
-                                "Failed",
-                                "Failed client portal login attempt using $email (invalid auth method or missing contact/client)",
-                                $client_id ?? 0,
-                                $user_id
-                            );
+                            // The account is there, but can't sign in here with a password
+                            signInLogFailure('Client Login', 'Failed', "Failed sign in as $email - " . ($user_auth_method === 'azure' ? 'the account signs in with Microsoft 365' : 'the account has no contact or client'), $user_id, $client_id ?? 0);
 
                             header("HTTP/1.1 401 Unauthorized");
                             $response = "

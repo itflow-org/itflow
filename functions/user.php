@@ -332,8 +332,9 @@ function userLastLogins(array $user_ids) {
 }
 
 /**
- * An agent's latest sign ins and failed MFA codes, newest first - log rows
- * with log_action, log_created_at, log_ip, log_user_agent. Theirs only.
+ * An agent's latest sign ins, and the failed ones against their account (a
+ * wrong password or MFA code), newest first - log rows with log_action,
+ * log_description, log_created_at, log_ip, log_user_agent. Theirs only.
  */
 function userRecentLogins($user_id, $limit = 10) {
     global $mysqli;
@@ -347,13 +348,22 @@ function userRecentLogins($user_id, $limit = 10) {
     return $rows;
 }
 
-/** One of those as a line - a tick for a sign in, a cross for a failed code - with when and from where. Raw in, HTML out. */
+/*
+ * One of those as a line - a tick for a sign in, a cross for a failed one
+ * with why (the end of what the log says, after " - ") - with when and from
+ * where. Raw in, HTML out.
+ */
 function userLoginLineHtml($log) {
     $ok = $log['log_action'] === 'Success';
+    $why = $log['log_action'] === 'MFA Failed' ? 'wrong MFA code' : 'failed';
+    $description = (string) ($log['log_description'] ?? '');
+    if ($log['log_action'] === 'Failed' && strrpos($description, ' - ') !== false) {
+        $why = 'failed - ' . substr($description, strrpos($description, ' - ') + 3);
+    }
     return '<div class="d-flex gap-2 align-items-start">'
         . '<i class="fas fa-fw ' . ($ok ? 'fa-check-circle text-success' : 'fa-times-circle text-danger') . ' mt-1" title="' . escapeHtml($log['log_action']) . '"></i>'
         . '<div class="min-w-0"><span title="' . escapeHtml($log['log_created_at']) . '">' . escapeHtml(timeAgo($log['log_created_at'])) . '</span>'
-        . ($ok ? '' : ' <span class="text-danger-emphasis">' . escapeHtml($log['log_action'] === 'MFA Failed' ? 'wrong MFA code' : $log['log_action']) . '</span>')
+        . ($ok ? '' : ' <span class="text-danger-emphasis">' . escapeHtml($why) . '</span>')
         . '<div class="small text-body-secondary">' . userDeviceHtml($log['log_user_agent']) . ' · <span class="font-monospace">' . escapeHtml($log['log_ip']) . '</span></div></div>'
         . '</div>';
 }

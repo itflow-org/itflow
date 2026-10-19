@@ -395,6 +395,12 @@ function emailPreviewCatalog() {
             'run' => function ($s) {
                 userMailSignInAlert($s['agent_name'], $s['agent_email'], 'mfa', '198.51.100.7', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) Gecko/20100101 Firefox/129.0');
             }],
+        'admin_sign_in_alert' => ['group' => 'Your team\'s accounts', 'label' => 'Failed sign-ins', 'to' => 'Every admin', 'when' => 'A run of failed sign-ins from one IP address or against one account (Admin > Settings > Security)',
+            'run' => function ($s) {
+                signInMailAlert($s['agent_name'], $s['agent_email'], '10 failed sign-ins from 198.51.100.7',
+                    '10 failed sign-ins in 10 minutes from 198.51.100.7, trying ' . $s['agent_name'] . ' and 3 emails with no account.',
+                    ['IP address' => '198.51.100.7', 'Accounts tried' => 'Trying ' . $s['agent_name'] . ' and 3 emails with no account'], '/admin/sign_ins.php?view=ips&q=198.51.100.7');
+            }],
 
         // ---- Other
         'bulk' => ['group' => 'Other', 'label' => 'Email to many contacts', 'to' => 'The contacts picked', 'when' => 'Email on the contacts or clients list',

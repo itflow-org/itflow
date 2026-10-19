@@ -129,7 +129,7 @@ ob_start();
             <div class="itflow-glance-item" title="IP address">
                 <i class="fas fa-fw fa-network-wired"></i>
                 <?php if (trim((string) $row['log_ip']) !== '') { ?>
-                    <span><span class="font-monospace"><?= escapeHtml($row['log_ip']) ?></span> <a class="small ms-1" href="/admin/audit_logs.php?q=<?= urlencode($row['log_ip']) ?>">Everything from it</a></span>
+                    <span><span class="font-monospace"><?= escapeHtml($row['log_ip']) ?></span><?= isset(signInNewIpIds([$row])[$log_id]) ? ' ' . signInNewIpBadge() : '' ?> <a class="small ms-1" href="/admin/audit_logs.php?q=<?= urlencode($row['log_ip']) ?>">Everything from it</a></span>
                 <?php } else { ?>
                     <span class="text-body-secondary">Not recorded</span>
                 <?php } ?>
@@ -168,7 +168,7 @@ ob_start();
     <?php if ($user_id > 0) { ?>
         <div class="mt-4" data-audit-around>
             <div class="d-flex align-items-center mb-2">
-                <div class="small fw-semibold text-uppercase text-body-secondary">What <?= escapeHtml($who['name']) ?> did around then</div>
+                <div class="small fw-semibold text-uppercase text-body-secondary"><?= in_array($type, SIGN_IN_TYPES, true) && in_array($row['log_action'], SIGN_IN_FAILED, true) ? escapeHtml($who['name']) . "'s account around then" : 'What ' . escapeHtml($who['name']) . ' did around then' ?></div>
                 <?php if ($around_count > 0) { ?>
                     <a class="small ms-auto" href="/admin/audit_logs.php?user=<?= $user_id ?>&amp;canned_date=custom&amp;dtf=<?= date('Y-m-d', $created) ?>&amp;dtt=<?= date('Y-m-d', $created) ?>">All of that day</a>
                 <?php } ?>

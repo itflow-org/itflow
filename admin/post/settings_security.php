@@ -19,12 +19,18 @@ if (isset($_POST['edit_security_settings'])) {
     }
     $config_share_require_protection = intval($_POST['config_share_require_protection'] ?? 0) ? 1 : 0;
 
+    // Failed sign-in alerts (functions/sign_in.php) - only the choices offered
+    $config_login_alert_failures = intval($_POST['config_login_alert_failures'] ?? 10);
+    if (!isset(signInAlertOptions()[$config_login_alert_failures])) {
+        $config_login_alert_failures = 10;
+    }
+
     // Disallow turning on login key without a secret
     if (empty($config_login_key_secret)) {
         $config_login_key_required = 0;
     }
 
-    mysqli_query($mysqli,"UPDATE settings SET config_login_message = '$config_login_message', config_login_key_required = '$config_login_key_required', config_login_key_secret = '$config_login_key_secret', config_login_remember_me_expire = $config_login_remember_me_expire, config_log_retention = $config_log_retention, config_share_max_hours = $config_share_max_hours, config_share_require_protection = $config_share_require_protection WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_login_message = '$config_login_message', config_login_key_required = '$config_login_key_required', config_login_key_secret = '$config_login_key_secret', config_login_remember_me_expire = $config_login_remember_me_expire, config_log_retention = $config_log_retention, config_share_max_hours = $config_share_max_hours, config_share_require_protection = $config_share_require_protection, config_login_alert_failures = $config_login_alert_failures WHERE company_id = 1");
 
     logAudit("Settings", "Edit", "$session_name edited security settings");
 

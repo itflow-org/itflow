@@ -105,6 +105,24 @@ CREATE TABLE `ai_providers` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `api_key_usage`
+--
+
+DROP TABLE IF EXISTS `api_key_usage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `api_key_usage` (
+  `api_key_usage_key_id` int(11) NOT NULL,
+  `api_key_usage_date` date NOT NULL,
+  `api_key_usage_endpoint` varchar(100) NOT NULL DEFAULT '',
+  `api_key_usage_calls` int(11) NOT NULL DEFAULT 0,
+  `api_key_usage_last_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `api_key_usage_last_ip` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`api_key_usage_key_id`,`api_key_usage_date`,`api_key_usage_endpoint`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `api_keys`
 --
 
@@ -365,25 +383,6 @@ CREATE TABLE `assets` (
   KEY `asset_client_id` (`asset_client_id`,`asset_archived_at`),
   KEY `asset_product_id` (`asset_product_id`),
   KEY `asset_invoice_id` (`asset_invoice_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `auth_logs`
---
-
-DROP TABLE IF EXISTS `auth_logs`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `auth_logs` (
-  `auth_log_id` int(11) NOT NULL AUTO_INCREMENT,
-  `auth_log_status` tinyint(1) NOT NULL,
-  `auth_log_details` varchar(200) DEFAULT NULL,
-  `auth_log_ip` varchar(200) DEFAULT NULL,
-  `auth_log_user_agent` varchar(250) DEFAULT NULL,
-  `auth_log_user_id` int(11) NOT NULL DEFAULT 0,
-  `auth_log_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`auth_log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2945,6 +2944,7 @@ CREATE TABLE `settings` (
   `config_update_checked_at` datetime DEFAULT NULL,
   `config_share_max_hours` int(11) NOT NULL DEFAULT 720,
   `config_share_require_protection` tinyint(1) NOT NULL DEFAULT 0,
+  `config_login_alert_failures` int(11) NOT NULL DEFAULT 10,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

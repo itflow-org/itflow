@@ -165,6 +165,10 @@ if (isset($_GET['code']) || isset($_GET['error'])) {
 
             } else {
 
+                // Logged with why, against the account when there is one (functions/sign_in.php)
+                $entra_why = $row ? ['user_id' => $user_id, 'client_id' => $client_id, 'reason' => 'the account signs in with a password, not Microsoft 365'] : signInFailureReason($msgraph_response['userPrincipalName']);
+                signInLogFailure('Client Login', 'Failed', "Failed client portal sign in via Entra as $upn - " . escapeSql($entra_why['reason']), $entra_why['user_id'], $entra_why['client_id']);
+
                 $_SESSION['login_message'] = 'Something went wrong with logging you in: Your account is not configured for Entra SSO. Please ensure you are setup in ITFlow as a contact and have Entra SSO configured.';
 
                 header("Location: ../login.php");

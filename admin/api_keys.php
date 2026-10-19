@@ -4,9 +4,10 @@
  * Admin > API Keys - the keys other systems use the API with. Each acts as
  * an agent, so each shows who, what their role opens and which clients
  * they see, whether the key works (it expires, and an agent who is
- * disabled, archived or has no role turns every call away) and when it was
- * last used. A revoked key has expired, so it moves to Expired, where it can
- * be deleted. The work is in functions/api_keys.php; the handlers are
+ * disabled, archived or has no role turns every call away), when it was
+ * last used and from where, and its calls over the last 30 days - each
+ * opening what it was used for (modals/api/api_key_usage.php). A revoked key
+ * has expired, so it moves to Expired, where it can be deleted. The work is in functions/api_keys.php; the handlers are
  * admin/post/api_keys.php.
  */
 
@@ -49,6 +50,8 @@ while ($row = mysqli_fetch_assoc($sql)) {
 }
 $roles = roleRows();
 $access = userClientAccess(array_filter(array_map('intval', array_column($keys, 'api_key_user_id'))));
+// What each is used for, the last 30 days (functions/api_keys.php)
+$usage = apiKeyUsageSummary(array_keys($keys));
 
 $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(api_key_expire > '$today'), 0), COALESCE(SUM(api_key_expire <= '$today'), 0)
     FROM api_keys LEFT JOIN users ON user_id = api_key_user_id WHERE $search"));
@@ -117,6 +120,7 @@ $csrf = $_SESSION['csrf_token'];
                     <th class="d-none d-md-table-cell"><?= $sort_link('user_name', 'Acts as') ?></th>
                     <th class="d-none d-lg-table-cell">Can open</th>
                     <th class="d-none d-sm-table-cell"><?= $sort_link('api_key_last_used_at', 'Last used') ?></th>
+                    <th class="d-none d-xl-table-cell text-end">Calls <span class="fw-normal text-body-secondary small">(30 days)</span></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -127,6 +131,11 @@ $csrf = $_SESSION['csrf_token'];
                     $expired = apiKeyExpired($row);
                     $agent_name = trim(str_replace(' (archived)', '', (string) $row['user_name']));
                     $last_used = $row['api_key_last_used_at'] ? '<span title="' . escapeHtml($row['api_key_last_used_at']) . '">' . escapeHtml(timeAgo($row['api_key_last_used_at'])) . '</span>' : '<span class="text-body-secondary">Never</span>';
+                    $use = $usage[$api_key_id] ?? null;
+                    if ($use && $use['last_ip'] !== '') {
+                        $last_used .= '<div class="text-body-secondary font-monospace" title="Where the last call came from">' . escapeHtml($use['last_ip']) . '</div>';
+                    }
+                    $usage_url = "modals/api/api_key_usage.php?id=$api_key_id";
                     ob_start(); ?>
                     <?php if ($row['user_name'] !== null && intval($row['user_type']) === 1) { ?>
                         <div class="d-flex align-items-center gap-2">
@@ -165,12 +174,23 @@ $csrf = $_SESSION['csrf_token'];
                         <td class="d-none d-md-table-cell"><?= $agent_html ?></td>
                         <td class="d-none d-lg-table-cell"><?= $can_html ?></td>
                         <td class="d-none d-sm-table-cell small text-nowrap"><?= $last_used ?></td>
+                        <td class="d-none d-xl-table-cell text-end small text-nowrap" data-api-calls="<?= intval($use['calls'] ?? 0) ?>">
+                            <?php if ($use) { ?>
+                                <a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $usage_url ?>" title="What it was used for"><?= number_format($use['calls']) ?></a>
+                                <div class="text-body-secondary"><?= $use['endpoints'] ?> endpoint<?= $use['endpoints'] === 1 ? '' : 's' ?></div>
+                            <?php } else { ?>
+                                <span class="text-body-secondary">None</span>
+                            <?php } ?>
+                        </td>
                         <td class="text-end">
                             <div class="dropdown dropstart">
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/api/api_key_edit.php?id=<?= $api_key_id ?>">
                                         <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
+                                    </a>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $usage_url ?>">
+                                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Usage
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <?php if (!$expired) { // revoked first, then deleted ?>

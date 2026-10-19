@@ -78,10 +78,18 @@ if (isset($api_key)) {
 
     // Failed
     if (mysqli_num_rows($sql) !== 1) {
-        // Invalid Key
+        // Invalid Key - an expired one is logged against it (functions/api_keys.php), and a run of them from one address tells the admins
 
         $url_path = escapeSql(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired key (endpoint: $url_path)', log_ip = '$ip', log_user_agent = '$user_agent'");
+        $expired_key = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT api_key_id, api_key_name, api_key_expire FROM api_keys WHERE api_key_secret = '$api_key' LIMIT 1"));
+        if ($expired_key) {
+            $failed_description = escapeSql("Expired API key " . $expired_key['api_key_name'] . " used - it ended " . $expired_key['api_key_expire']) . " (endpoint: $url_path)";
+        } else {
+            $failed_description = "Unknown API key used (endpoint: $url_path)";
+        }
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = '$failed_description', log_ip = '$ip', log_user_agent = '$user_agent',
+            log_entity_id = " . intval($expired_key['api_key_id'] ?? 0));
+        apiKeyWatch();
 
         $return_arr['success'] = "False";
         $return_arr['message'] = "Authentication failed. API key is invalid or has expired.";
@@ -103,6 +111,9 @@ if (isset($api_key)) {
         // When it was last used, for Admin > API Keys - at most once a minute, not every call
         mysqli_query($mysqli, "UPDATE api_keys SET api_key_last_used_at = NOW() WHERE api_key_id = " . intval($row['api_key_id']) . "
             AND (api_key_last_used_at IS NULL OR api_key_last_used_at < NOW() - INTERVAL 1 MINUTE)");
+
+        // What it is used for - each call counted to its day and endpoint (functions/api_keys.php)
+        apiKeyUsageRecord($row['api_key_id'], apiKeyUsageEndpoint($_SERVER['REQUEST_URI'] ?? ''), getIP());
 
         // Set limit & offset for queries
         if (isset($_GET['limit'])) {
