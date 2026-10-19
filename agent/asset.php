@@ -7,10 +7,10 @@
  * (header), how to get on it (IP, MAC, links - each one copies or opens in a
  * click), what it physically is and whether it is still under warranty, where
  * it is and who has it. Everything linked to it - interfaces, credentials,
- * tickets, licenses, documents, files, services, notes - sits in tabs with
- * counts, so nothing is hidden just because it is empty and the page does not
- * run to ten screens. The open tab follows the URL hash (#tickets) and is
- * remembered between visits.
+ * tickets, licenses, documents, files, services, notes - and its history
+ * sit in tabs with counts, so nothing is hidden just because it is empty and
+ * the page does not run to ten screens. The open tab follows the URL hash
+ * (#tickets) and is remembered between visits.
  */
 
 // If client_id is in URI then show client Side Bar and client header
@@ -211,6 +211,9 @@ if (mysqli_num_rows($sql) == 0) {
     }
 
     // The tabs, in the order a tech reaches for them
+    // Its history, from the audit log
+    $history = auditLogHistory('Asset', $asset_id);
+
     $asset_tabs = [
         'interfaces' => ['label' => 'Interfaces', 'icon' => 'fa-ethernet', 'count' => $interface_count],
         'credentials' => ['label' => 'Credentials', 'icon' => 'fa-key', 'count' => $credential_count],
@@ -221,6 +224,7 @@ if (mysqli_num_rows($sql) == 0) {
         'files' => ['label' => 'Files', 'icon' => 'fa-paperclip', 'count' => $files_count],
         'services' => ['label' => 'Services', 'icon' => 'fa-stream', 'count' => $service_count],
         'notes' => ['label' => 'Notes', 'icon' => 'fa-sticky-note', 'count' => $note_count],
+        'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => $history['count']],
     ];
     if (!$can_credentials) {
         unset($asset_tabs['credentials']);
@@ -1028,6 +1032,14 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php } else { ?>
                             <div class="itflow-asset-empty">Not part of any service.</div>
                         <?php } ?>
+                    </div>
+
+                    <!-- History, from the audit log -->
+                    <div class="tab-pane fade" id="asset-pane-history" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">Changes, moves and notes - newest first.</span>
+                        </div>
+                        <?= auditLogHistoryHtml($history, ['client_id' => $client_id]) ?>
                     </div>
 
                     <!-- Notes -->

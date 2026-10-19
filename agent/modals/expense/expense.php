@@ -262,6 +262,9 @@ ob_start();
         </div>
     <?php } ?>
 
+    <!-- Its history, from the audit log -->
+    <?= auditLogHistorySection(auditLogHistory('Expense', $expense_id, 10), ['client_id' => $client_id]) ?>
+
 </div>
 
 <div class="modal-footer">

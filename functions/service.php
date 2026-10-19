@@ -586,22 +586,6 @@ function serviceUrls($service_id, $with_credentials) {
     return array_values($out);
 }
 
-/** Its history from the audit log, newest first. */
-function serviceHistory($service_id, $limit = 50) {
-    global $mysqli;
-    $service_id = intval($service_id);
-    $limit = max(1, intval($limit));
-    $sql = mysqli_query($mysqli, "SELECT log_action, log_description, log_created_at, user_name, user_avatar, user_id FROM logs
-        LEFT JOIN users ON user_id = log_user_id
-        WHERE log_type = 'Service' AND log_entity_id = $service_id
-        ORDER BY log_id DESC LIMIT $limit");
-    $rows = [];
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $rows[] = $row;
-    }
-    return $rows;
-}
-
 /**
  * The fields of the add and edit forms, checked, as a SET clause - or ''
  * with $error. Notes are plain text. $current is the row being edited.

@@ -64,7 +64,7 @@ if (!$product) {
 
     $usage = productUsage($product_id);
     $moves = $type === 'product' ? productStockMoves($product_id, 200) : [];
-    $history = productHistory($product_id, 100);
+    $history = auditLogHistory('Product', $product_id);
     $sold = $usage['sold'];
 
     // Recurring first for what is billed each month, quarter or year, invoices first for the rest
@@ -73,7 +73,7 @@ if (!$product) {
         'invoices' => ['label' => 'Invoices', 'icon' => 'fa-file-invoice-dollar', 'count' => count($usage['invoices'])],
         'quotes' => ['label' => 'Open quotes', 'icon' => 'fa-comment-dollar', 'count' => count($usage['quotes'])],
         'prices' => ['label' => 'Prices', 'icon' => 'fa-tags', 'count' => count($prices)],
-        'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => count($history)],
+        'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => $history['count']],
     ];
     if (!$product['product_frequency']) {
         $tabs = ['invoices' => $tabs['invoices'], 'quotes' => $tabs['quotes'], 'recurring' => $tabs['recurring'], 'prices' => $tabs['prices'], 'history' => $tabs['history']];
@@ -645,19 +645,7 @@ if (!$product) {
 
                     <!-- History -->
                     <div class="tab-pane fade" id="product-pane-history" role="tabpanel">
-                        <?php if ($history) { ?>
-                            <ul class="list-group list-group-flush">
-                                <?php foreach ($history as $entry) { ?>
-                                    <li class="list-group-item d-flex gap-3 align-items-start">
-                                        <span class="badge rounded-pill text-bg-light border fw-normal"><?= escapeHtml($entry['log_action']) ?></span>
-                                        <div class="flex-grow-1 small"><?= escapeHtml($entry['log_description']) ?></div>
-                                        <span class="small text-body-secondary text-nowrap" title="<?= escapeHtml($entry['log_created_at']) ?>"><?= timeAgo($entry['log_created_at']) ?></span>
-                                    </li>
-                                <?php } ?>
-                            </ul>
-                        <?php } else { ?>
-                            <div class="itflow-asset-empty"><i class="fas fa-history fa-2x mb-2 opacity-50"></i><div>Nothing recorded yet.</div></div>
-                        <?php } ?>
+                        <?= auditLogHistoryHtml($history, ['client_id' => 0]) ?>
                     </div>
 
                 </div>

@@ -164,6 +164,9 @@ ob_start();
         <div class="text-break" style="white-space: pre-line;"><?= escapeHtml($row['trip_purpose']) ?></div>
     </div>
 
+    <!-- Its history, from the audit log -->
+    <?= auditLogHistorySection(auditLogHistory('Trip', $trip_id, 10), ['client_id' => $client_id]) ?>
+
 </div>
 
 <div class="modal-footer">

@@ -463,7 +463,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
             <div class="card h-100 mb-0">
                 <div class="card-header d-flex align-items-center">
                     <h3 class="card-title mb-0 me-auto">Recent activity</h3>
-                    <?php if ($session_is_admin) { ?><a class="small" href="../admin/audit_logs.php?client=<?= $client_id ?>">Audit log</a><?php } ?>
+                    <a class="small" href="audit_log.php?client_id=<?= $client_id ?>">Audit log</a>
                 </div>
                 <?php if ($activity) { ?>
                     <div class="list-group list-group-flush">

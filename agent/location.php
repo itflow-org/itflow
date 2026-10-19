@@ -111,7 +111,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
 
     $documents = $can_support ? linkedRecords('location', $location_id, 'document') : [];
     $files = $can_support ? linkedRecords('location', $location_id, 'file') : [];
-    $history = locationHistory($location_id, 100);
+    $history = auditLogHistory('Location', $location_id);
 
     $location_tabs = [
         'people' => ['label' => 'People', 'icon' => 'fa-users', 'count' => count($people)],
@@ -122,7 +122,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
         'trips' => ['label' => 'Trips', 'icon' => 'fa-route', 'count' => $trip_count],
         'documents' => ['label' => 'Documents', 'icon' => 'fa-file-alt', 'count' => count($documents)],
         'files' => ['label' => 'Files', 'icon' => 'fa-paperclip', 'count' => count($files)],
-        'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => count($history)],
+        'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => $history['count']],
     ];
     if (!$show_trips) {
         unset($location_tabs['trips']);
@@ -641,22 +641,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                         <div class="itflow-asset-pane-bar">
                             <span class="text-body-secondary small">Edits, moves and notes - newest first.</span>
                         </div>
-                        <?php if ($history) {
-                            $history_icons = ['Create' => 'fa-plus', 'Edit' => 'fa-edit', 'Archive' => 'fa-archive', 'Restore' => 'fa-redo', 'Link' => 'fa-link', 'Unlink' => 'fa-unlink']; ?>
-                            <ul class="list-group list-group-flush">
-                                <?php foreach ($history as $entry) { ?>
-                                    <li class="list-group-item d-flex gap-3 py-2">
-                                        <span class="itflow-asset-icon itflow-asset-icon-sm itflow-asset-tone-other" title="<?= escapeHtml($entry['log_action']) ?>"><i class="fas fa-fw <?= $history_icons[$entry['log_action']] ?? 'fa-circle' ?>"></i></span>
-                                        <div class="flex-grow-1 min-w-0">
-                                            <div><?= escapeHtml($entry['log_description']) ?></div>
-                                            <div class="small text-body-secondary"><?= escapeHtml($entry['user_name'] ?: 'System') ?> &middot; <span title="<?= escapeHtml($entry['log_created_at']) ?>"><?= timeAgo($entry['log_created_at']) ?></span></div>
-                                        </div>
-                                    </li>
-                                <?php } ?>
-                            </ul>
-                        <?php } else { ?>
-                            <div class="itflow-asset-empty">Nothing logged yet.</div>
-                        <?php } ?>
+                        <?= auditLogHistoryHtml($history, ['client_id' => $client_id]) ?>
                     </div>
 
                 </div>

@@ -7,7 +7,7 @@
  * with a click to call or email them; how to reach them and the details a
  * tech needs on a call (location, PIN, portal access) down the side; and
  * everything linked to them - assets, credentials, tickets, licenses,
- * documents, files, services, notes - in tabs with counts. The open tab
+ * documents, files, services, notes - and their history in tabs with counts. The open tab
  * follows the URL hash (#tickets) and is remembered between visits.
  */
 
@@ -171,6 +171,9 @@ while ($row = mysqli_fetch_assoc($sql_note_type_icons)) {
 }
 
 // The tabs, in the order a tech reaches for them
+// Its history, from the audit log
+$history = auditLogHistory('Contact', $contact_id);
+
 $contact_tabs = [
     'assets' => ['label' => 'Assets', 'icon' => 'fa-desktop', 'count' => $asset_count],
     'credentials' => ['label' => 'Credentials', 'icon' => 'fa-key', 'count' => $credential_count],
@@ -181,6 +184,7 @@ $contact_tabs = [
     'files' => ['label' => 'Files', 'icon' => 'fa-paperclip', 'count' => $file_count],
     'services' => ['label' => 'Services', 'icon' => 'fa-stream', 'count' => $service_count],
     'notes' => ['label' => 'Notes', 'icon' => 'fa-sticky-note', 'count' => $note_count],
+    'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => $history['count']],
 ];
 if (!$can_credentials) {
     unset($contact_tabs['credentials']);
@@ -772,6 +776,14 @@ if (!$can_support) {
                     <?php } ?>
                 </div>
                 <?php } ?>
+
+                <!-- History, from the audit log -->
+                <div class="tab-pane fade" id="contact-pane-history" role="tabpanel">
+                    <div class="itflow-asset-pane-bar">
+                        <span class="text-body-secondary small">Changes to them, their portal access and notes - newest first.</span>
+                    </div>
+                    <?= auditLogHistoryHtml($history, ['client_id' => $client_id]) ?>
+                </div>
 
                 <!-- Notes -->
                 <div class="tab-pane fade" id="contact-pane-notes" role="tabpanel">

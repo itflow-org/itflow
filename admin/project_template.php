@@ -159,6 +159,10 @@ $archived = !empty($template['project_template_archived_at']);
                 <p class="mb-0 text-body-secondary"><code>[Client]</code>, <code>[Project]</code>, <code>[Month]</code>, <code>[Quarter]</code> and <code>[Year]</code> in a ticket template's subject are filled in. Anything else in brackets is left for the agent.</p>
             </div>
         </div>
+
+        <!-- History, from the audit log -->
+        <?= auditLogHistoryCard(auditLogHistory('Project Template', $project_template_id, 10)) ?>
+
     </div>
 </div>
 

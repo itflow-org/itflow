@@ -362,6 +362,9 @@ $facts = array_filter([
             </div>
         </div>
 
+        <!-- History, from the audit log -->
+        <?= auditLogHistoryCard(auditLogHistory('Software Template', $software_template_id, 10)) ?>
+
     </div>
 </div>
 

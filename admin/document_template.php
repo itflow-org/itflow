@@ -326,6 +326,9 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
             </div>
         </div>
 
+        <!-- History, from the audit log -->
+        <?= auditLogHistoryCard(auditLogHistory('Document Template', $document_template_id, 10)) ?>
+
     </div>
 </div>
 

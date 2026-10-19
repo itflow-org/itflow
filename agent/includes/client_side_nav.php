@@ -122,6 +122,13 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a href="/agent/audit_log.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "audit_log.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-history"></i>
+                        <p>Audit Log</p>
+                    </a>
+                </li>
+
                 <?php if ($config_module_enable_ticketing == 1 && lookupUserPermission("module_support") >= 1) { ?>
                     <li class="nav-header mt-3">SUPPORT</li>
 

@@ -3,8 +3,9 @@
 /*
  * A project - what it is, who it is for and who runs it, how far along it
  * is, the time logged against the hours budgeted and when it is due, then
- * its tickets, all their tasks and what has been said on them lately. The
- * side shows the scope, the details and the team that has worked on it.
+ * its tickets, all their tasks, what has been said on them lately and its
+ * history. The side shows the scope, the details and the team that has
+ * worked on it.
  *
  * Progress and time count every ticket on the project; the lists show the
  * tickets this agent may reach (an internal project can hold any client's).
@@ -118,10 +119,14 @@ $team = projectTeam($project_id);
 // Templates to add tickets from
 $has_templates = $can_edit && $is_open && mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM project_templates WHERE project_template_archived_at IS NULL LIMIT 1"));
 
+// Its history, from the audit log
+$history = auditLogHistory('Project', $project_id);
+
 $project_tabs = [
     'tickets' => ['label' => 'Tickets', 'icon' => 'fa-life-ring', 'count' => count($tickets), 'badge' => $stats['open']],
     'tasks' => ['label' => 'Tasks', 'icon' => 'fa-tasks', 'count' => $stats['tasks']],
     'activity' => ['label' => 'Activity', 'icon' => 'fa-comments', 'count' => count($activity)],
+    'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => $history['count']],
 ];
 
 $new_ticket_url = "modals/ticket/ticket_add.php?" . ($project_client_id ? "client_id=$project_client_id&" : '') . "project_id=$project_id";
@@ -541,6 +546,14 @@ $contact_archived = !empty($project['contact_archived_at']);
                             <div>No tasks on its tickets. Tasks added to a ticket, or brought in by a template, show up here.</div>
                         </div>
                     <?php } ?>
+                </div>
+
+                <!-- History, from the audit log -->
+                <div class="tab-pane fade" id="project-pane-history" role="tabpanel">
+                    <div class="itflow-asset-pane-bar">
+                        <span class="text-body-secondary small">Changes to the project - newest first.</span>
+                    </div>
+                    <?= auditLogHistoryHtml($history, ['client_id' => $project_client_id]) ?>
                 </div>
 
                 <!-- What has been said lately -->

@@ -1,8 +1,8 @@
 <?php
 
 /*
- * A document - read it, edit it, share or print it, see what it is linked to
- * and every earlier version of it. Laid out like the asset and contact pages:
+ * A document - read it, edit it, share or print it, see what it is linked to,
+ * every earlier version of it and who did what to it. Laid out like the asset and contact pages:
  * a header card with the actions, the content beside a column of what goes
  * with it.
  *
@@ -249,7 +249,7 @@ $page_title = $row['document_name'];
         <!-- Every earlier version -->
         <div class="card mb-3" id="documentHistory">
             <div class="card-header">
-                <h3 class="card-title mb-0"><i class="fas fa-fw fa-history me-2 text-body-secondary"></i>History</h3>
+                <h3 class="card-title mb-0"><i class="fas fa-fw fa-layer-group me-2 text-body-secondary"></i>Versions</h3>
             </div>
             <ul class="list-group list-group-flush itflow-document-history">
                 <li class="list-group-item">
@@ -277,6 +277,11 @@ $page_title = $row['document_name'];
                     <li class="list-group-item small text-body-secondary">No earlier versions - each edit keeps the one before it here.</li>
                 <?php } ?>
             </ul>
+        </div>
+
+        <!-- Who did what to it, from the audit log -->
+        <div class="d-print-none">
+            <?= auditLogHistoryCard(auditLogHistory('Document', $document_id, 10), ['client_id' => $client_id]) ?>
         </div>
 
     </div>

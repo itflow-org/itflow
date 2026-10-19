@@ -123,6 +123,9 @@ ob_start();
         <?= linkGroupsHtml('file', $file_id, $client_id, $file_archived) ?>
     </div>
 
+    <!-- Its history, from the audit log -->
+    <?= auditLogHistorySection(auditLogHistory('File', $file_id, 10), ['client_id' => $client_id]) ?>
+
 </div>
 
 <div class="modal-footer">

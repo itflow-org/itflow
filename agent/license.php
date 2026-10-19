@@ -75,7 +75,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
     $credentials = $can_credentials ? credentialRows("credential_id IN (SELECT credential_id FROM software_credentials WHERE software_id = $software_id)") : [];
     $documents = linkedRecords('software', $software_id, 'document');
     $files = linkedRecords('software', $software_id, 'file');
-    $history = softwareHistory($software_id, 100);
+    $history = auditLogHistory('Software', $software_id);
 
     $license_tabs = [
         'seats' => ['label' => 'Seats', 'icon' => 'fa-users', 'count' => $seats['used']],
@@ -83,7 +83,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
         'credentials' => ['label' => 'Credentials', 'icon' => 'fa-key', 'count' => count($credentials)],
         'documents' => ['label' => 'Documents', 'icon' => 'fa-file-alt', 'count' => count($documents)],
         'files' => ['label' => 'Files', 'icon' => 'fa-paperclip', 'count' => count($files)],
-        'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => count($history)],
+        'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => $history['count']],
     ];
     if (!$can_credentials) {
         unset($license_tabs['credentials']);
@@ -571,23 +571,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                         <div class="itflow-asset-pane-bar">
                             <span class="text-body-secondary small">Renewals, seat and key changes, edits - newest first.</span>
                         </div>
-                        <?php if ($history) {
-                            $history_icons = ['Create' => 'fa-plus', 'Edit' => 'fa-edit', 'Renew' => 'fa-redo-alt', 'Seats' => 'fa-users', 'Keys' => 'fa-key',
-                                'Link' => 'fa-link', 'Unlink' => 'fa-unlink', 'Archive' => 'fa-archive', 'Restore' => 'fa-redo', 'Export' => 'fa-download']; ?>
-                            <ul class="list-group list-group-flush">
-                                <?php foreach ($history as $entry) { ?>
-                                    <li class="list-group-item d-flex gap-3 py-2">
-                                        <span class="itflow-asset-icon itflow-asset-icon-sm itflow-asset-tone-other" title="<?= escapeHtml($entry['log_action']) ?>"><i class="fas fa-fw <?= $history_icons[$entry['log_action']] ?? 'fa-circle' ?>"></i></span>
-                                        <div class="flex-grow-1 min-w-0">
-                                            <div><?= escapeHtml($entry['log_description']) ?></div>
-                                            <div class="small text-body-secondary"><?= escapeHtml($entry['user_name'] ?: 'System') ?> &middot; <span title="<?= escapeHtml($entry['log_created_at']) ?>"><?= timeAgo($entry['log_created_at']) ?></span></div>
-                                        </div>
-                                    </li>
-                                <?php } ?>
-                            </ul>
-                        <?php } else { ?>
-                            <div class="itflow-asset-empty">Nothing logged yet.</div>
-                        <?php } ?>
+                        <?= auditLogHistoryHtml($history, ['client_id' => $client_id]) ?>
                     </div>
 
                 </div>

@@ -169,6 +169,9 @@ ob_start();
         <?php } ?>
     </div>
 
+    <!-- Its history, from the audit log -->
+    <?= auditLogHistorySection(auditLogHistory('Recurring Expense', $id, 10), ['client_id' => $client_id]) ?>
+
 </div>
 
 <div class="modal-footer">

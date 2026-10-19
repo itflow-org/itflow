@@ -417,19 +417,3 @@ function vendorSpend($vendor_id) {
         FROM expenses WHERE expense_vendor_id = $vendor_id AND expense_archived_at IS NULL"));
     return ['year' => floatval($row[0]), 'last_year' => floatval($row[1]), 'total' => floatval($row[2]), 'count' => intval($row[3]), 'last' => $row[4]];
 }
-
-/** Who did what to a vendor - its audit log entries, newest first. */
-function vendorHistory($vendor_id, $limit = 50) {
-    global $mysqli;
-    $vendor_id = intval($vendor_id);
-    $limit = max(1, intval($limit));
-    $sql = mysqli_query($mysqli, "SELECT log_action, log_description, log_created_at, user_name FROM logs
-        LEFT JOIN users ON user_id = log_user_id
-        WHERE log_type = 'Vendor' AND log_entity_id = $vendor_id
-        ORDER BY log_id DESC LIMIT $limit");
-    $rows = [];
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $rows[] = $row;
-    }
-    return $rows;
-}

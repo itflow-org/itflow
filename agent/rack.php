@@ -7,8 +7,8 @@
  * position on the face it is mounted on, every empty U a click away from
  * adding something there. Around it, how full the rack is (units, the largest
  * gap a full-depth item could still go in, power against the budget), the
- * rack's details and photos, the item list for print and search, and the
- * client's network gear that isn't racked anywhere yet.
+ * rack's details and photos, the item list for print and search, the
+ * client's network gear that isn't racked anywhere yet, and its history.
  */
 
 require_once "includes/inc_all_client.php";
@@ -440,6 +440,11 @@ if (mysqli_num_rows($sql) == 0) {
                     </div>
                 </div>
             <?php } ?>
+
+            <!-- History, from the audit log -->
+            <div class="d-print-none">
+                <?= auditLogHistoryCard(auditLogHistory('Rack', $rack_id, 10), ['client_id' => $client_id]) ?>
+            </div>
 
         </div>
 

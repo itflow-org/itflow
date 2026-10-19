@@ -521,22 +521,6 @@ function softwareAddKeys($software_id, $text) {
     return $added;
 }
 
-/** Who did what to a license - its audit log entries, newest first. */
-function softwareHistory($software_id, $limit = 50) {
-    global $mysqli;
-    $software_id = intval($software_id);
-    $limit = max(1, intval($limit));
-    $sql = mysqli_query($mysqli, "SELECT log_action, log_description, log_created_at, user_name, user_avatar, user_id FROM logs
-        LEFT JOIN users ON user_id = log_user_id
-        WHERE log_type = 'Software' AND log_entity_id = $software_id
-        ORDER BY log_id DESC LIMIT $limit");
-    $rows = [];
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $rows[] = $row;
-    }
-    return $rows;
-}
-
 /** Date from a form - Y-m-d or null. */
 function softwareFormDate($value) {
     $value = trim((string) $value);

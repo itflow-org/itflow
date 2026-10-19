@@ -119,7 +119,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
         $linked_ticket_ids[intval($row[0])] = true;
     }
     $open_tickets = count(array_filter($tickets, 'ticketIsOpen'));
-    $history = serviceHistory($service_id, 100);
+    $history = auditLogHistory('Service', $service_id);
 
     $service_tabs = [
         'assets' => ['label' => 'Runs on', 'icon' => 'fa-desktop', 'count' => count($assets)],
@@ -127,7 +127,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
         'web' => ['label' => 'Domains &amp; SSL', 'icon' => 'fa-globe', 'count' => count($domains) + count($certificates)],
         'documents' => ['label' => 'Documents', 'icon' => 'fa-file-alt', 'count' => count($documents)],
         'tickets' => ['label' => 'Tickets', 'icon' => 'fa-life-ring', 'count' => count($tickets), 'alarm' => $open_tickets],
-        'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => count($history)],
+        'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => $history['count']],
     ];
     if (!$can_credentials) {
         unset($service_tabs['logins']);
@@ -640,23 +640,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                         <div class="itflow-asset-pane-bar">
                             <span class="text-body-secondary small">Reviews, links, edits - newest first.</span>
                         </div>
-                        <?php if ($history) {
-                            $history_icons = ['Create' => 'fa-plus', 'Edit' => 'fa-edit', 'Review' => 'fa-clipboard-check', 'Link' => 'fa-link', 'Unlink' => 'fa-unlink',
-                                'Archive' => 'fa-archive', 'Restore' => 'fa-redo', 'Export' => 'fa-download']; ?>
-                            <ul class="list-group list-group-flush">
-                                <?php foreach ($history as $entry) { ?>
-                                    <li class="list-group-item d-flex gap-3 py-2">
-                                        <span class="itflow-asset-icon itflow-asset-icon-sm itflow-asset-tone-<?= $entry['log_action'] === 'Review' ? 'network' : 'other' ?>" title="<?= escapeHtml($entry['log_action']) ?>"><i class="fas fa-fw <?= $history_icons[$entry['log_action']] ?? 'fa-circle' ?>"></i></span>
-                                        <div class="flex-grow-1 min-w-0">
-                                            <div class="text-break"><?= escapeHtml($entry['log_description']) ?></div>
-                                            <div class="small text-body-secondary"><?= escapeHtml($entry['user_name'] ?: 'System') ?> &middot; <span title="<?= escapeHtml($entry['log_created_at']) ?>"><?= timeAgo($entry['log_created_at']) ?></span></div>
-                                        </div>
-                                    </li>
-                                <?php } ?>
-                            </ul>
-                        <?php } else { ?>
-                            <div class="itflow-asset-empty">Nothing logged yet.</div>
-                        <?php } ?>
+                        <?= auditLogHistoryHtml($history, ['client_id' => $client_id]) ?>
                     </div>
 
                 </div>

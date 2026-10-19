@@ -11,7 +11,8 @@
  * range as one band. Each address says what is wrong with it: two devices on
  * it, a fixed address inside the DHCP range, a reservation for one MAC on a
  * device with another. Devices lists the interfaces on the network and what
- * they plug into. The open tab follows the URL hash (#devices).
+ * they plug into, and History who changed the network. The open tab follows
+ * the URL hash (#devices).
  */
 
 // If client_id is in URI then show client Side Bar and client header
@@ -78,9 +79,13 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
         return 'modals/network/network_ip_add.php?' . http_build_query(['network_id' => $network_id] + $params);
     };
 
+    // Its history, from the audit log
+    $history = auditLogHistory('Network', $network_id);
+
     $network_tabs = [
         'addresses' => ['label' => 'Address plan', 'icon' => 'fa-list-ol', 'count' => $usage['used']],
         'devices' => ['label' => 'Devices', 'icon' => 'fa-desktop', 'count' => $usage['devices']],
+        'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => $history['count']],
     ];
 
     ?>
@@ -503,6 +508,14 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                         <?php if ($info && ($info['family'] === 6 || $info['prefix'] < 20)) { ?>
                             <div class="border-top px-3 py-2 small text-body-secondary"><i class="fas fa-fw fa-info-circle me-1"></i>Free addresses are shown for IPv4 networks up to a /20 - this one lists what is in use.</div>
                         <?php } ?>
+                    </div>
+
+                    <!-- History, from the audit log -->
+                    <div class="tab-pane fade" id="network-pane-history" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">Changes to the network - newest first.</span>
+                        </div>
+                        <?= auditLogHistoryHtml($history, ['client_id' => $client_id]) ?>
                     </div>
 
                     <!-- The interfaces of devices set to this network -->

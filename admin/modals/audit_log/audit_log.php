@@ -64,7 +64,7 @@ if ($user_id > 0) {
 $entry_line = function ($entry, $show_when_as = 'date') {
     $time = strtotime($entry['log_created_at']);
     $when = $show_when_as === 'time' ? date('g:i A', $time) : date('M j, Y g:i A', $time);
-    return '<a href="#" class="list-group-item list-group-item-action d-flex align-items-start gap-2 small ajax-modal" data-modal-size="lg" data-modal-url="modals/audit_log/audit_log.php?id=' . intval($entry['log_id']) . '">'
+    return '<a href="#" class="list-group-item list-group-item-action d-flex align-items-start gap-2 small ajax-modal" data-modal-size="lg" data-modal-url="/admin/modals/audit_log/audit_log.php?id=' . intval($entry['log_id']) . '">'
         . '<span class="text-body-secondary text-nowrap flex-shrink-0" style="min-width: 4.5rem;" title="' . escapeHtml($entry['log_created_at']) . '">' . escapeHtml($when) . '</span>'
         . '<span class="flex-shrink-0">' . auditLogActionPill($entry['log_action']) . '</span>'
         . '<span class="text-break">' . escapeHtml($entry['log_description']) . '</span>'

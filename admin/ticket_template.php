@@ -402,6 +402,9 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
             </div>
         </div>
 
+        <!-- History, from the audit log -->
+        <?= auditLogHistoryCard(auditLogHistory('Ticket Template', $ticket_template_id, 10)) ?>
+
     </div>
 </div>
 

@@ -526,16 +526,18 @@ function clientOverviewSharedItems($client_id) {
 }
 
 /**
- * The latest changes for this client from the audit log. Views (opening a
- * credential, a page) are left out - they would push every change off the
- * card - and stay in the full audit log.
+ * The latest changes for this client from the audit log - the ones this
+ * agent's role may see (auditLogRoleSql()). Views (opening a credential, a
+ * page) are left out - they would push every change off the card - and stay
+ * in the client's Audit Log.
  */
 function clientOverviewActivity($client_id, $limit = 6) {
     global $mysqli;
 
+    $client_id = intval($client_id);
     $sql = mysqli_query($mysqli, "SELECT log_created_at, log_description, user_name FROM logs
         LEFT JOIN users ON log_user_id = user_id
-        WHERE log_client_id = $client_id AND log_action != 'View'
+        WHERE log_client_id = $client_id AND log_action != 'View' AND " . auditLogRoleSql() . "
         ORDER BY log_id DESC
         LIMIT " . intval($limit));
 

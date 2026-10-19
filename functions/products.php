@@ -417,22 +417,6 @@ function productUsage($product_id) {
     return $usage;
 }
 
-/** A product's history from the audit log, newest first. */
-function productHistory($product_id, $limit = 100) {
-    global $mysqli;
-    $product_id = intval($product_id);
-    $limit = max(1, intval($limit));
-    $rows = [];
-    $sql = mysqli_query($mysqli, "SELECT log_action, log_description, log_created_at, user_name FROM logs
-        LEFT JOIN users ON user_id = log_user_id
-        WHERE log_type = 'Product' AND log_entity_id = $product_id
-        ORDER BY log_id DESC LIMIT $limit");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $rows[] = $row;
-    }
-    return $rows;
-}
-
 /* ------------------------------------------------------------- Stock ledger */
 
 /** Kinds of stock move => label, icon and tone. */
