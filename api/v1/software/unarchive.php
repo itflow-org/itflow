@@ -33,7 +33,7 @@ if (!empty($software_id)) {
             $update_count = mysqli_affected_rows($mysqli);
 
             // Logging
-            logAudit("Software", "Unarchive", "$software_name unarchived via API ($api_key_name)", $client_id, $software_id);
+            logAudit("Software", "Restore", "$software_name unarchived via API ($api_key_name)", $client_id, $software_id);
         }
     }
 }

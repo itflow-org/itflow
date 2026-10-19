@@ -102,7 +102,7 @@ if (!empty($ticket_id) && !empty($reply)) {
 
                     logTicketHistory($ticket_id, "Resolved via the API ($api_key_name)");
 
-                    logAudit("Ticket", "Resolved", "Resolved ticket $ticket_prefix$ticket_number via API ($api_key_name)", $client_id, $ticket_id);
+                    logAudit("Ticket", "Resolve", "Resolved ticket $ticket_prefix$ticket_number via API ($api_key_name)", $client_id, $ticket_id);
 
                     triggerCustomAction('ticket_resolve', $ticket_id);
                 }

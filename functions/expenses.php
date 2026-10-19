@@ -1570,7 +1570,7 @@ function expenseReimburse($user_id, array $expense_ids, array $opts, &$error = '
     mysqli_query($mysqli, "UPDATE reimbursements SET reimbursement_amount = $amount, reimbursement_expense_id = $cash_id WHERE reimbursement_id = $reimbursement_id");
 
     logAudit('Expense', 'Reimburse', escapeSql("$by paid {$waiting['user_name']} back " . billingMoney($amount, $currency) . ' for ' . ($count === 1 ? '1 expense' : "$count expenses")
-        . " from {$accounts[$account]['account_name']}"), 0, $reimbursement_id);
+        . " from {$accounts[$account]['account_name']}"), 0, $cash_id);
 
     return ['reimbursement_id' => $reimbursement_id, 'amount' => $amount, 'count' => $count, 'user_name' => $waiting['user_name'], 'currency' => $currency];
 }

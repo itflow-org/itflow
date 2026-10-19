@@ -1810,7 +1810,9 @@ CREATE TABLE `logs` (
   `log_entity_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`log_id`),
   KEY `log_created_at` (`log_created_at`),
-  KEY `log_user_id` (`log_user_id`,`log_client_id`)
+  KEY `log_user_id` (`log_user_id`,`log_client_id`),
+  KEY `log_client_id` (`log_client_id`,`log_created_at`),
+  KEY `log_entity_id` (`log_entity_id`,`log_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

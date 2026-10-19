@@ -33,7 +33,7 @@ if (!empty($location_id)) {
             $update_count = mysqli_affected_rows($mysqli);
 
             // Logging
-            logAudit("Location", "Unarchive", "$location_name unarchived via API ($api_key_name)", $client_id, $location_id);
+            logAudit("Location", "Restore", "$location_name unarchived via API ($api_key_name)", $client_id, $location_id);
             logAudit("API", "Success", "Unarchived location $location_name via API ($api_key_name)", $client_id);
         }
     }

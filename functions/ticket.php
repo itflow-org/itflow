@@ -995,7 +995,7 @@ function ticketResolve($row, $how = '') {
     syncTicketSlaClock($ticket_id);
     setTicketResolutionSlaMet($ticket_id);
     logTicketHistory($ticket_id, "$session_name resolved the ticket$how");
-    logAudit("Ticket", "Resolved", "$session_name resolved ticket " . escapeSql(ticketReference($row)) . " - " . escapeSql($row['ticket_subject']), intval($row['ticket_client_id']), $ticket_id);
+    logAudit("Ticket", "Resolve", "$session_name resolved ticket " . escapeSql(ticketReference($row)) . " - " . escapeSql($row['ticket_subject']), intval($row['ticket_client_id']), $ticket_id);
     triggerCustomAction('ticket_resolve', $ticket_id);
 }
 
@@ -1009,7 +1009,7 @@ function ticketReopen($row, $status_id = TICKET_STATUS_OPEN, $how = '') {
     resetTicketResolutionSla($ticket_id);
     $status_name = escapeSql(getTicketStatusName($status_id));
     logTicketHistory($ticket_id, "$session_name reopened the ticket" . ($status_id === TICKET_STATUS_OPEN ? '' : " to $status_name") . $how);
-    logAudit("Ticket", "Reopened", "$session_name reopened ticket " . escapeSql(ticketReference($row)), intval($row['ticket_client_id']), $ticket_id);
+    logAudit("Ticket", "Reopen", "$session_name reopened ticket " . escapeSql(ticketReference($row)), intval($row['ticket_client_id']), $ticket_id);
     triggerCustomAction('ticket_update', $ticket_id);
 }
 

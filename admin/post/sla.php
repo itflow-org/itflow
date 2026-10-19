@@ -78,7 +78,7 @@ if (isset($_GET['unarchive_sla'])) {
 
     mysqli_query($mysqli, "UPDATE slas SET sla_archived_at = NULL WHERE sla_id = $sla_id");
 
-    logAudit("SLA", "Unarchive", "$session_name restored SLA ID $sla_id");
+    logAudit("SLA", "Restore", "$session_name restored SLA ID $sla_id");
 
     flashAlert("SLA restored");
 

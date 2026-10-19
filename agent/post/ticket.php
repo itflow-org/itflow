@@ -60,7 +60,7 @@ function ticketMergeInto($child, $parent, $comment, $move_replies = false) {
 
     logTicketHistory($ticket_id, "$session_name merged this ticket into $parent_reference and closed it");
     logTicketHistory($parent_id, "$session_name merged $child_reference into this ticket");
-    logAudit("Ticket", "Merged", "$session_name merged ticket $child_reference into $parent_reference", intval($child['ticket_client_id']), $ticket_id);
+    logAudit("Ticket", "Merge", "$session_name merged ticket $child_reference into $parent_reference", intval($child['ticket_client_id']), $ticket_id);
     triggerCustomAction('ticket_merge', $ticket_id);
 }
 
@@ -897,7 +897,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
             mysqli_query($mysqli, "UPDATE tickets SET ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
             setTicketResolutionSlaMet($ticket_id);
             logTicketHistory($ticket_id, "$session_name resolved the ticket");
-            logAudit("Ticket", "Resolved", "$session_name resolved ticket $reference", intval($row['ticket_client_id']), $ticket_id);
+            logAudit("Ticket", "Resolve", "$session_name resolved ticket $reference", intval($row['ticket_client_id']), $ticket_id);
             triggerCustomAction('ticket_resolve', $ticket_id);
         }
 
@@ -1092,7 +1092,7 @@ if (isset($_POST['add_ticket_reply'])) {
         mysqli_query($mysqli, "UPDATE tickets SET ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
         setTicketResolutionSlaMet($ticket_id);
         logTicketHistory($ticket_id, "$session_name resolved the ticket");
-        logAudit("Ticket", "Resolved", "$session_name resolved ticket $reference", $client_id, $ticket_id);
+        logAudit("Ticket", "Resolve", "$session_name resolved ticket $reference", $client_id, $ticket_id);
         triggerCustomAction('ticket_resolve', $ticket_id);
     }
 
@@ -1232,7 +1232,7 @@ if (isset($_POST['edit_ticket_reply'])) {
 
     mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '$ticket_reply_time_worked' WHERE ticket_reply_id = $ticket_reply_id");
 
-    logAudit("Ticket", "Reply", "$session_name edited a reply on ticket " . escapeSql(ticketReference($row)), $client_id, $ticket_reply_id);
+    logAudit("Ticket", "Reply", "$session_name edited a reply on ticket " . escapeSql(ticketReference($row)), $client_id, intval($row['ticket_id']));
 
     flashAlert("Ticket reply updated");
 
@@ -1250,7 +1250,7 @@ if (isset($_POST['redact_ticket_reply'])) {
 
     mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply = '$ticket_reply' WHERE ticket_reply_id = $ticket_reply_id");
 
-    logAudit("Ticket", "Reply", "$session_name redacted a reply on ticket " . escapeSql(ticketReference($row)), $client_id, $ticket_reply_id);
+    logAudit("Ticket", "Reply", "$session_name redacted a reply on ticket " . escapeSql(ticketReference($row)), $client_id, intval($row['ticket_id']));
 
     flashAlert("Ticket reply redacted");
 
@@ -1426,7 +1426,7 @@ if (isset($_GET['close_ticket'])) {
 
     logTicketHistory($ticket_id, "$session_name closed the ticket");
 
-    logAudit("Ticket", "Closed", "$session_name closed ticket $reference", $client_id, $ticket_id);
+    logAudit("Ticket", "Close", "$session_name closed ticket $reference", $client_id, $ticket_id);
 
     triggerCustomAction('ticket_close', $ticket_id);
 

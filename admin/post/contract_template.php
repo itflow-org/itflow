@@ -103,7 +103,7 @@ if (isset($_POST['edit_contract_template'])) {
     ");
 
     // Log action
-    logAudit("Contract Template", "Update", "$session_name updated contract template $name", 0, $contract_template_id);
+    logAudit("Contract Template", "Edit", "$session_name updated contract template $name", 0, $contract_template_id);
 
     // Flash + redirect
     flashAlert("Contract Template <strong>$name</strong> updated");

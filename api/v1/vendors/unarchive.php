@@ -24,7 +24,7 @@ if (!empty($vendor_id)) {
             $update_count = mysqli_affected_rows($mysqli);
 
             // Logging
-            logAudit("Vendor", "Unarchive", "$vendor_name unarchived via API ($api_key_name)", $client_id, $vendor_id);
+            logAudit("Vendor", "Restore", "$vendor_name unarchived via API ($api_key_name)", $client_id, $vendor_id);
         }
     }
 }

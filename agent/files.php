@@ -17,6 +17,8 @@
  * client should have a document from, and has none, are listed across the
  * top, each a click from making one.
  *
+ * ?open= opens a file's quick look - the audit log links to a file with it.
+ *
  * Open to anyone with access to the client (contracts and the like live here),
  * changes need support write access, like the handlers behind them.
  */
@@ -738,6 +740,21 @@ $preview = []; // the grid's previewer payload
 </div>
 
 <?php require "modals/file/file_view.php"; ?>
+<?php if (!empty($_GET['open'])) { ?>
+    <script>
+        // Opened from the audit log - straight to that file's quick look
+        document.addEventListener('DOMContentLoaded', function () {
+            var open = document.createElement('a');
+            open.className = 'ajax-modal';
+            open.href = '#';
+            open.dataset.modalSize = 'lg';
+            open.dataset.modalUrl = 'modals/file/file.php?id=<?= intval($_GET['open']) ?>';
+            document.body.appendChild(open);
+            open.click();
+            open.remove();
+        });
+    </script>
+<?php } ?>
 <script>
     window.itflowFilesPreview = <?= json_encode($preview) ?>;
 </script>

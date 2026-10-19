@@ -163,7 +163,7 @@ if (isset($_POST['remove_demo_data'])) {
     $clients_removed = demoDataRemove($mysqli);
 
     if ($clients_removed) {
-        logAudit("Demo Data", "Deleted", "$session_name removed demo data - $clients_removed demo clients and all associated records");
+        logAudit("Demo Data", "Delete", "$session_name removed demo data - $clients_removed demo clients and all associated records");
         flashAlert("Removed <strong>$clients_removed</strong> demo clients and everything associated with them", 'error');
     } else {
         flashAlert("No demo clients found - nothing to remove", 'info');

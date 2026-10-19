@@ -1270,7 +1270,7 @@ if (isset($_GET['stripe_save_card'])) {
             stripslashes((string) $card_brand), stripslashes((string) $last4), intval($exp_month), intval($exp_year));
     }
 
-    logAudit("Stripe", "Update", "$session_contact_name saved payment method ($saved_payment_description) (PM: $payment_method_id)", $session_client_id);
+    logAudit("Stripe", "Create", "$session_contact_name saved payment method ($saved_payment_description) (PM: $payment_method_id)", $session_client_id);
 
     flashAlert("Payment method saved – thank you.");
     redirect("saved_payment_methods.php");
@@ -1371,7 +1371,7 @@ if (isset($_GET['delete_saved_payment'])) {
         ");
     }
 
-    logAudit("Stripe", "Update", "$session_contact_name deleted Stripe payment method $saved_payment_description (PM: $payment_method_id)", $session_client_id);
+    logAudit("Stripe", "Delete", "$session_contact_name deleted Stripe payment method $saved_payment_description (PM: $payment_method_id)", $session_client_id);
 
     flashAlert("Payment method $saved_payment_description removed.");
 

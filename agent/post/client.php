@@ -222,7 +222,7 @@ if (isset($_GET['restore_client'])) {
 
     mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
 
-    logAudit("Client", "Restored", "$session_name restored client $client_name", $client_id);
+    logAudit("Client", "Restore", "$session_name restored client $client_name", $client_id);
 
     flashAlert("Client <strong>" . stripslashes($client_name) . "</strong> restored");
 
@@ -342,7 +342,7 @@ if (isset($_GET['delete_client'])) {
     // Don't leave the company's own-client designation pointing at a client that is gone
     mysqli_query($mysqli, "UPDATE settings SET config_internal_client_id = 0 WHERE config_internal_client_id = $client_id");
 
-    logAudit("Client", "Deleted", "$session_name deleted Client $client_name and all associated data");
+    logAudit("Client", "Delete", "$session_name deleted Client $client_name and all associated data");
 
     flashAlert("Client <strong>" . stripslashes($client_name) . "</strong> deleted, with everything that was theirs", 'error');
 
@@ -1088,7 +1088,7 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
 
-            logAudit("client", "Restore", "$session_name restored $client_name", $client_id);
+            logAudit("Client", "Restore", "$session_name restored $client_name", $client_id);
 
         }
 

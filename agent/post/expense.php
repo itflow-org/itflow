@@ -330,7 +330,7 @@ if (isset($_GET['expense_reimbursement_delete'])) {
     }
 
     $what = billingMoney($row['reimbursement_amount'], $row['reimbursement_currency_code']) . ' paid back to ' . $row['user_name'] . ' on ' . $row['reimbursement_date'];
-    logAudit("Expense", "Reimbursement Undo", "$session_name undid the " . escapeSql($what), 0, intval($row['reimbursement_id']));
+    logAudit("Expense", "Reimbursement Undo", "$session_name undid the " . escapeSql($what));
 
     flashAlert('Undone: <strong>' . escapeHtml($what) . '</strong> - its expenses are to reimburse again', 'error');
 

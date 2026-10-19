@@ -39,7 +39,7 @@ if (isset($_GET['stripe_remove_pm'])) {
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_method = 'Stripe' AND recurring_payment_recurring_invoice_id = $recurring_invoice_id");
     }
 
-    logAudit("Stripe", "Update", "$session_name deleted saved Stripe payment method (PM: $payment_method)", $client_id);
+    logAudit("Stripe", "Delete", "$session_name deleted saved Stripe payment method (PM: $payment_method)", $client_id);
 
     flashAlert("Payment method removed", 'error');
 

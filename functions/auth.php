@@ -227,7 +227,7 @@ function enforceClientAccess($client_id = null) {
                  LIMIT 1";
     $deny_result = mysqli_query($mysqli, $deny_sql);
     if ($deny_result && mysqli_num_rows($deny_result) > 0) {
-        logAudit('Client', 'Access', "$session_name was denied permission from accessing client", $client_id, $client_id);
+        logAudit('Client', 'Denied', "$session_name was denied permission from accessing client", $client_id, $client_id);
         flashAlert('Access Denied - You do not have permission to access that client!', 'error');
         redirect('clients.php');
     }
@@ -262,7 +262,7 @@ function enforceClientAccess($client_id = null) {
 
     logAudit(
         'Client',
-        'Access',
+        'Denied',
         "$session_name was denied permission from accessing client",
         $client_id,
         $client_id

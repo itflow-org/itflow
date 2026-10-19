@@ -478,6 +478,22 @@ function getExportColumns($export_type) {
             'user_created_at'    => ['label' => 'Creation Date'],
         ],
 
+        // Audit log entries - handler adds who did it, the record and the device (functions/audit_log.php)
+        'audit_logs' => [
+            'log_created_at'     => ['label' => 'When'],
+            'audit_who'          => ['label' => 'Who'],
+            'user_email'         => ['label' => 'Email', 'default' => false],
+            'client_name'        => ['label' => 'Client'],
+            'log_type'           => ['label' => 'Type'],
+            'log_action'         => ['label' => 'Action'],
+            'log_description'    => ['label' => 'Description', 'weight' => 3],
+            'audit_record'       => ['label' => 'Record', 'weight' => 2, 'default' => false],
+            'log_ip'             => ['label' => 'IP Address'],
+            'audit_device'       => ['label' => 'Device'],
+            'log_user_agent'     => ['label' => 'User Agent', 'weight' => 2, 'default' => false],
+            'log_id'             => ['label' => 'Entry', 'default' => false],
+        ],
+
     ];
 
     return $registry[$export_type] ?? [];

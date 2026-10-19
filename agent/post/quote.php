@@ -292,7 +292,7 @@ if (isset($_POST['mark_quote_sent'])) {
 
     logHistory('Sent', $history_description, 0, $quote_id);
 
-    logAudit("Quote", "Sent", "$session_name marked quote $quote_prefix$quote_number as sent - $sent_method", $client_id, $quote_id);
+    logAudit("Quote", "Send", "$session_name marked quote $quote_prefix$quote_number as sent - $sent_method", $client_id, $quote_id);
 
     flashAlert("Quote marked sent");
 
@@ -439,7 +439,7 @@ if (isset($_GET['mark_quote_invoiced'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Invoiced', history_description = 'Quote marked as invoiced', history_quote_id = $quote_id");
 
-    logAudit("Quote", "Sent", "$session_name marked quote $quote_prefix$quote_number as invoiced", $client_id, $quote_id);
+    logAudit("Quote", "Send", "$session_name marked quote $quote_prefix$quote_number as invoiced", $client_id, $quote_id);
 
     flashAlert("Quote marked invoiced");
 
