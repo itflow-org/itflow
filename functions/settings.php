@@ -222,25 +222,25 @@ function settingsFields() {
         'test_email' => ['page' => 'mail', 'tab' => 'tests', 'section' => 'Tests', 'label' => 'Send a test email', 'words' => 'test email check smtp working'],
 
         // Notifications
-        'config_enable_alert_domain_expire' => ['page' => 'notification', 'section' => 'Alerts', 'label' => 'Domains about to expire', 'words' => 'domain expiry expiration alert'] + $on_off,
-        'config_recurring_auto_send_invoice' => ['page' => 'notification', 'section' => 'Client emails', 'label' => 'Email invoices made by a recurring invoice', 'words' => 'recurring invoice auto send email'] + $on_off,
-        'config_ticket_client_general_notifications' => ['page' => 'notification', 'section' => 'Client emails', 'label' => 'Email clients about their tickets', 'words' => 'ticket notification client email opened closed'] + $on_off,
+        'config_enable_alert_domain_expire' => ['page' => 'notification', 'section' => 'Alerts for your team', 'label' => 'Domains about to expire', 'words' => 'domain expiry expiration alert'] + $on_off,
+        'config_recurring_auto_send_invoice' => ['page' => 'notification', 'section' => 'Emails to clients', 'label' => 'Email the invoices recurring invoices make', 'words' => 'recurring invoice auto send email'] + $on_off,
+        'config_ticket_client_general_notifications' => ['page' => 'notification', 'section' => 'Emails to clients', 'label' => 'Email clients about their tickets', 'words' => 'ticket notification client email opened closed'] + $on_off,
 
         // Security
         'config_login_message' => ['page' => 'security', 'section' => 'The sign-in page', 'label' => 'Sign-in page message', 'kind' => 'long', 'words' => 'login message banner notice'],
         'config_login_key_required' => ['page' => 'security', 'section' => 'The sign-in page', 'label' => 'Require a login key', 'words' => 'login key secret url hide sign in'] + $on_off,
-        'config_login_key_secret' => ['page' => 'security', 'section' => 'The sign-in page', 'label' => 'Login key', 'kind' => 'secret', 'words' => 'login key secret'],
-        'config_login_remember_me_expire' => ['page' => 'security', 'section' => 'Two-step sign-in', 'label' => 'Remember a device for', 'words' => '2fa mfa remember me days trusted device'],
-        'config_login_alert_failures' => ['page' => 'security', 'section' => 'Failed sign-ins', 'label' => 'Tell admins after', 'words' => 'failed login brute force lockout alert'],
-        'config_share_max_hours' => ['page' => 'security', 'section' => 'Shared links', 'label' => 'Longest a shared link can last', 'words' => 'share link expiry guest'],
+        'config_login_key_secret' => ['page' => 'security', 'section' => 'The sign-in page', 'label' => 'Login key', 'quiet' => true, 'words' => 'login key secret url address'],
+        'config_login_remember_me_expire' => ['page' => 'security', 'section' => 'Two-step sign-in', 'label' => 'Remember a browser for', 'words' => '2fa mfa remember me days trusted device'],
+        'config_login_alert_failures' => ['page' => 'security', 'section' => 'Failed sign-ins', 'label' => 'Tell admins', 'kind' => 'select', 'options' => 'sign_in_alerts', 'words' => 'failed login brute force lockout alert'],
+        'config_share_max_hours' => ['page' => 'security', 'section' => 'Shared links', 'label' => 'Longest a shared link can last', 'kind' => 'select', 'options' => 'share_max', 'words' => 'share link expiry guest'],
         'config_share_require_protection' => ['page' => 'security', 'section' => 'Shared links', 'label' => 'Shared passwords need a passphrase or code', 'words' => 'share passphrase code protect'] + $on_off,
 
         // Client portal
         'config_client_portal_require_mfa' => ['page' => 'client_portal', 'section' => 'Signing in', 'label' => 'Require two-step sign-in', 'words' => 'portal mfa 2fa two factor contacts'] + $on_off,
 
         // Single sign-on
-        'azure_client_id' => ['page' => 'identity', 'section' => 'Microsoft Entra', 'label' => 'Application (client) ID', 'words' => 'sso entra azure microsoft 365 single sign-on portal'],
-        'azure_client_secret' => ['page' => 'identity', 'section' => 'Microsoft Entra', 'label' => 'Client secret', 'kind' => 'secret', 'words' => 'sso entra azure secret'],
+        'config_azure_client_id' => ['page' => 'identity', 'section' => 'Microsoft Entra', 'label' => 'Application (client) ID', 'words' => 'sso entra azure microsoft 365 single sign-on portal'],
+        'config_azure_client_secret' => ['page' => 'identity', 'section' => 'Microsoft Entra', 'label' => 'Client secret', 'kind' => 'secret', 'words' => 'sso entra azure secret'],
 
         // Modules
         'config_module_enable_itdoc' => ['page' => 'module', 'section' => 'Modules', 'label' => 'IT documentation', 'words' => 'module itdoc documentation assets credentials'] + $on_off,
@@ -278,6 +278,64 @@ function settingsSearchIndex() {
         $index[] = ['label' => $field['label'], 'where' => $page['title'] . ' › ' . $field['section'], 'url' => $url, 'icon' => $page['icon'], 'words' => strtolower($field['words'] ?? '')];
     }
     return $index;
+}
+
+/*
+ * The settings that match what was typed - for the search window in the top
+ * bar (agent/ajax.php?global_search), admins only. Scored as Find a setting
+ * scores them (js/settings.js): every word has to be in the name, where it
+ * is, or what else it is searched by; a name starting with it first. Pages
+ * for a module that is off are left out. The best $limit, as title,
+ * subtitle (where it is) and url.
+ */
+function settingsSearch($raw_query, $limit = 3) {
+    $terms = preg_split('/\s+/', mb_strtolower(trim((string) $raw_query)), -1, PREG_SPLIT_NO_EMPTY);
+    if (!$terms || mb_strlen(implode(' ', $terms)) < 2) {
+        return [];
+    }
+    $pages = settingsPages();
+    $off = [];
+    foreach ($pages as $key => $page) {
+        if (!settingsPageAvailable($page)) {
+            $off[$page['url']] = true;
+        }
+    }
+    $scored = [];
+    foreach (settingsSearchIndex() as $order => $entry) {
+        if (isset($off[strtok($entry['url'], '?#')])) {
+            continue;
+        }
+        $label = mb_strtolower($entry['label']);
+        $where = mb_strtolower($entry['where']);
+        $total = 0;
+        foreach ($terms as $term) {
+            if (strpos($label, $term) === 0) {
+                $total += 6;
+            } elseif (strpos($label, ' ' . $term) !== false) {
+                $total += 5;
+            } elseif (strpos($label, $term) !== false) {
+                $total += 4;
+            } elseif (strpos($where, $term) !== false) {
+                $total += 2;
+            } elseif (strpos($entry['words'], $term) !== false) {
+                $total += 1;
+            } else {
+                $total = 0;
+                break;
+            }
+        }
+        if ($total > 0) {
+            $scored[] = [$total + (!empty($entry['page']) ? 0.5 : 0), $order, $entry];
+        }
+    }
+    usort($scored, function ($a, $b) {
+        return $b[0] <=> $a[0] ?: $a[1] <=> $b[1];
+    });
+    $items = [];
+    foreach (array_slice($scored, 0, $limit) as [, , $entry]) {
+        $items[] = ['title' => $entry['label'], 'subtitle' => $entry['where'] === 'Settings' ? 'Settings page' : 'Settings › ' . $entry['where'], 'url' => '/admin/' . $entry['url']];
+    }
+    return $items;
 }
 
 /*
@@ -550,6 +608,10 @@ function settingsLogValue($name, $value) {
             $options = settingsStartPages();
         } elseif ($options === 'net_terms') {
             $options = settingsNetTerms();
+        } elseif ($options === 'sign_in_alerts') {
+            $options = signInAlertOptions();
+        } elseif ($options === 'share_max') {
+            $options = shareMaxOptions();
         } elseif (is_string($options)) {
             $options = settingsLocalizationArrays()[$options] ?? [];
         }
@@ -574,7 +636,7 @@ function settingsChangeLines(array $before, array $changed) {
     foreach ($changed as $name => $value) {
         $label = $fields[$name]['label'] ?? $name;
         $kind = $fields[$name]['kind'] ?? 'text';
-        if (in_array($kind, ['secret', 'long', 'file'], true)) {
+        if (in_array($kind, ['secret', 'long', 'file'], true) || !empty($fields[$name]['quiet'])) {
             $lines[] = "$label changed";
         } else {
             $lines[] = $label . ' ' . settingsLogValue($name, $before[$name] ?? '') . ' → ' . settingsLogValue($name, $value);

@@ -1,7 +1,8 @@
 <?php
 
 /*
- * Admin > Client Portal - two-step sign-in for the portal, and the
+ * Admin > Settings > Client portal - two-step sign-in for the portal (saved by
+ * edit_client_portal_settings, admin/post/settings_client_portal.php), and the
  * announcements shown on its home page (to every client, or one) between
  * their start and end.
  */
@@ -21,29 +22,25 @@ $state_badges = ['showing' => 'text-bg-success', 'scheduled' => 'text-bg-info', 
 
 ?>
 
-<div class="card card-dark mb-3">
-    <div class="card-header py-3">
-        <h3 class="card-title"><i class="fas fa-fw fa-user-shield me-2"></i>Client Portal</h3>
-    </div>
-    <div class="card-body">
-        <?php if (!$config_client_portal_enable) { ?>
-            <div class="alert alert-warning">The client portal is off - turn it on under <a href="settings_module.php">Modules</a>.</div>
-        <?php } ?>
-        <form action="post.php" method="post" autocomplete="off">
-            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+<?= settingsPageStart('client_portal') ?>
 
-            <div class="mb-3">
-                <div class="form-check form-switch">
-                    <input type="checkbox" class="form-check-input" name="config_client_portal_require_mfa" value="1" id="requireMfa"<?= $config_client_portal_require_mfa ? ' checked' : '' ?>>
-                    <label class="form-check-label" for="requireMfa">Require two-step sign-in</label>
-                </div>
-                <small class="text-secondary d-block">Contacts who sign in with a password are asked for a code from an authenticator app too. Anyone without it set up is taken to set it up before anything else. Microsoft 365 sign-ins are left to Microsoft.</small>
-            </div>
+<form action="post.php" method="post" autocomplete="off" data-settings-form>
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-            <button type="submit" name="edit_client_portal_settings" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
-        </form>
+    <div class="card itflow-settings-card mb-3">
+        <div class="card-body">
+            <?php if (!$config_client_portal_enable) { ?>
+                <div class="alert alert-warning py-2 small"><i class="fas fa-exclamation-triangle me-2"></i>The client portal is off - turn it on in <a href="settings_module.php">Modules</a>.</div>
+            <?php } ?>
+
+            <?= settingsSectionStart('sign-in', 'Signing in', 'A contact with portal access signs in on the same page as your agents - with a password, or their Microsoft 365 account when <a href="identity_providers.php">Single sign-on</a> is set up' . (empty($config_azure_client_id) ? ' (it isn\'t yet)' : '') . '.') ?>
+                <?= settingsSwitch('config_client_portal_require_mfa', $config_client_portal_require_mfa, ['id' => 'requireMfa', 'help' => 'Contacts who sign in with a password are asked for a code from an authenticator app too. Anyone without it set up is taken to set it up before anything else. Microsoft 365 sign-ins are left to Microsoft.']) ?>
+            <?= settingsSectionEnd() ?>
+
+            <?= settingsSaveBar('edit_client_portal_settings') ?>
+        </div>
     </div>
-</div>
+</form>
 
 <div class="card">
     <div class="card-header bg-dark py-2">

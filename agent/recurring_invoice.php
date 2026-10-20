@@ -251,7 +251,7 @@ $paper = [
                         <?php if (!$auto_send) { ?>
                             Made as a draft for you to check and send
                         <?php } elseif (empty($config_recurring_auto_send_invoice)) { ?>
-                            Made as a draft<div class="small text-body-secondary">Sending recurring invoices is off in the billing settings</div>
+                            Made as a draft<div class="small text-body-secondary">Emailing the invoices recurring invoices make is off in Settings &gt; Notifications</div>
                         <?php } elseif ($email_notify && empty($config_smtp_provider)) { ?>
                             Made as a draft<div class="small text-body-secondary">Outgoing mail isn't set up</div>
                         <?php } elseif ($email_notify) { ?>

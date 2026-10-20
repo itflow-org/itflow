@@ -628,6 +628,15 @@
             });
         }
 
+        // Admins: the settings that match, each saying where it is
+        const settings = (data && data.settings) || [];
+        if (settings.length) {
+            list.append(heading('Settings', 'sliders-h'));
+            settings.forEach(function (setting) {
+                list.append(option(setting.url, 'sliders-h', key, setting));
+            });
+        }
+
         ((data && data.groups) || []).forEach(function (group) {
             list.append(heading(group.label, group.icon));
             group.items.forEach(function (item) {
@@ -641,7 +650,7 @@
             }
         });
 
-        if (!count && !pages.length) {
+        if (!count && !pages.length && !settings.length) {
             const message = el('div', 'itflow-search-empty');
             message.append(icon('search'), el('div', null, 'No quick matches for "' + key + '".'));
             list.append(message);

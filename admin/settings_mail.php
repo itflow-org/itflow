@@ -1,4 +1,13 @@
 <?php
+
+/*
+ * Admin > Settings > Mail - sending (SMTP, or Google / Microsoft 365 by
+ * OAuth), receiving the mailbox email to ticket reads, the OAuth app both
+ * share, the addresses and names emails come from, tests, and a preview of
+ * every email ITFlow sends. Each tab's form saves on its own
+ * (admin/post/settings_mail.php), with the frame's save bar.
+ */
+
 require_once "includes/inc_all_admin.php";
 
 // ---- Tiny status dot for tab labels ----------------------------------------
@@ -66,10 +75,9 @@ $send_ready = $smtp_standard_ready || $smtp_oauth_ready;
 $imap_ready = $imap_standard_ready || $imap_oauth_ready;
 ?>
 
-<div class="card card-dark">
-    <div class="card-header py-3">
-        <h3 class="card-title"><i class="fas fa-fw fa-envelope me-2"></i>Mail Configuration</h3>
-    </div>
+<?= settingsPageStart('mail') ?>
+
+<div class="card itflow-settings-card">
     <div class="card-body">
 
         <ul class="nav nav-tabs" id="mailTabs" role="tablist">
@@ -109,7 +117,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
 
             <!-- ============================ SENDING / SMTP ============================ -->
             <div class="tab-pane fade <?php if ($active_tab === 'sending') { echo 'show active'; } ?>" id="tab-sending" role="tabpanel">
-                <form action="post.php" method="post" autocomplete="off">
+                <form action="post.php" method="post" autocomplete="off" data-settings-form>
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <input type="hidden" name="tab" value="sending">
 
@@ -176,14 +184,13 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                         </div>
                     </div>
 
-                    <hr>
-                    <button type="submit" name="edit_mail_smtp_settings" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save Sending Settings</button>
+                    <?= settingsSaveBar('edit_mail_smtp_settings') ?>
                 </form>
             </div>
 
             <!-- ============================ RECEIVING / IMAP ============================ -->
             <div class="tab-pane fade <?php if ($active_tab === 'receiving') { echo 'show active'; } ?>" id="tab-receiving" role="tabpanel">
-                <form action="post.php" method="post" autocomplete="off">
+                <form action="post.php" method="post" autocomplete="off" data-settings-form>
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <input type="hidden" name="tab" value="receiving">
 
@@ -250,14 +257,13 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                         </div>
                     </div>
 
-                    <hr>
-                    <button type="submit" name="edit_mail_imap_settings" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save Receiving Settings</button>
+                    <?= settingsSaveBar('edit_mail_imap_settings') ?>
                 </form>
             </div>
 
             <!-- ============================ OAUTH ============================ -->
             <div class="tab-pane fade <?php if ($active_tab === 'oauth') { echo 'show active'; } ?>" id="tab-oauth" role="tabpanel">
-                <form action="post.php" method="post" autocomplete="off">
+                <form action="post.php" method="post" autocomplete="off" data-settings-form>
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <input type="hidden" name="tab" value="oauth">
 
@@ -310,14 +316,13 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                         <small class="form-text text-muted">Add this callback URI in your Entra App Registration, save credentials, then click Connect to store the refresh token automatically.</small>
                     </div>
 
-                    <hr>
-                    <button type="submit" name="edit_mail_oauth_settings" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save OAuth Credentials</button>
+                    <?= settingsSaveBar('edit_mail_oauth_settings') ?>
                 </form>
             </div>
 
             <!-- ============================ FROM ADDRESSES ============================ -->
             <div class="tab-pane fade <?php if ($active_tab === 'from') { echo 'show active'; } ?>" id="tab-from" role="tabpanel">
-                <form action="post.php" method="post" autocomplete="off">
+                <form action="post.php" method="post" autocomplete="off" data-settings-form>
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <input type="hidden" name="tab" value="from">
 
@@ -355,7 +360,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                         </tbody>
                     </table>
 
-                    <button type="submit" name="edit_mail_from_settings" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save From Addresses</button>
+                    <?= settingsSaveBar('edit_mail_from_settings') ?>
                 </form>
             </div>
 
@@ -738,6 +743,8 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
     }
 
     if (smtpSel) smtpSel.addEventListener('change', render);
+    // Undo changes puts the provider back - and with it the fields it shows
+    document.querySelectorAll('#mailTabs ~ .tab-content form[data-settings-form]').forEach(f => f.addEventListener('settings:reset', render));
     if (imapSel) imapSel.addEventListener('change', render);
     document.querySelectorAll('.goto-oauth').forEach(b => b.addEventListener('click', () => activateTab('#tab-oauth')));
     render();

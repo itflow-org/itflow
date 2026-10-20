@@ -184,7 +184,7 @@ $form_scope_placeholder = [
                 </select>
             </div>
             <?php if (empty($config_recurring_auto_send_invoice)) { ?>
-                <div class="form-text text-warning-emphasis">Sending recurring invoices is off in the billing settings - they are made as drafts.</div>
+                <div class="form-text text-warning-emphasis">Emailing the invoices recurring invoices make is off in Settings &gt; Notifications - they are made as drafts.</div>
             <?php } ?>
         </div>
         <?php if ($form_edit) { ?>

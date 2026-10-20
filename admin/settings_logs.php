@@ -48,7 +48,7 @@ $size_line = function ($size, $url) {
 $retention_field = function ($name, $forever_name, $days, $label, $help) {
     $id = preg_replace('/[^a-z_]/', '', $name);
     ob_start(); ?>
-    <div class="mb-3" data-log-retention="<?= $id ?>">
+    <div class="itflow-settings-field" data-log-retention="<?= $id ?>" data-setting="<?= $name ?>" id="setting-<?= $name ?>">
         <label class="form-label" for="<?= $id ?>"><?= $label ?></label>
         <div class="row g-2 align-items-center">
             <div class="col-sm-6 col-lg-4">
@@ -72,27 +72,24 @@ $retention_field = function ($name, $forever_name, $days, $label, $help) {
 
 ?>
 
-<div class="card card-dark">
-    <div class="card-header py-3">
-        <h3 class="card-title"><i class="fas fa-fw fa-scroll me-2"></i>Logs</h3>
-    </div>
-    <div class="card-body">
-        <form action="post.php" method="post" autocomplete="off" id="logSettingsForm">
-            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+<?= settingsPageStart('logs') ?>
 
-            <h4>Keeping logs</h4>
-            <p class="text-secondary small">Each night, entries older than this are deleted for good. Keep the audit log as long as your clients or insurers ask you to be able to say who did what.</p>
+<form action="post.php" method="post" autocomplete="off" id="logSettingsForm" data-settings-form>
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+
+    <div class="card itflow-settings-card">
+        <div class="card-body">
+
+            <?= settingsSectionStart('keeping', 'Keeping logs', 'Each night, entries older than this are deleted for good. Keep the audit log as long as your clients or insurers ask you to be able to say who did what.') ?>
 
             <?= $retention_field('config_log_retention', 'audit_forever', $retention['audit'], 'Audit log', 'Who did what, signed in, looked at a password or exported something. How each API key is used is kept as long. ' . $size_line($audit_size, 'audit_logs.php')) ?>
 
             <?= $retention_field('config_app_log_retention', 'app_forever', $retention['app'], 'App logs', 'What ITFlow itself does - cron runs, mail, payment providers - and the errors it runs into. They can also be cleared by hand. ' . $size_line($app_size, 'app_logs.php')) ?>
+            <?= settingsSectionEnd() ?>
 
-            <hr>
+            <?= settingsSectionStart('forwarding', 'Sending logs on', 'Each entry can also go to a syslog server or SIEM - Graylog, Splunk, Wazuh, Microsoft Sentinel and the like - as it is written, as a syslog message (RFC 5424, facility local0). A server that can\'t be reached doesn\'t slow ITFlow down: it is tried again a minute later, and the entries in between stay in ITFlow\'s own logs.', 'forwarding') ?>
 
-            <h4 id="forwarding">Sending logs on</h4>
-            <p class="text-secondary small">Each entry can also go to a syslog server or SIEM - Graylog, Splunk, Wazuh, Microsoft Sentinel and the like - as it is written, as a syslog message (RFC 5424, facility local0). A server that can't be reached doesn't slow ITFlow down: it is tried again a minute later, and the entries in between stay in ITFlow's own logs.</p>
-
-            <div class="mb-3">
+            <div class="itflow-settings-field" data-setting="config_log_forward_enabled" id="setting-config_log_forward_enabled">
                 <div class="form-check form-switch">
                     <input type="checkbox" class="form-check-input" name="config_log_forward_enabled" value="1" id="logForwardEnabled" <?= $forward['enabled'] ? 'checked' : '' ?>>
                     <label class="form-check-label" for="logForwardEnabled">Send log entries to a syslog server or SIEM</label>
@@ -112,7 +109,7 @@ $retention_field = function ($name, $forever_name, $days, $label, $help) {
 
             <div data-log-forward-fields>
                 <div class="row g-3 mb-3">
-                    <div class="col-md-6">
+                    <div class="col-md-6" data-setting="config_log_forward_host" id="setting-config_log_forward_host">
                         <label class="form-label">Server</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
@@ -189,15 +186,12 @@ $retention_field = function ($name, $forever_name, $days, $label, $help) {
                     </details>
                 <?php } ?>
             </div>
+            <?= settingsSectionEnd() ?>
 
-            <hr>
-
-            <button type="submit" name="edit_log_settings" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
-            <button type="submit" name="test_log_forward" class="btn btn-outline-secondary ms-2" title="Saves, then sends one test message to the server"><i class="fas fa-paper-plane me-2"></i>Save and send a test</button>
-
-        </form>
+            <?= settingsSaveBar('edit_log_settings', 'Save', '<button type="submit" name="test_log_forward" class="btn btn-outline-secondary" title="Saves, then sends one test message to the server"><i class="fas fa-paper-plane me-2"></i>Save and send a test</button>') ?>
+        </div>
     </div>
-</div>
+</form>
 
 <script>
     (function () {
@@ -214,6 +208,10 @@ $retention_field = function ($name, $forever_name, $days, $label, $help) {
                 }
             };
             toggle.addEventListener('change', sync);
+            form.addEventListener('settings:reset', function () {
+                days.disabled = toggle.checked;
+                days.required = !toggle.checked;
+            });
         });
 
         // The certificate switch is for TLS, and the sample follows the format
@@ -226,6 +224,7 @@ $retention_field = function ($name, $forever_name, $days, $label, $help) {
                 pre.classList.toggle('d-none', pre.dataset.logForwardSampleFormat !== format.value);
             });
         };
+        form.addEventListener('settings:reset', follow);
         [protocol, format].forEach(function (select) {
             select.addEventListener('change', follow);
             if (window.jQuery) {

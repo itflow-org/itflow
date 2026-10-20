@@ -993,7 +993,8 @@ if (isset($_POST['notifications_mark'])) {
  *
  * Same search as the full results page - functions/search.php - so the two can
  * never disagree about what this user may see. Five per group plus any app page
- * whose name matches; with nothing typed yet, the recently opened clients.
+ * whose name matches, and for admins the settings that match (settingsSearch());
+ * with nothing typed yet, the recently opened clients.
  * Values are raw: the palette renders them as text, never as HTML.
  */
 if (isset($_GET['global_search'])) {
@@ -1003,6 +1004,7 @@ if (isset($_GET['global_search'])) {
     $response = [
         'query' => $global_search_query,
         'pages' => [],
+        'settings' => [],
         'groups' => [],
         'recent' => [],
     ];
@@ -1011,6 +1013,8 @@ if (isset($_GET['global_search'])) {
         $response['recent'] = globalSearchRecentClients();
     } else {
         $response['pages'] = globalSearchPages($global_search_query);
+        // Admins find a setting too - Admin > Settings, the page and where on it
+        $response['settings'] = !empty($session_is_admin) ? settingsSearch($global_search_query) : [];
         $response['groups'] = globalSearch($global_search_query, 5);
     }
 
