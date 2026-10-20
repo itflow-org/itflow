@@ -13,7 +13,9 @@
  *   3  sent - its body, calendar file and attachments are cleared then, as
  *      they can carry share keys and temporary passwords
  *   4  cancelled by an admin - never picked up again
- * Sent, failed and cancelled email is deleted after 90 days (nightly).
+ * email_error says why it last failed, or who cancelled it - cleared when it
+ * is sent or retried. Sent, failed and cancelled email is deleted after 90
+ * days (nightly).
  */
 
 const MAIL_QUEUE_TRIES = 4;
@@ -37,10 +39,18 @@ function mailQueueTabs() {
 
 /*
  * Where an email stands, in words - key (as the tabs), label, the badge's
- * classes, a line under it and the exact time for its title. $row has
- * email_status, email_attempts and its times.
+ * classes, a line under it, the exact time for its title, and why it failed
+ * (error). $row has email_status, email_attempts, its times and
+ * email_error.
  */
 function mailQueueState(array $row) {
+    $state = mailQueueStateOf($row);
+    // Why it failed, or who cancelled it - not once it has gone, or while it waits again
+    $state['error'] = in_array($state['key'], ['retrying', 'failed', 'cancelled'], true) ? mailQueueErrorText($row['email_error'] ?? '') : '';
+    return $state;
+}
+
+function mailQueueStateOf(array $row) {
     $status = intval($row['email_status']);
     $tries = intval($row['email_attempts']);
     $when = function ($datetime) {
@@ -133,10 +143,12 @@ function mailQueueAct($action, array $email_ids) {
     $done_list = implode(',', $done);
     if ($action === 'retry') {
         // From the start: a full set of tries, at the next run
-        mysqli_query($mysqli, "UPDATE email_queue SET email_status = 0, email_attempts = 0, email_failed_at = NULL, email_queued_at = LEAST(email_queued_at, NOW())
-            WHERE email_id IN ($done_list) AND $where");
+        mysqli_query($mysqli, "UPDATE email_queue SET email_status = 0, email_attempts = 0, email_failed_at = NULL, email_queued_at = LEAST(email_queued_at, NOW())"
+            . mailQueueErrorSql(null) . " WHERE email_id IN ($done_list) AND $where");
     } elseif ($action === 'cancel') {
-        mysqli_query($mysqli, "UPDATE email_queue SET email_status = $cancelled, email_failed_at = NOW() WHERE email_id IN ($done_list) AND $where");
+        global $session_name;
+        mysqli_query($mysqli, "UPDATE email_queue SET email_status = $cancelled, email_failed_at = NOW()"
+            . mailQueueErrorSql('Cancelled by ' . stripslashes((string) ($session_name ?? 'an admin'))) . " WHERE email_id IN ($done_list) AND $where");
     } else {
         mysqli_query($mysqli, "DELETE FROM email_queue WHERE email_id IN ($done_list) AND $where");
     }
@@ -190,4 +202,42 @@ function mailQueueHealth() {
     }
     return ['level' => '', 'key' => 'ok', 'title' => '', 'text' => 'Sent by the Mail Queue job each minute - it last ran ' . $ago($job['cron_job_last_run_at'] ?? null) . '. A failed email is tried '
         . (MAIL_QUEUE_TRIES - 1) . ' more times, ' . MAIL_QUEUE_RETRY_MINUTES . ' minutes apart. Email is kept ' . MAIL_QUEUE_KEEP_DAYS . ' days; a sent one without what it said.', 'url' => '', 'action' => '', 'waiting' => 0];
+}
+
+/* Whether email_queue has email_error yet - not until the 3.3.7 update has run. */
+function mailQueueHasError() {
+    global $mysqli;
+    static $has = null;
+    if ($has === null) {
+        $result = mysqli_query($mysqli, "SHOW COLUMNS FROM email_queue LIKE 'email_error'");
+        $has = $result && mysqli_num_rows($result) > 0;
+    }
+    return $has;
+}
+
+/*
+ * Why an email failed, as kept with it - one line, 500 characters at most,
+ * as the server said it (an address in <> stays). '' for none.
+ */
+function mailQueueErrorText($error) {
+    $error = trim(preg_replace('/\s+/u', ' ', (string) $error));
+    return mb_strlen($error) > 500 ? mb_substr($error, 0, 497) . '...' : $error;
+}
+
+/*
+ * The SET clause for why an email failed (or NULL to clear it), to add to an
+ * UPDATE of email_queue - ", email_error = '...'", or '' before the update
+ * adding the column has run, so the rest of the UPDATE still happens.
+ */
+function mailQueueErrorSql($error) {
+    if (!mailQueueHasError()) {
+        return '';
+    }
+    $error = $error === null ? '' : mailQueueErrorText($error);
+    return ', email_error = ' . ($error === '' ? 'NULL' : "'" . escapeSql($error) . "'");
+}
+
+/* The email_error column for a SELECT - itself, or NULL before the update. */
+function mailQueueErrorColumn() {
+    return mailQueueHasError() ? 'email_error' : 'NULL AS email_error';
 }

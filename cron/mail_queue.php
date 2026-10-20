@@ -333,7 +333,8 @@ function sendQueueEmail(
  *  That trade is deliberate: a duplicate is recoverable, an invoice that silently
  *  never arrives is not.
  * ======================================================================= */
-mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = email_attempts + 1 WHERE email_status = 1");
+mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = email_attempts + 1"
+    . mailQueueErrorSql('The run sending it stopped part-way through, so it is tried again') . " WHERE email_status = 1");
 $orphaned_emails = mysqli_affected_rows($mysqli);
 if ($orphaned_emails > 0) {
     logApp("Cron-Mail-Queue", "warning", "Recovered $orphaned_emails email(s) left in a sending state by a previous run - queued for retry.");
@@ -360,7 +361,8 @@ if (mysqli_num_rows($sql_queue) > 0) {
         // Check sender
         if (!filter_var($email_from, FILTER_VALIDATE_EMAIL)) {
             $email_from_logging = escapeSql($rowq['email_from']);
-            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99, email_failed_at = NOW() WHERE email_id = $email_id");
+            $why = (trim((string) $email_from) === '' ? 'It has no from address' : "The from address isn't one: $email_from") . ' - the addresses are set in Settings > Mail > From addresses';
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99, email_failed_at = NOW()" . mailQueueErrorSql($why) . " WHERE email_id = $email_id");
             logApp("Cron-Mail-Queue", "Error", "Failed to send email #$email_id due to invalid sender address: $email_from_logging - check configuration in settings.");
             appNotify("Mail", "Failed to send email #$email_id due to invalid sender address");
             continue;
@@ -375,7 +377,7 @@ if (mysqli_num_rows($sql_queue) > 0) {
 
         // Basic recipient syntax check
         if (!filter_var($email_recipient, FILTER_VALIDATE_EMAIL)) {
-            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99, email_failed_at = NOW() WHERE email_id = $email_id");
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99, email_failed_at = NOW()" . mailQueueErrorSql("The address it is to isn't an email address") . " WHERE email_id = $email_id");
             $email_to_logging = escapeSql($email_recipient);
             $email_subject_logging = escapeSql($rowq['email_subject']);
             logApp("Cron-Mail-Queue", "Error", "Failed to send email: $email_id to $email_to_logging due to invalid recipient address. Email subject was: $email_subject_logging");
@@ -386,7 +388,8 @@ if (mysqli_num_rows($sql_queue) > 0) {
         // More intelligent recipient MX check (if not disabled with --no-mx-validation)
         $domain = escapeSql(substr($email_recipient, strpos($email_recipient, '@') + 1));
         if (!in_array('--no-mx-validation', $argv) && !checkdnsrr($domain, 'MX')) {
-            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99, email_failed_at = NOW() WHERE email_id = $email_id");
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99, email_failed_at = NOW()"
+                . mailQueueErrorSql('No mail server takes email for ' . substr($email_recipient, strpos($email_recipient, '@') + 1) . ' - it has no MX record') . " WHERE email_id = $email_id");
             $email_to_logging = escapeSql($email_recipient);
             $email_subject_logging = escapeSql($rowq['email_subject']);
             logApp("Cron-Mail-Queue", "Error", "Failed to send email: $email_id to $email_to_logging due to invalid recipient domain (no MX). Email subject was: $email_subject_logging");
@@ -419,16 +422,17 @@ if (mysqli_num_rows($sql_queue) > 0) {
             );
 
             // Scrub the body on delivery - it can carry share decryption keys and temporary passwords
-            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = 1, email_content = '', email_cal_str = '', email_attachments = '' WHERE email_id = $email_id");
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = 1, email_content = '', email_cal_str = '', email_attachments = ''" . mailQueueErrorSql(null) . " WHERE email_id = $email_id");
 
         } catch (Exception $e) {
-            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = 1 WHERE email_id = $email_id");
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = 1" . mailQueueErrorSql($e->getMessage()) . " WHERE email_id = $email_id");
 
             $email_recipient_logging = escapeSql($rowq['email_recipient']);
             $email_subject_logging   = escapeSql($rowq['email_subject']);
             $err = substr("Mailer Error: " . $e->getMessage(), 0, 100) . "...";
 
-            appNotify("Cron-Mail-Queue", "Failed to send email #$email_id to $email_recipient_logging");
+            appNotify("Cron-Mail-Queue", "Failed to send email #$email_id to $email_recipient_logging - " . escapeSql(mb_strimwidth(mailQueueErrorText($e->getMessage()), 0, 200, '...'))
+                . " - it is tried again in " . MAIL_QUEUE_RETRY_MINUTES . " minutes", "/admin/mail_queue.php?show=retrying", 0, $email_id);
             logApp("Cron-Mail-Queue", "Error", "Failed to send email: $email_id to $email_recipient_logging regarding $email_subject_logging. $err");
         }
     }
@@ -469,7 +473,7 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
         }
 
         if (!filter_var($email_recipient, FILTER_VALIDATE_EMAIL)) {
-            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = $email_attempts WHERE email_id = $email_id");
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = $email_attempts, email_failed_at = NOW()" . mailQueueErrorSql("The address it is to isn't an email address") . " WHERE email_id = $email_id");
             continue;
         }
 
@@ -498,14 +502,20 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
             );
 
             // Scrub the body on delivery - it can carry share decryption keys and temporary passwords
-            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = $email_attempts, email_content = '', email_cal_str = '', email_attachments = '' WHERE email_id = $email_id");
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = $email_attempts, email_content = '', email_cal_str = '', email_attachments = ''" . mailQueueErrorSql(null) . " WHERE email_id = $email_id");
 
         } catch (Exception $e) {
-            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = $email_attempts WHERE email_id = $email_id");
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = $email_attempts" . mailQueueErrorSql($e->getMessage()) . " WHERE email_id = $email_id");
 
             $email_recipient_logging = escapeSql($rowf['email_recipient']);
             $email_subject_logging   = escapeSql($rowf['email_subject']);
             $err = substr("Mailer Error: " . $e->getMessage(), 0, 100) . "...";
+
+            // The last of its tries - nothing more happens to it unless someone retries it
+            if ($email_attempts >= MAIL_QUEUE_TRIES) {
+                appNotify("Cron-Mail-Queue", "Gave up on email #$email_id to $email_recipient_logging after $email_attempts tries - " . escapeSql(mb_strimwidth(mailQueueErrorText($e->getMessage()), 0, 200, '...')),
+                    "/admin/mail_queue.php?show=failed", 0, $email_id);
+            }
 
             logApp("Cron-Mail-Queue", "Error", "Failed to re-send email #$email_id to $email_recipient_logging regarding $email_subject_logging. $err");
         }

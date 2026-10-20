@@ -8400,3 +8400,18 @@ a.itflow-portal-request:focus-visible {
 [data-settings-depends-on].is-off {
     opacity: .55;
 }
+
+/* ---------- Mail Queue ---------- */
+/* Why an email failed, under its status on the list */
+.itflow-mail-queue-why {
+    max-width: 22rem;
+}
+/* The email as it will arrive - its own white page, whatever the theme */
+.itflow-mail-queue-frame {
+    height: 45vh;
+    min-height: 18rem;
+    background: #fff;
+}
+.itflow-mail-queue-facts dd {
+    margin-bottom: .35rem;
+}

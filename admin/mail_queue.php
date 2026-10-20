@@ -34,11 +34,12 @@ if (!isset($sortable_columns[$sort])) {
     $sort = 'email_queued_at';
 }
 
-$search = "(email_id LIKE '%$q%' OR email_from LIKE '%$q%' OR email_from_name LIKE '%$q%' OR email_recipient LIKE '%$q%' OR email_recipient_name LIKE '%$q%' OR email_subject LIKE '%$q%')
+$search = "(email_id LIKE '%$q%' OR email_from LIKE '%$q%' OR email_from_name LIKE '%$q%' OR email_recipient LIKE '%$q%' OR email_recipient_name LIKE '%$q%' OR email_subject LIKE '%$q%'"
+    . (mailQueueHasError() ? " OR email_error LIKE '%$q%'" : '') . ")
     AND DATE(email_queued_at) BETWEEN '$dtf' AND '$dtt'";
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS email_id, email_status, email_attempts, email_from, email_from_name, email_recipient, email_recipient_name,
-        email_subject, email_queued_at, email_failed_at, email_sent_at, COALESCE(email_attachments, '') <> '' AS has_attachments, COALESCE(email_cal_str, '') <> '' AS has_invite
+        email_subject, email_queued_at, email_failed_at, email_sent_at, " . mailQueueErrorColumn() . ", COALESCE(email_attachments, '') <> '' AS has_attachments, COALESCE(email_cal_str, '') <> '' AS has_invite
     FROM email_queue
     WHERE $search AND {$tabs[$show][2]}
     ORDER BY {$sortable_columns[$sort]}, email_id DESC
@@ -100,7 +101,7 @@ $filtered_dates = isset($_GET['dtf']) && $_GET['dtf'] !== '' && $_GET['dtf'] !==
             <div class="row g-2 align-items-center">
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search the mail queue..." title="Who it is to or from, the subject, or its number">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search the mail queue..." title="Who it is to or from, the subject, why it failed, or its number">
                         <button class="btn btn-secondary" title="When it was queued" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-calendar-alt"></i></button>
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
@@ -198,12 +199,16 @@ $filtered_dates = isset($_GET['dtf']) && $_GET['dtf'] !== '' && $_GET['dtf'] !==
                             <?php if ($state['detail'] !== '') { ?>
                                 <div class="small text-body-secondary mt-1" title="<?= escapeHtml($state['title']) ?>" data-email-detail><?= escapeHtml($state['detail']) ?></div>
                             <?php } ?>
+                            <?php if ($state['error'] !== '') { ?>
+                                <div class="small text-wrap itflow-mail-queue-why <?= $state['key'] === 'cancelled' ? 'text-body-secondary' : 'text-danger-emphasis' ?>" title="<?= escapeHtml($state['error']) ?>" data-email-error><?= escapeHtml(mb_strimwidth($state['error'], 0, 160, '...')) ?></div>
+                            <?php } ?>
                         </td>
                         <td class="min-w-0">
                             <div><?= $person($row['email_recipient_name'], $row['email_recipient']) ?></div>
                             <!-- On smaller screens the subject comes along under who it is to, and on a phone where it stands -->
                             <div class="d-md-none small"><a class="ajax-modal" href="#" <?= $view ?>><?= $subject ?></a></div>
                             <div class="d-sm-none small mt-1"><span class="badge <?= $state['badge'] ?>"><?= $state['label'] ?></span> <span class="text-body-secondary"><?= escapeHtml($state['detail']) ?></span></div>
+                            <?php if ($state['error'] !== '') { ?><div class="d-sm-none small text-danger-emphasis"><?= escapeHtml(mb_strimwidth($state['error'], 0, 160, '...')) ?></div><?php } ?>
                         </td>
                         <td class="d-none d-md-table-cell min-w-0">
                             <a class="ajax-modal fw-semibold text-body" href="#" <?= $view ?>><?= $subject ?></a>
