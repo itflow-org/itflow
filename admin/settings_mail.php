@@ -367,6 +367,19 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
             <!-- ============================ TESTS ============================ -->
             <div class="tab-pane fade <?php if ($active_tab === 'tests') { echo 'show active'; } ?>" id="tab-tests" role="tabpanel">
 
+                <?php $mail_queue = mailQueueSummary(); ?>
+                <div class="d-flex flex-wrap align-items-center gap-2 border rounded p-3 mb-4" data-mail-queue-summary>
+                    <i class="fas fa-fw fa-inbox text-body-secondary"></i>
+                    <span class="me-auto">
+                        <strong>Mail Queue</strong>
+                        <span class="text-body-secondary">- <?= $mail_queue['last_sent'] ? 'last sent ' . escapeHtml(timeAgo($mail_queue['last_sent'])) : 'nothing sent yet' ?></span>
+                        <?php if ($mail_queue['waiting']) { ?><span class="badge text-bg-primary ms-1"><?= $mail_queue['waiting'] ?> waiting</span><?php } ?>
+                        <?php if ($mail_queue['retrying']) { ?><span class="badge text-bg-warning ms-1"><?= $mail_queue['retrying'] ?> retrying</span><?php } ?>
+                        <?php if ($mail_queue['failed_day']) { ?><span class="badge text-bg-danger ms-1"><?= $mail_queue['failed_day'] ?> failed in the last day</span><?php } ?>
+                    </span>
+                    <a class="btn btn-sm btn-outline-secondary" href="mail_queue.php<?= $mail_queue['failed_day'] ? '?show=failed' : '' ?>">Open the Mail Queue</a>
+                </div>
+
                 <?php if (!$send_ready && !$imap_ready && !$oauth_has_required_fields) { ?>
                     <div class="alert alert-secondary mb-0">
                         <i class="fas fa-fw fa-info-circle me-2"></i>Finish configuring Sending, Receiving, or OAuth (plus at least one From address) to unlock the tests.

@@ -180,7 +180,13 @@
                 <li class="nav-item">
                     <a href="/admin/mail_queue.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'mail_queue.php' ? 'active' : '') ?>">
                         <i class="nav-icon fas fa-inbox"></i>
-                        <p>Mail Queue</p>
+                        <p>
+                            Mail Queue
+                            <?php $nav_mail_failed = mailQueueSummary()['failed_week']; ?>
+                            <?php if ($nav_mail_failed) { ?>
+                                <span class="right badge text-bg-danger" data-bs-toggle="tooltip" title="Failed to send in the last week" data-nav-mail-failed><?= $nav_mail_failed ?></span>
+                            <?php } ?>
+                        </p>
                     </a>
                 </li>
                 <li class="nav-item">

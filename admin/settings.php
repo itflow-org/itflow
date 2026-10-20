@@ -41,7 +41,8 @@ $summaries = [
     'project' => 'Next ' . escapeHtml($config_project_prefix . $config_project_next_number),
     'quote' => 'Next ' . escapeHtml($config_quote_prefix . $config_quote_next_number),
     'invoice' => 'Next ' . escapeHtml($config_invoice_prefix . $config_invoice_next_number) . ' · reminders ' . $on_off($config_send_invoice_reminders) . ' · late fees ' . $on_off($config_invoice_late_fee_enable),
-    'mail' => 'Sending ' . ($config_smtp_provider ? 'on' : '<span class="text-danger-emphasis">off</span>') . ' · receiving ' . $on_off($config_imap_provider),
+    'mail' => 'Sending ' . ($config_smtp_provider ? 'on' : '<span class="text-danger-emphasis">off</span>') . ' · receiving ' . $on_off($config_imap_provider)
+        . (mailQueueSummary()['failed_week'] ? ' · <span class="text-danger-emphasis">' . mailQueueSummary()['failed_week'] . ' failed this week</span>' : ''),
     'notification' => 'Domain alerts ' . $on_off($config_enable_alert_domain_expire) . ' · ticket emails to clients ' . $on_off($config_ticket_client_general_notifications),
     'security' => 'Login key ' . $on_off($config_login_key_required) . ' · devices remembered ' . $days($config_login_remember_me_expire),
     'client_portal' => 'Two-step sign-in ' . ($config_client_portal_require_mfa ? 'required' : 'optional'),
@@ -61,6 +62,16 @@ if ($config_ticket_email_parse && $config_module_enable_ticketing && empty($conf
 }
 if ($config_login_key_required && trim((string) $config_login_key_secret) === '') {
     $attention[] = ['warning', 'fa-key', 'A login key is required, but there isn\'t one', 'The sign-in page asks for a key nobody has been given.', 'settings_security.php#setting=config_login_key_secret', 'Set the key'];
+}
+// The mail queue - email given up on, or a queue that isn't moving (sending off is said above)
+$mail_queue = mailQueueSummary();
+if ($mail_queue['failed_day']) {
+    $attention[] = ['danger', 'fa-envelope-open-text', $mail_queue['failed_day'] . ' email' . ($mail_queue['failed_day'] === 1 ? '' : 's') . ' failed to send',
+        'In the last day - ITFlow tried ' . MAIL_QUEUE_TRIES . ' times and gave up. The Mail Queue says why, and can try again.', 'mail_queue.php?show=failed', 'See why'];
+}
+$mail_queue_health = mailQueueHealth();
+if (!empty($config_smtp_provider) && in_array($mail_queue_health['key'], ['cron_off', 'cron_stopped', 'job_off', 'slow'], true)) {
+    $attention[] = [$mail_queue_health['level'], 'fa-inbox', $mail_queue_health['title'], $mail_queue_health['text'], 'mail_queue.php', 'Mail Queue'];
 }
 if (trim((string) $config_timezone) === '') {
     $attention[] = ['warning', 'fa-clock', 'No timezone', 'Dates and times are in the server\'s timezone until one is picked.', 'settings_localization.php#setting=config_timezone', 'Pick one'];

@@ -254,7 +254,7 @@ if (isset($_POST['test_email_smtp'])) {
     $sent = emailTestSend($to, $mailbox);
 
     if ($sent) {
-        flashAlert("Test email queued! Check <strong>Admin &gt; Mail queue</strong>");
+        flashAlert('Test email queued - it goes within a minute. Watch it go in <strong>Maintenance &gt; Mail Queue</strong>');
     } else {
         flashAlert(escapeHtml($to) . " isn't an email address - nothing was queued", 'error');
     }

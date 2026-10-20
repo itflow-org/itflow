@@ -241,3 +241,26 @@ function mailQueueErrorSql($error) {
 function mailQueueErrorColumn() {
     return mailQueueHasError() ? 'email_error' : 'NULL AS email_error';
 }
+
+/*
+ * The mail queue at a glance, for the pages that point to it - how many are
+ * waiting (due now), retrying, and given up on in the last day and the last
+ * week, and when one was last sent. Read once a request.
+ */
+function mailQueueSummary() {
+    global $mysqli;
+    static $summary = null;
+    if ($summary !== null) {
+        return $summary;
+    }
+    $tries = MAIL_QUEUE_TRIES;
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT
+            COALESCE(SUM(email_status = 0 AND email_queued_at <= NOW()), 0),
+            COALESCE(SUM(email_status = 2 AND email_attempts < $tries), 0),
+            COALESCE(SUM(email_status = 2 AND email_attempts >= $tries AND email_failed_at >= NOW() - INTERVAL 1 DAY), 0),
+            COALESCE(SUM(email_status = 2 AND email_attempts >= $tries AND email_failed_at >= NOW() - INTERVAL 7 DAY), 0),
+            MAX(CASE WHEN email_status = 3 THEN email_sent_at END)
+        FROM email_queue WHERE email_queued_at >= NOW() - INTERVAL " . MAIL_QUEUE_KEEP_DAYS . " DAY"));
+    $summary = ['waiting' => intval($row[0] ?? 0), 'retrying' => intval($row[1] ?? 0), 'failed_day' => intval($row[2] ?? 0), 'failed_week' => intval($row[3] ?? 0), 'last_sent' => $row[4] ?? null];
+    return $summary;
+}

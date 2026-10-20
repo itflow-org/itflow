@@ -906,6 +906,7 @@ function globalSearchPages($raw_query) {
         ['Transfers', '/agent/transactions.php?show=transfers', $financial && $accounting],
         ['Reports', '/agent/reports/', lookupUserPermission('module_reporting') >= 1],
         ['Administration', '/admin/', (bool) $session_is_admin],
+        ['Mail Queue', '/admin/mail_queue.php', (bool) $session_is_admin],
         ['My Account', '/agent/user/user_details.php', true],
     ];
 
