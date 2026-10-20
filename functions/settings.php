@@ -134,16 +134,18 @@ function settingsFields() {
         'favicon' => ['page' => 'theme', 'section' => 'Browser tab icon', 'label' => 'Browser tab icon', 'kind' => 'file', 'words' => 'favicon ico icon tab'],
 
         // Defaults
-        'start_page' => ['page' => 'default', 'section' => 'Opening ITFlow', 'label' => 'Start page', 'words' => 'home dashboard landing start page'],
-        'calendar' => ['page' => 'default', 'section' => 'Opening ITFlow', 'label' => 'Calendar', 'words' => 'default calendar events'],
-        'net_terms' => ['page' => 'default', 'section' => 'New clients', 'label' => 'Net terms', 'words' => 'payment terms due days net 30'],
-        'hourly_rate' => ['page' => 'default', 'section' => 'New clients', 'label' => 'Hourly rate', 'words' => 'rate per hour labour labor billing'],
-        'payment_account' => ['page' => 'default', 'section' => 'Accounts', 'label' => 'Payments go into', 'words' => 'payment account bank deposit'],
-        'payment_method' => ['page' => 'default', 'section' => 'Accounts', 'label' => 'Payment method', 'words' => 'payment method check card cash'],
-        'expense_account' => ['page' => 'default', 'section' => 'Accounts', 'label' => 'Expenses come out of', 'words' => 'expense account'],
-        'expense_payment_method' => ['page' => 'default', 'section' => 'Accounts', 'label' => 'Expense payment method', 'words' => 'expense payment method'],
-        'transfer_from_account' => ['page' => 'default', 'section' => 'Accounts', 'label' => 'Transfers from', 'words' => 'transfer account'],
-        'transfer_to_account' => ['page' => 'default', 'section' => 'Accounts', 'label' => 'Transfers to', 'words' => 'transfer account'],
+        'config_start_page' => ['page' => 'default', 'section' => 'Opening ITFlow', 'label' => 'Start page', 'kind' => 'select', 'options' => 'start_pages',
+            'words' => 'home dashboard landing start page'],
+        'config_default_calendar' => ['page' => 'default', 'section' => 'Opening ITFlow', 'label' => 'Calendar', 'kind' => 'calendar', 'words' => 'default calendar events'],
+        'config_default_net_terms' => ['page' => 'default', 'section' => 'New clients', 'label' => 'Net terms', 'kind' => 'select', 'options' => 'net_terms',
+            'words' => 'payment terms due days net 30'],
+        'config_default_hourly_rate' => ['page' => 'default', 'section' => 'New clients', 'label' => 'Hourly rate', 'words' => 'rate per hour labour labor billing'],
+        'config_default_payment_account' => ['page' => 'default', 'section' => 'Accounts', 'label' => 'Payments go into', 'kind' => 'account', 'words' => 'payment account bank deposit'],
+        'config_default_payment_method' => ['page' => 'default', 'section' => 'Accounts', 'label' => 'Payment method', 'words' => 'payment method check card cash'],
+        'config_default_expense_account' => ['page' => 'default', 'section' => 'Accounts', 'label' => 'Expenses come out of', 'kind' => 'account', 'words' => 'expense account'],
+        'config_default_expense_payment_method' => ['page' => 'default', 'section' => 'Accounts', 'label' => 'Expense payment method', 'words' => 'expense payment method'],
+        'config_default_transfer_from_account' => ['page' => 'default', 'section' => 'Accounts', 'label' => 'Transfers from', 'kind' => 'account', 'words' => 'transfer account'],
+        'config_default_transfer_to_account' => ['page' => 'default', 'section' => 'Accounts', 'label' => 'Transfers to', 'kind' => 'account', 'words' => 'transfer account'],
 
         // Tickets
         'config_ticket_prefix' => ['page' => 'ticket', 'section' => 'Numbering', 'label' => 'Ticket prefix', 'words' => 'ticket number tck prefix'],
@@ -154,7 +156,7 @@ function settingsFields() {
         'config_ticket_timer_autostart' => ['page' => 'ticket', 'section' => 'Time and billing', 'label' => 'Start the timer on opening a ticket', 'words' => 'timer autostart time tracking'] + $on_off,
         'config_ticket_autoclose_hours' => ['page' => 'ticket', 'section' => 'Closing', 'label' => 'Close resolved tickets after', 'words' => 'auto close autoclose resolved hours'],
         'config_ticket_new_ticket_notification_email' => ['page' => 'ticket', 'section' => 'New tickets', 'label' => 'Email new tickets to', 'words' => 'new ticket notification email distribution list alert'],
-        'config_ticket_default_view' => ['page' => 'ticket', 'section' => 'The tickets page', 'label' => 'Tickets open as', 'kind' => 'select', 'options' => [0 => 'List', 1 => 'Compact', 2 => 'Kanban'],
+        'config_ticket_default_view' => ['page' => 'ticket', 'section' => 'The tickets page', 'label' => 'Tickets open as', 'kind' => 'select', 'options' => [0 => 'A list', 1 => 'A compact list', 2 => 'A board (kanban)'],
             'words' => 'default view list compact kanban board'],
         'config_ticket_ordering' => ['page' => 'ticket', 'section' => 'The tickets page', 'label' => 'Order tickets by hand on the board', 'words' => 'kanban ordering drag order'] + $on_off,
         'config_ticket_moving_columns' => ['page' => 'ticket', 'section' => 'The tickets page', 'label' => 'Rearrange the board\'s columns', 'words' => 'kanban columns move'] + $on_off,
@@ -183,16 +185,23 @@ function settingsFields() {
         'reminder_before' => ['page' => 'invoice', 'section' => 'Reminders and statements', 'label' => 'Remind before it is due', 'words' => 'reminder days before due'],
         'reminder_after' => ['page' => 'invoice', 'section' => 'Reminders and statements', 'label' => 'Remind after it is due', 'words' => 'reminder days late overdue'],
         'reminder_repeat' => ['page' => 'invoice', 'section' => 'Reminders and statements', 'label' => 'Then remind every', 'words' => 'reminder repeat'],
+        'config_invoice_reminder_days' => ['page' => 'invoice', 'section' => 'Reminders and statements', 'label' => 'Reminder days', 'search' => false],
+        'config_invoice_reminder_repeat' => ['page' => 'invoice', 'section' => 'Reminders and statements', 'label' => 'Reminders repeat every (days)', 'search' => false],
         'config_statement_monthly' => ['page' => 'invoice', 'section' => 'Reminders and statements', 'label' => 'Monthly statements', 'words' => 'statement balance monthly'] + $on_off,
+        'config_statement_day' => ['page' => 'invoice', 'section' => 'Reminders and statements', 'label' => 'Statement day', 'words' => 'statement day of the month'],
         'config_billing_email_attach_pdf' => ['page' => 'invoice', 'section' => 'Reminders and statements', 'label' => 'Attach the PDF to billing emails', 'words' => 'pdf attachment attach'] + $on_off,
-        'config_time_increment' => ['page' => 'invoice', 'section' => 'Billing time', 'label' => 'Round time to', 'words' => 'time rounding increment minutes billable time'],
-        'config_time_rounding' => ['page' => 'invoice', 'section' => 'Billing time', 'label' => 'Rounding', 'words' => 'round up nearest'],
-        'config_time_minimum' => ['page' => 'invoice', 'section' => 'Billing time', 'label' => 'Least a ticket bills', 'words' => 'minimum time billable'],
+        'config_time_increment' => ['page' => 'invoice', 'section' => 'Billing time', 'label' => 'Round time to', 'kind' => 'select',
+            'options' => [6 => '6 minutes', 12 => '12 minutes', 15 => '15 minutes', 30 => '30 minutes', 60 => 'an hour'], 'words' => 'time rounding increment minutes billable time'],
+        'config_time_rounding' => ['page' => 'invoice', 'section' => 'Billing time', 'label' => 'Rounding', 'kind' => 'select', 'options' => ['nearest' => 'to the nearest', 'up' => 'always up'],
+            'words' => 'round up nearest'],
+        'config_time_minimum' => ['page' => 'invoice', 'section' => 'Billing time', 'label' => 'Least a ticket bills', 'kind' => 'select',
+            'options' => [0 => 'no minimum', 15 => '15 minutes', 30 => '30 minutes', 60 => '1 hour', 120 => '2 hours'], 'words' => 'minimum time billable'],
         'config_time_item_name' => ['page' => 'invoice', 'section' => 'Billing time', 'label' => 'Invoice line for time', 'words' => 'support hourly line item name'],
         'config_expense_markup' => ['page' => 'invoice', 'section' => 'Billable expenses', 'label' => 'Expense markup', 'words' => 'markup billable expenses percent'],
-        'config_mileage_unit' => ['page' => 'invoice', 'section' => 'Trips and mileage', 'label' => 'Distance in', 'words' => 'miles kilometres km mileage unit'],
+        'config_mileage_unit' => ['page' => 'invoice', 'section' => 'Trips and mileage', 'label' => 'Distance in', 'kind' => 'select', 'options' => ['mi' => 'miles', 'km' => 'kilometers'],
+            'words' => 'miles kilometres km mileage unit'],
         'config_mileage_rate' => ['page' => 'invoice', 'section' => 'Trips and mileage', 'label' => 'Paid back a mile', 'words' => 'mileage reimbursement rate irs'],
-        'config_mileage_category_id' => ['page' => 'invoice', 'section' => 'Trips and mileage', 'label' => 'Mileage expense category', 'words' => 'mileage category travel expense'],
+        'config_mileage_category_id' => ['page' => 'invoice', 'section' => 'Trips and mileage', 'label' => 'Mileage goes under', 'kind' => 'category', 'words' => 'mileage category travel expense'],
         'config_trip_charge' => ['page' => 'invoice', 'section' => 'Trips and mileage', 'label' => 'Trip charge', 'words' => 'trip charge travel fee call out'],
         'config_trip_bill_rate' => ['page' => 'invoice', 'section' => 'Trips and mileage', 'label' => 'Trips billed a mile', 'words' => 'trip billing rate mile'],
         'config_trip_included' => ['page' => 'invoice', 'section' => 'Trips and mileage', 'label' => 'The trip charge covers the first', 'words' => 'trip included distance'],
@@ -283,7 +292,8 @@ function settingsPageStart($page_key, $actions_html = '') {
     global $settings_kept;
     $page = settingsPages()[$page_key];
     $settings_kept = [];
-    if (($_SESSION['settings_kept']['page'] ?? '') === $page_key) {
+    // Only straight after the refused save - not on coming back to the page later
+    if (($_SESSION['settings_kept']['page'] ?? '') === $page_key && time() - ($_SESSION['settings_kept']['at'] ?? 0) < 300) {
         $settings_kept = $_SESSION['settings_kept'];
     }
     unset($_SESSION['settings_kept']);
@@ -303,9 +313,9 @@ function settingsPageStart($page_key, $actions_html = '') {
 }
 
 /* A section of a settings page - its title and what it is for beside its fields, on a wide screen. Closed by settingsSectionEnd(). */
-function settingsSectionStart($id, $title, $about = '') {
+function settingsSectionStart($id, $title, $about = '', $anchor = '') {
     ob_start(); ?>
-    <section class="itflow-settings-section" id="section-<?= escapeHtml($id) ?>">
+    <section class="itflow-settings-section" id="<?= escapeHtml($anchor !== '' ? $anchor : "section-$id") ?>">
         <div class="row g-3 g-lg-4">
             <div class="col-lg-4 itflow-settings-section-about">
                 <h2 class="h6 fw-semibold mb-1"><?= escapeHtml($title) ?></h2>
@@ -418,7 +428,9 @@ function settingsTextarea($name, $saved, array $options = []) {
 
 /*
  * A select - $choices value => label, or value => [label, extra option
- * attributes html]. Searchable (.select2) when there are many.
+ * attributes html]. Searchable (.select2) when there are many. $options also
+ * take append (html after it - a + button) and options_html (the options
+ * ready made, as categoryOptionsHtml() makes them, in place of $choices).
  */
 function settingsSelect($name, $saved, array $choices, array $options = []) {
     $id = "settings_$name";
@@ -429,7 +441,10 @@ function settingsSelect($name, $saved, array $choices, array $options = []) {
         [$choice_label, $choice_attributes] = is_array($choice) ? $choice : [$choice, ''];
         $html .= '<option value="' . escapeHtml((string) $choice_value) . '"' . ((string) $choice_value === $value ? ' selected' : '') . $choice_attributes . '>' . escapeHtml((string) $choice_label) . '</option>';
     }
-    $select2 = !empty($options['search']) || count($choices) > 12 ? ' select2' : '';
+    if (isset($options['options_html'])) {
+        $html = $options['options_html'];
+    }
+    $select2 = ($options['search'] ?? count($choices) > 12) ? ' select2' : '';
     $control = '<div class="input-group has-validation">'
         . '<span class="input-group-text"><i class="fa fa-fw ' . escapeHtml($options['icon'] ?? 'fa-list') . '"></i></span>'
         . '<select class="form-select' . $select2 . $invalid . '" id="' . escapeHtml($id) . '" name="' . escapeHtml($name) . '"' . settingsAttributes($options) . '>' . $html . '</select>'
@@ -438,9 +453,9 @@ function settingsSelect($name, $saved, array $choices, array $options = []) {
     return settingsField($name, escapeHtml(settingsLabel($name, $options['label'] ?? null)) . (!empty($options['required']) ? ' <strong class="text-danger">*</strong>' : ''), $control, $options['help'] ?? '');
 }
 
-/* An on/off switch, its label beside it and what it does under it. $options: label, help, disabled, value (sent when on, 1). */
+/* An on/off switch, its label beside it and what it does under it. $options: label, help, disabled, value (sent when on, 1), id. */
 function settingsSwitch($name, $saved, array $options = []) {
-    $id = "settings_$name";
+    $id = $options['id'] ?? "settings_$name";
     $checked = settingsChecked($name, $saved);
     $control = '<div class="form-check form-switch mb-0">'
         . '<input type="checkbox" class="form-check-input" role="switch" id="' . escapeHtml($id) . '" name="' . escapeHtml($name) . '" value="' . escapeHtml((string) ($options['value'] ?? 1)) . '"' . ($checked ? ' checked' : '') . settingsAttributes($options) . '>'
@@ -478,15 +493,22 @@ function settingsCurrent(array $columns, $table = 'settings') {
     return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT $list FROM $table WHERE company_id = 1")) ?: array_fill_keys($columns, null);
 }
 
-/* Whether two values are the same setting - 30 and '30', 0.7 and '0.70' are. */
+/*
+ * Whether two values are the same setting - 30 and '30', 0.7 and '0.70' are,
+ * NULL and 0, and text saved with Windows line ends (as a form sends them)
+ * and without.
+ */
 function settingsSame($a, $b) {
     if ($a === null || $b === null) {
-        return (string) $a === (string) $b;
+        // Nothing saved yet is the same as none picked - 0, or empty
+        $a = (string) $a;
+        $b = (string) $b;
+        return $a === $b || (in_array($a, ['', '0'], true) && in_array($b, ['', '0'], true));
     }
     if (is_numeric($a) && is_numeric($b)) {
         return (float) $a === (float) $b;
     }
-    return (string) $a === (string) $b;
+    return rtrim(str_replace("\r\n", "\n", (string) $a)) === rtrim(str_replace("\r\n", "\n", (string) $b));
 }
 
 /* A value, as the audit log says it - on/off, an option's name, a client's name. */
@@ -504,10 +526,30 @@ function settingsLogValue($name, $value) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = " . intval($value)));
         return $row ? $row['client_name'] : '#' . intval($value);
     }
+    if ($kind === 'account' || $kind === 'calendar') {
+        if (!intval($value)) {
+            return 'none';
+        }
+        $row = mysqli_fetch_row(mysqli_query($mysqli, $kind === 'account'
+            ? "SELECT account_name FROM accounts WHERE account_id = " . intval($value)
+            : "SELECT calendar_name FROM calendars WHERE calendar_id = " . intval($value)));
+        return $row ? $row[0] : '#' . intval($value);
+    }
+    if ($kind === 'category') {
+        if (!intval($value)) {
+            return 'none';
+        }
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_id = " . intval($value)));
+        return $row ? $row['category_name'] : '#' . intval($value);
+    }
     if ($kind === 'select' && isset($field['options'])) {
         $options = $field['options'];
         if ($options === 'themes') {
             $options = settingsThemes();
+        } elseif ($options === 'start_pages') {
+            $options = settingsStartPages();
+        } elseif ($options === 'net_terms') {
+            $options = settingsNetTerms();
         } elseif (is_string($options)) {
             $options = settingsLocalizationArrays()[$options] ?? [];
         }
@@ -518,6 +560,9 @@ function settingsLogValue($name, $value) {
     $value = (string) $value;
     if ($value === '') {
         return 'blank';
+    }
+    if (is_numeric($value) && strpos($value, '.') !== false) {
+        $value = rtrim(rtrim($value, '0'), '.');
     }
     return mb_strlen($value) > 60 ? mb_substr($value, 0, 57) . '...' : $value;
 }
@@ -601,7 +646,7 @@ function settingsRefuse($page_key, array $errors) {
         }
         $values[$name] = (string) $value;
     }
-    $_SESSION['settings_kept'] = ['page' => $page_key, 'values' => $values, 'errors' => $errors];
+    $_SESSION['settings_kept'] = ['page' => $page_key, 'values' => $values, 'errors' => $errors, 'at' => time()];
     flashAlert('Not saved - ' . (count($errors) === 1 ? 'one thing' : count($errors) . ' things') . ' to put right', 'error');
     redirect();
 }
@@ -627,6 +672,120 @@ function settingsImageProblem($file, array $extensions, array $types, $kinds, $m
     }
     $image = @getimagesize($file['tmp_name']);
     return $image && in_array($image[2], $types, true) ? '' : "That isn't a $kinds picture.";
+}
+
+/* What a numbered record's prefix and number are kept in - the next one's setting names, and the table. */
+function settingsNumbering($kind) {
+    $numbering = [
+        'ticket' => ['prefix' => 'config_ticket_prefix', 'number' => 'config_ticket_next_number', 'table' => 'tickets', 'column' => 'ticket', 'what' => 'ticket'],
+        'project' => ['prefix' => 'config_project_prefix', 'number' => 'config_project_next_number', 'table' => 'projects', 'column' => 'project', 'what' => 'project'],
+        'quote' => ['prefix' => 'config_quote_prefix', 'number' => 'config_quote_next_number', 'table' => 'quotes', 'column' => 'quote', 'what' => 'quote'],
+        'invoice' => ['prefix' => 'config_invoice_prefix', 'number' => 'config_invoice_next_number', 'table' => 'invoices', 'column' => 'invoice', 'what' => 'invoice'],
+        'recurring_invoice' => ['prefix' => 'config_recurring_invoice_prefix', 'number' => 'config_recurring_invoice_next_number', 'table' => 'recurring_invoices', 'column' => 'recurring_invoice', 'what' => 'recurring invoice'],
+    ];
+    return $numbering[$kind];
+}
+
+/* The highest number already used with this prefix - 0 when none is. */
+function settingsNumberInUse($kind, $prefix) {
+    global $mysqli;
+    $numbering = settingsNumbering($kind);
+    $column = $numbering['column'];
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT MAX({$column}_number) FROM {$numbering['table']} WHERE {$column}_prefix = '" . escapeSql((string) $prefix) . "'"));
+    return intval($row[0] ?? 0);
+}
+
+/*
+ * A prefix and next number, checked - [prefix, number, errors by field]. The
+ * prefix is needed (a ticket's only letters and hyphens, as replies by email
+ * find their ticket by it); the number has to be past the last one used with
+ * that prefix, or two would share it. Left as saved ($saved: prefix and
+ * number setting => value), the numbering is not what is being changed, so a
+ * clash already there (the page warns of it) doesn't stop the rest saving.
+ */
+function settingsNumberingCheck($kind, array $post, array $saved = []) {
+    $numbering = settingsNumbering($kind);
+    $prefix = mb_substr(trim((string) ($post[$numbering['prefix']] ?? '')), 0, 200);
+    $number_text = trim((string) ($post[$numbering['number']] ?? ''));
+    $number = ctype_digit($number_text) ? intval($number_text) : -1;
+    $errors = [];
+    if ($prefix === '') {
+        $errors[$numbering['prefix']] = 'Every ' . $numbering['what'] . ' number starts with one - TCK-, INV- or the like.';
+    } elseif ($kind === 'ticket' && !preg_match('/^[A-Za-z-]+$/', $prefix)) {
+        $errors[$numbering['prefix']] = 'Only letters and hyphens - replies by email find their ticket by it.';
+    } elseif (preg_match('/\s/', $prefix)) {
+        $errors[$numbering['prefix']] = 'No spaces in it.';
+    }
+    if ($number < 1 || $number > 2000000000) {
+        $errors[$numbering['number']] = 'A whole number, 1 or more.';
+    } elseif (!isset($errors[$numbering['prefix']])
+        && !($saved && $prefix === (string) $saved[$numbering['prefix']] && $number === intval($saved[$numbering['number']]))) {
+        $in_use = settingsNumberInUse($kind, $prefix);
+        if ($number <= $in_use) {
+            $errors[$numbering['number']] = $prefix . $in_use . ' is already in use - the next one has to be ' . ($in_use + 1) . ' or more.';
+        }
+    }
+    return [$prefix, $number, $errors];
+}
+
+/* What is wrong with an email address that may be left empty - '' when nothing is. */
+function settingsEmailProblem($email) {
+    return $email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL) ? 'That is not an email address.' : '';
+}
+
+/*
+ * The prefix and next number fields, side by side, and the number the next
+ * one will get as they are typed (js/settings.js) - with the last one in use.
+ */
+function settingsNumberingFields($kind, $prefix, $number) {
+    $numbering = settingsNumbering($kind);
+    $in_use = settingsNumberInUse($kind, (string) $prefix);
+    $prefix_shown = (string) settingsValue($numbering['prefix'], $prefix);
+    $number_shown = (string) settingsValue($numbering['number'], $number);
+    ob_start(); ?>
+    <div class="row g-3">
+        <div class="col-sm-5"><?= settingsInput($numbering['prefix'], $prefix, ['icon' => 'fa-barcode', 'required' => true, 'maxlength' => 200, 'label' => 'Prefix',
+            'pattern' => $kind === 'ticket' ? '[A-Za-z-]+' : '[^\s]+', 'title' => $kind === 'ticket' ? 'Only letters and hyphens' : 'No spaces']) ?></div>
+        <div class="col-sm-7"><?= settingsInput($numbering['number'], $number, ['icon' => 'fa-hashtag', 'type' => 'number', 'required' => true, 'min' => 1, 'label' => 'Next number']) ?></div>
+    </div>
+    <div class="itflow-settings-sample itflow-settings-next mt-3" data-settings-next="<?= $numbering['prefix'] ?>,<?= $numbering['number'] ?>"
+        data-settings-in-use-prefix="<?= escapeHtml((string) $prefix) ?>" data-settings-in-use-number="<?= $in_use ?>">
+        <span class="text-body-secondary">The next <?= escapeHtml($numbering['what']) ?> is</span>
+        <span data-settings-next-number><?= escapeHtml($prefix_shown . $number_shown) ?></span>
+        <?php if ($in_use) { ?>
+            <span class="text-body-secondary fw-normal" data-settings-in-use>- <?= escapeHtml($prefix . $in_use) ?> is the last one made</span>
+            <div class="text-danger small fw-normal mt-1" data-settings-clash<?= $prefix_shown !== (string) $prefix || intval($number_shown) > $in_use || settingsError($numbering['number']) !== '' ? ' hidden' : '' ?>>
+                <i class="fas fa-exclamation-triangle me-1"></i>That one is already in use - the next one has to be <?= $in_use + 1 ?> or more.
+            </div>
+        <?php } ?>
+    </div>
+    <?php return ob_get_clean();
+}
+
+/* The pages ITFlow can open on, as page => name - any other page of /agent/ can be typed. */
+function settingsStartPages() {
+    return ['dashboard.php' => 'Dashboard', 'clients.php' => 'Clients', 'tickets.php' => 'Tickets', 'calendar.php' => 'Calendar', 'projects.php' => 'Projects',
+        'invoices.php' => 'Invoices', 'quotes.php' => 'Quotes', 'assets.php' => 'Assets'];
+}
+
+/*
+ * What is wrong with a start page - '' when nothing is. It is a page of
+ * /agent/ (dashboard.php, reports/income_summary.php?year=2026), as it is put
+ * after /agent/ wherever ITFlow opens.
+ */
+function settingsStartPageProblem($page) {
+    if (!preg_match('#^[A-Za-z0-9_-]+(/[A-Za-z0-9_-]+)*\.php(\?[A-Za-z0-9_=&%.+-]*)?$#', $page)) {
+        return 'A page of ITFlow, as it is after /agent/ in its address - dashboard.php, or tickets.php?status=Open.';
+    }
+    if (!is_file(dirname(__DIR__) . '/agent/' . strtok($page, '?'))) {
+        return 'There is no such page.';
+    }
+    return '';
+}
+
+/* The net terms a client can have, as days => name. */
+function settingsNetTerms() {
+    return [0 => 'On receipt', 7 => '7 days', 10 => '10 days', 15 => '15 days', 30 => '30 days', 45 => '45 days', 60 => '60 days', 90 => '90 days'];
 }
 
 /* The countries, currencies and languages ITFlow offers (includes/settings_localization_array.php), wherever this is called from. */

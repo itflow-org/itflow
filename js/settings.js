@@ -15,6 +15,8 @@
  *                                 is picked
  *   [data-settings-sample]        money and the time now, as the picked
  *                                 language, currency and timezone write them
+ *   [data-settings-next]          the number the next ticket, invoice... gets
+ *   [data-settings-depends-on=name]  faded while that switch is off
  *
  * Loaded on every admin page (includes/footer.php); it does nothing where
  * none of these are.
@@ -370,7 +372,48 @@
         draw();
     }
 
+    // The number the next one will get - its prefix and number as they are typed
+    function initNext(box) {
+        var names = box.dataset.settingsNext.split(',');
+        var form = box.closest('form');
+        var prefix = form ? form.querySelector('[name="' + names[0] + '"]') : null;
+        var number = form ? form.querySelector('[name="' + names[1] + '"]') : null;
+        var out = box.querySelector('[data-settings-next-number]');
+        if (!prefix || !number || !out) {
+            return;
+        }
+        var clash = box.querySelector('[data-settings-clash]');
+        var inUse = parseInt(box.dataset.settingsInUseNumber || '0', 10);
+        function draw() {
+            out.textContent = prefix.value + number.value;
+            if (clash) {
+                // Only known for the prefix as saved - another one is checked on saving
+                clash.hidden = !(prefix.value === box.dataset.settingsInUsePrefix && number.value !== '' && parseInt(number.value, 10) <= inUse);
+            }
+        }
+        prefix.addEventListener('input', draw);
+        number.addEventListener('input', draw);
+        form.addEventListener('settings:reset', draw);
+    }
+
+    // A switch whose fields mean nothing while it is off - shown faded, as a hint
+    function initDepends(group) {
+        var form = group.closest('form');
+        var toggle = form ? form.querySelector('[name="' + group.dataset.settingsDependsOn + '"]') : null;
+        if (!toggle) {
+            return;
+        }
+        function sync() {
+            group.classList.toggle('is-off', !toggle.checked);
+        }
+        toggle.addEventListener('change', sync);
+        form.addEventListener('settings:reset', sync);
+        sync();
+    }
+
     function init() {
+        document.querySelectorAll('[data-settings-next]').forEach(initNext);
+        document.querySelectorAll('[data-settings-depends-on]').forEach(initDepends);
         document.querySelectorAll('form[data-settings-form]').forEach(initForm);
         document.querySelectorAll('[data-settings-find]').forEach(initFind);
         document.querySelectorAll('input[type="file"][data-settings-preview]').forEach(initPreview);

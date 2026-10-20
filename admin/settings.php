@@ -23,7 +23,7 @@ $days = function ($n) {
 };
 
 // How each page is set now - a line or two, and whether it is switched off
-$start_pages = ['dashboard.php' => 'the dashboard', 'clients.php' => 'clients', 'tickets.php' => 'tickets', 'invoices.php' => 'invoices'];
+$start_pages = settingsStartPages();
 $modules_on = array_keys(array_filter([
     'IT documentation' => $config_module_enable_itdoc,
     'Ticketing' => $config_module_enable_ticketing,

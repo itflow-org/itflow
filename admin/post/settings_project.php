@@ -1,19 +1,25 @@
 <?php
 
+/*
+ * Admin > Settings > Projects (admin/settings_project.php):
+ * edit_project_settings saves the numbering - a next number already in use
+ * comes back to the page saying so.
+ */
+
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_project_settings'])) {
 
     validateCSRFToken();
 
-    $config_project_prefix = escapeSql($_POST['config_project_prefix']);
-    $config_project_next_number = intval($_POST['config_project_next_number']);
+    $before = settingsCurrent(['config_project_prefix', 'config_project_next_number']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_project_prefix = '$config_project_prefix', config_project_next_number = $config_project_next_number WHERE company_id = 1");
+    [$prefix, $number, $errors] = settingsNumberingCheck('project', $_POST + array_map('strval', $before), $before);
+    if ($errors) {
+        settingsRefuse('project', $errors);
+    }
 
-    logAudit("Settings", "Edit", "$session_name edited project settings");
-
-    flashAlert("Project Settings updated");
+    settingsSave('project', $before, ['config_project_prefix' => $prefix, 'config_project_next_number' => $number]);
 
     redirect();
 

@@ -1,7 +1,7 @@
 <!-- Main Sidebar Container -->
 <aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
     <div class="sidebar-brand">
-        <a class="brand-link" href="/agent/<?= $config_start_page ?>">
+        <a class="brand-link" href="/agent/<?= escapeHtml($config_start_page) ?>">
             <i class="fas fa-arrow-left me-2"></i>
             <span class="brand-text h6 mb-0">Back | <strong>Administration</strong></span>
         </a>

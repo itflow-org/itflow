@@ -8254,6 +8254,20 @@ a.itflow-portal-request:focus-visible {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
 }
+/* The number the next one gets, and a clash with one in use */
+.itflow-settings-sample.itflow-settings-next {
+    gap: .35rem .5rem;
+}
+.itflow-settings-next [data-settings-clash] {
+    flex-basis: 100%;
+}
+/* A sentence saying how what is set works out - the reminder schedule, how a trip bills */
+.itflow-settings-note {
+    padding: .6rem .9rem;
+    border-radius: .5rem;
+    background: var(--bs-tertiary-bg);
+    font-size: .875rem;
+}
 /* A picture - the logo, the tab icon - as it is, or as picked */
 .itflow-settings-picture {
     display: flex;
@@ -8378,4 +8392,11 @@ a.itflow-portal-request:focus-visible {
     margin: 0;
     min-width: 0;
     overflow-wrap: anywhere;
+}
+/* Fields that mean nothing while their switch is off - still there to set up */
+[data-settings-depends-on] {
+    transition: opacity .15s;
+}
+[data-settings-depends-on].is-off {
+    opacity: .55;
 }
