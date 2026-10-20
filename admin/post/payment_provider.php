@@ -139,3 +139,65 @@ if (isset($_GET['delete_payment_provider'])) {
     redirect('payment_providers.php');
 
 }
+
+// Check connection - is the provider still taking the secret key, and whose account is it?
+if (isset($_GET['check_payment_provider_connection'])) {
+
+    validateCSRFToken();
+
+    $row = paymentProviderRow($_GET['check_payment_provider_connection']);
+    if (!$row) {
+        flashAlert('That payment provider no longer exists.', 'error');
+        redirect('payment_providers.php');
+    }
+    $name = $row['payment_provider_name'];
+    $asked = paymentProviderAsk($name, $row['payment_provider_private_key']);
+    if (!$asked['ok']) {
+        logApp($name, 'warning', "Check connection - $name turned the saved key away: " . $asked['error']);
+        flashAlert('<strong>' . escapeHtml($name) . '</strong> isn\'t connected - ' . escapeHtml($asked['error']), 'error');
+        redirect();
+    }
+    $account = $asked['account'];
+    $who = trim(($account['name'] ?? '') . (($account['email'] ?? '') !== '' ? ' (' . $account['email'] . ')' : ''));
+    flashAlert('<strong>' . escapeHtml($name) . '</strong> is connected' . ($who !== '' ? ' to ' . escapeHtml($who) : '') . ', with '
+        . (paymentProviderMode($row['payment_provider_private_key']) === 'live' ? 'live keys' : 'test keys - no real money moves'));
+    redirect();
+
+}
+
+// Record fees now - what the nightly run does, for the payments whose fee is still to record
+if (isset($_GET['record_payment_provider_fees'])) {
+
+    validateCSRFToken();
+
+    $row = paymentProviderRow($_GET['record_payment_provider_fees']);
+    if (!$row) {
+        flashAlert('That payment provider no longer exists.', 'error');
+        redirect('payment_providers.php');
+    }
+    $name = $row['payment_provider_name'];
+    if (!intval($row['payment_provider_expense_vendor']) || !intval($row['payment_provider_expense_category'])) {
+        flashAlert('<strong>' . escapeHtml($name) . '</strong>\'s fees aren\'t recorded - switch Record its fees as expenses on in Edit first', 'error');
+        redirect();
+    }
+
+    $done = paymentProviderRecordFees($row);
+    $said = [];
+    if ($done['recorded']) {
+        $said[] = 'Recorded its fee on ' . $done['recorded'] . ' payment' . ($done['recorded'] === 1 ? '' : 's') . ' - ' . paymentProviderMoneyText($done['amount']);
+        logAudit("Payment Provider", "Edit", escapeSql(stripslashes($session_name) . " recorded $name's fees on " . $done['recorded'] . ' card payment' . ($done['recorded'] === 1 ? '' : 's') . ' - ' . paymentProviderMoneyText($done['amount'])), 0, intval($row['payment_provider_id']));
+    }
+    if ($done['waiting']) {
+        $said[] = $done['waiting'] . ' ' . ($done['waiting'] === 1 ? 'isn\'t' : 'aren\'t') . ' settled yet - ' . ($done['waiting'] === 1 ? 'it is' : 'they are') . ' recorded once ' . ($done['waiting'] === 1 ? 'it has' : 'they have');
+    }
+    if ($done['failed']) {
+        $said[] = $name . ' wouldn\'t say for ' . $done['failed'] . ' - ' . $done['error'];
+    }
+    if (!$said) {
+        flashAlert('There are no fees to record - every card payment of the last 30 days has its fee', 'info');
+        redirect();
+    }
+    flashAlert(escapeHtml(implode('. ', $said)), $done['failed'] ? 'warning' : ($done['recorded'] ? 'success' : 'info'));
+    redirect();
+
+}

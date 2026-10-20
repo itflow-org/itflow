@@ -4,10 +4,13 @@
  * Admin > Payment Providers - the services clients pay invoices by card
  * through (functions/payment_provider.php). Each row says whether it is on,
  * live or test (as its keys say), the account its payments go into, its card
- * limit, whether its fees are recorded as expenses, its saved cards and the
- * autopay on them, and when a card payment last came through it. Add and
- * Edit are one window (modals/payment_provider/payment_provider_edit.php);
- * turning one off, on and deleting it are admin/post/payment_provider.php.
+ * limit, whether its fees are recorded as expenses (and what they came to,
+ * and how many are still to record), its saved cards and the autopay on
+ * them, and its card payments in the last 30 days. Check connection asks
+ * the provider whose account the key is; Record fees now does what the
+ * nightly run does. Add and Edit are one window
+ * (modals/payment_provider/payment_provider_edit.php); the rest are
+ * admin/post/payment_provider.php.
  */
 
 // Default Column Sortby Filter
@@ -94,7 +97,7 @@ $csrf = $_SESSION['csrf_token'];
                 <th class="d-none d-lg-table-cell"><?= $sort_link('payment_provider_threshold', 'Card limit') ?></th>
                 <th class="d-none d-lg-table-cell">Fees</th>
                 <th class="d-none d-md-table-cell"><?= $sort_link('saved_cards', 'Saved cards') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('last_paid', 'Last card payment') ?></th>
+                <th class="d-none d-md-table-cell"><?= $sort_link('last_paid', 'Card payments') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -110,6 +113,7 @@ $csrf = $_SESSION['csrf_token'];
                 $autopay = intval($row['autopay']);
                 $fees_on = intval($row['payment_provider_expense_vendor']) > 0 && intval($row['payment_provider_expense_category']) > 0;
                 $ties = paymentProviderTiesText(paymentProviderTies($provider_id));
+                $activity = paymentProviderActivity($row);
                 ?>
                 <tr data-payment-provider-id="<?= $provider_id ?>" class="<?= $on ? '' : 'text-body-secondary' ?>">
                     <td class="ps-3">
@@ -146,6 +150,13 @@ $csrf = $_SESSION['csrf_token'];
                         <?php if ($fees_on) { ?>
                             <div><i class="fas fa-fw fa-receipt text-secondary me-1"></i>Recorded</div>
                             <div class="text-body-secondary"><?= escapeHtml(trim($row['vendor_name'] . ' · ' . $row['category_name'], ' ·')) ?></div>
+                            <?php if ($activity['fees']) { ?>
+                                <div><a class="text-body-secondary" href="/agent/expenses.php?q=<?= urlencode($name . ' fee') ?>" data-provider-fees-total><?= escapeHtml(paymentProviderMoneyText($activity['fees'])) ?> in 30 days</a></div>
+                            <?php } ?>
+                            <?php if ($activity['waiting']) { ?>
+                                <span class="badge <?= $activity['stale'] ? 'bg-warning-subtle text-warning-emphasis border border-warning-subtle' : 'text-bg-light border' ?> fw-normal mt-1" data-provider-fees-waiting="<?= $activity['waiting'] ?>"
+                                    title="<?= $activity['stale'] ? 'Some are more than two days old - the nightly run should have had them' : 'The nightly run records them once Stripe has settled them' ?>"><?= $activity['waiting'] ?> to record</span>
+                            <?php } ?>
                         <?php } else { ?>
                             <span class="text-body-secondary">Not recorded</span>
                         <?php } ?>
@@ -158,7 +169,13 @@ $csrf = $_SESSION['csrf_token'];
                             <span class="text-body-secondary">None yet</span>
                         <?php } ?>
                     </td>
-                    <td class="d-none d-md-table-cell small text-body-secondary text-nowrap"<?= $row['last_paid'] ? ' title="' . escapeHtml($row['last_paid']) . '"' : '' ?>><?= $row['last_paid'] ? escapeHtml(date('M j, Y', strtotime($row['last_paid']))) : 'None yet' ?></td>
+                    <td class="d-none d-md-table-cell small text-nowrap" data-provider-payments="<?= $activity['payments'] ?>">
+                        <?php if ($activity['payments']) { ?>
+                            <div><?= $activity['payments'] ?> in 30 days</div>
+                            <div class="text-body-secondary"><?= escapeHtml(paymentProviderMoneyText($activity['paid'])) ?></div>
+                        <?php } ?>
+                        <div class="text-body-secondary"<?= $row['last_paid'] ? ' title="' . escapeHtml($row['last_paid']) . '"' : '' ?>><?= $row['last_paid'] ? 'Last ' . escapeHtml(date('M j, Y', strtotime($row['last_paid']))) : 'None yet' ?></div>
+                    </td>
                     <td class="text-end pe-3">
                         <div class="dropdown dropstart">
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
@@ -166,6 +183,14 @@ $csrf = $_SESSION['csrf_token'];
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $edit_url ?>">
                                     <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                 </a>
+                                <a class="dropdown-item" href="post.php?check_payment_provider_connection=<?= $provider_id ?>&csrf_token=<?= $csrf ?>" title="Whether <?= escapeHtml($name) ?> still takes its secret key, and whose account it is">
+                                    <i class="fas fa-fw fa-plug text-secondary me-2"></i>Check connection
+                                </a>
+                                <?php if ($fees_on && $activity['waiting']) { ?>
+                                    <a class="dropdown-item" href="post.php?record_payment_provider_fees=<?= $provider_id ?>&csrf_token=<?= $csrf ?>" title="What the nightly run does - for the card payments whose fee is still to record">
+                                        <i class="fas fa-fw fa-receipt text-secondary me-2"></i>Record fees now
+                                    </a>
+                                <?php } ?>
                                 <?php if ($on) { ?>
                                     <a class="dropdown-item confirm-link" href="post.php?turn_payment_provider_off=<?= $provider_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-title="Turn <?= escapeHtml($name) ?> off?" data-confirm-text="Clients won't be able to pay by card, and autopay with its saved cards is skipped until it is on again. Its cards are kept." data-confirm-button="Turn off">

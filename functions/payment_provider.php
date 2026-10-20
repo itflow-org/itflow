@@ -393,3 +393,183 @@ function paymentCardRemove($saved_payment_id, $by, &$error = '') {
 
     return ['row' => $row, 'label' => $label, 'stopped' => $stopped, 'told' => $told, 'provider_error' => $provider_error];
 }
+
+/* ------------------------------------------------------------- What goes through it */
+
+/*
+ * The card payments a provider's fee hasn't been recorded for yet, in SQL -
+ * its payments in the last 30 days (one card payment over several invoices
+ * is a payment row each, with the same reference, and one fee) with no
+ * expense of that reference. FROM and WHERE, for Stripe.
+ */
+function paymentProviderUnrecordedSql() {
+    return "FROM payments LEFT JOIN invoices ON payment_invoice_id = invoice_id
+        WHERE payment_reference LIKE 'Stripe - pi\\_%'
+        AND payment_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        AND NOT EXISTS (SELECT 1 FROM expenses WHERE LOCATE(payments.payment_reference, expenses.expense_reference) = 1)";
+}
+
+/*
+ * Record the provider's fee on its recent card payments that have none yet,
+ * from what it actually charged - each night (cron/nightly_tasks.php), or
+ * now from Payment Providers. A payment it hasn't settled yet waits for the
+ * next run. Only while its fees are recorded, under a vendor and a category.
+ * ['recorded' => how many, 'amount' => their fees by currency, 'waiting' =>
+ * how many not settled yet, 'failed' => how many it wouldn't say, 'error' =>
+ * the last thing it said].
+ */
+function paymentProviderRecordFees(array $provider, $limit = 50) {
+    global $mysqli;
+    $result = ['recorded' => 0, 'amount' => [], 'waiting' => 0, 'failed' => 0, 'error' => ''];
+    $private_key = (string) ($provider['payment_provider_private_key'] ?? '');
+    $vendor_id = intval($provider['payment_provider_expense_vendor'] ?? 0);
+    $category_id = intval($provider['payment_provider_expense_category'] ?? 0);
+    $account_id = intval($provider['payment_provider_account'] ?? 0);
+    if (($provider['payment_provider_name'] ?? '') !== 'Stripe' || $private_key === '' || !$vendor_id || !$category_id) {
+        return $result;
+    }
+
+    $sql = mysqli_query($mysqli, "SELECT payment_reference, MIN(payment_date) AS payment_date, SUM(payment_amount) AS payment_amount,
+            GROUP_CONCAT(CONCAT(invoice_prefix, invoice_number) ORDER BY invoice_number SEPARATOR ', ') AS invoice_numbers,
+            MIN(invoice_client_id) AS invoice_client_id
+        " . paymentProviderUnrecordedSql() . "
+        GROUP BY payment_reference
+        LIMIT " . intval($limit));
+    if (!$sql || !mysqli_num_rows($sql)) {
+        return $result;
+    }
+
+    require_once __DIR__ . '/../includes/stripe_init.php';
+    $stripe = new \Stripe\StripeClient($private_key);
+
+    while ($missing = mysqli_fetch_assoc($sql)) {
+        $pi_id = str_replace('Stripe - ', '', $missing['payment_reference']);
+        try {
+            $payment_intent = $stripe->paymentIntents->retrieve($pi_id, ['expand' => ['latest_charge.balance_transaction']]);
+        } catch (\Throwable $e) {
+            logApp("Stripe", "warning", "Fee reconciliation - could not retrieve $pi_id: " . $e->getMessage());
+            $result['failed']++;
+            $result['error'] = $e->getMessage();
+            continue;
+        }
+
+        // Its actual fee, from the balance transaction - none until Stripe settles it, then the next run
+        $balance_transaction = $payment_intent->latest_charge->balance_transaction ?? null;
+        if (!$balance_transaction || is_string($balance_transaction)) {
+            $result['waiting']++;
+            continue;
+        }
+        $fee = round($balance_transaction->fee / 100, 2);
+        $currency = strtoupper((string) $balance_transaction->currency);
+        $payment_amount = floatval($missing['payment_amount']);
+        $reference = escapeSql($missing['payment_reference']);
+        mysqli_query($mysqli, "INSERT INTO expenses SET expense_date = '" . escapeSql($missing['payment_date']) . "', expense_amount = $fee, expense_currency_code = '" . escapeSql($currency) . "',
+            expense_account_id = $account_id, expense_vendor_id = $vendor_id, expense_client_id = " . intval($missing['invoice_client_id']) . ", expense_category_id = $category_id,
+            expense_description = '" . escapeSql("Stripe fee for Invoice {$missing['invoice_numbers']} payment of $payment_amount") . "', expense_reference = '$reference'");
+        logApp("Stripe", "info", "Fee reconciliation - recorded Stripe fee of $fee for $pi_id");
+        $result['recorded']++;
+        $result['amount'][$currency] = round(($result['amount'][$currency] ?? 0) + $fee, 2);
+    }
+    return $result;
+}
+
+/*
+ * What has gone through a provider in the last 30 days - 'payments' (card
+ * payments, a split one once), 'paid' and 'fees' (by currency), and, while
+ * its fees are recorded, 'waiting' (payments with no fee recorded yet) and
+ * 'stale' (of those, the ones more than two days old - the nightly run
+ * should have had them).
+ */
+function paymentProviderActivity(array $provider) {
+    global $mysqli;
+    $name = (string) $provider['payment_provider_name'];
+    $prefix = mysqli_real_escape_string($mysqli, str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $name) . ' - ') . '%';
+    $activity = ['payments' => 0, 'paid' => [], 'fees' => [], 'waiting' => 0, 'stale' => 0];
+    $sql = mysqli_query($mysqli, "SELECT payment_currency_code, COUNT(DISTINCT payment_reference), SUM(payment_amount) FROM payments
+        WHERE payment_archived_at IS NULL AND payment_reference LIKE '$prefix' AND payment_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        GROUP BY payment_currency_code");
+    while ($row = mysqli_fetch_row($sql)) {
+        $activity['payments'] += intval($row[1]);
+        $activity['paid'][(string) $row[0]] = round(floatval($row[2]), 2);
+    }
+    $sql = mysqli_query($mysqli, "SELECT expense_currency_code, SUM(expense_amount) FROM expenses
+        WHERE expense_archived_at IS NULL AND expense_reference LIKE '$prefix' AND expense_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        GROUP BY expense_currency_code");
+    while ($row = mysqli_fetch_row($sql)) {
+        $activity['fees'][(string) $row[0]] = round(floatval($row[1]), 2);
+    }
+    if ($name === 'Stripe' && intval($provider['payment_provider_expense_vendor']) && intval($provider['payment_provider_expense_category'])) {
+        $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(DISTINCT payment_reference), COUNT(DISTINCT CASE WHEN payment_date < DATE_SUB(CURDATE(), INTERVAL 2 DAY) THEN payment_reference END) "
+            . paymentProviderUnrecordedSql()));
+        $activity['waiting'] = intval($row[0] ?? 0);
+        $activity['stale'] = intval($row[1] ?? 0);
+    }
+    return $activity;
+}
+
+/* Sums by currency, as they read - "$4,210.00", or "$4,210.00 and €120.00". */
+function paymentProviderMoneyText(array $by_currency) {
+    $parts = [];
+    foreach ($by_currency as $currency => $amount) {
+        $parts[] = billingMoney($amount, $currency);
+    }
+    return $parts ? implode(' and ', $parts) : billingMoney(0);
+}
+
+/*
+ * What is wrong with taking card payments, for the Settings overview - each
+ * [level, icon, title, what it means, where to put it right, button]: a
+ * provider on with test keys, or paying into an account that is archived or
+ * gone, or whose fees haven't been recorded for days.
+ */
+function paymentProviderProblems() {
+    global $mysqli;
+    $problems = [];
+    $sql = mysqli_query($mysqli, "SELECT payment_provider_id FROM payment_providers ORDER BY payment_provider_name ASC");
+    while ($id = mysqli_fetch_row($sql)) {
+        $provider = paymentProviderRow($id[0]);
+        $name = $provider['payment_provider_name'];
+        if (intval($provider['payment_provider_active'])) {
+            if (paymentProviderMode($provider['payment_provider_private_key']) === 'test') {
+                $problems[] = ['warning', 'fa-credit-card', "Card payments are in test mode", "$name has test keys, so card payments move no real money. Put in its live keys when you are ready.", 'payment_providers.php', 'Payment Providers'];
+            }
+            if (!$provider['account_name'] || $provider['account_archived_at']) {
+                $problems[] = ['danger', 'fa-piggy-bank', "Card payments go into an account that is " . ($provider['account_name'] ? 'archived' : 'gone'),
+                    "$name's payments are recorded into " . ($provider['account_name'] ? $provider['account_name'] . ', which is archived' : 'an account that no longer exists') . ' - pick another for them.', 'payment_providers.php', 'Payment Providers'];
+            }
+        }
+        $activity = paymentProviderActivity($provider);
+        if ($activity['stale']) {
+            $problems[] = ['warning', 'fa-receipt', "$name's fees aren't being recorded",
+                $activity['stale'] . ' card payment' . ($activity['stale'] === 1 ? '' : 's') . ' more than two days old ' . ($activity['stale'] === 1 ? 'has' : 'have') . ' no fee recorded. The nightly run records them - or record them now.', 'payment_providers.php', 'Payment Providers'];
+        }
+    }
+    return $problems;
+}
+
+/*
+ * How card payments stand, in a sentence for Settings > Invoices and billing
+ * (Paid online) - escaped HTML: none set up, turned off, or on - live or
+ * test, where they go, the card limit and how many in the last 30 days.
+ */
+function paymentProviderSummaryHtml() {
+    global $mysqli;
+    $id = mysqli_fetch_row(mysqli_query($mysqli, "SELECT payment_provider_id FROM payment_providers ORDER BY payment_provider_active DESC, payment_provider_name ASC LIMIT 1"));
+    if (!$id) {
+        return '<i class="fas fa-fw fa-info-circle me-1"></i>No payment provider is set up, so clients can\'t pay by card. <a href="payment_providers.php">Set up Stripe</a>.';
+    }
+    $provider = paymentProviderRow($id[0]);
+    $name = escapeHtml($provider['payment_provider_name']);
+    if (!intval($provider['payment_provider_active'])) {
+        return '<i class="fas fa-fw fa-toggle-off me-1"></i>' . $name . ' is turned off, so clients can\'t pay by card. <a href="payment_providers.php">Payment Providers</a>.';
+    }
+    $mode = paymentProviderMode($provider['payment_provider_private_key']);
+    $activity = paymentProviderActivity($provider);
+    $limit = round(floatval($provider['payment_provider_threshold']), 2);
+    return ($mode === 'test' ? '<i class="fas fa-fw fa-exclamation-triangle text-warning me-1"></i>' : '<i class="fas fa-fw fa-check-circle text-success me-1"></i>')
+        . $name . ' is on, with ' . ($mode === 'test' ? '<strong>test keys</strong> - no real money moves' : 'live keys')
+        . ' - payments go into ' . escapeHtml((string) ($provider['account_name'] ?? 'no account'))
+        . ($limit > 0 ? ', for invoices under ' . escapeHtml(billingMoney($limit)) : '') . '. '
+        . ($activity['payments'] ? $activity['payments'] . ' card payment' . ($activity['payments'] === 1 ? '' : 's') . ' in the last 30 days.' : 'No card payments in the last 30 days.')
+        . ' <a href="payment_providers.php">Payment Providers</a>.';
+}

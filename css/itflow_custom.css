@@ -8287,6 +8287,11 @@ a.itflow-portal-request:focus-visible {
     width: 2rem;
     height: 2rem;
 }
+/* The overview's what-needs-looking-at - the text takes the room, the button goes under it only when there is none */
+.itflow-settings-attention-text {
+    flex: 1 1 18rem;
+    min-width: 0;
+}
 /* A theme colour's dot */
 .itflow-settings-dot {
     display: inline-block;

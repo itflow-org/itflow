@@ -68,6 +68,9 @@ echo settingsPageStart('invoice');
             <?= settingsSectionEnd() ?>
 
             <?= settingsSectionStart('paid', 'Paid online', 'When a client pays an invoice by card - in the client portal or from the link in its email - through a provider in <a href="payment_providers.php">Payment providers</a>.') ?>
+                <div class="itflow-settings-field">
+                    <div class="itflow-settings-note" data-card-payments><?= paymentProviderSummaryHtml() ?></div>
+                </div>
                 <?= settingsInput('config_invoice_paid_notification_email', $config_invoice_paid_notification_email, ['icon' => 'fa-bell', 'type' => 'email', 'maxlength' => 200,
                     'placeholder' => 'billing@company.com', 'help' => 'A shared mailbox or list works best. Empty, nobody is emailed - the payment is still recorded.']) ?>
             <?= settingsSectionEnd() ?>

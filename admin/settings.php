@@ -40,7 +40,8 @@ $summaries = [
     'ticket' => 'Next ' . escapeHtml($config_ticket_prefix . $config_ticket_next_number) . ' · email to ticket ' . $on_off($config_ticket_email_parse),
     'project' => 'Next ' . escapeHtml($config_project_prefix . $config_project_next_number),
     'quote' => 'Next ' . escapeHtml($config_quote_prefix . $config_quote_next_number),
-    'invoice' => 'Next ' . escapeHtml($config_invoice_prefix . $config_invoice_next_number) . ' · reminders ' . $on_off($config_send_invoice_reminders) . ' · late fees ' . $on_off($config_invoice_late_fee_enable),
+    'invoice' => 'Next ' . escapeHtml($config_invoice_prefix . $config_invoice_next_number) . ' · reminders ' . $on_off($config_send_invoice_reminders) . ' · late fees ' . $on_off($config_invoice_late_fee_enable)
+        . ' · cards ' . $on_off(billingStripeProvider()),
     'mail' => 'Sending ' . ($config_smtp_provider ? 'on' : '<span class="text-danger-emphasis">off</span>') . ' · receiving ' . $on_off($config_imap_provider)
         . (mailQueueSummary()['failed_week'] ? ' · <span class="text-danger-emphasis">' . mailQueueSummary()['failed_week'] . ' failed this week</span>' : ''),
     'notification' => 'Domain alerts ' . $on_off($config_enable_alert_domain_expire) . ' · ticket emails to clients ' . $on_off($config_ticket_client_general_notifications),
@@ -72,6 +73,12 @@ if ($mail_queue['failed_day']) {
 $mail_queue_health = mailQueueHealth();
 if (!empty($config_smtp_provider) && in_array($mail_queue_health['key'], ['cron_off', 'cron_stopped', 'job_off', 'slow'], true)) {
     $attention[] = [$mail_queue_health['level'], 'fa-inbox', $mail_queue_health['title'], $mail_queue_health['text'], 'mail_queue.php', 'Mail Queue'];
+}
+// Taking card payments - test keys, an account that is archived or gone, fees not being recorded
+if ($config_module_enable_accounting) {
+    foreach (paymentProviderProblems() as $problem) {
+        $attention[] = $problem;
+    }
 }
 if (trim((string) $config_timezone) === '') {
     $attention[] = ['warning', 'fa-clock', 'No timezone', 'Dates and times are in the server\'s timezone until one is picked.', 'settings_localization.php#setting=config_timezone', 'Pick one'];
@@ -107,7 +114,7 @@ $groups = settingsGroups();
             <?php foreach ($attention as [$tone, $icon, $title, $text, $url, $action]) { ?>
                 <div class="alert alert-<?= $tone ?> d-flex flex-wrap align-items-center gap-3 py-2 mb-2">
                     <i class="fas fa-fw <?= $icon ?>"></i>
-                    <div class="flex-grow-1 min-w-0"><strong><?= escapeHtml($title) ?></strong> - <?= escapeHtml($text) ?></div>
+                    <div class="itflow-settings-attention-text"><strong><?= escapeHtml($title) ?></strong> - <?= escapeHtml($text) ?></div>
                     <a href="<?= escapeHtml($url) ?>" class="btn btn-sm btn-<?= $tone ?>"><?= escapeHtml($action) ?><i class="fas fa-arrow-right ms-2"></i></a>
                 </div>
             <?php } ?>
