@@ -1,14 +1,46 @@
 <?php
 
-if (file_exists("../config.php")) {
-    include "../config.php";
+/*
+ * ITFlow setup - the install wizard, at /setup until the last step closes it
+ * ($config_enable_setup = 0 in config.php). Its steps: Welcome, Checks (what
+ * the server needs - setup_checks.php), Database (setup_database.php, which
+ * writes config.php), your account, the company, its region and Finish; and,
+ * on an install with tables but no users yet, Restore from a backup. Each
+ * step's handler is below, refusing to run twice; each step's page is in
+ * steps/, drawn inside the frame at the bottom of this file.
+ */
 
+// config.php connects to the database as it loads - and mysqli throws when that fails
+$config_error = '';
+if (file_exists("../config.php")) {
+    try {
+        include "../config.php";
+    } catch (Throwable $e) {
+        $config_error = $e->getMessage();
+    }
 }
 
 include "../functions.php"; // Global Functions
 include "../includes/database_version.php";
 define('FROM_SETUP', true);
 require "seed_data.php"; // Shared install-time seed data
+require "setup_checks.php";
+require "setup_database.php";
+
+// Setup's own session - for what a step has to say on the page after it
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.cookie_samesite', 'Lax');
+    ini_set('session.use_strict_mode', 1);
+    session_name('itflow_setup');
+    session_start();
+}
+
+/* What a step has to say on the next page - $type success, info, warning or danger. */
+function setupFlash($message, $type = 'success') {
+    $_SESSION['alert_message'] = $message;
+    $_SESSION['alert_type'] = $type;
+}
 
 $mysqli_available = isset($mysqli) && $mysqli instanceof mysqli;
 $can_show_restore = false;
@@ -19,19 +51,22 @@ $should_skip_to_user = false;
  * because each one guards a different handler below - answering all of them with "are there
  * users?" is what used to lock the wizard out three steps early.
  *
+ *   $database_ready    - config.php connects, and ITFlow's tables are there.
  *   $install_is_live   - users exist. A restore would destroy real data, so restore closes
  *                        and points at the CLI. One user row is enough.
  *   $company_exists    - the company step has run (companies row, and settings seeded).
  *   $localization_done - the localization step has run (company_locale filled in).
  */
+$database_ready = false;
 $install_is_live = false;
 $company_exists = false;
 $localization_done = false;
-$resume_step = 'checks';
+$resume_step = file_exists("../config.php") ? 'database' : 'checks';
 
 if (file_exists("../config.php") && $mysqli_available) {
     $table_result = mysqli_query($mysqli, "SHOW TABLES LIKE 'users'");
     if ($table_result && mysqli_num_rows($table_result) > 0) {
+        $database_ready = true;
         $should_skip_to_user = true;
         $resume_step = 'user';
 
@@ -108,84 +143,71 @@ $errorLog = ini_get('error_log') ?: "Debian/Ubuntu default is usually /var/log/a
 // Get a list of all available timezones
 $timezones = DateTimeZone::listIdentifiers();
 
+// The Database step's form, when it has something to say about what was typed
+$database_form = ['database' => '', 'host' => 'localhost', 'username' => ''];
+$database_error = '';
+$config_manual = '';
+
 if (isset($_POST['add_database'])) {
 
     // Check if database has been set up already. If it has, direct user to edit directly instead.
     if (file_exists('../config.php')) {
-        $_SESSION['alert_message'] = "Database already configured. Any further changes should be made by editing the config.php file.";
+        setupFlash("The database is already set up - any change to it is made in config.php.", 'info');
         header("Location: ?user");
         exit;
     }
 
-    $host = filter_var(trim($_POST['host']), FILTER_SANITIZE_STRING);
-    $database = filter_var(trim($_POST['database']), FILTER_SANITIZE_STRING);
-    $username = filter_var(trim($_POST['username']), FILTER_SANITIZE_STRING);
-    $password = filter_var(trim($_POST['password']), FILTER_SANITIZE_STRING);
-    $config_base_url = $_SERVER['HTTP_HOST'];
+    $host = trim((string) ($_POST['host'] ?? ''));
+    $database = trim((string) ($_POST['database'] ?? ''));
+    $username = trim((string) ($_POST['username'] ?? ''));
+    $password = (string) ($_POST['password'] ?? '');
+    $database_form = ['database' => $database, 'host' => $host, 'username' => $username];
 
-    $installation_id = randomString(32);
-
-    // Ensure variables meet specific criteria (very basic examples)
-    if (!preg_match('/^[a-zA-Z0-9.-]+$/', $host)) {
-        die('Invalid host format.');
-    }
-
-    // Test database connection before writing it to config.php
-
-    $conn = mysqli_connect($host, $username, $password, $database);
-    if (!$conn) {
-        exit("<b>Database connection failed - please check and try again</b> <br> <br>" . mysqli_connect_error());
-    }
-
-    $new_config = "<?php\n\n";
-    $new_config .= "\$dbhost = " . var_export($host, true) . ";\n";
-    $new_config .= "\$dbusername = " . var_export($username, true) . ";\n";
-    $new_config .= "\$dbpassword = " . var_export($password, true) . ";\n";
-    $new_config .= "\$database = " . var_export($database, true) . ";\n";
-    $new_config .= "\$mysqli = mysqli_connect(\$dbhost, \$dbusername, \$dbpassword, \$database) or die('Database Connection Failed');\n";
-    $new_config .= "\$config_app_name = 'ITFlow';\n";
-    $new_config .= sprintf("\$config_base_url = '%s';\n", addslashes($config_base_url));
-    $new_config .= "\$config_https_only = TRUE;\n";
-    $new_config .= "\$repo_branch = 'master';\n";
-    $new_config .= "\$installation_id = '$installation_id';\n";
-
-    if (file_put_contents("../config.php", $new_config) !== false && file_exists('../config.php')) {
-
-        include "../config.php";
-
-
-        // Name of the file
-        $filename = '../db.sql';
-        // Temporary variable, used to store current query
-        $templine = '';
-        // Read in entire file
-        $lines = file($filename);
-        // Loop through each line
-        foreach ($lines as $line) {
-            // Skip it if it's a comment
-            if (substr($line, 0, 2) == '--' || $line == '')
-                continue;
-
-            // Add this line to the current segment
-            $templine .= $line;
-            // If it has a semicolon at the end, it's the end of the query
-            if (substr(trim($line), -1, 1) == ';') {
-                // Perform the query
-                mysqli_query($mysqli, $templine);
-                // Reset temp variable to empty
-                $templine = '';
-            }
-        }
-
-        $_SESSION['alert_message'] = "Database successfully added, now lets add a user.";
-        header("Location: ?user");
-        exit;
-
+    if ($database === '' || $host === '' || $username === '') {
+        $database_error = "Fill in the database's name, its host and the user to connect as.";
+    } elseif (!preg_match('/^[a-zA-Z0-9.-]+$/', $host)) {
+        $database_error = "The host is a name or an address - localhost, db.example.com or 10.0.0.5 - without a port or a slash.";
     } else {
-        // There was an error writing the file
-        // Display an error message and redirect to the setup page
-        $_SESSION['alert_message'] = "Did not successfully write the config.php file to the filesystem, Please Input the database information again.";
+        $connection = setupConnect($host, $username, $password, $database, $connect_error);
+        if (!$connection) {
+            $database_error = "Could not connect to <strong>" . escapeHtml($database) . "</strong> on <strong>" . escapeHtml($host) . "</strong> as <strong>" . escapeHtml($username) . "</strong>: "
+                . escapeHtml($connect_error) . ". Check the details, and that the user may use that database.";
+        } elseif (setupTables($connection)) {
+            // Never run db.sql over tables that are already there
+            $database_error = "<strong>" . escapeHtml($database) . "</strong> already has tables in it. A new install needs an empty database. To use an ITFlow database you already have, put its details in config.php by hand; to bring back a backup, create an empty database here first, then choose Restore a backup.";
+        } elseif (!setupImportSchema($connection, '../db.sql', $import_error)) {
+            $database_error = "Creating ITFlow's tables failed: " . escapeHtml($import_error) . ". The tables it had made were taken away again - fix the cause and try again.";
+        } else {
+            // The tables are there - now point ITFlow at them
+            $installation_id = randomString(32);
+            $new_config = setupConfigContents($host, $username, $password, $database, (string) ($_SERVER['HTTP_HOST'] ?? ''), $installation_id);
+            if (@file_put_contents("../config.php", $new_config) !== false && file_exists('../config.php')) {
+                setupConfigChanged("../config.php");
+                setupFlash("Connected to <strong>" . escapeHtml($database) . "</strong> and created ITFlow's tables - now your account.");
+                header("Location: ?user");
+                exit;
+            }
+            // Written by hand instead - the page shows what to put in it
+            $config_manual = $new_config;
+        }
+    }
+
+}
+
+if (isset($_POST['create_tables'])) {
+
+    // config.php was made by hand, to an empty database - ITFlow's tables are still to create
+    if ($database_ready || !$mysqli_available) {
         header("Location: ?database");
+        exit;
+    }
+    if (setupTables($mysqli)) {
+        $database_error = "That database already has tables in it, but not ITFlow's. Point config.php at an empty database.";
+    } elseif (!setupImportSchema($mysqli, '../db.sql', $import_error)) {
+        $database_error = "Creating ITFlow's tables failed: " . escapeHtml($import_error) . ". The tables it had made were taken away again - fix the cause and try again.";
+    } else {
+        setupFlash("Created ITFlow's tables - now your account.");
+        header("Location: ?user");
         exit;
     }
 
@@ -197,7 +219,7 @@ if (isset($_POST['restore'])) {
     // page, but this handler is the destructive one, so it re-checks rather than trusting
     // that it was only reached through the form.
     if ($install_is_live || !$can_show_restore) {
-        $_SESSION['alert_message'] = "This install already has users. Restore over it from the command line instead: php scripts/restore_cli.php --file=/path/to/backup.zip";
+        setupFlash("This install already has users. Restore over it from the command line instead: php scripts/restore_cli.php --file=/path/to/backup.zip", 'danger');
         header("Location: ?restore");
         exit;
     }
@@ -217,22 +239,22 @@ if (isset($_POST['restore'])) {
     }
 
     if ($too_large) {
-        $_SESSION['alert_message'] = "That backup is too large to upload through a browser (this server accepts up to "
+        setupFlash("That backup is too large to upload through a browser (this server accepts up to "
             . backupFormatBytes($max_upload_bytes)
             . "). Restore it from the command line instead - there is no size limit there. Copy the backup onto this server and run: php "
-            . dirname(__DIR__) . "/scripts/restore_cli.php --file=/path/to/backup.zip";
+            . dirname(__DIR__) . "/scripts/restore_cli.php --file=/path/to/backup.zip", 'danger');
         header("Location: ?restore");
         exit;
     }
 
     if (!isset($_FILES['backup_zip']) || $_FILES['backup_zip']['error'] !== UPLOAD_ERR_OK) {
-        $_SESSION['alert_message'] = "No backup file was uploaded, or the upload failed.";
+        setupFlash("No backup file was uploaded, or the upload failed.", 'danger');
         header("Location: ?restore");
         exit;
     }
 
     if (strtolower(pathinfo($_FILES['backup_zip']['name'], PATHINFO_EXTENSION)) !== 'zip') {
-        $_SESSION['alert_message'] = "Only .zip backup archives can be restored.";
+        setupFlash("Only .zip backup archives can be restored.", 'danger');
         header("Location: ?restore");
         exit;
     }
@@ -245,7 +267,7 @@ if (isset($_POST['restore'])) {
     }
 
     if ($restore_key === '') {
-        $_SESSION['alert_message'] = "Enter the backup encryption key. It is shown in Maintenance > Backup on the install that made this archive.";
+        setupFlash("Enter the backup encryption key. It is shown in Maintenance > Backup on the install that made this archive.", 'danger');
         header("Location: ?restore");
         exit;
     }
@@ -253,7 +275,7 @@ if (isset($_POST['restore'])) {
     $temp_zip = tempnam(sys_get_temp_dir(), "itflow_restore_upload_");
     if (!move_uploaded_file($_FILES['backup_zip']['tmp_name'], $temp_zip)) {
         @unlink($temp_zip);
-        $_SESSION['alert_message'] = "Could not save the uploaded backup file.";
+        setupFlash("Could not save the uploaded backup file.", 'danger');
         header("Location: ?restore");
         exit;
     }
@@ -265,7 +287,7 @@ if (isset($_POST['restore'])) {
     @unlink($temp_zip);
 
     if (!$restored) {
-        $_SESSION['alert_message'] = $restore_error;
+        setupFlash(escapeHtml((string) $restore_error), 'danger');
         header("Location: ?restore");
         exit;
     }
@@ -273,8 +295,7 @@ if (isset($_POST['restore'])) {
     // Close setup behind us. The gate above would now do this on its own because the
     // restored database has users, but the flag is what stops the wizard being reachable
     // at all.
-    $config_path = __DIR__ . "/../config.php";
-    if (@file_put_contents($config_path, "\n\$config_enable_setup = 0;\n\n", FILE_APPEND | LOCK_EX) === false) {
+    if (!setupClose(__DIR__ . "/../config.php")) {
         $_SESSION['alert_message'] = "Backup restored, but config.php could not be updated - please set \$config_enable_setup = 0 in it by hand.";
     } else {
         $_SESSION['alert_message'] = "Backup restored. Log in with the credentials that were in use when the backup was taken.";
@@ -291,8 +312,13 @@ if (isset($_POST['add_user'])) {
     // user and then died on the duplicate user_settings row. $install_is_live is the same
     // count, taken at the top of the file, and it fails closed.
     if ($install_is_live) {
-        $_SESSION['alert_message'] = "Users already exist in the database. Clear them to reconfigure here.";
+        setupFlash("Users already exist in the database. Clear them to reconfigure here.", 'info');
         header("Location: ?company");
+        exit;
+    }
+    // Each step after the database needs the one before it
+    if (!$database_ready) {
+        header("Location: ?$resume_step");
         exit;
     }
 
@@ -313,16 +339,17 @@ if (isset($_POST['add_user'])) {
 
     mkdirMissing("../uploads/users/$user_id");
 
+    $avatar_message = '';
+
     //Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
+    if (!empty($_FILES['file']['tmp_name'])) {
 
         // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
         $file_name = $_FILES['file']['name'];
         $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+        $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
         // sanitize file-name
         $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
@@ -348,18 +375,15 @@ if (isset($_POST['add_user'])) {
 
             //Set Avatar
             mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
-
-            $_SESSION['alert_message'] = 'File successfully uploaded.';
         } else {
-
-            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+            $avatar_message = ' - the avatar was left off: it has to be a jpg, png, gif or webp image under 2 MB';
         }
     }
 
     //Create Settings
     mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id");
 
-    $_SESSION['alert_message'] = "User <strong>$name</strong> created";
+    setupFlash("Account <strong>" . escapeHtml($_POST['name']) . "</strong> created$avatar_message.", $avatar_message ? 'warning' : 'success');
 
     header("Location: ?company");
     exit;
@@ -370,8 +394,12 @@ if (isset($_POST['add_company_settings'])) {
 
     // Run once. A second pass would add a second companies row and re-seed the defaults.
     if ($company_exists) {
-        $_SESSION['alert_message'] = "Company details have already been saved.";
+        setupFlash("Company details have already been saved.", 'info');
         header("Location: ?localization");
+        exit;
+    }
+    if (!$install_is_live) {
+        header("Location: ?$resume_step");
         exit;
     }
 
@@ -388,16 +416,17 @@ if (isset($_POST['add_company_settings'])) {
 
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_tax_id = '$tax_id'");
 
+    $logo_message = '';
+
     //Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
+    if (!empty($_FILES['file']['tmp_name'])) {
 
         // get details of the uploaded file
         $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
         $file_name = $_FILES['file']['name'];
         $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+        $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
         // sanitize file-name
         $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
@@ -422,20 +451,18 @@ if (isset($_POST['add_company_settings'])) {
             move_uploaded_file($file_tmp_path, $dest_path);
 
             mysqli_query($mysqli,"UPDATE companies SET company_logo = '$new_file_name' WHERE company_id = 1");
-
-            $_SESSION['alert_message'] = 'File successfully uploaded.';
         } else {
-
-            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
+            $logo_message = ' - the logo was left off: it has to be a jpg or png under 2 MB';
         }
     }
 
     // Seed the defaults shared with the CLI installer
     seedDefaultData($mysqli);
 
-    $_SESSION['alert_message'] = "Company <strong>$name</strong> created";
+    setupFlash("Company <strong>" . escapeHtml($_POST['name']) . "</strong> saved$logo_message.", $logo_message ? 'warning' : 'success');
 
     header("Location: ?localization");
+    exit;
 
 }
 
@@ -443,8 +470,12 @@ if (isset($_POST['add_localization_settings'])) {
 
     // Run once. A second pass would add a second Cash account.
     if ($localization_done) {
-        $_SESSION['alert_message'] = "Localization has already been saved.";
+        setupFlash("Localization has already been saved.", 'info');
         header("Location: ?telemetry");
+        exit;
+    }
+    if (!$company_exists) {
+        header("Location: ?$resume_step");
         exit;
     }
 
@@ -459,14 +490,20 @@ if (isset($_POST['add_localization_settings'])) {
     // Create Default Cash Account
     mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_type = 4, account_currency_code = '$currency_code'");
 
-
-    $_SESSION['alert_message'] = "Localization Info saved";
+    setupFlash("Language, currency and timezone saved - one last step.");
 
     header("Location: ?telemetry");
+    exit;
 
 }
 
 if (isset($_POST['add_telemetry'])) {
+
+    // Finishing closes setup for good - not before the steps it needs are done
+    if (!$localization_done) {
+        header("Location: ?$resume_step");
+        exit;
+    }
 
     if (isset($_POST['share_data']) && $_POST['share_data'] == 1) {
 
@@ -503,960 +540,176 @@ if (isset($_POST['add_telemetry'])) {
             array(
                 'method' => 'POST',
                 'header' => 'Content-type: application/x-www-form-urlencoded',
-                'content' => $postdata
+                'content' => $postdata,
+                'timeout' => 10
             )
         );
 
         $context = stream_context_create($opts);
 
-        $result = file_get_contents('https://telemetry.itflow.org', false, $context);
-
-        echo $result;
+        // Best effort - an install that can't reach it still finishes
+        @file_get_contents('https://telemetry.itflow.org', false, $context);
 
     }
 
-    //final setup stages
-    $myfile = fopen("../config.php", "a");
-
-    $txt = "\$config_enable_setup = 0;\n\n";
-
-    fwrite($myfile, $txt);
-
-    fclose($myfile);
+    // Close setup - the sign-in page is next
+    if (!setupClose(__DIR__ . "/../config.php")) {
+        setupFlash("Setup is done, but config.php could not be written to. Add this line to the end of it by hand, then sign in: <code>\$config_enable_setup = 0;</code>", 'danger');
+        header("Location: ?telemetry");
+        exit;
+    }
 
     header("Location: ../login.php");
     exit;
 
 }
 
-?>
+/*
+ * ---------- the page ----------
+ */
 
+// The steps, in order - each with its place in the wizard, and the page it is
+$setup_steps = [
+    'welcome' => ['label' => 'Welcome', 'icon' => 'fa-paper-plane'],
+    'checks' => ['label' => 'Checks', 'icon' => 'fa-clipboard-check'],
+    'database' => ['label' => 'Database', 'icon' => 'fa-database'],
+    'user' => ['label' => 'Your account', 'icon' => 'fa-user'],
+    'company' => ['label' => 'Company', 'icon' => 'fa-building'],
+    'localization' => ['label' => 'Region', 'icon' => 'fa-globe-americas'],
+    'telemetry' => ['label' => 'Finish', 'icon' => 'fa-flag-checkered'],
+];
+$setup_step = 'welcome';
+foreach (array_merge(array_keys($setup_steps), ['restore']) as $key) {
+    if ($key !== 'welcome' && isset($_GET[$key])) {
+        $setup_step = $key;
+        break;
+    }
+}
+// The Database step's errors, and the config.php to make by hand, show on it - wherever the form was sent from
+if ($database_error !== '' || $config_manual !== '') {
+    $setup_step = 'database';
+}
+$setup_order = array_keys($setup_steps);
+$setup_resume_index = array_search($resume_step, $setup_order, true);
+$setup_current_index = array_search($setup_step, $setup_order, true);
+
+/* Where a step stands - done (behind where the install has got to), current or to come. */
+function setupStepState($key) {
+    global $setup_order, $setup_resume_index, $setup_step;
+    if ($key === $setup_step) {
+        return 'current';
+    }
+    return array_search($key, $setup_order, true) < $setup_resume_index ? 'done' : 'todo';
+}
+
+// The message a step left for this page
+$setup_alert = '';
+$setup_alert_type = 'info';
+if (!empty($_SESSION['alert_message'])) {
+    $setup_alert = $_SESSION['alert_message'];
+    $setup_alert_type = in_array($_SESSION['alert_type'] ?? '', ['success', 'info', 'warning', 'danger'], true) ? $_SESSION['alert_type'] : 'info';
+    $_SESSION['alert_message'] = '';
+    $_SESSION['alert_type'] = '';
+}
+
+$setup_title = $setup_step === 'restore' ? 'Restore a backup' : $setup_steps[$setup_step]['label'];
+
+?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light" data-lte-color-mode="off">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="color-scheme" content="light dark">
 
-    <title>ITFlow Setup</title>
+    <title><?= escapeHtml($setup_title) ?> - ITFlow Setup</title>
 
-    <!-- Font Awesome Icons -->
+    <!-- Light or dark, as the system is set - before the first paint -->
+    <script>
+        (function () {
+            try {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
+
     <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
-    <!-- Theme style -->
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
-    <!-- Custom Style Sheet -->
     <link rel="stylesheet" href="/css/itflow_custom.css">
-
 </head>
 
-<body class="hold-transition sidebar-mini">
-
-<div class="app-wrapper text-sm">
-
-    <!-- Navbar -->
-    <nav class="app-header navbar navbar-expand" data-bs-theme="dark">
-
-        <!-- Left navbar links -->
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" data-lte-toggle="sidebar" href="#"><i class="fas fa-bars"></i></a>
-            </li>
-        </ul>
-
-        <!-- Right navbar links -->
-        <ul class="navbar-nav">
-        </ul>
-    </nav>
-    <!-- /.navbar -->
-
-    <!-- Main Sidebar Container -->
-    <aside class="app-sidebar shadow" data-bs-theme="dark">
-
-        <!-- Brand Logo -->
-        <div class="sidebar-brand">
-            <a href="https://itflow.org" class="brand-link">
-                <h3 class="brand-text fw-light mb-0"><i class="fas fa-paper-plane text-primary me-2"></i><span class="text-primary text-bold">IT</span>Flow</h3>
-            </a>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="sidebar">
-
-            <!-- Sidebar Menu -->
-            <nav class="mt-2">
-                <ul class="nav nav-pills sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
-                    <li class="nav-item">
-                        <a href="index.php" class="nav-link <?php if (!isset($_GET) || empty($_GET)) { echo 'active'; } ?>">
-                            <i class="nav-icon fas fa-home text-info"></i>
-                            <p>1 - Welcome</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="?checks" class="nav-link <?php if (isset($_GET['checks'])) { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-check"></i>
-                            <p>2 - Checks</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="?database" class="nav-link <?php if (isset($_GET['database'])) { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-database"></i>
-                            <p>3 - Database</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="?user" class="nav-link <?php if (isset($_GET['user'])) { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-user"></i>
-                            <p>4 - User</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="?company" class="nav-link <?php if (isset($_GET['company'])) { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-briefcase"></i>
-                            <p>5 - Company</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="?localization" class="nav-link <?php if (isset($_GET['localization'])) { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-globe-americas"></i>
-                            <p>6 - Localization</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="?telemetry" class="nav-link <?php if (isset($_GET['telemetry'])) { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-share-alt"></i>
-                            <p>7 - Telemetry</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-header">Utilities</li>
-
-                    <li class="nav-item">
-                        <a href="?restore" class="nav-link <?php if (isset($_GET['restore'])) { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-upload text-warning"></i>
-                            <p>Restore Backup</p>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-    </aside>
-
-    <!-- Content Wrapper. Contains page content -->
-    <main class="app-main">
-
-        <!-- Main content -->
-        <div class="content mt-3">
-            <div class="container-fluid">
-
-                <?php
-                //Alert Feedback
-                if (!empty($_SESSION['alert_message'])) {
-                    ?>
-                    <div class="alert alert-info" id="alert">
-                        <?= alertMessageHtml($_SESSION['alert_message']) ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    <?php
-                    $_SESSION['alert_type'] = '';
-                    $_SESSION['alert_message'] = '';
-                }
-                ?>
-
-                <?php if (isset($_GET['checks'])) {
-
-                    $checks = [];
-
-                    // Section: PHP Extensions
-                    $phpExtensions = [];
-                    $extensions = [
-                        'php-mysqli' => 'mysqli',
-                        'php-intl' => 'intl',
-                        'php-curl' => 'curl',
-                        'php-mbstring' => 'mbstring',
-                        'php-gd' => 'gd',
-                        'php-xml' => 'xml',
-                    ];
-
-                    foreach ($extensions as $name => $ext) {
-                        $loaded = extension_loaded($ext);
-                        $phpExtensions[] = [
-                            'name' => "$name installed",
-                            'passed' => $loaded,
-                            'value' => $loaded ? 'Installed' : 'Not Installed',
-                        ];
-                    }
-
-                    // Section: PHP Configuration
-                    $phpConfig = [];
-
-                    // Check if shell_exec is enabled
-                    $disabled_functions = explode(',', ini_get('disable_functions'));
-                    $disabled_functions = array_map('trim', $disabled_functions);
-                    $shell_exec_enabled = !in_array('shell_exec', $disabled_functions);
-
-                    $phpConfig[] = [
-                        'name' => 'shell_exec is enabled',
-                        'passed' => $shell_exec_enabled,
-                        'value' => $shell_exec_enabled ? 'Enabled' : 'Disabled',
-                    ];
-
-                    // Check upload_max_filesize and post_max_size >= 500M
-                    function toBytes($val) {
-                        $val = trim($val);
-                        $unit = strtolower(substr($val, -1));
-                        $num = (float)$val;
-                        switch ($unit) {
-                            case 'g':
-                                $num *= 1024;
-                            case 'm':
-                                $num *= 1024;
-                            case 'k':
-                                $num *= 1024;
-                        }
-                        return $num;
-                    }
-
-                    $required_bytes = 500 * 1024 * 1024; // 500M in bytes
-
-                    $upload_max_filesize = ini_get('upload_max_filesize');
-                    $post_max_size = ini_get('post_max_size');
-
-                    $upload_passed = toBytes($upload_max_filesize) >= $required_bytes;
-                    $post_passed = toBytes($post_max_size) >= $required_bytes;
-
-                    $phpConfig[] = [
-                        'name' => 'upload_max_filesize >= 500M',
-                        'passed' => $upload_passed,
-                        'value' => $upload_max_filesize,
-                    ];
-
-                    $phpConfig[] = [
-                        'name' => 'post_max_size >= 500M',
-                        'passed' => $post_passed,
-                        'value' => $post_max_size,
-                    ];
-
-                    // Check PHP version >= 8.2.0
-                    $php_version = PHP_VERSION;
-                    $php_passed = version_compare($php_version, '8.2.0', '>=');
-
-                    $phpConfig[] = [
-                        'name' => 'PHP version >= 8.2.0',
-                        'passed' => $php_passed,
-                        'value' => $php_version,
-                    ];
-
-                    // Section: Shell Commands
-                    $shellCommands = [];
-
-                    // Located by walking PATH rather than by running `which`, so this reports
-                    // the truth on a host with shell_exec disabled. The no-shell branch this
-                    // replaces also still listed whois and dig, which ITFlow stopped shelling
-                    // out to when domain lookups moved to RDAP and native DNS
-                    foreach (['git'] as $command) {
-                        $path = commandPath($command);
-                        $shellCommands[] = [
-                            'name' => "Command '$command' available",
-                            'passed' => $path !== '',
-                            'value' => $path !== '' ? $path : 'Not Found',
-                        ];
-                    }
-
-                    // Section: SSL Checks
-                    $sslChecks = [];
-
-                    // Check if accessing via HTTPS
-                    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
-                    $sslChecks[] = [
-                        'name' => 'Accessing via HTTPS',
-                        'passed' => $https,
-                        'value' => $https ? 'Yes' : 'No',
-                    ];
-
-                    // SSL Certificate Validity Check
-                    if ($https) {
-                        $streamContext = stream_context_create(["ssl" => ["capture_peer_cert" => true]]);
-                        $socket = @stream_socket_client("ssl://{$_SERVER['HTTP_HOST']}:443", $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $streamContext);
-
-                        if ($socket) {
-                            $params = stream_context_get_params($socket);
-                            $cert = $params['options']['ssl']['peer_certificate'];
-                            $certInfo = openssl_x509_parse($cert);
-
-                            $validFrom = $certInfo['validFrom_time_t'];
-                            $validTo = $certInfo['validTo_time_t'];
-                            $currentTime = time();
-
-                            $certValid = ($currentTime >= $validFrom && $currentTime <= $validTo);
-
-                            $sslChecks[] = [
-                                'name' => 'SSL Certificate is valid',
-                                'passed' => $certValid,
-                                'value' => $certValid ? 'Valid' : 'Invalid or Expired',
-                            ];
-                        } else {
-                            $sslChecks[] = [
-                                'name' => 'SSL Certificate is valid',
-                                'passed' => false,
-                                'value' => 'Unable to retrieve certificate',
-                            ];
-                        }
-                    } else {
-                        $sslChecks[] = [
-                            'name' => 'SSL Certificate is valid',
-                            'passed' => false,
-                            'value' => 'Not using HTTPS',
-                        ];
-                    }
-
-                    // Section: Domain Checks
-                    $domainChecks = [];
-
-                    // Check if the site has a valid FQDN
-                    $fqdn = $_SERVER['HTTP_HOST'];
-                    $isValidFqdn = (bool) filter_var('http://' . $fqdn, FILTER_VALIDATE_URL) && preg_match('/^[a-z0-9.-]+\.[a-z]{2,}$/i', $fqdn);
-
-                    $domainChecks[] = [
-                        'name' => 'Site has a valid FQDN',
-                        'passed' => $isValidFqdn,
-                        'value' => $fqdn,
-                    ];
-
-                    // Section: File Permissions
-                    $filePermissions = [];
-
-                    // Check if web user has write access to webroot directory
-                    $webroot = $_SERVER['DOCUMENT_ROOT'];
-                    $writable = is_writable($webroot);
-                    $filePermissions[] = [
-                        'name' => 'Web user has write access to webroot directory',
-                        'passed' => $writable,
-                        'value' => $webroot,
-                    ];
-                    ?>
-
-                    <div class="card card-dark">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-check me-2"></i>Step 1 - Setup Checks</h3>
-                        </div>
-                        <div class="card-body">
-                            <table class="table table-sm table-bordered">
-                                <tbody>
-                                    <!-- PHP Extensions Section -->
-                                    <tr class="bg-light">
-                                        <th colspan="3">PHP Extensions</th>
-                                    </tr>
-                                    <?php foreach ($phpExtensions as $check): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($check['name']); ?></td>
-                                            <td style="width: 50px; text-align: center;">
-                                                <?php if ($check['passed']): ?>
-                                                    <i class="fa fa-check" style="color:green"></i>
-                                                <?php else: ?>
-                                                    <i class="fa fa-times" style="color:red"></i>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?= htmlspecialchars($check['value']); ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-
-                                    <!-- PHP Configuration Section -->
-                                    <tr class="bg-light">
-                                        <th colspan="3">PHP Configuration</th>
-                                    </tr>
-                                    <?php foreach ($phpConfig as $check): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($check['name']); ?></td>
-                                            <td style="width: 50px; text-align: center;">
-                                                <?php if ($check['passed']): ?>
-                                                    <i class="fa fa-check" style="color:green"></i>
-                                                <?php else: ?>
-                                                    <i class="fa fa-times" style="color:red"></i>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?= htmlspecialchars($check['value']); ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-
-                                    <!-- Shell Commands Section -->
-                                    <tr class="bg-light">
-                                        <th colspan="3">Shell Commands</th>
-                                    </tr>
-                                    <?php foreach ($shellCommands as $check): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($check['name']); ?></td>
-                                            <td style="width: 50px; text-align: center;">
-                                                <?php if ($check['passed']): ?>
-                                                    <i class="fa fa-check" style="color:green"></i>
-                                                <?php else: ?>
-                                                    <i class="fa fa-times" style="color:red"></i>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?= htmlspecialchars($check['value']); ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-
-                                    <!-- SSL Checks Section -->
-                                    <tr class="bg-light">
-                                        <th colspan="3">SSL Checks</th>
-                                    </tr>
-                                    <?php foreach ($sslChecks as $check): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($check['name']); ?></td>
-                                            <td style="width: 50px; text-align: center;">
-                                                <?php if ($check['passed']): ?>
-                                                    <i class="fa fa-check" style="color:green"></i>
-                                                <?php else: ?>
-                                                    <i class="fa fa-times" style="color:red"></i>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?= htmlspecialchars($check['value']); ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-
-                                    <!-- Domain Checks Section -->
-                                    <tr class="bg-light">
-                                        <th colspan="3">Domain Checks</th>
-                                    </tr>
-                                    <?php foreach ($domainChecks as $check): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($check['name']); ?></td>
-                                            <td style="width: 50px; text-align: center;">
-                                                <?php if ($check['passed']): ?>
-                                                    <i class="fa fa-check" style="color:green"></i>
-                                                <?php else: ?>
-                                                    <i class="fa fa-times" style="color:red"></i>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?= htmlspecialchars($check['value']); ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-
-                                    <!-- File Permissions Section -->
-                                    <tr class="bg-light">
-                                        <th colspan="3">File Permissions</th>
-                                    </tr>
-                                    <?php foreach ($filePermissions as $check): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($check['name']); ?></td>
-                                            <td style="width: 50px; text-align: center;">
-                                                <?php if ($check['passed']): ?>
-                                                    <i class="fa fa-check" style="color:green"></i>
-                                                <?php else: ?>
-                                                    <i class="fa fa-times" style="color:red"></i>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?= htmlspecialchars($check['value']); ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-
-                            <hr>
-
-                            <a href="?database" class="btn btn-primary text-bold">Next (Database)<i class="fa fa-fw fa-arrow-circle-right ms-2"></i></a>
-                        </div>
-                    </div>
-
-                <?php } elseif (isset($_GET['database'])) { ?>
-
-                    <div class="card card-dark">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-database me-2"></i>Step 2 - Connect your Database</h3>
-                        </div>
-                        <div class="card-body">
-                            <?php
-                            if (file_exists('../config.php')) {
-
-                                echo "<p>Database is already configured. Any further changes should be made by editing the <code>config.php</code> file.</p>";
-
-                                if (@$mysqli) {
-                                    echo "<a href='?user' class='btn btn-success text-bold mt-3'>Next Step (User Setup) <i class='fa fa-fw fa-arrow-circle-right ms-2'></i></a>";
-                                } else {
-                                    echo "<div class='alert alert-danger mt-3'>Database connection failed. Check <code>config.php</code>.</div>";
-                                }
-
-                            } else {
-                            ?>
-                                <form method="post" autocomplete="off">
-
-                                    <h5>Database Connection Details</h5>
-
-                                    <div class="mb-3">
-                                        <label>Database Name <strong class="text-danger">*</strong></label>
-                                        <div class="input-group">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-database"></i></span>
-                                            <input type="text" class="form-control" name="database" placeholder="Database name" autofocus required>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label>Database Host <strong class="text-danger">*</strong></label>
-                                        <div class="input-group">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                                            <input type="text" class="form-control" name="host" value="localhost" placeholder="Database Host" required>
-                                        </div>
-                                    </div>
-
-                                    <br>
-                                    <h5>Database Authentication Details</h5>
-
-                                    <div class="mb-3">
-                                        <label>Database User <strong class="text-danger">*</strong></label>
-                                        <div class="input-group">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                            <input type="text" class="form-control" name="username" placeholder="Database user account" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label>Database Password <strong class="text-danger">*</strong></label>
-                                        <div class="input-group">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                                            <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Database user password" autocomplete="new-password" required>
-                                                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                        </div>
-                                    </div>
-
-                                    <hr>
-                                    <button type="submit" name="add_database" class="btn btn-primary text-bold">
-                                        Next (First User)<i class="fas fa-fw fa-arrow-circle-right ms-2"></i>
-                                    </button>
-                                </form>
-                            <?php } ?>
-                        </div>
-                    </div>
-
-                <?php } elseif (isset($_GET['restore'])) { ?>
-
-                    <?php if (!$can_show_restore) { ?>
-                        <div class="card card-danger">
-                            <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-exclamation-triangle me-2"></i>Database Not Ready</h3>
-                            </div>
-                            <div class="card-body text-center">
-                                <p>You must configure the database before restoring a backup.</p>
-                                <a href="?database" class="btn btn-primary text-bold">
-                                    Go to Database Setup <i class="fas fa-arrow-right ms-2"></i>
-                                </a>
-                            </div>
-                        </div>
+<body class="itflow-setup bg-body-tertiary">
+
+<div class="itflow-setup-wrap">
+
+    <header class="itflow-setup-brand">
+        <a href="index.php" class="text-reset text-decoration-none">
+            <span class="text-primary fw-bold"><i class="fas fa-paper-plane me-2"></i>IT</span>Flow
+        </a>
+        <span class="itflow-setup-brand-sub">Setup</span>
+    </header>
+
+    <!-- Where the install has got to -->
+    <nav class="itflow-setup-steps" aria-label="Setup steps">
+        <ol class="list-unstyled d-none d-md-flex">
+            <?php foreach ($setup_steps as $key => $step) {
+                $state = setupStepState($key);
+                $number = array_search($key, $setup_order, true) + 1;
+                $marker = $state === 'done' ? '<i class="fas fa-check"></i>' : $number;
+                $inner = '<span class="itflow-setup-step-marker">' . $marker . '</span><span class="itflow-setup-step-label">' . escapeHtml($step['label']) . '</span>'; ?>
+                <li class="itflow-setup-step is-<?= $state ?>" data-setup-step="<?= $key ?>" <?= $state === 'current' ? 'aria-current="step"' : '' ?>>
+                    <?php if ($state === 'done' || ($state === 'current' && $key !== 'welcome') || $key === 'checks' || array_search($key, $setup_order, true) === $setup_resume_index) { ?>
+                        <a href="<?= $key === 'welcome' ? 'index.php' : "?$key" ?>"><?= $inner ?></a>
                     <?php } else { ?>
-                        <div class="card card-dark">
-                            <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-fw fa-database me-2"></i>Restore from Backup</h3>
-                            </div>
-                            <div class="card-body">
-                                <?php $setup_max_upload = backupMaxUploadBytes(); ?>
-
-                                <form method="post" enctype="multipart/form-data" autocomplete="off">
-                                    <div class="mb-3">
-                                        <label>ITFlow backup archive (.zip)</label>
-                                        <input type="file" name="backup_zip" accept=".zip" class="form-control" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label>Backup encryption key</label>
-                                        <input type="text" name="backup_key" class="form-control" placeholder="The key from the install that made this backup" autocomplete="off" required>
-                                        <small class="text-muted">Shown in Maintenance &gt; Backup on that install. The archive cannot be opened without it.</small>
-                                    </div>
-
-                                    <div class="alert alert-warning mb-0">
-                                        <strong>This server accepts uploads up to <?= escapeHtml(backupFormatBytes($setup_max_upload)) ?>.</strong>
-                                        A full backup is usually larger than that. If yours is, copy it onto the server and restore from the
-                                        command line instead - there is no size limit there:
-                                        <pre class="bg-dark text-white p-2 mt-2 mb-0"><?= escapeHtml("php " . dirname(__DIR__) . "/scripts/restore_cli.php --file=/path/to/backup.zip") ?></pre>
-                                    </div>
-
-                                    <p class="text-muted mt-2 mb-0"><small>The restore replaces the database and the uploads folder. Large restores take several minutes - do not close this page.</small></p>
-                                    <hr>
-                                    <button type="submit" name="restore" class="btn btn-primary text-bold">
-                                        Restore Backup<i class="fas fa-fw fa-upload ms-2"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                        <span><?= $inner ?></span>
                     <?php } ?>
-
-                <?php } elseif (isset($_GET['user'])) { ?>
-
-                    <div class="card card-dark">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-user me-2"></i>Step 3 - Create your first user</h3>
-                        </div>
-                        <div class="card-body">
-
-                            <?php if ($install_is_live): ?>
-
-                                <p>This install already has a user - the rest of your team is added from Admin &gt; Users once you are logged in.</p>
-                                <hr>
-                                <a href="?<?= $resume_step ?>" class="btn btn-primary text-bold">Continue Setup <i class="fa fa-fw fa-arrow-circle-right"></i></a>
-
-                            <?php else: ?>
-
-                            <form method="post" enctype="multipart/form-data" autocomplete="off">
-                                <div class="mb-3">
-                                    <label>Name <strong class="text-danger">*</strong></label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                        <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" autofocus required>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Email <strong class="text-danger">*</strong></label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                                        <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200" required>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Password <strong class="text-danger">*</strong></label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                                        <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Enter a Password" autocomplete="new-password" required minlength="8">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Avatar</label>
-                                    <input type="file" class="form-control" accept="image/*;capture=camera" name="file">
-                                </div>
-
-                                <hr>
-
-                                <button type="submit" name="add_user" class="btn btn-primary text-bold">Next (Company details) <i class="fa fa-fw fa-arrow-circle-right"></i></button>
-                            </form>
-
-                            <?php endif; ?>
-
-                        </div>
-                    </div>
-
-                <?php } elseif (isset($_GET['company'])) { ?>
-
-                    <div class="card card-dark">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-briefcase me-2"></i>Step 4 - Company Details</h3>
-                        </div>
-                        <div class="card-body">
-
-                            <?php if ($company_exists): ?>
-
-                                <p>Company details have already been saved - they can be changed later from Admin &gt; Settings.</p>
-                                <hr>
-                                <a href="?<?= $resume_step ?>" class="btn btn-primary text-bold">Continue Setup <i class="fa fa-fw fa-arrow-circle-right"></i></a>
-
-                            <?php else: ?>
-                            <form method="post" enctype="multipart/form-data" autocomplete="off">
-
-                                <div class="mb-3">
-                                    <label>Company Name <strong class="text-danger">*</strong></label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                                        <input type="text" class="form-control" name="name" placeholder="Company Name" maxlength="200" autofocus required>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Logo</label>
-                                    <input type="file" class="form-control" name="file" accept=".jpg, .jpeg, .png">
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Address</label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                                        <input type="text" class="form-control" name="address" placeholder="Street Address">
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>City</label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
-                                        <input type="text" class="form-control" name="city" placeholder="City">
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>State / Province</label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                                        <input type="text" class="form-control" name="state" placeholder="State or Province">
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Postal Code</label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
-                                        <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code">
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Country <strong class="text-danger">*</strong></label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
-                                        <select class="form-select select2" name="country" required>
-                                            <option value="">- Country -</option>
-                                            <?php foreach($countries_array as $country_name) { ?>
-                                                <option data-iso2="<?= $country_iso2_array[$country_name] ?? '' ?>"><?= $country_name ?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Phone</label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                        <input type="tel" class="form-control" name="phone" placeholder="Phone Number">
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Email</label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                                        <input type="email" class="form-control" name="email" placeholder="Company Email address eg: info@company.com" maxlength="200">
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Website</label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                                        <input type="text" class="form-control" name="website" placeholder="Website address">
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Tax ID</label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                                        <input type="text" class="form-control" name="tax_id" placeholder="Tax ID" maxlength="200">
-                                    </div>
-                                </div>
-
-                                <hr>
-
-                                <button type="submit" name="add_company_settings" class="btn btn-primary text-bold">
-                                    Next (Localization)<i class="fas fa-fw fa-arrow-circle-right ms-2"></i>
-                                </button>
-
-                            </form>
-
-                            <?php endif; ?>
-
-                        </div>
-                    </div>
-
-                <?php } elseif (isset($_GET['localization'])) { ?>
-
-                    <div class="card card-dark">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-globe-americas me-2"></i>Step 5 - Region and Language</h3>
-                        </div>
-                        <div class="card-body">
-
-                            <?php if ($localization_done): ?>
-
-                                <p>Localization has already been saved - it can be changed later from Admin &gt; Settings.</p>
-                                <hr>
-                                <a href="?<?= $resume_step ?>" class="btn btn-primary text-bold">Continue Setup <i class="fa fa-fw fa-arrow-circle-right"></i></a>
-
-                            <?php else: ?>
-                            <form method="post" autocomplete="off">
-
-                                <div class="mb-3">
-                                    <label>Language <strong class="text-danger">*</strong></label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-language"></i></span>
-                                        <select class="form-select select2" name="locale" required>
-                                            <option value="">- Select a Language -</option>
-                                            <?php foreach($locales_array as $locale_code => $locale_name) { ?>
-                                                <option value="<?= $locale_code ?>"><?= $locale_name ?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Currency <strong class="text-danger">*</strong></label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                                        <select class="form-select select2" name="currency_code" required>
-                                            <option value="">- Select a Currency -</option>
-                                            <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                                                <option value="<?= $currency_code ?>"><?= "$currency_code - $currency_name" ?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Timezone <strong class="text-danger">*</strong></label>
-                                    <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-business-time"></i></span>
-                                        <select class="form-select select2" name="timezone" required>
-                                            <option value="">- Select a Timezone -</option>
-                                            <?php foreach ($timezones as $tz) { ?>
-                                                <option value="<?= $tz ?>"><?= $tz ?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <hr>
-
-                                <button type="submit" name="add_localization_settings" class="btn btn-primary text-bold">
-                                    Next (Telemetry Settings)<i class="fas fa-fw fa-arrow-circle-right ms-2"></i>
-                                </button>
-
-                            </form>
-
-                            <?php endif; ?>
-
-                        </div>
-                    </div>
-
-
-                <?php } elseif (isset($_GET['telemetry'])) { ?>
-
-                    <div class="card card-dark">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-broadcast-tower me-2"></i>Step 6 - Telemetry</h3>
-                        </div>
-                        <div class="card-body">
-                            <form method="post" autocomplete="off">
-                                <h5>Would you like to share some data with us?</h5>
-
-                                <hr>
-
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" name="share_data" value="1">
-                                    <label class="form-check-label ms-2">Share <small class="form-text"><a href="https://docs.itflow.org/telemetry" target="_blank">Click Here for additional details regarding the information we gather <i class="fas fa-external-link-alt"></i></a></small></label>
-                                </div>
-
-                                <br>
-
-                                <div class="mb-3">
-                                    <label>Comments</label>
-                                    <textarea class="form-control" rows="4" name="comments" placeholder="Any Comments?"></textarea>
-                                </div>
-
-                                <hr>
-
-                                <h5>Post installation steps: </h5>
-                                <p>A few <a href="https://docs.itflow.org/installation#post-installation_essential_housekeeping">housekeeping steps</a> are required to ensure everything runs smoothly, namely:</p>
-                                <ul>
-                                    <li><a href="https://docs.itflow.org/backups">Setup backups</a></li>
-                                    <li>
-                                        <a href="https://docs.itflow.org/cron">Setup cron</a> - ITFlow needs one entry, which runs
-                                        every job on the schedule set in Maintenance &gt; Cron. Add it to the crontab of the user that
-                                        owns the ITFlow files:
-                                        <pre class="bg-dark text-white p-2 mt-2"><?= escapeHtml("* * * * * php " . dirname(__DIR__) . "/cron/cron.php >/dev/null") ?></pre>
-                                        Then <strong>turn cron on</strong> in Maintenance &gt; Cron - it ships off, and every job
-                                        stops itself until it is enabled.
-                                        *If installing via the script the crontab entry is set up for you.
-                                    </li>
-                                    <li>Star ITFlow on <a href="https://github.com/itflow-org/itflow">Github</a> :)</li>
-                                </ul>
-
-                                <hr>
-
-                                <button type="submit" name="add_telemetry" class="btn btn-primary text-bold">
-                                    Finish and Sign in<i class="fas fa-fw fa-check-circle ms-2"></i>
-                                </button>
-
-                            </form>
-
-                        </div>
-                    </div>
-
-                <?php } else { ?>
-
-                    <div class="card card-dark">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-cube me-2"></i>ITFlow Setup</h3>
-                        </div>
-                        <div class="card-body">
-                            <h2><b>Thank you</b> for choosing to try ITFlow!</h2>
-                            <p>This is the start of your journey towards amazing client management </p>
-                            <p>A few tips:</p>
-                            <ul>
-                                <li>Please take a look over the install <a href="https://docs.itflow.org/installation">docs</a>, if you haven't already</li>
-                                <li>Don't hesitate to reach out on the <a href="https://forum.itflow.org/t/support" target="_blank">forums</a> if you need any assistance</li>
-                                <li><i>Apache/PHP Error log: <?= $errorLog ?></i></li>
-                            </ul>
-                            <?php if ($install_is_live): ?>
-                                <br><p>This install was left part-way through setup - click on the button below to pick up where it stopped.</p>
-                            <?php else: ?>
-                                <br><p>A database must be created before proceeding - click on the button below to get started.</p>
-                            <?php endif; ?>
-                            <br><hr>
-                            <p class="text-muted">ITFlow is <b>free software</b>: you can redistribute and/or modify it under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU General Public License</a>. <br> It is distributed in the hope that it will be useful, but <b>without any warranty</b>; without even the implied warranty of merchantability or fitness for a particular purpose.</p>
-                            <?php
-                            // Check that there is access to write to the current directory
-                            if (!is_writable('.')) {
-                                echo "<div class='alert alert-danger'>Warning: The current directory is not writable. Ensure the webserver process has write access (chmod/chown). Check the <a href='https://docs.itflow.org/installation'>docs</a> for info.</div>";
-                            }
-                            ?>
-                            <hr>
-                            <div class="text-center">
-                                <?php if ($install_is_live): ?>
-                                    <a href="?<?= $resume_step ?>" class="btn btn-primary text-bold me-2">
-                                        Continue Setup <i class="fas fa-fw fa-arrow-alt-circle-right ms-2"></i>
-                                    </a>
-                                <?php elseif ($should_skip_to_user): ?>
-                                    <a href="?user" class="btn btn-primary text-bold me-2">
-                                        Create First User <i class="fas fa-fw fa-user ms-2"></i>
-                                    </a>
-                                <?php endif; ?>
-
-                                <?php if ($can_show_restore): ?>
-                                    <a href="?restore" class="btn btn-warning text-bold">
-                                        Restore from Backup <i class="fas fa-fw fa-upload ms-2"></i>
-                                    </a>
-                                <?php endif; ?>
-
-                                <?php if (!$should_skip_to_user && !$can_show_restore): ?>
-                                    <a href="?checks" class="btn btn-primary text-bold">
-                                        Begin Setup <i class="fas fa-fw fa-arrow-alt-circle-right ms-2"></i>
-                                    </a>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-
-                <?php } ?>
-
-            </div><!-- /.container-fluid -->
-        </div>
-        <!-- /.app-content -->
+                </li>
+            <?php } ?>
+        </ol>
+        <?php if ($setup_current_index !== false) { ?>
+            <div class="d-md-none">
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="fw-semibold"><?= escapeHtml($setup_title) ?></span>
+                    <span class="text-body-secondary">Step <?= $setup_current_index + 1 ?> of <?= count($setup_steps) ?></span>
+                </div>
+                <div class="progress" style="height: 6px;" role="progressbar" aria-label="Setup progress" aria-valuenow="<?= $setup_current_index + 1 ?>" aria-valuemin="1" aria-valuemax="<?= count($setup_steps) ?>">
+                    <div class="progress-bar" style="width: <?= round(($setup_current_index + 1) * 100 / count($setup_steps)) ?>%"></div>
+                </div>
+            </div>
+        <?php } ?>
+    </nav>
+
+    <main>
+        <?php if ($setup_alert !== '') { ?>
+            <div class="alert alert-<?= $setup_alert_type ?> d-flex gap-2 align-items-start" role="alert" data-setup-alert="<?= $setup_alert_type ?>">
+                <i class="fas fa-fw mt-1 <?= ['success' => 'fa-check-circle', 'info' => 'fa-info-circle', 'warning' => 'fa-exclamation-triangle', 'danger' => 'fa-times-circle'][$setup_alert_type] ?>"></i>
+                <div class="flex-grow-1"><?= alertMessageHtml($setup_alert) ?></div>
+            </div>
+        <?php } ?>
+
+        <?php require __DIR__ . "/steps/$setup_step.php"; ?>
     </main>
-    <!-- /.app-main -->
+
+    <footer class="itflow-setup-footer">
+        <a href="https://docs.itflow.org/installation" target="_blank" rel="noopener">Installation docs</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://forum.itflow.org/t/support" target="_blank" rel="noopener">Ask on the forum</a>
+        <?php if ($can_show_restore && $setup_step !== 'restore') { ?>
+            <span aria-hidden="true">·</span>
+            <a href="?restore">Restore a backup</a>
+        <?php } ?>
+        <div class="mt-2">
+            ITFlow is free software under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" rel="noopener">GNU General Public License</a>, without any warranty.
+        </div>
+    </footer>
+
 </div>
-<!-- /.app-wrapper -->
 
-<!-- REQUIRED SCRIPTS -->
-
-<!-- jQuery -->
-<!-- Bootstrap 5 -->
-<!-- Custom js-->
 <script src="/js/itflow_select.js"></script>
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- AdminLTE App -->
-<script src="/libs/adminlte/js/adminlte.min.js"></script>
-
-<!-- Custom js-->
 <script src="/js/app.js"></script>
 
 </body>

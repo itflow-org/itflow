@@ -1009,6 +1009,12 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Calendar invitations, updates and cancellations say when, how often it repeats, where, the description and a Join button for a meeting link, with the calendar file as before.
   - Email on the contacts and clients lists: what you write goes out with your logo above it, your details below and a line saying why they got it. Pick the mailbox it comes from and the name it shows, start it "Hello" and their name if you like, and send it now or later. What you write is made safe and its images point at your ITFlow, as in ticket emails.
 - **Admin > Mail > Previews**: every email ITFlow sends, 53 of them, as it goes out - your logo, your details and the address it comes from. Each is made when you open it, by the same code that sends it, on sample records (a client, its contacts and an agent) that are thrown away again, so looking sends and saves nothing. It says who gets it and what sends it, shows it at computer or phone width, and Send me a copy emails it to you, marked [Preview].
+- **Setup** (rebuilt)
+  - The setup wizard is a centred installer like the sign-in page, with the steps across the top - each ticked off once done, and a progress bar instead on a phone. It is light or dark as your system is set, and what a step has to say shows on the next page instead of being lost.
+  - Welcome says what to have to hand - an empty database and a user for it, your name and email, your company's name and country, and your language, currency and timezone. An install left part-way is picked up where it stopped.
+  - Checks splits what ITFlow needs from what it works better with. A required check that fails - the PHP version, an extension, a folder it can't write to - says how to fix it and holds setup until it passes, and Check again looks again. Recommended: HTTPS with a valid certificate, a domain name rather than an address, uploads of 500 MB for restoring a backup, zip, and git for one-click updates.
+  - Database: a mistake shows on the form, saying why it couldn't connect, with what you typed kept apart from the password. A database that already has tables in it is turned away rather than written over. ITFlow's tables are made before config.php is written, and if config.php can't be written, setup shows what to put in it, with a copy button. A config.php made by hand to an empty database gets a Create the tables button.
+  - Each step after the database waits for the one before it, and says so.
 
 ### Bug Fixes
 
@@ -1134,6 +1140,14 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - App logs: an entry over 1,000 characters with an accented letter or a symbol where it was cut could fail to save, stopping what was logging it.
 - Admin > Settings > Defaults: Payment Method and Expense Payment Method listed the payment method categories that moved to Admin > Payment Methods in 2.3.1, so a new install had nothing to pick. They list Admin > Payment Methods now.
 - Messages, hints and window titles were reworded where they were unclear, and bulk windows say "1 asset" or "3 assets" correctly.
+- Setup: a wrong database password, host or name ended setup on a PHP error page instead of saying what was wrong, and a config.php that couldn't connect broke every setup page.
+- Setup: the messages after a step - the account made, an avatar left off, a restore that failed - were never shown.
+- Setup: the database step ran ITFlow's tables over a database that already had tables in it, and wrote config.php before knowing they had been made.
+- Setup: the company, region and Finish steps could be sent before the steps they rely on - Finish could close setup with no company.
+- Setup: Finish with sharing turned on printed the ITFlow project's reply and stopped there instead of going to the sign-in page, and waited up to a minute when the project couldn't be reached.
+- Setup: Finish could land back on setup rather than the sign-in page, while PHP's opcache still held the config.php from a moment before.
+- Setup: the show-password eye and copy buttons did nothing - the page's script stopped at the editor, which setup doesn't load.
+- Setup: on a phone the wizard was squeezed beside its menu, a few letters to a line.
 
 ### Developer Updates
 
@@ -1684,6 +1698,13 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - `agent/js/file_delete_modal.js`, `certificate_fetch_ssl.js`, `credential_show_password_via_id.js` and `credential_show_otp_via_id.js`
 - `title` attributes were added to about 300 icon-only buttons, and `aria-label` to the show-password buttons and the portal's mobile menu button.
 - API: `api/v1/services/read.php` is new, with `services` mapped to `module_support` in `enforce_api_rbac.php`. Ticket create and update use `ticketClientOwnedId()` and `ticketAgentId()`, and certificate create uses `certificateFormSet()`.
+- Setup: `setup/index.php` keeps the handlers and draws the frame; each step's page is `setup/steps/<step>.php` (`welcome`, `checks`, `database`, `user`, `company`, `localization`, `telemetry`, `restore`).
+  - `setup/setup_checks.php`: `setupChecks($root)` returns `required` and `recommended` lists of `setupCheck($label, $passed, $value, $fix)`, with `setupChecksFailed()`. `SETUP_PHP_MINIMUM` is 8.2.0; `setupRequiredExtensions()` adds `openssl` and `fileinfo` to the six there were; the git check needs both `exec` and `shell_exec`, which the updater uses.
+  - `setup/setup_database.php`: `setupConnect()` catches `mysqli_sql_exception` and says why; `setupTables()`; `setupImportSchema()` runs `db.sql` a statement at a time and drops what it made if one fails; `setupConfigContents()` writes the values with `var_export()`; `setupClose()` appends `$config_enable_setup = 0` and `setupConfigChanged()` drops opcache's copy of `config.php`.
+  - `config.php` is included inside a try/catch, its error in `$config_error`. Setup has its own session (`itflow_setup`) and `setupFlash($message, $type)`.
+  - New POST `create_tables`. `add_user` needs `$database_ready`, `add_company_settings` `$install_is_live`, `add_localization_settings` `$company_exists` and `add_telemetry` `$localization_done` - each otherwise goes to `?$resume_step`.
+  - `.itflow-setup*` styles in `css/itflow_custom.css`.
+- `js/app.js`: the four `tinymce.init()` calls go through `itflowTinyMce`, which does nothing where TinyMCE isn't loaded.
 
 ### Library Updates
 

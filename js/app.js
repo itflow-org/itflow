@@ -225,8 +225,13 @@ function itflowInit() {
         itflowSelectAll(document);
     });
 
+    // The editor isn't loaded everywhere this file is - setup/index.php has none -
+    // and a bare tinymce there threw before the password eyes and copy buttons below
+    // were wired up. Where it is absent the four inits have nothing to do.
+    const itflowTinyMce = typeof tinymce !== 'undefined' ? tinymce : { init: function () {} };
+
     // Initialize TinyMCE
-    tinymce.init({
+    itflowTinyMce.init({
         ...itflowTinyMceSkin(),
         selector: '.tinymce-simple',
         browser_spellcheck: true,
@@ -271,7 +276,7 @@ function itflowInit() {
     });
 
     // Initialize TinyMCE with AI
-    tinymce.init({
+    itflowTinyMce.init({
         ...itflowTinyMceSkin(),
         selector: '.tinymce',
         browser_spellcheck: true,
@@ -386,7 +391,7 @@ function itflowInit() {
     });
 
     // Initialize TinyMCE AI for Tickets
-    tinymce.init({
+    itflowTinyMce.init({
         ...itflowTinyMceSkin(),
         selector: '.tinymceTicket',
         browser_spellcheck: true,
@@ -513,7 +518,7 @@ function itflowInit() {
     });
 
     // Initialize TinyMCE Redact-only
-    tinymce.init({
+    itflowTinyMce.init({
         ...itflowTinyMceSkin(),
         selector: '.tinymceRedact',
         browser_spellcheck: true,

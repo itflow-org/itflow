@@ -7863,3 +7863,161 @@ a.itflow-portal-request:focus-visible {
 .itflow-portal-main .table .border-dark {
     border-color: var(--bs-border-color) !important;
 }
+
+/* ==========================================================================
+   Setup wizard (setup/index.php, setup/steps/) - a centred installer: the
+   brand, a step tracker, one card per step and a footer. No sidebar, so it
+   works on a phone; light or dark as the system is set.
+   ========================================================================== */
+.itflow-setup {
+    min-height: 100vh;
+}
+.itflow-setup-wrap {
+    max-width: 52rem;
+    margin: 0 auto;
+    padding: 2rem 1rem 3rem;
+}
+.itflow-setup-brand {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: .6rem;
+    font-size: 2rem;
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+}
+.itflow-setup-brand-sub {
+    font-size: 1rem;
+    color: var(--bs-secondary-color);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+.itflow-setup-steps {
+    margin-bottom: 1.25rem;
+}
+.itflow-setup-steps ol {
+    justify-content: space-between;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+/* The line the steps sit on */
+.itflow-setup-steps ol::before {
+    content: "";
+    position: absolute;
+    top: 1rem;
+    left: 2rem;
+    right: 2rem;
+    border-top: 2px solid var(--bs-border-color);
+}
+.itflow-setup-step {
+    position: relative;
+    flex: 1 1 0;
+    text-align: center;
+    min-width: 0;
+}
+.itflow-setup-step > a,
+.itflow-setup-step > span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .35rem;
+    color: var(--bs-secondary-color);
+    text-decoration: none;
+}
+.itflow-setup-step > a:hover .itflow-setup-step-label {
+    text-decoration: underline;
+}
+.itflow-setup-step-marker {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .85rem;
+    font-weight: 600;
+    background: var(--bs-body-bg);
+    border: 2px solid var(--bs-border-color);
+    color: var(--bs-secondary-color);
+    position: relative;
+}
+.itflow-setup-step-label {
+    font-size: .8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+.itflow-setup-step.is-done .itflow-setup-step-marker {
+    background: var(--bs-success);
+    border-color: var(--bs-success);
+    color: #fff;
+}
+.itflow-setup-step.is-done > a {
+    color: var(--bs-body-color);
+}
+.itflow-setup-step.is-current .itflow-setup-step-marker {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: #fff;
+    box-shadow: 0 0 0 .25rem rgba(var(--bs-primary-rgb), .2);
+}
+.itflow-setup-step.is-current .itflow-setup-step-label {
+    color: var(--bs-emphasis-color);
+    font-weight: 600;
+}
+.itflow-setup-card {
+    border: 1px solid var(--bs-border-color);
+    box-shadow: 0 .25rem 1rem rgba(0, 0, 0, .05);
+}
+/* What a step needs, or what to do next - an icon beside a heading and a line */
+.itflow-setup-needs > li {
+    display: flex;
+    gap: .9rem;
+    padding: .55rem 0;
+}
+.itflow-setup-needs > li > i {
+    color: var(--bs-primary);
+    margin-top: .2rem;
+}
+.itflow-setup-needs > li strong {
+    display: block;
+}
+.itflow-setup-needs > li span {
+    display: block;
+    color: var(--bs-secondary-color);
+    font-size: .9rem;
+}
+.itflow-setup-needs > li > div {
+    min-width: 0;
+}
+/* A cron line, a command or config.php - wrapped on a phone rather than pushing the page sideways */
+.itflow-setup-card pre {
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+.itflow-setup-checks .list-group-item {
+    background: transparent;
+}
+.itflow-setup-footer {
+    text-align: center;
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+    margin-top: 1.5rem;
+}
+.itflow-setup-footer a {
+    color: inherit;
+}
+.itflow-setup-footer > span {
+    margin: 0 .35rem;
+}
+@media (max-width: 575.98px) {
+    .itflow-setup-wrap {
+        padding-top: 1rem;
+    }
+    .itflow-setup-brand {
+        font-size: 1.6rem;
+        margin-bottom: 1rem;
+    }
+}
