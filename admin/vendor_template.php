@@ -161,6 +161,7 @@ foreach (vendorTemplateFieldLabels() as $field) {
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $required_url ?>"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who should have it</a>
                     <a class="dropdown-item" href="post.php?copy_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
                     <a class="dropdown-item" href="post.php?export_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow - without account numbers or PINs"><i class="fas fa-fw fa-file-download me-2"></i>Export</a>
+                    <a class="dropdown-item" href="/agent/reports/vendor_templates.php" title="Reports > Vendor Templates"><i class="fas fa-fw fa-chart-bar me-2"></i>How they are used</a>
                     <?php if ($archived) { ?>
                         <a class="dropdown-item" href="post.php?restore_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo me-2"></i>Restore</a>
                     <?php } else { ?>

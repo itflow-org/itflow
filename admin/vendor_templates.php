@@ -139,6 +139,9 @@ $csrf = $_SESSION['csrf_token'];
                         <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
                     </a>
                     <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/agent/reports/vendor_templates.php">
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How they are used
+                    </a>
                     <a class="dropdown-item" href="starter_content.php">
                         <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter vendor templates
                     </a>

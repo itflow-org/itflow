@@ -184,6 +184,10 @@ function reportCatalog() {
                     'title' => 'License Templates', 'icon' => 'fa-cube', 'module' => 'module_support', 'feature' => ['itdoc'],
                     'description' => 'How much each license template is used, the seats on its licenses against the ones bought, how many of the clients that should have one do, and how many are billed - by template and by client.',
                 ],
+                'vendor_templates' => [
+                    'title' => 'Vendor Templates', 'icon' => 'fa-building', 'module' => 'module_client', 'feature' => [],
+                    'description' => 'How many clients have a vendor from each template, how many of the clients that should have one do, which are out of step with their template, and the licenses, assets, cases and spend on their vendors - by template and by client.',
+                ],
                 'credential_rotation' => [
                     'title' => 'Credential Rotation', 'icon' => 'fa-key', 'module' => 'module_credential', 'feature' => ['itdoc'],
                     'description' => 'Passwords that have not changed in a while, oldest first.',
