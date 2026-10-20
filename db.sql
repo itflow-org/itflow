@@ -3989,6 +3989,23 @@ CREATE TABLE `vendor_tags` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `vendor_template_required_tags`
+--
+
+DROP TABLE IF EXISTS `vendor_template_required_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `vendor_template_required_tags` (
+  `vendor_template_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`vendor_template_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `vendor_template_required_tags_ibfk_1` FOREIGN KEY (`vendor_template_id`) REFERENCES `vendor_templates` (`vendor_template_id`) ON DELETE CASCADE,
+  CONSTRAINT `vendor_template_required_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `vendor_templates`
 --
 
@@ -4010,6 +4027,7 @@ CREATE TABLE `vendor_templates` (
   `vendor_template_code` varchar(200) DEFAULT NULL,
   `vendor_template_account_number` varchar(200) DEFAULT NULL,
   `vendor_template_notes` text DEFAULT NULL,
+  `vendor_template_required` tinyint(1) NOT NULL DEFAULT 0,
   `vendor_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `vendor_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `vendor_template_archived_at` datetime DEFAULT NULL,
@@ -4052,7 +4070,8 @@ CREATE TABLE `vendors` (
   `vendor_client_id` int(11) NOT NULL DEFAULT 0,
   `vendor_template_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`vendor_id`),
-  KEY `vendor_client_id` (`vendor_client_id`,`vendor_archived_at`)
+  KEY `vendor_client_id` (`vendor_client_id`,`vendor_archived_at`),
+  KEY `vendor_template_id` (`vendor_template_id`,`vendor_client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

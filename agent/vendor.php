@@ -165,6 +165,11 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
         }
     }
 
+    // Kept in step with the template it was made from - where it differs; or, made by hand, a template it looks like
+    $template_row = intval($vendor['vendor_template_id']) ? vendorTemplateInfo($vendor['vendor_template_id']) : null;
+    $template_differences = $template_row && !$vendor_archived_at ? vendorTemplateDifferences($template_row, $vendor) : [];
+    $template_match = !$template_row && !$vendor_archived_at && $can_edit ? vendorTemplateMatchFor($vendor) : null;
+
     $elsewhere = lookupUserPermission('module_client') >= 1 ? vendorElsewhere($vendor) : [];
     $history = auditLogHistory('Vendor', $vendor_id);
 
@@ -322,6 +327,18 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                             <i class="fas fa-fw fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
+                            <?php if ($template_row) { ?>
+                                <?php if ($template_differences) { ?>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/vendor/vendor_template_update.php?vendor_id=<?= $vendor_id ?>">
+                                        <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Update from template
+                                    </a>
+                                <?php } ?>
+                                <a class="dropdown-item confirm-link" href="post.php?unlink_vendor_template=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    data-confirm-title="Unlink from <?= escapeHtml($template_row['vendor_template_name']) ?>?" data-confirm-text="<?= $vendor_name ?> stays as it is, and is no longer kept in step with the template." data-confirm-button="Unlink">
+                                    <i class="fas fa-fw fa-unlink text-secondary me-2"></i>Unlink from template
+                                </a>
+                                <div class="dropdown-divider"></div>
+                            <?php } ?>
                             <?php if (!empty($session_is_admin) && !$vendor['vendor_template_name'] && !$vendor_archived_at) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="/admin/modals/vendor_template/vendor_template_add.php?from_vendor=<?= $vendor_id ?>" title="A vendor template starting from this vendor, so other clients can have it">
                                     <i class="fas fa-fw fa-puzzle-piece text-secondary me-2"></i>Make a template from it
@@ -349,6 +366,27 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
             </div>
         </div>
     </div>
+
+    <?php if ($template_differences) { ?>
+        <!-- Says something other than the template it was made from -->
+        <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2 py-2 d-print-none" data-vendor-template-differs="<?= escapeHtml(implode(',', array_keys($template_differences))) ?>">
+            <i class="fas fa-fw fa-not-equal"></i>
+            <span class="flex-grow-1 small">Differs from the <strong><?= escapeHtml($template_row['vendor_template_name']) ?></strong> template it was made from in its <?= escapeHtml(vendorTemplateLabelsText($template_differences)) ?> - its own, or the template changed since.</span>
+            <?php if ($can_edit) { ?>
+                <button type="button" class="btn btn-sm btn-warning ajax-modal" data-modal-size="lg" data-modal-url="modals/vendor/vendor_template_update.php?vendor_id=<?= $vendor_id ?>"><i class="fas fa-sync-alt me-1"></i>Update from template</button>
+            <?php } ?>
+        </div>
+    <?php } elseif ($template_match) { ?>
+        <!-- Made by hand, and looks like one of the templates -->
+        <form action="post.php" method="post" class="alert alert-info d-flex flex-wrap align-items-center gap-2 py-2 d-print-none" data-vendor-template-match="<?= intval($template_match['vendor_template_id']) ?>">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+            <input type="hidden" name="vendor_template_id" value="<?= intval($template_match['vendor_template_id']) ?>">
+            <input type="hidden" name="vendor_ids[]" value="<?= $vendor_id ?>">
+            <i class="fas fa-fw fa-puzzle-piece"></i>
+            <span class="flex-grow-1 small">Looks like the <strong><?= escapeHtml($template_match['vendor_template_name']) ?></strong> vendor template. Link it, and it counts as made from it and is kept in step with it - nothing here changes unless you say so.</span>
+            <button type="submit" name="link_vendors_to_template" class="btn btn-sm btn-info"><i class="fas fa-link me-1"></i>Link to template</button>
+        </form>
+    <?php } ?>
 
     <div class="row g-3">
 

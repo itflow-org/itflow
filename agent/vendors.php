@@ -111,6 +111,9 @@ $vendors_counts = vendorCounts($vendors);
 $has_templates = (bool) mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM vendor_templates WHERE vendor_template_archived_at IS NULL LIMIT 1"));
 $add_url = "modals/vendor/vendor_add.php?" . ($view === 'client' ? "client_id=$client_id" : ($view === 'clients' ? 'view=clients' : ''));
 
+// The vendor templates this client should have a vendor from, and hasn't
+$missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFor($client_id) : [];
+
 ?>
 
 <div class="card">
@@ -255,6 +258,21 @@ $add_url = "modals/vendor/vendor_add.php?" . ($view === 'client' ? "client_id=$c
             </div>
         </form>
     </div>
+    <?php if ($missing_templates) { ?>
+        <!-- The vendor templates this client should have a vendor from, and hasn't -->
+        <div class="card-header py-2 bg-warning-subtle d-flex flex-wrap align-items-center gap-2 itflow-vendors-missing">
+            <span class="small text-warning-emphasis fw-semibold"><i class="fas fa-fw fa-clipboard-check me-1"></i><?= count($missing_templates) === 1 ? 'A vendor it should have' : 'Vendors it should have' ?>:</span>
+            <?php foreach ($missing_templates as $missing_id => $missing_name) { ?>
+                <?php if ($can_edit) { ?>
+                    <button type="button" class="btn btn-sm btn-light border py-0 ajax-modal" data-modal-size="lg" data-modal-url="modals/vendor/vendor_add.php?client_id=<?= $client_id ?>&template_id=<?= $missing_id ?>" title="Add it from the template" data-missing-template-id="<?= $missing_id ?>">
+                        <i class="fas fa-plus me-1 text-secondary"></i><?= escapeHtml($missing_name) ?>
+                    </button>
+                <?php } else { ?>
+                    <span class="badge rounded-pill text-bg-light border fw-normal" data-missing-template-id="<?= $missing_id ?>"><?= escapeHtml($missing_name) ?></span>
+                <?php } ?>
+            <?php } ?>
+        </div>
+    <?php } ?>
     <form id="bulkActions" action="post.php" method="post">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 

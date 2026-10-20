@@ -13,6 +13,16 @@
  *
  * From database 3.3.4 on a template says who made it and last changed it.
  *
+ * From database 3.3.5 on a template says who should have it - every client,
+ * or the clients with one of its tags - so the clients missing it show on its
+ * page, on their Vendors and on their overview. The vendors made from it are
+ * kept in step with it: the fields every client shares (VENDOR_TEMPLATE_SHARED
+ * - not the account number, PIN or account manager, which are each client's
+ * own) are compared with the template's, a vendor that differs is out of step,
+ * and it can be brought in line field by field. Saving a template changes the
+ * vendors that still had what it said before; vendors made by hand with its
+ * name or support site can be linked to it.
+ *
  * Shared by admin/vendor_templates.php, admin/vendor_template.php,
  * admin/modals/vendor_template/* and admin/post/vendor_template.php. A
  * vendor is made from one on the agent side by add_vendor,
@@ -226,53 +236,25 @@ function vendorTemplateDelete($vendor_template_id) {
 }
 
 /*
- * Put the template's fields picked ($keys, from vendorTemplateColumns()) on
- * every vendor made from it - for Change them on the client vendors too.
- * The vendors changed: vendor id => ['name', 'client_id'].
- */
-function vendorTemplatePush($vendor_template_id, array $keys) {
-    global $mysqli;
-    $vendor_template_id = intval($vendor_template_id);
-    $row = vendorTemplateInfo($vendor_template_id);
-    $columns = vendorTemplateColumns();
-    $keys = array_values(array_intersect(array_keys($columns), $keys));
-    if (!$row || !$keys) {
-        return [];
-    }
-    $set = [];
-    foreach ($keys as $key) {
-        foreach ($columns[$key] as [$template_column, $vendor_column]) {
-            $set[] = "$vendor_column = '" . escapeSql((string) $row[$template_column]) . "'";
-        }
-    }
-    $vendors = [];
-    $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_client_id FROM vendors WHERE vendor_template_id = $vendor_template_id");
-    while ($vendor = mysqli_fetch_assoc($sql)) {
-        $vendors[intval($vendor['vendor_id'])] = ['name' => $vendor['vendor_name'], 'client_id' => intval($vendor['vendor_client_id'])];
-    }
-    if ($vendors) {
-        mysqli_query($mysqli, "UPDATE vendors SET " . implode(', ', $set) . " WHERE vendor_template_id = $vendor_template_id");
-    }
-    return $vendors;
-}
-
-/*
  * The vendors made from a template, for its page - current ones first, by
  * client: vendor id => vendor_id, vendor_name, client_id (0 for ours),
  * client_name, client_abbreviation, account_number, code, created_at,
- * archived (the vendor), client_archived.
+ * archived (the vendor), client_archived, differences (key => label, as
+ * vendorTemplateDifferences()) and row (the vendor, raw).
  */
 function vendorTemplateVendors($vendor_template_id) {
     global $mysqli;
     $vendor_template_id = intval($vendor_template_id);
+    $template = vendorTemplateInfo($vendor_template_id) ?: [];
     $vendors = [];
-    $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_client_id, vendor_account_number, vendor_code, vendor_created_at, vendor_archived_at,
-            client_name, client_abbreviation, client_archived_at
+    $sql = mysqli_query($mysqli, "SELECT vendors.*, client_name, client_abbreviation, client_archived_at
         FROM vendors LEFT JOIN clients ON client_id = vendor_client_id AND vendor_client_id > 0
         WHERE vendor_template_id = $vendor_template_id
         ORDER BY vendor_archived_at IS NOT NULL, client_archived_at IS NOT NULL, vendor_client_id = 0, client_name ASC, vendor_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $vendors[intval($row['vendor_id'])] = [
+            'differences' => $template ? vendorTemplateDifferences($template, $row) : [],
+            'row' => $row,
             'vendor_id' => intval($row['vendor_id']),
             'vendor_name' => (string) $row['vendor_name'],
             'client_id' => intval($row['vendor_client_id']),
@@ -318,4 +300,425 @@ function vendorTemplatePhoneHtml($phone, $country_code, $extension) {
         $html = '<a href="tel:' . escapeHtml($dial) . '">' . $html . '</a>';
     }
     return $html . (trim((string) $extension) !== '' ? ' <span class="text-body-secondary">then ' . escapeHtml($extension) . '</span>' : '');
+}
+
+/* ---------------------------------------------------------------- in step */
+
+/** The fields a vendor keeps in step with its template. Its account number, PIN and account manager are its client's own. */
+const VENDOR_TEMPLATE_SHARED = ['name', 'description', 'phone', 'hours', 'sla', 'email', 'website', 'notes'];
+
+/*
+ * A field of a row as it compares - $side 'template' for a template's
+ * columns, 'vendor' for a vendor's. Text by its words, whatever the case and
+ * spacing; the email by its address; the site without its scheme, www or a
+ * trailing slash; notes by their lines; the support line as [country code,
+ * number, extension] digits.
+ */
+function vendorTemplateCompareValue($key, array $row, $side) {
+    $index = $side === 'template' ? 0 : 1;
+    $values = [];
+    foreach (vendorTemplateColumns()[$key] ?? [] as $pair) {
+        $values[] = trim(html_entity_decode((string) ($row[$pair[$index]] ?? ''), ENT_QUOTES, 'UTF-8'));
+    }
+    switch ($key) {
+        case 'phone':
+            return array_map(function ($value) {
+                return preg_replace('/[^0-9]/', '', $value);
+            }, $values);
+        case 'website':
+            return mb_strtolower(rtrim(preg_replace(['#^[a-z][a-z0-9+.-]*://#i', '#^www\.#i'], '', $values[0]), '/'));
+        case 'notes':
+            return trim(preg_replace("/[ \t]+\n/", "\n", str_replace(["\r\n", "\r"], "\n", $values[0])));
+        default:
+            return mb_strtolower(preg_replace('/\s+/u', ' ', $values[0]));
+    }
+}
+
+/** Does a template say anything for this field? */
+function vendorTemplateHasValue($key, array $template) {
+    $value = vendorTemplateCompareValue($key, $template, 'template');
+    return $key === 'phone' ? $value[1] !== '' : $value !== '';
+}
+
+/*
+ * Where a vendor differs from its template - key => label, for the shared
+ * fields the template says something for. A support line differs by its
+ * number or extension, or its country code when both have one.
+ */
+function vendorTemplateDifferences(array $template, array $vendor) {
+    $labels = vendorTemplateFieldLabels();
+    $differences = [];
+    foreach (VENDOR_TEMPLATE_SHARED as $key) {
+        if (!vendorTemplateHasValue($key, $template)) {
+            continue;
+        }
+        $theirs = vendorTemplateCompareValue($key, $vendor, 'vendor');
+        $ours = vendorTemplateCompareValue($key, $template, 'template');
+        if ($key === 'phone') {
+            $same = $theirs[1] === $ours[1] && $theirs[2] === $ours[2] && ($theirs[0] === '' || $ours[0] === '' || $theirs[0] === $ours[0]);
+        } else {
+            $same = $theirs === $ours;
+        }
+        if (!$same) {
+            $differences[$key] = $labels[$key]['label'];
+        }
+    }
+    return $differences;
+}
+
+/** Field labels as they read in a sentence - "support line, SLA and notes": lower case, but for SLA. */
+function vendorTemplateLabelsText(array $labels) {
+    $labels = array_values(array_map(function ($label) {
+        return preg_match('/^[A-Z]{2,}\b/', $label) ? $label : mb_strtolower($label);
+    }, $labels));
+    $last = array_pop($labels);
+    return $labels ? implode(', ', $labels) . ' and ' . $last : (string) $last;
+}
+
+/** A field of a row, as it reads - the support line formatted with its extension. Raw in, escaped out; '' for nothing. */
+function vendorTemplateValueHtml($key, array $row, $side) {
+    $index = $side === 'template' ? 0 : 1;
+    $columns = vendorTemplateColumns()[$key];
+    if ($key === 'phone') {
+        $values = array_map(function ($pair) use ($row, $index) {
+            return (string) ($row[$pair[$index]] ?? '');
+        }, $columns);
+        return vendorTemplatePhoneHtml($values[1], $values[0], $values[2]);
+    }
+    $value = trim((string) ($row[$columns[0][$index]] ?? ''));
+    return $value === '' ? '' : ($key === 'notes' ? '<span style="white-space: pre-wrap;">' . escapeHtml($value) . '</span>' : escapeHtml($value));
+}
+
+/** A template's fields (vendorTemplateFields()) as a row of its columns - for comparing what it said before a save. */
+function vendorTemplateFieldsRow(array $fields) {
+    $row = [];
+    foreach (vendorTemplateColumns() as $pairs) {
+        foreach ($pairs as [$template_column]) {
+            $row[$template_column] = (string) ($fields[substr($template_column, strlen('vendor_template_'))] ?? '');
+        }
+    }
+    return $row;
+}
+
+/* Set these fields of a vendor to the template's - raw template row, keys of VENDOR_TEMPLATE_SHARED. */
+function vendorTemplateApply($vendor_id, array $template, array $keys) {
+    global $mysqli;
+    $set = [];
+    foreach (array_intersect(VENDOR_TEMPLATE_SHARED, $keys) as $key) {
+        foreach (vendorTemplateColumns()[$key] as [$template_column, $vendor_column]) {
+            $set[] = "$vendor_column = '" . escapeSql((string) ($template[$template_column] ?? '')) . "'";
+        }
+    }
+    if ($set) {
+        mysqli_query($mysqli, "UPDATE vendors SET " . implode(', ', $set) . " WHERE vendor_id = " . intval($vendor_id));
+    }
+}
+
+/*
+ * After a template is saved: each vendor made from it that still had what
+ * it said before - field by field - gets what it says now. A vendor with its
+ * own value is left alone, and shows as out of step. A field the template no
+ * longer says anything for takes nothing away. The vendors changed: vendor
+ * id => ['name', 'client_id', 'fields' => [labels]].
+ */
+function vendorTemplateFollow($vendor_template_id, array $before, array $after) {
+    global $mysqli;
+    $vendor_template_id = intval($vendor_template_id);
+    $old = vendorTemplateFieldsRow($before);
+    $new = vendorTemplateFieldsRow($after);
+    $changed = [];
+    foreach (VENDOR_TEMPLATE_SHARED as $key) {
+        if (vendorTemplateHasValue($key, $new) && vendorTemplateCompareValue($key, $old, 'template') !== vendorTemplateCompareValue($key, $new, 'template')) {
+            $changed[] = $key;
+        }
+    }
+    $followed = [];
+    if (!$changed) {
+        return $followed;
+    }
+    $labels = vendorTemplateFieldLabels();
+    $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template_id = $vendor_template_id");
+    while ($vendor = mysqli_fetch_assoc($sql)) {
+        $keys = [];
+        $differed = vendorTemplateDifferences($old, $vendor);
+        foreach ($changed as $key) {
+            if (vendorTemplateHasValue($key, $old)) {
+                // It still had what the template said
+                $follows = !isset($differed[$key]);
+            } else {
+                // The template said nothing - only a vendor with nothing there either takes it
+                $theirs = vendorTemplateCompareValue($key, $vendor, 'vendor');
+                $follows = $key === 'phone' ? $theirs[1] === '' : $theirs === '';
+            }
+            if ($follows) {
+                $keys[] = $key;
+            }
+        }
+        if ($keys) {
+            vendorTemplateApply($vendor['vendor_id'], $new, $keys);
+            $followed[intval($vendor['vendor_id'])] = ['name' => $vendor['vendor_name'], 'client_id' => intval($vendor['vendor_client_id']),
+                'fields' => array_map(function ($key) use ($labels) {
+                    return $labels[$key]['label'];
+                }, $keys)];
+        }
+    }
+    return $followed;
+}
+
+/*
+ * Bring vendors made from a template in line with it - the fields picked,
+ * where they differ. The vendors changed: vendor id => ['name', 'client_id',
+ * 'fields' => [labels]]. Vendors not made from it are left alone.
+ */
+function vendorTemplateBringInLine($vendor_template_id, array $vendor_ids, array $keys) {
+    global $mysqli;
+    $template = vendorTemplateInfo($vendor_template_id);
+    $vendor_ids = array_values(array_unique(array_filter(array_map('intval', $vendor_ids))));
+    $keys = array_values(array_intersect(VENDOR_TEMPLATE_SHARED, $keys));
+    $changed = [];
+    if (!$template || !$vendor_ids || !$keys) {
+        return $changed;
+    }
+    $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template_id = " . intval($template['vendor_template_id']) . " AND vendor_id IN (" . implode(',', $vendor_ids) . ")");
+    while ($vendor = mysqli_fetch_assoc($sql)) {
+        $differences = array_intersect_key(vendorTemplateDifferences($template, $vendor), array_flip($keys));
+        if ($differences) {
+            vendorTemplateApply($vendor['vendor_id'], $template, array_keys($differences));
+            $changed[intval($vendor['vendor_id'])] = ['name' => $vendor['vendor_name'], 'client_id' => intval($vendor['vendor_client_id']), 'fields' => array_values($differences)];
+        }
+    }
+    return $changed;
+}
+
+/** How many of each template's current vendors, for current clients, are out of step - template id => count. */
+function vendorTemplateOutOfStep(array $vendor_template_ids) {
+    global $mysqli;
+    $ids = array_values(array_filter(array_map('intval', $vendor_template_ids)));
+    $counts = [];
+    if (!$ids) {
+        return $counts;
+    }
+    $templates = [];
+    $sql = mysqli_query($mysqli, "SELECT * FROM vendor_templates WHERE vendor_template_id IN (" . implode(',', $ids) . ")");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $templates[intval($row['vendor_template_id'])] = $row;
+    }
+    $sql = mysqli_query($mysqli, "SELECT vendors.* FROM vendors LEFT JOIN clients ON client_id = vendor_client_id AND vendor_client_id > 0
+        WHERE vendor_template_id IN (" . implode(',', $ids) . ") AND vendor_archived_at IS NULL AND (vendor_client_id = 0 OR client_archived_at IS NULL AND client_id IS NOT NULL)");
+    while ($vendor = mysqli_fetch_assoc($sql)) {
+        $template_id = intval($vendor['vendor_template_id']);
+        if (isset($templates[$template_id]) && vendorTemplateDifferences($templates[$template_id], $vendor)) {
+            $counts[$template_id] = ($counts[$template_id] ?? 0) + 1;
+        }
+    }
+    return $counts;
+}
+
+/** A website's host, for matching - lowercase, without www. '' for none. */
+function vendorTemplateHost($website) {
+    $website = trim(html_entity_decode((string) $website, ENT_QUOTES, 'UTF-8'));
+    if ($website === '') {
+        return '';
+    }
+    $host = (string) parse_url(preg_match('#^[a-z][a-z0-9+.-]*://#i', $website) ? $website : "https://$website", PHP_URL_HOST);
+    return preg_replace('/^www\./', '', mb_strtolower($host));
+}
+
+/*
+ * Current vendors not made from any template that look like this one - the
+ * same name, whatever the case, or a website on the same host - at clients
+ * (or ours) without a vendor from it already: vendor id => vendor_id,
+ * vendor_name, client_id, client_name, how ('name' or 'site') and
+ * differences (as if it were made from it).
+ */
+function vendorTemplateMatches($vendor_template_id) {
+    global $mysqli;
+    $template = vendorTemplateInfo($vendor_template_id);
+    $matches = [];
+    if (!$template) {
+        return $matches;
+    }
+    $template_id = intval($template['vendor_template_id']);
+    $name = escapeSql(mb_strtolower(trim($template['vendor_template_name'])));
+    $host = vendorTemplateHost($template['vendor_template_website']);
+    $site_sql = $host !== '' ? " OR vendor_website LIKE '%" . escapeSql($host) . "%'" : '';
+    $sql = mysqli_query($mysqli, "SELECT vendors.*, client_name FROM vendors LEFT JOIN clients ON client_id = vendor_client_id AND vendor_client_id > 0
+        WHERE vendor_template_id = 0 AND vendor_archived_at IS NULL AND (vendor_client_id = 0 OR client_archived_at IS NULL AND client_id IS NOT NULL)
+        AND (LOWER(TRIM(vendor_name)) = '$name'$site_sql)
+        AND NOT EXISTS (SELECT 1 FROM vendors made WHERE made.vendor_template_id = $template_id AND made.vendor_client_id = vendors.vendor_client_id AND made.vendor_archived_at IS NULL)
+        ORDER BY vendor_client_id = 0, client_name ASC, vendor_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $by_name = mb_strtolower(trim($row['vendor_name'])) === mb_strtolower(trim($template['vendor_template_name']));
+        if (!$by_name && ($host === '' || vendorTemplateHost($row['vendor_website']) !== $host)) {
+            continue;
+        }
+        $matches[intval($row['vendor_id'])] = ['vendor_id' => intval($row['vendor_id']), 'vendor_name' => (string) $row['vendor_name'], 'client_id' => intval($row['vendor_client_id']),
+            'client_name' => (string) $row['client_name'], 'how' => $by_name ? 'name' : 'site', 'differences' => vendorTemplateDifferences($template, $row)];
+    }
+    return $matches;
+}
+
+/*
+ * The current template a vendor made by hand looks like - the same name,
+ * whatever the case, or a support site on the same host - when its client
+ * (or we) has no current vendor from it already. The template's row, its
+ * name first, or null.
+ */
+function vendorTemplateMatchFor(array $vendor) {
+    global $mysqli;
+    if (intval($vendor['vendor_template_id'] ?? 0)) {
+        return null;
+    }
+    $client_id = intval($vendor['vendor_client_id'] ?? 0);
+    $name = mb_strtolower(trim((string) ($vendor['vendor_name'] ?? '')));
+    $host = vendorTemplateHost($vendor['vendor_website'] ?? '');
+    $sql = mysqli_query($mysqli, "SELECT * FROM vendor_templates WHERE vendor_template_archived_at IS NULL
+        AND (LOWER(TRIM(vendor_template_name)) = '" . escapeSql($name) . "'" . ($host !== '' ? " OR vendor_template_website LIKE '%" . escapeSql($host) . "%'" : '') . ")
+        AND NOT EXISTS (SELECT 1 FROM vendors WHERE vendor_client_id = $client_id AND vendors.vendor_template_id = vendor_templates.vendor_template_id AND vendor_archived_at IS NULL)
+        ORDER BY LOWER(TRIM(vendor_template_name)) = '" . escapeSql($name) . "' DESC, vendor_template_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        if (mb_strtolower(trim($row['vendor_template_name'])) === $name || ($host !== '' && vendorTemplateHost($row['vendor_template_website']) === $host)) {
+            return $row;
+        }
+    }
+    return null;
+}
+
+/*
+ * Link vendors to a template, as if made from it - only ones not made from
+ * one. The vendors linked: vendor id => ['name', 'client_id'].
+ */
+function vendorTemplateLink($vendor_template_id, array $vendor_ids) {
+    global $mysqli;
+    $vendor_template_id = intval($vendor_template_id);
+    $vendor_ids = array_values(array_unique(array_filter(array_map('intval', $vendor_ids))));
+    $linked = [];
+    if (!$vendor_template_id || !$vendor_ids) {
+        return $linked;
+    }
+    $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_client_id FROM vendors WHERE vendor_template_id = 0 AND vendor_id IN (" . implode(',', $vendor_ids) . ")");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $linked[intval($row['vendor_id'])] = ['name' => $row['vendor_name'], 'client_id' => intval($row['vendor_client_id'])];
+    }
+    if ($linked) {
+        mysqli_query($mysqli, "UPDATE vendors SET vendor_template_id = $vendor_template_id WHERE vendor_template_id = 0 AND vendor_id IN (" . implode(',', array_keys($linked)) . ")");
+    }
+    return $linked;
+}
+
+/* ---------------------------------------------------------------- who should have one */
+
+/** Who should have a vendor from a template (vendor_template_required). */
+const VENDOR_TEMPLATE_REQUIRED_NONE = 0;
+const VENDOR_TEMPLATE_REQUIRED_EVERY = 1;
+const VENDOR_TEMPLATE_REQUIRED_TAGGED = 2;
+
+/** The client tags templates are required by - [template id => [tag id => tag name]], in name order. */
+function vendorTemplateRequiredTags(array $vendor_template_ids) {
+    global $mysqli;
+    $ids = array_values(array_filter(array_map('intval', $vendor_template_ids)));
+    $tags = array_fill_keys($ids, []);
+    if (!$ids) {
+        return $tags;
+    }
+    $sql = mysqli_query($mysqli, "SELECT vendor_template_id, tags.tag_id, tag_name FROM vendor_template_required_tags
+        JOIN tags ON tags.tag_id = vendor_template_required_tags.tag_id
+        WHERE vendor_template_id IN (" . implode(',', $ids) . ") ORDER BY tag_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $tags[intval($row['vendor_template_id'])][intval($row['tag_id'])] = (string) $row['tag_name'];
+    }
+    return $tags;
+}
+
+/*
+ * Set who should have a vendor from a template - $required one of the
+ * VENDOR_TEMPLATE_REQUIRED_ values, $tag_ids the client tags for TAGGED. Not
+ * a change to what a vendor starts with, so when it last changed stays.
+ */
+function vendorTemplateSetRequired($vendor_template_id, $required, array $tag_ids) {
+    global $mysqli;
+    $vendor_template_id = intval($vendor_template_id);
+    $required = in_array(intval($required), [VENDOR_TEMPLATE_REQUIRED_EVERY, VENDOR_TEMPLATE_REQUIRED_TAGGED], true) ? intval($required) : VENDOR_TEMPLATE_REQUIRED_NONE;
+    mysqli_query($mysqli, "UPDATE vendor_templates SET vendor_template_required = $required, vendor_template_updated_at = vendor_template_updated_at
+        WHERE vendor_template_id = $vendor_template_id");
+    // Client tags only - any others are left out
+    $tag_ids = $required === VENDOR_TEMPLATE_REQUIRED_TAGGED ? array_values(array_unique(array_filter(array_map('intval', $tag_ids)))) : [];
+    mysqli_query($mysqli, "DELETE FROM vendor_template_required_tags WHERE vendor_template_id = $vendor_template_id");
+    if ($tag_ids) {
+        mysqli_query($mysqli, "INSERT INTO vendor_template_required_tags (vendor_template_id, tag_id)
+            SELECT $vendor_template_id, tag_id FROM tags WHERE tag_type = 1 AND tag_id IN (" . implode(',', $tag_ids) . ")");
+    }
+}
+
+/*
+ * The clients a template is required of, as SQL on clients: current clients,
+ * not leads - every one, or the ones with any of its tags (none when it has
+ * no tags left, or isn't required).
+ */
+function vendorTemplateScopeSql($required, array $tag_ids) {
+    $sql = "clients.client_archived_at IS NULL AND clients.client_lead = 0";
+    if (intval($required) === VENDOR_TEMPLATE_REQUIRED_EVERY) {
+        return $sql;
+    }
+    $tag_ids = array_values(array_filter(array_map('intval', $tag_ids)));
+    if (intval($required) !== VENDOR_TEMPLATE_REQUIRED_TAGGED || !$tag_ids) {
+        return '0';
+    }
+    return "$sql AND EXISTS (SELECT 1 FROM client_tags WHERE client_tags.client_id = clients.client_id AND client_tags.tag_id IN (" . implode(',', $tag_ids) . "))";
+}
+
+/** Who a template is required of, in words - '' when it isn't. */
+function vendorTemplateScopeText($required, array $tags) {
+    if (intval($required) === VENDOR_TEMPLATE_REQUIRED_EVERY) {
+        return 'Every client';
+    }
+    if (intval($required) !== VENDOR_TEMPLATE_REQUIRED_TAGGED) {
+        return '';
+    }
+    return $tags ? 'Clients tagged ' . implode(' or ', $tags) : 'Clients with a tag - none picked';
+}
+
+/*
+ * How far a required template reaches - ['clients' => how many it is
+ * required of, 'covered' => how many of them have a current vendor from it,
+ * 'missing' => [client id => name] the rest, by name].
+ */
+function vendorTemplateCoverage($vendor_template_id, $required, array $tag_ids) {
+    global $mysqli;
+    $vendor_template_id = intval($vendor_template_id);
+    $coverage = ['clients' => 0, 'covered' => 0, 'missing' => []];
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, EXISTS (SELECT 1 FROM vendors WHERE vendor_client_id = clients.client_id
+            AND vendor_template_id = $vendor_template_id AND vendor_archived_at IS NULL) AS covered
+        FROM clients WHERE " . vendorTemplateScopeSql($required, $tag_ids) . " ORDER BY client_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $coverage['clients']++;
+        if (intval($row['covered'])) {
+            $coverage['covered']++;
+        } else {
+            $coverage['missing'][intval($row['client_id'])] = (string) $row['client_name'];
+        }
+    }
+    return $coverage;
+}
+
+/*
+ * The required templates a client has no current vendor from - [template id
+ * => name]. None for an archived client or a lead.
+ */
+function vendorTemplatesMissingFor($client_id) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    $missing = [];
+    $sql = mysqli_query($mysqli, "SELECT vendor_template_id, vendor_template_name FROM vendor_templates
+        WHERE vendor_template_archived_at IS NULL AND vendor_template_required IN (" . VENDOR_TEMPLATE_REQUIRED_EVERY . ", " . VENDOR_TEMPLATE_REQUIRED_TAGGED . ")
+        AND EXISTS (SELECT 1 FROM clients WHERE clients.client_id = $client_id AND clients.client_archived_at IS NULL AND clients.client_lead = 0)
+        AND (vendor_template_required = " . VENDOR_TEMPLATE_REQUIRED_EVERY . " OR EXISTS (SELECT 1 FROM vendor_template_required_tags rt
+            JOIN client_tags ON client_tags.tag_id = rt.tag_id AND client_tags.client_id = $client_id
+            WHERE rt.vendor_template_id = vendor_templates.vendor_template_id))
+        AND NOT EXISTS (SELECT 1 FROM vendors WHERE vendor_client_id = $client_id AND vendors.vendor_template_id = vendor_templates.vendor_template_id AND vendor_archived_at IS NULL)
+        ORDER BY vendor_template_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $missing[intval($row['vendor_template_id'])] = (string) $row['vendor_template_name'];
+    }
+    return $missing;
 }

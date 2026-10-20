@@ -166,6 +166,16 @@ function clientOverviewAttention($client_id, $access, $renewals) {
         ];
     }
 
+    if (lookupUserPermission('module_client') >= 1) {
+        // Vendor templates it should have a vendor from - the strip across the top of its Vendors
+        $items[] = [
+            'count' => count(vendorTemplatesMissingFor($client_id)),
+            'label' => 'Vendors missing', 'icon' => 'building', 'tone' => 'warning',
+            'detail' => 'Ones every client like it should have',
+            'url' => "/agent/vendors.php?client_id=$client_id",
+        ];
+    }
+
     if ($access['docs'] && $renewals) {
         $expired = count(array_filter($renewals['items'], function ($r) { return $r['days'] < 0; }));
         $soon = count($renewals['items']) - $expired;

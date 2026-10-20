@@ -6,8 +6,9 @@
  * template, or blanks when new), $vt_id (0 when new) and, editing, $vt_vendors
  * (how many vendors were made from it). The same tabs as a vendor's own
  * window - Details, Support, Account and Notes - as a vendor made from it
- * gets every one of them. Editing, the fields can be changed on the vendors
- * made from it too. Posts to admin/post.php (admin/post/vendor_template.php).
+ * gets every one of them. Editing, the vendors made from it follow the
+ * changes (vendorTemplateFollow()). Posts to admin/post.php
+ * (admin/post/vendor_template.php).
  */
 
 isset($mysqli) || die("Direct file access is not allowed");
@@ -146,20 +147,13 @@ $phone_value = ($vt['phone'] ?? '') !== '' ? escapeHtml(formatPhoneNumber($vt['p
 </div>
 
 <?php if ($vt_id && !empty($vt_vendors)) { ?>
-    <!-- The vendors made from it, changed too - the fields ticked -->
-    <div class="border rounded p-3 mt-3 bg-body-tertiary" data-vendor-template-push>
-        <div class="fw-semibold mb-1"><i class="fas fa-fw fa-sync-alt text-secondary me-1"></i>Change them on the <?= $vt_vendors ?> vendor<?= $vt_vendors === 1 ? '' : 's' ?> made from it too</div>
-        <div class="small text-body-secondary mb-2">Ticked fields are set to what is here on each one - what a client's vendor says now is replaced.</div>
-        <div class="row row-cols-2 row-cols-md-3 g-1 small">
-            <?php foreach (vendorTemplateFieldLabels() as $key => $field) { ?>
-                <div class="col">
-                    <div class="form-check mb-0">
-                        <input class="form-check-input" type="checkbox" name="push[]" value="<?= $key ?>" id="<?= $form_id ?>Push<?= $key ?>">
-                        <label class="form-check-label" for="<?= $form_id ?>Push<?= $key ?>"><i class="fas fa-fw <?= $field['icon'] ?> text-secondary me-1"></i><?= $field['label'] ?></label>
-                    </div>
-                </div>
-            <?php } ?>
+    <!-- The vendors made from it follow it, where they still say what it did -->
+    <div class="border rounded p-3 mt-3 bg-body-tertiary" data-vendor-template-follow>
+        <div class="form-check form-switch mb-1">
+            <input class="form-check-input" type="checkbox" role="switch" name="follow" value="1" id="<?= $form_id ?>Follow" checked>
+            <label class="form-check-label fw-semibold" for="<?= $form_id ?>Follow">Change the <?= $vt_vendors ?> vendor<?= $vt_vendors === 1 ? '' : 's' ?> made from it too</label>
         </div>
+        <div class="small text-body-secondary">Each field you change here changes on the vendors that still say what it said - one a client has its own for is left as it is, and shows as out of step on the template's page. Account numbers, PINs and account managers are always each client's own.</div>
     </div>
 <?php } ?>
 

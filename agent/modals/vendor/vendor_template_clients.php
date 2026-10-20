@@ -3,8 +3,11 @@
 /*
  * Add one vendor template to several clients at once - a standard vendor
  * rolled out everywhere. Opened from the vendors lists and from Admin >
- * Vendor Templates, so it posts to the agent handler by its full path. A client that already has a vendor made from the
- * template is shown as having it and is left alone.
+ * Vendor Templates, so it posts to the agent handler by its full path. A
+ * client that already has a current vendor made from the template is shown
+ * as having it and is left alone. ?client_ids[]= starts with those clients
+ * picked; ?missing=1 with the clients the template is required of that don't
+ * have it (vendorTemplateCoverage()).
  */
 
 require_once '../../../includes/modal_header.php';
@@ -27,12 +30,22 @@ if (!in_array($template_id, $template_ids, true)) {
     $template_id = $template_ids[0];
 }
 
-// Which clients already have a vendor from each template
+// Which clients already have a current vendor from each template
 $has = [];
-$sql = mysqli_query($mysqli, "SELECT DISTINCT vendor_template_id, vendor_client_id FROM vendors WHERE vendor_template_id > 0 AND vendor_client_id > 0");
+$sql = mysqli_query($mysqli, "SELECT DISTINCT vendor_template_id, vendor_client_id FROM vendors WHERE vendor_template_id > 0 AND vendor_client_id > 0 AND vendor_archived_at IS NULL");
 while ($row = mysqli_fetch_row($sql)) {
     $has[intval($row[0])][intval($row[1])] = true;
 }
+
+// The clients to start with picked
+$picked = array_map('intval', array_filter((array) ($_GET['client_ids'] ?? []), 'is_scalar'));
+if (!empty($_GET['missing'])) {
+    $required_template = vendorTemplateInfo($template_id);
+    if ($required_template && intval($required_template['vendor_template_required'])) {
+        $picked = array_merge($picked, array_keys(vendorTemplateCoverage($template_id, $required_template['vendor_template_required'], array_keys(vendorTemplateRequiredTags([$template_id])[$template_id]))['missing']));
+    }
+}
+$picked = array_flip($picked);
 
 $clients = [];
 $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
@@ -77,7 +90,7 @@ ob_start();
                         <?php foreach ($clients as $client) {
                             $client_option_id = intval($client['client_id']);
                             $client_has = isset($has[$option_id][$client_option_id]); ?>
-                            <option value="<?= $client_option_id ?>" <?= $client_has ? 'disabled' : '' ?><?= selectOptionClient($client_option_id, $client['client_name'], $client['client_abbreviation'] ?? '') ?><?= $client_has ? selectOptionData(['description' => 'Already has it']) : '' ?>><?= escapeHtml($client['client_name']) ?></option>
+                            <option value="<?= $client_option_id ?>" <?= $client_has ? 'disabled' : ($option_id === $template_id && isset($picked[$client_option_id]) ? 'selected' : '') ?><?= selectOptionClient($client_option_id, $client['client_name'], $client['client_abbreviation'] ?? '') ?><?= $client_has ? selectOptionData(['description' => 'Already has it']) : '' ?>><?= escapeHtml($client['client_name']) ?></option>
                         <?php } ?>
                     </select>
                 </div>

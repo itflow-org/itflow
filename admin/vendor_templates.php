@@ -5,7 +5,9 @@
  * again, set up once: the ISPs, the hardware makers, the distributors, the
  * line-of-business software. Each row shows what it is, its support line,
  * hours and SLA, how many clients have a vendor made from it, when one was
- * last added and when it last changed, and by whom. Each opens its page
+ * last added and when it last changed, and by whom - with how many of the
+ * clients it is required of have it, and how many of its vendors are out of
+ * step with it (the Required and Out of step tabs). Each opens its page
  * (vendor_template.php). A template can be added to several clients at once,
  * changed, copied as the start of another, archived - not offered for new
  * vendors, while the vendors made from it stay - or deleted. The work is in
@@ -19,9 +21,28 @@ $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
-// '' current, 'archived'
-$show_archived = ($_GET['show'] ?? '') === 'archived' || ($_GET['archived'] ?? '') === '1';
-$show_where = $show_archived ? 'vendor_template_archived_at IS NOT NULL' : 'vendor_template_archived_at IS NULL';
+// The templates with vendors out of step with them, and how many (vendorTemplateOutOfStep())
+$made_from = [];
+$sql = mysqli_query($mysqli, "SELECT DISTINCT vendor_template_id FROM vendors WHERE vendor_template_id > 0");
+while ($row = mysqli_fetch_row($sql)) {
+    $made_from[] = intval($row[0]);
+}
+$out_of_step = vendorTemplateOutOfStep($made_from);
+$out_ids = implode(',', array_keys($out_of_step) ?: [0]);
+
+// '' current, 'required' the current ones someone should have, 'out' the current ones with vendors out of step, 'archived'
+$show = (string) ($_GET['show'] ?? '');
+if (($_GET['archived'] ?? '') === '1') {
+    $show = 'archived';
+}
+$show = in_array($show, ['required', 'out', 'archived'], true) ? $show : '';
+$show_archived = $show === 'archived';
+$show_where = [
+    '' => 'vendor_template_archived_at IS NULL',
+    'required' => 'vendor_template_archived_at IS NULL AND vendor_template_required > 0',
+    'out' => "vendor_template_archived_at IS NULL AND vendor_templates.vendor_template_id IN ($out_ids)",
+    'archived' => 'vendor_template_archived_at IS NOT NULL',
+][$show];
 
 // Tab title - the file is named for the table, the page for what it holds
 $page_title = 'Vendor Templates';
@@ -45,7 +66,7 @@ $search = "(vendor_template_name LIKE '%$q%' OR vendor_template_description LIKE
 // Its use is the current vendors made from it for current clients - as vendorTemplateUsage() counts them
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS vendor_templates.vendor_template_id, vendor_template_name, vendor_template_description, vendor_template_phone_country_code,
         vendor_template_phone, vendor_template_extension, vendor_template_email, vendor_template_website, vendor_template_hours, vendor_template_sla,
-        vendor_template_created_at, vendor_template_updated_at, vendor_template_archived_at,
+        vendor_template_created_at, vendor_template_updated_at, vendor_template_archived_at, vendor_template_required,
         COALESCE(vendor_template_updated_at, vendor_template_created_at) AS changed_at, COALESCE(updater.user_name, creator.user_name) AS changed_by,
         COALESCE(used.used_count, 0) AS used_count, used.last_used
     FROM vendor_templates
@@ -68,7 +89,17 @@ while ($row = mysqli_fetch_assoc($sql)) {
 }
 $usage = vendorTemplateUsage(array_keys($rows));
 
-$counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(vendor_template_archived_at IS NULL), 0), COALESCE(SUM(vendor_template_archived_at IS NOT NULL), 0)
+// How many of the clients a required one is for have it
+$required_tags = vendorTemplateRequiredTags(array_keys($rows));
+$coverage = [];
+foreach ($rows as $template_id => $row) {
+    if (intval($row['vendor_template_required']) && !$row['vendor_template_archived_at']) {
+        $coverage[$template_id] = vendorTemplateCoverage($template_id, $row['vendor_template_required'], array_keys($required_tags[$template_id]));
+    }
+}
+
+$counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(vendor_template_archived_at IS NULL), 0), COALESCE(SUM(vendor_template_archived_at IS NOT NULL), 0),
+    COALESCE(SUM(vendor_template_archived_at IS NULL AND vendor_template_required > 0), 0), COALESCE(SUM(vendor_template_archived_at IS NULL AND vendor_template_id IN ($out_ids)), 0)
     FROM vendor_templates WHERE $search"));
 
 $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
@@ -106,7 +137,7 @@ $csrf = $_SESSION['csrf_token'];
     </div>
     <div class="card-header py-3">
         <form autocomplete="off">
-            <?php if ($show_archived) { ?><input type="hidden" name="show" value="archived"><?php } ?>
+            <?php if ($show !== '') { ?><input type="hidden" name="show" value="<?= $show ?>"><?php } ?>
             <div class="row g-2 align-items-center">
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
@@ -116,8 +147,10 @@ $csrf = $_SESSION['csrf_token'];
                 </div>
             </div>
         </form>
-        <nav class="nav nav-pills itflow-asset-tabs mt-2">
-            <a class="nav-link <?= !$show_archived ? 'active' : '' ?>" href="<?= escapeHtml($pill_url('')) ?>"><i class="fas fa-fw fa-building me-1"></i>Active <span class="badge rounded-pill ms-1"><?= intval($counts[0]) ?></span></a>
+        <nav class="nav nav-pills itflow-asset-tabs flex-nowrap overflow-auto mt-2">
+            <a class="nav-link <?= $show === '' ? 'active' : '' ?>" href="<?= escapeHtml($pill_url('')) ?>"><i class="fas fa-fw fa-building me-1"></i>Active <span class="badge rounded-pill ms-1"><?= intval($counts[0]) ?></span></a>
+            <a class="nav-link <?= $show === 'required' ? 'active' : '' ?>" href="<?= escapeHtml($pill_url('required')) ?>" title="Every client, or the clients with a tag, should have it"><i class="fas fa-fw fa-clipboard-check me-1"></i>Required <span class="badge rounded-pill ms-1"><?= intval($counts[2]) ?></span></a>
+            <a class="nav-link <?= $show === 'out' ? 'active' : '' ?>" href="<?= escapeHtml($pill_url('out')) ?>" title="Clients' vendors made from it that say something other than it does"><i class="fas fa-fw fa-not-equal me-1"></i>Out of step <span class="badge rounded-pill ms-1 <?= $show !== 'out' && intval($counts[3]) ? 'text-bg-warning' : '' ?>"><?= intval($counts[3]) ?></span></a>
             <a class="nav-link <?= $show_archived ? 'active' : '' ?>" href="<?= escapeHtml($pill_url('archived')) ?>" title="Not offered for new vendors - the vendors made from them stay"><i class="fas fa-fw fa-archive me-1"></i>Archived <span class="badge rounded-pill ms-1"><?= intval($counts[1]) ?></span></a>
         </nav>
     </div>
@@ -168,6 +201,23 @@ $csrf = $_SESSION['csrf_token'];
                                         <?php if (trim((string) $row['vendor_template_email']) !== '') { ?><span class="text-nowrap"><i class="fas fa-fw fa-envelope me-1"></i><?= escapeHtml($row['vendor_template_email']) ?></span><?php } ?>
                                     </div>
                                 <?php } ?>
+                                <?php if (isset($coverage[$template_id]) || (!$row['vendor_template_archived_at'] && isset($out_of_step[$template_id]))) { ?>
+                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                        <?php if (isset($coverage[$template_id])) {
+                                            $reach = $coverage[$template_id]; ?>
+                                            <a class="badge rounded-pill fw-normal text-decoration-none <?= $reach['missing'] ? 'bg-warning-subtle text-warning-emphasis border border-warning-subtle' : 'bg-success-subtle text-success-emphasis border border-success-subtle' ?>"
+                                                href="<?= $page_url ?>#vendorTemplateCoverage" title="<?= escapeHtml(vendorTemplateScopeText($row['vendor_template_required'], $required_tags[$template_id])) ?>" data-template-reach>
+                                                <i class="fas fa-clipboard-check me-1"></i><?= $reach['covered'] ?> of <?= $reach['clients'] ?> clients
+                                            </a>
+                                        <?php } ?>
+                                        <?php if (!$row['vendor_template_archived_at'] && isset($out_of_step[$template_id])) { ?>
+                                            <a class="badge rounded-pill fw-normal text-decoration-none bg-warning-subtle text-warning-emphasis border border-warning-subtle"
+                                                href="<?= $page_url ?>&amp;view=out#vendorTemplateVendors" title="Vendors made from it that say something other than it does" data-template-out-of-step="<?= $out_of_step[$template_id] ?>">
+                                                <i class="fas fa-not-equal me-1"></i><?= $out_of_step[$template_id] ?> out of step
+                                            </a>
+                                        <?php } ?>
+                                    </div>
+                                <?php } ?>
                                 <?php if ($row['vendor_template_archived_at']) { ?>
                                     <div class="small text-body-secondary"><i class="fas fa-fw fa-archive me-1"></i>Archived <?= date('M j, Y', strtotime($row['vendor_template_archived_at'])) ?></div>
                                 <?php } ?>
@@ -208,6 +258,9 @@ $csrf = $_SESSION['csrf_token'];
                                         <i class="fas fa-fw fa-users text-secondary me-2"></i>Add to clients
                                     </a>
                                 <?php } ?>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/vendor_template/vendor_template_required.php?id=<?= $template_id ?>">
+                                    <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Who should have it
+                                </a>
                                 <a class="dropdown-item" href="post.php?copy_vendor_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">
                                     <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
@@ -240,6 +293,8 @@ $csrf = $_SESSION['csrf_token'];
         'filtered' => $q !== '',
         'archived' => $show_archived,
         'views' => ['show'],
+        'view' => ['required' => ['title' => 'No required templates', 'text' => 'Set one up from its page - <strong>Who should have it</strong> - to see which clients are missing a vendor from it.'],
+            'out' => ['title' => 'Every vendor is in step', 'text' => 'Every client\'s vendor made from a template says what the template says.']][$show] ?? null,
         'text' => 'A vendor your clients use again and again - an ISP, a hardware maker, the software they run - set up once with its support line, hours and site, ready to add to any client. Agents start one from <strong>New Vendor</strong> on a client\'s Vendors.',
         'actions' => [['label' => 'New Vendor Template', 'modal' => $add_url, 'size' => 'lg'], ['label' => 'Starter vendor templates', 'href' => 'starter_content.php', 'icon' => 'fa-seedling']],
     ];

@@ -121,7 +121,7 @@ if (isset($_POST['add_vendor_template_to_clients'])) {
         if (!hasClientAccess($target_client_id) || !getFieldById('clients', $target_client_id, 'client_name')) {
             continue;
         }
-        if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM vendors WHERE vendor_client_id = $target_client_id AND vendor_template_id = $template_id LIMIT 1"))) {
+        if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM vendors WHERE vendor_client_id = $target_client_id AND vendor_template_id = $template_id AND vendor_archived_at IS NULL LIMIT 1"))) {
             $already++;
             continue;
         }
@@ -131,6 +131,99 @@ if (isset($_POST['add_vendor_template_to_clients'])) {
     }
 
     flashAlert("Added <strong>{$template['vendor_template_name']}</strong> to <strong>$added</strong> client" . ($added === 1 ? '' : 's') . ($already ? " - $already already had it" : ''));
+
+    redirect();
+
+}
+
+/* The vendors a request names that this agent may change - vendor id => row. */
+function vendorsForRequest(array $vendor_ids) {
+    $vendors = [];
+    foreach (array_unique(array_filter(array_map('intval', array_filter($vendor_ids, 'is_scalar')))) as $vendor_id) {
+        $row = vendorRow($vendor_id);
+        if ($row && vendorCan($row['vendor_client_id'], 2)) {
+            $vendors[$vendor_id] = $row;
+        }
+    }
+    return $vendors;
+}
+
+/*
+ * Vendors made from a template brought in line with it - the fields picked,
+ * where they differ (vendorTemplateBringInLine()). Their account number, PIN
+ * and account manager are never touched. From the template's page, the
+ * vendor's page, or the window either opens.
+ */
+if (isset($_POST['update_vendors_from_template'])) {
+
+    validateCSRFToken();
+
+    $template = vendorTemplateInfo($_POST['vendor_template_id'] ?? 0);
+    if (!$template) {
+        flashAlert('That template no longer exists.', 'error');
+        redirect();
+    }
+    $vendors = vendorsForRequest((array) ($_POST['vendor_ids'] ?? []));
+    $keys = array_map('strval', array_filter((array) ($_POST['fields'] ?? []), 'is_scalar'));
+    if (!$vendors || !$keys) {
+        flashAlert(!$vendors ? 'Pick the vendors to bring in line.' : 'Tick the fields to take from the template.', 'error');
+        redirect();
+    }
+
+    $changed = vendorTemplateBringInLine($template['vendor_template_id'], array_keys($vendors), $keys);
+    foreach ($changed as $vendor_id => $vendor) {
+        logAudit("Vendor", "Edit", "$session_name brought vendor " . escapeSql($vendor['name']) . " in line with template " . escapeSql($template['vendor_template_name']) . " - " . escapeSql(mb_strtolower(implode(', ', $vendor['fields']))), $vendor['client_id'], $vendor_id);
+    }
+
+    flashAlert($changed ? "Brought " . count($changed) . " vendor" . (count($changed) === 1 ? '' : 's') . " in line with <strong>" . escapeHtml($template['vendor_template_name']) . "</strong>" : 'Nothing to change - they already say what the template says.', $changed ? 'success' : 'warning');
+
+    redirect();
+
+}
+
+/*
+ * Vendors made by hand linked to a template, as if made from it - so they
+ * count as made from it, and are kept in step with it. With bring, every
+ * field they differ in is taken from it too.
+ */
+if (isset($_POST['link_vendors_to_template'])) {
+
+    validateCSRFToken();
+
+    $template = vendorTemplateInfo($_POST['vendor_template_id'] ?? 0);
+    if (!$template || $template['vendor_template_archived_at']) {
+        flashAlert($template ? 'That template is archived - restore it to link vendors to it.' : 'That template no longer exists.', 'error');
+        redirect();
+    }
+    $vendors = vendorsForRequest((array) ($_POST['vendor_ids'] ?? []));
+    $linked = vendorTemplateLink($template['vendor_template_id'], array_keys($vendors));
+    foreach ($linked as $vendor_id => $vendor) {
+        logAudit("Vendor", "Edit", "$session_name linked vendor " . escapeSql($vendor['name']) . " to template " . escapeSql($template['vendor_template_name']), $vendor['client_id'], $vendor_id);
+    }
+    $changed = !empty($_POST['bring']) && $linked ? vendorTemplateBringInLine($template['vendor_template_id'], array_keys($linked), VENDOR_TEMPLATE_SHARED) : [];
+    foreach ($changed as $vendor_id => $vendor) {
+        logAudit("Vendor", "Edit", "$session_name brought vendor " . escapeSql($vendor['name']) . " in line with template " . escapeSql($template['vendor_template_name']) . " - " . escapeSql(mb_strtolower(implode(', ', $vendor['fields']))), $vendor['client_id'], $vendor_id);
+    }
+
+    flashAlert($linked ? "Linked " . count($linked) . " vendor" . (count($linked) === 1 ? '' : 's') . " to <strong>" . escapeHtml($template['vendor_template_name']) . "</strong>" . ($changed ? ", bringing " . count($changed) . " in line" : '')
+        : 'Nothing to link - they are made from a template already.', $linked ? 'success' : 'warning');
+
+    redirect();
+
+}
+
+/* A vendor no longer made from its template - it stays as it is, and is no longer kept in step. */
+if (isset($_GET['unlink_vendor_template'])) {
+
+    validateCSRFToken();
+
+    $row = vendorForRequest($_GET['unlink_vendor_template'], 2);
+    $vendor_id = intval($row['vendor_id']);
+    if (intval($row['vendor_template_id'])) {
+        mysqli_query($mysqli, "UPDATE vendors SET vendor_template_id = 0 WHERE vendor_id = $vendor_id");
+        logAudit("Vendor", "Edit", "$session_name unlinked vendor " . escapeSql($row['vendor_name']) . " from template " . escapeSql((string) $row['vendor_template_name']), $client_id, $vendor_id);
+        flashAlert("<strong>" . escapeHtml($row['vendor_name']) . "</strong> is no longer linked to <strong>" . escapeHtml((string) $row['vendor_template_name']) . "</strong>");
+    }
 
     redirect();
 
