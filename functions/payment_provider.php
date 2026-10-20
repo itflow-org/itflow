@@ -289,3 +289,107 @@ function paymentProviderWrite(array $after, $provider_id = 0) {
     mysqli_query($mysqli, "INSERT INTO payment_providers SET " . implode(', ', $sets));
     return intval(mysqli_insert_id($mysqli));
 }
+
+/* ------------------------------------------------------------- Saved cards */
+
+/*
+ * A saved card's expiry as yyyymm, in SQL - from its description ("visa -
+ * 4242 | Exp 9/2028", as billingCardParts() reads it), NULL when it doesn't
+ * say. A card is good to the end of the month it runs out.
+ */
+function paymentCardExpirySql($column = 'saved_payment_description') {
+    $exp = "REGEXP_SUBSTR($column, '[0-9]{1,2}/[0-9]{2,4}$')";
+    $year = "CAST(SUBSTRING_INDEX($exp, '/', -1) AS UNSIGNED)";
+    return "(CASE WHEN $exp IS NULL OR $exp = '' THEN NULL ELSE (IF($year < 100, 2000 + $year, $year) * 100 + CAST(SUBSTRING_INDEX($exp, '/', 1) AS UNSIGNED)) END)";
+}
+
+/*
+ * The recurring invoices that autopay with each of these saved cards - saved
+ * id => list of id, reference (REC-12), amount, currency, frequency, next
+ * date, client and whether it is active.
+ */
+function paymentCardAutopay(array $saved_ids) {
+    global $mysqli;
+    $saved_ids = array_filter(array_map('intval', $saved_ids));
+    if (!$saved_ids) {
+        return [];
+    }
+    $by_card = [];
+    $sql = mysqli_query($mysqli, "SELECT recurring_payment_saved_payment_id, recurring_invoice_id, recurring_invoice_prefix, recurring_invoice_number, recurring_invoice_amount,
+            recurring_invoice_currency_code, recurring_invoice_frequency, recurring_invoice_next_date, recurring_invoice_status, recurring_invoice_archived_at, recurring_invoice_client_id
+        FROM recurring_payments JOIN recurring_invoices ON recurring_invoice_id = recurring_payment_recurring_invoice_id
+        WHERE recurring_payment_saved_payment_id IN (" . implode(',', $saved_ids) . ")
+        ORDER BY recurring_invoice_number ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $by_card[intval($row['recurring_payment_saved_payment_id'])][] = [
+            'id' => intval($row['recurring_invoice_id']),
+            'reference' => $row['recurring_invoice_prefix'] . $row['recurring_invoice_number'],
+            'amount' => floatval($row['recurring_invoice_amount']),
+            'currency' => (string) $row['recurring_invoice_currency_code'],
+            'frequency' => strtolower(recurringInvoiceFrequencies()[$row['recurring_invoice_frequency']] ?? (string) $row['recurring_invoice_frequency']),
+            'next' => (string) $row['recurring_invoice_next_date'],
+            'active' => intval($row['recurring_invoice_status']) === 1 && !$row['recurring_invoice_archived_at'],
+            'client_id' => intval($row['recurring_invoice_client_id']),
+        ];
+    }
+    return $by_card;
+}
+
+/*
+ * Take a client's saved card off - at the provider first (Stripe forgets it),
+ * then in ITFlow, where the autopay on it goes with it and each recurring
+ * invoice that paid with it says so in its history. The card's row, its
+ * label, the recurring invoices that stopped, and whether the provider was
+ * told ('told' - false when it couldn't be, with 'provider_error') - or null
+ * with $error when there is no such card.
+ */
+function paymentCardRemove($saved_payment_id, $by, &$error = '') {
+    global $mysqli;
+    $saved_payment_id = intval($saved_payment_id);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT saved_payment_id, saved_payment_client_id, saved_payment_provider_id, saved_payment_provider_method, saved_payment_description,
+            payment_provider_name, payment_provider_private_key, client_name
+        FROM client_saved_payment_methods
+        LEFT JOIN payment_providers ON payment_provider_id = saved_payment_provider_id
+        LEFT JOIN clients ON client_id = saved_payment_client_id
+        WHERE saved_payment_id = $saved_payment_id LIMIT 1"));
+    if (!$row) {
+        $error = 'That card is no longer saved - it may have been removed already.';
+        return null;
+    }
+    $card = billingCardParts($row['saved_payment_description']);
+    $label = $card['label'] . ($card['exp'] !== '' ? ' (exp ' . $card['exp'] . ')' : '');
+
+    // The provider forgets it - a card it no longer has is gone already
+    $told = true;
+    $provider_error = '';
+    if ($row['payment_provider_name'] === 'Stripe' && trim((string) $row['payment_provider_private_key']) !== '' && trim((string) $row['saved_payment_provider_method']) !== '') {
+        require_once __DIR__ . '/../includes/stripe_init.php';
+        try {
+            $stripe = new \Stripe\StripeClient((string) $row['payment_provider_private_key']);
+            $stripe->paymentMethods->detach((string) $row['saved_payment_provider_method'], []);
+        } catch (\Stripe\Exception\InvalidRequestException $e) {
+            // No such payment method, or not attached to a customer - nothing left there to forget
+            if (!in_array($e->getStripeCode(), ['resource_missing', 'payment_method_unexpected_state'], true) && stripos($e->getMessage(), 'not attached') === false) {
+                $told = false;
+                $provider_error = $e->getMessage();
+            }
+        } catch (\Throwable $e) {
+            $told = false;
+            $provider_error = $e->getMessage();
+        }
+        if (!$told) {
+            logApp("Stripe", "error", "Couldn't detach payment method " . $row['saved_payment_provider_method'] . " on removing it: $provider_error");
+        }
+    }
+
+    // Its autopay stops - each recurring invoice says why
+    $stopped = paymentCardAutopay([$saved_payment_id])[$saved_payment_id] ?? [];
+    foreach ($stopped as $recurring) {
+        logHistory('Autopay stopped', escapeSql("Autopay stopped - the card it paid with, $label, was removed by $by"), 0, 0, $recurring['id']);
+    }
+
+    // The autopay on it cascades with it
+    mysqli_query($mysqli, "DELETE FROM client_saved_payment_methods WHERE saved_payment_id = $saved_payment_id");
+
+    return ['row' => $row, 'label' => $label, 'stopped' => $stopped, 'told' => $told, 'provider_error' => $provider_error];
+}

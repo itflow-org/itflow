@@ -152,8 +152,8 @@ $csrf = $_SESSION['csrf_token'];
                     </td>
                     <td class="d-none d-md-table-cell small text-nowrap">
                         <?php if ($cards) { ?>
-                            <a class="text-reset" href="saved_payment_methods.php"><?= $cards ?> card<?= $cards === 1 ? '' : 's' ?></a>
-                            <?php if ($autopay) { ?><div class="text-body-secondary">Autopay on <?= $autopay ?></div><?php } ?>
+                            <a class="text-reset" href="saved_payment_methods.php?provider=<?= $provider_id ?>"><?= $cards ?> card<?= $cards === 1 ? '' : 's' ?></a>
+                            <?php if ($autopay) { ?><div><a class="text-body-secondary" href="saved_payment_methods.php?provider=<?= $provider_id ?>&amp;show=autopay">Autopay on <?= $autopay ?></a></div><?php } ?>
                         <?php } else { ?>
                             <span class="text-body-secondary">None yet</span>
                         <?php } ?>
