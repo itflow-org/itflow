@@ -275,7 +275,7 @@ function clientExportDatasets() {
         ] + $archived],
         'vendors' => ['section' => 'vendors', 'label' => 'Vendors', 'columns' => [
             'id' => 'ID', 'name' => 'Name', 'description' => 'Description', 'account_number' => 'Account number', 'code' => 'Code / PIN', 'phone' => 'Phone',
-            'email' => 'Email', 'website' => 'Website', 'hours' => 'Hours', 'sla' => 'SLA', 'contact_name' => 'Account manager', 'contact_phone' => 'Account manager phone',
+            'email' => 'Email', 'website' => 'Website', 'status_page' => 'Status page', 'portal' => 'Support portal', 'hours' => 'Hours', 'sla' => 'SLA', 'contact_name' => 'Account manager', 'contact_phone' => 'Account manager phone',
             'contact_email' => 'Account manager email', 'tags' => 'Tags', 'notes' => 'Notes',
         ] + $archived],
         'networks' => ['section' => 'networks', 'label' => 'Networks', 'columns' => [
@@ -527,7 +527,7 @@ function clientExportRows($dataset, $client_id, $options) {
                 $id = intval($row['vendor_id']);
                 $rows[] = ['id' => $id, 'name' => $row['vendor_name'], 'description' => $row['vendor_description'], 'account_number' => $row['vendor_account_number'],
                     'code' => $row['vendor_code'], 'phone' => clientExportPhone($row['vendor_phone'], $row['vendor_phone_country_code'], $row['vendor_extension']),
-                    'email' => $row['vendor_email'], 'website' => $row['vendor_website'], 'hours' => $row['vendor_hours'], 'sla' => $row['vendor_sla'],
+                    'email' => $row['vendor_email'], 'website' => $row['vendor_website'], 'status_page' => $row['vendor_status_page'], 'portal' => $row['vendor_portal'], 'hours' => $row['vendor_hours'], 'sla' => $row['vendor_sla'],
                     'contact_name' => $row['vendor_contact_name'], 'contact_phone' => clientExportPhone($row['vendor_contact_phone'], $row['vendor_contact_phone_country_code']),
                     'contact_email' => $row['vendor_contact_email'], 'tags' => $tags[$id] ?? '', 'notes' => $row['vendor_notes'], 'created' => $row['vendor_created_at'],
                     'archived' => clientExportDate($row['vendor_archived_at'])];

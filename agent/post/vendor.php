@@ -482,7 +482,7 @@ if (isExportRequest('export_vendors')) {
         LEFT JOIN clients ON client_id = vendor_client_id
         WHERE $archive_query
         AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' OR vendor_website LIKE '%$q%'
-            OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_contact_email LIKE '%$q%' OR vendor_phone LIKE '%$q%' OR vendor_notes LIKE '%$q%')
+            OR vendor_status_page LIKE '%$q%' OR vendor_portal LIKE '%$q%' OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_contact_email LIKE '%$q%' OR vendor_phone LIKE '%$q%' OR vendor_notes LIKE '%$q%')
         $client_query
         $tag_query
         " . clientScopeSql('vendor_client_id') . "

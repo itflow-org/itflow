@@ -10,7 +10,8 @@
  * step with it (the Required and Out of step tabs). Each opens its page
  * (vendor_template.php). A template can be added to several clients at once,
  * changed, copied as the start of another, archived - not offered for new
- * vendors, while the vendors made from it stay - or deleted. The work is in
+ * vendors, while the vendors made from it stay - or deleted, and they go to
+ * and from a file (Export and Import). The work is in
  * functions/vendor_template.php; the handlers are
  * admin/post/vendor_template.php.
  */
@@ -60,12 +61,13 @@ if (!isset($sortable_columns[$sort])) {
 
 $phone_search = preg_replace('/[^0-9]/', '', (string) ($_GET['q'] ?? ''));
 $search = "(vendor_template_name LIKE '%$q%' OR vendor_template_description LIKE '%$q%' OR vendor_template_website LIKE '%$q%' OR vendor_template_email LIKE '%$q%'
+    OR vendor_template_status_page LIKE '%$q%' OR vendor_template_portal LIKE '%$q%' OR vendor_template_contact_email LIKE '%$q%'
     OR vendor_template_hours LIKE '%$q%' OR vendor_template_sla LIKE '%$q%' OR vendor_template_contact_name LIKE '%$q%' OR vendor_template_account_number LIKE '%$q%'
     OR vendor_template_notes LIKE '%$q%'" . ($phone_search !== '' ? " OR vendor_template_phone LIKE '%$phone_search%'" : '') . ")";
 
 // Its use is the current vendors made from it for current clients - as vendorTemplateUsage() counts them
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS vendor_templates.vendor_template_id, vendor_template_name, vendor_template_description, vendor_template_phone_country_code,
-        vendor_template_phone, vendor_template_extension, vendor_template_email, vendor_template_website, vendor_template_hours, vendor_template_sla,
+        vendor_template_phone, vendor_template_extension, vendor_template_email, vendor_template_website, vendor_template_status_page, vendor_template_hours, vendor_template_sla,
         vendor_template_created_at, vendor_template_updated_at, vendor_template_archived_at, vendor_template_required,
         COALESCE(vendor_template_updated_at, vendor_template_created_at) AS changed_at, COALESCE(updater.user_name, creator.user_name) AS changed_by,
         COALESCE(used.used_count, 0) AS used_count, used.last_used
@@ -112,6 +114,8 @@ $pill_url = function ($show) {
 
 $add_url = 'modals/vendor_template/vendor_template_add.php';
 $clients_url = '/agent/modals/vendor/vendor_template_clients.php';
+$import_url = 'modals/vendor_template/vendor_template_import.php';
+$export_url = 'modals/vendor_template/vendor_template_export.php';
 $csrf = $_SESSION['csrf_token'];
 
 ?>
@@ -128,6 +132,13 @@ $csrf = $_SESSION['csrf_token'];
                         <i class="fas fa-fw fa-users text-secondary me-2"></i>Add one to clients
                     </a>
                     <div class="dropdown-divider"></div>
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $import_url ?>">
+                        <i class="fas fa-fw fa-file-upload text-secondary me-2"></i>Import
+                    </a>
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $export_url ?>">
+                        <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
+                    </a>
+                    <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="starter_content.php">
                         <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter vendor templates
                     </a>
@@ -141,7 +152,7 @@ $csrf = $_SESSION['csrf_token'];
             <div class="row g-2 align-items-center">
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search vendor templates..." title="Name, what they are, support line, email, site, hours, SLA, account manager or notes">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search vendor templates..." title="Name, what they are, support line, email, site, status page, portal, hours, SLA, account manager or notes">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
@@ -179,6 +190,7 @@ $csrf = $_SESSION['csrf_token'];
                 $page_url = "vendor_template.php?vendor_template_id=$template_id";
                 $phone = vendorTemplatePhoneHtml($row['vendor_template_phone'], $row['vendor_template_phone_country_code'], $row['vendor_template_extension']);
                 $website = vendorWebsiteLabel($row['vendor_template_website']);
+                $status_url = vendorWebsiteUrl($row['vendor_template_status_page']);
                 // How to reach their support
                 $support = array_filter([
                     $phone !== '' ? '<i class="fas fa-fw fa-phone text-secondary me-1"></i>' . $phone : '',
@@ -195,10 +207,11 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php if ($summary !== '') { ?>
                                     <div class="small text-body-secondary"><?= escapeHtml($summary) ?></div>
                                 <?php } ?>
-                                <?php if ($website !== '' || trim((string) $row['vendor_template_email']) !== '') { ?>
+                                <?php if ($website !== '' || trim((string) $row['vendor_template_email']) !== '' || $status_url !== '') { ?>
                                     <div class="small text-body-secondary d-flex flex-wrap column-gap-3">
                                         <?php if ($website !== '') { ?><a class="text-reset text-nowrap" href="<?= escapeHtml(vendorWebsiteUrl($row['vendor_template_website'])) ?>" target="_blank" rel="noopener noreferrer"><i class="fas fa-fw fa-globe me-1"></i><?= escapeHtml($website) ?></a><?php } ?>
                                         <?php if (trim((string) $row['vendor_template_email']) !== '') { ?><span class="text-nowrap"><i class="fas fa-fw fa-envelope me-1"></i><?= escapeHtml($row['vendor_template_email']) ?></span><?php } ?>
+                                        <?php if ($status_url !== '') { ?><a class="text-reset text-nowrap" href="<?= escapeHtml($status_url) ?>" target="_blank" rel="noopener noreferrer" title="<?= escapeHtml(vendorWebsiteLabel($row['vendor_template_status_page'])) ?>" data-template-status-page><i class="fas fa-fw fa-heartbeat me-1"></i>Status</a><?php } ?>
                                     </div>
                                 <?php } ?>
                                 <?php if (isset($coverage[$template_id]) || (!$row['vendor_template_archived_at'] && isset($out_of_step[$template_id]))) { ?>
@@ -264,6 +277,9 @@ $csrf = $_SESSION['csrf_token'];
                                 <a class="dropdown-item" href="post.php?copy_vendor_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">
                                     <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
+                                <a class="dropdown-item" href="post.php?export_vendor_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow - without account numbers or PINs">
+                                    <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
+                                </a>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['vendor_template_archived_at']) { ?>
                                     <a class="dropdown-item" href="post.php?restore_vendor_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>">
@@ -296,7 +312,8 @@ $csrf = $_SESSION['csrf_token'];
         'view' => ['required' => ['title' => 'No required templates', 'text' => 'Set one up from its page - <strong>Who should have it</strong> - to see which clients are missing a vendor from it.'],
             'out' => ['title' => 'Every vendor is in step', 'text' => 'Every client\'s vendor made from a template says what the template says.']][$show] ?? null,
         'text' => 'A vendor your clients use again and again - an ISP, a hardware maker, the software they run - set up once with its support line, hours and site, ready to add to any client. Agents start one from <strong>New Vendor</strong> on a client\'s Vendors.',
-        'actions' => [['label' => 'New Vendor Template', 'modal' => $add_url, 'size' => 'lg'], ['label' => 'Starter vendor templates', 'href' => 'starter_content.php', 'icon' => 'fa-seedling']],
+        'actions' => [['label' => 'New Vendor Template', 'modal' => $add_url, 'size' => 'lg'], ['label' => 'Import', 'modal' => $import_url, 'icon' => 'fa-file-upload'],
+            ['label' => 'Starter vendor templates', 'href' => 'starter_content.php', 'icon' => 'fa-seedling']],
     ];
     require_once "../includes/filter_footer.php";
     ?>

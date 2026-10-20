@@ -18,6 +18,7 @@ $value = function ($key) use ($vt) {
     return escapeHtml((string) ($vt[$key] ?? ''));
 };
 $phone_value = ($vt['phone'] ?? '') !== '' ? escapeHtml(formatPhoneNumber($vt['phone'], $vt['phone_country_code'] ?? '', false)) : '';
+$contact_phone_value = ($vt['contact_phone'] ?? '') !== '' ? escapeHtml(formatPhoneNumber($vt['contact_phone'], $vt['contact_phone_country_code'] ?? '', false)) : '';
 
 ?>
 
@@ -99,11 +100,28 @@ $phone_value = ($vt['phone'] ?? '') !== '' ? escapeHtml(formatPhoneNumber($vt['p
             </div>
         </div>
         <div class="col-12">
-            <label class="form-label">Support site or portal</label>
+            <label class="form-label">Support site</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                 <input type="text" class="form-control" name="website" placeholder="support.vendor.com" maxlength="200" value="<?= $value('website') ?>">
             </div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Status page</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-heartbeat"></i></span>
+                <input type="text" class="form-control" name="status_page" placeholder="status.vendor.com" maxlength="200" value="<?= $value('status_page') ?>">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Support portal</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-door-open"></i></span>
+                <input type="text" class="form-control" name="portal" placeholder="Where cases are opened" maxlength="200" value="<?= $value('portal') ?>">
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="form-text mt-0">Where they post outages, and where you sign in to open a case - every client's vendor gets them.</div>
         </div>
     </div>
 </div>
@@ -134,6 +152,24 @@ $phone_value = ($vt['phone'] ?? '') !== '' ? escapeHtml(formatPhoneNumber($vt['p
                 <span class="input-group-text"><i class="fa fa-fw fa-user-tie"></i></span>
                 <input type="text" class="form-control" name="contact_name" placeholder="Your rep there, when every client has the same one" maxlength="200" value="<?= $value('contact_name') ?>">
             </div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Their direct line</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-phone-alt"></i></span>
+                <input type="hidden" name="contact_phone_country_code" value="<?= $value('contact_phone_country_code') ?>">
+                <input type="tel" class="form-control" name="contact_phone" value="<?= $contact_phone_value ?>" placeholder="Phone number" maxlength="200" data-itflow-phone="contact_phone_country_code">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Their email</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-at"></i></span>
+                <input type="email" class="form-control" name="contact_email" placeholder="name@vendor.com" maxlength="200" value="<?= $value('contact_email') ?>">
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="form-text mt-0">A vendor added from it starts with its account manager - a client's own rep goes on their vendor, and is never changed from here.</div>
         </div>
     </div>
 </div>

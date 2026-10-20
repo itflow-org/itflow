@@ -13,6 +13,11 @@
  *
  * From database 3.3.4 on a template says who made it and last changed it.
  *
+ * From database 3.3.6 on a template - and a vendor - has a status page and
+ * the support portal cases are opened in, and a template the account
+ * manager's line and email, as a vendor has them. Templates go to and from a
+ * file in functions/vendor_template_transfer.php.
+ *
  * From database 3.3.5 on a template says who should have it - every client,
  * or the clients with one of its tags - so the clients missing it show on its
  * page, on their Vendors and on their overview. The vendors made from it are
@@ -45,16 +50,21 @@ function vendorTemplateFieldLabels() {
         'sla' => ['label' => 'SLA', 'icon' => 'fa-handshake'],
         'email' => ['label' => 'Support email', 'icon' => 'fa-envelope'],
         'website' => ['label' => 'Support site', 'icon' => 'fa-globe'],
+        'status_page' => ['label' => 'Status page', 'icon' => 'fa-heartbeat'],
+        'portal' => ['label' => 'Support portal', 'icon' => 'fa-door-open'],
         'account_number' => ['label' => 'Account number', 'icon' => 'fa-fingerprint'],
         'code' => ['label' => 'PIN', 'icon' => 'fa-key'],
         'contact_name' => ['label' => 'Account manager', 'icon' => 'fa-user-tie'],
+        'contact_phone' => ['label' => "Account manager's line", 'icon' => 'fa-phone-alt'],
+        'contact_email' => ['label' => "Account manager's email", 'icon' => 'fa-at'],
         'notes' => ['label' => 'Notes', 'icon' => 'fa-sticky-note'],
     ];
 }
 
 /*
  * Each field's columns - on the template, and on a vendor made from it. The
- * support line is three: country code, number and extension.
+ * support line is three: country code, number and extension; the account
+ * manager's line two.
  */
 function vendorTemplateColumns() {
     return [
@@ -65,9 +75,13 @@ function vendorTemplateColumns() {
         'sla' => [['vendor_template_sla', 'vendor_sla']],
         'email' => [['vendor_template_email', 'vendor_email']],
         'website' => [['vendor_template_website', 'vendor_website']],
+        'status_page' => [['vendor_template_status_page', 'vendor_status_page']],
+        'portal' => [['vendor_template_portal', 'vendor_portal']],
         'account_number' => [['vendor_template_account_number', 'vendor_account_number']],
         'code' => [['vendor_template_code', 'vendor_code']],
         'contact_name' => [['vendor_template_contact_name', 'vendor_contact_name']],
+        'contact_phone' => [['vendor_template_contact_phone_country_code', 'vendor_contact_phone_country_code'], ['vendor_template_contact_phone', 'vendor_contact_phone']],
+        'contact_email' => [['vendor_template_contact_email', 'vendor_contact_email']],
         'notes' => [['vendor_template_notes', 'vendor_notes']],
     ];
 }
@@ -113,8 +127,10 @@ function vendorTemplateUsage(array $vendor_template_ids) {
 /*
  * The window's fields, checked - or null with $error saying why. Raw values:
  * name, description, phone_country_code, phone and extension (digits),
- * hours, sla, email, website (without its scheme), account_number, code,
- * contact_name and notes - as vendorFormSet() reads a vendor's.
+ * hours, sla, email, website, status_page and portal (without their scheme
+ * or a trailing slash), account_number, code, contact_name,
+ * contact_phone_country_code and contact_phone (digits), contact_email and
+ * notes - as vendorFormSet() reads a vendor's.
  */
 function vendorTemplateFields(array $post, &$error = '') {
     $error = '';
@@ -139,7 +155,16 @@ function vendorTemplateFields(array $post, &$error = '') {
         $error = "The support email isn't an email address";
         return null;
     }
+    $contact_email = $line('contact_email');
+    if ($contact_email !== '' && !filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+        $error = "The account manager's email isn't an email address";
+        return null;
+    }
+    $site = function ($key) use ($line) {
+        return mb_substr(rtrim(preg_replace('#^https?://#i', '', $line($key)), '/'), 0, 200);
+    };
     $phone = $digits('phone');
+    $contact_phone = $digits('contact_phone');
     return [
         'name' => $name,
         'description' => $line('description'),
@@ -149,31 +174,28 @@ function vendorTemplateFields(array $post, &$error = '') {
         'hours' => $line('hours'),
         'sla' => $line('sla'),
         'email' => $email,
-        'website' => mb_substr(rtrim(preg_replace('#^https?://#i', '', $line('website')), '/'), 0, 200),
+        'website' => $site('website'),
+        'status_page' => $site('status_page'),
+        'portal' => $site('portal'),
         'account_number' => $line('account_number'),
         'code' => $line('code'),
         'contact_name' => $line('contact_name'),
+        'contact_phone_country_code' => $contact_phone !== '' ? $digits('contact_phone_country_code', 10) : '',
+        'contact_phone' => $contact_phone,
+        'contact_email' => $contact_email,
         'notes' => is_scalar($post['notes'] ?? null) ? trim((string) $post['notes']) : '',
     ];
 }
 
-/** A template's fields as vendorTemplateFields() gives them - from its row, for comparing and copying. */
+/** A template's fields as vendorTemplateFields() gives them - from its row (blank for none), for comparing and copying. */
 function vendorTemplateRowFields(array $row) {
-    return [
-        'name' => (string) $row['vendor_template_name'],
-        'description' => (string) $row['vendor_template_description'],
-        'phone_country_code' => (string) $row['vendor_template_phone_country_code'],
-        'phone' => (string) $row['vendor_template_phone'],
-        'extension' => (string) $row['vendor_template_extension'],
-        'hours' => (string) $row['vendor_template_hours'],
-        'sla' => (string) $row['vendor_template_sla'],
-        'email' => (string) $row['vendor_template_email'],
-        'website' => (string) $row['vendor_template_website'],
-        'account_number' => (string) $row['vendor_template_account_number'],
-        'code' => (string) $row['vendor_template_code'],
-        'contact_name' => (string) $row['vendor_template_contact_name'],
-        'notes' => (string) $row['vendor_template_notes'],
-    ];
+    $fields = [];
+    foreach (vendorTemplateColumns() as $pairs) {
+        foreach ($pairs as [$template_column]) {
+            $fields[substr($template_column, strlen('vendor_template_'))] = (string) ($row[$template_column] ?? '');
+        }
+    }
+    return $fields;
 }
 
 /* Save a template's fields (vendorTemplateFields()) - a new one with $vendor_template_id 0. Its id. */
@@ -305,14 +327,14 @@ function vendorTemplatePhoneHtml($phone, $country_code, $extension) {
 /* ---------------------------------------------------------------- in step */
 
 /** The fields a vendor keeps in step with its template. Its account number, PIN and account manager are its client's own. */
-const VENDOR_TEMPLATE_SHARED = ['name', 'description', 'phone', 'hours', 'sla', 'email', 'website', 'notes'];
+const VENDOR_TEMPLATE_SHARED = ['name', 'description', 'phone', 'hours', 'sla', 'email', 'website', 'status_page', 'portal', 'notes'];
 
 /*
  * A field of a row as it compares - $side 'template' for a template's
  * columns, 'vendor' for a vendor's. Text by its words, whatever the case and
- * spacing; the email by its address; the site without its scheme, www or a
- * trailing slash; notes by their lines; the support line as [country code,
- * number, extension] digits.
+ * spacing; the email by its address; the site, status page and portal
+ * without their scheme, www or a trailing slash; notes by their lines; the
+ * support line as [country code, number, extension] digits.
  */
 function vendorTemplateCompareValue($key, array $row, $side) {
     $index = $side === 'template' ? 0 : 1;
@@ -326,6 +348,8 @@ function vendorTemplateCompareValue($key, array $row, $side) {
                 return preg_replace('/[^0-9]/', '', $value);
             }, $values);
         case 'website':
+        case 'status_page':
+        case 'portal':
             return mb_strtolower(rtrim(preg_replace(['#^[a-z][a-z0-9+.-]*://#i', '#^www\.#i'], '', $values[0]), '/'));
         case 'notes':
             return trim(preg_replace("/[ \t]+\n/", "\n", str_replace(["\r\n", "\r"], "\n", $values[0])));
@@ -386,6 +410,10 @@ function vendorTemplateValueHtml($key, array $row, $side) {
         return vendorTemplatePhoneHtml($values[1], $values[0], $values[2]);
     }
     $value = trim((string) ($row[$columns[0][$index]] ?? ''));
+    if ($value !== '' && in_array($key, ['website', 'status_page', 'portal'], true)) {
+        $url = vendorWebsiteUrl($value);
+        return $url !== '' ? '<a href="' . escapeHtml($url) . '" target="_blank" rel="noopener noreferrer">' . escapeHtml(vendorWebsiteLabel($value)) . '</a>' : escapeHtml($value);
+    }
     return $value === '' ? '' : ($key === 'notes' ? '<span style="white-space: pre-wrap;">' . escapeHtml($value) . '</span>' : escapeHtml($value));
 }
 

@@ -26,6 +26,8 @@ if ($from_vendor_id) {
             'sla' => $from_vendor['vendor_sla'],
             'email' => $from_vendor['vendor_email'],
             'website' => $from_vendor['vendor_website'],
+            'status_page' => $from_vendor['vendor_status_page'],
+            'portal' => $from_vendor['vendor_portal'],
             'notes' => $from_vendor['vendor_notes'],
         ];
     }

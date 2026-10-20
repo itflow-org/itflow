@@ -2,7 +2,8 @@
 
 /*
  * Edit a vendor template - the fields are vendor_template_form.php, with
- * the fields ticked changed on the vendors made from it too.
+ * the vendors made from it following what changes, where they still said
+ * what it did (vendorTemplateFollow()).
  */
 
 require_once '../../includes/modal_header.php';

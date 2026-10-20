@@ -8,7 +8,8 @@
  * (functions/vendor.php) reads.
  *
  * Tabs: Details (name, star, what they are, tags, template), Support (the
- * number to ring, hours, SLA, support email and site), Account (the account
+ * number to ring, hours, SLA, support email and site, the status page and
+ * the portal cases are opened in), Account (the account
  * number and PIN they ask for, the account manager) and Notes. A new vendor
  * can start from a template, which fills every field in.
  *
@@ -185,12 +186,28 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
             </div>
         </div>
         <div class="col-12">
-            <label class="form-label">Support site or portal</label>
+            <label class="form-label">Support site</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                 <input type="text" class="form-control" name="website" placeholder="support.vendor.com" maxlength="200" value="<?= $vendor_website ?>">
             </div>
-            <div class="form-text">Link the portal login itself from the vendor's Logins tab.</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Status page</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-heartbeat"></i></span>
+                <input type="text" class="form-control" name="status_page" placeholder="status.vendor.com" maxlength="200" value="<?= $vendor_status_page ?>">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Support portal</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-door-open"></i></span>
+                <input type="text" class="form-control" name="portal" placeholder="Where cases are opened" maxlength="200" value="<?= $vendor_portal ?>">
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="form-text mt-0">Where they post outages, and where you sign in to open a case - link the login itself from the vendor's Logins tab.</div>
         </div>
     </div>
 </div>
@@ -302,10 +319,11 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
             if (!fields) {
                 return;
             }
-            ['name', 'description', 'account_number', 'code', 'contact_name', 'email', 'website', 'hours', 'sla', 'notes', 'extension'].forEach(function (name) {
+            ['name', 'description', 'account_number', 'code', 'contact_name', 'contact_email', 'email', 'website', 'status_page', 'portal', 'hours', 'sla', 'notes', 'extension'].forEach(function (name) {
                 setField(name, fields[name]);
             });
             setPhone('phone', fields.phone_country_code, fields.phone);
+            setPhone('contact_phone', fields.contact_phone_country_code, fields.contact_phone);
         });
     });
 </script>

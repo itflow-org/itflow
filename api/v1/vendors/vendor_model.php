@@ -98,6 +98,22 @@ if (isset($_POST['vendor_website'])) {
     $website = '';
 }
 
+if (isset($_POST['vendor_status_page'])) {
+    $status_page = preg_replace("(^https?://)", "", escapeSql($_POST['vendor_status_page']));
+} elseif ($vendor_row) {
+    $status_page = mysqli_real_escape_string($mysqli, (string) $vendor_row['vendor_status_page']);
+} else {
+    $status_page = '';
+}
+
+if (isset($_POST['vendor_portal'])) {
+    $portal = preg_replace("(^https?://)", "", escapeSql($_POST['vendor_portal']));
+} elseif ($vendor_row) {
+    $portal = mysqli_real_escape_string($mysqli, (string) $vendor_row['vendor_portal']);
+} else {
+    $portal = '';
+}
+
 if (isset($_POST['vendor_hours'])) {
     $hours = escapeSql($_POST['vendor_hours']);
 } elseif ($vendor_row) {

@@ -28,6 +28,8 @@ $vendor_phone = contactPhoneLink($vendor['vendor_phone'], $vendor['vendor_phone_
 $vendor_dial = vendorDialNumber($vendor['vendor_phone'], $vendor['vendor_phone_country_code']);
 $vendor_email = escapeHtml($vendor['vendor_email']);
 $vendor_website_url = vendorWebsiteUrl($vendor['vendor_website']);
+$vendor_status_url = vendorWebsiteUrl($vendor['vendor_status_page']);
+$vendor_portal_url = vendorWebsiteUrl($vendor['vendor_portal']);
 $vendor_account = escapeHtml($vendor['vendor_account_number']);
 $vendor_pin = vendorSecretHtml($vendor['vendor_code']);
 $vendor_notes = escapeHtml($vendor['vendor_notes']);
@@ -123,6 +125,18 @@ ob_start();
                 <div class="itflow-glance-item" title="Support site">
                     <i class="fas fa-fw fa-globe"></i>
                     <span class="min-w-0 text-truncate"><a href="<?= escapeHtml($vendor_website_url) ?>" target="_blank" rel="noopener"><?= escapeHtml(vendorWebsiteLabel($vendor['vendor_website'])) ?></a></span>
+                </div>
+            <?php } ?>
+            <?php if ($vendor_status_url) { ?>
+                <div class="itflow-glance-item" title="Status page">
+                    <i class="fas fa-fw fa-heartbeat"></i>
+                    <span class="min-w-0 text-truncate"><a href="<?= escapeHtml($vendor_status_url) ?>" target="_blank" rel="noopener"><?= escapeHtml(vendorWebsiteLabel($vendor['vendor_status_page'])) ?></a></span>
+                </div>
+            <?php } ?>
+            <?php if ($vendor_portal_url) { ?>
+                <div class="itflow-glance-item" title="Support portal - where cases are opened">
+                    <i class="fas fa-fw fa-door-open"></i>
+                    <span class="min-w-0 text-truncate"><a href="<?= escapeHtml($vendor_portal_url) ?>" target="_blank" rel="noopener"><?= escapeHtml(vendorWebsiteLabel($vendor['vendor_portal'])) ?></a></span>
                 </div>
             <?php } ?>
         </div>

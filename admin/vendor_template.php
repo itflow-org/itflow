@@ -2,9 +2,9 @@
 
 /*
  * One vendor template - what a vendor made from it starts with (its name,
- * what they are, the support line, hours, SLA, support email and site, any
- * account number, PIN and account manager every client shares, and its
- * notes), who made it and last changed it, and its use: the clients with a
+ * what they are, the support line, hours, SLA, support email and site, its
+ * status page and support portal, any account number, PIN and account
+ * manager every client shares, and its notes), who made it and last changed it, and its use: the clients with a
  * vendor made from it - each with its own account number and PIN, or not yet,
  * and in step with it or saying something else (views, and bringing one or
  * several in line) - the vendors made by hand that look like it (linking
@@ -89,17 +89,28 @@ $in_line_url = "$update_url?template_id=$vendor_template_id";
 
 // What a vendor from it starts with - the ones it has
 $t = $template;
-$website = vendorWebsiteLabel($t['vendor_template_website']);
+$link = function ($site) {
+    $url = vendorWebsiteUrl($site);
+    return $url !== '' ? '<a href="' . escapeHtml($url) . '" target="_blank" rel="noopener noreferrer">' . escapeHtml(vendorWebsiteLabel($site)) . '<i class="fas fa-external-link-alt small ms-1"></i></a>' : '';
+};
+// The account manager every client shares - their name, with their line and email under it
+$manager = array_filter([
+    escapeHtml(trim((string) $t['vendor_template_contact_name'])),
+    trim((string) $t['vendor_template_contact_phone']) !== '' ? '<i class="fas fa-fw fa-phone-alt text-secondary me-1"></i>' . contactPhoneLink($t['vendor_template_contact_phone'], $t['vendor_template_contact_phone_country_code']) : '',
+    trim((string) $t['vendor_template_contact_email']) !== '' ? '<i class="fas fa-fw fa-at text-secondary me-1"></i><a href="mailto:' . escapeHtml($t['vendor_template_contact_email']) . '">' . escapeHtml($t['vendor_template_contact_email']) . '</a>' : '',
+]);
 $facts = array_filter([
     'What they are' => escapeHtml((string) $t['vendor_template_description']),
     'Support line' => vendorTemplatePhoneHtml($t['vendor_template_phone'], $t['vendor_template_phone_country_code'], $t['vendor_template_extension']),
     'Support hours' => escapeHtml((string) $t['vendor_template_hours']),
     'SLA' => escapeHtml((string) $t['vendor_template_sla']),
     'Support email' => trim((string) $t['vendor_template_email']) !== '' ? '<a href="mailto:' . escapeHtml($t['vendor_template_email']) . '">' . escapeHtml($t['vendor_template_email']) . '</a>' : '',
-    'Support site' => $website !== '' ? '<a href="' . escapeHtml(vendorWebsiteUrl($t['vendor_template_website'])) . '" target="_blank" rel="noopener noreferrer">' . escapeHtml($website) . '<i class="fas fa-external-link-alt small ms-1"></i></a>' : '',
+    'Support site' => $link($t['vendor_template_website']),
+    'Status page' => $link($t['vendor_template_status_page']),
+    'Support portal' => $link($t['vendor_template_portal']),
     'Account number' => escapeHtml(trim((string) $t['vendor_template_account_number'])),
     'PIN' => vendorSecretHtml($t['vendor_template_code']),
-    'Account manager' => escapeHtml(trim((string) $t['vendor_template_contact_name'])),
+    'Account manager' => $manager ? '<div>' . implode('</div><div>', $manager) . '</div>' : '',
 ], function ($value) {
     return trim($value) !== '';
 });
@@ -149,6 +160,7 @@ foreach (vendorTemplateFieldLabels() as $field) {
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $required_url ?>"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who should have it</a>
                     <a class="dropdown-item" href="post.php?copy_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
+                    <a class="dropdown-item" href="post.php?export_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow - without account numbers or PINs"><i class="fas fa-fw fa-file-download me-2"></i>Export</a>
                     <?php if ($archived) { ?>
                         <a class="dropdown-item" href="post.php?restore_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo me-2"></i>Restore</a>
                     <?php } else { ?>
@@ -188,8 +200,8 @@ foreach (vendorTemplateFieldLabels() as $field) {
                         <?php } ?>
                     </dd>
                 </dl>
-                <?php if (!isset($facts['Support line']) && !isset($facts['Support site']) && !isset($facts['Support email'])) { ?>
-                    <div class="small text-warning-emphasis mt-3"><i class="fas fa-fw fa-exclamation-triangle me-1"></i>No way to reach their support yet - give it their support line, email or site, so every client's vendor has it.</div>
+                <?php if (!isset($facts['Support line']) && !isset($facts['Support site']) && !isset($facts['Support email']) && !isset($facts['Support portal'])) { ?>
+                    <div class="small text-warning-emphasis mt-3"><i class="fas fa-fw fa-exclamation-triangle me-1"></i>No way to reach their support yet - give it their support line, email, site or portal, so every client's vendor has it.</div>
                 <?php } ?>
             </div>
         </div>

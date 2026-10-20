@@ -111,6 +111,8 @@ function getExportColumns($export_type) {
             'vendor_extension'      => ['label' => 'Extension', 'default' => false],
             'vendor_email'          => ['label' => 'Support Email', 'weight' => 2],
             'vendor_website'        => ['label' => 'Website', 'weight' => 2],
+            'vendor_status_page'    => ['label' => 'Status Page', 'weight' => 2, 'default' => false],
+            'vendor_portal'         => ['label' => 'Support Portal', 'weight' => 2, 'default' => false],
             'vendor_hours'          => ['label' => 'Hours'],
             'vendor_sla'            => ['label' => 'SLA', 'default' => false],
             'vendor_account_number' => ['label' => 'Account Number'],

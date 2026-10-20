@@ -3,8 +3,9 @@
 /*
  * Vendor templates (Admin > Vendor Templates) - making, changing (the
  * vendors made from it that still said what it did changing with it),
- * copying, archiving, restoring and deleting them, and saying who should have
- * one. The work is in functions/vendor_template.php; a vendor is made from
+ * copying, archiving, restoring and deleting them, saying who should have
+ * one, and taking them to and from a file (functions/vendor_template_transfer.php).
+ * The work is in functions/vendor_template.php; a vendor is made from
  * one by add_vendor, add_vendor_from_template and
  * add_vendor_template_to_clients, and brought in line with one, linked to one
  * or unlinked by update_vendors_from_template, link_vendors_to_template and
@@ -150,5 +151,70 @@ if (isset($_POST['save_vendor_template_required'])) {
     flashAlert("<strong>" . escapeHtml($row['vendor_template_name']) . "</strong> is " . escapeHtml($said));
 
     redirect();
+
+}
+
+if (isset($_POST['export_vendor_templates']) || isset($_GET['export_vendor_template'])) {
+
+    // A file of templates to import into another ITFlow - every current one, the ones picked, or one
+    validateCSRFToken();
+
+    if (isset($_GET['export_vendor_template'])) {
+        $row = vendorTemplateForRequest($_GET['export_vendor_template']);
+        $export = vendorTemplatesExport([intval($row['vendor_template_id'])]);
+    } else {
+        $export = vendorTemplatesExport((array) ($_POST['vendor_template_ids'] ?? []), !empty($_POST['archived']), !empty($_POST['manager']));
+    }
+    if (!$export['templates']) {
+        flashAlert('There are no vendor templates to export.', 'error');
+        redirect();
+    }
+
+    $count = count($export['templates']);
+    logAudit("Vendor Template", "Export", "$session_name exported $count vendor template" . ($count === 1 ? ' ' . escapeSql($export['templates'][0]['name']) : 's')
+        . (!empty($_POST['manager']) ? ' with their account managers' : ''));
+
+    header('Content-Type: application/json; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . vendorTemplatesExportFileName($export) . '"');
+    header('Cache-Control: no-store');
+    echo json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    exit;
+
+}
+
+if (isset($_POST['import_vendor_templates'])) {
+
+    // Templates from a file exported by ITFlow
+    validateCSRFToken();
+
+    $file = $_FILES['file'] ?? null;
+    if ($file && in_array($file['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+        flashAlert('That file is bigger than this server takes in an upload - export a few at a time.', 'error');
+        redirect('vendor_templates.php');
+    }
+    if (!$file || $file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) {
+        flashAlert('Pick the file to import.', 'error');
+        redirect('vendor_templates.php');
+    }
+    if ($file['size'] > 10 * 1024 * 1024) {
+        flashAlert('That file is too big to be vendor templates.', 'error');
+        redirect('vendor_templates.php');
+    }
+    $templates = vendorTemplatesImportRead(file_get_contents($file['tmp_name']), $import_error);
+    if ($templates === null) {
+        flashAlert(escapeHtml($import_error), 'error');
+        redirect('vendor_templates.php');
+    }
+    $existing = in_array($_POST['existing'] ?? '', ['skip', 'copy', 'replace'], true) ? $_POST['existing'] : 'skip';
+    $counts = vendorTemplatesImport($templates, $existing);
+    vendorTemplatesImportLogFollowed($counts);
+    $followed = vendorTemplatesImportFollowedCount($counts);
+
+    logAudit("Vendor Template", "Import", "$session_name imported vendor templates from " . escapeSql(mb_substr((string) $file['name'], 0, 100)) . " - {$counts['added']} added, {$counts['replaced']} replaced, {$counts['skipped']} skipped"
+        . ($followed ? ", $followed vendors changed with them" : ''));
+
+    flashAlert(vendorTemplatesImportSummary($counts), $counts['added'] || $counts['replaced'] ? 'success' : 'info');
+
+    redirect('vendor_templates.php');
 
 }

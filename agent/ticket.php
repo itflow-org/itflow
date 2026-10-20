@@ -1562,6 +1562,11 @@ if (isset($_GET['ticket_id'])) {
                                 <?php if ($vendor_website_url) { ?>
                                     <div class="mt-1 text-truncate"><i class="fa fa-fw fa-globe text-secondary me-2"></i><a href="<?= escapeHtml($vendor_website_url) ?>" target="_blank" rel="noopener noreferrer" title="<?= $vendor_website ?>"><?= escapeHtml(vendorWebsiteLabel($ticket['vendor_website'])) ?></a></div>
                                 <?php } ?>
+                                <?php $vendor_status_url = vendorWebsiteUrl($ticket['vendor_status_page']);
+                                if ($vendor_status_url) { ?>
+                                    <!-- Whether it is them - their outages -->
+                                    <div class="mt-1 text-truncate"><i class="fa fa-fw fa-heartbeat text-secondary me-2"></i><a href="<?= escapeHtml($vendor_status_url) ?>" target="_blank" rel="noopener noreferrer" title="Their status page - <?= escapeHtml(vendorWebsiteLabel($ticket['vendor_status_page'])) ?>">Status page</a></div>
+                                <?php } ?>
                             <?php } ?>
 
                             <?php if ($project_id) { ?>

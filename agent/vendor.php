@@ -51,6 +51,8 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
     $vendor_email = escapeHtml($vendor['vendor_email']);
     $vendor_website_url = vendorWebsiteUrl($vendor['vendor_website']);
     $vendor_website_label = escapeHtml(vendorWebsiteLabel($vendor['vendor_website']));
+    $vendor_status_url = vendorWebsiteUrl($vendor['vendor_status_page']);
+    $vendor_portal_url = vendorWebsiteUrl($vendor['vendor_portal']);
     $vendor_hours = escapeHtml($vendor['vendor_hours']);
     $vendor_sla = escapeHtml($vendor['vendor_sla']);
     $vendor_account = escapeHtml($vendor['vendor_account_number']);
@@ -277,6 +279,9 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                 <?php if ($vendor_website_url) { ?>
                     <a class="btn btn-outline-primary" href="<?= escapeHtml($vendor_website_url) ?>" target="_blank" rel="noopener"><i class="fas fa-external-link-alt me-2"></i>Support site</a>
                 <?php } ?>
+                <?php if ($vendor_status_url) { ?>
+                    <a class="btn btn-outline-primary" href="<?= escapeHtml($vendor_status_url) ?>" target="_blank" rel="noopener" title="Whether they have an outage" data-vendor-status-page><i class="fas fa-heartbeat me-2"></i>Status page</a>
+                <?php } ?>
                 <?php if ($can_new) { ?>
                     <div class="dropdown">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-plus me-2"></i>New</button>
@@ -419,6 +424,14 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                         <?php if ($vendor_website_url) { ?>
                             <dt>Site</dt>
                             <dd class="text-break"><a href="<?= escapeHtml($vendor_website_url) ?>" target="_blank" rel="noopener"><?= $vendor_website_label ?><i class="fas fa-external-link-alt ms-1 small"></i></a></dd>
+                        <?php } ?>
+                        <?php if ($vendor_status_url) { ?>
+                            <dt>Status</dt>
+                            <dd class="text-break"><a href="<?= escapeHtml($vendor_status_url) ?>" target="_blank" rel="noopener"><?= escapeHtml(vendorWebsiteLabel($vendor['vendor_status_page'])) ?><i class="fas fa-external-link-alt ms-1 small"></i></a></dd>
+                        <?php } ?>
+                        <?php if ($vendor_portal_url) { ?>
+                            <dt>Portal</dt>
+                            <dd class="text-break"><a href="<?= escapeHtml($vendor_portal_url) ?>" target="_blank" rel="noopener" title="Support portal - where cases are opened"><?= escapeHtml(vendorWebsiteLabel($vendor['vendor_portal'])) ?><i class="fas fa-external-link-alt ms-1 small"></i></a></dd>
                         <?php } ?>
                     </dl>
                 </div>

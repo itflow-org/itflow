@@ -43,8 +43,8 @@ foreach ($starter_content_status as $pack_status) {
             Adding never overwrites or deletes anything. Anything already present under the same name is
             skipped, so a pack can be added again later to pick up entries you removed by mistake, and
             adding twice never produces duplicates. Everything added is editable and deletable
-            afterwards like any other record. Ticket templates, canned responses, document templates and license templates added
-            from an earlier version can be brought up to this one with Update - that one does replace what they hold.
+            afterwards like any other record. Ticket templates, canned responses, vendor templates, document templates and license
+            templates added from an earlier version can be brought up to this one with Update - that one does replace what they hold.
         </p>
 
         <div class="table-responsive">

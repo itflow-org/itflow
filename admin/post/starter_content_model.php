@@ -59,7 +59,11 @@ function starterContentPacks() {
         'vendor_templates' => [
             'label' => 'Vendor Templates',
             'icon' => 'fa-building',
-            'description' => 'Vendors most clients end up with. Account numbers and support numbers are left blank.',
+            'description' => "Vendors most clients end up with - each with its support site, status page and the portal cases are opened in, and what their support asks for. Phone numbers, hours and SLAs differ by region and contract, and account numbers and PINs by account, so they are yours to add.",
+            'update' => [
+                'button' => 'update_starter_vendor_templates',
+                'confirm' => 'Bring the %d starter vendor templates you have up to date? What they are, their support site, status page, portal and notes are replaced with this version - changes you made to those are lost, and the vendors made from them that still said what they did change with them. Their support line, hours, SLA, email, account details and who should have them stay as they are.',
+            ],
         ],
         'document_templates' => [
             'label' => 'Document Templates',
@@ -390,27 +394,32 @@ function starterLoadProjectTemplates($mysqli, $dry_run = false) {
 
 // ------------------------------
 // starterLoadVendorTemplates
+// Through the vendor template import. One whose name a template here already
+// has, archived or not, is left alone.
 // ------------------------------
 function starterLoadVendorTemplates($mysqli, $dry_run = false) {
-    $existing = starterExistingNames($mysqli, 'vendor_templates', 'vendor_template_name');
-    $added = 0;
-
-    foreach (starterContentVendorTemplates() as $vendor_template) {
-        if (isset($existing[mb_strtolower($vendor_template[0])])) {
-            continue;
-        }
-        $added++;
-        if ($dry_run) {
-            continue;
-        }
-        starterInsert($mysqli, 'vendor_templates', [
-            'vendor_template_name' => $vendor_template[0],
-            'vendor_template_description' => $vendor_template[1],
-            'vendor_template_website' => $vendor_template[2],
-        ]);
+    $templates = vendorTemplatesImportRead(['format' => VENDOR_TEMPLATE_FILE_FORMAT, 'version' => VENDOR_TEMPLATE_FILE_VERSION, 'templates' => starterContentVendorTemplates()]);
+    if ($dry_run) {
+        $existing = starterExistingNames($mysqli, 'vendor_templates', 'vendor_template_name');
+        return count(array_filter($templates, function ($template) use ($existing) {
+            return !isset($existing[mb_strtolower($template['name'])]);
+        }));
     }
+    return vendorTemplatesImport($templates, 'skip')['added'];
+}
 
-    return $added;
+// ------------------------------
+// starterUpdateVendorTemplates
+// The starter vendor templates already here, brought up to this library's
+// version - only what this library says: what they are, their support site,
+// status page, portal and notes. Their support line, hours, SLA, email,
+// account details and who should have them stay; the vendors made from them
+// that still said what they did change with them (vendorTemplateFollow()).
+// Returns the import's counts (vendorTemplatesImport()).
+// ------------------------------
+function starterUpdateVendorTemplates() {
+    $templates = vendorTemplatesImportRead(['format' => VENDOR_TEMPLATE_FILE_FORMAT, 'version' => VENDOR_TEMPLATE_FILE_VERSION, 'templates' => starterContentVendorTemplates()]);
+    return vendorTemplatesImport($templates, 'replace', true, ['description', 'website', 'status_page', 'portal', 'notes']);
 }
 
 // ------------------------------
@@ -1446,50 +1455,91 @@ function starterContentProjectTemplates() {
 
 // ------------------------------
 // starterContentVendorTemplates
-// name, description, website. Phone and account fields differ per region and
-// per account, so they are left for whoever adds the vendor to a client.
+// In the vendor templates file's shape (functions/vendor_template_transfer.php):
+// name, what they are, their support site, status page and the portal cases
+// are opened in where they have one, and what support asks for. Phone
+// numbers, hours and SLAs differ by region and by contract, and account
+// numbers and PINs per account, so they are left for whoever adds the vendor
+// to a client.
 // ------------------------------
 function starterContentVendorTemplates() {
 
-    $vendor_templates = [
-        ['Microsoft', 'Cloud, productivity and operating system vendor', 'https://www.microsoft.com'],
-        ['Google', 'Workspace, cloud and domain services', 'https://workspace.google.com'],
-        ['Amazon Web Services', 'Cloud infrastructure and hosting', 'https://aws.amazon.com'],
-        ['Dell', 'Workstation, laptop and server hardware', 'https://www.dell.com'],
-        ['HP', 'Workstation, laptop and printer hardware', 'https://www.hp.com'],
-        ['Lenovo', 'Workstation and laptop hardware', 'https://www.lenovo.com'],
-        ['Supermicro', 'Server and storage hardware', 'https://www.supermicro.com'],
-        ['Apple', 'Workstation, laptop and mobile hardware', 'https://www.apple.com'],
-        ['Synology', 'Network attached storage and backup appliances', 'https://www.synology.com'],
-        ['QNAP', 'Network attached storage appliances', 'https://www.qnap.com'],
-        ['Ubiquiti', 'Networking, wireless and surveillance hardware', 'https://www.ui.com'],
-        ['MikroTik', 'Routing and switching hardware', 'https://mikrotik.com'],
-        ['Cisco', 'Networking, wireless and collaboration hardware', 'https://www.cisco.com'],
-        ['Fortinet', 'Firewall and network security appliances', 'https://www.fortinet.com'],
-        ['SonicWall', 'Firewall and network security appliances', 'https://www.sonicwall.com'],
-        ['APC by Schneider Electric', 'Uninterruptible power supplies and power distribution', 'https://www.apc.com'],
-        ['Brother', 'Printer and scanner hardware', 'https://www.brother.com'],
-        ['Ingram Micro', 'Hardware and software distribution', 'https://www.ingrammicro.com'],
-        ['TD SYNNEX', 'Hardware and software distribution', 'https://www.tdsynnex.com'],
-        ['Veeam', 'Backup, replication and recovery software', 'https://www.veeam.com'],
-        ['Acronis', 'Backup and cyber protection software', 'https://www.acronis.com'],
-        ['Backblaze', 'Cloud backup and object storage', 'https://www.backblaze.com'],
-        ['Wasabi', 'Cloud object storage', 'https://wasabi.com'],
-        ['Bitdefender', 'Endpoint protection and security software', 'https://www.bitdefender.com'],
-        ['ESET', 'Endpoint protection and security software', 'https://www.eset.com'],
-        ['Proofpoint', 'Email security and filtering', 'https://www.proofpoint.com'],
-        ['Bitwarden', 'Password management', 'https://bitwarden.com'],
-        ['Cloudflare', 'DNS, content delivery and security', 'https://www.cloudflare.com'],
-        ['Namecheap', 'Domain registration and hosting', 'https://www.namecheap.com'],
-        ['GoDaddy', 'Domain registration and hosting', 'https://www.godaddy.com'],
-        ['Adobe', 'Creative and document software', 'https://www.adobe.com'],
-        ['Intuit', 'Accounting and payroll software', 'https://www.intuit.com'],
-        ['Zoom', 'Video conferencing and collaboration', 'https://zoom.us'],
-        ['RingCentral', 'Hosted voice and unified communications', 'https://www.ringcentral.com'],
-        ['Stripe', 'Card and online payment processing', 'https://stripe.com'],
-    ];
+    $template = function ($name, $description, $website, $status_page = '', $portal = '', $notes = '') {
+        return ['name' => $name, 'description' => $description, 'website' => $website, 'status_page' => $status_page, 'portal' => $portal, 'notes' => $notes];
+    };
 
-    return $vendor_templates;
+    return [
+        $template('Microsoft', 'Cloud, productivity and operating system vendor', 'support.microsoft.com', 'status.cloud.microsoft', 'admin.microsoft.com',
+            "Open a service request from the Microsoft 365 admin center (Support > Help & support), signed in as an admin of the client's tenant - or from Partner Center as their partner.\n\nHave the tenant's domain and the users affected ready. Service health in the admin center shows what Microsoft already knows about; the status page is for when the admin center itself is down."),
+        $template('Google', 'Workspace, cloud and domain services', 'support.google.com/a', 'www.google.com/appsstatus/dashboard', 'admin.google.com',
+            "Contact support from the Admin console (Help > Contact support), signed in as a super admin of the client's Workspace.\n\nHave the primary domain and the customer ID ready - Account > Account settings in the Admin console."),
+        $template('Amazon Web Services', 'Cloud infrastructure and hosting', 'aws.amazon.com/premiumsupport', 'health.aws.amazon.com/health/status', 'console.aws.amazon.com/support',
+            "Open a case from the Support Center in the console of the client's AWS account. How fast they answer depends on its support plan - Basic covers account and billing questions only.\n\nHave the account ID and the region ready."),
+        $template('Dell', 'Workstation, laptop and server hardware', 'www.dell.com/support', '', 'techdirect.dell.com',
+            "Have the service tag ready - it decides the warranty and what support covers. Partners open cases and dispatch parts from TechDirect."),
+        $template('HP', 'Workstation, laptop and printer hardware', 'support.hp.com', '', '',
+            "Have the serial number and product number ready - on the label, or from HP Support Assistant."),
+        $template('Lenovo', 'Workstation and laptop hardware', 'support.lenovo.com', '', '',
+            "Have the machine type and serial number ready - on the label, or from Lenovo Vantage."),
+        $template('Supermicro', 'Server and storage hardware', 'www.supermicro.com', '', '',
+            "Have the system or motherboard serial number ready, and the BMC and BIOS versions."),
+        $template('Apple', 'Workstation, laptop and mobile hardware', 'support.apple.com', 'www.apple.com/support/systemstatus', '',
+            "Have the device's serial number ready. The system status page covers iCloud, the App Store and Apple's other services."),
+        $template('Synology', 'Network attached storage and backup appliances', 'www.synology.com', '', 'account.synology.com',
+            "Open a ticket from the Synology Account the device is registered to. Have the serial number and DSM version ready - they usually ask for the debug logs from Support Center on the device."),
+        $template('QNAP', 'Network attached storage appliances', 'www.qnap.com', '', '',
+            "Have the serial number and QTS or QuTS version ready."),
+        $template('Ubiquiti', 'Networking, wireless and surveillance hardware', 'help.ui.com', 'status.ui.com', '',
+            "Support is by chat and ticket from the help center, signed in with the UI account the devices are on. Have the device's MAC address and firmware version ready."),
+        $template('MikroTik', 'Routing and switching hardware', 'help.mikrotik.com', '', '',
+            "Attach a supout.rif from the device to the ticket - Make Supout.rif in WinBox, or /system sup-output - and say which RouterOS version it runs."),
+        $template('Cisco', 'Networking, wireless and collaboration hardware', 'www.cisco.com', '', '',
+            "A case needs a support contract on the device - have the serial number and contract number ready."),
+        $template('Fortinet', 'Firewall and network security appliances', 'www.fortinet.com', '', 'support.fortinet.com',
+            "Devices are registered, and tickets opened, in FortiCare. Have the serial number ready."),
+        $template('SonicWall', 'Firewall and network security appliances', 'www.sonicwall.com/support', '', 'www.mysonicwall.com',
+            "Appliances are registered, and cases opened, in MySonicWall. Have the serial number ready."),
+        $template('APC by Schneider Electric', 'Uninterruptible power supplies and power distribution', 'www.apc.com', '', '',
+            "Have the model and serial number ready, and when the batteries were last replaced."),
+        $template('Brother', 'Printer and scanner hardware', 'support.brother.com', '', '',
+            "Have the model and serial number ready."),
+        $template('Ingram Micro', 'Hardware and software distribution', 'www.ingrammicro.com', '', '',
+            "Your reseller account - quotes, orders and returns go through it and your account rep."),
+        $template('TD SYNNEX', 'Hardware and software distribution', 'www.tdsynnex.com', '', '',
+            "Your reseller account - quotes, orders and returns go through it and your account rep."),
+        $template('Veeam', 'Backup, replication and recovery software', 'www.veeam.com/support.html', '', 'my.veeam.com',
+            "Open a case in My Veeam with the license or support ID, and attach the logs the console exports for support."),
+        $template('Acronis', 'Backup and cyber protection software', 'www.acronis.com', '', '',
+            "Have the account or tenant name ready, and the agent version."),
+        $template('Backblaze', 'Cloud backup and object storage', 'help.backblaze.com', 'status.backblaze.com', 'secure.backblaze.com',
+            "Have the account's email address ready, and the bucket or computer the case is about."),
+        $template('Wasabi', 'Cloud object storage', 'docs.wasabi.com', '', 'console.wasabisys.com',
+            "Have the account, the bucket and its region ready."),
+        $template('Bitdefender', 'Endpoint protection and security software', 'www.bitdefender.com', '', '',
+            "Have the GravityZone company the client is under ready, and the endpoint's name."),
+        $template('ESET', 'Endpoint protection and security software', 'www.eset.com', '', '',
+            "Have the license or ESET business account ready, and the product version."),
+        $template('Proofpoint', 'Email security and filtering', 'www.proofpoint.com', '', '',
+            "Have the organization or domain ready, and the message ID of the email the case is about."),
+        $template('Bitwarden', 'Password management', 'bitwarden.com/help', 'status.bitwarden.com', 'vault.bitwarden.com',
+            "Have the organization's name and the email address of the account the case is about ready."),
+        $template('Cloudflare', 'DNS, content delivery and security', 'developers.cloudflare.com', 'www.cloudflarestatus.com', 'dash.cloudflare.com',
+            "Cases are opened from the dashboard of the client's Cloudflare account - what support is offered depends on its plan. Have the domain ready."),
+        $template('Namecheap', 'Domain registration and hosting', 'www.namecheap.com/support', 'www.namecheap.com/status-updates', '',
+            "Have the domain and the account's username ready."),
+        $template('GoDaddy', 'Domain registration and hosting', 'www.godaddy.com/help', '', '',
+            "Have the customer number and support PIN ready - support asks for them before it helps."),
+        $template('Adobe', 'Creative and document software', 'helpx.adobe.com', 'status.adobe.com', 'adminconsole.adobe.com',
+            "Admins open cases from the Admin Console (Support). Have the organization and the user's email address ready."),
+        $template('Intuit', 'Accounting and payroll software', 'www.intuit.com', '', '',
+            "Have the product, the company file or account, and the license number for desktop products ready."),
+        $template('Zoom', 'Video conferencing and collaboration', 'support.zoom.com', 'status.zoom.us', '',
+            "Have the account number ready, and the meeting ID the case is about."),
+        $template('RingCentral', 'Hosted voice and unified communications', 'support.ringcentral.com', '', 'service.ringcentral.com',
+            "Have the account's main number ready - admins manage it in the admin portal."),
+        $template('Stripe', 'Card and online payment processing', 'support.stripe.com', 'status.stripe.com', 'dashboard.stripe.com',
+            "Support is from the Dashboard of the client's Stripe account. Have the account ID (acct_...) ready, and the payment or payout the case is about."),
+    ];
 
 }
 
@@ -1916,7 +1966,7 @@ function starterContentLicenseTemplates() {
 
     $vendors = [];
     foreach (starterContentVendorTemplates() as $vendor) {
-        $vendors[$vendor[0]] = ['name' => $vendor[0], 'description' => $vendor[1], 'website' => $vendor[2]];
+        $vendors[$vendor['name']] = $vendor;
     }
     $template = function ($name, $description, $type, $license_type, $term, $vendor, $product, array $notes) use ($vendors) {
         return [

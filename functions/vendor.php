@@ -121,7 +121,11 @@ function vendorWebsiteUrl($website) {
     if ($website === '') {
         return '';
     }
-    return preg_match('#^[a-z][a-z0-9+.-]*://#i', $website) ? $website : "https://$website";
+    // Only a web address is a link - one saved with any other scheme isn't
+    if (preg_match('#^([a-z][a-z0-9+.-]*)://#i', $website, $scheme)) {
+        return in_array(strtolower($scheme[1]), ['http', 'https'], true) ? $website : '';
+    }
+    return "https://$website";
 }
 
 /** The website without its scheme or a trailing slash - how it reads on a page. Raw in, raw out. */
@@ -173,7 +177,8 @@ function vendorRow($vendor_id) {
 
 /**
  * The vendor fields a New / Edit form posts, as a SQL SET list - phone
- * numbers as digits, the website without its scheme, only a template that
+ * numbers as digits, the website, status page and portal without their
+ * scheme or a trailing slash, only a template that
  * exists. Null when there is no name. Fields missing from the post are blank.
  */
 function vendorFormSet($post) {
@@ -194,7 +199,9 @@ function vendorFormSet($post) {
     if ($template_id && !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM vendor_templates WHERE vendor_template_id = $template_id"))) {
         $template_id = 0;
     }
-    $website = mb_substr(preg_replace('#^https?://#i', '', trim((string) ($post['website'] ?? ''))), 0, 200);
+    $site = function ($field) use ($post) {
+        return "'" . escapeSql(mb_substr(rtrim(preg_replace('#^https?://#i', '', trim((string) ($post[$field] ?? ''))), '/'), 0, 200)) . "'";
+    };
 
     $fields = [
         'vendor_name' => $text('name'),
@@ -209,7 +216,9 @@ function vendorFormSet($post) {
         'vendor_phone' => $digits('phone'),
         'vendor_extension' => $digits('extension'),
         'vendor_email' => $text('email'),
-        'vendor_website' => "'" . escapeSql($website) . "'",
+        'vendor_website' => $site('website'),
+        'vendor_status_page' => $site('status_page'),
+        'vendor_portal' => $site('portal'),
         'vendor_hours' => $text('hours'),
         'vendor_sla' => $text('sla'),
         'vendor_notes' => $text('notes', 0),
@@ -252,6 +261,11 @@ function vendorTemplateFormFields($template) {
         'extension' => $template['vendor_template_extension'] ?? '',
         'email' => $template['vendor_template_email'] ?? '',
         'website' => $template['vendor_template_website'] ?? '',
+        'status_page' => $template['vendor_template_status_page'] ?? '',
+        'portal' => $template['vendor_template_portal'] ?? '',
+        'contact_phone_country_code' => $template['vendor_template_contact_phone_country_code'] ?? '',
+        'contact_phone' => $template['vendor_template_contact_phone'] ?? '',
+        'contact_email' => $template['vendor_template_contact_email'] ?? '',
         'hours' => $template['vendor_template_hours'] ?? '',
         'sla' => $template['vendor_template_sla'] ?? '',
         'notes' => $template['vendor_template_notes'] ?? '',

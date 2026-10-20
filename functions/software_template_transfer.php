@@ -10,8 +10,8 @@
  * "exported_at", "templates": [...]}. Each template carries what a license
  * made from it starts with - its name, version, summary, type, license type,
  * notes, seats and renewal term - its vendor, as the vendor template it comes
- * from (its name, summary, phone, email, website, hours, SLA and notes, never
- * an account number or code), and the name of the product it is sold as. Not
+ * from (its name, summary, phone, email, website, status page, portal, hours,
+ * SLA and notes, never an account number or code), and the name of the product it is sold as. Not
  * who should have one: that is the call of the install it goes into - a new
  * one comes in required of no one, and one replaced keeps its own. Coming in,
  * a vendor template is matched by name, and made from the file when there is
@@ -22,7 +22,8 @@ const SOFTWARE_TEMPLATE_FILE_FORMAT = 'itflow-license-templates';
 const SOFTWARE_TEMPLATE_FILE_VERSION = 1;
 
 /** The vendor template fields that go in a file - its own account numbers and codes don't. */
-const SOFTWARE_TEMPLATE_FILE_VENDOR_FIELDS = ['description' => 200, 'phone_country_code' => 10, 'phone' => 200, 'extension' => 200, 'email' => 200, 'website' => 200, 'hours' => 200, 'sla' => 200, 'notes' => 0];
+const SOFTWARE_TEMPLATE_FILE_VENDOR_FIELDS = ['description' => 200, 'phone_country_code' => 10, 'phone' => 200, 'extension' => 200, 'email' => 200, 'website' => 200, 'status_page' => 200, 'portal' => 200,
+    'hours' => 200, 'sla' => 200, 'notes' => 0];
 
 /*
  * Templates as a file's contents (an array, for json_encode()) - the ones in
@@ -159,8 +160,8 @@ function softwareTemplateImportVendor(array $vendor, &$made = false) {
         if (in_array($field, ['phone_country_code', 'phone', 'extension'], true)) {
             $value = preg_replace('/[^0-9]/', '', $value);
         }
-        if ($field === 'website') {
-            $value = preg_replace('#^https?://#i', '', $value);
+        if (in_array($field, ['website', 'status_page', 'portal'], true)) {
+            $value = rtrim(preg_replace('#^https?://#i', '', $value), '/');
         }
         $set[] = "vendor_template_$field = '" . escapeSql($value) . "'";
     }

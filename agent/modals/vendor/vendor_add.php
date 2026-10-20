@@ -21,7 +21,7 @@ $vendor_form_mode = 'add';
 $vendor_id = 0;
 $vendor_name = $vendor_description = $vendor_account_number = $vendor_code = '';
 $vendor_contact_name = $vendor_contact_phone_country_code = $vendor_contact_phone = $vendor_contact_email = '';
-$vendor_phone_country_code = $vendor_phone = $vendor_extension = $vendor_email = $vendor_website = '';
+$vendor_phone_country_code = $vendor_phone = $vendor_extension = $vendor_email = $vendor_website = $vendor_status_page = $vendor_portal = '';
 $vendor_hours = $vendor_sla = $vendor_notes = '';
 $vendor_favorite = 0;
 $vendor_template_id = 0;

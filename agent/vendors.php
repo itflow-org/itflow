@@ -81,7 +81,7 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS vendors.vendor_id, vendor_name, vendor_description, vendor_account_number, vendor_code, vendor_contact_name,
         vendor_contact_phone, vendor_contact_phone_country_code, vendor_contact_email, vendor_phone, vendor_phone_country_code, vendor_extension,
-        vendor_email, vendor_website, vendor_hours, vendor_sla, vendor_favorite, vendor_archived_at, vendor_client_id, vendor_template_name,
+        vendor_email, vendor_website, vendor_status_page, vendor_hours, vendor_sla, vendor_favorite, vendor_archived_at, vendor_client_id, vendor_template_name,
         client_id, client_name
     FROM vendors
     LEFT JOIN clients ON client_id = vendor_client_id
@@ -89,7 +89,7 @@ $sql = mysqli_query(
     WHERE $archive_query
     $tag_query
     AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' OR vendor_website LIKE '%$q%'
-        OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_contact_email LIKE '%$q%' OR vendor_notes LIKE '%$q%'
+        OR vendor_status_page LIKE '%$q%' OR vendor_portal LIKE '%$q%' OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_contact_email LIKE '%$q%' OR vendor_notes LIKE '%$q%'
         OR vendor_phone LIKE '%$phone_query%' OR vendor_contact_phone LIKE '%$phone_query%'" . ($view === 'clients' ? " OR client_name LIKE '%$q%'" : '') . "
         OR vendors.vendor_id IN (SELECT vendor_id FROM vendor_tags JOIN tags USING (tag_id) WHERE tag_name LIKE '%$q%'))
     $client_query
@@ -324,6 +324,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                     $vendor_phone_text = $row['vendor_phone'] ? escapeHtml(formatPhoneNumber($row['vendor_phone'], $row['vendor_phone_country_code'])) : '';
                     $vendor_email = escapeHtml($row['vendor_email']);
                     $vendor_website_url = vendorWebsiteUrl($row['vendor_website']);
+                    $vendor_status_url = vendorWebsiteUrl($row['vendor_status_page']);
                     $vendor_support_when = escapeHtml(implode(' · ', array_filter([$row['vendor_hours'], $row['vendor_sla']])));
                     $vendor_account = escapeHtml($row['vendor_account_number']);
                     $vendor_pin = vendorSecretHtml($row['vendor_code']);
@@ -367,13 +368,14 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                                 <div class="text-nowrap"><?= $vendor_phone ?><button type="button" class="itflow-copy clipboardjs" title="Copy phone number" data-clipboard-text="<?= $vendor_phone_text ?>"><i class="far fa-copy"></i></button></div>
                             <?php } ?>
                             <?php if ($vendor_support_when) { ?><div class="small text-body-secondary"><i class="far fa-clock me-1"></i><?= $vendor_support_when ?></div><?php } ?>
-                            <?php if ($vendor_email || $vendor_website_url) { ?>
+                            <?php if ($vendor_email || $vendor_website_url || $vendor_status_url) { ?>
                                 <div class="small d-flex align-items-center gap-2 mt-1">
                                     <?php if ($vendor_email) { ?><span class="text-truncate itflow-vendor-email"><a href="mailto:<?= $vendor_email ?>"><?= $vendor_email ?></a><button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= $vendor_email ?>"><i class="far fa-copy"></i></button></span><?php } ?>
                                     <?php if ($vendor_website_url) { ?><a class="text-body-secondary" href="<?= escapeHtml($vendor_website_url) ?>" target="_blank" rel="noopener" title="<?= escapeHtml(vendorWebsiteLabel($row['vendor_website'])) ?>"><i class="fas fa-globe"></i></a><?php } ?>
+                                    <?php if ($vendor_status_url) { ?><a class="text-body-secondary" href="<?= escapeHtml($vendor_status_url) ?>" target="_blank" rel="noopener" title="Status page - <?= escapeHtml(vendorWebsiteLabel($row['vendor_status_page'])) ?>"><i class="fas fa-heartbeat"></i></a><?php } ?>
                                 </div>
                             <?php } ?>
-                            <?php if (!$vendor_phone && !$vendor_support_when && !$vendor_email && !$vendor_website_url) { ?><span class="text-body-secondary">-</span><?php } ?>
+                            <?php if (!$vendor_phone && !$vendor_support_when && !$vendor_email && !$vendor_website_url && !$vendor_status_url) { ?><span class="text-body-secondary">-</span><?php } ?>
                         </td>
                         <td>
                             <?php if ($vendor_account) { ?>
