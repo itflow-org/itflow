@@ -163,7 +163,7 @@ mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = NULL, user_p
 mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_dismissed_at < CURDATE() - INTERVAL 90 DAY");
 
 // Clean-up mail queue
-mysqli_query($mysqli, "DELETE FROM email_queue WHERE email_queued_at < CURDATE() - INTERVAL 90 DAY");
+mysqli_query($mysqli, "DELETE FROM email_queue WHERE email_queued_at < CURDATE() - INTERVAL " . MAIL_QUEUE_KEEP_DAYS . " DAY");
 
 // Clean-up the PDFs made to go with billing emails - sent or given up on by now
 billingEmailPdfCleanup(7);

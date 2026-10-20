@@ -49,7 +49,7 @@ if (isset($_GET['reset_favicon'])) {
         unlink(dirname(__DIR__, 2) . '/uploads/favicon.ico');
     }
 
-    logAudit("Settings", "Edit", "$session_name put ITFlow's own browser tab icon back");
+    logAudit("Settings", "Edit", "$session_name put the ITFlow browser tab icon back");
 
     flashAlert("The browser tab icon is ITFlow's own again");
 
