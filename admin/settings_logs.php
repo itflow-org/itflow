@@ -76,6 +76,7 @@ $retention_field = function ($name, $forever_name, $days, $label, $help) {
 
 <form action="post.php" method="post" autocomplete="off" id="logSettingsForm" data-settings-form>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <?= settingsEnterSaves('edit_log_settings') ?>
 
     <div class="card itflow-settings-card">
         <div class="card-body">

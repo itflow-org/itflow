@@ -207,18 +207,35 @@ function settingsFields() {
         'config_trip_included' => ['page' => 'invoice', 'section' => 'Trips and mileage', 'label' => 'The trip charge covers the first', 'words' => 'trip included distance'],
         'config_trip_item_name' => ['page' => 'invoice', 'section' => 'Trips and mileage', 'label' => 'Invoice line for trips', 'words' => 'trip travel line item name'],
 
-        // Mail
-        'config_smtp_provider' => ['page' => 'mail', 'tab' => 'sending', 'section' => 'Sending', 'label' => 'Sending provider', 'words' => 'smtp outbound send email server provider'],
+        // Mail - the section is the tab it is on
+        'config_smtp_provider' => ['page' => 'mail', 'tab' => 'sending', 'section' => 'Sending', 'label' => 'Sending provider', 'kind' => 'select', 'options' => 'mail_providers',
+            'words' => 'smtp outbound send email server provider google workspace microsoft 365 office'],
         'config_smtp_host' => ['page' => 'mail', 'tab' => 'sending', 'section' => 'Sending', 'label' => 'SMTP host', 'words' => 'smtp server host'],
         'config_smtp_port' => ['page' => 'mail', 'tab' => 'sending', 'section' => 'Sending', 'label' => 'SMTP port', 'words' => 'smtp port 587 465 25'],
-        'config_smtp_username' => ['page' => 'mail', 'tab' => 'sending', 'section' => 'Sending', 'label' => 'SMTP username', 'words' => 'smtp user login'],
-        'config_imap_provider' => ['page' => 'mail', 'tab' => 'receiving', 'section' => 'Receiving', 'label' => 'Receiving provider', 'words' => 'imap inbound receive mailbox email to ticket'],
+        'config_smtp_encryption' => ['page' => 'mail', 'tab' => 'sending', 'section' => 'Sending', 'label' => 'SMTP encryption', 'kind' => 'select', 'options' => 'mail_encryption',
+            'words' => 'smtp tls ssl starttls secure'],
+        'config_smtp_username' => ['page' => 'mail', 'tab' => 'sending', 'section' => 'Sending', 'label' => 'SMTP username', 'words' => 'smtp user login sign in'],
+        'config_smtp_password' => ['page' => 'mail', 'tab' => 'sending', 'section' => 'Sending', 'label' => 'SMTP password', 'kind' => 'secret', 'words' => 'smtp password app password'],
+        'config_imap_provider' => ['page' => 'mail', 'tab' => 'receiving', 'section' => 'Receiving', 'label' => 'Receiving provider', 'kind' => 'select', 'options' => 'mail_providers',
+            'words' => 'imap inbound receive mailbox email to ticket inbox'],
         'config_imap_host' => ['page' => 'mail', 'tab' => 'receiving', 'section' => 'Receiving', 'label' => 'IMAP host', 'words' => 'imap server host'],
-        'config_mail_oauth_client_id' => ['page' => 'mail', 'tab' => 'oauth', 'section' => 'OAuth', 'label' => 'OAuth client ID', 'words' => 'oauth microsoft 365 google workspace app'],
+        'config_imap_port' => ['page' => 'mail', 'tab' => 'receiving', 'section' => 'Receiving', 'label' => 'IMAP port', 'words' => 'imap port 993 143'],
+        'config_imap_encryption' => ['page' => 'mail', 'tab' => 'receiving', 'section' => 'Receiving', 'label' => 'IMAP encryption', 'kind' => 'select', 'options' => 'mail_encryption',
+            'words' => 'imap tls ssl starttls secure'],
+        'config_imap_username' => ['page' => 'mail', 'tab' => 'receiving', 'section' => 'Receiving', 'label' => 'IMAP username', 'words' => 'imap user login mailbox address'],
+        'config_imap_password' => ['page' => 'mail', 'tab' => 'receiving', 'section' => 'Receiving', 'label' => 'IMAP password', 'kind' => 'secret', 'words' => 'imap password app password'],
+        'config_mail_oauth_client_id' => ['page' => 'mail', 'tab' => 'oauth', 'section' => 'OAuth', 'label' => 'OAuth client ID', 'words' => 'oauth microsoft 365 google workspace app registration entra'],
+        'config_mail_oauth_client_secret' => ['page' => 'mail', 'tab' => 'oauth', 'section' => 'OAuth', 'label' => 'OAuth client secret', 'kind' => 'secret', 'words' => 'oauth secret'],
+        'config_mail_oauth_tenant_id' => ['page' => 'mail', 'tab' => 'oauth', 'section' => 'OAuth', 'label' => 'Tenant ID', 'words' => 'oauth microsoft 365 entra tenant directory'],
+        'config_mail_oauth_refresh_token' => ['page' => 'mail', 'tab' => 'oauth', 'section' => 'OAuth', 'label' => 'Refresh token', 'kind' => 'secret', 'words' => 'oauth token connect consent'],
         'config_mail_from_email' => ['page' => 'mail', 'tab' => 'from', 'section' => 'From addresses', 'label' => 'System emails come from', 'words' => 'from address sender noreply'],
+        'config_mail_from_name' => ['page' => 'mail', 'tab' => 'from', 'section' => 'From addresses', 'label' => 'System emails\' sender name', 'words' => 'from name sender'],
         'config_invoice_from_email' => ['page' => 'mail', 'tab' => 'from', 'section' => 'From addresses', 'label' => 'Invoices come from', 'words' => 'billing from address sender'],
+        'config_invoice_from_name' => ['page' => 'mail', 'tab' => 'from', 'section' => 'From addresses', 'label' => 'Invoices\' sender name', 'words' => 'billing from name sender'],
         'config_quote_from_email' => ['page' => 'mail', 'tab' => 'from', 'section' => 'From addresses', 'label' => 'Quotes come from', 'words' => 'sales from address sender'],
+        'config_quote_from_name' => ['page' => 'mail', 'tab' => 'from', 'section' => 'From addresses', 'label' => 'Quotes\' sender name', 'words' => 'sales from name sender'],
         'config_ticket_from_email' => ['page' => 'mail', 'tab' => 'from', 'section' => 'From addresses', 'label' => 'Ticket emails come from', 'words' => 'support from address sender'],
+        'config_ticket_from_name' => ['page' => 'mail', 'tab' => 'from', 'section' => 'From addresses', 'label' => 'Ticket emails\' sender name', 'words' => 'support from name sender'],
         'test_email' => ['page' => 'mail', 'tab' => 'tests', 'section' => 'Tests', 'label' => 'Send a test email', 'words' => 'test email check smtp working'],
 
         // Notifications
@@ -465,7 +482,7 @@ function settingsAttributes(array $options) {
  * attributes settingsAttributes() takes.
  */
 function settingsInput($name, $saved, array $options = []) {
-    $id = "settings_$name";
+    $id = $options['id'] ?? "settings_$name";
     $invalid = settingsError($name) !== '' ? ' is-invalid' : '';
     $value = settingsValue($name, $saved);
     $control = '<div class="input-group has-validation">'
@@ -473,15 +490,15 @@ function settingsInput($name, $saved, array $options = []) {
         . '<input type="' . escapeHtml($options['type'] ?? 'text') . '" class="form-control' . $invalid . (isset($options['class']) ? ' ' . escapeHtml($options['class']) : '') . '" id="' . escapeHtml($id) . '" name="' . escapeHtml($name) . '" value="' . escapeHtml((string) $value) . '"' . settingsAttributes($options) . '>'
         . (isset($options['suffix']) ? '<span class="input-group-text">' . $options['suffix'] . '</span>' : '')
         . '</div>';
-    return settingsField($name, escapeHtml(settingsLabel($name, $options['label'] ?? null)) . (!empty($options['required']) ? ' <strong class="text-danger">*</strong>' : ''), $control, $options['help'] ?? '');
+    return settingsField($name, escapeHtml(settingsLabel($name, $options['label'] ?? null)) . (!empty($options['required']) ? ' <strong class="text-danger">*</strong>' : ''), $control, $options['help'] ?? '', $id);
 }
 
 /* A textarea - no icon, as elsewhere. */
 function settingsTextarea($name, $saved, array $options = []) {
-    $id = "settings_$name";
+    $id = $options['id'] ?? "settings_$name";
     $invalid = settingsError($name) !== '' ? ' is-invalid' : '';
     $control = '<textarea class="form-control' . $invalid . '" id="' . escapeHtml($id) . '" name="' . escapeHtml($name) . '"' . settingsAttributes($options + ['rows' => 3]) . '>' . escapeHtml((string) settingsValue($name, $saved)) . '</textarea>';
-    return settingsField($name, escapeHtml(settingsLabel($name, $options['label'] ?? null)), $control, $options['help'] ?? '');
+    return settingsField($name, escapeHtml(settingsLabel($name, $options['label'] ?? null)), $control, $options['help'] ?? '', $id);
 }
 
 /*
@@ -491,7 +508,7 @@ function settingsTextarea($name, $saved, array $options = []) {
  * ready made, as categoryOptionsHtml() makes them, in place of $choices).
  */
 function settingsSelect($name, $saved, array $choices, array $options = []) {
-    $id = "settings_$name";
+    $id = $options['id'] ?? "settings_$name";
     $invalid = settingsError($name) !== '' ? ' is-invalid' : '';
     $value = (string) settingsValue($name, $saved);
     $html = '';
@@ -508,7 +525,7 @@ function settingsSelect($name, $saved, array $choices, array $options = []) {
         . '<select class="form-select' . $select2 . $invalid . '" id="' . escapeHtml($id) . '" name="' . escapeHtml($name) . '"' . settingsAttributes($options) . '>' . $html . '</select>'
         . ($options['append'] ?? '')
         . '</div>';
-    return settingsField($name, escapeHtml(settingsLabel($name, $options['label'] ?? null)) . (!empty($options['required']) ? ' <strong class="text-danger">*</strong>' : ''), $control, $options['help'] ?? '');
+    return settingsField($name, escapeHtml(settingsLabel($name, $options['label'] ?? null)) . (!empty($options['required']) ? ' <strong class="text-danger">*</strong>' : ''), $control, $options['help'] ?? '', $id);
 }
 
 /* An on/off switch, its label beside it and what it does under it. $options: label, help, disabled, value (sent when on, 1), id. */
@@ -535,6 +552,14 @@ function settingsSaveBar($button_name, $label = 'Save', $extra_html = '') {
         <button type="submit" name="<?= escapeHtml($button_name) ?>" class="btn btn-primary"><i class="fas fa-check me-2"></i><?= escapeHtml($label) ?></button>
     </div>
     <?php return ob_get_clean();
+}
+
+/*
+ * What Enter in a field presses, in a form with another button before Save -
+ * Connect, Save and send a test: Save, put first and out of sight.
+ */
+function settingsEnterSaves($button_name) {
+    return '<button type="submit" name="' . escapeHtml($button_name) . '" class="visually-hidden" tabindex="-1" aria-hidden="true">Save</button>';
 }
 
 /*
@@ -612,6 +637,10 @@ function settingsLogValue($name, $value) {
             $options = signInAlertOptions();
         } elseif ($options === 'share_max') {
             $options = shareMaxOptions();
+        } elseif ($options === 'mail_providers') {
+            $options = settingsMailProviders();
+        } elseif ($options === 'mail_encryption') {
+            $options = settingsMailEncryption();
         } elseif (is_string($options)) {
             $options = settingsLocalizationArrays()[$options] ?? [];
         }
@@ -647,15 +676,18 @@ function settingsChangeLines(array $before, array $changed) {
 
 /*
  * Write the settings that changed - settings, or the company's row in
- * companies - each value as given: a number as a number, null as NULL. The
- * changed ones, by name. $before is what settingsCurrent() read.
+ * companies - each value as given: a number as a number, null as NULL, a
+ * password or secret exactly as typed. The changed ones, by name. $before is
+ * what settingsCurrent() read.
  */
 function settingsWrite($table, array $before, array $after) {
     global $mysqli;
     $table = $table === 'companies' ? 'companies' : 'settings';
+    $fields = settingsFields();
     $changed = [];
     foreach ($after as $column => $value) {
-        if (!array_key_exists($column, $before) || !settingsSame($before[$column], $value)) {
+        $secret = ($fields[$column]['kind'] ?? '') === 'secret';
+        if (!array_key_exists($column, $before) || ($secret ? (string) $before[$column] !== (string) $value : !settingsSame($before[$column], $value))) {
             $changed[$column] = $value;
         }
     }
@@ -667,6 +699,9 @@ function settingsWrite($table, array $before, array $after) {
                 $sets[] = "$column_sql = NULL";
             } elseif (is_int($value) || is_float($value)) {
                 $sets[] = "$column_sql = " . (is_float($value) ? rtrim(rtrim(sprintf('%.6F', $value), '0'), '.') : $value);
+            } elseif (($fields[$column]['kind'] ?? '') === 'secret') {
+                // escapeSql() would trim it and take out anything that looks like a tag - a password can have both
+                $sets[] = "$column_sql = '" . mysqli_real_escape_string($mysqli, (string) $value) . "'";
             } else {
                 $sets[] = "$column_sql = '" . escapeSql((string) $value) . "'";
             }
@@ -696,10 +731,11 @@ function settingsSaid($page_key, array $lines) {
 }
 
 /*
- * A save with something wrong: back to the page with what was typed (bar
- * secrets and files) and what is wrong beside each field - nothing is saved.
+ * A save with something wrong: back to the page (or $url - a page's tab) with
+ * what was typed (bar secrets and files) and what is wrong beside each field -
+ * nothing is saved.
  */
-function settingsRefuse($page_key, array $errors) {
+function settingsRefuse($page_key, array $errors, $url = null) {
     $fields = settingsFields();
     $values = [];
     foreach ($_POST as $name => $value) {
@@ -710,7 +746,7 @@ function settingsRefuse($page_key, array $errors) {
     }
     $_SESSION['settings_kept'] = ['page' => $page_key, 'values' => $values, 'errors' => $errors, 'at' => time()];
     flashAlert('Not saved - ' . (count($errors) === 1 ? 'one thing' : count($errors) . ' things') . ' to put right', 'error');
-    redirect();
+    redirect($url);
 }
 
 /*
@@ -843,6 +879,16 @@ function settingsStartPageProblem($page) {
         return 'There is no such page.';
     }
     return '';
+}
+
+/* How mail is sent or read, as the audit log names it - off, a server ITFlow signs in to, or Google or Microsoft by OAuth. */
+function settingsMailProviders() {
+    return ['' => 'off', 'standard_smtp' => 'SMTP server', 'standard_imap' => 'IMAP server', 'google_oauth' => 'Google Workspace', 'microsoft_oauth' => 'Microsoft 365'];
+}
+
+/* A mail server's encryption, as the audit log names it - tls is STARTTLS, ssl is a connection encrypted from the start. */
+function settingsMailEncryption() {
+    return ['' => 'none', 'tls' => 'STARTTLS', 'ssl' => 'SSL/TLS'];
 }
 
 /* The net terms a client can have, as days => name. */
