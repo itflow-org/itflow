@@ -8033,6 +8033,78 @@ a.itflow-portal-request:focus-visible {
     object-fit: contain;
     padding: .2rem;
 }
+/* Finish - what to do once signed in, numbered */
+.itflow-setup-next {
+    counter-reset: itflow-setup-next;
+}
+.itflow-setup-next > li {
+    counter-increment: itflow-setup-next;
+    position: relative;
+    padding: .45rem 0 .45rem 2.1rem;
+}
+.itflow-setup-next > li::before {
+    content: counter(itflow-setup-next);
+    position: absolute;
+    left: 0;
+    top: .45rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    font-size: .75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* Finish - telling the ITFlow project, and exactly what that sends */
+.itflow-setup-share {
+    border: 1px solid var(--bs-border-color);
+    border-radius: .5rem;
+    padding: 1rem;
+}
+.itflow-setup-share-list {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: .15rem 1rem;
+}
+.itflow-setup-share-list dt {
+    font-weight: 400;
+    color: var(--bs-secondary-color);
+}
+.itflow-setup-share-list dd {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+/* Restore - where a backup is dropped */
+.itflow-setup-drop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: .15rem;
+    padding: 1.5rem 1rem;
+    margin-bottom: .5rem;
+    border: 2px dashed var(--bs-border-color);
+    border-radius: .5rem;
+    background: var(--bs-tertiary-bg);
+    cursor: pointer;
+    overflow-wrap: anywhere;
+    transition: border-color .15s, background-color .15s;
+}
+.itflow-setup-drop:hover,
+.itflow-setup-drop.is-over {
+    border-color: var(--bs-primary);
+    background: rgba(var(--bs-primary-rgb), .06);
+}
+.itflow-setup-drop.has-file {
+    border-style: solid;
+}
+.itflow-setup-drop.has-file > i {
+    color: var(--bs-primary) !important;
+}
 /* Region - money and a date as they will look */
 .itflow-setup-sample {
     display: flex;

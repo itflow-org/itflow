@@ -27,6 +27,7 @@ require "seed_data.php"; // Shared install-time seed data
 require "setup_checks.php";
 require "setup_database.php";
 require "setup_forms.php";
+require "setup_install.php";
 
 // Setup's own session - for what a step has to say on the page after it
 if (session_status() === PHP_SESSION_NONE) {
@@ -43,9 +44,24 @@ function setupFlash($message, $type = 'success') {
     $_SESSION['alert_type'] = $type;
 }
 
+/*
+ * On to the next page. The restore page sends its upload itself, to show how
+ * far it has got (js/setup.js, X-Setup-Upload), and goes where it is told - so
+ * it is told in JSON rather than redirected, which would spend the message
+ * meant for that page on a request nobody sees.
+ */
+function setupGo($location) {
+    if (($_SERVER['HTTP_X_SETUP_UPLOAD'] ?? '') === '1') {
+        header('Content-Type: application/json');
+        echo json_encode(['location' => $location]);
+    } else {
+        header("Location: $location");
+    }
+    exit;
+}
+
 $mysqli_available = isset($mysqli) && $mysqli instanceof mysqli;
 $can_show_restore = false;
-$should_skip_to_user = false;
 
 /*
  * How far through the wizard this install already is. Each step is a separate question
@@ -68,7 +84,6 @@ if (file_exists("../config.php") && $mysqli_available) {
     $table_result = mysqli_query($mysqli, "SHOW TABLES LIKE 'users'");
     if ($table_result && mysqli_num_rows($table_result) > 0) {
         $database_ready = true;
-        $should_skip_to_user = true;
         $resume_step = 'user';
 
         $user_count_result = mysqli_query($mysqli, "SELECT COUNT(*) AS user_count FROM users");
@@ -133,7 +148,10 @@ if (!isset($config_enable_setup)) {
     $config_enable_setup = 1;
 }
 
-if ($config_enable_setup == 0) {
+// Bar the page that says a backup was restored - which is what closed it
+$setup_restored_view = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET' && isset($_GET['restored']) && !empty($_SESSION['setup_restored']);
+
+if ($config_enable_setup == 0 && !$setup_restored_view) {
     header("Location: /login.php");
     exit;
 }
@@ -174,8 +192,8 @@ if (isset($_POST['add_database'])) {
 
     if ($database === '' || $host === '' || $username === '') {
         $database_error = "Fill in the database's name, its host and the user to connect as.";
-    } elseif (!preg_match('/^[a-zA-Z0-9.-]+$/', $host)) {
-        $database_error = "The host is a name or an address - localhost, db.example.com or 10.0.0.5 - without a port or a slash.";
+    } elseif (($host_problem = setupHostProblem($host)) !== '') {
+        $database_error = escapeHtml($host_problem);
     } else {
         $connection = setupConnect($host, $username, $password, $database, $connect_error);
         if (!$connection) {
@@ -222,21 +240,26 @@ if (isset($_POST['create_tables'])) {
 
 }
 
-if (isset($_POST['restore'])) {
+/*
+ * A backup sent to the restore page. One larger than post_max_size arrives with $_POST and
+ * $_FILES both empty - so it is known by where it was sent, or it would not be answered at
+ * all, and the message about using the command line would never be seen.
+ */
+$restore_sent = isset($_POST['restore'])
+    || (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_GET['restore']) && empty($_POST) && empty($_FILES) && intval($_SERVER['CONTENT_LENGTH'] ?? 0) > 0);
+
+if ($restore_sent) {
 
     // Belt and braces: the page-level gate above already sends a live install to the login
     // page, but this handler is the destructive one, so it re-checks rather than trusting
     // that it was only reached through the form.
     if ($install_is_live || !$can_show_restore) {
         setupFlash("This install already has users. Restore over it from the command line instead: php scripts/restore_cli.php --file=/path/to/backup.zip", 'danger');
-        header("Location: ?restore");
-        exit;
+        setupGo("?restore");
     }
 
-    // An upload larger than post_max_size arrives with $_FILES and $_POST both empty, so
-    // PHP cannot tell us which field failed - it is worth naming, because a real full
-    // backup is usually bigger than the limit and the old message just said the upload
-    // failed.
+    // Too large for PHP to take - worth naming, because a real full backup is usually
+    // bigger than the limit, and the command line has none.
     $max_upload_bytes = backupMaxUploadBytes();
     $content_length = intval($_SERVER['CONTENT_LENGTH'] ?? 0);
 
@@ -252,20 +275,17 @@ if (isset($_POST['restore'])) {
             . backupFormatBytes($max_upload_bytes)
             . "). Restore it from the command line instead - there is no size limit there. Copy the backup onto this server and run: php "
             . dirname(__DIR__) . "/scripts/restore_cli.php --file=/path/to/backup.zip", 'danger');
-        header("Location: ?restore");
-        exit;
+        setupGo("?restore");
     }
 
     if (!isset($_FILES['backup_zip']) || $_FILES['backup_zip']['error'] !== UPLOAD_ERR_OK) {
         setupFlash("No backup file was uploaded, or the upload failed.", 'danger');
-        header("Location: ?restore");
-        exit;
+        setupGo("?restore");
     }
 
     if (strtolower(pathinfo($_FILES['backup_zip']['name'], PATHINFO_EXTENSION)) !== 'zip') {
         setupFlash("Only .zip backup archives can be restored.", 'danger');
-        header("Location: ?restore");
-        exit;
+        setupGo("?restore");
     }
 
     // The key belongs to the install that MADE the backup, which on a rebuilt server is not
@@ -277,16 +297,14 @@ if (isset($_POST['restore'])) {
 
     if ($restore_key === '') {
         setupFlash("Enter the backup encryption key. It is shown in Maintenance > Backup on the install that made this archive.", 'danger');
-        header("Location: ?restore");
-        exit;
+        setupGo("?restore");
     }
 
     $temp_zip = tempnam(sys_get_temp_dir(), "itflow_restore_upload_");
     if (!move_uploaded_file($_FILES['backup_zip']['tmp_name'], $temp_zip)) {
         @unlink($temp_zip);
         setupFlash("Could not save the uploaded backup file.", 'danger');
-        header("Location: ?restore");
-        exit;
+        setupGo("?restore");
     }
     @chmod($temp_zip, 0600);
 
@@ -297,21 +315,14 @@ if (isset($_POST['restore'])) {
 
     if (!$restored) {
         setupFlash(escapeHtml((string) $restore_error), 'danger');
-        header("Location: ?restore");
-        exit;
+        setupGo("?restore");
     }
 
     // Close setup behind us. The gate above would now do this on its own because the
     // restored database has users, but the flag is what stops the wizard being reachable
-    // at all.
-    if (!setupClose(__DIR__ . "/../config.php")) {
-        $_SESSION['alert_message'] = "Backup restored, but config.php could not be updated - please set \$config_enable_setup = 0 in it by hand.";
-    } else {
-        $_SESSION['alert_message'] = "Backup restored. Log in with the credentials that were in use when the backup was taken.";
-    }
-
-    header("Location: ../login.php");
-    exit;
+    // at all. The page that says so is the one setup page still open, once.
+    $_SESSION['setup_restored'] = setupClose(__DIR__ . "/../config.php") ? 'closed' : 'open';
+    setupGo("?restored");
 }
 
 if (isset($_POST['add_user'])) {
@@ -338,23 +349,7 @@ if (isset($_POST['add_user'])) {
     }
 
     if (!$user_errors) {
-        $name = escapeSql($user_form['name']);
-        $email = escapeSql($user_form['email']);
-        // Exactly as typed - the sign-in page checks exactly what is typed
-        $password = escapeSql(password_hash($user_form['password'], PASSWORD_DEFAULT));
-
-        //Generate master encryption key
-        $site_encryption_master_key = randomString();
-
-        //Generate user specific key
-        $user_specific_encryption_ciphertext = setupFirstUserSpecificKey($user_form['password'], $site_encryption_master_key);
-
-        mysqli_query($mysqli,"INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext', user_role_id = 3");
-
-        // Normally 1, but the table's AUTO_INCREMENT can already have moved on, so ask for it.
-        $user_id = intval(mysqli_insert_id($mysqli));
-
-        mkdirMissing("../uploads/users/$user_id");
+        $user_id = setupCreateFirstUser($mysqli, $user_form);
 
         // Checked above - saved as Profile saves one
         $avatar_message = '';
@@ -362,9 +357,6 @@ if (isset($_POST['add_user'])) {
         if (!empty($_FILES['file']['tmp_name']) && !userSaveAvatar($user_id, $_FILES['file'], $avatar_error) && $avatar_error !== '') {
             $avatar_message = " - the avatar was left off: $avatar_error";
         }
-
-        //Create Settings
-        mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id");
 
         setupFlash("Account <strong>" . escapeHtml($user_form['name']) . "</strong> created$avatar_message.", $avatar_message ? 'warning' : 'success');
 
@@ -394,11 +386,8 @@ if (isset($_POST['add_company_settings'])) {
     }
 
     if (!$company_errors) {
-        $sql_values = [];
-        foreach (['name', 'address', 'city', 'state', 'zip', 'country', 'phone_country_code', 'phone', 'email', 'website', 'tax_id'] as $field) {
-            $sql_values[] = "company_$field = '" . escapeSql($company_form[$field]) . "'";
-        }
-        mysqli_query($mysqli, "INSERT INTO companies SET " . implode(', ', $sql_values));
+        // The company, and the defaults shared with the CLI installer
+        setupCreateCompany($mysqli, $company_form);
 
         // Checked above - into uploads/settings, as Admin > Settings > Company saves one
         $logo_message = '';
@@ -410,9 +399,6 @@ if (isset($_POST['add_company_settings'])) {
                 $logo_message = ' - the logo could not be saved, add it in Admin > Settings > Company';
             }
         }
-
-        // Seed the defaults shared with the CLI installer
-        seedDefaultData($mysqli);
 
         setupFlash("Company <strong>" . escapeHtml($company_form['name']) . "</strong> saved$logo_message.", $logo_message ? 'warning' : 'success');
 
@@ -438,16 +424,7 @@ if (isset($_POST['add_localization_settings'])) {
     [$region_form, $region_errors] = setupRegionForm($_POST, $locales_array, $currencies_array, $timezones);
 
     if (!$region_errors) {
-        $locale = escapeSql($region_form['locale']);
-        $currency_code = escapeSql($region_form['currency_code']);
-        $timezone = escapeSql($region_form['timezone']);
-
-        mysqli_query($mysqli,"UPDATE companies SET company_locale = '$locale', company_currency = '$currency_code' WHERE company_id = 1");
-
-        mysqli_query($mysqli,"UPDATE settings SET config_timezone = '$timezone' WHERE company_id = 1");
-
-        // Create Default Cash Account
-        mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_type = 4, account_currency_code = '$currency_code'");
+        setupSaveRegion($mysqli, $region_form);
 
         setupFlash("Language, currency and timezone saved - one last step.");
 
@@ -465,51 +442,8 @@ if (isset($_POST['add_telemetry'])) {
         exit;
     }
 
-    if (isset($_POST['share_data']) && $_POST['share_data'] == 1) {
-
-        mysqli_query($mysqli,"UPDATE settings SET config_telemetry = 2");
-
-        $comments = escapeSql($_POST['comments']);
-
-        $sql = mysqli_query($mysqli,"SELECT company_city, company_country, company_currency, company_name, company_state,
-            company_website FROM companies WHERE company_id = 1");
-        $row = mysqli_fetch_assoc($sql);
-
-        $company_name = $row['company_name'];
-        $website = $row['company_website'];
-        $city = $row['company_city'];
-        $state = $row['company_state'];
-        $country = $row['company_country'];
-        $currency = $row['company_currency'];
-
-        $postdata = http_build_query(
-            array(
-                'installation_id' => "$installation_id",
-                'company_name' => "$company_name",
-                'website' => "$website",
-                'city' => "$city",
-                'state' => "$state",
-                'country' => "$country",
-                'currency' => "$currency",
-                'comments' => "$comments",
-                'collection_method' => 1
-            )
-        );
-
-        $opts = array('http' =>
-            array(
-                'method' => 'POST',
-                'header' => 'Content-type: application/x-www-form-urlencoded',
-                'content' => $postdata,
-                'timeout' => 10
-            )
-        );
-
-        $context = stream_context_create($opts);
-
-        // Best effort - an install that can't reach it still finishes
-        @file_get_contents('https://telemetry.itflow.org', false, $context);
-
+    if (($_POST['share_data'] ?? '') === '1') {
+        setupShareTelemetry($mysqli, $installation_id ?? '', trim((string) ($_POST['comments'] ?? '')));
     }
 
     // Close setup - the sign-in page is next
@@ -539,7 +473,7 @@ $setup_steps = [
     'telemetry' => ['label' => 'Finish', 'icon' => 'fa-flag-checkered'],
 ];
 $setup_step = 'welcome';
-foreach (array_merge(array_keys($setup_steps), ['restore']) as $key) {
+foreach (array_merge(array_keys($setup_steps), ['restore', 'restored']) as $key) {
     if ($key !== 'welcome' && isset($_GET[$key])) {
         $setup_step = $key;
         break;
@@ -578,7 +512,10 @@ if (!empty($_SESSION['alert_message'])) {
     $_SESSION['alert_type'] = '';
 }
 
-$setup_title = $setup_step === 'restore' ? 'Restore a backup' : $setup_steps[$setup_step]['label'];
+if ($setup_step === 'restored' && !$setup_restored_view) {
+    $setup_step = 'welcome';
+}
+$setup_title = ['restore' => 'Restore a backup', 'restored' => 'Backup restored'][$setup_step] ?? $setup_steps[$setup_step]['label'];
 
 ?>
 <!DOCTYPE html>
@@ -621,6 +558,7 @@ $setup_title = $setup_step === 'restore' ? 'Restore a backup' : $setup_steps[$se
         <span class="itflow-setup-brand-sub">Setup</span>
     </header>
 
+    <?php if ($setup_step !== 'restored') { ?>
     <!-- Where the install has got to -->
     <nav class="itflow-setup-steps" aria-label="Setup steps">
         <ol class="list-unstyled d-none d-md-flex">
@@ -650,6 +588,7 @@ $setup_title = $setup_step === 'restore' ? 'Restore a backup' : $setup_steps[$se
             </div>
         <?php } ?>
     </nav>
+    <?php } ?>
 
     <main>
         <?php if ($setup_alert !== '') { ?>

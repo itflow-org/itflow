@@ -12,6 +12,8 @@
  *                               [data-setup-preview=its id]
  *   [data-setup-browser-timezone]  starts on the browser's timezone
  *   form[data-setup-region]     shows money and a date as they will look
+ *   [data-setup-reveal=id]      a switch that shows that element while on
+ *   form[data-restore-form]     a backup dropped or picked, sent with its progress
  *
  * And every setup form shows it is working once sent, and is sent once.
  */
@@ -232,10 +234,163 @@
         draw();
     }
 
+    // A switch that shows what goes with it - the comment sent with sharing
+    function initReveal(toggle) {
+        var target = document.getElementById(toggle.dataset.setupReveal);
+        if (!target) {
+            return;
+        }
+        var sync = function () {
+            target.hidden = !toggle.checked;
+        };
+        toggle.addEventListener('change', sync);
+        sync();
+    }
+
+    function formatBytes(bytes) {
+        var units = ['bytes', 'KB', 'MB', 'GB'];
+        var i = 0;
+        while (bytes >= 1024 && i < units.length - 1) {
+            bytes /= 1024;
+            i++;
+        }
+        return (i === 0 ? bytes : bytes.toFixed(bytes < 10 ? 1 : 0)) + ' ' + units[i];
+    }
+
+    /*
+     * Restore a backup - dropped or picked, checked against what this server
+     * takes, then sent with how far it has got shown. The server answers in
+     * JSON (setupGo() in setup/index.php) with where to go next.
+     */
+    function initRestore(form) {
+        var input = form.querySelector('input[name="backup_zip"]');
+        var drop = form.querySelector('[data-setup-drop]');
+        var tooBig = form.querySelector('[data-restore-too-big]');
+        var progress = form.querySelector('[data-restore-progress]');
+        var failed = form.querySelector('[data-restore-failed]');
+        if (!input || !drop || !progress) {
+            return;
+        }
+        var name = drop.querySelector('[data-setup-drop-name]');
+        var size = drop.querySelector('[data-setup-drop-size]');
+        var nameText = name.textContent;
+        var sizeText = size.textContent;
+        var max = Number(input.dataset.setupMaxBytes || 0);
+        var bar = progress.querySelector('.progress-bar');
+        var label = progress.querySelector('[data-restore-progress-label]');
+        var amount = progress.querySelector('[data-restore-progress-amount]');
+
+        function chosen() {
+            var file = input.files && input.files[0];
+            var message = '';
+            if (file && !/\.zip$/i.test(file.name)) {
+                message = 'Only .zip backup archives can be restored.';
+            }
+            var big = !!file && message === '' && max > 0 && file.size > max;
+            if (big) {
+                message = 'Larger than this server takes through a browser - restore it from the command line.';
+            }
+            input.setCustomValidity(message);
+            tooBig.hidden = !big;
+            drop.classList.toggle('has-file', !!file);
+            name.textContent = file ? file.name : nameText;
+            size.textContent = file ? formatBytes(file.size) : sizeText;
+            showField(input, message);
+        }
+        input.addEventListener('change', chosen);
+
+        ['dragenter', 'dragover'].forEach(function (type) {
+            drop.addEventListener(type, function (e) {
+                e.preventDefault();
+                drop.classList.add('is-over');
+            });
+        });
+        ['dragleave', 'drop'].forEach(function (type) {
+            drop.addEventListener(type, function (e) {
+                e.preventDefault();
+                drop.classList.remove('is-over');
+            });
+        });
+        drop.addEventListener('drop', function (e) {
+            if (e.dataTransfer && e.dataTransfer.files.length) {
+                input.files = e.dataTransfer.files;
+                chosen();
+            }
+        });
+
+        function fail(message) {
+            progress.hidden = true;
+            failed.textContent = message;
+            failed.hidden = false;
+            delete form.dataset.setupSent;
+            form.querySelectorAll('[aria-disabled="true"]').forEach(function (button) {
+                button.classList.remove('disabled');
+                button.removeAttribute('aria-disabled');
+                var spinner = button.querySelector('.spinner-border');
+                if (spinner) {
+                    spinner.remove();
+                }
+            });
+        }
+
+        form.addEventListener('submit', function (e) {
+            if (e.defaultPrevented || !window.FormData || !window.XMLHttpRequest) {
+                return;
+            }
+            e.preventDefault();
+
+            var data = new FormData(form);
+            data.append('restore', '1');
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', form.getAttribute('action') || window.location.href);
+            xhr.setRequestHeader('X-Setup-Upload', '1');
+
+            failed.hidden = true;
+            progress.hidden = false;
+            label.textContent = 'Sending the backup';
+            bar.classList.remove('progress-bar-striped', 'progress-bar-animated');
+            bar.style.width = '0%';
+
+            xhr.upload.addEventListener('progress', function (ev) {
+                if (ev.lengthComputable) {
+                    var percent = Math.round(ev.loaded * 100 / ev.total);
+                    bar.style.width = percent + '%';
+                    bar.parentNode.setAttribute('aria-valuenow', percent);
+                    amount.textContent = formatBytes(ev.loaded) + ' of ' + formatBytes(ev.total);
+                }
+            });
+            xhr.upload.addEventListener('load', function () {
+                label.textContent = 'Restoring - the database, then the files';
+                amount.textContent = '';
+                bar.style.width = '100%';
+                bar.classList.add('progress-bar-striped', 'progress-bar-animated');
+            });
+            xhr.addEventListener('load', function () {
+                var next = '';
+                try {
+                    next = JSON.parse(xhr.responseText).location || '';
+                } catch (err) {
+                    next = '';
+                }
+                if (next) {
+                    window.location.href = next;
+                    return;
+                }
+                fail('The restore stopped with an error' + (xhr.status ? ' (' + xhr.status + ')' : '') + " - the web server's error log says why. Restoring from the command line has no time or size limit.");
+            });
+            xhr.addEventListener('error', function () {
+                fail('The upload was cut off. Check the connection - or restore from the command line, which has no size limit.');
+            });
+            xhr.send(data);
+        });
+    }
+
     function init() {
+        document.querySelectorAll('[data-setup-reveal]').forEach(initReveal);
         document.querySelectorAll('form[data-setup-form]').forEach(initForm);
         document.querySelectorAll('.itflow-setup form').forEach(initBusy);
         document.querySelectorAll('form[data-setup-region]').forEach(initRegion);
+        document.querySelectorAll('form[data-restore-form]').forEach(initRestore);
     }
 
     // Back to a page the browser kept as it was left - sent and spinning - ready to send again

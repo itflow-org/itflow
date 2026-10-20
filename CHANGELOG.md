@@ -1018,6 +1018,9 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Your account: the password is typed twice, each with its eye, and the avatar shows once picked. A missing name, an email that isn't one, a short password, passwords that differ or a file that isn't a picture is said beside the field before anything is sent - and by the server too, with the name and email kept.
   - Company: the phone takes its country code from the country picked, as in Admin > Settings > Company, and the logo shows once picked. A mistake comes back with everything typed kept, and the website is saved without its http:// and trailing slash.
   - Region starts on the currency of the company's country, a language of that country, your browser's where there is one (French (Canada) for a French browser in Canada, English (Canada) for others) and your browser's timezone - or the country's, when it has only one - and shows money and a date as they will look.
+  - Finish says what to know before signing in - that sign-in needs HTTPS when the page came over http://, with the config.php line for a test install; your backup key, made there and then so it can be kept, with a copy button; and the address links in emails go to - then what to do once signed in: cron (its crontab line, to copy), mail, backups, starter content and your team. Telling the ITFlow project about the install is off unless switched on, and shows exactly what it sends.
+  - Restore a backup: drop it on the page or choose it. One larger than the server takes through a browser is pointed at the command line before it is sent; otherwise the upload shows how far it has got, then that it is restoring, and a page says when it is done.
+  - `scripts/setup_cli.php` runs the wizard's checks and checks what it is given the same way, asks again for an answer that is wrong (the password twice, not shown), suggests the language, currency and timezone from the country, and ends with the backup key and the crontab line. `--non-interactive` asks nothing at all. New options: `--phone-country-code`, `--tax-id`, `--share-telemetry` and `--comments`.
 
 ### Bug Fixes
 
@@ -1154,6 +1157,10 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Setup: a password with a space at the start or end could not sign in - setup saved it without them.
 - Setup: the account, company and region steps saved whatever they were sent - no name, an email that isn't one, a language, currency or timezone not on the list - and an avatar or logo was taken on its name alone.
 - Setup: the company's phone was saved without its country code.
+- Setup: a backup larger than PHP takes was never answered - the page came back as it was, without the message about restoring from the command line.
+- Setup: after a restore, the message that it had worked was lost on the way to the sign-in page.
+- `setup_cli.php --non-interactive` stopped and waited at the optional questions - the address, phone, website and branch.
+- `setup_cli.php`: a name with an apostrophe in it stopped the install part-way, a password with a space at either end couldn't sign in, and it wrote config.php before knowing the tables could be made - over a database that already had tables in it, too.
 
 ### Developer Updates
 
@@ -1704,13 +1711,15 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - `agent/js/file_delete_modal.js`, `certificate_fetch_ssl.js`, `credential_show_password_via_id.js` and `credential_show_otp_via_id.js`
 - `title` attributes were added to about 300 icon-only buttons, and `aria-label` to the show-password buttons and the portal's mobile menu button.
 - API: `api/v1/services/read.php` is new, with `services` mapped to `module_support` in `enforce_api_rbac.php`. Ticket create and update use `ticketClientOwnedId()` and `ticketAgentId()`, and certificate create uses `certificateFormSet()`.
-- Setup: `setup/index.php` keeps the handlers and draws the frame; each step's page is `setup/steps/<step>.php` (`welcome`, `checks`, `database`, `user`, `company`, `localization`, `telemetry`, `restore`).
+- Setup: `setup/index.php` keeps the handlers and draws the frame; each step's page is `setup/steps/<step>.php` (`welcome`, `checks`, `database`, `user`, `company`, `localization`, `telemetry`, `restore`, `restored`).
   - `setup/setup_checks.php`: `setupChecks($root)` returns `required` and `recommended` lists of `setupCheck($label, $passed, $value, $fix)`, with `setupChecksFailed()`. `SETUP_PHP_MINIMUM` is 8.2.0; `setupRequiredExtensions()` adds `openssl` and `fileinfo` to the six there were; the git check needs both `exec` and `shell_exec`, which the updater uses.
   - `setup/setup_database.php`: `setupConnect()` catches `mysqli_sql_exception` and says why; `setupTables()`; `setupImportSchema()` runs `db.sql` a statement at a time and drops what it made if one fails; `setupConfigContents()` writes the values with `var_export()`; `setupClose()` appends `$config_enable_setup = 0` and `setupConfigChanged()` drops opcache's copy of `config.php`.
   - `config.php` is included inside a try/catch, its error in `$config_error`. Setup has its own session (`itflow_setup`) and `setupFlash($message, $type)`.
   - New POST `create_tables`. `add_user` needs `$database_ready`, `add_company_settings` `$install_is_live`, `add_localization_settings` `$company_exists` and `add_telemetry` `$localization_done` - each otherwise goes to `?$resume_step`.
   - `setup/setup_forms.php`: `setupUserForm()`, `setupCompanyForm()` and `setupRegionForm()` each return the values and the errors by field, drawn with `setupFieldInvalid()` and `setupFieldError()` (`data-field-error`); `setupImageProblem()` checks a picture with `getimagesize()`; Region starts on `setupSuggestCurrency()` (intl's currency for the country), `setupSuggestLocale()` (the country and `Accept-Language`) and `setupSuggestTimezone()`. The avatar is saved with `userSaveAvatar()`, and the company's `company_phone_country_code` is set.
   - `js/setup.js`: `form[data-setup-form]` checked before it is sent, `data-setup-same-as`, `data-setup-image` with its `data-setup-preview`, `data-setup-browser-timezone`, the Region sample, and each setup form sent once. The company step loads intl-tel-input and `js/phone_inputs.js`.
+  - `setup/setup_install.php`: what setup writes - `setupCreateFirstUser()`, `setupCreateCompany()`, `setupSaveRegion()`, `setupTelemetryDetails()` and `setupShareTelemetry()` - shared by the wizard and `scripts/setup_cli.php`, which now also uses `setupChecks($root, false)` (no HTTPS, domain name or upload size from the command line), `setupHostProblem()`, `setupConnect()`, `setupImportSchema()`, `setupConfigContents()` (which takes `$repo_branch`) and the form checks. It exits 1 with the reason on stderr; `--password` may be empty, and `--locale`, `--currency` and `--timezone` default to the country's when there is one.
+  - Restore: the page sends the upload itself with `X-Setup-Upload: 1`, and `setupGo()` answers it in JSON with where to go. A POST to `?restore` that PHP emptied (over `post_max_size`) is answered too. `?restored` is shown once, from `$_SESSION['setup_restored']`, even though setup is closed. Finish makes the backup key with `backupEncryptionKey()`.
   - `.itflow-setup*` styles in `css/itflow_custom.css`.
 - `js/app.js`: the four `tinymce.init()` calls go through `itflowTinyMce`, which does nothing where TinyMCE isn't loaded.
 

@@ -82,9 +82,10 @@ function setupCertificateValid($host) {
 /*
  * Every check - ['required' => [...], 'recommended' => [...]], each a list of
  * setupCheck(). $root is ITFlow's folder: config.php is written into it, and
- * files go into its uploads folder.
+ * files go into its uploads folder. From the command line ($from_web false)
+ * there is no request to say how the site is reached, so those are left out.
  */
-function setupChecks($root) {
+function setupChecks($root, $from_web = true) {
     $required = [];
     $recommended = [];
 
@@ -110,27 +111,30 @@ function setupChecks($root) {
     $required[] = setupCheck('The uploads folder can be written to', $writable, $writable ? 'Writable' : (is_dir($uploads) ? 'Not writable' : 'Missing'),
         'Logos, avatars, attachments and files are kept in <code>' . escapeHtml($uploads) . '</code>. Create it if it is missing, and make it writable by the web server.');
 
-    // How it is reached
-    $host = setupRequestHost();
-    $https = setupRequestIsHttps();
-    $recommended[] = setupCheck('Reached over HTTPS', $https, $https ? 'Yes' : 'No',
-        'Sign-ins, passwords and client data cross the network - put a certificate on the site (Let\'s Encrypt is free) and come back to it on https://. ITFlow only lets you sign in over HTTPS unless config.php says otherwise.');
-    if ($https) {
-        $valid = setupCertificateValid($host);
-        if ($valid !== null) {
-            $recommended[] = setupCheck('The certificate is current', $valid, $valid ? 'Valid' : 'Expired or not yet valid', 'Renew the site\'s certificate.');
+    // How it is reached, and what the web server takes - neither known from the command line
+    if ($from_web) {
+        $host = setupRequestHost();
+        $https = setupRequestIsHttps();
+        $recommended[] = setupCheck('Reached over HTTPS', $https, $https ? 'Yes' : 'No',
+            'Sign-ins, passwords and client data cross the network - put a certificate on the site (Let\'s Encrypt is free) and come back to it on https://. ITFlow only lets you sign in over HTTPS unless config.php says otherwise.');
+        if ($https) {
+            $valid = setupCertificateValid($host);
+            if ($valid !== null) {
+                $recommended[] = setupCheck('The certificate is current', $valid, $valid ? 'Valid' : 'Expired or not yet valid', 'Renew the site\'s certificate.');
+            }
         }
-    }
-    $fqdn = (bool) preg_match('/^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i', $host);
-    $recommended[] = setupCheck('A domain name', $fqdn, $host !== '' ? $host : 'Unknown',
-        'Clients follow links in ITFlow\'s emails and use the client portal - give it a domain name, like itflow.example.com, rather than an IP address or a local name.');
+        $fqdn = (bool) preg_match('/^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i', $host);
+        $recommended[] = setupCheck('A domain name', $fqdn, $host !== '' ? $host : 'Unknown',
+            'Clients follow links in ITFlow\'s emails and use the client portal - give it a domain name, like itflow.example.com, rather than an IP address or a local name.');
 
-    // Room to upload a backup or a large file
-    $upload_max = backupParseIniBytes(ini_get('upload_max_filesize'));
-    $post_max = backupParseIniBytes(ini_get('post_max_size'));
-    $recommended[] = setupCheck('Uploads of 500 MB', $upload_max >= SETUP_UPLOAD_RECOMMENDED && $post_max >= SETUP_UPLOAD_RECOMMENDED,
-        'upload_max_filesize ' . ini_get('upload_max_filesize') . ', post_max_size ' . ini_get('post_max_size'),
-        'Restoring a backup and uploading large files need room - in php.ini set <code>upload_max_filesize = 500M</code> and <code>post_max_size = 500M</code>, and restart the web server.');
+        // Room to upload a backup or a large file
+        $upload_max = backupParseIniBytes(ini_get('upload_max_filesize'));
+        $post_max = backupParseIniBytes(ini_get('post_max_size'));
+        $recommended[] = setupCheck('Uploads of 500 MB', $upload_max >= SETUP_UPLOAD_RECOMMENDED && $post_max >= SETUP_UPLOAD_RECOMMENDED,
+            'upload_max_filesize ' . ini_get('upload_max_filesize') . ', post_max_size ' . ini_get('post_max_size'),
+            'Restoring a backup and uploading large files need room - in php.ini set <code>upload_max_filesize = 500M</code> and <code>post_max_size = 500M</code>, and restart the web server.');
+    }
+
     $zip = class_exists('ZipArchive');
     $recommended[] = setupCheck('PHP zip extension', $zip, $zip ? 'Installed' : 'Not installed',
         'Backups and client exports are zip files - install it, <code>apt install php-zip</code> on Debian and Ubuntu.');

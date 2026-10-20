@@ -29,6 +29,17 @@ function setupConnect($host, $username, $password, $database, &$error = '') {
     return $connection;
 }
 
+/* What is wrong with a database host - '' when nothing is. A name or an address, without a port or a path. */
+function setupHostProblem($host) {
+    if ($host === '') {
+        return "The database's host - localhost, unless it is on another server.";
+    }
+    if (!preg_match('/^[a-zA-Z0-9.-]+$/', $host)) {
+        return 'The host is a name or an address - localhost, db.example.com or 10.0.0.5 - without a port or a slash.';
+    }
+    return '';
+}
+
 /* The tables a database has - their names. */
 function setupTables($connection) {
     $tables = [];
@@ -99,8 +110,8 @@ function setupDropTables($connection) {
     }
 }
 
-/* What config.php says - the database to use, where ITFlow is reached, and this install's id. */
-function setupConfigContents($host, $username, $password, $database, $base_url, $installation_id) {
+/* What config.php says - the database to use, where ITFlow is reached, the branch it updates from, and this install's id. */
+function setupConfigContents($host, $username, $password, $database, $base_url, $installation_id, $repo_branch = 'master') {
     $config = "<?php\n\n";
     $config .= "\$dbhost = " . var_export($host, true) . ";\n";
     $config .= "\$dbusername = " . var_export($username, true) . ";\n";
@@ -110,7 +121,7 @@ function setupConfigContents($host, $username, $password, $database, $base_url, 
     $config .= "\$config_app_name = 'ITFlow';\n";
     $config .= "\$config_base_url = " . var_export($base_url, true) . ";\n";
     $config .= "\$config_https_only = TRUE;\n";
-    $config .= "\$repo_branch = 'master';\n";
+    $config .= "\$repo_branch = " . var_export((string) $repo_branch, true) . ";\n";
     $config .= "\$installation_id = " . var_export($installation_id, true) . ";\n";
     return $config;
 }
