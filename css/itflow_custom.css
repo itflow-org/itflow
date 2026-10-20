@@ -8000,6 +8000,56 @@ a.itflow-portal-request:focus-visible {
 .itflow-setup-checks .list-group-item {
     background: transparent;
 }
+/* The picture picked for the avatar or logo, before it is sent */
+.itflow-setup-preview {
+    flex: 0 0 auto;
+    width: 3.5rem;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--bs-border-color);
+    border-radius: .5rem;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+    font-size: 1.25rem;
+    overflow: hidden;
+}
+.itflow-setup-preview.is-round {
+    border-radius: 50%;
+}
+.itflow-setup-preview.has-image {
+    border-style: solid;
+}
+.itflow-setup-preview.has-image > i {
+    display: none;
+}
+.itflow-setup-preview > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.itflow-setup-preview:not(.is-round) > img {
+    object-fit: contain;
+    padding: .2rem;
+}
+/* Region - money and a date as they will look */
+.itflow-setup-sample {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem 1rem;
+    padding: .6rem .9rem;
+    border-radius: .5rem;
+    background: var(--bs-tertiary-bg);
+    font-size: .9rem;
+}
+.itflow-setup-sample[hidden] {
+    display: none;
+}
+.itflow-setup-sample > span:not(:first-child) {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
 .itflow-setup-footer {
     text-align: center;
     font-size: .8rem;

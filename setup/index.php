@@ -26,6 +26,7 @@ define('FROM_SETUP', true);
 require "seed_data.php"; // Shared install-time seed data
 require "setup_checks.php";
 require "setup_database.php";
+require "setup_forms.php";
 
 // Setup's own session - for what a step has to say on the page after it
 if (session_status() === PHP_SESSION_NONE) {
@@ -147,6 +148,14 @@ $timezones = DateTimeZone::listIdentifiers();
 $database_form = ['database' => '', 'host' => 'localhost', 'username' => ''];
 $database_error = '';
 $config_manual = '';
+
+// The account, company and region steps' forms - what was sent, and what is wrong with it
+$user_form = ['name' => '', 'email' => ''];
+$user_errors = [];
+$company_form = [];
+$company_errors = [];
+$region_form = [];
+$region_errors = [];
 
 if (isset($_POST['add_database'])) {
 
@@ -322,71 +331,46 @@ if (isset($_POST['add_user'])) {
         exit;
     }
 
-    $name = escapeSql($_POST['name']);
-    $email = escapeSql($_POST['email']);
-    $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
-
-    //Generate master encryption key
-    $site_encryption_master_key = randomString();
-
-    //Generate user specific key
-    $user_specific_encryption_ciphertext = setupFirstUserSpecificKey(trim($_POST['password']), $site_encryption_master_key);
-
-    mysqli_query($mysqli,"INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext', user_role_id = 3");
-
-    // Normally 1, but the table's AUTO_INCREMENT can already have moved on, so ask for it.
-    $user_id = intval(mysqli_insert_id($mysqli));
-
-    mkdirMissing("../uploads/users/$user_id");
-
-    $avatar_message = '';
-
-    //Check to see if a file is attached
-    if (!empty($_FILES['file']['tmp_name'])) {
-
-        // get details of the uploaded file
-        $file_error = 0;
-        $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = $_FILES['file']['name'];
-        $file_size = $_FILES['file']['size'];
-        $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-
-        // sanitize file-name
-        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
-
-        // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
-            $file_error = 1;
-        }
-
-        //Check File Size
-        if ($file_size > 2097152) {
-            $file_error = 1;
-        }
-
-        if ($file_error == 0) {
-            // directory in which the uploaded file will be moved
-            $upload_file_dir = "../uploads/users/$user_id/";
-            $dest_path = $upload_file_dir . $new_file_name;
-
-            move_uploaded_file($file_tmp_path, $dest_path);
-
-            //Set Avatar
-            mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
-        } else {
-            $avatar_message = ' - the avatar was left off: it has to be a jpg, png, gif or webp image under 2 MB';
-        }
+    [$user_form, $user_errors] = setupUserForm($_POST);
+    $avatar_problem = setupImageProblem($_FILES['file'] ?? null, ['jpg', 'jpeg', 'gif', 'png', 'webp'], [IMAGETYPE_JPEG, IMAGETYPE_GIF, IMAGETYPE_PNG, IMAGETYPE_WEBP], 'JPG, PNG, GIF or WebP');
+    if ($avatar_problem !== '') {
+        $user_errors['file'] = $avatar_problem;
     }
 
-    //Create Settings
-    mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id");
+    if (!$user_errors) {
+        $name = escapeSql($user_form['name']);
+        $email = escapeSql($user_form['email']);
+        // Exactly as typed - the sign-in page checks exactly what is typed
+        $password = escapeSql(password_hash($user_form['password'], PASSWORD_DEFAULT));
 
-    setupFlash("Account <strong>" . escapeHtml($_POST['name']) . "</strong> created$avatar_message.", $avatar_message ? 'warning' : 'success');
+        //Generate master encryption key
+        $site_encryption_master_key = randomString();
 
-    header("Location: ?company");
-    exit;
+        //Generate user specific key
+        $user_specific_encryption_ciphertext = setupFirstUserSpecificKey($user_form['password'], $site_encryption_master_key);
+
+        mysqli_query($mysqli,"INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext', user_role_id = 3");
+
+        // Normally 1, but the table's AUTO_INCREMENT can already have moved on, so ask for it.
+        $user_id = intval(mysqli_insert_id($mysqli));
+
+        mkdirMissing("../uploads/users/$user_id");
+
+        // Checked above - saved as Profile saves one
+        $avatar_message = '';
+        $avatar_error = '';
+        if (!empty($_FILES['file']['tmp_name']) && !userSaveAvatar($user_id, $_FILES['file'], $avatar_error) && $avatar_error !== '') {
+            $avatar_message = " - the avatar was left off: $avatar_error";
+        }
+
+        //Create Settings
+        mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id");
+
+        setupFlash("Account <strong>" . escapeHtml($user_form['name']) . "</strong> created$avatar_message.", $avatar_message ? 'warning' : 'success');
+
+        header("Location: ?company");
+        exit;
+    }
 
 }
 
@@ -403,66 +387,38 @@ if (isset($_POST['add_company_settings'])) {
         exit;
     }
 
-    $name = escapeSql($_POST['name']);
-    $country = escapeSql($_POST['country']);
-    $address = escapeSql($_POST['address']);
-    $city = escapeSql($_POST['city']);
-    $state = escapeSql($_POST['state']);
-    $zip = escapeSql($_POST['zip']);
-    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $email = escapeSql($_POST['email']);
-    $website = escapeSql($_POST['website']);
-    $tax_id = escapeSql($_POST['tax_id']);
-
-    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_tax_id = '$tax_id'");
-
-    $logo_message = '';
-
-    //Check to see if a file is attached
-    if (!empty($_FILES['file']['tmp_name'])) {
-
-        // get details of the uploaded file
-        $file_error = 0;
-        $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = $_FILES['file']['name'];
-        $file_size = $_FILES['file']['size'];
-        $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-
-        // sanitize file-name
-        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
-
-        // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'jpeg', 'png');
-
-        if (in_array($file_extension,$allowed_file_extensions) === false) {
-            $file_error = 1;
-        }
-
-        //Check File Size
-        if ($file_size > 2097152) {
-            $file_error = 1;
-        }
-
-        if ($file_error == 0) {
-            // directory in which the uploaded file will be moved
-            $upload_file_dir = "../uploads/settings/";
-            $dest_path = $upload_file_dir . $new_file_name;
-
-            move_uploaded_file($file_tmp_path, $dest_path);
-
-            mysqli_query($mysqli,"UPDATE companies SET company_logo = '$new_file_name' WHERE company_id = 1");
-        } else {
-            $logo_message = ' - the logo was left off: it has to be a jpg or png under 2 MB';
-        }
+    [$company_form, $company_errors] = setupCompanyForm($_POST, $countries_array);
+    $logo_problem = setupImageProblem($_FILES['file'] ?? null, ['jpg', 'jpeg', 'png'], [IMAGETYPE_JPEG, IMAGETYPE_PNG], 'JPG or PNG');
+    if ($logo_problem !== '') {
+        $company_errors['file'] = $logo_problem;
     }
 
-    // Seed the defaults shared with the CLI installer
-    seedDefaultData($mysqli);
+    if (!$company_errors) {
+        $sql_values = [];
+        foreach (['name', 'address', 'city', 'state', 'zip', 'country', 'phone_country_code', 'phone', 'email', 'website', 'tax_id'] as $field) {
+            $sql_values[] = "company_$field = '" . escapeSql($company_form[$field]) . "'";
+        }
+        mysqli_query($mysqli, "INSERT INTO companies SET " . implode(', ', $sql_values));
 
-    setupFlash("Company <strong>" . escapeHtml($_POST['name']) . "</strong> saved$logo_message.", $logo_message ? 'warning' : 'success');
+        // Checked above - into uploads/settings, as Admin > Settings > Company saves one
+        $logo_message = '';
+        if (!empty($_FILES['file']['tmp_name'])) {
+            $new_file_name = checkFileUpload($_FILES['file'], ['jpg', 'jpeg', 'png']);
+            if ($new_file_name && move_uploaded_file($_FILES['file']['tmp_name'], "../uploads/settings/$new_file_name")) {
+                mysqli_query($mysqli, "UPDATE companies SET company_logo = '" . escapeSql($new_file_name) . "' WHERE company_id = 1");
+            } else {
+                $logo_message = ' - the logo could not be saved, add it in Admin > Settings > Company';
+            }
+        }
 
-    header("Location: ?localization");
-    exit;
+        // Seed the defaults shared with the CLI installer
+        seedDefaultData($mysqli);
+
+        setupFlash("Company <strong>" . escapeHtml($company_form['name']) . "</strong> saved$logo_message.", $logo_message ? 'warning' : 'success');
+
+        header("Location: ?localization");
+        exit;
+    }
 
 }
 
@@ -479,21 +435,25 @@ if (isset($_POST['add_localization_settings'])) {
         exit;
     }
 
-    $locale = escapeSql($_POST['locale']);
-    $currency_code = escapeSql($_POST['currency_code']);
-    $timezone = escapeSql($_POST['timezone']);
+    [$region_form, $region_errors] = setupRegionForm($_POST, $locales_array, $currencies_array, $timezones);
 
-    mysqli_query($mysqli,"UPDATE companies SET company_locale = '$locale', company_currency = '$currency_code' WHERE company_id = 1");
+    if (!$region_errors) {
+        $locale = escapeSql($region_form['locale']);
+        $currency_code = escapeSql($region_form['currency_code']);
+        $timezone = escapeSql($region_form['timezone']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_timezone = '$timezone' WHERE company_id = 1");
+        mysqli_query($mysqli,"UPDATE companies SET company_locale = '$locale', company_currency = '$currency_code' WHERE company_id = 1");
 
-    // Create Default Cash Account
-    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_type = 4, account_currency_code = '$currency_code'");
+        mysqli_query($mysqli,"UPDATE settings SET config_timezone = '$timezone' WHERE company_id = 1");
 
-    setupFlash("Language, currency and timezone saved - one last step.");
+        // Create Default Cash Account
+        mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_type = 4, account_currency_code = '$currency_code'");
 
-    header("Location: ?telemetry");
-    exit;
+        setupFlash("Language, currency and timezone saved - one last step.");
+
+        header("Location: ?telemetry");
+        exit;
+    }
 
 }
 
@@ -585,9 +545,15 @@ foreach (array_merge(array_keys($setup_steps), ['restore']) as $key) {
         break;
     }
 }
-// The Database step's errors, and the config.php to make by hand, show on it - wherever the form was sent from
+// A step's errors show on it - wherever its form was sent from
 if ($database_error !== '' || $config_manual !== '') {
     $setup_step = 'database';
+} elseif ($user_errors) {
+    $setup_step = 'user';
+} elseif ($company_errors) {
+    $setup_step = 'company';
+} elseif ($region_errors) {
+    $setup_step = 'localization';
 }
 $setup_order = array_keys($setup_steps);
 $setup_resume_index = array_search($resume_step, $setup_order, true);
@@ -638,6 +604,9 @@ $setup_title = $setup_step === 'restore' ? 'Restore a backup' : $setup_steps[$se
 
     <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
+    <?php if ($setup_step === 'company') { ?>
+        <link rel="stylesheet" href="/libs/intl-tel-input/css/intlTelInput.min.css">
+    <?php } ?>
     <link rel="stylesheet" href="/css/itflow_custom.css">
 </head>
 
@@ -710,7 +679,13 @@ $setup_title = $setup_step === 'restore' ? 'Restore a backup' : $setup_steps[$se
 
 <script src="/js/itflow_select.js"></script>
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<?php if ($setup_step === 'company') { ?>
+    <!-- The company's phone, with its country code - as on Admin > Settings > Company -->
+    <script src="/libs/intl-tel-input/js/intlTelInputWithUtils.min.js"></script>
+    <script src="/js/phone_inputs.js"></script>
+<?php } ?>
 <script src="/js/app.js"></script>
+<script src="/js/setup.js"></script>
 
 </body>
 
