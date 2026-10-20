@@ -152,6 +152,69 @@ function itflowAiReword(editor, ticket) {
             return function () {};
         }
     });
+
+    // Draft a reply - on the ticket reply editor, whose textarea says the ticket
+    var element = editor.getElement();
+    var ticketId = element ? parseInt(element.getAttribute('data-ai-ticket-id') || '0', 10) : 0;
+    if (ticket && ticketId && ai.draft) {
+        itflowAiDraft(editor, ticketId, say);
+    }
+}
+
+/*
+ * Draft with AI - the next reply on the ticket, from what the agent has typed
+ * so far (notes, a line or nothing), for who will read it: the reply type
+ * picked in its form - an internal note, a public note or an email. It
+ * replaces the editor's text in one step, so Undo puts it back.
+ */
+function itflowAiDraft(editor, ticketId, say) {
+    var buttonApi = null;
+    var types = { '0': 'internal', '1': 'public', '2': 'email' };
+    editor.ui.registry.addButton('aidraft', {
+        icon: 'ai-prompt',
+        text: 'Draft',
+        tooltip: 'Draft the reply with AI - from your notes, if you have typed some',
+        onAction: function () {
+            var form = editor.getElement().closest('form');
+            var picked = form ? form.querySelector('input[name="public_reply_type"]:checked') : null;
+            var notes = editor.getContent({ format: 'text' }).trim() === '' ? '' : editor.getContent();
+            buttonApi.setEnabled(false);
+            editor.setProgressState(true);
+            fetch(window.itflowAi.endpoint + '?ai_ticket_draft', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ticket_id: ticketId, notes: notes, type: types[picked ? picked.value : '2'] || 'email' })
+            })
+                .then(function (response) {
+                    return response.json().catch(function () {
+                        throw new Error('HTTP ' + response.status);
+                    });
+                })
+                .then(function (data) {
+                    if (data.error || !data.html) {
+                        say(data.error || 'Could not draft it.', 'error');
+                        return;
+                    }
+                    editor.undoManager.add();
+                    editor.undoManager.transact(function () {
+                        editor.setContent(data.html);
+                    });
+                    say('Drafted - read it through before it goes. Undo puts back what was there.', 'success');
+                })
+                .catch(function () {
+                    say('Could not reach ITFlow to draft it - try again.', 'error');
+                })
+                .finally(function () {
+                    editor.setProgressState(false);
+                    buttonApi.setEnabled(true);
+                });
+        },
+        onSetup: function (api) {
+            buttonApi = api;
+            return function () {};
+        }
+    });
 }
 
 /**
@@ -411,7 +474,7 @@ function itflowInit() {
         menubar: false,
         statusbar: false,
         toolbar: [
-            ...(itflowAiOn(true) ? [{ name: 'ai', items: ['reword'] }] : []),
+            ...(itflowAiOn(true) ? [{ name: 'ai', items: ['aidraft', 'reword'] }] : []),
             { name: 'styles', items: ['styles'] },
             { name: 'formatting', items: ['bold', 'italic', 'forecolor'] },
             { name: 'link', items: ['link'] },
@@ -424,7 +487,7 @@ function itflowInit() {
         mobile: {
             menubar: false,
             toolbar: [
-                ...(itflowAiOn(true) ? [{ name: 'ai', items: ['reword'] }] : []),
+                ...(itflowAiOn(true) ? [{ name: 'ai', items: ['aidraft', 'reword'] }] : []),
                 { name: 'styles', items: ['styles'] },
                 { name: 'formatting', items: ['bold', 'italic', 'forecolor'] },
                 { name: 'link', items: ['link'] },

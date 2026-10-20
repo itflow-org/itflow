@@ -60,8 +60,8 @@ function aiProviderKind($kind) {
 function aiUseCases() {
     return [
         'General' => 'Everything without a model of its own - Reword in any editor.',
-        'Tickets' => 'Ticket summaries, and Reword in the ticket reply editor.',
-        'Documentation' => 'Drafting document templates.',
+        'Tickets' => 'Drafting replies, triage, summaries, and Reword in the ticket reply editor.',
+        'Documentation' => 'Writing a ticket up as a document, and drafting document templates.',
     ];
 }
 
@@ -70,8 +70,11 @@ function aiFeatures() {
     return [
         'reword' => 'Reword',
         'reword_ticket' => 'Reword a ticket reply',
+        'ticket_draft' => 'Draft a reply',
+        'ticket_triage' => 'Triage',
         'ticket_summary' => 'Ticket summary',
         'document_template' => 'Document template draft',
+        'ticket_document' => 'Ticket written up as a document',
         'test' => 'Test',
     ];
 }
@@ -136,7 +139,8 @@ function aiClientConfig() {
     if (!$general && !$tickets) {
         return false;
     }
-    return ['reword' => $general, 'rewordTicket' => $tickets, 'endpoint' => '/agent/ajax.php'];
+    // Draft is on the ticket reply editor only - its textarea says which ticket
+    return ['reword' => $general, 'rewordTicket' => $tickets, 'draft' => $tickets, 'endpoint' => '/agent/ajax.php'];
 }
 
 /*
@@ -258,8 +262,9 @@ function aiProviderHeaders($kind, $api_key, $json = true) {
  *
  * The first message is the feature's own instructions (a system message). The
  * model's instructions from Admin > AI Providers follow them. Passwords and keys
- * are taken out first when the provider is set to, and put back in the answer.
- * Every request is recorded in ai_usage. Provider detail on a failure - status,
+ * are taken out first when the provider is set to, and put back in the answer -
+ * or, with $context 'secrets' => 'remove' (for what is kept, like a document),
+ * left out as [removed]. Every request is recorded in ai_usage. Provider detail on a failure - status,
  * error type, code and message - goes to the app log so a misconfiguration is
  * diagnosable. The API key and the message bodies never do.
  */
@@ -352,6 +357,10 @@ function callAiApi($model, $messages, array $context = []) {
 
     aiUsageRecord($usage + ['ok' => true, 'tokens_in' => intval($decoded['usage']['prompt_tokens'] ?? 0), 'tokens_out' => intval($decoded['usage']['completion_tokens'] ?? 0)]);
 
+    // Put back - or, for what is kept (a document), left out for good
+    if (($context['secrets'] ?? 'restore') === 'remove') {
+        return ['ok' => true, 'content' => aiRestore($content, array_fill_keys(array_keys($secrets), '[removed]')), 'removed' => count($secrets)];
+    }
     return ['ok' => true, 'content' => aiRestore($content, $secrets)];
 }
 

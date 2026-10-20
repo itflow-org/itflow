@@ -107,6 +107,29 @@ CREATE TABLE `ai_providers` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ai_ticket_triage`
+--
+
+DROP TABLE IF EXISTS `ai_ticket_triage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ai_ticket_triage` (
+  `ai_triage_ticket_id` int(11) NOT NULL,
+  `ai_triage_category_id` int(11) NOT NULL DEFAULT 0,
+  `ai_triage_priority` varchar(20) DEFAULT NULL,
+  `ai_triage_summary` varchar(300) DEFAULT NULL,
+  `ai_triage_reason` varchar(200) DEFAULT NULL,
+  `ai_triage_state` varchar(20) NOT NULL DEFAULT 'suggested',
+  `ai_triage_by` int(11) NOT NULL DEFAULT 0,
+  `ai_triage_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `ai_triage_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`ai_triage_ticket_id`),
+  KEY `ai_triage_state` (`ai_triage_state`),
+  CONSTRAINT `ai_ticket_triage_ticket` FOREIGN KEY (`ai_triage_ticket_id`) REFERENCES `tickets` (`ticket_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `ai_usage`
 --
 
@@ -2931,6 +2954,7 @@ CREATE TABLE `settings` (
   `config_ticket_client_general_notifications` tinyint(1) NOT NULL DEFAULT 1,
   `config_ticket_autoclose_hours` int(5) NOT NULL DEFAULT 72,
   `config_ticket_new_ticket_notification_email` varchar(200) DEFAULT NULL,
+  `config_ticket_ai_triage` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_default_billable` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_timer_autostart` tinyint(1) NOT NULL DEFAULT 0,
   `config_enable_cron` tinyint(1) NOT NULL DEFAULT 0,

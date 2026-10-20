@@ -4,7 +4,8 @@
  * Admin > Settings > Tickets - how tickets are numbered, made from email
  * (cron/ticket_email_parser.php, reading the mailbox in Mail > Receiving),
  * timed and billed, who hears about new ones, when resolved ones close, and
- * how the tickets page opens. Saved by edit_ticket_settings
+ * how the tickets page opens, and whether AI triages new tickets
+ * (functions/ai_ticket.php). Saved by edit_ticket_settings
  * (admin/post/settings_ticket.php).
  */
 
@@ -34,9 +35,16 @@ echo settingsPageStart('ticket');
                 </div>
             <?= settingsSectionEnd() ?>
 
-            <?= settingsSectionStart('new', 'New tickets', 'Who hears about a ticket as it is raised - in the portal, by email or on a schedule.') ?>
+            <?= settingsSectionStart('new', 'New tickets', 'Who hears about a ticket as it is raised - in the portal, by email or on a schedule - and whether AI sorts it.') ?>
                 <?= settingsInput('config_ticket_new_ticket_notification_email', $config_ticket_new_ticket_notification_email, ['icon' => 'fa-bell', 'type' => 'email', 'maxlength' => 200,
                     'placeholder' => 'support@company.com', 'help' => 'A shared mailbox or list works best. Empty, nobody is emailed.']) ?>
+                <?php if (aiTriageReady()) { ?>
+                    <?php if (!getAiModel('Tickets')) { ?>
+                        <div class="alert alert-warning py-2 small" data-ticket-ai-no-model><i class="fas fa-exclamation-triangle me-2"></i>AI triage needs an AI model for Tickets, or one for everything - <a href="ai_providers.php">AI Providers</a>.</div>
+                    <?php } ?>
+                    <?= settingsSelect('config_ticket_ai_triage', aiTriageMode(), aiTriageModes(), ['icon' => 'fa-robot',
+                        'help' => 'A ticket from email, the portal or the API is given a category and a priority by AI as it comes in, with a line on what the client needs - within a minute, by the AI Triage job in <a href="cron.php">Maintenance &gt; Cron</a>. Fill in sets the category when the ticket has none, and the priority of an emailed one, since nobody picked it; the rest is suggested. Any ticket can be triaged from its menu too.']) ?>
+                <?php } ?>
             <?= settingsSectionEnd() ?>
 
             <?= settingsSectionStart('time', 'Time and billing', 'How time on a ticket starts, and whether it bills.') ?>

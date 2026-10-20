@@ -108,10 +108,18 @@ if (isset($_POST['add_document'])) {
 
     logAudit("Document", "Create", "$session_name created document $name", $client_id, $document_id);
 
+    // Written up from a ticket (Write up as a document) - its history says so, and it opens on the document
+    $from_ticket = ticketRow($_POST['from_ticket_id'] ?? 0);
+    if ($from_ticket && (intval($from_ticket['ticket_client_id']) ?: intval($config_internal_client_id ?? 0)) === $client_id) {
+        logTicketHistory(intval($from_ticket['ticket_id']), "$session_name wrote this ticket up as document $name");
+    } else {
+        $from_ticket = null;
+    }
+
     flashAlert("Document <strong>" . trim($_POST['name']) . "</strong> created");
 
     // From an asset, a contact, a license, a location, a vendor or a service, back to it; otherwise to the new document
-    redirect(($contact_id || $asset_id || $software_id || $location_id || $vendor_id || $service_id) ? null : "document.php?client_id=$client_id&document_id=$document_id");
+    redirect(!$from_ticket && ($contact_id || $asset_id || $software_id || $location_id || $vendor_id || $service_id) ? null : "document.php?client_id=$client_id&document_id=$document_id");
 
 }
 

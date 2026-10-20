@@ -68,6 +68,14 @@ function cronJobRegistry(): array
             'interval_minutes' => 1,
         ],
         [
+            'name' => 'ai_triage',
+            'label' => 'AI Triage',
+            'script' => 'ai_triage.php',
+            'description' => 'Gives new tickets from email, the portal and the API a category and priority by AI, when Settings > Tickets says to. Up to 5 a run.',
+            'schedule' => 'Interval',
+            'interval_minutes' => 1,
+        ],
+        [
             'name' => 'domain_refresher',
             'label' => 'Domain Refresher',
             'script' => 'domain_refresher.php',

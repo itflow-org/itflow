@@ -1939,7 +1939,7 @@ if (isset($_GET['contact_email_check'])) {
 }
 
 /*
- * AI - Reword, the ticket summary and a document template draft. Each needs
+ * AI - Reword, the ticket features and a document template draft. Each needs
  * the role's Use AI permission (module_ai) and a model for its use case
  * (functions/ai.php), and names itself so AI Usage can tell them apart.
  * Passwords and keys are taken out of what is sent, and put back in the answer,
@@ -2059,109 +2059,55 @@ if (isset($_GET['ai_create_document_template'])) {
 
 }
 
-if (isset($_GET['ai_ticket_summary'])) {
-
-    enforceUserPermission('module_support');
+/*
+ * The ticket features - each answers JSON: what was asked for, or 'error'.
+ * The agent needs Support (to change it, for a draft or a document), the
+ * ticket's client, and Use AI.
+ */
+$aiTicket = function ($ticket_id, $level) use ($aiRefuse) {
+    header('Content-Type: application/json');
     if (!aiCan()) {
         $aiRefuse();
     }
-
-    header('Content-Type: text/html; charset=UTF-8');
-
-    $model = getAiModel('Tickets');
-    if (!$model) {
-        echo escapeHtml(aiModelMissingError('Tickets'));
-        exit;
-    }
-
-    $ticket_id = intval($_POST['ticket_id'] ?? 0);
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
-        SELECT ticket_subject, ticket_details, ticket_source, ticket_priority, ticket_status_name, category_name, ticket_client_id
-        FROM tickets
-        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-        LEFT JOIN categories ON ticket_category = category_id
-        WHERE ticket_id = $ticket_id
-        LIMIT 1
-    "));
+    enforceUserPermission('module_support', $level);
+    $row = ticketRow($ticket_id);
     if (!$row) {
-        echo 'That ticket no longer exists.';
+        echo json_encode(['error' => 'That ticket no longer exists.']);
         exit;
     }
-    $ticket_subject = $row['ticket_subject'];
-    $ticket_details = strip_tags($row['ticket_details']); // strip HTML for cleaner prompt
-    $ticket_status = $row['ticket_status_name'];
-    $ticket_category = $row['category_name'];
-    $ticket_source = $row['ticket_source'];
-    $ticket_priority = $row['ticket_priority'];
-    $client_id = intval($row['ticket_client_id']);
-
-    // A ticket with no client is internal work any agent may read
-    if ($client_id) {
-        enforceClientAccess();
+    if (intval($row['ticket_client_id']) && !hasClientAccess(intval($row['ticket_client_id']))) {
+        permissionRefuse("You don't have access to " . ($row['client_name'] ?: 'that client') . "'s tickets.");
     }
+    return $row;
+};
 
-    $sql_replies = mysqli_query($mysqli, "
-        SELECT ticket_reply, ticket_reply_type, user_name
-        FROM ticket_replies
-        LEFT JOIN users ON ticket_reply_by = user_id
-        WHERE ticket_reply_ticket_id = $ticket_id
-        AND ticket_reply_archived_at IS NULL
-        ORDER BY ticket_reply_id ASC
-    ");
+// The ticket summed up for the agents working it
+if (isset($_GET['ai_ticket_summary'])) {
+    $row = $aiTicket($_POST['ticket_id'] ?? 0, 1);
+    $result = aiTicketSummary(intval($row['ticket_id']));
+    echo json_encode($result['ok'] ? ['html' => $result['html']] : ['error' => $result['error']]);
+    exit;
+}
 
-    $all_replies_text = "";
-    while ($reply = mysqli_fetch_assoc($sql_replies)) {
-        $reply_type = $reply['ticket_reply_type'];
-        $reply_text = strip_tags($reply['ticket_reply']);
-        $reply_by = $reply['user_name'];
-        $all_replies_text .= "\nReply Type: $reply_type Reply By: $reply_by: Reply Text: $reply_text";
-    }
-
-    $prompt = "
-    Summarize the following IT support ticket and its responses in a concise, clear, and professional manner.
-    The summary should include:
-
-    1. Main Issue: What was the problem reported by the user?
-    2. Actions Taken: What steps were taken to address the issue?
-    3. Resolution or Next Steps: Was the issue resolved or is it ongoing?
-
-    Please ensure:
-    - If there are multiple issues, summarize each separately.
-    - Urgency: If the ticket or replies express urgency or escalation, highlight it.
-    - Attachments: If mentioned in the ticket, note any relevant attachments or files.
-    - Avoid extra explanations or unnecessary information.
-
-    Ticket Data:
-    - Ticket Source: $ticket_source
-    - Current Ticket Status: $ticket_status
-    - Ticket Priority: $ticket_priority
-    - Ticket Category: $ticket_category
-    - Ticket Subject: $ticket_subject
-    - Ticket Details: $ticket_details
-    - Replies:
-    $all_replies_text
-
-    Formatting instructions:
-    - Use valid HTML tags only.
-    - Use <h3> for section headers (Main Issue, Actions Taken, Resolution).
-    - Use <ul><li> for bullet points under each section.
-    - Do NOT wrap the output in ```html or any other code fences.
-    - Do NOT include <html>, <head>, or <body>.
-    - Output only the summary content in pure HTML.
-    If any part of the ticket or replies is unclear or ambiguous, mention it in the summary and suggest if further clarification is needed.
-    ";
-
-    $result = callAiApi($model, [
-        ["role" => "system", "content" => "Your task is to summarize IT support tickets with clear, concise details."],
-        ["role" => "user", "content" => $prompt]
-    ], ['feature' => 'ticket_summary', 'client_id' => $client_id]);
-
-    if (!$result['ok']) {
-        echo "<p>" . escapeHtml($result['error']) . "</p>";
+// The next reply, drafted - from what the agent has typed so far, for who will read it
+if (isset($_GET['ai_ticket_draft'])) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $input = is_array($input) ? $input : [];
+    $row = $aiTicket($input['ticket_id'] ?? 0, 2);
+    if (!empty($row['ticket_closed_at'])) {
+        echo json_encode(['error' => 'This ticket is closed - start a new one instead.']);
         exit;
     }
+    $result = aiTicketDraft(intval($row['ticket_id']), (string) ($input['notes'] ?? ''), (string) ($input['type'] ?? 'email'));
+    echo json_encode($result['ok'] ? ['html' => $result['html']] : ['error' => $result['error']]);
+    exit;
+}
 
-    echo aiCleanHtml($result['content']);
+// The ticket written up as a document - its title, summary and what it says, passwords and keys left out
+if (isset($_GET['ai_ticket_document'])) {
+    $row = $aiTicket($_POST['ticket_id'] ?? 0, 2);
+    $result = aiTicketDocument(intval($row['ticket_id']));
+    echo json_encode($result['ok'] ? ['title' => $result['title'], 'description' => $result['description'], 'html' => $result['html'], 'removed' => $result['removed']] : ['error' => $result['error']]);
     exit;
 }
 

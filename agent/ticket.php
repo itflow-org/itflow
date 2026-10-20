@@ -451,8 +451,15 @@ if (isset($_GET['ticket_id'])) {
             $resolve_confirm_text .= "It closes on its own after $config_ticket_autoclose_hours hours unless the client replies.";
         }
 
-        // Only offer the summary when an AI model is set up for it and the role may use AI
+        // AI - offered only when a model is set up for it and the role may use AI (functions/ai_ticket.php)
         $ai_summary_available = aiReady('Tickets');
+        $ai_triage_available = $ai_summary_available && $can_edit_ticket && $ticket_is_open && aiTriageReady();
+        // A ticket with no client is written up in your own company's documents, when there is one
+        $ai_document_client_id = $client_id ?: intval($config_internal_client_id ?? 0);
+        $ai_document_available = $can_edit_ticket && $ai_document_client_id > 0 && aiReady('Documentation');
+        // What AI triage suggests that the ticket doesn't have yet
+        $ai_triage = $ai_summary_available && aiTriageReady() ? aiTriageRow($ticket_id) : null;
+        $ai_triage_changes = $ai_triage && $ai_triage['ai_triage_state'] === 'suggested' && $ticket_is_open ? aiTriageChanges($ai_triage, $ticket) : [];
 
         // Billing actions, decided once - the header shows Invoice once the work is done
         $show_quote_button = $can_edit_ticket && $config_module_enable_accounting && $ticket_billable == 1 && empty($quote_id) && empty($invoice_id) && lookupUserPermission("module_sales") >= 2;
@@ -582,6 +589,19 @@ if (isset($_GET['ticket_id'])) {
                                                 <i class="fas fa-fw fa-magic me-2"></i>Summarize with AI
                                             </a>
                                         <?php } ?>
+                                        <?php if ($ai_triage_available) { ?>
+                                            <a class="dropdown-item" href="post.php?triage_ticket_ai=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Suggests a category and priority, to apply or dismiss">
+                                                <i class="fas fa-fw fa-sort-amount-down me-2"></i>Triage with AI
+                                            </a>
+                                        <?php } ?>
+                                        <?php if ($ai_document_available) { ?>
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_document.php?ticket_id=<?= $ticket_id ?>" data-modal-size="xl" title="A document for next time, drafted by AI from the ticket">
+                                                <i class="fas fa-fw fa-file-medical me-2"></i>Write up as a document
+                                            </a>
+                                        <?php } ?>
+                                        <?php if (($ai_summary_available || $ai_document_available) && ($show_trips || $can_edit_ticket)) { ?>
+                                            <div class="dropdown-divider"></div>
+                                        <?php } ?>
                                         <?php if ($show_trips) { ?>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/trip/trip_add.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
                                                 <i class="fas fa-fw fa-route me-2"></i>Log a trip
@@ -632,6 +652,44 @@ if (isset($_GET['ticket_id'])) {
 
 
             <div class="ticket-layout-main">
+
+                <?php if ($ai_triage_changes) { ?>
+                    <!-- What AI triage suggests, to apply or dismiss -->
+                    <form action="post.php" method="post" class="alert alert-info d-print-none py-2 mb-3" data-ai-triage>
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <i class="fas fa-fw fa-robot"></i>
+                            <strong class="me-1">AI triage suggests</strong>
+                            <?php foreach ($ai_triage_changes as $field => $change) { ?>
+                                <label class="form-check-label d-inline-flex align-items-center gap-1 me-2" data-ai-triage-change="<?= $field ?>">
+                                    <input class="form-check-input mt-0" type="checkbox" name="apply[]" value="<?= $field ?>" checked <?= $can_change_fields ? '' : 'disabled' ?>>
+                                    <?= $field === 'category' ? 'Category' : 'Priority' ?>
+                                    <?php if ($field === 'priority') { ?>
+                                        <?= ticketPriorityHtml($change[1], 'detail') ?>
+                                    <?php } else { ?>
+                                        <strong><?= escapeHtml($change[1]) ?></strong>
+                                    <?php } ?>
+                                    <span class="small opacity-75">(<?= escapeHtml($change[0] === 'none' ? 'none now' : 'now ' . $change[0]) ?>)</span>
+                                </label>
+                            <?php } ?>
+                            <?php if ($can_change_fields) { ?>
+                                <div class="ms-auto d-flex gap-2">
+                                    <button type="submit" name="apply_ticket_ai_triage" class="btn btn-sm btn-info"><i class="fas fa-fw fa-check me-1"></i>Apply</button>
+                                    <button type="submit" name="dismiss_ticket_ai_triage" class="btn btn-sm btn-light border"><i class="fas fa-fw fa-times me-1"></i>Dismiss</button>
+                                </div>
+                            <?php } ?>
+                        </div>
+                        <?php if (trim((string) $ai_triage['ai_triage_summary']) !== '' || trim((string) $ai_triage['ai_triage_reason']) !== '') { ?>
+                            <div class="small mt-1" data-ai-triage-summary>
+                                <?= escapeHtml((string) $ai_triage['ai_triage_summary']) ?>
+                                <?php if (trim((string) $ai_triage['ai_triage_reason']) !== '' && isset($ai_triage_changes['priority'])) { ?>
+                                    <span class="opacity-75">- <?= escapeHtml(lcfirst((string) $ai_triage['ai_triage_reason'])) ?></span>
+                                <?php } ?>
+                            </div>
+                        <?php } ?>
+                    </form>
+                <?php } ?>
 
                 <!-- The original request -->
                 <div class="card mb-3">
@@ -765,7 +823,7 @@ if (isset($_GET['ticket_id'])) {
                                         ?>
 
                                         <div class="mb-3">
-                                            <textarea class="form-control tinymceTicket" id="ticket_reply" name="ticket_reply" placeholder="Type a response" data-canned-picker="cannedPickerReply" data-ai-client-id="<?= intval($client_id) ?>"></textarea>
+                                            <textarea class="form-control tinymceTicket" id="ticket_reply" name="ticket_reply" placeholder="Type a response" data-canned-picker="cannedPickerReply" data-ai-client-id="<?= intval($client_id) ?>" data-ai-ticket-id="<?= $ticket_id ?>"></textarea>
                                         </div>
 
                                         <div class="mb-3">

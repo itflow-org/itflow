@@ -156,6 +156,8 @@ function settingsFields() {
         'config_ticket_timer_autostart' => ['page' => 'ticket', 'section' => 'Time and billing', 'label' => 'Start the timer on opening a ticket', 'words' => 'timer autostart time tracking'] + $on_off,
         'config_ticket_autoclose_hours' => ['page' => 'ticket', 'section' => 'Closing', 'label' => 'Close resolved tickets after', 'words' => 'auto close autoclose resolved hours'],
         'config_ticket_new_ticket_notification_email' => ['page' => 'ticket', 'section' => 'New tickets', 'label' => 'Email new tickets to', 'words' => 'new ticket notification email distribution list alert'],
+        'config_ticket_ai_triage' => ['page' => 'ticket', 'section' => 'New tickets', 'label' => 'Triage new tickets with AI', 'kind' => 'select', 'options' => 'ai_triage',
+            'words' => 'ai artificial intelligence triage category priority automatic sort'],
         'config_ticket_default_view' => ['page' => 'ticket', 'section' => 'The tickets page', 'label' => 'Tickets open as', 'kind' => 'select', 'options' => [0 => 'A list', 1 => 'A compact list', 2 => 'A board (kanban)'],
             'words' => 'default view list compact kanban board'],
         'config_ticket_ordering' => ['page' => 'ticket', 'section' => 'The tickets page', 'label' => 'Order tickets by hand on the board', 'words' => 'kanban ordering drag order'] + $on_off,
@@ -641,6 +643,8 @@ function settingsLogValue($name, $value) {
             $options = settingsMailProviders();
         } elseif ($options === 'mail_encryption') {
             $options = settingsMailEncryption();
+        } elseif ($options === 'ai_triage') {
+            $options = [0 => 'off', 1 => 'suggest', 2 => 'fill in'];
         } elseif (is_string($options)) {
             $options = settingsLocalizationArrays()[$options] ?? [];
         }

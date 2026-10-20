@@ -8420,3 +8420,16 @@ a.itflow-portal-request:focus-visible {
 .itflow-mail-queue-facts dd {
     margin-bottom: .35rem;
 }
+
+/* An AI summary of a ticket (agent/modals/ticket/ticket_summary.php) - its sections close together */
+.itflow-ai-summary h6 {
+    font-weight: 600;
+    margin: 1rem 0 0.35rem;
+}
+.itflow-ai-summary ul {
+    margin-bottom: 0.25rem;
+    padding-left: 1.25rem;
+}
+.itflow-ai-summary p:last-child {
+    margin-bottom: 0;
+}
