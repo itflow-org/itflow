@@ -220,8 +220,13 @@
                     </a>
                 </li>
 
-                <!-- SETTINGS Section -->
-                <li class="nav-item mt-2 <?= (in_array(basename($_SERVER['PHP_SELF']), ['settings_company.php', 'settings_localization.php', 'settings_theme.php', 'settings_security.php', 'settings_logs.php', 'settings_mail.php', 'settings_notification.php', 'settings_default.php', 'settings_invoice.php', 'settings_quote.php', 'settings_online_payment.php', 'settings_online_payment_clients.php', 'settings_project.php', 'settings_ticket.php', 'settings_ai.php', 'identity_providers.php', 'settings_telemetry.php', 'settings_module.php', 'settings_client_portal.php']) ? 'menu-open' : '') ?>">
+                <!-- SETTINGS Section - the pages are listed in functions/settings.php, as the overview shows them -->
+                <?php
+                $settings_nav_pages = settingsPages();
+                $settings_nav_current = basename($_SERVER['PHP_SELF']);
+                $settings_nav_open = $settings_nav_current === 'settings.php' || in_array($settings_nav_current, array_column($settings_nav_pages, 'url'), true);
+                ?>
+                <li class="nav-item mt-2 <?= $settings_nav_open ? 'menu-open' : '' ?>">
                     <a href="#" class="nav-link">
                         <p>
                             SETTINGS
@@ -230,108 +235,22 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="/admin/settings_company.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_company.php' ? 'active' : '') ?>">
-                                <i class="nav-icon fa fa-briefcase"></i>
-                                <p>Company Details</p>
+                            <a href="/admin/settings.php" class="nav-link <?= $settings_nav_current === 'settings.php' ? 'active' : '' ?>">
+                                <i class="nav-icon fas fa-sliders-h"></i>
+                                <p>Overview</p>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="/admin/settings_localization.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_localization.php' ? 'active' : '') ?>">
-                                <i class="nav-icon fa fa-globe"></i>
-                                <p>Localization</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/admin/settings_theme.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_theme.php' ? 'active' : '') ?>">
-                                <i class="nav-icon fa fa-paint-brush"></i>
-                                <p>Theme</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/admin/settings_security.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_security.php' ? 'active' : '') ?>">
-                                <i class="nav-icon fas fa-shield-alt"></i>
-                                <p>Security</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/admin/settings_logs.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_logs.php' ? 'active' : '') ?>">
-                                <i class="nav-icon fas fa-scroll"></i>
-                                <p>Logs</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/admin/settings_mail.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_mail.php' ? 'active' : '') ?>">
-                                <i class="nav-icon far fa-envelope"></i>
-                                <p>Mail</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/admin/settings_notification.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_notification.php' ? 'active' : '') ?>">
-                                <i class="nav-icon far fa-bell"></i>
-                                <p>Notifications</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/admin/settings_default.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_default.php' ? 'active' : '') ?>">
-                                <i class="nav-icon fas fa-cogs"></i>
-                                <p>Defaults</p>
-                            </a>
-                        </li>
-                        <?php if ($config_module_enable_accounting) { ?>
+                        <?php foreach ($settings_nav_pages as $settings_nav_page) {
+                            if (!settingsPageAvailable($settings_nav_page)) {
+                                continue;
+                            } ?>
                             <li class="nav-item">
-                                <a href="/admin/settings_quote.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_quote.php' ? 'active' : '') ?>">
-                                    <i class="nav-icon fas fa-comment-dollar"></i>
-                                    <p>Quote</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="/admin/settings_invoice.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_invoice.php' ? 'active' : '') ?>">
-                                    <i class="nav-icon fas fa-file-invoice"></i>
-                                    <p>Invoice</p>
+                                <a href="/admin/<?= escapeHtml($settings_nav_page['url']) ?>" class="nav-link <?= $settings_nav_current === $settings_nav_page['url'] ? 'active' : '' ?>">
+                                    <i class="nav-icon fas <?= escapeHtml($settings_nav_page['icon']) ?>"></i>
+                                    <p><?= escapeHtml($settings_nav_page['title']) ?></p>
                                 </a>
                             </li>
                         <?php } ?>
-                        <?php if ($config_module_enable_ticketing) { ?>
-                            <li class="nav-item">
-                                <a href="/admin/settings_project.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_project.php' ? 'active' : '') ?>">
-                                    <i class="nav-icon fas fa-project-diagram"></i>
-                                    <p>Project</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="/admin/settings_ticket.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_ticket.php' ? 'active' : '') ?>">
-                                    <i class="nav-icon fas fa-life-ring"></i>
-                                    <p>Ticket</p>
-                                </a>
-                            </li>
-                        <?php } ?>
-                        <!-- Currently the only integration is the client portal SSO -->
-                        <?php if ($config_client_portal_enable) { ?>
-                            <li class="nav-item">
-                                <a href="/admin/settings_client_portal.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_client_portal.php' ? 'active' : '') ?>">
-                                    <i class="nav-icon fas fa-user-shield"></i>
-                                    <p>Client Portal</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="/admin/identity_providers.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'identity_providers.php' ? 'active' : '') ?>">
-                                    <i class="nav-icon fas fa-fingerprint"></i>
-                                    <p>Identity Provider</p>
-                                </a>
-                            </li>
-                        <?php } ?>
-                        <li class="nav-item">
-                            <a href="/admin/settings_telemetry.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_telemetry.php' ? 'active' : '') ?>">
-                                <i class="nav-icon fas fa-satellite-dish"></i>
-                                <p>Telemetry</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/admin/settings_module.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_module.php' ? 'active' : '') ?>">
-                                <i class="nav-icon fas fa-cube"></i>
-                                <p>Modules</p>
-                            </a>
-                        </li>
                     </ul>
                 </li>
 

@@ -27,11 +27,11 @@ $per_page = intval($me['user_config_records_per_page']) ?: 10;
                     <div class="d-flex flex-wrap gap-2" role="group" aria-label="Theme">
                         <input class="btn-check" type="radio" name="dark_mode" id="themeLight" value="0" autocomplete="off" <?= $user_config_theme_dark === 0 ? 'checked' : '' ?>>
                         <label class="btn btn-outline-secondary itflow-theme-pick" for="themeLight">
-                            <span class="itflow-theme-swatch is-light" aria-hidden="true"></span><i class="fas fa-sun me-2"></i>Light
+                            <span class="itflow-mode-swatch is-light" aria-hidden="true"></span><i class="fas fa-sun me-2"></i>Light
                         </label>
                         <input class="btn-check" type="radio" name="dark_mode" id="themeDark" value="1" autocomplete="off" <?= $user_config_theme_dark === 1 ? 'checked' : '' ?>>
                         <label class="btn btn-outline-secondary itflow-theme-pick" for="themeDark">
-                            <span class="itflow-theme-swatch is-dark" aria-hidden="true"></span><i class="fas fa-moon me-2"></i>Dark
+                            <span class="itflow-mode-swatch is-dark" aria-hidden="true"></span><i class="fas fa-moon me-2"></i>Dark
                         </label>
                     </div>
                 </div>

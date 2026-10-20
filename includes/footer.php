@@ -85,6 +85,9 @@
 <script src="/js/date_filter.js"></script>
 <script src="/js/global_search.js"></script>
 <script src="/js/notifications.js"></script>
+<?php if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
+<script src="/js/settings.js"></script>
+<?php } ?>
 
 </body>
 </html>
