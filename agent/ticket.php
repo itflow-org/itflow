@@ -451,8 +451,8 @@ if (isset($_GET['ticket_id'])) {
             $resolve_confirm_text .= "It closes on its own after $config_ticket_autoclose_hours hours unless the client replies.";
         }
 
-        // Only offer the summary when an AI model is actually set up for it
-        $ai_summary_available = (bool) getAiModel('Tickets');
+        // Only offer the summary when an AI model is set up for it and the role may use AI
+        $ai_summary_available = aiReady('Tickets');
 
         // Billing actions, decided once - the header shows Invoice once the work is done
         $show_quote_button = $can_edit_ticket && $config_module_enable_accounting && $ticket_billable == 1 && empty($quote_id) && empty($invoice_id) && lookupUserPermission("module_sales") >= 2;
@@ -765,7 +765,7 @@ if (isset($_GET['ticket_id'])) {
                                         ?>
 
                                         <div class="mb-3">
-                                            <textarea class="form-control tinymceTicket" id="ticket_reply" name="ticket_reply" placeholder="Type a response" data-canned-picker="cannedPickerReply"></textarea>
+                                            <textarea class="form-control tinymceTicket" id="ticket_reply" name="ticket_reply" placeholder="Type a response" data-canned-picker="cannedPickerReply" data-ai-client-id="<?= intval($client_id) ?>"></textarea>
                                         </div>
 
                                         <div class="mb-3">

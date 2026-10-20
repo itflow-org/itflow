@@ -1938,32 +1938,61 @@ if (isset($_GET['contact_email_check'])) {
     echo json_encode($response);
 }
 
+/*
+ * AI - Reword, the ticket summary and a document template draft. Each needs
+ * the role's Use AI permission (module_ai) and a model for its use case
+ * (functions/ai.php), and names itself so AI Usage can tell them apart.
+ * Passwords and keys are taken out of what is sent, and put back in the answer,
+ * by callAiApi(). What comes back as HTML goes through the purifier first.
+ */
+
+// The agent may not use AI - said as the rest of ajax.php says it, JSON with a 403
+$aiRefuse = function () {
+    permissionRefuse(permissionRefusedText('module_ai', 1, 0));
+};
+
 if (isset($_GET['ai_reword'])) {
 
     header('Content-Type: application/json');
+    if (!aiCan()) {
+        $aiRefuse();
+    }
 
-    // The reword button sits on every TinyMCE instance, so the ticket editor asks for
-    // the Tickets model and everything else gets General. Anything unrecognised is
-    // treated as General rather than trusted into the query.
+    // The ticket reply editor asks for the Tickets model, every other editor General.
+    // Anything unrecognised is treated as General rather than trusted into the query.
     $use_case = ($_GET['use_case'] ?? '') === 'Tickets' ? 'Tickets' : 'General';
-
     $model = getAiModel($use_case);
-
     if (!$model) {
         echo json_encode(['error' => aiModelMissingError($use_case)]);
         exit;
     }
 
-    // Collecting the input data from the AJAX request.
-    $inputJSON = file_get_contents('php://input');
-    $input = json_decode($inputJSON, TRUE); // Convert JSON into array.
+    $input = json_decode(file_get_contents('php://input'), true);
+    $text = is_array($input) ? (string) ($input['text'] ?? '') : '';
+    if (trim(str_replace("\xC2\xA0", ' ', html_entity_decode(strip_tags($text), ENT_QUOTES, 'UTF-8'))) === '') {
+        echo json_encode(['error' => 'There is nothing to reword yet - write something first.']);
+        exit;
+    }
+    if (mb_strlen($text) > 60000) {
+        echo json_encode(['error' => 'That is too long to reword in one go - reword it a part at a time.']);
+        exit;
+    }
+    // The client it is for, when the editor knows - for AI Usage
+    $reword_client_id = intval($input['client_id'] ?? 0);
+    if ($reword_client_id && !getFieldById('clients', $reword_client_id, 'client_id')) {
+        $reword_client_id = 0;
+    }
 
-    $userText = $input['text'] ?? '';
+    $instructions = $use_case === 'Tickets'
+        ? 'You edit the replies an IT services company sends on support tickets. Rewrite the reply you are given so it reads clearly, professionally and kindly - fix spelling and grammar, and make it easy for someone who isn\'t technical to follow.'
+        : 'You edit what an IT services company writes. Rewrite the text you are given so it reads clearly and professionally - fix spelling and grammar, and tighten it.';
+    $instructions .= ' Keep its meaning and every fact, name, number, date, link, command and placeholder in square brackets exactly as they are. Write in the language it is written in. Don\'t add anything it doesn\'t say.'
+        . ' Keep its HTML formatting - paragraphs, line breaks, lists, bold and links - and answer with the reworded HTML only: no introduction, no notes, no code fences.';
 
     $result = callAiApi($model, [
-        ["role" => "system", "content" => $model['ai_model_prompt']],
-        ["role" => "user", "content" => $userText],
-    ]);
+        ['role' => 'system', 'content' => $instructions],
+        ['role' => 'user', 'content' => $text],
+    ], ['feature' => $use_case === 'Tickets' ? 'reword_ticket' : 'reword', 'client_id' => $reword_client_id]);
 
     // Report failures as an error, never as reworded text - the editor writes
     // rewordedText straight back over the user's content
@@ -1971,44 +2000,38 @@ if (isset($_GET['ai_reword'])) {
         echo json_encode(['error' => $result['error']]);
         exit;
     }
+    $reworded = aiCleanHtml($result['content']);
+    if ($reworded === '') {
+        echo json_encode(['error' => 'The AI provider answered with nothing - try again.']);
+        exit;
+    }
 
-    $content = $result['content'];
-
-    // Clean any leading "html" word or other unwanted text at the beginning.
-    $content = preg_replace('/^html/i', '', $content);  // Remove any occurrence of 'html' at the start
-
-    // Clean the response content to remove backticks or code block markers.
-    $cleanedContent = str_replace('```', '', $content); // Remove backticks if they exist.
-
-    // Trim any leading/trailing whitespace.
-    $cleanedContent = trim($cleanedContent);
-
-    echo json_encode(['rewordedText' => $cleanedContent]);
+    echo json_encode(['rewordedText' => $reworded]);
+    exit;
 
 }
 
 if (isset($_GET['ai_create_document_template'])) {
 
     enforceUserPermission('module_support');
+    if (!aiCan()) {
+        $aiRefuse();
+    }
 
     header('Content-Type: text/html; charset=UTF-8');
 
-    $prompt = $_POST['prompt'] ?? '';
-
-    // Basic validation
-    if (empty($prompt)) {
+    $prompt = trim((string) ($_POST['prompt'] ?? ''));
+    if ($prompt === '') {
         echo "No prompt provided.";
         exit;
     }
 
     $model = getAiModel('Documentation');
-
     if (!$model) {
         echo escapeHtml(aiModelMissingError('Documentation'));
         exit;
     }
 
-    // Prepare prompt
     // It writes in the words a document template fills in from the client, and asks for the rest
     $system_message = "You are a helpful IT documentation assistant. You will create a well-structured HTML template for IT documentation based on a given prompt. Include headings, subheadings, bullet points, and possibly tables for clarity. No Lorem Ipsum, professional language."
         . " These words in square brackets are filled in from the client when a document is made from the template - use them where those details belong: " . implode(', ', array_map(function ($word) {
@@ -2017,49 +2040,49 @@ if (isset($_GET['ai_create_document_template'])) {
         . " These put in the client's records, as a table when on a line of their own (<p>[Networks]</p>) and as a list of names in a sentence - use them instead of drawing those tables yourself: " . implode(', ', array_map(function ($word) {
             return "[$word]";
         }, array_keys(DOCUMENT_TEMPLATE_TABLES))) . "."
-        . " For anything else someone fills in, use a short name of its own in square brackets, like [Firewall Model] or [Backup Schedule] - letters, digits and spaces, starting with a letter.";
+        . " For anything else someone fills in, use a short name of its own in square brackets, like [Firewall Model] or [Backup Schedule] - letters, digits and spaces, starting with a letter."
+        . " Answer with the HTML only - no <html>, <head> or <body>, no introduction, no code fences.";
     $user_message = "Create an HTML formatted IT documentation template based on the following request:\n\n\"$prompt\"\n\nThe template should be structured, professional, and useful for IT staff. Include relevant sections, instructions, prerequisites, and best practices.";
 
     $result = callAiApi($model, [
         ["role" => "system", "content" => $system_message],
         ["role" => "user", "content" => $user_message]
-    ]);
+    ], ['feature' => 'document_template']);
 
     if (!$result['ok']) {
         echo "<p>" . escapeHtml($result['error']) . "</p>";
         exit;
     }
 
-    // Print the generated HTML template directly
-    echo $result['content'];
+    echo aiCleanHtml($result['content']);
+    exit;
+
 }
 
 if (isset($_GET['ai_ticket_summary'])) {
 
     enforceUserPermission('module_support');
+    if (!aiCan()) {
+        $aiRefuse();
+    }
 
     header('Content-Type: text/html; charset=UTF-8');
 
     $model = getAiModel('Tickets');
-
     if (!$model) {
         echo escapeHtml(aiModelMissingError('Tickets'));
         exit;
     }
 
-    // Retrieve the ticket_id from POST
-    $ticket_id = intval($_POST['ticket_id']);
-
-    // Query the database for ticket details
-    $sql = mysqli_query($mysqli, "
+    $ticket_id = intval($_POST['ticket_id'] ?? 0);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
         SELECT ticket_subject, ticket_details, ticket_source, ticket_priority, ticket_status_name, category_name, ticket_client_id
         FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         LEFT JOIN categories ON ticket_category = category_id
         WHERE ticket_id = $ticket_id
         LIMIT 1
-    ");
-    $row = mysqli_fetch_assoc($sql);
+    "));
     if (!$row) {
         echo 'That ticket no longer exists.';
         exit;
@@ -2077,7 +2100,6 @@ if (isset($_GET['ai_ticket_summary'])) {
         enforceClientAccess();
     }
 
-    // Get ticket replies
     $sql_replies = mysqli_query($mysqli, "
         SELECT ticket_reply, ticket_reply_type, user_name
         FROM ticket_replies
@@ -2132,14 +2154,15 @@ if (isset($_GET['ai_ticket_summary'])) {
     $result = callAiApi($model, [
         ["role" => "system", "content" => "Your task is to summarize IT support tickets with clear, concise details."],
         ["role" => "user", "content" => $prompt]
-    ]);
+    ], ['feature' => 'ticket_summary', 'client_id' => $client_id]);
 
     if (!$result['ok']) {
         echo "<p>" . escapeHtml($result['error']) . "</p>";
         exit;
     }
 
-    echo $result['content'];
+    echo aiCleanHtml($result['content']);
+    exit;
 }
 
 // Stops people trying to use sub-domains in the domains tracker

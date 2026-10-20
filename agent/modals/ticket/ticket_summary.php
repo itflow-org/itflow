@@ -5,6 +5,11 @@ require_once '../../../includes/modal_header.php';
 $ticket = ticketForModal($_GET['ticket_id'] ?? 0, 1);
 $ticket_id = intval($ticket['ticket_id']);
 
+// Using AI is a permission of its own
+if (!aiCan()) {
+    permissionRefuse(permissionRefusedText('module_ai', 1, 0));
+}
+
 ob_start();
 
 ?>
@@ -34,15 +39,20 @@ itflowReady(function () {
     })
         .then(function (res) {
             if (!res.ok) {
-                throw new Error('HTTP ' + res.status);
+                // Turned away - ajax.php says why, in JSON
+                return res.json().then(function (answer) {
+                    throw new Error(answer.error || '');
+                }, function () {
+                    throw new Error('');
+                });
             }
             return res.text();
         })
         .then(function (html) {
             target.innerHTML = html;
         })
-        .catch(function () {
-            target.textContent = 'Error generating summary.';
+        .catch(function (error) {
+            target.textContent = error && error.message ? error.message : 'Error generating summary.';
         });
 });
 </script>

@@ -102,7 +102,7 @@
                 <?php } ?>
                 <li class="nav-item">
                     <a href="/admin/ai_providers.php"
-                    class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['ai_providers.php', 'ai_models.php']) ? 'active' : '') ?>">
+                    class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['ai_providers.php', 'ai_models.php', 'ai_usage.php']) ? 'active' : '') ?>">
                         <i class="nav-icon fas fa-robot"></i>
                         <p>AI Providers</p>
                     </a>

@@ -15,7 +15,8 @@
 isset($mysqli) || die("Direct file access is not allowed");
 
 $t = $template;
-$ai_model = getAiModel('Documentation');
+// Only offered when a model is set up for it and the role may use AI
+$ai_model = aiReady('Documentation') ? getAiModel('Documentation') : null;
 
 ?>
 

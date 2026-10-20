@@ -179,10 +179,13 @@ backupRunRetention($mysqli);
 // Cleanup old logs - each kept for its own number of days, 0 for keep forever (Admin > Settings > Logs, functions/app_log.php)
 $log_retention = appLogRetention();
 
-// The audit log, and API key use with it
+// The audit log, and API key and AI use with it
 if ($log_retention['audit'] > 0) {
     mysqli_query($mysqli, "DELETE FROM logs WHERE log_created_at < CURDATE() - INTERVAL {$log_retention['audit']} DAY");
     mysqli_query($mysqli, "DELETE FROM api_key_usage WHERE api_key_usage_date < CURDATE() - INTERVAL {$log_retention['audit']} DAY");
+    if (aiUsageTableExists()) {
+        mysqli_query($mysqli, "DELETE FROM ai_usage WHERE ai_usage_created_at < CURDATE() - INTERVAL {$log_retention['audit']} DAY");
+    }
 }
 
 // The app logs

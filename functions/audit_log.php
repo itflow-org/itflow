@@ -109,7 +109,7 @@ function auditLogKinds() {
         'Custom Field' => ['icon' => 'fa-th-list'],
         'Custom Link' => ['icon' => 'fa-external-link-alt'],
         'AI Provider' => ['icon' => 'fa-robot'],
-        'AI Model' => ['icon' => 'fa-robot'],
+        'AI Model' => ['icon' => 'fa-brain'],
         'Starter Content' => ['icon' => 'fa-seedling'],
         'Demo Data' => ['icon' => 'fa-flask'],
         'Report' => ['icon' => 'fa-chart-bar', 'module' => 'module_reporting'],

@@ -52,6 +52,10 @@ function roleModuleInfo() {
             'label' => 'Reports', 'icon' => 'fa-chart-line', 'about' => 'The reports - each needs read access to what it reports on too',
             'levels' => [1 => 'Open the reports'], 'max' => 1,
         ],
+        'module_ai' => [
+            'label' => 'AI', 'icon' => 'fa-robot', 'about' => 'Rewording, summaries and drafts, by the AI providers in Admin - each needs access to what it works on too',
+            'levels' => [1 => 'Use AI'], 'max' => 1,
+        ],
     ];
 }
 

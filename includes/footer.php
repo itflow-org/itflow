@@ -76,6 +76,8 @@
 <script src="/libs/adminlte/js/adminlte.min.js"></script>
 <script src="/libs/sweetalert2/js/sweetalert2.min.js"></script>
 <script src="/js/autocomplete.js"></script>
+<?php /* What the editors' Reword button needs - false when AI isn't set up or the role may not use it (aiClientConfig(), functions/ai.php) */ ?>
+<script>window.itflowAi = <?= json_encode(function_exists('aiClientConfig') ? aiClientConfig() : false) ?>;</script>
 <script src="/js/app.js"></script>
 <script src="/js/credentials.js"></script>
 <script src="/js/tag_picker.js"></script>

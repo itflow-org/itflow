@@ -80,6 +80,10 @@ if ($config_module_enable_accounting) {
         $attention[] = $problem;
     }
 }
+// AI requests failing - and still failing
+foreach (aiProblems() as $problem) {
+    $attention[] = $problem;
+}
 if (trim((string) $config_timezone) === '') {
     $attention[] = ['warning', 'fa-clock', 'No timezone', 'Dates and times are in the server\'s timezone until one is picked.', 'settings_localization.php#setting=config_timezone', 'Pick one'];
 }

@@ -96,11 +96,44 @@ DROP TABLE IF EXISTS `ai_providers`;
 CREATE TABLE `ai_providers` (
   `ai_provider_id` int(11) NOT NULL AUTO_INCREMENT,
   `ai_provider_name` varchar(200) NOT NULL,
-  `ai_provider_api_url` varchar(200) NOT NULL,
-  `ai_provider_api_key` varchar(200) DEFAULT NULL,
+  `ai_provider_kind` varchar(50) NOT NULL DEFAULT 'custom',
+  `ai_provider_api_url` varchar(500) NOT NULL,
+  `ai_provider_api_key` varchar(500) DEFAULT NULL,
+  `ai_provider_redact` tinyint(1) NOT NULL DEFAULT 1,
   `ai_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ai_provider_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`ai_provider_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ai_usage`
+--
+
+DROP TABLE IF EXISTS `ai_usage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ai_usage` (
+  `ai_usage_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ai_usage_feature` varchar(50) NOT NULL,
+  `ai_usage_use_case` varchar(50) DEFAULT NULL,
+  `ai_usage_provider_id` int(11) NOT NULL DEFAULT 0,
+  `ai_usage_provider_name` varchar(200) DEFAULT NULL,
+  `ai_usage_model_id` int(11) NOT NULL DEFAULT 0,
+  `ai_usage_model` varchar(200) DEFAULT NULL,
+  `ai_usage_user_id` int(11) NOT NULL DEFAULT 0,
+  `ai_usage_client_id` int(11) NOT NULL DEFAULT 0,
+  `ai_usage_tokens_in` int(11) NOT NULL DEFAULT 0,
+  `ai_usage_tokens_out` int(11) NOT NULL DEFAULT 0,
+  `ai_usage_ms` int(11) NOT NULL DEFAULT 0,
+  `ai_usage_redacted` int(11) NOT NULL DEFAULT 0,
+  `ai_usage_ok` tinyint(1) NOT NULL DEFAULT 1,
+  `ai_usage_error` varchar(255) DEFAULT NULL,
+  `ai_usage_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`ai_usage_id`),
+  KEY `ai_usage_created_at` (`ai_usage_created_at`),
+  KEY `ai_usage_provider_id` (`ai_usage_provider_id`),
+  KEY `ai_usage_model_id` (`ai_usage_model_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
