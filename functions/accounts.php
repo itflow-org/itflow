@@ -289,7 +289,7 @@ function accountArchive($account_id, &$error = '') {
         return null;
     }
     if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM payment_providers WHERE payment_provider_active = 1 AND payment_provider_account = " . intval($row['account_id'])))) {
-        $error = 'Online payments go into ' . $row['account_name'] . ' - pick another account for them in Admin > Settings > Online Payment first';
+        $error = 'Online payments go into ' . $row['account_name'] . ' - pick another account for them in Admin > Payment Providers first';
         return null;
     }
     mysqli_query($mysqli, "UPDATE accounts SET account_archived_at = NOW() WHERE account_id = " . intval($row['account_id']));
