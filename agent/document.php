@@ -111,6 +111,11 @@ $page_title = $row['document_name'];
                     <i class="fas fa-edit me-2"></i>Edit
                 </button>
             <?php } ?>
+            <?php if (!$document_archived && aiReady('Documentation')) { ?>
+                <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/document/document_review.php?id=<?= $document_id ?>" title="AI reads it and says what to fix or check, and what is out of date">
+                    <i class="fas fa-clipboard-check"></i><span class="d-none d-md-inline ms-2">Review with AI</span>
+                </button>
+            <?php } ?>
             <?php if (!$document_archived && shareCanMake('Document')) { ?>
                 <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/share/share_add.php?type=Document&amp;id=<?= $document_id ?>" title="Share a link to it">
                     <i class="fas fa-share-alt me-2"></i>Share

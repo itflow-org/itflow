@@ -236,19 +236,8 @@ function aiTicketDocument($ticket_id) {
     if (!$result['ok']) {
         return $result;
     }
-    $html = aiCleanHtml($result['content']);
-
     // Its title and summary come off the top
-    $title = '';
-    if (preg_match('#<h1[^>]*>(.*?)</h1>#is', $html, $m)) {
-        $title = trim(html_entity_decode(strip_tags($m[1]), ENT_QUOTES, 'UTF-8'));
-        $html = trim(preg_replace('#<h1[^>]*>.*?</h1>#is', '', $html, 1));
-    }
-    $description = '';
-    if (preg_match('#^<p[^>]*>\s*<em>(.*?)</em>\s*</p>#is', $html, $m)) {
-        $description = trim(html_entity_decode(strip_tags($m[1]), ENT_QUOTES, 'UTF-8'));
-        $html = trim(substr($html, strlen($m[0])));
-    }
+    [$title, $description, $html] = aiDocumentSplit(aiCleanHtml($result['content']));
     if (trim(strip_tags($html)) === '') {
         return ['ok' => false, 'error' => 'The AI provider answered with nothing to keep - try again.'];
     }

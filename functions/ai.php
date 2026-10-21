@@ -59,9 +59,9 @@ function aiProviderKind($kind) {
 /* What a model can be for, and the features each covers. A use case with no model of its own uses General. */
 function aiUseCases() {
     return [
-        'General' => 'Everything without a model of its own - Reword in any editor.',
-        'Tickets' => 'Drafting replies, triage, summaries, and Reword in the ticket reply editor.',
-        'Documentation' => 'Writing a ticket up as a document, and drafting document templates.',
+        'General' => 'Everything without a model of its own - Reword and translate in any editor, and client briefings.',
+        'Tickets' => 'Drafting replies, triage, summaries, and Reword and translate in the ticket reply editor.',
+        'Documentation' => 'Drafting and reviewing documents, writing a ticket up as a document, and drafting document templates.',
     ];
 }
 
@@ -70,11 +70,15 @@ function aiFeatures() {
     return [
         'reword' => 'Reword',
         'reword_ticket' => 'Reword a ticket reply',
+        'translate' => 'Translate',
         'ticket_draft' => 'Draft a reply',
         'ticket_triage' => 'Triage',
         'ticket_summary' => 'Ticket summary',
         'document_template' => 'Document template draft',
         'ticket_document' => 'Ticket written up as a document',
+        'document_draft' => 'Document draft',
+        'document_review' => 'Document review',
+        'client_briefing' => 'Client briefing',
         'test' => 'Test',
     ];
 }
@@ -140,7 +144,57 @@ function aiClientConfig() {
         return false;
     }
     // Draft is on the ticket reply editor only - its textarea says which ticket
-    return ['reword' => $general, 'rewordTicket' => $tickets, 'draft' => $tickets, 'endpoint' => '/agent/ajax.php'];
+    return ['reword' => $general, 'rewordTicket' => $tickets, 'draft' => $tickets, 'endpoint' => '/agent/ajax.php',
+        'tones' => aiRewordTones(), 'languages' => aiLanguages()];
+}
+
+/* What Reword can do to text - tone => what the editor's menu calls it. Reword is the button itself; Translate asks which language. */
+function aiRewordTones() {
+    return [
+        'reword' => 'Reword - clearer and more professional',
+        'shorter' => 'Make it shorter',
+        'formal' => 'More formal',
+        'friendly' => 'Friendlier',
+        'plain' => 'Plain English, for someone non-technical',
+        'structure' => 'Organize it - headings and lists',
+        'proofread' => 'Just fix spelling and grammar',
+        'translate' => 'Translate...',
+    ];
+}
+
+/* The languages Translate offers. */
+function aiLanguages() {
+    return ['English', 'Spanish', 'French', 'German', 'Portuguese', 'Italian', 'Dutch', 'Polish', 'Swedish', 'Danish', 'Norwegian', 'Finnish', 'Czech', 'Romanian',
+        'Hungarian', 'Greek', 'Turkish', 'Russian', 'Ukrainian', 'Arabic', 'Hebrew', 'Hindi', 'Vietnamese', 'Thai', 'Indonesian', 'Filipino', 'Chinese (Simplified)',
+        'Chinese (Traditional)', 'Japanese', 'Korean'];
+}
+
+/*
+ * What Reword asks of the model, for a tone (aiRewordTones()) - in a ticket
+ * reply ($use_case 'Tickets') or anywhere else - and the language for
+ * Translate. Every tone keeps the facts, names, numbers, links, commands and
+ * placeholders, and the HTML formatting.
+ */
+function aiRewordInstructions($use_case, $tone = 'reword', $language = '') {
+    $what = $use_case === 'Tickets' ? 'the replies an IT services company sends on support tickets' : 'what an IT services company writes';
+    $asks = [
+        'reword' => $use_case === 'Tickets'
+            ? 'Rewrite the reply you are given so it reads clearly, professionally and kindly - fix spelling and grammar, and make it easy for someone who isn\'t technical to follow.'
+            : 'Rewrite the text you are given so it reads clearly and professionally - fix spelling and grammar, and tighten it.',
+        'shorter' => 'Rewrite the text you are given shorter - about half as long - keeping everything that matters and dropping repetition and filler.',
+        'formal' => 'Rewrite the text you are given in a more formal, businesslike tone, still clear and plain.',
+        'friendly' => 'Rewrite the text you are given in a warmer, friendlier tone, still professional - no exclamation marks every sentence.',
+        'plain' => 'Rewrite the text you are given in plain English for someone who isn\'t technical: short sentences, everyday words, and a few words to explain any technical term that has to stay.',
+        'structure' => 'Organize the text you are given: put it under short headings, turn steps into numbered lists and other runs of items into bullet lists, and split long paragraphs - changing as few words as you can.',
+        'proofread' => 'Fix only the spelling, grammar and punctuation of the text you are given. Change nothing else - not the wording, the tone or the order.',
+        'translate' => 'Translate the text you are given into ' . ($language !== '' ? $language : 'English') . ', as a native speaker in IT support would write it. Leave product names, commands, file paths, error messages quoted from software, and placeholders in square brackets as they are.',
+    ];
+    $instructions = "You edit $what. " . ($asks[$tone] ?? $asks['reword']);
+    $instructions .= ' Keep its meaning and every fact, name, number, date, link, command and placeholder in square brackets exactly as they are.'
+        . ($tone === 'translate' ? '' : ' Write in the language it is written in.')
+        . ' Don\'t add anything it doesn\'t say. Keep its HTML formatting - paragraphs, line breaks, lists, bold and links' . ($tone === 'structure' ? ', adding the headings and lists asked for' : '')
+        . ' - and answer with the HTML only: no introduction, no notes, no code fences.';
+    return $instructions;
 }
 
 /*

@@ -1983,16 +1983,19 @@ if (isset($_GET['ai_reword'])) {
         $reword_client_id = 0;
     }
 
-    $instructions = $use_case === 'Tickets'
-        ? 'You edit the replies an IT services company sends on support tickets. Rewrite the reply you are given so it reads clearly, professionally and kindly - fix spelling and grammar, and make it easy for someone who isn\'t technical to follow.'
-        : 'You edit what an IT services company writes. Rewrite the text you are given so it reads clearly and professionally - fix spelling and grammar, and tighten it.';
-    $instructions .= ' Keep its meaning and every fact, name, number, date, link, command and placeholder in square brackets exactly as they are. Write in the language it is written in. Don\'t add anything it doesn\'t say.'
-        . ' Keep its HTML formatting - paragraphs, line breaks, lists, bold and links - and answer with the reworded HTML only: no introduction, no notes, no code fences.';
+    // What to do to it - a tone from the button's menu, and for Translate, the language
+    $tone = (string) ($input['tone'] ?? 'reword');
+    $tone = isset(aiRewordTones()[$tone]) ? $tone : 'reword';
+    $language = (string) ($input['language'] ?? '');
+    if ($tone === 'translate' && !in_array($language, aiLanguages(), true)) {
+        echo json_encode(['error' => 'Pick a language to translate it into.']);
+        exit;
+    }
 
     $result = callAiApi($model, [
-        ['role' => 'system', 'content' => $instructions],
+        ['role' => 'system', 'content' => aiRewordInstructions($use_case, $tone, $language)],
         ['role' => 'user', 'content' => $text],
-    ], ['feature' => $use_case === 'Tickets' ? 'reword_ticket' : 'reword', 'client_id' => $reword_client_id]);
+    ], ['feature' => $tone === 'translate' ? 'translate' : ($use_case === 'Tickets' ? 'reword_ticket' : 'reword'), 'client_id' => $reword_client_id]);
 
     // Report failures as an error, never as reworded text - the editor writes
     // rewordedText straight back over the user's content
@@ -2108,6 +2111,60 @@ if (isset($_GET['ai_ticket_document'])) {
     $row = $aiTicket($_POST['ticket_id'] ?? 0, 2);
     $result = aiTicketDocument(intval($row['ticket_id']));
     echo json_encode($result['ok'] ? ['title' => $result['title'], 'description' => $result['description'], 'html' => $result['html'], 'removed' => $result['removed']] : ['error' => $result['error']]);
+    exit;
+}
+
+/*
+ * A client's things - the briefing, and documents. Each answers JSON; the
+ * agent needs Use AI, the client, and Clients (a briefing) or Support (a
+ * document - to change one, for a draft).
+ */
+$aiClient = function ($client_id, $module, $level) use ($aiRefuse) {
+    header('Content-Type: application/json');
+    if (!aiCan()) {
+        $aiRefuse();
+    }
+    enforceUserPermission($module, $level);
+    $client_id = intval($client_id);
+    $name = getFieldById('clients', $client_id, 'client_name');
+    if ($name === null) {
+        echo json_encode(['error' => 'That client no longer exists.']);
+        exit;
+    }
+    if (!hasClientAccess($client_id)) {
+        permissionRefuse("You don't have access to $name.");
+    }
+    return $client_id;
+};
+
+// A client briefing, for the last 30, 90 or 365 days
+if (isset($_GET['ai_client_briefing'])) {
+    $client_id = $aiClient($_POST['client_id'] ?? 0, 'module_client', 1);
+    $result = aiClientBriefing($client_id, intval($_POST['days'] ?? 90));
+    echo json_encode($result['ok'] ? ['html' => $result['html']] : ['error' => $result['error']]);
+    exit;
+}
+
+// A new document drafted from a line on what it is for - with what ITFlow knows of the client, unless asked not to
+if (isset($_GET['ai_document_draft'])) {
+    $client_id = $aiClient($_POST['client_id'] ?? 0, 'module_support', 2);
+    $result = aiDocumentDraft($client_id, (string) ($_POST['prompt'] ?? ''), !empty($_POST['use_client']));
+    echo json_encode($result['ok'] ? ['title' => $result['title'], 'description' => $result['description'], 'html' => $result['html']] : ['error' => $result['error']]);
+    exit;
+}
+
+// A document reviewed - what to fix or check, a summary for it, and the passwords written in it
+if (isset($_GET['ai_document_review'])) {
+    $document_id = intval($_POST['document_id'] ?? 0);
+    $document_client_id = getFieldById('documents', $document_id, 'document_client_id');
+    if ($document_client_id === null) {
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'That document no longer exists.']);
+        exit;
+    }
+    $client_id = $aiClient($document_client_id, 'module_support', 1);
+    $result = aiDocumentReview($document_id);
+    echo json_encode($result['ok'] ? array_diff_key($result, ['ok' => 1]) : ['error' => $result['error']]);
     exit;
 }
 

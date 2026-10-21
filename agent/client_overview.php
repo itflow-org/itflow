@@ -72,6 +72,11 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                     </div>
                 </div>
                 <div class="d-flex gap-2 ms-auto itflow-ov-hero-actions">
+                    <?php if (aiReady('General')) { ?>
+                        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/client/client_briefing.php?client_id=<?= $client_id ?>" data-modal-size="lg" title="How things stand with them, by AI - before a call, a visit or a quarterly review">
+                            <i class="fas fa-magic"></i><span class="d-none d-sm-inline ms-2">Briefing</span>
+                        </button>
+                    <?php } ?>
                     <?php if ($access['add_ticket'] && !$client_archived_at) { ?>
                         <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/ticket/ticket_add.php?client_id=<?= $client_id ?>" data-modal-size="lg">
                             <i class="fas fa-plus me-2"></i>New Ticket

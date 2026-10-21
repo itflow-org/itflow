@@ -87,8 +87,11 @@ function itflowCannedAutocompleter(editor) {
  * Reword with AI - on an editor only when AI is set up for it and the agent's
  * role may use it: window.itflowAi, printed by includes/footer.php from
  * aiClientConfig() (functions/ai.php). The ticket editor asks the Tickets
- * model. The answer replaces the text in one step, so Undo puts it back. A
- * textarea's data-ai-client-id says the client it is for, for AI Usage.
+ * model. The button rewords; its menu has the other tones (shorter, more
+ * formal, friendlier, plain English, organized, just spelling and grammar)
+ * and Translate, which asks which language - the last one picked comes first
+ * next time. The answer replaces the text in one step, so Undo puts it back.
+ * A textarea's data-ai-client-id says the client it is for, for AI Usage.
  */
 function itflowAiOn(ticket) {
     var ai = window.itflowAi || null;
@@ -104,48 +107,99 @@ function itflowAiReword(editor, ticket) {
     var say = function (text, type) {
         editor.notificationManager.open({ text: text, type: type, timeout: type === 'success' ? 4000 : 8000 });
     };
-    editor.ui.registry.addButton('reword', {
+    var done = {
+        reword: 'Reworded', shorter: 'Shortened', formal: 'Made more formal', friendly: 'Made friendlier', plain: 'Put in plain English',
+        structure: 'Organized', proofread: 'Spelling and grammar fixed', translate: 'Translated'
+    };
+
+    function run(tone, language) {
+        if (editor.getContent({ format: 'text' }).trim() === '') {
+            say('Write something first - Reword works on what is there.', 'info');
+            return;
+        }
+        var element = editor.getElement();
+        var clientId = element ? parseInt(element.getAttribute('data-ai-client-id') || '0', 10) : 0;
+        buttonApi.setEnabled(false);
+        editor.setProgressState(true);
+        fetch(ai.endpoint + '?ai_reword' + (ticket ? '&use_case=Tickets' : ''), {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: editor.getContent(), client_id: clientId || 0, tone: tone, language: language || '' })
+        })
+            .then(function (response) {
+                return response.json().catch(function () {
+                    throw new Error('HTTP ' + response.status);
+                });
+            })
+            .then(function (data) {
+                // Leave the user's text alone if it failed
+                if (data.error || !data.rewordedText) {
+                    say(data.error || 'Could not reword the text.', 'error');
+                    return;
+                }
+                editor.undoManager.add();
+                editor.undoManager.transact(function () {
+                    editor.setContent(data.rewordedText);
+                });
+                say((done[tone] || 'Reworded') + (tone === 'translate' ? ' into ' + language : '') + ' - Undo puts your words back.', 'success');
+            })
+            .catch(function () {
+                say('Could not reach ITFlow to reword it - try again.', 'error');
+            })
+            .finally(function () {
+                editor.setProgressState(false);
+                buttonApi.setEnabled(true);
+            });
+    }
+
+    function translate() {
+        var languages = ai.languages || ['English'];
+        var last = '';
+        try {
+            last = localStorage.getItem('itflowAiLanguage') || '';
+        } catch (e) {
+            last = '';
+        }
+        editor.windowManager.open({
+            title: 'Translate with AI',
+            body: {
+                type: 'panel',
+                items: [{ type: 'selectbox', name: 'language', label: 'Into', items: languages.map(function (language) { return { text: language, value: language }; }) }]
+            },
+            initialData: { language: languages.indexOf(last) >= 0 ? last : languages[0] },
+            buttons: [{ type: 'cancel', text: 'Cancel' }, { type: 'submit', text: 'Translate', primary: true }],
+            onSubmit: function (dialog) {
+                var language = dialog.getData().language;
+                dialog.close();
+                try {
+                    localStorage.setItem('itflowAiLanguage', language);
+                } catch (e) {
+                    // Remembering it is only a convenience
+                }
+                run('translate', language);
+            }
+        });
+    }
+
+    editor.ui.registry.addSplitButton('reword', {
         icon: 'ai',
         tooltip: 'Reword with AI',
         onAction: function () {
-            if (editor.getContent({ format: 'text' }).trim() === '') {
-                say('Write something first - Reword tidies up what is there.', 'info');
-                return;
+            run('reword');
+        },
+        onItemAction: function (api, value) {
+            if (value === 'translate') {
+                translate();
+            } else {
+                run(value);
             }
-            var element = editor.getElement();
-            var clientId = element ? parseInt(element.getAttribute('data-ai-client-id') || '0', 10) : 0;
-            buttonApi.setEnabled(false);
-            editor.setProgressState(true);
-            fetch(ai.endpoint + '?ai_reword' + (ticket ? '&use_case=Tickets' : ''), {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: editor.getContent(), client_id: clientId || 0 })
-            })
-                .then(function (response) {
-                    return response.json().catch(function () {
-                        throw new Error('HTTP ' + response.status);
-                    });
-                })
-                .then(function (data) {
-                    // Leave the user's text alone if the reword failed
-                    if (data.error || !data.rewordedText) {
-                        say(data.error || 'Could not reword the text.', 'error');
-                        return;
-                    }
-                    editor.undoManager.add();
-                    editor.undoManager.transact(function () {
-                        editor.setContent(data.rewordedText);
-                    });
-                    say('Reworded - Undo puts your words back.', 'success');
-                })
-                .catch(function () {
-                    say('Could not reach ITFlow to reword it - try again.', 'error');
-                })
-                .finally(function () {
-                    editor.setProgressState(false);
-                    buttonApi.setEnabled(true);
-                });
+        },
+        fetch: function (callback) {
+            var tones = ai.tones || { reword: 'Reword' };
+            callback(Object.keys(tones).map(function (tone) {
+                return { type: 'choiceitem', text: tones[tone], value: tone };
+            }));
         },
         onSetup: function (api) {
             buttonApi = api;
