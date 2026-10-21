@@ -48,6 +48,7 @@ require_once __DIR__ . '/functions/ai.php';
 require_once __DIR__ . '/functions/ai_ticket.php';
 require_once __DIR__ . '/functions/ai_document.php';
 require_once __DIR__ . '/functions/ai_client.php';
+require_once __DIR__ . '/functions/ai_billing.php';
 require_once __DIR__ . '/functions/export.php';
 require_once __DIR__ . '/functions/calendar.php';
 require_once __DIR__ . '/functions/backup.php';

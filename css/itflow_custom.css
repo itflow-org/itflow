@@ -8433,3 +8433,13 @@ a.itflow-portal-request:focus-visible {
 .itflow-ai-summary p:last-child {
     margin-bottom: 0;
 }
+/* Write it with AI - each line's numbers, side by side, wrapping on a phone */
+.itflow-ai-line-qty {
+    flex: 0 0 7rem;
+}
+.itflow-ai-line-billed {
+    flex: 0 0 9.5rem;
+}
+.itflow-ai-line-price {
+    flex: 0 0 9rem;
+}

@@ -62,6 +62,7 @@ function aiUseCases() {
         'General' => 'Everything without a model of its own - Reword and translate in any editor, and client briefings.',
         'Tickets' => 'Drafting replies, triage, summaries, and Reword and translate in the ticket reply editor.',
         'Documentation' => 'Drafting and reviewing documents, writing a ticket up as a document, and drafting document templates.',
+        'Billing' => 'Writing quotes and invoices - their lines from your catalog, labor at the client\'s rate - and the work done on a ticket for its invoice line.',
     ];
 }
 
@@ -79,6 +80,8 @@ function aiFeatures() {
         'document_draft' => 'Document draft',
         'document_review' => 'Document review',
         'client_briefing' => 'Client briefing',
+        'billing_draft' => 'Quote or invoice written',
+        'invoice_description' => 'Ticket time described for its invoice',
         'test' => 'Test',
     ];
 }
@@ -411,9 +414,9 @@ function callAiApi($model, $messages, array $context = []) {
 
     aiUsageRecord($usage + ['ok' => true, 'tokens_in' => intval($decoded['usage']['prompt_tokens'] ?? 0), 'tokens_out' => intval($decoded['usage']['completion_tokens'] ?? 0)]);
 
-    // Put back - or, for what is kept (a document), left out for good
+    // Put back - or, for what is kept (a document, an invoice line), left out for good; a placeholder the model made up as well
     if (($context['secrets'] ?? 'restore') === 'remove') {
-        return ['ok' => true, 'content' => aiRestore($content, array_fill_keys(array_keys($secrets), '[removed]')), 'removed' => count($secrets)];
+        return ['ok' => true, 'content' => preg_replace('/\[secret-\d+\]/', '[removed]', aiRestore($content, array_fill_keys(array_keys($secrets), '[removed]'))), 'removed' => count($secrets)];
     }
     return ['ok' => true, 'content' => aiRestore($content, $secrets)];
 }
@@ -885,7 +888,7 @@ function aiUseCaseStripHtml() {
             $tone = 'bg-body';
         }
         $html .= '<div class="border rounded-pill px-3 py-1 small text-nowrap ' . $tone . '" data-ai-use-case="' . escapeHtml($use_case) . '" title="' . escapeHtml(aiUseCases()[$use_case]) . '">'
-            . '<i class="fas fa-fw ' . ['General' => 'fa-magic', 'Tickets' => 'fa-life-ring', 'Documentation' => 'fa-file-alt'][$use_case] . ' text-secondary me-1"></i>'
+            . '<i class="fas fa-fw ' . (['General' => 'fa-magic', 'Tickets' => 'fa-life-ring', 'Documentation' => 'fa-file-alt', 'Billing' => 'fa-file-invoice-dollar'][$use_case] ?? 'fa-robot') . ' text-secondary me-1"></i>'
             . escapeHtml($use_case) . ' <i class="fas fa-long-arrow-alt-right text-secondary mx-1"></i>' . $says . '</div>';
     }
     return $html . '</div>';

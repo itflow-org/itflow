@@ -18,6 +18,8 @@
  *   logo_url   the company logo, relative to the page
  *   client     shown to the client (the client portal) - no agent-only notes
  *   csrf       the agent's token, for the edit controls
+ *   ai         Write it with AI under the add-a-line row (quotes and
+ *              invoices, when the agent may use AI for Billing)
  *
  * Everything in it is escaped here.
  */
@@ -297,6 +299,14 @@ $paper_bill_lines = array_filter([
                                 <button type="submit" form="billingAddLine" class="btn btn-sm btn-primary text-nowrap" title="Add the line"><i class="fas fa-plus me-1"></i>Add</button>
                             </div>
                         </div>
+                        <?php if (!empty($paper['ai'])) { ?>
+                            <div class="d-flex flex-wrap align-items-center column-gap-2 row-gap-1 mt-2 pt-2 border-top" data-billing-ai>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/billing/billing_ai_writer.php?type=<?= $paper_type ?>&doc_id=<?= $paper_id ?>">
+                                    <i class="fas fa-magic me-1"></i>Write it with AI
+                                </button>
+                                <span class="small text-body-secondary">Say what it's for - lines from your catalog, labor at the client's rate.</span>
+                            </div>
+                        <?php } ?>
                     </td>
                 </tr>
                 </tfoot>

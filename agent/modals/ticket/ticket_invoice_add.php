@@ -5,7 +5,9 @@
  * client's drafts. The time logged on it (by agent), the hours that makes
  * (rounded the way Admin > Settings > Invoice says) and the client's rate
  * are filled in, ready to change. A ticket still open can be billed from
- * here too - time logged after that isn't billed. ?ticket_id=
+ * here too - time logged after that isn't billed. Write it (with AI, for
+ * the Billing use case) says what was done in the description, from the
+ * replies and notes, for the client. ?ticket_id=
  */
 
 require_once '../../../includes/modal_header.php';
@@ -52,6 +54,7 @@ while ($draft = mysqli_fetch_assoc($sql)) {
     $drafts[intval($draft['invoice_id'])] = $draft;
 }
 $taxes = billingTaxes();
+$ai_describe = aiReady('Billing');
 $scopes = ["Ticket $reference - " . $row['ticket_subject'], 'Support - ' . date('F Y')];
 
 ob_start();
@@ -152,8 +155,14 @@ ob_start();
                 <label class="form-label">Description</label>
                 <div class="input-group">
                     <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-align-left"></i></span>
-                    <textarea class="form-control" name="item_description" rows="2"><?= escapeHtml(billingTimeDescription($row)) ?></textarea>
+                    <textarea class="form-control" name="item_description" rows="<?= $ai_describe ? 3 : 2 ?>" data-ticket-invoice-description><?= escapeHtml(billingTimeDescription($row)) ?></textarea>
+                    <?php if ($ai_describe) { ?>
+                        <button type="button" class="btn btn-outline-secondary" data-ticket-invoice-ai title="Say what was done, from the replies and notes - for the client"><i class="fas fa-fw fa-magic"></i><span class="d-none d-sm-inline ms-1">Write it</span></button>
+                    <?php } ?>
                 </div>
+                <?php if ($ai_describe) { ?>
+                    <div class="form-text" data-ticket-invoice-ai-said>Write it - AI says what was done, from the replies and notes, for the client to read.</div>
+                <?php } ?>
             </div>
             <div class="col-sm-4">
                 <label class="form-label">Hours <strong class="text-danger">*</strong></label>
@@ -237,6 +246,60 @@ ob_start();
     form.addEventListener('input', update);
     form.addEventListener('change', update);
     update();
+
+    // Write it - the work done, from the replies and notes, in place of the description
+    var ai = form.querySelector('[data-ticket-invoice-ai]');
+    if (ai) {
+        var description = form.querySelector('[data-ticket-invoice-description]');
+        var said = form.querySelector('[data-ticket-invoice-ai-said]');
+        var before = null;
+        ai.addEventListener('click', function () {
+            ai.disabled = true;
+            said.className = 'form-text';
+            said.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>AI is reading the ticket...';
+            fetch('/agent/ajax.php?ai_ticket_invoice_description', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                credentials: 'same-origin',
+                body: new URLSearchParams({ ticket_id: form.querySelector('[name="ticket_id"]').value }).toString()
+            })
+                .then(function (response) {
+                    return response.json().catch(function () {
+                        throw new Error('');
+                    });
+                })
+                .then(function (answer) {
+                    if (answer.error || !answer.text) {
+                        throw new Error(answer.error || '');
+                    }
+                    if (before === null) {
+                        before = description.value;
+                    }
+                    description.value = answer.text;
+                    description.rows = Math.min(8, answer.text.split('\n').length + 1);
+                    said.textContent = 'Written by AI from the replies and notes - check it before billing. ';
+                    var undo = document.createElement('a');
+                    undo.href = '#';
+                    undo.textContent = 'Put back what was there';
+                    undo.setAttribute('data-ticket-invoice-ai-undo', '');
+                    undo.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        description.value = before;
+                        description.rows = 3;
+                        before = null;
+                        said.textContent = 'Put back.';
+                    });
+                    said.appendChild(undo);
+                })
+                .catch(function (error) {
+                    said.className = 'form-text text-danger-emphasis';
+                    said.textContent = error && error.message ? error.message : 'Could not write it - try again.';
+                })
+                .then(function () {
+                    ai.disabled = false;
+                });
+        });
+    }
 })();
 </script>
 

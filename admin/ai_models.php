@@ -22,7 +22,7 @@ $page_title = 'AI Models';
 $sortable_columns = [
     'ai_model_name' => "ai_model_name $order",
     'ai_provider_name' => "ai_provider_name $order, ai_model_name ASC",
-    'ai_model_use_case' => "FIELD(ai_model_use_case, 'General', 'Tickets', 'Documentation') " . ($order === 'ASC' ? 'ASC' : 'DESC') . ", ai_model_id ASC",
+    'ai_model_use_case' => "FIELD(ai_model_use_case, 'General', 'Tickets', 'Documentation', 'Billing') " . ($order === 'ASC' ? 'ASC' : 'DESC') . ", ai_model_id ASC",
     'requests' => "requests $order, ai_model_name ASC",
 ];
 if (!isset($sortable_columns[$sort])) {

@@ -51,7 +51,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 // Each provider's models, with what they are for - and those nothing uses
 $models_by_provider = [];
-$model_sql = mysqli_query($mysqli, "SELECT ai_model_id, ai_model_name, ai_model_use_case, ai_model_ai_provider_id FROM ai_models ORDER BY FIELD(ai_model_use_case, 'General', 'Tickets', 'Documentation'), ai_model_name");
+$model_sql = mysqli_query($mysqli, "SELECT ai_model_id, ai_model_name, ai_model_use_case, ai_model_ai_provider_id FROM ai_models ORDER BY FIELD(ai_model_use_case, 'General', 'Tickets', 'Documentation', 'Billing'), ai_model_name");
 while ($model = mysqli_fetch_assoc($model_sql)) {
     $models_by_provider[intval($model['ai_model_ai_provider_id'])][] = $model;
 }

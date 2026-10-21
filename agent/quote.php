@@ -77,6 +77,7 @@ $paper = [
     'items' => $items,
     'totals' => $totals,
     'edit' => $can_edit_lines,
+    'ai' => $can_edit_lines && aiReady('Billing'),
     'notes_edit' => $can_edit,
     'taxes' => $can_edit_lines ? billingTaxes($quote['quote_created_at']) : [],
     'logo_url' => billingCompany()['logo_url'],

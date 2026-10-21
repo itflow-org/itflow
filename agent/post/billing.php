@@ -135,6 +135,97 @@ if (isset($_POST['billing_item_save'])) {
 
 }
 
+/*
+ * Lines written with AI (modals/billing/billing_ai_writer.php), on a quote or
+ * an invoice - the ticked ones added in order, each taxed as a line of its
+ * kind is (a product at its own rate, labor as time, the rest as typed-in
+ * lines); then the scope and the note, when the agent kept them - the note
+ * goes after any already there. A line that can't go on is said, and the rest
+ * still do.
+ */
+if (isset($_POST['billing_ai_lines'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    $type = (string) ($_POST['type'] ?? '');
+    $doc_id = intval($_POST['doc_id'] ?? 0);
+    if (!in_array($type, ['quote', 'invoice'], true)) {
+        flashAlert('That document no longer exists, or is not one you can open.', 'error');
+        redirect();
+    }
+    $row = billingPostDocument($type, $doc_id);
+    $t = billingType($type);
+    $c = $t['col'];
+    $number = billingNumber($type, $row);
+
+    $added = [];
+    $failed = [];
+    foreach (array_slice((array) ($_POST['lines'] ?? []), 0, 25) as $line) {
+        if (!is_array($line) || empty($line['include'])) {
+            continue;
+        }
+        $name = trim((string) ($line['name'] ?? ''));
+        $kind = in_array($line['kind'] ?? '', ['catalog', 'labor', 'other'], true) ? $line['kind'] : 'other';
+        $product_id = $kind === 'catalog' ? intval($line['product_id'] ?? 0) : 0;
+        $product_tax_id = $product_id ? getFieldById('products', $product_id, 'product_tax_id') : null;
+        if ($product_tax_id === null) {
+            $product_id = 0;
+        }
+        if (trim((string) ($line['price'] ?? '')) === '') {
+            $failed[] = ($name !== '' ? $name : 'A line') . ' - it needs a price';
+            continue;
+        }
+        $in = [
+            'name' => $name,
+            'description' => str_replace("\r", '', (string) ($line['description'] ?? '')),
+            'qty' => $line['qty'] ?? '1',
+            'price' => $line['price'],
+            'tax_id' => $kind === 'labor' ? taxDefaultFor($client_id, 'time') : ($product_id ? taxDefaultFor($client_id, 'product', intval($product_tax_id)) : taxDefaultFor($client_id)),
+            'product_id' => $product_id,
+        ];
+        if ($type === 'quote') {
+            $in['frequency'] = (string) ($line['frequency'] ?? '');
+        }
+        if (billingItemSave($type, $doc_id, $in, 0, $error)) {
+            $added[] = $name;
+        } else {
+            $failed[] = ($name !== '' ? $name : 'A line') . ' - ' . rtrim($error, '.');
+        }
+    }
+
+    // The scope and the note, when kept
+    $kept = [];
+    $scope = trim((string) ($_POST['scope'] ?? ''));
+    if (!empty($_POST['use_scope']) && $scope !== '') {
+        mysqli_query($mysqli, "UPDATE {$t['table']} SET {$c}_scope = '" . escapeSql(mb_substr($scope, 0, 255)) . "' WHERE {$c}_id = $doc_id");
+        $kept[] = 'the scope';
+    }
+    $note = trim(str_replace("\r", '', (string) ($_POST['note'] ?? '')));
+    if (!empty($_POST['use_note']) && $note !== '') {
+        $old_note = trim((string) $row["{$c}_note"]);
+        $note = $old_note === '' ? $note : "$old_note\n\n$note";
+        mysqli_query($mysqli, "UPDATE {$t['table']} SET {$c}_note = '" . escapeSql($note) . "' WHERE {$c}_id = $doc_id");
+        $kept[] = 'the note';
+    }
+
+    $not_added = $failed ? '<br>Not added: ' . escapeHtml(implode('; ', $failed)) . '.' : '';
+    if (!$added && !$kept) {
+        flashAlert('Nothing was added to <strong>' . escapeHtml($number) . '</strong> - ' . ($failed ? 'none of the lines could go on.' . $not_added : 'tick the lines to add.'), 'error');
+        billingPostBack($type, $doc_id);
+    }
+
+    $what = $added ? count($added) . ' line' . (count($added) === 1 ? '' : 's') : '';
+    $what = trim($what . ($what !== '' && $kept ? ', with ' : '') . implode(' and ', $kept));
+    logAudit(billingAuditType($type), 'Edit', "$session_name added " . escapeSql($what) . ' written with AI to ' . escapeSql($number), $client_id, $doc_id);
+
+    flashAlert('<strong>' . escapeHtml(ucfirst($what)) . '</strong> added to <strong>' . escapeHtml($number) . '</strong>' . $not_added, $failed ? 'warning' : 'success');
+
+    billingPostBack($type, $doc_id);
+
+}
+
 if (isset($_GET['billing_item_delete'])) {
 
     validateCSRFToken();

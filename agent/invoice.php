@@ -112,6 +112,7 @@ $paper = [
     'paid' => $state['paid'],
     'balance' => $state['balance'],
     'edit' => $can_edit_lines,
+    'ai' => $can_edit_lines && aiReady('Billing'),
     'notes_edit' => $can_edit,
     'taxes' => $can_edit_lines ? billingTaxes($invoice['invoice_created_at']) : [],
     'logo_url' => billingCompany()['logo_url'],

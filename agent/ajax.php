@@ -2168,6 +2168,49 @@ if (isset($_GET['ai_document_review'])) {
     exit;
 }
 
+/*
+ * Quotes and invoices (functions/ai_billing.php). Each answers JSON; the agent
+ * needs Use AI, the client, and Sales to change them. Nothing is saved here.
+ */
+
+// A ticket's work in words, for the invoice line that bills its time
+if (isset($_GET['ai_ticket_invoice_description'])) {
+    $row = $aiTicket($_POST['ticket_id'] ?? 0, 1);
+    enforceUserPermission('module_sales', 2);
+    if (!intval($row['ticket_client_id'])) {
+        echo json_encode(['error' => 'Move the ticket to a client before invoicing it.']);
+        exit;
+    }
+    $result = aiTicketInvoiceDescription(intval($row['ticket_id']));
+    echo json_encode($result['ok'] ? ['text' => $result['text']] : ['error' => $result['error']]);
+    exit;
+}
+
+// A quote or invoice written from a line on what it is for - its scope, lines and a note, for the agent to tick and change
+if (isset($_GET['ai_billing_draft'])) {
+    header('Content-Type: application/json');
+    if (!aiCan()) {
+        $aiRefuse();
+    }
+    enforceUserPermission('module_sales', 2);
+    $type = (string) ($_POST['type'] ?? '');
+    $row = in_array($type, ['quote', 'invoice'], true) ? billingRow($type, intval($_POST['doc_id'] ?? 0)) : null;
+    if (!$row) {
+        echo json_encode(['error' => 'That document no longer exists, or is not one you can open.']);
+        exit;
+    }
+    if (!hasClientAccess(intval($row['client_id']))) {
+        permissionRefuse("You don't have access to {$row['client_name']}.");
+    }
+    if (!billingCanEditItems($type, $row)) {
+        echo json_encode(['error' => billingNumber($type, $row) . " can't be changed now - " . ($type === 'quote' ? 'it has been answered or invoiced.' : 'it is paid, cancelled or non-billable.')]);
+        exit;
+    }
+    $result = aiBillingDraft($type, $row, (string) ($_POST['prompt'] ?? ''), !empty($_POST['use_ticket']), !empty($_POST['use_client']));
+    echo json_encode($result['ok'] ? array_diff_key($result, ['ok' => 1]) : ['error' => $result['error']]);
+    exit;
+}
+
 // Stops people trying to use sub-domains in the domains tracker
 /*
  * The domain name in a New / Edit Domain form, checked as it is typed: what it
