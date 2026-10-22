@@ -112,7 +112,7 @@ function setupSuggestCurrency($iso2, array $currencies) {
     if (!preg_match('/^[A-Z]{2}$/', $iso2) || !class_exists('NumberFormatter')) {
         return '';
     }
-    $code = (new NumberFormatter("und_$iso2", NumberFormatter::CURRENCY))->getTextAttribute(NumberFormatter::CURRENCY_CODE);
+    $code = (new NumberFormatter("en_$iso2", NumberFormatter::CURRENCY))->getTextAttribute(NumberFormatter::CURRENCY_CODE);
     return isset($currencies[$code]) ? $code : '';
 }
 
