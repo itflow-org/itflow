@@ -27,16 +27,20 @@ $currency = (string) $product['product_currency_code'];
 $cost = floatval($product['product_cost']) > 0 ? number_format(floatval($product['product_cost']), 2, '.', '') : '';
 $level = floatval($product['product_reorder_level']);
 
-// Recent expenses to link - the product's vendor's first
+// Recent expenses to link - the product's vendor's first. Expenses are Financial's,
+// so only for a role that can see them, and only the clients' it can open
 $expenses = [];
-$sql = mysqli_query($mysqli, "SELECT expense_id, expense_description, expense_date, expense_amount, expense_currency_code, expense_vendor_id, vendor_name
-    FROM expenses
-    LEFT JOIN vendors ON vendor_id = expense_vendor_id
-    WHERE expense_archived_at IS NULL AND expense_date >= CURDATE() - INTERVAL 1 YEAR
-    ORDER BY (expense_vendor_id = $vendor_id AND $vendor_id > 0) DESC, expense_date DESC, expense_id DESC
-    LIMIT 150");
-while ($row = mysqli_fetch_assoc($sql)) {
-    $expenses[] = $row;
+$can_expenses = lookupUserPermission('module_financial') >= 1;
+if ($can_expenses) {
+    $sql = mysqli_query($mysqli, "SELECT expense_id, expense_description, expense_date, expense_amount, expense_currency_code, expense_vendor_id, vendor_name
+        FROM expenses
+        LEFT JOIN vendors ON vendor_id = expense_vendor_id
+        WHERE expense_archived_at IS NULL AND expense_date >= CURDATE() - INTERVAL 1 YEAR " . clientScopeSql('expense_client_id') . "
+        ORDER BY (expense_vendor_id = $vendor_id AND $vendor_id > 0) DESC, expense_date DESC, expense_id DESC
+        LIMIT 150");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $expenses[] = $row;
+    }
 }
 
 $modes = [
@@ -101,6 +105,7 @@ ob_start();
                     <div class="form-text">Its cost is <?= $cost !== '' ? escapeHtml(billingMoney($cost, $currency)) : 'not set' ?> - margins and the stock's value use it.</div>
                 </div>
             </div>
+            <?php if ($can_expenses) { ?>
             <div class="col-12" data-stock-for="receive">
                 <label class="form-label">Bought on</label>
                 <div class="input-group">
@@ -113,6 +118,7 @@ ob_start();
                     </select>
                 </div>
             </div>
+            <?php } ?>
 
             <!-- Count -->
             <div class="col-sm-6" data-stock-for="count">

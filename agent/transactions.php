@@ -78,7 +78,7 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS ledger.* FROM ($ledger)
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 $rows = [];
 while ($row = mysqli_fetch_assoc($sql)) {
-    $rows[] = $row;
+    $rows[] = accountLedgerVisible($row);
 }
 
 // The pills, and the money in and out of what is listed
@@ -380,7 +380,7 @@ if ($transfer_cards) {
                 $meta = array_filter([(string) $row['txn_method'], $row['txn_reference'] ? '#' . $row['txn_reference'] : '']);
                 ?>
                 <tr>
-                    <td class="text-nowrap"><a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml(accountLedgerModal($row)) ?>"><?= escapeHtml($row['txn_date']) ?></a><?php if ($row['txn_cleared_id']) { ?><a class="ms-1 text-success-emphasis small" href="<?= escapeHtml($filter_url(['reconciliation' => intval($row['txn_cleared_id']), 'account' => intval($row['txn_account_id'])])) ?>" title="<?= intval($row['txn_cleared_opening']) ? 'Brought forward as reconciled to ' : 'Cleared on the statement to ' ?><?= escapeHtml(date('M j, Y', strtotime($row['txn_cleared_date']))) ?>"><i class="fas fa-check-circle"></i></a><?php } ?></td>
+                    <td class="text-nowrap"><?php if ($row['hidden']) { ?><span class="fw-semibold" title="For a client you cannot open"><?= escapeHtml($row['txn_date']) ?></span><?php } else { ?><a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml(accountLedgerModal($row)) ?>"><?= escapeHtml($row['txn_date']) ?></a><?php } ?><?php if ($row['txn_cleared_id']) { ?><a class="ms-1 text-success-emphasis small" href="<?= escapeHtml($filter_url(['reconciliation' => intval($row['txn_cleared_id']), 'account' => intval($row['txn_account_id'])])) ?>" title="<?= intval($row['txn_cleared_opening']) ? 'Brought forward as reconciled to ' : 'Cleared on the statement to ' ?><?= escapeHtml(date('M j, Y', strtotime($row['txn_cleared_date']))) ?>"><i class="fas fa-check-circle"></i></a><?php } ?></td>
                     <?php if ($all) { ?>
                         <td class="text-nowrap small">
                             <a class="text-reset" href="<?= escapeHtml($filter_url(['account' => intval($row['txn_account_id'])])) ?>" title="Its transactions"><i class="fas fa-fw <?= $types[accountType($row)]['icon'] ?> text-body-secondary me-1"></i><?= escapeHtml($row['account_name']) ?></a>
@@ -403,7 +403,9 @@ if ($transfer_cards) {
                         <?php } ?>
                     </td>
                     <td>
-                        <?php if (intval($row['txn_client_id']) && $row['client_name'] !== null) { ?>
+                        <?php if ($row['hidden']) { ?>
+                            <span class="text-body-secondary">Another client</span>
+                        <?php } elseif (intval($row['txn_client_id']) && $row['client_name'] !== null) { ?>
                             <div class="text-truncate" style="max-width: 11rem;"><a class="text-reset" href="<?= escapeHtml($filter_url(['client' => intval($row['txn_client_id'])])) ?>"><?= escapeHtml($row['client_name']) ?></a></div>
                         <?php } else { ?>
                             <span class="text-body-secondary">-</span>

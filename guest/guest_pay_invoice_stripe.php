@@ -5,15 +5,23 @@ require_once 'includes/inc_all_guest.php';
 DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information before attempting payment again.</h2>");
 
 // --- Get Stripe config from payment_providers table ---
-$stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_account, payment_provider_private_key, payment_provider_public_key FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
+$stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_account, payment_provider_private_key, payment_provider_public_key, payment_provider_active FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
 
 
-$stripe_publishable      = escapeHtml($stripe_provider['payment_provider_public_key']);
-$stripe_secret           = escapeHtml($stripe_provider['payment_provider_private_key']);
-$stripe_account          = intval($stripe_provider['payment_provider_account']);
+$stripe_publishable      = escapeHtml($stripe_provider['payment_provider_public_key'] ?? '');
+$stripe_secret           = escapeHtml($stripe_provider['payment_provider_private_key'] ?? '');
+$stripe_account          = intval($stripe_provider['payment_provider_account'] ?? 0);
 
 // Show payment form
 if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent'])) {
+
+    // Stripe switched off (Admin > Payment Providers) takes no new payments, even from an old link.
+    // A payment already made still comes back below and is booked.
+    if (!$stripe_provider || !intval($stripe_provider['payment_provider_active'])) {
+        echo "<br><h2>Paying online isn't available just now. Please get in touch to pay this invoice another way.</h2>";
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
+    }
 
     $invoice_url_key = escapeSql($_GET['url_key']);
     $invoice_id      = intval($_GET['invoice_id']);
@@ -224,6 +232,13 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     if ((int) round($balance_to_pay * 100) !== (int) round($pi_amount_paid * 100)) {
         error_log("Stripe payment error - Invoice balance does not match amount paid for $pi_id");
         exit(WORDING_PAYMENT_FAILED);
+    }
+
+    // A payment already booked - here, or in the client portal - is never booked again, even
+    // when its invoice has been reopened since (an edit, a payment deleted) and owes it again
+    if (mysqli_num_rows(mysqli_query($mysqli, "SELECT payment_id FROM payments WHERE payment_reference = 'Stripe - $pi_id' LIMIT 1"))) {
+        header('Location: //' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
+        exit();
     }
 
     // Claim the invoice - the conditional UPDATE is the lock, and the row lock it takes

@@ -42,6 +42,7 @@ if (isExportRequest('export_transactions')) {
         $export = beginExport('transactions', $format, "$session_company_name-$name-Transactions", "$name - Transactions", summarizeExportFilters($filter_summary));
 
         while ($row = mysqli_fetch_assoc($sql)) {
+            $row = accountLedgerVisible($row);
             $amount = floatval($row['txn_amount']);
             $transfer = in_array($row['txn_kind'], ['transfer_in', 'transfer_out'], true);
             addExportRow($export, [
@@ -53,7 +54,7 @@ if (isExportRequest('export_transactions')) {
                 'transaction_other_account' => $transfer ? (string) $row['other_account_name'] : '',
                 'transaction_reference' => (string) $row['txn_reference'],
                 'transaction_category' => $transfer ? '' : (string) $row['category_name'],
-                'transaction_client' => (string) $row['client_name'],
+                'transaction_client' => $row['hidden'] ? 'Another client' : (string) $row['client_name'],
                 'transaction_payment_method' => (string) $row['txn_method'],
                 'transaction_in' => $amount > 0 ? $amount : '',
                 'transaction_out' => $amount < 0 ? -$amount : '',

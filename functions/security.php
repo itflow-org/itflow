@@ -193,6 +193,16 @@ function apiDecryptCredentialEntry($credential_ciphertext, $api_key_decrypt_hash
     return openssl_decrypt($credential_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $credential_iv);
 }
 
+/**
+ * Does this decrypt password open the API key's copy of the master key? A
+ * wrong one decrypts to nothing (or rubbish), and a credential saved under
+ * that could never be read again.
+ */
+function apiDecryptPasswordOpens($api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password) {
+    $key = decryptUserSpecificKey((string) $api_key_decrypt_hash, (string) $api_key_decrypt_password);
+    return is_string($key) && $key !== '';
+}
+
 function apiEncryptCredentialEntry(#[\SensitiveParameter]$credential_cleartext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password) {
     $iv = randomString();
 

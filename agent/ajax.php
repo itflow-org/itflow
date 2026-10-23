@@ -1703,7 +1703,7 @@ if (isset($_GET['client_duplicate_check'])) {
     $response['message'] = ""; // default
 
     if (strlen($name) >= 5) {
-        $sql_clients = mysqli_query($mysqli, "SELECT client_name FROM clients
+        $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
         WHERE client_archived_at IS NULL
         AND client_name LIKE '%$name%'
         ORDER BY client_id DESC LIMIT 1"
@@ -1711,7 +1711,10 @@ if (isset($_GET['client_duplicate_check'])) {
 
         if (mysqli_num_rows($sql_clients) > 0) {
             while ($row = mysqli_fetch_assoc($sql_clients)) {
-                $response['message'] = "<i class='fas fa-fw fa-copy me-2'></i> Potential duplicate: <i>" . escapeHtml($row['client_name']) . "</i> already exists.";
+                // Named only to an agent who can open it - otherwise typing names would list the clients they can't see
+                $response['message'] = hasClientAccess($row['client_id'])
+                    ? "<i class='fas fa-fw fa-copy me-2'></i> Potential duplicate: <i>" . escapeHtml($row['client_name']) . "</i> already exists."
+                    : "<i class='fas fa-fw fa-copy me-2'></i> Potential duplicate: a client you cannot open has a name like this.";
             }
         }
     }

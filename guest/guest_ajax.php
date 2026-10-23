@@ -63,7 +63,7 @@ if (isset($_GET['stripe_create_pi'])) {
     }
 
     // Setup Stripe from payment_providers
-    $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_id, payment_provider_private_key FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
+    $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_id, payment_provider_private_key FROM payment_providers WHERE payment_provider_name = 'Stripe' AND payment_provider_active = 1 LIMIT 1"));
     if (!$stripe_provider) {
         exit("Stripe not enabled / configured");
     }

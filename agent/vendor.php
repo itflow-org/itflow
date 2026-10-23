@@ -136,7 +136,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
             FROM expenses
             LEFT JOIN categories ON category_id = expense_category_id
             LEFT JOIN accounts ON account_id = expense_account_id
-            WHERE expense_vendor_id = $vendor_id AND expense_archived_at IS NULL
+            WHERE expense_vendor_id = $vendor_id AND expense_archived_at IS NULL " . clientScopeSql('expense_client_id') . "
             ORDER BY expense_date DESC, expense_id DESC
             LIMIT 25");
         while ($row = mysqli_fetch_assoc($sql)) {
@@ -146,7 +146,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                 recurring_expense_status, recurring_expense_amount, recurring_expense_currency_code, recurring_expense_description, category_name
             FROM recurring_expenses
             LEFT JOIN categories ON category_id = recurring_expense_category_id
-            WHERE recurring_expense_vendor_id = $vendor_id AND recurring_expense_archived_at IS NULL
+            WHERE recurring_expense_vendor_id = $vendor_id AND recurring_expense_archived_at IS NULL " . clientScopeSql('recurring_expense_client_id') . "
             ORDER BY recurring_expense_status DESC, recurring_expense_next_date ASC");
         while ($row = mysqli_fetch_assoc($sql)) {
             $recurring[] = $row;

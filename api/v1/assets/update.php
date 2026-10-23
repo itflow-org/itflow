@@ -13,7 +13,10 @@ $update_count = false;
 
 if (!empty($asset_id)) {
 
-    $asset_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_id = '$asset_id' AND asset_client_id = $client_id LIMIT 1"));
+    // With its primary interface, so an IP, MAC or network not sent keeps what it has (asset_model.php)
+    $asset_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT assets.*, interface_ip, interface_mac, interface_network_id FROM assets
+        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
+        WHERE asset_id = '$asset_id' AND asset_client_id = $client_id LIMIT 1"));
 
     // Variable assignment from POST - assigning the current database value if a value is not provided
     require_once 'asset_model.php';

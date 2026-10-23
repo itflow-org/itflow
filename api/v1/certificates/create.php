@@ -21,6 +21,13 @@ if (!empty($client_id) && is_array($_POST)) {
     }
 
     $form = certificateFormSet($post, $client_id, $error);
+    if ($form === null && $error !== '') {
+        // What the form would have said, rather than create_output.php's guess
+        $return_arr['success'] = "False";
+        $return_arr['message'] = $error;
+        echo json_encode($return_arr);
+        exit();
+    }
     if ($form !== null) {
         $insert_sql = mysqli_query($mysqli, "INSERT INTO certificates SET {$form['set']}, certificate_client_id = " . intval($client_id));
 

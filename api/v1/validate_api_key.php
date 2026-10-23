@@ -52,7 +52,6 @@ DEFINE("WORDING_UNAUTHORIZED", "HTTP/1.1 401 Unauthorized");
 // Decline methods other than GET/POST
 if ($_SERVER['REQUEST_METHOD'] !== "GET" && $_SERVER['REQUEST_METHOD'] !== "POST") {
     header("HTTP/1.1 405 Method Not Allowed");
-    var_dump($_SERVER['REQUEST_METHOD']);
     exit();
 }
 

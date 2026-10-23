@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php'; // admin/includes - admins only
 require_once '../../../includes/cron_jobs.php';
 
 $cron_job_id = intval($_GET['id']);

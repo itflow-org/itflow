@@ -340,6 +340,7 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
             </thead>
             <tbody>
             <?php foreach ($lines as $line) {
+                $line = accountLedgerVisible($line);
                 $kind = $line['txn_kind'];
                 $info = $kinds[$kind];
                 $amount = round(floatval($line['txn_amount']), 2);
@@ -351,7 +352,7 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
                     <td class="text-center">
                         <input class="form-check-input" type="checkbox" data-reconcile-tick <?= $line['ticked'] ? 'checked' : '' ?> <?= $can_edit ? '' : 'disabled' ?> aria-label="Cleared">
                     </td>
-                    <td class="text-nowrap"><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml(accountLedgerModal($line)) ?>"><?= escapeHtml($line['txn_date']) ?></a></td>
+                    <td class="text-nowrap"><?php if ($line['hidden']) { ?><span title="For a client you cannot open"><?= escapeHtml($line['txn_date']) ?></span><?php } else { ?><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml(accountLedgerModal($line)) ?>"><?= escapeHtml($line['txn_date']) ?></a><?php } ?></td>
                     <td class="itflow-ledger-what">
                         <div class="text-truncate"><i class="fas fa-fw <?= $info['icon'] ?> text-body-secondary me-1"></i><?= escapeHtml($what) ?><?php if ($description !== '') { ?><span class="text-body-secondary"> - <?= escapeHtml($description) ?></span><?php } ?></div>
                         <div class="small text-body-secondary text-truncate">

@@ -31,6 +31,14 @@ if (isset($_POST['api_key_decrypt_password'])) {
     $api_key_decrypt_password = $_POST['api_key_decrypt_password']; // No sanitization
 }
 
+// A wrong decrypt password would save the username and password where nothing can read them back
+if ($api_key_decrypt_password !== '' && (isset($_POST['credential_username']) || isset($_POST['credential_password'])) && !apiDecryptPasswordOpens($api_key_decrypt_hash, $api_key_decrypt_password)) {
+    $return_arr['success'] = "False";
+    $return_arr['message'] = "api_key_decrypt_password is not the one set for this API key - nothing was saved.";
+    echo json_encode($return_arr);
+    exit();
+}
+
 if (isset($_POST['credential_name'])) {
     $name = escapeSql($_POST['credential_name']);
 } elseif (isset($credential_row) && isset($credential_row['credential_name'])) {
@@ -139,5 +147,16 @@ if (isset($_POST['credential_software_id'])) {
 } elseif (isset($credential_row) && isset($credential_row['credential_software_id'])) {
     $software_id = $credential_row['credential_software_id'];
 } else {
+    $software_id = 0;
+}
+
+// The contact, asset, vendor and license have to be the credential's client's, as on the
+// form - another client's is dropped. The vendor and license are links (vendor_credentials,
+// software_credentials) that create.php and update.php add.
+$contact_id = assetClientOwnedId('contact', $contact_id, $client_id);
+$asset_id = assetClientOwnedId('asset', $asset_id, $client_id);
+$vendor_id = assetClientOwnedId('vendor', $vendor_id, $client_id);
+$software_id = intval($software_id);
+if ($software_id && !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM software WHERE software_id = $software_id AND software_client_id = " . intval($client_id) . " LIMIT 1"))) {
     $software_id = 0;
 }

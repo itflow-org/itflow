@@ -457,8 +457,9 @@ if (isset($_POST['product_stock_save'])) {
             flashAlert('The unit cost has to be a number, zero or more.', 'error');
             redirect();
         }
-        $expense = intval($_POST['expense'] ?? 0);
-        if ($expense && !getFieldById('expenses', $expense, 'expense_id')) {
+        // Linked to an expense only by a role that can see expenses, and one it can see (the window's list)
+        $expense = lookupUserPermission('module_financial') >= 1 ? intval($_POST['expense'] ?? 0) : 0;
+        if ($expense && !mysqli_num_rows(mysqli_query($mysqli, "SELECT expense_id FROM expenses WHERE expense_id = $expense " . clientScopeSql('expense_client_id')))) {
             $expense = 0;
         }
         productStockMove($product_id, $qty, 'received', ['unit_cost' => $unit_cost === '' ? null : $unit_cost, 'expense_id' => $expense, 'note' => $note]);

@@ -34,7 +34,7 @@ ob_start();
                 <select class="form-select select2" name="bulk_client_id">
                     <option value="">- Select Client -</option>
                     <?php
-                        $clients_sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL $client_select_query");
+                        $clients_sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL $client_select_query " . clientScopeSql('client_id') . " ORDER BY client_name ASC");
 
                         while ($row = mysqli_fetch_assoc($clients_sql)) {
                             $client_id_select = intval($row["client_id"]);

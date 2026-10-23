@@ -25,6 +25,18 @@ $columns = reportYearColumns($view);
 $to = $current_year ? date('Y-m-d') : "$year-12-31";
 
 $sales = taxReportSales("$year-01-01", $to, $basis);
+
+// The tax figures are the company's, but the clients behind them are only named to agents who can open them
+$hidden_exempt = 0.0;
+foreach ($sales['exempt_clients'] as $exempt_client_id => $exempt_client) {
+    if (!hasClientAccess($exempt_client_id)) {
+        $hidden_exempt += $exempt_client['amount'];
+        unset($sales['exempt_clients'][$exempt_client_id]);
+    }
+}
+if ($hidden_exempt != 0) {
+    $sales['exempt_clients'][-1] = ['name' => 'Clients you cannot open', 'number' => '', 'expires' => '', 'expired' => false, 'amount' => $hidden_exempt];
+}
 $purchases = taxReportPurchases("$year-01-01", $to);
 $prev = taxReportSales(($year - 1) . '-01-01', $current_year ? dashboardShiftMonths(date('Y-m-d'), -12) : ($year - 1) . '-12-31', $basis);
 $compare = $current_year ? 'the same time last year' : (string) ($year - 1);
@@ -220,8 +232,13 @@ if ($has_purchases) {
                         <tbody>
                         <?php foreach ($sales['exempt_clients'] as $client_id => $client) { ?>
                             <tr>
-                                <td><?= reportClientLink($client_id, $client['name']) ?></td>
-                                <td><?= $client['number'] !== '' ? escapeHtml($client['number']) : '<span class="text-warning-emphasis">None on file</span>' ?></td>
+                                <?php if ($client_id < 0) { ?>
+                                    <td><span class="text-body-secondary"><?= escapeHtml($client['name']) ?></span></td>
+                                    <td><span class="text-body-secondary">–</span></td>
+                                <?php } else { ?>
+                                    <td><?= reportClientLink($client_id, $client['name']) ?></td>
+                                    <td><?= $client['number'] !== '' ? escapeHtml($client['number']) : '<span class="text-warning-emphasis">None on file</span>' ?></td>
+                                <?php } ?>
                                 <td>
                                     <?php if ($client['expires'] === '') { ?>
                                         <span class="text-body-secondary">–</span>

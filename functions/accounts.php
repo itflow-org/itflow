@@ -419,6 +419,24 @@ function accountLedgerSql($account_id = 0) {
 }
 
 /**
+ * A ledger line as this agent may see it. The account's lines all count
+ * toward its balance, so a line for a client the agent can't open stays in,
+ * with its date, kind and amount - but not the client, what it was for, its
+ * reference or a link to open it ('hidden' set).
+ */
+function accountLedgerVisible(array $row) {
+    $client_id = intval($row['txn_client_id'] ?? 0);
+    $row['hidden'] = $client_id > 0 && !hasClientAccess($client_id);
+    if ($row['hidden']) {
+        $row['client_name'] = null;
+        $row['txn_what'] = '';
+        $row['txn_description'] = '';
+        $row['txn_reference'] = '';
+    }
+    return $row;
+}
+
+/**
  * A ledger line's who or what, and the rest of its description - "Payment
  * on INV-12", "From Business Savings", "Paid Business Visa" (into a card),
  * "Paid back Tess", the vendor, or what the other income was.
@@ -478,6 +496,8 @@ function accountLedgerFiltersSql(array $src, &$summary = [], $with_show = true, 
         $amount = preg_match('/^-?\d+(\.\d{1,2})?$/', $amount_text) ? abs(round(floatval($amount_text), 2)) : null;
         $sql .= " AND (ledger.txn_what LIKE '%$like%' OR ledger.txn_description LIKE '%$like%' OR ledger.txn_reference LIKE '%$like%' OR ledger.category_name LIKE '%$like%'
             OR ledger.client_name LIKE '%$like%' OR ledger.other_account_name LIKE '%$like%' OR ledger.txn_method LIKE '%$like%'" . ($amount !== null ? " OR ABS(ledger.txn_amount) = $amount" : '') . ")";
+        // A search only finds lines the agent can read (accountLedgerVisible())
+        $sql .= clientScopeSql('ledger.txn_client_id');
         $summary['Search'] = $q;
     }
     $kinds = accountLedgerKinds();
@@ -491,7 +511,10 @@ function accountLedgerFiltersSql(array $src, &$summary = [], $with_show = true, 
     }
     foreach (['category' => ['ledger.txn_category_id', 'categories', 'category_name', 'Category'], 'client' => ['ledger.txn_client_id', 'clients', 'client_name', 'Client']] as $key => $f) {
         $id = intval($src[$key] ?? 0);
-        if ($id) {
+        if ($id && $key === 'client' && !hasClientAccess($id)) {
+            $sql .= " AND 1 = 0";
+            $summary[$f[3]] = 'A client you cannot open';
+        } elseif ($id) {
             $sql .= " AND {$f[0]} = $id";
             $summary[$f[3]] = (string) getFieldById($f[1], $id, $f[2]);
         }

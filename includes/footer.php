@@ -77,7 +77,15 @@
 <script src="/libs/sweetalert2/js/sweetalert2.min.js"></script>
 <script src="/js/autocomplete.js"></script>
 <?php /* What the editors' Reword button needs - false when AI isn't set up or the role may not use it (aiClientConfig(), functions/ai.php) */ ?>
-<script>window.itflowAi = <?= json_encode(function_exists('aiClientConfig') ? aiClientConfig() : false) ?>;</script>
+<?php
+// A page that closed the database before its footer (admin/debug.php does) gets no Reword, rather than a fatal error
+try {
+    $itflow_ai_config = function_exists('aiClientConfig') ? aiClientConfig() : false;
+} catch (Throwable $e) {
+    $itflow_ai_config = false;
+}
+?>
+<script>window.itflowAi = <?= json_encode($itflow_ai_config) ?>;</script>
 <script src="/js/app.js"></script>
 <script src="/js/credentials.js"></script>
 <script src="/js/tag_picker.js"></script>

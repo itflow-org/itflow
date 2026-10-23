@@ -225,6 +225,10 @@ if (isset($_POST['bulk_edit_asset_interface_network'])) {
 
     $network_id = intval($_POST['bulk_network'] ?? 0);
     $network = $network_id ? networkRow($network_id) : null;
+    if ($network_id && !$network) {
+        flashAlert('That network no longer exists.', 'error');
+        redirect();
+    }
 
     $count = 0;
     $outside = 0;

@@ -1015,7 +1015,8 @@ function reportCsv($name, array $columns, array $rows, array $totals = null) {
         fputcsv($out, $values, ',', '"', '\\');
     }
 
-    logAudit('Report', 'Export', escapeSql("$session_name exported the $name report"));
+    // $session_name is SQL-safe already - escaping it again kept the backslash ("O\'Brien")
+    logAudit('Report', 'Export', "$session_name exported the " . escapeSql($name) . " report");
 
     fseek($out, 0);
     header('Content-Type: text/csv; charset=utf-8');

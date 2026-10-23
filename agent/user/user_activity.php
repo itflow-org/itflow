@@ -48,9 +48,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 $rows = [];
 while ($row = mysqli_fetch_assoc($sql)) {
+    // A client they can't open (now, or ever - a refused attempt) isn't named or linked
+    $row['hidden'] = intval($row['log_client_id']) > 0 && !hasClientAccess($row['log_client_id']);
+    if ($row['hidden']) {
+        $row['client_name'] = null;
+    }
     $rows[] = $row;
 }
-$records = auditLogRecords($rows);
+$records = auditLogRecords(array_filter($rows, function ($row) {
+    return !$row['hidden'];
+}));
 $new_ips = signInNewIpIds($rows);
 $kinds = auditLogKinds();
 
@@ -137,8 +144,8 @@ $view_empty = [
             <tbody>
             <?php foreach ($rows as $row) {
                 $type = (string) $row['log_type'];
-                $link = auditLogRecordLink($row, $records);
-                $gone = $link === '' && intval($row['log_entity_id']) > 0 && isset($kinds[$type]['table']);
+                $link = $row['hidden'] ? '' : auditLogRecordLink($row, $records);
+                $gone = !$row['hidden'] && $link === '' && intval($row['log_entity_id']) > 0 && isset($kinds[$type]['table']);
                 $device = auditLogDevice($row['log_user_agent']);
                 $from = implode(' · ', array_filter([(string) $row['log_ip'], $device]));
                 ?>
@@ -163,7 +170,9 @@ $view_empty = [
                         <?php } ?>
                     </td>
                     <td class="d-none d-md-table-cell small">
-                        <?php if ($row['client_name'] !== null) { ?>
+                        <?php if ($row['hidden']) { ?>
+                            <span class="text-body-secondary">A client you cannot open</span>
+                        <?php } elseif ($row['client_name'] !== null) { ?>
                             <a class="text-reset" href="/agent/client_overview.php?client_id=<?= intval($row['log_client_id']) ?>"><?= escapeHtml($row['client_name']) ?></a>
                         <?php } else { ?>
                             <span class="text-body-secondary">-</span>
