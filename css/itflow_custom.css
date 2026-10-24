@@ -8529,3 +8529,53 @@ a.itflow-portal-request:focus-visible {
 .itflow-ai-line-price {
     flex: 0 0 9rem;
 }
+
+/* Admin > Debug (admin/debug.php) - a grey tile for each section's icon, and
+   each check as its level's icon beside what was found and what to do */
+.itflow-debug-section-icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: .5rem;
+    font-size: .85rem;
+    color: var(--bs-secondary-color);
+    background-color: var(--bs-secondary-bg);
+}
+.itflow-debug-item {
+    display: flex;
+    gap: .6rem;
+    align-items: flex-start;
+}
+.itflow-debug-item-icon {
+    margin-top: .2rem;
+}
+.itflow-debug-fix {
+    color: var(--bs-secondary-color);
+    overflow-wrap: anywhere;
+}
+.itflow-debug-fix code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+.itflow-debug-attention li + li {
+    border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+}
+.itflow-debug-bar {
+    height: .4rem;
+}
+/* Its figures wrap as flex rather than grid, so a short last row stretches
+   across rather than leaving empty cells */
+.itflow-debug-stats .itflow-report-stats {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.itflow-debug-stats .itflow-report-stat {
+    flex: 1 1 8.5rem;
+}
+.itflow-debug-stats .itflow-report-stat-value {
+    font-size: 1.25rem;
+}
