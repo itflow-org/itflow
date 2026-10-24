@@ -44,93 +44,95 @@ if (isset($_GET['accept_quote'], $_GET['url_key']) || isset($_GET['decline_quote
 
 }
 
-if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
+/*
+ * The guest ticket page's buttons (guest_view_ticket.php): close or reopen a
+ * resolved ticket, rate a closed one. Posted, never links - mail scanners and
+ * link previews open links, and must not close a ticket. The ticket's link
+ * key is the only proof, matched exactly (ticketByGuestKey()). Who pressed
+ * it isn't known - the link goes to watchers too - so it is noted as from
+ * the guest link, never as the contact. Each happens once: a second press,
+ * or a ticket an agent has moved on since, just goes back to the page.
+ */
+if (isset($_POST['close_ticket']) || isset($_POST['reopen_ticket']) || isset($_POST['add_ticket_feedback'])) {
 
-    $ticket_id = intval($_GET['ticket_id']);
-    $url_key = escapeSql($_GET['url_key']);
-
-    // Select only the necessary fields
-    $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key' AND ticket_resolved_at IS NOT NULL AND ticket_closed_at IS NULL");
-
-    if (mysqli_num_rows($sql) == 1) {
-        // Update the ticket
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key'");
-        logTicketHistory($ticket_id, "The client reopened the ticket from the guest link");
-
-        // Add reply
-        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket reopened by client (guest URL).', ticket_reply_type = 'Internal', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
-
-        triggerCustomAction('ticket_update', $ticket_id);
-
-        flashAlert("Ticket reopened");
-
-        redirect();
-
-    } else {
-        echo "Invalid!!";
+    $row = ticketByGuestKey($_POST['ticket_id'] ?? 0, $_POST['url_key'] ?? '');
+    if (!$row) {
+        http_response_code(404);
+        exit("This ticket link isn't working - open it again from the email.");
     }
 
-}
+    $ticket_id = intval($row['ticket_id']);
+    $client_id = intval($row['ticket_client_id']);
+    $reference = escapeSql(ticketReference($row));
+    $back = ticketGuestPath($row);
 
-if (isset($_GET['close_ticket'], $_GET['url_key'])) {
+    if (isset($_POST['close_ticket'])) {
 
-    $ticket_id = intval($_GET['ticket_id']);
-    $url_key = escapeSql($_GET['url_key']);
-
-    // Select only the necessary fields
-    $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key' AND ticket_resolved_at IS NOT NULL AND ticket_closed_at IS NULL");
-
-    if (mysqli_num_rows($sql) == 1) {
-
-        // Update the ticket
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW() WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key'");
-        logTicketHistory($ticket_id, "The client closed the ticket from the guest link");
-
-        // Add reply
-        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed by client (guest URL).', ticket_reply_type = 'Internal', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
-
-        triggerCustomAction('ticket_close', $ticket_id);
-
-        flashAlert("Ticket closed");
-
-        redirect();
-
-    } else {
-        echo "Invalid!!";
-    }
-}
-
-if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
-
-    $ticket_id = intval($_GET['ticket_id']);
-    $url_key = escapeSql($_GET['url_key']);
-    $feedback = escapeSql($_GET['feedback']);
-
-    // Select only the necessary fields
-    $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key' AND ticket_closed_at IS NOT NULL");
-
-    if (mysqli_num_rows($sql) == 1) {
-        // Add feedback
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_feedback = '$feedback' WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key'");
-
-        // Notify on bad feedback
-        if ($feedback == "Bad") {
-            $ticket_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
-            $ticket_prefix = escapeSql($ticket_details['ticket_prefix']);
-            $ticket_number = intval($ticket_details['ticket_number']);
-
-            appNotify("Feedback", "Guest rated ticket number $ticket_prefix$ticket_number (ID: $ticket_id) as bad", "/agent/ticket.php?ticket_id=$ticket_id");
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW() WHERE ticket_id = $ticket_id AND ticket_resolved_at IS NOT NULL AND ticket_closed_at IS NULL");
+        if (mysqli_affected_rows($mysqli) === 1) {
+            syncTicketSlaClock($ticket_id);
+            logTicketHistory($ticket_id, "The client closed the ticket from the guest link");
+            mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed by client (guest URL).', ticket_reply_type = 'Internal', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
+            logAudit("Ticket", "Edit", "Ticket $reference closed from its guest link", $client_id, $ticket_id);
+            triggerCustomAction('ticket_close', $ticket_id);
+            flashAlert("Ticket closed - thank you");
         }
 
-        flashAlert("Feedback recorded - thank you");
+    } elseif (isset($_POST['reopen_ticket'])) {
 
-        redirect();
-
-        triggerCustomAction('ticket_feedback', $ticket_id);
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id AND ticket_resolved_at IS NOT NULL AND ticket_closed_at IS NULL");
+        if (mysqli_affected_rows($mysqli) === 1) {
+            // The resolution clock runs again, as when the portal or an emailed reply reopens it
+            resetTicketResolutionSla($ticket_id);
+            syncTicketSlaClock($ticket_id);
+            logTicketHistory($ticket_id, "The client reopened the ticket from the guest link");
+            mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket reopened by client (guest URL).', ticket_reply_type = 'Internal', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
+            logAudit("Ticket", "Edit", "Ticket $reference reopened from its guest link", $client_id, $ticket_id);
+            // Nothing else tells you - no reply came with it
+            appNotify("Ticket", "Ticket $reference was reopened from its guest link - " . escapeSql($row['ticket_subject']), "/agent/ticket.php?ticket_id=$ticket_id" . ($client_id ? "&client_id=$client_id" : ''), $client_id, $ticket_id);
+            triggerCustomAction('ticket_update', $ticket_id);
+            flashAlert("Ticket reopened - now tell us what is still wrong: reply to our email, or give us a call");
+        }
 
     } else {
-        echo "Invalid!!";
+
+        // Only the two ratings the page offers - the reports count Good against Bad - and only the first one
+        $feedback = $_POST['add_ticket_feedback'] === 'Bad' ? 'Bad' : 'Good';
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_feedback = '$feedback' WHERE ticket_id = $ticket_id AND ticket_closed_at IS NOT NULL AND (ticket_feedback IS NULL OR ticket_feedback = '')");
+        if (mysqli_affected_rows($mysqli) === 1) {
+            logTicketHistory($ticket_id, "The client rated the ticket " . ($feedback === 'Bad' ? 'not good' : 'good') . " from the guest link");
+            if ($feedback === 'Bad') {
+                appNotify("Feedback", "Guest rated ticket number $reference (ID: $ticket_id) as bad", "/agent/ticket.php?ticket_id=$ticket_id" . ($client_id ? "&client_id=$client_id" : ''), $client_id, $ticket_id);
+            }
+            triggerCustomAction('ticket_feedback', $ticket_id);
+            flashAlert("Feedback recorded - thank you");
+        }
+
     }
+
+    redirect($back);
+
+}
+
+/*
+ * Add to calendar on the guest ticket page - the calendar file the booking
+ * email carried (ticketScheduleIcs()), for work booked on an open ticket.
+ * The same event, so it updates one already in the calendar.
+ */
+if (isset($_GET['ticket_calendar'])) {
+
+    $row = ticketByGuestKey($_GET['ticket_calendar'], $_GET['url_key'] ?? '');
+    if (!$row || empty($row['ticket_schedule']) || !ticketIsOpen($row)) {
+        http_response_code(404);
+        exit('Nothing is booked on this ticket.');
+    }
+
+    $ics = ticketScheduleIcs(ticketScheduleRow($row['ticket_id']), $row['ticket_schedule']);
+    header('Content-Type: text/calendar; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . preg_replace('/[^A-Za-z0-9_-]/', '', ticketReference($row)) . '.ics"');
+    header('Content-Length: ' . strlen($ics));
+    echo $ics;
+    exit;
 
 }
 

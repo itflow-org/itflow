@@ -304,6 +304,23 @@ function ticketEmailUrl(array $row) {
         : "https://$config_base_url/client/ticket.php?id=$ticket_id";
 }
 
+/*
+ * A ticket opened by its guest link - ticketRow() when $url_key is the
+ * ticket's key exactly, else null. The key is all the guest pages have to go
+ * on, so it is compared here, whole and case for case: MySQL's = would let
+ * another case or trailing spaces match.
+ */
+function ticketByGuestKey($ticket_id, $url_key) {
+    $row = ticketRow($ticket_id);
+    $key = (string) ($row['ticket_url_key'] ?? '');
+    return $row && $key !== '' && is_string($url_key) && hash_equals($key, $url_key) ? $row : null;
+}
+
+/** The guest ticket page's address, from a page in guest/. */
+function ticketGuestPath(array $row) {
+    return 'guest_view_ticket.php?ticket_id=' . intval($row['ticket_id']) . '&url_key=' . rawurlencode((string) $row['ticket_url_key']);
+}
+
 /** The foot's contact line on a ticket email - the company's phone and the support address. */
 function ticketEmailContactLine() {
     $company = billingCompany();
@@ -1601,6 +1618,33 @@ function ticketMailSchedule($row, $cal_str, $cancelled, $when_text) {
     }
 }
 
+/** What the booking emails and the calendar file need of a ticket - the site is the ticket's location, else its contact's. */
+function ticketScheduleRow($ticket_id) {
+    global $mysqli;
+    return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_details, ticket_client_id, client_name,
+            contact_name, contact_email, user_name, user_email, location_address
+        FROM tickets
+        LEFT JOIN clients ON ticket_client_id = client_id
+        LEFT JOIN contacts ON ticket_contact_id = contact_id
+        LEFT JOIN locations ON location_id = IF(ticket_location_id > 0, ticket_location_id, contact_location_id)
+        LEFT JOIN users ON ticket_assigned_to = user_id
+        WHERE tickets.ticket_id = " . intval($ticket_id))) ?: [];
+}
+
+/*
+ * The calendar file for the work booked on a ticket (ticketScheduleRow()) at
+ * $schedule - the one the booking emails carry, and Add to calendar on the
+ * guest ticket page. The UID is the ticket's, so either one updates the same
+ * event in the calendar.
+ */
+function ticketScheduleIcs(array $row, $schedule) {
+    global $config_base_url;
+    $ticket_id = intval($row['ticket_id'] ?? 0);
+    $subject = intval($row['ticket_number'] ?? 0) . ": " . ($row['client_name'] ?? '') . " - " . ($row['ticket_subject'] ?? '');
+    $description = mb_substr(strip_tags((string) ($row['ticket_details'] ?? '')), 0, 100) . " - https://$config_base_url/client/ticket.php?id=$ticket_id";
+    return createiCalStr($schedule, $subject, $description, (string) ($row['location_address'] ?? ''), getTicketCalendarUid($ticket_id));
+}
+
 /**
  * Book the work on a ticket for $schedule ('Y-m-d H:i:s'), onsite or remote:
  * the agent, the contact and the watchers are emailed with the calendar file,
@@ -1608,7 +1652,7 @@ function ticketMailSchedule($row, $cal_str, $cancelled, $when_text) {
  * the same agent's other open work within two hours, as plain text].
  */
 function ticketSetSchedule(array $row, $schedule, $onsite) {
-    global $mysqli, $config_base_url, $session_user_id, $session_name;
+    global $mysqli, $session_user_id, $session_name;
     $ticket_id = intval($row['ticket_id']);
     $client_id = intval($row['ticket_client_id']);
     $onsite = $onsite ? 1 : 0;
@@ -1631,17 +1675,8 @@ function ticketSetSchedule(array $row, $schedule, $onsite) {
     }
 
     // Who to tell, with the calendar file
-    $mail_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_details, ticket_client_id, client_name,
-            contact_name, contact_email, user_name, user_email, location_address
-        FROM tickets
-        LEFT JOIN clients ON ticket_client_id = client_id
-        LEFT JOIN contacts ON ticket_contact_id = contact_id
-        LEFT JOIN locations ON location_id = IF(ticket_location_id > 0, ticket_location_id, contact_location_id)
-        LEFT JOIN users ON ticket_assigned_to = user_id
-        WHERE tickets.ticket_id = $ticket_id"));
-    $cal_subject = intval($mail_row['ticket_number']) . ": " . $mail_row['client_name'] . " - " . $mail_row['ticket_subject'];
-    $cal_description = mb_substr(strip_tags((string) $mail_row['ticket_details']), 0, 100) . " - https://$config_base_url/client/ticket.php?id=$ticket_id";
-    $cal_str = createiCalStr($schedule, $cal_subject, $cal_description, (string) $mail_row['location_address'], getTicketCalendarUid($ticket_id));
+    $mail_row = ticketScheduleRow($ticket_id);
+    $cal_str = ticketScheduleIcs($mail_row, $schedule);
     $when_text = date('l, F j, Y \a\t g:ia', strtotime($schedule));
     ticketMailSchedule($mail_row, $cal_str, false, $when_text);
 

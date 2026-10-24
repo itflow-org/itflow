@@ -507,6 +507,13 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Recurring tickets can be paused and resumed or raised now. Their schedules are written out in plain words with a preview of the next run, and bulk actions are available.
   - The ticket lists on asset, contact, location, vendor and project pages look and work like the main list.
   - Client portal: a ticket waiting on the client says Waiting on you (see Client portal).
+  - The ticket link in your ticket emails, which opens without signing in, is rebuilt to match the client portal's ticket page: your logo, where the ticket stands, the conversation oldest first with the files that came with each message, who is working on it and on which device, and your phone, email and website. It also shows:
+    - when you will reply, while the SLA's response time is still ahead
+    - work booked on the ticket, onsite with the site's address or remote, with Add to calendar
+    - tasks waiting for the client's approval, and who was emailed the link to approve them
+    - Reply by email, with the ticket number in the subject so the reply lands on the ticket (when ITFlow reads the ticket mailbox), Reply in the client portal, and Call for an Urgent or High ticket
+  - Replies still come by email or from the portal, where you know who wrote them, since the link also goes to watchers. Internal notes and their files never show.
+  - Close, reopen and the rating are now buttons that send a form, so something that follows the links on a page can't close or reopen a ticket. Reopening tells your agents in Notifications, and a ticket is rated once, Good or Not good.
 - **Projects**
   - The projects list has views for Active, Mine, Overdue, Due soon, Stalled, Over budget, Ready to close, Completed, Archived and All.
     - Each row shows ticket and task progress bars, time logged against the budget with unbilled hours, and due badges, and the manager can be changed in place.
@@ -1267,6 +1274,10 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - API: `credentials/create` and `credentials/update` ignored `credential_vendor_id` and `credential_software_id`, and took another client's contact or asset. The vendor and license are linked now, and another client's contact, asset, vendor or license is left off.
 - API: `assets/update` without `asset_ip`, `asset_mac` or `asset_network_id` wiped those on the asset's primary interface.
 - API: `tickets/resolve` answered success False although it had resolved the ticket. `software/read` by `software_name` failed with a database error. `clients/create` without `client_currency_code` made a client with no currency - it gets the company's now. `certificates/create` said only that it failed - it says what was wrong. `clients/archive` logged as a contact being archived. A request that wasn't GET or POST printed its method back.
+- Ticket link: reopening a resolved ticket from it left the resolution SLA as it was, and closing it didn't stop the SLA clock. Both now work as they do from the client portal.
+- Ticket link: a rating could be changed afterwards, or set to any word by editing the address, and the custom action for a rating never ran.
+- Ticket link: the client's photo never showed on their own messages.
+- Ticket link: the key in the link matched in any mix of capital and small letters. It has to match exactly now.
 
 ### Developer Updates
 
@@ -1856,6 +1867,8 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Security sweep: `guest/guest_pay_invoice_stripe.php` (the payment form), `guest/guest_pay_setup_stripe_customer.php` and `stripe_create_pi` in `guest/guest_ajax.php` need `payment_provider_active`; the return from Stripe doesn't, and skips a payment intent already booked as `Stripe - pi_...`. `uploads/canned_responses/.htaccess` denies the folder - the files are served by `agent/canned_response_file.php` - and `.gitignore` keeps it. On nginx, deny `/uploads/canned_responses/` the way you deny `/uploads/expenses/`.
 - Security sweep: `apiDecryptPasswordOpens($api_key_decrypt_hash, $api_key_decrypt_password)` (`functions/security.php`); `api/v1/credentials/credential_model.php` refuses a wrong one before encrypting, checks the contact, asset, vendor and license with `assetClientOwnedId()` (the license against `software_client_id`), and `create.php` and `update.php` add `vendor_credentials` and `software_credentials`. `api/v1/contacts/read.php` puts the phone or mobile match in brackets before `apiClientScopeSql()`. `api/v1/assets/update.php` reads the primary interface with the asset. `api/v1/tickets/resolve.php` counts the rows straight after its UPDATE. `api/v1/clients/client_model.php` starts `$client_row` as null.
 - Security sweep: `includes/footer.php` falls back to `window.itflowAi = false` when `aiClientConfig()` throws (`admin/debug.php` closes the database before its footer). `reportCsv()` escapes only the report's name for the audit log, as `$session_name` is SQL-safe already. `bulk_edit_asset_interface_network` refuses a network id that no longer exists.
+- Guest ticket page: `guest/guest_view_ticket.php` is built on the portal's ticket helpers in `client/functions.php` (`portalTicketState()`, `portalAvatarHtml()`, `portalDateTime()`, `portalTicketEventText()`) and sends `Referrer-Policy: no-referrer` (the key is in the address), `X-Frame-Options: DENY` and `frame-ancestors 'none'`. `ticketByGuestKey($ticket_id, $url_key)` (`functions/ticket.php`) returns `ticketRow()` only when the key matches exactly (`hash_equals()`); the page, the handlers and the new `guest/guest_ticket_attachment.php` use it, and `ticketGuestPath($row)` is the page's address from `guest/`. The attachment endpoint follows `client/ticket_attachment.php`'s rules (never an internal or archived reply's file, inline only for `getInlineViewableMimeTypes()`), never serves `Original-parsed-email.eml`, and logs each download.
+- Guest ticket page: in `guest/guest_post.php`, `close_ticket`, `reopen_ticket` and `add_ticket_feedback` are POST only, with `ticket_id` and `url_key`; the GET forms are gone. Each acts once, on the state it expects, so a second press logs nothing. Reopen calls `resetTicketResolutionSla()` and `syncTicketSlaClock()` and `appNotify()`; close calls `syncTicketSlaClock()`. `add_ticket_feedback` takes Good or Bad only. `ticket_calendar` (GET) sends the booking's calendar file. `ticketScheduleRow($ticket_id)` and `ticketScheduleIcs($row, $schedule)` are what `ticketSetSchedule()` used to build inline, so both give the same UID and event. The CSS class `.itflow-portal-todo-wrap` lets a portal to-do row's title wrap instead of being cut off.
 
 ### Library Updates
 

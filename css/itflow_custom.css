@@ -7454,6 +7454,27 @@ a.itflow-portal-todo:hover {
     color: var(--bs-secondary-color);
     font-size: .8rem;
 }
+/* A row to be read whole - the guest ticket page's booking and approvals: the
+   title wraps rather than being cut off on a phone, and the button keeps to one line */
+.itflow-portal-todo-wrap .itflow-portal-todo-main div:first-child {
+    white-space: normal;
+}
+.itflow-portal-todo-wrap > .btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+@media (max-width: 575.98px) {
+    /* The button goes under the text, in line with it, so the text keeps the width */
+    .itflow-portal-todo-wrap {
+        flex-wrap: wrap;
+    }
+    .itflow-portal-todo-wrap .itflow-portal-todo-main {
+        flex-basis: calc(100% - 2.85rem);
+    }
+    .itflow-portal-todo-wrap > .btn {
+        margin-left: 2.85rem;
+    }
+}
 
 .itflow-portal-preview-image {
     max-height: 600px;
