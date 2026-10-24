@@ -251,8 +251,13 @@
                     <?php } ?>
                 <?php } ?>
 
-                <?php if (lookupUserPermission("module_reporting") >= 1) { ?>
+                <?php
+                // Your own links (Admin > Custom Links) go under Tools too - with its heading even when Reports isn't shown
+                $custom_links = customLinksFor(1);
+                if (lookupUserPermission("module_reporting") >= 1 || $custom_links) { ?>
                     <li class="nav-header mt-3">TOOLS</li>
+                <?php } ?>
+                <?php if (lookupUserPermission("module_reporting") >= 1) { ?>
                     <li class="nav-item">
                         <a href="/agent/reports/" class="nav-link">
                             <i class="fas fa-chart-line nav-icon"></i>
@@ -261,34 +266,9 @@
                         </a>
                     </li>
                 <?php } ?>
-
-                <?php
-                $sql_custom_links = mysqli_query($mysqli, "SELECT custom_link_icon, custom_link_name, custom_link_new_tab, custom_link_uri FROM custom_links WHERE custom_link_location = 1 AND custom_link_archived_at IS NULL
-                    ORDER BY custom_link_order ASC, custom_link_name ASC"
-                );
-
-                while ($row = mysqli_fetch_assoc($sql_custom_links)) {
-                    $custom_link_name = escapeHtml($row['custom_link_name']);
-                    $custom_link_uri = escapeUrl($row['custom_link_uri']);
-                    $custom_link_icon = escapeHtml($row['custom_link_icon']);
-                    $custom_link_new_tab = intval($row['custom_link_new_tab']);
-                    if ($custom_link_new_tab == 1) {
-                        $target = "target='_blank' rel='noopener noreferrer'";
-                    } else {
-                        $target = "";
-                    }
-
-                    ?>
-
-                <li class="nav-item">
-                    <a href="<?= $custom_link_uri ?>" <?= $target ?> class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == basename($custom_link_uri)) { echo "active"; } ?>">
-                        <i class="fas fa-<?= $custom_link_icon ?> nav-icon"></i>
-                        <p><?= $custom_link_name ?></p>
-                        <i class="fas fa-angle-right nav-icon float-end"></i>
-                    </a>
-                </li>
-
-                <?php } ?>
+                <?php foreach ($custom_links as $custom_link) {
+                    echo customLinkNavItemHtml($custom_link);
+                } ?>
 
             </ul>
         </nav>

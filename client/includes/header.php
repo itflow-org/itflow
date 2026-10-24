@@ -147,7 +147,7 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
                         </div>
                     </div>
                 <?php } else { ?>
-                    <a class="itflow-portal-nav-link<?= $active ? ' active' : '' ?>" href="<?= escapeHtml($item['href']) ?>"<?= !empty($item['new_tab']) ? ' target="_blank" rel="noopener noreferrer"' : '' ?>>
+                    <a class="itflow-portal-nav-link<?= $active ? ' active' : '' ?>" href="<?= escapeHtml($item['href']) ?>"<?= !empty($item['new_tab']) ? ' target="_blank" rel="noopener noreferrer"' : '' ?><?= !empty($item['title']) ? ' title="' . escapeHtml($item['title']) . '"' : '' ?>>
                         <i class="<?= escapeHtml($item['icon_class'] ?? 'fas fa-fw ' . $item['icon']) ?>"></i><?= escapeHtml($item['label']) ?>
                     </a>
                 <?php } ?>
@@ -215,7 +215,7 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
                     <a class="itflow-portal-menu-link<?= in_array($portal_page, $child['pages'], true) ? ' active' : '' ?>" href="<?= escapeHtml($child['href']) ?>"><i class="fas fa-fw <?= escapeHtml($child['icon']) ?>"></i><?= escapeHtml($child['label']) ?></a>
                 <?php } ?>
             <?php } else { ?>
-                <a class="itflow-portal-menu-link<?= in_array($portal_page, $item['pages'], true) ? ' active' : '' ?>" href="<?= escapeHtml($item['href']) ?>"<?= !empty($item['new_tab']) ? ' target="_blank" rel="noopener noreferrer"' : '' ?>><i class="<?= escapeHtml($item['icon_class'] ?? 'fas fa-fw ' . $item['icon']) ?>"></i><?= escapeHtml($item['label']) ?></a>
+                <a class="itflow-portal-menu-link<?= in_array($portal_page, $item['pages'], true) ? ' active' : '' ?>" href="<?= escapeHtml($item['href']) ?>"<?= !empty($item['new_tab']) ? ' target="_blank" rel="noopener noreferrer"' : '' ?><?= !empty($item['title']) ? ' title="' . escapeHtml($item['title']) . '"' : '' ?>><i class="<?= escapeHtml($item['icon_class'] ?? 'fas fa-fw ' . $item['icon']) ?>"></i><?= escapeHtml($item['label']) ?></a>
             <?php } ?>
         <?php } ?>
         <div class="itflow-portal-menu-heading">Your account</div>

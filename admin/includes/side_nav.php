@@ -261,33 +261,14 @@
                 </li>
 
                 <?php
-                $sql_custom_links = mysqli_query($mysqli, "SELECT custom_link_icon, custom_link_name, custom_link_new_tab, custom_link_uri FROM custom_links
-                    WHERE custom_link_location = 4 AND custom_link_archived_at IS NULL
-                    ORDER BY custom_link_order ASC, custom_link_name ASC"
-                );
-
-                while ($row = mysqli_fetch_assoc($sql_custom_links)) {
-                    $custom_link_name = escapeHtml($row['custom_link_name']);
-                    $custom_link_uri = escapeUrl($row['custom_link_uri']);
-                    $custom_link_icon = escapeHtml($row['custom_link_icon']);
-                    $custom_link_new_tab = intval($row['custom_link_new_tab']);
-                    if ($custom_link_new_tab == 1) {
-                        $target = "target='_blank' rel='noopener noreferrer'";
-                    } else {
-                        $target = "";
-                    }
-
-                    ?>
-
-                <li class="nav-item">
-                    <a href="<?= $custom_link_uri ?>" <?= $target ?> class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == basename($custom_link_uri)) { echo "active"; } ?>">
-                        <i class="fas fa-<?= $custom_link_icon ?> nav-icon"></i>
-                        <p><?= $custom_link_name ?></p>
-                        <i class="fas fa-angle-right nav-icon float-end"></i>
-                    </a>
-                </li>
-
-                <?php } ?>
+                // Your own links (Admin > Custom Links), under a heading of their own
+                $custom_links = customLinksFor(4);
+                if ($custom_links) { ?>
+                    <li class="nav-header">LINKS</li>
+                <?php }
+                foreach ($custom_links as $custom_link) {
+                    echo customLinkNavItemHtml($custom_link);
+                } ?>
 
             </ul>
         </nav>

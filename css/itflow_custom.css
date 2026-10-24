@@ -3128,8 +3128,73 @@ a:focus-visible .itflow-category-name {
     cursor: grab;
     touch-action: none;
 }
-[data-category-sortable] .sortable-ghost > * {
+[data-category-sortable] .sortable-ghost > *,
+[data-custom-link-sortable] .sortable-ghost > * {
     background-color: var(--bs-tertiary-bg) !important;
+}
+/* Admin > Custom Links - the link window's preview, drawn the way its menu
+   draws it: a line of a side menu (always dark), an icon on the top bar's
+   theme colour, or an item of the client portal's light top bar */
+.itflow-link-preview {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem .75rem;
+    padding: .5rem .75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-link-preview-stage {
+    display: flex;
+    flex: 1 1 12rem;
+    align-items: center;
+    min-width: 0;
+    padding: .35rem .5rem;
+    border-radius: var(--bs-border-radius);
+    background-color: #343a40;
+}
+.itflow-link-preview-item {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    width: 100%;
+    min-width: 0;
+    padding: .35rem .6rem;
+    border-radius: .25rem;
+    color: #c2c7d0;
+}
+.itflow-link-preview-item > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.itflow-link-preview-tab {
+    margin-left: auto;
+    font-size: .7rem;
+    opacity: .7;
+}
+.itflow-link-preview[data-location="2"] .itflow-link-preview-stage {
+    justify-content: flex-end;
+    background-color: var(--itflow-accent, #007bff);
+}
+.itflow-link-preview[data-location="2"] .itflow-link-preview-item {
+    width: auto;
+    color: #fff;
+}
+.itflow-link-preview[data-location="2"] .itflow-link-preview-item > span,
+.itflow-link-preview[data-location="2"] .itflow-link-preview-tab,
+.itflow-link-preview[data-location="3"] .itflow-link-preview-tab {
+    display: none;
+}
+.itflow-link-preview[data-location="3"] .itflow-link-preview-stage {
+    border: 1px solid var(--bs-border-color-translucent);
+    background-color: var(--bs-body-bg);
+}
+.itflow-link-preview[data-location="3"] .itflow-link-preview-item {
+    width: auto;
+    color: var(--bs-secondary-color);
+    font-weight: 500;
 }
 /* The canned response picker above a reply box - a searchable list, each
    response with a line or two of what it says - and the / menu in the reply */

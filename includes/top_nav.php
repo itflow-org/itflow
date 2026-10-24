@@ -27,33 +27,15 @@
     <!-- Right navbar links -->
     <ul class="navbar-nav ms-auto">
 
-        <!--Custom Nav Link -->
-        <?php
-        $sql_custom_links = mysqli_query($mysqli, "SELECT custom_link_icon, custom_link_name, custom_link_new_tab, custom_link_uri FROM custom_links WHERE custom_link_location = 2 AND custom_link_archived_at IS NULL
-            ORDER BY custom_link_order ASC, custom_link_name ASC"
-        );
-
-        while ($row = mysqli_fetch_assoc($sql_custom_links)) {
-            $custom_link_name = escapeHtml($row['custom_link_name']);
-            $custom_link_uri = escapeUrl($row['custom_link_uri']);
-            $custom_link_icon = escapeHtml($row['custom_link_icon']);
-            $custom_link_new_tab = intval($row['custom_link_new_tab']);
-            if ($custom_link_new_tab == 1) {
-                $target = "target='_blank' rel='noopener noreferrer'";
-            } else {
-                $target = "";
-            }
-
-            ?>
-
-        <li class="nav-item" title="<?= $custom_link_name ?>">
-            <a href="<?= $custom_link_uri ?>" <?= $target ?> class="nav-link">
-                <i class="fas fa-<?= $custom_link_icon ?> nav-icon"></i>
-            </a>
-        </li>
-
+        <?php // Your own links (Admin > Custom Links) - an icon each, the name and what it is for on hover ?>
+        <?php foreach (customLinksFor(2) as $custom_link) {
+            $custom_link_title = $custom_link['custom_link_name'] . (trim((string) $custom_link['custom_link_description']) !== '' ? ' - ' . trim($custom_link['custom_link_description']) : ''); ?>
+            <li class="nav-item">
+                <a href="<?= escapeHtml($custom_link['href']) ?>" class="nav-link" title="<?= escapeHtml($custom_link_title) ?>" aria-label="<?= escapeHtml($custom_link['custom_link_name']) ?>"<?= intval($custom_link['custom_link_new_tab']) === 1 ? ' target="_blank" rel="noopener noreferrer"' : '' ?>>
+                    <i class="fas fa-<?= escapeHtml($custom_link['icon']) ?>" aria-hidden="true"></i>
+                </a>
+            </li>
         <?php } ?>
-        <!-- End Custom Nav Links -->
 
         <!-- Notifications - js/notifications.js fills the panel when the bell is
              opened and keeps the badge current. Without the script the bell is a

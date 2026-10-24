@@ -218,16 +218,14 @@ function portalNav() {
     }
 
     // The links an admin set to show in the portal (Admin > Custom Links)
-    $sql = mysqli_query($mysqli, "SELECT custom_link_id, custom_link_icon, custom_link_name, custom_link_new_tab, custom_link_uri FROM custom_links
-        WHERE custom_link_location = 3 AND custom_link_archived_at IS NULL ORDER BY custom_link_order ASC, custom_link_name ASC");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $icon = preg_replace('/[^a-z0-9-]/', '', strtolower((string) $row['custom_link_icon']));
+    foreach (customLinksFor(3) as $row) {
         $nav['link-' . intval($row['custom_link_id'])] = [
             'label' => (string) $row['custom_link_name'],
-            'icon_class' => 'fas fa-fw fa-' . ($icon !== '' ? $icon : 'external-link-alt'),
-            'href' => (string) $row['custom_link_uri'],
+            'icon_class' => 'fas fa-fw fa-' . $row['icon'],
+            'href' => $row['href'],
             'new_tab' => intval($row['custom_link_new_tab']) === 1,
-            'pages' => [basename((string) $row['custom_link_uri'])],
+            'title' => trim((string) $row['custom_link_description']),
+            'pages' => [basename((string) parse_url($row['href'], PHP_URL_PATH))],
         ];
     }
 

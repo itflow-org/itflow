@@ -1,25 +1,24 @@
 <?php
 
+/*
+ * Edit a custom link - its name, where it goes, the menu it shows in, its
+ * description and icon. The fields are custom_link_form.php.
+ */
+
 require_once '../../includes/modal_header.php';
 
-$custom_link_id = intval($_GET['id']);
+$custom_link = customLinkRow(intval($_GET['id'] ?? 0));
+$default_location = 1;
 
-$sql = mysqli_query($mysqli, "SELECT custom_link_icon, custom_link_location, custom_link_name, custom_link_new_tab,
-    custom_link_order, custom_link_uri FROM custom_links WHERE custom_link_id = $custom_link_id LIMIT 1");
-$row = mysqli_fetch_assoc($sql);
-$custom_link_name = escapeHtml($row['custom_link_name']);
-$custom_link_uri = escapeHtml($row['custom_link_uri']);
-$custom_link_icon = escapeHtml($row['custom_link_icon']);
-$custom_link_new_tab = intval($row['custom_link_new_tab']);
-$custom_link_order = intval($row['custom_link_order']);
-$custom_link_location = intval($row['custom_link_location']);
-
-// Generate the HTML form content using output buffering.
 ob_start();
-?>
+
+if (!$custom_link) { ?>
+    <div class="modal-body text-center text-secondary py-5">That link is gone - it may have been deleted.</div>
+<?php } else {
+    $custom_link_id = intval($custom_link['custom_link_id']); ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-external-link-alt me-2"></i>Editing link: <strong><?= $custom_link_name ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-<?= escapeHtml(customLinkIcon($custom_link['custom_link_icon'])) ?> me-2"></i>Link: <strong><?= escapeHtml($custom_link['custom_link_name']) ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -27,62 +26,16 @@ ob_start();
     <input type="hidden" name="custom_link_id" value="<?= $custom_link_id ?>">
 
     <div class="modal-body">
-
-        <div class="mb-3">
-            <label>Name <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-list-ul"></i></span>
-                <input type="text" class="form-control" name="name" value="<?= $custom_link_name ?>" maxlength="200" required>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Order</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-down"></i></span>
-                <input type="number" class="form-control" name="order" placeholder="Leave blank for no order" value="<?= $custom_link_order ?>">
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>URI <strong class="text-danger">*</strong></label> / <span class="text-secondary">Open New Tab</span>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-external-link-alt"></i></span>
-                <input type="text" class="form-control" name="uri" placeholder="Enter Link" maxlength="500" value="<?= $custom_link_uri ?>" required>
-                    <div class="input-group-text">
-                        <input class="form-check-input" type="checkbox" name="new_tab" value="1" <?php if ($custom_link_new_tab == 1) { echo "checked"; } ?>>
-                    </div>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Icon</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-image"></i></span>
-                <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" maxlength="200" value="<?= $custom_link_icon ?>">
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Location <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-home"></i></span>
-                <select class="form-select select2" name="location" required>
-                    <option value="1" <?php if ($custom_link_location === 1) { echo "selected"; } ?> >Main Side Nav</option>
-                    <option value="2" <?php if ($custom_link_location === 2) { echo "selected"; } ?> >Top Nav (Icon Required)</option>
-                    <option value="3" <?php if ($custom_link_location === 3) { echo "selected"; } ?> >Client Portal Nav</option>
-                    <option value="4" <?php if ($custom_link_location === 4) { echo "selected"; } ?> >Admin Nav</option>
-                    <option value="5" <?php if ($custom_link_location === 5) { echo "selected"; } ?> >Reports Nav</option>
-                </select>
-            </div>
-        </div>
-
+        <?php if ($custom_link['custom_link_archived_at']) { ?>
+            <div class="alert alert-secondary small py-2"><i class="fas fa-fw fa-archive me-1"></i>Archived <?= date('M j, Y', strtotime($custom_link['custom_link_archived_at'])) ?> - it isn't shown in its menu. Restore it from the list.</div>
+        <?php } ?>
+        <?php require __DIR__ . '/custom_link_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_custom_link" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="submit" name="edit_custom_link" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save changes</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 
-<?php
+<?php }
 require_once '../../../includes/modal_footer.php';
