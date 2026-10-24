@@ -187,6 +187,9 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         '',
         $message
     );
+    // A reply sent as plain text has the line without its <i>, often quoted ("> ") - cut there too, or the
+    // email it quotes, earlier messages and all, lands on the ticket
+    $message = preg_replace('/(?:&gt;\s*)*##-\s*Please\s+type\s+your\s+reply\s+above\s+this\s+line\s*-##.*$/is', '', $message);
 
     // 2) Clean up the remaining message
 

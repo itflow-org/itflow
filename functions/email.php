@@ -43,6 +43,9 @@ const EMAIL_REPLY_MARKER = '##- Please type your reply above this line -##';
  *   button   ['label' => ..., 'url' => ..., 'show_url' => true to print the address under it,
  *            for a link that has to be copied whole]
  *   after    paragraphs after the button, smaller
+ *   history  earlier messages, under a rule at the end - ['label' => the heading, 'items' => [...]],
+ *            each item ['by', 'org', 'action', 'when', 'text' => plain text, 'client' => true for
+ *            the client's side] or ['gap' => how many are left out here] (ticketEmailHistory())
  *   contact  the foot's contact line, in place of the company's phone, email and website
  *   footnote a line under the card - why they got it
  */
@@ -141,6 +144,31 @@ function emailHtml(array $email) {
     }
     foreach ((array) ($email['after'] ?? []) as $text_value) {
         $body .= '<p style="margin:0 0 12px;font-size:13px;line-height:1.55;color:' . $muted . ';">' . nl2br($e($text_value)) . '</p>';
+    }
+    // The earlier messages, quietly, after everything else - a grey edge for the client's side, blue for yours
+    if (!empty($email['history']['items'])) {
+        $items = '';
+        foreach ($email['history']['items'] as $item) {
+            if (isset($item['gap'])) {
+                $gap = intval($item['gap']);
+                $items .= '<p style="margin:0 0 14px;font-size:13px;color:' . $muted . ';">&middot;&middot;&middot; ' . $gap . ' earlier ' . ($gap === 1 ? 'message' : 'messages') . ' - see the ticket</p>';
+                continue;
+            }
+            $meta = '<strong style="color:' . $text . ';">' . $e($item['by'] ?? '') . '</strong>';
+            foreach (['org', 'action', 'when'] as $part) {
+                if (trim((string) ($item[$part] ?? '')) !== '') {
+                    $meta .= ' &middot; ' . $e($item[$part]);
+                }
+            }
+            $items .= '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px;"><tr>'
+                . '<td style="border-left:3px solid ' . (!empty($item['client']) ? '#ced4da' : '#9ec5fe') . ';padding:1px 0 1px 12px;' . $font . '">'
+                . '<div style="margin:0 0 3px;font-size:12px;line-height:1.5;color:' . $muted . ';">' . $meta . '</div>'
+                . '<div style="font-size:14px;line-height:1.5;color:#495057;overflow-wrap:anywhere;word-break:break-word;">' . nl2br($e($item['text'] ?? '')) . '</div>'
+                . '</td></tr></table>';
+        }
+        $body .= '<div style="margin:8px 0 0;padding-top:16px;border-top:1px solid ' . $line . ';">'
+            . '<div style="margin:0 0 12px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:' . $muted . ';">' . $e($email['history']['label'] ?? 'Earlier messages') . '</div>'
+            . $items . '</div>';
     }
 
     $contact = array_key_exists('contact', $email)
@@ -272,6 +300,33 @@ function emailMessageHtml($html) {
     // Images no wider than the card, paragraphs closer together than a mail program's default
     $html = preg_replace('/<img\b(?![^>]*\bstyle=)/i', '<img style="max-width:100%;height:auto;"', $html);
     return preg_replace('/<p(?=[\s>])(?![^>]*\bstyle=)/i', '<p style="margin:0 0 10px;"', $html);
+}
+
+/*
+ * HTML someone wrote as plain text - for an inbox's preview line and an
+ * email's earlier messages: line breaks kept, pictures dropped (a message
+ * that was only a picture says so), the reply line taken out, and with
+ * $limit, cut at a word near that many characters with an ellipsis.
+ */
+function emailPlainText($html, $limit = 0) {
+    $html = str_replace(EMAIL_REPLY_MARKER, '', (string) $html);
+    $html = preg_replace('#<(script|style|title|head)\b[^>]*>.*?</\1\s*>#is', '', $html);
+    $pictures = preg_match_all('#<img\b#i', $html);
+    // A paragraph ends with a blank line, anything else that breaks a line with one break
+    $html = preg_replace(['#<br\s*/?>#i', '#</p\s*>#i', '#</(div|li|tr|h[1-6]|blockquote|table|pre)\s*>#i', '#<li\b[^>]*>#i'], ["\n", "\n\n", "\n", '- '], $html);
+    $text = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    // Non-breaking and zero-width spaces too - unless the text isn't valid UTF-8, where /u gives up
+    $text = preg_replace("/[ \t\x{00A0}\x{200B}\x{200C}]+/u", ' ', $text) ?? preg_replace("/[ \t]+/", ' ', $text);
+    $text = trim((string) preg_replace(["/ *\n */", "/\n{3,}/"], ["\n", "\n\n"], $text));
+    if ($text === '' && $pictures) {
+        return $pictures === 1 ? '[A picture]' : "[$pictures pictures]";
+    }
+    if ($limit > 0 && mb_strlen($text) > $limit) {
+        $cut = mb_substr($text, 0, $limit);
+        $space = mb_strrpos($cut, ' ');
+        $text = rtrim($space !== false && $space > $limit * 0.6 ? mb_substr($cut, 0, $space) : $cut, " \n,.;:-") . '…';
+    }
+    return $text;
 }
 
 /**

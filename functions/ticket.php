@@ -354,6 +354,90 @@ function ticketEmailSla($ticket_id) {
 }
 
 /*
+ * The conversation on a ticket, for the end of an email about it
+ * (emailHtml()'s history): its public replies newest first, and at the end
+ * the request it was opened with - each a short plain-text excerpt
+ * (ticketEmailExcerpt()), so a pasted screenshot or a long signature can't
+ * swell the email. Never an internal note, nor the lines the portal writes
+ * when a contact resolves, reopens or closes. $opts:
+ *   label    the heading - Earlier on this ticket
+ *   skip     the HTML of the reply the email itself shows - it, and anything newer, is left out
+ *   replies  false for the request alone
+ *   request  false leaves the request out, when the email shows it already
+ *   limit    how many replies at most (4) - the rest are counted, before the request
+ * [] when there is nothing earlier to show.
+ */
+function ticketEmailHistory(array $row, array $opts = []) {
+    global $mysqli;
+    $ticket_id = intval($row['ticket_id']);
+    $limit = max(0, intval($opts['limit'] ?? 4));
+    $company_name = (string) (billingCompany()['company_name'] ?? '');
+    $items = [];
+    $left_out = 0;
+    if ($opts['replies'] ?? true) {
+        $sql = mysqli_query($mysqli, "SELECT ticket_reply, ticket_reply_type, ticket_reply_created_at, contact_name, user_name FROM ticket_replies
+            LEFT JOIN users ON ticket_reply_type != 'Client' AND user_id = ticket_reply_by
+            LEFT JOIN contacts ON ticket_reply_type = 'Client' AND contact_id = ticket_reply_by
+            WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL AND ticket_reply_type IN ('Public', 'Client')
+            ORDER BY ticket_reply_id DESC");
+        $replies = mysqli_fetch_all($sql, MYSQLI_ASSOC);
+        // Only what came before the reply the email shows - that one is the newest, but for a preview's sample
+        $skip = (string) ($opts['skip'] ?? '');
+        if ($skip !== '') {
+            foreach ($replies as $i => $reply) {
+                if ((string) $reply['ticket_reply'] === $skip) {
+                    $replies = array_slice($replies, $i + 1);
+                    break;
+                }
+            }
+        }
+        foreach ($replies as $reply) {
+            $text = ticketEmailExcerpt($reply['ticket_reply']);
+            $client = $reply['ticket_reply_type'] === 'Client';
+            if ($text === '' || ($client && preg_match('/^Ticket (resolved|reopened|closed) by .{1,200}\.$/', $text))) {
+                continue;
+            }
+            if (count($items) >= $limit) {
+                $left_out++;
+                continue;
+            }
+            $items[] = [
+                'by' => $client ? ((string) $reply['contact_name'] ?: 'Client') : ((string) $reply['user_name'] ?: $company_name),
+                'org' => $client ? '' : $company_name,
+                'when' => date('D j M, g:i A', strtotime($reply['ticket_reply_created_at'])),
+                'text' => $text,
+                'client' => $client,
+            ];
+        }
+    }
+    if (!($opts['request'] ?? true) && $left_out) {
+        $items[] = ['gap' => $left_out];
+    } elseif ($opts['request'] ?? true) {
+        $text = ticketEmailExcerpt($row['ticket_details'] ?? '');
+        if ($text !== '') {
+            if ($left_out) {
+                $items[] = ['gap' => $left_out];
+            }
+            $asked_by = trim((string) ($row['contact_name'] ?? ''));
+            $items[] = [
+                'by' => $asked_by !== '' ? $asked_by : 'The request',
+                'action' => $asked_by !== '' ? 'the request' : '',
+                'when' => date('D j M, g:i A', strtotime($row['ticket_created_at'])),
+                'text' => $text,
+                'client' => true,
+            ];
+        }
+    }
+    return $items ? ['label' => (string) ($opts['label'] ?? 'Earlier on this ticket'), 'items' => $items] : [];
+}
+
+/** A ticket message as a short plain-text excerpt - without the "Email from: ... :-" line the email parser puts on what it saves. */
+function ticketEmailExcerpt($html, $limit = 700) {
+    $html = preg_replace('#^\s*<i>\s*Email from:.*?</i>(\s*<br\s*/?>)*#is', '', (string) $html);
+    return emailPlainText($html, $limit);
+}
+
+/*
  * What an email about a ticket says - emailHtml()'s fields (functions/email.php),
  * all but who it is to and why they get it, which ticketMailSend() adds for
  * each. $row is ticketRow(). $kind and its $opts:
@@ -387,6 +471,7 @@ function ticketEmailContent(array $row, $kind, array $opts = []) {
         if ($how === 'email') {
             $email['title'] = 'We have your email';
             $email['intro'] = ["Thank you - it is ticket $reference now, and we will reply to you here. To add anything, just reply to this email."];
+            // Never their own words back: the sender of an email can be forged, and an echo would carry whatever it said to them
         } else {
             $email['title'] = $how === 'scheduled' ? 'A scheduled ticket was opened for you' : 'We have opened a ticket for you';
             $email['intro'] = [($how === 'scheduled' ? "Ticket $reference was opened for you, as scheduled." : "We have opened ticket $reference for you.")
@@ -403,6 +488,7 @@ function ticketEmailContent(array $row, $kind, array $opts = []) {
         $email['message'] = ['html' => (string) ($opts['message'] ?? ''), 'label' => "$by replied"];
         $email['summary'] = $summary;
         $email['after'] = ['To answer, just reply to this email.'];
+        $email['history'] = ticketEmailHistory($row, ['skip' => (string) ($opts['message'] ?? '')]);
     } elseif ($kind === 'resolved') {
         $hours = intval($config_ticket_autoclose_hours);
         $closes = $hours > 0 ? ' - it closes by itself after ' . ($hours % 24 === 0 ? ($hours / 24) . ' day' . ($hours === 24 ? '' : 's') : "$hours hours") : '';
@@ -413,6 +499,9 @@ function ticketEmailContent(array $row, $kind, array $opts = []) {
         $email['message'] = ['html' => (string) ($opts['message'] ?? ''), 'label' => "$by wrote"];
         $email['summary'] = $summary;
         $email['button']['label'] = 'View or reopen it';
+        // Resolved from the button or the board there is no note - the conversation says what was done
+        $email['history'] = ticketEmailHistory($row, ['skip' => (string) ($opts['message'] ?? ''),
+            'label' => emailPlainText($opts['message'] ?? '') !== '' ? 'Earlier on this ticket' : 'The conversation']);
     } elseif ($kind === 'closed') {
         $email['marker'] = false;
         $email['kind'] = 'Closed';
@@ -422,6 +511,7 @@ function ticketEmailContent(array $row, $kind, array $opts = []) {
         $email['summary'] = $summary;
         $email['button']['label'] = 'Tell us how we did';
         $email['after'] = ['Need more help with this? Raise a new ticket - replies to this email do not reach us.'];
+        $email['history'] = ticketEmailHistory($row, ['limit' => 3, 'label' => 'The conversation']);
     } elseif ($kind === 'scheduled') {
         $cancelled = !empty($opts['cancelled']);
         $email['kind'] = $cancelled ? 'Visit cancelled' : 'Work booked';
@@ -431,12 +521,30 @@ function ticketEmailContent(array $row, $kind, array $opts = []) {
             ? "The work booked on ticket $reference is cancelled - the calendar file with this email takes it out of your calendar. We will be in touch to book it again."
             : "We have booked the work on ticket $reference for " . $opts['when'] . ". The calendar file with this email adds it to your calendar."];
         $email['summary'] = $summary + ($cancelled ? [] : ['When' => (string) $opts['when'], 'Where' => !empty($row['ticket_onsite']) ? (trim((string) ($opts['where'] ?? '')) !== '' ? (string) $opts['where'] : 'Onsite') : 'Remote']);
+        $email['history'] = $cancelled ? [] : ticketEmailHistory($row, ['limit' => 2, 'label' => 'What it is about']);
     } elseif ($kind === 'watcher') {
         $email['kind'] = 'Watching';
         $email['title'] = 'You were added to a ticket';
         $email['intro'] = ["$by added you to ticket $reference" . (!empty($row['client_name']) ? ' for ' . $row['client_name'] : '') . ", so you will get its updates. To add anything, just reply to this email."];
         $email['message'] = ['html' => (string) $row['ticket_details'], 'label' => 'Details'];
         $email['summary'] = $summary;
+        $email['history'] = ticketEmailHistory($row, ['request' => false, 'label' => 'Replies so far']);
+    }
+    return ticketEmailPreview($email);
+}
+
+/*
+ * The inbox's preview line, beside the subject that already gives the number
+ * and title - the start of the message the email carries, or else its first
+ * line ("We have marked ticket TCK-12 resolved.").
+ */
+function ticketEmailPreview(array $email) {
+    $said = emailPlainText($email['message']['html'] ?? '', 140);
+    if ($said === '') {
+        $said = (string) (((array) ($email['intro'] ?? []))[0] ?? '');
+    }
+    if (trim($said) !== '') {
+        $email['preview'] = preg_replace('/\s+/', ' ', trim($said));
     }
     return $email;
 }
@@ -549,6 +657,8 @@ function ticketMailColleaguesNew($ticket_id) {
     $ticket_id = intval($ticket['ticket_id']);
     $reference = ticketReference($ticket);
     $raised_by = trim((string) $ticket['contact_name']) !== '' ? (string) $ticket['contact_name'] : 'We';
+    // What was asked - not for an emailed ticket, sent on by itself: a forged sender would have us carry their words to the client
+    $echo = (string) $ticket['ticket_source'] !== 'Email';
     $sent = 0;
     foreach (ticketColleagueRecipients($ticket_id, 'created') as $email => $colleague) {
         $url = $colleague['portal'] ? "https://$config_base_url/client/ticket.php?id=$ticket_id" : ticketEmailUrl($ticket);
@@ -556,9 +666,10 @@ function ticketMailColleaguesNew($ticket_id) {
             'email' => $email, 'name' => $colleague['name'],
             'footnote' => "You get this because you asked to hear about new tickets at " . $colleague['client_name'] . ($colleague['portal'] ? ' - change that under Your account in the client portal.' : '.'),
         ]], "New ticket - [$reference] - " . $ticket['ticket_subject'], [
-            'kind' => 'New ticket', 'tone' => 'primary', 'preview' => "$reference - " . $ticket['ticket_subject'],
+            'kind' => 'New ticket', 'tone' => 'primary', 'preview' => ($echo ? preg_replace('/\s+/', ' ', emailPlainText($ticket['ticket_details'], 140)) : '') ?: "$reference - " . $ticket['ticket_subject'],
             'title' => "New ticket at " . $colleague['client_name'],
             'intro' => ["$raised_by raised a ticket at " . $colleague['client_name'] . '.'],
+            'message' => ['html' => $echo ? (string) $ticket['ticket_details'] : '', 'label' => 'Details'],
             'summary' => ['Ticket' => $reference, 'Subject' => (string) $ticket['ticket_subject'], 'Priority' => (string) $ticket['ticket_priority'], 'Raised by' => $raised_by === 'We' ? 'Us' : $raised_by],
             'button' => ['label' => $colleague['portal'] ? 'View it in the portal' : 'View the ticket', 'url' => $url],
             'contact' => ticketEmailContactLine(),
@@ -658,10 +769,12 @@ function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
         $email['intro'] = [($by !== '' ? $by : 'The client') . " replied to $reference$how."];
         $email['message'] = ['html' => (string) ($opts['message'] ?? ''), 'label' => ($by !== '' ? $by : 'They') . ' wrote'];
         $email['after'] = ['Answer it in ITFlow, so the client gets your reply.'];
+        $email['history'] = ticketEmailHistory($row, ['skip' => (string) ($opts['message'] ?? '')]);
     } elseif ($kind === 'assigned') {
         $email['kind'] = 'Assigned to you';
         $email['intro'] = [($by !== '' ? $by : 'Someone') . " assigned $reference to you."];
         $email['message'] = ['html' => (string) $row['ticket_details'], 'label' => 'Details'];
+        $email['history'] = ticketEmailHistory($row, ['request' => false, 'label' => 'Replies so far']);
     } elseif ($kind === 'scheduled') {
         $cancelled = !empty($opts['cancelled']);
         $email['kind'] = $cancelled ? 'Visit cancelled' : 'Work booked';
@@ -669,6 +782,7 @@ function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
         $email['intro'] = [$cancelled ? "The work booked on $reference is cancelled - the calendar file with this email takes it out of your calendar." : "$reference is booked for " . $opts['when'] . " - the calendar file with this email adds it to your calendar."];
         if (!$cancelled) {
             $email['summary'] += ['When' => (string) $opts['when'], 'Where' => !empty($row['ticket_onsite']) ? (trim((string) ($opts['where'] ?? '')) !== '' ? (string) $opts['where'] : 'Onsite') : 'Remote'];
+            $email['history'] = ticketEmailHistory($row, ['limit' => 2, 'label' => 'What it is about']);
         }
     } elseif ($kind === 'sla') {
         $track = ($opts['track'] ?? 'response') === 'resolution' ? 'resolution' : 'response';
@@ -680,8 +794,9 @@ function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
             ? "The $track due on $reference by $due was missed."
             : "$reference is close to its $track SLA - it is due by $due."];
         $email['summary'] += ['Assigned' => !empty($row['user_name']) ? (string) $row['user_name'] : 'Nobody', ucfirst($track) . ' due' => $due];
+        $email['history'] = ticketEmailHistory($row, ['limit' => 3, 'label' => 'The conversation']);
     }
-    return $email;
+    return ticketEmailPreview($email);
 }
 
 /** Queue an email to agents (ticketAgentEmailContent()) from the ticket mailbox - [['email', 'name', 'footnote'], ...]. How many went. */
