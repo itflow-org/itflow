@@ -3589,8 +3589,10 @@ CREATE TABLE `ticket_statuses` (
   `ticket_status_id` int(11) NOT NULL AUTO_INCREMENT,
   `ticket_status_name` varchar(200) NOT NULL,
   `ticket_status_color` varchar(200) NOT NULL,
+  `ticket_status_description` varchar(255) DEFAULT NULL,
   `ticket_status_active` tinyint(1) NOT NULL DEFAULT 1,
   `ticket_status_pauses_sla` tinyint(1) NOT NULL DEFAULT 0,
+  `ticket_status_client_reply` tinyint(1) NOT NULL DEFAULT 1,
   `ticket_status_order` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ticket_status_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

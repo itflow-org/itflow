@@ -1,5 +1,15 @@
 <?php
+
+/*
+ * New ticket status - its name, what it is for, its colour, whether the SLA
+ * clock runs in it and what a client's reply does. It goes at the end of the
+ * order. The fields are ticket_status_form.php.
+ */
+
 require_once '../../includes/modal_header.php';
+
+$ticket_status = null;
+
 ob_start();
 ?>
 
@@ -11,34 +21,7 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
-        <div class="mb-3">
-            <label>Name <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
-                <input type="text" class="form-control" name="name" placeholder="Ticket Status name" maxlength="200" required autofocus>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Color <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
-                <input type="color" class="form-control form-control-color" name="color" required>
-            </div>
-        </div>
-
-
-        <div class="mb-3">
-            <label>SLA</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
-                <select class="form-select select2" name="pauses_sla">
-                    <option value="0">Resolution clock keeps running</option>
-                    <option value="1">Pause the resolution clock</option>
-                </select>
-            </div>
-            <small class="text-muted">Tickets sitting in a paused status never warn or breach on resolution. Time already spent is kept and the deadline moves out when the ticket comes back.</small>
-        </div>
+        <?php require __DIR__ . '/ticket_status_form.php'; ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_ticket_status" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>

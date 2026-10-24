@@ -8579,3 +8579,9 @@ a.itflow-portal-request:focus-visible {
 .itflow-debug-stats .itflow-report-stat-value {
     font-size: 1.25rem;
 }
+
+/* A ticket status's badge (ticketStatusBadgeHtml()) - its colour, with dark or white text, whichever reads on it */
+.itflow-ticket-status {
+    background-color: var(--itflow-status-bg, var(--bs-secondary));
+    color: var(--itflow-status-text, #fff);
+}

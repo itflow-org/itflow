@@ -1057,7 +1057,7 @@ if (isset($_GET['ticket_id'])) {
                                         </span>
                                     <?php } else { ?>
                                         <span class="ticket-prop-static">
-                                            <span class="badge rounded-pill text-light" style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
+                                            <?= ticketStatusHtml($ticket['ticket_status_name'], $ticket['ticket_status_color'], 'detail') ?>
                                         </span>
                                     <?php } ?>
                                 </dd>

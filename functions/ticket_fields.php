@@ -238,9 +238,16 @@ function ticketBillableHtml($billable, $style = 'list') {
         : '<span class="badge rounded-pill bg-secondary p-2"><i class="fas fa-fw fa-minus"></i></span>';
 }
 
+/* A status as its badge - text that reads on its colour, and what it is for on hover (functions/ticket_status.php). */
 function ticketStatusHtml($status_name, $status_color, $style = 'list') {
-    $color = preg_match('/^(#[0-9a-f]{3,8}|[a-z]{3,24})$/i', (string) $status_color) ? $status_color : 'var(--bs-secondary)';
-    return '<span class="badge rounded-pill text-light' . ($style === 'list' ? ' p-2' : '') . '" style="background-color: ' . $color . '">' . escapeHtml($status_name) . '</span>';
+    $about = '';
+    foreach (ticketStatusesAll() as $status) {
+        if ($status['ticket_status_name'] === (string) $status_name) {
+            $about = ticketStatusAbout($status);
+            break;
+        }
+    }
+    return ticketStatusBadgeHtml((string) $status_name, $status_color, $style, $about);
 }
 
 /*

@@ -132,7 +132,6 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                     <?php if ($open_tickets['tickets']) { ?>
                         <div class="list-group list-group-flush">
                             <?php foreach ($open_tickets['tickets'] as $ticket) {
-                                $status_color = preg_match('/^#[0-9a-f]{3,8}$/i', (string) $ticket['ticket_status_color']) ? $ticket['ticket_status_color'] : '#6c757d';
                                 $last_activity = $ticket['ticket_updated_at'] ?: $ticket['ticket_created_at'];
                                 $ticket_who = trim(implode(', ', array_filter([$ticket['contact_name'], $ticket['user_name'] ? 'assigned to ' . $ticket['user_name'] : 'unassigned'])));
                                 ?>
@@ -145,7 +144,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                                     <?php if ($ticket['sla_breached']) { ?>
                                         <span class="badge rounded-pill text-bg-danger" title="Past SLA"><i class="fas fa-stopwatch me-1" aria-hidden="true"></i>SLA</span>
                                     <?php } ?>
-                                    <span class="badge rounded-pill text-white d-none d-sm-inline" style="background-color: <?= $status_color ?>"><?= escapeHtml($ticket['ticket_status_name']) ?></span>
+                                    <span class="d-none d-sm-inline"><?= ticketStatusHtml($ticket['ticket_status_name'], $ticket['ticket_status_color'], 'detail') ?></span>
                                     <span class="small text-body-secondary text-nowrap d-none d-md-inline" title="Last activity <?= escapeHtml($last_activity) ?>"><?= escapeHtml(timeAgo($last_activity)) ?></span>
                                 </a>
                             <?php } ?>

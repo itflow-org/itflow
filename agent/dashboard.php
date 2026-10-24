@@ -146,7 +146,6 @@ $tone_text = ['danger' => 'text-danger-emphasis', 'warning' => 'text-warning-emp
                                 'client_id' => intval($ticket['ticket_client_id']) ?: null,
                                 'ticket_id' => intval($ticket['ticket_id']),
                             ]));
-                            $status_color = preg_match('/^#[0-9a-f]{3,8}$/i', (string) $ticket['ticket_status_color']) ? $ticket['ticket_status_color'] : '#6c757d';
                             $last_activity = $ticket['ticket_updated_at'] ?: $ticket['ticket_created_at'];
                             ?>
                             <a href="<?= escapeHtml($ticket_url) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2">
@@ -160,7 +159,7 @@ $tone_text = ['danger' => 'text-danger-emphasis', 'warning' => 'text-warning-emp
                                 <?php if ($ticket['sla_breached']) { ?>
                                     <span class="badge rounded-pill text-bg-danger" title="SLA breached"><i class="fas fa-stopwatch me-1" aria-hidden="true"></i>SLA</span>
                                 <?php } ?>
-                                <span class="badge rounded-pill text-white d-none d-sm-inline" style="background-color: <?= $status_color ?>"><?= escapeHtml($ticket['ticket_status_name']) ?></span>
+                                <span class="d-none d-sm-inline"><?= ticketStatusHtml($ticket['ticket_status_name'], $ticket['ticket_status_color'], 'detail') ?></span>
                                 <span class="small text-body-secondary text-nowrap d-none d-md-inline" title="Last activity <?= escapeHtml($last_activity) ?>"><?= escapeHtml(timeAgo($last_activity)) ?></span>
                             </a>
                         <?php } ?>

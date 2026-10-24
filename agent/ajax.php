@@ -261,8 +261,10 @@ if (isset($_GET['quick_pick_options'])) {
             $options[] = ['value' => $priority, 'label' => $priority, 'color' => $colors[$priority]];
         }
     } elseif ($field === 'status') {
+        $all_statuses = ticketStatusesAll();
         foreach (ticketPickableStatuses() as $status_id => $status) {
-            $options[] = ['value' => (string) $status_id, 'label' => $status['ticket_status_name'], 'color' => preg_match('/^(#[0-9a-f]{3,8}|[a-z]{3,24})$/i', (string) $status['ticket_status_color']) ? $status['ticket_status_color'] : ''];
+            $options[] = ['value' => (string) $status_id, 'label' => $status['ticket_status_name'], 'color' => ticketStatusColor($status['ticket_status_color']),
+                'title' => isset($all_statuses[$status_id]) ? ticketStatusAbout($all_statuses[$status_id]) : ''];
         }
     } elseif ($field === 'billable') {
         $options[] = ['value' => '1', 'label' => 'Billable', 'icon' => 'fas fa-dollar-sign', 'description' => 'Shows under Unbilled Time once done, until invoiced'];

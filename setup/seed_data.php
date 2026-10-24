@@ -78,12 +78,13 @@ function seedDefaultData($mysqli)
 
     // Add default ticket statuses
     // ticket_status_pauses_sla is fixed for these five and not editable in the admin UI -
-    // see getTicketStatusSlaLock() in functions/app.php. Keep the two in step.
-    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'New', ticket_status_color = '#dc3545', ticket_status_pauses_sla = 0"); // Default ID for new tickets is 1
-    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Open', ticket_status_color = '#007bff', ticket_status_pauses_sla = 0"); // 2
-    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'On Hold', ticket_status_color = '#28a745', ticket_status_pauses_sla = 1"); // 3
-    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Resolved', ticket_status_color = '#343a40', ticket_status_pauses_sla = 1"); // 4 (was auto-close)
-    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Closed', ticket_status_color = '#343a40', ticket_status_pauses_sla = 1"); // 5
+    // see getTicketStatusSlaLock() in functions/app.php. Keep the two in step. What each is
+    // for matches ticketStatusBuiltIns() in functions/ticket_status.php.
+    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'New', ticket_status_color = '#dc3545', ticket_status_description = 'Just come in - nobody has picked it up yet.', ticket_status_pauses_sla = 0, ticket_status_order = 1"); // Default ID for new tickets is 1
+    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Open', ticket_status_color = '#007bff', ticket_status_description = 'Being worked on.', ticket_status_pauses_sla = 0, ticket_status_order = 2"); // 2
+    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'On Hold', ticket_status_color = '#28a745', ticket_status_description = 'Waiting on someone else - the client, a vendor or a part.', ticket_status_pauses_sla = 1, ticket_status_order = 3"); // 3
+    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Resolved', ticket_status_color = '#343a40', ticket_status_description = 'Fixed, and waiting to be closed - a reply from the client reopens it.', ticket_status_pauses_sla = 1, ticket_status_order = 4"); // 4 (was auto-close)
+    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Closed', ticket_status_color = '#343a40', ticket_status_description = 'Finished - it can\\'t be replied to.', ticket_status_pauses_sla = 1, ticket_status_order = 5"); // 5
 
     // Add default modules
     mysqli_query($mysqli, "INSERT INTO modules SET module_name = 'module_client', module_description = 'General client & contact management'");

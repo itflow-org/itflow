@@ -63,6 +63,7 @@ require_once __DIR__ . '/functions/custom_link.php';
 require_once __DIR__ . '/functions/system_health.php';
 require_once __DIR__ . '/functions/ticket_fields.php';
 require_once __DIR__ . '/functions/ticket.php';
+require_once __DIR__ . '/functions/ticket_status.php';
 require_once __DIR__ . '/functions/ticket_template.php';
 require_once __DIR__ . '/functions/ticket_template_transfer.php';
 require_once __DIR__ . '/functions/canned_response.php';

@@ -449,8 +449,7 @@ $header = [
                             return reportPriorityDot($row['ticket_priority']) . reportTicketLink($row);
                         }],
                         'ticket_status_name' => ['label' => 'Status', 'html' => function ($row) {
-                            $color = preg_match('/^#[0-9a-f]{3,8}$/i', (string) $row['ticket_status_color']) ? $row['ticket_status_color'] : '#6c757d';
-                            return '<span class="badge rounded-pill text-white" style="background-color: ' . $color . '">' . escapeHtml($row['ticket_status_name']) . '</span>';
+                            return ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail');
                         }],
                         'ticket_created_at' => ['label' => 'Raised', 'type' => 'date'],
                         'took' => ['label' => 'Resolved in', 'type' => 'duration', 'html' => function ($row) {

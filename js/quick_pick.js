@@ -280,6 +280,10 @@
             node.setAttribute('role', 'option');
             node.setAttribute('data-row', index);
             node.setAttribute('aria-selected', selected ? 'true' : 'false');
+            // What it is for, on hover - a ticket status's description
+            if (option.title) {
+                node.title = option.title;
+            }
             var visual = lead(option);
             if (visual) {
                 node.appendChild(visual);

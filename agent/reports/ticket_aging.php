@@ -108,8 +108,7 @@ $ticket_columns = [
         return formatAssignee($row['ticket_assigned_to'], $row['user_name'] ?? '', $row['user_avatar'] ?? '', true);
     }],
     'ticket_status_name' => ['label' => 'Status', 'html' => function ($row) {
-        $color = preg_match('/^#[0-9a-f]{3,8}$/i', (string) $row['ticket_status_color']) ? $row['ticket_status_color'] : '#6c757d';
-        return '<span class="badge rounded-pill text-white" style="background-color: ' . $color . '">' . escapeHtml($row['ticket_status_name']) . '</span>';
+        return ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail');
     }],
     'move' => ['label' => 'Whose move', 'csv' => function ($row) use ($move_labels) { return $move_labels[$row['move']][0] ?? ''; }, 'html' => function ($row) use ($move_labels) {
         if (!isset($move_labels[$row['move']])) {

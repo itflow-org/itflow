@@ -424,10 +424,9 @@ $export_extra = [
                         <label class="form-label small text-body-secondary mb-1">Status</label>
                         <select onchange="this.form.submit()" class="form-select select2" name="status[]" data-placeholder="Any status" multiple>
                             <?php
-                            $sql_ticket_status = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name, ticket_status_color FROM ticket_statuses WHERE ticket_status_active = 1 ORDER BY ticket_status_order, ticket_status_id");
-                            while ($row = mysqli_fetch_assoc($sql_ticket_status)) {
-                                $filter_status_id = intval($row['ticket_status_id']); ?>
-                                <option value="<?= $filter_status_id ?>" <?= in_array($filter_status_id, $status_filter, true) ? 'selected' : '' ?><?= selectOptionColor($row['ticket_status_color'] ?? '') ?>><?= escapeHtml($row['ticket_status_name']) ?></option>
+                            // The ones in use - and a switched-off one when it is asked for (from Admin > Ticket Statuses), so it stays picked
+                            foreach (ticketStatusOptions($status_filter) as $filter_status_id => $row) { ?>
+                                <option value="<?= $filter_status_id ?>" <?= in_array($filter_status_id, $status_filter, true) ? 'selected' : '' ?><?= selectOptionColor($row['ticket_status_color'] ?? '') ?> title="<?= escapeHtml(ticketStatusAbout($row)) ?>"><?= escapeHtml($row['ticket_status_name']) ?><?= intval($row['ticket_status_active']) === 1 ? '' : ' (switched off)' ?></option>
                             <?php } ?>
                         </select>
                     </div>

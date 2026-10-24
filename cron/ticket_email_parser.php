@@ -289,11 +289,13 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         $replied_by = intval($ticket_reply_contact) ? (string) getFieldById('contacts', intval($ticket_reply_contact), 'contact_name') : '';
         ticketMailAssigneeReplied($ticket_id, 'email', (string) getFieldById('ticket_replies', $reply_id, 'ticket_reply'), $replied_by !== '' ? $replied_by : stripslashes($from_email));
 
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
+        // Back to Open - unless it is in a status of your own set to stay put when the client replies (Scheduled, say)
+        $new_ticket_status = ticketStatusAfterClientReply($ticket_status);
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $new_ticket_status, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
         resetTicketResolutionSla($ticket_id);
 
         // Only record the reopen when the ticket was not already open
-        if (intval($ticket_status) !== 2) {
+        if (intval($ticket_status) !== $new_ticket_status) {
             logTicketHistory($ticket_id, "$from_email_esc replied by email, reopening the ticket");
         }
 
