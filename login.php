@@ -508,6 +508,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                         unset($_SESSION['pending_mfa_login']);
                         unset($_SESSION['pending_dual_login']);
 
+                        // A new install's first admin is walked through what is left to set up, once (functions/getting_started.php) -
+                        // after MFA enforcement, and not instead of a page they were on their way to
+                        if (!($force_mfa == 1 && $token == NULL) && !isset($_GET['last_visited']) && gettingStartedFirstVisit($user_id)) {
+                            redirect('admin/getting_started.php');
+                        }
+
                         // Redirect
                         if (isset($_GET['last_visited']) && (str_starts_with(base64_decode($_GET['last_visited']), '/agent') || str_starts_with(base64_decode($_GET['last_visited']), '/admin'))) {
                             redirect($_SERVER["REQUEST_SCHEME"] . "://" . $config_base_url . base64_decode($_GET['last_visited']));

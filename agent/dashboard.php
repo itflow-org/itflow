@@ -91,6 +91,45 @@ $tone_text = ['danger' => 'text-danger-emphasis', 'warning' => 'text-warning-emp
     <?php } ?>
 </div>
 
+<?php
+// What is left to set up on a new install, for an admin - until it is done, skipped or dismissed (functions/getting_started.php)
+$getting_started = gettingStartedCard();
+if ($getting_started) {
+    $gs_card_progress = $getting_started['progress'];
+    $gs_card_next = $getting_started['steps'][$gs_card_progress['next']]; ?>
+    <section class="card itflow-gs-card mb-4" aria-labelledby="dashGettingStarted" data-gs-card>
+        <div class="card-body">
+            <div class="d-flex align-items-start gap-3">
+                <span class="itflow-gs-card-icon" aria-hidden="true"><i class="fas fa-flag-checkered"></i></span>
+                <div class="min-w-0 flex-grow-1">
+                    <h2 id="dashGettingStarted" class="h6 fw-semibold mb-1">Finish setting up <span class="text-body-secondary fw-normal">· <?= $gs_card_progress['done'] ?> of <?= $gs_card_progress['total'] ?></span></h2>
+                    <div class="progress itflow-gs-progress mb-2" role="progressbar" aria-label="How far setting up has got" aria-valuenow="<?= $gs_card_progress['done'] ?>" aria-valuemin="0" aria-valuemax="<?= $gs_card_progress['total'] ?>">
+                        <div class="progress-bar" style="width: <?= round($gs_card_progress['done'] * 100 / max(1, $gs_card_progress['total'])) ?>%"></div>
+                    </div>
+                    <div class="small text-body-secondary">Next: <strong class="text-body"><?= escapeHtml($gs_card_next['title']) ?></strong> - <?= escapeHtml($gs_card_next['status']) ?></div>
+                </div>
+                <form action="/admin/post.php" method="post" class="m-0 flex-shrink-0">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <button type="submit" name="getting_started_dismiss" value="1" class="btn-close" aria-label="Don't show this on the dashboard" title="Don't show this on the dashboard" data-gs-card-dismiss></button>
+                </form>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                <ul class="list-unstyled d-flex flex-wrap gap-1 mb-0 me-auto itflow-gs-card-steps">
+                    <?php foreach ($getting_started['steps'] as $gs_card_key => $gs_card_step) {
+                        $gs_card_state = $gs_card_step['done'] ? 'done' : ($gs_card_step['skipped'] ? 'skipped' : 'todo'); ?>
+                        <li>
+                            <a href="<?= gettingStartedUrl($gs_card_key) ?>" class="itflow-gs-chip is-<?= $gs_card_state ?>" data-gs-card-step="<?= $gs_card_key ?>" title="<?= escapeHtml($gs_card_step['title'] . ' - ' . $gs_card_step['status']) ?>">
+                                <i class="fas fa-fw <?= $gs_card_state === 'done' ? 'fa-check' : ($gs_card_state === 'skipped' ? 'fa-minus' : $gs_card_step['icon']) ?>"></i><?= escapeHtml($gs_card_step['label']) ?>
+                            </a>
+                        </li>
+                    <?php } ?>
+                </ul>
+                <a href="<?= gettingStartedUrl($gs_card_progress['next']) ?>" class="btn btn-primary btn-sm" data-gs-card-continue>Carry on<i class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+        </div>
+    </section>
+<?php } ?>
+
 <?php if ($attention !== null) { ?>
 
     <section class="mb-4" aria-labelledby="dashAttentionHeading">

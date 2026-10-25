@@ -8232,6 +8232,211 @@ a.itflow-portal-request:focus-visible {
 }
 
 /* ==========================================================================
+   Get started (admin/getting_started.php, admin/getting_started/) - what is
+   left to set up after the install, in the setup wizard's frame: the steps
+   along the top, one card each. And its card on the dashboard.
+   ========================================================================== */
+.itflow-gs-wrap {
+    max-width: 56rem;
+}
+.itflow-gs-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.itflow-gs-brand {
+    display: flex;
+    align-items: baseline;
+    gap: .6rem;
+    min-width: 0;
+    font-size: 1.5rem;
+    font-weight: 300;
+}
+.itflow-gs-logo {
+    max-height: 2.25rem;
+    max-width: 10rem;
+    object-fit: contain;
+    align-self: center;
+}
+/* A step put off - its marker dashed */
+.itflow-setup-step.is-skipped .itflow-setup-step-marker {
+    border-style: dashed;
+}
+.itflow-gs-progress {
+    height: .4rem;
+}
+/* The Cron step's tasks - a mark that turns green as each is done */
+.itflow-gs-tasks > li {
+    display: flex;
+    gap: .9rem;
+    padding: .9rem 0;
+}
+.itflow-gs-tasks > li + li {
+    border-top: 1px solid var(--bs-border-color);
+}
+.itflow-gs-tasks > li:first-child {
+    padding-top: 0;
+}
+.itflow-gs-task-mark,
+.itflow-gs-summary-mark {
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .85rem;
+    background: var(--bs-tertiary-bg);
+    border: 2px solid var(--bs-border-color);
+    color: var(--bs-secondary-color);
+}
+.itflow-gs-tasks > li.is-done .itflow-gs-task-mark,
+.itflow-gs-summary-mark.is-done {
+    background: var(--bs-success);
+    border-color: var(--bs-success);
+    color: #fff;
+}
+.itflow-gs-summary-mark.is-skipped {
+    border-style: dashed;
+}
+/* Something the step can also do - a switch, and its fields under it */
+.itflow-gs-optional,
+.itflow-gs-key {
+    border: 1px solid var(--bs-border-color);
+    border-radius: .5rem;
+    padding: 1rem;
+}
+.itflow-gs-key {
+    background: var(--bs-tertiary-bg);
+}
+.itflow-gs-day {
+    min-width: 3.25rem;
+}
+/* People and clients - a grey initials tile beside each */
+.itflow-gs-people > li {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .5rem 0;
+}
+.itflow-gs-people > li + li {
+    border-top: 1px solid var(--bs-border-color);
+}
+.itflow-gs-person-initials,
+.itflow-gs-pack-icon,
+.itflow-gs-card-icon {
+    flex: 0 0 auto;
+    width: 2.25rem;
+    height: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    color: var(--bs-secondary-color);
+    font-size: .8rem;
+    font-weight: 600;
+}
+.itflow-gs-pack-icon,
+.itflow-gs-card-icon {
+    border-radius: .5rem;
+    font-weight: 400;
+    font-size: .9rem;
+}
+.itflow-gs-packs .list-group-item {
+    cursor: pointer;
+}
+.itflow-gs-packs .list-group-item.is-here {
+    cursor: default;
+}
+.itflow-gs-packs .list-group-item.is-here .itflow-gs-pack-icon,
+.itflow-gs-packs .list-group-item.is-here .fw-semibold {
+    opacity: .6;
+}
+.itflow-gs-pack-about {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+/* "or", across the card between two ways of doing a step */
+.itflow-gs-or {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin: 1.5rem 0;
+    color: var(--bs-secondary-color);
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+.itflow-gs-or::before,
+.itflow-gs-or::after {
+    content: "";
+    flex: 1 1 auto;
+    border-top: 1px solid var(--bs-border-color);
+}
+/* The summary */
+.itflow-gs-done-mark {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    background: var(--bs-success);
+    color: #fff;
+}
+.itflow-gs-done-mark.is-partial {
+    background: var(--bs-primary);
+}
+.itflow-gs-summary .list-group-item {
+    background: transparent;
+}
+/* The dashboard's card - each step a chip, ticked as it is done */
+.itflow-gs-card {
+    border-left: 3px solid var(--bs-primary);
+}
+.itflow-gs-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .2rem .6rem;
+    border-radius: 2rem;
+    font-size: .8rem;
+    text-decoration: none;
+    border: 1px solid var(--bs-border-color);
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+}
+.itflow-gs-chip:hover {
+    color: var(--bs-body-color);
+    border-color: var(--bs-secondary-color);
+}
+.itflow-gs-chip.is-done {
+    color: var(--bs-success-text-emphasis);
+    background: var(--bs-success-bg-subtle);
+    border-color: var(--bs-success-border-subtle);
+}
+.itflow-gs-chip.is-skipped {
+    border-style: dashed;
+    background: transparent;
+}
+@media (max-width: 575.98px) {
+    .itflow-gs-brand {
+        font-size: 1.25rem;
+    }
+    .itflow-gs-brand .itflow-setup-brand-sub {
+        display: none;
+    }
+}
+
+/* ==========================================================================
    Settings (admin/settings*.php, functions/settings.php, js/settings.js) - a
    page header, sections with what they are for beside their fields, a save
    bar that says when something is changed, the overview's tiles and Find a

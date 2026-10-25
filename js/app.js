@@ -797,9 +797,12 @@ function itflowInit() {
         });
     });
 
-    // Data Tables
+    // Data Tables - only loaded on agent and admin pages (includes/footer.php);
+    // setup and Get started load this file without it
     itflowStep('datatables', function () {
-        new DataTable('.dataTables');
+        if (typeof DataTable !== 'undefined') {
+            new DataTable('.dataTables');
+        }
     });
 
     // Phone inputs

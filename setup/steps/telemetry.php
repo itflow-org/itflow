@@ -77,16 +77,16 @@ if ($localization_done) {
                 </ul>
 
                 <h2 class="h6 fw-semibold">Once you are signed in</h2>
+                <p class="small text-body-secondary mb-2" data-finish-get-started>Get started opens and walks you through the rest, a step at a time. Any of it can be skipped for now - the dashboard shows what is left, and it is in Admin whenever you want it.</p>
                 <ol class="itflow-setup-next list-unstyled mb-4">
                     <li data-finish-cron>
                         <strong>Cron</strong> - ITFlow needs one crontab entry, for the user that owns its files. The install script adds it for you; by hand, it is:
                         <?= $copy_field('setupCron', "* * * * * php " . dirname(__DIR__, 2) . "/cron/cron.php >/dev/null", 'Crontab entry') ?>
-                        <span class="d-block small text-body-secondary mt-1">Then turn it on in Maintenance &gt; Cron - it ships off.</span>
+                        <span class="d-block small text-body-secondary mt-1">It ships off - Get started's first step turns it on.</span>
                     </li>
-                    <li><strong>Mail</strong> - the mailboxes ITFlow sends from and turns emails into tickets from, in Admin &gt; Settings &gt; Mail.</li>
-                    <li><strong>Backups</strong> - when they run, in Maintenance &gt; Backup.</li>
-                    <li><strong>Starter content</strong> - templates, categories and checklists to start from, in Maintenance &gt; Starter Content.</li>
-                    <li><strong>Your team</strong> - invite them from Admin &gt; Users.</li>
+                    <li><strong>Email, backups, billing and support</strong> - the mailbox ITFlow sends from, a nightly backup, your rate and tax, and response times.</li>
+                    <li><strong>Your team and starter content</strong> - the people who work with you, and templates to start from.</li>
+                    <li><strong>Your first client</strong> - or the demo data, to look around first.</li>
                 </ol>
 
                 <div class="itflow-setup-share mb-4" data-finish-share>

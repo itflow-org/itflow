@@ -24,74 +24,6 @@ if (!defined('MICROSOFT_OAUTH_BASE_URL')) {
     define('MICROSOFT_OAUTH_BASE_URL', 'https://login.microsoftonline.com/');
 }
 
-/*
- * Sending (smtp) or Receiving (imap), checked - [settings after, errors by
- * field]. Off keeps the server and sign-in as they were, for turning it back
- * on. A server takes its name, port and encryption, and a username and
- * password - no username, no password (an SMTP server that takes email
- * without signing in). Google and Microsoft have one server each, so what
- * was saved for one is cleared, the password with it - they sign in with the
- * OAuth app.
- */
-$mail_server_check = function ($server, array $before) {
-    $p = "config_{$server}_";
-    $standard = "standard_$server";
-    $example = $server === 'smtp' ? 'smtp.example.com' : 'imap.example.com';
-    $ports = $server === 'smtp' ? '587, 465 or 25' : '993 or 143';
-    $provider = (string) ($_POST[$p . 'provider'] ?? '');
-    $username = mb_substr(trim((string) ($_POST[$p . 'username'] ?? $before[$p . 'username'])), 0, 200);
-    $errors = [];
-    $after = $before;
-    $after[$p . 'provider'] = $provider;
-
-    if (!in_array($provider, ['', $standard, 'google_oauth', 'microsoft_oauth'], true)) {
-        $errors[$p . 'provider'] = 'Pick one of these.';
-
-    } elseif ($provider === $standard) {
-        $host = trim((string) ($_POST[$p . 'host'] ?? ''));
-        $port = trim((string) ($_POST[$p . 'port'] ?? ''));
-        $encryption = (string) ($_POST[$p . 'encryption'] ?? '');
-        $password = (string) ($_POST[$p . 'password'] ?? '');
-
-        if ($host === '') {
-            $errors[$p . 'host'] = "The server's name - $example, or the like.";
-        } elseif (mb_strlen($host) > 200 || !(preg_match('/^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?$/', $host) || filter_var(trim($host, '[]'), FILTER_VALIDATE_IP))) {
-            $errors[$p . 'host'] = "Only the server's name or IP address - $example. The port and encryption have their own fields.";
-        }
-        if (!ctype_digit($port) || intval($port) < 1 || intval($port) > 65535) {
-            $errors[$p . 'port'] = "A port number - $ports.";
-        }
-        if (!in_array($encryption, ['', 'tls', 'ssl'], true) && $encryption !== (string) $before[$p . 'encryption']) {
-            $errors[$p . 'encryption'] = 'Pick one of these.';
-        }
-        if (mb_strlen($password) > 200) {
-            $errors[$p . 'password'] = 'Up to 200 characters.';
-        }
-        $password = $username === '' ? '' : ($password !== '' ? $password : (string) $before[$p . 'password']);
-        if ($server === 'imap' && $username === '') {
-            $errors[$p . 'username'] = 'The mailbox to read - usually its address.';
-        } elseif ($username !== '' && $password === '' && !isset($errors[$p . 'password'])) {
-            $errors[$p . 'password'] = $server === 'smtp' ? 'And its password - or no username, if the server takes email without signing in.' : 'And its password.';
-        }
-        $after[$p . 'host'] = $host;
-        $after[$p . 'port'] = intval($port);
-        $after[$p . 'encryption'] = $encryption;
-        $after[$p . 'username'] = $username;
-        $after[$p . 'password'] = $password;
-
-    } elseif ($provider !== '') {
-        if ($server === 'imap' && $username === '') {
-            $errors[$p . 'username'] = 'The mailbox to read - its address.';
-        }
-        $after[$p . 'host'] = '';
-        $after[$p . 'port'] = null;
-        $after[$p . 'encryption'] = '';
-        $after[$p . 'username'] = $username;
-        $after[$p . 'password'] = '';
-    }
-    return [$after, $errors];
-};
-
 if (isset($_POST['edit_mail_smtp_settings']) || isset($_POST['edit_mail_imap_settings'])) {
 
     validateCSRFToken();
@@ -101,7 +33,7 @@ if (isset($_POST['edit_mail_smtp_settings']) || isset($_POST['edit_mail_imap_set
         return "config_{$server}_$column";
     }, ['provider', 'host', 'port', 'encryption', 'username', 'password']));
 
-    [$after, $errors] = $mail_server_check($server, $before);
+    [$after, $errors] = settingsMailServerCheck($server, $before, $_POST);
     if ($errors) {
         settingsRefuse('mail', $errors, $mail_tab_redirect);
     }

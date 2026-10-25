@@ -12,6 +12,20 @@
         <!-- Sidebar Menu -->
         <nav>
             <ul class="nav nav-pills sidebar-menu flex-column mt-2" data-lte-toggle="treeview" data-accordion="false">
+                <?php if (gettingStartedReady()) {
+                    $nav_getting_started = gettingStartedProgress(); ?>
+                    <li class="nav-item">
+                        <a href="/admin/getting_started.php" class="nav-link" data-nav-getting-started>
+                            <i class="nav-icon fas fa-flag-checkered"></i>
+                            <p>
+                                Get started
+                                <?php if (!$nav_getting_started['finished']) { ?>
+                                    <span class="right badge text-light" data-bs-toggle="tooltip" title="Steps done or skipped"><?= $nav_getting_started['done'] ?>/<?= $nav_getting_started['total'] ?></span>
+                                <?php } ?>
+                            </p>
+                        </a>
+                    </li>
+                <?php } ?>
                 <li class="nav-header">ACCESS</li>
                 <li class="nav-item">
                     <a href="/admin/users.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "users.php") {echo "active";} ?>">
