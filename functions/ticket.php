@@ -282,6 +282,10 @@ function ticketDeleteForGood($ticket_id) {
     mysqli_query($mysqli, "DELETE FROM ticket_attachments WHERE ticket_attachment_ticket_id = $ticket_id");
     mysqli_query($mysqli, "DELETE FROM ticket_history WHERE ticket_history_ticket_id = $ticket_id");
     mysqli_query($mysqli, "DELETE FROM sla_history WHERE sla_history_ticket_id = $ticket_id");
+    // The prepaid hours it drew go back to their contracts
+    if (function_exists('contractHoursReady') && contractHoursReady()) {
+        mysqli_query($mysqli, "DELETE FROM contract_block_uses WHERE contract_block_use_ticket_id = $ticket_id");
+    }
     mysqli_query($mysqli, "DELETE FROM tickets WHERE ticket_id = $ticket_id");
     // The driving for it still happened - the trips stay, without the ticket
     mysqli_query($mysqli, "UPDATE trips SET trip_ticket_id = 0 WHERE trip_ticket_id = $ticket_id");

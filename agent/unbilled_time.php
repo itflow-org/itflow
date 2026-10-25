@@ -16,7 +16,10 @@
  * from the time logged and the rounding in Admin > Settings > Invoice, ready
  * to change before it goes on, and every expense with its price. Tick the
  * ones to bill and make an invoice, or add them to one of the client's
- * drafts - or mark them not billable.
+ * drafts - or mark them not billable. A client with prepaid hours on a
+ * contract has them drawn from each night (functions/contract_hours.php):
+ * what is left shows here, with Draw now, and a ticket they covered part of
+ * is here with the rest.
  *
  * functions/billing.php (Billing time) counts and bills the time,
  * functions/expenses.php (Billing expenses on) the expenses and
@@ -48,12 +51,13 @@ $money = function ($amount) use ($currency) {
     return escapeHtml(billingMoney($amount, $currency));
 };
 
-$total = ['tickets' => 0, 'seconds' => 0, 'hours' => 0.0, 'value' => 0.0, 'oldest' => 0, 'no_time' => 0, 'no_rate' => 0,
+$total = ['tickets' => 0, 'seconds' => 0, 'hours' => 0.0, 'prepaid' => 0.0, 'value' => 0.0, 'oldest' => 0, 'no_time' => 0, 'no_rate' => 0,
     'expenses' => 0, 'expense_value' => 0.0, 'expense_cost' => 0.0, 'trips' => 0, 'trip_value' => 0.0];
 foreach ($clients as $c) {
     $total['tickets'] += count($c['tickets']);
     $total['seconds'] += $c['seconds'];
     $total['hours'] += $c['hours'];
+    $total['prepaid'] += $c['prepaid'] ?? 0;
     $total['value'] += $c['value'];
     $total['oldest'] = max($total['oldest'], $c['oldest']);
     $total['no_time'] += $c['no_time'];
@@ -78,6 +82,9 @@ $extras_text = function ($expenses, $trips) {
     return implode(', ', $parts);
 };
 $this_client = $client_view ? ($clients[$client_id] ?? null) : null;
+// The client's prepaid hours - drawn from each night, or now
+$prepaid = $client_view && $with_time && $this_client && $this_client['tickets'] ? contractClientHours($client_id) : [];
+$prepaid_left = round(array_sum(array_map(function ($c) { return $c['hours']['left']; }, $prepaid)), 2);
 $show_time = $with_time && (!$client_view || ($this_client && $this_client['tickets']));
 $markup_text = function ($markup) {
     return rtrim(rtrim(number_format(floatval($markup), 2, '.', ''), '0'), '.') . '%';
@@ -116,7 +123,7 @@ $hours_text = function ($hours) {
         <div class="itflow-billing-stat">
             <div class="itflow-billing-stat-label"><i class="fas fa-stopwatch me-1"></i>Hours</div>
             <div class="itflow-billing-stat-value"><?= $hours_text($total['hours']) ?></div>
-            <div class="itflow-billing-stat-note"><?= billingDuration($total['seconds']) ?> logged, rounded <?= escapeHtml(billingTimeRulesText($rules)) ?></div>
+            <div class="itflow-billing-stat-note"><?= billingDuration($total['seconds']) ?> logged, rounded <?= escapeHtml(billingTimeRulesText($rules)) ?><?= $total['prepaid'] > 0 ? ' &middot; less ' . escapeHtml(contractHoursText($total['prepaid'])) . ' prepaid' : '' ?></div>
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
@@ -300,6 +307,22 @@ $hours_text = function ($hours) {
                 </div>
             <?php } ?>
 
+            <?php if ($prepaid) {
+                $first = reset($prepaid); ?>
+                <!-- Their prepaid hours, drawn from before billing -->
+                <div class="alert alert-<?= $prepaid_left > 0 ? 'info' : 'warning' ?> d-flex flex-wrap align-items-center column-gap-3 row-gap-2 mb-3" data-unbilled-prepaid>
+                    <i class="fas fa-fw fa-hourglass-half flex-shrink-0"></i>
+                    <div class="min-w-0" style="flex: 1 1 14rem;">
+                        <strong><?= $prepaid_left > 0 ? escapeHtml(contractHoursText($prepaid_left)) . ' of prepaid hours left' : 'No prepaid hours left' ?></strong>
+                        on <a class="alert-link" href="contract.php?client_id=<?= $client_id ?>&contract_id=<?= intval($first['contract_id']) ?>"><?= escapeHtml($first['contract_name']) ?></a><?= count($prepaid) > 1 ? ' and ' . (count($prepaid) - 1) . ' more' : '' ?>.
+                        Done tickets are drawn from them each night - the tickets here are beyond them, done outside the days they cover, or put back.
+                    </div>
+                    <?php if ($can_edit && $prepaid_left > 0) { ?>
+                        <button type="submit" name="draw_contract_hours" value="1" class="btn btn-sm btn-info flex-shrink-0 text-nowrap" formnovalidate title="Draw these tickets from the prepaid hours now"><i class="fas fa-fw fa-arrow-down me-1"></i>Draw now</button>
+                    <?php } ?>
+                </div>
+            <?php } ?>
+
             <div class="card">
                 <div class="card-header bg-dark py-2 d-flex align-items-center">
                     <h3 class="card-title mt-2 me-auto"><i class="fas fa-fw fa-user-clock me-2"></i>Unbilled Time<?= $client_view ? '' : ' by client' ?></h3>
@@ -371,7 +394,12 @@ $hours_text = function ($hours) {
                                         <div class="small"><?= escapeHtml(date('Y-m-d', strtotime((string) ($ticket['ticket_resolved_at'] ?: $ticket['ticket_closed_at'])))) ?></div>
                                         <?= $waiting_pill($ticket['waiting']) ?>
                                     </td>
-                                    <td class="text-end text-nowrap <?= $ticket['seconds'] ? '' : 'text-warning-emphasis' ?>" <?= $ticket['seconds'] ? '' : 'title="No time logged - type the hours to bill, or leave it at 0 to put it on the invoice with no charge"' ?>><?= $ticket['seconds'] ? billingDuration($ticket['seconds']) : 'None' ?></td>
+                                    <td class="text-end text-nowrap <?= $ticket['seconds'] ? '' : 'text-warning-emphasis' ?>" <?= $ticket['seconds'] ? '' : 'title="No time logged - type the hours to bill, or leave it at 0 to put it on the invoice with no charge"' ?>>
+                                        <?= $ticket['seconds'] ? billingDuration($ticket['seconds']) : 'None' ?>
+                                        <?php if ($ticket['prepaid'] > 0) { ?>
+                                            <div class="small text-body-secondary" title="Prepaid hours covered part of it - the rest is to bill">less <?= escapeHtml(contractHoursText($ticket['prepaid'])) ?> prepaid</div>
+                                        <?php } ?>
+                                    </td>
                                     <td class="text-end itflow-unbilled-hours">
                                         <?php if ($can_edit) { ?>
                                             <input type="text" class="form-control form-control-sm text-end" name="hours[<?= $ticket_id ?>]" value="<?= billingQuantity($ticket['hours']) ?>" inputmode="decimal" aria-label="Hours to bill" data-unbilled-hours>

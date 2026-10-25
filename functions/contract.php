@@ -269,6 +269,10 @@ function contractFromInput(array $in, $kind = 'contract') {
         $number = function_exists('billingNumberInput') ? billingNumberInput($value) : (is_numeric($value) ? floatval($value) : null);
         return $number === null ? false : round($number, 2);
     };
+    $hours = function ($key) use ($in) {
+        $value = trim(str_replace(',', '', (string) ($in[$key] ?? '')));
+        return $value === '' ? 0.0 : (is_numeric($value) ? round(floatval($value), 2) : false);
+    };
     $f = [
         'name' => $text('name', 255),
         'type' => isset(CONTRACT_TYPES[(string) ($in['type'] ?? '')]) ? (string) $in['type'] : 'managed',
@@ -282,6 +286,9 @@ function contractFromInput(array $in, $kind = 'contract') {
         'support_hours' => $text('support_hours', 100),
         'details' => isset($in['details']) ? documentHtmlPurify((string) $in['details']) : null,
         'sla' => [],
+        // Prepaid hours (functions/contract_hours.php) - included each month, and how few left is low
+        'monthly_hours' => $hours('monthly_hours'),
+        'hours_alert' => $hours('hours_alert'),
     ];
     foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
         $f['sla'][$part] = intval($in["sla_$part"] ?? 0);
@@ -313,6 +320,12 @@ function contractFromInput(array $in, $kind = 'contract') {
     }
     if ($f['net_terms'] !== null && ($f['net_terms'] < 0 || $f['net_terms'] > 365)) {
         return [$f, 'Net terms are 0 to 365 days - or leave them empty for the client\'s own.'];
+    }
+    if ($f['monthly_hours'] === false || $f['monthly_hours'] < 0 || $f['monthly_hours'] >= 1000) {
+        return [$f, 'Hours each month are a number of hours under 1,000, such as 10 or 7.5 - or leave it empty for none.'];
+    }
+    if ($f['hours_alert'] === false || $f['hours_alert'] < 0 || $f['hours_alert'] >= 10000) {
+        return [$f, 'The hours to be told at are a number of hours, such as 2 - or leave it empty to not be told.'];
     }
     $slas = contractSlaChoices(array_values($f['sla']));
     foreach ($f['sla'] as $part => $sla_id) {
@@ -368,6 +381,10 @@ function contractTermsSetSql(array $f, $prefix) {
     foreach ($f['sla'] as $part => $sla_id) {
         $sql[] = "{$prefix}_sla_{$part}_id = " . intval($sla_id);
     }
+    if (function_exists('contractHoursReady') && contractHoursReady()) {
+        $sql[] = "{$prefix}_monthly_hours = " . sprintf('%.2f', $f['monthly_hours'] ?? 0);
+        $sql[] = "{$prefix}_hours_alert = " . sprintf('%.2f', $f['hours_alert'] ?? 0);
+    }
     if ($f['details'] !== null) {
         // Purified HTML - escapeSql() would strip its tags
         $sql[] = "{$prefix}_details = '" . mysqli_real_escape_string($mysqli, $f['details']) . "'";
@@ -401,6 +418,9 @@ function contractUpdate(array $row, array $f) {
     global $mysqli;
     $id = intval($row['contract_id']);
     $reset = (string) $row['contract_end_date'] !== $f['end_date'] ? ', contract_reminded_at = NULL' : '';
+    $hours = function_exists('contractHoursReady') && contractHoursReady() && array_key_exists('contract_hours_alert', $row);
+    // A new level to be told at is told again at it
+    $reset .= $hours && round(floatval($row['contract_hours_alert']), 2) !== round($f['hours_alert'], 2) ? ', contract_hours_alerted_at = NULL' : '';
     mysqli_query($mysqli, "UPDATE contracts SET " . contractSetSql($f) . "$reset WHERE contract_id = $id");
     $changes = [];
     $was = [
@@ -411,6 +431,9 @@ function contractUpdate(array $row, array $f) {
         'net terms' => $row['contract_net_terms'] === null ? 'the client\'s' : intval($row['contract_net_terms']) . ' days',
         'support hours' => (string) $row['contract_support_hours'],
     ];
+    if ($hours) {
+        $was += ['hours each month' => contractHoursText($row['contract_monthly_hours']), 'hours to be told at' => contractHoursText($row['contract_hours_alert'])];
+    }
     $now = [
         'name' => $f['name'], 'type' => contractTypeLabel($f['type']), 'start' => $f['start_date'], 'end' => $f['end_date'],
         'term' => contractTermLabel($f['term_months']), 'notice' => $f['notice_days'] . ' days notice',
@@ -419,6 +442,9 @@ function contractUpdate(array $row, array $f) {
         'net terms' => $f['net_terms'] === null ? 'the client\'s' : $f['net_terms'] . ' days',
         'support hours' => $f['support_hours'],
     ];
+    if ($hours) {
+        $now += ['hours each month' => contractHoursText($f['monthly_hours']), 'hours to be told at' => contractHoursText($f['hours_alert'])];
+    }
     foreach ($was as $label => $value) {
         if ($value !== $now[$label]) {
             $changes[] = "$label from " . ($value !== '' ? $value : 'none') . ' to ' . ($now[$label] !== '' ? $now[$label] : 'none');
@@ -476,17 +502,19 @@ function contractCancel(array $row, $last_day, $reason) {
 
 /*
  * The night's work, run by cron/nightly_tasks.php - [renewed, ended,
- * reminded] for the log:
+ * reminded, drawn] for the log:
  *  - an active contract whose last day has passed renews for another term
  *    when it renews itself (as many terms as it takes to reach today), and
  *    ends when it doesn't;
  *  - the owner of one coming up to its notice date is reminded, once a term,
- *    by email and in ITFlow - or everyone, when it has no owner.
+ *    by email and in ITFlow - or everyone, when it has no owner;
+ *  - prepaid hours: each month's included hours are added, and the tickets
+ *    done since are drawn from them (contractHoursNightly()).
  */
 function contractsNightly($today = null) {
     global $mysqli;
     $today = $today ?? date('Y-m-d');
-    $done = ['renewed' => 0, 'ended' => 0, 'reminded' => 0];
+    $done = ['renewed' => 0, 'ended' => 0, 'reminded' => 0, 'drawn' => 0];
     if (!contractsReady()) {
         return $done;
     }
@@ -526,6 +554,11 @@ function contractsNightly($today = null) {
         contractRemind($row);
         mysqli_query($mysqli, "UPDATE contracts SET contract_reminded_at = NOW() WHERE contract_id = " . intval($row['contract_id']));
         $done['reminded']++;
+    }
+
+    // Prepaid hours: each month's included hours, and the tickets done since drawn from them
+    if (function_exists('contractHoursNightly')) {
+        $done['drawn'] = contractHoursNightly($today);
     }
     return $done;
 }

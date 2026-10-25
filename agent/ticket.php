@@ -463,7 +463,12 @@ if (isset($_GET['ticket_id'])) {
 
         // Billing actions, decided once - the header shows Invoice once the work is done
         $show_quote_button = $can_edit_ticket && $config_module_enable_accounting && $ticket_billable == 1 && empty($quote_id) && empty($invoice_id) && lookupUserPermission("module_sales") >= 2;
-        $show_invoice_button = $can_edit_ticket && $config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id) && lookupUserPermission("module_sales") >= 2;
+        // Prepaid hours on a contract it drew from - all of it covered leaves nothing to invoice
+        $ticket_prepaid_kept_out = false;
+        $ticket_prepaid_uses = $config_module_enable_accounting && lookupUserPermission("module_sales") >= 1 ? contractHoursTicketUses($ticket_id, $ticket_prepaid_kept_out) : [];
+        $ticket_prepaid_hours = round(array_sum(array_column($ticket_prepaid_uses, 'contract_block_use_hours')), 2);
+        $ticket_prepaid_full = in_array('1', array_map('strval', array_column($ticket_prepaid_uses, 'contract_block_use_full')), true);
+        $show_invoice_button = $can_edit_ticket && $config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id) && !$ticket_prepaid_full && lookupUserPermission("module_sales") >= 2;
 
         // Trips - the driving done for it: anyone working it can log theirs (functions/trips.php)
         $show_trips = $config_module_enable_accounting && $client_id > 0;
@@ -1185,6 +1190,30 @@ if (isset($_GET['ticket_id'])) {
                                         <?php } ?>
                                     </dd>
                                 </div>
+                                <?php if ($ticket_prepaid_uses || $ticket_prepaid_kept_out) {
+                                    $prepaid_contract = $ticket_prepaid_uses[0] ?? null; ?>
+                                    <div class="ticket-prop" data-ticket-prepaid>
+                                        <dt>Prepaid</dt>
+                                        <dd>
+                                            <?php if ($prepaid_contract) { ?>
+                                                <a href="contract.php?client_id=<?= intval($prepaid_contract['contract_client_id']) ?>&contract_id=<?= intval($prepaid_contract['contract_id']) ?>" class="ticket-prop-edit" title="Open the contract">
+                                                    <span><i class="fa fa-fw fa-hourglass-half text-secondary me-1"></i><?= escapeHtml(contractHoursText($ticket_prepaid_hours)) ?> from <?= escapeHtml($prepaid_contract['contract_name']) ?><?= $ticket_prepaid_full ? '' : ' - the rest is billed' ?></span>
+                                                </a>
+                                            <?php } else { ?>
+                                                <span class="ticket-prop-static">
+                                                    <span class="text-muted" title="Its prepaid hours were put back - it is billed as usual">Put back</span>
+                                                    <?php if (empty($invoice_id) && lookupUserPermission("module_sales") >= 2) { ?>
+                                                        <form action="post.php" method="post" class="d-inline">
+                                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                                            <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
+                                                            <button type="submit" name="draw_contract_hours" value="1" class="btn btn-link btn-sm p-0 ms-1 align-baseline" title="Draw its time from the prepaid hours after all">Draw it</button>
+                                                        </form>
+                                                    <?php } ?>
+                                                </span>
+                                            <?php } ?>
+                                        </dd>
+                                    </div>
+                                <?php } ?>
                             <?php } ?>
 
                             <div class="ticket-prop">

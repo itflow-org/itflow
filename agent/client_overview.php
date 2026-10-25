@@ -523,13 +523,19 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                     <?php } ?>
                     <?php if ($access['sales'] && contractsReady()) {
                         $overview_contracts = contractClientActive($client_id);
-                        $overview_contract = $overview_contracts[0] ?? null; ?>
+                        $overview_contract = $overview_contracts[0] ?? null;
+                        // Prepaid hours left across them
+                        $overview_hours = contractHoursLeftFor(array_column($overview_contracts, 'contract_id'));
+                        $overview_hours_left = round(array_sum(array_column($overview_hours, 'left')), 2); ?>
                         <a href="<?= $overview_contract && count($overview_contracts) === 1 ? 'contract.php?client_id=' . $client_id . '&contract_id=' . intval($overview_contract['contract_id']) : 'contracts.php?client_id=' . $client_id ?>" class="itflow-dash-rail-item" data-overview-contract>
                             <span class="small text-body-secondary">Contract</span>
                             <?php if ($overview_contract) {
                                 $overview_state = contractState($overview_contract); ?>
                                 <span class="fs-5 fw-semibold text-truncate" title="<?= escapeHtml($overview_contract['contract_name']) ?>"><?= escapeHtml($overview_contract['contract_name']) ?></span>
                                 <span class="small <?= in_array($overview_state['key'], ['ending', 'renewing'], true) ? 'text-' . ($overview_state['key'] === 'ending' ? 'warning' : 'primary') . '-emphasis' : 'text-body-tertiary' ?>"><?= escapeHtml($overview_state['when']) ?><?= count($overview_contracts) > 1 ? ' · ' . (count($overview_contracts) - 1) . ' more' : '' ?></span>
+                                <?php if ($overview_hours) { ?>
+                                    <span class="small <?= $overview_hours_left > 0 ? 'text-body-tertiary' : 'text-warning-emphasis' ?>" data-overview-hours><i class="fas fa-hourglass-half me-1" aria-hidden="true"></i><?= escapeHtml(contractHoursText($overview_hours_left)) ?> prepaid left</span>
+                                <?php } ?>
                             <?php } else { ?>
                                 <span class="fs-5 fw-semibold text-body-tertiary">None</span>
                                 <span class="small text-body-tertiary">No contract in force</span>

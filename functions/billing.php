@@ -941,20 +941,23 @@ function billingTimeRate($client_rate) {
 
 /**
  * The SQL that makes a ticket unbilled: billable, resolved or closed, not
- * archived, on no invoice. $include_open takes open ones too - the ticket's
- * own Invoice window can bill a ticket before it is done.
+ * archived, on no invoice, and not all covered by a contract's prepaid hours
+ * (functions/contract_hours.php). $include_open takes open ones too - the
+ * ticket's own Invoice window can bill a ticket before it is done.
  */
 function billingUnbilledSql($include_open = false) {
     return "ticket_billable = 1 AND ticket_invoice_id = 0 AND ticket_archived_at IS NULL AND ticket_client_id > 0"
-        . ($include_open ? '' : " AND ticket_status IN (" . TICKET_STATUS_RESOLVED . ", " . TICKET_STATUS_CLOSED . ")");
+        . ($include_open ? '' : " AND ticket_status IN (" . TICKET_STATUS_RESOLVED . ", " . TICKET_STATUS_CLOSED . ")")
+        . (contractHoursReady() ? " AND NOT EXISTS (SELECT 1 FROM contract_block_uses WHERE contract_block_use_ticket_id = ticket_id AND contract_block_use_full = 1)" : '');
 }
 
 /**
  * Unbilled tickets - one client's ($client_id), or every client the agent
  * can open (0), optionally only $ticket_ids - longest waiting first. Each
  * with its client, its assignee, the seconds worked (archived replies left
- * out), the hours that bills, the rate and what that comes to, and the days
- * since it was done.
+ * out), the hours that bills - less any a contract's prepaid hours covered
+ * ('prepaid', the hours worked before that are 'worked') - the rate and what
+ * that comes to, and the days since it was done.
  */
 function billingUnbilledTickets($client_id = 0, array $ticket_ids = [], $include_open = false) {
     global $mysqli;
@@ -967,6 +970,7 @@ function billingUnbilledTickets($client_id = 0, array $ticket_ids = [], $include
     $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_onsite, ticket_created_at, ticket_resolved_at, ticket_closed_at,
             ticket_client_id, ticket_assigned_to, client_name, client_abbreviation, client_rate, user_name, user_avatar,
             COALESCE((SELECT SUM(TIME_TO_SEC(ticket_reply_time_worked)) FROM ticket_replies WHERE ticket_reply_ticket_id = ticket_id AND ticket_reply_archived_at IS NULL), 0) AS seconds,
+            " . (contractHoursReady() ? 'COALESCE((SELECT SUM(contract_block_use_hours) FROM contract_block_uses WHERE contract_block_use_ticket_id = ticket_id), 0)' : '0') . " AS prepaid,
             DATEDIFF(CURDATE(), COALESCE(ticket_resolved_at, ticket_closed_at, ticket_created_at)) AS waiting
         FROM tickets
         JOIN clients ON client_id = ticket_client_id
@@ -976,7 +980,9 @@ function billingUnbilledTickets($client_id = 0, array $ticket_ids = [], $include
     while ($row = mysqli_fetch_assoc($sql)) {
         $row['seconds'] = intval($row['seconds']);
         $row['waiting'] = max(0, intval($row['waiting']));
-        $row['hours'] = billingTimeHours($row['seconds'], $rules);
+        $row['worked'] = billingTimeHours($row['seconds'], $rules);
+        $row['prepaid'] = round(floatval($row['prepaid']), 2);
+        $row['hours'] = max(0.0, round($row['worked'] - $row['prepaid'], 2));
         $row['rate'] = billingTimeRate($row['client_rate']);
         $row['default_rate'] = floatval($row['client_rate']) <= 0;
         $row['value'] = round($row['hours'] * $row['rate'], 2);
@@ -986,9 +992,10 @@ function billingUnbilledTickets($client_id = 0, array $ticket_ids = [], $include
 }
 
 /**
- * The same, by client - each client with its tickets, time, hours, value,
- * how long the oldest has waited, how many have no time logged, and its
- * draft invoices. Biggest value first.
+ * The same, by client - each client with its tickets, time, hours (and the
+ * prepaid hours that covered part of them), value, how long the oldest has
+ * waited, how many have no time logged, and its draft invoices. Biggest
+ * value first.
  */
 function billingUnbilledByClient($client_id = 0) {
     global $mysqli;
@@ -997,12 +1004,13 @@ function billingUnbilledByClient($client_id = 0) {
         $id = intval($ticket['ticket_client_id']);
         if (!isset($clients[$id])) {
             $clients[$id] = ['client_id' => $id, 'client_name' => $ticket['client_name'], 'client_abbreviation' => $ticket['client_abbreviation'],
-                'rate' => $ticket['rate'], 'default_rate' => $ticket['default_rate'], 'tickets' => [], 'seconds' => 0, 'hours' => 0.0, 'value' => 0.0,
+                'rate' => $ticket['rate'], 'default_rate' => $ticket['default_rate'], 'tickets' => [], 'seconds' => 0, 'hours' => 0.0, 'prepaid' => 0.0, 'value' => 0.0,
                 'oldest' => 0, 'no_time' => 0, 'drafts' => []];
         }
         $clients[$id]['tickets'][intval($ticket['ticket_id'])] = $ticket;
         $clients[$id]['seconds'] += $ticket['seconds'];
         $clients[$id]['hours'] += $ticket['hours'];
+        $clients[$id]['prepaid'] += $ticket['prepaid'];
         $clients[$id]['value'] += $ticket['value'];
         $clients[$id]['oldest'] = max($clients[$id]['oldest'], $ticket['waiting']);
         $clients[$id]['no_time'] += $ticket['seconds'] === 0 ? 1 : 0;

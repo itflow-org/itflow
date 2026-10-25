@@ -55,6 +55,7 @@ ob_start();
                             <span class="small text-body-secondary">
                                 <i class="far fa-clock me-1"></i><?= $ticket['seconds'] ? billingDuration($ticket['seconds']) . ' logged' : '<span class="text-warning-emphasis">No time logged</span>' ?>
                                 &middot; done <?= escapeHtml(date('Y-m-d', strtotime((string) ($ticket['ticket_resolved_at'] ?: $ticket['ticket_closed_at'])))) ?>
+                                <?= $ticket['prepaid'] > 0 ? '&middot; less ' . escapeHtml(contractHoursText($ticket['prepaid'])) . ' prepaid' : '' ?>
                             </span>
                         </label>
                         <div class="input-group input-group-sm flex-shrink-0" style="width: 6.5rem;" data-add-ticket-hours>

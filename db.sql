@@ -1040,6 +1040,53 @@ CREATE TABLE `contacts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `contract_block_uses`
+--
+
+DROP TABLE IF EXISTS `contract_block_uses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contract_block_uses` (
+  `contract_block_use_id` int(11) NOT NULL AUTO_INCREMENT,
+  `contract_block_use_block_id` int(11) NOT NULL,
+  `contract_block_use_ticket_id` int(11) NOT NULL,
+  `contract_block_use_hours` decimal(8,2) NOT NULL,
+  `contract_block_use_full` tinyint(1) NOT NULL DEFAULT 0,
+  `contract_block_use_created_by` int(11) NOT NULL DEFAULT 0,
+  `contract_block_use_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`contract_block_use_id`),
+  KEY `contract_block_use_block_id` (`contract_block_use_block_id`),
+  KEY `contract_block_use_ticket_id` (`contract_block_use_ticket_id`),
+  CONSTRAINT `contract_block_uses_ibfk_1` FOREIGN KEY (`contract_block_use_block_id`) REFERENCES `contract_blocks` (`contract_block_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `contract_blocks`
+--
+
+DROP TABLE IF EXISTS `contract_blocks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contract_blocks` (
+  `contract_block_id` int(11) NOT NULL AUTO_INCREMENT,
+  `contract_block_contract_id` int(11) NOT NULL,
+  `contract_block_hours` decimal(8,2) NOT NULL,
+  `contract_block_price` decimal(15,2) DEFAULT NULL,
+  `contract_block_bought` date NOT NULL,
+  `contract_block_expires` date DEFAULT NULL,
+  `contract_block_month` char(7) DEFAULT NULL,
+  `contract_block_invoice_id` int(11) NOT NULL DEFAULT 0,
+  `contract_block_note` varchar(255) DEFAULT NULL,
+  `contract_block_created_by` int(11) NOT NULL DEFAULT 0,
+  `contract_block_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`contract_block_id`),
+  UNIQUE KEY `contract_block_month` (`contract_block_contract_id`,`contract_block_month`),
+  CONSTRAINT `contract_blocks_ibfk_1` FOREIGN KEY (`contract_block_contract_id`) REFERENCES `contracts` (`contract_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `contract_signatures`
 --
 
@@ -1108,6 +1155,8 @@ CREATE TABLE `contract_templates` (
   `contract_template_sla_medium_id` int(11) NOT NULL DEFAULT 0,
   `contract_template_sla_high_id` int(11) NOT NULL DEFAULT 0,
   `contract_template_sla_urgent_id` int(11) NOT NULL DEFAULT 0,
+  `contract_template_monthly_hours` decimal(8,2) NOT NULL DEFAULT 0.00,
+  `contract_template_hours_alert` decimal(8,2) NOT NULL DEFAULT 0.00,
   PRIMARY KEY (`contract_template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1151,6 +1200,9 @@ CREATE TABLE `contracts` (
   `contract_cancelled_at` datetime DEFAULT NULL,
   `contract_cancel_reason` varchar(255) DEFAULT NULL,
   `contract_created_by` int(11) NOT NULL DEFAULT 0,
+  `contract_monthly_hours` decimal(8,2) NOT NULL DEFAULT 0.00,
+  `contract_hours_alert` decimal(8,2) NOT NULL DEFAULT 0.00,
+  `contract_hours_alerted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`contract_id`),
   KEY `contract_client_id` (`contract_client_id`),
   CONSTRAINT `contracts_ibfk_1` FOREIGN KEY (`contract_client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE

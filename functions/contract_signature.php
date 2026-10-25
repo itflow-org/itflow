@@ -43,6 +43,7 @@ const CONTRACT_PLACEHOLDERS = [
     'Renewal' => 'whether it renews itself, in a sentence',
     'Notice' => 'the notice to end it - 30 days',
     'Support Hours' => 'its support hours',
+    'Monthly Hours' => 'the hours of support included each month - 10 hours',
     'Rate' => 'the hourly rate',
     'After Hours Rate' => 'the after-hours rate',
     'Net Terms' => 'when invoices are due - Net 30',
@@ -173,6 +174,7 @@ function contractPlaceholderValues(array $row, $as_of = null) {
             : 'It ends on its last day unless it is renewed.',
         'notice' => $notice ? "$notice days" : 'none',
         'support hours' => (string) ($row['contract_support_hours'] ?? ''),
+        'monthly hours' => floatval($row['contract_monthly_hours'] ?? 0) > 0 ? contractHoursWords($row['contract_monthly_hours']) : '',
         'rate' => $rate !== null && $rate !== '' ? contractMoney($rate, $row) : '',
         'after hours rate' => $after !== null ? contractMoney($after, $row) : '',
         'net terms' => $net !== null && $net !== '' ? contractNetTermsText($net) : '',
@@ -252,6 +254,8 @@ function contractDocumentHtml(array $row, $as_of = null) {
         'Renewal' => $values['renewal'],
         'Notice' => intval($row['contract_notice_days']) ? $values['notice'] . ' before it ends, in writing' : 'None needed',
         'Support hours' => $values['support hours'],
+        // Only when there are some - documents without them come out as they always did
+        'Included hours' => $values['monthly hours'] !== '' ? $values['monthly hours'] . ' of support each month, used for that month only' : '',
         'Rates' => implode('; ', $rates),
         'Payment' => $net === '' ? '' : ($net === 'Due on receipt' ? 'Invoices are due on receipt' : 'Invoices are due ' . intval(preg_replace('/\D/', '', $net)) . " days after they are issued ($net)"),
     ];

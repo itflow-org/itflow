@@ -6,7 +6,8 @@
  * many renew soon (a chance to review them with the client) and the drafts.
  * Tabs: Active (the default), Due soon (within a month of their notice
  * date), Signing (out for signature, or to countersign), Drafts, Ended
- * (ended or cancelled) and All. Each row says where its signing stands.
+ * (ended or cancelled) and All. Each row says where its signing stands,
+ * and how many prepaid hours are left on it.
  * The work is in functions/contract.php; the handlers are
  * agent/post/contract.php.
  */
@@ -85,6 +86,9 @@ if (contractsReady()) {
             $signing[intval($round['contract_signature_contract_id'])] = contractSignatureState($round);
         }
     }
+
+    // Prepaid hours left on each
+    $hours_left = contractHoursLeftFor(array_column($contracts, 'contract_id'));
 
     $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', array_map(function ($v) {
         return "COALESCE(SUM({$v['where']}), 0)";
@@ -241,6 +245,11 @@ $csrf = $_SESSION['csrf_token'];
                                         · <span class="text-<?= $sign['key'] === 'countersign' ? 'warning' : 'primary' ?>-emphasis" title="<?= escapeHtml($sign['when']) ?>"><i class="fas fa-fw <?= $sign['icon'] ?>"></i><?= escapeHtml($sign['label']) ?></span>
                                     <?php } elseif ($sign && $sign['key'] === 'signed') { ?>
                                         · <span class="text-success-emphasis" title="<?= escapeHtml($sign['when']) ?>"><i class="fas fa-fw fa-file-signature"></i>Signed</span>
+                                    <?php } ?>
+                                    <?php if (isset($hours_left[$contract_id])) {
+                                        $left = $hours_left[$contract_id]['left'];
+                                        $low = $row['contract_status'] === 'Active' && ($left <= 0 || $left < floatval($row['contract_hours_alert'] ?? 0)); ?>
+                                        · <span class="<?= $low ? 'text-warning-emphasis' : '' ?>" title="Prepaid hours left, of <?= escapeHtml(contractHoursText($hours_left[$contract_id]['bought'])) ?>" data-contract-hours-chip><i class="fas fa-fw fa-hourglass-half"></i><?= escapeHtml(contractHoursText($left)) ?> left</span>
                                     <?php } ?>
                                 </div>
                             </div>

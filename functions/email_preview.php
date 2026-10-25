@@ -474,7 +474,15 @@ function emailPreviewContractCatalog() {
                     WHERE contract_signature_id = " . intval($round_id));
                 contractSignatureSignedEmail(contractSignatureRow($round_id), false);
             }],
-    ];
+    ] + (contractHoursReady() ? [
+        'contract_hours_low' => ['group' => 'Contracts', 'label' => 'Prepaid hours running low', 'to' => 'Whoever looks after the contract', 'when' => 'Tickets drawn from a contract\'s prepaid hours take them under the hours set to be told at',
+            'run' => function ($s) {
+                $row = emailPreviewContract($s, true);
+                $row['contract_name'] = 'Support Block - 20 hours';
+                $row['contract_hours_alert'] = 4;
+                contractHoursAlertSend($row, ['bought' => 20.0, 'used' => 17.5, 'left' => 2.5, 'lapsed' => 0.0, 'next_expiry' => date('Y-m-d', strtotime('+40 days')), 'next_expiry_hours' => 2.5, 'blocks' => 1]);
+            }],
+    ] : []);
 }
 
 /*

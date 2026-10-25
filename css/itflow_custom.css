@@ -8756,6 +8756,37 @@ a.itflow-portal-request:focus-visible {
     margin-top: .2rem;
     color: var(--bs-secondary-color);
 }
+/* Prepaid hours on a contract - what is left, and a bar of what was used (a <progress>, as the portal allows no inline styles) */
+.itflow-contract-hours-left {
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+}
+.itflow-hours-bar {
+    display: block;
+    width: 100%;
+    height: .6rem;
+    border: 0;
+    border-radius: 999px;
+    overflow: hidden;
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-primary);
+    appearance: none;
+    -webkit-appearance: none;
+}
+.itflow-hours-bar::-webkit-progress-bar {
+    background-color: var(--bs-secondary-bg);
+    border-radius: 999px;
+}
+.itflow-hours-bar::-webkit-progress-value {
+    background-color: var(--bs-primary);
+    border-radius: 999px;
+}
+.itflow-hours-bar::-moz-progress-bar {
+    background-color: var(--bs-primary);
+    border-radius: 999px;
+}
 @media (max-width: 575.98px) {
     .itflow-contract-signatures {
         grid-template-columns: minmax(0, 1fr);

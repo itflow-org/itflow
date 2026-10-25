@@ -3,9 +3,11 @@
 /*
  * ITFlow - contracts: add, change, copy (through add), make a draft active,
  * renew, cancel and delete; send one for signature, send the request again,
- * withdraw it, countersign, and the PDF. Needs Sales - to change, or to
- * delete. The work is in functions/contract.php and, for signing,
- * functions/contract_signature.php.
+ * withdraw it, countersign, and the PDF; prepaid hours - add a block (and
+ * invoice it), delete one nothing was drawn from, draw tickets' time now,
+ * put a ticket's hours back. Needs Sales - to change, or to delete. The
+ * work is in functions/contract.php and, for signing and prepaid hours,
+ * functions/contract_signature.php and functions/contract_hours.php.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -59,6 +61,7 @@ if (isset($_POST['add_contract']) || isset($_POST['edit_contract'])) {
     if ($row) {
         $contract_id = intval($row['contract_id']);
         $changes = contractUpdate($row, $fields);
+        contractHoursSync($contract_id);
         if ($changes) {
             logAudit("Contract", "Edit", "$session_name changed contract " . escapeSql($row['contract_name']) . ": " . escapeSql(implode('; ', $changes)), $client_id, $contract_id);
         }
@@ -70,6 +73,7 @@ if (isset($_POST['add_contract']) || isset($_POST['edit_contract'])) {
         flashAlert("Contract <strong>" . escapeHtml($fields['name']) . "</strong> saved" . ($withdrawn ? " - it was out for signature, so that request was withdrawn. Send it again for the new version." : ''), $withdrawn ? 'warning' : 'success');
     } else {
         $contract_id = contractCreate($fields);
+        contractHoursSync($contract_id);
         logAudit("Contract", "Create", "$session_name added " . strtolower($fields['status']) . " contract " . escapeSql($fields['name']) . " (" . escapeSql(contractTypeLabel($fields['type'])) . ")"
             . ($fields['start_date'] !== '' ? " from " . escapeSql($fields['start_date']) : '') . ($fields['end_date'] !== '' ? " to " . escapeSql($fields['end_date']) : ''), $client_id, $contract_id);
         flashAlert("Contract <strong>" . escapeHtml($fields['name']) . "</strong> added" . ($fields['status'] === 'Draft' ? ' as a draft' : ''));
@@ -97,6 +101,7 @@ if (isset($_POST['activate_contract'])) {
     }
 
     $end = contractActivate($row, $start);
+    contractHoursSync(intval($row['contract_id']));
     logAudit("Contract", "Edit", "$session_name made contract " . escapeSql($row['contract_name']) . " active from " . escapeSql($start) . ($end !== '' ? " to " . escapeSql($end) : ''), $client_id, intval($row['contract_id']));
     flashAlert("Contract <strong>" . escapeHtml($row['contract_name']) . "</strong> is active");
 
@@ -117,6 +122,7 @@ if (isset($_POST['renew_contract'])) {
     }
 
     contractRenew($row, $end);
+    contractHoursSync(intval($row['contract_id']));
     logAudit("Contract", "Edit", "$session_name renewed contract " . escapeSql($row['contract_name']) . " to " . escapeSql($end), $client_id, intval($row['contract_id']));
     flashAlert("Contract <strong>" . escapeHtml($row['contract_name']) . "</strong> renewed to " . date('M j, Y', strtotime($end)));
 
@@ -266,6 +272,9 @@ if (isset($_POST['countersign_contract'])) {
         flashAlert("That contract isn't waiting for a countersignature.", 'error');
         redirect();
     }
+    if ($was_draft) {
+        contractHoursSync(intval($round['contract_id']));
+    }
     logAudit("Contract", "Sign", "$session_name countersigned contract " . escapeSql($round['contract_name']) . " as " . escapeSql($f['name']) . ($was_draft ? ", which is now active" : ''), $client_id, intval($round['contract_id']));
     flashAlert("Contract <strong>" . escapeHtml($round['contract_name']) . "</strong> is signed by both" . ($was_draft ? " and active" : '') . " - a copy went to " . escapeHtml($round['contract_signature_sent_to_name']));
 
@@ -287,5 +296,126 @@ if (isset($_GET['export_contract_pdf'])) {
         }
     }
     billingPdfSend(contractPdf($row, $round), true);
+
+}
+
+/* ---------------------------------------------------------------- prepaid hours */
+
+if (isset($_POST['add_contract_hours'])) {
+
+    validateCSRFToken();
+    enforceUserPermission('module_sales', 2);
+
+    $row = contractPostRow($_POST['contract_id'] ?? 0);
+    if (!contractHoursReady()) {
+        flashAlert("Prepaid hours need the database update - run it from Maintenance > Update first.", 'error');
+        redirect();
+    }
+    if (in_array($row['contract_status'], ['Ended', 'Cancelled'], true)) {
+        flashAlert("Hours are added to a draft or active contract - renew it first.", 'error');
+        redirect();
+    }
+    [$f, $error] = contractHoursFromInput($_POST);
+    if ($error === '' && $f['invoice'] && intval($config_module_enable_accounting) !== 1) {
+        $error = 'Invoicing needs accounting turned on, in Admin > Settings > Modules.';
+    }
+    if ($error !== '') {
+        flashAlert(escapeHtml($error) . ' No hours were added.', 'error');
+        redirect();
+    }
+    [$block_id, $invoice_id, $number] = contractHoursAdd($row, $f, $session_user_id, $session_name);
+    $hours = contractHoursWords($f['hours']);
+    logAudit("Contract", "Edit", "$session_name added $hours to contract " . escapeSql($row['contract_name'])
+        . ($f['price'] !== null ? " for " . escapeSql(billingMoney($f['price'], $session_company_currency)) : '')
+        . ($f['expires'] !== '' ? ", good until " . escapeSql($f['expires']) : '') . ($invoice_id ? ", on invoice " . escapeSql($number) : ''), $client_id, intval($row['contract_id']));
+    flashAlert("<strong>" . escapeHtml($hours) . "</strong> added to <strong>" . escapeHtml($row['contract_name']) . "</strong>"
+        . ($invoice_id ? " - draft invoice <strong>" . escapeHtml($number) . "</strong> made for them" : ''));
+
+    redirect();
+
+}
+
+if (isset($_GET['delete_contract_block'])) {
+
+    validateCSRFToken();
+    enforceUserPermission('module_sales', 2);
+
+    $block = contractBlockRow($_GET['delete_contract_block']);
+    if (!$block) {
+        flashAlert("Those hours are gone - they may have been deleted.", 'error');
+        redirect();
+    }
+    $row = contractPostRow($block['contract_id']);
+    if (intval($block['uses']) || !contractHoursBlockDelete($block['contract_block_id'])) {
+        flashAlert("Time was drawn from those hours, so they stay - put the tickets back first.", 'error');
+        redirect();
+    }
+    $hours = contractHoursWords($block['contract_block_hours']);
+    logAudit("Contract", "Edit", "$session_name deleted $hours from contract " . escapeSql($row['contract_name']) . " (" . escapeSql($block['contract_block_note'] ?: 'bought ' . $block['contract_block_bought']) . ")", $client_id, intval($row['contract_id']));
+    flashAlert("<strong>" . escapeHtml($hours) . "</strong> deleted from <strong>" . escapeHtml($row['contract_name']) . "</strong>" . (intval($block['contract_block_invoice_id']) ? " - the invoice for them stays" : ''), 'error');
+
+    redirect();
+
+}
+
+if (isset($_POST['draw_contract_hours'])) {
+
+    validateCSRFToken();
+    enforceUserPermission('module_sales', 2);
+
+    // From a contract, Unbilled Time, or one ticket
+    $ticket_ids = [];
+    if (!empty($_POST['ticket_id'])) {
+        $client_id = intval(getFieldById('tickets', intval($_POST['ticket_id']), 'ticket_client_id'));
+        $ticket_ids = [intval($_POST['ticket_id'])];
+    } elseif (!empty($_POST['contract_id'])) {
+        $client_id = intval(contractPostRow($_POST['contract_id'])['contract_client_id']);
+    } else {
+        $client_id = intval($_POST['client_id'] ?? 0);
+    }
+    if (!$client_id || !contractHoursReady()) {
+        flashAlert("Pick a client with prepaid hours.", 'error');
+        redirect();
+    }
+    enforceClientAccess();
+
+    $result = contractHoursDraw($client_id, $ticket_ids, $session_name, $session_user_id);
+    $count = count($result['drawn']);
+    if (!$count) {
+        flashAlert($result['contracts'] ? 'Nothing to draw - no done tickets waiting to bill fall within prepaid hours with time left.' : 'Nothing to draw - the client has no active contract with prepaid hours.', 'warning');
+        redirect();
+    }
+    logAudit("Contract", "Edit", "$session_name drew " . escapeSql(contractHoursWords($result['hours'])) . " of prepaid hours for $count ticket" . ($count === 1 ? '' : 's') . ": " . escapeSql(implode(', ', array_keys($result['drawn']))), $client_id);
+    $over = array_sum($result['overage']);
+    flashAlert("<strong>" . escapeHtml(contractHoursWords($result['hours'])) . "</strong> drawn from prepaid hours for $count ticket" . ($count === 1 ? '' : 's')
+        . " - " . escapeHtml(contractHoursText($result['left'])) . " left" . ($over > 0 ? ". <strong>" . escapeHtml(contractHoursText($over)) . "</strong> went over and is left to bill" : ''), $over > 0 ? 'warning' : 'success');
+
+    redirect();
+
+}
+
+if (isset($_GET['put_back_contract_hours'])) {
+
+    validateCSRFToken();
+    enforceUserPermission('module_sales', 2);
+
+    $ticket_id = intval($_GET['put_back_contract_hours']);
+    $ticket = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_client_id, ticket_invoice_id FROM tickets WHERE ticket_id = $ticket_id"));
+    if (!$ticket || !contractHoursReady()) {
+        flashAlert("That ticket is gone.", 'error');
+        redirect();
+    }
+    $client_id = intval($ticket['ticket_client_id']);
+    enforceClientAccess();
+    $hours = contractHoursPutBack($ticket_id, $session_name, $session_user_id);
+    if ($hours === null) {
+        flashAlert(intval($ticket['ticket_invoice_id']) ? "That ticket is on an invoice now, so its hours stay drawn." : "That ticket drew no prepaid hours.", 'error');
+        redirect();
+    }
+    $reference = $ticket['ticket_prefix'] . $ticket['ticket_number'];
+    logAudit("Contract", "Edit", "$session_name put " . escapeSql(contractHoursWords($hours)) . " back on the prepaid hours from ticket " . escapeSql($reference), $client_id, 0);
+    flashAlert("<strong>" . escapeHtml(contractHoursWords($hours)) . "</strong> put back from <strong>" . escapeHtml($reference) . "</strong> - it is in Unbilled Time to bill as usual");
+
+    redirect();
 
 }

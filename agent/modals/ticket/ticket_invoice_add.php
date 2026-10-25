@@ -30,6 +30,11 @@ if (!intval($ticket['ticket_billable'])) {
 
 $unbilled = billingUnbilledTickets($client_id, [$ticket_id], true);
 $row = $unbilled[$ticket_id] ?? null;
+// All covered by a contract's prepaid hours - there is nothing to bill unless it is put back
+$prepaid_uses = !$row ? contractHoursTicketUses($ticket_id) : [];
+if ($prepaid_uses) {
+    exit(json_encode(['error' => "$reference is covered by prepaid hours on " . $prepaid_uses[0]['contract_name'] . " - put it back on the contract to bill it instead."]));
+}
 if (!$row) {
     exit(json_encode(['error' => "$reference can't be billed - it is archived."]));
 }
@@ -98,6 +103,9 @@ ob_start();
             <div class="text-end">
                 <div class="small text-body-secondary">To bill</div>
                 <div class="fs-5 fw-semibold"><?= billingQuantity($row['hours']) ?> h</div>
+                <?php if ($row['prepaid'] > 0) { ?>
+                    <div class="small text-body-secondary" title="Prepaid hours on a contract covered part of it">less <?= escapeHtml(contractHoursText($row['prepaid'])) ?> prepaid</div>
+                <?php } ?>
             </div>
         </div>
 

@@ -64,6 +64,9 @@ if (isset($_GET['copy_contract_template'])) {
 
     $columns = ['description', 'type', 'rate_standard', 'rate_after_hours', 'net_terms', 'support_hours', 'details',
         'term_months', 'auto_renew', 'notice_days', 'sla_low_id', 'sla_medium_id', 'sla_high_id', 'sla_urgent_id'];
+    if (contractHoursReady()) {
+        array_push($columns, 'monthly_hours', 'hours_alert');
+    }
     $columns = implode(', ', array_map(function ($column) { return "contract_template_$column"; }, $columns));
     mysqli_query($mysqli, "INSERT INTO contract_templates (contract_template_name, $columns)
         SELECT '" . escapeSql($new_name) . "', $columns FROM contract_templates WHERE contract_template_id = $contract_template_id");

@@ -90,7 +90,8 @@ function contractsUrl(array $changes) {
         <ul class="itflow-portal-list">
             <?php while ($row = mysqli_fetch_assoc($contracts)) {
                 $round = portalContractRound(intval($row['contract_id']));
-                $state = portalContractState($row, $round); ?>
+                $state = portalContractState($row, $round);
+                $hours_left = $row['contract_status'] === 'Active' ? (contractHoursLeftFor([intval($row['contract_id'])])[intval($row['contract_id'])] ?? null) : null; ?>
                 <li>
                     <a class="itflow-portal-ticket" href="contract.php?id=<?= intval($row['contract_id']) ?>">
                         <span class="itflow-portal-ticket-main">
@@ -99,6 +100,9 @@ function contractsUrl(array $changes) {
                                 <span><?= escapeHtml(contractTermLabel($row['contract_term_months'])) ?><?= $row['contract_start_date'] ? ' from ' . escapeHtml(date('M j, Y', strtotime($row['contract_start_date']))) : '' ?></span>
                                 <?php if ($row['contract_end_date'] && in_array($row['contract_status'], ['Active', 'Draft'], true)) { ?>
                                     <span><?= intval($row['contract_auto_renew']) ? 'Renews' : 'Ends' ?> <?= escapeHtml(date('M j, Y', intval($row['contract_auto_renew']) ? strtotime('+1 day', strtotime($row['contract_end_date'])) : strtotime($row['contract_end_date']))) ?></span>
+                                <?php } ?>
+                                <?php if ($hours_left) { ?>
+                                    <span><i class="fas fa-hourglass-half me-1"></i><?= escapeHtml(contractHoursText($hours_left['left'])) ?> prepaid left</span>
                                 <?php } ?>
                             </span>
                         </span>

@@ -16,6 +16,9 @@ $t_value = function ($key, $default = '') use ($t) {
 $t_money = function ($value) {
     return $value === '' || $value === null ? '' : number_format((float) $value, 2, '.', '');
 };
+$t_hours = function ($value) {
+    return floatval($value) > 0 ? rtrim(rtrim(number_format(floatval($value), 2, '.', ''), '0'), '.') : '';
+};
 $t_term = intval($t_value('term_months', 12));
 $t_slas = contractSlaChoices($t ? array_map(function ($part) use ($t) { return intval($t["contract_template_sla_{$part}_id"]); }, CONTRACT_SLA_PRIORITIES) : []);
 $tab = 'templateTab' . bin2hex(random_bytes(3));
@@ -96,6 +99,27 @@ $tab = 'templateTab' . bin2hex(random_bytes(3));
                 <input type="text" class="form-control" name="support_hours" maxlength="100" placeholder="Mon-Fri 8am-6pm, emergencies 24/7" value="<?= escapeHtml($t_value('support_hours')) ?>">
             </div>
         </div>
+        <?php if (contractHoursReady()) { ?>
+            <div class="row g-3 mb-1">
+                <div class="col-md-6">
+                    <label class="form-label">Hours included each month</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                        <input type="text" inputmode="decimal" class="form-control" name="monthly_hours" placeholder="None" value="<?= escapeHtml($t_hours($t_value('monthly_hours', 0))) ?>">
+                        <span class="input-group-text">hours</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Tell the owner under</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
+                        <input type="text" inputmode="decimal" class="form-control" name="hours_alert" placeholder="Don't tell" value="<?= escapeHtml($t_hours($t_value('hours_alert', 0))) ?>">
+                        <span class="input-group-text">hours left</span>
+                    </div>
+                </div>
+            </div>
+            <small class="text-secondary d-block mb-3">Tickets' time is drawn from the hours included each month - for that month only - and from any hours bought on the contract, before it is billed.</small>
+        <?php } ?>
         <div class="row g-3 mb-3">
             <div class="col-md-4">
                 <label class="form-label">Hourly rate</label>

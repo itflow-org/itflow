@@ -114,8 +114,10 @@
                     setValue('name', t.name);
                 }
                 ['type', 'auto_renew', 'notice_days', 'rate_standard', 'rate_after_hours', 'net_terms', 'support_hours', 'details',
-                    'sla_low', 'sla_medium', 'sla_high', 'sla_urgent'].forEach(function (name) {
-                    setValue(name, t[name]);
+                    'sla_low', 'sla_medium', 'sla_high', 'sla_urgent', 'monthly_hours', 'hours_alert'].forEach(function (name) {
+                    if (name in t) {
+                        setValue(name, t[name]);
+                    }
                 });
                 // A term the list doesn't have is added to it
                 if (!Array.prototype.some.call(term.options, function (o) { return Number(o.value) === t.term_months; })) {

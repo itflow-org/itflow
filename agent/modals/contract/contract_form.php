@@ -6,7 +6,8 @@
  * contract being copied, or null) and $form_client_id (0 to pick the client
  * here). Agreement: the template it starts from, the client, name, type,
  * contact, owner, and its term - start, length, end, renewal and notice.
- * Cover: support hours, rates, net terms and an SLA for each priority.
+ * Cover: support hours, hours included each month and when to tell the
+ * owner they run low, rates, net terms and an SLA for each priority.
  * Terms: the agreement's words. Notes: internal. Picking a template fills
  * the fields from it, and the end date follows the start and term until it
  * is changed (js/contract_form.js). The server checks it all again
@@ -28,6 +29,9 @@ $c_term = intval($c_value('term_months', 12));
 $c_end = $c_new ? contractTermEnd($c_start, $c_term) : (string) $c_value('end_date');
 $c_money = function ($value) {
     return $value === '' || $value === null ? '' : number_format((float) $value, 2, '.', '');
+};
+$c_hours = function ($value) {
+    return floatval($value) > 0 ? rtrim(rtrim(number_format(floatval($value), 2, '.', ''), '0'), '.') : '';
 };
 
 // The clients to pick from, and their contacts - shown for the client picked
@@ -71,6 +75,7 @@ foreach ($c_templates as $template_id => $template) {
         'rate_standard' => $c_money($template['contract_template_rate_standard']), 'rate_after_hours' => $c_money($template['contract_template_rate_after_hours']),
         'net_terms' => $template['contract_template_net_terms'] === null ? '' : intval($template['contract_template_net_terms']), 'support_hours' => (string) $template['contract_template_support_hours'],
         'details' => documentHtmlPurify((string) $template['contract_template_details']),
+        'monthly_hours' => $c_hours($template['contract_template_monthly_hours'] ?? 0), 'hours_alert' => $c_hours($template['contract_template_hours_alert'] ?? 0),
     ];
     foreach (CONTRACT_SLA_PRIORITIES as $part) {
         $c_template_data[$template_id]["sla_$part"] = intval($template["contract_template_sla_{$part}_id"]);
@@ -249,6 +254,27 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     <input type="text" class="form-control" name="support_hours" maxlength="100" placeholder="Mon-Fri 8am-6pm, emergencies 24/7" value="<?= escapeHtml($c_value('support_hours')) ?>" data-contract-field="support_hours">
                 </div>
             </div>
+            <?php if (contractHoursReady()) { ?>
+                <div class="row g-3 mb-1">
+                    <div class="col-md-6">
+                        <label class="form-label">Hours included each month</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                            <input type="text" inputmode="decimal" class="form-control" name="monthly_hours" placeholder="None" value="<?= escapeHtml($c_hours($c_value('monthly_hours', 0))) ?>" data-contract-field="monthly_hours">
+                            <span class="input-group-text">hours</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tell the owner under</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
+                            <input type="text" inputmode="decimal" class="form-control" name="hours_alert" placeholder="Don't tell" value="<?= escapeHtml($c_hours($c_value('hours_alert', 0))) ?>" data-contract-field="hours_alert">
+                            <span class="input-group-text">hours left</span>
+                        </div>
+                    </div>
+                </div>
+                <small class="text-secondary d-block mb-3">Tickets' time is drawn from the hours included each month - for that month only - and from any hours bought on the contract, before it is billed.</small>
+            <?php } ?>
             <div class="row g-3 mb-3">
                 <div class="col-md-4">
                     <label class="form-label">Hourly rate</label>

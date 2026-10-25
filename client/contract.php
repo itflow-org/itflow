@@ -4,7 +4,9 @@
  * A contract - the copy sent to sign (or the one signed by both, or the
  * contract as it is today when it was never sent), with where it stands
  * alongside: the signing form while it waits for their signature, then
- * signed, then signed by both. Its term in a few lines, and the PDF.
+ * signed, then signed by both. Its term in a few lines, its prepaid hours
+ * (what is left, and the tickets they went on - a ticket's subject only
+ * when the contact can open it), and the PDF.
  *
  * ?signature=client|agent&round= is a signature's picture for the page -
  * the portal's Content-Security-Policy allows no data: pictures.
@@ -80,6 +82,11 @@ $signature_pad = [
     'title' => (string) ($contact['contact_title'] ?? ''),
     'agree' => 'I have read this contract and agree to it for ' . $session_client_name . ', and to signing it electronically',
 ];
+// Prepaid hours - shown once there are some, or some each month
+$blocks = contractHoursReady() ? contractBlocks($contract_id) : [];
+$hours = contractHoursSummary($blocks);
+$show_hours = contractHoursReady() && ($blocks || floatval($contract['contract_monthly_hours']) > 0);
+$hours_uses = $show_hours ? contractHoursUses($contract_id, 8) : [];
 $terms = [
     'Type' => contractTypeLabel($contract['contract_type']),
     'Term' => contractTermLabel($contract['contract_term_months']) . ($contract['contract_start_date'] ? ' from ' . date('M j, Y', strtotime($contract['contract_start_date'])) : ''),
@@ -165,6 +172,47 @@ $terms = [
                 </dl>
             </div>
         </section>
+
+        <?php if ($show_hours) {
+            $monthly = floatval($contract['contract_monthly_hours']); ?>
+            <section class="itflow-portal-panel mb-4" data-portal-contract-hours>
+                <div class="itflow-portal-panel-head">
+                    <h2><i class="fas fa-hourglass-half"></i>Prepaid hours</h2>
+                </div>
+                <div class="itflow-portal-panel-body">
+                    <div class="d-flex align-items-baseline justify-content-between gap-2">
+                        <span class="fs-4 fw-semibold"><?= escapeHtml(contractHoursText($hours['left'])) ?> <span class="fs-6 fw-normal text-body-secondary">left</span></span>
+                        <?php if ($hours['bought'] > 0) { ?><span class="small text-body-secondary"><?= escapeHtml(contractHoursText($hours['used'])) ?> of <?= escapeHtml(contractHoursText($hours['bought'])) ?> used</span><?php } ?>
+                    </div>
+                    <?php if ($hours['bought'] > 0) { ?>
+                        <progress class="itflow-hours-bar my-2" value="<?= escapeHtml((string) $hours['used']) ?>" max="<?= escapeHtml((string) $hours['bought']) ?>"><?= escapeHtml(contractHoursText($hours['used'])) ?> used</progress>
+                    <?php } ?>
+                    <ul class="list-unstyled small text-body-secondary mb-0">
+                        <?php if ($monthly > 0) { ?><li><?= escapeHtml(contractHoursWords($monthly)) ?> included each month</li><?php } ?>
+                        <?php if ($hours['next_expiry'] !== '') { ?><li><?= escapeHtml(contractHoursText($hours['next_expiry_hours'])) ?> to use by <?= escapeHtml(date('M j, Y', strtotime($hours['next_expiry']))) ?></li><?php } ?>
+                        <li>Time on your tickets comes out of them; time beyond them is invoiced.</li>
+                    </ul>
+                    <?php if ($hours_uses) { ?>
+                        <div class="small fw-semibold mt-3 mb-1">Used on</div>
+                        <ul class="list-unstyled small mb-0">
+                            <?php foreach ($hours_uses as $use) {
+                                $sees = portalSeesAllTickets() || intval($use['ticket_contact_id']) === intval($session_contact_id); ?>
+                                <li class="d-flex justify-content-between gap-2 py-1">
+                                    <span class="text-truncate">
+                                        <?php if ($sees) { ?>
+                                            <a href="ticket.php?id=<?= intval($use['ticket_id']) ?>"><?= escapeHtml($use['ticket_subject']) ?></a>
+                                        <?php } else { ?>
+                                            <span class="text-body-secondary">Ticket <?= escapeHtml($use['ticket_prefix'] . $use['ticket_number']) ?></span>
+                                        <?php } ?>
+                                    </span>
+                                    <span class="text-nowrap fw-semibold"><?= escapeHtml(contractHoursText($use['hours'])) ?></span>
+                                </li>
+                            <?php } ?>
+                        </ul>
+                    <?php } ?>
+                </div>
+            </section>
+        <?php } ?>
 
         <p class="small text-body-secondary px-1">
             Questions about this contract? <a href="<?= escapeHtml(portalAskUrl('Question about contract: ' . $contract['contract_name'])) ?>">Ask us</a><?php if (!empty($company['phone_display'])) { ?> or call <?= escapeHtml($company['phone_display']) ?><?php } ?>.

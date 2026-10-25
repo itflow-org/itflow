@@ -229,7 +229,7 @@ if ($config_whitelabel_enabled && !validateWhitelabelKey($config_whitelabel_key)
 // CONTRACTS - renew the ones that renew themselves, end the ones that don't, and remind owners before the notice date
 $contracts_done = contractsNightly();
 if (array_sum($contracts_done)) {
-    logApp("Cron", "info", "Contracts: {$contracts_done['renewed']} renewed, {$contracts_done['ended']} ended, {$contracts_done['reminded']} owner(s) reminded");
+    logApp("Cron", "info", "Contracts: {$contracts_done['renewed']} renewed, {$contracts_done['ended']} ended, {$contracts_done['reminded']} owner(s) reminded, {$contracts_done['drawn']} ticket(s) drawn from prepaid hours");
 }
 
 // GET NOTIFICATIONS
