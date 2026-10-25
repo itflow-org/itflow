@@ -54,9 +54,10 @@ if (isset($_POST['edit_default_settings'])) {
         }
     }
 
-    $payment_methods = paymentMethods();
     foreach ($methods as $method) {
         $after[$method] = trim((string) $in[$method]);
+        // The payments default from the methods for money in, the expenses one from those for money out
+        $payment_methods = paymentMethods($method === 'config_default_expense_payment_method' ? 'out' : 'in');
         if ($after[$method] !== '' && $after[$method] !== (string) $before[$method] && !in_array($after[$method], $payment_methods, true)) {
             $errors[$method] = 'Pick one from the list - they are in Payment methods.';
         }

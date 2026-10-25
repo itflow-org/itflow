@@ -30,7 +30,7 @@ if (!$import || !in_array($step, ['columns', 'review'], true)) {
     $step = 'columns';
 }
 $accounts = paymentAccounts();
-$methods = paymentMethods();
+$methods = paymentMethods('in');
 $csrf = $_SESSION['csrf_token'];
 $can_pay = incomeImportCanPay();
 $rules_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM income_import_rules"))[0]);

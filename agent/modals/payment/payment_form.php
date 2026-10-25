@@ -21,9 +21,13 @@
 isset($mysqli) || die("Direct file access is not allowed");
 
 $pay_accounts = paymentAccounts($pay['account_id'] ?? 0);
-$pay_methods = paymentMethods();
+$pay_methods = paymentMethods('in');
 $pay_account_id = intval($pay['account_id'] ?? $config_default_payment_account);
 $pay_method = (string) ($pay['method'] ?? $config_default_payment_method);
+// A payment's own method stays offered - one archived since, or Stripe for a card payment made online - so saving it doesn't change it
+if (isset($pay['method']) && $pay_method !== '' && !in_array($pay_method, $pay_methods, true)) {
+    $pay_methods[] = $pay_method;
+}
 $pay_owed = $pay['owed'] ?? null;
 $pay_lock = $pay['lock'] ?? null;
 

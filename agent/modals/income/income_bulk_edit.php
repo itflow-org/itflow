@@ -90,7 +90,7 @@ ob_start();
             <?php } elseif ($field === 'method') { ?>
                 <select class="form-select select2" name="value" required>
                     <option value="">- Pick how it was paid -</option>
-                    <?php foreach (paymentMethods() as $method) { ?>
+                    <?php foreach (paymentMethods('in') as $method) { ?>
                         <option><?= escapeHtml($method) ?></option>
                     <?php } ?>
                 </select>

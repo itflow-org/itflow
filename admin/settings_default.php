@@ -35,10 +35,10 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $accounts[intval($row['account_id'])] = $row['account_name'] . ($row['account_archived_at'] ? ' (archived)' : '');
 }
 
-// Admin > Payment Methods - and a saved one, should it no longer be among them
-$methods = function ($saved) {
+// Admin > Payment Methods - the ones for money in, or out - and a saved one, should it no longer be among them
+$methods = function ($saved, $way) {
     $choices = ['' => '- None -'];
-    foreach (paymentMethods() as $method) {
+    foreach (paymentMethods($way) as $method) {
         $choices[$method] = $method;
     }
     if ((string) $saved !== '' && !isset($choices[(string) $saved])) {
@@ -76,9 +76,9 @@ echo settingsPageStart('default');
                 <?= settingsSectionStart('accounts', 'Accounts', 'The account and payment method a payment, an expense or a transfer starts with.') ?>
                     <div class="row g-3">
                         <div class="col-md-6"><?= settingsSelect('config_default_payment_account', intval($config_default_payment_account), $accounts, ['icon' => 'fa-piggy-bank', 'search' => true]) ?></div>
-                        <div class="col-md-6"><?= settingsSelect('config_default_payment_method', (string) $config_default_payment_method, $methods($config_default_payment_method), ['icon' => 'fa-credit-card', 'search' => true]) ?></div>
+                        <div class="col-md-6"><?= settingsSelect('config_default_payment_method', (string) $config_default_payment_method, $methods($config_default_payment_method, 'in'), ['icon' => 'fa-credit-card', 'search' => true]) ?></div>
                         <div class="col-md-6"><?= settingsSelect('config_default_expense_account', intval($config_default_expense_account), $accounts, ['icon' => 'fa-shopping-cart', 'search' => true]) ?></div>
-                        <div class="col-md-6"><?= settingsSelect('config_default_expense_payment_method', (string) $config_default_expense_payment_method, $methods($config_default_expense_payment_method), ['icon' => 'fa-credit-card', 'search' => true]) ?></div>
+                        <div class="col-md-6"><?= settingsSelect('config_default_expense_payment_method', (string) $config_default_expense_payment_method, $methods($config_default_expense_payment_method, 'out'), ['icon' => 'fa-credit-card', 'search' => true]) ?></div>
                         <div class="col-md-6"><?= settingsSelect('config_default_transfer_from_account', intval($config_default_transfer_from_account), $accounts, ['icon' => 'fa-sign-out-alt', 'search' => true]) ?></div>
                         <div class="col-md-6"><?= settingsSelect('config_default_transfer_to_account', intval($config_default_transfer_to_account), $accounts, ['icon' => 'fa-sign-in-alt', 'search' => true]) ?></div>
                     </div>

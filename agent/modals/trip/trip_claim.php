@@ -30,7 +30,7 @@ if (!$driver) {
 
 $rules = tripRules();
 $accounts = paymentAccounts();
-$methods = paymentMethods();
+$methods = paymentMethods('out');
 $default_account = intval($config_default_expense_account);
 $currency = (string) $session_company_currency;
 $category_name = (string) getFieldById('categories', tripMileageCategoryShown(), 'category_name');

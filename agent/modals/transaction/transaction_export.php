@@ -135,7 +135,7 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
                     <select class="form-select select2" name="method">
                         <option value="">- Any payment method -</option>
-                        <?php foreach (paymentMethods() as $method) { ?>
+                        <?php foreach (paymentMethods('', true) as $method) { ?>
                             <option <?= $method_filter === $method ? 'selected' : '' ?> value="<?= escapeHtml($method) ?>"><?= escapeHtml($method) ?></option>
                         <?php } ?>
                     </select>

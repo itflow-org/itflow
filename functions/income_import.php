@@ -122,7 +122,7 @@ function incomeImportRules() {
 
 /** How a deposit was paid, from its text - one of the payment methods set up when it says, else $default. */
 function incomeImportMethod($text, $default = '') {
-    $methods = paymentMethods();
+    $methods = paymentMethods('in');
     $text = mb_strtolower((string) $text);
     $wants = [
         '/\b(ach|direct dep|direct deposit|ccd|ppd|eft)\b/' => ['ACH', 'Bank Transfer', 'EFT'],

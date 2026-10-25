@@ -43,7 +43,7 @@ $form_currency = $form_edit ? $form_value('recurring_expense_currency_code') : (
 
 $form_vendors = expenseVendors($form_edit ? $form_vendor : 0);
 $form_accounts = paymentAccounts($form_edit ? $form_account : 0);
-$form_methods = paymentMethods();
+$form_methods = paymentMethods('out');
 if ($form_method !== '' && !in_array($form_method, $form_methods, true)) {
     $form_methods[] = $form_method;
 }

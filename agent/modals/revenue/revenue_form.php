@@ -38,7 +38,7 @@ $form_lock = $form_edit ? reconcileLock('revenue', $form_row['revenue_id']) : nu
 if (!isset($form_accounts[$form_account])) {
     $form_account = 0;
 }
-$form_methods = paymentMethods();
+$form_methods = paymentMethods('in');
 if ($form_method !== '' && !in_array($form_method, $form_methods, true)) {
     if ($form_edit) {
         $form_methods[] = $form_method;

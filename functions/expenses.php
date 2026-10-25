@@ -375,7 +375,7 @@ function expenseSave(array $in, $expense_id = 0, &$error = '') {
         return 0;
     }
     $method = trim((string) ($in['payment_method'] ?? ''));
-    if ($method !== '' && !in_array($method, paymentMethods(), true) && !($existing && $method === (string) $existing['expense_payment_method'])) {
+    if ($method !== '' && !in_array($method, paymentMethods('out'), true) && !($existing && $method === (string) $existing['expense_payment_method'])) {
         $error = 'Pick how it was paid';
         return 0;
     }
@@ -814,7 +814,7 @@ function recurringExpenseSave(array $in, $recurring_expense_id = 0, &$error = ''
         return 0;
     }
     $method = trim((string) ($in['payment_method'] ?? ''));
-    if ($method !== '' && !in_array($method, paymentMethods(), true) && !($existing && $method === (string) $existing['recurring_expense_payment_method'])) {
+    if ($method !== '' && !in_array($method, paymentMethods('out'), true) && !($existing && $method === (string) $existing['recurring_expense_payment_method'])) {
         $error = 'Pick how it is paid';
         return 0;
     }
@@ -1535,7 +1535,7 @@ function expenseReimburse($user_id, array $expense_ids, array $opts, &$error = '
         return null;
     }
     $method = trim((string) ($opts['payment_method'] ?? ''));
-    if ($method !== '' && !in_array($method, paymentMethods(), true)) {
+    if ($method !== '' && !in_array($method, paymentMethods('out'), true)) {
         $error = 'Pick how they were paid back';
         return null;
     }

@@ -184,7 +184,7 @@ if (isset($_POST['bulk_edit_expenses'])) {
         if ($value === '') {
             $set = "expense_payment_method = NULL";
             $label = "no payment method";
-        } elseif (in_array($value, paymentMethods(), true)) {
+        } elseif (in_array($value, paymentMethods('out'), true)) {
             $set = "expense_payment_method = '" . escapeSql($value) . "'";
             $label = "the payment method to $value";
         }

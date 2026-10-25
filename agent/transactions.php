@@ -317,7 +317,7 @@ if ($transfer_cards) {
                             <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
                             <select class="form-select select2" name="method" onchange="this.form.submit()" aria-label="Paid by">
                                 <option value="">- Any payment method -</option>
-                                <?php foreach (paymentMethods() as $method) { ?>
+                                <?php foreach (array_unique(array_filter(array_merge(paymentMethods('', true), [$method_filter]))) as $method) { ?>
                                     <option <?= $method_filter === $method ? 'selected' : '' ?> value="<?= escapeHtml($method) ?>"><?= escapeHtml($method) ?></option>
                                 <?php } ?>
                             </select>

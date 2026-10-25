@@ -286,7 +286,7 @@ function incomeRevenueSave(array $in, $revenue_id = 0, &$error = '') {
         return 0;
     }
     $method = trim((string) ($in['payment_method'] ?? ''));
-    if ($method !== '' && !in_array($method, paymentMethods(), true) && !($existing && $method === (string) $existing['revenue_payment_method'])) {
+    if ($method !== '' && !in_array($method, paymentMethods('in'), true) && !($existing && $method === (string) $existing['revenue_payment_method'])) {
         $error = 'Pick how it was paid';
         return 0;
     }

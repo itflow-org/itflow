@@ -79,7 +79,7 @@ ob_start();
             <?php } else { ?>
                 <select class="form-select select2" name="value">
                     <option value="">- None -</option>
-                    <?php foreach (paymentMethods() as $method) { ?>
+                    <?php foreach (paymentMethods('out') as $method) { ?>
                         <option value="<?= escapeHtml($method) ?>"><?= escapeHtml($method) ?></option>
                     <?php } ?>
                 </select>

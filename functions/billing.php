@@ -2232,16 +2232,7 @@ function paymentAccounts($keep_id = 0) {
     return accountsList(false, $keep_id);
 }
 
-/** The ways a payment can be made - Cash, Check, ACH and whatever else is set up. */
-function paymentMethods() {
-    global $mysqli;
-    $methods = [];
-    $sql = mysqli_query($mysqli, "SELECT payment_method_name FROM payment_methods ORDER BY payment_method_name ASC");
-    while ($row = mysqli_fetch_row($sql)) {
-        $methods[] = $row[0];
-    }
-    return $methods;
-}
+/* The ways a payment can be made - paymentMethods() is in functions/payment_method.php */
 
 /** Can clients pay invoices online - is a payment provider turned on? */
 function billingOnlinePayments() {

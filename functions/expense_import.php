@@ -681,7 +681,7 @@ function expenseImportSave(array $import, array $picks, &$error = '') {
         return null;
     }
     $method = (string) $import['method'];
-    if ($method !== '' && !in_array($method, paymentMethods(), true)) {
+    if ($method !== '' && !in_array($method, paymentMethods('out'), true)) {
         $method = '';
     }
     $currency = escapeSql((string) ($accounts[$account_id]['account_currency_code'] ?: $session_company_currency));

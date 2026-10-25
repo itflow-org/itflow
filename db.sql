@@ -1996,8 +1996,10 @@ CREATE TABLE `payment_methods` (
   `payment_method_id` int(11) NOT NULL AUTO_INCREMENT,
   `payment_method_name` varchar(200) NOT NULL,
   `payment_method_description` varchar(250) DEFAULT NULL,
+  `payment_method_use` tinyint(1) NOT NULL DEFAULT 0,
   `payment_method_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `payment_method_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `payment_method_archived_at` datetime DEFAULT NULL,
   PRIMARY KEY (`payment_method_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

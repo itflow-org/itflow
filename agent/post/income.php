@@ -44,7 +44,7 @@ if (isset($_POST['bulk_edit_income'])) {
             $payment_set = "payment_account_id = $value";
         }
     } elseif ($field === 'method') {
-        if (in_array($raw, paymentMethods(), true)) {
+        if (in_array($raw, paymentMethods('in'), true)) {
             $label = 'the payment method to ' . $raw;
             $revenue_set = "revenue_payment_method = '" . escapeSql($raw) . "'";
             $payment_set = "payment_method = '" . escapeSql($raw) . "'";

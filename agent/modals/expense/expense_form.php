@@ -59,7 +59,7 @@ $form_vendors = expenseVendors($form_edit ? $form_vendor : 0);
 $form_accounts = paymentAccounts($form_edit ? $form_account : 0);
 // Cleared on a reconciled statement - its amount, date and account stay
 $form_lock = $form_edit ? reconcileLock('expense', $form_row['expense_id']) : null;
-$form_methods = paymentMethods();
+$form_methods = paymentMethods('out');
 if ($form_method !== '' && !in_array($form_method, $form_methods, true)) {
     $form_methods[] = $form_method;
 }

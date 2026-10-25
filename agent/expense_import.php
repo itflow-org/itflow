@@ -33,7 +33,7 @@ if (!$import || !in_array($step, ['columns', 'review'], true)) {
     $step = 'columns';
 }
 $accounts = paymentAccounts();
-$methods = paymentMethods();
+$methods = paymentMethods('out');
 $csrf = $_SESSION['csrf_token'];
 $rules_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM expense_import_rules"))[0]);
 $account = $import ? ($accounts[intval($import['account_id'])] ?? null) : null;

@@ -27,7 +27,7 @@ if (isset($_POST['income_import_upload'])) {
         redirect('income_import.php');
     }
     $method = trim((string) ($_POST['payment_method'] ?? ''));
-    if ($method !== '' && !in_array($method, paymentMethods(), true)) {
+    if ($method !== '' && !in_array($method, paymentMethods('in'), true)) {
         $method = '';
     }
     $file = $_FILES['file'] ?? null;
