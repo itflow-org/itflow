@@ -19,7 +19,9 @@ $client_id = intval($doc['client_id']);
 enforceClientAccess();
 $doc_number = billingNumber($doc_type, $doc);
 $lines = count(billingItems('invoice', intval($doc['invoice_id'])));
-$terms = intval($doc['client_net_terms']); // 0 is On Receipt
+// 0 is On Receipt - a contract in force's net terms, else the client's
+$terms_contract = contractTermsOn($client_id, date('Y-m-d'), 'net');
+$terms = $terms_contract ? intval($terms_contract['contract_net_terms']) : intval($doc['client_net_terms']);
 
 ob_start();
 
@@ -39,7 +41,7 @@ ob_start();
             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
             <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
         </div>
-        <div class="form-text"><?= $terms ? "Due $terms days after it" : 'Due on receipt' ?> - the client's terms.</div>
+        <div class="form-text"><?= $terms ? "Due $terms days after it" : 'Due on receipt' ?> - <?= $terms_contract ? escapeHtml($terms_contract['contract_name']) . "'s" : "the client's" ?> terms.</div>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_invoice_copy" class="btn btn-primary text-bold"><i class="fas fa-copy me-2"></i>Copy</button>

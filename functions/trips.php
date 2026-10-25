@@ -879,9 +879,9 @@ function tripUnbilledMerge(array $clients, $client_id = 0) {
     foreach (tripUnbilled($client_id) as $trip_id => $trip) {
         $id = intval($trip['trip_client_id']);
         if (!isset($clients[$id])) {
-            $client_rate = getFieldById('clients', $id, 'client_rate');
+            $client_rate = contractClientRate($id);
             $clients[$id] = ['client_id' => $id, 'client_name' => $trip['client_name'], 'client_abbreviation' => $trip['client_abbreviation'],
-                'rate' => billingTimeRate($client_rate), 'default_rate' => floatval($client_rate) <= 0, 'tickets' => [], 'seconds' => 0, 'hours' => 0.0,
+                'rate' => $client_rate['rate'], 'default_rate' => $client_rate['source'] === 'default', 'rate_note' => $client_rate['note'], 'rate_source' => $client_rate['source'], 'rates' => [], 'tickets' => [], 'seconds' => 0, 'hours' => 0.0,
                 'value' => 0.0, 'oldest' => 0, 'no_time' => 0, 'drafts' => [], 'expenses' => [], 'expense_cost' => 0.0, 'expense_value' => 0.0,
                 'trips' => [], 'trip_value' => 0.0, 'trip_miles' => 0.0];
             $added[] = $id;

@@ -30,6 +30,18 @@ $client_notes = escapeHtml($row['client_notes']);
 $client_created_at = escapeHtml($row['client_created_at']);
 $client_archived_at = escapeHtml($row['client_archived_at']);
 
+// What a contract in force sets instead, while it is
+$edit_rate_contract = contractTermsOn($client_id, date('Y-m-d'), 'rate');
+$edit_net_contract = contractTermsOn($client_id, date('Y-m-d'), 'net');
+$edit_sla_contract = null;
+foreach (contractsInForce($client_id) as $edit_contract) {
+    foreach (CONTRACT_SLA_PRIORITIES as $edit_part) {
+        if (intval($edit_contract["contract_sla_{$edit_part}_id"])) {
+            $edit_sla_contract = $edit_sla_contract ?? $edit_contract;
+        }
+    }
+}
+
 // Client SLA assignments
 $client_sla_assignments = [];
 $sql_client_slas = mysqli_query($mysqli, "SELECT sla_assignment_priority, sla_assignment_sla_id FROM sla_assignments WHERE sla_assignment_client_id = $client_id");
@@ -163,6 +175,9 @@ ob_start();
                                    pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00"
                                    value="<?= number_format($client_rate, 2, '.', '') ?>">
                         </div>
+                        <?php if ($edit_rate_contract) { ?>
+                            <small class="text-secondary" data-client-contract-rate>While <?= escapeHtml($edit_rate_contract['contract_name']) ?> is in force, its rates apply to the client's time instead.</small>
+                        <?php } ?>
                     </div>
 
                     <div class="mb-3">
@@ -180,6 +195,9 @@ ob_start();
                                 <?php } ?>
                             </select>
                         </div>
+                        <?php if ($edit_net_contract) { ?>
+                            <small class="text-secondary" data-client-contract-net>While <?= escapeHtml($edit_net_contract['contract_name']) ?> is in force, new invoices are due on its terms instead.</small>
+                        <?php } ?>
                     </div>
 
                     <div class="mb-3">
@@ -241,7 +259,7 @@ ob_start();
                                 </div>
                             <?php } ?>
                         </div>
-                        <small class="text-muted">Default follows the global SLA assignment for each priority.</small>
+                        <small class="text-muted">Default follows the global SLA assignment for each priority.<?= $edit_sla_contract ? ' While ' . escapeHtml($edit_sla_contract['contract_name']) . ' is in force, the SLAs it sets come first for new tickets.' : '' ?></small>
                     </div>
                 <?php } ?>
 

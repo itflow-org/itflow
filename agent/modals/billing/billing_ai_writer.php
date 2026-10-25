@@ -42,7 +42,7 @@ $currency = (string) $doc["{$c}_currency_code"];
 $scope = trim((string) $doc["{$c}_scope"]);
 $support = lookupUserPermission('module_support') >= 1;
 $ticket = $support ? aiBillingTicket($type, $doc_id) : null;
-$rate = billingTimeRate(getFieldById('clients', $client_id, 'client_rate'));
+$rate = contractClientRate($client_id)['rate'];
 $catalog_count = count(aiBillingCatalog());
 $prompt = $scope !== '' ? $scope : ($ticket ? $ticket['ticket_subject'] : '');
 $word = $type === 'quote' ? 'quote' : 'invoice';

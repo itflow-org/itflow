@@ -5,9 +5,11 @@
  * renew, cancel and delete; send one for signature, send the request again,
  * withdraw it, countersign, and the PDF; prepaid hours - add a block (and
  * invoice it), delete one nothing was drawn from, draw tickets' time now,
- * put a ticket's hours back. Needs Sales - to change, or to delete. The
- * work is in functions/contract.php and, for signing and prepaid hours,
- * functions/contract_signature.php and functions/contract_hours.php.
+ * put a ticket's hours back; the recurring invoice that bills it - make
+ * one, link one, unlink it. Needs Sales - to change, or to delete. The work
+ * is in functions/contract.php and, for signing, prepaid hours and billing,
+ * functions/contract_signature.php, functions/contract_hours.php and
+ * functions/contract_billing.php.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -102,8 +104,9 @@ if (isset($_POST['activate_contract'])) {
 
     $end = contractActivate($row, $start);
     contractHoursSync(intval($row['contract_id']));
+    $recurring_state = contractRecurringFollow(intval($row['contract_id']), stripslashes($session_name));
     logAudit("Contract", "Edit", "$session_name made contract " . escapeSql($row['contract_name']) . " active from " . escapeSql($start) . ($end !== '' ? " to " . escapeSql($end) : ''), $client_id, intval($row['contract_id']));
-    flashAlert("Contract <strong>" . escapeHtml($row['contract_name']) . "</strong> is active");
+    flashAlert("Contract <strong>" . escapeHtml($row['contract_name']) . "</strong> is active" . ($recurring_state === 'started' ? ' - its recurring invoice is running' : ''));
 
     redirect();
 
@@ -123,8 +126,9 @@ if (isset($_POST['renew_contract'])) {
 
     contractRenew($row, $end);
     contractHoursSync(intval($row['contract_id']));
+    $recurring_state = contractRecurringFollow(intval($row['contract_id']), stripslashes($session_name));
     logAudit("Contract", "Edit", "$session_name renewed contract " . escapeSql($row['contract_name']) . " to " . escapeSql($end), $client_id, intval($row['contract_id']));
-    flashAlert("Contract <strong>" . escapeHtml($row['contract_name']) . "</strong> renewed to " . date('M j, Y', strtotime($end)));
+    flashAlert("Contract <strong>" . escapeHtml($row['contract_name']) . "</strong> renewed to " . date('M j, Y', strtotime($end)) . ($recurring_state === 'started' ? ' - its recurring invoice is running again' : ''));
 
     redirect();
 
@@ -145,8 +149,11 @@ if (isset($_POST['cancel_contract'])) {
     }
 
     contractCancel($row, $last_day, $reason);
+    // Its recurring invoice stops once the last day has passed - now, when it already has
+    $recurring_state = contractRecurringFollow(intval($row['contract_id']), stripslashes($session_name));
     logAudit("Contract", "Edit", "$session_name cancelled contract " . escapeSql($row['contract_name']) . ", last day " . escapeSql($last_day) . ($reason !== '' ? " - " . escapeSql($reason) : ''), $client_id, intval($row['contract_id']));
-    flashAlert("Contract <strong>" . escapeHtml($row['contract_name']) . "</strong> cancelled" . ($last_day >= date('Y-m-d') ? " - in force until " . date('M j, Y', strtotime($last_day)) : ''), 'error');
+    flashAlert("Contract <strong>" . escapeHtml($row['contract_name']) . "</strong> cancelled" . ($last_day >= date('Y-m-d') ? " - in force until " . date('M j, Y', strtotime($last_day)) : '')
+        . ($recurring_state === 'stopped' ? ' - its recurring invoice is paused' : ''), 'error');
 
     redirect();
 
@@ -274,6 +281,7 @@ if (isset($_POST['countersign_contract'])) {
     }
     if ($was_draft) {
         contractHoursSync(intval($round['contract_id']));
+        contractRecurringFollow(intval($round['contract_id']), stripslashes($session_name));
     }
     logAudit("Contract", "Sign", "$session_name countersigned contract " . escapeSql($round['contract_name']) . " as " . escapeSql($f['name']) . ($was_draft ? ", which is now active" : ''), $client_id, intval($round['contract_id']));
     flashAlert("Contract <strong>" . escapeHtml($round['contract_name']) . "</strong> is signed by both" . ($was_draft ? " and active" : '') . " - a copy went to " . escapeHtml($round['contract_signature_sent_to_name']));
@@ -323,7 +331,7 @@ if (isset($_POST['add_contract_hours'])) {
         flashAlert(escapeHtml($error) . ' No hours were added.', 'error');
         redirect();
     }
-    [$block_id, $invoice_id, $number] = contractHoursAdd($row, $f, $session_user_id, $session_name);
+    [$block_id, $invoice_id, $number] = contractHoursAdd($row, $f, $session_user_id, stripslashes($session_name));
     $hours = contractHoursWords($f['hours']);
     logAudit("Contract", "Edit", "$session_name added $hours to contract " . escapeSql($row['contract_name'])
         . ($f['price'] !== null ? " for " . escapeSql(billingMoney($f['price'], $session_company_currency)) : '')
@@ -379,7 +387,7 @@ if (isset($_POST['draw_contract_hours'])) {
     }
     enforceClientAccess();
 
-    $result = contractHoursDraw($client_id, $ticket_ids, $session_name, $session_user_id);
+    $result = contractHoursDraw($client_id, $ticket_ids, stripslashes($session_name), $session_user_id);
     $count = count($result['drawn']);
     if (!$count) {
         flashAlert($result['contracts'] ? 'Nothing to draw - no done tickets waiting to bill fall within prepaid hours with time left.' : 'Nothing to draw - the client has no active contract with prepaid hours.', 'warning');
@@ -407,7 +415,7 @@ if (isset($_GET['put_back_contract_hours'])) {
     }
     $client_id = intval($ticket['ticket_client_id']);
     enforceClientAccess();
-    $hours = contractHoursPutBack($ticket_id, $session_name, $session_user_id);
+    $hours = contractHoursPutBack($ticket_id, stripslashes($session_name), $session_user_id);
     if ($hours === null) {
         flashAlert(intval($ticket['ticket_invoice_id']) ? "That ticket is on an invoice now, so its hours stay drawn." : "That ticket drew no prepaid hours.", 'error');
         redirect();
@@ -415,6 +423,93 @@ if (isset($_GET['put_back_contract_hours'])) {
     $reference = $ticket['ticket_prefix'] . $ticket['ticket_number'];
     logAudit("Contract", "Edit", "$session_name put " . escapeSql(contractHoursWords($hours)) . " back on the prepaid hours from ticket " . escapeSql($reference), $client_id, 0);
     flashAlert("<strong>" . escapeHtml(contractHoursWords($hours)) . "</strong> put back from <strong>" . escapeHtml($reference) . "</strong> - it is in Unbilled Time to bill as usual");
+
+    redirect();
+
+}
+
+/* ---------------------------------------------------------------- the recurring invoice */
+
+/* The contract posted, when a recurring invoice can be made or linked for it - or a flash and back. */
+function contractRecurringPostRow($id) {
+    global $config_module_enable_accounting;
+    $row = contractPostRow($id);
+    if (!contractBillingReady()) {
+        flashAlert("Linking a recurring invoice needs the database update - run it from Maintenance > Update first.", 'error');
+        redirect();
+    }
+    if (intval($config_module_enable_accounting) !== 1) {
+        flashAlert("Recurring invoices need accounting turned on, in Admin > Settings > Modules.", 'error');
+        redirect();
+    }
+    if (!contractRecurringShouldRun($row) && $row['contract_status'] !== 'Draft') {
+        flashAlert("An ended contract isn't billed - renew it first.", 'error');
+        redirect();
+    }
+    if (contractRecurringRow($row)) {
+        flashAlert("It already has a recurring invoice - unlink that one first.", 'error');
+        redirect();
+    }
+    return $row;
+}
+
+if (isset($_POST['make_contract_recurring'])) {
+
+    validateCSRFToken();
+    enforceUserPermission('module_sales', 2);
+
+    $row = contractRecurringPostRow($_POST['contract_id'] ?? 0);
+    [$f, $error] = contractRecurringFromInput($_POST);
+    if ($error !== '') {
+        flashAlert(escapeHtml($error) . ' No recurring invoice was made.', 'error');
+        redirect();
+    }
+    [$recurring_id, $number, $state] = contractRecurringCreate($row, $f, stripslashes($session_name));
+    logAudit("Contract", "Edit", "$session_name made recurring invoice " . escapeSql($number) . " for contract " . escapeSql($row['contract_name']), $client_id, intval($row['contract_id']));
+    flashAlert("Recurring invoice <strong>" . escapeHtml($number) . "</strong> made for <strong>" . escapeHtml($row['contract_name']) . "</strong>"
+        . ($state === 'started' ? ' - the first invoice is on ' . date('M j, Y', strtotime($f['start'])) : " - paused until the contract is active"));
+
+    redirect();
+
+}
+
+if (isset($_POST['link_contract_recurring'])) {
+
+    validateCSRFToken();
+    enforceUserPermission('module_sales', 2);
+
+    $row = contractRecurringPostRow($_POST['contract_id'] ?? 0);
+    $recurring_id = intval($_POST['recurring_invoice_id'] ?? 0);
+    $choices = contractRecurringChoices($client_id, intval($row['contract_id']));
+    if (!isset($choices[$recurring_id])) {
+        flashAlert("Pick one of the client's recurring invoices that isn't another contract's.", 'error');
+        redirect();
+    }
+    $number = billingNumber('recurring', $choices[$recurring_id]);
+    $state = contractRecurringLink($row, $recurring_id, stripslashes($session_name));
+    logAudit("Contract", "Edit", "$session_name linked recurring invoice " . escapeSql($number) . " to contract " . escapeSql($row['contract_name']), $client_id, intval($row['contract_id']));
+    flashAlert("Recurring invoice <strong>" . escapeHtml($number) . "</strong> linked to <strong>" . escapeHtml($row['contract_name']) . "</strong>"
+        . ($state === 'started' ? ' - it is running now' : ($state === 'stopped' ? ' - paused until the contract is active' : '')));
+
+    redirect();
+
+}
+
+if (isset($_GET['unlink_contract_recurring'])) {
+
+    validateCSRFToken();
+    enforceUserPermission('module_sales', 2);
+
+    $row = contractPostRow($_GET['unlink_contract_recurring']);
+    $recurring = contractRecurringRow($row);
+    if (!$recurring) {
+        flashAlert("It has no recurring invoice to unlink.", 'error');
+        redirect();
+    }
+    $number = billingNumber('recurring', $recurring);
+    contractRecurringUnlink($row, stripslashes($session_name));
+    logAudit("Contract", "Edit", "$session_name unlinked recurring invoice " . escapeSql($number) . " from contract " . escapeSql($row['contract_name']), $client_id, intval($row['contract_id']));
+    flashAlert("Recurring invoice <strong>" . escapeHtml($number) . "</strong> unlinked - it carries on as it is, " . (intval($recurring['recurring_invoice_status']) ? 'running' : 'paused'));
 
     redirect();
 

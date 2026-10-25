@@ -299,7 +299,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     </div>
                 </div>
             </div>
-            <small class="text-secondary d-block mb-3">Leave a rate or the net terms empty and the client's own apply.</small>
+            <small class="text-secondary d-block mb-3">While the contract is in force, time bills at these rates - the after-hours one for tickets opened outside business hours - and new invoices are due on these terms. Leave one empty and the client's own applies.</small>
 
             <label class="form-label">SLA by ticket priority</label>
             <?php foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) { ?>
@@ -313,7 +313,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     </select>
                 </div>
             <?php } ?>
-            <small class="text-secondary">From Admin > SLAs.</small>
+            <small class="text-secondary">From Admin > SLAs. While the contract is in force, the client's new tickets get them.</small>
         </div>
 
         <div class="tab-pane fade" id="<?= $tab ?>Terms" role="tabpanel">

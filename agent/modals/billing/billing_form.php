@@ -29,11 +29,15 @@ $form_currency = $form_edit ? (string) $form_row["{$form_c}_currency_code"] : (s
 $form_category_id = intval($form_value('category_id', '0'));
 $form_discount = floatval($form_value('discount_amount', '0'));
 
-// Net terms for a new invoice's due date - the client's (0 is On Receipt), as
-// the invoice is saved with; the default until a client is picked
+// Net terms for a new invoice's due date - a contract in force's, else the
+// client's (0 is On Receipt), as the invoice is saved with; the default until
+// a client is picked
 $form_terms = intval($config_default_net_terms);
+$form_terms_from = 'the default';
+$form_contract_terms = contractNetTermsToday();
 if ($form_client_id) {
-    $form_terms = intval(getFieldById('clients', $form_client_id, 'client_net_terms'));
+    $form_terms = isset($form_contract_terms[$form_client_id]) ? $form_contract_terms[$form_client_id][0] : intval(getFieldById('clients', $form_client_id, 'client_net_terms'));
+    $form_terms_from = isset($form_contract_terms[$form_client_id]) ? $form_contract_terms[$form_client_id][1] . "'s" : "the client's";
 }
 
 $form_clients = [];
@@ -51,7 +55,7 @@ $form_scope_placeholder = [
 ][$form_type];
 
 ?>
-<div class="row g-3" id="<?= $form_id ?>" data-billing-form="<?= $form_type ?>" data-terms="<?= $form_terms ?>">
+<div class="row g-3" id="<?= $form_id ?>" data-billing-form="<?= $form_type ?>" data-terms="<?= $form_terms ?>" data-terms-from="<?= escapeHtml($form_terms_from) ?>">
 
     <?php if (!$form_edit && !$form_client_id) { ?>
         <div class="col-12">
@@ -61,7 +65,8 @@ $form_scope_placeholder = [
                 <select class="form-select select2" name="client_id" required data-billing-client>
                     <option value="">- Select a client -</option>
                     <?php foreach ($form_clients as $form_client) { ?>
-                        <option value="<?= intval($form_client['client_id']) ?>" data-terms="<?= intval($form_client['client_net_terms']) ?>"<?= selectOptionClient($form_client['client_id'], $form_client['client_name'], $form_client['client_abbreviation'] ?? '') ?>><?= escapeHtml($form_client['client_name']) ?></option>
+                        <?php $form_option_terms = $form_contract_terms[intval($form_client['client_id'])] ?? null; ?>
+                        <option value="<?= intval($form_client['client_id']) ?>" data-terms="<?= $form_option_terms ? $form_option_terms[0] : intval($form_client['client_net_terms']) ?>" data-terms-from="<?= escapeHtml($form_option_terms ? $form_option_terms[1] . "'s" : "the client's") ?>"<?= selectOptionClient($form_client['client_id'], $form_client['client_name'], $form_client['client_abbreviation'] ?? '') ?>><?= escapeHtml($form_client['client_name']) ?></option>
                     <?php } ?>
                 </select>
             </div>
@@ -115,7 +120,7 @@ $form_scope_placeholder = [
                 <?php } ?>
             </div>
             <?php if (!$form_edit) { ?>
-                <div class="form-text" data-billing-terms-note><?= $form_terms ? "$form_terms days from the invoice date" : 'Due on receipt' ?> - <?= $form_client_id ? "the client's" : 'the default' ?> terms.</div>
+                <div class="form-text" data-billing-terms-note><?= $form_terms ? "$form_terms days from the invoice date" : 'Due on receipt' ?> - <?= escapeHtml($form_terms_from) ?> terms.</div>
             <?php } ?>
         </div>
     <?php } elseif ($form_type === 'quote') { ?>
@@ -231,7 +236,9 @@ $form_scope_placeholder = [
         if (due && date) {
             due.value = plus(date.value, terms());
             if (note) {
-                note.textContent = (terms() ? terms() + ' days from the invoice date' : 'Due on receipt') + ' - ' + (client && client.value ? "the client's" : 'the default') + ' terms.';
+                var picked = client && client.options[client.selectedIndex];
+                var from = picked && picked.value ? picked.getAttribute('data-terms-from') : root.getAttribute('data-terms-from');
+                note.textContent = (terms() ? terms() + ' days from the invoice date' : 'Due on receipt') + ' - ' + (from || 'the default') + ' terms.';
             }
         }
     }

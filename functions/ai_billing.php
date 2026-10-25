@@ -262,7 +262,7 @@ function aiBillingDraft($type, array $row, $prompt, $use_ticket = true, $use_cli
     $doc_id = intval($row["{$c}_id"]);
     $client_id = intval($row['client_id']);
     $currency = (string) $row["{$c}_currency_code"];
-    $rate = billingTimeRate(getFieldById('clients', $client_id, 'client_rate'));
+    $rate = contractClientRate($client_id)['rate'];
     $catalog = aiBillingCatalog();
 
     // The client's documentation and its tickets go only for an agent who may read them

@@ -20,8 +20,8 @@ if (isset($_POST['add_invoice'])) {
 
     $invoice_amount = 0 - $invoice_discount;     // Calc amount if discount is applied, otherwise wrongly shows 0
 
-    // Get Net Terms
-    $client_net_terms = intval(getFieldById('clients', $client_id, 'client_net_terms'));
+    // Get Net Terms - the contract in force's, else the client's
+    $client_net_terms = contractNetTerms($client_id, $date);
 
     // Atomically increment and get the new invoice number
     mysqli_query($mysqli, "
@@ -107,6 +107,7 @@ if (isset($_POST['add_invoice_copy'])) {
     $invoice_currency_code = escapeSql($row['invoice_currency_code']);
     $invoice_note = escapeSql($row['invoice_note']);
     $client_id = intval($row['invoice_client_id']);
+    $client_net_terms = contractNetTerms($client_id, $date, $client_net_terms);
     $category_id = intval($row['invoice_category_id']);
     $old_invoice_prefix = escapeSql($row['invoice_prefix']);
     $old_invoice_number = intval($row['invoice_number']);

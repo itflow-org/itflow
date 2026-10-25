@@ -151,7 +151,7 @@ while ($assignment_row = mysqli_fetch_assoc($sql_assignments)) {
             <button type="submit" name="save_sla_assignments" class="btn btn-primary"><i class="fas fa-check me-2"></i>Save Defaults</button>
         </form>
 
-        <small class="text-muted d-block mt-2">Per-client overrides are set on each client (edit client, Notes tab).</small>
+        <small class="text-muted d-block mt-2">Per-client overrides are set on each client (edit client, Notes tab). A contract in force for a client comes first, for the priorities it sets an SLA for.</small>
     </div>
 </div>
 

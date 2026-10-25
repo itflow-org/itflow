@@ -267,7 +267,8 @@ function contractFromInput(array $in, $kind = 'contract') {
             return null;
         }
         $number = function_exists('billingNumberInput') ? billingNumberInput($value) : (is_numeric($value) ? floatval($value) : null);
-        return $number === null ? false : round($number, 2);
+        // A rate of nothing is no rate - the client's own applies
+        return $number === null ? false : (round($number, 2) == 0 ? null : round($number, 2));
     };
     $hours = function ($key) use ($in) {
         $value = trim(str_replace(',', '', (string) ($in[$key] ?? '')));
@@ -502,19 +503,21 @@ function contractCancel(array $row, $last_day, $reason) {
 
 /*
  * The night's work, run by cron/nightly_tasks.php - [renewed, ended,
- * reminded, drawn] for the log:
+ * reminded, drawn, paused] for the log:
  *  - an active contract whose last day has passed renews for another term
  *    when it renews itself (as many terms as it takes to reach today), and
  *    ends when it doesn't;
  *  - the owner of one coming up to its notice date is reminded, once a term,
  *    by email and in ITFlow - or everyone, when it has no owner;
  *  - prepaid hours: each month's included hours are added, and the tickets
- *    done since are drawn from them (contractHoursNightly()).
+ *    done since are drawn from them (contractHoursNightly());
+ *  - the recurring invoice of one that ended, or is past a cancellation's
+ *    last day, is paused (contractRecurringNightly()).
  */
 function contractsNightly($today = null) {
     global $mysqli;
     $today = $today ?? date('Y-m-d');
-    $done = ['renewed' => 0, 'ended' => 0, 'reminded' => 0, 'drawn' => 0];
+    $done = ['renewed' => 0, 'ended' => 0, 'reminded' => 0, 'drawn' => 0, 'paused' => 0];
     if (!contractsReady()) {
         return $done;
     }
@@ -559,6 +562,10 @@ function contractsNightly($today = null) {
     // Prepaid hours: each month's included hours, and the tickets done since drawn from them
     if (function_exists('contractHoursNightly')) {
         $done['drawn'] = contractHoursNightly($today);
+    }
+    // Recurring invoices of contracts that ended, or are past a cancellation's last day, are paused
+    if (function_exists('contractRecurringNightly')) {
+        $done['paused'] = contractRecurringNightly($today);
     }
     return $done;
 }

@@ -3,8 +3,9 @@
 /*
  * Invoice a ticket - its time as a line on a new draft invoice or one of the
  * client's drafts. The time logged on it (by agent), the hours that makes
- * (rounded the way Admin > Settings > Invoice says) and the client's rate
- * are filled in, ready to change. A ticket still open can be billed from
+ * (rounded the way Admin > Settings > Invoice says) and its rate are filled
+ * in, ready to change - the rate the contract in force's (its after-hours
+ * one for a ticket opened outside business hours), else the client's. A ticket still open can be billed from
  * here too - time logged after that isn't billed. Write it (with AI, for
  * the Billing use case) says what was done in the description, from the
  * replies and notes, for the client. ?ticket_id=
@@ -186,7 +187,7 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                     <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= number_format($row['rate'], 2, '.', '') ?>" required data-ticket-invoice-rate>
                 </div>
-                <div class="form-text"><?= $row['rate'] > 0 ? ($row['default_rate'] ? 'The default rate - the client has none.' : "The client's hourly rate.") : 'No rate is set for the client, or as a default.' ?></div>
+                <div class="form-text" data-ticket-invoice-rate-note><?= $row['rate'] > 0 ? ($row['default_rate'] ? 'The default rate - the client has none.' : (in_array($row['rate_source'], ['contract', 'after_hours'], true) ? escapeHtml(ucfirst($row['rate_note'])) . '.' : "The client's hourly rate.")) : 'No rate is set for the client, or as a default.' ?></div>
             </div>
             <div class="col-sm-4">
                 <label class="form-label">Tax</label>

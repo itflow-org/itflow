@@ -82,6 +82,8 @@ $extras_text = function ($expenses, $trips) {
     return implode(', ', $parts);
 };
 $this_client = $client_view ? ($clients[$client_id] ?? null) : null;
+// One rate for all the client's tickets, or each its own (a contract's after-hours rate, or a change of contract)
+$one_rate = $this_client && count($this_client['rates'] ?? []) <= 1;
 // The client's prepaid hours - drawn from each night, or now
 $prepaid = $client_view && $with_time && $this_client && $this_client['tickets'] ? contractClientHours($client_id) : [];
 $prepaid_left = round(array_sum(array_map(function ($c) { return $c['hours']['left']; }, $prepaid)), 2);
@@ -114,7 +116,7 @@ $hours_text = function ($hours) {
                 <?php if ($total['extras']) { ?>
                     <?= $money($total['value']) ?> of time<?= $total['expenses'] ? ' &middot; ' . $money($total['expense_value']) . ' of expenses' : '' ?><?= $total['trips'] ? ' &middot; ' . $money($total['trip_value']) . ' of travel' : '' ?>
                 <?php } else { ?>
-                    <?= $client_view ? 'At ' . ($this_client && $this_client['rate'] > 0 ? $money($this_client['rate']) . ' an hour' . ($this_client['default_rate'] ? ', the default rate' : '') : 'no rate set') : 'At each client\'s hourly rate' ?>
+                    <?= $client_view ? (!$one_rate ? "At each ticket's rate" : 'At ' . ($this_client && $this_client['rate'] > 0 ? $money($this_client['rate']) . ' an hour' . (in_array($this_client['rate_source'] ?? '', ['contract', 'after_hours'], true) ? ', ' . escapeHtml($this_client['rate_note']) : '') : 'no rate set')) : 'At each client\'s hourly rate' ?>
                 <?php } ?>
             </div>
         </div>
@@ -388,6 +390,11 @@ $hours_text = function ($hours) {
                                             <?php if (intval($ticket['ticket_onsite'])) { ?>
                                                 <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><i class="fas fa-car-side me-1"></i>Onsite</span>
                                             <?php } ?>
+                                            <?php if (($ticket['rate_source'] ?? '') === 'after_hours') { ?>
+                                                <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1" title="<?= escapeHtml(ucfirst($ticket['rate_note'])) ?>" data-unbilled-after-hours><i class="fas fa-moon me-1"></i>After hours <?= $money($ticket['rate']) ?></span>
+                                            <?php } elseif (!$one_rate) { ?>
+                                                <span class="ms-1" title="<?= escapeHtml(ucfirst($ticket['rate_note'])) ?>"><?= $money($ticket['rate']) ?>/hr</span>
+                                            <?php } ?>
                                         </div>
                                     </td>
                                     <td class="text-nowrap d-none d-md-table-cell">
@@ -441,8 +448,10 @@ $hours_text = function ($hours) {
                                         <td class="text-end text-nowrap d-none d-lg-table-cell">
                                             <?php if (!$c['tickets']) { ?>
                                                 <span class="text-body-secondary">-</span>
+                                            <?php } elseif (count($c['rates'] ?? []) > 1) { ?>
+                                                <span class="small" title="A contract's after-hours rate, or a change of contract - each ticket bills at its own">Each its own</span>
                                             <?php } elseif ($c['rate'] > 0) { ?>
-                                                <?= $money($c['rate']) ?><?= $c['default_rate'] ? '<div class="small text-body-tertiary" title="The client has no rate of its own">default</div>' : '' ?>
+                                                <?= $money($c['rate']) ?><?= $c['default_rate'] ? '<div class="small text-body-tertiary" title="The client has no rate of its own">default</div>' : (in_array($c['rate_source'] ?? '', ['contract', 'after_hours'], true) ? '<div class="small text-body-tertiary" title="' . escapeHtml(ucfirst($c['rate_note'])) . '">contract</div>' : '') ?>
                                             <?php } else { ?>
                                                 <span class="small text-warning-emphasis" title="Set an hourly rate on the client, or a default in Admin > Settings > Defaults">No rate</span>
                                             <?php } ?>
@@ -555,12 +564,12 @@ $hours_text = function ($hours) {
                             <?php } ?>
                             <?php if ($client_view && $show_time) { ?>
                                 <div class="col-sm-6 col-xl-12">
-                                    <label class="form-label">Rate <strong class="text-danger">*</strong></label>
+                                    <label class="form-label">Rate<?= $one_rate ? ' <strong class="text-danger">*</strong>' : '' ?></label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                                        <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= number_format($this_client['rate'], 2, '.', '') ?>" required data-unbilled-rate>
+                                        <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= $one_rate ? number_format($this_client['rate'], 2, '.', '') : '' ?>" placeholder="Each its own"<?= $one_rate ? ' required' : '' ?> data-unbilled-rate>
                                     </div>
-                                    <div class="form-text">An hour<?= $this_client['default_rate'] ? ' - the default, the client has no rate' : " - the client's rate" ?></div>
+                                    <div class="form-text"><?= !$one_rate ? "Each ticket at its own rate - a contract's sets some. Type one to bill them all at it." : 'An hour - ' . ($this_client['default_rate'] ? 'the default, the client has no rate' : escapeHtml($this_client['rate_note'] ?: "the client's rate")) ?></div>
                                 </div>
                             <?php } ?>
                             <div class="<?= $client_view ? 'col-sm-6 col-xl-12' : 'col-12' ?>">

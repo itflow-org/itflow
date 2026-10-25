@@ -101,7 +101,7 @@ function contractSlaRows(array $row) {
     $client_id = intval($row['contract_client_id'] ?? 0);
     $usual = [];
     foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
-        $usual[$priority] = intval($row["contract_sla_{$part}_id"] ?? 0) ? 0 : intval(getTicketSlaId($client_id, $priority));
+        $usual[$priority] = intval($row["contract_sla_{$part}_id"] ?? 0) ? 0 : intval(getTicketSlaId($client_id, $priority, false));
     }
     $slas = contractSlaChoices(array_merge($own, array_values($usual)));
     $rows = [];

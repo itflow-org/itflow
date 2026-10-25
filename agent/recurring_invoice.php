@@ -12,7 +12,8 @@
  * themselves), its per-user and per-device lines against what the client
  * has now, what it costs us (the recurring expenses it covers, and the
  * margin left), the card it charges, the invoices it has made and whether
- * they were paid, and its history.
+ * they were paid, and its history. The contract it bills, when it is
+ * linked to one - it starts and stops with it (functions/contract_billing.php).
  */
 
 // If client_id is in URI then show client Side Bar and client header
@@ -63,6 +64,8 @@ $seat_lines = recurringSeatLines($recurring_invoice_id, $client_id);
 $seat_drift = count(array_filter($seat_lines, function ($line) { return $line['seat_drift']; }));
 $seat_sources = recurringSeatSources();
 $auto_send = intval($recurring['recurring_invoice_auto_send']) === 1;
+// The contract it bills - it starts and stops with it
+$for_contract = contractForRecurring($recurring_invoice_id);
 $email_notify = intval($recurring['recurring_invoice_email_notify']) === 1;
 
 $can_edit = lookupUserPermission('module_sales') >= 2;
@@ -128,6 +131,9 @@ $paper = [
                     <span><i class="fas fa-fw fa-comment-dollar me-1"></i>From <a class="text-reset" href="quote.php?quote_id=<?= intval($from_quote['quote_id']) ?>"><?= escapeHtml(billingNumber('quote', $from_quote)) ?></a></span>
                 <?php } ?>
                 <?php if ($autopay_id && isset($saved_methods[$autopay_id])) { ?><span><i class="fas fa-fw fa-wallet me-1"></i>Autopay</span><?php } ?>
+                <?php if ($for_contract) { ?>
+                    <span title="It starts and stops with the contract" data-recurring-contract><i class="fas fa-fw fa-file-contract me-1"></i>For <a class="text-reset" href="contract.php?client_id=<?= $client_id ?>&contract_id=<?= intval($for_contract['contract_id']) ?>"><?= escapeHtml($for_contract['contract_name']) ?></a></span>
+                <?php } ?>
             </div>
         </div>
 
@@ -235,7 +241,7 @@ $paper = [
                                 <div class="small text-body-secondary">then <?= escapeHtml(implode(', ', array_slice($upcoming, 1))) ?></div>
                             <?php } ?>
                         <?php } else { ?>
-                            <span class="text-body-secondary">Paused - nothing until it is resumed</span>
+                            <span class="text-body-secondary"><?= $for_contract && $for_contract['contract_status'] === 'Draft' ? 'Paused - it starts when ' . escapeHtml($for_contract['contract_name']) . ' is active' : 'Paused - nothing until it is resumed' ?></span>
                         <?php } ?>
                     </dd>
                     <dt>Last</dt><dd><?= $recurring['recurring_invoice_last_sent'] ? escapeHtml($recurring['recurring_invoice_last_sent']) : '<span class="text-body-secondary">Not yet</span>' ?></dd>

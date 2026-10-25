@@ -431,12 +431,23 @@ function syncTicketSlaClock($ticket_id)
 }
 
 // Resolve which SLA (if any) applies to a client + priority combination.
-// Returns an sla_id, or 0 when no SLA applies.
-function getTicketSlaId($client_id, $priority)
+// Returns an sla_id, or 0 when no SLA applies. A contract in force for the
+// client that sets an SLA for the priority comes first (contractSlaFor() in
+// functions/contract_billing.php) - $with_contract false asks only the
+// client's own and the global default, what applies without one.
+function getTicketSlaId($client_id, $priority, $with_contract = true)
 {
     global $mysqli;
 
     $client_id = intval($client_id);
+
+    if ($with_contract && $client_id > 0 && function_exists('contractSlaFor')) {
+        $contract_sla_id = contractSlaFor($client_id, $priority);
+        if ($contract_sla_id) {
+            return $contract_sla_id;
+        }
+    }
+
     $priority = escapeSql($priority);
 
     $sla_id = null;

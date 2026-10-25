@@ -69,7 +69,9 @@ $search_query = "AND (CONCAT(recurring_invoice_prefix, recurring_invoice_number)
 $filters = "AND recurring_invoice_archived_at IS NULL $scope_query $client_query $category_query $search_query";
 $joins = "LEFT JOIN clients ON recurring_invoice_client_id = client_id LEFT JOIN categories ON recurring_invoice_category_id = category_id";
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS recurring_invoices.*, client_name, category_name, recurring_payment_id, $monthly_sql AS monthly
+// The contract each bills, when one is linked (functions/contract_billing.php)
+$contract_sql = contractBillingReady() ? "(SELECT contract_name FROM contracts WHERE contract_recurring_invoice_id = recurring_invoice_id AND contract_archived_at IS NULL ORDER BY contract_id DESC LIMIT 1)" : 'NULL';
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS recurring_invoices.*, client_name, category_name, recurring_payment_id, $monthly_sql AS monthly, $contract_sql AS contract_name
     FROM recurring_invoices $joins
     LEFT JOIN recurring_payments ON recurring_payment_recurring_invoice_id = recurring_invoice_id
     WHERE 1 $filters $status_query
@@ -246,7 +248,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                             $row_drift = count(array_filter($row_seats, function ($line) { return $line['seat_drift']; })); ?>
                             <i class="fas fa-users small ms-1 <?= $row_drift ? 'text-warning' : 'text-primary' ?>" title="<?= $row_drift ? 'Seats changed - the next invoice bills the new counts' : 'Bills per user or per device - counted for each invoice' ?>"></i>
                         <?php } ?>
-                        <div class="small text-body-secondary text-truncate" style="max-width: 24rem;"><?= escapeHtml(implode(' · ', array_filter([$row['recurring_invoice_scope'], $row['category_name']]))) ?: '&nbsp;' ?></div>
+                        <div class="small text-body-secondary text-truncate" style="max-width: 24rem;"><?php if ($row['contract_name'] !== null) { ?><span class="me-1" title="It starts and stops with the contract" data-recurring-contract><i class="fas fa-file-contract me-1"></i><?= escapeHtml($row['contract_name']) ?> &middot;</span><?php } ?><?= escapeHtml(implode(' · ', array_filter([$row['recurring_invoice_scope'], $row['category_name']]))) ?: '&nbsp;' ?></div>
                     </td>
                     <?php if (!$client_url) { ?>
                         <td><a class="text-reset" href="recurring_invoices.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>

@@ -543,9 +543,19 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         </a>
                     <?php } ?>
                     <div class="itflow-dash-rail-item">
+                        <?php
+                        // A contract in force sets the rate and net terms, where it has them
+                        $overview_rate = contractClientRate($client_id);
+                        $overview_net_contract = contractTermsOn($client_id, date('Y-m-d'), 'net');
+                        $overview_net = $overview_net_contract ? intval($overview_net_contract['contract_net_terms']) : intval($client_net_terms);
+                        $overview_from = $overview_rate['contract_name'] ?: ($overview_net_contract['contract_name'] ?? '');
+                        ?>
                         <span class="small text-body-secondary">Terms</span>
-                        <span class="itflow-dash-money-value"><?= $money_format($client_rate) ?><span class="fs-6 fw-normal text-body-secondary">/hr</span></span>
-                        <span class="small text-body-tertiary"><?= $client_net_terms ? "Net $client_net_terms" : 'Due on receipt' ?><?= $client_tax_id_number ? ", tax ID $client_tax_id_number" : '' ?></span>
+                        <span class="itflow-dash-money-value"><?= $money_format($overview_rate['source'] === 'default' ? $client_rate : $overview_rate['rate']) ?><span class="fs-6 fw-normal text-body-secondary">/hr</span></span>
+                        <span class="small text-body-tertiary"><?= $overview_net ? "Net $overview_net" : 'Due on receipt' ?><?= $client_tax_id_number ? ", tax ID $client_tax_id_number" : '' ?></span>
+                        <?php if ($overview_from !== '') { ?>
+                            <span class="small text-body-tertiary text-truncate" data-overview-terms-contract title="While it is in force, the contract's rate and net terms apply"><i class="fas fa-file-contract me-1" aria-hidden="true"></i>From <?= escapeHtml($overview_from) ?></span>
+                        <?php } ?>
                         <?php
                         $overview_tax = taxClient($client_id);
                         $overview_rate = taxRow(taxDefaultFor($client_id));

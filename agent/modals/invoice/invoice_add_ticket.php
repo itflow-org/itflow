@@ -25,8 +25,9 @@ if (!billingCanEditItems('invoice', $invoice)) {
 
 $tickets = billingUnbilledTickets($client_id);
 $rules = billingTimeRules();
-$first = $tickets ? reset($tickets) : null;
-$rate = $first ? $first['rate'] : billingTimeRate(getFieldById('clients', $client_id, 'client_rate'));
+// One rate for them all, or each its own - a contract's after-hours rate, or a change of contract, makes more than one
+$rates = array_unique(array_map(function ($t) { return sprintf('%.2f', $t['rate']); }, $tickets));
+$rate = count($rates) === 1 ? floatval(reset($rates)) : ($tickets ? null : contractClientRate($client_id)['rate']);
 $currency = (string) $invoice['invoice_currency_code'];
 $taxes = billingTaxes();
 
@@ -48,7 +49,7 @@ ob_start();
             </div>
             <div class="list-group list-group-flush" style="max-height: 20rem; overflow-y: auto;">
                 <?php foreach ($tickets as $ticket_id => $ticket) { ?>
-                    <div class="list-group-item d-flex align-items-center gap-3">
+                    <div class="list-group-item d-flex align-items-center gap-3" data-rate="<?= floatval($ticket['rate']) ?>">
                         <input class="form-check-input flex-shrink-0 mt-0" type="checkbox" name="ticket_ids[]" value="<?= $ticket_id ?>" id="addTicket<?= $ticket_id ?>" data-add-ticket>
                         <label class="flex-grow-1 min-w-0 mb-0" for="addTicket<?= $ticket_id ?>">
                             <span class="d-block text-truncate"><span class="font-monospace small text-body-secondary me-2"><?= escapeHtml($ticket['ticket_prefix'] . $ticket['ticket_number']) ?></span><?= escapeHtml($ticket['ticket_subject']) ?></span>
@@ -56,6 +57,9 @@ ob_start();
                                 <i class="far fa-clock me-1"></i><?= $ticket['seconds'] ? billingDuration($ticket['seconds']) . ' logged' : '<span class="text-warning-emphasis">No time logged</span>' ?>
                                 &middot; done <?= escapeHtml(date('Y-m-d', strtotime((string) ($ticket['ticket_resolved_at'] ?: $ticket['ticket_closed_at'])))) ?>
                                 <?= $ticket['prepaid'] > 0 ? '&middot; less ' . escapeHtml(contractHoursText($ticket['prepaid'])) . ' prepaid' : '' ?>
+                                <?php if ($rate === null) { ?>
+                                    &middot; <span title="<?= escapeHtml(ucfirst($ticket['rate_note'])) ?>"><?= $ticket['rate_source'] === 'after_hours' ? '<i class="fas fa-moon me-1"></i>' : '' ?><?= escapeHtml(billingMoney($ticket['rate'], $currency)) ?>/hr</span>
+                                <?php } ?>
                             </span>
                         </label>
                         <div class="input-group input-group-sm flex-shrink-0" style="width: 6.5rem;" data-add-ticket-hours>
@@ -79,11 +83,14 @@ ob_start();
                         </div>
                     </div>
                     <div class="col-sm-4">
-                        <label class="form-label">Rate <strong class="text-danger">*</strong></label>
+                        <label class="form-label">Rate</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                            <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= number_format($rate, 2, '.', '') ?>" required data-add-ticket-rate>
+                            <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= $rate !== null ? number_format($rate, 2, '.', '') : '' ?>" placeholder="Each its own" data-add-ticket-rate>
                         </div>
+                        <?php if ($rate === null) { ?>
+                            <div class="form-text">Each ticket at its own rate - a contract's sets some. Type one to bill them all at it.</div>
+                        <?php } ?>
                     </div>
                     <div class="col-sm-4">
                         <label class="form-label">Tax</label>
@@ -155,6 +162,8 @@ ob_start();
     function update() {
         var count = 0;
         var hours = 0;
+        var amount = 0;
+        var typed = rate.value.trim() !== '';
         form.querySelectorAll('[data-add-ticket]').forEach(function (box) {
             var row = box.closest('.list-group-item');
             var input = row.querySelector('[data-add-ticket-hours] input');
@@ -162,6 +171,8 @@ ob_start();
             if (box.checked) {
                 count++;
                 hours += number(input.value);
+                // The rate typed, or the ticket's own
+                amount += Math.round(number(input.value) * (typed ? number(rate.value) : Number(row.getAttribute('data-rate') || 0)) * 100) / 100;
             }
         });
         lines.hidden = !bill.checked;
@@ -170,7 +181,6 @@ ob_start();
         });
         noLines.hidden = bill.checked;
         var option = tax.options[tax.selectedIndex];
-        var amount = Math.round(hours * number(rate.value) * 100) / 100;
         amount += Math.round(amount * Number(option ? option.getAttribute('data-percent') || 0 : 0)) / 100;
         hours = Math.round(hours * 100) / 100;
         summary.textContent = count ? count + ' ticket' + (count === 1 ? '' : 's') + (bill.checked ? ' · ' + hours + ' h · ' + money(amount) : '') : 'Tick the tickets to add';

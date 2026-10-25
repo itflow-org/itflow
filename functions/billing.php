@@ -957,7 +957,9 @@ function billingUnbilledSql($include_open = false) {
  * with its client, its assignee, the seconds worked (archived replies left
  * out), the hours that bills - less any a contract's prepaid hours covered
  * ('prepaid', the hours worked before that are 'worked') - the rate and what
- * that comes to, and the days since it was done.
+ * that comes to, and the days since it was done. The rate is the contract
+ * in force's when there is one (contractTicketRate() - 'rate_source' and
+ * 'rate_note' say whose), else the client's, else the default.
  */
 function billingUnbilledTickets($client_id = 0, array $ticket_ids = [], $include_open = false) {
     global $mysqli;
@@ -983,8 +985,12 @@ function billingUnbilledTickets($client_id = 0, array $ticket_ids = [], $include
         $row['worked'] = billingTimeHours($row['seconds'], $rules);
         $row['prepaid'] = round(floatval($row['prepaid']), 2);
         $row['hours'] = max(0.0, round($row['worked'] - $row['prepaid'], 2));
-        $row['rate'] = billingTimeRate($row['client_rate']);
-        $row['default_rate'] = floatval($row['client_rate']) <= 0;
+        $rate = function_exists('contractTicketRate') ? contractTicketRate($row)
+            : ['rate' => billingTimeRate($row['client_rate']), 'source' => floatval($row['client_rate']) > 0 ? 'client' : 'default', 'note' => ''];
+        $row['rate'] = $rate['rate'];
+        $row['rate_source'] = $rate['source'];
+        $row['rate_note'] = $rate['note'];
+        $row['default_rate'] = $rate['source'] === 'default';
         $row['value'] = round($row['hours'] * $row['rate'], 2);
         $rows[intval($row['ticket_id'])] = $row;
     }
@@ -993,7 +999,8 @@ function billingUnbilledTickets($client_id = 0, array $ticket_ids = [], $include
 
 /**
  * The same, by client - each client with its tickets, time, hours (and the
- * prepaid hours that covered part of them), value, how long the oldest has
+ * prepaid hours that covered part of them), value, the rate (its first
+ * ticket's, and 'rates' - each one they bill at), how long the oldest has
  * waited, how many have no time logged, and its draft invoices. Biggest
  * value first.
  */
@@ -1004,10 +1011,12 @@ function billingUnbilledByClient($client_id = 0) {
         $id = intval($ticket['ticket_client_id']);
         if (!isset($clients[$id])) {
             $clients[$id] = ['client_id' => $id, 'client_name' => $ticket['client_name'], 'client_abbreviation' => $ticket['client_abbreviation'],
-                'rate' => $ticket['rate'], 'default_rate' => $ticket['default_rate'], 'tickets' => [], 'seconds' => 0, 'hours' => 0.0, 'prepaid' => 0.0, 'value' => 0.0,
+                'rate' => $ticket['rate'], 'default_rate' => $ticket['default_rate'], 'rate_note' => $ticket['rate_note'] ?? '', 'rate_source' => $ticket['rate_source'] ?? '', 'rates' => [], 'tickets' => [], 'seconds' => 0, 'hours' => 0.0, 'prepaid' => 0.0, 'value' => 0.0,
                 'oldest' => 0, 'no_time' => 0, 'drafts' => []];
         }
         $clients[$id]['tickets'][intval($ticket['ticket_id'])] = $ticket;
+        // Each rate its tickets bill at - more than one when a contract's after-hours rate, or a change of contract, comes in
+        $clients[$id]['rates'][sprintf('%.2f', $ticket['rate'])] = true;
         $clients[$id]['seconds'] += $ticket['seconds'];
         $clients[$id]['hours'] += $ticket['hours'];
         $clients[$id]['prepaid'] += $ticket['prepaid'];
@@ -1048,7 +1057,8 @@ function billingInvoiceCreate($client_id, $date, $category_id, $scope, $by) {
     global $mysqli, $config_invoice_prefix, $session_company_currency;
     $client_id = intval($client_id);
     $date = ($parsed = DateTime::createFromFormat('!Y-m-d', (string) $date)) && $parsed->format('Y-m-d') === (string) $date ? (string) $date : date('Y-m-d');
-    $terms = intval(getFieldById('clients', $client_id, 'client_net_terms'));
+    // The contract in force's net terms, else the client's
+    $terms = function_exists('contractNetTerms') ? contractNetTerms($client_id, $date) : intval(getFieldById('clients', $client_id, 'client_net_terms'));
     $number = billingNextNumber('invoice');
     $prefix = escapeSql($config_invoice_prefix);
     $scope = escapeSql(mb_substr(trim((string) $scope), 0, 255));
@@ -1072,8 +1082,9 @@ function billingInvoiceCreate($client_id, $date, $category_id, $scope, $by) {
  * can't bill one twice. $opts:
  *   invoice_id   one of the client's invoices whose lines can change, or 0 for a new draft
  *   date, category_id, scope   for a new draft
- *   tax_id (TAX_USUAL: the client's usual rate for time), item_name, price (null: the client's rate), description (one ticket only)
- *   combine      one line for all of them instead of one each
+ *   tax_id (TAX_USUAL: the client's usual rate for time), item_name, price (null or '': each ticket at its own rate -
+ *                the contract in force's, else the client's), description (one ticket only)
+ *   combine      one line for all of them instead of one each (one for each rate, when they differ)
  *   lines        false to put the tickets on without adding lines (billed by hand)
  *   include_open take tickets that aren't done yet too
  *   by           who, for the history
@@ -1104,8 +1115,9 @@ function billingTimeInvoice($client_id, array $hours, array $opts, &$error = '')
         }
         $bill[$ticket_id] = round($h, 2);
     }
-    $price = isset($opts['price']) && $opts['price'] !== '' && $opts['price'] !== null ? billingNumberInput($opts['price']) : billingTimeRate(reset($tickets)['client_rate']);
-    if ($price === null || abs($price) >= 1e9) {
+    // One rate typed for them all, or each at its own
+    $price = isset($opts['price']) && $opts['price'] !== '' && $opts['price'] !== null ? billingNumberInput($opts['price']) : false;
+    if ($price === null || ($price !== false && abs($price) >= 1e9)) {
         $error = 'The rate has to be a number.';
         return null;
     }
@@ -1178,18 +1190,22 @@ function billingTimeInvoice($client_id, array $hours, array $opts, &$error = '')
         if ($h <= 0) {
             $no_charge[] = $reference;
         } elseif (!empty($opts['combine'])) {
-            $combined[] = billingTimeDescription($ticket) . ' (' . billingQuantity($h) . ' h)';
+            $line_price = $price !== false ? $price : floatval($ticket['rate']);
+            $key = sprintf('%.2f', $line_price);
+            $combined[$key] = $combined[$key] ?? ['price' => $line_price, 'hours' => 0.0, 'lines' => []];
+            $combined[$key]['hours'] += $h;
+            $combined[$key]['lines'][] = billingTimeDescription($ticket) . ' (' . billingQuantity($h) . ' h)';
         } else {
             $description = count($bill) === 1 && isset($opts['description']) ? (string) $opts['description'] : billingTimeDescription($ticket);
-            if (billingItemSave('invoice', $invoice_id, ['name' => $item_name, 'description' => $description, 'qty' => $h, 'price' => $price, 'tax_id' => $tax_id])) {
+            if (billingItemSave('invoice', $invoice_id, ['name' => $item_name, 'description' => $description, 'qty' => $h, 'price' => $price !== false ? $price : floatval($ticket['rate']), 'tax_id' => $tax_id])) {
                 $lines++;
             }
         }
         logTicketHistory($ticket_id, escapeSql("Billed on invoice $number by $by - " . ($h > 0 ? billingQuantity($h) . ' h' : 'no charge')));
     }
-    if ($combined) {
-        $combined_hours = round(array_sum(array_intersect_key($bill, $claimed)), 2);
-        if (billingItemSave('invoice', $invoice_id, ['name' => $item_name, 'description' => implode("\n", $combined), 'qty' => $combined_hours, 'price' => $price, 'tax_id' => $tax_id])) {
+    // One line for each rate - one line, unless a contract's after-hours rate or a change of contract makes more
+    foreach ($combined as $group) {
+        if (billingItemSave('invoice', $invoice_id, ['name' => $item_name, 'description' => implode("\n", $group['lines']), 'qty' => round($group['hours'], 2), 'price' => $group['price'], 'tax_id' => $tax_id])) {
             $lines++;
         }
     }
@@ -1512,7 +1528,7 @@ function quoteConvert($quote_id, array $opts, &$error = '') {
         $one_time = $groups['']['items'] ?? [];
         $invoice_discount = isset($groups['']) ? floatval($groups['']['discount']) : 0.0;
         if ($one_time || ($first_period && quoteHasRecurring($groups)) || $invoice_discount != 0) {
-            $terms = intval($quote['client_net_terms']);
+            $terms = function_exists('contractNetTerms') ? contractNetTerms($client_id, $date, $quote['client_net_terms']) : intval($quote['client_net_terms']);
             $invoice_number = billingNextNumber('invoice');
             $prefix = escapeSql($config_invoice_prefix);
             $url_key = randomString(32);
@@ -2113,8 +2129,9 @@ function recurringInvoiceGenerate($recurring_invoice_id, $by = 'Cron', $early = 
 
     $settings = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_invoice_prefix, config_recurring_auto_send_invoice,
         config_invoice_from_email, config_invoice_from_name, config_smtp_provider FROM settings WHERE company_id = 1")) ?: [];
-    $terms = intval($row['client_net_terms']); // 0 is "On Receipt"
     $client_id = intval($row['client_id']);
+    // 0 is "On Receipt" - the contract in force's net terms, else the client's
+    $terms = function_exists('contractNetTerms') ? contractNetTerms($client_id, $date, $row['client_net_terms']) : intval($row['client_net_terms']);
     $prefix = escapeSql($settings['config_invoice_prefix'] ?? '');
     $number = billingNextNumber('invoice');
     $url_key = randomString(32);

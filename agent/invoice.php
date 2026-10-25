@@ -309,7 +309,7 @@ $paper = [
                             </div>
                         <?php } ?>
                     </dd>
-                    <dt>Terms</dt><dd><?= intval($invoice['client_net_terms']) ?: intval($config_default_net_terms) ?> days</dd>
+                    <dt>Terms</dt><dd><?= contractNetTerms(intval($invoice['client_id']), (string) $invoice['invoice_date'], $invoice['client_net_terms']) ?: intval($config_default_net_terms) ?> days</dd>
                     <?php if ($owed) { ?>
                         <dt>Reminders</dt>
                         <dd>

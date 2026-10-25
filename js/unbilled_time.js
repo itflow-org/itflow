@@ -2,7 +2,8 @@
  * Unbilled Time (agent/unbilled_time.php).
  *
  * One client: tick the tickets to bill and change their hours - each row's
- * amount, and the total at the rate and tax picked, follow as you type. The
+ * amount, and the total at the rate and tax picked, follow as you type. With
+ * the rate left empty, each ticket is at its own (a contract's sets some). The
  * same for its expenses and their prices, each with its margin on its cost,
  * and its trips and their prices. Every client: tick the clients to bill -
  * the total is what their tickets, expenses and trips come to now. Either way the button says what it will make,
@@ -65,7 +66,9 @@ function itflowUnbilledTime(options) {
             if (mode === 'client') {
                 var input = row.querySelector('[data-unbilled-hours]');
                 var h = input ? number(input.value) : 0;
-                var line = Math.round(h * perHour * 100) / 100;
+                // The rate typed for them all, or - left empty - the ticket's own
+                var rowRate = rate && rate.value.trim() === '' ? Number(row.getAttribute('data-rate') || 0) : perHour;
+                var line = Math.round(h * rowRate * 100) / 100;
                 var cell = row.querySelector('[data-unbilled-amount]');
                 if (cell && input) {
                     cell.textContent = money(line);

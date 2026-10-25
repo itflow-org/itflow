@@ -7,7 +7,9 @@
  *
  * Each reply is rounded up to the billing increment picked (6, 15 or 30
  * minutes) and those rounded figures are what add up to the ticket, client
- * and grand totals, priced at the client's hourly rate.
+ * and grand totals, priced at the hourly rate - the contract in force's
+ * when the work was done (its after-hours one for a ticket opened outside
+ * business hours), else the client's.
  */
 
 require_once "includes/inc_report.php";
@@ -26,7 +28,7 @@ $default_rate = floatval($config_default_hourly_rate);
 $sql = mysqli_query($mysqli, "
     SELECT ticket_reply_id, ticket_reply, ticket_reply_type, ticket_reply_created_at, TIME_TO_SEC(ticket_reply_time_worked) AS seconds,
         ticket_reply_by, user_name, user_avatar,
-        ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_billable, ticket_client_id, ticket_resolved_at, ticket_closed_at, ticket_invoice_id,
+        ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_billable, ticket_client_id, ticket_created_at, ticket_resolved_at, ticket_closed_at, ticket_invoice_id,
         client_name, client_abbreviation, client_rate
     FROM ticket_replies
     JOIN tickets ON ticket_reply_ticket_id = ticket_id
@@ -45,7 +47,9 @@ $replies = [];
 while ($row = mysqli_fetch_assoc($sql)) {
     $seconds = intval($row['seconds']);
     $billed = intval(ceil($seconds / $increment) * $increment);
-    $rate = floatval($row['client_rate']) > 0 ? floatval($row['client_rate']) : $default_rate;
+    // The contract in force's rate (after hours for a ticket opened outside business hours), else the client's, else the default
+    $rate_info = contractTicketRate($row);
+    $rate = $rate_info['rate'];
     $row['seconds'] = $seconds;
     $row['billed'] = $billed;
     $row['rate'] = $rate;
@@ -57,10 +61,12 @@ while ($row = mysqli_fetch_assoc($sql)) {
 
     $c = intval($row['ticket_client_id']);
     $t = intval($row['ticket_id']);
-    $clients[$c] = $clients[$c] ?? ['name' => $row['client_name'], 'abbr' => $row['client_abbreviation'], 'rate' => $rate, 'default_rate' => floatval($row['client_rate']) <= 0,
+    $clients[$c] = $clients[$c] ?? ['name' => $row['client_name'], 'abbr' => $row['client_abbreviation'], 'rate' => $rate, 'default_rate' => $rate_info['source'] === 'default', 'rate_note' => in_array($rate_info['source'], ['contract', 'after_hours'], true) ? $rate_info['contract_name'] : '', 'rates' => [],
         'tickets' => [], 'seconds' => 0, 'billed' => 0, 'to_bill' => 0, 'value' => 0.0];
     $clients[$c]['tickets'][$t] = $clients[$c]['tickets'][$t] ?? ['row' => $row, 'replies' => [], 'seconds' => 0, 'billed' => 0, 'to_bill' => 0, 'value' => 0.0];
     $clients[$c]['tickets'][$t]['replies'][] = $row;
+    // More than one rate - a contract's after-hours rate, or work before and after a contract started
+    $clients[$c]['rates'][sprintf('%.2f', $rate)] = true;
     foreach ([&$clients[$c], &$clients[$c]['tickets'][$t]] as &$level) {
         $level['seconds'] += $seconds;
         $level['billed'] += $billed;
@@ -134,7 +140,8 @@ $hours = function ($seconds) {
                     <?= count($client['tickets']) ?> ticket<?= count($client['tickets']) === 1 ? '' : 's' ?> ·
                     <?= $hours($client['seconds']) ?> h logged ·
                     <span class="text-body fw-semibold"><?= $hours($client['to_bill']) ?> h to bill</span>
-                    <?php if ($client['rate'] > 0) { ?>· <?= reportMoney($client['rate']) ?>/h<?= $client['default_rate'] ? ' (default)' : '' ?> · <span class="text-body fw-semibold"><?= reportMoney($client['value']) ?></span><?php } ?>
+                    <?php if (count($client['rates']) > 1) { ?>· <span title="A contract's after-hours rate, or work on either side of a contract's start, makes more than one">rates vary</span> · <span class="text-body fw-semibold"><?= reportMoney($client['value']) ?></span>
+                    <?php } elseif ($client['rate'] > 0) { ?>· <?= reportMoney($client['rate']) ?>/h<?= $client['default_rate'] ? ' (default)' : ($client['rate_note'] !== '' ? ' (' . escapeHtml($client['rate_note']) . ')' : '') ?> · <span class="text-body fw-semibold"><?= reportMoney($client['value']) ?></span><?php } ?>
                 </span>
             </div>
             <div class="table-responsive">

@@ -11,9 +11,11 @@
  * the document as the client sees it (agent/contract_document.php).
  * Prepaid hours: what is left of the hours bought and included each month,
  * each block of them, and the tickets drawn from them - Add hours, Draw now,
- * and a ticket put back. The work is in functions/contract.php,
- * functions/contract_signature.php and functions/contract_hours.php; the
- * handlers are agent/post/contract.php.
+ * and a ticket put back. While it is in force, its SLAs, rates and net terms
+ * are the client's; the recurring invoice that bills it starts and stops
+ * with it. The work is in functions/contract.php,
+ * functions/contract_signature.php, functions/contract_hours.php and
+ * functions/contract_billing.php; the handlers are agent/post/contract.php.
  */
 
 // If client_id is in URI then show client Side Bar and client header
@@ -70,6 +72,11 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
     $can_hours = $hours_on && $can_edit && !in_array($status, ['Ended', 'Cancelled'], true);
     $hours_alert = $hours_on ? floatval($contract['contract_hours_alert']) : 0;
     $hours_low = $show_hours && $status === 'Active' && $hours['bought'] > 0 && ($hours['left'] <= 0 || ($hours_alert > 0 && $hours['left'] < $hours_alert));
+    // In force today - its SLAs, rates and net terms are the client's - and the recurring invoice that bills it
+    $in_force = contractInForceOn($contract, $today);
+    $billing_on = contractBillingReady() && intval($config_module_enable_accounting) === 1;
+    $recurring = $billing_on ? contractRecurringRow($contract) : null;
+    $can_link = $billing_on && $can_edit && !$recurring && (contractRecurringShouldRun($contract) || $status === 'Draft');
     $currency = $session_company_currency ?? '';
     $money = function ($amount) use ($currency) {
         return escapeHtml(function_exists('billingMoney') ? billingMoney($amount, $currency) : number_format((float) $amount, 2));
@@ -289,6 +296,44 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                 </div>
             </div>
 
+            <?php if ($billing_on) { ?>
+                <div class="card mb-3" data-contract-recurring>
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Recurring invoice</h3>
+                        <?php if ($recurring) { ?>
+                            <span class="badge rounded-pill text-bg-<?= intval($recurring['recurring_invoice_status']) ? 'success' : 'secondary' ?>"><?= intval($recurring['recurring_invoice_status']) ? 'Running' : 'Paused' ?></span>
+                        <?php } ?>
+                    </div>
+                    <div class="card-body">
+                        <?php if ($recurring) {
+                            $recurring_active = intval($recurring['recurring_invoice_status']) === 1; ?>
+                            <div class="d-flex align-items-baseline justify-content-between gap-2 mb-2">
+                                <a class="fw-semibold" href="recurring_invoice.php?client_id=<?= $client_id ?>&recurring_invoice_id=<?= intval($recurring['recurring_invoice_id']) ?>"><?= escapeHtml(billingNumber('recurring', $recurring)) ?></a>
+                                <span class="fw-semibold text-nowrap"><?= escapeHtml(contractRecurringAmountText($recurring)) ?></span>
+                            </div>
+                            <dl class="itflow-asset-dl mb-2">
+                                <dt>Next</dt>
+                                <dd><?= $recurring_active ? escapeHtml(date('M j, Y', strtotime($recurring['recurring_invoice_next_date']))) : '<span class="text-body-secondary">' . ($status === 'Draft' ? 'Starts when the contract is active' : 'Paused') . '</span>' ?></dd>
+                                <?php if (trim((string) $recurring['recurring_invoice_scope']) !== '') { ?><dt>Scope</dt><dd><?= escapeHtml($recurring['recurring_invoice_scope']) ?></dd><?php } ?>
+                            </dl>
+                            <div class="small text-body-secondary mb-<?= $can_edit ? '3' : '0' ?>">It runs while the contract is active, and is paused once it ends or its cancellation takes effect.</div>
+                            <?php if ($can_edit) { ?>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a class="btn btn-outline-secondary btn-sm" href="recurring_invoice.php?client_id=<?= $client_id ?>&recurring_invoice_id=<?= intval($recurring['recurring_invoice_id']) ?>"><i class="fas fa-eye me-2"></i>Open</a>
+                                    <a class="btn btn-outline-secondary btn-sm confirm-link" href="post.php?unlink_contract_recurring=<?= $contract_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                        data-confirm-title="Unlink <?= escapeHtml(billingNumber('recurring', $recurring)) ?>?" data-confirm-text="It carries on as it is - <?= $recurring_active ? 'running' : 'paused' ?> - but no longer starts and stops with the contract." data-confirm-button="Unlink"><i class="fas fa-unlink me-2"></i>Unlink</a>
+                                </div>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <p class="small text-body-secondary mb-<?= $can_link ? '3' : '0' ?>">Not billed by a recurring invoice. Make one, or link one of the client's - it runs while the contract is active.</p>
+                            <?php if ($can_link) { ?>
+                                <button type="button" class="btn btn-outline-primary btn-sm ajax-modal" data-modal-size="lg" data-modal-url="modals/contract/contract_recurring.php?id=<?= $contract_id ?>"><i class="fas fa-redo-alt me-2"></i>Recurring invoice</button>
+                            <?php } ?>
+                        <?php } ?>
+                    </div>
+                </div>
+            <?php } ?>
+
             <div class="card mb-3">
                 <div class="card-header"><h3 class="card-title mb-0"><i class="fas fa-fw fa-users text-secondary me-2"></i>People</h3></div>
                 <div class="card-body">
@@ -317,7 +362,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                         <div class="col-md-6">
                             <div class="small text-body-secondary text-uppercase fw-semibold mb-1">Rates</div>
                             <div><?= $contract['contract_rate_standard'] !== null ? $money($contract['contract_rate_standard']) . '/hr' : '<span title="The client\'s own rate">' . $money($contract['client_rate']) . '/hr <span class="text-body-secondary small">(client\'s)</span></span>' ?></div>
-                            <div class="small text-body-secondary"><?= $contract['contract_rate_after_hours'] !== null ? $money($contract['contract_rate_after_hours']) . '/hr after hours' : 'No after-hours rate' ?></div>
+                            <div class="small text-body-secondary"<?= $contract['contract_rate_after_hours'] !== null ? ' title="For tickets opened outside the business days and hours in Admin > Settings"' : '' ?>><?= $contract['contract_rate_after_hours'] !== null ? $money($contract['contract_rate_after_hours']) . '/hr after hours' : 'No after-hours rate' ?></div>
                         </div>
                         <div class="col-md-6">
                             <div class="small text-body-secondary text-uppercase fw-semibold mb-1">Net terms</div>
@@ -349,6 +394,10 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                             </tbody>
                         </table>
                     </div>
+                </div>
+                <div class="card-footer small text-body-secondary" data-contract-in-force>
+                    <i class="fas fa-fw <?= $in_force ? 'fa-check-circle text-success' : 'fa-info-circle' ?> me-1"></i>
+                    <?= $in_force ? 'In force now:' : 'While it is in force,' ?> new tickets get these SLAs, time bills at these rates - the after-hours one for tickets opened outside business hours - and new invoices are due on these terms. What it leaves empty, the client's own applies.
                 </div>
             </div>
 

@@ -1203,8 +1203,11 @@ CREATE TABLE `contracts` (
   `contract_monthly_hours` decimal(8,2) NOT NULL DEFAULT 0.00,
   `contract_hours_alert` decimal(8,2) NOT NULL DEFAULT 0.00,
   `contract_hours_alerted_at` datetime DEFAULT NULL,
+  `contract_recurring_invoice_id` int(11) NOT NULL DEFAULT 0,
+  `contract_recurring_stopped_at` datetime DEFAULT NULL,
   PRIMARY KEY (`contract_id`),
   KEY `contract_client_id` (`contract_client_id`),
+  KEY `contract_recurring_invoice_id` (`contract_recurring_invoice_id`),
   CONSTRAINT `contracts_ibfk_1` FOREIGN KEY (`contract_client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

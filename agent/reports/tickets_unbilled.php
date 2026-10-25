@@ -29,8 +29,9 @@ $clients = [];
 foreach ($tickets as $ticket) {
     $id = intval($ticket['ticket_client_id']);
     $clients[$id] = $clients[$id] ?? ['client_id' => $id, 'client' => $ticket['client_name'], 'abbr' => $ticket['client_abbreviation'], 'rate' => $ticket['rate'],
-        'default_rate' => $ticket['default_rate'], 'tickets' => 0, 'seconds' => 0, 'billable_hours' => 0.0, 'value' => 0.0, 'oldest' => 0, 'no_time' => 0];
+        'default_rate' => $ticket['default_rate'], 'rate_source' => $ticket['rate_source'] ?? '', 'rate_note' => $ticket['rate_note'] ?? '', 'rates' => [], 'tickets' => 0, 'seconds' => 0, 'billable_hours' => 0.0, 'value' => 0.0, 'oldest' => 0, 'no_time' => 0];
     $clients[$id]['tickets']++;
+    $clients[$id]['rates'][sprintf('%.2f', $ticket['rate'])] = true;
     $clients[$id]['seconds'] += $ticket['seconds'];
     $clients[$id]['billable_hours'] += $ticket['billable_hours'];
     $clients[$id]['value'] += $ticket['value'];
@@ -46,10 +47,16 @@ $waiting_html = function ($days) {
         . ($days <= 0 ? 'Today' : $days . ' day' . ($days === 1 ? '' : 's')) . '</span>';
 };
 $rate_html = function ($row) {
+    // A client's tickets at more than one rate - a contract's after-hours rate, or work either side of a contract's start
+    if (count($row['rates'] ?? []) > 1) {
+        return '<span class="small" title="Each ticket bills at its own rate">Varies</span>';
+    }
     if ($row['rate'] <= 0) {
         return '<span class="text-warning-emphasis small" title="Set an hourly rate on the client, or a default in Admin > Settings > Invoices">No rate</span>';
     }
-    return reportMoney($row['rate']) . ($row['default_rate'] ? ' <span class="small text-body-tertiary" title="The client has no rate of its own - this is the default hourly rate">default</span>' : '');
+    $source = $row['rate_source'] ?? '';
+    return reportMoney($row['rate']) . ($row['default_rate'] ? ' <span class="small text-body-tertiary" title="The client has no rate of its own - this is the default hourly rate">default</span>'
+        : (in_array($source, ['contract', 'after_hours'], true) ? ' <span class="small text-body-tertiary" title="' . escapeHtml(ucfirst((string) $row['rate_note'])) . '">' . ($source === 'after_hours' ? 'after hours' : 'contract') . '</span>' : ''));
 };
 
 $client_columns = [
@@ -90,6 +97,7 @@ $ticket_columns = [
         return $row['seconds'] <= 0 ? '<span class="text-warning-emphasis" title="No time logged on this ticket">None</span>' : reportHours($row['seconds'], 2);
     }],
     'billable_hours' => ['label' => 'To bill', 'type' => 'decimal', 'decimals' => 2],
+    'rate' => ['label' => 'Rate', 'type' => 'money', 'html' => $rate_html],
     'value' => ['label' => 'Value', 'type' => 'money', 'class' => 'fw-semibold'],
 ];
 foreach ($tickets as &$ticket) {

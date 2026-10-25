@@ -1342,9 +1342,9 @@ function expenseUnbilledMerge(array $clients, $client_id = 0) {
     $added = [];
     foreach (expenseUnbilledByClient($client_id) as $id => $e) {
         if (!isset($clients[$id])) {
-            $client_rate = getFieldById('clients', $id, 'client_rate');
+            $client_rate = contractClientRate($id);
             $clients[$id] = ['client_id' => $id, 'client_name' => $e['client_name'], 'client_abbreviation' => $e['client_abbreviation'],
-                'rate' => billingTimeRate($client_rate), 'default_rate' => floatval($client_rate) <= 0, 'tickets' => [], 'seconds' => 0, 'hours' => 0.0,
+                'rate' => $client_rate['rate'], 'default_rate' => $client_rate['source'] === 'default', 'rate_note' => $client_rate['note'], 'rate_source' => $client_rate['source'], 'rates' => [], 'tickets' => [], 'seconds' => 0, 'hours' => 0.0,
                 'value' => 0.0, 'oldest' => 0, 'no_time' => 0, 'drafts' => []];
             $added[] = intval($id);
         }

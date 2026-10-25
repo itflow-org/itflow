@@ -32,7 +32,9 @@ $ticket_sql = mysqli_query(
 
 $row = mysqli_fetch_assoc($ticket_sql);
 $client_id = intval($row['client_id']);
-$client_rate = floatval($row['client_rate']);
+// The contract in force's rate, else the client's own, else the default
+$client_rate_info = contractClientRate($client_id);
+$client_rate = $client_rate_info['rate'];
 $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $ticket_category = intval($row['ticket_category']);
@@ -180,7 +182,7 @@ ob_start();
                             <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($client_rate, 2, '.', '') ?>" required>
                         </div>
                         <small class="form-text text-muted">
-                            The client's hourly rate is <strong><?= numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></strong>
+                            <?= escapeHtml(ucfirst($client_rate_info['note'])) ?> is <strong><?= numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></strong> an hour
                         </small>
                     </div>
                 </div>

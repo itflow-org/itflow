@@ -178,6 +178,11 @@ if (isset($_GET['delete_recurring_invoice'])) {
     // Its autopay goes with it - the nightly run would otherwise keep a card set up for nothing
     mysqli_query($mysqli,"DELETE FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = $recurring_invoice_id");
 
+    // A contract it billed is no longer linked to it
+    if (contractBillingReady()) {
+        mysqli_query($mysqli, "UPDATE contracts SET contract_recurring_invoice_id = 0, contract_recurring_stopped_at = NULL WHERE contract_recurring_invoice_id = $recurring_invoice_id");
+    }
+
     // The recurring expenses it covered are only our cost again
     mysqli_query($mysqli,"UPDATE recurring_expenses SET recurring_expense_recurring_invoice_id = NULL WHERE recurring_expense_recurring_invoice_id = $recurring_invoice_id");
 
