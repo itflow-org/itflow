@@ -5,9 +5,19 @@ require_once "includes/inc_all_admin.php";
 define('FROM_STARTER_CONTENT', true);
 require_once "post/starter_content_model.php";
 require_once "post/demo_data_model.php";
+require_once "includes/starter_content_pick.php";
 
 $starter_content_packs = starterContentPacks();
-$starter_content_status = starterContentStatus($mysqli);
+
+// Each pack's items not here yet - for Pick which, and how many Add brings
+$starter_content_items = [];
+$starter_content_status = [];
+foreach ($starter_content_packs as $pack => $pack_details) {
+    $starter_content_items[$pack] = starterContentItems($mysqli, $pack);
+    $total = starterContentTotal($pack);
+    $missing = count($starter_content_items[$pack]);
+    $starter_content_status[$pack] = ['total' => $total, 'missing' => $missing, 'present' => $total - $missing];
+}
 
 $demo_data_status = demoDataStatus($mysqli);
 $demo_data_loaded = count($demo_data_status['loaded']);
@@ -42,7 +52,8 @@ foreach ($starter_content_status as $pack_status) {
         <p class="text-muted">
             Adding never overwrites or deletes anything. Anything already present under the same name is
             skipped, so a pack can be added again later to pick up entries you removed by mistake, and
-            adding twice never produces duplicates. Everything added is editable and deletable
+            adding twice never produces duplicates. Pick which, under a pack, lists what it would add - as it will
+            look, with a preview of each template - to add only some of it. Everything added is editable and deletable
             afterwards like any other record. Ticket templates, canned responses, vendor templates, document templates and license
             templates added from an earlier version can be brought up to this one with Update - that one does replace what they hold.
         </p>
@@ -62,8 +73,8 @@ foreach ($starter_content_status as $pack_status) {
                     <?php foreach ($starter_content_packs as $pack => $pack_details) {
                         $pack_status = $starter_content_status[$pack];
                     ?>
-                    <tr>
-                        <td>
+                    <tr data-starter-pick>
+                        <td class="itflow-starter-pack-cell">
                             <strong><i class="fas fa-fw <?= escapeHtml($pack_details['icon']) ?> me-2"></i><?= escapeHtml($pack_details['label']) ?></strong>
                             <br><small class="text-muted"><?= escapeHtml($pack_details['description']) ?></small>
                             <?php
@@ -74,12 +85,13 @@ foreach ($starter_content_status as $pack_status) {
                             ?>
                             <br><small class="text-warning"><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Add <?= escapeHtml($starter_content_packs[$requires]['label']) ?> first, or these come in without them.</small>
                             <?php } ?>
+                            <?= starterPickHtml($pack, $starter_content_items[$pack], "starterAdd_$pack") ?>
                         </td>
                         <td class="text-center"><?= intval($pack_status['total']) ?></td>
                         <td class="text-center"><?= intval($pack_status['present']) ?></td>
                         <td class="text-center">
                             <?php if ($pack_status['missing']) { ?>
-                                <span class="badge bg-warning text-dark p-2"><?= intval($pack_status['missing']) ?></span>
+                                <span class="badge bg-warning text-dark p-2" data-starter-count data-starter-format="short"><?= intval($pack_status['missing']) ?></span>
                             <?php } else { ?>
                                 <span class="text-success"><i class="fas fa-fw fa-check"></i></span>
                             <?php } ?>
@@ -87,9 +99,9 @@ foreach ($starter_content_status as $pack_status) {
                         <td class="text-end">
                             <div class="d-inline-flex flex-wrap justify-content-end gap-2">
                             <?php if ($pack_status['missing']) { ?>
-                            <form action="post.php" method="POST" autocomplete="off">
+                            <form action="post.php" method="POST" autocomplete="off" id="starterAdd_<?= escapeHtml($pack) ?>">
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                                <button type="submit" name="load_starter_content" value="<?= escapeHtml($pack) ?>" class="btn btn-primary btn-sm">
+                                <button type="submit" name="load_starter_content" value="<?= escapeHtml($pack) ?>" class="btn btn-primary btn-sm text-nowrap" data-starter-add>
                                     <i class="fas fa-fw fa-plus me-2"></i>Add
                                 </button>
                             </form>
@@ -209,5 +221,8 @@ foreach ($starter_content_status as $pack_status) {
 
     </div>
 </div>
+
+<?= starterPreviewModalHtml() ?>
+<script src="/js/starter_content.js"></script>
 
 <?php require_once "../includes/footer.php"; ?>

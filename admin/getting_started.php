@@ -188,6 +188,7 @@ define('FROM_GETTING_STARTED', true);
 <script src="/js/app.js"></script>
 <script src="/js/settings.js"></script>
 <script src="/js/getting_started.js"></script>
+<script src="/js/starter_content.js"></script>
 
 </body>
 

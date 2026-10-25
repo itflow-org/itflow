@@ -276,9 +276,10 @@ function starterOnly($pack, array $rows, $only) {
 
 // ------------------------------
 // starterContentItems
-// What loading a pack would add - its items not here yet, each as key, name
-// and group - for picking which. Here is as each loader judges it: the same
-// name (and type, for a category or tag), whatever its case.
+// What loading a pack would add - its items not here yet, each as key, name,
+// group and the library's row - for picking which. Here is as each loader
+// judges it: the same name (and type, for a category or tag), whatever its
+// case.
 // ------------------------------
 function starterContentItems($mysqli, $pack) {
     switch ($pack) {
@@ -316,7 +317,7 @@ function starterContentItems($mysqli, $pack) {
     $items = [];
     foreach (starterContentRows($pack) as $row) {
         if (!$here($row)) {
-            $items[] = ['key' => starterItemKey($pack, $row), 'name' => starterItemName($pack, $row), 'group' => starterItemGroup($pack, $row)];
+            $items[] = ['key' => starterItemKey($pack, $row), 'name' => starterItemName($pack, $row), 'group' => starterItemGroup($pack, $row), 'row' => $row];
         }
     }
     return $items;

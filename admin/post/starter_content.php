@@ -22,12 +22,23 @@ if (isset($_POST['load_starter_content'])) {
         redirect();
     }
 
+    // One pack's Add takes the items ticked under its Pick which
+    // (includes/starter_content_pick.php) - the whole pack when the list wasn't sent
+    $only = null;
+    if ($requested_pack !== 'all' && isset($_POST['picked'][$requested_pack])) {
+        $only = array_map('strval', array_filter((array) ($_POST['items'][$requested_pack] ?? []), 'is_string'));
+        if (!$only) {
+            flashAlert("Nothing is ticked under Pick which - tick what to add", 'info');
+            redirect();
+        }
+    }
+
     // Registry order is load order - categories before products, ticket
     // templates before the project templates that link to them
     $items_added = 0;
     $summary = [];
     foreach ($selected_packs as $pack) {
-        $pack_added = starterContentLoad($mysqli, $pack);
+        $pack_added = starterContentLoad($mysqli, $pack, false, $only);
         if ($pack_added) {
             $items_added = $items_added + $pack_added;
             $summary[] = "$pack_added " . $starter_content_packs[$pack]['label'];
