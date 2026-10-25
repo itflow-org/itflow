@@ -316,6 +316,7 @@ function emailPreviewCatalog() {
             'run' => function ($s) {
                 billingPaymentNotify(billingRow('invoice', $s['paid'], false), 290, 'Online card');
             }],
+    ] + emailPreviewContractCatalog() + [
 
         // ---- Client portal
         'portal_invite' => ['group' => 'Client portal', 'label' => 'Invite', 'to' => 'The contact', 'when' => 'An agent gives a contact portal access and ticks Email them an invite',
@@ -412,6 +413,66 @@ function emailPreviewCatalog() {
         'test' => ['group' => 'Other', 'label' => 'Test email', 'to' => 'Whoever it is sent to', 'when' => 'Send a test in Admin > Mail',
             'run' => function ($s) {
                 emailTestSend('you@example.com', 'system');
+            }],
+    ];
+}
+
+/*
+ * A sample contract for the client - Managed IT Services, its contact Alex
+ * and the sample agent looking after it. $ending: active, a year in and
+ * coming up to its notice date; else a draft starting next week. Its row.
+ */
+function emailPreviewContract(array $s, $ending = false) {
+    global $mysqli;
+    $dates = $ending
+        ? "contract_status = 'Active', contract_start_date = CURDATE() - INTERVAL 11 MONTH + INTERVAL 14 DAY, contract_end_date = CURDATE() + INTERVAL 1 MONTH + INTERVAL 13 DAY"
+        : "contract_status = 'Draft', contract_start_date = CURDATE() + INTERVAL 7 DAY, contract_end_date = CURDATE() + INTERVAL 1 YEAR + INTERVAL 6 DAY";
+    mysqli_query($mysqli, "INSERT INTO contracts SET contract_name = 'Managed IT Services', contract_type = 'managed', $dates, contract_term_months = 12, contract_auto_renew = 1,
+        contract_notice_days = 30, contract_rate_standard = 150.00, contract_net_terms = 30, contract_support_hours = 'Mon-Fri 8am-6pm',
+        contract_details = '<p>We look after every computer, server and network device at [Client], and answer tickets within the response times above.</p>',
+        contract_client_id = " . intval($s['client_id']) . ", contract_contact_id = " . intval($s['alex']) . ", contract_owner_id = " . intval($s['agent']));
+    return contractRow(intval(mysqli_insert_id($mysqli)));
+}
+
+/* The contract emails for the catalog - once the contracts updates have run. */
+function emailPreviewContractCatalog() {
+    if (!contractsReady()) {
+        return [];
+    }
+    $catalog = [
+        // ---- Contracts
+        'contract_reminder' => ['group' => 'Contracts', 'label' => 'Coming up to its notice date', 'to' => 'Whoever looks after the contract', 'when' => 'The nightly run, a month before a contract\'s notice date',
+            'run' => function ($s) {
+                contractRemind(emailPreviewContract($s, true));
+            }],
+    ];
+    if (!contractSignaturesReady()) {
+        return $catalog;
+    }
+    return $catalog + [
+        'contract_sign_request' => ['group' => 'Contracts', 'label' => 'Please sign', 'to' => 'Who it is sent to', 'when' => 'An agent sends a contract to sign',
+            'run' => function ($s) {
+                contractSignatureSend(emailPreviewContract($s), $s['alex_name'], $s['alex_email'], $s['alex'], 'Here is the agreement we went over on Tuesday - let me know if anything needs changing.', $s['agent']);
+            }],
+        'contract_client_signed' => ['group' => 'Contracts', 'label' => 'Signed by the client', 'to' => 'Whoever looks after the contract', 'when' => 'The client signs it, from the email or in the portal',
+            'run' => function ($s) {
+                $row = emailPreviewContract($s);
+                [$round_id] = contractSignatureSend($row, $s['alex_name'], $s['alex_email'], $s['alex'], '', $s['agent']);
+                emailCaptureStop();
+                emailCaptureStart();
+                contractSignatureClientSign(contractSignatureRow($round_id), ['name' => $s['alex_name'], 'title' => 'Practice Manager', 'image' => null], 'portal', $s['alex']);
+            }],
+        'contract_signed_copy' => ['group' => 'Contracts', 'label' => 'The signed copy', 'to' => 'Who signed it, and who it was sent to', 'when' => 'An agent countersigns - the PDF signed by both goes with it',
+            'run' => function ($s) {
+                global $mysqli;
+                $row = emailPreviewContract($s);
+                [$round_id] = contractSignatureSend($row, $s['alex_name'], $s['alex_email'], $s['alex'], '', $s['agent']);
+                emailCaptureStop();
+                emailCaptureStart();
+                mysqli_query($mysqli, "UPDATE contract_signatures SET contract_signature_client_name = '" . escapeSql($s['alex_name']) . "', contract_signature_client_signed_at = NOW(),
+                    contract_signature_client_via = 'link', contract_signature_agent_name = '" . escapeSql($s['agent_name']) . "', contract_signature_agent_signed_at = NOW()
+                    WHERE contract_signature_id = " . intval($round_id));
+                contractSignatureSignedEmail(contractSignatureRow($round_id), false);
             }],
     ];
 }

@@ -45,6 +45,54 @@ if (isset($_GET['accept_quote'], $_GET['url_key']) || isset($_GET['decline_quote
 }
 
 /*
+ * A contract signed from its link (guest_view_contract.php) - the round's id
+ * and key are the only proof, matched exactly. Signed once, and only the
+ * version on the page: a request withdrawn or replaced meanwhile isn't
+ * signed. Who signed is the name given, noted as from the link.
+ */
+if (isset($_POST['sign_contract'])) {
+
+    $round = contractSignaturesReady() ? contractSignatureByKey($_POST['contract_signature_id'] ?? 0, $_POST['key'] ?? '') : null;
+    if (!$round) {
+        http_response_code(404);
+        exit("This contract link isn't working - open it again from the email.");
+    }
+    $back = '/guest/guest_view_contract.php?id=' . intval($round['contract_signature_id']) . '&key=' . rawurlencode((string) $round['contract_signature_url_key']);
+    $state = contractSignatureState($round);
+    if (!in_array($state['key'], ['sent', 'viewed'], true)) {
+        flashAlert($state['key'] === 'withdrawn' ? "This request was withdrawn, so it wasn't signed." : "It has already been signed.", 'error');
+        redirect($back);
+    }
+    if (!hash_equals((string) $round['contract_signature_document_hash'], (string) ($_POST['document_hash'] ?? ''))) {
+        flashAlert("The contract changed while you had it open - read it again before signing.", 'error');
+        redirect($back);
+    }
+    [$f, $error] = contractSignatureFromInput($_POST);
+    if ($error !== '') {
+        flashAlert(escapeHtml($error) . ' It was not signed yet.', 'error');
+        redirect($back);
+    }
+    if (!contractSignatureClientSign($round, $f, 'link')) {
+        flashAlert("It couldn't be signed - it may have just been withdrawn.", 'error');
+        redirect($back);
+    }
+    flashAlert("Signed - thank you. We'll countersign it and email you a copy.");
+    redirect($back);
+
+}
+
+if (isset($_GET['export_contract_pdf'])) {
+
+    $round = contractSignaturesReady() ? contractSignatureByKey($_GET['id'] ?? 0, $_GET['key'] ?? '') : null;
+    if (!$round) {
+        http_response_code(404);
+        exit("This contract link isn't working - open it again from the email.");
+    }
+    billingPdfSend(contractPdf(contractRow(intval($round['contract_id'])), $round), true);
+
+}
+
+/*
  * The guest ticket page's buttons (guest_view_ticket.php): close or reopen a
  * resolved ticket, rate a closed one. Posted, never links - mail scanners and
  * link previews open links, and must not close a ticket. The ticket's link

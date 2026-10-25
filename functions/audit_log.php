@@ -141,7 +141,7 @@ function auditLogActionStyle($action) {
         'Archive' => ['secondary', 'fa-archive'], 'Bulk Archive' => ['secondary', 'fa-archive'], 'Restore' => ['info', 'fa-redo'], 'Bulk Restore' => ['info', 'fa-redo'],
         'Success' => ['success', 'fa-check-circle'], 'Alert' => ['danger', 'fa-bell'], 'Failed' => ['danger', 'fa-times-circle'], 'Failure' => ['danger', 'fa-times-circle'], 'MFA Failed' => ['danger', 'fa-shield-alt'], 'Blocked' => ['danger', 'fa-ban'], 'Denied' => ['danger', 'fa-ban'],
         'View' => ['warning', 'fa-eye'], 'View TOTP' => ['warning', 'fa-eye'], 'View As' => ['warning', 'fa-user-secret'], 'Export' => ['warning', 'fa-download'], 'Download' => ['warning', 'fa-download'],
-        'Share' => ['warning', 'fa-share-alt'], 'Send' => ['primary', 'fa-paper-plane'], 'Email' => ['primary', 'fa-envelope'], 'Payment' => ['success', 'fa-credit-card'], 'Auto Payment' => ['success', 'fa-credit-card'],
+        'Share' => ['warning', 'fa-share-alt'], 'Send' => ['primary', 'fa-paper-plane'], 'Sign' => ['success', 'fa-signature'], 'Withdraw' => ['secondary', 'fa-undo'], 'Email' => ['primary', 'fa-envelope'], 'Payment' => ['success', 'fa-credit-card'], 'Auto Payment' => ['success', 'fa-credit-card'],
         'Error' => ['danger', 'fa-exclamation-triangle'],
         'Activate' => ['success', 'fa-toggle-on'], 'Disable' => ['secondary', 'fa-ban'], 'Cancel' => ['secondary', 'fa-ban'], 'Bulk Cancel' => ['secondary', 'fa-ban'], 'End' => ['secondary', 'fa-stop-circle'],
         'Dismiss' => ['secondary', 'fa-times'], 'Discard' => ['danger', 'fa-trash-alt'], 'Import Rule Delete' => ['danger', 'fa-trash-alt'], 'Undo' => ['secondary', 'fa-undo'], 'Reimbursement Undo' => ['secondary', 'fa-undo'],

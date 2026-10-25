@@ -8585,3 +8585,183 @@ a.itflow-portal-request:focus-visible {
     background-color: var(--itflow-status-bg, var(--bs-secondary));
     color: var(--itflow-status-text, #fff);
 }
+
+/* Contracts as documents (includes/contract_paper.php) - the document from
+   contractDocumentHtml(), which carries classes and no styles of its own, the
+   signature block, and the signing pad (includes/contract_signature_pad.php,
+   js/signature_pad.js). The pad and the signatures are drawn on white in
+   either theme - what is signed goes on paper; in dark mode a drawn
+   signature shown on the page is turned light. */
+.itflow-contract-doc-title {
+    margin: 1.5rem 0 .35rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-wrap: balance;
+}
+.itflow-contract-doc-between {
+    margin-bottom: 1.25rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-contract-doc-parties {
+    width: 100%;
+    margin-bottom: .5rem;
+}
+.itflow-contract-doc-parties td {
+    padding: 0 1.5rem .75rem 0;
+    vertical-align: top;
+}
+.itflow-contract-doc-label {
+    margin-bottom: .2rem;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+.itflow-contract-doc-muted {
+    font-size: .875rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-contract-doc-heading {
+    margin: 1.5rem 0 .5rem;
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--bs-primary-text-emphasis);
+}
+.itflow-contract-doc-table {
+    width: 100%;
+    margin-bottom: .5rem;
+    border-collapse: collapse;
+    font-size: .9rem;
+}
+.itflow-contract-doc-table th,
+.itflow-contract-doc-table td {
+    padding: .45rem .6rem .45rem 0;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+    text-align: left;
+    vertical-align: top;
+}
+.itflow-contract-doc-table thead th {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+.itflow-contract-doc-summary th {
+    width: 26%;
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+}
+.itflow-contract-doc-terms {
+    overflow-wrap: anywhere;
+}
+.itflow-contract-doc-terms img {
+    max-width: 100%;
+    height: auto;
+}
+.itflow-contract-signatures {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 2rem;
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--bs-border-color-translucent);
+    break-inside: avoid;
+}
+.itflow-contract-signature-mark {
+    display: flex;
+    align-items: flex-end;
+    height: 4.5rem;
+    margin-bottom: .35rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+.itflow-contract-signature-mark img {
+    max-width: 100%;
+    max-height: 4.25rem;
+}
+[data-bs-theme="dark"] .itflow-contract-signature-mark img {
+    filter: invert(1) hue-rotate(180deg);
+}
+.itflow-contract-signature-typed,
+.itflow-signature-typed-preview {
+    font-family: "Segoe Script", "Bradley Hand", "Snell Roundhand", "Brush Script MT", cursive;
+    font-size: 1.75rem;
+    line-height: 1.2;
+}
+.itflow-signature-canvas-wrap {
+    position: relative;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background-color: #fff;
+}
+.itflow-signature-canvas {
+    display: block;
+    width: 100%;
+    height: 10rem;
+    cursor: crosshair;
+    touch-action: none;
+}
+.itflow-signature-line {
+    position: absolute;
+    right: 1rem;
+    bottom: 2.25rem;
+    left: 1rem;
+    border-bottom: 1px dashed #adb5bd;
+    pointer-events: none;
+}
+.itflow-signature-hint {
+    position: absolute;
+    bottom: .55rem;
+    left: 1rem;
+    font-size: .8rem;
+    color: #6c757d;
+    pointer-events: none;
+}
+.itflow-signature-hint.is-error {
+    color: #b02a37;
+    font-weight: 600;
+}
+.itflow-signature-typed-preview {
+    display: flex;
+    align-items: center;
+    min-height: 5.5rem;
+    padding: .5rem 1rem;
+    overflow: hidden;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background-color: #fff;
+    color: #1d2433;
+    white-space: nowrap;
+}
+.itflow-signature-typed-preview.is-empty {
+    font-family: inherit;
+    font-size: .875rem;
+    color: #6c757d;
+}
+.itflow-contract-trail {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: .875rem;
+}
+.itflow-contract-trail li {
+    display: flex;
+    gap: .6rem;
+    padding: .3rem 0;
+}
+.itflow-contract-trail li > i {
+    margin-top: .2rem;
+    color: var(--bs-secondary-color);
+}
+@media (max-width: 575.98px) {
+    .itflow-contract-signatures {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .itflow-contract-doc-parties td {
+        display: block;
+        width: 100% !important;
+    }
+}

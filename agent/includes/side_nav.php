@@ -183,7 +183,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/agent/contracts.php" class="nav-link <?php if (in_array(basename($_SERVER["PHP_SELF"]), ['contracts.php', 'contract.php'], true)) { echo "active"; } ?>">
+                        <a href="/agent/contracts.php" class="nav-link <?php if (in_array(basename($_SERVER["PHP_SELF"]), ['contracts.php', 'contract.php', 'contract_document.php'], true)) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-file-contract"></i>
                             <p>
                                 Contracts

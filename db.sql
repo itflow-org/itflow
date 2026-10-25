@@ -1040,6 +1040,48 @@ CREATE TABLE `contacts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `contract_signatures`
+--
+
+DROP TABLE IF EXISTS `contract_signatures`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contract_signatures` (
+  `contract_signature_id` int(11) NOT NULL AUTO_INCREMENT,
+  `contract_signature_contract_id` int(11) NOT NULL,
+  `contract_signature_url_key` varchar(64) NOT NULL DEFAULT '',
+  `contract_signature_document` mediumtext NOT NULL,
+  `contract_signature_document_hash` char(64) NOT NULL DEFAULT '',
+  `contract_signature_contact_id` int(11) NOT NULL DEFAULT 0,
+  `contract_signature_sent_to_name` varchar(200) DEFAULT NULL,
+  `contract_signature_sent_to_email` varchar(255) DEFAULT NULL,
+  `contract_signature_sent_at` datetime DEFAULT NULL,
+  `contract_signature_sent_by` int(11) NOT NULL DEFAULT 0,
+  `contract_signature_viewed_at` datetime DEFAULT NULL,
+  `contract_signature_client_name` varchar(200) DEFAULT NULL,
+  `contract_signature_client_title` varchar(200) DEFAULT NULL,
+  `contract_signature_client_image` mediumtext DEFAULT NULL,
+  `contract_signature_client_signed_at` datetime DEFAULT NULL,
+  `contract_signature_client_via` varchar(20) DEFAULT NULL,
+  `contract_signature_client_contact_id` int(11) NOT NULL DEFAULT 0,
+  `contract_signature_client_ip` varchar(45) DEFAULT NULL,
+  `contract_signature_client_user_agent` varchar(255) DEFAULT NULL,
+  `contract_signature_agent_user_id` int(11) NOT NULL DEFAULT 0,
+  `contract_signature_agent_name` varchar(200) DEFAULT NULL,
+  `contract_signature_agent_title` varchar(200) DEFAULT NULL,
+  `contract_signature_agent_image` mediumtext DEFAULT NULL,
+  `contract_signature_agent_signed_at` datetime DEFAULT NULL,
+  `contract_signature_agent_ip` varchar(45) DEFAULT NULL,
+  `contract_signature_withdrawn_at` datetime DEFAULT NULL,
+  `contract_signature_withdrawn_reason` varchar(255) DEFAULT NULL,
+  `contract_signature_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`contract_signature_id`),
+  KEY `contract_signature_contract_id` (`contract_signature_contract_id`),
+  CONSTRAINT `contract_signatures_ibfk_1` FOREIGN KEY (`contract_signature_contract_id`) REFERENCES `contracts` (`contract_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `contract_templates`
 --
 
@@ -1084,16 +1126,6 @@ CREATE TABLE `contracts` (
   `contract_type` varchar(50) NOT NULL,
   `contract_details` text DEFAULT NULL,
   `contract_client_id` int(11) DEFAULT NULL,
-  `contract_client_name` varchar(255) DEFAULT NULL,
-  `contract_client_address` text DEFAULT NULL,
-  `contract_client_email` varchar(255) DEFAULT NULL,
-  `contract_client_phone` varchar(100) DEFAULT NULL,
-  `contract_contact_name` varchar(255) DEFAULT NULL,
-  `contract_contact_signature` text DEFAULT NULL,
-  `contract_contact_signature_date` datetime DEFAULT NULL,
-  `contract_agent_name` varchar(255) DEFAULT NULL,
-  `contract_agent_signature` text DEFAULT NULL,
-  `contract_agent_signature_date` datetime DEFAULT NULL,
   `contract_rate_standard` decimal(10,2) DEFAULT NULL,
   `contract_rate_after_hours` decimal(10,2) DEFAULT NULL,
   `contract_net_terms` int(11) DEFAULT NULL,

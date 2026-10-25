@@ -860,6 +860,44 @@ if (isset($_POST['portal_quote_answer'])) {
 
 }
 
+if (isset($_POST['portal_sign_contract'])) {
+
+    validateCSRFToken();
+
+    portalContractsGate();
+
+    // Signed as the contact signed in - functions/contract_signature.php, which the emailed link uses too
+    $round = contractSignaturesReady() ? contractSignatureRow(intval($_POST['contract_signature_id'] ?? 0)) : null;
+    $visible = $round && mysqli_num_rows(mysqli_query($mysqli, "SELECT contract_id FROM contracts WHERE contract_id = " . intval($round['contract_id']) . " AND " . portalContractScopeSql()));
+    if (!$visible) {
+        flashAlert("That contract isn't here", 'error');
+        redirect('contracts.php');
+    }
+    $back = 'contract.php?id=' . intval($round['contract_id']);
+    $state = contractSignatureState($round);
+    if (!in_array($state['key'], ['sent', 'viewed'], true) || (string) $round['contract_signature_url_key'] === '') {
+        flashAlert($state['key'] === 'withdrawn' ? "That request was withdrawn, so it wasn't signed" : 'It has already been signed', 'error');
+        redirect($back);
+    }
+    if (!hash_equals((string) $round['contract_signature_document_hash'], (string) ($_POST['document_hash'] ?? ''))) {
+        flashAlert('The contract changed while you had it open - read it again before signing', 'error');
+        redirect($back);
+    }
+    [$f, $error] = contractSignatureFromInput($_POST);
+    if ($error !== '') {
+        flashAlert(escapeHtml($error) . ' It was not signed yet.', 'error');
+        redirect($back);
+    }
+    if (!contractSignatureClientSign($round, $f, 'portal', $session_contact_id)) {
+        flashAlert("It couldn't be signed - it may have just been withdrawn", 'error');
+        redirect($back);
+    }
+    flashAlert("Signed - thank you. We'll countersign <strong>" . escapeHtml($round['contract_name']) . "</strong> and email you a copy.");
+
+    redirect($back);
+
+}
+
 if (isset($_POST['portal_quote_file'])) {
 
     validateCSRFToken();

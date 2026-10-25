@@ -58,7 +58,7 @@ function contractRow($contract_id) {
     if ($contract_id <= 0 || !contractsReady()) {
         return null;
     }
-    return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contracts.*, client_name, client_rate, client_net_terms, contact_name, contact_email, user_name AS owner_name, user_email AS owner_email,
+    return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contracts.*, client_name, client_rate, client_net_terms, client_currency_code, contact_name, contact_title, contact_email, user_name AS owner_name, user_email AS owner_email,
             contract_template_name
         FROM contracts
         LEFT JOIN clients ON contract_client_id = client_id
@@ -192,13 +192,22 @@ function contractStateHtml(array $row) {
 
 /*
  * The list's tabs - key => label, icon and SQL. Due soon is active, with an
- * end date within its notice period and a month before it.
+ * end date within its notice period and a month before it; Signing is out
+ * for signature or waiting to be countersigned (once 3.4.3 has run).
  */
 function contractViews() {
     $soon = "contract_status = 'Active' AND contract_end_date IS NOT NULL AND contract_end_date <= CURDATE() + INTERVAL (contract_notice_days + " . CONTRACT_REMINDER_DAYS . ") DAY";
-    return [
+    $views = [
         'active' => ['label' => 'Active', 'icon' => 'fa-check-circle', 'where' => "contract_status = 'Active'", 'title' => 'In force, or starting soon'],
         'soon' => ['label' => 'Due soon', 'icon' => 'fa-hourglass-end', 'where' => $soon, 'title' => 'Renewing or ending - within a month of their notice date'],
+    ];
+    // Out for signature, or signed by the client and waiting for us - a request not withdrawn and not countersigned (3.4.3 on)
+    if (function_exists('contractSignaturesReady') && contractSignaturesReady()) {
+        $views['signing'] = ['label' => 'Signing', 'icon' => 'fa-file-signature', 'title' => 'Out for signature, or waiting for you to countersign',
+            'where' => "EXISTS (SELECT 1 FROM contract_signatures WHERE contract_signature_contract_id = contract_id AND contract_signature_sent_at IS NOT NULL
+                AND contract_signature_withdrawn_at IS NULL AND contract_signature_agent_signed_at IS NULL AND contract_signature_url_key <> '')"];
+    }
+    return $views + [
         'draft' => ['label' => 'Drafts', 'icon' => 'fa-pencil-alt', 'where' => "contract_status = 'Draft'", 'title' => 'Not in force yet'],
         'ended' => ['label' => 'Ended', 'icon' => 'fa-flag-checkered', 'where' => "contract_status IN ('Ended', 'Cancelled')", 'title' => 'Ended or cancelled'],
         'all' => ['label' => 'All', 'icon' => '', 'where' => '1 = 1'],

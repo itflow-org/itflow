@@ -196,6 +196,9 @@ function portalNav() {
         }
         $children[] = ['label' => 'Quotes', 'icon' => 'fa-comment-dollar', 'href' => '/client/quotes.php', 'pages' => ['quotes.php', 'quote.php']];
         $children[] = ['label' => 'Recurring invoices', 'icon' => 'fa-redo-alt', 'href' => '/client/recurring_invoices.php', 'pages' => ['recurring_invoices.php', 'recurring_invoice.php']];
+        if (contractsReady() && intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM contracts WHERE " . portalContractScopeSql()))[0] ?? 0)) {
+            $children[] = ['label' => 'Contracts', 'icon' => 'fa-file-contract', 'href' => '/client/contracts.php', 'pages' => ['contracts.php', 'contract.php']];
+        }
         $children[] = ['label' => 'Payments', 'icon' => 'fa-receipt', 'href' => '/client/payments.php', 'pages' => ['payments.php', 'receipt.php']];
         $children[] = ['label' => 'Statement', 'icon' => 'fa-file-alt', 'href' => '/client/statement.php', 'pages' => ['statement.php']];
         if ($cards) {
@@ -424,6 +427,82 @@ function portalBillingViewed($type, array $row) {
 /** The ask-us link for a document - a new ticket with its subject filled in. */
 function portalAskUrl($subject) {
     return 'ticket_add.php?' . http_build_query(['subject' => $subject]);
+}
+
+/*
+ * ---------- Contracts ----------
+ *
+ * The client's agreements with us, for primary and billing contacts: the
+ * ones waiting for their signature, the ones in force and the rest - never a
+ * draft that hasn't been sent to sign. Signed here as from the emailed link
+ * (functions/contract_signature.php), as the contact signed in.
+ */
+
+/** Contract pages and handlers: billing's gate, and the contracts update run. */
+function portalContractsGate() {
+    portalBillingGate();
+    if (!contractsReady()) {
+        redirect('/client/index.php');
+    }
+}
+
+/** SQL: a contract sent to sign and not withdrawn - out for signature, or signed (3.4.3 on). */
+function portalContractSentSql($client_signed = null) {
+    if (!contractSignaturesReady()) {
+        return '0';
+    }
+    return "EXISTS (SELECT 1 FROM contract_signatures WHERE contract_signature_contract_id = contract_id AND contract_signature_url_key <> ''
+        AND contract_signature_sent_at IS NOT NULL AND contract_signature_withdrawn_at IS NULL"
+        . ($client_signed === false ? ' AND contract_signature_client_signed_at IS NULL' : '') . ")";
+}
+
+/** SQL: the session client's contracts the portal shows - not drafts, unless sent to sign. */
+function portalContractScopeSql() {
+    global $session_client_id;
+    return "contract_client_id = " . intval($session_client_id) . " AND contract_archived_at IS NULL AND (contract_status <> 'Draft' OR " . portalContractSentSql() . ")";
+}
+
+/** SQL: contracts waiting for the client's signature. */
+function portalContractWaitingSql() {
+    return portalContractSentSql(false);
+}
+
+/*
+ * The round of signing a contract shows in the portal - the latest when it
+ * is out for signature or waiting for us, else the latest signed by both -
+ * or null, for the contract as it is today.
+ */
+function portalContractRound($contract_id) {
+    $rounds = contractSignatureRounds($contract_id);
+    if ($rounds && contractSignaturePending($rounds[0]) && !empty($rounds[0]['contract_signature_url_key'])) {
+        return $rounds[0];
+    }
+    return contractSignatureSigned($rounds);
+}
+
+/** Where a contract stands for the client - with a label, icon and class. $round from portalContractRound(). */
+function portalContractState(array $row, $round = null) {
+    $signing = contractSignatureState($round);
+    if ($signing && in_array($signing['key'], ['sent', 'viewed'], true)) {
+        return ['key' => 'waiting', 'label' => 'Waiting for your signature', 'icon' => 'fa-file-signature', 'class' => 'itflow-portal-state-you'];
+    }
+    if ($signing && $signing['key'] === 'countersign') {
+        return ['key' => 'countersign', 'label' => 'Signed - with us to countersign', 'icon' => 'fa-pen-nib', 'class' => 'itflow-portal-state-progress'];
+    }
+    $state = contractState($row);
+    switch ($state['key']) {
+        case 'draft':
+            return ['key' => 'draft', 'label' => 'Being prepared', 'icon' => 'fa-pencil-alt', 'class' => 'itflow-portal-state-hold'];
+        case 'upcoming':
+            return ['key' => 'upcoming', 'label' => $state['when'], 'icon' => 'fa-hourglass-start', 'class' => 'itflow-portal-state-new'];
+        case 'ending':
+            return ['key' => 'ending', 'label' => $state['when'], 'icon' => 'fa-hourglass-end', 'class' => 'itflow-portal-state-hold'];
+        case 'ended':
+            return ['key' => 'ended', 'label' => 'Ended', 'icon' => 'fa-flag-checkered', 'class' => 'itflow-portal-state-closed'];
+        case 'cancelled':
+            return ['key' => 'cancelled', 'label' => 'Cancelled', 'icon' => 'fa-ban', 'class' => 'itflow-portal-state-closed'];
+    }
+    return ['key' => 'active', 'label' => 'In force', 'icon' => 'fa-check-circle', 'class' => 'itflow-portal-state-resolved'];
 }
 
 /*

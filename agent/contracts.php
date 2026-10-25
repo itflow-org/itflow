@@ -5,8 +5,10 @@
  * the top, how many are in force, how many end soon without renewing, how
  * many renew soon (a chance to review them with the client) and the drafts.
  * Tabs: Active (the default), Due soon (within a month of their notice
- * date), Drafts, Ended (ended or cancelled) and All. The work is in
- * functions/contract.php; the handlers are agent/post/contract.php.
+ * date), Signing (out for signature, or to countersign), Drafts, Ended
+ * (ended or cancelled) and All. Each row says where its signing stands.
+ * The work is in functions/contract.php; the handlers are
+ * agent/post/contract.php.
  */
 
 // Default Column Sortby/Order Filter
@@ -70,6 +72,18 @@ if (contractsReady()) {
     $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     while ($row = mysqli_fetch_assoc($sql)) {
         $contracts[] = $row;
+    }
+
+    // Where each one's latest signing request stands
+    $signing = [];
+    if ($contracts && contractSignaturesReady()) {
+        $ids = implode(',', array_map(function ($row) { return intval($row['contract_id']); }, $contracts));
+        $sql = mysqli_query($mysqli, "SELECT contract_signature_id, contract_signature_contract_id, contract_signature_url_key, contract_signature_sent_at, contract_signature_viewed_at, contract_signature_client_name,
+                contract_signature_client_signed_at, contract_signature_agent_signed_at, contract_signature_withdrawn_at
+            FROM contract_signatures WHERE contract_signature_id IN (SELECT MAX(contract_signature_id) FROM contract_signatures WHERE contract_signature_contract_id IN ($ids) GROUP BY contract_signature_contract_id)");
+        while ($round = mysqli_fetch_assoc($sql)) {
+            $signing[intval($round['contract_signature_contract_id'])] = contractSignatureState($round);
+        }
     }
 
     $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', array_map(function ($v) {
@@ -221,7 +235,14 @@ $csrf = $_SESSION['csrf_token'];
                             <span class="itflow-asset-icon itflow-asset-tone-other d-none d-sm-inline-flex" aria-hidden="true" title="<?= escapeHtml($type['label']) ?>"><i class="fas fa-fw <?= $type['icon'] ?>"></i></span>
                             <div class="min-w-0">
                                 <a class="fw-semibold" href="<?= $row_url ?>"><?= escapeHtml($row['contract_name']) ?></a>
-                                <div class="small text-body-secondary"><?= escapeHtml(contractTypeLabel($row['contract_type'])) ?></div>
+                                <div class="small text-body-secondary"><?= escapeHtml(contractTypeLabel($row['contract_type'])) ?>
+                                    <?php $sign = $signing[$contract_id] ?? null;
+                                    if ($sign && in_array($sign['key'], ['sent', 'viewed', 'countersign'], true)) { ?>
+                                        · <span class="text-<?= $sign['key'] === 'countersign' ? 'warning' : 'primary' ?>-emphasis" title="<?= escapeHtml($sign['when']) ?>"><i class="fas fa-fw <?= $sign['icon'] ?>"></i><?= escapeHtml($sign['label']) ?></span>
+                                    <?php } elseif ($sign && $sign['key'] === 'signed') { ?>
+                                        · <span class="text-success-emphasis" title="<?= escapeHtml($sign['when']) ?>"><i class="fas fa-fw fa-file-signature"></i>Signed</span>
+                                    <?php } ?>
+                                </div>
                             </div>
                         </div>
                     </td>

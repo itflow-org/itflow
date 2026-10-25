@@ -292,6 +292,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
 
         <div class="tab-pane fade" id="<?= $tab ?>Terms" role="tabpanel">
             <textarea class="form-control tinymce" name="details" rows="12" aria-label="Terms" data-contract-field="details"><?= escapeHtml(documentHtmlPurify((string) $c_value('details'))) ?></textarea>
+            <?php require $_SERVER['DOCUMENT_ROOT'] . '/includes/contract_placeholders.php'; ?>
         </div>
 
         <div class="tab-pane fade" id="<?= $tab ?>Notes" role="tabpanel">

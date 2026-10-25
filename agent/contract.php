@@ -5,8 +5,12 @@
  * or ends (with the notice date), what it covers (support hours, an SLA for
  * each ticket priority, rates and net terms - the client's own where the
  * contract sets none), its terms, the internal notes, and its history from
- * the audit log. Make active, Renew, Cancel and Edit from the top. The work
- * is in functions/contract.php; the handlers are agent/post/contract.php.
+ * the audit log. Make active, Renew, Cancel and Edit from the top. Signing:
+ * send it to the client to sign, where each request stands - sent, opened,
+ * signed, countersigned - the link to copy, the copies signed before, and
+ * the document as the client sees it (agent/contract_document.php). The work
+ * is in functions/contract.php and functions/contract_signature.php; the
+ * handlers are agent/post/contract.php.
  */
 
 // If client_id is in URI then show client Side Bar and client header
@@ -46,6 +50,14 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
         return intval($contract["contract_sla_{$part}_id"]);
     }, CONTRACT_SLA_PRIORITIES));
     $history = auditLogHistory('Contract', $contract_id);
+    // Signing - the rounds, newest first, the latest's state, and the copy signed by both
+    $signing = contractSignaturesReady();
+    $rounds = $signing ? contractSignatureRounds($contract_id) : [];
+    $latest = $rounds[0] ?? null;
+    $latest_state = contractSignatureState($latest);
+    $signed_round = contractSignatureSigned($rounds);
+    $outdated = $signed_round && (!$latest_state || in_array($latest_state['key'], ['signed', 'withdrawn'], true)) && contractSignatureOutdated($contract, $signed_round);
+    $can_send = $signing && $can_edit && !in_array($status, ['Ended', 'Cancelled'], true);
     $currency = $session_company_currency ?? '';
     $money = function ($amount) use ($currency) {
         return escapeHtml(function_exists('billingMoney') ? billingMoney($amount, $currency) : number_format((float) $amount, 2));
@@ -94,8 +106,13 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
             </div>
             <?php if ($can_edit) { ?>
                 <div class="d-flex flex-wrap gap-2 d-print-none">
+                    <?php if ($latest_state && $latest_state['key'] === 'countersign') { ?>
+                        <button type="button" class="btn btn-success ajax-modal" data-modal-url="modals/contract/contract_countersign.php?id=<?= intval($latest['contract_signature_id']) ?>"><i class="fas fa-pen-nib me-2"></i>Countersign</button>
+                    <?php } elseif ($can_send && $status === 'Draft' && (!$latest_state || !contractSignaturePending($latest))) { ?>
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contract/contract_send.php?id=<?= $contract_id ?>"><i class="fas fa-file-signature me-2"></i>Send to sign</button>
+                    <?php } ?>
                     <?php if ($status === 'Draft') { ?>
-                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contract/contract_activate.php?id=<?= $contract_id ?>"><i class="fas fa-check me-2"></i>Make active</button>
+                        <button type="button" class="btn btn-<?= $can_send ? 'outline-primary' : 'primary' ?> ajax-modal" data-modal-url="modals/contract/contract_activate.php?id=<?= $contract_id ?>"><i class="fas fa-check me-2"></i>Make active</button>
                     <?php } elseif ($contract['contract_end_date']) { ?>
                         <button type="button" class="btn btn-outline-primary ajax-modal" data-modal-url="modals/contract/contract_renew.php?id=<?= $contract_id ?>"><i class="fas fa-sync-alt me-2"></i>Renew</button>
                     <?php } ?>
@@ -103,6 +120,14 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                     <div class="dropdown dropstart">
                         <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                         <div class="dropdown-menu">
+                            <?php if ($signing) { ?>
+                                <a class="dropdown-item" href="contract_document.php?client_id=<?= $client_id ?>&contract_id=<?= $contract_id ?>"><i class="fas fa-fw fa-file-alt text-secondary me-2"></i>Document</a>
+                                <a class="dropdown-item" href="post.php?export_contract_pdf=<?= $contract_id ?>"><i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Download PDF</a>
+                                <?php if ($can_send && $status !== 'Draft') { ?>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contract/contract_send.php?id=<?= $contract_id ?>"><i class="fas fa-fw fa-file-signature text-secondary me-2"></i>Send to sign</a>
+                                <?php } ?>
+                                <div class="dropdown-divider"></div>
+                            <?php } ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/contract/contract_add.php?client_id=<?= $client_id ?>&copy=<?= $contract_id ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
                             <?php if ($status === 'Active') { ?>
                                 <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/contract/contract_cancel.php?id=<?= $contract_id ?>"><i class="fas fa-fw fa-ban me-2"></i>Cancel</a>
@@ -152,6 +177,80 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
 
     <div class="row g-3">
         <div class="col-xl-4 col-lg-5">
+
+            <?php if ($signing) { ?>
+                <div class="card mb-3" data-contract-signing>
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-file-signature text-secondary me-2"></i>Signing</h3>
+                        <?php if ($latest_state) { ?>
+                            <span class="badge rounded-pill text-bg-<?= $latest_state['tone'] ?>"><i class="fas fa-fw <?= $latest_state['icon'] ?> me-1"></i><?= escapeHtml($latest_state['label']) ?></span>
+                        <?php } ?>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!$latest) { ?>
+                            <p class="small text-body-secondary mb-<?= $can_send ? '3' : '0' ?>">Not sent to the client to sign yet. They sign from a link in an email, or in the client portal; you countersign after.</p>
+                            <?php if ($can_send) { ?>
+                                <button type="button" class="btn btn-outline-primary btn-sm ajax-modal" data-modal-url="modals/contract/contract_send.php?id=<?= $contract_id ?>"><i class="fas fa-file-signature me-2"></i>Send to sign</button>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <ul class="itflow-contract-trail mb-3">
+                                <?php foreach (contractSignatureTrail($latest) as [$when, $what, $detail]) {
+                                    $icon = strpos($what, 'Sent') === 0 ? 'fa-paper-plane' : (strpos($what, 'Opened') === 0 ? 'fa-envelope-open' : (strpos($what, 'Withdrawn') === 0 ? 'fa-undo' : 'fa-signature')); ?>
+                                    <li><i class="fas fa-fw <?= $icon ?>"></i><span><?= escapeHtml($what) ?><span class="d-block small text-body-secondary"><?= escapeHtml(implode(' · ', array_filter([$when, $detail]))) ?></span></span></li>
+                                <?php } ?>
+                            </ul>
+                            <?php if ($latest_state['key'] === 'sent' || $latest_state['key'] === 'viewed') { ?>
+                                <label class="form-label small text-body-secondary mb-1">Signing link</label>
+                                <div class="input-group input-group-sm mb-3">
+                                    <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
+                                    <input type="text" class="form-control" name="signing_link" value="<?= escapeHtml(contractSignatureUrl($latest)) ?>" readonly aria-label="Signing link">
+                                    <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-target="input[name=signing_link]" title="Copy the link"><i class="far fa-copy"></i></button>
+                                </div>
+                            <?php } ?>
+                            <?php if ($outdated) { ?>
+                                <div class="alert alert-warning small py-2" data-contract-outdated><i class="fas fa-fw fa-exclamation-triangle me-1"></i>The contract has changed since it was signed. Send it to sign again for the new version.</div>
+                            <?php } ?>
+                            <div class="d-flex flex-wrap gap-2">
+                                <?php if ($can_edit && $latest_state['key'] === 'countersign') { ?>
+                                    <button type="button" class="btn btn-success btn-sm ajax-modal" data-modal-url="modals/contract/contract_countersign.php?id=<?= intval($latest['contract_signature_id']) ?>"><i class="fas fa-pen-nib me-2"></i>Countersign</button>
+                                <?php } ?>
+                                <a class="btn btn-outline-secondary btn-sm" href="contract_document.php?client_id=<?= $client_id ?>&contract_id=<?= $contract_id ?>&round=<?= intval($latest['contract_signature_id']) ?>"><i class="fas fa-eye me-2"></i><?= $latest_state['key'] === 'signed' ? 'Signed copy' : 'Copy sent' ?></a>
+                                <a class="btn btn-outline-secondary btn-sm" href="post.php?export_contract_pdf=<?= $contract_id ?>&round=<?= intval($latest['contract_signature_id']) ?>" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
+                                <?php if ($can_edit && contractSignaturePending($latest)) { ?>
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" title="More"><i class="fas fa-fw fa-ellipsis-h"></i></button>
+                                        <div class="dropdown-menu">
+                                            <?php if ($latest_state['key'] !== 'countersign') { ?>
+                                                <a class="dropdown-item confirm-link" href="post.php?resend_contract_signature=<?= intval($latest['contract_signature_id']) ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                    data-confirm-title="Send the link again?" data-confirm-text="To <?= escapeHtml($latest['contract_signature_sent_to_name'] . ' at ' . $latest['contract_signature_sent_to_email']) ?>." data-confirm-button="Send"><i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send the link again</a>
+                                            <?php } ?>
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?withdraw_contract_signature=<?= intval($latest['contract_signature_id']) ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                data-confirm-title="Withdraw the request?" data-confirm-text="Its link stops working for signing<?= $latest_state['key'] === 'countersign' ? ' - the signature already on it is set aside' : '' ?>." data-confirm-button="Withdraw"><i class="fas fa-fw fa-undo me-2"></i>Withdraw</a>
+                                        </div>
+                                    </div>
+                                <?php } ?>
+                                <?php if ($can_send && !contractSignaturePending($latest) && $status !== 'Draft') { ?>
+                                    <button type="button" class="btn btn-outline-primary btn-sm ajax-modal" data-modal-url="modals/contract/contract_send.php?id=<?= $contract_id ?>"><i class="fas fa-file-signature me-2"></i>Send to sign</button>
+                                <?php } ?>
+                            </div>
+                            <?php if (count($rounds) > 1) { ?>
+                                <details class="mt-3 small">
+                                    <summary class="text-body-secondary">Earlier requests (<?= count($rounds) - 1 ?>)</summary>
+                                    <ul class="list-unstyled mt-2 mb-0">
+                                        <?php foreach (array_slice($rounds, 1) as $earlier) {
+                                            $earlier_state = contractSignatureState($earlier); ?>
+                                            <li class="d-flex align-items-center gap-2 py-1">
+                                                <span class="badge rounded-pill text-bg-<?= $earlier_state['tone'] ?>"><?= escapeHtml($earlier_state['label']) ?></span>
+                                                <a href="contract_document.php?client_id=<?= $client_id ?>&contract_id=<?= $contract_id ?>&round=<?= intval($earlier['contract_signature_id']) ?>"><?= escapeHtml(!empty($earlier['contract_signature_sent_at']) ? 'Sent ' . date('M j, Y', strtotime($earlier['contract_signature_sent_at'])) . ' to ' . $earlier['contract_signature_sent_to_name'] : 'Recorded ' . date('M j, Y', strtotime($earlier['contract_signature_created_at']))) ?></a>
+                                            </li>
+                                        <?php } ?>
+                                    </ul>
+                                </details>
+                            <?php } ?>
+                        <?php } ?>
+                    </div>
+                </div>
+            <?php } ?>
 
             <div class="card mb-3">
                 <div class="card-header"><h3 class="card-title mb-0"><i class="fas fa-fw fa-calendar-alt text-secondary me-2"></i>Term</h3></div>

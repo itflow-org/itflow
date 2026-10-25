@@ -2,7 +2,8 @@
 /*
  * Client Portal
  * Home - what needs this contact: tickets waiting on their reply or for them
- * to confirm, approvals, invoices past due, quotes waiting for an answer;
+ * to confirm, approvals, invoices past due, quotes waiting for an answer,
+ * contracts waiting for a signature;
  * their open tickets, the balance, the request forms they can use,
  * renewals coming up and the devices they use.
  *
@@ -100,6 +101,20 @@ if ($can_billing) {
             'title' => 'Quote ' . $row['quote_prefix'] . $row['quote_number'] . ' is waiting for your answer',
             'line' => trim($row['quote_scope'] . ' · ' . billingMoney($row['quote_amount'], $row['quote_currency_code']), ' ·') . ' · good until ' . date('M j', strtotime($row['quote_expire'])),
         ];
+    }
+
+    // Contracts waiting for their signature
+    if (contractsReady() && contractSignaturesReady()) {
+        $sql = mysqli_query($mysqli, "SELECT contract_id, contract_name, contract_type FROM contracts WHERE " . portalContractScopeSql() . " AND " . portalContractWaitingSql() . " ORDER BY contract_name ASC LIMIT 4");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $needs_you[] = [
+                'href' => 'contract.php?id=' . intval($row['contract_id']),
+                'icon' => 'fa-file-signature',
+                'tone' => '',
+                'title' => $row['contract_name'] . ' is waiting for your signature',
+                'line' => contractTypeLabel($row['contract_type']) . ' contract - read it and sign it here',
+            ];
+        }
     }
 }
 $pay_href = $can_billing && billingStripeProvider() ? 'unpaid_invoices.php' : 'invoices.php';

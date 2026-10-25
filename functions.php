@@ -79,6 +79,7 @@ require_once __DIR__ . '/functions/share.php';
 require_once __DIR__ . '/functions/billing.php';
 require_once __DIR__ . '/functions/payment_method.php';
 require_once __DIR__ . '/functions/contract.php';
+require_once __DIR__ . '/functions/contract_signature.php';
 require_once __DIR__ . '/functions/products.php';
 require_once __DIR__ . '/functions/billing_email.php';
 require_once __DIR__ . '/functions/billing_pay.php';
