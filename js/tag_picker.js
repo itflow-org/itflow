@@ -310,7 +310,8 @@
             box.appendChild(make('i', some ? 'fas fa-minus' : 'fas fa-check'));
             node.appendChild(box);
 
-            var badge = make('span', 'itflow-select-badge');
+            // The icon on a wash of the tag's colour, as its pill looks
+            var badge = make('span', 'itflow-select-badge is-soft');
             badge.style.setProperty('--itflow-select-color', tag.color || 'var(--bs-secondary)');
             badge.appendChild(make('i', 'fas fa-' + tag.icon));
             badge.setAttribute('aria-hidden', 'true');

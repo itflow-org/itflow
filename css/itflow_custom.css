@@ -1389,6 +1389,14 @@ select.select2[multiple]:not(.itflow-select-native) {
     color: #fff;
     background-color: var(--itflow-select-color, var(--bs-secondary));
 }
+/* A tag's - its icon in its colour on a wash of it, as its pill looks (tagOptionLook()) */
+.itflow-select-badge.is-soft {
+    color: var(--itflow-select-color, var(--bs-secondary));
+    color: color-mix(in oklab, var(--itflow-select-color, var(--bs-secondary)) var(--itflow-tag-ink, 75%), var(--bs-emphasis-color));
+    background-color: var(--bs-tertiary-bg);
+    background-color: color-mix(in srgb, var(--itflow-select-color, var(--bs-secondary)) 14%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--itflow-select-color, var(--bs-secondary)) 40%, var(--bs-border-color));
+}
 .itflow-select-icon {
     display: inline-flex;
     flex: 0 0 auto;
@@ -2204,8 +2212,12 @@ html {
     height: 1.5rem;
     border-radius: 50%;
     font-size: .7rem;
-    color: var(--itflow-tag-text, #fff);
-    background-color: var(--itflow-tag-color, var(--bs-secondary));
+    /* As a tag's pill - its icon in its colour on a wash of it */
+    color: var(--itflow-tag-color, var(--bs-secondary));
+    color: color-mix(in oklab, var(--itflow-tag-color, var(--bs-secondary)) var(--itflow-tag-ink, 75%), var(--bs-emphasis-color));
+    background-color: var(--bs-tertiary-bg);
+    background-color: color-mix(in srgb, var(--itflow-tag-color, var(--bs-secondary)) 14%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--itflow-tag-color, var(--bs-secondary)) 40%, var(--bs-border-color));
 }
 .itflow-search-item-title.has-tags {
     display: flex;
@@ -2927,8 +2939,8 @@ a.itflow-dash-rail-item:focus-visible {
     font-weight: 600;
     letter-spacing: .02em;
 }
-/* Tags - functions/tags.php tagPills(), on every list and detail page that has
-   them. A pill opens the list filtered to that tag; the dashed "+" at the end
+/* Tags - functions/tags.php tagPills() and tagPill(), on every list and detail
+   page that has them, and global search. A pill opens the list filtered to that tag; the dashed "+" at the end
    opens the tag picker (js/tag_picker.js). The group sits above stretched-link
    row and cell links so the pills stay clickable on top of them. */
 .itflow-tags {
@@ -2941,26 +2953,51 @@ a.itflow-dash-rail-item:focus-visible {
     max-width: 100%;
     vertical-align: middle;
 }
+/*
+ * A tag's colour (--itflow-tag-color, tagColor()) is its accent, not its fill:
+ * a faint wash of it, a hairline of it and its icon in it, with the name in
+ * the page's own text colour - so a row of tags reads as labels beside the
+ * record rather than the loudest thing on the page, in light and dark alike.
+ * The icon is the colour taken part of the way to the text colour - further
+ * in dark, where the darkest tags would otherwise sink - so a pale one still
+ * shows on white and a dark one on dark, and the hairline starts from the
+ * page's own border colour so even a near-black tag has an edge. Where
+ * color-mix() isn't known, the plain lines before each give a neutral pill.
+ */
 .itflow-tag {
+    --itflow-tag-tint: var(--itflow-tag-color, var(--bs-secondary));
+    --itflow-tag-ink: 75%;
     display: inline-flex;
     align-items: center;
-    gap: .2rem;
-    padding: .05rem .45rem;
-    border: 1px solid transparent;
+    gap: .3rem;
+    padding: .0625rem .5rem .0625rem .4rem;
+    border: 1px solid var(--bs-border-color);
+    border-color: color-mix(in srgb, var(--itflow-tag-tint) 40%, var(--bs-border-color));
     border-radius: 1rem;
     font-size: .75rem;
-    font-weight: normal;
+    font-weight: 500;
     line-height: 1.4;
-    /* Dark or white text, whichever reads on the tag's colour (tagTextColor()) */
-    color: var(--itflow-tag-text, #fff);
-    background-color: var(--itflow-tag-color, var(--bs-secondary));
+    color: var(--bs-body-color);
+    background-color: var(--bs-tertiary-bg);
+    background-color: color-mix(in srgb, var(--itflow-tag-tint) 10%, transparent);
     text-decoration: none;
     white-space: nowrap;
+    transition: background-color .15s, border-color .15s;
 }
-.itflow-tag:hover,
-.itflow-tag:focus-visible {
-    color: var(--itflow-tag-text, #fff);
-    filter: brightness(1.1);
+.itflow-tag > i {
+    color: var(--itflow-tag-tint);
+    color: color-mix(in oklab, var(--itflow-tag-tint) var(--itflow-tag-ink), var(--bs-emphasis-color));
+}
+[data-bs-theme="dark"] .itflow-tag,
+[data-bs-theme="dark"] .itflow-search-tag-icon,
+[data-bs-theme="dark"] .itflow-select-badge.is-soft {
+    --itflow-tag-ink: 55%;
+}
+a.itflow-tag:hover,
+a.itflow-tag:focus-visible {
+    color: var(--bs-emphasis-color);
+    border-color: color-mix(in srgb, var(--itflow-tag-tint) 65%, var(--bs-border-color));
+    background-color: color-mix(in srgb, var(--itflow-tag-tint) 18%, transparent);
 }
 .itflow-tag-add {
     color: var(--bs-secondary-color);
@@ -2969,12 +3006,15 @@ a.itflow-dash-rail-item:focus-visible {
     border-style: dashed;
     cursor: pointer;
 }
+.itflow-tag-add > i {
+    color: inherit;
+}
 .itflow-tag-add:hover,
 .itflow-tag-add:focus-visible,
 .itflow-tag-add[aria-expanded="true"] {
     color: var(--itflow-accent, var(--bs-primary));
     border-color: currentColor;
-    filter: none;
+    background-color: transparent;
 }
 /* The picker - the select picker's panel, plus the bulk note and the dash for
    a tag only some of the selected records have */

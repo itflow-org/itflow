@@ -387,7 +387,7 @@ $total_leads = intval($row['leads']);
                             while ($row = mysqli_fetch_assoc($sql_tags_filter)) {
                                 $filter_tag_id = intval($row['tag_id']);
                                 $filter_tag_name = escapeHtml($row['tag_name']); ?>
-                                <option value="<?= $filter_tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($filter_tag_id, array_map('intval', $_GET['tags']), true)) { echo 'selected'; } ?><?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= $filter_tag_name ?></option>
+                                <option value="<?= $filter_tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($filter_tag_id, array_map('intval', $_GET['tags']), true)) { echo 'selected'; } ?><?= tagOptionLook($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= $filter_tag_name ?></option>
                             <?php } ?>
                         </select>
                     </div>

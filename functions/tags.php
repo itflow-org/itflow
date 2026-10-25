@@ -734,12 +734,21 @@ function tagOptionsHtml($entity, array $selected = []) {
     return $html;
 }
 
+/*
+ * How a tag leads its <option> in a picker (js/itflow_select.js) - its icon on
+ * a soft wash of its colour, as its pill looks, rather than on the colour
+ * itself as a category's or status's does.
+ */
+function tagOptionLook($color, $icon) {
+    return selectOptionColor(tagColor($color), tagIcon($icon)) . selectOptionData(['soft' => '1']);
+}
+
 /* One tag as an <option> for a Tags field or filter - its colour, icon and description, and (archived). */
 function tagOptionHtml(array $row, array $selected = []) {
     $id = intval($row['tag_id']);
     $about = trim((string) ($row['tag_description'] ?? ''));
     return '<option value="' . $id . '"' . (in_array($id, $selected, true) ? ' selected' : '')
-        . selectOptionColor(tagColor($row['tag_color']), tagIcon($row['tag_icon']))
+        . tagOptionLook($row['tag_color'], $row['tag_icon'])
         . ($about !== '' ? ' data-description="' . escapeHtml($about) . '"' : '') . '>'
         . escapeHtml($row['tag_name']) . (!empty($row['tag_archived_at']) ? ' (archived)' : '') . '</option>';
 }

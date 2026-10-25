@@ -386,7 +386,7 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
                         ");
                         while ($row = mysqli_fetch_assoc($sql_tags_filter)) {
                             $tag_id = intval($row['tag_id']); ?>
-                            <option value="<?= $tag_id ?>" <?php if (isset($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?><?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= escapeHtml($row['tag_name']) ?></option>
+                            <option value="<?= $tag_id ?>" <?php if (isset($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?><?= tagOptionLook($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= escapeHtml($row['tag_name']) ?></option>
                         <?php } ?>
                     </select>
                 </div>

@@ -38,7 +38,9 @@
  *                              data-soft="1" puts it on the soft shade of
  *                              that colour (contacts - their avatar's look)
  *   data-color="#e74c3c"       colour dot (tags, categories, statuses)
- *   data-icon="fas fa-laptop"  icon; with data-color it sits on that colour
+ *   data-icon="fas fa-laptop"  icon; with data-color it sits on that colour,
+ *                              or with data-soft="1" on a wash of it, in it
+ *                              (tags - tagOptionLook(), as their pills look)
  *   data-description=".."      second, quieter line under the label
  *   data-keywords=".."         extra words the search should match
  *
@@ -170,7 +172,7 @@
             tone = TONES.indexOf(item.tone) === -1 ? 'secondary' : item.tone;
             node = make('span', 'itflow-select-avatar ' + (item.soft ? 'bg-' + tone + '-subtle text-' + tone + '-emphasis' : 'text-bg-' + tone) + (item.shape === 'circle' ? '' : ' is-tile'), item.initials);
         } else if (item.icon && item.color) {
-            node = make('span', 'itflow-select-badge');
+            node = make('span', 'itflow-select-badge' + (item.soft ? ' is-soft' : ''));
             node.style.setProperty('--itflow-select-color', item.color);
             node.appendChild(make('i', item.icon));
         } else if (item.color) {

@@ -95,7 +95,7 @@ ob_start();
                     <select class="form-select select2" name="into_tag_id" data-placeholder="- Keep which tag -" required>
                         <option value=""></option>
                         <?php foreach ($into as $into_id => $row) { ?>
-                            <option value="<?= intval($into_id) ?>"<?= intval($into_id) === $keep_id ? ' selected' : '' ?><?= selectOptionColor(tagColor($row['tag_color']), tagIcon($row['tag_icon'])) ?>><?= escapeHtml($row['tag_name']) ?><?= isset($merging[$into_id]) ? ' (one of these)' : '' ?><?= $row['tag_archived_at'] ? ' (archived)' : '' ?></option>
+                            <option value="<?= intval($into_id) ?>"<?= intval($into_id) === $keep_id ? ' selected' : '' ?><?= tagOptionLook($row['tag_color'], $row['tag_icon']) ?>><?= escapeHtml($row['tag_name']) ?><?= isset($merging[$into_id]) ? ' (one of these)' : '' ?><?= $row['tag_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
                     </select>
                 </div>
