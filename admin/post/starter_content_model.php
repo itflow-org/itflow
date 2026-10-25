@@ -159,31 +159,167 @@ function starterTicketTemplateId($mysqli, $name) {
 // ------------------------------
 // starterContentLoad
 // Single entry point. $dry_run counts what would be added without touching
-// anything, which is what the page uses to show the missing column.
+// anything, which is what the page uses to show the missing column. $only
+// limits it to some of the pack's items, by starterItemKey() - null is the
+// whole pack (Get started's Pick which, admin/getting_started/content.php).
 // Returns the number of top level rows added (or that would be added).
 // ------------------------------
-function starterContentLoad($mysqli, $pack, $dry_run = false) {
+function starterContentLoad($mysqli, $pack, $dry_run = false, $only = null) {
+    if ($only !== null && !$only) {
+        return 0;
+    }
     switch ($pack) {
         case 'categories':
-            return starterLoadCategories($mysqli, $dry_run);
+            return starterLoadCategories($mysqli, $dry_run, $only);
         case 'tags':
-            return starterLoadTags($mysqli, $dry_run);
+            return starterLoadTags($mysqli, $dry_run, $only);
         case 'ticket_templates':
-            return starterLoadTicketTemplates($mysqli, $dry_run);
+            return starterLoadTicketTemplates($mysqli, $dry_run, $only);
         case 'project_templates':
-            return starterLoadProjectTemplates($mysqli, $dry_run);
+            return starterLoadProjectTemplates($mysqli, $dry_run, $only);
         case 'canned_responses':
-            return starterLoadCannedResponses($mysqli, $dry_run);
+            return starterLoadCannedResponses($mysqli, $dry_run, $only);
         case 'vendor_templates':
-            return starterLoadVendorTemplates($mysqli, $dry_run);
+            return starterLoadVendorTemplates($mysqli, $dry_run, $only);
         case 'document_templates':
-            return starterLoadDocumentTemplates($mysqli, $dry_run);
+            return starterLoadDocumentTemplates($mysqli, $dry_run, $only);
         case 'products':
-            return starterLoadProducts($mysqli, $dry_run);
+            return starterLoadProducts($mysqli, $dry_run, $only);
         case 'license_templates':
-            return starterLoadLicenseTemplates($mysqli, $dry_run);
+            return starterLoadLicenseTemplates($mysqli, $dry_run, $only);
     }
     return 0;
+}
+
+// ------------------------------
+// starterContentRows
+// A pack's items as this library has them, in order.
+// ------------------------------
+function starterContentRows($pack) {
+    switch ($pack) {
+        case 'categories':
+            return starterContentCategories();
+        case 'tags':
+            return starterContentTags();
+        case 'ticket_templates':
+            return starterContentTicketTemplates();
+        case 'project_templates':
+            return starterContentProjectTemplates();
+        case 'canned_responses':
+            return starterContentCannedResponses();
+        case 'vendor_templates':
+            return starterContentVendorTemplates();
+        case 'document_templates':
+            return starterContentDocumentTemplates();
+        case 'products':
+            return starterContentProducts();
+        case 'license_templates':
+            return starterContentLicenseTemplates();
+    }
+    return [];
+}
+
+// ------------------------------
+// starterItemKey / starterItemName / starterItemGroup
+// One item of a pack - what picks it out (a category or tag with its type,
+// as two can share a name), what it is called, and what it is listed under:
+// a category's type, a tag's kind, a product's category, or nothing.
+// ------------------------------
+function starterItemKey($pack, $row) {
+    switch ($pack) {
+        case 'categories':
+            return $row['type'] . '|' . $row['name'];
+        case 'tags':
+            return $row[0] . '|' . $row[1];
+        case 'products':
+            return (string) $row[0];
+    }
+    return (string) $row['name'];
+}
+
+function starterItemName($pack, $row) {
+    switch ($pack) {
+        case 'tags':
+            return (string) $row[1];
+        case 'products':
+            return (string) $row[0];
+    }
+    return (string) $row['name'];
+}
+
+function starterItemGroup($pack, $row) {
+    switch ($pack) {
+        case 'categories':
+            return (string) $row['type'];
+        case 'tags':
+            return function_exists('tagEntityByType') ? (string) (tagEntityByType($row[0])['title'] ?? '') : '';
+        case 'products':
+            return (string) $row[4];
+    }
+    return '';
+}
+
+// ------------------------------
+// starterOnly
+// The rows of a pack that $only names (starterItemKey()) - all of them when
+// $only is null.
+// ------------------------------
+function starterOnly($pack, array $rows, $only) {
+    if ($only === null) {
+        return $rows;
+    }
+    $only = array_flip(array_map('strval', (array) $only));
+    return array_values(array_filter($rows, function ($row) use ($pack, $only) {
+        return isset($only[starterItemKey($pack, $row)]);
+    }));
+}
+
+// ------------------------------
+// starterContentItems
+// What loading a pack would add - its items not here yet, each as key, name
+// and group - for picking which. Here is as each loader judges it: the same
+// name (and type, for a category or tag), whatever its case.
+// ------------------------------
+function starterContentItems($mysqli, $pack) {
+    switch ($pack) {
+        case 'categories':
+            $existing = starterExistingNames($mysqli, 'categories', 'category_name', 'category_type');
+            $here = function ($row) use ($existing) {
+                return isset($existing[$row['type'] . '|' . mb_strtolower($row['name'])]);
+            };
+            break;
+        case 'tags':
+            $existing = starterExistingNames($mysqli, 'tags', 'tag_name', 'tag_type');
+            $here = function ($row) use ($existing) {
+                return isset($existing[$row[0] . '|' . mb_strtolower($row[1])]);
+            };
+            break;
+        case 'canned_responses':
+            $existing = [];
+            $sql = mysqli_query($mysqli, "SELECT canned_response_name FROM canned_responses WHERE canned_response_user_id = 0");
+            while ($row = mysqli_fetch_row($sql)) {
+                $existing[mb_strtolower($row[0])] = true;
+            }
+            break;
+        default:
+            $tables = ['ticket_templates' => ['ticket_templates', 'ticket_template_name'], 'project_templates' => ['project_templates', 'project_template_name'],
+                'vendor_templates' => ['vendor_templates', 'vendor_template_name'], 'document_templates' => ['document_templates', 'document_template_name'],
+                'products' => ['products', 'product_name'], 'license_templates' => ['software_templates', 'software_template_name']];
+            if (!isset($tables[$pack])) {
+                return [];
+            }
+            $existing = starterExistingNames($mysqli, $tables[$pack][0], $tables[$pack][1]);
+    }
+    $here = $here ?? function ($row) use ($pack, $existing) {
+        return isset($existing[mb_strtolower(starterItemName($pack, $row))]);
+    };
+    $items = [];
+    foreach (starterContentRows($pack) as $row) {
+        if (!$here($row)) {
+            $items[] = ['key' => starterItemKey($pack, $row), 'name' => starterItemName($pack, $row), 'group' => starterItemGroup($pack, $row)];
+        }
+    }
+    return $items;
 }
 
 // ------------------------------
@@ -235,11 +371,11 @@ function starterContentTotal($pack) {
 // ------------------------------
 // starterLoadCategories
 // ------------------------------
-function starterLoadCategories($mysqli, $dry_run = false) {
+function starterLoadCategories($mysqli, $dry_run = false, $only = null) {
     $existing = starterExistingNames($mysqli, 'categories', 'category_name', 'category_type');
     $added = 0;
 
-    foreach (starterContentCategories() as $category) {
+    foreach (starterOnly('categories', starterContentCategories(), $only) as $category) {
         if (isset($existing[$category['type'] . '|' . mb_strtolower($category['name'])])) {
             continue;
         }
@@ -268,11 +404,11 @@ function starterLoadCategories($mysqli, $dry_run = false) {
 // ------------------------------
 // starterLoadTags
 // ------------------------------
-function starterLoadTags($mysqli, $dry_run = false) {
+function starterLoadTags($mysqli, $dry_run = false, $only = null) {
     $existing = starterExistingNames($mysqli, 'tags', 'tag_name', 'tag_type');
     $added = 0;
 
-    foreach (starterContentTags() as $tag) {
+    foreach (starterOnly('tags', starterContentTags(), $only) as $tag) {
         if (isset($existing[$tag[0] . '|' . mb_strtolower($tag[1])])) {
             continue;
         }
@@ -296,8 +432,8 @@ function starterLoadTags($mysqli, $dry_run = false) {
 // A template is added whole or not at all - an existing name is left alone
 // rather than having its task list topped up.
 // ------------------------------
-function starterLoadTicketTemplates($mysqli, $dry_run = false) {
-    $templates = ticketTemplatesImportRead(['format' => TICKET_TEMPLATE_FILE_FORMAT, 'version' => TICKET_TEMPLATE_FILE_VERSION, 'templates' => starterContentTicketTemplates()]);
+function starterLoadTicketTemplates($mysqli, $dry_run = false, $only = null) {
+    $templates = ticketTemplatesImportRead(['format' => TICKET_TEMPLATE_FILE_FORMAT, 'version' => TICKET_TEMPLATE_FILE_VERSION, 'templates' => starterOnly('ticket_templates', starterContentTicketTemplates(), $only)]);
     if ($dry_run) {
         $existing = starterExistingNames($mysqli, 'ticket_templates', 'ticket_template_name');
         return count(array_filter($templates, function ($template) use ($existing) {
@@ -324,8 +460,8 @@ function starterUpdateTicketTemplates() {
 // Through the canned response import, as shared responses. One whose name a
 // shared one here already has is left alone.
 // ------------------------------
-function starterLoadCannedResponses($mysqli, $dry_run = false) {
-    $responses = cannedResponsesImportRead(['format' => CANNED_RESPONSE_FILE_FORMAT, 'version' => CANNED_RESPONSE_FILE_VERSION, 'responses' => starterContentCannedResponses()]);
+function starterLoadCannedResponses($mysqli, $dry_run = false, $only = null) {
+    $responses = cannedResponsesImportRead(['format' => CANNED_RESPONSE_FILE_FORMAT, 'version' => CANNED_RESPONSE_FILE_VERSION, 'responses' => starterOnly('canned_responses', starterContentCannedResponses(), $only)]);
     if ($dry_run) {
         $existing = [];
         $sql = mysqli_query($mysqli, "SELECT canned_response_name FROM canned_responses WHERE canned_response_user_id = 0");
@@ -357,11 +493,11 @@ function starterUpdateCannedResponses() {
 // skipped, so loading this pack before the ticket templates still works and
 // simply produces a project template with fewer stages.
 // ------------------------------
-function starterLoadProjectTemplates($mysqli, $dry_run = false) {
+function starterLoadProjectTemplates($mysqli, $dry_run = false, $only = null) {
     $existing = starterExistingNames($mysqli, 'project_templates', 'project_template_name');
     $added = 0;
 
-    foreach (starterContentProjectTemplates() as $project_template) {
+    foreach (starterOnly('project_templates', starterContentProjectTemplates(), $only) as $project_template) {
         if (isset($existing[mb_strtolower($project_template['name'])])) {
             continue;
         }
@@ -397,8 +533,8 @@ function starterLoadProjectTemplates($mysqli, $dry_run = false) {
 // Through the vendor template import. One whose name a template here already
 // has, archived or not, is left alone.
 // ------------------------------
-function starterLoadVendorTemplates($mysqli, $dry_run = false) {
-    $templates = vendorTemplatesImportRead(['format' => VENDOR_TEMPLATE_FILE_FORMAT, 'version' => VENDOR_TEMPLATE_FILE_VERSION, 'templates' => starterContentVendorTemplates()]);
+function starterLoadVendorTemplates($mysqli, $dry_run = false, $only = null) {
+    $templates = vendorTemplatesImportRead(['format' => VENDOR_TEMPLATE_FILE_FORMAT, 'version' => VENDOR_TEMPLATE_FILE_VERSION, 'templates' => starterOnly('vendor_templates', starterContentVendorTemplates(), $only)]);
     if ($dry_run) {
         $existing = starterExistingNames($mysqli, 'vendor_templates', 'vendor_template_name');
         return count(array_filter($templates, function ($template) use ($existing) {
@@ -427,8 +563,8 @@ function starterUpdateVendorTemplates() {
 // Through the document template import. One whose name a template here
 // already has, archived or not, is left alone.
 // ------------------------------
-function starterLoadDocumentTemplates($mysqli, $dry_run = false) {
-    $templates = documentTemplatesImportRead(['format' => DOCUMENT_TEMPLATE_FILE_FORMAT, 'version' => DOCUMENT_TEMPLATE_FILE_VERSION, 'templates' => starterContentDocumentTemplates()]);
+function starterLoadDocumentTemplates($mysqli, $dry_run = false, $only = null) {
+    $templates = documentTemplatesImportRead(['format' => DOCUMENT_TEMPLATE_FILE_FORMAT, 'version' => DOCUMENT_TEMPLATE_FILE_VERSION, 'templates' => starterOnly('document_templates', starterContentDocumentTemplates(), $only)]);
     if ($dry_run) {
         $existing = starterExistingNames($mysqli, 'document_templates', 'document_template_name');
         return count(array_filter($templates, function ($template) use ($existing) {
@@ -457,8 +593,8 @@ function starterUpdateDocumentTemplates() {
 // template of that name - added from here when there is none - and it is
 // sold as the product of that name when there is one.
 // ------------------------------
-function starterLoadLicenseTemplates($mysqli, $dry_run = false) {
-    $templates = softwareTemplatesImportRead(['format' => SOFTWARE_TEMPLATE_FILE_FORMAT, 'version' => SOFTWARE_TEMPLATE_FILE_VERSION, 'templates' => starterContentLicenseTemplates()]);
+function starterLoadLicenseTemplates($mysqli, $dry_run = false, $only = null) {
+    $templates = softwareTemplatesImportRead(['format' => SOFTWARE_TEMPLATE_FILE_FORMAT, 'version' => SOFTWARE_TEMPLATE_FILE_VERSION, 'templates' => starterOnly('license_templates', starterContentLicenseTemplates(), $only)]);
     if ($dry_run) {
         $existing = starterExistingNames($mysqli, 'software_templates', 'software_template_name');
         return count(array_filter($templates, function ($template) use ($existing) {
@@ -487,14 +623,14 @@ function starterUpdateLicenseTemplates() {
 // leaves the product uncategorised rather than blocking the load, so this pack
 // works whether or not the categories pack has been loaded.
 // ------------------------------
-function starterLoadProducts($mysqli, $dry_run = false) {
+function starterLoadProducts($mysqli, $dry_run = false, $only = null) {
     global $session_company_currency;
 
     $existing = starterExistingNames($mysqli, 'products', 'product_name');
     $added = 0;
     $category_ids = [];
 
-    foreach (starterContentProducts() as $product) {
+    foreach (starterOnly('products', starterContentProducts(), $only) as $product) {
         if (isset($existing[mb_strtolower($product[0])])) {
             continue;
         }

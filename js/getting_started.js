@@ -8,6 +8,9 @@
  *   [data-gs-cron-poll=url]    asks that address every 10 seconds whether cron
  *                              has been heard from, and shows the step again
  *                              once it has
+ *   [data-gs-pack]             a starter content pack's tick and its Pick which
+ *                              list kept in step - ticking the pack ticks every
+ *                              item, and its count says how many are ticked
  *   form                       sent once, the button pressed showing it is on
  *                              its way
  */
@@ -64,6 +67,37 @@
         setInterval(ask, 10000);
     }
 
+    // A pack and the items under its Pick which
+    function initPack(pack) {
+        var check = pack.querySelector('[data-gs-pack-check]');
+        var items = Array.prototype.slice.call(pack.querySelectorAll('[data-gs-item]'));
+        var count = pack.querySelector('[data-gs-pack-count]');
+        if (!check || !items.length) {
+            return;
+        }
+        var of = items.length;
+        var more = count && count.dataset.gsMore === '1';
+        function draw() {
+            var ticked = items.filter(function (item) { return item.checked; }).length;
+            check.checked = ticked > 0;
+            check.indeterminate = ticked > 0 && ticked < of;
+            if (count) {
+                count.textContent = ticked === of ? of + (more ? ' more to add' : ' to add') : (ticked ? ticked + ' of ' + of + ' to add' : 'None picked');
+            }
+        }
+        function setAll(on) {
+            items.forEach(function (item) { item.checked = on; });
+            draw();
+        }
+        check.addEventListener('change', function () { setAll(check.checked); });
+        items.forEach(function (item) { item.addEventListener('change', draw); });
+        var all = pack.querySelector('[data-gs-pick-all]');
+        var none = pack.querySelector('[data-gs-pick-none]');
+        if (all) { all.addEventListener('click', function () { setAll(true); }); }
+        if (none) { none.addEventListener('click', function () { setAll(false); }); }
+        draw();
+    }
+
     function initBusy(form) {
         form.addEventListener('submit', function (e) {
             if (e.defaultPrevented) {
@@ -87,6 +121,7 @@
         document.querySelectorAll('[data-gs-reveal]').forEach(initReveal);
         document.querySelectorAll('[data-gs-show]').forEach(initShow);
         document.querySelectorAll('[data-gs-cron-poll]').forEach(initCronPoll);
+        document.querySelectorAll('[data-gs-pack]').forEach(initPack);
         document.querySelectorAll('form').forEach(initBusy);
     }
 

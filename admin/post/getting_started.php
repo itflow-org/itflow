@@ -389,14 +389,25 @@ if (isset($_POST['getting_started_content'])) {
 
     $added = 0;
     $summary = [];
+    $none_ticked = 0;
     foreach ($picked as $pack) {
-        $pack_added = starterContentLoad($mysqli, $pack);
+        // The items ticked under Pick which - the whole pack when its list wasn't sent
+        $only = isset($_POST['picked'][$pack]) ? array_map('strval', array_filter((array) ($_POST['items'][$pack] ?? []), 'is_string')) : null;
+        if ($only === []) {
+            $none_ticked++;
+            continue;
+        }
+        $pack_added = starterContentLoad($mysqli, $pack, false, $only);
         if ($pack_added) {
             $added += $pack_added;
             $summary[] = "$pack_added " . $packs[$pack]['label'];
         }
     }
 
+    if (!$added && $none_ticked === count($picked)) {
+        flashAlert('Nothing is ticked under Pick which - tick what to add, or Skip for now', 'info');
+        redirect(gettingStartedUrl('content'));
+    }
     if ($added) {
         logAudit("Starter Content", "Create", "$session_name loaded starter content in Get started - " . escapeSql(implode(', ', $summary)));
         flashAlert('Added <strong>' . $added . '</strong> things to start from: ' . escapeHtml(implode(', ', $summary)));
