@@ -1,21 +1,66 @@
 <?php
 
+/*
+ * Admin > Contract Templates - the agreements you offer, to start a client's
+ * contract from: its type, term, renewal and notice, support hours, rates,
+ * net terms, an SLA for each ticket priority, and the terms themselves.
+ * Each row says what it sets and how many contracts were started from it.
+ * Tabs for the ones in use and the archived ones. The work is in
+ * functions/contract.php; the handlers are admin/post/contract_template.php.
+ */
+
 // Default Column Sort by Filter
 $sort = "contract_template_name";
 $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
-// Search query
-$sql = mysqli_query(
-    $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM contract_templates
-    WHERE contract_template_name LIKE '%$q%' OR contract_template_type LIKE '%$q%'
-        OR contract_template_description LIKE '%$q%'
-    ORDER BY $sort $order LIMIT $record_from, $record_to"
-);
+$views = [
+    '' => ['label' => 'In use', 'icon' => 'fa-file-contract', 'where' => 'contract_template_archived_at IS NULL', 'title' => 'Offered on a new contract'],
+    'archived' => ['label' => 'Archived', 'icon' => 'fa-archive', 'where' => 'contract_template_archived_at IS NOT NULL', 'title' => 'Kept, but not offered'],
+];
+$show = (string) ($_GET['show'] ?? '');
+$show = isset($views[$show]) ? $show : '';
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+$sortable_columns = [
+    'contract_template_name' => "contract_template_name $order",
+    'contract_template_type' => "contract_template_type $order, contract_template_name ASC",
+    'contract_template_term_months' => "contract_template_term_months $order, contract_template_name ASC",
+    'contracts' => "n_contracts $order, contract_template_name ASC",
+];
+if (!isset($sortable_columns[$sort])) {
+    $sort = 'contract_template_name';
+}
+
+$rows = [];
+$num_rows = [0];
+$view_counts = ['' => 0, 'archived' => 0];
+if (contractsReady()) {
+    $filters = "(contract_template_name LIKE '%$q%' OR contract_template_description LIKE '%$q%' OR contract_template_support_hours LIKE '%$q%')";
+    $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contract_templates.*,
+            (SELECT COUNT(*) FROM contracts WHERE contracts.contract_template_id = contract_templates.contract_template_id) AS n_contracts
+        FROM contract_templates
+        WHERE $filters AND {$views[$show]['where']}
+        ORDER BY {$sortable_columns[$sort]} LIMIT $record_from, $record_to");
+    $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+    $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', array_map(function ($v) {
+        return "COALESCE(SUM({$v['where']}), 0)";
+    }, $views)) . " FROM contract_templates WHERE $filters"));
+    $view_counts = array_combine(array_keys($views), array_map('intval', $counts));
+}
+$slas = contractSlaChoices();
+
+$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
+    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
+        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
+};
+$pill_url = function ($view) {
+    return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $view]));
+};
+$csrf = $_SESSION['csrf_token'];
 
 ?>
 
@@ -24,133 +69,110 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-contract me-2"></i>Contract Templates</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contract_template/contract_template_add.php" data-modal-size="lg">
-                <i class="fas fa-plus me-2"></i>New Template
+                <i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Template</span>
             </button>
         </div>
     </div>
     <div class="card-header py-3">
-
         <form autocomplete="off">
-            <div class="input-group">
-                <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search templates">
-                    <button class="btn btn-secondary" title="Search"><i class="fa fa-search"></i></button>
+            <?php if ($show !== '') { ?><input type="hidden" name="show" value="<?= escapeHtml($show) ?>"><?php } ?>
+            <div class="row g-2 align-items-center">
+                <div class="col-lg-5 col-md-6">
+                    <div class="input-group">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search templates..." title="Name, description or support hours">
+                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                    </div>
+                </div>
             </div>
         </form>
+        <nav class="nav nav-pills itflow-asset-tabs mt-2">
+            <?php foreach ($views as $view_key => $view) { ?>
+                <a class="nav-link <?= $show === (string) $view_key ? 'active' : '' ?>" href="<?= escapeHtml($pill_url($view_key)) ?>" title="<?= escapeHtml($view['title']) ?>"><i class="fas fa-fw <?= $view['icon'] ?> me-1"></i><?= escapeHtml($view['label']) ?> <span class="badge rounded-pill ms-1"><?= intval($view_counts[$view_key]) ?></span></a>
+            <?php } ?>
+        </nav>
     </div>
-
-    <div class="table-responsive-sm">
-        <table class="table table-striped table-borderless table-hover mb-0">
-            <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                <tr>
-                    <th class="ps-3">
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_name&order=<?= $disp ?>">
-                            Template Name <?php if ($sort == 'contract_template_name') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_type&order=<?= $disp ?>">
-                            Type <?php if ($sort == 'contract_template_type') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_renewal_frequency&order=<?= $disp ?>">
-                            Update Frequency <?php if ($sort == 'contract_template_renewal_frequency') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>SLA (L/M/H Response)</th>
-                    <th>SLA (L/M/H Resolution)</th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_rate_standard&order=<?= $disp ?>">
-                            Hourly Rate <?php if ($sort == 'contract_template_rate_standard') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_rate_after_hours&order=<?= $disp ?>">
-                            After Hours Rate <?php if ($sort == 'contract_template_rate_after_hours') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_support_hours&order=<?= $disp ?>">
-                            Support Hours <?php if ($sort == 'contract_template_support_hours') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_net_terms&order=<?= $disp ?>">
-                            Net Terms <?php if ($sort == 'contract_template_net_terms') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_created_at&order=<?= $disp ?>">
-                            Created <?php if ($sort == 'contract_template_created_at') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_updated_at&order=<?= $disp ?>">
-                            Updated <?php if ($sort == 'contract_template_updated_at') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th class="text-center">Action</th>
-                </tr>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+            <tr>
+                <th class="ps-3"><?= $sort_link('contract_template_name', 'Template') ?></th>
+                <th class="d-none d-md-table-cell"><?= $sort_link('contract_template_term_months', 'Term') ?></th>
+                <th class="d-none d-lg-table-cell">Cover</th>
+                <th class="text-end"><?= $sort_link('contracts', 'Contracts') ?></th>
+                <th></th>
+            </tr>
             </thead>
             <tbody>
-                <?php
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $id = intval($row['contract_template_id']);
-                        $name = escapeHtml($row['contract_template_name']);
-                        $type = escapeHtml($row['contract_template_type']);
-                        $freq = escapeHtml($row['contract_template_renewal_frequency']);
-                        $sla_low_resp = escapeHtml($row['contract_template_sla_low_response_time']);
-                        $sla_med_resp = escapeHtml($row['contract_template_sla_medium_response_time']);
-                        $sla_high_resp = escapeHtml($row['contract_template_sla_high_response_time']);
-                        $sla_low_res = escapeHtml($row['contract_template_sla_low_resolution_time']);
-                        $sla_med_res = escapeHtml($row['contract_template_sla_medium_resolution_time']);
-                        $sla_high_res = escapeHtml($row['contract_template_sla_high_resolution_time']);
-                        $hourly_rate = escapeHtml($row['contract_template_rate_standard']);
-                        $after_hours = escapeHtml($row['contract_template_rate_after_hours']);
-                        $support_hours = escapeHtml($row['contract_template_support_hours']);
-                        $net_terms = escapeHtml($row['contract_template_net_terms']);
-                        $created = escapeHtml($row['contract_template_created_at']);
-                        $updated = escapeHtml($row['contract_template_updated_at']);
+            <?php foreach ($rows as $row) {
+                $id = intval($row['contract_template_id']);
+                $name = escapeHtml($row['contract_template_name']);
+                $type = CONTRACT_TYPES[$row['contract_template_type']] ?? CONTRACT_TYPES['other'];
+                $archived = !empty($row['contract_template_archived_at']);
+                $edit_url = "modals/contract_template/contract_template_edit.php?id=$id";
+                $sla_names = [];
+                foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
+                    $sla = $slas[intval($row["contract_template_sla_{$part}_id"])] ?? null;
+                    if ($sla) {
+                        $sla_names[$sla['sla_name']][] = $priority;
+                    }
+                }
+                $cover = array_filter([
+                    $row['contract_template_support_hours'],
+                    $row['contract_template_rate_standard'] !== null ? number_format((float) $row['contract_template_rate_standard'], 2) . '/hr' : '',
+                    $row['contract_template_net_terms'] !== null ? 'Net ' . intval($row['contract_template_net_terms']) : '',
+                ]);
                 ?>
-                <tr>
+                <tr data-contract-template-id="<?= $id ?>">
                     <td class="ps-3">
-                        <a class="text-bold ajax-modal" href="#"
-                            data-modal-size="xl"
-                            data-modal-url="modals/contract_template/contract_template_edit.php?id=<?= $id ?>">
-                            <i class="fas fa-fw fa-file-alt text-dark"></i> <?= $name ?>
-                        </a>
-                        <div class="mt-1 text-secondary"><?= escapeHtml($row['contract_template_description']) ?></div>
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="itflow-asset-icon itflow-asset-tone-other d-none d-sm-inline-flex" aria-hidden="true" title="<?= escapeHtml($type['label']) ?>"><i class="fas fa-fw <?= $type['icon'] ?>"></i></span>
+                            <div class="min-w-0">
+                                <a class="ajax-modal fw-semibold text-body" href="#" data-modal-size="lg" data-modal-url="<?= $edit_url ?>"><?= $name ?></a>
+                                <div class="small text-body-secondary"><?= escapeHtml(contractTypeLabel($row['contract_template_type'])) ?><?= trim((string) $row['contract_template_description']) !== '' ? ' - ' . escapeHtml($row['contract_template_description']) : '' ?></div>
+                                <?php if ($archived) { ?>
+                                    <div class="small text-body-secondary"><i class="fas fa-fw fa-archive me-1"></i>Archived <?= date('M j, Y', strtotime($row['contract_template_archived_at'])) ?></div>
+                                <?php } ?>
+                            </div>
+                        </div>
                     </td>
-                    <td><?= $type ?></td>
-                    <td><?= $freq ?></td>
-                    <td><?= "$sla_low_resp / $sla_med_resp / $sla_high_resp" ?></td>
-                    <td><?= "$sla_low_res / $sla_med_res / $sla_high_res" ?></td>
-                    <td><?= $hourly_rate ?></td>
-                    <td><?= $after_hours ?></td>
-                    <td><?= $support_hours ?></td>
-                    <td><?= $net_terms ?></td>
-                    <td><?= $created ?></td>
-                    <td><?= $updated ?></td>
-                    <td>
-                        <div class="dropdown dropstart text-center">
-                            <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </button>
+                    <td class="d-none d-md-table-cell small text-nowrap">
+                        <?= escapeHtml(contractTermLabel($row['contract_template_term_months'])) ?>
+                        <div class="text-body-secondary"><?= intval($row['contract_template_auto_renew']) ? 'Renews itself' : 'Renewed by hand' ?>, <?= intval($row['contract_template_notice_days']) ?> days notice</div>
+                    </td>
+                    <td class="d-none d-lg-table-cell small">
+                        <?= $cover ? escapeHtml(implode(' · ', $cover)) : '<span class="text-body-tertiary">The client\'s rate and terms</span>' ?>
+                        <div class="text-body-secondary">
+                            <?php if ($sla_names) {
+                                echo escapeHtml(implode(' · ', array_map(function ($sla_name, $priorities) {
+                                    return "$sla_name (" . implode(', ', $priorities) . ")";
+                                }, array_keys($sla_names), $sla_names)));
+                            } else { ?>
+                                The client's usual SLAs
+                            <?php } ?>
+                        </div>
+                    </td>
+                    <td class="text-end"><?= intval($row['n_contracts']) ?: '<span class="text-body-tertiary">0</span>' ?></td>
+                    <td class="text-end">
+                        <div class="dropdown dropstart">
+                            <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item ajax-modal" href="#"
-                                    data-modal-size="xl"
-                                    data-modal-url="modals/contract_template/contract_template_edit.php?id=<?= $id ?>">
-                                    <i class="fas fa-fw fa-edit me-2"></i>Edit
-                                </a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
+                                <a class="dropdown-item" href="post.php?copy_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contract_template=<?= $id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <?php if ($archived) { ?>
+                                    <a class="dropdown-item" href="post.php?restore_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore</a>
+                                <?php } else { ?>
+                                    <a class="dropdown-item text-danger" href="post.php?archive_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>" title="Kept, but not offered on a new contract"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
+                                <?php } ?>
+                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"
+                                    data-confirm-title="Delete <?= $name ?>?" data-confirm-text="<?= intval($row['n_contracts']) ? 'The ' . intval($row['n_contracts']) . ' contract' . (intval($row['n_contracts']) === 1 ? '' : 's') . ' started from it keep their terms.' : 'Nothing was started from it.' ?>" data-confirm-button="Delete">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>
                             </div>
                         </div>
                     </td>
                 </tr>
-                <?php } ?>
+            <?php } ?>
             </tbody>
         </table>
     </div>
@@ -158,10 +180,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     $empty_state = [
         'thing' => 'contract templates',
         'icon' => 'fa-file-contract',
+        'filtered' => $q !== '',
+        'archived' => $show === 'archived',
+        'views' => ['show'],
+        'text' => 'The agreements you offer - Fully managed, Block hours, Break/fix - to start a client\'s contract from.',
         'actions' => [['label' => 'New Template', 'modal' => 'modals/contract_template/contract_template_add.php', 'size' => 'lg']],
     ];
+    require_once "../includes/filter_footer.php";
     ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 
-<?php require_once "../includes/footer.php"; ?>
+<?php
+require_once "../includes/footer.php";

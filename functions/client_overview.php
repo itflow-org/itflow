@@ -77,6 +77,22 @@ function clientOverviewAttention($client_id, $access, $renewals) {
             'detail' => $overdue_count ? dashboardMoney($overdue_amount) . ' outstanding' : null,
             'url' => "/agent/invoices.php?client_id=$client_id&status=Overdue",
         ];
+        // A contract coming up to its notice date - the same rule as contracts.php?show=soon
+        if (contractsReady()) {
+            $soon = contractViews()['soon']['where'];
+            $items[] = [
+                'count' => dashboardCount("SELECT COUNT(contract_id) FROM contracts WHERE contract_client_id = $client_id AND contract_archived_at IS NULL AND $soon AND contract_auto_renew = 0"),
+                'label' => 'Contracts ending', 'icon' => 'file-contract', 'tone' => 'warning',
+                'detail' => "They don't renew themselves",
+                'url' => "/agent/contracts.php?client_id=$client_id&show=soon",
+            ];
+            $items[] = [
+                'count' => dashboardCount("SELECT COUNT(contract_id) FROM contracts WHERE contract_client_id = $client_id AND contract_archived_at IS NULL AND $soon AND contract_auto_renew = 1"),
+                'label' => 'Contracts renewing', 'icon' => 'sync-alt', 'tone' => 'info',
+                'detail' => 'Time to review them with the client',
+                'url' => "/agent/contracts.php?client_id=$client_id&show=soon",
+            ];
+        }
         if ($access['tickets']) {
             $items[] = [
                 'count' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE " . billingUnbilledSql() . " AND ticket_client_id = $client_id"),

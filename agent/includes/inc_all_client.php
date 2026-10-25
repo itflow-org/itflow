@@ -165,6 +165,9 @@ if (isset($_GET['client_id'])) {
         $recurring_monthly = floatval($row['recurring_monthly']);
         $num_recurring_invoices = intval($row['num_recurring_invoices']);
 
+        // Contracts in force
+        $num_contracts = contractClientCount($client_id);
+
         // Billable tickets done and not invoiced yet, for Unbilled Time
         $num_unbilled_tickets = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM tickets WHERE " . billingUnbilledSql() . " AND ticket_client_id = $client_id"))[0]);
         // ...and their expenses to bill on, for those who can see expenses

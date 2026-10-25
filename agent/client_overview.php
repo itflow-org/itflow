@@ -521,6 +521,21 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                             </span>
                         </a>
                     <?php } ?>
+                    <?php if ($access['sales'] && contractsReady()) {
+                        $overview_contracts = contractClientActive($client_id);
+                        $overview_contract = $overview_contracts[0] ?? null; ?>
+                        <a href="<?= $overview_contract && count($overview_contracts) === 1 ? 'contract.php?client_id=' . $client_id . '&contract_id=' . intval($overview_contract['contract_id']) : 'contracts.php?client_id=' . $client_id ?>" class="itflow-dash-rail-item" data-overview-contract>
+                            <span class="small text-body-secondary">Contract</span>
+                            <?php if ($overview_contract) {
+                                $overview_state = contractState($overview_contract); ?>
+                                <span class="fs-5 fw-semibold text-truncate" title="<?= escapeHtml($overview_contract['contract_name']) ?>"><?= escapeHtml($overview_contract['contract_name']) ?></span>
+                                <span class="small <?= in_array($overview_state['key'], ['ending', 'renewing'], true) ? 'text-' . ($overview_state['key'] === 'ending' ? 'warning' : 'primary') . '-emphasis' : 'text-body-tertiary' ?>"><?= escapeHtml($overview_state['when']) ?><?= count($overview_contracts) > 1 ? ' · ' . (count($overview_contracts) - 1) . ' more' : '' ?></span>
+                            <?php } else { ?>
+                                <span class="fs-5 fw-semibold text-body-tertiary">None</span>
+                                <span class="small text-body-tertiary">No contract in force</span>
+                            <?php } ?>
+                        </a>
+                    <?php } ?>
                     <div class="itflow-dash-rail-item">
                         <span class="small text-body-secondary">Terms</span>
                         <span class="itflow-dash-money-value"><?= $money_format($client_rate) ?><span class="fs-6 fw-normal text-body-secondary">/hr</span></span>

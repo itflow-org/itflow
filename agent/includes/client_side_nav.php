@@ -29,6 +29,7 @@
             'quote.php' => 'quotes.php',
             'rack.php' => 'racks.php',
             'recurring_invoice.php' => 'recurring_invoices.php',
+            'contract.php' => 'contracts.php',
             'ticket.php' => 'tickets.php',
         ];
         $client_switch_page = basename($_SERVER['PHP_SELF']);
@@ -373,6 +374,18 @@
                                     <?php
                                     if ($num_recurring_invoices) { ?>
                                         <span class="right badge"><?= $num_recurring_invoices ?></span>
+                                    <?php } ?>
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="/agent/contracts.php?client_id=<?= $client_id ?>" class="nav-link <?php if (in_array(basename($_SERVER["PHP_SELF"]), ['contracts.php', 'contract.php'], true)) { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-file-contract"></i>
+                                <p>
+                                    Contracts
+                                    <?php if (!empty($num_contracts)) { ?>
+                                        <span class="right badge" title="In force"><?= intval($num_contracts) ?></span>
                                     <?php } ?>
                                 </p>
                             </a>

@@ -331,6 +331,7 @@ if (isset($_GET['delete_client'])) {
     }
     mysqli_query($mysqli, "DELETE FROM tickets WHERE ticket_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = $client_id");
+    mysqli_query($mysqli, "DELETE FROM contracts WHERE contract_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_client_id = $client_id");
 
     //Delete Client Files
