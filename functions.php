@@ -95,5 +95,6 @@ require_once __DIR__ . '/functions/income_import.php';
 require_once __DIR__ . '/functions/accounts.php';
 require_once __DIR__ . '/functions/reconcile.php';
 require_once __DIR__ . '/functions/portal.php';
+require_once __DIR__ . '/functions/portal_invite.php';
 require_once __DIR__ . '/functions/settings.php';
 require_once __DIR__ . '/functions/mail_queue.php';

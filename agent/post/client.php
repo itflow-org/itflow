@@ -2,6 +2,9 @@
 
 /*
  * ITFlow - GET/POST request handler for clients/customers (overview)
+ *
+ * set_client_portal_signup (POST, Client Modify) lets people at a client sign
+ * up for the portal themselves (functions/portal_invite.php).
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -171,6 +174,42 @@ if (isset($_POST['edit_client'])) {
 
     flashAlert("Client <strong>" . stripslashes($name) . "</strong> updated");
 
+    redirect();
+
+}
+
+if (isset($_POST['set_client_portal_signup'])) {
+
+    // Let people with an address at one of the client's Domains sign up for the portal, or stop it (functions/portal_invite.php)
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 2);
+
+    $client_id = intval($_POST['client_id'] ?? 0);
+
+    enforceClientAccess();
+
+    $on = !empty($_POST['portal_signup']);
+    $client = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name, client_archived_at FROM clients WHERE client_id = $client_id LIMIT 1"));
+    if (!$client || !portalInvitesReady() || ($on && $client['client_archived_at'])) {
+        flashAlert("Signing up can't be changed for this client", 'error');
+        redirect();
+    }
+    $domains = portalSignupDomains($client_id);
+    if ($on && !$domains) {
+        flashAlert("Add the client's email domain under Domains first - people sign up with an address at one of them", 'error');
+        redirect();
+    }
+    if (!portalSignupSet($client_id, $on)) {
+        redirect();
+    }
+    $client_name = escapeSql($client['client_name']);
+    logAudit("Client", "Edit", "$session_name " . ($on ? 'let people at ' . escapeSql(implode(', ', $domains)) . " sign up for the client portal for $client_name" : "stopped people signing up for the client portal for $client_name"), $client_id, $client_id);
+    if ($on) {
+        flashAlert('People with an address at <strong>' . escapeHtml(implode(', ', $domains)) . '</strong> can sign up now' . (portalSignupOn() ? '' : ' - once signing up is turned on in Admin > Settings > Client portal'));
+    } else {
+        flashAlert('Signing up is off for <strong>' . escapeHtml($client['client_name']) . '</strong> - invite people instead');
+    }
     redirect();
 
 }

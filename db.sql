@@ -845,6 +845,7 @@ CREATE TABLE `clients` (
   `client_currency_code` varchar(200) NOT NULL,
   `client_net_terms` int(10) NOT NULL,
   `client_reminders` tinyint(1) NOT NULL DEFAULT 1,
+  `client_portal_signup` tinyint(1) NOT NULL DEFAULT 0,
   `client_tax_id_number` varchar(255) DEFAULT NULL,
   `client_default_tax_id` int(11) NOT NULL DEFAULT 0,
   `client_tax_exempt` tinyint(1) NOT NULL DEFAULT 0,
@@ -2180,6 +2181,38 @@ CREATE TABLE `portal_announcements` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `portal_invites`
+--
+
+DROP TABLE IF EXISTS `portal_invites`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `portal_invites` (
+  `invite_id` int(11) NOT NULL AUTO_INCREMENT,
+  `invite_kind` varchar(10) NOT NULL DEFAULT 'invite',
+  `invite_email` varchar(200) NOT NULL,
+  `invite_name` varchar(200) DEFAULT NULL,
+  `invite_billing` tinyint(1) NOT NULL DEFAULT 0,
+  `invite_technical` tinyint(1) NOT NULL DEFAULT 0,
+  `invite_token_hash` char(64) NOT NULL DEFAULT '',
+  `invite_expires_at` datetime NOT NULL,
+  `invite_sent_at` datetime DEFAULT NULL,
+  `invite_sent_count` int(11) NOT NULL DEFAULT 0,
+  `invite_created_by` int(11) NOT NULL DEFAULT 0,
+  `invite_created_by_contact_id` int(11) NOT NULL DEFAULT 0,
+  `invite_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `invite_accepted_at` datetime DEFAULT NULL,
+  `invite_contact_id` int(11) NOT NULL DEFAULT 0,
+  `invite_cancelled_at` datetime DEFAULT NULL,
+  `invite_client_id` int(11) NOT NULL,
+  PRIMARY KEY (`invite_id`),
+  KEY `invite_client_id` (`invite_client_id`,`invite_email`),
+  KEY `invite_contact_id` (`invite_contact_id`),
+  CONSTRAINT `portal_invites_ibfk_1` FOREIGN KEY (`invite_client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `product_prices`
 --
 
@@ -3070,6 +3103,7 @@ CREATE TABLE `settings` (
   `config_module_enable_accounting` tinyint(1) NOT NULL DEFAULT 1,
   `config_client_portal_enable` tinyint(1) NOT NULL DEFAULT 1,
   `config_client_portal_require_mfa` tinyint(1) NOT NULL DEFAULT 0,
+  `config_client_portal_signup` tinyint(1) NOT NULL DEFAULT 0,
   `config_login_message` text DEFAULT NULL,
   `config_login_key_required` tinyint(1) NOT NULL DEFAULT 0,
   `config_login_key_secret` varchar(255) DEFAULT NULL,

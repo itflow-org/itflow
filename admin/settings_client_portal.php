@@ -1,9 +1,10 @@
 <?php
 
 /*
- * Admin > Settings > Client portal - two-step sign-in for the portal (saved by
- * edit_client_portal_settings, admin/post/settings_client_portal.php), and the
- * announcements shown on its home page (to every client, or one) between
+ * Admin > Settings > Client portal - two-step sign-in for the portal, and
+ * whether people can sign up themselves (saved by edit_client_portal_settings,
+ * admin/post/settings_client_portal.php) with the clients that let them; and
+ * the announcements shown on its home page (to every client, or one) between
  * their start and end.
  */
 
@@ -19,6 +20,11 @@ $sql = mysqli_query($mysqli, "SELECT announcement_id, announcement_title, announ
     ORDER BY COALESCE(announcement_starts_at, announcement_created_at) DESC, announcement_id DESC");
 $archived_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM portal_announcements WHERE announcement_archived_at IS NOT NULL"))[0]);
 $state_badges = ['showing' => 'text-bg-success', 'scheduled' => 'text-bg-info', 'ended' => 'text-bg-secondary', 'archived' => 'text-bg-secondary'];
+
+// Signing up - on for the portal, and the clients that let people at their domains do it (functions/portal_invite.php)
+$signup_ready = portalInvitesReady();
+$signup_on = $signup_ready && portalSignupOn();
+$signup_clients = $signup_ready ? portalSignupClients() : [];
 
 ?>
 
@@ -36,6 +42,30 @@ $state_badges = ['showing' => 'text-bg-success', 'scheduled' => 'text-bg-info', 
             <?= settingsSectionStart('sign-in', 'Signing in', 'A contact with portal access signs in on the same page as your agents - with a password, or their Microsoft 365 account when <a href="identity_providers.php">Single sign-on</a> is set up' . (empty($config_azure_client_id) ? ' (it isn\'t yet)' : '') . '.') ?>
                 <?= settingsSwitch('config_client_portal_require_mfa', $config_client_portal_require_mfa, ['id' => 'requireMfa', 'help' => 'Contacts who sign in with a password are asked for a code from an authenticator app too. Anyone without it set up is taken to set it up before anything else. Microsoft 365 sign-ins are left to Microsoft.']) ?>
             <?= settingsSectionEnd() ?>
+
+            <?php if ($signup_ready) { ?>
+                <?= settingsSectionStart('sign-up', 'Signing up', 'People at a client can make their own account from the sign-in page, with an address at one of the client\'s Domains - for the clients you let them, on the client\'s Contacts &gt; Invites. They prove the address with an emailed link, and join as a plain contact who sees the tickets they raise. You and the client\'s primary contact are told.') ?>
+                    <?= settingsSwitch('config_client_portal_signup', $signup_on, ['id' => 'portalSignup', 'help' => 'Shows Create an account on the sign-in page, while a client below lets people sign up. Anyone else can still be invited.']) ?>
+                    <div class="mt-3" data-settings-signup-clients>
+                        <?php if (!portalMailReady()) { ?>
+                            <div class="alert alert-warning py-2 small mb-2"><i class="fas fa-exclamation-triangle me-2"></i>Outgoing mail isn't set up, so nobody can sign up - the link to finish is emailed. Set it up in <a href="settings_mail.php">Mail</a>.</div>
+                        <?php } ?>
+                        <?php if ($signup_clients) { ?>
+                            <div class="small fw-semibold mb-1">Clients that let people sign up</div>
+                            <ul class="list-unstyled small mb-0">
+                                <?php foreach ($signup_clients as $signup_client_id => $signup_client) { ?>
+                                    <li class="mb-1">
+                                        <a href="/agent/contacts.php?client_id=<?= intval($signup_client_id) ?>&role=invites"><?= escapeHtml($signup_client['name']) ?></a>
+                                        <span class="text-body-secondary">- <?= $signup_client['domains'] ? escapeHtml(implode(', ', $signup_client['domains'])) : 'no domains, so nobody can yet' ?></span>
+                                    </li>
+                                <?php } ?>
+                            </ul>
+                        <?php } else { ?>
+                            <div class="small text-body-secondary">No client lets people sign up yet - turn it on for one on its Contacts &gt; Invites.</div>
+                        <?php } ?>
+                    </div>
+                <?= settingsSectionEnd() ?>
+            <?php } ?>
 
             <?= settingsSaveBar('edit_client_portal_settings') ?>
         </div>

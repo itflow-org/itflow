@@ -824,6 +824,79 @@ if (isset($_POST['portal_contact_access']) || isset($_POST['portal_contact_left'
 
 }
 
+if (isset($_POST['portal_invites_send'])) {
+
+    validateCSRFToken();
+
+    // Invite people to the portal - the primary contact only. Each is emailed a link to join (functions/portal_invite.php).
+    enforceContactCan('contacts_manage');
+
+    if (!portalInvitesReady() || !portalMailReady()) {
+        flashAlert("Invites can't be sent just now - add the person instead, or ask us", 'error');
+        redirect('contacts.php');
+    }
+    $typed = mb_substr((string) ($_POST['emails'] ?? ''), 0, 20000);
+    $parsed = portalInviteParse($typed);
+    if (!$parsed['people'] || count($parsed['people']) > PORTAL_INVITE_MAX) {
+        $_SESSION['portal_invite_form'] = $typed;
+        flashAlert(!$parsed['people'] ? ($parsed['bad'] ? escapeHtml($parsed['bad'][0]) . ' is not an email address' : 'Put in an email address to invite')
+            : 'That is ' . count($parsed['people']) . ' addresses - invite up to ' . PORTAL_INVITE_MAX . ' at a time', 'error');
+        redirect('invite.php');
+    }
+
+    $done = portalInviteSend($session_client_id, $parsed['people'], ['billing' => !empty($_POST['billing']), 'technical' => !empty($_POST['technical'])], ['contact_id' => $session_contact_id]);
+    $sent = array_merge($done['invited'], $done['resent']);
+    if ($sent) {
+        logAudit("Contact", "Invite", "Client contact $session_contact_name invited " . escapeSql(implode(', ', $sent)) . " to the client portal", $session_client_id);
+    }
+    $left_out = array_map(function ($bad) { return escapeHtml($bad) . ' (not an email address)'; }, $parsed['bad']);
+    foreach ($done['skipped'] as $email => $why) {
+        $left_out[] = escapeHtml($email) . ' (' . escapeHtml($why) . ')';
+    }
+    $lines = [];
+    if ($sent) {
+        $lines[] = 'Invited <strong>' . (count($sent) === 1 ? escapeHtml($sent[0]) : count($sent) . ' people') . '</strong> - we email you when they join';
+    }
+    if ($left_out) {
+        $lines[] = 'Left out: ' . implode(', ', $left_out);
+    }
+    flashAlert(implode('<br>', $lines), $sent ? 'success' : 'error');
+    redirect('contacts.php');
+
+}
+
+if (isset($_POST['portal_invite_resend']) || isset($_POST['portal_invite_cancel'])) {
+
+    validateCSRFToken();
+
+    // Send an invite waiting to be accepted again - a new link - or cancel it. The primary contact only, for their own company's.
+    enforceContactCan('contacts_manage');
+
+    $invite = portalInvitesReady() ? portalInviteRow($_POST['invite_id'] ?? 0) : null;
+    if (!$invite || intval($invite['invite_client_id']) !== $session_client_id || $invite['invite_kind'] !== 'invite'
+        || !in_array(portalInviteState($invite), ['pending', 'expired'], true)) {
+        flashAlert("That invite isn't waiting any more - they may have joined already", 'error');
+        redirect('contacts.php');
+    }
+    $email = (string) $invite['invite_email'];
+
+    if (isset($_POST['portal_invite_resend'])) {
+        if (!portalInviteResend($invite['invite_id'], $session_client_id)) {
+            flashAlert("The invite couldn't be sent just now - try again later, or ask us", 'error');
+            redirect('contacts.php');
+        }
+        logAudit("Contact", "Invite", "Client contact $session_contact_name sent the client portal invite to " . escapeSql($email) . " again", $session_client_id);
+        flashAlert('Sent the invite to <strong>' . escapeHtml($email) . '</strong> again, with a new link');
+        redirect('contacts.php');
+    }
+
+    portalInviteCancel($invite['invite_id'], $session_client_id);
+    logAudit("Contact", "Cancel", "Client contact $session_contact_name cancelled the client portal invite to " . escapeSql($email), $session_client_id);
+    flashAlert('Cancelled the invite to <strong>' . escapeHtml($email) . '</strong>');
+    redirect('contacts.php');
+
+}
+
 if (isset($_POST['portal_quote_answer'])) {
 
     validateCSRFToken();

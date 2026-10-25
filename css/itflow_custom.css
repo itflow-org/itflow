@@ -8796,3 +8796,10 @@ a.itflow-portal-request:focus-visible {
         width: 100% !important;
     }
 }
+
+/* Joining the client portal - from an invite or a sign-up (client/join.php): room for two fields to a row */
+@media (min-width: 576px) {
+    .login-box.itflow-join-box {
+        width: 460px;
+    }
+}

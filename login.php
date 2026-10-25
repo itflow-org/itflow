@@ -851,9 +851,15 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
 
             <?php if($config_client_portal_enable == 1){ ?>
                 <hr>
-                <?php if (!empty($config_smtp_provider)) { ?>
-                    <a href="client/login_reset.php">Forgot password?</a>
-                <?php } ?>
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                    <?php if (!empty($config_smtp_provider)) { ?>
+                        <a href="client/login_reset.php">Forgot password?</a>
+                    <?php } ?>
+                    <?php if (portalSignupOpen()) { ?>
+                        <!-- People at a client that lets them can make their own portal account (functions/portal_invite.php) -->
+                        <a href="client/signup.php" data-login-signup><i class="fas fa-user-plus me-1"></i>Create an account</a>
+                    <?php } ?>
+                </div>
                 <?php if (!empty($azure_client_id)) { ?>
                     <div class="col text-center mt-2">
                         <a href="client/login_microsoft.php">

@@ -95,6 +95,38 @@ function portalContactLastSignIn($user_id) {
 }
 
 /*
+ * ---------- access ----------
+ */
+
+/**
+ * Whether a contact can sign in to the portal, and how: key none (never set
+ * up), off (turned off), local (a password) or azure (Microsoft) - with a
+ * label, icon and class for portalStateBadge() in client/functions.php. From
+ * a row with user_id, user_auth_method, user_status and user_archived_at
+ * (LEFT JOIN users).
+ */
+function portalContactAccess(array $row) {
+    if (empty($row['user_id'])) {
+        return ['key' => 'none', 'label' => 'No portal access', 'icon' => 'fa-minus-circle', 'class' => 'itflow-portal-state-closed'];
+    }
+    $method = (string) ($row['user_auth_method'] ?? '');
+    if (!in_array($method, ['local', 'azure'], true) || intval($row['user_status'] ?? 0) !== 1 || !empty($row['user_archived_at'])) {
+        return ['key' => 'off', 'label' => 'Portal access off', 'icon' => 'fa-ban', 'class' => 'itflow-portal-state-closed'];
+    }
+    return ['key' => $method, 'label' => $method === 'azure' ? 'Signs in with Microsoft' : 'Signs in with a password', 'icon' => 'fa-check', 'class' => 'itflow-portal-state-resolved'];
+}
+
+/** The ways a portal user can sign in here - a password, and Microsoft when it is set up. method => label. */
+function portalSignInMethods() {
+    global $config_azure_client_id;
+    $methods = ['local' => 'With a password'];
+    if (!empty($config_azure_client_id)) {
+        $methods['azure'] = 'With their Microsoft 365 account';
+    }
+    return $methods;
+}
+
+/*
  * ---------- two-step sign-in ----------
  *
  * A portal user's authenticator secret is users.user_token, as an agent's is,

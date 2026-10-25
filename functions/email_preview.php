@@ -18,6 +18,7 @@ const EMAIL_PREVIEW_PEOPLE = [
     'contact' => ['Alex Morgan', 'alex.morgan@example.com', 'Practice Manager'],
     'colleague' => ['Jamie Chen', 'jamie.chen@example.com', 'IT Lead'],
     'agent' => ['Sam Taylor', 'sam.taylor@example.com'],
+    'newcomer' => ['Riley Park', 'riley.park@example.com'],
 ];
 
 /**
@@ -327,6 +328,7 @@ function emailPreviewCatalog() {
             'run' => function ($s) {
                 portalMailInvite($s['jamie_user'], $s['alex_name']);
             }],
+    ] + emailPreviewInviteCatalog() + [
         'portal_reset' => ['group' => 'Client portal', 'label' => 'Forgot password', 'to' => 'The contact', 'when' => 'They ask for a link on the sign-in page',
             'run' => function ($s) {
                 portalMailPasswordReset($s['alex_user']);
@@ -483,6 +485,61 @@ function emailPreviewContractCatalog() {
                 contractHoursAlertSend($row, ['bought' => 20.0, 'used' => 17.5, 'left' => 2.5, 'lapsed' => 0.0, 'next_expiry' => date('Y-m-d', strtotime('+40 days')), 'next_expiry_hours' => 2.5, 'blocks' => 1]);
             }],
     ] : []);
+}
+
+/* A sample invite or sign-up for Riley - by the agent, by Alex in the portal (by_contact), or a sign-up. Its id. */
+function emailPreviewInvite(array $s, $kind = 'invite', $by_contact = false) {
+    global $mysqli;
+    [$name, $email] = EMAIL_PREVIEW_PEOPLE['newcomer'];
+    mysqli_query($mysqli, "INSERT INTO portal_invites SET invite_kind = '" . ($kind === 'signup' ? 'signup' : 'invite') . "', invite_email = '" . escapeSql($email) . "',
+        invite_name = " . ($kind === 'signup' ? 'NULL' : "'" . escapeSql($name) . "'") . ", invite_technical = " . ($kind === 'signup' ? 0 : 1) . ", invite_expires_at = NOW(),
+        invite_created_by = " . ($kind === 'signup' || $by_contact ? 0 : intval($s['agent'])) . ", invite_created_by_contact_id = " . ($by_contact ? intval($s['alex']) : 0) . ",
+        invite_client_id = " . intval($s['client_id']));
+    return intval(mysqli_insert_id($mysqli));
+}
+
+/* The invite and sign-up emails for the catalog - once the 3.4.6 update has run. */
+function emailPreviewInviteCatalog() {
+    if (!portalInvitesReady()) {
+        return [];
+    }
+    return [
+        'portal_join_invite' => ['group' => 'Client portal', 'label' => 'Invite to join', 'to' => 'Who is invited', 'when' => 'An agent invites someone from the client\'s Contacts > Invites',
+            'run' => function ($s) {
+                $invite_id = emailPreviewInvite($s);
+                portalInviteMail($invite_id, portalInviteNewToken($invite_id));
+            }],
+        'portal_join_invite_colleague' => ['group' => 'Client portal', 'label' => 'Invite to join from a colleague', 'to' => 'Who is invited', 'when' => 'A primary contact invites someone from Contacts in the portal',
+            'run' => function ($s) {
+                $invite_id = emailPreviewInvite($s, 'invite', true);
+                portalInviteMail($invite_id, portalInviteNewToken($invite_id));
+            }],
+        'portal_join_accepted' => ['group' => 'Client portal', 'label' => 'Invite accepted', 'to' => 'The primary contact who sent it', 'when' => 'Someone they invited joins',
+            'run' => function ($s) {
+                global $mysqli;
+                $invite_id = emailPreviewInvite($s, 'invite', true);
+                [$name, $email] = EMAIL_PREVIEW_PEOPLE['newcomer'];
+                mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '" . escapeSql($name) . "', contact_email = '" . escapeSql($email) . "', contact_technical = 1, contact_client_id = " . intval($s['client_id']));
+                mysqli_query($mysqli, "UPDATE portal_invites SET invite_accepted_at = NOW(), invite_contact_id = " . intval(mysqli_insert_id($mysqli)) . " WHERE invite_id = $invite_id");
+                portalMailInviteAccepted($invite_id);
+            }],
+        'portal_signup' => ['group' => 'Client portal', 'label' => 'Finish signing up', 'to' => 'Who is signing up', 'when' => 'Someone asks to sign up from the sign-in page, with an address at a client that lets people sign up',
+            'run' => function ($s) {
+                $invite_id = emailPreviewInvite($s, 'signup');
+                portalInviteMail($invite_id, portalInviteNewToken($invite_id));
+            }],
+        'portal_signup_exists' => ['group' => 'Client portal', 'label' => 'Signing up with an account already', 'to' => 'Who tried to sign up', 'when' => 'Someone asks to sign up with an address that signs in already',
+            'run' => function ($s) {
+                portalMailSignupExists($s['jamie_user']);
+            }],
+        'portal_signup_joined' => ['group' => 'Client portal', 'label' => 'Someone signed up', 'to' => 'The client\'s primary contact', 'when' => 'Someone finishes signing up',
+            'run' => function ($s) {
+                global $mysqli;
+                [$name, $email] = EMAIL_PREVIEW_PEOPLE['newcomer'];
+                mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '" . escapeSql($name) . "', contact_email = '" . escapeSql($email) . "', contact_client_id = " . intval($s['client_id']));
+                portalMailSignupJoined(intval(mysqli_insert_id($mysqli)));
+            }],
+    ];
 }
 
 /*

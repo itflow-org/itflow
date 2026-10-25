@@ -232,6 +232,12 @@ if (array_sum($contracts_done)) {
     logApp("Cron", "info", "Contracts: {$contracts_done['renewed']} renewed, {$contracts_done['ended']} ended, {$contracts_done['reminded']} owner(s) reminded, {$contracts_done['drawn']} ticket(s) drawn from prepaid hours, {$contracts_done['paused']} recurring invoice(s) paused");
 }
 
+// CLIENT PORTAL - links to join that nobody used
+$portal_invites_cleared = portalInvitesNightly();
+if ($portal_invites_cleared) {
+    logApp("Cron", "info", "Client portal: cleared $portal_invites_cleared sign-up or cancelled invite link(s) nobody used");
+}
+
 // GET NOTIFICATIONS
 
 // DOMAINS EXPIRING

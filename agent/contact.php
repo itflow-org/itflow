@@ -69,6 +69,8 @@ $contact_dial = $row['contact_phone'] ? 'phone' : ($row['contact_mobile'] ? 'mob
 $contact_portal = contactPortalAccess($row['contact_user_id'], $row['user_auth_method']);
 $contact_portal_mfa = $contact_portal === 'Password' && trim((string) $row['user_token']) !== '';
 $contact_portal_last = $contact_portal ? portalContactLastSignIn($row['contact_user_id']) : null;
+// How they joined, when it was by an invite or signing up (functions/portal_invite.php)
+$contact_portal_joined = $contact_portal ? portalContactJoined($contact_id) : null;
 // View as contact - read access to clients and support is checked again when it starts (functions/portal.php)
 $can_view_as = $config_client_portal_enable && !$row['contact_archived_at'] && lookupUserPermission('module_support') >= 1;
 $contact_role_line = implode(' &middot; ', array_filter([$contact_title, $contact_department]));
@@ -406,6 +408,9 @@ if (!$can_support) {
                         <?= $contact_portal ? "Can log in &middot; <span class='text-body-secondary'>$contact_portal" . ($contact_portal_mfa ? ' and a code' : '') . "</span>" : '<span class="text-body-secondary">No access</span>' ?>
                         <?php if ($contact_portal) { ?>
                             <div class="small text-body-secondary"><?= $contact_portal_last ? 'Last signed in <span title="' . escapeHtml($contact_portal_last) . '">' . timeAgo($contact_portal_last) . '</span>' : 'Has not signed in yet' ?></div>
+                        <?php } ?>
+                        <?php if ($contact_portal_joined) { ?>
+                            <div class="small text-body-secondary" data-contact-joined><?= $contact_portal_joined['kind'] === 'signup' ? 'Signed up themselves' : 'Joined from ' . ($contact_portal_joined['by'] !== '' ? escapeHtml($contact_portal_joined['by']) . "'s invite" : 'an invite') ?> on <?= date('M j, Y', strtotime($contact_portal_joined['at'])) ?></div>
                         <?php } ?>
                         <?php if ($can_view_as || ($contact_portal_mfa && $can_edit)) { ?>
                             <div class="d-flex flex-wrap gap-2 mt-1 small d-print-none">

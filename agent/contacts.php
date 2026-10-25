@@ -7,7 +7,10 @@
  * department), how to reach them (phone, mobile, email - each one a click to
  * call, mail or copy), where they are (changed in place, js/quick_pick.js)
  * and what is linked to them. Tabs across the top narrow it to the roles an
- * MSP reaches for: important people, billing, technical, portal users.
+ * MSP reaches for: important people, billing, technical, portal users - and
+ * Invites, the people asked to join the portal who haven't yet, with sending
+ * an invite again or cancelling it, and (for one client) whether people there
+ * can sign up themselves (functions/portal_invite.php).
  */
 
 // Default Column Sortby Filter
@@ -56,6 +59,9 @@ $contact_role_tabs = [
     'technical' => ['label' => 'Technical', 'icon' => 'fa-tools', 'query' => "contact_technical = 1"],
     'portal' => ['label' => 'Portal', 'icon' => 'fa-user-circle', 'query' => "contact_user_id > 0 AND COALESCE(user_auth_method, '') != ''"],
 ];
+// Invites to the portal waiting to be accepted - their own tab, with its own list
+$invites_on = portalInvitesReady() && intval($config_client_portal_enable) === 1;
+$invites_view = $invites_on && ($_GET['role'] ?? '') === 'invites';
 $role_filter = (isset($_GET['role']) && isset($contact_role_tabs[$_GET['role']])) ? $_GET['role'] : '';
 $_GET['role'] = $role_filter;
 $role_query = $role_filter ? $contact_role_tabs[$role_filter]['query'] : "1 = 1";
@@ -91,9 +97,21 @@ if ($client_url && !empty($_GET['location'])) {
 // Only these sort - filter_header.php will hand through any lowercase word, and
 // an unknown column takes the page down with a mysqli exception
 $sortable_columns = ['contact_name', 'contact_title', 'contact_department', 'contact_email', 'location_name', 'client_name', 'contact_created_at'];
-if (!in_array($sort, $sortable_columns, true)) {
+if ($invites_view) {
+    // Invites - newest first unless asked
+    if (!in_array($sort, ['invite_email', 'invite_created_at', 'client_name'], true)) {
+        $sort = 'invite_created_at';
+        $order = isset($_GET['order']) ? $order : 'DESC';
+    }
+} elseif (!in_array($sort, $sortable_columns, true)) {
     $sort = 'contact_name';
 }
+
+// The invites tab's count - waiting, in date or run out - in this client or filter, for clients still here
+$invites_scope_sql = clientScopeSql('invite_client_id') . ($client_url ? " AND invite_client_id = $client_id" : ($client ? " AND invite_client_id = " . intval($client) : ''));
+$invites_count = $invites_on ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM portal_invites JOIN clients ON client_id = invite_client_id
+    WHERE invite_kind = 'invite' AND invite_accepted_at IS NULL AND invite_cancelled_at IS NULL AND client_archived_at IS NULL $invites_scope_sql"))[0]) : 0;
+$show_invites_tab = $invites_on && ($client_url || $invites_count || $invites_view);
 
 // Tab counts - within the client, location, tag and archive scope, before the search narrows it
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
@@ -117,31 +135,59 @@ foreach (array_keys($contact_role_tabs) as $tab_key) {
     $tab_counts[$tab_key] = intval($row[$tab_key . '_count']);
 }
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.contact_id, contact_archived_at, contact_billing, contact_client_id,
-        contact_department, contact_email, contact_extension, contact_important, contact_location_id, contact_mobile,
-        contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code, contact_photo, contact_primary,
-        contact_technical, contact_title, contact_user_id, client_id, client_name, location_archived_at, location_name, user_auth_method
-    FROM contacts
-    LEFT JOIN clients ON client_id = contact_client_id
-    LEFT JOIN locations ON location_id = contact_location_id
-    LEFT JOIN users ON user_id = contact_user_id
-    WHERE $archive_query
-    $tag_query
-    AND ($role_query)
-    AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%' OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%'
-        OR contact_phone LIKE '%$phone_query%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$phone_query%' OR client_name LIKE '%$q%'
-        OR contacts.contact_id IN (SELECT contact_tags.contact_id FROM contact_tags JOIN tags ON tags.tag_id = contact_tags.tag_id WHERE tag_name LIKE '%$q%'))
-    " . clientScopeSql('contact_client_id') . "
-    $client_query
-    $location_query
-    ORDER BY contact_primary DESC, contact_important DESC, $sort $order LIMIT $record_from, $record_to"
-);
+$invites = [];
+if ($invites_view) {
+    $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS invite_id, invite_email, invite_name, invite_billing, invite_technical, invite_expires_at,
+            invite_sent_at, invite_sent_count, invite_created_at, invite_created_by, invite_created_by_contact_id, invite_kind, invite_accepted_at, invite_cancelled_at,
+            invite_client_id, client_name, agent.user_name AS invite_by_agent, by_contact.contact_name AS invite_by_contact
+        FROM portal_invites
+        JOIN clients ON client_id = invite_client_id
+        LEFT JOIN users agent ON agent.user_id = invite_created_by AND invite_created_by > 0
+        LEFT JOIN contacts by_contact ON by_contact.contact_id = invite_created_by_contact_id AND invite_created_by_contact_id > 0
+        WHERE invite_kind = 'invite' AND invite_accepted_at IS NULL AND invite_cancelled_at IS NULL AND client_archived_at IS NULL
+        AND (invite_email LIKE '%$q%' OR invite_name LIKE '%$q%' OR client_name LIKE '%$q%')
+        $invites_scope_sql
+        ORDER BY $sort $order, invite_id DESC LIMIT $record_from, $record_to");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $invites[] = $row;
+    }
+} else {
+    $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.contact_id, contact_archived_at, contact_billing, contact_client_id,
+            contact_department, contact_email, contact_extension, contact_important, contact_location_id, contact_mobile,
+            contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code, contact_photo, contact_primary,
+            contact_technical, contact_title, contact_user_id, client_id, client_name, location_archived_at, location_name, user_auth_method
+        FROM contacts
+        LEFT JOIN clients ON client_id = contact_client_id
+        LEFT JOIN locations ON location_id = contact_location_id
+        LEFT JOIN users ON user_id = contact_user_id
+        WHERE $archive_query
+        $tag_query
+        AND ($role_query)
+        AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%' OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%'
+            OR contact_phone LIKE '%$phone_query%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$phone_query%' OR client_name LIKE '%$q%'
+            OR contacts.contact_id IN (SELECT contact_tags.contact_id FROM contact_tags JOIN tags ON tags.tag_id = contact_tags.tag_id WHERE tag_name LIKE '%$q%'))
+        " . clientScopeSql('contact_client_id') . "
+        $client_query
+        $location_query
+        ORDER BY contact_primary DESC, contact_important DESC, $sort $order LIMIT $record_from, $record_to"
+    );
+}
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 $contacts = [];
-while ($row = mysqli_fetch_assoc($sql)) {
+while (!$invites_view && ($row = mysqli_fetch_assoc($sql))) {
     $contacts[intval($row['contact_id'])] = $row;
+}
+
+// Whether people at this client can sign up themselves, shown on its Invites tab
+$signup = null;
+if ($invites_view && $client_url) {
+    $signup = [
+        'on' => intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT client_portal_signup FROM clients WHERE client_id = $client_id"))[0] ?? 0) === 1,
+        'domains' => portalSignupDomains($client_id),
+        'everyone' => portalSignupOn(),
+    ];
 }
 
 // Tags and what is linked to each contact, for the whole page in a handful of
@@ -177,6 +223,7 @@ if ($contacts) {
 }
 
 $search_noun = $role_filter ? strtolower($contact_role_tabs[$role_filter]['label']) . ' contacts' : 'contacts';
+$search_placeholder = $invites_view ? 'Search invites by email, name or client' : "Search $search_noun, phones, emails...";
 
 ?>
 
@@ -191,6 +238,12 @@ $search_noun = $role_filter ? strtolower($contact_role_tabs[$role_filter]['label
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                 <div class="dropdown-menu dropdown-menu-end">
+                    <?php if ($client_url && $invites_on) { ?>
+                    <a class="dropdown-item text-dark ajax-modal" href="#"
+                        data-modal-url="modals/contact/contact_invite.php?<?= $client_url ?>">
+                        <i class="fa fa-fw fa-user-plus me-2"></i>Invite to the portal
+                    </a>
+                    <?php } ?>
                     <?php if ($client_url) { ?>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
                         data-modal-url="modals/contact/contact_import.php?<?= $client_url ?>">
@@ -208,11 +261,11 @@ $search_noun = $role_filter ? strtolower($contact_role_tabs[$role_filter]['label
         </div>
     </div>
 
-    <?php if ($tab_counts['']) { ?>
+    <?php if ($tab_counts[''] || $show_invites_tab) { ?>
         <!-- Roles -->
         <div class="card-header py-2 itflow-asset-tabs">
             <nav class="nav nav-pills flex-nowrap overflow-auto">
-                <a class="nav-link text-nowrap <?= $role_filter === '' ? 'active' : '' ?>" href="?<?= $url_query_strings_sort ?>&role=">
+                <a class="nav-link text-nowrap <?= $role_filter === '' && !$invites_view ? 'active' : '' ?>" href="?<?= $url_query_strings_sort ?>&role=">
                     All <span class="badge rounded-pill ms-1"><?= $tab_counts[''] ?></span>
                 </a>
                 <?php foreach ($contact_role_tabs as $tab_key => $tab) {
@@ -223,7 +276,40 @@ $search_noun = $role_filter ? strtolower($contact_role_tabs[$role_filter]['label
                         <i class="fas fa-fw <?= $tab['icon'] ?> me-1"></i><?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= $tab_counts[$tab_key] ?></span>
                     </a>
                 <?php } ?>
+                <?php if ($show_invites_tab) { ?>
+                    <a class="nav-link text-nowrap <?= $invites_view ? 'active' : '' ?>" href="?<?= $url_query_strings_sort ?>&role=invites" data-contacts-invites-tab>
+                        <i class="fas fa-fw fa-paper-plane me-1"></i>Invites <span class="badge rounded-pill ms-1"><?= $invites_count ?></span>
+                    </a>
+                <?php } ?>
             </nav>
+        </div>
+    <?php } ?>
+
+    <?php if ($signup !== null) {
+        $signup_ready = $signup['domains'] && $signup['everyone'];
+        $signup_on = $signup['on'] && $signup_ready; ?>
+        <!-- Signing up - whether people at the client can make their own account -->
+        <div class="card-header py-2 d-flex flex-wrap flex-md-nowrap align-items-center gap-2 gap-md-3" data-contacts-signup="<?= $signup['on'] ? 'on' : 'off' ?>">
+            <span class="badge rounded-pill text-nowrap <?= $signup_on ? 'text-bg-success' : 'text-bg-secondary' ?>"><i class="fas <?= $signup_on ? 'fa-door-open' : 'fa-door-closed' ?> me-1"></i>Signing up <?= $signup_on ? 'on' : 'off' ?></span>
+            <span class="small text-body-secondary flex-grow-1 min-w-0">
+                <?php if (!$signup['domains']) { ?>
+                    People here can sign up themselves with an address at one of the client's <a href="domains.php?<?= $client_url ?>">Domains</a> - it has none yet.
+                <?php } elseif ($signup_on) { ?>
+                    Anyone with an address at <strong><?= escapeHtml(implode(', ', $signup['domains'])) ?></strong> can make an account from the sign-in page, and joins as a plain contact. You're told when they do.
+                <?php } elseif ($signup['on']) { ?>
+                    On for <?= escapeHtml(implode(', ', $signup['domains'])) ?>, but signing up is off for every client in <?= !empty($session_is_admin) ? '<a href="/admin/settings_client_portal.php#section-sign-up">Admin &gt; Settings &gt; Client portal</a>' : 'Admin &gt; Settings &gt; Client portal' ?>.
+                <?php } else { ?>
+                    Let anyone with an address at <?= escapeHtml(implode(', ', $signup['domains'])) ?> make their own account, instead of being invited.
+                <?php } ?>
+            </span>
+            <?php if ($can_edit && ($signup['on'] || $signup['domains'])) { ?>
+                <form action="post.php" method="post" class="flex-shrink-0">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
+                    <input type="hidden" name="portal_signup" value="<?= $signup['on'] ? 0 : 1 ?>">
+                    <button type="submit" name="set_client_portal_signup" class="btn btn-sm text-nowrap <?= $signup['on'] ? 'btn-outline-secondary' : 'btn-outline-primary' ?>"><i class="fas <?= $signup['on'] ? 'fa-door-closed' : 'fa-door-open' ?> me-2"></i><?= $signup['on'] ? 'Turn off' : 'Let them sign up' ?></button>
+                </form>
+            <?php } ?>
         </div>
     <?php } ?>
 
@@ -232,18 +318,18 @@ $search_noun = $role_filter ? strtolower($contact_role_tabs[$role_filter]['label
             <?php if ($client_url) { ?>
             <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
-            <input type="hidden" name="role" value="<?= $role_filter ?>">
+            <input type="hidden" name="role" value="<?= $invites_view ? 'invites' : $role_filter ?>">
             <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row g-2 align-items-center">
 
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?= $search_noun ?>, phones, emails...">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="<?= $search_placeholder ?>">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
 
-                <?php if ($client_url) { ?>
+                <?php if ($client_url && !$invites_view) { ?>
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="location" onchange="this.form.submit()">
                         <option value="">- All Locations -</option>
@@ -261,7 +347,7 @@ $search_noun = $role_filter ? strtolower($contact_role_tabs[$role_filter]['label
                         <?php } ?>
                     </select>
                 </div>
-                <?php } else { ?>
+                <?php } elseif (!$client_url) { ?>
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="client" onchange="this.form.submit()">
                         <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
@@ -282,6 +368,7 @@ $search_noun = $role_filter ? strtolower($contact_role_tabs[$role_filter]['label
                 </div>
                 <?php } ?>
 
+                <?php if (!$invites_view) { ?>
                 <div class="col-lg-3 col-md-6">
                     <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
                         <?php
@@ -371,10 +458,96 @@ $search_noun = $role_filter ? strtolower($contact_role_tabs[$role_filter]['label
                         <?php } ?>
                     </div>
                 </div>
+                <?php } elseif ($client_url && $can_edit) { ?>
+                <div class="col-lg col-md-6 text-md-end">
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contact/contact_invite.php?<?= $client_url ?>"><i class="fas fa-user-plus me-2"></i>Invite people</button>
+                </div>
+                <?php } ?>
 
             </div>
         </form>
     </div>
+    <?php if ($invites_view) { ?>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" data-contacts-invites>
+            <thead class="<?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap table-light">
+            <tr>
+                <th class="ps-3">
+                    <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=invite_email&order=<?= $disp ?>">
+                        Invited <?php if ($sort == 'invite_email') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <th class="d-none d-md-table-cell">Sees</th>
+                <th class="d-none d-sm-table-cell">
+                    <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=invite_created_at&order=<?= $disp ?>">
+                        Sent <?php if ($sort == 'invite_created_at') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <th>Link</th>
+                <?php if (!$client_url) { ?>
+                <th>
+                    <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
+                        Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <?php } ?>
+                <th class="position-relative"><span class="visually-hidden">Actions</span></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($invites as $row) {
+                $invite_id = intval($row['invite_id']);
+                $invite_client_id = intval($row['invite_client_id']);
+                $invite_name = trim((string) $row['invite_name']);
+                $invite_by = portalInviteBy($row);
+                $invite_state = portalInviteStateLabel($row);
+                $invite_sees = array_filter([intval($row['invite_technical']) ? 'Technical' : '', intval($row['invite_billing']) ? 'Billing' : '']); ?>
+                <tr data-invite="<?= $invite_id ?>">
+                    <td class="ps-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="d-none d-sm-inline-flex"><?= contactAvatar($invite_client_id, 0, $invite_name !== '' ? $invite_name : $row['invite_email'], '') ?></span>
+                            <div class="min-w-0">
+                                <div class="fw-semibold text-break"><?= escapeHtml($row['invite_email']) ?></div>
+                                <?php if ($invite_name !== '') { ?><div class="small text-body-secondary"><?= escapeHtml($invite_name) ?></div><?php } ?>
+                                <div class="small text-body-secondary d-sm-none">Sent <?= escapeHtml(timeAgo($row['invite_created_at'])) ?></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="d-none d-md-table-cell small">
+                        <?= $invite_sees ? escapeHtml(implode(', ', $invite_sees)) : '<span class="text-body-secondary">Their own tickets</span>' ?>
+                    </td>
+                    <td class="small d-none d-sm-table-cell">
+                        <div title="<?= escapeHtml($row['invite_created_at']) ?>"><?= escapeHtml(timeAgo($row['invite_created_at'])) ?></div>
+                        <div class="text-body-secondary">
+                            <?= $invite_by !== '' ? 'by ' . escapeHtml($invite_by) . (intval($row['invite_created_by_contact_id']) ? ' in the portal' : '') : '' ?><?= intval($row['invite_sent_count']) > 1 ? ' &middot; sent ' . intval($row['invite_sent_count']) . ' times' : '' ?>
+                        </div>
+                    </td>
+                    <td><span class="badge rounded-pill text-bg-<?= $invite_state['tone'] ?>" title="<?= escapeHtml($invite_state['title']) ?>"><?= escapeHtml($invite_state['label']) ?></span></td>
+                    <?php if (!$client_url) { ?>
+                    <td><a href="contacts.php?client_id=<?= $invite_client_id ?>&role=invites"><?= escapeHtml($row['client_name']) ?></a></td>
+                    <?php } ?>
+                    <td class="text-end">
+                        <?php if ($can_edit) { ?>
+                            <div class="dropdown dropstart">
+                                <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="post.php?resend_portal_invite=<?= $invite_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send again
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger confirm-link" href="post.php?cancel_portal_invite=<?= $invite_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <i class="fas fa-fw fa-ban me-2"></i>Cancel invite
+                                    </a>
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </td>
+                </tr>
+            <?php } ?>
+            </tbody>
+        </table>
+    </div>
+    <?php } else { ?>
     <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
@@ -553,8 +726,16 @@ $search_noun = $role_filter ? strtolower($contact_role_tabs[$role_filter]['label
             </table>
         </div>
     </form>
+    <?php } ?>
     <?php
-    $empty_state = [
+    $empty_state = $invites_view ? [
+        'thing' => 'invites',
+        'icon' => 'fa-paper-plane',
+        'views' => ['role'],
+        'title' => 'No invites waiting',
+        'text' => 'Invite people to the client portal by email - they put in their own name, phone and password when they accept, and are added to the contacts then.',
+        'actions' => $can_edit && $client_url ? [['label' => 'Invite people', 'modal' => "modals/contact/contact_invite.php?$client_url", 'icon' => 'fa-user-plus']] : [],
+    ] : [
         'thing' => 'contacts',
         'icon' => 'fa-address-book',
         'views' => ['role'],
