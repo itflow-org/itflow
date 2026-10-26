@@ -2,10 +2,12 @@
 
 /*
  * Get started - Support: business hours (what response times count), the
- * standard response times as the default SLAs (GETTING_STARTED_SLAS), how
- * tickets are numbered and whether clients have the portal
- * (getting_started_support). The same settings as Admin > SLAs, Tickets and
- * Modules.
+ * standard response times as the default SLAs (GETTING_STARTED_SLAS - how
+ * soon a ticket is answered, with no time to resolve it by), how tickets are
+ * numbered and whether clients have the portal (getting_started_support).
+ * The same settings as Admin > SLAs, Tickets and Modules. A priority that
+ * already has an SLA shows its own times, the time to resolve among them
+ * when it has one.
  */
 
 defined('FROM_GETTING_STARTED') || die("Direct file access is not allowed");
@@ -24,6 +26,10 @@ $gs_sql = mysqli_query($mysqli, "SELECT sla_assignment_priority, sla_name, sla_r
 while ($gs_row = mysqli_fetch_assoc($gs_sql)) {
     $gs_slas[$gs_row['sla_assignment_priority']] = $gs_row;
 }
+// A column for the time to resolve, only when an SLA already given has one
+$gs_show_resolution = (bool) array_filter($gs_slas, function ($sla) {
+    return intval($sla['sla_resolution_minutes']) > 0;
+});
 $gs_use_standard = settingsChecked('standard_slas', true);
 
 ?>
@@ -49,22 +55,24 @@ $gs_use_standard = settingsChecked('standard_slas', true);
     <?php if ($gs_slas) { ?>
         <p class="small text-body-secondary">The response times a ticket gets unless its client has their own - in Admin &gt; SLAs.</p>
     <?php } else { ?>
-        <p class="small text-body-secondary">How soon a ticket is answered and put right, by its priority - a client can have their own. Change them, or add more, in Admin &gt; SLAs.</p>
+        <p class="small text-body-secondary">How soon a ticket is answered, by its priority - a client can have their own. Change them, add a time to put a ticket right by, or add more, in Admin &gt; SLAs.</p>
     <?php } ?>
     <div class="table-responsive mb-3">
         <table class="table table-sm align-middle mb-0 itflow-gs-slas" data-gs-slas>
             <thead>
-                <tr><th scope="col">Priority</th><th scope="col">Answered within</th><th scope="col">Put right within</th></tr>
+                <tr><th scope="col">Priority</th><th scope="col">Answered within</th><?= $gs_show_resolution ? '<th scope="col">Put right within</th>' : '' ?></tr>
             </thead>
             <tbody>
                 <?php foreach (array_keys(GETTING_STARTED_SLAS) as $gs_priority) {
                     [$gs_response, $gs_resolution] = isset($gs_slas[$gs_priority])
                         ? [intval($gs_slas[$gs_priority]['sla_response_minutes']), intval($gs_slas[$gs_priority]['sla_resolution_minutes'])]
-                        : GETTING_STARTED_SLAS[$gs_priority]; ?>
+                        : [GETTING_STARTED_SLAS[$gs_priority], 0]; ?>
                     <tr data-gs-sla="<?= $gs_priority ?>">
                         <th scope="row" class="fw-normal"><?= $gs_priority ?><?= isset($gs_slas[$gs_priority]) ? ' <span class="small text-body-secondary">- ' . escapeHtml($gs_slas[$gs_priority]['sla_name']) . '</span>' : '' ?></th>
                         <td><?= escapeHtml(formatSlaMinutes($gs_response)) ?></td>
-                        <td><?= escapeHtml(formatSlaMinutes($gs_resolution)) ?></td>
+                        <?php if ($gs_show_resolution) { ?>
+                            <td><?= $gs_resolution > 0 ? escapeHtml(formatSlaMinutes($gs_resolution)) : '<span class="text-body-secondary">No set time</span>' ?></td>
+                        <?php } ?>
                     </tr>
                 <?php } ?>
             </tbody>

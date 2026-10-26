@@ -40,12 +40,16 @@ const GETTING_STARTED_STEPS = [
         'about' => 'A client to raise tickets and send invoices for - or the demo data, to look around first.'],
 ];
 
-/** The standard response times the Support step offers - business minutes to respond and to resolve, by priority. */
+/**
+ * The standard response times the Support step offers - business minutes to
+ * answer, by priority. No time to resolve: one can be added to an SLA in
+ * Admin > SLAs.
+ */
 const GETTING_STARTED_SLAS = [
-    'Urgent' => [60, 240],
-    'High' => [120, 480],
-    'Medium' => [240, 960],
-    'Low' => [480, 2400],
+    'Urgent' => 60,
+    'High' => 120,
+    'Medium' => 240,
+    'Low' => 480,
 ];
 
 /** Has the 3.4.7 update run? Until it has, Get started isn't shown anywhere. */
@@ -288,24 +292,24 @@ function gettingStartedBackupSave($enabled, $daily_at, $type, $keep_count, $keep
 
 /**
  * The standard response times as the default SLAs, for each priority that
- * has none - an SLA named "Standard - High" and so on, or one already there
- * with the same minutes - and open tickets stamped with them. The SLAs given,
- * priority => id.
+ * has none - an SLA named "Standard - High" and so on, with no resolution
+ * time, or one already there with the same response time and none - and open
+ * tickets stamped with them. The SLAs given, priority => id.
  */
 function gettingStartedApplySlas() {
     global $mysqli;
     $ids = [];
-    foreach (GETTING_STARTED_SLAS as $priority => [$response, $resolution]) {
+    foreach (GETTING_STARTED_SLAS as $priority => $response) {
         $assigned = mysqli_fetch_row(mysqli_query($mysqli, "SELECT 1 FROM sla_assignments JOIN slas ON sla_id = sla_assignment_sla_id
             WHERE sla_assignment_client_id = 0 AND sla_assignment_priority = '$priority' AND sla_archived_at IS NULL LIMIT 1"));
         if ($assigned) {
             continue;
         }
-        $existing = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT sla_id FROM slas WHERE sla_archived_at IS NULL AND sla_response_minutes = $response AND sla_resolution_minutes = $resolution ORDER BY sla_id LIMIT 1"))[0] ?? 0);
+        $existing = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT sla_id FROM slas WHERE sla_archived_at IS NULL AND sla_response_minutes = $response AND IFNULL(sla_resolution_minutes, 0) = 0 ORDER BY sla_id LIMIT 1"))[0] ?? 0);
         if (!$existing) {
             $name = escapeSql("Standard - $priority");
-            $description = escapeSql('Respond within ' . formatSlaMinutes($response) . ', resolve within ' . formatSlaMinutes($resolution));
-            mysqli_query($mysqli, "INSERT INTO slas SET sla_name = '$name', sla_description = '$description', sla_response_minutes = $response, sla_resolution_minutes = $resolution");
+            $description = escapeSql('Respond within ' . formatSlaMinutes($response));
+            mysqli_query($mysqli, "INSERT INTO slas SET sla_name = '$name', sla_description = '$description', sla_response_minutes = $response, sla_resolution_minutes = NULL");
             $existing = intval(mysqli_insert_id($mysqli));
         }
         $ids[$priority] = $existing;
