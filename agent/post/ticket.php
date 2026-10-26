@@ -820,13 +820,17 @@ if (isset($_POST['bulk_resolve_tickets'])) {
 
         ticketResolve($row);
 
+        $resolve_reply_id = 0;
         if ($details !== '' || $time_worked !== '00:00:00') {
             mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$details', ticket_reply_type = '$reply_type', ticket_reply_time_worked = '$time_worked', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+            $resolve_reply_id = mysqli_insert_id($mysqli);
         }
 
-        // Client notification email
+        // Client notification email - it carries the details, so their reply keeps who it went to
         if (intval($config_ticket_client_general_notifications) === 1 && !$private_note) {
-            ticketMailResolved($ticket_id, (string) ($_POST['bulk_details'] ?? ''));
+            ticketMailResolved($ticket_id, (string) ($_POST['bulk_details'] ?? ''), $resolve_reply_id);
+        } else {
+            ticketReplyEmailed($resolve_reply_id, false);
         }
         $count++;
     }
@@ -901,9 +905,11 @@ if (isset($_POST['bulk_ticket_reply'])) {
             triggerCustomAction('ticket_resolve', $ticket_id);
         }
 
-        // Email the client and watchers about a public update
+        // Email the client and watchers about a public update - the reply keeps who it went to
         if (!$private_note) {
-            ticketMailReply($ticket_id, $reply_text, stripslashes($session_name), false, $bulk_attachments['send']);
+            ticketMailReply($ticket_id, $reply_text, stripslashes($session_name), false, $bulk_attachments['send'], $bulk_reply_id);
+        } else {
+            ticketReplyEmailed($bulk_reply_id, false);
         }
 
         // Tell the agent it is assigned to, and whoever opened it
@@ -1112,11 +1118,14 @@ if (isset($_POST['add_ticket_reply'])) {
         // The canned responses picked into it, for how often each is used
         cannedResponseRecordUses((array) ($_POST['canned_response_ids'] ?? []), $ticket_id, $session_user_id);
 
-        // Email the client and the watchers
+        // Email the client and the watchers - the reply keeps who it went to, for the conversation
+        $emailed_to = 0;
         if ($send_email) {
             // The reply as saved - with the signature - read back
-            ticketMailReply($ticket_id, (string) getFieldById('ticket_replies', $ticket_reply_id, 'ticket_reply'), stripslashes($session_name),
-                $ticket_status === TICKET_STATUS_RESOLVED, $emailable_attachments['send']);
+            $emailed_to = ticketMailReply($ticket_id, (string) getFieldById('ticket_replies', $ticket_reply_id, 'ticket_reply'), stripslashes($session_name),
+                $ticket_status === TICKET_STATUS_RESOLVED, $emailable_attachments['send'], $ticket_reply_id);
+        } else {
+            ticketReplyEmailed($ticket_reply_id, false);
         }
 
         // Tell the agent it is assigned to, and whoever opened it
@@ -1132,7 +1141,17 @@ if (isset($_POST['add_ticket_reply'])) {
 
         triggerCustomAction($ticket_reply_type === 'Internal' ? 'ticket_reply_agent_internal' : 'reply_reply_agent_public', $ticket_id);
 
-        flashAlert(($ticket_reply_type === 'Internal' ? 'Internal note added to' : 'Reply added to') . " ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong>");
+        $reference_html = "<strong>" . escapeHtml(ticketReference($row)) . "</strong>";
+        if ($ticket_reply_type === 'Internal') {
+            flashAlert("Internal note added to ticket $reference_html");
+        } elseif (!$send_email) {
+            flashAlert("Public note added to ticket $reference_html - not emailed");
+        } elseif ($emailed_to) {
+            flashAlert("Reply added to ticket $reference_html and emailed to <strong>$emailed_to</strong> " . ($emailed_to === 1 ? 'person' : 'people'));
+        } else {
+            // They chose to email it - say plainly that it didn't go
+            flashAlert("Reply added to ticket $reference_html but not emailed - " . (emailReady() ? 'there\'s no contact or watcher with an email address to send it to' : 'mail isn\'t set up'), 'warning');
+        }
 
     } else {
         // A file uploaded without any accompanying text has no reply to hang off,

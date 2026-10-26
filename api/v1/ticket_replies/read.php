@@ -25,6 +25,10 @@
  *   - ticket_reply_by is a user_id on Internal/Public replies and a contact_id on
  *     Client replies (those come from the email parser). ticket_reply_by_name is
  *     resolved here so callers don't have to know that.
+ *   - ticket_reply_emailed is 1 when a Public reply was emailed, 0 when an
+ *     agent's reply wasn't, and null when that isn't known - a client's reply,
+ *     or one from before 3.4.8 the mail queue no longer had. ticket_reply_emailed_to
+ *     is who it went to, a JSON list of {"email", "name"}.
  *   - Archived replies are hidden everywhere in the UI, so they're excluded by
  *     default here too.
  *   - Unlike invoice_items/read.php this does not require a filter - an unfiltered

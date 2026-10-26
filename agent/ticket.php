@@ -257,16 +257,21 @@ if (isset($_GET['ticket_id'])) {
             AND ticket_reply_type != 'Client'"
         ))['user_names']);
 
-        // Get ticket replies
+        // Get ticket replies - with whether each of yours was emailed, and who to
         $sql_ticket_replies = mysqli_query($mysqli, "SELECT contact_name, contact_photo, ticket_reply, ticket_reply_by, ticket_reply_created_at, ticket_reply_id,
-            ticket_reply_time_worked, ticket_reply_type, ticket_reply_updated_at, user_avatar, user_id,
-            user_name FROM ticket_replies
+            ticket_reply_time_worked, ticket_reply_type, ticket_reply_updated_at, user_avatar, user_id, user_name,
+            " . (ticketReplyEmailReady() ? 'ticket_reply_emailed, ticket_reply_emailed_to' : 'NULL AS ticket_reply_emailed, NULL AS ticket_reply_emailed_to') . "
+            FROM ticket_replies
             LEFT JOIN users ON ticket_reply_by = user_id
             LEFT JOIN contacts ON ticket_reply_by = contact_id
             WHERE ticket_reply_ticket_id = $ticket_id
             AND ticket_reply_archived_at IS NULL
             ORDER BY ticket_reply_id DESC"
         );
+        $ticket_reply_rows = mysqli_fetch_all($sql_ticket_replies, MYSQLI_ASSOC);
+        // Whether each email went, from the mail queue while it has them
+        $reply_email_states = ticketReplyEmailStates($ticket_reply_rows);
+        $reply_email_queue_url = $session_is_admin ? '/admin/mail_queue.php?q=' . rawurlencode('[' . ticketReference($ticket) . ']') : '';
 
         /*
          * Every attachment on the ticket in one query, split by reply. The page
@@ -901,7 +906,7 @@ if (isset($_GET['ticket_id'])) {
 
                 <?php
 
-                while ($reply_row = mysqli_fetch_assoc($sql_ticket_replies)) {
+                foreach ($ticket_reply_rows as $reply_row) {
                     $ticket_reply_id = intval($reply_row['ticket_reply_id']);
                     $ticket_reply = $purifier->purify($reply_row['ticket_reply']);
                     $ticket_reply_type = escapeHtml($reply_row['ticket_reply_type']);
@@ -935,11 +940,23 @@ if (isset($_GET['ticket_id'])) {
                         $reply_border = 'warning';
                         $reply_badge = "<span class='badge text-bg-warning'><i class='fas fa-fw fa-reply me-1'></i>From client</span>";
                         $reply_group = 'public';
-                    } else {
+                    } elseif ($reply_row['ticket_reply_emailed'] === null) {
+                        // From before ITFlow kept whether a reply was emailed
                         $reply_border = 'info';
                         $reply_badge = "<span class='badge text-bg-info' title='The client can see this'><i class='fas fa-fw fa-eye me-1'></i>Public</span>";
                         $reply_group = 'public';
+                    } elseif (intval($reply_row['ticket_reply_emailed']) === 1) {
+                        $reply_border = 'info';
+                        $reply_badge = "<span class='badge text-bg-info' title='The client can see this, and it was emailed'><i class='fas fa-fw fa-paper-plane me-1'></i>Email reply</span>";
+                        $reply_group = 'public';
+                    } else {
+                        $reply_border = 'info';
+                        $reply_badge = "<span class='badge ticket-badge-note' title='The client can see this in the portal - it was not emailed'><i class='fas fa-fw fa-eye me-1'></i>Public note</span>";
+                        $reply_group = 'public';
                     }
+
+                    // Who it was emailed to, and whether it went
+                    $reply_emailed = isset($reply_email_states[$ticket_reply_id]) ? ticketReplyEmailHtml($ticket_reply_id, $reply_email_states[$ticket_reply_id], $reply_email_queue_url) : null;
 
                     ?>
 
@@ -967,6 +984,9 @@ if (isset($_GET['ticket_id'])) {
                                             <?= $ticket_reply_created_at_ago ?><?php if ($ticket_reply_updated_at) { echo ' <em>(edited)</em>'; } ?>
                                             <?php if ($ticket_reply_type !== "Client" && $ticket_reply_time_worked && $ticket_reply_time_worked !== "00:00:00") { ?>
                                                 <span class="mx-1">&middot;</span><i class="far fa-fw fa-clock"></i> <?= formatDuration($ticket_reply_time_worked) ?>
+                                            <?php } ?>
+                                            <?php if ($reply_emailed) { ?>
+                                                <span class="mx-1">&middot;</span><?= $reply_emailed['line'] ?>
                                             <?php } ?>
                                         </div>
                                     </div>
@@ -1004,6 +1024,7 @@ if (isset($_GET['ticket_id'])) {
                                 <?php } ?>
 
                             </div>
+                            <?= $reply_emailed ? $reply_emailed['panel'] : '' ?>
                         </div>
 
                         <div class="card-body p-3 prettyContent">

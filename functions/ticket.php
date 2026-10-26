@@ -568,6 +568,8 @@ function ticketEmailPreview(array $email) {
  *                technical contacts who asked for every update on their
  *                company's tickets get the rest, as a watcher does
  *                (ticketColleagueRecipients())
+ *   ticket_reply_id  the agent's reply it carries - each email is kept with it
+ *                (emailQueue()), for ticketReplyEmailed()
  */
 function ticketMailSend($ticket_id, $subject, array $email, array $opts = []) {
     global $mysqli;
@@ -604,7 +606,8 @@ function ticketMailSend($ticket_id, $subject, array $email, array $opts = []) {
             }
         }
     }
-    return count(emailQueue($recipients, $subject, $email, ['from' => ticketEmailFrom(), 'attachments' => $opts['attachments'] ?? [], 'cal_str' => $opts['cal_str'] ?? '']));
+    return count(emailQueue($recipients, $subject, $email, ['from' => ticketEmailFrom(), 'attachments' => $opts['attachments'] ?? [], 'cal_str' => $opts['cal_str'] ?? '',
+        'ticket_reply_id' => intval($opts['ticket_reply_id'] ?? 0)]));
 }
 
 /** Whether a ticket's contact gets an email of this $kind - no 'created' or 'closed' email for one who asked for replies only. */
@@ -699,15 +702,117 @@ function ticketMailCreated($ticket_id, $subject_prefix, $attachments = [], $to_w
 /*
  * A public reply on a ticket, to its contact and watchers - $reply_html as
  * saved (with the signature), $by who wrote it (raw). $resolved when the
- * reply resolved it.
+ * reply resolved it. $reply_id, the reply in ticket_replies, has who it went
+ * to kept with it (ticketReplyEmailed()). How many it went to.
  */
-function ticketMailReply($ticket_id, $reply_html, $by, $resolved = false, $attachments = []) {
+function ticketMailReply($ticket_id, $reply_html, $by, $resolved = false, $attachments = [], $reply_id = 0) {
     $row = ticketRow($ticket_id);
     if (!$row) {
+        ticketReplyEmailed($reply_id, false);
         return 0;
     }
-    return ticketMailSend($row['ticket_id'], ($resolved ? 'Ticket resolved' : 'Ticket update') . " - [" . ticketReference($row) . "] - " . $row['ticket_subject'] . ($resolved ? ' | (pending closure)' : ''),
-        ticketEmailContent($row, $resolved ? 'resolved' : 'reply', ['message' => (string) $reply_html, 'by' => (string) $by]), ['attachments' => $attachments]);
+    $sent = ticketMailSend($row['ticket_id'], ($resolved ? 'Ticket resolved' : 'Ticket update') . " - [" . ticketReference($row) . "] - " . $row['ticket_subject'] . ($resolved ? ' | (pending closure)' : ''),
+        ticketEmailContent($row, $resolved ? 'resolved' : 'reply', ['message' => (string) $reply_html, 'by' => (string) $by]), ['attachments' => $attachments, 'ticket_reply_id' => intval($reply_id)]);
+    ticketReplyEmailed($reply_id, $sent > 0);
+    return $sent;
+}
+
+/** Whether the 3.4.8 update has run - a reply keeps whether it was emailed and who to, and the mail queue which reply an email carried. */
+function ticketReplyEmailReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '3.4.8', '>=');
+    }
+    return $ready;
+}
+
+/*
+ * Keep on an agent's reply whether it was emailed - and, once its emails are
+ * queued with its id ('ticket_reply_id'), who they went to, read back from the
+ * mail queue, so the conversation still says so after the queue has cleared
+ * them. $emailed false for a public or internal note. Whether it went to anyone.
+ */
+function ticketReplyEmailed($reply_id, $emailed = true) {
+    global $mysqli;
+    $reply_id = intval($reply_id);
+    if (!$reply_id || !ticketReplyEmailReady()) {
+        return false;
+    }
+    $to = [];
+    if ($emailed) {
+        $sql = mysqli_query($mysqli, "SELECT email_recipient, email_recipient_name FROM email_queue WHERE email_ticket_reply_id = $reply_id ORDER BY email_id");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $to[strtolower($row['email_recipient'])] = ['email' => (string) $row['email_recipient'],
+                'name' => (string) $row['email_recipient_name'] !== (string) $row['email_recipient'] ? (string) $row['email_recipient_name'] : ''];
+        }
+    }
+    $json = $to ? "'" . escapeSql(json_encode(array_values($to), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . "'" : 'NULL';
+    // ticket_reply_updated_at kept as it is - it says when the words were edited
+    mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply_emailed = " . ($to ? 1 : 0) . ", ticket_reply_emailed_to = $json,
+        ticket_reply_updated_at = ticket_reply_updated_at WHERE ticket_reply_id = $reply_id");
+    return (bool) $to;
+}
+
+/*
+ * Who the agent replies in $rows were emailed to, and whether each email went -
+ * for the conversation. $rows each have ticket_reply_id, ticket_reply_emailed
+ * and ticket_reply_emailed_to. Reply id => ['to' => [['email', 'name', 'state'
+ * => mailQueueState(), or null once the queue has cleared it]], 'key' => sent,
+ * waiting (still to go, or being tried again), failed, cancelled, or gone (the
+ * queue no longer has them - kept 90 days)], for each reply emailed.
+ */
+function ticketReplyEmailStates(array $rows) {
+    global $mysqli;
+    $states = [];
+    foreach ($rows as $row) {
+        if (intval($row['ticket_reply_emailed'] ?? 0) !== 1) {
+            continue;
+        }
+        $to = [];
+        foreach ((array) json_decode((string) ($row['ticket_reply_emailed_to'] ?? ''), true) as $recipient) {
+            if (!empty($recipient['email'])) {
+                $to[strtolower($recipient['email'])] = ['email' => (string) $recipient['email'], 'name' => (string) ($recipient['name'] ?? ''), 'state' => null];
+            }
+        }
+        $states[intval($row['ticket_reply_id'])] = ['to' => $to, 'key' => 'gone'];
+    }
+    if (!$states || !ticketReplyEmailReady()) {
+        return array_map(function ($state) { $state['to'] = array_values($state['to']); return $state; }, $states);
+    }
+    $sql = mysqli_query($mysqli, "SELECT email_ticket_reply_id, email_recipient, email_recipient_name, email_status, email_attempts, email_queued_at, email_failed_at, email_sent_at, email_error
+        FROM email_queue WHERE email_ticket_reply_id IN (" . implode(',', array_keys($states)) . ") ORDER BY email_id");
+    while ($sql && ($email = mysqli_fetch_assoc($sql))) {
+        $reply_id = intval($email['email_ticket_reply_id']);
+        $address = strtolower((string) $email['email_recipient']);
+        $states[$reply_id]['to'][$address] = [
+            'email' => (string) $email['email_recipient'],
+            'name' => $states[$reply_id]['to'][$address]['name'] ?? ((string) $email['email_recipient_name'] !== (string) $email['email_recipient'] ? (string) $email['email_recipient_name'] : ''),
+            'state' => mailQueueState($email),
+        ];
+    }
+    foreach ($states as $reply_id => $state) {
+        $keys = array_filter(array_map(function ($recipient) { return $recipient['state']['key'] ?? null; }, $state['to']));
+        if (!$keys) {
+            $key = 'gone';
+        } elseif (in_array('failed', $keys, true)) {
+            $key = 'failed';
+        } elseif (array_intersect(['waiting', 'sending', 'retrying'], $keys)) {
+            $key = 'waiting';
+        } elseif (!in_array('sent', $keys, true)) {
+            $key = 'cancelled';
+        } else {
+            $key = 'sent';
+        }
+        $states[$reply_id] = ['to' => array_values($state['to']), 'key' => $key];
+    }
+    return $states;
 }
 
 /** Tell people just made watchers of a ticket - $emails, by $by (raw). How many it went to. */
@@ -1159,15 +1264,84 @@ function ticketMailClosed($ticket_id) {
         ticketEmailContent($row, 'closed'), ['kind' => 'closed']);
 }
 
-/** The "your ticket is resolved, pending closure" email - to its contact and watchers. $note is the agent's words as HTML, raw, or ''. */
-function ticketMailResolved($ticket_id, $note = '') {
+/*
+ * The "Emailed to ..." line on an agent's reply in the conversation, and the
+ * panel it opens - each recipient and whether their email went. $state is
+ * the reply's from ticketReplyEmailStates(); $queue_url the Mail Queue for
+ * this ticket's email, for admins, or ''. ['line' => html, 'panel' => html].
+ */
+function ticketReplyEmailHtml($reply_id, array $state, $queue_url = '') {
+    $reply_id = intval($reply_id);
+    $to = $state['to'] ?? [];
+    if (!$to) {
+        // Marked emailed, but who to wasn't kept
+        return ['line' => '<span class="ticket-reply-emailed"><i class="fas fa-fw fa-paper-plane me-1"></i>Emailed</span>', 'panel' => ''];
+    }
+    $who = function ($recipient) {
+        return $recipient['name'] !== '' ? $recipient['name'] : $recipient['email'];
+    };
+    $first = escapeHtml($who($to[0])) . (count($to) > 1 ? ' and ' . (count($to) - 1) . ' more' : '');
+    $failed = count(array_filter($to, function ($recipient) {
+        return ($recipient['state']['key'] ?? '') === 'failed';
+    }));
+    switch ($state['key'] ?? 'gone') {
+        case 'sent':
+            [$icon, $text, $title] = ['fa-check text-success', "Emailed to $first", 'Sent'];
+            break;
+        case 'waiting':
+            [$icon, $text, $title] = ['fa-hourglass-half text-primary', "Sending to $first", 'Waiting in the mail queue'];
+            break;
+        case 'failed':
+            [$icon, $text, $title] = ['fa-exclamation-circle text-danger', $failed === count($to) ? "<span class=\"text-danger\">Couldn't email $first</span>"
+                : "Emailed to $first <span class=\"text-danger\">&middot; $failed not sent</span>", 'Not sent'];
+            break;
+        case 'cancelled':
+            [$icon, $text, $title] = ['fa-ban', "Email to $first cancelled", 'Cancelled'];
+            break;
+        default:
+            [$icon, $text, $title] = ['fa-paper-plane', "Emailed to $first", ''];
+    }
+    $line = '<a class="ticket-reply-emailed text-reset" data-bs-toggle="collapse" href="#replyEmailed' . $reply_id . '" role="button" aria-expanded="false" aria-controls="replyEmailed' . $reply_id . '"'
+        . ' title="' . escapeHtml(($title !== '' ? "$title - " : '') . 'who it went to') . '" data-reply-emailed="' . escapeHtml($state['key'] ?? 'gone') . '">'
+        . '<i class="fas fa-fw ' . $icon . ' me-1"></i>' . $text . '</a>';
+
+    $items = '';
+    foreach ($to as $recipient) {
+        $item_state = $recipient['state'];
+        $address = $recipient['name'] !== '' ? escapeHtml($recipient['name']) . ' <span class="text-body-secondary">&lt;' . escapeHtml($recipient['email']) . '&gt;</span>' : escapeHtml($recipient['email']);
+        $items .= '<li class="d-flex flex-wrap align-items-center gap-2" data-reply-recipient="' . escapeHtml($recipient['email']) . '">'
+            . ($item_state ? '<span class="badge ' . $item_state['badge'] . '" title="' . escapeHtml($item_state['title']) . '"><i class="fas fa-fw ' . $item_state['icon'] . ' me-1"></i>' . escapeHtml($item_state['label']) . '</span>' : '')
+            . '<span class="text-break">' . $address . '</span>'
+            . ($item_state && $item_state['detail'] !== '' ? '<span class="text-body-secondary">' . escapeHtml($item_state['detail']) . '</span>' : '')
+            . ($item_state && $item_state['error'] !== '' ? '<span class="w-100 text-danger">' . escapeHtml($item_state['error']) . '</span>' : '')
+            . '</li>';
+    }
+    $gone = !array_filter(array_column($to, 'state'));
+    $panel = '<div class="collapse" id="replyEmailed' . $reply_id . '">'
+        . '<div class="ticket-reply-recipients small mt-2">'
+        . '<ul class="list-unstyled d-grid gap-1 mb-0">' . $items . '</ul>'
+        . ($gone ? '<div class="text-body-secondary mt-1">The mail queue keeps email ' . MAIL_QUEUE_KEEP_DAYS . ' days, so whether each one went is no longer known.</div>' : '')
+        . ($queue_url !== '' ? '<a class="d-inline-block mt-1" href="' . escapeHtml($queue_url) . '"><i class="fas fa-fw fa-mail-bulk me-1"></i>This ticket\'s email in the Mail Queue</a>' : '')
+        . '</div></div>';
+    return ['line' => $line, 'panel' => $panel];
+}
+
+/*
+ * The "your ticket is resolved, pending closure" email - to its contact and
+ * watchers. $note is the agent's words as HTML, raw, or ''; $reply_id the
+ * reply they were saved as, which keeps who it went to (ticketReplyEmailed()).
+ */
+function ticketMailResolved($ticket_id, $note = '', $reply_id = 0) {
     global $session_name;
     $row = ticketRow($ticket_id);
     if (!$row) {
+        ticketReplyEmailed($reply_id, false);
         return 0;
     }
-    return ticketMailSend($row['ticket_id'], "Ticket resolved - [" . ticketReference($row) . "] - " . $row['ticket_subject'] . " | (pending closure)",
-        ticketEmailContent($row, 'resolved', ['message' => (string) $note, 'by' => stripslashes((string) ($session_name ?? ''))]));
+    $sent = ticketMailSend($row['ticket_id'], "Ticket resolved - [" . ticketReference($row) . "] - " . $row['ticket_subject'] . " | (pending closure)",
+        ticketEmailContent($row, 'resolved', ['message' => (string) $note, 'by' => stripslashes((string) ($session_name ?? ''))]), ['ticket_reply_id' => intval($reply_id)]);
+    ticketReplyEmailed($reply_id, $sent > 0);
+    return $sent;
 }
 
 /*

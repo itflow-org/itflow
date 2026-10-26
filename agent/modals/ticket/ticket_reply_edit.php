@@ -6,7 +6,8 @@ enforceUserPermission('module_support', 2);
 
 $ticket_reply_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_reply, ticket_reply_time_worked, ticket_reply_type FROM ticket_replies
+$sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_reply, ticket_reply_time_worked, ticket_reply_type,
+    " . (ticketReplyEmailReady() ? 'ticket_reply_emailed, ticket_reply_emailed_to' : 'NULL AS ticket_reply_emailed, NULL AS ticket_reply_emailed_to') . " FROM ticket_replies
     LEFT JOIN tickets ON ticket_id = ticket_reply_ticket_id
     WHERE ticket_reply_id = $ticket_reply_id
     LIMIT 1"
@@ -25,6 +26,16 @@ $client_id = intval($row['ticket_client_id']);
 
 if ($client_id) {
     enforceClientAccess();
+}
+
+// Who it was emailed to - they have it as it was sent
+$emailed_to = '';
+if (intval($row['ticket_reply_emailed']) === 1) {
+    $emailed_names = array_map(function ($recipient) {
+        return (string) (($recipient['name'] ?? '') !== '' ? $recipient['name'] : ($recipient['email'] ?? ''));
+    }, (array) json_decode((string) $row['ticket_reply_emailed_to'], true));
+    $emailed_names = array_values(array_filter($emailed_names));
+    $emailed_to = $emailed_names ? $emailed_names[0] . (count($emailed_names) > 1 ? ' and ' . (count($emailed_names) - 1) . ' more' : '') : 'the client';
 }
 
 // Generate the HTML form content using output buffering.
@@ -51,6 +62,12 @@ ob_start();
             </div>
             <small class="text-muted">Public replies show in the client portal. Saving here never sends an email.</small>
         </div>
+
+        <?php if ($emailed_to !== '') { ?>
+            <div class="alert alert-info small py-2" data-reply-edit-emailed>
+                <i class="fas fa-fw fa-paper-plane me-1"></i>This was emailed to <strong><?= escapeHtml($emailed_to) ?></strong>. They keep the email as it was sent - what you change here only changes the ticket<?= $ticket_reply_type == 'Public' ? ' and the portal' : '' ?>.
+            </div>
+        <?php } ?>
 
         <div class="mb-3">
             <textarea class="form-control tinymce" name="ticket_reply"><?= $ticket_reply ?></textarea>

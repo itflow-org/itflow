@@ -119,9 +119,12 @@ if (!empty($ticket_id) && !empty($reply)) {
                 triggerCustomAction('reply_reply_agent_public', $ticket_id);
             }
 
-            // Email the contact and watchers on a public reply, as the agent reply handler does
+            // Email the contact and watchers on a public reply, as the agent reply handler does -
+            // the reply keeps who it went to
             if ($reply_type == 'Public') {
-                ticketMailReply($ticket_id, (string) getFieldById('ticket_replies', $insert_id, 'ticket_reply'), stripslashes($session_name));
+                ticketMailReply($ticket_id, (string) getFieldById('ticket_replies', $insert_id, 'ticket_reply'), stripslashes($session_name), false, [], $insert_id);
+            } else {
+                ticketReplyEmailed($insert_id, false);
             }
 
         }

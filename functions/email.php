@@ -340,6 +340,9 @@ function emailPlainText($html, $limit = 0) {
  *   queued_at    when to send it, 'Y-m-d H:i:s' - now when not given
  *   always       queue it even without mail set up, to go once it is - billing's Send
  *                windows have always done that (billingEmailQueue())
+ *   ticket_reply_id  the agent's ticket reply it carries - kept with each email
+ *                (email_queue.email_ticket_reply_id), so the conversation says who
+ *                it went to and whether it went (ticketReplyEmailed())
  * Who it was queued to, "Name (email)". Nothing is queued without mail set up.
  */
 function emailQueue(array $recipients, $subject, array $email, array $opts = []) {
@@ -376,7 +379,8 @@ function emailQueue(array $recipients, $subject, array $email, array $opts = [])
             'body' => mysqli_real_escape_string($mysqli, $html),
             'attachments' => $attachments,
         ] + (!empty($opts['cal_str']) ? ['cal_str' => (string) $opts['cal_str']] : [])
-          + ($queued_at !== '' ? ['queued_at' => $queued_at] : []);
+          + ($queued_at !== '' ? ['queued_at' => $queued_at] : [])
+          + (intval($opts['ticket_reply_id'] ?? 0) > 0 && ticketReplyEmailReady() ? ['ticket_reply_id' => intval($opts['ticket_reply_id'])] : []);
     }
     if ($data) {
         addToMailQueue($data);
