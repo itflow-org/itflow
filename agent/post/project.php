@@ -507,7 +507,7 @@ if (isExportRequest('export_projects')) {
             $filter_summary['Client'] = 'Internal';
         } elseif (intval($client_filter)) {
             $where[] = 'AND project_client_id = ' . intval($client_filter);
-            $filter_summary['Client'] = getFieldById('clients', intval($client_filter), 'client_name');
+            $filter_summary['Client'] = exportClientName($client_filter);
         }
     }
 

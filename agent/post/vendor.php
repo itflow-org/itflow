@@ -443,7 +443,7 @@ if (isExportRequest('export_vendors')) {
         if (!empty($_POST['client'])) {
             $filter_client_id = intval($_POST['client']);
             $client_query = "AND vendor_client_id = $filter_client_id";
-            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+            $filter_summary['Client'] = exportClientName($filter_client_id);
         }
         $archive_query = $archived ? "(client_archived_at IS NOT NULL OR vendor_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND vendor_archived_at IS NULL)";
     } else {
@@ -490,6 +490,8 @@ if (isExportRequest('export_vendors')) {
     );
 
     $num_rows = mysqli_num_rows($sql);
+
+    guardExportHasRows($num_rows, 'vendors');
 
     if ($num_rows > 0) {
 

@@ -385,6 +385,12 @@ if (isset($_POST['bulk_move_files'])) {
     enforceUserPermission('module_support', 2);
 
     $target_folder = intval($_POST['bulk_folder_id'] ?? 0);
+    // A folder of a client this agent can reach - another's name isn't said back
+    $folder_client_id = $target_folder ? intval(getFieldById('folders', $target_folder, 'folder_client_id')) : 0;
+    if ($target_folder && (!$folder_client_id || !hasClientAccess($folder_client_id))) {
+        flashAlert('That folder no longer exists.', 'error');
+        redirect();
+    }
     $folder_name = folderDisplayName($target_folder);
 
     $file_count = 0;

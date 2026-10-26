@@ -565,6 +565,18 @@ function isExportRequest($trigger) {
 }
 
 /*
+ * Filters that match nothing say so and go back to the list - the export form
+ * posts straight to post.php, so returning nothing left a blank page there.
+ * Call it once the row count is known, before beginExport().
+ */
+function guardExportHasRows($num_rows, $what) {
+    if ($num_rows < 1) {
+        flashAlert("No $what match - nothing to export.", 'error');
+        redirect();
+    }
+}
+
+/*
  * PDF is capped - see EXPORT_PDF_MAX_ROWS. Call this after the row count is known
  * and before beginExport(); it redirects rather than returning on refusal.
  */
@@ -749,6 +761,32 @@ function formatExportDateRange($date_from, $date_to) {
     }
 
     return $date_from . ' to ' . $date_to;
+}
+
+/*
+ * The name of a client an export is filtered to, for its summary - only a
+ * client this agent can reach; '' otherwise, so a made-up filter can't be
+ * used to read another client's name (the rows are scoped all the same).
+ */
+function exportClientName($client_id) {
+    $client_id = intval($client_id);
+    return $client_id && hasClientAccess($client_id) ? (string) getFieldById('clients', $client_id, 'client_name') : '';
+}
+
+/**
+ * The same for a record an export is filtered to (a site, a project, a vendor) - its $name_column
+ * when it belongs to no client (the company's own, which every agent sees) or to one this agent can reach.
+ */
+function exportRecordName($table, $id, $name_column, $client_column) {
+    $id = intval($id);
+    if (!$id) {
+        return '';
+    }
+    $client_id = getFieldById($table, $id, $client_column);
+    if ($client_id === null || $client_id === false || $client_id === '' || (intval($client_id) && !hasClientAccess($client_id))) {
+        return '';
+    }
+    return (string) getFieldById($table, $id, $name_column);
 }
 
 /*

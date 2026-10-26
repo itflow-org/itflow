@@ -77,16 +77,19 @@ $paper = [
                         Good until <?= escapeHtml($quote['quote_expire']) ?><?= $days_left === 0 ? ' - today is the last day' : ' - ' . $days_left . ' day' . ($days_left === 1 ? '' : 's') . ' left' ?>.
                         Let us know whether to go ahead.
                     </p>
-                    <div class="d-grid gap-2 mb-3">
-                        <a class="btn btn-success btn-lg confirm-link" href="guest_post.php?accept_quote=<?= $quote_id ?>&url_key=<?= $query_key ?>"
+                    <?php /* Buttons that post, not links - a mail scanner or link preview opening links on the page must not answer the quote */ ?>
+                    <form class="d-grid gap-2 mb-3" action="guest_post.php" method="post">
+                        <input type="hidden" name="quote_id" value="<?= $quote_id ?>">
+                        <input type="hidden" name="url_key" value="<?= escapeHtml($url_key) ?>">
+                        <button type="submit" name="accept_quote" value="1" class="btn btn-success btn-lg confirm-link"
                             data-confirm-title="Accept <?= escapeHtml($number) ?>?" data-confirm-text="<?= $totals['recurring'] ? 'That is ' . escapeHtml(quoteAmountText($totals['groups'], $currency)) . '. ' : '' ?>We'll be told straight away and be in touch to get started." data-confirm-button="Accept">
                             <i class="fas fa-thumbs-up me-2"></i>Accept
-                        </a>
-                        <a class="btn btn-outline-danger confirm-link" href="guest_post.php?decline_quote=<?= $quote_id ?>&url_key=<?= $query_key ?>"
+                        </button>
+                        <button type="submit" name="decline_quote" value="1" class="btn btn-outline-danger confirm-link"
                             data-confirm-title="Decline <?= escapeHtml($number) ?>?" data-confirm-text="We'll be told. If something needs changing, a reply to our email gets you a new quote." data-confirm-button="Decline">
                             <i class="fas fa-thumbs-down me-2"></i>Decline
-                        </a>
-                    </div>
+                        </button>
+                    </form>
                 <?php } elseif ($expired) { ?>
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <span class="itflow-asset-icon bg-warning-subtle text-warning-emphasis" aria-hidden="true"><i class="fas fa-hourglass-end"></i></span>

@@ -217,6 +217,10 @@ if (isset($_POST['add_contact_note'])) {
     // Get Contact details for logging and alerting
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That contact no longer exists.', 'error');
+        redirect();
+    }
     $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
 
@@ -246,6 +250,10 @@ if (isset($_GET['archive_contact_note'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_note_type, contact_id, contact_name, contact_client_id FROM contact_notes LEFT JOIN contacts ON contact_id = contact_note_contact_id WHERE contact_note_id = $contact_note_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That note no longer exists.', 'error');
+        redirect();
+    }
     $contact_note_type = escapeSql($row['contact_note_type']);
     $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
@@ -269,11 +277,15 @@ if (isset($_GET['restore_contact_note'])) {
 
     enforceUserPermission('module_client', 2);
 
-    $contact_note_id = intval($_GET['unarchive_contact_note']);
+    $contact_note_id = intval($_GET['restore_contact_note']);
 
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_note_type, contact_id, contact_name, contact_client_id FROM contact_notes LEFT JOIN contacts ON contact_id = contact_note_contact_id WHERE contact_note_id = $contact_note_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That note no longer exists.', 'error');
+        redirect();
+    }
     $contact_note_type = escapeSql($row['contact_note_type']);
     $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
@@ -302,6 +314,10 @@ if (isset($_GET['delete_contact_note'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_note_type, contact_id, contact_name, contact_client_id FROM contact_notes LEFT JOIN contacts ON contact_id = contact_note_contact_id WHERE contact_note_id = $contact_note_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That note no longer exists.', 'error');
+        redirect();
+    }
     $contact_note_type = escapeSql($row['contact_note_type']);
     $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
@@ -671,6 +687,10 @@ if (isset($_GET['anonymize_contact'])) {
     // Get contact & client info
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, contact_phone, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That contact no longer exists.', 'error');
+        redirect();
+    }
 
     $contact_name = escapeSql($row['contact_name']);
     $contact_first_name = explode(" ", $contact_name)[0];
@@ -927,6 +947,10 @@ if (isset($_GET['archive_contact'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That contact no longer exists.', 'error');
+        redirect();
+    }
     $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
     $contact_user_id = intval($row['contact_user_id']);
@@ -959,6 +983,10 @@ if (isset($_GET['restore_contact'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That contact no longer exists.', 'error');
+        redirect();
+    }
     $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
     $contact_user_id = intval($row['contact_user_id']);
@@ -991,6 +1019,10 @@ if (isset($_GET['delete_contact'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That contact no longer exists.', 'error');
+        redirect();
+    }
     $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
     $contact_user_id = intval($row['contact_user_id']);
@@ -1027,10 +1059,20 @@ if (isset($_POST['link_contact_to_asset'])) {
     // Get Asset Name and Client ID for logging
     $sql_asset = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_assoc($sql_asset);
+    if (!$row) {
+        flashAlert('Pick an asset to link.', 'error');
+        redirect();
+    }
     $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
 
     enforceClientAccess();
+
+    // Only one of the same client's people - another client's contact would show on this client's asset
+    if (!assetClientOwnedId('contact', $contact_id, $client_id)) {
+        flashAlert("That contact isn't one of this client's", 'error');
+        redirect();
+    }
 
     // Get Contact Name for logging
     $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
@@ -1051,21 +1093,26 @@ if (isset($_GET['unlink_asset_from_contact'])) {
 
     enforceUserPermission('module_client', 2);
 
-    $contact_id = intval($_GET['contact_id']);
-    $asset_id = intval($_GET['asset_id']);
+    $contact_id = intval($_GET['contact_id'] ?? 0);
+    $asset_id = intval($_GET['asset_id'] ?? 0);
 
     // Get asset Name and Client ID for logging
     $sql_asset = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_assoc($sql_asset);
+    if (!$row) {
+        flashAlert('That asset no longer exists.', 'error');
+        redirect();
+    }
     $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(assetClientOwnedId('contact', $contact_id, $client_id) ? getFieldById('contacts', $contact_id, 'contact_name') : 'its contact');
 
-    mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = 0 WHERE asset_id = $asset_id");
+    // Only if it is this contact's - an old link can't unpick a newer one
+    mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = 0 WHERE asset_id = $asset_id AND asset_contact_id = $contact_id");
 
     logAudit("Asset", "Unlink", "$session_name unlinked contact $contact_name from asset $asset_name", $client_id, $asset_id);
 
@@ -1126,19 +1173,23 @@ if (isset($_GET['unlink_credential_from_contact'])) {
     enforceUserPermission('module_client', 2);
     enforceUserPermission('module_credential', 2);
 
-    $contact_id = intval($_GET['contact_id']);
-    $credential_id = intval($_GET['credential_id']);
+    $contact_id = intval($_GET['contact_id'] ?? 0);
+    $credential_id = intval($_GET['credential_id'] ?? 0);
 
     // Get credential Name and Client ID for logging
     $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
     $row = mysqli_fetch_assoc($sql_credential);
+    if (!$row) {
+        flashAlert('That credential no longer exists.', 'error');
+        redirect();
+    }
     $credential_name = escapeSql($row['credential_name']);
     $client_id = intval($row['credential_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(assetClientOwnedId('contact', $contact_id, $client_id) ? getFieldById('contacts', $contact_id, 'contact_name') : 'its contact');
 
     // Only if it is this contact's - an old link can't unpick a newer one
     mysqli_query($mysqli,"UPDATE credentials SET credential_contact_id = 0 WHERE credential_id = $credential_id AND credential_contact_id = $contact_id");
@@ -1188,7 +1239,7 @@ if (isExportRequest('export_contacts')) {
         if (!empty($_POST['client'])) {
             $filter_client_id = intval($_POST['client']);
             $client_query = "AND (contact_client_id = $filter_client_id)";
-            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+            $filter_summary['Client'] = exportClientName($filter_client_id);
         }
 
         $archive_query = $archived ? "(client_archived_at IS NOT NULL OR contact_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND contact_archived_at IS NULL)";
@@ -1214,7 +1265,7 @@ if (isExportRequest('export_contacts')) {
     if (!empty($_POST['location'])) {
         $filter_location_id = intval($_POST['location']);
         $location_query = "AND (contact_location_id = $filter_location_id)";
-        $filter_summary['Location'] = getFieldById('locations', $filter_location_id, 'location_name');
+        $filter_summary['Location'] = exportRecordName('locations', $filter_location_id, 'location_name', 'location_client_id');
     } else {
         // Default - any
         $location_query = '';
@@ -1246,6 +1297,8 @@ if (isExportRequest('export_contacts')) {
     );
 
     $num_rows = mysqli_num_rows($sql);
+
+    guardExportHasRows($num_rows, 'contacts');
 
     if ($num_rows > 0) {
 

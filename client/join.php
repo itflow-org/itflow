@@ -36,7 +36,8 @@ $company_name = (string) ($company['company_name'] ?? '');
 $methods = portalSignInMethods();
 
 $invite_id = intval($_POST['invite'] ?? ($_GET['invite'] ?? 0));
-$token = (string) ($_POST['token'] ?? ($_GET['token'] ?? ''));
+$token = $_POST['token'] ?? ($_GET['token'] ?? '');
+$token = is_string($token) ? $token : '';
 $link = portalInviteByLink($invite_id, $token);
 $invite = $link['row'];
 $error = '';

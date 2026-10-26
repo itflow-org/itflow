@@ -13,7 +13,7 @@ require_once __DIR__ . "/../includes/session_init.php";
 require_once "../includes/inc_set_timezone.php";
 
 $session_ip = escapeSql(getIP());
-$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
+$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
 
 $sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azure_client_secret FROM settings WHERE company_id = 1");
 $settings = mysqli_fetch_assoc($sql_settings);

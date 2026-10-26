@@ -360,6 +360,8 @@ if (isExportRequest('export_expenses')) {
 
     $num_rows = mysqli_num_rows($sql);
 
+    guardExportHasRows($num_rows, 'expenses');
+
     if ($num_rows > 0) {
 
         guardExportPdfRowCount($format, $num_rows);

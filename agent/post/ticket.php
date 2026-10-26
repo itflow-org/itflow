@@ -524,12 +524,14 @@ if (isset($_GET['delete_ticket_additional_asset'])) {
 
     mysqli_query($mysqli, "DELETE FROM ticket_assets WHERE ticket_id = $ticket_id AND asset_id = $asset_id");
 
+    // Named only when it was on this ticket - any other id would say another client's asset name back
     if (mysqli_affected_rows($mysqli)) {
         logTicketHistory($ticket_id, "$session_name removed additional asset " . escapeSql($asset_name));
         logAudit("Ticket", "Edit", "$session_name removed asset " . escapeSql($asset_name) . " from ticket " . escapeSql(ticketReference($row)), $client_id, $ticket_id);
+        flashAlert("Removed asset <strong>" . escapeHtml($asset_name) . "</strong> from the ticket", 'error');
+    } else {
+        flashAlert("That asset isn't on this ticket any more.", 'error');
     }
-
-    flashAlert("Removed asset <strong>" . escapeHtml($asset_name) . "</strong> from the ticket", 'error');
 
     redirect();
 
@@ -949,7 +951,8 @@ if (isset($_POST['bulk_add_ticket_project'])) {
         $count++;
     }
 
-    flashAlert(($project_input ? "<strong>$count</strong> ticket" . ($count === 1 ? '' : 's') . " added to project <strong>" . escapeHtml($project_name) . "</strong>" : "<strong>$count</strong> ticket" . ($count === 1 ? '' : 's') . " taken out of their project")
+    // The project is named once a ticket went into it - one that fits none of them may be a client this agent can't see
+    flashAlert(($project_input ? "<strong>$count</strong> ticket" . ($count === 1 ? '' : 's') . " added to " . ($count ? "project <strong>" . escapeHtml($project_name) . "</strong>" : 'the project') : "<strong>$count</strong> ticket" . ($count === 1 ? '' : 's') . " taken out of their project")
         . ($skipped ? ", <strong>$skipped</strong> skipped - the project is another client's" : ''));
 
     redirect();
@@ -1609,7 +1612,7 @@ if (isExportRequest('export_tickets')) {
         if (!empty($_POST['client'])) {
             $filter_client_id = intval($_POST['client']);
             $client_query = "AND ticket_client_id = $filter_client_id";
-            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+            $filter_summary['Client'] = exportClientName($filter_client_id);
         }
     }
 
@@ -1703,7 +1706,7 @@ if (isExportRequest('export_tickets')) {
     if (!empty($_POST['project']) && $_POST['project'] > '0') {
         $filter_project_id = intval($_POST['project']);
         $ticket_project_snippet = "AND ticket_project_id = $filter_project_id";
-        $filter_summary['Project'] = getFieldById('projects', $filter_project_id, 'project_name');
+        $filter_summary['Project'] = exportRecordName('projects', $filter_project_id, 'project_name', 'project_client_id');
     } else {
         // Default - any, including tickets without a project
         $ticket_project_snippet = '';
@@ -1759,6 +1762,8 @@ if (isExportRequest('export_tickets')) {
     );
 
     $num_rows = mysqli_num_rows($sql);
+
+    guardExportHasRows($num_rows, 'tickets');
 
     if ($num_rows > 0) {
 

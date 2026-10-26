@@ -41,3 +41,6 @@ if (isset($_POST['document_folder_id'])) {
 } else {
     $folder = 0;
 }
+
+// Only one of the client's own folders, as in the document form
+$folder = folderOwnedId($folder, $client_id);

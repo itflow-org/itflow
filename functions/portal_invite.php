@@ -217,7 +217,7 @@ function portalInviteNewToken($invite_id) {
  * client archived since): ['row' => row or null, 'state' => ...].
  */
 function portalInviteByLink($invite_id, $token) {
-    $token = (string) $token;
+    $token = is_string($token) ? $token : '';
     if (!preg_match('/^[a-f0-9]{48}$/', $token)) {
         return ['row' => null, 'state' => 'gone'];
     }

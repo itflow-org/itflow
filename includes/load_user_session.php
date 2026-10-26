@@ -1,7 +1,7 @@
 <?php
 
 $session_ip = escapeSql(getIP());
-$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
+$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
 $session_user_id = intval($_SESSION['user_id']);
 
 $sql = mysqli_query(

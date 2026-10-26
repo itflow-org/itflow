@@ -81,3 +81,6 @@ if (isset($_POST['network_location_id'])) {
 } else {
     $location_id = 0;
 }
+
+// Only one of the client's own sites, as in the network form
+$location_id = assetClientOwnedId('location', $location_id, $client_id);

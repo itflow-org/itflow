@@ -195,6 +195,8 @@ if (isExportRequest('export_income')) {
 
     $num_rows = mysqli_num_rows($sql);
 
+    guardExportHasRows($num_rows, 'income entries');
+
     if ($num_rows > 0) {
 
         guardExportPdfRowCount($format, $num_rows);

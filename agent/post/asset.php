@@ -114,6 +114,10 @@ if (isset($_POST['edit_asset'])) {
     // Get Existing Photo and assigned client_id
     $sql = mysqli_query($mysqli,"SELECT asset_photo, asset_client_id FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That asset no longer exists.', 'error');
+        redirect();
+    }
     $existing_file_name = $row['asset_photo'] ?? '';
     $client_id = intval($row['asset_client_id']);
 
@@ -183,6 +187,10 @@ if (isset($_GET['archive_asset'])) {
     // Get Asset Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That asset no longer exists.', 'error');
+        redirect();
+    }
     $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
 
@@ -212,6 +220,10 @@ if (isset($_GET['restore_asset'])) {
     // Get Asset Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That asset no longer exists.', 'error');
+        redirect();
+    }
     $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
 
@@ -241,6 +253,10 @@ if (isset($_GET['delete_asset'])) {
     // Get Asset Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That asset no longer exists.', 'error');
+        redirect();
+    }
     $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
 
@@ -275,6 +291,10 @@ if (isset($_POST['add_asset_note'])) {
     // Get Asset details for logging and alerting
     $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That asset no longer exists.', 'error');
+        redirect();
+    }
     $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
 
@@ -304,6 +324,10 @@ if (isset($_GET['archive_asset_note'])) {
     // Get Asset Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT asset_note_type, asset_id, asset_name, asset_client_id FROM asset_notes LEFT JOIN assets ON asset_id = asset_note_asset_id WHERE asset_note_id = $asset_note_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That note no longer exists.', 'error');
+        redirect();
+    }
     $asset_note_type = escapeSql($row['asset_note_type']);
     $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
@@ -332,6 +356,10 @@ if (isset($_GET['restore_asset_note'])) {
     // Get Asset Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT asset_note_type, asset_id, asset_name, asset_client_id FROM asset_notes LEFT JOIN assets ON asset_id = asset_note_asset_id WHERE asset_note_id = $asset_note_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That note no longer exists.', 'error');
+        redirect();
+    }
     $asset_note_type = escapeSql($row['asset_note_type']);
     $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
@@ -360,6 +388,10 @@ if (isset($_GET['delete_asset_note'])) {
     // Get Asset Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT asset_note_type, asset_id, asset_name, asset_client_id FROM asset_notes LEFT JOIN assets ON asset_id = asset_note_asset_id WHERE asset_note_id = $asset_note_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That note no longer exists.', 'error');
+        redirect();
+    }
     $asset_note_type = escapeSql($row['asset_note_type']);
     $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
@@ -388,6 +420,10 @@ if (isset($_POST['bulk_assign_asset_location'])) {
     // Get Location name and client id for logging and alert
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('Pick a location to move them to.', 'error');
+        redirect();
+    }
     $location_name = escapeSql($row['location_name']);
     $client_id = intval($row['location_client_id']);
     $location_client_id = $client_id;
@@ -575,6 +611,10 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
     // Get Contact name and client id for logging and Notification
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('Pick a contact to assign them to.', 'error');
+        redirect();
+    }
     $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
 
@@ -907,19 +947,23 @@ if (isset($_GET['unlink_credential_from_asset'])) {
     enforceUserPermission('module_support', 2);
     enforceUserPermission('module_credential', 2);
 
-    $asset_id = intval($_GET['asset_id']);
-    $credential_id = intval($_GET['credential_id']);
+    $asset_id = intval($_GET['asset_id'] ?? 0);
+    $credential_id = intval($_GET['credential_id'] ?? 0);
 
     // Get credential Name and Client ID for logging
     $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
     $row = mysqli_fetch_assoc($sql_credential);
+    if (!$row) {
+        flashAlert('That credential no longer exists.', 'error');
+        redirect();
+    }
     $credential_name = escapeSql($row['credential_name']);
     $client_id = intval($row['credential_client_id']);
 
     enforceClientAccess();
 
     // Get Asset Name for logging
-    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
+    $asset_name = escapeSql(assetClientOwnedId('asset', $asset_id, $client_id) ? getFieldById('assets', $asset_id, 'asset_name') : 'its asset');
 
     // Only if it is this asset's - an old link can't unpick a newer one
     mysqli_query($mysqli,"UPDATE credentials SET credential_asset_id = 0 WHERE credential_id = $credential_id AND credential_asset_id = $asset_id");
@@ -1104,18 +1148,17 @@ if (isset($_POST["import_assets_csv"])) {
 
 if (isset($_GET['download_assets_csv_template'])) {
 
+    enforceUserPermission('module_support');
+
     $client_id = intval($_GET['download_assets_csv_template']);
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_assoc($sql);
-
-    $client_name = $row['client_name'];
+    // Named for the client only when it's one this agent can reach - any id would otherwise say its client's name back
+    $client_name = $client_id && hasClientAccess($client_id) ? (string) getFieldById('clients', $client_id, 'client_name') : '';
 
     $delimiter = ",";
     $enclosure = '"';
     $escape    = '\\';
-    $filename = toAlphanumeric($client_name) . "-Assets-Template.csv";
+    $filename = ($client_name !== '' ? toAlphanumeric($client_name) . '-' : '') . "Assets-Template.csv";
 
     //create a file pointer
     $f = fopen('php://memory', 'w');
@@ -1284,6 +1327,8 @@ if (isExportRequest('export_assets')) {
         ORDER BY asset_name ASC"
     );
     $num_rows = mysqli_num_rows($sql);
+
+    guardExportHasRows($num_rows, 'assets');
 
     if ($num_rows > 0) {
 

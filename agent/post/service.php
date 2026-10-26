@@ -431,7 +431,7 @@ if (isExportRequest('export_services')) {
         $where[] = 'AND clients.client_archived_at IS NULL';
         if (intval($_POST['client'] ?? 0)) {
             $where[] = 'AND service_client_id = ' . intval($_POST['client']);
-            $filter_summary['Client'] = getFieldById('clients', intval($_POST['client']), 'client_name');
+            $filter_summary['Client'] = exportClientName($_POST['client']);
         }
     }
 

@@ -334,6 +334,8 @@ if (isExportRequest('export_network_ips')) {
 
     $num_rows = mysqli_num_rows($sql);
 
+    guardExportHasRows($num_rows, 'IP addresses');
+
     if ($num_rows > 0) {
 
         guardExportPdfRowCount($format, $num_rows);

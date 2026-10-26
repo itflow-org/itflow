@@ -34,6 +34,8 @@ if (isExportRequest('export_transactions')) {
         ORDER BY ledger.txn_date ASC, ledger.txn_created_at ASC, ledger.txn_order ASC, ledger.txn_id ASC");
 
     $num_rows = mysqli_num_rows($sql);
+    guardExportHasRows($num_rows, 'transactions');
+
     if ($num_rows > 0) {
 
         guardExportPdfRowCount($format, $num_rows);

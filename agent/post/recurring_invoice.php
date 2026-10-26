@@ -18,6 +18,10 @@ if (isset($_POST['add_invoice_recurring'])) {
     $sql = mysqli_query($mysqli,"SELECT invoice_amount, invoice_category_id, invoice_client_id, invoice_currency_code,
         invoice_date, invoice_note, invoice_number, invoice_prefix, invoice_scope FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That invoice no longer exists.', 'error');
+        redirect();
+    }
     $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $invoice_date = escapeSql(validateDate($row['invoice_date']));
@@ -131,6 +135,10 @@ if (isset($_POST['edit_recurring_invoice'])) {
     // Get Recurring Invoice Details and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT recurring_invoice_prefix, recurring_invoice_number, recurring_invoice_client_id FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That recurring invoice no longer exists.', 'error');
+        redirect();
+    }
     $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
     $client_id = intval($row['recurring_invoice_client_id']);
@@ -166,6 +174,10 @@ if (isset($_GET['delete_recurring_invoice'])) {
     // Get Recurring Invoice Details and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT recurring_invoice_prefix, recurring_invoice_number, recurring_invoice_scope, recurring_invoice_client_id FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That recurring invoice no longer exists.', 'error');
+        redirect();
+    }
     $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
     $recurring_invoice_scope = escapeSql($row['recurring_invoice_scope']);
@@ -259,6 +271,10 @@ if (isset($_POST['set_recurring_payment'])) {
     $sql = mysqli_query($mysqli, "SELECT recurring_invoice_amount, recurring_invoice_client_id, recurring_invoice_currency_code,
         recurring_invoice_number, recurring_invoice_prefix FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That recurring invoice no longer exists.', 'error');
+        redirect();
+    }
     $client_id = intval($row['recurring_invoice_client_id']);
     $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
@@ -389,6 +405,8 @@ if (isExportRequest('export_recurring_invoices')) {
 
     $num_rows = mysqli_num_rows($sql);
 
+    guardExportHasRows($num_rows, 'recurring invoices');
+
     if ($num_rows > 0) {
 
         guardExportPdfRowCount($format, $num_rows);
@@ -420,10 +438,14 @@ if (isset($_GET['recurring_invoice_email_notify'])) {
     enforceUserPermission('module_sales', 2);
 
     $recurring_invoice_email_notify = intval($_GET['recurring_invoice_email_notify']);
-    $recurring_invoice_id = intval($_GET['recurring_invoice_id']);
+    $recurring_invoice_id = intval($_GET['recurring_invoice_id'] ?? 0);
 
     $sql = mysqli_query($mysqli,"SELECT recurring_invoice_client_id, recurring_invoice_number, recurring_invoice_prefix FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That recurring invoice no longer exists.', 'error');
+        redirect();
+    }
     $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
     $client_id = intval($row['recurring_invoice_client_id']);

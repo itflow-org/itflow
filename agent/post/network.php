@@ -329,7 +329,7 @@ if (isExportRequest('export_networks')) {
         if (!empty($_POST['client'])) {
             $filter_client_id = intval($_POST['client']);
             $client_query = "AND network_client_id = $filter_client_id";
-            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+            $filter_summary['Client'] = exportClientName($filter_client_id);
         }
         $archive_query = $archived ? "(client_archived_at IS NOT NULL OR network_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND network_archived_at IS NULL)";
     }
@@ -338,7 +338,7 @@ if (isExportRequest('export_networks')) {
     if (!empty($_POST['location'])) {
         $filter_location_id = intval($_POST['location']);
         $location_query = "AND network_location_id = $filter_location_id";
-        $filter_summary['Site'] = getFieldById('locations', $filter_location_id, 'location_name');
+        $filter_summary['Site'] = exportRecordName('locations', $filter_location_id, 'location_name', 'location_client_id');
     }
 
     $type_query = '';
@@ -372,6 +372,8 @@ if (isExportRequest('export_networks')) {
     );
 
     $num_rows = mysqli_num_rows($sql);
+
+    guardExportHasRows($num_rows, 'networks');
 
     if ($num_rows > 0) {
 

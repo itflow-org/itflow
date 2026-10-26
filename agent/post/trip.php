@@ -306,6 +306,8 @@ if (isExportRequest('export_trips')) {
 
     $num_rows = mysqli_num_rows($sql);
 
+    guardExportHasRows($num_rows, 'trips');
+
     if ($num_rows > 0) {
 
         guardExportPdfRowCount($format, $num_rows);

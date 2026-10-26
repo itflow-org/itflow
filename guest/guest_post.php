@@ -10,18 +10,22 @@ require_once "../includes/inc_set_timezone.php"; // Must be included after sessi
 
 // logAudit() reads these globals - without them guest audit rows have no IP
 $session_ip = escapeSql(getIP());
-$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
+$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
 
-if (isset($_GET['accept_quote'], $_GET['url_key']) || isset($_GET['decline_quote'], $_GET['url_key'])) {
+/*
+ * A quote accepted or declined from its guest page (guest_view_quote.php) -
+ * posted, never a link: mail scanners and link previews open links, and must
+ * not answer a quote. Its link key is the only proof, matched exactly.
+ */
+if (isset($_POST['quote_id'], $_POST['url_key']) && (isset($_POST['accept_quote']) || isset($_POST['decline_quote']))) {
 
     // The answer and what follows it - functions/billing.php, shared with the client portal
-    $accept = isset($_GET['accept_quote']);
-    $quote_id = intval($accept ? $_GET['accept_quote'] : $_GET['decline_quote']);
-    $url_key = escapeSql($_GET['url_key']);
+    $accept = isset($_POST['accept_quote']);
+    $quote_id = intval($_POST['quote_id']);
+    $url_key = is_string($_POST['url_key']) ? $_POST['url_key'] : '';
+    $quote_key = (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT quote_url_key FROM quotes WHERE quote_id = $quote_id"))[0] ?? '');
 
-    $sql = mysqli_query($mysqli, "SELECT quote_id FROM quotes WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
-
-    if (mysqli_num_rows($sql) == 1) {
+    if ($quote_key !== '' && hash_equals($quote_key, $url_key)) {
 
         $answer = billingQuoteAnswer($quote_id, $accept);
 

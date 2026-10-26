@@ -353,7 +353,7 @@ if (isExportRequest('export_products')) {
     if (!empty($_POST['vendor'])) {
         $filter_vendor_id = intval($_POST['vendor']);
         $vendor_query = "AND product_vendor_id = $filter_vendor_id";
-        $filter_summary['Vendor'] = getFieldById('vendors', $filter_vendor_id, 'vendor_name');
+        $filter_summary['Vendor'] = exportRecordName('vendors', $filter_vendor_id, 'vendor_name', 'vendor_client_id');
     }
 
     // Search Filter
@@ -379,6 +379,8 @@ if (isExportRequest('export_products')) {
     );
 
     $num_rows = mysqli_num_rows($sql);
+
+    guardExportHasRows($num_rows, 'products');
 
     if ($num_rows > 0) {
 

@@ -159,3 +159,9 @@ if (isset($_POST['asset_network_id'])) {
 } else {
     $network = '0';
 }
+
+// Only the client's own, as in the asset form - another client's would show on this one's asset, and the asset on theirs
+$vendor = assetClientOwnedId('vendor', $vendor, $client_id);
+$location = assetClientOwnedId('location', $location, $client_id);
+$contact = assetClientOwnedId('contact', $contact, $client_id);
+$network = assetClientOwnedId('network', $network, $client_id);

@@ -308,7 +308,7 @@ function contractSignatureRow($contract_signature_id) {
 
 /** The round a link opens - its id and key, matched exactly - or null. */
 function contractSignatureByKey($contract_signature_id, $key) {
-    $key = (string) $key;
+    $key = is_string($key) ? $key : '';
     $round = contractSignatureRow($contract_signature_id);
     if (!$round || $key === '' || (string) $round['contract_signature_url_key'] === '' || !hash_equals((string) $round['contract_signature_url_key'], $key)) {
         return null;

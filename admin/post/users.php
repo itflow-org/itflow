@@ -432,6 +432,8 @@ if (isExportRequest('export_users')) {
 
     $num_rows = count($rows);
 
+    guardExportHasRows($num_rows, 'users');
+
     if ($num_rows > 0) {
 
         guardExportPdfRowCount($format, $num_rows);

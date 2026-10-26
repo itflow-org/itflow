@@ -82,6 +82,10 @@ if (isset($_POST['add_quote_copy'])) {
     $sql = mysqli_query($mysqli,"SELECT quote_amount, quote_category_id, quote_currency_code, quote_discount_amount, quote_note,
         quote_number, quote_prefix, quote_scope FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That quote no longer exists.', 'error');
+        redirect();
+    }
     $original_quote_prefix = escapeSql($row['quote_prefix']);
     $original_quote_number = escapeSql($row['quote_number']);
     $quote_discount_amount = floatval($row['quote_discount_amount']);
@@ -192,6 +196,10 @@ if (isset($_POST['edit_quote'])) {
     // Get Quote Details for logging
     $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That quote no longer exists.', 'error');
+        redirect();
+    }
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
@@ -221,6 +229,10 @@ if (isset($_GET['delete_quote'])) {
     // Get Quote Details for logging
     $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That quote no longer exists.', 'error');
+        redirect();
+    }
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
@@ -267,6 +279,10 @@ if (isset($_POST['mark_quote_sent'])) {
 
     $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That quote no longer exists.', 'error');
+        redirect();
+    }
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
@@ -310,6 +326,10 @@ if (isset($_GET['accept_quote'])) {
 
     $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That quote no longer exists.', 'error');
+        redirect();
+    }
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
@@ -340,6 +360,10 @@ if (isset($_GET['decline_quote'])) {
 
     $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That quote no longer exists.', 'error');
+        redirect();
+    }
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
@@ -429,6 +453,10 @@ if (isset($_GET['mark_quote_invoiced'])) {
 
     $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert('That quote no longer exists.', 'error');
+        redirect();
+    }
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
@@ -510,6 +538,8 @@ if (isExportRequest('export_quotes')) {
     );
 
     $num_rows = mysqli_num_rows($sql);
+
+    guardExportHasRows($num_rows, 'quotes');
 
     if ($num_rows > 0) {
 

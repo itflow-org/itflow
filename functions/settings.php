@@ -917,7 +917,7 @@ function settingsNumberingFields($kind, $prefix, $number) {
     ob_start(); ?>
     <div class="row g-3">
         <div class="col-sm-5"><?= settingsInput($numbering['prefix'], $prefix, ['icon' => 'fa-barcode', 'required' => true, 'maxlength' => 200, 'label' => 'Prefix',
-            'pattern' => $kind === 'ticket' ? '[A-Za-z-]+' : '[^\s]+', 'title' => $kind === 'ticket' ? 'Only letters and hyphens' : 'No spaces']) ?></div>
+            'pattern' => $kind === 'ticket' ? '[A-Za-z\\-]+' : '[^\s]+', 'title' => $kind === 'ticket' ? 'Only letters and hyphens' : 'No spaces']) ?></div>
         <div class="col-sm-7"><?= settingsInput($numbering['number'], $number, ['icon' => 'fa-hashtag', 'type' => 'number', 'required' => true, 'min' => 1, 'label' => 'Next number']) ?></div>
     </div>
     <div class="itflow-settings-sample itflow-settings-next mt-3" data-settings-next="<?= $numbering['prefix'] ?>,<?= $numbering['number'] ?>"

@@ -444,7 +444,7 @@ if (isExportRequest('export_domains')) {
         if (!empty($_POST['client'])) {
             $filter_client_id = intval($_POST['client']);
             $client_query = "AND (domain_client_id = $filter_client_id)";
-            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+            $filter_summary['Client'] = exportClientName($filter_client_id);
         }
 
         $archive_query = $archived ? "(client_archived_at IS NOT NULL OR domain_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND domain_archived_at IS NULL)";
@@ -475,7 +475,7 @@ if (isExportRequest('export_domains')) {
     if (!empty($_POST['vendor'])) {
         $vendor_filter = intval($_POST['vendor']);
         $vendor_query = "AND $vendor_filter IN (domain_registrar, domain_dnshost, domain_webhost, domain_mailhost)";
-        $filter_summary['Vendor'] = getFieldById('vendors', $vendor_filter, 'vendor_name');
+        $filter_summary['Vendor'] = exportRecordName('vendors', $vendor_filter, 'vendor_name', 'vendor_client_id');
     }
 
     // Search Filter
@@ -506,6 +506,8 @@ if (isExportRequest('export_domains')) {
     );
 
     $num_rows = mysqli_num_rows($sql);
+
+    guardExportHasRows($num_rows, 'domains');
 
     if ($num_rows > 0) {
 

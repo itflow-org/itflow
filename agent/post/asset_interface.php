@@ -246,8 +246,10 @@ if (isset($_POST['bulk_edit_asset_interface_network'])) {
         $count++;
     }
 
-    flashAlert("Network set to <strong>" . ($network['network_name'] ?? 'none') . "</strong> on <strong>$count</strong> interface" . ($count === 1 ? '' : 's')
-        . ($outside ? " - $outside ha" . ($outside === 1 ? 's an address' : 've addresses') . " outside " . $network['network'] : ''), $outside ? 'warning' : 'success');
+    // The network is named once an interface took it - one that fits none of them may be a client this agent can't see
+    $network_label = !$network ? 'none' : ($count ? escapeHtml($network['network_name']) : 'that network');
+    flashAlert("Network set to <strong>$network_label</strong> on <strong>$count</strong> interface" . ($count === 1 ? '' : 's')
+        . ($outside ? " - $outside ha" . ($outside === 1 ? 's an address' : 've addresses') . " outside " . escapeHtml($network['network']) : ''), $outside ? 'warning' : 'success');
 
     redirect();
 
@@ -459,6 +461,8 @@ if (isExportRequest('export_asset_interfaces')) {
     interfaceSort($rows);
 
     $num_rows = count($rows);
+
+    guardExportHasRows($num_rows, 'interfaces');
 
     if ($num_rows > 0) {
 
