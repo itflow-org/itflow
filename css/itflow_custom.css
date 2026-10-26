@@ -1434,7 +1434,29 @@ select.select2[multiple]:not(.itflow-select-native) {
 @keyframes itflowSelectInAbove {
     from { opacity: 0; transform: translateY(4px); }
 }
+/* Above the list: what it is for, and Cancel (Done where several are ticked) to close it */
 .itflow-select-sheet-head {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: .25rem .375rem .25rem .875rem;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+    font-size: .8125rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-select-sheet-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.itflow-select-sheet-head + .itflow-select-search {
+    border-top: 0;
+}
+/* The tag picker's Done is in its footer, beside what it tagged */
+.itflow-tag-panel:not(.is-sheet) .itflow-select-sheet-head {
     display: none;
 }
 .itflow-select-search {
@@ -1608,7 +1630,13 @@ select.select2[multiple]:not(.itflow-select-native) {
     align-items: center;
     justify-content: space-between;
     padding: .75rem .75rem .5rem 1rem;
+    border-bottom: 0;
+    font-size: inherit;
     font-weight: 600;
+    color: var(--bs-body-color);
+}
+.itflow-select-panel.is-sheet .itflow-select-sheet-head + .itflow-select-search {
+    border-top: 1px solid var(--bs-border-color-translucent);
 }
 .itflow-select-panel.is-sheet .itflow-select-list {
     flex: 1 1 auto;

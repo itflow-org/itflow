@@ -540,6 +540,12 @@
             swallow = false;
         }
     }, true);
+    // A click into a reply box, which this page never hears (js/itflow_select.js)
+    document.addEventListener('itflow:dismiss', function () {
+        if (open) {
+            open.close(false);
+        }
+    });
 
     var placing = false;
     function replace() {

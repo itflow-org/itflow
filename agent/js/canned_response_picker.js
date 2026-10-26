@@ -14,6 +14,8 @@
  *   picks through window.itflowCannedPick (js/app.js).
  * - Save your reply as a canned response, at the foot of the list, closes the list as its
  *   window opens (agent/js/canned_response_save.js).
+ * - Cancel closes the list and puts you back in the reply. A click into the
+ *   reply closes it too (itflowDismissPopups(), js/itflow_select.js).
  * - Sending a reply a response went into, with [something] in square brackets
  *   still in it, asks first - Fill them in selects the first one in the reply.
  *   In Update & Reply the placeholders are filled in for each ticket as it is
@@ -293,7 +295,7 @@
         }
     });
 
-    // A click on one picks it; a file's x leaves it off; Save your reply as a canned response closes the list as its window opens
+    // A click on one picks it; a file's x leaves it off; Cancel closes the list; Save your reply as a canned response closes the list as its window opens
     document.addEventListener('click', function (e) {
         const item = e.target.closest('[data-canned-picker] [data-canned-id]');
         if (item) {
@@ -306,6 +308,22 @@
             const box = remove.closest('[data-canned-files]');
             remove.closest('[data-canned-file-id]').remove();
             box.hidden = !box.querySelector('[data-canned-file-id]');
+            return;
+        }
+        const cancel = e.target.closest('[data-canned-picker] [data-canned-close]');
+        if (cancel) {
+            const picker = cancel.closest('[data-canned-picker]');
+            const toggle = picker.querySelector('[data-canned-toggle]');
+            if (toggle && window.bootstrap) {
+                bootstrap.Dropdown.getOrCreateInstance(toggle).hide();
+            }
+            const editor = window.tinymce ? tinymce.get(picker.dataset.editor) : null;
+            const textarea = document.getElementById(picker.dataset.editor);
+            if (editor) {
+                editor.focus();
+            } else if (textarea) {
+                textarea.focus();
+            }
             return;
         }
         const save = e.target.closest('[data-canned-picker] [data-canned-save-open]');

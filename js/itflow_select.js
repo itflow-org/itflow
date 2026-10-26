@@ -56,6 +56,11 @@
  *   data-avatar="initials"     initials tiles for options that have no
  *                              picture (for lists filled in by JS)
  *
+ * Above the list is what the field is for, with Cancel to close it without
+ * picking - or Done, where several can be ticked. Escape and a click
+ * anywhere else close it too, a click into a reply box among them (see
+ * itflowDismissPopups() below).
+ *
  * FROM CODE: select.itflowSelect is the picker - .open(), .close(),
  * .clear(), .setValue(v). itflowSelectAll(root) enhances anything not yet
  * done; it also happens by itself for selects added to the page later, and
@@ -474,12 +479,19 @@
         var panel = this.panel = make('div', 'itflow-select-panel' + (this.multiple ? ' is-multiple' : ''));
         panel.id = this.id + '-panel';
 
+        // What it is for, and a way out: Cancel leaves it as it was, Done
+        // closes a list you tick several in
         var head = make('div', 'itflow-select-sheet-head');
         head.appendChild(make('span', 'itflow-select-sheet-title', this.label || this.placeholder()));
-        var done = make('button', 'btn btn-sm btn-link itflow-select-done', 'Done');
+        var done = make('button', 'btn btn-sm btn-link itflow-select-done', this.multiple ? 'Done' : 'Cancel');
         done.type = 'button';
+        done.title = this.multiple ? 'Close the list (Esc)' : 'Close without changing it (Esc)';
         done.addEventListener('click', function () {
-            self.close(true, false);
+            if (self.multiple) {
+                self.close(true, false);
+            } else {
+                self.close(false, true);
+            }
         });
         head.appendChild(done);
         panel.appendChild(head);
@@ -1168,6 +1180,77 @@
             current.close(true, false);
         }
     }, { capture: true, passive: true });
+
+    /*
+     * A click into a reply box never reaches this page. TinyMCE draws the text
+     * in an iframe - a document of its own - so nothing that closes on a click
+     * outside it heard one, and the canned response list, a select's panel or
+     * a quick pick stayed open over the reply until you clicked somewhere
+     * else. itflowDismissPopups() closes them as that click would have:
+     * Bootstrap's dropdown menus that close on an outside click, a date
+     * picker's calendar, and, through an itflow:dismiss event, the pickers -
+     * this one, js/quick_pick.js and js/tag_picker.js. It runs when an editor is pressed (any TinyMCE on the
+     * page, the client portal's too) and when the focus goes into any other
+     * iframe. $from is what was clicked, so a menu holding it stays open.
+     */
+    window.itflowDismissPopups = function (from) {
+        if (window.bootstrap && bootstrap.Dropdown) {
+            document.querySelectorAll('[data-bs-toggle="dropdown"].show').forEach(function (toggle) {
+                var autoClose = toggle.getAttribute('data-bs-auto-close');
+                var holder = toggle.parentNode;
+                if (autoClose === 'false' || autoClose === 'inside' || (from && holder && holder.contains(from))) {
+                    return;
+                }
+                bootstrap.Dropdown.getOrCreateInstance(toggle).hide();
+            });
+        }
+        document.querySelectorAll('.flatpickr-input').forEach(function (input) {
+            var calendar = input._flatpickr;
+            if (calendar && calendar.isOpen && !calendar.config.inline) {
+                calendar.close();
+            }
+        });
+        document.dispatchEvent(new CustomEvent('itflow:dismiss', { detail: { from: from || null } }));
+    };
+    document.addEventListener('itflow:dismiss', function (e) {
+        var from = e.detail && e.detail.from;
+        if (current && !(from && (current.wrap.contains(from) || current.panel.contains(from)))) {
+            current.close(true, false);
+        }
+    });
+    function editorDismisses(editor) {
+        if (editor && !editor.itflowDismisses) {
+            editor.itflowDismisses = true;
+            editor.on('mousedown touchstart', function () {
+                window.itflowDismissPopups(editor.getContainer());
+            });
+        }
+    }
+    function watchEditors() {
+        if (typeof tinymce === 'undefined' || window.itflowEditorsWatched) {
+            return;
+        }
+        window.itflowEditorsWatched = true;
+        tinymce.on('AddEditor', function (e) {
+            editorDismisses(e.editor);
+        });
+        (tinymce.get() || []).forEach(editorDismisses);
+    }
+    // TinyMCE loads after this file - its editors are made once the page has loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', watchEditors);
+    } else {
+        watchEditors();
+    }
+    window.addEventListener('blur', function () {
+        // The page loses the focus first; the iframe has it a moment later
+        setTimeout(function () {
+            var frame = document.activeElement;
+            if (frame && frame.tagName === 'IFRAME') {
+                window.itflowDismissPopups(frame);
+            }
+        }, 0);
+    });
 
     var placing = false;
     function replace() {

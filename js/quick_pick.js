@@ -22,6 +22,10 @@
  * value comes back as "related" HTML for [data-quick-related="<key>"] - the
  * asset page's contact details under its Assigned picker.
  *
+ * Cancel, at the top, Escape or a click anywhere else closes it without
+ * changing anything - a click into a reply box too (itflowDismissPopups(),
+ * js/itflow_select.js).
+ *
  * Markup comes from quickPick() in functions/ticket_fields.php. Styled
  * with the select picker's panel classes, like the tag picker.
  */
@@ -131,8 +135,9 @@
         head.appendChild(make('span', 'itflow-select-sheet-title', titles[this.field] || 'Change'));
         var done = make('button', 'btn btn-sm btn-link itflow-select-done', 'Cancel');
         done.type = 'button';
+        done.title = 'Close without changing it (Esc)';
         done.addEventListener('click', function () {
-            self.close(false);
+            self.close(true);
         });
         head.appendChild(done);
         panel.appendChild(head);
@@ -495,6 +500,12 @@
             swallow = false;
         }
     }, true);
+    // A click into a reply box, which this page never hears (js/itflow_select.js)
+    document.addEventListener('itflow:dismiss', function () {
+        if (open) {
+            open.close(false);
+        }
+    });
 
     var placing = false;
     function replace() {

@@ -9,6 +9,9 @@
  * files that go with one show under it, each one that can be left off, and
  * go with the reply (canned_response_file_ids[]).
  *
+ * Cancel, beside the search, closes the list and goes back to the reply -
+ * as Escape does, and a click into the reply or anywhere else.
+ *
  * The agent's own come first, as Yours. On a ticket the list ends with Save
  * your reply as a canned response (agent/user/modals/canned_response_save.php)
  * - so the picker is there on a ticket even with none on offer yet - and a
@@ -33,8 +36,9 @@ if (!empty($canned_picker_groups) || intval($canned_picker_ticket_id) > 0) { ?>
         </button>
         <span class="small text-body-secondary ms-2 d-none d-md-inline">or type <kbd>/</kbd> in the reply</span>
         <div class="dropdown-menu p-0 itflow-canned-menu">
-            <div class="p-2 border-bottom">
+            <div class="p-2 border-bottom d-flex align-items-center gap-1">
                 <input type="search" class="form-control form-control-sm" placeholder="Search canned responses..." aria-label="Search canned responses" autocomplete="off" data-canned-search>
+                <button type="button" class="btn btn-sm btn-link text-decoration-none flex-shrink-0" title="Close the list and go back to the reply (Esc)" data-canned-close>Cancel</button>
             </div>
             <div class="itflow-canned-list" data-canned-list>
                 <?php foreach ($canned_picker_groups as $canned_group_label => $canned_group_rows) { ?>
