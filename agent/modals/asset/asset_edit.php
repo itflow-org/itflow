@@ -56,6 +56,9 @@ $asset_network_id = intval($row['interface_network_id']);
 
 $device_icon = getAssetIcon($row['asset_type']);
 
+// Its details - its type's are shown (functions/asset_type.php)
+$asset_specs = assetSpecs($asset_id);
+
 // History, newest first
 $sql_asset_history = mysqli_query($mysqli, "SELECT asset_history_created_at, asset_history_description, asset_history_status FROM asset_history
     WHERE asset_history_asset_id = $asset_id

@@ -158,7 +158,11 @@ $quick_tabs = array_filter([
 });
 $first_tab = array_key_first($quick_tabs);
 
-$has_left = $asset_ip || $asset_mac || $asset_serial || $asset_warranty;
+// Its type's details (functions/asset_type.php) - and Assigned only on a type someone is given, or one that has someone
+$asset_spec_rows = assetSpecRows($asset_row['asset_type'], assetSpecs($asset_id), $client_id);
+$asset_has_contact = assetTypeHasField($asset_row['asset_type'], 'contact') || $asset_row['contact_name'];
+
+$has_left = $asset_ip || $asset_mac || $asset_serial || $asset_warranty || $asset_spec_rows;
 $has_right = $can_edit || $asset_row['location_name'] || $asset_row['contact_name'] || $asset_rack;
 
 ob_start();
@@ -245,6 +249,16 @@ ob_start();
                             <span class="text-<?= $asset_warranty['tone'] ?>-emphasis">Warranty <?= strtolower(escapeHtml($asset_warranty['text'])) ?></span>
                         </div>
                     <?php } ?>
+                    <?php foreach ($asset_spec_rows as $spec_key => $spec_row) { ?>
+                        <div class="itflow-glance-item" title="<?= escapeHtml($spec_row['label']) ?>" data-asset-spec-row="<?= $spec_key ?>">
+                            <i class="fas fa-fw <?= $spec_row['icon'] ?>"></i>
+                            <?php if ($spec_row['flag']) { ?>
+                                <span class="text-<?= $spec_row['flag']['tone'] ?>-emphasis"><?= escapeHtml($spec_row['label']) ?> - <?= strtolower(escapeHtml($spec_row['flag']['text'])) ?></span>
+                            <?php } else { ?>
+                                <span><?php if (!$spec_row['alone']) { ?><span class="small text-body-secondary me-1"><?= escapeHtml($spec_row['label']) ?></span><?php } ?><?= $spec_row['html'] ?></span>
+                            <?php } ?>
+                        </div>
+                    <?php } ?>
                 </div>
             <?php } ?>
             <?php if ($has_right) { ?>
@@ -262,7 +276,7 @@ ob_start();
                             </div>
                         </div>
                     <?php } ?>
-                    <?php if ($can_edit || $asset_row['contact_name']) { ?>
+                    <?php if ($asset_has_contact && ($can_edit || $asset_row['contact_name'])) { ?>
                         <div class="itflow-glance-item" title="Assigned to">
                             <i class="fas fa-fw fa-user"></i>
                             <div class="flex-grow-1 min-w-0">

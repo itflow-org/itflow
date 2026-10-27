@@ -381,6 +381,25 @@ CREATE TABLE `asset_notes` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `asset_specs`
+--
+
+DROP TABLE IF EXISTS `asset_specs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `asset_specs` (
+  `asset_spec_id` int(11) NOT NULL AUTO_INCREMENT,
+  `asset_spec_asset_id` int(11) NOT NULL,
+  `asset_spec_key` varchar(50) NOT NULL,
+  `asset_spec_value` varchar(255) NOT NULL,
+  PRIMARY KEY (`asset_spec_id`),
+  UNIQUE KEY `asset_spec_asset_key` (`asset_spec_asset_id`,`asset_spec_key`),
+  KEY `asset_spec_key` (`asset_spec_key`,`asset_spec_value`(20)),
+  CONSTRAINT `asset_specs_asset` FOREIGN KEY (`asset_spec_asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `asset_tags`
 --
 

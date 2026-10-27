@@ -18,7 +18,7 @@ if (isset($_POST['asset_description'])) {
 }
 
 if (isset($_POST['asset_type'])) {
-    $type = escapeSql($_POST['asset_type']);
+    $type = escapeSql(assetTypeName($_POST['asset_type']) ?: $_POST['asset_type']); // as the list spells it, when it is one (functions/asset_type.php)
 } elseif (isset($asset_row) && isset($asset_row['asset_type'])) {
     $type = mysqli_real_escape_string($mysqli, $asset_row['asset_type']);
 } else {

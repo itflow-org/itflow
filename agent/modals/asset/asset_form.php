@@ -11,7 +11,11 @@
  * Notes. Every field is always in the form, whatever the asset type: fields
  * that came and went with the type used to drop out of the POST entirely,
  * and the handler then saved them as empty - editing an access point wiped
- * its firmware version.
+ * its firmware version. So a field its type doesn't have (ASSET_TYPES in
+ * functions/asset_type.php) is only hidden, and one with a value is shown
+ * all the same; a tab left with nothing in it goes too. Details - the type's
+ * own, from ASSET_SPECS - are under Hardware, as spec[key]; the caller sets
+ * $asset_specs (raw) for an asset that has them.
  *
  * Should not be accessed directly.
  */
@@ -67,6 +71,31 @@ while ($row = mysqli_fetch_assoc($sql)) {
 }
 
 $asset_ip_is_dhcp = $asset_ip === 'DHCP';
+
+// The type's details (functions/asset_type.php) - every one is in the form, its type's shown
+$asset_specs = $asset_specs ?? [];
+$asset_type_raw = html_entity_decode($asset_type, ENT_QUOTES, 'UTF-8');
+$asset_type_known = assetTypeName($asset_type_raw);
+// What each type shows, for the script - fields, what the OS field is called, details
+$asset_form_types = [];
+foreach (ASSET_TYPES as $asset_form_type => $asset_form_info) {
+    $asset_form_types[$asset_form_type] = ['fields' => $asset_form_info['fields'], 'os' => assetTypeOsLabel($asset_form_type), 'specs' => $asset_form_info['specs'], 'example' => $asset_form_info['example']];
+}
+// Ports it has now, for the counts' hints - copper and SFP cages
+$asset_port_counts = ['copper' => 0, 'sfp' => 0];
+if ($asset_form_mode === 'edit' && $asset_id) {
+    $sql = mysqli_query($mysqli, "SELECT interface_name, interface_type, interface_primary FROM asset_interfaces WHERE interface_asset_id = " . intval($asset_id) . " AND interface_archived_at IS NULL");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $port_kind = interfacePortKind($row['interface_type'], $row['interface_name']);
+        if ($port_kind !== '') {
+            $asset_port_counts[$port_kind]++;
+            if ($row['interface_primary']) {
+                $asset_port_counts['primary'] = $port_kind;
+            }
+        }
+    }
+}
+$asset_host_options = $client_id ? assetSpecAssetOptions('vm_host', $client_id, $asset_id ?? 0, intval($asset_specs['vm_host'] ?? 0)) : [];
 
 // Leading icons that follow what is picked or typed: the status in its
 // colour, the OS brand and the kind of link - the same as the assets list
@@ -138,7 +167,10 @@ $asset_form_icons = [
                 <select class="form-select select2" name="type" required>
                     <option value="">- Select Type -</option>
                     <?php foreach ($asset_types_array as $asset_type_select => $asset_icon_select) { ?>
-                        <option <?php if ($asset_type_select === html_entity_decode($asset_type)) { echo "selected"; } ?><?= selectOptionData(['icon' => "fas $asset_icon_select"]) ?>><?= $asset_type_select ?></option>
+                        <option <?php if ($asset_type_select === $asset_type_raw) { echo "selected"; } ?><?= selectOptionData(['icon' => "fas $asset_icon_select"]) ?>><?= $asset_type_select ?></option>
+                    <?php } ?>
+                    <?php if ($asset_type_raw !== '' && $asset_type_known === '') { ?>
+                        <option selected<?= selectOptionData(['icon' => 'fas fa-tag']) ?>><?= escapeHtml($asset_type_raw) ?></option>
                     <?php } ?>
                 </select>
             </div>
@@ -200,20 +232,89 @@ $asset_form_icons = [
                 <input type="text" class="form-control" name="model" placeholder="PowerEdge R650" maxlength="200" value="<?= $asset_model ?>">
             </div>
         </div>
-        <div class="col-md-5">
+        <div class="col-md-5" data-asset-field="serial">
             <label class="form-label">Serial number</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                 <input type="text" class="form-control font-monospace" name="serial" placeholder="ABC1234XYZ" maxlength="200" value="<?= $asset_serial ?>">
             </div>
         </div>
-        <div class="col-12">
-            <label class="form-label">Operating system / firmware</label>
+        <div class="col-12" data-asset-field="os">
+            <label class="form-label" for="assetFormOs" data-asset-os-label><?= $asset_type_raw !== '' ? assetTypeOsLabel($asset_type_raw) : 'Operating system / firmware' ?></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="<?= $asset_form_icons['os'] ?> fa-fw" data-asset-form-icon="os"></i></span>
                 <input type="text" class="form-control" name="os" id="assetFormOs" placeholder="Windows 11 Pro 24H2, Ubuntu 24.04, UniFi firmware 7.0" maxlength="200" value="<?= $asset_os ?>">
             </div>
         </div>
+    </div>
+
+    <?php // Its type's details - each type's are shown by the script below, the rest hidden ?>
+    <div class="itflow-form-section mt-4" data-asset-specs-heading>Details</div>
+    <div class="row g-3" data-asset-specs>
+        <?php foreach (ASSET_SPECS as $spec_key => $spec) {
+            $spec_value = (string) ($asset_specs[$spec_key] ?? '');
+            $spec_id = 'assetFormSpec_' . $spec_key;
+            $spec_shown = in_array($spec_key, assetTypeInfo($asset_type_raw)['specs'], true); ?>
+            <div class="<?= in_array($spec['input'], ['text', 'asset'], true) && !isset($spec['suggest']) ? 'col-md-6' : 'col-md-4 col-sm-6' ?>" data-asset-spec="<?= $spec_key ?>"<?= $spec_shown ? '' : ' hidden' ?>>
+                <label class="form-label" for="<?= $spec_id ?>"><?= escapeHtml($spec['label']) ?></label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw <?= $spec['icon'] ?>"></i></span>
+                    <?php if ($spec['input'] === 'select') { ?>
+                        <select class="form-select" name="spec[<?= $spec_key ?>]" id="<?= $spec_id ?>">
+                            <option value="">-</option>
+                            <?php foreach ($spec['options'] as $spec_option) { ?>
+                                <option <?= strcasecmp($spec_option, $spec_value) === 0 ? 'selected' : '' ?>><?= escapeHtml($spec_option) ?></option>
+                            <?php } ?>
+                            <?php if ($spec_value !== '' && !in_array(strtolower($spec_value), array_map('strtolower', $spec['options']), true)) { ?>
+                                <option selected><?= escapeHtml($spec_value) ?></option>
+                            <?php } ?>
+                        </select>
+                    <?php } elseif ($spec['input'] === 'asset') { ?>
+                        <?php if ($client_id) { ?>
+                            <select class="form-select select2" name="spec[<?= $spec_key ?>]" id="<?= $spec_id ?>">
+                                <option value="">- None -</option>
+                                <?php foreach ($asset_host_options as $host_id => $host) { ?>
+                                    <option value="<?= $host_id ?>" <?= intval($spec_value) === $host_id ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas ' . assetTypeInfo($host['asset_type'])['icon'], 'description' => $host['asset_type']]) ?>><?= escapeHtml($host['asset_name']) ?></option>
+                                <?php } ?>
+                            </select>
+                        <?php } else { ?>
+                            <input type="text" class="form-control" id="<?= $spec_id ?>" value="" placeholder="Pick it once the asset is saved" disabled>
+                        <?php } ?>
+                    <?php } else { ?>
+                        <input type="<?= $spec['input'] === 'date' ? 'date' : ($spec['input'] === 'number' ? 'number' : 'text') ?>"
+                            class="form-control<?= !empty($spec['mono']) ? ' font-monospace' : '' ?>" name="spec[<?= $spec_key ?>]" id="<?= $spec_id ?>"
+                            value="<?= escapeHtml($spec_value) ?>"
+                            <?php if ($spec['input'] === 'number') { ?>min="<?= $spec['min'] ?? 0 ?>" max="<?= $spec['max'] ?? '' ?>" step="<?= $spec['step'] ?? 'any' ?>" inputmode="decimal"<?php } ?>
+                            <?php if ($spec['input'] === 'date') { ?>max="2999-12-31"<?php } ?>
+                            <?php if ($spec['input'] === 'text') { ?>maxlength="255"<?php } ?>
+                            <?= isset($spec['placeholder']) ? 'placeholder="' . escapeHtml($spec['placeholder']) . '"' : '' ?>
+                            <?= isset($spec['suggest']) ? 'list="' . $spec_id . 'List"' : '' ?>>
+                        <?php if (isset($spec['unit'])) { ?>
+                            <span class="input-group-text"><?= escapeHtml($spec['unit']) ?></span>
+                        <?php } ?>
+                    <?php } ?>
+                </div>
+                <?php if (isset($spec['suggest'])) { ?>
+                    <datalist id="<?= $spec_id ?>List">
+                        <?php foreach ($spec['suggest'] as $suggestion) { ?>
+                            <option value="<?= escapeHtml($suggestion) ?>"></option>
+                        <?php } ?>
+                    </datalist>
+                <?php } ?>
+                <?php if (isset($spec['ports'])) {
+                    $port_kind = $spec['ports']; ?>
+                    <div class="form-text" data-asset-ports-hint>
+                        <?php if ($asset_form_mode === 'edit') { ?>
+                            Has <?= $asset_port_counts[$port_kind] ?> now<?= ($asset_port_counts['primary'] ?? '') === $port_kind ? ', its primary included' : '' ?>. A new count adds the ones missing to its interfaces - none are taken away.
+                        <?php } else { ?>
+                            Added to its interfaces when it's saved.
+                        <?php } ?>
+                    </div>
+                <?php } elseif (!empty($spec['flag'])) { ?>
+                    <div class="form-text">Flagged on its page as the date nears, like a warranty.</div>
+                <?php } ?>
+            </div>
+        <?php } ?>
     </div>
 
     <?php if ($asset_form_mode === 'edit') { ?>
@@ -245,7 +346,7 @@ $asset_form_icons = [
                     <input type="text" class="form-control" name="physical_location" placeholder="Floor 2, comms closet B" maxlength="200" value="<?= $asset_physical_location ?>">
                 </div>
             </div>
-            <div class="col-12">
+            <div class="col-12" data-asset-field="contact">
                 <label class="form-label">Assigned to</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-user fa-fw"></i></span>
@@ -278,7 +379,7 @@ $asset_form_icons = [
     <p class="text-body-secondary small">The primary interface. Add more ports from the asset's Interfaces tab.</p>
     <div class="row g-3">
         <?php if ($client_id) { ?>
-            <div class="col-md-6">
+            <div class="col-md-6" data-asset-field="network">
                 <label class="form-label">Network</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
@@ -292,7 +393,7 @@ $asset_form_icons = [
                 </div>
             </div>
         <?php } ?>
-        <div class="col-md-6">
+        <div class="col-md-6" data-asset-field="network">
             <label class="form-label">IPv4 address</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-globe fa-fw"></i></span>
@@ -305,21 +406,21 @@ $asset_form_icons = [
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6" data-asset-field="network">
             <label class="form-label">MAC address</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                 <input type="text" class="form-control font-monospace" name="mac" placeholder="00:1A:2B:3C:4D:5E" maxlength="200" value="<?= $asset_mac ?>" data-inputmask="'alias': 'mac'" data-mask>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6" data-asset-field="nat">
             <label class="form-label">NAT address</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
                 <input type="text" class="form-control font-monospace" name="nat_ip" placeholder="203.0.113.10" maxlength="200" value="<?= $asset_nat_ip ?>" data-inputmask="'alias': 'ip'" data-mask>
             </div>
         </div>
-        <div class="col-12">
+        <div class="col-12" data-asset-field="network">
             <label class="form-label">IPv6 address</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-globe fa-fw"></i></span>
@@ -328,29 +429,31 @@ $asset_form_icons = [
         </div>
     </div>
 
-    <div class="itflow-form-section mt-4">Links</div>
-    <div class="row g-3">
-        <div class="col-md-6">
-            <label class="form-label">Link</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="<?= $asset_form_icons['uri'] ?> fa-fw" data-asset-form-icon="link"></i></span>
-                <input type="text" class="form-control" name="uri" placeholder="https://, ssh://, rdp://" maxlength="500" value="<?= $asset_uri ?>">
+    <div data-asset-field="links">
+        <div class="itflow-form-section mt-4">Links</div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Link</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="<?= $asset_form_icons['uri'] ?> fa-fw" data-asset-form-icon="link"></i></span>
+                    <input type="text" class="form-control" name="uri" placeholder="https://, ssh://, rdp://" maxlength="500" value="<?= $asset_uri ?>">
+                </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">Second link</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="<?= $asset_form_icons['uri_2'] ?> fa-fw" data-asset-form-icon="link"></i></span>
-                <input type="text" class="form-control" name="uri_2" placeholder="https://, ssh://, rdp://" maxlength="500" value="<?= $asset_uri_2 ?>">
+            <div class="col-md-6">
+                <label class="form-label">Second link</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="<?= $asset_form_icons['uri_2'] ?> fa-fw" data-asset-form-icon="link"></i></span>
+                    <input type="text" class="form-control" name="uri_2" placeholder="https://, ssh://, rdp://" maxlength="500" value="<?= $asset_uri_2 ?>">
+                </div>
             </div>
-        </div>
-        <div class="col-12">
-            <label class="form-label">Client link</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-share-square fa-fw"></i></span>
-                <input type="text" class="form-control" name="uri_client" placeholder="https://" maxlength="500" value="<?= $asset_uri_client ?>">
+            <div class="col-12">
+                <label class="form-label">Client link</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-share-square fa-fw"></i></span>
+                    <input type="text" class="form-control" name="uri_client" placeholder="https://" maxlength="500" value="<?= $asset_uri_client ?>">
+                </div>
+                <div class="form-text">Shown to the client in their portal.</div>
             </div>
-            <div class="form-text">Shown to the client in their portal.</div>
         </div>
     </div>
 </div>
@@ -359,7 +462,7 @@ $asset_form_icons = [
 <div class="tab-pane fade" id="assetFormPurchase">
     <div class="row g-3">
         <?php if ($client_id) { ?>
-            <div class="col-md-6">
+            <div class="col-md-6" data-asset-field="purchase">
                 <label class="form-label">Vendor</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
@@ -373,14 +476,14 @@ $asset_form_icons = [
                 </div>
             </div>
         <?php } ?>
-        <div class="col-md-6">
+        <div class="col-md-6" data-asset-field="purchase">
             <label class="form-label">Order / invoice reference</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-receipt"></i></span>
                 <input type="text" class="form-control" name="purchase_reference" placeholder="INV-1045, PO-7782" maxlength="200" value="<?= $asset_purchase_reference ?>">
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4" data-asset-field="purchase">
             <label class="form-label">Purchased</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-shopping-cart fa-fw"></i></span>
@@ -394,7 +497,7 @@ $asset_form_icons = [
                 <input type="date" class="form-control" name="install_date" max="2999-12-31" value="<?= $asset_install_date ?>">
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4" data-asset-field="warranty">
             <label class="form-label">Warranty expires</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-shield-alt fa-fw"></i></span>
@@ -545,6 +648,71 @@ $asset_form_icons = [
                 setIcon(icon, value.trim() === '' ? 'fas fa-link' : (icons.link[(scheme || '').toLowerCase()] || 'fas fa-external-link-alt'));
             });
         });
+
+        // What the type shows: its fields - and any other with something in it,
+        // so nothing is hidden with a value - its details, and a tab only while
+        // something on it is showing. Hidden fields are still sent as they are.
+        var types = <?= json_encode($asset_form_types, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        var typeSelect = form.querySelector('[name="type"]');
+        var osLabel = form.querySelector('[data-asset-os-label]');
+        function hasValue(box) {
+            return Array.prototype.some.call(box.querySelectorAll('input, select, textarea'), function (field) {
+                if (field.type === 'checkbox') {
+                    return field.checked && field.name === 'dhcp';
+                }
+                return field.type !== 'hidden' && field.value.trim() !== '';
+            });
+        }
+        function applyType() {
+            var type = types[typeSelect.value] || types.Other;
+            form.querySelectorAll('[data-asset-field]').forEach(function (box) {
+                box.hidden = type.fields.indexOf(box.dataset.assetField) === -1 && !hasValue(box);
+            });
+            var anySpec = false;
+            form.querySelectorAll('[data-asset-spec]').forEach(function (box) {
+                box.hidden = type.specs.indexOf(box.dataset.assetSpec) === -1;
+                anySpec = anySpec || !box.hidden;
+            });
+            var heading = form.querySelector('[data-asset-specs-heading]');
+            heading.hidden = !anySpec;
+            heading.textContent = (types[typeSelect.value] ? typeSelect.value + ' ' : '') + 'details';
+            if (osLabel) {
+                osLabel.textContent = typeSelect.value ? type.os : 'Operating system / firmware';
+            }
+            // Its details in its own order, and suggestions that fit it
+            type.specs.forEach(function (key, at) {
+                var box = form.querySelector('[data-asset-spec="' + key + '"]');
+                if (box) {
+                    box.style.order = at;
+                }
+            });
+            if (types[typeSelect.value]) {
+                ['name', 'description', 'make', 'model', 'os'].forEach(function (field) {
+                    var input = form.querySelector('[name="' + field + '"]');
+                    if (input && type.example[field] !== undefined) {
+                        input.placeholder = type.example[field];
+                    }
+                });
+            }
+            // A tab with nothing left on it goes - back to Details if it was open
+            form.querySelectorAll('.itflow-asset-form-tabs [data-bs-toggle="pill"]').forEach(function (tab) {
+                var pane = form.querySelector(tab.getAttribute('href'));
+                var fields = pane ? pane.querySelectorAll('[data-asset-field]') : [];
+                var always = pane && Array.prototype.some.call(pane.querySelectorAll('.form-label'), function (label) {
+                    return !label.closest('[data-asset-field]');
+                });
+                if (!fields.length) {
+                    return;
+                }
+                var empty = Array.prototype.every.call(fields, function (box) { return box.hidden; });
+                tab.closest('.nav-item').hidden = empty && !always;
+                if (empty && !always && tab.classList.contains('active')) {
+                    bootstrap.Tab.getOrCreateInstance(form.querySelector('[href="#assetFormDetails"]')).show();
+                }
+            });
+        }
+        typeSelect.addEventListener('change', applyType);
+        applyType();
 
         // DHCP means no fixed address to type
         var dhcp = form.querySelector('#assetFormDhcp');

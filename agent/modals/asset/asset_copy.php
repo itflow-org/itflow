@@ -53,6 +53,11 @@ $asset_favorite = 0;
 
 $device_icon = getAssetIcon($row['asset_type']);
 
+// Its details come along, bar the ones that belong to that one unit - an IMEI, a circuit
+$asset_specs = array_filter(assetSpecs($source_asset_id), function ($key) {
+    return empty(ASSET_SPECS[$key]['unit_only']);
+}, ARRAY_FILTER_USE_KEY);
+
 // Tags come along
 $asset_tag_id_array = array();
 $sql_asset_tags = mysqli_query($mysqli, "SELECT asset_tag_tag_id FROM asset_tags WHERE asset_tag_asset_id = $source_asset_id");
@@ -73,7 +78,7 @@ ob_start();
     <input type="hidden" name="client_id" value="<?= $client_id ?>">
 
     <div class="modal-body ui-front">
-        <div class="alert alert-info small py-2"><i class="fas fa-info-circle me-2"></i>Serial, addresses, links and photo start empty - they belong to the unit you're copying.</div>
+        <div class="alert alert-info small py-2"><i class="fas fa-info-circle me-2"></i>Serial, addresses, links, photo and details like an IMEI start empty - they belong to the unit you're copying.</div>
         <?php require 'asset_form.php'; ?>
     </div>
     <div class="modal-footer">

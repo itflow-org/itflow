@@ -20,6 +20,11 @@ if ($sql && mysqli_num_rows($sql) > 0) {
         $return_arr['data'] = tagApiAttach($return_arr['data'], $api_tag_entity);
     }
 
+    // Each asset's details, as asset_specs ($api_asset_specs, set by api/v1/assets/read.php)
+    if (!empty($api_asset_specs)) {
+        $return_arr['data'] = assetSpecsApiAttach($return_arr['data']);
+    }
+
     echo json_encode($return_arr);
     exit();
 }

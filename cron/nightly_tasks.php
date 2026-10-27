@@ -346,6 +346,21 @@ foreach ($warranty_alert_array as $day) {
 // Logging
 // logAudit("Cron", "Task", "Cron created notifications for asset warranties expiring");
 
+// UPS batteries due for replacing - the same days ahead as warranties (asset_specs, functions/asset_type.php)
+foreach (assetSpecsReady() ? $warranty_alert_array : [] as $day) {
+    $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_spec_value, client_id, client_name FROM asset_specs
+        JOIN assets ON asset_id = asset_spec_asset_id
+        JOIN clients ON asset_client_id = client_id
+        WHERE asset_spec_key = 'battery_replace' AND asset_spec_value = CURDATE() + INTERVAL $day DAY
+        AND asset_type = 'UPS' AND asset_archived_at IS NULL AND client_archived_at IS NULL");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $asset_id = intval($row['asset_id']);
+        $client_id = intval($row['client_id']);
+        appNotify("UPS Battery Due", "The battery in " . escapeSql($row['asset_name']) . " for " . escapeSql($row['client_name']) . " is due for replacing in $day day" . ($day === 1 ? '' : 's') . ", on " . escapeSql($row['asset_spec_value']),
+            "/agent/asset.php?client_id=$client_id&asset_id=$asset_id", $client_id);
+    }
+}
+
 // Services due for review - said once, the day it falls due
 $sql = mysqli_query($mysqli, "SELECT service_id, service_name, service_importance, client_id, client_name FROM services
     JOIN clients ON service_client_id = client_id

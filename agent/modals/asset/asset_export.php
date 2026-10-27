@@ -68,12 +68,9 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                 <select class="form-select select2" name="type">
                     <option value="">- All Types -</option>
-                    <option <?php if ($type_filter === 'workstation') { echo "selected"; } ?> value="workstation">Workstations</option>
-                    <option <?php if ($type_filter === 'server') { echo "selected"; } ?> value="server">Servers</option>
-                    <option <?php if ($type_filter === 'virtual') { echo "selected"; } ?> value="virtual">Virtual Machines</option>
-                    <option <?php if ($type_filter === 'network') { echo "selected"; } ?> value="network">Network Devices</option>
-                    <option <?php if ($type_filter === 'printer') { echo "selected"; } ?> value="printer">Printers</option>
-                    <option <?php if ($type_filter === 'other') { echo "selected"; } ?> value="other">Other</option>
+                    <?php foreach (assetTypeTabs() as $tab_key => $tab) { ?>
+                        <option <?php if ($type_filter === $tab_key) { echo "selected"; } ?> value="<?= $tab_key ?>"><?= escapeHtml($tab['label']) ?></option>
+                    <?php } ?>
                 </select>
             </div>
         </div>

@@ -10,24 +10,9 @@
  * them - escape anything that came from the database before echoing it.
  */
 
-/** The colour family an asset type is drawn in - a CSS class suffix (itflow-asset-tone-*). */
+/** The colour family an asset type is drawn in - a CSS class suffix (itflow-asset-tone-*), from ASSET_TYPES (functions/asset_type.php). */
 function assetTypeTone($asset_type) {
-    $tones = [
-        'Laptop' => 'workstation',
-        'Desktop' => 'workstation',
-        'Server' => 'server',
-        'Virtual Machine' => 'virtual',
-        'Switch' => 'network',
-        'Firewall/Router' => 'firewall',
-        'Access Point' => 'wireless',
-        'Phone' => 'phone',
-        'Mobile Phone' => 'phone',
-        'Tablet' => 'phone',
-        'Printer' => 'peripheral',
-        'Display' => 'peripheral',
-        'Camera' => 'peripheral',
-    ];
-    return $tones[(string) $asset_type] ?? 'other';
+    return assetTypeInfo($asset_type)['tone'];
 }
 
 /**

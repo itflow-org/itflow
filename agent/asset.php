@@ -88,6 +88,13 @@ if (mysqli_num_rows($sql) == 0) {
     $asset_vendor_id = intval($row['asset_vendor_id']);
     $asset_contact_id = intval($row['asset_contact_id']);
     $asset_tone = assetTypeTone($row['asset_type']);
+    // Its type's details, what its OS field is called on it, and the fields it has (functions/asset_type.php)
+    $asset_spec_rows = assetSpecRows($row['asset_type'], assetSpecs($asset_id), intval($row['asset_client_id']));
+    $asset_os_label = assetTypeOsLabel($row['asset_type']) === 'Firmware' ? 'Firmware' : 'OS';
+    $asset_has_contact = assetTypeHasField($row['asset_type'], 'contact');
+    $asset_has_warranty = assetTypeHasField($row['asset_type'], 'warranty');
+    // The virtual machines that run on it
+    $asset_guests = assetGuests($asset_id, intval($row['asset_client_id']));
     // Sold to the client on one of our invoices, from a catalog product
     $can_sales = lookupUserPermission('module_sales') >= 1;
     $asset_invoice_id = intval($row['asset_invoice_id']);
@@ -425,17 +432,38 @@ if (mysqli_num_rows($sql) == 0) {
                             <dd><span class="font-monospace"><?= $asset_serial ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy serial" data-clipboard-text="<?= $asset_serial ?>"><i class="far fa-copy"></i></button></dd>
                         <?php } ?>
                         <?php if ($asset_os) { ?>
-                            <dt>OS</dt><dd><i class="<?= $asset_os_icon ?> fa-fw text-secondary me-1"></i><?= $asset_os ?></dd>
+                            <dt><?= $asset_os_label ?></dt><dd><i class="<?= $asset_os_icon ?> fa-fw text-secondary me-1"></i><?= $asset_os ?></dd>
                         <?php } ?>
-                        <dt>Warranty</dt>
-                        <dd>
-                            <?php if ($asset_warranty) { ?>
-                                <span class="badge rounded-pill bg-<?= $asset_warranty['tone'] ?>-subtle text-<?= $asset_warranty['tone'] ?>-emphasis border border-<?= $asset_warranty['tone'] ?>-subtle fw-normal"><?= escapeHtml($asset_warranty['short']) ?></span>
-                                <div class="small text-body-secondary"><?= escapeHtml($asset_warranty['text']) ?><?= $asset_warranty['tone'] !== 'success' ? ' (' . escapeHtml($asset_warranty['date']) . ')' : '' ?></div>
-                            <?php } else { ?>
-                                <span class="text-body-secondary">Not recorded</span>
-                            <?php } ?>
-                        </dd>
+                        <?php foreach ($asset_spec_rows as $spec_key => $spec_row) { ?>
+                            <dt><?= escapeHtml($spec_row['label']) ?></dt>
+                            <dd data-asset-spec-row="<?= $spec_key ?>">
+                                <?php if ($spec_row['flag']) { ?>
+                                    <span class="badge rounded-pill bg-<?= $spec_row['flag']['tone'] ?>-subtle text-<?= $spec_row['flag']['tone'] ?>-emphasis border border-<?= $spec_row['flag']['tone'] ?>-subtle fw-normal"><?= escapeHtml($spec_row['flag']['short']) ?></span>
+                                    <div class="small text-body-secondary"><?= escapeHtml($spec_row['flag']['text']) ?><?= $spec_row['flag']['tone'] !== 'success' ? ' (' . escapeHtml($spec_row['flag']['date']) . ')' : '' ?></div>
+                                <?php } else { ?>
+                                    <?= $spec_row['html'] ?>
+                                <?php } ?>
+                            </dd>
+                        <?php } ?>
+                        <?php if ($asset_guests) { ?>
+                            <dt>Runs</dt>
+                            <dd data-asset-guests>
+                                <?php foreach ($asset_guests as $guest_id => $guest_name) { ?>
+                                    <div><i class="fas fa-fw fa-cloud text-secondary me-1"></i><a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $guest_id ?>"><?= escapeHtml($guest_name) ?></a></div>
+                                <?php } ?>
+                            </dd>
+                        <?php } ?>
+                        <?php if ($asset_has_warranty || $asset_warranty) { ?>
+                            <dt>Warranty</dt>
+                            <dd>
+                                <?php if ($asset_warranty) { ?>
+                                    <span class="badge rounded-pill bg-<?= $asset_warranty['tone'] ?>-subtle text-<?= $asset_warranty['tone'] ?>-emphasis border border-<?= $asset_warranty['tone'] ?>-subtle fw-normal"><?= escapeHtml($asset_warranty['short']) ?></span>
+                                    <div class="small text-body-secondary"><?= escapeHtml($asset_warranty['text']) ?><?= $asset_warranty['tone'] !== 'success' ? ' (' . escapeHtml($asset_warranty['date']) . ')' : '' ?></div>
+                                <?php } else { ?>
+                                    <span class="text-body-secondary">Not recorded</span>
+                                <?php } ?>
+                            </dd>
+                        <?php } ?>
                         <?php if ($asset_purchase_date) { ?>
                             <dt>Purchased</dt>
                             <dd><?= $asset_purchase_date ?><?php if ($asset_purchase_age) { ?><div class="small text-body-secondary"><?= $asset_purchase_age ?> old</div><?php } ?></dd>
@@ -489,6 +517,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <dt>Rack</dt>
                             <dd><a href="rack.php?client_id=<?= $client_id ?>&rack_id=<?= $asset_rack_id ?>"><?= $asset_rack_name ?></a><div class="small text-body-secondary"><?= $asset_rack_position ?></div></dd>
                         <?php } ?>
+                        <?php if ($asset_has_contact || $asset_contact_id) { ?>
                         <dt>Assigned</dt>
                         <dd>
                             <?php if ($can_edit) { ?>
@@ -501,6 +530,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <!-- How to reach them - redrawn when the contact changes -->
                             <div data-quick-related="asset-contact-<?= $asset_id ?>"><?= assetContactDetails($asset_row) ?></div>
                         </dd>
+                        <?php } ?>
                     </dl>
                 </div>
             </div>
@@ -604,7 +634,16 @@ if (mysqli_num_rows($sql) == 0) {
                             <!-- The ports as they sit on the front of the box: green is plugged in, blue has an address -->
                             <div data-interface-view="ports">
                                 <div class="itflow-port-map">
-                                    <?php foreach ($interfaces as $interface_id => $row) {
+                                    <?php $port_map_sfp = false;
+                                    // Its ports, then its SFP cages on a row of their own (functions/asset_interface.php)
+                                    uasort($interfaces, function ($a, $b) {
+                                        return interfaceIsSfp($a['interface_type']) <=> interfaceIsSfp($b['interface_type']);
+                                    });
+                                    foreach ($interfaces as $interface_id => $row) {
+                                        if (!$port_map_sfp && interfaceIsSfp($row['interface_type'])) {
+                                            $port_map_sfp = true;
+                                            echo '<span class="itflow-port-break" aria-hidden="true"></span>';
+                                        }
                                         $link = $interface_links[$interface_id] ?? null;
                                         $states = array_filter([$link ? 'is-connected' : '', trim((string) $row['interface_ip']) !== '' ? 'is-addressed' : '', intval($row['interface_primary']) ? 'is-primary' : '']);
                                         $tip = implode("\n", array_filter([

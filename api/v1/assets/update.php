@@ -30,6 +30,15 @@ if (!empty($asset_id)) {
         // Update Primary Interface
         mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_mac = '$mac', interface_ip = '$ip', interface_network_id = $network WHERE interface_asset_id = $asset_id AND interface_primary = 1");
 
+        // Its details - asset_specs {key: value} on top of what it has, '' clearing one; and a type it changed to keeps only its own
+        if ((isset($_POST['asset_specs']) && is_array($_POST['asset_specs'])) || isset($_POST['asset_type'])) {
+            $spec_input = array_merge(assetSpecs($asset_id), isset($_POST['asset_specs']) && is_array($_POST['asset_specs']) ? $_POST['asset_specs'] : []);
+            [, $spec_problems] = assetSpecsFromPost($asset_id, $_POST['asset_type'] ?? $asset_row['asset_type'], $spec_input, $client_id);
+            if ($spec_problems) {
+                $return_arr['asset_specs_not_kept'] = $spec_problems;
+            }
+        }
+
         // Add to History
         mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = '$status', asset_history_description = 'API updated $name ($api_key_name)', asset_history_asset_id = $asset_id");
 

@@ -506,6 +506,13 @@ function getExportColumns($export_type) {
 
     ];
 
+    // An asset's details, a column each - off until picked (ASSET_SPECS, functions/asset_type.php)
+    if ($export_type === 'assets' && defined('ASSET_SPECS')) {
+        foreach (ASSET_SPECS as $spec_key => $spec) {
+            $registry['assets']['spec_' . $spec_key] = ['label' => $spec['label'] . (isset($spec['unit']) ? ' (' . $spec['unit'] . ')' : ''), 'default' => false];
+        }
+    }
+
     return $registry[$export_type] ?? [];
 }
 

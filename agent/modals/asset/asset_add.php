@@ -10,7 +10,7 @@ if ($client_id) {
 }
 
 // The assets list passes the tab it was on - start on that kind of asset
-$type_presets = ['workstation' => 'Desktop', 'server' => 'Server', 'virtual' => 'Virtual Machine', 'network' => 'Switch', 'printer' => 'Printer'];
+$type_presets = ['workstation' => 'Desktop', 'server' => 'Server', 'virtual' => 'Virtual Machine', 'network' => 'Switch', 'power' => 'UPS', 'printer' => 'Printer'];
 $type_param = strtolower((string) ($_GET['type'] ?? ''));
 
 $asset_form_mode = 'add';
@@ -28,6 +28,7 @@ $asset_vendor_id = $client_id ? assetClientOwnedId('vendor', $_GET['vendor_id'] 
 $asset_location_id = $client_id ? assetClientOwnedId('location', $_GET['location_id'] ?? 0, $client_id) : 0;
 $asset_contact_id = intval($_GET['contact_id'] ?? 0);
 $asset_tag_id_array = [];
+$asset_specs = [];
 
 ob_start();
 

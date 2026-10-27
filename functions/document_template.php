@@ -531,11 +531,11 @@ function documentTemplateTableData($table, $client_id) {
         case 'assets':
             return $assets([], ['name', 'type', 'model', 'serial', 'site', 'who']);
         case 'servers':
-            return $assets(['Server', 'Virtual Machine'], ['name', 'type', 'os', 'ip', 'site']);
+            return $assets(assetTypesInGroup('server', 'virtual'), ['name', 'type', 'os', 'ip', 'site']);
         case 'workstations':
-            return $assets(['Desktop', 'Laptop'], ['name', 'type', 'model', 'serial', 'who']);
+            return $assets(assetTypesInGroup('workstation'), ['name', 'type', 'model', 'serial', 'who']);
         case 'network equipment':
-            return $assets(['Firewall/Router', 'Switch', 'Access Point'], ['name', 'type', 'model', 'ip', 'site']);
+            return $assets(assetTypesInGroup('network'), ['name', 'type', 'model', 'ip', 'site']);
         case 'printers':
             return $assets(['Printer'], ['name', 'model', 'ip', 'site']);
         case 'networks':

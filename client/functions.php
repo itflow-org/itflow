@@ -534,11 +534,13 @@ function portalAssetScopeSql() {
 
 /** The tabs on Devices - each kind with its label, icon and SQL on asset_type; Other is whatever the rest don't take. */
 function portalAssetGroups() {
+    // By the type's group (ASSET_TYPES, functions/asset_type.php)
     $kinds = [
-        'computers' => ['Computers', 'fa-desktop', ['Desktop', 'Laptop']],
-        'servers' => ['Servers', 'fa-server', ['Server', 'Virtual Machine']],
-        'network' => ['Network', 'fa-network-wired', ['Switch', 'Firewall/Router', 'Access Point']],
-        'phones' => ['Phones & tablets', 'fa-mobile-alt', ['Phone', 'Mobile Phone', 'Tablet']],
+        'computers' => ['Computers', 'fa-desktop', assetTypesInGroup('workstation')],
+        'servers' => ['Servers', 'fa-server', assetTypesInGroup('server', 'virtual')],
+        'network' => ['Network', 'fa-network-wired', assetTypesInGroup('network')],
+        'power' => ['Power', 'fa-car-battery', assetTypesInGroup('power')],
+        'phones' => ['Phones & tablets', 'fa-mobile-alt', assetTypesInGroup('mobile')],
     ];
     $groups = ['all' => ['label' => 'All', 'icon' => 'fa-list', 'where' => '1 = 1']];
     $taken = [];

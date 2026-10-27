@@ -207,19 +207,5 @@ $records_per_page_array = array ('5','10','15','20','30','50','100');
 
 include_once "settings_localization_array.php";
 
-$asset_types_array = array (
-    'Laptop'=>'fa-laptop',
-    'Desktop'=>'fa-desktop',
-    'Server'=>'fa-server',
-    'Phone'=>'fa-phone',
-    'Mobile Phone'=>'fa-mobile-alt',
-    'Tablet'=>'fa-tablet-alt',
-    'Firewall/Router'=>'fa-fire-alt',
-    'Switch'=>'fa-network-wired',
-    'Access Point'=>'fa-wifi',
-    'Printer'=>'fa-print',
-    'Display'=>'fa-tv',
-    'Camera'=>'fa-video',
-    'Virtual Machine'=>'fa-cloud',
-    'Other'=>'fa-tag'
-);
+// Type => icon - the asset types, in order (ASSET_TYPES in functions/asset_type.php)
+$asset_types_array = function_exists('assetTypeIcons') ? assetTypeIcons() : [];

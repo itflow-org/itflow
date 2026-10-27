@@ -3901,6 +3901,8 @@ button.itflow-rack-item-body:hover {
 .itflow-asset-tone-phone { --itflow-asset-tone: #b8862f; }
 .itflow-asset-tone-peripheral { --itflow-asset-tone: #5b6f8a; }
 .itflow-asset-tone-other { --itflow-asset-tone: #6c757d; }
+.itflow-asset-tone-storage { --itflow-asset-tone: #5f7a2a; }
+.itflow-asset-tone-power { --itflow-asset-tone: #b5600b; }
 [data-bs-theme="dark"] .itflow-asset-tone-workstation { --itflow-asset-tone: #6f9fe0; }
 [data-bs-theme="dark"] .itflow-asset-tone-server { --itflow-asset-tone: #a197ee; }
 [data-bs-theme="dark"] .itflow-asset-tone-virtual { --itflow-asset-tone: #c595ea; }
@@ -3910,6 +3912,8 @@ button.itflow-rack-item-body:hover {
 [data-bs-theme="dark"] .itflow-asset-tone-phone { --itflow-asset-tone: #e3b35c; }
 [data-bs-theme="dark"] .itflow-asset-tone-peripheral { --itflow-asset-tone: #9fb2cc; }
 [data-bs-theme="dark"] .itflow-asset-tone-other { --itflow-asset-tone: #adb5bd; }
+[data-bs-theme="dark"] .itflow-asset-tone-storage { --itflow-asset-tone: #a6c46b; }
+[data-bs-theme="dark"] .itflow-asset-tone-power { --itflow-asset-tone: #f2a453; }
 .itflow-asset-icon {
     display: inline-flex;
     flex: 0 0 auto;
@@ -5641,6 +5645,11 @@ img.itflow-contact-avatar {
     flex-wrap: wrap;
     gap: .35rem;
     padding: 1rem;
+}
+/* Between the copper ports and the SFP cages - a row of their own */
+.itflow-port-break {
+    flex-basis: 100%;
+    height: .15rem;
 }
 .itflow-port {
     position: relative;

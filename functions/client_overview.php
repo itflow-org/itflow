@@ -500,10 +500,10 @@ function clientOverviewAssets($client_id) {
 
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT
             COUNT(asset_id) AS total,
-            COALESCE(SUM(asset_type IN ('Desktop', 'Laptop')), 0) AS workstation,
-            COALESCE(SUM(asset_type = 'Server'), 0) AS server,
-            COALESCE(SUM(asset_type = 'Virtual Machine'), 0) AS virtual,
-            COALESCE(SUM(asset_type IN ('Firewall/Router', 'Switch', 'Access Point')), 0) AS network,
+            COALESCE(SUM(" . assetTypeGroupSql('workstation') . "), 0) AS workstation,
+            COALESCE(SUM(" . assetTypeGroupSql('server') . "), 0) AS server,
+            COALESCE(SUM(" . assetTypeGroupSql('virtual') . "), 0) AS virtual,
+            COALESCE(SUM(" . assetTypeGroupSql('network') . "), 0) AS network,
             COALESCE(SUM(asset_warranty_expire IS NOT NULL AND asset_warranty_expire < CURRENT_DATE), 0) AS warranty_expired,
             COALESCE(SUM(asset_warranty_expire IS NOT NULL AND asset_warranty_expire >= CURRENT_DATE), 0) AS warranty_active
         FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL"));

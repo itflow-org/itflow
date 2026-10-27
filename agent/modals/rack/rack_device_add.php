@@ -35,8 +35,8 @@ $unit_notes = '';
 $unit_asset_id = intval($_GET['asset_id'] ?? 0);
 if ($unit_asset_id) {
     $preset_asset_type = getFieldById('assets', $unit_asset_id, 'asset_type');
-    $unit_height = $preset_asset_type === 'Server' ? 2 : 1;
-    $unit_full_depth = in_array($preset_asset_type, ['Access Point', 'Firewall/Router'], true) ? 0 : 1;
+    $unit_height = in_array($preset_asset_type, ['Server', 'NAS', 'UPS'], true) ? 2 : 1;
+    $unit_full_depth = in_array($preset_asset_type, ['Access Point', 'Firewall/Router', 'Modem/ONT', 'PDU'], true) ? 0 : 1;
 }
 
 ob_start();

@@ -1293,11 +1293,13 @@ function clientExportPdf($client_id, $options) {
     $assets = $has('assets') ? $data('assets') : [];
     if ($assets) {
         $chapter('Assets', $count(count($assets), 'asset') . ' in use', 0, true);
+        // By the type's group (ASSET_TYPES, functions/asset_type.php)
         $families = [
-            'Servers' => ['Server', 'Virtual Machine'],
-            'Network equipment' => ['Firewall/Router', 'Switch', 'Access Point'],
-            'Workstations' => ['Desktop', 'Laptop'],
-            'Phones and mobile devices' => ['Phone', 'Mobile Phone', 'Tablet'],
+            'Servers and storage' => assetTypesInGroup('server', 'virtual'),
+            'Network equipment' => assetTypesInGroup('network'),
+            'Power' => assetTypesInGroup('power'),
+            'Workstations' => assetTypesInGroup('workstation'),
+            'Phones and mobile devices' => assetTypesInGroup('mobile'),
         ];
         $placed = [];
         foreach ($families as $family => $types) {

@@ -602,10 +602,9 @@ function productStockQty($qty) {
  * units are recorded.
  */
 
-/** Asset types => icon class (fa-laptop) - the list in load_global_settings.php. */
+/** Asset types => icon class (fa-laptop) - ASSET_TYPES (functions/asset_type.php). */
 function productAssetTypes() {
-    global $asset_types_array;
-    return is_array($asset_types_array ?? null) ? $asset_types_array : [];
+    return assetTypeIcons();
 }
 
 /** An asset type as the list spells it, matched without case - '' when it isn't one. */

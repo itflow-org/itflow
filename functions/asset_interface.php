@@ -14,7 +14,16 @@
  */
 
 /** Asset types drawn as a row of ports on the asset page, not only a table. */
-const INTERFACE_PORT_MAP_TYPES = ['Switch', 'Firewall/Router', 'Access Point'];
+const INTERFACE_PORT_MAP_TYPES = ['Switch', 'Firewall/Router', 'Access Point', 'Modem/ONT', 'NAS', 'NVR/DVR'];
+
+/** Interface types that are a cage for a module, not a copper port - an SFP port's kind. Matched without case. */
+const INTERFACE_SFP_TYPES = ['SFP', 'SFP+', 'SFP28', 'QSFP', 'QSFP+', 'QSFP28', 'QSFP-DD', 'Fiber'];
+
+/** Interface types that aren't a network port to count - radios, virtual and logical interfaces, coax, console. */
+const INTERFACE_NOT_PORT_PATTERN = '/\\b(wi-?fi|wireless|wlan|radio|virtual|vlan|loopback|bridge|tunnel|bond|lag|coax|coaxial|console|serial|cellular|lte|5g)\\b/i';
+
+/** Interface names of a management port - mgmt0, iDRAC, iLO, IPMI - which isn't one of the ports a count counts, nor where their numbering goes on from. */
+const INTERFACE_MANAGEMENT_PATTERN = '/^(mgmt|management|ipmi|idrac|ilo|bmc|oob|console)[\\s\\/_-]?\\d*$/i';
 
 /** One interface by id, with its asset, network and what it is connected to - raw, or null. */
 function interfaceRow($interface_id) {
@@ -419,6 +428,122 @@ function interfaceSort(array &$rows) {
     uasort($rows, function ($a, $b) {
         return intval($b['interface_primary'] ?? 0) <=> intval($a['interface_primary'] ?? 0) ?: strnatcasecmp($a['interface_name'], $b['interface_name']);
     });
+}
+
+/**
+ * Where a run of new ports on an asset carries on from - [prefix, start, pad]:
+ * the numbered run it has most of (Gi1/0/1-24, not mgmt0), with its
+ * zero-padding, from the number after its last; or, with none, the prefix
+ * its type starts from. $sfp looks only at its SFP cages (INTERFACE_SFP_TYPES)
+ * and starts "SFP 1"; otherwise only at the rest.
+ */
+function interfaceSeriesNext($asset_id, $asset_type, $sfp = false) {
+    global $mysqli;
+    $names = [];
+    $sql = mysqli_query($mysqli, "SELECT interface_name, interface_type FROM asset_interfaces WHERE interface_asset_id = " . intval($asset_id) . " AND interface_archived_at IS NULL");
+    while ($sql && $row = mysqli_fetch_assoc($sql)) {
+        if (interfacePortKind($row['interface_type'], $row['interface_name']) === ($sfp ? 'sfp' : 'copper')) {
+            $names[] = $row['interface_name'];
+        }
+    }
+    $runs = [];
+    foreach ($names as $name) {
+        if (preg_match('/^(.*?)(\d+)$/', $name, $match)) {
+            $runs[$match[1]][] = $match[2];
+        }
+    }
+    if (!$runs) {
+        if ($sfp) {
+            return ['SFP ', 1, 0];
+        }
+        $prefix = $asset_type === 'Switch' ? 'Gi1/0/' : (in_array($asset_type, ['Firewall/Router', 'Access Point', 'Modem/ONT', 'NAS', 'NVR/DVR'], true) ? 'Port ' : 'eth');
+        return [$prefix, $prefix === 'eth' ? 0 : 1, 0];
+    }
+    uasort($runs, function ($a, $b) {
+        return count($b) <=> count($a);
+    });
+    $prefix = (string) array_key_first($runs);
+    $pad = 0;
+    foreach ($runs[$prefix] as $number) {
+        if (strlen($number) > 1 && $number[0] === '0') {
+            $pad = strlen($number);
+        }
+    }
+    return [$prefix, max(array_map('intval', $runs[$prefix])) + 1, $pad];
+}
+
+/** Is this interface type an SFP cage (INTERFACE_SFP_TYPES)? */
+function interfaceIsSfp($interface_type) {
+    foreach (INTERFACE_SFP_TYPES as $sfp) {
+        if (strcasecmp($sfp, trim((string) $interface_type)) === 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * What kind of port an interface is, by its type and name - 'sfp'
+ * (INTERFACE_SFP_TYPES), 'copper', or '' when it isn't one of the ports a
+ * count counts: a radio, VLAN or the like (INTERFACE_NOT_PORT_PATTERN), or a
+ * management port (INTERFACE_MANAGEMENT_PATTERN).
+ */
+function interfacePortKind($interface_type, $interface_name = '') {
+    if (preg_match(INTERFACE_MANAGEMENT_PATTERN, trim((string) $interface_name))) {
+        return '';
+    }
+    if (interfaceIsSfp($interface_type)) {
+        return 'sfp';
+    }
+    return preg_match(INTERFACE_NOT_PORT_PATTERN, (string) $interface_type) ? '' : 'copper';
+}
+
+/**
+ * An asset with $copper ports and $sfp SFP cages has that many interfaces -
+ * the ones missing are made, carrying on its numbering (interfaceSeriesNext()),
+ * as Ethernet and SFP where Admin > Categories has them. Never fewer: a port
+ * too many is left for someone to take off. How many were made, by kind.
+ */
+function interfacePortsEnsure($asset_id, $asset_type, $copper, $sfp) {
+    global $mysqli;
+    $asset_id = intval($asset_id);
+    $made = ['copper' => 0, 'sfp' => 0];
+    $have = ['copper' => 0, 'sfp' => 0];
+    $existing = [];
+    // Archived ones keep their names (no second "05"), and only ports count - not a radio or a VLAN
+    $sql = mysqli_query($mysqli, "SELECT interface_name, interface_type, interface_archived_at FROM asset_interfaces WHERE interface_asset_id = $asset_id");
+    while ($sql && $row = mysqli_fetch_assoc($sql)) {
+        $existing[mb_strtolower($row['interface_name'])] = true;
+        $kind = interfacePortKind($row['interface_type'], $row['interface_name']);
+        if ($kind !== '' && $row['interface_archived_at'] === null) {
+            $have[$kind]++;
+        }
+    }
+    $types = interfaceTypes();
+    foreach (['copper' => intval($copper), 'sfp' => intval($sfp)] as $kind => $want) {
+        $missing = min(128, $want) - $have[$kind];
+        if ($missing < 1) {
+            continue;
+        }
+        [$prefix, $start, $pad] = interfaceSeriesNext($asset_id, $asset_type, $kind === 'sfp');
+        $type = $kind === 'sfp' ? (isset($types['SFP']) ? 'SFP' : (isset($types['SFP+']) ? 'SFP+' : 'SFP')) : (isset($types['Ethernet']) ? 'Ethernet' : '');
+        $number = $start;
+        while ($made[$kind] < $missing && $number < $start + 1000) {
+            $name = $prefix . str_pad((string) $number, $pad, '0', STR_PAD_LEFT);
+            $number++;
+            if (isset($existing[mb_strtolower($name)])) {
+                continue;
+            }
+            $existing[mb_strtolower($name)] = true;
+            mysqli_query($mysqli, "INSERT INTO asset_interfaces SET interface_name = '" . escapeSql(mb_substr($name, 0, 200)) . "', interface_type = " . ($type === '' ? 'NULL' : "'" . escapeSql($type) . "'") . ", interface_asset_id = $asset_id");
+            $made[$kind]++;
+        }
+        // The primary, counted as a port, is one too - when it has no type of its own yet
+        if ($kind === 'copper' && $made['copper'] && $type !== '') {
+            mysqli_query($mysqli, "UPDATE asset_interfaces SET interface_type = '" . escapeSql($type) . "' WHERE interface_asset_id = $asset_id AND interface_primary = 1 AND IFNULL(interface_type, '') = ''");
+        }
+    }
+    return $made;
 }
 
 /** The interface names a "New interfaces" run makes: prefix, then each number from start, padded. */

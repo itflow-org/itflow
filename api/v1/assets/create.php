@@ -22,6 +22,14 @@ if (!empty($name) && !empty($client_id)) {
         // Add Primary Interface
         mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_mac = '$mac', interface_ip = '$ip', interface_primary = 1, interface_network_id = $network, interface_asset_id = $insert_id");
 
+        // Its details - asset_specs {key: value}, its type's (functions/asset_type.php) - and the ports they count
+        if (isset($_POST['asset_specs']) && is_array($_POST['asset_specs'])) {
+            [, $spec_problems] = assetSpecsFromPost($insert_id, $_POST['asset_type'] ?? '', $_POST['asset_specs'], $client_id);
+            if ($spec_problems) {
+                $return_arr['asset_specs_not_kept'] = $spec_problems;
+            }
+        }
+
         // Logging
         logAudit("Asset", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
         logAudit("API", "Success", "Created asset $name via API ($api_key_name)", $client_id);

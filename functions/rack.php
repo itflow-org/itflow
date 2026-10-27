@@ -37,9 +37,13 @@ function rackItemStyle($asset_type, $unit_type, $has_asset) {
         $tones = [
             'Server' => 'server',
             'Virtual Machine' => 'server',
+            'NAS' => 'server',
             'Switch' => 'network',
             'Access Point' => 'network',
+            'Modem/ONT' => 'network',
             'Firewall/Router' => 'firewall',
+            'UPS' => 'power',
+            'PDU' => 'power',
         ];
         $asset_type = (string) $asset_type;
         return [

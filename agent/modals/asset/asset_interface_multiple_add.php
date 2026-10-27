@@ -15,39 +15,13 @@ $client_id = intval($asset['asset_client_id']);
 $networks = interfaceNetworkOptions($client_id);
 $types = interfaceTypes();
 
-// A start that follows on from ports already there - Gi1/0/1 to 24 there, start at 25
+// A start that follows on from ports already there - Gi1/0/1 to 24 there, start at 25 (functions/asset_interface.php)
 $existing = [];
 $sql = mysqli_query($mysqli, "SELECT interface_name FROM asset_interfaces WHERE interface_asset_id = $asset_id AND interface_archived_at IS NULL");
 while ($row = mysqli_fetch_row($sql)) {
     $existing[] = $row[0];
 }
-// the numbered run there is most of (Gi1/0/1-24, not mgmt0), carrying on its zero-padding
-$prefix = '';
-$start = 1;
-$pad = 0;
-$runs = [];
-foreach ($existing as $name) {
-    if (preg_match('/^(.*?)(\d+)$/', $name, $match)) {
-        $runs[$match[1]][] = $match[2];
-    }
-}
-if ($runs) {
-    uasort($runs, function ($a, $b) {
-        return count($b) <=> count($a);
-    });
-    $prefix = (string) array_key_first($runs);
-    $numbers = $runs[$prefix];
-    $start = max(array_map('intval', $numbers)) + 1;
-    foreach ($numbers as $number) {
-        if (strlen($number) > 1 && $number[0] === '0') {
-            $pad = strlen($number);
-        }
-    }
-}
-if (!$existing) {
-    $prefix = in_array($asset['asset_type'], ['Switch'], true) ? 'Gi1/0/' : (in_array($asset['asset_type'], ['Firewall/Router', 'Access Point'], true) ? 'Port ' : 'eth');
-    $start = $prefix === 'eth' ? 0 : 1;
-}
+[$prefix, $start, $pad] = interfaceSeriesNext($asset_id, $asset['asset_type']);
 $count = $asset['asset_type'] === 'Switch' ? 24 : 4;
 
 ob_start();

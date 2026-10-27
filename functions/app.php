@@ -3,38 +3,9 @@
 // App/UI helpers - icons, badges, lookups, mail queue, iCal, taxes, update check
 // Split from the former monolithic functions.php
 
+/** The icon of an asset type, without its fa- (laptop) - from ASSET_TYPES (functions/asset_type.php); a tag for one it doesn't know. */
 function getAssetIcon($asset_type) {
-    if ($asset_type == 'Laptop') {
-        $device_icon = "laptop";
-    } elseif ($asset_type == 'Desktop') {
-        $device_icon = "desktop";
-    } elseif ($asset_type == 'Server') {
-        $device_icon = "server";
-    } elseif ($asset_type == 'Printer') {
-        $device_icon = "print";
-    } elseif ($asset_type == 'Camera') {
-        $device_icon = "video";
-    } elseif ($asset_type == 'Switch') {
-        $device_icon = "network-wired";
-    } elseif ($asset_type == 'Firewall/Router') {
-        $device_icon = "fire-alt";
-    } elseif ($asset_type == 'Access Point') {
-        $device_icon = "wifi";
-    } elseif ($asset_type == 'Phone') {
-        $device_icon = "phone";
-    } elseif ($asset_type == 'Mobile Phone') {
-        $device_icon = "mobile-alt";
-    } elseif ($asset_type == 'Tablet') {
-        $device_icon = "tablet-alt";
-    } elseif ($asset_type == 'Display') {
-        $device_icon = "tv";
-    } elseif ($asset_type == 'Virtual Machine') {
-        $device_icon = "cloud";
-    } else {
-        $device_icon = "tag";
-    }
-
-    return $device_icon;
+    return substr(assetTypeInfo($asset_type)['icon'], 3);
 }
 
 function getInvoiceBadgeColor($invoice_status) {

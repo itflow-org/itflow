@@ -67,6 +67,10 @@ if (isset($_POST['add_asset'])) {
     // Add Primary Interface
     mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '01', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
 
+    // Its type's details, and the ports they count (functions/asset_type.php)
+    [$spec_note, $spec_problems] = assetSpecsFromPost($asset_id, $_POST['type'] ?? '', $_POST['spec'] ?? [], $client_id);
+    $alert_extended .= $spec_note;
+
     // A username or a password on its own is enough to keep
     if (trim((string) ($_POST['username'] ?? '')) !== '' || trim((string) ($_POST['password'] ?? '')) !== '') {
         $username = encryptCredentialEntry(trim((string) ($_POST['username'] ?? '')));
@@ -95,7 +99,7 @@ if (isset($_POST['add_asset'])) {
 
     logAudit("Asset", "Create", "$session_name created asset $name", $client_id, $asset_id);
 
-    flashAlert("Asset <strong>" . stripslashes($name) . "</strong> created$alert_extended");
+    flashAlert("Asset <strong>" . stripslashes($name) . "</strong> created$alert_extended" . ($spec_problems ? ' - not kept: ' . escapeHtml(implode('; ', $spec_problems)) : ''), $spec_problems ? 'warning' : 'success');
 
     redirect();
 
@@ -141,6 +145,9 @@ if (isset($_POST['edit_asset'])) {
         mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_network_id = $network WHERE interface_asset_id = $asset_id AND interface_primary = 1");
     }
 
+    // Its type's details, and the ports they count (functions/asset_type.php) - a post without them keeps what it has, less what its type doesn't take
+    [$spec_note, $spec_problems] = assetSpecsFromPost($asset_id, $_POST['type'] ?? '', $_POST['spec'] ?? assetSpecs($asset_id), $client_id);
+
     // Photo - a new upload replaces the old file; Remove only counts when nothing new came in
     $existing_photo_path = $existing_file_name !== '' ? "../uploads/clients/$client_id/" . basename($existing_file_name) : '';
     if (isset($_FILES['file']) && $new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
@@ -170,7 +177,7 @@ if (isset($_POST['edit_asset'])) {
 
     logAudit("Asset", "Edit", "$session_name edited asset $name", $client_id, $asset_id);
 
-    flashAlert("Asset <strong>" . stripslashes($name) . "</strong> saved");
+    flashAlert("Asset <strong>" . stripslashes($name) . "</strong> saved$spec_note" . ($spec_problems ? ' - not kept: ' . escapeHtml(implode('; ', $spec_problems)) : ''), $spec_problems ? 'warning' : 'success');
 
     redirect();
 
@@ -552,16 +559,23 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
             ");
             $new_asset_id = mysqli_insert_id($mysqli);
 
-            // Transfer all Interfaces over too
-            $sql_interfaces = mysqli_query($mysqli, "SELECT interface_mac, interface_name, interface_primary FROM asset_interfaces WHERE interface_asset_id = $current_asset_id");
+            // Transfer all Interfaces over too - with their type, so a port stays a port and an SFP cage a cage
+            $sql_interfaces = mysqli_query($mysqli, "SELECT interface_mac, interface_name, interface_type, interface_primary FROM asset_interfaces WHERE interface_asset_id = $current_asset_id");
 
             while ($row = mysqli_fetch_assoc($sql_interfaces)) {
                 $interface_name = escapeSql($row['interface_name']);
                 $interface_mac = escapeSql($row['interface_mac']);
+                $interface_type = $row['interface_type'] === null ? 'NULL' : "'" . escapeSql($row['interface_type']) . "'";
                 $interface_primary = intval($row['interface_primary']);
 
-                mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '$interface_name', interface_mac = '$interface_mac',  interface_primary = $interface_primary, interface_asset_id = $new_asset_id");
+                mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '$interface_name', interface_mac = '$interface_mac', interface_type = $interface_type, interface_primary = $interface_primary, interface_asset_id = $new_asset_id");
 
+            }
+
+            // And its details (functions/asset_type.php) - all but a VM's host, which is the old client's
+            if (assetSpecsReady()) {
+                mysqli_query($mysqli, "INSERT INTO asset_specs (asset_spec_asset_id, asset_spec_key, asset_spec_value)
+                    SELECT $new_asset_id, asset_spec_key, asset_spec_value FROM asset_specs WHERE asset_spec_asset_id = $current_asset_id AND asset_spec_key != 'vm_host'");
             }
 
             mysqli_query($mysqli, "UPDATE assets SET asset_client_id = $new_client_id WHERE asset_id = $new_asset_id");
@@ -1013,12 +1027,24 @@ if (isset($_POST["import_assets_csv"])) {
         flashAlert("Bad file size (empty?)", 'error');
     }
 
-    //(Else)Check column count (name, desc, type, make, model, serial, os, purchase date, assigned to, location, notes)
+    //(Else)Check column count (name, desc, type, make, model, serial, os, purchase date, assigned to, location, physical location, notes),
+    // then any of the details, headed as the export heads them (functions/asset_type.php)
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
-    if (!$error & count($f_columns) != 12) {
+    if (!$error & (!is_array($f_columns) || count($f_columns) < 12)) {
         $error = true;
         flashAlert("Invalid column count.", 'error');
+    }
+    $spec_columns = [];
+    if (!$error) {
+        foreach (array_slice($f_columns, 12, null, true) as $index => $heading) {
+            $heading = strtolower(trim((string) $heading));
+            foreach (ASSET_SPECS as $spec_key => $spec) {
+                if ($heading === strtolower($spec['label']) || $heading === strtolower($spec['label'] . (isset($spec['unit']) ? ' (' . $spec['unit'] . ')' : '')) || $heading === $spec_key) {
+                    $spec_columns[$index] = $spec_key;
+                }
+            }
+        }
     }
 
     //Else, parse the file
@@ -1027,12 +1053,13 @@ if (isset($_POST["import_assets_csv"])) {
         fgetcsv($file, 1000, ","); // Skip first line
         $row_count = 0;
         $duplicate_count = 0;
+        $spec_rows = [];
         while(($column = fgetcsv($file, 1000, ",")) !== false) {
 
-            // Default variables (if undefined)
-            $description = $type = $make = $model = $serial = $os = '';
+            // Default variables (if undefined) - each row starts empty, nothing carried from the last
+            $description = $type = $make = $model = $serial = $os = $physical_location = $notes = '';
             $contact_id = $location_id = 0;
-            $purchase_date = '0000-00-00';
+            $purchase_date = 'NULL';
 
             $duplicate_detect = 0;
 
@@ -1049,9 +1076,9 @@ if (isset($_POST["import_assets_csv"])) {
                 $description = escapeSql($column[1]);
             }
 
-            // Type
+            // Type - as the list spells it, when it is one
             if (!empty($column[2])) {
-                $type = escapeSql($column[2]);
+                $type = escapeSql(assetTypeName($column[2]) ?: $column[2]);
             }
 
             // Make
@@ -1091,7 +1118,7 @@ if (isset($_POST["import_assets_csv"])) {
                 if ($contact) {
                     $sql_contact = mysqli_query($mysqli,"SELECT contact_id FROM contacts WHERE contact_name = '$contact' AND contact_client_id = $client_id");
                     $row = mysqli_fetch_assoc($sql_contact);
-                    $contact_id = intval($row['contact_id']);
+                    $contact_id = intval($row['contact_id'] ?? 0);
                 }
             }
 
@@ -1101,7 +1128,7 @@ if (isset($_POST["import_assets_csv"])) {
                 if ($location) {
                     $sql_location = mysqli_query($mysqli,"SELECT location_id FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
                     $row = mysqli_fetch_assoc($sql_location);
-                    $location_id = intval($row['location_id']);
+                    $location_id = intval($row['location_id'] ?? 0);
                 }
             }
 
@@ -1125,6 +1152,15 @@ if (isset($_POST["import_assets_csv"])) {
                 // Add Primary Interface
                 mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_primary = 1, interface_asset_id = $asset_id");
 
+                // Its details, from the columns after the twelve - kept once every row is in, so a VM's host can come later in the file
+                $spec_input = [];
+                foreach ($spec_columns as $index => $spec_key) {
+                    $spec_input[$spec_key] = (string) ($column[$index] ?? '');
+                }
+                if ($spec_input) {
+                    $spec_rows[] = [$asset_id, $column[0], $column[2] ?? '', $spec_input];
+                }
+
                 $row_count = $row_count + 1;
             } else {
                 $duplicate_count = $duplicate_count + 1;
@@ -1132,9 +1168,22 @@ if (isset($_POST["import_assets_csv"])) {
         }
         fclose($file);
 
+        // The details, and the ports they count; what wasn't kept, by asset
+        $spec_problems = [];
+        foreach ($spec_rows as [$spec_asset_id, $spec_asset_name, $spec_type, $spec_input]) {
+            [, $problems] = assetSpecsFromPost($spec_asset_id, $spec_type, $spec_input, $client_id);
+            if ($problems) {
+                $spec_problems[] = $spec_asset_name . ' (' . implode('; ', $problems) . ')';
+            }
+        }
+
         logAudit("Asset", "Import", "$session_name imported $row_count asset(s) via CSV file", $client_id);
 
-        flashAlert("$row_count Asset(s) added, $duplicate_count duplicate(s) detected");
+        if ($spec_problems) {
+            flashAlert("$row_count Asset(s) added, $duplicate_count duplicate(s) detected - details not kept: " . escapeHtml(implode(', ', array_slice($spec_problems, 0, 5)) . (count($spec_problems) > 5 ? ' and ' . (count($spec_problems) - 5) . ' more' : '')), 'warning');
+        } else {
+            flashAlert("$row_count Asset(s) added, $duplicate_count duplicate(s) detected");
+        }
 
         redirect();
 
@@ -1223,35 +1272,23 @@ if (isExportRequest('export_assets')) {
         $archive_query = $client_id ? "asset_archived_at IS NULL" : "(client_archived_at IS NULL AND asset_archived_at IS NULL)";
     }
 
-    // Type Filter
-    $type = $_POST['type'] ?? '';
-    if ($type == 'workstation') {
-        $type_query = "asset_type = 'desktop' OR asset_type = 'laptop'";
-    } elseif ($type == 'server') {
-        $type_query = "asset_type = 'server'";
-    } elseif ($type == 'virtual') {
-        $type_query = "asset_type = 'Virtual Machine'";
-    } elseif ($type == 'network') {
-        $type_query = "asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point'";
-    } elseif ($type == 'printer') {
-        $type_query = "asset_type = 'Printer'";
-    } elseif ($type == 'other') {
-        $type_query = "asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point' AND asset_type NOT LIKE 'printer'";
+    // Type Filter - the assets list's tabs (functions/asset_type.php)
+    $type_tabs = assetTypeTabs();
+    $type = (string) ($_POST['type'] ?? '');
+    if (isset($type_tabs[$type])) {
+        $type_query = $type_tabs[$type]['query'];
+        $filter_summary['Type'] = $type_tabs[$type]['label'];
     } else {
         // Default - any
         $type = '';
         $type_query = "asset_type LIKE '%'";
-    }
-    if ($type) {
-        $filter_summary['Type'] = ucwords($type);
     }
 
     // Location Filter
     if (!empty($_POST['location'])) {
         $filter_location_id = intval($_POST['location']);
         $location_query = "AND (asset_location_id = $filter_location_id)";
-        $location_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT location_name FROM locations WHERE location_id = $filter_location_id"));
-        $filter_summary['Location'] = $location_row['location_name'] ?? '';
+        $filter_summary['Location'] = exportRecordName('locations', $filter_location_id, 'location_name', 'location_client_id');
     } else {
         // Default - any
         $location_query = '';
@@ -1336,7 +1373,12 @@ if (isExportRequest('export_assets')) {
 
         $export = beginExport('assets', $format, $file_name_prepend . 'Assets', 'Assets', summarizeExportFilters($filter_summary));
 
+        // Each with its details, should any of their columns be picked (functions/asset_type.php)
+        $export_rows = [];
         while ($row = mysqli_fetch_assoc($sql)) {
+            $export_rows[] = $row;
+        }
+        foreach (assetSpecsExportAttach($export_rows) as $row) {
             addExportRow($export, $row);
         }
 

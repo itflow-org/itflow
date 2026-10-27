@@ -45,15 +45,8 @@ enforceUserPermission('module_support');
 $can_edit = lookupUserPermission('module_support') >= 2;
 $can_delete = lookupUserPermission('module_support') >= 3;
 
-//Asset Type from GET
-$asset_type_tabs = [
-    'workstation' => ['label' => 'Workstations', 'icon' => 'fa-desktop', 'query' => "asset_type IN ('Desktop', 'Laptop')"],
-    'server' => ['label' => 'Servers', 'icon' => 'fa-server', 'query' => "asset_type = 'Server'"],
-    'virtual' => ['label' => 'Virtual', 'icon' => 'fa-cloud', 'query' => "asset_type = 'Virtual Machine'"],
-    'network' => ['label' => 'Network', 'icon' => 'fa-network-wired', 'query' => "asset_type IN ('Firewall/Router', 'Switch', 'Access Point')"],
-    'printer' => ['label' => 'Printers', 'icon' => 'fa-print', 'query' => "asset_type = 'Printer'"],
-    'other' => ['label' => 'Other', 'icon' => 'fa-tag', 'query' => "asset_type NOT IN ('Desktop', 'Laptop', 'Server', 'Virtual Machine', 'Firewall/Router', 'Switch', 'Access Point', 'Printer')"],
-];
+// Asset type tabs (functions/asset_type.php)
+$asset_type_tabs = assetTypeTabs();
 $type_filter = (isset($_GET['type']) && isset($asset_type_tabs[$_GET['type']])) ? $_GET['type'] : '';
 $_GET['type'] = $type_filter;
 $type_query = $type_filter ? $asset_type_tabs[$type_filter]['query'] : "1 = 1";
@@ -111,15 +104,17 @@ $extra_column_options = [
     'Purchase_Date' => 'Purchase date',
     'Install_Date' => 'Install date',
     'Warranty_Expire' => 'Warranty',
+    'Details' => 'Details',
 ];
 $extra_columns = array_values(array_intersect(array_keys($extra_column_options), (array) ($_GET['show_column'] ?? [])));
 $show_mac = in_array('Mac_Address', $extra_columns, true);
 $show_purchase = in_array('Purchase_Date', $extra_columns, true);
 $show_install = in_array('Install_Date', $extra_columns, true);
 $show_warranty = in_array('Warranty_Expire', $extra_columns, true);
+$show_details = in_array('Details', $extra_columns, true);
 
 // Assigned To only means something for workstations and the like - printers are shared
-$show_contact = !in_array($type_filter, ['network', 'server', 'printer', 'other'], true);
+$show_contact = !in_array($type_filter, ['network', 'server', 'virtual', 'power', 'printer', 'other'], true);
 $show_model = $type_filter !== 'virtual';
 
 // Only these sort - filter_header.php will hand through any lowercase word, and
@@ -138,13 +133,9 @@ $order_by = $sort === 'interface_ip' ? "INET6_ATON(interface_ip) $order, interfa
 // Tab counts - within the client, status, tag and archive scope, before the search narrows it
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
     SELECT
-        COUNT(*) AS all_count,
-        SUM(asset_type IN ('Laptop', 'Desktop')) AS workstation_count,
-        SUM(asset_type = 'Server') AS server_count,
-        SUM(asset_type = 'Virtual Machine') AS virtual_count,
-        SUM(asset_type IN ('Firewall/Router', 'Switch', 'Access Point')) AS network_count,
-        SUM(asset_type = 'Printer') AS printer_count,
-        SUM(asset_type NOT IN ('Laptop', 'Desktop', 'Server', 'Virtual Machine', 'Firewall/Router', 'Switch', 'Access Point', 'Printer')) AS other_count
+        COUNT(*) AS all_count" . implode('', array_map(function ($tab_key, $tab) {
+            return ",\n        SUM({$tab['query']}) AS {$tab_key}_count";
+        }, array_keys($asset_type_tabs), $asset_type_tabs)) . "
     FROM assets
     LEFT JOIN clients ON client_id = asset_client_id
     WHERE $archive_query
@@ -153,15 +144,10 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
     " . clientScopeSql('asset_client_id') . "
     $client_query
 "));
-$tab_counts = [
-    '' => intval($row['all_count']),
-    'workstation' => intval($row['workstation_count']),
-    'server' => intval($row['server_count']),
-    'virtual' => intval($row['virtual_count']),
-    'network' => intval($row['network_count']),
-    'printer' => intval($row['printer_count']),
-    'other' => intval($row['other_count']),
-];
+$tab_counts = ['' => intval($row['all_count'])];
+foreach ($asset_type_tabs as $tab_key => $tab) {
+    $tab_counts[$tab_key] = intval($row[$tab_key . '_count']);
+}
 
 $sql = mysqli_query(
     $mysqli,
@@ -195,6 +181,8 @@ $assets = [];
 while ($row = mysqli_fetch_assoc($sql)) {
     $assets[intval($row['asset_id'])] = $row;
 }
+// Each one's details - its type's (functions/asset_type.php): a UPS battery due is flagged like a warranty, and Details lists them
+$asset_list_specs = assetSpecsFor(array_keys($assets));
 
 // Tags and rack positions for the whole page in two queries, not two per row
 $assets_tags = tagsForRecords('asset', array_keys($assets));
@@ -219,7 +207,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
             <?php if ($can_edit) { ?>
             <div class="btn-group">
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&type=<?= $type_filter ?>">
-                    <i class="fas fa-plus me-2"></i>New <?= $type_filter ? rtrim($asset_type_tabs[$type_filter]['label'], 's') : 'Asset' ?>
+                    <i class="fas fa-plus me-2"></i>New <?= $type_filter ? $asset_type_tabs[$type_filter]['new'] : 'Asset' ?>
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                 <div class="dropdown-menu">
@@ -502,6 +490,9 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                             </a>
                         </th>
                     <?php } ?>
+                    <?php if ($show_details) { ?>
+                        <th>Details</th>
+                    <?php } ?>
                     <?php if ($show_install) { ?>
                         <th>
                             <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=asset_install_date&order=<?= $disp ?>">
@@ -571,6 +562,8 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                     $asset_contact_id = intval($row['asset_contact_id']);
                     $asset_tone = assetTypeTone($row['asset_type']);
                     $device_icon = getAssetIcon($row['asset_type']);
+                    $asset_spec_rows = assetSpecRows($row['asset_type'], $asset_list_specs[$asset_id] ?? [], $client_id);
+                    $asset_battery = $asset_spec_rows['battery_replace']['flag'] ?? null;
 
                     $contact_name = escapeHtml($row['contact_name']);
                     $contact_archived = !empty($row['contact_archived_at']);
@@ -627,6 +620,11 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                         <i class="fas fa-shield-alt me-1"></i>Warranty <?= strtolower($asset_warranty['short']) ?>
                                     </span>
                                 <?php } ?>
+                                <?php if ($asset_battery && $asset_battery['tone'] !== 'success') { ?>
+                                    <span class="badge rounded-pill bg-<?= $asset_battery['tone'] ?>-subtle text-<?= $asset_battery['tone'] ?>-emphasis border border-<?= $asset_battery['tone'] ?>-subtle fw-normal mt-1" title="Replace battery by <?= escapeHtml($asset_battery['date']) ?>" data-asset-battery>
+                                        <i class="fas fa-battery-quarter me-1"></i>Battery <?= strtolower(escapeHtml($asset_battery['short'])) ?>
+                                    </span>
+                                <?php } ?>
                             </td>
                         <?php } ?>
 
@@ -664,6 +662,17 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                 <?php if ($asset_purchase_date) { ?><div class="small text-body-secondary"><?= assetAge($row['asset_purchase_date']) ?> old</div><?php } ?>
                             </td>
                         <?php } ?>
+                        <?php if ($show_details) { ?>
+                            <td class="small" data-asset-details>
+                                <?php if ($asset_spec_rows) { ?>
+                                    <?php foreach ($asset_spec_rows as $spec_row) { ?>
+                                        <div class="text-nowrap"><?= $spec_row['flag'] ? '<span class="text-body-secondary">' . escapeHtml($spec_row['label']) . '</span> <span class="text-' . $spec_row['flag']['tone'] . '-emphasis">' . escapeHtml($spec_row['flag']['date']) . '</span>' : $spec_row['brief'] ?></div>
+                                    <?php } ?>
+                                <?php } else { ?>
+                                    <span class="text-body-secondary">-</span>
+                                <?php } ?>
+                            </td>
+                        <?php } ?>
                         <?php if ($show_install) { ?>
                             <td class="text-nowrap"><?= $asset_install_date ?: '<span class="text-body-secondary">-</span>' ?></td>
                         <?php } ?>
@@ -679,7 +688,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                         <?php } ?>
                         <?php if ($show_contact) { ?>
                             <td>
-                                <?php if ($can_edit) { ?>
+                                <?php if ($can_edit && ($asset_contact_id || assetTypeHasField($row['asset_type'], 'contact'))) { // a type that is assigned to someone (functions/asset_type.php) ?>
                                     <?= quickPick('asset_contact', $asset_id, (string) $asset_contact_id, assetQuickHtml('asset_contact', $row), 'list', 0, $client_id) ?>
                                 <?php } elseif ($contact_name) { ?>
                                     <?= contactLink($client_id, $asset_contact_id, $row['contact_name'], $row['contact_photo'], ['archived' => $contact_archived]) ?>
