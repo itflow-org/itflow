@@ -116,6 +116,12 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                 </div>
             <?php } else { ?>
                 <input type="hidden" name="template_id" value="<?= intval($c_value('template_id', 0)) ?>">
+                <?php if ($c_new && !empty($session_is_admin)) { ?>
+                    <p class="small text-secondary" data-contract-no-templates>
+                        <i class="fas fa-fw fa-clone me-1"></i>No contract templates yet - a template fills in the type, term, cover and terms of a new contract.
+                        <a href="/admin/contract_templates.php">Make one in Admin &gt; Contract Templates</a>
+                    </p>
+                <?php } ?>
             <?php } ?>
 
             <?php if (count($c_clients) > 1 || !$c_client_id) { ?>

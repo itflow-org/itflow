@@ -128,7 +128,7 @@
                     </a>
                 </li>
 
-                <?php if ($config_module_enable_itdoc || $config_module_enable_ticketing) { ?>
+                <?php if ($config_module_enable_itdoc || $config_module_enable_ticketing || $config_module_enable_accounting) { ?>
                     <li class="nav-header">TEMPLATES</li>
                 <?php } ?>
                 <?php if ($config_module_enable_ticketing) { ?>
@@ -151,18 +151,15 @@
                         </a>
                     </li>
                 <?php } ?>
-                <?php if ($config_module_enable_itdoc) { ?>
-                    <!-- 2025-11-16 JQ - Hide Contracts not yet ready
+                <?php if ($config_module_enable_accounting) { ?>
                     <li class="nav-item">
                         <a href="/admin/contract_templates.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'contract_templates.php' ? 'active' : '') ?>">
                             <i class="nav-icon fas fa-file-contract"></i>
-                            <p>
-                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/contract_template/contract_template_add.php" data-modal-size="lg"></span>
-                                Contract Templates
-                            </p>
+                            <p>Contract Templates</p>
                         </a>
                     </li>
-                    -->
+                <?php } ?>
+                <?php if ($config_module_enable_itdoc) { ?>
                     <li class="nav-item">
                         <a href="/admin/vendor_templates.php" class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['vendor_templates.php', 'vendor_template.php']) ? 'active' : '') ?>">
                             <i class="nav-icon fas fa-building"></i>
