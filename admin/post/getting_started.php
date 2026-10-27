@@ -5,7 +5,8 @@
  * Checked as the settings pages check the same settings: something wrong
  * comes back to the step saying so beside the field, and nothing is saved
  * (settingsRefuse()). A step saved goes on to the next; skipping one puts
- * it off, and dismissing stops it being offered on the dashboard. What
+ * it off, Skip all puts every one off, and dismissing stops it being offered
+ * on the dashboard. What
  * changed is in the audit log. The first client and the demo data go to
  * their own handlers (agent/post/client.php, starter_content.php).
  */
@@ -429,6 +430,18 @@ if (isset($_POST['getting_started_skip'])) {
     gettingStartedSkip($step);
 
     redirect(gettingStartedUrl(gettingStartedAfter($step)));
+
+}
+
+if (isset($_POST['getting_started_skip_all'])) {
+
+    validateCSRFToken();
+
+    $left = gettingStartedSkipAll();
+    logAudit("Settings", "Edit", "$session_name skipped all of Get started" . ($left ? ' - ' . escapeSql(implode(', ', $left)) . ' left to do' : ''));
+    flashAlert('Get started is skipped - each step is in Admin &gt; Get started whenever you want it', 'info');
+
+    redirect('/agent/dashboard.php');
 
 }
 

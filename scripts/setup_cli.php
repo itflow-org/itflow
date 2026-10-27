@@ -13,6 +13,10 @@
  * thing missing or wrong, before the database is touched, and takes the suggestion
  * or the default for the rest.
  *
+ * Signing in the first time opens Get started, the walk through what is left to
+ * set up (functions/getting_started.php). --skip-get-started leaves it in Admin,
+ * for an install set up by script or brought up to match another.
+ *
  *   php setup_cli.php --help
  *   php setup_cli.php --host=localhost --username=itflow --password=secret --database=itflow \
  *       --base-url=itflow.example.com --company-name="My Company" --country="United States" \
@@ -64,13 +68,14 @@ $cli_fields = [
     ],
 ];
 $cli_flags = [
+    'skip-get-started' => "Don't open Get started on first signing in, or show Finish setting up on the dashboard - it stays in Admin > Get started",
     'share-telemetry' => 'Tell the ITFlow project about this install, once - its company name, website, city, state, country and currency',
     'comments' => 'Something to tell the ITFlow project with it (optional)',
     'non-interactive' => 'Ask for nothing - stop if anything needed is missing or wrong',
     'help' => 'Show this help',
 ];
 
-$longopts = ['help', 'non-interactive', 'share-telemetry', 'comments:'];
+$longopts = ['help', 'non-interactive', 'share-telemetry', 'skip-get-started', 'comments:'];
 foreach ($cli_fields as $fields) {
     foreach ($fields as $key => $field) {
         $longopts[] = "$key:";
@@ -397,6 +402,12 @@ if ($share) {
     echo setupShareTelemetry($mysqli, $installation_id, $comments) ? "  Thank you - the ITFlow project has it.\n" : "  The ITFlow project could not be reached - nothing was sent.\n";
 }
 
+$skip_get_started = isset($options['skip-get-started']);
+if ($skip_get_started) {
+    gettingStartedDismiss();
+    echo "  Get started won't open on signing in - it is in Admin > Get started.\n";
+}
+
 if (!setupClose('../config.php')) {
     cliStop("Setup is done, but config.php could not be written to. Add this line to the end of it: \$config_enable_setup = 0;");
 }
@@ -406,7 +417,7 @@ $config_backup_key = null;
 $backup_key = backupEncryptionKey();
 
 $itflow_path = realpath(__DIR__ . '/..');
-echo "\nITFlow is set up. Sign in at https://$base_url/login.php\n";
+echo "\nITFlow is set up. Sign in at https://$base_url/login.php" . ($skip_get_started ? '' : " - Get started opens and walks you through the rest") . "\n";
 if ($backup_key !== '') {
     echo "\nBackup key - keep a copy somewhere safe, away from this server; a backup can't be restored without it:\n\n";
     echo "     $backup_key\n";

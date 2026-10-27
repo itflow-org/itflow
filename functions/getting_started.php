@@ -16,8 +16,11 @@
  * On a new install (settings.config_getting_started, on in db.sql) the first
  * admin to sign in is taken to it once (config_getting_started_opened_at),
  * and the dashboard shows how far it has got until every step is done or
- * skipped, or an admin dismisses it. An install updated to 3.4.7 has it off,
- * and an admin opens it from Admin > Get started.
+ * skipped, or an admin dismisses it. Do it later goes to the dashboard and
+ * leaves it there to carry on from; Skip all puts every step off at once.
+ * An install updated to 3.4.7 has it off, as does one set up with
+ * setup_cli.php --skip-get-started, and an admin opens it from Admin > Get
+ * started.
  */
 
 /** The steps, in order - key => nav label, title, icon and what it is for. Billing and Support go with their modules. */
@@ -209,6 +212,29 @@ function gettingStartedSkip($key, $skip = true) {
     $skipped = $skip ? array_values(array_unique(array_merge($skipped, [$key]))) : array_values(array_diff($skipped, [$key]));
     mysqli_query($mysqli, "UPDATE settings SET config_getting_started_skipped = '" . escapeSql(implode(',', $skipped)) . "' WHERE company_id = 1");
     gettingStartedState(true);
+}
+
+/**
+ * Skip all - every step put off at once, done ones too, so one that comes
+ * undone later (cron stopping, say) is skipped rather than back on the
+ * dashboard. Each is still there in Admin > Get started, and doing one ticks
+ * it off as ever. The steps that were still to do, by title.
+ */
+function gettingStartedSkipAll() {
+    global $mysqli;
+    if (!gettingStartedReady()) {
+        return [];
+    }
+    $left = [];
+    foreach (gettingStartedSteps() as $step) {
+        if (!$step['done'] && !$step['skipped']) {
+            $left[] = $step['title'];
+        }
+    }
+    mysqli_query($mysqli, "UPDATE settings SET config_getting_started_skipped = '" . escapeSql(implode(',', array_keys(GETTING_STARTED_STEPS))) . "',
+        config_getting_started_opened_at = IFNULL(config_getting_started_opened_at, NOW()) WHERE company_id = 1");
+    gettingStartedState(true);
+    return $left;
 }
 
 /** Note that it was opened - it opens by itself on signing in only until then. */

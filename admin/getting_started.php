@@ -11,7 +11,8 @@
  * one on Maintenance > Starter Content.
  *
  * A page of its own, like setup - no menu, the steps along the top - in the
- * agent's light or dark. ?cron_status=1 answers whether cron has been heard
+ * agent's light or dark. Until every step is done or skipped, the top offers
+ * Do it later (to the dashboard, which shows what is left) and Skip all. ?cron_status=1 answers whether cron has been heard
  * from, for the Cron step to check while it waits (js/getting_started.js).
  */
 
@@ -37,7 +38,6 @@ if (isset($_GET['cron_status'])) {
 
 gettingStartedOpened();
 $gs_progress = gettingStartedProgress($gs_steps);
-$gs_state = gettingStartedState();
 $gs_step = (string) ($_GET['step'] ?? '');
 if ($gs_step !== 'done' && !isset($gs_steps[$gs_step])) {
     $gs_step = $gs_progress['next'] !== '' ? $gs_progress['next'] : 'done';
@@ -83,6 +83,7 @@ define('FROM_GETTING_STARTED', true);
     <?php } ?>
     <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="/libs/sweetalert2/css/sweetalert2.min.css">
     <link rel="stylesheet" href="/css/itflow_custom.css">
 </head>
 
@@ -99,7 +100,19 @@ define('FROM_GETTING_STARTED', true);
             <?php } ?>
             <span class="itflow-setup-brand-sub">Get started</span>
         </a>
-        <a href="/agent/dashboard.php" class="btn btn-sm btn-outline-secondary" data-gs-leave>Go to ITFlow<i class="fas fa-arrow-right ms-2"></i></a>
+        <?php if ($gs_progress['finished']) { ?>
+            <a href="/agent/dashboard.php" class="btn btn-sm btn-outline-secondary" data-gs-leave>Go to ITFlow<i class="fas fa-arrow-right ms-2"></i></a>
+        <?php } else {
+            // Do it later leaves the steps as they are, for the dashboard's Finish setting up to carry on from; Skip all puts every one off ?>
+            <div class="itflow-gs-top-actions">
+                <form action="post.php" method="post" class="m-0">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <button type="submit" name="getting_started_skip_all" value="1" class="btn btn-sm btn-link text-body-secondary text-decoration-none confirm-link" data-gs-skip-all
+                        data-confirm-title="Skip all of Get started?" data-confirm-text="Every step still to do is skipped, and the dashboard stops showing Finish setting up. Each one is in Admin > Get started whenever you want it." data-confirm-button="Skip all">Skip all</button>
+                </form>
+                <a href="/agent/dashboard.php" class="btn btn-sm btn-outline-secondary" data-gs-later title="The dashboard shows what is left, to carry on from">Do it later<i class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+        <?php } ?>
     </header>
 
     <!-- The steps, and where each stands -->
@@ -172,19 +185,14 @@ define('FROM_GETTING_STARTED', true);
 
     <footer class="itflow-setup-footer">
         Get started is in Admin whenever you want it.
-        <?php if ($gs_state['on']) { ?>
-            <span aria-hidden="true">·</span>
-            <form action="post.php" method="post" class="d-inline">
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                <button type="submit" name="getting_started_dismiss" value="1" class="btn btn-link btn-sm p-0 align-baseline text-reset" data-gs-dismiss>Don't show it on the dashboard</button>
-            </form>
-        <?php } ?>
     </footer>
 
 </div>
 
 <script src="/js/itflow_select.js"></script>
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/libs/sweetalert2/js/sweetalert2.min.js"></script>
+<script src="/js/confirm_modal.js"></script>
 <script src="/js/app.js"></script>
 <script src="/js/settings.js"></script>
 <script src="/js/getting_started.js"></script>
