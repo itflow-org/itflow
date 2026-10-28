@@ -223,30 +223,42 @@ function userResetMfa($user_id) {
 function userSaveAvatar($user_id, $file, &$error = '') {
     global $mysqli;
     $user_id = intval($user_id);
-    if (empty($file['tmp_name']) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
-        return false;
-    }
-    $new_name = checkFileUpload($file, ['jpg', 'jpeg', 'gif', 'png', 'webp']);
-    $image = $new_name ? @getimagesize($file['tmp_name']) : false;
-    if (!$new_name || !$image || !in_array($image[2], [IMAGETYPE_JPEG, IMAGETYPE_GIF, IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) {
-        $error = 'The avatar has to be a JPG, PNG, GIF or WebP picture.';
-        return false;
-    }
-    if ($file['size'] > 5 * 1024 * 1024) {
-        $error = 'The avatar can be up to 5 MB.';
-        return false;
-    }
-    $dir = dirname(__DIR__) . "/uploads/users/$user_id";
-    if (!is_dir($dir)) {
-        mkdir($dir, 0755, true);
-    }
-    if (!move_uploaded_file($file['tmp_name'], "$dir/$new_name")) {
-        $error = 'The avatar could not be saved.';
+    $new_name = userAvatarStore($file, dirname(__DIR__) . "/uploads/users/$user_id", $error);
+    if ($new_name === '') {
         return false;
     }
     userRemoveAvatar($user_id);
     mysqli_query($mysqli, "UPDATE users SET user_avatar = '" . escapeSql($new_name) . "' WHERE user_id = $user_id");
     return true;
+}
+
+/**
+ * Put an uploaded picture in $dir - a real image (checked, not trusted by
+ * its name), up to 5 MB. Its new file name, or '' with $error ('' too when
+ * nothing was uploaded).
+ */
+function userAvatarStore($file, $dir, &$error = '') {
+    if (empty($file['tmp_name']) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return '';
+    }
+    $new_name = checkFileUpload($file, ['jpg', 'jpeg', 'gif', 'png', 'webp']);
+    $image = $new_name ? @getimagesize($file['tmp_name']) : false;
+    if (!$new_name || !$image || !in_array($image[2], [IMAGETYPE_JPEG, IMAGETYPE_GIF, IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) {
+        $error = 'The avatar has to be a JPG, PNG, GIF or WebP picture.';
+        return '';
+    }
+    if ($file['size'] > 5 * 1024 * 1024) {
+        $error = 'The avatar can be up to 5 MB.';
+        return '';
+    }
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
+    if (!move_uploaded_file($file['tmp_name'], "$dir/$new_name")) {
+        $error = 'The avatar could not be saved.';
+        return '';
+    }
+    return $new_name;
 }
 
 /** Remove an agent's avatar - the file and the reference to it. */
@@ -498,25 +510,6 @@ function userSignInUrl() {
 function userMailAppName() {
     global $config_app_name;
     return trim((string) ($config_app_name ?? '')) !== '' ? (string) $config_app_name : 'ITFlow';
-}
-
-/*
- * A new agent's sign in details - their email, the password as it was set
- * (theirs to change) and where to sign in. True when queued.
- */
-function userMailNewAccount($name, $email, $password, $force_mfa) {
-    $company_name = (string) (billingCompany()['company_name'] ?? '');
-    $app = userMailAppName();
-    return (bool) emailQueue([['email' => $email, 'name' => $name, 'footnote' => "You get this because an account was set up for you in $company_name's $app."]],
-        "Your new $company_name $app account", [
-            'kind' => 'Your account', 'tone' => 'primary', 'preview' => "Your $app sign in details",
-            'title' => "Your $app account is ready",
-            'intro' => ["An $app account has been set up for you. Sign in with these details, then change your password."
-                . ($force_mfa ? ' Have an authenticator app ready - you will set up multi-factor authentication the first time.' : '')],
-            'summary' => ['Email' => (string) $email, 'Password' => (string) $password],
-            'button' => ['label' => 'Sign in', 'url' => userSignInUrl()],
-            'after' => ['This email has your password in it - delete it once you have changed it.'],
-        ]);
 }
 
 /** An agent's own email, sent from the system - their account was changed ($what, raw). Queued; nothing when mail is not set up. */

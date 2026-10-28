@@ -161,8 +161,9 @@ function gettingStartedSteps() {
                 break;
             case 'team':
                 $agents = $count("SELECT COUNT(*) FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL");
-                $done = $agents > 1;
-                $status = $agents === 1 ? 'Just you' : "$agents people";
+                $invited = userInvitesHoldingSeats();
+                $done = $agents > 1 || $invited > 0;
+                $status = ($agents === 1 ? 'Just you' : "$agents people") . ($invited ? ", $invited invited" : '');
                 break;
             case 'content':
                 $templates = $count("SELECT (SELECT COUNT(*) FROM ticket_templates) + (SELECT COUNT(*) FROM canned_responses) + (SELECT COUNT(*) FROM document_templates)");

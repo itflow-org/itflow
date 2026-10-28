@@ -9,6 +9,11 @@
  * Client access - which clients a role without admin is limited to or kept
  * from. An admin sees every client, so for an admin role that tab just says
  * so (any rules are kept, in case the role changes back).
+ *
+ * New User invites them by default (sign_in invite - functions/user_invite.php):
+ * they choose their own password from a link, emailed or, with no mail set
+ * up, shown to the admin to pass on. Set a password now (sign_in password)
+ * is the other way - for the admin to give them.
  */
 
 isset($mysqli) || die("Direct file access is not allowed");
@@ -20,6 +25,8 @@ $form_roles = userRoles($form_role_id);
 $form_has_mfa = trim((string) ($form['user_token'] ?? '')) !== '';
 $form_has_avatar = trim((string) ($form['user_avatar'] ?? '')) !== '';
 $form_access = $form_user_id ? userClientAccess([$form_user_id])[$form_user_id] : ['allow' => [], 'deny' => []];
+$form_invites = $is_new && userInvitesReady();
+$form_invite_mail = $form_invites && userInviteMailReady();
 
 // Every client - and an archived one only when it has a rule, so saving does not drop it. Those with a rule first.
 $form_clients = [];
@@ -119,38 +126,41 @@ $value = function ($key) use ($form) {
 <!-- How they sign in -->
 <div class="tab-pane fade" id="<?= $form_id ?>Security">
     <div class="row g-3">
-        <div class="col-12">
+        <?php if ($form_invites) { ?>
+            <div class="col-12">
+                <label class="form-label d-block">How they get in</label>
+                <div class="btn-group w-100" role="group" aria-label="How they get in">
+                    <input type="radio" class="btn-check" name="sign_in" value="invite" id="<?= $form_id ?>Invite" checked data-user-sign-in>
+                    <label class="btn btn-outline-primary" for="<?= $form_id ?>Invite"><i class="fas fa-fw fa-paper-plane me-1"></i>Invite them</label>
+                    <input type="radio" class="btn-check" name="sign_in" value="password" id="<?= $form_id ?>SetPassword" data-user-sign-in>
+                    <label class="btn btn-outline-primary" for="<?= $form_id ?>SetPassword"><i class="fas fa-fw fa-lock me-1"></i>Set a password now</label>
+                </div>
+                <div class="form-text" data-user-sign-in-note="invite">
+                    <?php if ($form_invite_mail) { ?>
+                        They're emailed a link to choose their own password, so nobody else ever knows it. It works for <?= USER_INVITE_LINK_DAYS ?> days - until they use it, they're under Invited.
+                    <?php } else { ?>
+                        Mail isn't set up, so you get the link to send them yourself - they choose their own password with it. It works for <?= USER_INVITE_LINK_DAYS ?> days.
+                    <?php } ?>
+                </div>
+                <div class="form-text" data-user-sign-in-note="password" hidden>For you to give them yourself - nothing is emailed. They should change it once they're in.</div>
+            </div>
+        <?php } ?>
+        <div class="col-12" data-user-password-field<?= $form_invites ? ' hidden' : '' ?>>
             <label class="form-label"><?= $is_new ? 'Password <strong class="text-danger">*</strong>' : 'New password' ?></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control font-monospace" data-toggle="password" name="<?= $is_new ? 'password' : 'new_password' ?>" id="<?= $form_id ?>Password"
-                    placeholder="<?= $is_new ? 'At least ' . USER_PASSWORD_MIN . ' characters' : 'Leave blank to keep their password' ?>" minlength="<?= USER_PASSWORD_MIN ?>" autocomplete="new-password" <?= $is_new ? 'required' : '' ?> data-user-password>
+                    placeholder="<?= $is_new ? 'At least ' . USER_PASSWORD_MIN . ' characters' : 'Leave blank to keep their password' ?>" minlength="<?= USER_PASSWORD_MIN ?>" autocomplete="new-password" <?= $is_new && !$form_invites ? 'required' : '' ?><?= $form_invites ? ' disabled' : '' ?> data-user-password>
                 <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                 <button class="btn btn-outline-secondary clipboardjs" type="button" title="Copy password" data-clipboard-target="#<?= $form_id ?>Password"><i class="far fa-fw fa-copy"></i></button>
                 <button class="btn btn-outline-secondary" type="button" title="Make one up - words that are easy to read out" data-user-generate><i class="fas fa-fw fa-magic"></i></button>
             </div>
-            <div class="form-text">
-                <?php if ($is_new) { ?>
-                    Give it to them yourself, or have it emailed - either way, they should change it once they're in.
-                <?php } else { ?>
-                    Set, they're emailed that it changed. It also unlocks their copy of the credential vault, so it is set here rather than reset by email.
-                <?php } ?>
-            </div>
+            <?php if (!$is_new) { ?>
+                <div class="form-text">Set, they're emailed that it changed. It also unlocks their copy of the credential vault, so it is set here rather than reset by email.</div>
+            <?php } elseif (!$form_invites) { ?>
+                <div class="form-text">For you to give them yourself - nothing is emailed. They should change it once they're in.</div>
+            <?php } ?>
         </div>
-
-        <?php if ($is_new) { ?>
-            <div class="col-12">
-                <?php if (!empty($config_smtp_host)) { ?>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" name="send_email" value="1" id="<?= $form_id ?>SendEmail" checked>
-                        <label class="form-check-label" for="<?= $form_id ?>SendEmail">Email them their sign in details</label>
-                        <div class="form-text mt-0">The address, the password and where to sign in.</div>
-                    </div>
-                <?php } else { ?>
-                    <div class="small text-body-secondary"><i class="fas fa-fw fa-envelope me-1"></i>Mail isn't set up, so nothing is emailed - give them their password yourself.</div>
-                <?php } ?>
-            </div>
-        <?php } ?>
 
         <div class="col-12">
             <div class="border rounded p-3">
@@ -302,6 +312,31 @@ $value = function ($key) use ($form) {
             password.dispatchEvent(new Event('input'));
         });
     });
+
+    // New User: invite them - no password here - or set one now
+    var signIn = root.querySelectorAll('[data-user-sign-in]');
+    if (signIn.length) {
+        var passwordField = root.querySelector('[data-user-password-field]');
+        var submit = form.querySelector('[data-user-submit]');
+        var signInChanged = function () {
+            var checked = root.querySelector('[data-user-sign-in]:checked');
+            var invite = !checked || checked.value === 'invite';
+            passwordField.hidden = invite;
+            password.required = !invite;
+            password.disabled = invite;
+            root.querySelectorAll('[data-user-sign-in-note]').forEach(function (note) {
+                note.hidden = note.dataset.userSignInNote !== (invite ? 'invite' : 'password');
+            });
+            if (submit) {
+                submit.querySelector('[data-user-submit-label]').textContent = invite ? submit.dataset.labelInvite : submit.dataset.labelCreate;
+                submit.querySelector('i').className = 'fas me-2 ' + (invite ? 'fa-paper-plane' : 'fa-check');
+            }
+        };
+        signIn.forEach(function (radio) {
+            radio.addEventListener('change', signInChanged);
+        });
+        signInChanged();
+    }
 
     // Client access: an admin sees everything, so the rules are put away
     var role = root.querySelector('[data-user-role]');

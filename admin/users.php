@@ -5,6 +5,9 @@
  * they are, their role, whether they can sign in and how (MFA, browsers that
  * skip the code), the clients they can see and when they last signed in. The
  * pills split them: everyone, admins, no MFA, disabled - and the archived.
+ * Invited is the people asked to join who aren't in yet: the invites waiting
+ * or run out (functions/user_invite.php), to send again, get the link to
+ * pass on, or cancel. A link made to pass on is shown once, at the top.
  *
  * The admin's own row is shown but not changed here: that is their Account
  * pages, so nobody locks themselves out by mistake.
@@ -34,9 +37,19 @@ $shows = [
     'admins' => ['label' => 'Admins', 'icon' => 'fa-user-shield', 'where' => 'user_archived_at IS NULL AND role_is_admin = 1', 'title' => 'Every client and every setting'],
     'nomfa' => ['label' => 'No MFA', 'icon' => 'fa-unlock', 'where' => "user_archived_at IS NULL AND user_status = 1 AND (user_token IS NULL OR user_token = '')", 'title' => 'Active, and signing in with a password alone'],
     'disabled' => ['label' => 'Disabled', 'icon' => 'fa-ban', 'where' => 'user_archived_at IS NULL AND user_status <> 1', 'title' => 'Cannot sign in'],
+    'invited' => ['label' => 'Invited', 'icon' => 'fa-paper-plane', 'where' => null, 'title' => 'Asked to join and not in yet - their invite waiting, or run out'],
     'archived' => ['label' => 'Archived', 'icon' => 'fa-archive', 'where' => 'user_archived_at IS NOT NULL', 'title' => 'Gone - restore one with a new password'],
 ];
+if (!userInvitesReady()) {
+    unset($shows['invited']);
+}
 $show = isset($shows[$_GET['show'] ?? '']) ? ($_GET['show'] ?? '') : '';
+
+// The invites - not users yet, so a list of their own
+$invite_filters = "invite_accepted_at IS NULL AND invite_cancelled_at IS NULL AND (invite_name LIKE '%$q%' OR invite_email LIKE '%$q%' OR role_name LIKE '%$q%')"
+    . ($role_filter ? " AND invite_role_id = $role_filter" : '');
+$invite_joins = "LEFT JOIN user_roles ON role_id = invite_role_id
+    LEFT JOIN users inviter ON inviter.user_id = invite_created_by AND invite_created_by > 0";
 
 // Only these sort - an unknown column would take the page down
 $last_login_sql = "(SELECT MAX(log_id) FROM logs WHERE log_user_id = users.user_id AND log_type = 'Login' AND log_action = 'Success')";
@@ -48,40 +61,70 @@ $sortable_columns = [
     'last_login' => "$last_login_sql IS NULL, $last_login_sql $order, user_name ASC",
     'user_created_at' => "user_created_at $order, user_name ASC",
 ];
-if (!isset($sortable_columns[$sort])) {
+// ...and the same headers sort the invites: when it runs out for Sign in, when it was sent for Added
+$invite_sortable_columns = [
+    'user_name' => "invite_name $order",
+    'user_email' => "invite_email $order",
+    'role_name' => "role_is_admin DESC, role_name $order, invite_name ASC",
+    'user_status' => "invite_expires_at $order, invite_name ASC",
+    'user_created_at' => "invite_created_at $order, invite_name ASC",
+];
+if (!isset(($show === 'invited' ? $invite_sortable_columns : $sortable_columns)[$sort])) {
     $sort = 'user_name';
 }
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS users.user_id, user_name, user_email, user_status, user_token, user_avatar, user_created_at, user_archived_at,
-        user_role_id, role_name, role_is_admin, user_config_force_mfa
-    FROM users $joins
-    WHERE $filters AND {$shows[$show]['where']}
-    ORDER BY {$sortable_columns[$sort]}, users.user_id ASC
-    LIMIT $record_from, $record_to");
-
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
-
 $users = [];
-while ($row = mysqli_fetch_assoc($sql)) {
-    $users[intval($row['user_id'])] = $row;
+$invites = [];
+if ($show === 'invited') {
+    $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS user_invites.*, role_name, role_is_admin, inviter.user_name AS invite_by_name
+        FROM user_invites $invite_joins
+        WHERE $invite_filters
+        ORDER BY {$invite_sortable_columns[$sort]}, invite_id ASC
+        LIMIT $record_from, $record_to");
+    $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $invites[] = $row;
+    }
+} else {
+    $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS users.user_id, user_name, user_email, user_status, user_token, user_avatar, user_created_at, user_archived_at,
+            user_role_id, role_name, role_is_admin, user_config_force_mfa
+        FROM users $joins
+        WHERE $filters AND {$shows[$show]['where']}
+        ORDER BY {$sortable_columns[$sort]}, users.user_id ASC
+        LIMIT $record_from, $record_to");
+    $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $users[intval($row['user_id'])] = $row;
+    }
 }
 $logins = userLastLogins(array_keys($users));
 $access = userClientAccess(array_keys($users));
 $remembered = userRememberCounts(array_keys($users));
 
 // How many in each view, over what the search and role leave
+$user_views = array_filter($shows, function ($s) {
+    return $s['where'] !== null;
+});
 $view_counts = [];
 $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', array_map(function ($s) {
     return "COALESCE(SUM({$s['where']}), 0)";
-}, $shows)) . " FROM users $joins WHERE $filters"));
-foreach (array_keys($shows) as $i => $key) {
+}, $user_views)) . " FROM users $joins WHERE $filters"));
+foreach (array_keys($user_views) as $i => $key) {
     $view_counts[$key] = intval($row[$i]);
 }
+if (isset($shows['invited'])) {
+    $view_counts['invited'] = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM user_invites $invite_joins WHERE $invite_filters"))[0]);
+}
 
-// Agent user limit (set in config.php, 0 / unset = unlimited)
+// Agent user limit (set in config.php, 0 / unset = unlimited) - an invite waiting holds a seat
 $agent_user_limit = getAgentUserLimit();
 $agent_user_count = getActiveAgentUserCount();
-$agent_user_limit_reached = $agent_user_limit > 0 && $agent_user_count >= $agent_user_limit;
+$agent_invites_holding = userInvitesHoldingSeats();
+$agent_user_limit_reached = $agent_user_limit > 0 && $agent_user_count + $agent_invites_holding >= $agent_user_limit;
+
+// An invite link to pass on - shown this once
+$invite_link = userInviteTakeLink();
+$invite_mail_ready = userInviteMailReady();
 
 $filter_url = function ($changes) {
     $params = array_merge($_GET, $changes);
@@ -102,15 +145,16 @@ $csrf = $_SESSION['csrf_token'];
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-users me-2"></i>Users
             <?php if ($agent_user_limit > 0) { ?>
-                <span class="badge rounded-pill text-bg-<?= $agent_user_limit_reached ? 'danger' : 'secondary' ?> fw-normal ms-2" title="Active agents, of the agent user limit set for this installation">
-                    <?= $agent_user_count ?> of <?= $agent_user_limit ?> seats
+                <span class="badge rounded-pill text-bg-<?= $agent_user_limit_reached ? 'danger' : 'secondary' ?> fw-normal ms-2"
+                    title="<?= $agent_user_count ?> active agent<?= $agent_user_count === 1 ? '' : 's' ?><?= $agent_invites_holding ? " and $agent_invites_holding invite" . ($agent_invites_holding === 1 ? '' : 's') . ' waiting' : '' ?>, of the agent user limit set for this installation">
+                    <?= $agent_user_count + $agent_invites_holding ?> of <?= $agent_user_limit ?> seats
                 </span>
             <?php } ?>
         </h3>
         <div class="card-tools">
             <div class="btn-group">
                 <?php if ($agent_user_limit_reached) { ?>
-                    <button type="button" class="btn btn-primary" disabled title="Every seat is taken - disable or archive a user first">
+                    <button type="button" class="btn btn-primary" disabled title="Every seat is taken - disable or archive a user<?= $agent_invites_holding ? ', or cancel an invite,' : '' ?> first">
                         <i class="fas fa-user-plus"></i><span class="d-none d-lg-inline ms-2">New User</span>
                     </button>
                 <?php } else { ?>
@@ -202,6 +246,136 @@ $csrf = $_SESSION['csrf_token'];
             <?php } ?>
         </nav>
     </div>
+
+    <?php if ($invite_link) {
+        $invite_link_name = escapeHtml($invite_link['row']['invite_name']); ?>
+        <div class="alert alert-info border-0 rounded-0 mb-0 px-3 py-3" data-user-invite-link="<?= intval($invite_link['row']['invite_id']) ?>">
+            <div class="fw-semibold mb-1"><i class="fas fa-link me-2"></i>The invite link for <?= $invite_link_name ?></div>
+            <div class="small mb-2">Send it to <?= $invite_link_name ?> yourself - by chat, text or your own email. With it they choose their own password and join as <?= escapeHtml((string) $invite_link['row']['role_name']) ?>.
+                It works for <?= USER_INVITE_LINK_DAYS ?> days and is only shown now - Get the link again makes a new one.</div>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
+                <input type="text" class="form-control font-monospace" id="userInviteLink" value="<?= escapeHtml($invite_link['url']) ?>" readonly aria-label="The invite link" onfocus="this.select()">
+                <button class="btn btn-primary clipboardjs" type="button" data-clipboard-target="#userInviteLink"><i class="far fa-copy me-2"></i>Copy</button>
+            </div>
+        </div>
+    <?php } ?>
+
+    <?php if ($show === 'invited') { ?>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 itflow-asset-table itflow-ticket-list itflow-user-list" data-user-invites>
+            <thead class="<?php if (!$invites) { echo "d-none"; } ?> text-nowrap table-light">
+            <tr>
+                <th><?= $sort_link('user_name', 'Invited') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('user_email', 'by email') ?></span></th>
+                <th class="d-none d-md-table-cell"><?= $sort_link('role_name', 'Role') ?></th>
+                <th class="d-none d-md-table-cell"><?= $sort_link('user_status', 'Invite') ?></th>
+                <th class="d-none d-xl-table-cell">Clients</th>
+                <th class="d-none d-lg-table-cell"><?= $sort_link('user_created_at', 'Invited by') ?></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($invites as $invite) {
+                $invite_id = intval($invite['invite_id']);
+                $invite_label = userInviteStateLabel($invite);
+                $invite_expired = userInviteState($invite) === 'expired';
+                $invite_admin = intval($invite['role_is_admin']) === 1;
+                $invite_access = userInviteClientAccess($invite);
+                $invite_access_title = $invite_admin ? 'Admins see every client' : trim(
+                    ($invite_access['allow'] ? 'Only: ' . implode(', ', $invite_access['allow']) . '. ' : '')
+                    . ($invite_access['deny'] ? 'Kept out of: ' . implode(', ', $invite_access['deny']) . '.' : '')
+                );
+                $invite_name = escapeHtml($invite['invite_name']);
+                $invite_sent = intval($invite['invite_sent_count']);
+                $invite_role = $invite['role_name'] === null
+                    ? '<span class="text-danger-emphasis small"><i class="fas fa-exclamation-triangle me-1"></i>Role removed</span>'
+                    : '<i class="fas fa-fw ' . ($invite_admin ? 'fa-user-shield text-primary' : 'fa-user-tag text-body-secondary') . ' me-1"></i>' . escapeHtml($invite['role_name']);
+                $invite_pill = '<span class="badge rounded-pill bg-' . $invite_label['tone'] . '-subtle text-' . $invite_label['tone'] . '-emphasis fw-normal" title="' . escapeHtml($invite_label['title']) . '"><i class="fas '
+                    . ($invite_expired ? 'fa-hourglass-end' : 'fa-paper-plane') . ' me-1"></i>' . $invite_label['label'] . '</span>';
+                ?>
+                <tr class="itflow-ticket-row <?= $invite_expired ? 'is-warning' : '' ?>" data-user-invite="<?= $invite_id ?>">
+
+                    <!-- Who -->
+                    <td class="itflow-ticket-main itflow-user-main">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="opacity-75" aria-hidden="true"><?= userInviteAvatar($invite) ?></span>
+                            <div class="min-w-0">
+                                <span class="fw-semibold"><?= $invite_name ?></span>
+                                <div class="small text-body-secondary text-truncate">
+                                    <?= escapeHtml($invite['invite_email']) ?><button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= escapeHtml($invite['invite_email']) ?>"><i class="far fa-copy"></i></button>
+                                </div>
+                                <!-- On a phone the role and invite columns are off to the side - they come along -->
+                                <div class="d-md-none small text-body-secondary"><?= $invite_role ?></div>
+                                <div class="d-md-none mt-1"><?= $invite_pill ?></div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="d-none d-md-table-cell text-nowrap"><?= $invite_role ?></td>
+
+                    <!-- How it stands -->
+                    <td class="d-none d-md-table-cell">
+                        <div class="d-flex flex-wrap gap-1">
+                            <?= $invite_pill ?>
+                            <?php if (intval($invite['invite_force_mfa'])) { ?>
+                                <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal" title="Required - they set it up as they first sign in"><i class="fas fa-lock me-1"></i>MFA required</span>
+                            <?php } ?>
+                        </div>
+                        <div class="small text-body-secondary mt-1 text-nowrap"><?= escapeHtml($invite_expired ? 'Ran out ' . date('M j', strtotime($invite['invite_expires_at'])) : $invite_label['title']) ?></div>
+                    </td>
+
+                    <td class="d-none d-xl-table-cell small <?= $invite_admin ? 'text-body-secondary' : '' ?>" title="<?= escapeHtml($invite_access_title) ?>">
+                        <?php if (!$invite_admin && ($invite_access['allow'] || $invite_access['deny'])) { ?><i class="fas fa-fw fa-filter text-warning me-1"></i><?php } ?><?= escapeHtml(userClientAccessText($invite_access, $invite_admin)) ?>
+                    </td>
+
+                    <!-- Who sent it, and how -->
+                    <td class="d-none d-lg-table-cell small">
+                        <div><?= escapeHtml(userInviteBy($invite) !== '' ? userInviteBy($invite) : 'Someone no longer here') ?> <span class="text-body-secondary" title="<?= escapeHtml($invite['invite_created_at']) ?>">· <?= escapeHtml(timeAgo($invite['invite_created_at'])) ?></span></div>
+                        <div class="text-body-secondary">
+                            <?php if ($invite_sent) { ?>
+                                <i class="fas fa-fw fa-envelope me-1"></i><span title="<?= escapeHtml((string) $invite['invite_sent_at']) ?>">Emailed <?= escapeHtml(timeAgo($invite['invite_sent_at'])) ?></span><?= $invite_sent > 1 ? " · $invite_sent times" : '' ?>
+                            <?php } else { ?>
+                                <i class="fas fa-fw fa-link me-1"></i>A link to pass on
+                            <?php } ?>
+                        </div>
+                    </td>
+
+                    <td class="text-end">
+                        <div class="dropdown dropstart">
+                            <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
+                            <div class="dropdown-menu">
+                                <?php if ($invite_mail_ready) { ?>
+                                    <a class="dropdown-item" href="post.php?resend_user_invite=<?= $invite_id ?>&csrf_token=<?= $csrf ?>">
+                                        <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send again
+                                    </a>
+                                <?php } ?>
+                                <a class="dropdown-item confirm-link" href="post.php?link_user_invite=<?= $invite_id ?>&csrf_token=<?= $csrf ?>"
+                                    data-confirm-title="Get a new invite link?" data-confirm-icon="info"
+                                    data-confirm-text="A new link is made for you to send <?= $invite_name ?> yourself, shown once. Any link sent before stops working, and it works for <?= USER_INVITE_LINK_DAYS ?> days."
+                                    data-confirm-button="Get the link">
+                                    <i class="fas fa-fw fa-link text-secondary me-2"></i>Get the link
+                                </a>
+                                <a class="dropdown-item" href="audit_logs.php?q=<?= rawurlencode($invite['invite_email']) ?>">
+                                    <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit log
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger confirm-link" href="post.php?cancel_user_invite=<?= $invite_id ?>&csrf_token=<?= $csrf ?>"
+                                    data-confirm-title="Cancel <?= $invite_name ?>'s invite?"
+                                    data-confirm-text="The link <?= $invite_name ?> has stops working<?= $agent_user_limit > 0 && !$invite_expired ? ', and the seat it holds is free again' : '' ?>. Invite them again any time."
+                                    data-confirm-button="Cancel invite">
+                                    <i class="fas fa-fw fa-ban me-2"></i>Cancel invite
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            <?php } ?>
+            </tbody>
+        </table>
+    </div>
+
+    <?php } else { ?>
 
     <form id="bulkActions" action="post.php" method="post">
         <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -359,6 +533,8 @@ $csrf = $_SESSION['csrf_token'];
             </table>
         </div>
     </form>
+
+    <?php } ?>
     <?php
     $empty_state = [
         'thing' => 'users',
@@ -366,7 +542,8 @@ $csrf = $_SESSION['csrf_token'];
         'filtered' => $q !== '' || $role_filter,
         'archived' => $show === 'archived',
         'views' => ['show'],
-        'view' => $show === 'nomfa' ? ['title' => 'Everyone active signs in with MFA', 'icon' => 'fa-check'] : emptyStatePill($shows, $show),
+        'view' => $show === 'nomfa' ? ['title' => 'Everyone active signs in with MFA', 'icon' => 'fa-check']
+            : ($show === 'invited' ? ['title' => 'No invites waiting', 'text' => 'Everyone invited has joined. Invite someone with New User.', 'icon' => 'fa-paper-plane'] : emptyStatePill($shows, $show)),
     ];
     require_once "../includes/filter_footer.php";
     ?>

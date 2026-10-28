@@ -4053,6 +4053,37 @@ CREATE TABLE `user_client_permissions` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `user_invites`
+--
+
+DROP TABLE IF EXISTS `user_invites`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_invites` (
+  `invite_id` int(11) NOT NULL AUTO_INCREMENT,
+  `invite_email` varchar(200) NOT NULL,
+  `invite_name` varchar(200) NOT NULL,
+  `invite_role_id` int(11) NOT NULL DEFAULT 0,
+  `invite_force_mfa` tinyint(1) NOT NULL DEFAULT 0,
+  `invite_client_access` text DEFAULT NULL,
+  `invite_avatar` varchar(200) DEFAULT NULL,
+  `invite_token_hash` char(64) NOT NULL DEFAULT '',
+  `invite_vault` varchar(255) NOT NULL DEFAULT '',
+  `invite_expires_at` datetime NOT NULL,
+  `invite_sent_at` datetime DEFAULT NULL,
+  `invite_sent_count` int(11) NOT NULL DEFAULT 0,
+  `invite_created_by` int(11) NOT NULL DEFAULT 0,
+  `invite_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `invite_accepted_at` datetime DEFAULT NULL,
+  `invite_user_id` int(11) NOT NULL DEFAULT 0,
+  `invite_cancelled_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`invite_id`),
+  KEY `invite_email` (`invite_email`),
+  KEY `invite_user_id` (`invite_user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `user_role_permissions`
 --
 

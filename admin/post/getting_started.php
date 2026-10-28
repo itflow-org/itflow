@@ -321,13 +321,16 @@ if (isset($_POST['getting_started_team'])) {
 
     validateCSRFToken();
 
-    if (agentUserLimitReached()) {
-        flashAlert(escapeHtml(agentUserLimitMessage()), 'error');
+    $name = trim((string) ($_POST['team_name'] ?? ''));
+    $email = trim((string) ($_POST['team_email'] ?? ''));
+
+    // An invite waiting for them holds a seat already - it is this one
+    $open = userInviteFor($email);
+    if (agentUserLimitReached($open && userInviteState($open) === 'pending' ? intval($open['invite_id']) : 0)) {
+        flashAlert(agentUserLimitMessage(), 'error');
         redirect(gettingStartedUrl('team'));
     }
 
-    $name = trim((string) ($_POST['team_name'] ?? ''));
-    $email = trim((string) ($_POST['team_email'] ?? ''));
     $errors = [];
     if ($name === '') {
         $errors['team_name'] = 'Their name, as it shows on tickets.';
@@ -355,21 +358,36 @@ if (isset($_POST['getting_started_team'])) {
     }
     [$name, $email] = $identity;
 
-    // Their password - made here, emailed or shown once, for them to change
+    // With mail, an invite - they choose their own password from the link
+    if (userInvitesReady() && userInviteMailReady()) {
+        $saved = userInviteSave(['name' => $name, 'email' => $email, 'role_id' => $role['role_id'], 'force_mfa' => 0, 'access' => []]);
+        $send_error = '';
+        if (!userInviteSend($saved['invite_id'], true, $send_error)) {
+            if (!$saved['again']) {
+                mysqli_query($mysqli, "DELETE FROM user_invites WHERE invite_id = " . intval($saved['invite_id']));
+            }
+            flashAlert($send_error, 'error');
+            redirect(gettingStartedUrl('team'));
+        }
+        logAudit("User", "Invite", "$session_name invited " . escapeSql("$name ($email) as {$role['role_name']}") . " in Get started" . ($saved['again'] ? ', again' : ''));
+        flashAlert('<strong>' . escapeHtml($name) . '</strong> is invited - an email with a link to join is on the way to <strong>' . escapeHtml($email) . '</strong>'
+            . (gettingStartedSteps()['cron']['done'] ? '' : ', once cron is running') . '. They choose their own password');
+        redirect(gettingStartedUrl('team'));
+    }
+
+    // Without, their password - made here and shown once, for you to give them and them to change
     $password = generateReadablePassword();
     mysqli_query($mysqli, "INSERT INTO users SET user_name = '" . escapeSql($name) . "', user_email = '" . escapeSql($email) . "', user_password = '', user_role_id = " . intval($role['role_id']));
     $user_id = intval(mysqli_insert_id($mysqli));
     userSetPassword($user_id, $password);
     mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_config_force_mfa = 0");
-
-    $emailed = emailReady() && userMailNewAccount($name, $email, $password, 0);
-    logAudit("User", "Create", "$session_name created user " . escapeSql("$name ({$role['role_name']})") . " in Get started" . ($emailed ? ', their sign in details emailed to them' : ''), 0, $user_id);
-
-    if ($emailed) {
-        flashAlert('<strong>' . escapeHtml($name) . '</strong> is added - their sign-in details are on the way to <strong>' . escapeHtml($email) . '</strong>' . (gettingStartedSteps()['cron']['done'] ? '' : ', once cron is running'));
-    } else {
-        flashAlert('<strong>' . escapeHtml($name) . '</strong> is added. Their password is <code>' . escapeHtml($password) . '</code> - give it to them to sign in with and change. It isn\'t shown again', 'warning');
+    if ($open) {
+        userInviteCancel($open['invite_id']);
     }
+
+    logAudit("User", "Create", "$session_name created user " . escapeSql("$name ({$role['role_name']})") . " in Get started", 0, $user_id);
+
+    flashAlert('<strong>' . escapeHtml($name) . '</strong> is added. Their password is <code>' . escapeHtml($password) . '</code> - give it to them to sign in with and change. It isn\'t shown again', 'warning');
     redirect(gettingStartedUrl('team'));
 
 }

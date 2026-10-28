@@ -821,7 +821,8 @@ function getProductsForAutocomplete($mysqli, $client_id = 0): string
  * nobody inside the app can raise their own limit.
  *
  * An active agent is user_type 1, enabled and not archived. Disabled and archived
- * users do not use a seat.
+ * users do not use a seat. An invite waiting and in date does
+ * (userInvitesHoldingSeats(), functions/user_invite.php) - it is a seat promised.
  */
 function getAgentUserLimit(): int
 {
@@ -839,16 +840,25 @@ function getActiveAgentUserCount(): int
     return intval($row[0]);
 }
 
-function agentUserLimitReached(): bool
+/** Seats taken: active agents, and invites waiting in date (leaving out $except_invite_id). */
+function getAgentSeatsTaken(int $except_invite_id = 0): int
+{
+    return getActiveAgentUserCount() + userInvitesHoldingSeats($except_invite_id);
+}
+
+function agentUserLimitReached(int $except_invite_id = 0): bool
 {
     $limit = getAgentUserLimit();
 
-    return $limit > 0 && getActiveAgentUserCount() >= $limit;
+    return $limit > 0 && getAgentSeatsTaken($except_invite_id) >= $limit;
 }
 
 function agentUserLimitMessage(): string
 {
     $limit = getAgentUserLimit();
+    $invites = userInvitesHoldingSeats();
 
-    return "Agent user limit reached - this installation allows <strong>$limit</strong> active agent " . ($limit == 1 ? "user" : "users") . ". Archive or disable a user first, or contact your provider to add more.";
+    return "Agent user limit reached - this installation allows <strong>$limit</strong> active agent " . ($limit == 1 ? "user" : "users")
+        . ($invites ? ", and $invites invite" . ($invites === 1 ? ' is' : 's are') . " waiting for one" : '')
+        . ". Archive or disable a user" . ($invites ? ' or cancel an invite' : '') . " first, or contact your provider to add more.";
 }

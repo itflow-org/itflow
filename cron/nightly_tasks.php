@@ -238,6 +238,12 @@ if ($portal_invites_cleared) {
     logApp("Cron", "info", "Client portal: cleared $portal_invites_cleared sign-up or cancelled invite link(s) nobody used");
 }
 
+// AGENT INVITES - cancelled ones, and ones that ran out, after 90 days
+$user_invites_cleared = userInvitesNightly();
+if ($user_invites_cleared) {
+    logApp("Cron", "info", "Users: cleared $user_invites_cleared cancelled or run-out agent invite(s)");
+}
+
 // GET NOTIFICATIONS
 
 // DOMAINS EXPIRING

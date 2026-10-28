@@ -220,7 +220,7 @@ function roleAdminBlocker(array $row) {
     return '';
 }
 
-/* Why a role can't be archived - '' when it can. Not while active agents have it, nor your own. */
+/* Why a role can't be archived - '' when it can. Not while active agents have it or invites waiting are for it, nor your own. */
 function roleArchiveBlocker(array $row) {
     global $session_user_role;
     if (intval($row['role_id']) === intval($session_user_role)) {
@@ -229,6 +229,9 @@ function roleArchiveBlocker(array $row) {
     if (intval($row['agents'])) {
         $n = intval($row['agents']);
         return $n . ' agent' . ($n === 1 ? ' has' : 's have') . ' it - give them another role first.';
+    }
+    if (($n = userInvitesWithRole($row['role_id'])) > 0) {
+        return $n . ' invite' . ($n === 1 ? ' is' : 's are') . ' waiting with it - cancel ' . ($n === 1 ? 'it' : 'them') . ' in Users, Invited, and invite again with another role.';
     }
     return '';
 }

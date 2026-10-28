@@ -9,6 +9,11 @@
  * picture that really is one. An admin changes their own account from their
  * Account pages, not here, and the last active admin cannot be demoted,
  * disabled or archived - there would be nobody left to undo it.
+ *
+ * New User invites them by default (functions/user_invite.php) - they choose
+ * their own password from the link - or sets a password now, for the admin
+ * to give them. An invite waiting is sent again, its link got to pass on, or
+ * cancelled from the Invited view.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -25,30 +30,73 @@ if (isset($_POST['add_user'])) {
 
     validateCSRFToken();
 
-    if (agentUserLimitReached()) {
-        flashAlert(agentUserLimitMessage(), 'error');
-        redirect();
-    }
-
     $error = '';
     $identity = userCheckIdentity($_POST, 0, $error);
     $role = $identity ? userCheckRole($_POST['role'] ?? 0, 0, $error) : null;
-    $password = (string) ($_POST['password'] ?? '');
-    if ($role && ($problem = userPasswordProblem($password))) {
-        $error = $problem;
-    }
-    if (!$identity || !$role || $error !== '') {
+    if (!$identity || !$role) {
         flashAlert($error, 'error');
         redirect();
     }
     [$name, $email] = $identity;
     $role_id = intval($role['role_id']);
+    $force_mfa = !empty($_POST['force_mfa']) ? 1 : 0;
+
+    // An invite - they choose their own password - or a password set now. Without the
+    // choice (an older form, a script), a password sent is one to set.
+    $password = (string) ($_POST['password'] ?? '');
+    $how = ($_POST['sign_in'] ?? ($password !== '' ? 'password' : 'invite')) === 'invite' && userInvitesReady() ? 'invite' : 'password';
+
+    // An invite waiting for them holds a seat already - it is this one
+    $open = userInviteFor($email);
+    if (agentUserLimitReached($open && userInviteState($open) === 'pending' ? intval($open['invite_id']) : 0)) {
+        flashAlert(agentUserLimitMessage(), 'error');
+        redirect();
+    }
+
+    if ($how === 'invite') {
+
+        $saved = userInviteSave(['name' => $name, 'email' => $email, 'role_id' => $role_id, 'force_mfa' => $force_mfa,
+            'access' => intval($role['role_is_admin']) ? [] : ($_POST['client_permission'] ?? [])], $_FILES['avatar'] ?? null);
+        $invite_id = $saved['invite_id'];
+        $mail = userInviteMailReady();
+        $send_error = '';
+        $sent = userInviteSend($invite_id, $mail, $send_error);
+        if (!$sent) {
+            if (!$saved['again']) {
+                userInviteRemoveAvatar($invite_id);
+                mysqli_query($mysqli, "DELETE FROM user_invites WHERE invite_id = $invite_id");
+            }
+            flashAlert($send_error, 'error');
+            redirect();
+        }
+
+        logAudit("User", "Invite", "$session_name invited " . escapeSql("$name ($email) as {$role['role_name']}") . ($saved['again'] ? ' again' : '') . ($mail ? '' : ' - a link to pass on'));
+
+        $notes = [];
+        if ($saved['again']) {
+            $notes[] = 'the invite they had is changed to this, and its link no longer works';
+        }
+        if ($saved['avatar_error'] !== '') {
+            $notes[] = $saved['avatar_error'] . ' The invite went without one';
+        }
+        if ($mail) {
+            flashAlert("Invited <strong>$name</strong> - an email with a link to join is on the way to <strong>$email</strong>. It works for " . USER_INVITE_LINK_DAYS . " days" . ($notes ? ' - ' . implode('; ', $notes) : ''), $saved['avatar_error'] !== '' ? 'warning' : 'success');
+        } else {
+            userInviteShowLink($invite_id, $sent['url']);
+        }
+        redirect('users.php?show=invited');
+
+    }
+
+    if ($problem = userPasswordProblem($password)) {
+        flashAlert($problem, 'error');
+        redirect();
+    }
 
     mysqli_query($mysqli, "INSERT INTO users SET user_name = '" . escapeSql($name) . "', user_email = '" . escapeSql($email) . "', user_password = '', user_role_id = $role_id");
     $user_id = mysqli_insert_id($mysqli);
     userSetPassword($user_id, $password);
 
-    $force_mfa = !empty($_POST['force_mfa']) ? 1 : 0;
     mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_config_force_mfa = $force_mfa");
 
     if (!intval($role['role_is_admin'])) {
@@ -61,20 +109,64 @@ if (isset($_POST['add_user'])) {
         $notes[] = $avatar_error . ' The user was created without one';
     }
 
-    // Their sign in details by email - the password goes as typed, so it is theirs to change
-    if (!empty($_POST['send_email']) && emailReady()) {
-        if (userMailNewAccount($name, $email, $password, $force_mfa)) {
-            $notes[] = 'their sign in details were emailed to them';
-        } else {
-            $notes[] = 'the email with their sign in details could not be queued';
-            logApp('Mail', 'error', 'Failed to queue the new account email for ' . escapeSql($email));
-        }
+    // Set up here, the invite waiting for them is done with
+    if ($open && userInviteCancel($open['invite_id'])) {
+        $notes[] = 'the invite waiting for them is cancelled';
     }
 
     logAudit("User", "Create", "$session_name created user " . escapeSql($name), 0, $user_id);
 
-    flashAlert("User <strong>$name</strong> created" . ($notes ? ' - ' . implode('; ', $notes) : ''), $avatar_error ? 'warning' : 'success');
+    flashAlert("User <strong>$name</strong> created - give them their password yourself" . ($notes ? ' - ' . implode('; ', $notes) : ''), $avatar_error ? 'warning' : 'success');
 
+    redirect();
+
+}
+
+if (isset($_GET['resend_user_invite']) || isset($_GET['link_user_invite']) || isset($_GET['cancel_user_invite'])) {
+
+    // An invite waiting: email it again, get its link to pass on (either makes a new link,
+    // so the old one stops working), or cancel it
+    validateCSRFToken();
+
+    $what = isset($_GET['resend_user_invite']) ? 'resend' : (isset($_GET['link_user_invite']) ? 'link' : 'cancel');
+    $invite = userInviteRow($_GET[$what . '_user_invite'] ?? 0);
+    if (!$invite || !in_array(userInviteState($invite), ['pending', 'expired'], true)) {
+        flashAlert("That invite isn't waiting any more - it may have been accepted or cancelled", 'error');
+        redirect();
+    }
+    $invite_id = intval($invite['invite_id']);
+    $who = escapeSql("{$invite['invite_name']} ({$invite['invite_email']})");
+
+    if ($what === 'cancel') {
+        userInviteCancel($invite_id);
+        logAudit("User", "Cancel", "$session_name cancelled the invite to $who");
+        flashAlert("Cancelled the invite to <strong>" . escapeHtml($invite['invite_email']) . "</strong> - its link no longer works");
+        redirect();
+    }
+
+    // One that has run out holds no seat - sending it again takes one
+    if (userInviteState($invite) === 'expired' && agentUserLimitReached()) {
+        flashAlert(agentUserLimitMessage(), 'error');
+        redirect();
+    }
+    if ($what === 'resend' && !userInviteMailReady()) {
+        flashAlert("Mail isn't set up, so the invite can't be emailed - get its link and send it to them yourself", 'error');
+        redirect();
+    }
+    $send_error = '';
+    $sent = userInviteSend($invite_id, $what === 'resend', $send_error);
+    if (!$sent) {
+        flashAlert($send_error, 'error');
+        redirect();
+    }
+
+    if ($what === 'resend') {
+        logAudit("User", "Invite", "$session_name sent the invite to $who again");
+        flashAlert("Sent the invite to <strong>" . escapeHtml($invite['invite_email']) . "</strong> again - it works for " . USER_INVITE_LINK_DAYS . " days, and the link in the last one no longer works");
+    } else {
+        logAudit("User", "Invite", "$session_name got a new invite link for $who, to pass on");
+        userInviteShowLink($invite_id, $sent['url']);
+    }
     redirect();
 
 }

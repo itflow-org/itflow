@@ -1,11 +1,12 @@
 <?php
 
 /*
- * Get started - Your team: who signs in now, and someone to add - a name, an
- * email and a role (getting_started_team). ITFlow makes their password: it
- * is emailed to them with their sign-in details, as Admin > Users does, or -
- * with no email set up yet - shown once for you to give them. Their own copy
- * of the vault key is made under it, so they set their own once signed in.
+ * Get started - Your team: who signs in now and who is invited, and someone
+ * to add - a name, an email and a role (getting_started_team). With email set
+ * up they are invited, as New User in Admin > Users does: a link to choose
+ * their own password (functions/user_invite.php). Without, ITFlow makes
+ * their password and shows it once for you to give them, their own copy of
+ * the vault key made under it, and they change it once signed in.
  */
 
 defined('FROM_GETTING_STARTED') || die("Direct file access is not allowed");
@@ -24,7 +25,8 @@ $gs_role_options = '';
 foreach ($gs_roles as $gs_role_id => $gs_role) {
     $gs_role_options .= '<option value="' . intval($gs_role_id) . '"' . ((string) settingsValue('team_role', $gs_role_default) === (string) $gs_role_id ? ' selected' : '') . selectOptionRole($gs_role) . '>' . escapeHtml($gs_role['role_name']) . '</option>';
 }
-$gs_mail_ready = emailReady();
+$gs_invites = userInvitesWaiting();
+$gs_invite_ready = userInvitesReady() && userInviteMailReady();
 $gs_limit = agentUserLimitReached();
 
 ?>
@@ -39,7 +41,23 @@ $gs_limit = agentUserLimitReached();
             <span class="badge rounded-pill bg-body-tertiary text-body border fw-normal"><i class="fas <?= intval($gs_agent['role_is_admin']) ? 'fa-user-shield' : 'fa-user-tag' ?> me-1"></i><?= escapeHtml((string) $gs_agent['role_name']) ?></span>
         </li>
     <?php } ?>
+    <?php foreach ($gs_invites as $gs_invite) {
+        $gs_invite_state = userInviteStateLabel($gs_invite); ?>
+        <li data-gs-invite="<?= intval($gs_invite['invite_id']) ?>">
+            <span class="itflow-gs-person-initials opacity-50" aria-hidden="true"><?= escapeHtml(personInitials($gs_invite['invite_name'])) ?></span>
+            <div class="min-w-0 flex-grow-1">
+                <div class="fw-semibold text-truncate"><?= escapeHtml($gs_invite['invite_name']) ?>
+                    <span class="badge rounded-pill bg-<?= $gs_invite_state['tone'] ?>-subtle text-<?= $gs_invite_state['tone'] ?>-emphasis fw-normal ms-1" title="<?= escapeHtml($gs_invite_state['title']) ?>"><i class="fas fa-paper-plane me-1"></i><?= $gs_invite_state['label'] === 'Waiting' ? 'Invited' : 'Invite ran out' ?></span>
+                </div>
+                <div class="small text-body-secondary text-truncate"><?= escapeHtml($gs_invite['invite_email']) ?></div>
+            </div>
+            <span class="badge rounded-pill bg-body-tertiary text-body border fw-normal"><i class="fas <?= intval($gs_invite['role_is_admin']) ? 'fa-user-shield' : 'fa-user-tag' ?> me-1"></i><?= escapeHtml((string) $gs_invite['role_name']) ?></span>
+        </li>
+    <?php } ?>
 </ul>
+<?php if ($gs_invites) { ?>
+    <p class="small text-body-secondary mt-n2 mb-4" data-gs-invites-note><i class="fas fa-info-circle me-1"></i>Send an invite again, get its link or cancel it in <a href="users.php?show=invited">Admin &gt; Users, Invited</a>.</p>
+<?php } ?>
 
 <?php if ($gs_limit) { ?>
     <div class="alert alert-info mb-0" data-gs-team-limit><?= escapeHtml(agentUserLimitMessage()) ?></div>
@@ -59,11 +77,11 @@ $gs_limit = agentUserLimitReached();
                     'help' => 'What they can see and change - roles are in Admin &gt; Roles. A role that isn\'t an admin one sees every client, until you limit them in Admin &gt; Users.']) ?>
             </div>
         </div>
-        <?php if ($gs_mail_ready) { ?>
-            <p class="small text-body-secondary" data-gs-team-mail="yes"><i class="fas fa-paper-plane me-1"></i>They are emailed their sign-in details, with a password ITFlow makes for them to change.</p>
+        <?php if ($gs_invite_ready) { ?>
+            <p class="small text-body-secondary" data-gs-team-mail="yes"><i class="fas fa-paper-plane me-1"></i>They are emailed an invite - a link to choose their own password and sign in, which works for <?= USER_INVITE_LINK_DAYS ?> days.</p>
         <?php } else { ?>
-            <p class="small text-body-secondary" data-gs-team-mail="no"><i class="fas fa-info-circle me-1"></i>Email isn't set up yet, so ITFlow makes their password and shows it to you once - for you to give them, and them to change.</p>
+            <p class="small text-body-secondary" data-gs-team-mail="no"><i class="fas fa-info-circle me-1"></i><?= emailReady() ? 'ITFlow makes their password' : 'Email isn\'t set up yet, so ITFlow makes their password' ?> and shows it to you once - for you to give them, and them to change.</p>
         <?php } ?>
-        <button type="submit" name="getting_started_team" value="1" class="btn btn-primary" data-gs-save><i class="fas fa-user-plus me-2"></i>Add them</button>
+        <button type="submit" name="getting_started_team" value="1" class="btn btn-primary" data-gs-save><i class="fas <?= $gs_invite_ready ? 'fa-paper-plane' : 'fa-user-plus' ?> me-2"></i><?= $gs_invite_ready ? 'Invite them' : 'Add them' ?></button>
     </form>
 <?php } ?>

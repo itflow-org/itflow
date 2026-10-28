@@ -380,12 +380,9 @@ function emailPreviewCatalog() {
             'run' => function ($s) {
                 calendarSendInvites(calendarEventRow($s['event']), 'cancel');
             }],
+    ] + emailPreviewUserInviteCatalog() + [
 
         // ---- Your team's accounts
-        'user_new' => ['group' => 'Your team\'s accounts', 'label' => 'New account', 'to' => 'The new agent', 'when' => 'An admin adds an agent and ticks Email them their details',
-            'run' => function ($s) {
-                userMailNewAccount($s['agent_name'], $s['agent_email'], 'Sample-Passw0rd-8', true);
-            }],
         'user_changed' => ['group' => 'Your team\'s accounts', 'label' => 'Account changed', 'to' => 'The agent', 'when' => 'Their password, email or MFA changes',
             'run' => function ($s) {
                 userNotifyChange($s['agent_name'], $s['agent_email'], 'your password was changed');
@@ -538,6 +535,25 @@ function emailPreviewInviteCatalog() {
                 [$name, $email] = EMAIL_PREVIEW_PEOPLE['newcomer'];
                 mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '" . escapeSql($name) . "', contact_email = '" . escapeSql($email) . "', contact_client_id = " . intval($s['client_id']));
                 portalMailSignupJoined(intval(mysqli_insert_id($mysqli)));
+            }],
+    ];
+}
+
+/* The agent invite for the catalog - once the 3.5.1 update has run. Riley, invited by you as a technician, MFA required. */
+function emailPreviewUserInviteCatalog() {
+    if (!userInvitesReady()) {
+        return [];
+    }
+    return [
+        'user_invite' => ['group' => 'Your team\'s accounts', 'label' => 'Invite to join', 'to' => 'Who is invited', 'when' => 'An admin invites someone from New User or Get started',
+            'run' => function ($s) {
+                global $mysqli, $session_user_id;
+                [$name, $email] = EMAIL_PREVIEW_PEOPLE['newcomer'];
+                $role_id = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT role_id FROM user_roles WHERE role_archived_at IS NULL AND role_is_admin = 0
+                    ORDER BY role_name = 'Technician' DESC, role_id LIMIT 1"))[0] ?? 0);
+                mysqli_query($mysqli, "INSERT INTO user_invites SET invite_name = '" . escapeSql($name) . "', invite_email = '" . escapeSql($email) . "', invite_role_id = $role_id,
+                    invite_force_mfa = 1, invite_expires_at = NOW() + INTERVAL " . USER_INVITE_LINK_DAYS . " DAY, invite_created_by = " . intval($session_user_id));
+                userInviteMail(intval(mysqli_insert_id($mysqli)), bin2hex(random_bytes(24)));
             }],
     ];
 }

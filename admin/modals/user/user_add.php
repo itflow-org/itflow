@@ -1,8 +1,9 @@
 <?php
 
 /*
- * New User - an agent who signs in to ITFlow. ?role= starts it on that role
- * (the role the users list is filtered to).
+ * New User - an agent who signs in to ITFlow, invited by default (they
+ * choose their own password) or with a password set now. ?role= starts it
+ * on that role (the role the users list is filtered to).
  */
 
 require_once '../../includes/modal_header.php';
@@ -31,7 +32,8 @@ ob_start();
         <?php require 'user_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_user" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="submit" name="add_user" class="btn btn-primary text-bold" data-user-submit data-label-create="Create"
+            data-label-invite="<?= userInvitesReady() && !userInviteMailReady() ? 'Make the invite link' : 'Send invite' ?>"><i class="fas fa-check me-2"></i><span data-user-submit-label>Create</span></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
