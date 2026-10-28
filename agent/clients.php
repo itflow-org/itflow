@@ -228,9 +228,20 @@ $client_money = [];
 $client_tickets = [];
 $client_rates = [];
 $client_contracts = [];
+$client_onboarding_open = [];
+$can_onboard = $can_edit && clientOnboardingCan();
 
 if ($clients) {
     $page_ids = implode(',', array_keys($clients));
+
+    // Onboarding begun and not finished - Carry on onboarding in the row's menu (functions/client_onboarding.php)
+    if ($can_onboard) {
+        $sql_onboarding = mysqli_query($mysqli, "SELECT onboarding_client_id FROM client_onboardings
+            WHERE onboarding_client_id IN ($page_ids) AND onboarding_finished_at IS NULL AND onboarding_dismissed_at IS NULL");
+        while ($row = mysqli_fetch_row($sql_onboarding)) {
+            $client_onboarding_open[intval($row[0])] = true;
+        }
+    }
 
     $sql_tags = mysqli_query($mysqli, "SELECT client_tags.client_id, tags.tag_id, tag_name, tag_description, tag_color, tag_icon
         FROM client_tags JOIN tags ON tags.tag_id = client_tags.tag_id
@@ -373,6 +384,12 @@ $total_leads = intval($row['leads']);
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" title="More"></button>
                     <div class="dropdown-menu dropdown-menu-end">
+                        <?php if ($can_onboard) { ?>
+                            <a class="dropdown-item" href="<?= clientOnboardingUrl() ?>" data-onboard-new>
+                                <i class="fa fa-fw fa-route me-2"></i>Onboard a client
+                            </a>
+                            <div class="dropdown-divider"></div>
+                        <?php } ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_import.php">
                             <i class="fa fa-fw fa-upload me-2"></i>Import
                         </a>
@@ -745,6 +762,11 @@ $total_leads = intval($row['leads']);
                                                 <i class="fas fa-fw fa-life-ring me-2"></i>New Ticket
                                             </a>
                                         <?php } ?>
+                                        <?php if ($can_onboard && !$client_archived_at && (intval($row['client_lead']) || isset($client_onboarding_open[$client_id]))) { ?>
+                                            <a class="dropdown-item" href="<?= clientOnboardingUrl($client_id) ?>" data-onboard="<?= $client_id ?>">
+                                                <i class="fas fa-fw fa-route me-2"></i><?= isset($client_onboarding_open[$client_id]) ? 'Carry on onboarding' : 'Onboard' ?>
+                                            </a>
+                                        <?php } ?>
                                         <div class="dropdown-divider"></div>
                                         <?php if ($client_archived_at) { ?>
                                             <a class="dropdown-item text-info confirm-link" href="post.php?restore_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
@@ -774,6 +796,7 @@ $total_leads = intval($row['leads']);
         'text' => $leads_filter ? 'Prospects you are talking to, kept apart from your clients.' : 'Add the companies you look after, or import them all at once.',
         'actions' => $can_edit ? array_merge(
             [['label' => $leads_filter ? 'New Lead' : 'New Client', 'modal' => 'modals/client/client_add.php' . ($leads_filter ? '?lead=1' : '')]],
+            $leads_filter || !$can_onboard ? [] : [['label' => 'Onboard a client', 'href' => clientOnboardingUrl(), 'icon' => 'fa-route']],
             $leads_filter ? [] : [['label' => 'Import', 'modal' => 'modals/client/client_import.php', 'icon' => 'fa-upload']]
         ) : [],
     ];

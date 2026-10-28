@@ -788,6 +788,31 @@ CREATE TABLE `client_notes` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `client_onboardings`
+--
+
+DROP TABLE IF EXISTS `client_onboardings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `client_onboardings` (
+  `onboarding_id` int(11) NOT NULL AUTO_INCREMENT,
+  `onboarding_client_id` int(11) NOT NULL,
+  `onboarding_saved` varchar(255) NOT NULL DEFAULT '',
+  `onboarding_skipped` varchar(255) NOT NULL DEFAULT '',
+  `onboarding_contract_id` int(11) NOT NULL DEFAULT 0,
+  `onboarding_recurring_invoice_id` int(11) NOT NULL DEFAULT 0,
+  `onboarding_project_id` int(11) NOT NULL DEFAULT 0,
+  `onboarding_started_by` int(11) NOT NULL DEFAULT 0,
+  `onboarding_started_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `onboarding_finished_at` datetime DEFAULT NULL,
+  `onboarding_dismissed_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`onboarding_id`),
+  UNIQUE KEY `onboarding_client_id` (`onboarding_client_id`),
+  CONSTRAINT `client_onboardings_ibfk_1` FOREIGN KEY (`onboarding_client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `client_payment_provider`
 --
 

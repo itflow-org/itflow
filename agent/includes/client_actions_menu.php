@@ -1,6 +1,6 @@
 <?php
 /*
- * The client actions menu - New Ticket, New Project, Edit, Export, Client Review, Archive/Restore, Delete.
+ * The client actions menu - New Ticket, New Project, Edit, Onboarding, Export, Client Review, Archive/Restore, Delete.
  * Shared by the client header (inc_client_top_head.php) and the client
  * overview, so both offer exactly the same actions behind the same
  * permissions. Include it inside a .dropdown, after its toggle button.
@@ -20,6 +20,13 @@
         data-modal-url="modals/client/client_edit.php?id=<?= $client_id ?>">
         <i class="fas fa-fw fa-edit me-2"></i>Edit Client
     </a>
+    <?php if (empty($client_archived_at) && clientOnboardingCan()) {
+        // Onboard it a step at a time (functions/client_onboarding.php) - or carry on, or see where it got to
+        $client_onboarding_state = clientOnboardingState($client_id); ?>
+        <a class="dropdown-item" href="<?= clientOnboardingUrl($client_id, $client_onboarding_state === 'finished' ? 'done' : '') ?>" data-client-onboarding="<?= $client_onboarding_state ?>">
+            <i class="fas fa-fw fa-route me-2"></i><?= ['none' => 'Onboard', 'open' => 'Carry on onboarding', 'finished' => 'Onboarding'][$client_onboarding_state] ?>
+        </a>
+    <?php } ?>
     <?php if (lookupUserPermission("module_billing") >= 2) { ?>
         <?php if ($show_add_credit) { ?>
         <div class="dropdown-divider"></div>

@@ -493,9 +493,11 @@ function contractClientPickReady() {
  * hours) and terms, active from $start (today when not given) to a term
  * later - one that renews itself carried on to the term running today, when
  * it starts further back - with the client's primary contact, and $owner_id
- * to look after it. [contract id, error]: [0, why] when it can't be made.
+ * to look after it. With $status Draft it waits to be signed, and becomes
+ * active once it is countersigned. [contract id, error]: [0, why] when it
+ * can't be made.
  */
-function contractFromTemplateAdd($client_id, $template_id, $start = null, $owner_id = 0, $notes = '') {
+function contractFromTemplateAdd($client_id, $template_id, $start = null, $owner_id = 0, $notes = '', $status = 'Active') {
     global $mysqli;
     $template = contractTemplateRow($template_id);
     if (!$template || !empty($template['contract_template_archived_at'])) {
@@ -508,7 +510,8 @@ function contractFromTemplateAdd($client_id, $template_id, $start = null, $owner
     $client_id = intval($client_id);
     $term = intval($template['contract_template_term_months']);
     $end = contractTermEnd($start, $term);
-    while (intval($template['contract_template_auto_renew']) && $end !== '' && $end < date('Y-m-d')) {
+    $status = $status === 'Draft' ? 'Draft' : 'Active';
+    while ($status === 'Active' && intval($template['contract_template_auto_renew']) && $end !== '' && $end < date('Y-m-d')) {
         $end = contractNextEnd($end, $term);
     }
     $contact = mysqli_fetch_row(mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL
@@ -521,7 +524,7 @@ function contractFromTemplateAdd($client_id, $template_id, $start = null, $owner
         'details' => (string) $template['contract_template_details'],
         'monthly_hours' => (string) ($template['contract_template_monthly_hours'] ?? ''), 'hours_alert' => (string) ($template['contract_template_hours_alert'] ?? ''),
         'client_id' => $client_id, 'contact_id' => intval($contact[0] ?? 0), 'owner_id' => intval($owner_id), 'template_id' => intval($template['contract_template_id']),
-        'status' => 'Active', 'start_date' => $start, 'end_date' => $end, 'notes' => $notes,
+        'status' => $status, 'start_date' => $start, 'end_date' => $end, 'notes' => $notes,
     ];
     foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
         $in["sla_$part"] = intval($template["contract_template_sla_{$part}_id"]);

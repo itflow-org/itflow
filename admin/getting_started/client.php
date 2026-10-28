@@ -5,7 +5,8 @@
  * made by the same New Client handler as the Clients page (add_client,
  * agent/post/client.php - every field it reads is sent, the ones not asked
  * here empty); or the demo data, to look around first (load_demo_data, as on
- * Maintenance > Starter Content). Both come back here.
+ * Maintenance > Starter Content). Both come back here. Or onboard them a step
+ * at a time (agent/client_onboarding.php), which is done once the client is.
  */
 
 defined('FROM_GETTING_STARTED') || die("Direct file access is not allowed");
@@ -54,7 +55,12 @@ $gs_client_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*
         </div>
     </div>
     <p class="small text-body-secondary">The website's domain and certificate are added too, to watch for renewals. The rest - their address, phones, rate and SLAs - is on the client once it's made, and Clients &gt; Import brings in a whole list from a CSV.</p>
-    <button type="submit" name="add_client" value="1" class="btn btn-primary" data-gs-save><i class="fas fa-plus me-2"></i>Add the client</button>
+    <div class="d-flex flex-wrap align-items-center gap-3">
+        <button type="submit" name="add_client" value="1" class="btn btn-primary" data-gs-save><i class="fas fa-plus me-2"></i>Add the client</button>
+        <?php if (clientOnboardingReady()) { ?>
+            <a href="<?= clientOnboardingUrl() ?>" class="small" data-gs-onboard><i class="fas fa-route me-1"></i>Or onboard them step by step - their sites, people, agreement and more</a>
+        <?php } ?>
+    </div>
 </form>
 
 <div class="itflow-gs-or" aria-hidden="true"><span>or</span></div>

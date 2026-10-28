@@ -150,7 +150,7 @@ function auditLogActionStyle($action) {
         'Statement' => ['primary', 'fa-file-invoice'], 'Receipt' => ['primary', 'fa-receipt'], 'Queue' => ['primary', 'fa-stream'], 'Run' => ['primary', 'fa-play'], 'Move On' => ['primary', 'fa-forward'],
         'Check' => ['info', 'fa-check'], 'Review' => ['info', 'fa-clipboard-check'], 'Save' => ['success', 'fa-save'], 'Bill' => ['success', 'fa-file-invoice-dollar'], 'Renew' => ['success', 'fa-redo-alt'],
         'Reimburse' => ['success', 'fa-hand-holding-usd'], 'Finish' => ['success', 'fa-flag-checkered'],
-        'Invite' => ['primary', 'fa-user-plus'], 'Sign Up Requested' => ['secondary', 'fa-user-plus'], 'Sign Up Sent' => ['primary', 'fa-paper-plane'], 'Sign Up Refused' => ['warning', 'fa-user-times'],
+        'Invite' => ['primary', 'fa-user-plus'], 'Onboard' => ['primary', 'fa-route'], 'Sign Up Requested' => ['secondary', 'fa-user-plus'], 'Sign Up Sent' => ['primary', 'fa-paper-plane'], 'Sign Up Refused' => ['warning', 'fa-user-times'],
     ];
     $style = $styles[$action] ?? ['secondary', 'fa-circle'];
     return ['tone' => $style[0], 'icon' => $style[1]];

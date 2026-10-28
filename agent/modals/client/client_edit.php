@@ -79,6 +79,11 @@ ob_start();
                                 <input class="form-check-input" type="checkbox" name="lead" value="1" <?php if($client_is_lead == 1){ echo "checked"; } ?>>
                             </div>
                     </div>
+                    <?php if ($client_is_lead == 1 && $client_archived_at === "" && clientOnboardingCan()) { ?>
+                        <div class="form-text" data-onboard-lead>
+                            Taking them on? <a href="<?= clientOnboardingUrl($client_id) ?>">Onboard them</a> instead - a step at a time, with their locations, people, agreement and the rest.
+                        </div>
+                    <?php } ?>
                 </div>
 
                 <div class="mb-3">

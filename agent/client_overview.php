@@ -10,7 +10,9 @@
  * role can read it.
  *
  * The figures come from functions/client_overview.php; the chart is drawn by
- * js/client_overview.js, which also saves the quick notes.
+ * js/client_overview.js, which also saves the quick notes. While the client
+ * is being onboarded (functions/client_onboarding.php), a card at the top
+ * shows how far it has got.
  */
 
 // This page draws its own client header, with the same actions menu
@@ -32,6 +34,7 @@ $shared_items = clientOverviewSharedItems($client_id);
 $activity = clientOverviewActivity($client_id);
 $money = $access['financial'] ? clientOverviewMoney($client_id, $balance, $recurring_monthly) : null;
 $open_invoices = $access['sales'] ? clientOverviewOpenInvoices($client_id) : null;
+$onboarding = $client_archived_at ? null : clientOnboardingCard($client_id);
 $recurring_invoices = $access['sales'] ? clientOverviewRecurringInvoices($client_id) : null;
 
 $chart_data = [];
@@ -99,6 +102,43 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
             </div>
         </div>
     </div>
+
+    <?php if ($onboarding) {
+        $ob_progress = $onboarding['progress'];
+        $ob_next = $onboarding['steps'][$ob_progress['next']]; ?>
+        <section class="card itflow-gs-card mb-4" aria-labelledby="ovOnboarding" data-co-card>
+            <div class="card-body">
+                <div class="d-flex align-items-start gap-3">
+                    <span class="itflow-gs-card-icon" aria-hidden="true"><i class="fas fa-route"></i></span>
+                    <div class="min-w-0 flex-grow-1">
+                        <h2 id="ovOnboarding" class="h6 fw-semibold mb-1">Finish onboarding <span class="text-body-secondary fw-normal">· <?= $ob_progress['done'] ?> of <?= $ob_progress['total'] ?></span></h2>
+                        <div class="progress itflow-gs-progress mb-2" role="progressbar" aria-label="How far onboarding has got" aria-valuenow="<?= $ob_progress['done'] ?>" aria-valuemin="0" aria-valuemax="<?= $ob_progress['total'] ?>">
+                            <div class="progress-bar" style="width: <?= round($ob_progress['done'] * 100 / max(1, $ob_progress['total'])) ?>%"></div>
+                        </div>
+                        <div class="small text-body-secondary">Next: <strong class="text-body"><?= escapeHtml($ob_next['title']) ?></strong> - <?= escapeHtml($ob_next['status']) ?></div>
+                    </div>
+                    <form action="post.php" method="post" class="m-0 flex-shrink-0">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        <input type="hidden" name="client_id" value="<?= $client_id ?>">
+                        <button type="submit" name="client_onboarding_dismiss" value="1" class="btn-close" aria-label="Don't show this here" title="Don't show this here - Onboarding stays in the client's menu" data-co-card-dismiss></button>
+                    </form>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                    <ul class="list-unstyled d-flex flex-wrap gap-1 mb-0 me-auto">
+                        <?php foreach ($onboarding['steps'] as $ob_key => $ob_step) {
+                            $ob_state = $ob_step['done'] ? 'done' : ($ob_step['skipped'] ? 'skipped' : 'todo'); ?>
+                            <li>
+                                <a href="<?= clientOnboardingUrl($client_id, $ob_key) ?>" class="itflow-gs-chip is-<?= $ob_state ?>" data-co-card-step="<?= $ob_key ?>" title="<?= escapeHtml($ob_step['title'] . ' - ' . $ob_step['status']) ?>">
+                                    <i class="fas fa-fw <?= $ob_state === 'done' ? 'fa-check' : ($ob_state === 'skipped' ? 'fa-minus' : $ob_step['icon']) ?>"></i><?= escapeHtml($ob_step['label']) ?>
+                                </a>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                    <a href="<?= clientOnboardingUrl($client_id, $ob_progress['next']) ?>" class="btn btn-primary btn-sm" data-co-card-continue>Carry on<i class="fas fa-arrow-right ms-2"></i></a>
+                </div>
+            </div>
+        </section>
+    <?php } ?>
 
     <?php if ($attention) { ?>
         <section class="mb-4" aria-labelledby="ovAttention">
