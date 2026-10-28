@@ -52,6 +52,12 @@ if (contractsReady()) {
     $view_counts = array_combine(array_keys($views), array_map('intval', $counts));
 }
 $slas = contractSlaChoices();
+// What a template leaves empty, a contract made from it gets from the defaults (Admin > Settings > Defaults, Admin > SLAs) - shown as such
+$template_defaults = billingDefaults();
+$template_default_slas = [];
+foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
+    $template_default_slas[$priority] = intval(getTicketSlaId(0, $priority, false));
+}
 
 $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
     return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
@@ -109,17 +115,29 @@ $csrf = $_SESSION['csrf_token'];
                 $type = CONTRACT_TYPES[$row['contract_template_type']] ?? CONTRACT_TYPES['other'];
                 $archived = !empty($row['contract_template_archived_at']);
                 $edit_url = "modals/contract_template/contract_template_edit.php?id=$id";
-                $sla_names = [];
+                // Each SLA with its priorities - "Standard Support (Low, Medium)", and "(Urgent - default)" for one the template leaves to the default
+                $sla_names = ['own' => [], 'default' => []];
                 foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
-                    $sla = $slas[intval($row["contract_template_sla_{$part}_id"])] ?? null;
+                    $own = $slas[intval($row["contract_template_sla_{$part}_id"])] ?? null;
+                    $sla = $own ?: ($slas[$template_default_slas[$priority]] ?? null);
                     if ($sla) {
-                        $sla_names[$sla['sla_name']][] = $priority;
+                        $sla_names[$own ? 'own' : 'default'][$sla['sla_name']][] = $priority;
                     }
                 }
+                $sla_text = [];
+                foreach ($sla_names as $whose => $names) {
+                    foreach ($names as $sla_name => $priorities) {
+                        $sla_text[] = "$sla_name (" . implode(', ', $priorities) . ($whose === 'default' ? ' - default' : '') . ')';
+                    }
+                }
+                $net_text = function ($days) {
+                    return intval($days) ? 'Net ' . intval($days) : 'Due on receipt';
+                };
                 $cover = array_filter([
                     $row['contract_template_support_hours'],
-                    $row['contract_template_rate_standard'] !== null ? number_format((float) $row['contract_template_rate_standard'], 2) . '/hr' : '',
-                    $row['contract_template_net_terms'] !== null ? 'Net ' . intval($row['contract_template_net_terms']) : '',
+                    $row['contract_template_rate_standard'] !== null ? number_format((float) $row['contract_template_rate_standard'], 2) . '/hr'
+                        : ($template_defaults['rate'] > 0 ? number_format($template_defaults['rate'], 2) . '/hr (default)' : ''),
+                    $row['contract_template_net_terms'] !== null ? $net_text($row['contract_template_net_terms']) : $net_text($template_defaults['net_terms']) . ' (default)',
                 ]);
                 ?>
                 <tr data-contract-template-id="<?= $id ?>">
@@ -142,12 +160,10 @@ $csrf = $_SESSION['csrf_token'];
                     <td class="d-none d-lg-table-cell small">
                         <?= $cover ? escapeHtml(implode(' · ', $cover)) : '<span class="text-body-tertiary">The default rate and terms</span>' ?>
                         <div class="text-body-secondary">
-                            <?php if ($sla_names) {
-                                echo escapeHtml(implode(' · ', array_map(function ($sla_name, $priorities) {
-                                    return "$sla_name (" . implode(', ', $priorities) . ")";
-                                }, array_keys($sla_names), $sla_names)));
+                            <?php if ($sla_text) {
+                                echo escapeHtml(implode(' · ', $sla_text));
                             } else { ?>
-                                The default SLAs
+                                No SLAs
                             <?php } ?>
                         </div>
                     </td>

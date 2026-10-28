@@ -261,13 +261,17 @@ if ($clients) {
                 $client_rates[intval($row['id'])] = $client_rates[intval($row['id'])] ?? [floatval($row['rate']), contractPossessive($row['contract_name']) . ' rate'];
             }
         }
-        // Before the 3.5.0 update, the client's own where no contract sets one
-        if (!billingAfterHoursReady()) {
-            foreach (array_keys($clients) as $id) {
-                $legacy = billingClientLegacyTerms($id);
-                if (!isset($client_rates[$id]) && $legacy && $legacy['rate'] !== null) {
-                    $client_rates[$id] = [$legacy['rate'], "The client's rate"];
-                }
+        // Else the client's own, before the 3.5.0 update - else the default rate
+        $default_rate = billingDefaults()['rate'];
+        foreach (array_keys($clients) as $id) {
+            if (isset($client_rates[$id])) {
+                continue;
+            }
+            $legacy = billingClientLegacyTerms($id);
+            if ($legacy && $legacy['rate'] !== null) {
+                $client_rates[$id] = [$legacy['rate'], "The client's rate"];
+            } elseif ($default_rate > 0) {
+                $client_rates[$id] = [$default_rate, 'The default rate, from Admin > Settings > Defaults - no contract in force sets one', true];
             }
         }
     }
@@ -608,7 +612,7 @@ $total_leads = intval($row['leads']);
                                     <a href="recurring_invoices.php?client_id=<?= $client_id ?>" class="text-reset text-decoration-none"><?= numfmt_format_currency($currency_format, $money['recurring'], $client_currency_code) ?><span class="small text-body-secondary">/mo</span></a>
                                 <?php } ?>
                                 <?php if (isset($client_rates[$client_id])) { ?>
-                                    <div class="small text-body-secondary" title="<?= escapeHtml($client_rates[$client_id][1]) ?>" data-client-rate><?= numfmt_format_currency($currency_format, $client_rates[$client_id][0], $client_currency_code) ?>/hr</div>
+                                    <div class="small text-body-secondary" title="<?= escapeHtml($client_rates[$client_id][1]) ?>" data-client-rate><?= numfmt_format_currency($currency_format, $client_rates[$client_id][0], $client_currency_code) ?>/hr<?= !empty($client_rates[$client_id][2]) ? ' <span class="text-body-tertiary" data-client-rate-default>(default)</span>' : '' ?></div>
                                 <?php } elseif ($money['recurring'] <= 0.004) { ?>
                                     <span class="text-body-tertiary">-</span>
                                 <?php } ?>
