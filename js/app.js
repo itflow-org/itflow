@@ -83,6 +83,120 @@ function itflowCannedAutocompleter(editor) {
     });
 }
 
+/**
+ * @ in an internal note offers the agents who can open the ticket - its
+ * textarea carries them in data-mention-agents (ticketMentionAgentsAttr(),
+ * functions/ticket_mention.php). The list narrows as you type a name or role
+ * after the @; picking one puts in a mention the editor treats as one piece,
+ * and saving the note tells them. Only while the note is internal - the form's
+ * reply type says which - and a public reply holding mentions says they are
+ * plain text there. Called from the reply editors' setup.
+ */
+function itflowMentionAutocompleter(editor) {
+    var element = editor.getElement ? editor.getElement() : null;
+    var raw = element && element.dataset ? element.dataset.mentionAgents : '';
+    if (!raw) {
+        return;
+    }
+    var agents = [];
+    try {
+        agents = JSON.parse(raw) || [];
+    } catch (e) {
+        return;
+    }
+    var form = element.form || element.closest('form');
+
+    // Internal: the composer's Internal note, or the edit window's Internal - or no choice on the form at all
+    function internal() {
+        var picked = form ? form.querySelector('input[name="public_reply_type"]:checked, input[name="ticket_reply_type"]:checked') : null;
+        return !picked || picked.value === '0' || picked.value === 'Internal';
+    }
+
+    // The hint while it is internal; the warning when a public one holds mentions
+    function showState() {
+        if (!form) {
+            return;
+        }
+        var body = editor.getBody ? editor.getBody() : null;
+        var has = !!(body && body.querySelector('.itflow-mention'));
+        var hint = form.querySelector('[data-mention-hint]');
+        var warn = form.querySelector('[data-mention-public]');
+        if (hint) {
+            hint.hidden = !internal();
+        }
+        if (warn) {
+            warn.hidden = internal() || !has;
+        }
+    }
+
+    editor.ui.registry.addAutocompleter('itflowMention', {
+        trigger: '@',
+        minChars: 0,
+        columns: 1,
+        highlightOn: ['mention_name'],
+        fetch: function (pattern) {
+            if (!internal()) {
+                return Promise.resolve([]);
+            }
+            var words = String(pattern || '').toLowerCase().split(/\s+/).filter(Boolean);
+            return Promise.resolve(agents.filter(function (agent) {
+                var text = (agent.name + ' ' + (agent.role || '')).toLowerCase();
+                return words.every(function (word) {
+                    return text.indexOf(word) !== -1;
+                });
+            }).slice(0, 8).map(function (agent) {
+                return {
+                    type: 'cardmenuitem',
+                    value: String(agent.id),
+                    label: agent.name,
+                    items: [{
+                        type: 'cardcontainer',
+                        direction: 'horizontal',
+                        align: 'left',
+                        valign: 'middle',
+                        items: [
+                            agent.avatar
+                                ? { type: 'cardimage', src: agent.avatar, alt: '', classes: ['itflow-mention-ac-avatar'] }
+                                : { type: 'cardtext', text: agent.initials || '?', classes: ['itflow-mention-ac-initials'] },
+                            {
+                                type: 'cardcontainer',
+                                direction: 'vertical',
+                                items: [
+                                    { type: 'cardtext', text: agent.name, name: 'mention_name', classes: ['itflow-mention-ac-name'] },
+                                    { type: 'cardtext', text: agent.role || '', classes: ['itflow-mention-ac-role'] }
+                                ]
+                            }
+                        ]
+                    }]
+                };
+            }));
+        },
+        onAction: function (api, range, value) {
+            api.hide();
+            var agent = agents.filter(function (a) {
+                return String(a.id) === String(value);
+            })[0];
+            if (!agent) {
+                return;
+            }
+            editor.selection.setRng(range);
+            editor.insertContent('<span class="itflow-mention itflow-mention-u' + parseInt(agent.id, 10) + '" data-mention="' + parseInt(agent.id, 10)
+                + '" contenteditable="false">@' + editor.dom.encode(agent.name) + '</span>&nbsp;');
+            showState();
+        }
+    });
+
+    editor.on('init SetContent NodeChange input', showState);
+    if (form && !form.dataset.mentionWatch) {
+        form.dataset.mentionWatch = '1';
+        form.addEventListener('change', function (e) {
+            if (e.target && (e.target.name === 'public_reply_type' || e.target.name === 'ticket_reply_type')) {
+                showState();
+            }
+        });
+    }
+}
+
 /*
  * Reword with AI - on an editor only when AI is set up for it and the agent's
  * role may use it: window.itflowAi, printed by includes/footer.php from
@@ -302,7 +416,10 @@ function itflowTinyMceSkin() {
             'font-size:' + body.fontSize + ';' +
         '}' +
         'a{color:' + v('--itflow-accent', '#007bff') + ';}' +
-        'table td,table th{border-color:' + v('--bs-border-color', '#dee2e6') + ';}';
+        'table td,table th{border-color:' + v('--bs-border-color', '#dee2e6') + ';}' +
+        // An @mention (functions/ticket_mention.php) - as it shows on the ticket
+        '.itflow-mention{color:' + v('--itflow-accent', '#007bff') + ';background-color:color-mix(in srgb,' + v('--itflow-accent', '#007bff') + ' 12%,transparent);' +
+            'border-radius:.25rem;padding:0 .25em;font-weight:500;white-space:nowrap;}';
 
     return {
         skin: dark ? 'oxide-dark' : 'oxide',
@@ -499,6 +616,7 @@ function itflowInit() {
         license_key: 'gpl',
         setup: function(editor) {
             itflowCannedAutocompleter(editor);
+            itflowMentionAutocompleter(editor);
             editor.on('init', function() {
                 // When the modal closes, mark editor clean
                 const modal = editor.getContainer()?.closest('.modal');
@@ -557,6 +675,7 @@ function itflowInit() {
         license_key: 'gpl',
         setup: function(editor) {
             itflowCannedAutocompleter(editor);
+            itflowMentionAutocompleter(editor);
             editor.on('init', function() {
                 // When the modal closes, mark editor clean
                 const modal = editor.getContainer()?.closest('.modal');

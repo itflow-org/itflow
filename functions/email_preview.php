@@ -227,6 +227,11 @@ function emailPreviewCatalog() {
             'run' => function ($s) {
                 ticketMailAssigned($s['agent'], [$s['ticket'], $s['ticket2']], $s['by']);
             }],
+        'agent_mentioned' => ['group' => 'Tickets - to your team', 'label' => 'Mentioned in a note', 'to' => 'The agent mentioned', 'when' => 'Someone @mentions them in an internal note',
+            'run' => function ($s) {
+                $name = (string) getFieldById('users', $s['agent'], 'user_name');
+                ticketMailMentioned($s['ticket'], 0, '<p>' . ticketMentionSpan($s['agent'], $name) . ' can you look at the firewall logs from last night before we call them back? The VPN dropped at 2:14 AM for everyone at the main office.</p>', $s['agent'], $s['by']);
+            }],
         'agent_recurring_assigned' => ['group' => 'Tickets - to your team', 'label' => 'Recurring ticket assigned', 'to' => 'The agent', 'when' => 'Someone else assigns them a recurring ticket',
             'run' => function ($s) {
                 recurringTicketMailAssigned($s['agent'], ['Monthly backup check'], $s['by']);

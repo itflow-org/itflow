@@ -3761,6 +3761,24 @@ CREATE TABLE `ticket_replies` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ticket_reply_mentions`
+--
+
+DROP TABLE IF EXISTS `ticket_reply_mentions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ticket_reply_mentions` (
+  `mention_reply_id` int(11) NOT NULL,
+  `mention_user_id` int(11) NOT NULL,
+  `mention_by` int(11) NOT NULL DEFAULT 0,
+  `mention_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`mention_reply_id`,`mention_user_id`),
+  KEY `mention_user_id` (`mention_user_id`),
+  CONSTRAINT `ticket_reply_mentions_ibfk_1` FOREIGN KEY (`mention_reply_id`) REFERENCES `ticket_replies` (`ticket_reply_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `ticket_statuses`
 --
 

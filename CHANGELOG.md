@@ -6,7 +6,7 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.5.2) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.5.3) in the same pass. Nothing else is required.
 
 This is a big release, with nearly seventy database steps in one go, so take a backup before you update.
 
@@ -50,6 +50,8 @@ Nobody can sign up for the client portal after the update - it is off until you 
 Agents already set up are as they were after the update, and nobody is invited until you invite them. From now on New User invites by default: they are emailed a link to choose their own password, and the email with a password in it is gone (see New Features, Agent invites, and Breaking Changes, Users).
 
 No client is being onboarded after the update, so no client's overview shows Finish onboarding. Onboard a client, under New Client's arrow on Clients, takes a new client on a step at a time, and a lead or a client you already have can be onboarded from its menu (see New Features, Client onboarding).
+
+No internal note mentions anyone after the update. From then on, typing @ in an internal note mentions someone on your team, and they are told in ITFlow and by email (see New Features, Mentions in internal notes).
 
 Get started, the walk through what is left to set up after installing, isn't shown on an install that is updated - nothing is added to the dashboard and nobody is taken to it on signing in. It is in Admin > Get started for anyone who wants it (see New Features, Get started).
 
@@ -536,6 +538,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - Site: the location's address, phone, hours, access notes and directions
     - Vendor: their case number, support line, hours, SLA, account number and PIN, with copy buttons
     - Also open: the client's other open tickets
+  - Mentions in internal notes - see Mentions in internal notes.
   - Replying: pick Internal note, Public note or Email reply. Nothing is picked for you, and a line says exactly who will see it. An internal note is for your team only. A public note shows in the portal but sends no email. An email reply goes to the contact and any watchers.
   - The conversation says which of your replies were emailed. An email reply is marked Email reply, with who it went to: click that to see each person and whether their email was sent, is waiting, or failed and why, with a link to the Mail Queue for admins. A public note is marked Public note. Replies from before the update that the mail queue no longer has stay marked Public.
     - Sending a reply says how many people it was emailed to, or that it wasn't and why - no contact or watcher with an email address, or no mail set up.
@@ -1054,6 +1057,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Scheduled work: the contact, the ticket's watchers and the assigned agent get the date, time and whether it is on site, with the calendar file as before. Cancelling it tells them the same way, and the calendar file takes it out of their calendar.
   - Emails to your team are in the same look, each with an Open in ITFlow button:
     - Assigned to you: who assigned it, with the details and the client. Several from Bulk Action come as one email listing them, with a button to the agent's tickets. Recurring tickets the same way.
+    - Mentioned you: who mentioned them on which ticket, the internal note, and a button to it (see Mentions in internal notes).
     - New ticket, to the new-ticket address (Admin > Ticket): who raised it and how - in the portal, by email or on a schedule - with what they wrote. A ticket raised on a schedule now reaches it too.
     - Client replied, to the agent the ticket is assigned to: who replied, in the portal or by email, with what they wrote. A portal reply used to say only to check ITFlow.
     - SLA at risk and missed, to the SLA alert address (Admin > SLAs) and the assigned agent: which target, when it is or was due and who has it, in amber for at risk and red once missed. An agent who is also the alert address gets one.
@@ -1065,7 +1069,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Shared links: the email with a link and the one with a code to open it are in the same look, with your note quoted and the whole link printed under the button, as a link only works when it is copied whole. Subjects are the same.
   - Calendar invitations, updates and cancellations say when, how often it repeats, where, the description and a Join button for a meeting link, with the calendar file as before.
   - Email on the contacts and clients lists: what you write goes out with your logo above it, your details below and a line saying why they got it. Pick the mailbox it comes from and the name it shows, start it "Hello" and their name if you like, and send it now or later. What you write is made safe and its images point at your ITFlow, as in ticket emails.
-- **Admin > Mail > Previews**: every email ITFlow sends, 64 of them, as it goes out - your logo, your details and the address it comes from. Each is made when you open it, by the same code that sends it, on sample records (a client, its contacts and an agent) that are thrown away again, so looking sends and saves nothing. It says who gets it and what sends it, shows it at computer or phone width, and Send me a copy emails it to you, marked [Preview].
+- **Admin > Mail > Previews**: every email ITFlow sends, 65 of them, as it goes out - your logo, your details and the address it comes from. Each is made when you open it, by the same code that sends it, on sample records (a client, its contacts and an agent) that are thrown away again, so looking sends and saves nothing. It says who gets it and what sends it, shows it at computer or phone width, and Send me a copy emails it to you, marked [Preview].
 - **Setup** (rebuilt)
   - The setup wizard is a centred installer like the sign-in page, with the steps across the top - each ticked off once done, and a progress bar instead on a phone. It is light or dark as your system is set, and what a step has to say shows on the next page instead of being lost.
   - Welcome says what to have to hand - an empty database and a user for it, your name and email, your company's name and country, and your language, currency and timezone. An install left part-way is picked up where it stopped.
@@ -1218,6 +1222,14 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - An invite waiting holds a seat under the agent user limit, so there is one for them when they accept, and a role with invites waiting can't be archived.
   - Get started > Your team invites them too, when email is set up, and lists who is invited.
   - The email is in Admin > Mail > Previews, as Invite to join under Your team's accounts. The nightly run clears invites cancelled, or run out, more than 90 days ago.
+- **Mentions in internal notes** (new)
+  - Type @ in a ticket's internal note to mention someone on your team: a list of the agents who can open the ticket comes up, narrowing as you type a name or role, and picking one puts their name in the note. Nobody else is offered - not an agent whose role has no Support, nor one kept away from the client by their client access.
+  - When the note is added, each agent it mentions is told in ITFlow, with a link that opens the ticket at the note, and by email from the ticket mailbox: who mentioned them, the note, the ticket's details and the conversation so far. Adding the note says who was told, and the ticket's history has it. An agent the note mentions isn't also told the ticket was updated.
+  - On the ticket, a note that mentions you says Mentions you, and your name in it stands out.
+  - Mentioned me, beside Mine on the tickets list and the board, lists the open tickets with a note that mentions you.
+  - Editing a note tells only the agents it mentions that it didn't before, and someone taken out of it no longer counts as mentioned. An archived note mentions nobody.
+  - Mentions are for internal notes only. In a public note or an email reply they are plain text and tell nobody, and the reply box says so if you switch with mentions in it. Making a note public in Edit does the same.
+  - The email is in Admin > Mail > Previews, as Mentioned in a note under Tickets - to your team.
 - **Client onboarding** (new)
   - Onboard a client, under New Client's arrow on Clients, takes a new client on a step at a time on a page of its own: the company, its locations, its people, the agreement, billing, IT basics and a kickoff project. Each step saves as it goes - the first makes the client - so you can leave part way and carry on later. Every step after the first has Skip for now, and any can be gone back to from the steps along the top. New Client stays as it was, for adding one in a window.
   - The company: name, short name, industry, website, how they found you, tags and notes. The client is made as New Client makes it, with its website's domain looked up and its certificate added. For a lead, saving it makes them a client.
@@ -2106,6 +2118,11 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - New `functions/client_onboarding.php`, loaded by `functions.php`: `CLIENT_ONBOARDING_STEPS` (`company`, `locations`, `people`, `agreement`, `billing`, `it`, `kickoff`), `clientOnboardingReady()` (3.5.2 has run - until then nothing is shown), `clientOnboardingCan()` (and Clients at Modify), `clientOnboardingUrl($client_id, $step)`, `clientOnboardingRow()`, `clientOnboardingStart()` (once, logged as Client Onboard), `clientOnboardingStepKeys()` (the agent's steps, by module and role), `clientOnboardingContract()`, `clientOnboardingSteps()` (each with `done` - saved, or the client has what it is about - `skipped`, `saved` and a `status` line), `clientOnboardingProgress()`, `clientOnboardingAfter()`, `clientOnboardingMark($client_id, $key, $kind, $on)`, `clientOnboardingMade()`, `clientOnboardingFinish()`, `clientOnboardingDismiss()`, `clientOnboardingCard()` (the overview's card, or null) and `clientOnboardingState()` (`none`, `open` or `finished`).
   - New `agent/client_onboarding.php` (`?client_id=&step=`, `step=done` for the summary; it starts the onboarding of a client it is opened for), its steps in `agent/client_onboarding/` (`FROM_CLIENT_ONBOARDING`), and `agent/post/client_onboarding.php`: `client_onboarding_company` (`client_id` 0 makes the client), `client_onboarding_location`, `client_onboarding_contact`, `client_onboarding_agreement`, `client_onboarding_billing`, `client_onboarding_it`, `client_onboarding_kickoff`, `client_onboarding_skip` (the step's key), `client_onboarding_finish` (logged as Client Finish) and `client_onboarding_dismiss`. A refused step comes back through `settingsRefuse()` under `client_onboarding_<step>`.
   - The audit log has an Onboard action. Data attributes: `data-onboard-new` and `data-onboard` on `clients.php`, `data-client-onboarding` (its state) in `client_actions_menu.php`, `data-co-card` on `client_overview.php`, `data-onboard-lead` in `client_edit.php` and `data-gs-onboard` on Get started's client step.
+- Mentions in internal notes: database 3.5.3 adds `ticket_reply_mentions` - `mention_reply_id` (the note, deleted with it), `mention_user_id`, `mention_by` and `mention_created_at`, keyed on the note and the agent. A ticket's mentions are its notes', so a merge that moves replies moves them.
+  - A mention is `<span class="itflow-mention itflow-mention-u{user_id}" data-mention="{user_id}" contenteditable="false">@Name</span>` in the note's HTML. The page's HTML Purifier keeps the classes and drops the rest.
+  - New `functions/ticket_mention.php`, loaded by `functions.php`: `ticketMentionsReady()` (3.5.3 has run - until then a mention is left as posted and nobody is told), `ticketMentionAgents($client_id)` (active agents with Support at Read or an admin role, let at the client by `user_client_permissions`), `ticketMentionOffer()` and `ticketMentionAgentsAttr()` (the picker's list, without you, as `data-mention-agents` JSON), `ticketMentionSpan()`, `ticketMentionsFromHtml($html, $client_id, $internal)` ([html, user ids] - each mention rewritten with the agent's current name, or unwrapped to its text when they can't open the ticket or the reply isn't internal), `ticketMentionsSync($reply_id, $user_ids)` (returns the ones added), `ticketMentionsForTicket()`, `ticketMentionedSql($user_id)`, `ticketMentionUrl()` (`#reply-{id}`), `ticketMentionsTell()` (a `Ticket` notification and `ticketMailMentioned()`, not to the author; returns user_id => name) and `ticketMentionNames()`.
+  - `add_ticket_reply`, `edit_ticket_reply` and `redact_ticket_reply` run the reply through `ticketMentionsFromHtml()` before saving and `ticketMentionsSync()` after; add and edit tell the agents added and write ticket history, and redact tells nobody. `bulk_ticket_reply` leaves mentions as text. `add_ticket_reply` no longer sends the "updated Ticket" notification to an assignee or creator the note mentions.
+  - `ticketAgentEmailContent()` has the kind `mentioned` (`by`, `message`, `reply_id`), and `emailPreviewCatalog()` adds `agent_mentioned`. `agent/ticket.php` gives each reply card `id="reply-{id}"` and `data-reply-mentions-me`, `agent/tickets.php` adds the `show=mentioned` view, and `js/app.js` adds `itflowMentionAutocompleter()` to the `.tinymce` and `.tinymceTicket` editors, with the `[data-mention-hint]` and `[data-mention-public]` lines beside them.
 
 ### Library Updates
 

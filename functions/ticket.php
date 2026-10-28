@@ -851,6 +851,7 @@ function ticketMailAgent($user_id) {
  *   new       it was raised - how: portal, email or scheduled
  *   replied   the client replied - how: portal or email, message (the reply, HTML), by (who)
  *   assigned  it was assigned to them - by (who)
+ *   mentioned an internal note mentions them - by (who), message (the note, HTML), reply_id (the note, to open)
  *   sla       an SLA alert - track: response or resolution, breached: true once missed, due (when)
  *   scheduled the work was booked - when, where, or cancelled: true
  */
@@ -879,6 +880,14 @@ function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
         $email['message'] = ['html' => (string) ($opts['message'] ?? ''), 'label' => ($by !== '' ? $by : 'They') . ' wrote'];
         $email['after'] = ['Answer it in ITFlow, so the client gets your reply.'];
         $email['history'] = ticketEmailHistory($row, ['skip' => (string) ($opts['message'] ?? '')]);
+    } elseif ($kind === 'mentioned') {
+        $email['kind'] = 'Mentioned you';
+        $email['intro'] = [($by !== '' ? $by : 'Someone') . " mentioned you in an internal note on $reference."];
+        $email['message'] = ['html' => (string) ($opts['message'] ?? ''), 'label' => ($by !== '' ? $by : 'They') . ' wrote - only your team can see this'];
+        $email['history'] = ticketEmailHistory($row, ['limit' => 2, 'label' => 'The conversation']);
+        if (!empty($opts['reply_id'])) {
+            $email['button'] = ['label' => 'Open the note', 'url' => ticketMentionUrl($row, $opts['reply_id'], true)];
+        }
     } elseif ($kind === 'assigned') {
         $email['kind'] = 'Assigned to you';
         $email['intro'] = [($by !== '' ? $by : 'Someone') . " assigned $reference to you."];

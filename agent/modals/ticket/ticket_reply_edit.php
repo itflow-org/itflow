@@ -69,8 +69,16 @@ ob_start();
             </div>
         <?php } ?>
 
+        <?php
+        // @ offers the agents who can open the ticket, while it is an internal note (functions/ticket_mention.php)
+        $mention_attr = ticketMentionAgentsAttr($client_id);
+        ?>
         <div class="mb-3">
-            <textarea class="form-control tinymce" name="ticket_reply"><?= $ticket_reply ?></textarea>
+            <textarea class="form-control tinymce" name="ticket_reply"<?= $mention_attr ?>><?= $ticket_reply ?></textarea>
+            <?php if ($mention_attr !== '') { ?>
+                <div class="form-text" data-mention-hint hidden><i class="fas fa-fw fa-at me-1"></i>Type @ to mention someone on your team - anyone you add is told in ITFlow and by email.</div>
+                <div class="form-text text-warning-emphasis" data-mention-public hidden><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Mentions only tell people in an internal note - made public, they're plain text, and nobody is told.</div>
+            <?php } ?>
         </div>
 
         <?php if (!empty($ticket_reply_time_worked)) { ?>

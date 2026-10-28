@@ -225,6 +225,13 @@ $shows = [
     'scheduled' => ['label' => 'Scheduled', 'icon' => 'fa-calendar-check', 'where' => "$open_sql AND ticket_schedule IS NOT NULL",
         'title' => 'A visit or call is booked'],
 ];
+// Mentioned me - open tickets with an internal note that @mentions you (functions/ticket_mention.php), after Mine
+if (ticketMentionsReady()) {
+    $shows = array_slice($shows, 0, 2, true)
+        + ['mentioned' => ['label' => 'Mentioned me', 'icon' => 'fa-at', 'where' => "$base_sql AND " . ticketMentionedSql($session_user_id),
+            'title' => 'Open tickets with an internal note that mentions you']]
+        + array_slice($shows, 2, null, true);
+}
 if ($view === 'list') {
     $shows['closed'] = ['label' => 'Closed', 'icon' => 'fa-check', 'where' => 'tickets.ticket_resolved_at IS NOT NULL', 'title' => 'Resolved or closed', 'divider' => true];
     $shows['all'] = ['label' => 'All', 'where' => '1 = 1'];

@@ -264,6 +264,8 @@ if (isset($_GET['ticket_id'])) {
             ORDER BY ticket_reply_id DESC"
         );
         $ticket_reply_rows = mysqli_fetch_all($sql_ticket_replies, MYSQLI_ASSOC);
+        // Who each internal note @mentions - "Mentions you" on yours (functions/ticket_mention.php)
+        $reply_mentions = ticketMentionsForTicket($ticket_id);
         // Whether each email went, from the mail queue while it has them
         $reply_email_states = ticketReplyEmailStates($ticket_reply_rows);
         $reply_email_queue_url = $session_is_admin ? '/admin/mail_queue.php?q=' . rawurlencode('[' . ticketReference($ticket) . ']') : '';
@@ -827,8 +829,16 @@ if (isset($_GET['ticket_id'])) {
                                         require __DIR__ . "/includes/inc_canned_response_picker.php";
                                         ?>
 
+                                        <?php
+                                        // @ offers the agents who can open this ticket, in an internal note (functions/ticket_mention.php)
+                                        $mention_attr = ticketMentionAgentsAttr($client_id);
+                                        ?>
                                         <div class="mb-3">
-                                            <textarea class="form-control tinymceTicket" id="ticket_reply" name="ticket_reply" placeholder="Type a response" data-canned-picker="cannedPickerReply" data-ai-client-id="<?= intval($client_id) ?>" data-ai-ticket-id="<?= $ticket_id ?>"></textarea>
+                                            <textarea class="form-control tinymceTicket" id="ticket_reply" name="ticket_reply" placeholder="Type a response" data-canned-picker="cannedPickerReply" data-ai-client-id="<?= intval($client_id) ?>" data-ai-ticket-id="<?= $ticket_id ?>"<?= $mention_attr ?>></textarea>
+                                            <?php if ($mention_attr !== '') { ?>
+                                                <div class="form-text" data-mention-hint hidden><i class="fas fa-fw fa-at me-1"></i>Type @ in an internal note to mention someone on your team - they're told in ITFlow and by email.</div>
+                                                <div class="form-text text-warning-emphasis" data-mention-public hidden><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Mentions only tell people in an internal note - in this reply they're plain text, and nobody is told.</div>
+                                            <?php } ?>
                                         </div>
 
                                         <div class="mb-3">
@@ -905,6 +915,11 @@ if (isset($_GET['ticket_id'])) {
                     $ticket_reply_id = intval($reply_row['ticket_reply_id']);
                     $ticket_reply = $purifier->purify($reply_row['ticket_reply']);
                     $ticket_reply_type = escapeHtml($reply_row['ticket_reply_type']);
+                    // A note that mentions you says so, and your name in it stands out
+                    $reply_mentions_me = in_array(intval($session_user_id), $reply_mentions[$ticket_reply_id] ?? [], true);
+                    if ($reply_mentions_me && $ticket_reply_type == 'Internal') {
+                        $ticket_reply = str_replace('itflow-mention-u' . intval($session_user_id) . '"', 'itflow-mention-u' . intval($session_user_id) . ' is-me"', $ticket_reply);
+                    }
                     $ticket_reply_created_at = escapeHtml($reply_row['ticket_reply_created_at']);
                     $ticket_reply_created_at_ago = timeAgo($reply_row['ticket_reply_created_at']);
                     $ticket_reply_updated_at = escapeHtml($reply_row['ticket_reply_updated_at']);
@@ -956,7 +971,7 @@ if (isset($_GET['ticket_id'])) {
                     ?>
 
                     <!-- Begin ticket reply card -->
-                    <div class="card ticket-reply border-start border-<?= $reply_border ?> mb-3" data-reply-group="<?= $reply_group ?>">
+                    <div class="card ticket-reply border-start border-<?= $reply_border ?> mb-3" id="reply-<?= $ticket_reply_id ?>" data-reply-group="<?= $reply_group ?>"<?= $reply_mentions_me ? ' data-reply-mentions-me' : '' ?>>
                         <div class="card-header px-3 py-2">
                             <div class="d-flex justify-content-between align-items-start w-100">
 
@@ -975,6 +990,9 @@ if (isset($_GET['ticket_id'])) {
                                     <div>
                                         <strong><?= $ticket_reply_by_display ?></strong>
                                         <?= $reply_badge ?>
+                                        <?php if ($reply_mentions_me) { ?>
+                                            <span class="badge text-bg-warning" title="This note mentions you"><i class="fas fa-fw fa-at me-1"></i>Mentions you</span>
+                                        <?php } ?>
                                         <div class="small text-muted" title="Created: <?= $ticket_reply_created_at ?><?php if ($ticket_reply_updated_at) { echo '. Edited: ' . $ticket_reply_updated_at; } ?>">
                                             <?= $ticket_reply_created_at_ago ?><?php if ($ticket_reply_updated_at) { echo ' <em>(edited)</em>'; } ?>
                                             <?php if ($ticket_reply_type !== "Client" && $ticket_reply_time_worked && $ticket_reply_time_worked !== "00:00:00") { ?>

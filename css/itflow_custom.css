@@ -3313,6 +3313,60 @@ a:focus-visible .itflow-category-name {
     opacity: .75;
     white-space: normal;
 }
+/* @mentions in a ticket's internal notes (functions/ticket_mention.php, js/app.js
+   itflowMentionAutocompleter). The name reads as a tag; one of you stands out.
+   Only in an internal note - a client's reply can't dress text up as one. */
+.ticket-reply[data-reply-group="internal"] .itflow-mention {
+    color: var(--itflow-accent, var(--bs-primary));
+    background-color: color-mix(in srgb, var(--itflow-accent, var(--bs-primary)) 12%, transparent);
+    border-radius: .25rem;
+    padding: 0 .25em;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.ticket-reply[data-reply-group="internal"] .itflow-mention.is-me {
+    color: var(--bs-warning-text-emphasis);
+    background-color: var(--bs-warning-bg-subtle);
+}
+/* A note opened from a mention's link lands clear of the header, and shows which it is */
+.ticket-reply {
+    scroll-margin-top: 4.5rem;
+}
+.ticket-reply:target {
+    box-shadow: 0 0 0 .2rem var(--bs-warning-border-subtle);
+}
+/* The @ picker: a face or initials, the name, the role */
+.tox .itflow-mention-ac-avatar img,
+.tox img.itflow-mention-ac-avatar {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.tox .itflow-mention-ac-initials {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 1.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background-color: var(--bs-secondary-bg, #e9ecef);
+    color: var(--bs-body-color, #212529);
+    font-size: .75rem;
+    font-weight: 600;
+}
+.tox .itflow-mention-ac-initials,
+.tox .itflow-mention-ac-avatar {
+    margin-right: .5rem;
+}
+.tox .itflow-mention-ac-name {
+    font-weight: 600;
+}
+.tox .itflow-mention-ac-role {
+    font-size: .8125rem;
+    opacity: .75;
+}
 .itflow-clients-street {
     max-width: 16rem;
 }

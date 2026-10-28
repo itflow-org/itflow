@@ -879,7 +879,8 @@ if (isset($_POST['bulk_ticket_reply'])) {
             setTicketFirstResponse($ticket_id);
         }
 
-        $reply_text = cannedResponsePlaceholders($reply_raw, $ticket_id, stripslashes($session_name));
+        // No @mentions here - one note to many tickets tells nobody, so any are left as text
+        $reply_text = ticketMentionsFromHtml(cannedResponsePlaceholders($reply_raw, $ticket_id, stripslashes($session_name)), 0, false)[0];
         $reply = mysqli_real_escape_string($mysqli, $reply_text);
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$reply', ticket_reply_time_worked = '$time_worked', ticket_reply_type = '$reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
         $bulk_reply_id = mysqli_insert_id($mysqli);
@@ -1085,6 +1086,9 @@ if (isset($_POST['add_ticket_reply'])) {
     if ($public_reply_type === 2) {
         $send_email = 1;
     }
+    // Its @mentions put right - each one an agent who can open the ticket, in an internal note only (functions/ticket_mention.php)
+    [$ticket_reply, $mentioned] = ticketMentionsFromHtml($ticket_reply, $row['ticket_client_id'], $ticket_reply_type === 'Internal');
+    $ticket_reply_html = $ticket_reply;
     // Add Signature to the end of the ticket reply if not Internal and if there is reply
     if ($ticket_reply !== '' && $send_email) {
         $ticket_reply .= getFieldById('user_settings', $session_user_id, 'user_config_signature');
@@ -1121,6 +1125,16 @@ if (isset($_POST['add_ticket_reply'])) {
         // The canned responses picked into it, for how often each is used
         cannedResponseRecordUses((array) ($_POST['canned_response_ids'] ?? []), $ticket_id, $session_user_id);
 
+        // Tell the agents it mentions - in ITFlow and by email
+        $told = [];
+        if ($mentioned) {
+            ticketMentionsSync($ticket_reply_id, $mentioned);
+            $told = ticketMentionsTell($row, $ticket_reply_id, $ticket_reply_html, $mentioned);
+            if ($told) {
+                logTicketHistory($ticket_id, "$session_name mentioned " . escapeSql(ticketMentionNames($told)) . " in an internal note");
+            }
+        }
+
         // Email the client and the watchers - the reply keeps who it went to, for the conversation
         $emailed_to = 0;
         if ($send_email) {
@@ -1131,9 +1145,11 @@ if (isset($_POST['add_ticket_reply'])) {
             ticketReplyEmailed($ticket_reply_id, false);
         }
 
-        // Tell the agent it is assigned to, and whoever opened it
-        ticketNotifyAgent($row['ticket_assigned_to'], $row, "$session_name updated Ticket " . ticketReference($row) . " - Subject: " . $row['ticket_subject'] . " that is assigned to you");
-        if (intval($row['ticket_created_by']) !== intval($row['ticket_assigned_to'])) {
+        // Tell the agent it is assigned to, and whoever opened it - unless it mentions them, which told them already
+        if (!isset($told[intval($row['ticket_assigned_to'])])) {
+            ticketNotifyAgent($row['ticket_assigned_to'], $row, "$session_name updated Ticket " . ticketReference($row) . " - Subject: " . $row['ticket_subject'] . " that is assigned to you");
+        }
+        if (intval($row['ticket_created_by']) !== intval($row['ticket_assigned_to']) && !isset($told[intval($row['ticket_created_by'])])) {
             ticketNotifyAgent($row['ticket_created_by'], $row, "$session_name updated Ticket " . ticketReference($row) . " - Subject: " . $row['ticket_subject'] . " that you opened");
         }
 
@@ -1146,7 +1162,7 @@ if (isset($_POST['add_ticket_reply'])) {
 
         $reference_html = "<strong>" . escapeHtml(ticketReference($row)) . "</strong>";
         if ($ticket_reply_type === 'Internal') {
-            flashAlert("Internal note added to ticket $reference_html");
+            flashAlert("Internal note added to ticket $reference_html" . ($told ? " - <strong>" . escapeHtml(ticketMentionNames($told)) . "</strong> " . (count($told) === 1 ? 'was' : 'were') . " told" : ''));
         } elseif (!$send_email) {
             flashAlert("Public note added to ticket $reference_html - not emailed");
         } elseif ($emailed_to) {
@@ -1247,16 +1263,24 @@ if (isset($_POST['edit_ticket_reply'])) {
         redirect();
     }
 
-    $ticket_reply = mysqli_real_escape_string($mysqli, (string) ($_POST['ticket_reply'] ?? ''));
     // Public or internal - anything else keeps what it was
     $ticket_reply_type = in_array($_POST['ticket_reply_type'] ?? '', ['Public', 'Internal'], true) ? $_POST['ticket_reply_type'] : $reply['ticket_reply_type'];
+    // Its @mentions put right - made public, it mentions nobody
+    [$ticket_reply_html, $mentioned] = ticketMentionsFromHtml((string) ($_POST['ticket_reply'] ?? ''), $row['ticket_client_id'], $ticket_reply_type === 'Internal');
+    $ticket_reply = mysqli_real_escape_string($mysqli, $ticket_reply_html);
     $ticket_reply_time_worked = escapeSql(ticketTimeWorked($_POST['time'] ?? ''));
 
     mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '$ticket_reply_time_worked' WHERE ticket_reply_id = $ticket_reply_id");
 
+    // Only the agents it mentions now that it didn't before are told
+    $told = ticketMentionsTell($row, $ticket_reply_id, $ticket_reply_html, ticketMentionsSync($ticket_reply_id, $mentioned));
+    if ($told) {
+        logTicketHistory(intval($row['ticket_id']), "$session_name mentioned " . escapeSql(ticketMentionNames($told)) . " in an internal note");
+    }
+
     logAudit("Ticket", "Reply", "$session_name edited a reply on ticket " . escapeSql(ticketReference($row)), $client_id, intval($row['ticket_id']));
 
-    flashAlert("Ticket reply updated");
+    flashAlert("Ticket reply updated" . ($told ? " - <strong>" . escapeHtml(ticketMentionNames($told)) . "</strong> " . (count($told) === 1 ? 'was' : 'were') . " told" : ''));
 
     redirect();
 
@@ -1268,9 +1292,12 @@ if (isset($_POST['redact_ticket_reply'])) {
 
     [$reply, $row] = ticketReplyForRequest($_POST['ticket_reply_id'] ?? 0, 2);
     $ticket_reply_id = intval($reply['ticket_reply_id']);
-    $ticket_reply = mysqli_real_escape_string($mysqli, (string) ($_POST['ticket_reply'] ?? ''));
+    // A mention redacted away is taken off; redacting tells nobody
+    [$ticket_reply_html, $mentioned] = ticketMentionsFromHtml((string) ($_POST['ticket_reply'] ?? ''), $row['ticket_client_id'], $reply['ticket_reply_type'] === 'Internal');
+    $ticket_reply = mysqli_real_escape_string($mysqli, $ticket_reply_html);
 
     mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply = '$ticket_reply' WHERE ticket_reply_id = $ticket_reply_id");
+    ticketMentionsSync($ticket_reply_id, $mentioned);
 
     logAudit("Ticket", "Reply", "$session_name redacted a reply on ticket " . escapeSql(ticketReference($row)), $client_id, intval($row['ticket_id']));
 
