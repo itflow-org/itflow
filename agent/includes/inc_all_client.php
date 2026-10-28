@@ -19,7 +19,7 @@ if (isset($_GET['client_id'])) {
     $sql = mysqli_query(
         $mysqli,
         "SELECT client_abbreviation, client_archived_at, client_created_at, client_currency_code,
-            client_lead, client_name, client_net_terms, client_notes, client_rate, client_referral,
+            client_lead, client_name, client_notes, client_referral,
             client_tax_id_number, client_type, client_website, contact_email, contact_extension,
             contact_id, contact_mobile, contact_mobile_country_code, contact_name, contact_phone,
             contact_phone_country_code, contact_photo, contact_primary, contact_title, location_address,
@@ -44,12 +44,10 @@ if (isset($_GET['client_id'])) {
         $client_website = escapeHtml($row['client_website']);
         $client_referral = escapeHtml($row['client_referral']);
         $client_currency_code = escapeHtml($row['client_currency_code']);
-        $client_net_terms = intval($row['client_net_terms']);
         $client_tax_id_number = escapeHtml($row['client_tax_id_number']);
         $client_abbreviation = escapeHtml($row['client_abbreviation']);
         $client_initials = escapeHtml(clientInitials($row['client_abbreviation'], $row['client_name']));
         $client_initials_tone = clientInitialsTone($client_id);
-        $client_rate = floatval($row['client_rate']);
         $client_notes = escapeHtml($row['client_notes']);
         $client_created_at = escapeHtml($row['client_created_at']);
         $client_archived_at = escapeHtml($row['client_archived_at']);

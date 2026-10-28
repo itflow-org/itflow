@@ -151,7 +151,7 @@ $sql = mysqli_query(
     $mysqli,
     "
     SELECT SQL_CALC_FOUND_ROWS
-        clients.client_id, client_name, client_type, client_abbreviation, client_rate, client_currency_code,
+        clients.client_id, client_name, client_type, client_abbreviation, client_currency_code,
         client_lead, client_archived_at,
         contact_id, contact_name, contact_phone, contact_phone_country_code, contact_extension,
         contact_mobile, contact_mobile_country_code, contact_email, contact_photo,
@@ -194,6 +194,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
 $client_tags = [];
 $client_money = [];
 $client_tickets = [];
+$client_rates = [];
 
 if ($clients) {
     $page_ids = implode(',', array_keys($clients));
@@ -246,6 +247,28 @@ if ($clients) {
             GROUP BY recurring_invoice_client_id");
         while ($row = mysqli_fetch_assoc($sql_money)) {
             $client_money[intval($row['id'])]['recurring'] = floatval($row['v']);
+        }
+
+        // The hourly rate the contract in force sets - a client has none of its own (functions/contract_billing.php)
+        if (contractsReady()) {
+            $rate_today = date('Y-m-d');
+            $sql_rates = mysqli_query($mysqli, "SELECT contract_client_id AS id, contract_rate_standard AS rate, contract_name FROM contracts
+                WHERE contract_client_id IN ($page_ids) AND contract_status IN ('Active', 'Ended', 'Cancelled') AND contract_archived_at IS NULL AND contract_rate_standard > 0
+                    AND contract_start_date IS NOT NULL AND contract_start_date <= '$rate_today'
+                    AND (contract_end_date IS NULL OR contract_end_date >= '$rate_today' OR (contract_status = 'Active' AND contract_auto_renew = 1))
+                ORDER BY contract_start_date DESC, contract_id DESC");
+            while ($row = mysqli_fetch_assoc($sql_rates)) {
+                $client_rates[intval($row['id'])] = $client_rates[intval($row['id'])] ?? [floatval($row['rate']), contractPossessive($row['contract_name']) . ' rate'];
+            }
+        }
+        // Before the 3.5.0 update, the client's own where no contract sets one
+        if (!billingAfterHoursReady()) {
+            foreach (array_keys($clients) as $id) {
+                $legacy = billingClientLegacyTerms($id);
+                if (!isset($client_rates[$id]) && $legacy && $legacy['rate'] !== null) {
+                    $client_rates[$id] = [$legacy['rate'], "The client's rate"];
+                }
+            }
         }
     }
 
@@ -342,12 +365,6 @@ $total_leads = intval($row['leads']);
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_bulk_edit_referral.php" data-bulk="true">
                                     <i class="fas fa-fw fa-link me-2"></i>Set Referral
-                                </a>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_bulk_edit_hourly_rate.php" data-bulk="true">
-                                    <i class="fas fa-fw fa-clock me-2"></i>Set Hourly Rate
-                                </a>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_bulk_edit_net_terms.php" data-bulk="true">
-                                    <i class="fas fa-fw fa-calendar me-2"></i>Set Net Terms
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($archived) { ?>
@@ -471,7 +488,6 @@ $total_leads = intval($row['leads']);
                     $client_type = escapeHtml($row['client_type']);
                     $client_archived_at = escapeHtml($row['client_archived_at']);
                     $client_currency_code = escapeHtml($row['client_currency_code'] ?: $session_company_currency);
-                    $client_rate = floatval($row['client_rate']);
 
                     $client_initials = escapeHtml(clientInitials($row['client_abbreviation'], $row['client_name']));
                     $client_tone = clientInitialsTone($client_id);
@@ -591,8 +607,8 @@ $total_leads = intval($row['leads']);
                                 <?php if ($money['recurring'] > 0.004) { ?>
                                     <a href="recurring_invoices.php?client_id=<?= $client_id ?>" class="text-reset text-decoration-none"><?= numfmt_format_currency($currency_format, $money['recurring'], $client_currency_code) ?><span class="small text-body-secondary">/mo</span></a>
                                 <?php } ?>
-                                <?php if ($client_rate > 0) { ?>
-                                    <div class="small text-body-secondary"><?= numfmt_format_currency($currency_format, $client_rate, $client_currency_code) ?>/hr</div>
+                                <?php if (isset($client_rates[$client_id])) { ?>
+                                    <div class="small text-body-secondary" title="<?= escapeHtml($client_rates[$client_id][1]) ?>" data-client-rate><?= numfmt_format_currency($currency_format, $client_rates[$client_id][0], $client_currency_code) ?>/hr</div>
                                 <?php } elseif ($money['recurring'] <= 0.004) { ?>
                                     <span class="text-body-tertiary">-</span>
                                 <?php } ?>

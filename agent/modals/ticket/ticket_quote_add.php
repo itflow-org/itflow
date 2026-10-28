@@ -14,7 +14,7 @@ if (!intval($ticket['ticket_client_id'])) {
 
 $ticket_sql = mysqli_query(
     $mysqli,
-    "SELECT asset_id, asset_name, asset_type, category_name, client_id, client_rate, contact_id,
+    "SELECT asset_id, asset_name, asset_type, category_name, client_id, contact_id,
         contact_name, ticket_assigned_to, ticket_billable, ticket_category, ticket_created_at,
         ticket_created_by, ticket_first_response_at, ticket_number, ticket_onsite, ticket_prefix,
         ticket_priority, ticket_resolved_at, ticket_subject, user_name FROM tickets
@@ -32,7 +32,7 @@ $ticket_sql = mysqli_query(
 
 $row = mysqli_fetch_assoc($ticket_sql);
 $client_id = intval($row['client_id']);
-// The contract in force's rate, else the client's own, else the default
+// The contract in force's rate, else the default
 $client_rate_info = contractClientRate($client_id);
 $client_rate = $client_rate_info['rate'];
 $ticket_prefix = escapeHtml($row['ticket_prefix']);

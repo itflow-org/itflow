@@ -917,7 +917,6 @@ function demoDataRemove($mysqli) {
         }
         mysqli_query($mysqli, "DELETE FROM calendar_events WHERE event_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_client_id = $client_id");
-        mysqli_query($mysqli, "DELETE FROM sla_assignments WHERE sla_assignment_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM logs WHERE log_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
@@ -1141,6 +1140,11 @@ function demoDataRemove($mysqli) {
             $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS total FROM $table WHERE $column = $sla_id"));
             $in_use = $in_use + intval($row['total'] ?? 0);
         }
+        // Or set by a contract or contract template of the install's own - the demo's went with its clients
+        foreach (['contracts' => 'contract_sla_', 'contract_templates' => 'contract_template_sla_'] as $table => $prefix) {
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS total FROM $table WHERE {$prefix}low_id = $sla_id OR {$prefix}medium_id = $sla_id OR {$prefix}high_id = $sla_id OR {$prefix}urgent_id = $sla_id"));
+            $in_use = $in_use + intval($row['total'] ?? 0);
+        }
         if (!$in_use) {
             mysqli_query($mysqli, "DELETE FROM slas WHERE sla_id = $sla_id");
         }
@@ -1190,9 +1194,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         'client_type' => $profile['type'],
         'client_website' => 'https://www.' . $profile['domain'],
         'client_referral' => $profile['referral'],
-        'client_rate' => $profile['rate'],
         'client_currency_code' => $currency,
-        'client_net_terms' => $profile['net_terms'],
         'client_abbreviation' => $profile['abbreviation'],
         'client_tax_id_number' => '82-' . demoSerial($profile['abbreviation'] . 'ein', 7),
         // The rate where it is
@@ -1204,7 +1206,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         // first - a client record cannot postdate its own opening invoice
         'client_created_at' => demoMonthDateTime($months, 1, 9, 14),
         'client_accessed_at' => demoDateTime($index % 5, 11, 20),
-    ], !empty($profile['tax_exempt']) ? [
+    ], billingClientLegacyFields(), !empty($profile['tax_exempt']) ? [
         // Or exempt on a certificate - a church, a school
         'client_tax_exempt' => 1,
         'client_tax_exempt_number' => $profile['tax_exempt'][0],
@@ -1213,16 +1215,8 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
 
     demoAttachTags($mysqli, 'client_tags', 'client_id', 'tag_id', $client_id, 1, $profile['tags']);
 
-    // Response targets, by priority
-    foreach ($profile['slas'] as $priority => $sla_name) {
-        if (isset($context['slas'][$sla_name])) {
-            starterInsert($mysqli, 'sla_assignments', [
-                'sla_assignment_client_id' => $client_id,
-                'sla_assignment_priority' => $priority,
-                'sla_assignment_sla_id' => $context['slas'][$sla_name]['id'],
-            ]);
-        }
-    }
+    // Its hourly rate, net terms and response targets - a client's come from its contract
+    demoBuildContract($mysqli, $profile, $client_id, $months, $context);
 
     // Locations
     $location_ids = [];
@@ -2997,6 +2991,56 @@ function demoPayment($mysqli, $invoice_id, $amount, $currency, $method, $account
         'payment_invoice_id' => $invoice_id,
         'payment_created_at' => $date . ' 14:00:00',
     ]);
+}
+
+// ------------------------------
+// demoBuildContract
+// A client has no hourly rate, net terms or SLAs of its own - they are its
+// contract's: the managed services agreement, or the terms a break fix or
+// hosting only client is billed on. It starts with the client and renews
+// itself a year at a time, so it is in force today. Clients with after-hours
+// cover pay time and a half for tickets opened out of hours.
+// ------------------------------
+function demoBuildContract($mysqli, $profile, $client_id, $months, $context) {
+
+    // Before the contracts update (3.4.2) there is nothing to make it in
+    if (!contractsReady()) {
+        return 0;
+    }
+
+    $kind = $profile['billing'] === 'managed' ? 'managed' : ($profile['billing'] === 'hosting' ? 'other' : 'break_fix');
+    $start = demoMonthDate($months, 1);
+    $end = date('Y-m-d', strtotime('+12 months -1 day', strtotime($start)));
+    while ($end < date('Y-m-d')) {
+        $end = date('Y-m-d', strtotime('+12 months -1 day', strtotime('+1 day', strtotime($end))));
+    }
+
+    $fields = [
+        'contract_name' => ['managed' => 'Managed Services Agreement', 'other' => 'Hosting Agreement', 'break_fix' => 'Break Fix Terms'][$kind],
+        'contract_status' => 'Active',
+        'contract_type' => $kind,
+        'contract_client_id' => $client_id,
+        'contract_rate_standard' => $profile['rate'],
+        'contract_net_terms' => intval($profile['net_terms']),
+        'contract_support_hours' => 'Weekdays 8:00 to 18:00',
+        'contract_start_date' => $start,
+        'contract_end_date' => $end,
+        'contract_term_months' => 12,
+        'contract_auto_renew' => 1,
+        'contract_notice_days' => $kind === 'managed' ? 60 : 0,
+        'contract_created_at' => demoMonthDateTime($months, 1, 9, 20),
+    ];
+    if (in_array('After Hours Support', $profile['tags'])) {
+        // Time and a half, to the nearest 5
+        $fields['contract_rate_after_hours'] = number_format(round(floatval($profile['rate']) * 1.5 / 5) * 5, 2, '.', '');
+    }
+    foreach ($profile['slas'] as $priority => $sla_name) {
+        if (isset($context['slas'][$sla_name])) {
+            $fields['contract_sla_' . strtolower($priority) . '_id'] = intval($context['slas'][$sla_name]['id']);
+        }
+    }
+
+    return starterInsert($mysqli, 'contracts', $fields);
 }
 
 // ------------------------------

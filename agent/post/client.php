@@ -45,7 +45,7 @@ if (isset($_POST['add_client'])) {
     $referral = escapeSql(categoryEnsure('Referral', $_POST['referral'] ?? ''));
 
     // Create client
-    mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$session_company_currency', client_net_terms = $net_terms, client_reminders = " . ($reminders ?? 1) . ", client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes', client_accessed_at = NOW()" . ($tax_input !== null ? ", " . taxClientSetSql($tax_input) : ''));
+    mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$session_company_currency', client_reminders = " . ($reminders ?? 1) . ", client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes', client_accessed_at = NOW()" . ($tax_input !== null ? ", " . taxClientSetSql($tax_input) : '') . billingClientLegacySql());
 
     $client_id = mysqli_insert_id($mysqli);
 
@@ -87,17 +87,6 @@ if (isset($_POST['add_client'])) {
         }
     }
 
-    // Ticket SLA assignments (fields only rendered when active SLAs exist)
-    if (isset($_POST['client_sla_low'])) {
-        foreach (['Low', 'Medium', 'High', 'Urgent'] as $sla_priority) {
-            $sla_value = strval($_POST['client_sla_' . strtolower($sla_priority)] ?? 'default');
-            if ($sla_value !== 'default') {
-                $client_sla_id = intval($sla_value);
-                mysqli_query($mysqli, "INSERT INTO sla_assignments SET sla_assignment_client_id = $client_id, sla_assignment_priority = '$sla_priority', sla_assignment_sla_id = $client_sla_id");
-            }
-        }
-    }
-
     logAudit("Client", "Create", "$session_name created client $name$extended_log_description", $client_id, $client_id);
 
     flashAlert("Client <strong>" . stripslashes($name) . "</strong> created");
@@ -130,45 +119,10 @@ if (isset($_POST['edit_client'])) {
     $referral = escapeSql(categoryEnsure('Referral', $_POST['referral'] ?? ''));
 
     // Update client
-    mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_net_terms = $net_terms" . ($reminders !== null ? ", client_reminders = $reminders" : '') . ", client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes'$tax_set_sql WHERE client_id = $client_id");
+    mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral'" . ($reminders !== null ? ", client_reminders = $reminders" : '') . ", client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes'$tax_set_sql WHERE client_id = $client_id");
 
     // Tags - client tags only, and an admin can type a new one in (functions/tags.php)
     tagSetForRecord('client', $client_id, (array) ($_POST['tags'] ?? []));
-
-    // Ticket SLA assignments (fields only rendered when active SLAs exist)
-    if (isset($_POST['client_sla_low'])) {
-
-        // Compare with current state so an unrelated client edit doesn't
-        // restamp tickets (restamping clobbers manual per-ticket SLA pins)
-        $current_sla_assignments = [];
-        $sql_current_slas = mysqli_query($mysqli, "SELECT sla_assignment_priority, sla_assignment_sla_id FROM sla_assignments WHERE sla_assignment_client_id = $client_id");
-        while ($current_sla_row = mysqli_fetch_assoc($sql_current_slas)) {
-            $current_sla_assignments[$current_sla_row['sla_assignment_priority']] = strval(intval($current_sla_row['sla_assignment_sla_id']));
-        }
-
-        $sla_assignments_changed = false;
-        foreach (['Low', 'Medium', 'High', 'Urgent'] as $sla_priority) {
-            $sla_value = strval($_POST['client_sla_' . strtolower($sla_priority)] ?? 'default');
-            $sla_current = $current_sla_assignments[$sla_priority] ?? 'default';
-            if ($sla_value === $sla_current) {
-                continue;
-            }
-            $sla_assignments_changed = true;
-            mysqli_query($mysqli, "DELETE FROM sla_assignments WHERE sla_assignment_client_id = $client_id AND sla_assignment_priority = '$sla_priority'");
-            if ($sla_value !== 'default') {
-                $client_sla_id = intval($sla_value);
-                mysqli_query($mysqli, "INSERT INTO sla_assignments SET sla_assignment_client_id = $client_id, sla_assignment_priority = '$sla_priority', sla_assignment_sla_id = $client_sla_id");
-            }
-        }
-
-        if ($sla_assignments_changed) {
-            // Re-resolve this client's open tickets against the new assignments
-            $sql_sla_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_client_id = $client_id AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL");
-            while ($sla_ticket_row = mysqli_fetch_assoc($sql_sla_tickets)) {
-                applyTicketSla($sla_ticket_row['ticket_id']);
-            }
-        }
-    }
 
     logAudit("Client", "Edit", "$session_name edited client $name", $client_id, $client_id);
 
@@ -654,9 +608,10 @@ if (isset($_POST["import_clients_csv"])) {
                 $contact_email = escapeSql($column[16]);
             }
 
-            $hourly_rate = $config_default_hourly_rate;
-            if (isset($column[17])) {
-                $hourly_rate = floatval($column[17]);
+            // An hourly rate or payment terms other than the defaults become the client's Standard terms contract
+            $hourly_rate = null;
+            if (isset($column[17]) && trim($column[17]) !== '') {
+                $hourly_rate = floatval(str_replace([',', '$'], '', $column[17]));
             }
 
             $currency_code = escapeSql($session_company_currency);
@@ -664,9 +619,9 @@ if (isset($_POST["import_clients_csv"])) {
                 $currency_code = escapeSql($column[18]);
             }
 
-            $payment_terms = escapeSql($config_default_net_terms);
-            if (isset($column[19])) {
-                $payment_terms = intval($column[19]);
+            $payment_terms = null;
+            if (isset($column[19]) && trim($column[19]) !== '' && is_numeric(trim($column[19]))) {
+                $payment_terms = max(0, min(365, intval($column[19])));
             }
 
             $tax_id_number = '';
@@ -686,7 +641,7 @@ if (isset($_POST["import_clients_csv"])) {
                 $referral = escapeSql(categoryEnsure('Referral', $referral));
 
                 // Create client
-                mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$industry', client_website = '$website', client_referral = '$referral', client_rate = $hourly_rate, client_currency_code = '$currency_code', client_net_terms = $payment_terms, client_tax_id_number = '$tax_id_number', client_abbreviation = '$abbreviation'");
+                mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$industry', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_tax_id_number = '$tax_id_number', client_abbreviation = '$abbreviation'" . billingClientLegacySql());
 
                 $client_id = mysqli_insert_id($mysqli);
 
@@ -701,6 +656,11 @@ if (isset($_POST["import_clients_csv"])) {
                 // Create Contact
                 mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_title = '$title', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_primary = 1, contact_important = 1, contact_client_id = $client_id");
 
+                // Its rate and terms, where they aren't the defaults (functions/contract.php)
+                if (function_exists('contractsReady') && contractsReady() && contractStandardTermsAdd($client_id, $hourly_rate, $payment_terms, [], null, 'Made by the client import from its Hourly Rate and Payment Terms.')) {
+                    $terms_count = ($terms_count ?? 0) + 1;
+                }
+
                 $row_count = $row_count + 1;
 
             } else {
@@ -714,7 +674,7 @@ if (isset($_POST["import_clients_csv"])) {
 
         logAudit("Client", "Import", "$session_name imported $row_count client(s) via CSV file, $duplicate_count duplicate(s) found");
 
-        flashAlert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found");
+        flashAlert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found" . (!empty($terms_count) ? ", <strong>$terms_count</strong> with a Standard terms contract for their own rate or payment terms" : ''));
 
         redirect();
 
@@ -924,84 +884,6 @@ if (isset($_POST['bulk_edit_client_referral'])) {
         logAudit("Client", "Bulk Edit", "$session_name set the referral $referral for $count client(s)", $client_id);
 
         flashAlert("Referral set to <strong>" . stripslashes($referral) . "</strong> on <strong>$count</strong> client" . ($count === 1 ? '' : 's'));
-    }
-
-    redirect();
-
-}
-
-if (isset($_POST['bulk_edit_client_hourly_rate'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    $rate = floatval($_POST['bulk_rate']);
-
-    if (isset($_POST['client_ids'])) {
-
-        // Check every selected client before changing any of them
-        foreach ($_POST['client_ids'] as $client_id) {
-            enforceClientAccess(intval($client_id));
-        }
-
-        $count = count($_POST['client_ids']);
-
-        foreach($_POST['client_ids'] as $client_id) {
-            $client_id = intval($client_id);
-
-            $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-            $row = mysqli_fetch_assoc($sql);
-            $client_name = escapeSql($row['client_name']);
-
-            mysqli_query($mysqli,"UPDATE clients SET client_rate = '$rate' WHERE client_id = $client_id");
-
-            logAudit("Client", "Edit", "$session_name set Hourly Rate to" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $client_name", $client_id);
-
-        }
-
-        logAudit("Client", "Bulk Edit", "$session_name set the hourly rate" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $count client(s)", $client_id);
-
-        flashAlert("Set the Hourly Rate to <strong>" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "</strong> for <strong>$count</strong> client(s)");
-    }
-
-    redirect();
-
-}
-
-if (isset($_POST['bulk_edit_client_net_terms'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    $net_terms = intval($_POST['net_terms']);
-
-    if (isset($_POST['client_ids'])) {
-
-        // Check every selected client before changing any of them
-        foreach ($_POST['client_ids'] as $client_id) {
-            enforceClientAccess(intval($client_id));
-        }
-
-        $count = count($_POST['client_ids']);
-
-        foreach($_POST['client_ids'] as $client_id) {
-            $client_id = intval($client_id);
-
-            $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-            $row = mysqli_fetch_assoc($sql);
-            $client_name = escapeSql($row['client_name']);
-
-            mysqli_query($mysqli,"UPDATE clients SET client_net_terms = $net_terms WHERE client_id = $client_id");
-
-            logAudit("Client", "Edit", "$session_name set net terms to $net_terms days for $client_name", $client_id);
-
-        }
-
-        logAudit("Client", "Bulk Edit", "$session_name set the net terms to $net_terms days for $count client(s)", $client_id);
-
-        flashAlert("Set Net Term to <strong>$net_terms days</strong> for <strong>$count</strong> client(s)");
     }
 
     redirect();

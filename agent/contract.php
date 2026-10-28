@@ -3,8 +3,8 @@
 /*
  * Contract - one agreement with a client: where it stands and when it renews
  * or ends (with the notice date), what it covers (support hours, an SLA for
- * each ticket priority, rates and net terms - the client's own where the
- * contract sets none), its terms, the internal notes, and its history from
+ * each ticket priority, rates and net terms - where the contract sets none,
+ * another in force for the client, else the defaults), its terms, the internal notes, and its history from
  * the audit log. Make active, Renew, Cancel and Edit from the top. Signing:
  * send it to the client to sign, where each request stands - sent, opened,
  * signed, countersigned - the link to copy, the copies signed before, and
@@ -361,15 +361,39 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                         </div>
                         <div class="col-md-6">
                             <div class="small text-body-secondary text-uppercase fw-semibold mb-1">Rates</div>
-                            <div><?= $contract['contract_rate_standard'] !== null ? $money($contract['contract_rate_standard']) . '/hr' : '<span title="The client\'s own rate">' . $money($contract['client_rate']) . '/hr <span class="text-body-secondary small">(client\'s)</span></span>' ?></div>
-                            <div class="small text-body-secondary"<?= $contract['contract_rate_after_hours'] !== null ? ' title="For tickets opened outside the business days and hours in Admin > Settings"' : '' ?>><?= $contract['contract_rate_after_hours'] !== null ? $money($contract['contract_rate_after_hours']) . '/hr after hours' : 'No after-hours rate' ?></div>
+                            <?php
+                            // What it leaves empty: another contract in force for the client, else the default
+                            $usual = contractUsualTerms($contract);
+                            $usual_from = function ($from) {
+                                // A contract's name, the client's own (before the 3.5.0 update), or the default
+                                return ' <span class="text-body-secondary small">(' . ($from === '' ? 'default' : ($from === "the client's" ? "client's" : escapeHtml($from))) . ')</span>';
+                            };
+                            ?>
+                            <div data-contract-rate><?php
+                                if ($contract['contract_rate_standard'] !== null) {
+                                    echo $money($contract['contract_rate_standard']) . '/hr';
+                                } elseif ($usual['rate'][0] !== null) {
+                                    echo '<span title="What it leaves empty - another contract in force for the client, else the default in Admin > Settings > Defaults">' . $money($usual['rate'][0]) . '/hr' . $usual_from($usual['rate'][1]) . '</span>';
+                                } else {
+                                    echo '<span class="text-body-secondary">No rate</span>';
+                                }
+                            ?></div>
+                            <div class="small text-body-secondary" title="For tickets opened outside the business days and hours in Admin > SLAs" data-contract-after-hours><?php
+                                if ($contract['contract_rate_after_hours'] !== null) {
+                                    echo $money($contract['contract_rate_after_hours']) . '/hr after hours';
+                                } elseif ($usual['after_hours'][0] !== null) {
+                                    echo $money($usual['after_hours'][0]) . '/hr after hours' . $usual_from($usual['after_hours'][1]);
+                                } else {
+                                    echo 'No after-hours rate';
+                                }
+                            ?></div>
                         </div>
                         <div class="col-md-6">
                             <div class="small text-body-secondary text-uppercase fw-semibold mb-1">Net terms</div>
                             <div><?php
-                                $terms = $contract['contract_net_terms'] !== null ? intval($contract['contract_net_terms']) : intval($contract['client_net_terms']);
+                                $terms = $contract['contract_net_terms'] !== null ? intval($contract['contract_net_terms']) : $usual['net_terms'][0];
                                 echo $terms ? "Net $terms" : 'Due on receipt';
-                                echo $contract['contract_net_terms'] === null ? ' <span class="text-body-secondary small">(client\'s)</span>' : '';
+                                echo $contract['contract_net_terms'] === null ? $usual_from($usual['net_terms'][1]) : '';
                             ?></div>
                         </div>
                     </div>
@@ -377,16 +401,21 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                     <div class="table-responsive">
                         <table class="table table-sm table-borderless mb-0" data-contract-slas>
                             <tbody>
-                            <?php foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
-                                $sla = $slas[intval($contract["contract_sla_{$part}_id"])] ?? null; ?>
+                            <?php $sla_rows = contractSlaRows($contract);
+                            foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
+                                $sla = $slas[intval($contract["contract_sla_{$part}_id"])] ?? null;
+                                $sla_default = $sla ? null : $sla_rows[$priority]['sla']; ?>
                                 <tr>
                                     <td class="ps-0" style="width: 7rem;"><?= ticketPriorityHtml($priority, 'detail') ?></td>
                                     <td>
                                         <?php if ($sla) { ?>
                                             <span class="fw-semibold"><?= escapeHtml($sla['sla_name']) ?></span><?= $sla['sla_archived_at'] ? ' <span class="badge text-bg-secondary">Archived</span>' : '' ?>
                                             <div class="small text-body-secondary"><?= escapeHtml(contractSlaTargets($sla)) ?></div>
+                                        <?php } elseif ($sla_default) { ?>
+                                            <span class="fw-semibold"><?= escapeHtml($sla_default['sla_name']) ?></span><?= $usual_from($sla_rows[$priority]['from']) ?>
+                                            <div class="small text-body-secondary"><?= escapeHtml(contractSlaTargets($sla_default)) ?></div>
                                         <?php } else { ?>
-                                            <span class="text-body-secondary">The client's usual SLA</span>
+                                            <span class="text-body-secondary">No SLA</span>
                                         <?php } ?>
                                     </td>
                                 </tr>
@@ -397,7 +426,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                 </div>
                 <div class="card-footer small text-body-secondary" data-contract-in-force>
                     <i class="fas fa-fw <?= $in_force ? 'fa-check-circle text-success' : 'fa-info-circle' ?> me-1"></i>
-                    <?= $in_force ? 'In force now:' : 'While it is in force,' ?> new tickets get these SLAs, time bills at these rates - the after-hours one for tickets opened outside business hours - and new invoices are due on these terms. What it leaves empty, the client's own applies.
+                    <?= $in_force ? 'In force now:' : 'While it is in force,' ?> new tickets get these SLAs, time bills at these rates - the after-hours one for tickets opened outside business hours - and new invoices are due on these terms. What it leaves empty comes from another contract in force for the client, else the default.
                 </div>
             </div>
 

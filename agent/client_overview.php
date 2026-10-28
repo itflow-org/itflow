@@ -544,17 +544,20 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                     <?php } ?>
                     <div class="itflow-dash-rail-item">
                         <?php
-                        // A contract in force sets the rate and net terms, where it has them
-                        $overview_rate = contractClientRate($client_id);
-                        $overview_net_contract = contractTermsOn($client_id, date('Y-m-d'), 'net');
-                        $overview_net = $overview_net_contract ? intval($overview_net_contract['contract_net_terms']) : intval($client_net_terms);
-                        $overview_from = $overview_rate['contract_name'] ?: ($overview_net_contract['contract_name'] ?? '');
+                        // The contract in force sets the rate and net terms, where it has them - else the defaults
+                        $overview_terms = contractClientTerms($client_id);
+                        $overview_rate = $overview_terms['rate'];
+                        [$overview_net, $overview_net_from] = $overview_terms['net_terms'];
+                        [$overview_after, $overview_after_from] = $overview_terms['after_hours'];
+                        $overview_from = $overview_rate['contract_name'] ?: ($overview_net_from ?: $overview_after_from);
                         ?>
                         <span class="small text-body-secondary">Terms</span>
-                        <span class="itflow-dash-money-value"><?= $money_format($overview_rate['source'] === 'default' ? $client_rate : $overview_rate['rate']) ?><span class="fs-6 fw-normal text-body-secondary">/hr</span></span>
-                        <span class="small text-body-tertiary"><?= $overview_net ? "Net $overview_net" : 'Due on receipt' ?><?= $client_tax_id_number ? ", tax ID $client_tax_id_number" : '' ?></span>
+                        <span class="itflow-dash-money-value"><?= $money_format($overview_rate['rate']) ?><span class="fs-6 fw-normal text-body-secondary">/hr</span></span>
+                        <span class="small text-body-tertiary"><?= $overview_net ? "Net $overview_net" : 'Due on receipt' ?><?= $overview_after > 0 ? ', ' . $money_format($overview_after) . '/hr after hours' : '' ?><?= $client_tax_id_number ? ", tax ID $client_tax_id_number" : '' ?></span>
                         <?php if ($overview_from !== '') { ?>
-                            <span class="small text-body-tertiary text-truncate" data-overview-terms-contract title="While it is in force, the contract's rate and net terms apply"><i class="fas fa-file-contract me-1" aria-hidden="true"></i>From <?= escapeHtml($overview_from) ?></span>
+                            <span class="small text-body-tertiary text-truncate" data-overview-terms-contract title="While it is in force, the contract's rates and net terms apply - the defaults for what it leaves empty"><i class="fas fa-file-contract me-1" aria-hidden="true"></i>From <?= escapeHtml($overview_from) ?></span>
+                        <?php } else { ?>
+                            <span class="small text-body-tertiary text-truncate" data-overview-terms-default title="No contract in force sets them - the defaults in Admin > Settings > Defaults apply"><i class="fas fa-sliders-h me-1" aria-hidden="true"></i>The defaults</span>
                         <?php } ?>
                         <?php
                         $overview_tax = taxClient($client_id);

@@ -54,7 +54,7 @@ function emailPreviewSample() {
     $account_id = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT account_id FROM accounts ORDER BY account_id LIMIT 1"))[0] ?? 0);
     $hash = $e(password_hash(randomString(), PASSWORD_DEFAULT));
 
-    $client_id = $insert("INSERT INTO clients SET client_name = '" . $e($people['client']) . "', client_currency_code = '$currency', client_net_terms = 30");
+    $client_id = $insert("INSERT INTO clients SET client_name = '" . $e($people['client']) . "', client_currency_code = '$currency'" . billingClientLegacySql());
     $location_id = $insert("INSERT INTO locations SET location_name = 'Main office', location_address = '120 River Road', location_city = 'Springfield', location_state = 'PA', location_zip = '15001',
         location_primary = 1, location_client_id = $client_id");
     [$alex_name, $alex_email, $alex_title] = $people['contact'];

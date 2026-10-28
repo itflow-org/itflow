@@ -58,7 +58,7 @@ function contractRow($contract_id) {
     if ($contract_id <= 0 || !contractsReady()) {
         return null;
     }
-    return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contracts.*, client_name, client_rate, client_net_terms, client_currency_code, contact_name, contact_title, contact_email, user_name AS owner_name, user_email AS owner_email,
+    return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contracts.*, client_name, client_currency_code, contact_name, contact_title, contact_email, user_name AS owner_name, user_email AS owner_email,
             contract_template_name
         FROM contracts
         LEFT JOIN clients ON contract_client_id = client_id
@@ -90,6 +90,12 @@ function contractTemplates() {
         $templates[intval($row['contract_template_id'])] = $row;
     }
     return $templates;
+}
+
+/** A contract's name as its owner, for "Gold's rate" - a name ending in s takes only the apostrophe: "Standard terms' rate". */
+function contractPossessive($name) {
+    $name = (string) $name;
+    return $name . (preg_match('/s$/i', $name) ? "'" : "'s");
 }
 
 /** A type's label - the key's, or the text itself for one ITFlow doesn't know. */
@@ -227,6 +233,27 @@ function contractSlaChoices(array $keep = []) {
     return $choices;
 }
 
+/*
+ * What a contract's or template's field falls back to when left empty - the
+ * defaults (Admin > Settings > Defaults and Admin > SLAs) - for its
+ * placeholder: rate, after_hours and net_terms, and slas by priority.
+ */
+function contractDefaultHints() {
+    $defaults = billingDefaults();
+    $hints = [
+        'rate' => 'Default: ' . number_format($defaults['rate'], 2, '.', ''),
+        'after_hours' => $defaults['after_hours'] > 0 ? 'Default: ' . number_format($defaults['after_hours'], 2, '.', '') : 'The hourly rate',
+        'net_terms' => $defaults['net_terms'] > 0 ? 'Default: ' . $defaults['net_terms'] : 'Default: on receipt',
+        'slas' => [],
+    ];
+    $choices = contractSlaChoices();
+    foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
+        $sla_id = intval(getTicketSlaId(0, $priority, false));
+        $hints['slas'][$priority] = isset($choices[$sla_id]) ? 'The default - ' . $choices[$sla_id]['sla_name'] : 'The default - none';
+    }
+    return $hints;
+}
+
 /** An SLA's targets in words - "Respond in 1 hr, resolve in 8 hrs". */
 function contractSlaTargets(array $sla) {
     $text = 'Respond in ' . slaMinutesText($sla['sla_response_minutes']);
@@ -254,7 +281,7 @@ function slaMinutesText($minutes) {
 /*
  * The fields of a contract or a template, from a form - [$fields, $error].
  * $kind 'contract' or 'template'. Money and days that are left empty are
- * null: the client's own rate and terms apply.
+ * null: the default rate and terms apply (Admin > Settings > Defaults).
  */
 function contractFromInput(array $in, $kind = 'contract') {
     global $mysqli;
@@ -267,7 +294,7 @@ function contractFromInput(array $in, $kind = 'contract') {
             return null;
         }
         $number = function_exists('billingNumberInput') ? billingNumberInput($value) : (is_numeric($value) ? floatval($value) : null);
-        // A rate of nothing is no rate - the client's own applies
+        // A rate of nothing is no rate - the default applies
         return $number === null ? false : (round($number, 2) == 0 ? null : round($number, 2));
     };
     $hours = function ($key) use ($in) {
@@ -317,10 +344,10 @@ function contractFromInput(array $in, $kind = 'contract') {
         return [$f, 'Notice is 0 to 365 days.'];
     }
     if ($f['rate_standard'] === false || $f['rate_after_hours'] === false || ($f['rate_standard'] ?? 0) < 0 || ($f['rate_after_hours'] ?? 0) < 0) {
-        return [$f, 'A rate is an amount, such as 125.00 - or leave it empty for the client\'s own.'];
+        return [$f, 'A rate is an amount, such as 125.00 - or leave it empty for the default.'];
     }
     if ($f['net_terms'] !== null && ($f['net_terms'] < 0 || $f['net_terms'] > 365)) {
-        return [$f, 'Net terms are 0 to 365 days - or leave them empty for the client\'s own.'];
+        return [$f, 'Net terms are 0 to 365 days - or leave them empty for the default.'];
     }
     if ($f['monthly_hours'] === false || $f['monthly_hours'] < 0 || $f['monthly_hours'] >= 1000) {
         return [$f, 'Hours each month are a number of hours under 1,000, such as 10 or 7.5 - or leave it empty for none.'];
@@ -404,6 +431,52 @@ function contractSetSql(array $f) {
         contract_notes = " . ($f['notes'] !== '' ? "'" . mysqli_real_escape_string($mysqli, $f['notes']) . "'" : 'NULL');
 }
 
+/*
+ * A client's Standard terms - the hourly rate, net terms and SLAs it is
+ * billed on that aren't the defaults, as an active contract of their own
+ * that renews itself each year, in force from $start (the update that took
+ * them off the client used the day the client was added). Only what differs
+ * from the defaults is set on it, and when nothing does, none is made. $rate
+ * and $net_terms null for the default; $slas priority => SLA id. The new
+ * contract's id, or 0.
+ */
+function contractStandardTermsAdd($client_id, $rate, $net_terms, array $slas = [], $start = null, $notes = '') {
+    $defaults = billingDefaults();
+    $in = ['name' => 'Standard terms', 'type' => 'other', 'term_months' => 12, 'auto_renew' => 1, 'notice_days' => 0,
+        'client_id' => intval($client_id), 'status' => 'Active', 'notes' => $notes, 'rate_standard' => '', 'net_terms' => ''];
+    $set = false;
+    if ($rate !== null && round(floatval($rate), 2) > 0 && round(floatval($rate), 2) != $defaults['rate']) {
+        $in['rate_standard'] = sprintf('%.2f', $rate);
+        $set = true;
+    }
+    if ($net_terms !== null && intval($net_terms) !== $defaults['net_terms']) {
+        $in['net_terms'] = (string) intval($net_terms);
+        $set = true;
+    }
+    foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
+        $sla_id = intval($slas[$priority] ?? 0);
+        if ($sla_id && $sla_id !== intval(getTicketSlaId(0, $priority, false))) {
+            $in["sla_$part"] = $sla_id;
+            $set = true;
+        }
+    }
+    if (!$set) {
+        return 0;
+    }
+    // In force from $start, its term carried on a year at a time to the one running today
+    $in['start_date'] = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $start) ? $start : date('Y-m-d');
+    $end = contractTermEnd($in['start_date'], 12);
+    while ($end !== '' && $end < date('Y-m-d')) {
+        $end = contractNextEnd($end, 12);
+    }
+    $in['end_date'] = $end;
+    [$f, $error] = contractFromInput($in, 'contract');
+    if ($error !== '') {
+        return 0;
+    }
+    return contractCreate($f);
+}
+
 /** A new contract - its id. */
 function contractCreate(array $f) {
     global $mysqli, $session_user_id;
@@ -427,9 +500,9 @@ function contractUpdate(array $row, array $f) {
     $was = [
         'name' => (string) $row['contract_name'], 'type' => contractTypeLabel($row['contract_type']), 'start' => (string) $row['contract_start_date'], 'end' => (string) $row['contract_end_date'],
         'term' => contractTermLabel($row['contract_term_months']), 'notice' => intval($row['contract_notice_days']) . ' days notice',
-        'standard rate' => $row['contract_rate_standard'] === null ? 'the client\'s' : sprintf('%.2f', $row['contract_rate_standard']),
-        'after-hours rate' => $row['contract_rate_after_hours'] === null ? 'the client\'s' : sprintf('%.2f', $row['contract_rate_after_hours']),
-        'net terms' => $row['contract_net_terms'] === null ? 'the client\'s' : intval($row['contract_net_terms']) . ' days',
+        'standard rate' => $row['contract_rate_standard'] === null ? 'the default' : sprintf('%.2f', $row['contract_rate_standard']),
+        'after-hours rate' => $row['contract_rate_after_hours'] === null ? 'the default' : sprintf('%.2f', $row['contract_rate_after_hours']),
+        'net terms' => $row['contract_net_terms'] === null ? 'the default' : intval($row['contract_net_terms']) . ' days',
         'support hours' => (string) $row['contract_support_hours'],
     ];
     if ($hours) {
@@ -438,9 +511,9 @@ function contractUpdate(array $row, array $f) {
     $now = [
         'name' => $f['name'], 'type' => contractTypeLabel($f['type']), 'start' => $f['start_date'], 'end' => $f['end_date'],
         'term' => contractTermLabel($f['term_months']), 'notice' => $f['notice_days'] . ' days notice',
-        'standard rate' => $f['rate_standard'] === null ? 'the client\'s' : sprintf('%.2f', $f['rate_standard']),
-        'after-hours rate' => $f['rate_after_hours'] === null ? 'the client\'s' : sprintf('%.2f', $f['rate_after_hours']),
-        'net terms' => $f['net_terms'] === null ? 'the client\'s' : $f['net_terms'] . ' days',
+        'standard rate' => $f['rate_standard'] === null ? 'the default' : sprintf('%.2f', $f['rate_standard']),
+        'after-hours rate' => $f['rate_after_hours'] === null ? 'the default' : sprintf('%.2f', $f['rate_after_hours']),
+        'net terms' => $f['net_terms'] === null ? 'the default' : $f['net_terms'] . ' days',
         'support hours' => $f['support_hours'],
     ];
     if ($hours) {

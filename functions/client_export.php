@@ -253,13 +253,14 @@ function clientExportDatasets() {
     return [
         'client' => ['section' => '', 'label' => 'Client', 'columns' => [
             'name' => 'Name', 'abbreviation' => 'Abbreviation', 'industry' => 'Industry', 'website' => 'Website', 'referral' => 'Referral', 'lead' => 'Lead',
-            'tags' => 'Tags', 'hourly_rate' => 'Hourly rate', 'net_terms' => 'Net terms (days)', 'currency' => 'Currency', 'tax_id' => 'Tax ID', 'notes' => 'Notes',
+            'tags' => 'Tags', 'hourly_rate' => 'Hourly rate', 'after_hours_rate' => 'After-hours rate', 'net_terms' => 'Net terms (days)', 'terms_from' => 'Rates and terms from',
+            'currency' => 'Currency', 'tax_id' => 'Tax ID', 'notes' => 'Notes',
         ] + $archived],
         'client_notes' => ['section' => '', 'label' => 'Client notes', 'columns' => [
             'type' => 'Type', 'note' => 'Note', 'by' => 'By', 'created' => 'Created', 'updated' => 'Updated', 'archived' => 'Archived',
         ]],
         'slas' => ['section' => '', 'label' => 'Service levels', 'columns' => [
-            'priority' => 'Priority', 'sla' => 'SLA', 'response_minutes' => 'Response (business minutes)', 'resolution_minutes' => 'Resolution (business minutes)',
+            'priority' => 'Priority', 'sla' => 'SLA', 'response_minutes' => 'Response (business minutes)', 'resolution_minutes' => 'Resolution (business minutes)', 'from' => 'From',
         ]],
         'contacts' => ['section' => 'contacts', 'label' => 'Contacts', 'columns' => [
             'id' => 'ID', 'name' => 'Name', 'title' => 'Title', 'department' => 'Department', 'email' => 'Email', 'phone' => 'Phone', 'mobile' => 'Mobile',
@@ -457,11 +458,15 @@ function clientExportRows($dataset, $client_id, $options) {
             $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $client_id"));
             if ($row) {
                 $billing = clientExportHas($options, 'billing');
+                // Its rates and terms as billed today - its contract's, else the defaults (functions/contract_billing.php)
+                $terms = $billing ? contractClientTerms($client_id) : null;
                 $rows[] = [
                     'name' => $row['client_name'], 'abbreviation' => $row['client_abbreviation'], 'industry' => $row['client_type'], 'website' => $row['client_website'],
                     'referral' => $row['client_referral'], 'lead' => clientExportYes($row['client_lead']),
                     'tags' => clientExportTags('client_tags', 'client_id', [$client_id])[$client_id] ?? '',
-                    'hourly_rate' => $billing ? $row['client_rate'] : '', 'net_terms' => $billing ? $row['client_net_terms'] : '',
+                    'hourly_rate' => $terms ? sprintf('%.2f', $terms['rate']['rate']) : '', 'after_hours_rate' => $terms && $terms['after_hours'][0] > 0 ? sprintf('%.2f', $terms['after_hours'][0]) : '',
+                    'net_terms' => $terms ? $terms['net_terms'][0] : '',
+                    'terms_from' => $terms ? (($terms['rate']['contract_name'] ?: ($terms['net_terms'][1] ?: $terms['after_hours'][1])) ?: 'The defaults') : '',
                     'currency' => $billing ? $row['client_currency_code'] : '', 'tax_id' => $billing ? $row['client_tax_id_number'] : '',
                     'notes' => $row['client_notes'], 'created' => clientExportDate($row['client_created_at']), 'archived' => clientExportDate($row['client_archived_at']),
                 ];
@@ -476,11 +481,15 @@ function clientExportRows($dataset, $client_id, $options) {
             break;
 
         case 'slas':
-            foreach ($fetch("SELECT sla_assignment_priority, sla_name, sla_response_minutes, sla_resolution_minutes FROM sla_assignments
-                JOIN slas ON sla_id = sla_assignment_sla_id WHERE sla_assignment_client_id = $client_id
-                ORDER BY FIELD(sla_assignment_priority, 'Urgent', 'High', 'Medium', 'Low')") as $row) {
-                $rows[] = ['priority' => $row['sla_assignment_priority'], 'sla' => $row['sla_name'], 'response_minutes' => $row['sla_response_minutes'],
-                    'resolution_minutes' => $row['sla_resolution_minutes']];
+            // The SLA a new ticket of each priority gets - its contract's, else the default (functions/contract_billing.php)
+            $sla_terms = contractClientTerms($client_id)['slas'];
+            foreach (['Urgent', 'High', 'Medium', 'Low'] as $priority) {
+                [$sla_id, $sla_from] = $sla_terms[$priority] ?? [0, ''];
+                $sla = $sla_id ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT sla_name, sla_response_minutes, sla_resolution_minutes FROM slas WHERE sla_id = " . intval($sla_id))) : null;
+                if ($sla) {
+                    $rows[] = ['priority' => $priority, 'sla' => $sla['sla_name'], 'response_minutes' => $sla['sla_response_minutes'],
+                        'resolution_minutes' => $sla['sla_resolution_minutes'], 'from' => $sla_from !== '' ? $sla_from : 'Default'];
+                }
             }
             break;
 

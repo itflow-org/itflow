@@ -29,7 +29,7 @@ $sql = mysqli_query($mysqli, "
     SELECT ticket_reply_id, ticket_reply, ticket_reply_type, ticket_reply_created_at, TIME_TO_SEC(ticket_reply_time_worked) AS seconds,
         ticket_reply_by, user_name, user_avatar,
         ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_billable, ticket_client_id, ticket_created_at, ticket_resolved_at, ticket_closed_at, ticket_invoice_id,
-        client_name, client_abbreviation, client_rate
+        client_name, client_abbreviation
     FROM ticket_replies
     JOIN tickets ON ticket_reply_ticket_id = ticket_id
     JOIN clients ON ticket_client_id = client_id
@@ -47,7 +47,7 @@ $replies = [];
 while ($row = mysqli_fetch_assoc($sql)) {
     $seconds = intval($row['seconds']);
     $billed = intval(ceil($seconds / $increment) * $increment);
-    // The contract in force's rate (after hours for a ticket opened outside business hours), else the client's, else the default
+    // The contract in force's rate (after hours for a ticket opened outside business hours), else the default
     $rate_info = contractTicketRate($row);
     $rate = $rate_info['rate'];
     $row['seconds'] = $seconds;
@@ -61,7 +61,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
 
     $c = intval($row['ticket_client_id']);
     $t = intval($row['ticket_id']);
-    $clients[$c] = $clients[$c] ?? ['name' => $row['client_name'], 'abbr' => $row['client_abbreviation'], 'rate' => $rate, 'default_rate' => $rate_info['source'] === 'default', 'rate_note' => in_array($rate_info['source'], ['contract', 'after_hours'], true) ? $rate_info['contract_name'] : '', 'rates' => [],
+    $clients[$c] = $clients[$c] ?? ['name' => $row['client_name'], 'abbr' => $row['client_abbreviation'], 'rate' => $rate, 'default_rate' => $rate_info['source'] === 'default', 'rate_note' => $rate_info['contract_name'], 'rates' => [],
         'tickets' => [], 'seconds' => 0, 'billed' => 0, 'to_bill' => 0, 'value' => 0.0];
     $clients[$c]['tickets'][$t] = $clients[$c]['tickets'][$t] ?? ['row' => $row, 'replies' => [], 'seconds' => 0, 'billed' => 0, 'to_bill' => 0, 'value' => 0.0];
     $clients[$c]['tickets'][$t]['replies'][] = $row;

@@ -58,7 +58,7 @@ ob_start();
                                 &middot; done <?= escapeHtml(date('Y-m-d', strtotime((string) ($ticket['ticket_resolved_at'] ?: $ticket['ticket_closed_at'])))) ?>
                                 <?= $ticket['prepaid'] > 0 ? '&middot; less ' . escapeHtml(contractHoursText($ticket['prepaid'])) . ' prepaid' : '' ?>
                                 <?php if ($rate === null) { ?>
-                                    &middot; <span title="<?= escapeHtml(ucfirst($ticket['rate_note'])) ?>"><?= $ticket['rate_source'] === 'after_hours' ? '<i class="fas fa-moon me-1"></i>' : '' ?><?= escapeHtml(billingMoney($ticket['rate'], $currency)) ?>/hr</span>
+                                    &middot; <span title="<?= escapeHtml(ucfirst($ticket['rate_note'])) ?>"><?= in_array($ticket['rate_source'], ['after_hours', 'default_after_hours'], true) ? '<i class="fas fa-moon me-1"></i>' : '' ?><?= escapeHtml(billingMoney($ticket['rate'], $currency)) ?>/hr</span>
                                 <?php } ?>
                             </span>
                         </label>

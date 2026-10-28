@@ -63,12 +63,18 @@ echo settingsPageStart('default');
                 <?= settingsSelect('config_default_calendar', intval($config_default_calendar), $calendars, ['icon' => 'fa-calendar']) ?>
             <?= settingsSectionEnd() ?>
 
-            <?= settingsSectionStart('clients', 'New clients', 'What a new client starts with - each can have its own, on its Billing tab.') ?>
+            <?= settingsSectionStart('clients', 'Rates and terms', 'What a client is billed on when no contract in force sets it - a client has no rates or terms of its own; its contract\'s apply. The SLAs are in Admin > SLAs.') ?>
                 <div class="row g-3">
                     <div class="col-md-6"><?= settingsSelect('config_default_net_terms', intval($config_default_net_terms), settingsNetTerms(), ['icon' => 'fa-calendar-check',
                         'help' => 'When an invoice is due.']) ?></div>
                     <div class="col-md-6"><?= settingsInput('config_default_hourly_rate', number_format(floatval($config_default_hourly_rate), 2, '.', ''), ['icon' => 'fa-clock', 'inputmode' => 'decimal',
-                        'placeholder' => '0.00', 'suffix' => escapeHtml($session_company_currency) . ' an hour', 'help' => 'And what time bills at for a client with none of its own.']) ?></div>
+                        'placeholder' => '0.00', 'suffix' => escapeHtml($session_company_currency) . ' an hour', 'help' => 'What time bills at.']) ?></div>
+                    <?php if (billingAfterHoursReady()) {
+                        $after_hours_saved = billingDefaults()['after_hours']; ?>
+                        <div class="col-md-6"><?= settingsInput('config_default_after_hours_rate', $after_hours_saved > 0 ? number_format($after_hours_saved, 2, '.', '') : '', ['icon' => 'fa-moon', 'inputmode' => 'decimal',
+                            'placeholder' => 'The hourly rate', 'suffix' => escapeHtml($session_company_currency) . ' an hour',
+                            'help' => 'What time bills at on a ticket opened outside the business days and hours in Admin > SLAs. Empty, the hourly rate.']) ?></div>
+                    <?php } ?>
                 </div>
             <?= settingsSectionEnd() ?>
 

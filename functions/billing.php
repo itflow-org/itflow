@@ -93,7 +93,7 @@ function billingRow($type, $id, $scoped = true) {
     $scope = $scoped ? clientScopeSql("{$c}_client_id") : '';
     $extra = $type === 'recurring' ? ', recurring_payment_id, recurring_payment_saved_payment_id, recurring_payment_method' : '';
     $join = $type === 'recurring' ? 'LEFT JOIN recurring_payments ON recurring_payment_recurring_invoice_id = recurring_invoice_id' : '';
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT {$t['table']}.*, client_id, client_name, client_abbreviation, client_currency_code, client_net_terms,
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT {$t['table']}.*, client_id, client_name, client_abbreviation, client_currency_code,
             client_tax_id_number, category_name $extra
         FROM {$t['table']}
         LEFT JOIN clients ON client_id = {$c}_client_id
@@ -933,10 +933,96 @@ function billingTimeHours($seconds, ?array $rules = null) {
     return round(max($steps * $step, $rules['minimum'] * 60) / 3600, 2);
 }
 
-/** The hourly rate a client's time is billed at - its own, or the default. */
-function billingTimeRate($client_rate) {
-    global $config_default_hourly_rate;
-    return floatval($client_rate) > 0 ? floatval($client_rate) : floatval($config_default_hourly_rate);
+/** Whether the 3.5.0 update has run - the default after-hours rate is there. */
+function billingAfterHoursReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '3.5.0', '>=');
+    }
+    return $ready;
+}
+
+/**
+ * What a client is billed on when no contract in force sets it - the
+ * defaults in Admin > Settings > Defaults: ['rate' => the hourly rate,
+ * 'after_hours' => the after-hours rate (0: none, the hourly rate applies),
+ * 'net_terms' => days]. Read once a request.
+ */
+function billingDefaults() {
+    global $mysqli;
+    static $defaults = null;
+    if ($defaults === null) {
+        $after = billingAfterHoursReady() ? ', config_default_after_hours_rate' : '';
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_default_hourly_rate, config_default_net_terms$after FROM settings WHERE company_id = 1")) ?: [];
+        $defaults = [
+            'rate' => round(floatval($row['config_default_hourly_rate'] ?? 0), 2),
+            'after_hours' => round(floatval($row['config_default_after_hours_rate'] ?? 0), 2),
+            'net_terms' => intval($row['config_default_net_terms'] ?? 0),
+        ];
+    }
+    return $defaults;
+}
+
+/*
+ * Until the 3.5.0 update drops it, a client row has client_net_terms - NOT
+ * NULL, no default - so a client added before the update runs is given the
+ * default's, which the update then leaves be, as it is no different. The
+ * columns a new client needs as [column => value]; [] once the update has run.
+ */
+function billingClientLegacyFields() {
+    return billingAfterHoursReady() ? [] : ['client_net_terms' => billingDefaults()['net_terms']];
+}
+
+/*
+ * Until the 3.5.0 update has run, a client still has the rate, net terms and
+ * SLAs of its own it had, and they apply where no contract in force sets them,
+ * as they did - nothing bills differently before the update turns them into
+ * the client's Standard terms contract. ['rate' => float or null (none),
+ * 'net_terms' => int or null, 'slas' => [priority => sla_id, 0 for none]];
+ * null once the update has run.
+ */
+function billingClientLegacyTerms($client_id) {
+    global $mysqli;
+    static $terms = [];
+    if (billingAfterHoursReady()) {
+        return null;
+    }
+    $client_id = intval($client_id);
+    if (!isset($terms[$client_id])) {
+        $row = $client_id ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_rate, client_net_terms FROM clients WHERE client_id = $client_id")) : null;
+        $slas = [];
+        $sql = $client_id ? mysqli_query($mysqli, "SELECT sla_assignment_priority, sla_assignment_sla_id FROM sla_assignments WHERE sla_assignment_client_id = $client_id") : false;
+        while ($sql && ($sla = mysqli_fetch_assoc($sql))) {
+            $slas[(string) $sla['sla_assignment_priority']] = intval($sla['sla_assignment_sla_id']);
+        }
+        $terms[$client_id] = [
+            'rate' => $row && round(floatval($row['client_rate']), 2) > 0 ? round(floatval($row['client_rate']), 2) : null,
+            'net_terms' => $row && $row['client_net_terms'] !== null ? intval($row['client_net_terms']) : null,
+            'slas' => $slas,
+        ];
+    }
+    return $terms[$client_id];
+}
+
+/** billingClientLegacyFields() for an INSERT INTO clients SET - ", client_net_terms = 30", or ''. */
+function billingClientLegacySql() {
+    $sql = '';
+    foreach (billingClientLegacyFields() as $column => $value) {
+        $sql .= ", $column = " . intval($value);
+    }
+    return $sql;
+}
+
+/** The default hourly rate - what time bills at when no contract in force sets a rate. */
+function billingTimeRate() {
+    return billingDefaults()['rate'];
 }
 
 /**
@@ -959,7 +1045,7 @@ function billingUnbilledSql($include_open = false) {
  * ('prepaid', the hours worked before that are 'worked') - the rate and what
  * that comes to, and the days since it was done. The rate is the contract
  * in force's when there is one (contractTicketRate() - 'rate_source' and
- * 'rate_note' say whose), else the client's, else the default.
+ * 'rate_note' say whose), else the default.
  */
 function billingUnbilledTickets($client_id = 0, array $ticket_ids = [], $include_open = false) {
     global $mysqli;
@@ -970,7 +1056,7 @@ function billingUnbilledTickets($client_id = 0, array $ticket_ids = [], $include
     $rules = billingTimeRules();
     $rows = [];
     $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_onsite, ticket_created_at, ticket_resolved_at, ticket_closed_at,
-            ticket_client_id, ticket_assigned_to, client_name, client_abbreviation, client_rate, user_name, user_avatar,
+            ticket_client_id, ticket_assigned_to, client_name, client_abbreviation, user_name, user_avatar,
             COALESCE((SELECT SUM(TIME_TO_SEC(ticket_reply_time_worked)) FROM ticket_replies WHERE ticket_reply_ticket_id = ticket_id AND ticket_reply_archived_at IS NULL), 0) AS seconds,
             " . (contractHoursReady() ? 'COALESCE((SELECT SUM(contract_block_use_hours) FROM contract_block_uses WHERE contract_block_use_ticket_id = ticket_id), 0)' : '0') . " AS prepaid,
             DATEDIFF(CURDATE(), COALESCE(ticket_resolved_at, ticket_closed_at, ticket_created_at)) AS waiting
@@ -986,7 +1072,7 @@ function billingUnbilledTickets($client_id = 0, array $ticket_ids = [], $include
         $row['prepaid'] = round(floatval($row['prepaid']), 2);
         $row['hours'] = max(0.0, round($row['worked'] - $row['prepaid'], 2));
         $rate = function_exists('contractTicketRate') ? contractTicketRate($row)
-            : ['rate' => billingTimeRate($row['client_rate']), 'source' => floatval($row['client_rate']) > 0 ? 'client' : 'default', 'note' => ''];
+            : ['rate' => billingTimeRate(), 'source' => 'default', 'note' => 'the default rate'];
         $row['rate'] = $rate['rate'];
         $row['rate_source'] = $rate['source'];
         $row['rate_note'] = $rate['note'];
@@ -1058,7 +1144,7 @@ function billingInvoiceCreate($client_id, $date, $category_id, $scope, $by) {
     $client_id = intval($client_id);
     $date = ($parsed = DateTime::createFromFormat('!Y-m-d', (string) $date)) && $parsed->format('Y-m-d') === (string) $date ? (string) $date : date('Y-m-d');
     // The contract in force's net terms, else the client's
-    $terms = function_exists('contractNetTerms') ? contractNetTerms($client_id, $date) : intval(getFieldById('clients', $client_id, 'client_net_terms'));
+    $terms = function_exists('contractNetTerms') ? contractNetTerms($client_id, $date) : billingDefaults()['net_terms'];
     $number = billingNextNumber('invoice');
     $prefix = escapeSql($config_invoice_prefix);
     $scope = escapeSql(mb_substr(trim((string) $scope), 0, 255));
@@ -1528,7 +1614,7 @@ function quoteConvert($quote_id, array $opts, &$error = '') {
         $one_time = $groups['']['items'] ?? [];
         $invoice_discount = isset($groups['']) ? floatval($groups['']['discount']) : 0.0;
         if ($one_time || ($first_period && quoteHasRecurring($groups)) || $invoice_discount != 0) {
-            $terms = function_exists('contractNetTerms') ? contractNetTerms($client_id, $date, $quote['client_net_terms']) : intval($quote['client_net_terms']);
+            $terms = function_exists('contractNetTerms') ? contractNetTerms($client_id, $date) : billingDefaults()['net_terms'];
             $invoice_number = billingNextNumber('invoice');
             $prefix = escapeSql($config_invoice_prefix);
             $url_key = randomString(32);
@@ -2085,7 +2171,8 @@ function recurringInvoiceRefresh($recurring_invoice_id, $by = 'Cron') {
  *
  * Seat lines are counted again and taxes taken at today's rates first. The
  * invoice is dated the run's date ($early: today, for Invoice Now), due on
- * the client's terms, with the period put into its scope, notes and lines.
+ * the net terms of the contract in force (else the default), with the
+ * period put into its scope, notes and lines.
  * The schedule moves one period on from the run it billed - so billing early
  * takes the place of that run, and a missed run billed now is not billed
  * again. The run is claimed first, so two requests can't bill it twice.
@@ -2131,7 +2218,7 @@ function recurringInvoiceGenerate($recurring_invoice_id, $by = 'Cron', $early = 
         config_invoice_from_email, config_invoice_from_name, config_smtp_provider FROM settings WHERE company_id = 1")) ?: [];
     $client_id = intval($row['client_id']);
     // 0 is "On Receipt" - the contract in force's net terms, else the client's
-    $terms = function_exists('contractNetTerms') ? contractNetTerms($client_id, $date, $row['client_net_terms']) : intval($row['client_net_terms']);
+    $terms = function_exists('contractNetTerms') ? contractNetTerms($client_id, $date) : billingDefaults()['net_terms'];
     $prefix = escapeSql($settings['config_invoice_prefix'] ?? '');
     $number = billingNextNumber('invoice');
     $url_key = randomString(32);

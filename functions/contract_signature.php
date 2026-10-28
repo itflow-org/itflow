@@ -89,34 +89,37 @@ function contractNetTermsText($days) {
 }
 
 /*
- * The SLA for each priority as the contract sets it - its own, or the
- * client's usual one when it sets none. [priority => ['sla' => row or null,
- * 'own' => whether the contract sets it]].
+ * The SLA for each priority as the contract sets it - its own, or what
+ * applies when it sets none on $date (contractUsualTerms() - another contract
+ * in force for the client, else the default from Admin > SLAs). [priority =>
+ * ['sla' => row or null, 'own' => whether the contract sets it, 'from' =>
+ * where one it doesn't set comes from - a contract's name, "the client's" or
+ * '' for the default]].
  */
-function contractSlaRows(array $row) {
+function contractSlaRows(array $row, $date = null) {
     $own = [];
     foreach (CONTRACT_SLA_PRIORITIES as $part) {
         $own[] = intval($row["contract_sla_{$part}_id"] ?? 0);
     }
-    $client_id = intval($row['contract_client_id'] ?? 0);
+    $usual_slas = contractUsualTerms($row, $date)['slas'];
     $usual = [];
     foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
-        $usual[$priority] = intval($row["contract_sla_{$part}_id"] ?? 0) ? 0 : intval(getTicketSlaId($client_id, $priority, false));
+        $usual[$priority] = intval($row["contract_sla_{$part}_id"] ?? 0) ? 0 : intval($usual_slas[$priority][0]);
     }
     $slas = contractSlaChoices(array_merge($own, array_values($usual)));
     $rows = [];
     foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
         $id = intval($row["contract_sla_{$part}_id"] ?? 0);
-        $rows[$priority] = ['sla' => $slas[$id ?: $usual[$priority]] ?? null, 'own' => $id > 0];
+        $rows[$priority] = ['sla' => $slas[$id ?: $usual[$priority]] ?? null, 'own' => $id > 0, 'from' => $id > 0 ? '' : (string) $usual_slas[$priority][1]];
     }
     return $rows;
 }
 
-/** The response times as a table - for [SLA] and the document's own section. */
-function contractSlaTableHtml(array $row) {
+/** The response times as a table - for [SLA] and the document's own section - as of $date. */
+function contractSlaTableHtml(array $row, $date = null) {
     $html = '<table class="itflow-contract-doc-table itflow-contract-doc-slas" width="100%" cellpadding="5" cellspacing="0"><thead><tr>'
         . '<th width="22%">Priority</th><th width="38%">Respond within</th><th width="40%">Resolve within</th></tr></thead><tbody>';
-    foreach (contractSlaRows($row) as $priority => $item) {
+    foreach (contractSlaRows($row, $date) as $priority => $item) {
         $sla = $item['sla'];
         $html .= '<tr><td width="22%">' . escapeHtml($priority) . '</td>';
         if ($sla) {
@@ -148,11 +151,13 @@ function contractPlaceholderValues(array $row, $as_of = null) {
     }
     $term = contractTermLabel($row['contract_term_months']);
     $notice = intval($row['contract_notice_days']);
-    $rate = $row['contract_rate_standard'] !== null ? $row['contract_rate_standard'] : ($row['client_rate'] ?? null);
-    $after = $row['contract_rate_after_hours'];
-    $net = $row['contract_net_terms'] !== null ? $row['contract_net_terms'] : ($row['client_net_terms'] ?? null);
+    // What the contract leaves empty is what applies to the client on the day - another contract in force, else the default
+    $usual = contractUsualTerms($row, $as_of);
+    $rate = $row['contract_rate_standard'] !== null ? $row['contract_rate_standard'] : $usual['rate'][0];
+    $after = $row['contract_rate_after_hours'] !== null ? $row['contract_rate_after_hours'] : $usual['after_hours'][0];
+    $net = $row['contract_net_terms'] !== null ? $row['contract_net_terms'] : $usual['net_terms'][0];
     $slas = [];
-    foreach (contractSlaRows($row) as $priority => $item) {
+    foreach (contractSlaRows($row, $as_of) as $priority => $item) {
         if ($item['sla']) {
             $slas[] = "$priority: " . strtolower(contractSlaTargets($item['sla']));
         }
@@ -191,8 +196,8 @@ function contractPlaceholderValues(array $row, $as_of = null) {
  */
 function contractFillTerms($html, array $row, $as_of = null) {
     $space = '(?:\s|&nbsp;|\x{00A0})';
-    $html = preg_replace_callback('/<(p|div|h[1-6])\b[^>]*>' . $space . '*\[SLA\]' . $space . '*<\/\1>/iu', function () use ($row) {
-        return contractSlaTableHtml($row);
+    $html = preg_replace_callback('/<(p|div|h[1-6])\b[^>]*>' . $space . '*\[SLA\]' . $space . '*<\/\1>/iu', function () use ($row, $as_of) {
+        return contractSlaTableHtml($row, $as_of);
     }, (string) $html);
     return ticketPlaceholderFill($html, contractPlaceholderValues($row, $as_of), true);
 }
@@ -269,7 +274,7 @@ function contractDocumentHtml(array $row, $as_of = null) {
     $html .= '</tbody></table>';
 
     $html .= '<h2 class="itflow-contract-doc-heading">Response times</h2>';
-    $html .= contractSlaTableHtml($row);
+    $html .= contractSlaTableHtml($row, $as_of);
 
     $terms = trim((string) $row['contract_details']) !== '' ? contractFillTerms(documentHtmlPurify((string) $row['contract_details']), $row, $as_of) : '';
     if (trim(strip_tags($terms, '<img><table>')) !== '') {

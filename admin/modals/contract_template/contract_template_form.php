@@ -20,6 +20,7 @@ $t_hours = function ($value) {
     return floatval($value) > 0 ? rtrim(rtrim(number_format(floatval($value), 2, '.', ''), '0'), '.') : '';
 };
 $t_term = intval($t_value('term_months', 12));
+$t_hints = contractDefaultHints(); // what a field left empty falls back to
 $t_slas = contractSlaChoices($t ? array_map(function ($part) use ($t) { return intval($t["contract_template_sla_{$part}_id"]); }, CONTRACT_SLA_PRIORITIES) : []);
 $tab = 'templateTab' . bin2hex(random_bytes(3));
 
@@ -125,39 +126,39 @@ $tab = 'templateTab' . bin2hex(random_bytes(3));
                 <label class="form-label">Hourly rate</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                    <input type="text" inputmode="decimal" class="form-control" name="rate_standard" placeholder="The client's" value="<?= escapeHtml($t_money($t_value('rate_standard', ''))) ?>">
+                    <input type="text" inputmode="decimal" class="form-control" name="rate_standard" placeholder="<?= escapeHtml($t_hints['rate']) ?>" value="<?= escapeHtml($t_money($t_value('rate_standard', ''))) ?>">
                 </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">After hours</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-moon"></i></span>
-                    <input type="text" inputmode="decimal" class="form-control" name="rate_after_hours" placeholder="None" value="<?= escapeHtml($t_money($t_value('rate_after_hours', ''))) ?>">
+                    <input type="text" inputmode="decimal" class="form-control" name="rate_after_hours" placeholder="<?= escapeHtml($t_hints['after_hours']) ?>" value="<?= escapeHtml($t_money($t_value('rate_after_hours', ''))) ?>">
                 </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Net terms</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                    <input type="number" class="form-control" name="net_terms" min="0" max="365" placeholder="The client's" value="<?= escapeHtml((string) $t_value('net_terms', '')) ?>">
+                    <input type="number" class="form-control" name="net_terms" min="0" max="365" placeholder="<?= escapeHtml($t_hints['net_terms']) ?>" value="<?= escapeHtml((string) $t_value('net_terms', '')) ?>">
                     <span class="input-group-text">days</span>
                 </div>
             </div>
         </div>
-        <small class="text-secondary d-block mb-3">While the contract is in force, time bills at these rates - the after-hours one for tickets opened outside business hours - and new invoices are due on these terms. Leave one empty and the client's own applies.</small>
+        <small class="text-secondary d-block mb-3">While the contract is in force, time bills at these rates - the after-hours one for tickets opened outside business hours - and new invoices are due on these terms. Leave one empty and the default in Admin > Settings > Defaults applies.</small>
         <label class="form-label">SLA by ticket priority</label>
         <?php foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) { ?>
             <div class="input-group mb-2">
                 <span class="input-group-text" style="width: 7rem;"><i class="fa fa-fw fa-stopwatch me-2"></i><?= $priority ?></span>
                 <select class="form-select" name="sla_<?= $part ?>" aria-label="<?= $priority ?> priority SLA">
-                    <option value="0">The client's usual SLA</option>
+                    <option value="0"><?= escapeHtml($t_hints['slas'][$priority]) ?></option>
                     <?php foreach ($t_slas as $sla_id => $sla) { ?>
                         <option value="<?= $sla_id ?>"<?= intval($t_value("sla_{$part}_id", 0)) === $sla_id ? ' selected' : '' ?>><?= escapeHtml($sla['sla_name'] . ' - ' . contractSlaTargets($sla)) ?><?= $sla['sla_archived_at'] ? ' (archived)' : '' ?></option>
                     <?php } ?>
                 </select>
             </div>
         <?php } ?>
-        <small class="text-secondary">From Admin > SLAs. While the contract is in force, the client's new tickets get them.</small>
+        <small class="text-secondary">From Admin > SLAs. While the contract is in force, the client's new tickets get them, and the default for a priority left on the default.</small>
     </div>
 
     <div class="tab-pane fade" id="<?= $tab ?>Terms" role="tabpanel">

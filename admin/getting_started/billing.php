@@ -1,8 +1,8 @@
 <?php
 
 /*
- * Get started - Billing: the hourly rate and net terms a new client starts
- * with, the tax new lines get (a rate is made when there is none), how
+ * Get started - Billing: the hourly rate and net terms a client is billed on
+ * without a contract, the tax new lines get (a rate is made when there is none), how
  * invoices and quotes are numbered, and - if you like - Stripe, for clients
  * to pay invoices by card (getting_started_billing). The same settings as
  * Admin > Defaults, Taxes, Invoices, Quotes and Payment Providers.
@@ -31,11 +31,11 @@ $gs_stripe_on = settingsChecked('stripe_on', false);
         <div class="col-sm-6">
             <?= settingsInput('config_default_hourly_rate', $gs_rate > 0 ? number_format($gs_rate, 2, '.', '') : '', ['icon' => 'fa-coins', 'type' => 'number', 'label' => 'Hourly rate', 'required' => true,
                 'min' => '0.01', 'step' => '0.01', 'inputmode' => 'decimal', 'placeholder' => '125.00', 'suffix' => escapeHtml($session_company_currency) . ' an hour',
-                'help' => 'For time on a ticket - a client can have their own.']) ?>
+                'help' => 'For time on a ticket - a client\'s contract can set its own.']) ?>
         </div>
         <div class="col-sm-6">
             <?= settingsSelect('config_default_net_terms', (string) intval($gs_billing['config_default_net_terms'] ?? 30), settingsNetTerms(), ['icon' => 'fa-calendar-check', 'label' => 'Invoices are due',
-                'help' => 'A new client starts with these.']) ?>
+                'help' => 'Unless a client\'s contract sets its own.']) ?>
         </div>
     </div>
 

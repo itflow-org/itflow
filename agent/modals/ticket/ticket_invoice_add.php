@@ -187,7 +187,7 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                     <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= number_format($row['rate'], 2, '.', '') ?>" required data-ticket-invoice-rate>
                 </div>
-                <div class="form-text" data-ticket-invoice-rate-note><?= $row['rate'] > 0 ? ($row['default_rate'] ? 'The default rate - the client has none.' : (in_array($row['rate_source'], ['contract', 'after_hours'], true) ? escapeHtml(ucfirst($row['rate_note'])) . '.' : "The client's hourly rate.")) : 'No rate is set for the client, or as a default.' ?></div>
+                <div class="form-text" data-ticket-invoice-rate-note><?= $row['rate'] > 0 ? ($row['default_rate'] ? 'The default rate - no contract in force sets one.' : escapeHtml(ucfirst($row['rate_note'])) . '.') : 'No rate - no contract in force sets one, and there is no default.' ?></div>
             </div>
             <div class="col-sm-4">
                 <label class="form-label">Tax</label>

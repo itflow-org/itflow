@@ -9,7 +9,7 @@ $client_id = intval($_GET['id']);
 enforceClientAccess();
 
 $sql = mysqli_query($mysqli, "SELECT client_abbreviation, client_archived_at, client_created_at, client_lead, client_name,
-    client_net_terms, client_notes, client_rate, client_reminders, client_referral, client_tax_id_number,
+    client_notes, client_reminders, client_referral, client_tax_id_number,
     client_default_tax_id, client_tax_exempt, client_tax_exempt_number, client_tax_exempt_expires,
     client_type, client_website FROM clients WHERE client_id = $client_id LIMIT 1");
 
@@ -21,33 +21,12 @@ $client_type = escapeHtml($row['client_type']);
 $client_website = escapeHtml($row['client_website']);
 $client_referral = escapeHtml($row['client_referral']);
 $row_referral = (string) $row['client_referral'];
-$client_net_terms = intval($row['client_net_terms']);
 $client_reminders = intval($row['client_reminders'] ?? 1);
 $client_tax_id_number = escapeHtml($row['client_tax_id_number']);
 $client_abbreviation = escapeHtml($row['client_abbreviation']);
-$client_rate = floatval($row['client_rate']);
 $client_notes = escapeHtml($row['client_notes']);
 $client_created_at = escapeHtml($row['client_created_at']);
 $client_archived_at = escapeHtml($row['client_archived_at']);
-
-// What a contract in force sets instead, while it is
-$edit_rate_contract = contractTermsOn($client_id, date('Y-m-d'), 'rate');
-$edit_net_contract = contractTermsOn($client_id, date('Y-m-d'), 'net');
-$edit_sla_contract = null;
-foreach (contractsInForce($client_id) as $edit_contract) {
-    foreach (CONTRACT_SLA_PRIORITIES as $edit_part) {
-        if (intval($edit_contract["contract_sla_{$edit_part}_id"])) {
-            $edit_sla_contract = $edit_sla_contract ?? $edit_contract;
-        }
-    }
-}
-
-// Client SLA assignments
-$client_sla_assignments = [];
-$sql_client_slas = mysqli_query($mysqli, "SELECT sla_assignment_priority, sla_assignment_sla_id FROM sla_assignments WHERE sla_assignment_client_id = $client_id");
-while ($client_sla_row = mysqli_fetch_assoc($sql_client_slas)) {
-    $client_sla_assignments[$client_sla_row['sla_assignment_priority']] = intval($client_sla_row['sla_assignment_sla_id']);
-}
 
 // Client Tags
 $client_tag_id_array = array();
@@ -56,17 +35,6 @@ while ($row = mysqli_fetch_assoc($sql_client_tags)) {
     $client_tag_id = intval($row['tag_id']);
     $client_tag_id_array[] = $client_tag_id;
 }
-
-$net_terms_array = array (
-    '0'=>'On Receipt',
-    '7'=>'7 Days',
-    '10'=>'10 Days',
-    '15'=>'15 Days',
-    '30'=>'30 Days',
-    '45'=>'45 Days',
-    '60'=>'60 Days',
-    '90'=>'90 Days'
-);
 
 ob_start();
 
@@ -167,38 +135,7 @@ ob_start();
 
                 <div class="tab-pane fade" id="pills-client-billing<?= $client_id ?>">
 
-                    <div class="mb-3">
-                        <label>Hourly Rate</label>
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                            <input type="text" class="form-control" inputmode="decimal"
-                                   pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00"
-                                   value="<?= number_format($client_rate, 2, '.', '') ?>">
-                        </div>
-                        <?php if ($edit_rate_contract) { ?>
-                            <small class="text-secondary" data-client-contract-rate>While <?= escapeHtml($edit_rate_contract['contract_name']) ?> is in force, its rates apply to the client's time instead.</small>
-                        <?php } ?>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Invoice Net Terms</label>
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                            <select class="form-select select2" name="net_terms">
-                                <option value="">- Net Terms -</option>
-                                <?php foreach ($net_terms_array as $net_term_value => $net_term_name) { ?>
-                                    <option <?php if ($net_term_value == $client_net_terms) {
-                                        echo "selected";
-                                    } ?> value="<?= $net_term_value ?>">
-                                        <?= $net_term_name ?>
-                                    </option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                        <?php if ($edit_net_contract) { ?>
-                            <small class="text-secondary" data-client-contract-net>While <?= escapeHtml($edit_net_contract['contract_name']) ?> is in force, new invoices are due on its terms instead.</small>
-                        <?php } ?>
-                    </div>
+                    <?php $terms_note_client_id = $client_id; require __DIR__ . '/client_terms_note.php'; ?>
 
                     <div class="mb-3">
                         <label>Tax ID</label>
@@ -234,34 +171,6 @@ ob_start();
                 <div class="mb-3">
                     <textarea class="form-control" rows="10" placeholder="Enter some notes" name="notes"><?= $client_notes ?></textarea>
                 </div>
-
-                <?php
-                // Ticket SLA assignments - only offered when active SLAs exist
-                $sla_options = [];
-                $sla_options_sql = mysqli_query($mysqli, "SELECT sla_id, sla_name FROM slas WHERE sla_archived_at IS NULL ORDER BY sla_name ASC");
-                while ($sla_option_row = mysqli_fetch_assoc($sla_options_sql)) {
-                    $sla_options[intval($sla_option_row['sla_id'])] = $sla_option_row['sla_name'];
-                }
-                if ($config_module_enable_ticketing && !empty($sla_options)) { ?>
-                    <div class="mb-3">
-                        <label>Ticket SLAs</label>
-                        <div class="row g-2">
-                            <?php foreach (['Low', 'Medium', 'High', 'Urgent'] as $sla_priority) { $sla_current = $client_sla_assignments[$sla_priority] ?? 'default'; ?>
-                                <div class="col-3">
-                                    <small class="text-secondary"><?= $sla_priority ?></small>
-                                    <select class="form-select" name="client_sla_<?= strtolower($sla_priority) ?>">
-                                        <option value="default" <?php if ($sla_current === 'default') { echo "selected"; } ?>>Default</option>
-                                        <option value="0" <?php if ($sla_current === 0) { echo "selected"; } ?>>None</option>
-                                        <?php foreach ($sla_options as $sla_option_id => $sla_option_name) { ?>
-                                            <option value="<?= $sla_option_id ?>" <?php if ($sla_current === $sla_option_id) { echo "selected"; } ?>><?= escapeHtml($sla_option_name) ?></option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                            <?php } ?>
-                        </div>
-                        <small class="text-muted">Default follows the global SLA assignment for each priority.<?= $edit_sla_contract ? ' While ' . escapeHtml($edit_sla_contract['contract_name']) . ' is in force, the SLAs it sets come first for new tickets.' : '' ?></small>
-                    </div>
-                <?php } ?>
 
             </div>
 

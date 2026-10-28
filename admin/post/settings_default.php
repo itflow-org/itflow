@@ -2,8 +2,9 @@
 
 /*
  * Admin > Settings > Defaults (admin/settings_default.php):
- * edit_default_settings saves the start page, calendar, a new client's net
- * terms and hourly rate, and the accounts and payment methods. A start page
+ * edit_default_settings saves the start page, calendar, the default net terms,
+ * hourly rate and after-hours rate - what a client is billed on when no
+ * contract in force sets it - and the accounts and payment methods. A start page
  * that isn't a page of ITFlow, a calendar or account that isn't there (an
  * archived account only if it is the one saved), a payment method not in
  * Admin > Payment Methods (but the one saved) or a rate that isn't one comes
@@ -45,6 +46,17 @@ if (isset($_POST['edit_default_settings'])) {
         $errors['config_default_hourly_rate'] = 'An amount, such as 125.00 - 0 for none.';
     }
     $after['config_default_hourly_rate'] = $rate;
+
+    // The after-hours rate (database 3.5.0) - empty is none, and after-hours time bills at the hourly rate
+    if (billingAfterHoursReady() && array_key_exists('config_default_after_hours_rate', $_POST)) {
+        $before += settingsCurrent(['config_default_after_hours_rate']);
+        $after_hours_text = trim((string) $_POST['config_default_after_hours_rate']);
+        $after_hours = $after_hours_text === '' ? null : billingNumberInput($after_hours_text);
+        if ($after_hours_text !== '' && ($after_hours === null || $after_hours < 0 || $after_hours >= 1000000)) {
+            $errors['config_default_after_hours_rate'] = 'An amount, such as 175.00 - or leave it empty for the hourly rate.';
+        }
+        $after['config_default_after_hours_rate'] = $after_hours !== null && round($after_hours, 2) > 0 ? round($after_hours, 2) : null;
+    }
 
     foreach ($accounts as $account) {
         $after[$account] = intval($in[$account]);

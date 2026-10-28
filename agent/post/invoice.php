@@ -20,7 +20,7 @@ if (isset($_POST['add_invoice'])) {
 
     $invoice_amount = 0 - $invoice_discount;     // Calc amount if discount is applied, otherwise wrongly shows 0
 
-    // Get Net Terms - the contract in force's, else the client's
+    // Get Net Terms - the contract in force's, else the default
     $client_net_terms = contractNetTerms($client_id, $date);
 
     // Atomically increment and get the new invoice number
@@ -99,8 +99,7 @@ if (isset($_POST['add_invoice_copy'])) {
     $invoice_id = intval($_POST['invoice_id']);
     $date = escapeSql($_POST['date']);
 
-    //Get Net Terms
-    $sql = mysqli_query($mysqli,"SELECT client_net_terms, invoice_amount, invoice_category_id, invoice_client_id,
+    $sql = mysqli_query($mysqli,"SELECT invoice_amount, invoice_category_id, invoice_client_id,
         invoice_currency_code, invoice_discount_amount, invoice_note, invoice_number,
         invoice_prefix, invoice_scope FROM clients, invoices WHERE client_id = invoice_client_id AND invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
@@ -108,14 +107,14 @@ if (isset($_POST['add_invoice_copy'])) {
         flashAlert('That invoice no longer exists.', 'error');
         redirect();
     }
-    $client_net_terms = intval($row['client_net_terms']); // 0 is On Receipt
     $invoice_scope = escapeSql($row['invoice_scope']);
     $invoice_discount_amount = floatval($row['invoice_discount_amount']);
     $invoice_amount = floatval($row['invoice_amount']);
     $invoice_currency_code = escapeSql($row['invoice_currency_code']);
     $invoice_note = escapeSql($row['invoice_note']);
     $client_id = intval($row['invoice_client_id']);
-    $client_net_terms = contractNetTerms($client_id, $date, $client_net_terms);
+    // Net terms - the contract in force's, else the default (0 is On Receipt)
+    $client_net_terms = contractNetTerms($client_id, $date);
     $category_id = intval($row['invoice_category_id']);
     $old_invoice_prefix = escapeSql($row['invoice_prefix']);
     $old_invoice_number = intval($row['invoice_number']);

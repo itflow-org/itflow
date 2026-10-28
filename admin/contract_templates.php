@@ -140,14 +140,14 @@ $csrf = $_SESSION['csrf_token'];
                         <div class="text-body-secondary"><?= intval($row['contract_template_auto_renew']) ? 'Renews itself' : 'Renewed by hand' ?>, <?= intval($row['contract_template_notice_days']) ?> days notice</div>
                     </td>
                     <td class="d-none d-lg-table-cell small">
-                        <?= $cover ? escapeHtml(implode(' · ', $cover)) : '<span class="text-body-tertiary">The client\'s rate and terms</span>' ?>
+                        <?= $cover ? escapeHtml(implode(' · ', $cover)) : '<span class="text-body-tertiary">The default rate and terms</span>' ?>
                         <div class="text-body-secondary">
                             <?php if ($sla_names) {
                                 echo escapeHtml(implode(' · ', array_map(function ($sla_name, $priorities) {
                                     return "$sla_name (" . implode(', ', $priorities) . ")";
                                 }, array_keys($sla_names), $sla_names)));
                             } else { ?>
-                                The client's usual SLAs
+                                The default SLAs
                             <?php } ?>
                         </div>
                     </td>

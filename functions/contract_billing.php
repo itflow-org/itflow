@@ -4,19 +4,22 @@
  * What a contract sets while it is in force, and the recurring invoice that
  * bills it.
  *
- * In force: an active, ended or cancelled contract, from the day it starts
- * to its last day - and an active one that renews itself after that too,
- * until the nightly job renews it. While a contract is in force:
+ * A client's hourly rate, after-hours rate, net terms and SLAs come from its
+ * contract - a client has none of its own (from database 3.5.0). In force:
+ * an active, ended or cancelled contract, from the day it starts to its last
+ * day - and an active one that renews itself after that too, until the
+ * nightly job renews it. While a contract is in force:
  *  - a new ticket of the client's gets the contract's SLA for its priority
- *    (getTicketSlaId() in functions/sla.php asks contractSlaFor() first),
- *    ahead of the client's own in Admin > SLAs;
+ *    (getTicketSlaId() in functions/sla.php asks contractSlaFor() first);
  *  - time bills at the contract's rate - its after-hours rate for a ticket
  *    opened outside the business days and hours in Admin > Settings (the
  *    ones SLAs use) - going by the contract in force on the day the work was
  *    done (contractTicketRate(), used by billingUnbilledTickets());
  *  - a new invoice is due on the contract's net terms (contractNetTerms()).
- * Whatever the contract leaves empty, the client's own applies. When two
- * are in force, the one that started last is asked first.
+ * Whatever no contract in force sets, the instance's default applies - the
+ * rates and net terms in Admin > Settings > Defaults (billingDefaults()),
+ * the SLAs in Admin > SLAs. When two are in force, the one that started
+ * last is asked first.
  *
  * A contract can be linked to one of the client's recurring invoices
  * (contract_recurring_invoice_id, from database 3.4.5), or make one. It is
@@ -113,6 +116,71 @@ function contractTermsOn($client_id, $date, $what = '') {
     return null;
 }
 
+/*
+ * What applies to a contract's client for what the contract leaves empty, on
+ * $date ('Y-m-d', today when not given): another contract in force for the
+ * client that sets it - the one that started last first; a Standard terms
+ * contract carries what a client had of its own before the 3.5.0 update -
+ * else the default. Before that update, the client's own, as it was (and no
+ * after-hours rate). Each as [value, where from - a contract's name, "the
+ * client's" or '' for the default]: 'rate' and 'after_hours' (null for
+ * none), 'net_terms' (days), 'slas' (priority => sla_id, 0 for none). For
+ * the contract's page and its document.
+ */
+function contractUsualTerms(array $row, $date = null) {
+    $date = $date ?: date('Y-m-d');
+    $client_id = intval($row['contract_client_id'] ?? 0);
+    $defaults = billingDefaults();
+    $usual = [
+        'rate' => [$defaults['rate'] > 0 ? $defaults['rate'] : null, ''],
+        'after_hours' => [$defaults['after_hours'] > 0 ? $defaults['after_hours'] : null, ''],
+        'net_terms' => [$defaults['net_terms'], ''],
+        'slas' => [],
+    ];
+    $legacy = billingClientLegacyTerms($client_id);
+    foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
+        // The default for the priority - or, before the update, the client's own
+        $usual['slas'][$priority] = [intval(getTicketSlaId($client_id, $priority, false)), $legacy && array_key_exists($priority, $legacy['slas']) ? "the client's" : ''];
+    }
+    if ($legacy) {
+        $usual['rate'] = [$legacy['rate'], "the client's"];
+        $usual['after_hours'] = [null, ''];
+        if ($legacy['net_terms'] !== null) {
+            $usual['net_terms'] = [$legacy['net_terms'], "the client's"];
+        }
+        return $usual;
+    }
+    $live = contractSlaChoices();
+    $found = [];
+    foreach (contractTermsContracts($client_id) as $other) {
+        if (intval($other['contract_id']) === intval($row['contract_id'] ?? 0) || !contractInForceOn($other, $date)) {
+            continue;
+        }
+        $name = (string) $other['contract_name'];
+        if (!isset($found['rate']) && floatval($other['contract_rate_standard']) > 0) {
+            $usual['rate'] = [floatval($other['contract_rate_standard']), $name];
+            $found['rate'] = true;
+        }
+        if (!isset($found['after_hours']) && floatval($other['contract_rate_after_hours']) > 0) {
+            $usual['after_hours'] = [floatval($other['contract_rate_after_hours']), $name];
+            $found['after_hours'] = true;
+        }
+        if (!isset($found['net_terms']) && $other['contract_net_terms'] !== null) {
+            $usual['net_terms'] = [intval($other['contract_net_terms']), $name];
+            $found['net_terms'] = true;
+        }
+        foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
+            $sla_id = intval($other["contract_sla_{$part}_id"]);
+            // An archived SLA doesn't count, as for tickets
+            if (!isset($found[$part]) && $sla_id && isset($live[$sla_id])) {
+                $usual['slas'][$priority] = [$sla_id, $name];
+                $found[$part] = true;
+            }
+        }
+    }
+    return $usual;
+}
+
 /** The contracts in force for a client today - the latest to start first. */
 function contractsInForce($client_id) {
     $today = date('Y-m-d');
@@ -125,7 +193,7 @@ function contractsInForce($client_id) {
 
 /*
  * The SLA a contract in force today sets for a priority of the client's
- * tickets - 0 when none does (the client's own applies). An archived SLA
+ * tickets - 0 when none does (the default applies). An archived SLA
  * doesn't count.
  */
 function contractSlaFor($client_id, $priority, $date = null) {
@@ -170,59 +238,120 @@ function contractAfterHours($datetime) {
 }
 
 /*
- * The hourly rate a ticket's time bills at, and where it comes from. The
- * contract in force on the day the work was done (resolved, else closed,
- * else opened): its after-hours rate when the ticket was opened outside
- * business hours and it has one, else its rate. Else the client's own,
- * else the default. $ticket has ticket_client_id, client_rate,
+ * The hourly rate a ticket's time bills at, and where it comes from, going
+ * by the contracts in force on the day the work was done (resolved, else
+ * closed, else opened). A ticket opened outside business hours bills at an
+ * after-hours rate - a contract's, else the default after-hours rate - when
+ * there is one. Otherwise a contract's rate, else the default rate. Each is
+ * taken on its own: a contract that sets only a rate leaves after-hours time
+ * to the default after-hours rate. $ticket has ticket_client_id,
  * ticket_created_at, ticket_resolved_at, ticket_closed_at. [rate, source
- * (after_hours, contract, client or default), contract_id, contract_name,
- * note - in words].
+ * (after_hours, contract, default_after_hours or default - or client, the
+ * client's own before the 3.5.0 update), contract_id, contract_name, note -
+ * in words].
  */
 function contractTicketRate(array $ticket) {
     $done = substr((string) (($ticket['ticket_resolved_at'] ?? '') ?: (($ticket['ticket_closed_at'] ?? '') ?: ($ticket['ticket_created_at'] ?? ''))), 0, 10) ?: date('Y-m-d');
-    $after = null;
-    foreach (contractTermsContracts($ticket['ticket_client_id'] ?? 0) as $row) {
-        if (!contractInForceOn($row, $done)) {
-            continue;
+    $defaults = billingDefaults();
+    $in_force = array_values(array_filter(contractTermsContracts($ticket['ticket_client_id'] ?? 0), function ($row) use ($done) {
+        return contractInForceOn($row, $done);
+    }));
+    // A rate of nothing is no rate - the default applies
+    $after_rates = array_filter($in_force, function ($row) {
+        return floatval($row['contract_rate_after_hours']) > 0;
+    });
+    if (($after_rates || $defaults['after_hours'] > 0) && contractAfterHours($ticket['ticket_created_at'] ?? '')) {
+        foreach ($after_rates as $row) {
+            return ['rate' => floatval($row['contract_rate_after_hours']), 'source' => 'after_hours', 'contract_id' => intval($row['contract_id']), 'contract_name' => $row['contract_name'],
+                'note' => contractPossessive($row['contract_name']) . " after-hours rate - opened outside business hours"];
         }
-        // A rate of nothing is no rate - the client's own applies
-        if (floatval($row['contract_rate_after_hours']) > 0) {
-            $after = $after ?? contractAfterHours($ticket['ticket_created_at'] ?? '');
-            if ($after) {
-                return ['rate' => floatval($row['contract_rate_after_hours']), 'source' => 'after_hours', 'contract_id' => intval($row['contract_id']), 'contract_name' => $row['contract_name'],
-                    'note' => $row['contract_name'] . "'s after-hours rate - opened outside business hours"];
-            }
-        }
+        return ['rate' => $defaults['after_hours'], 'source' => 'default_after_hours', 'contract_id' => 0, 'contract_name' => '',
+            'note' => 'the default after-hours rate - opened outside business hours'];
+    }
+    foreach ($in_force as $row) {
         if (floatval($row['contract_rate_standard']) > 0) {
             return ['rate' => floatval($row['contract_rate_standard']), 'source' => 'contract', 'contract_id' => intval($row['contract_id']), 'contract_name' => $row['contract_name'],
-                'note' => $row['contract_name'] . "'s rate"];
+                'note' => contractPossessive($row['contract_name']) . " rate"];
         }
     }
-    $client_rate = floatval($ticket['client_rate'] ?? 0);
-    return ['rate' => billingTimeRate($client_rate), 'source' => $client_rate > 0 ? 'client' : 'default', 'contract_id' => 0, 'contract_name' => '',
-        'note' => $client_rate > 0 ? "the client's rate" : 'the default rate'];
+    // Before the 3.5.0 update, the client's own rate, as it was
+    $legacy = billingClientLegacyTerms($ticket['ticket_client_id'] ?? 0);
+    if ($legacy && $legacy['rate'] !== null) {
+        return ['rate' => $legacy['rate'], 'source' => 'client', 'contract_id' => 0, 'contract_name' => '', 'note' => "the client's rate"];
+    }
+    return ['rate' => $defaults['rate'], 'source' => 'default', 'contract_id' => 0, 'contract_name' => '', 'note' => 'the default rate'];
 }
 
 /*
- * A client's hourly rate today - the contract in force's, else the client's
- * own, else the default - for a price to start from. [rate, source, note].
+ * A client's hourly rate today - the contract in force's, else the default -
+ * for a price to start from. [rate, source, contract_id, contract_name, note].
  */
 function contractClientRate($client_id) {
-    return contractTicketRate(['ticket_client_id' => intval($client_id), 'client_rate' => getFieldById('clients', intval($client_id), 'client_rate'), 'ticket_resolved_at' => date('Y-m-d'),
+    return contractTicketRate(['ticket_client_id' => intval($client_id), 'ticket_resolved_at' => date('Y-m-d'),
         // A moment in business hours, so the standard rate is the one given
         'ticket_created_at' => '']);
 }
 
 /* ---------------------------------------------------------------- net terms */
 
-/** The days a client's invoice dated $date is due after - the contract in force's net terms, else the client's. */
-function contractNetTerms($client_id, $date, $client_terms = null) {
+/** The days a client's invoice dated $date is due after - the contract in force's net terms, else the default. */
+function contractNetTerms($client_id, $date) {
+    return contractNetTermsWhose($client_id, $date)[0];
+}
+
+/*
+ * contractNetTerms() and whose terms they are, in words - [days, "Gold's",
+ * or "the client's" before the 3.5.0 update, or 'the default'].
+ */
+function contractNetTermsWhose($client_id, $date) {
     $row = contractTermsOn($client_id, $date ?: date('Y-m-d'), 'net');
     if ($row) {
-        return intval($row['contract_net_terms']);
+        return [intval($row['contract_net_terms']), contractPossessive($row['contract_name'])];
     }
-    return intval($client_terms ?? getFieldById('clients', intval($client_id), 'client_net_terms'));
+    // Before the 3.5.0 update, the client's own, as it was
+    $legacy = billingClientLegacyTerms($client_id);
+    if ($legacy && $legacy['net_terms'] !== null) {
+        return [$legacy['net_terms'], "the client's"];
+    }
+    return [billingDefaults()['net_terms'], 'the default'];
+}
+
+/*
+ * A client's terms today, each with where it comes from - for the pages
+ * that show them: ['rate' => contractClientRate(), 'after_hours' => [rate,
+ * contract name or ''] (rate 0: none, the hourly rate applies), 'net_terms'
+ * => [days, contract name or ''], 'slas' => [priority => [sla_id, contract
+ * name or '']]].
+ */
+function contractClientTerms($client_id) {
+    $client_id = intval($client_id);
+    $today = date('Y-m-d');
+    $defaults = billingDefaults();
+    $after = [$defaults['after_hours'], ''];
+    foreach (contractsInForce($client_id) as $row) {
+        if (floatval($row['contract_rate_after_hours']) > 0) {
+            $after = [floatval($row['contract_rate_after_hours']), $row['contract_name']];
+            break;
+        }
+    }
+    $net = contractTermsOn($client_id, $today, 'net');
+    $slas = [];
+    foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
+        $sla_id = contractSlaFor($client_id, $priority);
+        $from = '';
+        if ($sla_id) {
+            $from = (string) (contractTermsOn($client_id, $today, $part)['contract_name'] ?? '');
+        } else {
+            $sla_id = intval(getTicketSlaId($client_id, $priority, false));
+        }
+        $slas[$priority] = [$sla_id, $from];
+    }
+    return [
+        'rate' => contractClientRate($client_id),
+        'after_hours' => $after,
+        'net_terms' => $net ? [intval($net['contract_net_terms']), $net['contract_name']] : [contractNetTerms($client_id, $today), ''],
+        'slas' => $slas,
+    ];
 }
 
 /*

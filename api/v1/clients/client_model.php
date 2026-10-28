@@ -37,13 +37,11 @@ if (isset($_POST['client_referral'])) {
     $referral = '';
 }
 
-if (isset($_POST['client_rate'])) {
-    $rate = floatval($_POST['client_rate']);
-} elseif ($client_row) {
-    $rate = $client_row['client_rate'];
-} else {
-    $rate = 0;
-}
+// A client has no rate or net terms of its own - its contract's apply, else the defaults
+// (functions/contract_billing.php). create.php turns client_rate and client_net_terms that
+// aren't the defaults into a Standard terms contract; update.php says they weren't kept.
+$rate = isset($_POST['client_rate']) && trim((string) $_POST['client_rate']) !== '' ? floatval($_POST['client_rate']) : null;
+$net_terms = isset($_POST['client_net_terms']) && trim((string) $_POST['client_net_terms']) !== '' ? max(0, min(365, intval($_POST['client_net_terms']))) : null;
 
 if (isset($_POST['client_currency_code'])) {
     $currency_code = escapeSql($_POST['client_currency_code']);
@@ -53,13 +51,6 @@ if (isset($_POST['client_currency_code'])) {
     $currency_code = '';
 }
 
-if (isset($_POST['client_net_terms'])) {
-    $net_terms = intval($_POST['client_net_terms']);
-} elseif ($client_row) {
-    $net_terms = $client_row['client_net_terms'];
-} else {
-    $net_terms = 0;
-}
 
 if (isset($_POST['client_tax_id_number'])) {
     $tax_id_number = escapeSql($_POST['client_tax_id_number']);

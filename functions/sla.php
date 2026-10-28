@@ -3,11 +3,11 @@
 /*
  * ITFlow - Ticket SLA helpers
  *
- * SLAs are optional at every level. A ticket only gets SLA targets when an
- * assignment resolves for its client + priority (client-level assignments win,
- * client 0 rows are the global default, and an assignment pointing at SLA 0 is
- * an explicit "no SLA" override). Tickets with ticket_sla_id = 0 are simply
- * ignored by the SLA cron, the list highlighting and the reports.
+ * SLAs are optional. A ticket only gets SLA targets when one resolves for its
+ * client + priority: the SLA its client's contract in force sets for the
+ * priority, else the default for the priority (sla_assignments, client 0 -
+ * Admin > SLAs). A client has none of its own. Tickets with ticket_sla_id = 0
+ * are simply ignored by the SLA cron, the list highlighting and the reports.
  *
  * Deadlines are computed ONCE at write time (creation / priority change /
  * client change / manual SLA change) and stored on the ticket as
@@ -433,8 +433,9 @@ function syncTicketSlaClock($ticket_id)
 // Resolve which SLA (if any) applies to a client + priority combination.
 // Returns an sla_id, or 0 when no SLA applies. A contract in force for the
 // client that sets an SLA for the priority comes first (contractSlaFor() in
-// functions/contract_billing.php) - $with_contract false asks only the
-// client's own and the global default, what applies without one.
+// functions/contract_billing.php), else the default for the priority in
+// Admin > SLAs (before the 3.5.0 update, the client's own first, as it was) -
+// $with_contract false gives what applies without a contract.
 function getTicketSlaId($client_id, $priority, $with_contract = true)
 {
     global $mysqli;
@@ -452,17 +453,12 @@ function getTicketSlaId($client_id, $priority, $with_contract = true)
 
     $sla_id = null;
 
-    // Client-level assignment wins; a row pointing at SLA 0 is an explicit
-    // "no SLA for this client/priority" override of the global default
-    if ($client_id > 0) {
-        $sql = mysqli_query($mysqli, "SELECT sla_assignment_sla_id FROM sla_assignments WHERE sla_assignment_client_id = $client_id AND sla_assignment_priority = '$priority' LIMIT 1");
-        if (mysqli_num_rows($sql)) {
-            $sla_id = intval(mysqli_fetch_assoc($sql)['sla_assignment_sla_id']);
-        }
-    }
-
-    // Fall back to the global default (client 0)
-    if (is_null($sla_id)) {
+    // Before the 3.5.0 update, the client's own, as it was - one pointing at SLA 0 is "no SLA"
+    $legacy = $client_id > 0 && function_exists('billingClientLegacyTerms') ? billingClientLegacyTerms($client_id) : null;
+    if ($legacy && array_key_exists((string) $priority, $legacy['slas'])) {
+        $sla_id = $legacy['slas'][(string) $priority];
+    } else {
+        // Else the default for the priority, from Admin > SLAs (client 0) - a client has no SLAs of its own, only its contract's
         $sql = mysqli_query($mysqli, "SELECT sla_assignment_sla_id FROM sla_assignments WHERE sla_assignment_client_id = 0 AND sla_assignment_priority = '$priority' LIMIT 1");
         if (mysqli_num_rows($sql)) {
             $sla_id = intval(mysqli_fetch_assoc($sql)['sla_assignment_sla_id']);

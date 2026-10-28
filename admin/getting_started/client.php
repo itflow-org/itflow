@@ -16,7 +16,6 @@ require_once dirname(__DIR__) . '/post/demo_data_model.php';
 $gs_demo = demoDataStatus($mysqli);
 $gs_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_created_at DESC, client_id DESC LIMIT 3");
 $gs_client_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM clients WHERE client_archived_at IS NULL"))[0] ?? 0);
-$gs_defaults = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_default_hourly_rate, config_default_net_terms FROM settings WHERE company_id = 1")) ?: [];
 
 ?>
 <?php if ($gs_client_count) { ?>
@@ -40,8 +39,6 @@ $gs_defaults = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_default_h
         'title', 'contact_phone_country_code', 'contact_phone', 'contact_extension', 'contact_mobile_country_code', 'contact_mobile'] as $gs_field) { ?>
         <input type="hidden" name="<?= $gs_field ?>" value="">
     <?php } ?>
-    <input type="hidden" name="rate" value="<?= escapeHtml(number_format(floatval($gs_defaults['config_default_hourly_rate'] ?? 0), 2, '.', '')) ?>">
-    <input type="hidden" name="net_terms" value="<?= intval($gs_defaults['config_default_net_terms'] ?? 30) ?>">
     <div class="row g-3 mb-3">
         <div class="col-sm-7">
             <?= settingsInput('name', '', ['id' => 'gsClientName', 'icon' => 'fa-user-friends', 'label' => 'Client', 'required' => true, 'maxlength' => 200, 'placeholder' => 'Name or company']) ?>

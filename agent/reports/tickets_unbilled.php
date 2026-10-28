@@ -3,8 +3,8 @@
 /*
  * Unbilled Work - billable tickets that are resolved or closed but on no
  * invoice yet: money left on the table. Each ticket's time is rounded the
- * way Admin > Settings > Invoice says and priced at the client's hourly rate
- * - the same hours and rate Unbilled Time and a ticket's Invoice window fill
+ * way Admin > Settings > Invoice says and priced at the rate its client's
+ * contract sets, else the default rate - the same hours and rate Unbilled Time and a ticket's Invoice window fill
  * in - so the value here is what invoicing them would come to. Per client,
  * then every ticket, the longest waiting first.
  */
@@ -52,11 +52,11 @@ $rate_html = function ($row) {
         return '<span class="small" title="Each ticket bills at its own rate">Varies</span>';
     }
     if ($row['rate'] <= 0) {
-        return '<span class="text-warning-emphasis small" title="Set an hourly rate on the client, or a default in Admin > Settings > Invoices">No rate</span>';
+        return '<span class="text-warning-emphasis small" title="Give the client\'s contract an hourly rate, or set a default in Admin > Settings > Defaults">No rate</span>';
     }
     $source = $row['rate_source'] ?? '';
-    return reportMoney($row['rate']) . ($row['default_rate'] ? ' <span class="small text-body-tertiary" title="The client has no rate of its own - this is the default hourly rate">default</span>'
-        : (in_array($source, ['contract', 'after_hours'], true) ? ' <span class="small text-body-tertiary" title="' . escapeHtml(ucfirst((string) $row['rate_note'])) . '">' . ($source === 'after_hours' ? 'after hours' : 'contract') . '</span>' : ''));
+    return reportMoney($row['rate']) . ($row['default_rate'] ? ' <span class="small text-body-tertiary" title="No contract in force sets a rate - this is the default hourly rate">default</span>'
+        : (in_array($source, ['contract', 'after_hours', 'default_after_hours'], true) ? ' <span class="small text-body-tertiary" title="' . escapeHtml(ucfirst((string) $row['rate_note'])) . '">' . ($source === 'contract' ? 'contract' : 'after hours') . '</span>' : ''));
 };
 
 $client_columns = [

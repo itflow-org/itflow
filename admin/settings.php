@@ -36,7 +36,8 @@ $summaries = [
     'localization' => escapeHtml(implode(' · ', array_filter([$localization['locales'][$company['company_locale'] ?? ''] ?? '', $company['company_currency'] ?? '', $config_timezone]))),
     'theme' => '<span class="itflow-settings-dot theme-' . escapeHtml($config_theme) . '"></span>' . escapeHtml($themes[$config_theme] ?? $config_theme) . (file_exists(dirname(__DIR__) . '/uploads/favicon.ico') ? ' · its own tab icon' : ''),
     'default' => 'Opens on ' . escapeHtml($start_pages[$config_start_page] ?? $config_start_page) . ' · ' . ($config_default_net_terms ? 'net ' . intval($config_default_net_terms) : 'due on receipt')
-        . ($config_default_hourly_rate > 0 ? ' · ' . escapeHtml(numfmt_format_currency($currency_format, $config_default_hourly_rate, $session_company_currency)) . ' an hour' : ''),
+        . ($config_default_hourly_rate > 0 ? ' · ' . escapeHtml(numfmt_format_currency($currency_format, $config_default_hourly_rate, $session_company_currency)) . ' an hour' : '')
+        . (billingDefaults()['after_hours'] > 0 ? ', ' . escapeHtml(numfmt_format_currency($currency_format, billingDefaults()['after_hours'], $session_company_currency)) . ' after hours' : ''),
     'ticket' => 'Next ' . escapeHtml($config_ticket_prefix . $config_ticket_next_number) . ' · email to ticket ' . $on_off($config_ticket_email_parse),
     'project' => 'Next ' . escapeHtml($config_project_prefix . $config_project_next_number),
     'quote' => 'Next ' . escapeHtml($config_quote_prefix . $config_quote_next_number),

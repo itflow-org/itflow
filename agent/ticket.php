@@ -57,11 +57,6 @@ if (isset($_GET['ticket_id'])) {
         $client_id = intval($ticket['client_id']);
         $client_name = escapeHtml($ticket['client_name']);
 
-        $client_net_terms = intval($ticket['client_net_terms']);
-        if ($client_net_terms == 0) {
-            $client_net_terms = $config_default_net_terms;
-        }
-
         $ticket_prefix = escapeHtml($ticket['ticket_prefix']);
         $ticket_number = intval($ticket['ticket_number']);
         $ticket_reference = "$ticket_prefix$ticket_number";

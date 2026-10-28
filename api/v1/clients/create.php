@@ -20,12 +20,20 @@ if (!empty($name) && $client_id == 0) {
     }
 
     // Insert client
-    $insert_sql = mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$currency_code', client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_abbreviation = '$abbreviation', client_lead = $lead, client_notes = '$notes', client_accessed_at = NOW(), $tax_set_sql");
+    $insert_sql = mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_tax_id_number = '$tax_id_number', client_abbreviation = '$abbreviation', client_lead = $lead, client_notes = '$notes', client_accessed_at = NOW(), $tax_set_sql" . billingClientLegacySql());
 
     // Check insert & get insert ID
     if ($insert_sql) {
         $insert_id = mysqli_insert_id($mysqli);
-        
+
+        // A rate or net terms that aren't the defaults - the client's Standard terms contract (functions/contract.php)
+        if (($rate !== null || $net_terms !== null) && contractsReady()) {
+            $terms_contract_id = contractStandardTermsAdd($insert_id, $rate, $net_terms, [], null, "Made by the API ($api_key_name) from client_rate and client_net_terms.");
+            if ($terms_contract_id) {
+                $return_arr['contract_id'] = $terms_contract_id;
+            }
+        }
+
         // Logging
         logAudit("Client", "Create", "$name via API ($api_key_name)", $insert_id);
         logAudit("API", "Success", "Created client $name via API ($api_key_name)", $insert_id);

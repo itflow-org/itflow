@@ -20,6 +20,7 @@ $c = $form_contract ?? $form_copy ?? null;
 $c_new = empty($form_contract);
 $c_client_id = intval($c['contract_client_id'] ?? $form_client_id);
 $c_templates = $c_new ? contractTemplates() : [];
+$c_hints = contractDefaultHints(); // what a field left empty falls back to
 $c_slas = contractSlaChoices($c ? array_map(function ($part) use ($c) { return intval($c["contract_sla_{$part}_id"]); }, CONTRACT_SLA_PRIORITIES) : []);
 $c_value = function ($key, $default = '') use ($c) {
     return $c !== null && array_key_exists("contract_$key", $c) && $c["contract_$key"] !== null ? $c["contract_$key"] : $default;
@@ -38,7 +39,7 @@ $c_hours = function ($value) {
 $c_clients = [];
 $c_contacts = [];
 $client_where = $c_client_id ? "client_id = $c_client_id" : "client_archived_at IS NULL " . clientScopeSql('clients.client_id');
-$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation, client_rate, client_net_terms FROM clients WHERE $client_where ORDER BY client_name ASC");
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE $client_where ORDER BY client_name ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
     $c_clients[intval($row['client_id'])] = $row;
 }
@@ -286,40 +287,40 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     <label class="form-label">Hourly rate</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                        <input type="text" inputmode="decimal" class="form-control" name="rate_standard" placeholder="The client's" value="<?= escapeHtml($c_money($c_value('rate_standard', ''))) ?>" data-contract-field="rate_standard">
+                        <input type="text" inputmode="decimal" class="form-control" name="rate_standard" placeholder="<?= escapeHtml($c_hints['rate']) ?>" value="<?= escapeHtml($c_money($c_value('rate_standard', ''))) ?>" data-contract-field="rate_standard">
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">After hours</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-moon"></i></span>
-                        <input type="text" inputmode="decimal" class="form-control" name="rate_after_hours" placeholder="None" value="<?= escapeHtml($c_money($c_value('rate_after_hours', ''))) ?>" data-contract-field="rate_after_hours">
+                        <input type="text" inputmode="decimal" class="form-control" name="rate_after_hours" placeholder="<?= escapeHtml($c_hints['after_hours']) ?>" value="<?= escapeHtml($c_money($c_value('rate_after_hours', ''))) ?>" data-contract-field="rate_after_hours">
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Net terms</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                        <input type="number" class="form-control" name="net_terms" min="0" max="365" placeholder="The client's" value="<?= escapeHtml((string) $c_value('net_terms', '')) ?>" data-contract-field="net_terms">
+                        <input type="number" class="form-control" name="net_terms" min="0" max="365" placeholder="<?= escapeHtml($c_hints['net_terms']) ?>" value="<?= escapeHtml((string) $c_value('net_terms', '')) ?>" data-contract-field="net_terms">
                         <span class="input-group-text">days</span>
                     </div>
                 </div>
             </div>
-            <small class="text-secondary d-block mb-3">While the contract is in force, time bills at these rates - the after-hours one for tickets opened outside business hours - and new invoices are due on these terms. Leave one empty and the client's own applies.</small>
+            <small class="text-secondary d-block mb-3">While the contract is in force, time bills at these rates - the after-hours one for tickets opened outside business hours - and new invoices are due on these terms. Leave one empty and the default in Admin > Settings > Defaults applies.</small>
 
             <label class="form-label">SLA by ticket priority</label>
             <?php foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) { ?>
                 <div class="input-group mb-2">
                     <span class="input-group-text" style="width: 7rem;"><i class="fa fa-fw fa-stopwatch me-2"></i><?= $priority ?></span>
                     <select class="form-select" name="sla_<?= $part ?>" data-contract-field="sla_<?= $part ?>" aria-label="<?= $priority ?> priority SLA">
-                        <option value="0">The client's usual SLA</option>
+                        <option value="0"><?= escapeHtml($c_hints['slas'][$priority]) ?></option>
                         <?php foreach ($c_slas as $sla_id => $sla) { ?>
                             <option value="<?= $sla_id ?>"<?= intval($c_value("sla_{$part}_id", 0)) === $sla_id ? ' selected' : '' ?>><?= escapeHtml($sla['sla_name'] . ' - ' . contractSlaTargets($sla)) ?><?= $sla['sla_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
                     </select>
                 </div>
             <?php } ?>
-            <small class="text-secondary">From Admin > SLAs. While the contract is in force, the client's new tickets get them.</small>
+            <small class="text-secondary">From Admin > SLAs. While the contract is in force, the client's new tickets get them, and the default for a priority left on the default.</small>
         </div>
 
         <div class="tab-pane fade" id="<?= $tab ?>Terms" role="tabpanel">
