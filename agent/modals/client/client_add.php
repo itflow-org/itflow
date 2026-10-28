@@ -248,6 +248,8 @@ ob_start();
 
                 <div class="tab-pane fade" id="pills-billing">
 
+                    <?php $contract_pick_edit = false; require __DIR__ . '/client_contract_pick.php'; ?>
+
                     <?php $terms_note_client_id = 0; require __DIR__ . '/client_terms_note.php'; ?>
 
                     <div class="mb-3">

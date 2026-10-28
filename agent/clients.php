@@ -14,6 +14,11 @@ $show_tickets = $config_module_enable_ticketing == 1 && lookupUserPermission("mo
 $can_add_ticket = $config_module_enable_ticketing == 1 && lookupUserPermission("module_support") >= 2;
 // Same gate as the Billing card on a client's own pages (inc_client_top_head.php)
 $show_billing = $config_module_enable_accounting == 1 && lookupUserPermission("module_financial") >= 1;
+// The contract in force for each client - the Contracts pages' gate (agent/contracts.php), with accounting on
+$show_contracts = $config_module_enable_accounting == 1 && contractsReady() && lookupUserPermission("module_sales") >= 1;
+// Starting one - New Contract for a client without one, or from a template for several at once
+$can_start_contract = $show_contracts && lookupUserPermission("module_sales") >= 2;
+$can_add_contract = $can_edit && $can_start_contract && contractTemplates();
 
 /**
  * Builds a link to this page with filter overrides applied. Pass null to drop
@@ -89,6 +94,28 @@ if (!empty($_GET['referral'])) {
     $referral_filter = '';
 }
 
+// Contract Filter - in force today: any, none, or one started from a template
+$contract_query = '';
+$contract_filter = $show_contracts ? (string) ($_GET['contract'] ?? '') : '';
+if ($contract_filter !== '') {
+    $contract_in_force = contractInForceSql('cf');
+    if ($contract_filter === 'none') {
+        $contract_query = "AND NOT EXISTS (SELECT 1 FROM contracts cf WHERE cf.contract_client_id = clients.client_id AND $contract_in_force)";
+        $contract_filter_label = 'None in force';
+    } elseif ($contract_filter === 'any') {
+        $contract_query = "AND EXISTS (SELECT 1 FROM contracts cf WHERE cf.contract_client_id = clients.client_id AND $contract_in_force)";
+        $contract_filter_label = 'One in force';
+    } elseif (ctype_digit($contract_filter) && ($contract_filter_template = contractTemplateRow(intval($contract_filter)))) {
+        $contract_query = "AND EXISTS (SELECT 1 FROM contracts cf WHERE cf.contract_client_id = clients.client_id AND cf.contract_template_id = " . intval($contract_filter) . " AND $contract_in_force)";
+        $contract_filter_label = 'From ' . $contract_filter_template['contract_template_name'];
+    } else {
+        $contract_filter = '';
+    }
+    if ($contract_query !== '') {
+        $active_filters[] = ['label' => 'Contract', 'value' => escapeHtml($contract_filter_label), 'drop' => 'contract'];
+    }
+}
+
 // Created date
 $date_filter_active = $dtf !== '1970-01-01' || $dtt !== '2099-12-31';
 if ($date_filter_active) {
@@ -100,7 +127,7 @@ if ($q !== '') {
 }
 
 // How many of the collapsed panel's filters are set - shown on the filter button
-$hidden_filter_count = count(array_filter([$tag_query, $industry_query, $referral_query, $date_filter_active]));
+$hidden_filter_count = count(array_filter([$tag_query, $industry_query, $referral_query, $contract_query, $date_filter_active]));
 
 /*
  * Sorting. Only these keys are accepted; anything else falls back to the
@@ -126,6 +153,10 @@ if ($show_billing) {
 if ($show_tickets) {
     $sortable['open_tickets'] = $open_tickets_sql;
 }
+if ($show_contracts) {
+    // The name of the one in force that started last
+    $sortable['contract'] = "(SELECT cs.contract_name FROM contracts cs WHERE cs.contract_client_id = clients.client_id AND " . contractInForceSql('cs') . " ORDER BY cs.contract_start_date DESC, cs.contract_id DESC LIMIT 1)";
+}
 if (!isset($sortable[$sort])) {
     $sort = 'client_accessed_at';
 }
@@ -135,7 +166,7 @@ $order_by = $sortable[$sort];
 function clientsSortLink($column, $label)
 {
     global $sort, $disp, $order_icon;
-    $url = clientsFilterUrl(['sort' => $column, 'order' => $sort === $column ? $disp : ($column === 'client_name' || $column === 'contact_name' || $column === 'location_city' ? 'ASC' : 'DESC')]);
+    $url = clientsFilterUrl(['sort' => $column, 'order' => $sort === $column ? $disp : (in_array($column, ['client_name', 'contact_name', 'location_city', 'contract'], true) ? 'ASC' : 'DESC')]);
     return '<a class="text-reset text-decoration-none" href="' . $url . '">' . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
 }
 
@@ -176,6 +207,7 @@ $sql = mysqli_query(
       $tag_query
       $industry_query
       $referral_query
+      $contract_query
     ORDER BY $order_by $order, client_name ASC
     LIMIT $record_from, $record_to
 ");
@@ -195,6 +227,7 @@ $client_tags = [];
 $client_money = [];
 $client_tickets = [];
 $client_rates = [];
+$client_contracts = [];
 
 if ($clients) {
     $page_ids = implode(',', array_keys($clients));
@@ -272,6 +305,33 @@ if ($clients) {
                 $client_rates[$id] = [$legacy['rate'], "The client's rate"];
             } elseif ($default_rate > 0) {
                 $client_rates[$id] = [$default_rate, 'The default rate, from Admin > Settings > Defaults - no contract in force sets one', true];
+            }
+        }
+    }
+
+    // Each client's contracts - the one in force that started last, how many more are, and failing that the next to start or a draft
+    if ($show_contracts) {
+        $contract_today = date('Y-m-d');
+        $sql_contracts = mysqli_query($mysqli, "SELECT contract_id, contract_client_id, contract_name, contract_type, contract_status, contract_start_date, contract_end_date,
+                contract_auto_renew, contract_notice_days, contract_cancelled_at
+            FROM contracts
+            WHERE contract_client_id IN ($page_ids) AND contract_archived_at IS NULL AND contract_status IN ('Active', 'Draft', 'Ended', 'Cancelled')
+            ORDER BY contract_start_date DESC, contract_id DESC");
+        while ($row = mysqli_fetch_assoc($sql_contracts)) {
+            $id = intval($row['contract_client_id']);
+            $client_contracts[$id] = $client_contracts[$id] ?? ['current' => null, 'more' => 0, 'next' => null];
+            if ($row['contract_status'] !== 'Draft' && contractInForceOn($row, $contract_today)) {
+                if ($client_contracts[$id]['current']) {
+                    $client_contracts[$id]['more']++;
+                } else {
+                    $client_contracts[$id]['current'] = $row;
+                }
+            } elseif ($row['contract_status'] === 'Draft' || ($row['contract_status'] === 'Active' && (string) $row['contract_start_date'] > $contract_today)) {
+                // The soonest to start, else a draft - rows come latest start first
+                $next = $client_contracts[$id]['next'];
+                if (!$next || $row['contract_status'] === 'Active' || $next['contract_status'] === 'Draft') {
+                    $client_contracts[$id]['next'] = $row;
+                }
             }
         }
     }
@@ -370,6 +430,11 @@ $total_leads = intval($row['leads']);
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_bulk_edit_referral.php" data-bulk="true">
                                     <i class="fas fa-fw fa-link me-2"></i>Set Referral
                                 </a>
+                                <?php if ($can_add_contract) { ?>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_bulk_add_contract.php" data-bulk="true">
+                                        <i class="fas fa-fw fa-file-contract me-2"></i>Start Contract
+                                    </a>
+                                <?php } ?>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($archived) { ?>
                                     <button class="dropdown-item text-info" type="submit" form="bulkActions" name="bulk_unarchive_clients">
@@ -431,6 +496,19 @@ $total_leads = intval($row['leads']);
                             <?= categoryFilterOptionsHtml('Referral', (string) ($_GET['referral'] ?? ''), "SELECT DISTINCT client_referral FROM clients WHERE client_$archive_query AND client_referral != '' $leads_query") ?>
                         </select>
                     </div>
+                    <?php if ($show_contracts) { ?>
+                        <div class="col-md-3">
+                            <label class="form-label">Contract</label>
+                            <select class="form-select select2" name="contract" onchange="this.form.submit()" data-client-contract-filter>
+                                <option value="">Any contract or none</option>
+                                <option value="any"<?= $contract_filter === 'any' ? ' selected' : '' ?>>One in force</option>
+                                <option value="none"<?= $contract_filter === 'none' ? ' selected' : '' ?>>None in force - billed on the defaults</option>
+                                <?php foreach (contractTemplates() as $filter_template_id => $filter_template) { ?>
+                                    <option value="<?= intval($filter_template_id) ?>"<?= $contract_filter === (string) $filter_template_id ? ' selected' : '' ?>>From <?= escapeHtml($filter_template['contract_template_name']) ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    <?php } ?>
                     <div class="col-md-3">
                         <label class="form-label">Created</label>
                         <input type="text" id="dateFilter" class="form-control" autocomplete="off">
@@ -476,6 +554,9 @@ $total_leads = intval($row['leads']);
                     <th class="d-none d-xl-table-cell"><?= clientsSortLink('location_city', 'Location') ?></th>
                     <?php if ($show_tickets) { ?>
                         <th class="text-center d-none d-sm-table-cell"><?= clientsSortLink('open_tickets', 'Tickets') ?></th>
+                    <?php } ?>
+                    <?php if ($show_contracts) { ?>
+                        <th class="d-none d-lg-table-cell"><?= clientsSortLink('contract', 'Contract') ?></th>
                     <?php } ?>
                     <?php if ($show_billing) { ?>
                         <th class="text-end"><?= clientsSortLink('balance', 'Balance') ?></th>
@@ -592,6 +673,36 @@ $total_leads = intval($row['leads']);
                                         title="<?= $tickets_open ?> open ticket<?= $tickets_open === 1 ? '' : 's' ?><?= $tickets_breached ? ", $tickets_breached past SLA" : '' ?>"><?= $tickets_open ?></a>
                                 <?php } else { ?>
                                     <span class="text-body-tertiary" title="No open tickets">-</span>
+                                <?php } ?>
+                            </td>
+                        <?php } ?>
+
+                        <?php if ($show_contracts) {
+                            $contract_info = $client_contracts[$client_id] ?? ['current' => null, 'more' => 0, 'next' => null];
+                            $contract_current = $contract_info['current'];
+                            $contract_next = $contract_info['next']; ?>
+                            <td class="d-none d-lg-table-cell" data-client-contract>
+                                <?php if ($contract_current) {
+                                    $contract_state = contractState($contract_current); ?>
+                                    <a href="contract.php?client_id=<?= $client_id ?>&contract_id=<?= intval($contract_current['contract_id']) ?>" class="text-reset fw-semibold" title="<?= escapeHtml(contractTypeLabel($contract_current['contract_type'])) ?> - in force now"><?= escapeHtml($contract_current['contract_name']) ?></a>
+                                    <div class="small <?= $contract_state['key'] === 'ending' ? 'text-warning-emphasis' : 'text-body-secondary' ?>">
+                                        <span class="text-nowrap"><?= escapeHtml($contract_state['when']) ?></span><?php if ($contract_info['more']) { ?> · <a href="contracts.php?client_id=<?= $client_id ?>" class="text-reset text-nowrap" title="More contracts in force - the one that started last comes first">+<?= intval($contract_info['more']) ?> more</a><?php } ?>
+                                    </div>
+                                <?php } else { ?>
+                                    <span class="text-body-tertiary" title="No contract in force - the client is billed on the defaults">None</span>
+                                    <?php if ($contract_next) {
+                                        $contract_state = contractState($contract_next); ?>
+                                        <div class="small text-body-secondary">
+                                            <a href="contract.php?client_id=<?= $client_id ?>&contract_id=<?= intval($contract_next['contract_id']) ?>" class="text-reset"><?= escapeHtml($contract_next['contract_name']) ?></a>
+                                            - <?= $contract_state['key'] === 'draft' ? 'a draft' : escapeHtml(lcfirst($contract_state['when'])) ?>
+                                        </div>
+                                    <?php } elseif ($can_start_contract) { ?>
+                                        <div>
+                                            <a class="ajax-modal small text-body-secondary" href="#" data-modal-size="lg" data-modal-url="modals/contract/contract_add.php?client_id=<?= $client_id ?>">
+                                                <i class="fas fa-fw fa-plus me-1" aria-hidden="true"></i>Start a contract
+                                            </a>
+                                        </div>
+                                    <?php } ?>
                                 <?php } ?>
                             </td>
                         <?php } ?>

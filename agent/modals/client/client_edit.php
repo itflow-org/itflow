@@ -137,6 +137,8 @@ ob_start();
 
                     <?php $terms_note_client_id = $client_id; require __DIR__ . '/client_terms_note.php'; ?>
 
+                    <?php $contract_pick_edit = true; require __DIR__ . '/client_contract_pick.php'; ?>
+
                     <div class="mb-3">
                         <label>Tax ID</label>
                         <div class="input-group">

@@ -37,7 +37,7 @@ $terms_note_from = count($terms_note_names) > 1 ? implode(', ', array_slice($ter
         </div>
     <?php } else { ?>
         <div>
-            They come from the client's contract, not the client - add one from its Contracts once it is added. Until then the defaults apply:
+            They come from the client's contract, not the client - <?= !empty($contract_pick_templates) ? 'start one from a template above, or add one from its Contracts later' : 'add one from its Contracts once it is added' ?>. Until then the defaults apply:
             <?= $terms_note_money($terms_note_defaults['rate']) ?>/hr<?= $terms_note_defaults['after_hours'] > 0 ? ', ' . $terms_note_money($terms_note_defaults['after_hours']) . '/hr after hours' : '' ?>,
             <?= $terms_note_net($terms_note_defaults['net_terms']) ?>, and the SLAs in Admin &gt; SLAs.
         </div>

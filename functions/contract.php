@@ -477,6 +477,92 @@ function contractStandardTermsAdd($client_id, $rate, $net_terms, array $slas = [
     return contractCreate($f);
 }
 
+/*
+ * Whether this agent is offered a contract template on a client's New and
+ * Edit windows - contracts there (the 3.4.2 update), accounting on, and
+ * Sales at Modify, as adding a contract needs.
+ */
+function contractClientPickReady() {
+    global $config_module_enable_accounting;
+    return contractsReady() && !empty($config_module_enable_accounting) && lookupUserPermission('module_sales') >= 2;
+}
+
+/*
+ * A contract for a client from a template: the template's name, type, term,
+ * renewal, notice, cover (support hours, rates, net terms, SLAs and prepaid
+ * hours) and terms, active from $start (today when not given) to a term
+ * later - one that renews itself carried on to the term running today, when
+ * it starts further back - with the client's primary contact, and $owner_id
+ * to look after it. [contract id, error]: [0, why] when it can't be made.
+ */
+function contractFromTemplateAdd($client_id, $template_id, $start = null, $owner_id = 0, $notes = '') {
+    global $mysqli;
+    $template = contractTemplateRow($template_id);
+    if (!$template || !empty($template['contract_template_archived_at'])) {
+        return [0, "That template isn't there any more."];
+    }
+    $start = trim((string) $start) !== '' ? trim((string) $start) : date('Y-m-d');
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $start) || !strtotime($start)) {
+        return [0, 'A start date is a day, like 2026-11-01.'];
+    }
+    $client_id = intval($client_id);
+    $term = intval($template['contract_template_term_months']);
+    $end = contractTermEnd($start, $term);
+    while (intval($template['contract_template_auto_renew']) && $end !== '' && $end < date('Y-m-d')) {
+        $end = contractNextEnd($end, $term);
+    }
+    $contact = mysqli_fetch_row(mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL
+        ORDER BY contact_primary DESC, contact_id ASC LIMIT 1"));
+    $in = [
+        'name' => $template['contract_template_name'], 'type' => $template['contract_template_type'], 'term_months' => $term,
+        'auto_renew' => intval($template['contract_template_auto_renew']), 'notice_days' => intval($template['contract_template_notice_days']),
+        'rate_standard' => (string) ($template['contract_template_rate_standard'] ?? ''), 'rate_after_hours' => (string) ($template['contract_template_rate_after_hours'] ?? ''),
+        'net_terms' => (string) ($template['contract_template_net_terms'] ?? ''), 'support_hours' => (string) $template['contract_template_support_hours'],
+        'details' => (string) $template['contract_template_details'],
+        'monthly_hours' => (string) ($template['contract_template_monthly_hours'] ?? ''), 'hours_alert' => (string) ($template['contract_template_hours_alert'] ?? ''),
+        'client_id' => $client_id, 'contact_id' => intval($contact[0] ?? 0), 'owner_id' => intval($owner_id), 'template_id' => intval($template['contract_template_id']),
+        'status' => 'Active', 'start_date' => $start, 'end_date' => $end, 'notes' => $notes,
+    ];
+    foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
+        $in["sla_$part"] = intval($template["contract_template_sla_{$part}_id"]);
+    }
+    [$f, $error] = contractFromInput($in, 'contract');
+    if ($error !== '') {
+        return [0, $error];
+    }
+    $contract_id = contractCreate($f);
+    if (function_exists('contractHoursSync')) {
+        contractHoursSync($contract_id);
+    }
+    return [$contract_id, ''];
+}
+
+/*
+ * The contract picked on a client's New or Edit window (contract_template_id
+ * and contract_start posted), made for an agent who can add contracts, and
+ * logged. [contract id, its name, error] - [0, '', ''] when none was picked.
+ */
+function contractFromClientForm($client_id, array $post) {
+    global $mysqli, $session_name, $session_user_id;
+    $template_id = intval($post['contract_template_id'] ?? 0);
+    if (!$template_id) {
+        return [0, '', ''];
+    }
+    if (!contractClientPickReady()) {
+        return [0, '', 'adding a contract needs Sales at Modify, with accounting on'];
+    }
+    // Who adds it looks after it, an agent
+    $owner_id = mysqli_num_rows(mysqli_query($mysqli, "SELECT user_id FROM users WHERE user_id = " . intval($session_user_id) . " AND user_type = 1")) ? intval($session_user_id) : 0;
+    [$contract_id, $error] = contractFromTemplateAdd($client_id, $template_id, (string) ($post['contract_start'] ?? ''), $owner_id);
+    if (!$contract_id) {
+        return [0, '', $error];
+    }
+    $row = contractRow($contract_id);
+    logAudit("Contract", "Create", "$session_name added active contract " . escapeSql($row['contract_name']) . " (" . escapeSql(contractTypeLabel($row['contract_type'])) . ") from "
+        . escapeSql($row['contract_start_date']) . ($row['contract_end_date'] ? " to " . escapeSql($row['contract_end_date']) : '') . ", from its template, on the client form", intval($client_id), $contract_id);
+    return [$contract_id, (string) $row['contract_name'], ''];
+}
+
 /** A new contract - its id. */
 function contractCreate(array $f) {
     global $mysqli, $session_user_id;

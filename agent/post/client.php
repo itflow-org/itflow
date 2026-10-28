@@ -89,7 +89,13 @@ if (isset($_POST['add_client'])) {
 
     logAudit("Client", "Create", "$session_name created client $name$extended_log_description", $client_id, $client_id);
 
-    flashAlert("Client <strong>" . stripslashes($name) . "</strong> created");
+    // A contract started from a template picked on the Billing tab - its rates, net terms and SLAs are the client's (functions/contract.php)
+    [$contract_id, $contract_name, $contract_error] = contractFromClientForm($client_id, $_POST);
+    if ($contract_error !== '') {
+        flashAlert("Client <strong>" . stripslashes($name) . "</strong> created - its contract wasn't added: " . escapeHtml($contract_error) . " Add it from the client's Contracts.", 'warning');
+    } else {
+        flashAlert("Client <strong>" . stripslashes($name) . "</strong> created" . ($contract_id ? ", with contract <strong>" . escapeHtml($contract_name) . "</strong>" : ''));
+    }
 
     redirect();
 
@@ -126,7 +132,13 @@ if (isset($_POST['edit_client'])) {
 
     logAudit("Client", "Edit", "$session_name edited client $name", $client_id, $client_id);
 
-    flashAlert("Client <strong>" . stripslashes($name) . "</strong> updated");
+    // Another contract, started from a template picked on the Billing tab (functions/contract.php)
+    [$contract_id, $contract_name, $contract_error] = contractFromClientForm($client_id, $_POST);
+    if ($contract_error !== '') {
+        flashAlert("Client <strong>" . stripslashes($name) . "</strong> updated - the contract wasn't added: " . escapeHtml($contract_error), 'warning');
+    } else {
+        flashAlert("Client <strong>" . stripslashes($name) . "</strong> updated" . ($contract_id ? ", with new contract <strong>" . escapeHtml($contract_name) . "</strong>" : ''));
+    }
 
     redirect();
 
@@ -885,6 +897,47 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
         flashAlert("Referral set to <strong>" . stripslashes($referral) . "</strong> on <strong>$count</strong> client" . ($count === 1 ? '' : 's'));
     }
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_add_client_contract'])) {
+
+    // A contract from a template for each client ticked - active from the day picked (functions/contract.php)
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 2);
+    enforceUserPermission('module_sales', 2);
+
+    $client_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_POST['client_ids'] ?? [])))));
+    $template = contractTemplateRow(intval($_POST['contract_template_id'] ?? 0));
+    if (!contractClientPickReady() || !$template || !empty($template['contract_template_archived_at'])) {
+        flashAlert("Pick a contract template.", 'error');
+        redirect();
+    }
+
+    // Check every selected client before starting any
+    foreach ($client_ids as $client_id) {
+        enforceClientAccess($client_id);
+    }
+
+    $made = 0;
+    $not_made = [];
+    foreach ($client_ids as $client_id) {
+        [$contract_id, $contract_name, $contract_error] = contractFromClientForm($client_id, ['contract_template_id' => intval($template['contract_template_id']), 'contract_start' => (string) ($_POST['contract_start'] ?? '')]);
+        if ($contract_id) {
+            $made++;
+        } else {
+            $not_made[] = getFieldById('clients', $client_id, 'client_name') . ($contract_error !== '' ? " ($contract_error)" : '');
+        }
+    }
+
+    if ($made) {
+        logAudit("Contract", "Bulk Create", "$session_name started contract " . escapeSql($template['contract_template_name']) . " from its template for $made client(s)", 0);
+    }
+    flashAlert("Contract <strong>" . escapeHtml($template['contract_template_name']) . "</strong> started for <strong>$made</strong> client" . ($made === 1 ? '' : 's')
+        . ($not_made ? " - not for " . escapeHtml(implode(', ', $not_made)) : ''), $not_made ? 'warning' : 'success');
 
     redirect();
 

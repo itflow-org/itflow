@@ -181,6 +181,16 @@ function contractUsualTerms(array $row, $date = null) {
     return $usual;
 }
 
+/*
+ * contractInForceOn() as SQL, for the contract columns of $alias on $date
+ * (today when not given) - for lists that pick clients by their contract.
+ */
+function contractInForceSql($alias = 'contracts', $date = null) {
+    $date = escapeSql($date ?: date('Y-m-d'));
+    return "$alias.contract_status IN ('Active', 'Ended', 'Cancelled') AND $alias.contract_archived_at IS NULL AND $alias.contract_start_date IS NOT NULL AND $alias.contract_start_date <= '$date'
+        AND ($alias.contract_end_date IS NULL OR $alias.contract_end_date >= '$date' OR ($alias.contract_status = 'Active' AND $alias.contract_auto_renew = 1))";
+}
+
 /** The contracts in force for a client today - the latest to start first. */
 function contractsInForce($client_id) {
     $today = date('Y-m-d');
