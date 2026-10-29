@@ -7,6 +7,11 @@
 
 defined('FROM_DB_UPDATER') || die("Direct file access is not allowed");
 
+    // Miles become decimal(10,1), which holds under a billion. A figure past
+    // that was typed in by mistake (New Trip takes under 100,000 now) - it
+    // goes to 0, or the change below is refused and the update stops here
+    mysqli_query($mysqli, "UPDATE `trips` SET `trip_miles` = 0 WHERE ABS(`trip_miles`) >= 1000000000");
+
     // Trips (functions/trips.php): the client's site it went to, the ticket it
     // was for, who logged it, miles as an exact number, and the end odometer
     // reading's misspelt column put right
