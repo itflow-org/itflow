@@ -1,22 +1,43 @@
 <?php
 
+/*
+ * Admin > Settings > Localization (admin/settings_localization.php):
+ * edit_localization saves the language and currency (the company's) and the
+ * timezone - each one ITFlow offers, or the page comes back saying which is not.
+ */
+
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_localization'])) {
 
     validateCSRFToken();
 
-    $locale = escapeSql($_POST['locale']);
-    $currency_code = escapeSql($_POST['currency_code']);
-    $timezone = escapeSql($_POST['timezone']);
+    $localization = settingsLocalizationArrays();
+    $before = settingsCurrent(['company_locale', 'company_currency'], 'companies');
+    $before_settings = settingsCurrent(['config_timezone']);
 
-    mysqli_query($mysqli,"UPDATE companies SET company_locale = '$locale', company_currency = '$currency_code' WHERE company_id = 1");
+    $after = [
+        'company_locale' => trim((string) ($_POST['company_locale'] ?? '')),
+        'company_currency' => strtoupper(trim((string) ($_POST['company_currency'] ?? ''))),
+    ];
+    $timezone = trim((string) ($_POST['config_timezone'] ?? ''));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_timezone = '$timezone' WHERE company_id = 1");
+    $errors = [];
+    if (!isset($localization['locales'][$after['company_locale']])) {
+        $errors['company_locale'] = 'Pick the language from the list.';
+    }
+    if (!isset($localization['currencies'][$after['company_currency']])) {
+        $errors['company_currency'] = 'Pick the currency from the list.';
+    }
+    if (!in_array($timezone, DateTimeZone::listIdentifiers(), true)) {
+        $errors['config_timezone'] = 'Pick the timezone from the list.';
+    }
+    if ($errors) {
+        settingsRefuse('localization', $errors);
+    }
 
-    logAudit("Settings", "Edit", "$session_name edited localization settings");
-
-    flashAlert("Company localization updated");
+    $changed = settingsWrite('companies', $before, $after) + settingsWrite('settings', $before_settings, ['config_timezone' => $timezone]);
+    settingsSaid('localization', settingsChangeLines($before + $before_settings, $changed));
 
     redirect();
 

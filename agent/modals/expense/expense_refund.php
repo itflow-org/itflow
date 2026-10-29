@@ -1,93 +1,43 @@
 <?php
 
+/*
+ * Refund - money back from the vendor against an expense. It is saved as a
+ * negative expense with the same vendor, category, account and client,
+ * linked to the one it gives back. Starts at what hasn't come back yet.
+ */
+
 require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_financial', 2);
 
-$expense_id = intval($_GET['id']);
-
-$sql = mysqli_query($mysqli, "SELECT expense_account_id, expense_amount, expense_category_id, expense_client_id,
-    expense_created_at, expense_currency_code, expense_date, expense_description,
-    expense_receipt, expense_reference, expense_vendor_id FROM expenses WHERE expense_id = $expense_id LIMIT 1");
-
-$row = mysqli_fetch_assoc($sql);
-$expense_date = escapeHtml($row['expense_date']);
-$expense_amount = floatval($row['expense_amount']);
-$expense_currency_code = escapeHtml($row['expense_currency_code']);
-$expense_description = escapeHtml($row['expense_description']);
-$expense_receipt = escapeHtml($row['expense_receipt']);
-$expense_reference = escapeHtml($row['expense_reference']);
-$expense_created_at = escapeHtml($row['expense_created_at']);
-$expense_vendor_id = intval($row['expense_vendor_id']);
-$expense_category_id = intval($row['expense_category_id']);
-$expense_account_id = intval($row['expense_account_id']);
-$client_id = intval($row['expense_client_id']);
-
-if ($client_id) {
-    enforceClientAccess();
+$form_row = expenseRow(intval($_GET['id'] ?? 0));
+if (!$form_row || $form_row['transfer_id']) {
+    echo json_encode(['error' => 'That expense no longer exists.']);
+    exit;
 }
+if (floatval($form_row['expense_amount']) <= 0) {
+    echo json_encode(['error' => 'That is a refund already - there is nothing to give back.']);
+    exit;
+}
+$form_mode = 'refund';
 
 ob_start();
 
 ?>
-
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fas fa-fw fa-undo me-2'></i>Refunding expense</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-undo-alt me-2"></i>Record a Refund</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-
-<form action="post.php" method="post" autocomplete="off">
+<form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="account" value="<?= $expense_account_id ?>">
-    <input type="hidden" name="vendor" value="<?= $expense_vendor_id ?>">
-    <input type="hidden" name="category" value="<?= $expense_category_id ?>">
-
     <div class="modal-body">
-
-        <div class="row g-2">
-
-            <div class="mb-3 col-md">
-                <label>Refund Date</label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                    <input type="date" class="form-control" name="date" max="2999-12-31" required>
-                </div>
-            </div>
-
-            <div class="mb-3 col-md">
-                <label>Refund Amount</label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                    <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount" value="-<?= number_format($expense_amount, 2, '.', '') ?>" placeholder="-0.00" required>
-                </div>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Description</label>
-            <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required>Refund: <?= $expense_description ?></textarea>
-        </div>
-
-        <div class="mb-3">
-            <label>Reference</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
-                <input type="text" class="form-control" name="reference" placeholder="Enter a reference" maxlength="200" value="<?= $expense_reference ?>">
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Receipt</label>
-            <input type="file" class="form-control" name="file">
-        </div>
-
+        <?php require __DIR__ . '/expense_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_expense" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Refund</button>
+        <button type="submit" name="add_expense" class="btn btn-primary text-bold"><i class="fas fa-undo-alt me-2"></i>Record Refund</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 
 <?php
-
 require_once '../../../includes/modal_footer.php';

@@ -15,6 +15,16 @@ if (isset($_GET['invoice_id'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE 1=1 " . apiClientScopeSql('invoice_client_id') . " ORDER BY invoice_id LIMIT $limit OFFSET $offset");
 }
 
+// Each with its subtotal, tax, tax by part and registration numbers (billingApiTaxFields())
+if ($sql && mysqli_num_rows($sql) > 0) {
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row + billingApiTaxFields('invoice', $row);
+    }
+    echo json_encode(['success' => 'True', 'count' => count($rows), 'data' => $rows]);
+    exit();
+}
+
 // Output
 require_once "../read_output.php";
 

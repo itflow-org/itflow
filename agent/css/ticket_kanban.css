@@ -1,191 +1,88 @@
-/* Ticket kanban board */
+/* Ticket board - agent/ticket_kanban.php, js/tickets_kanban.js. The cards
+   themselves (.itflow-ticket-card) are in css/itflow_custom.css with the list. */
 
-/* Board container - columns scroll sideways, each column scrolls on its own */
+/* Columns scroll sideways, each column on its own */
 .kanban-board {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
+    gap: .75rem;
     overflow-x: auto;
-    padding-bottom: 12px;
-    box-sizing: border-box;
+    padding: 1rem;
 }
 
-/* Column */
 .kanban-column {
-    flex: 0 0 300px;
-    max-width: 300px;
-    background: #f1f3f5;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-    box-sizing: border-box;
+    flex: 0 0 18.5rem;
+    max-width: 18.5rem;
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 300px);
-    min-height: 160px;
+    max-height: calc(100vh - 16rem);
+    min-height: 10rem;
+    background-color: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: var(--bs-border-radius-lg);
 }
 
-/* Column header - doubles as the drag handle for reordering columns */
+/* The header - also the handle for moving a column, when the admin allows it */
 .kanban-column-header {
     display: flex;
     align-items: center;
-    padding: 10px 12px;
+    gap: .5rem;
+    padding: .65rem .75rem;
+    font-size: .875rem;
     font-weight: 600;
-    font-size: 0.9rem;
-    color: #212529;
-    background: #fff;
-    border-top: 3px solid #6c757d;
-    border-bottom: 1px solid #dee2e6;
-    border-radius: 5px 5px 0 0;
-    cursor: grab;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
     user-select: none;
 }
-
-.kanban-column-header:active {
-    cursor: grabbing;
+.kanban-board[data-moving-columns="1"][data-can-edit="1"] .kanban-column-header {
+    cursor: grab;
+}
+.kanban-column-dot {
+    flex: 0 0 auto;
+    width: .6rem;
+    height: .6rem;
+    border-radius: 50%;
+    background-color: var(--itflow-status-color, var(--bs-secondary));
 }
 
-.kanban-column-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* Scrollable card area */
+/* The cards, scrolling inside the column */
 .kanban-status {
     flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    min-height: 4rem;
+    padding: .5rem;
     overflow-y: auto;
-    min-height: 60px;
-    padding: 8px;
 }
-
-/* Card */
-.kanban-card {
-    background: #fff;
-    margin-bottom: 8px;
-    padding: 10px;
-    border: 1px solid #dee2e6;
-    border-start: 3px solid #adb5bd;
-    border-radius: 4px;
-    cursor: grab;
-    user-select: none;
-    font-size: 0.85rem;
-    line-height: 1.35;
-}
-
-.kanban-card:last-child {
-    margin-bottom: 0;
-}
-
-.kanban-card:hover {
-    border-color: #adb5bd;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
-}
-
-.kanban-card:active {
-    cursor: grabbing;
-}
-
-/* SLA state - the left edge carries it so it reads at a glance down a column */
-.kanban-card-at-risk {
-    border-start-color: #ffc107;
-}
-
-.kanban-card-breached {
-    border-start-color: #dc3545;
-}
-
-/* Card top row - number, priority, SLA flag, drag handle */
-.kanban-card-top {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-bottom: 6px;
-}
-
-.kanban-card-number {
-    font-weight: 700;
-    color: #343a40;
-    margin-right: auto;
-}
-
-.kanban-card-number:hover {
-    color: #007bff;
-}
-
-.kanban-card-subject {
-    display: block;
-    color: #212529;
-    font-weight: 500;
-    margin-bottom: 4px;
-    word-break: break-word;
-}
-
-.kanban-card-client {
-    color: #495057;
-    margin-bottom: 4px;
-    word-break: break-word;
-}
-
-.kanban-card-meta {
-    color: #6c757d;
-    font-size: 0.8rem;
-    margin-top: 4px;
-    word-break: break-word;
-}
-
-.kanban-card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    margin-top: 6px;
-    padding-top: 6px;
-    border-top: 1px dashed #e9ecef;
-    color: #6c757d;
-    font-size: 0.8rem;
-}
-
-/* Drag handle - hidden until hover, and forced visible on touch by the JS */
-.drag-handle-class {
-    color: #adb5bd;
-    cursor: grab;
-    touch-action: none;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-}
-
-.kanban-card:hover .drag-handle-class {
-    opacity: 1;
-}
-
-/* Empty column placeholder */
-.empty-placeholder {
-    border: 2px dashed #ced4da;
-    background-color: #fcfcfc;
-    color: #adb5bd;
-    padding: 14px;
+.kanban-status:not(:has(.kanban-card))::after {
+    content: attr(data-empty);
+    padding: 1rem .5rem;
+    border: 1px dashed var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    font-size: .8rem;
     text-align: center;
-    border-radius: 4px;
-    font-size: 0.8rem;
+    color: var(--bs-secondary-color);
+}
+
+/* Dragging */
+.kanban-board[data-can-edit="1"] .kanban-card {
+    cursor: grab;
+}
+.kanban-card.sortable-ghost {
+    opacity: .35;
+}
+.kanban-card.sortable-chosen {
+    box-shadow: var(--bs-box-shadow);
+}
+.kanban-card.is-saving {
+    opacity: .6;
     pointer-events: none;
 }
 
-/* Drop zone feedback */
-.kanban-status.sortable-over {
-    background-color: #e7f1ff;
-    transition: background-color 0.2s ease;
-}
-
-/* Popovers on this page can carry a fair amount of ticket detail */
-.popover {
-    max-width: 600px;
-}
-
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
     .kanban-column {
-        flex-basis: 260px;
-        max-width: 260px;
+        flex-basis: 16rem;
+        max-width: 16rem;
         max-height: none;
     }
 }

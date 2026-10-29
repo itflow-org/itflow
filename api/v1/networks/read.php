@@ -21,5 +21,6 @@ if (isset($_GET['network_id'])) {
 }
 
 // Output
+$api_tag_entity = 'network'; // each one's tags
 require_once "../read_output.php";
 

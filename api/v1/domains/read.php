@@ -21,5 +21,6 @@ if (isset($_GET['domain_id'])) {
 }
 
 // Output
+$api_tag_entity = 'domain'; // each one's tags
 require_once "../read_output.php";
 

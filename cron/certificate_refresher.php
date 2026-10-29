@@ -34,75 +34,58 @@ if ($config_enable_cron == 0) {
 
 /*
  * ###############################################################################################################
- *  UPDATE CERTIFICATE EXPIRY DATE
+ *  CHECK CERTIFICATES
  * ###############################################################################################################
  */
 
-$sql_certificates = mysqli_query(
-    $mysqli,
-    "SELECT certificate_domain, certificate_id FROM certificates
-        LEFT JOIN clients ON certificates.certificate_client_id = clients.client_id
-        WHERE certificate_archived_at IS NULL
-        AND client_archived_at IS NULL"
-);
+// Every certificate with a host, once a day - connect, take what it serves,
+// and save it with what the check found (certificateCheckAndSave()). Never
+// checked first, then least recently checked; as many as fit in ten minutes,
+// the rest first in line tomorrow. A host that doesn't answer is recorded as
+// unreachable and keeps the certificate on file. Certificates with no host
+// (pasted, or typed by hand) have nothing to check and are left alone.
+$started = time();
+$tally = array_fill_keys(array_keys(CERTIFICATE_CHECK_STATES), 0);
+$sql = mysqli_query($mysqli, "SELECT certificate_id, certificate_name, certificate_domain, certificate_check_status, certificate_client_id, client_name FROM certificates
+    LEFT JOIN clients ON client_id = certificate_client_id
+    WHERE certificate_archived_at IS NULL AND client_archived_at IS NULL
+    AND certificate_domain IS NOT NULL AND certificate_domain <> ''
+    AND (certificate_checked_at IS NULL OR certificate_checked_at < NOW() - INTERVAL 20 HOUR)
+    ORDER BY certificate_checked_at IS NOT NULL, certificate_checked_at ASC
+    LIMIT 1000");
 
-while ($row = mysqli_fetch_assoc($sql_certificates)) {
-    $certificate_id = intval($row['certificate_id']);
-    $domain = escapeSql($row['certificate_domain']);
+while ($row = mysqli_fetch_assoc($sql)) {
 
-    $certificate = getSslCertificate($domain);
-
-    $expire = escapeSql($certificate['expire']);
-    $issued_by = escapeSql($certificate['issued_by']);
-    $public_key = escapeSql($certificate['public_key']);
-
-    if (!empty($expire)) {
-
-        echo "\n$domain\n";
-        echo "$issued_by\n";
-        echo "$expire\n";
-        echo "$public_key\n\n";
-
-        $expire = "'" . $expire . "'";
-
-        // Get current certificate info
-        $original_certificate_info = mysqli_fetch_assoc(mysqli_query($mysqli,"
-            SELECT
-                certificates.*,
-                domains.domain_name
-            FROM certificates
-            LEFT JOIN domains ON certificate_domain_id = domain_id
-            WHERE certificate_id = $certificate_id
-        "));
-
-        // Update
-        mysqli_query($mysqli,"UPDATE certificates SET certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key' WHERE certificate_id = $certificate_id");
-
-        // Fetch the updated info
-        $new_certificate_info = mysqli_fetch_assoc(mysqli_query($mysqli,"
-            SELECT
-                certificates.*,
-                domains.domain_name
-            FROM certificates
-            LEFT JOIN domains ON certificate_domain_id = domain_id
-            WHERE certificate_id = $certificate_id
-        "));
-
-        // Compare/log changes between old/new info
-        $ignored_columns = ["certificate_public_key", "certificate_updated_at", "certificate_accessed_at", "certificate_domain_id"];
-        foreach ($original_certificate_info as $column => $old_value) {
-            $new_value = $new_certificate_info[$column];
-            if ($old_value != $new_value && !in_array($column, $ignored_columns)) {
-                $column = escapeSql($column);
-                $old_value = escapeSql($old_value);
-                $new_value = escapeSql($new_value);
-                mysqli_query($mysqli,"INSERT INTO certificate_history SET certificate_history_column = '$column', certificate_history_old_value = '$old_value', certificate_history_new_value = '$new_value', certificate_history_certificate_id = $certificate_id");
-            }
-        }
-
-    } else {
-        logApp("Cron-Certificate-Refresher", "error", "Cron Certificate Refresh - error updating Error updating $domain.");
-        error_log("Certificate Cron Error - Error updating $domain");
+    if (time() - $started > 600) {
+        break;
     }
 
+    $check = certificateCheckAndSave($row['certificate_id']);
+    if ($check === null) {
+        // Not a host it can connect to - leave it be, but out of the queue until tomorrow
+        mysqli_query($mysqli, "UPDATE certificates SET certificate_checked_at = NOW(), certificate_check_status = NULL WHERE certificate_id = " . intval($row['certificate_id']));
+        continue;
+    }
+    $status = empty($check['reachable']) ? 'unreachable' : $check['status'];
+    $tally[$status]++;
+    echo "{$row['certificate_domain']}: $status\n";
+
+    // Was fine yesterday, isn't today - someone installed the wrong one, or it lapsed.
+    // (A host not answering is left to the list - that is as often a blip as a fault.)
+    if ($row['certificate_check_status'] === 'ok' && in_array($status, ['mismatch', 'untrusted', 'expired'], true)) {
+        $certificate_id = intval($row['certificate_id']);
+        $client_id = intval($row['certificate_client_id']);
+        appNotify("Certificate Problem", escapeSql("Certificate {$row['certificate_name']} for {$row['client_name']}: " . CERTIFICATE_CHECK_STATES[$status]['text']), "/agent/certificates.php?client_id=$client_id&open=$certificate_id", $client_id);
+    }
+}
+
+$checked = array_sum($tally);
+if ($checked) {
+    $parts = [];
+    foreach ($tally as $status => $count) {
+        if ($count) {
+            $parts[] = "$count $status";
+        }
+    }
+    logApp("Cron-Certificate-Refresher", "info", "Checked $checked certificate(s): " . implode(', ', $parts) . '.');
 }

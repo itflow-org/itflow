@@ -6,7 +6,6 @@
 // touching it, rather than assuming the full set is present.
 
 // Client selected listener
-//  We seem to have to use jQuery to listen for events, as the client input is a select2 component?
 
 // Wrapped in an IIFE because a modal can be opened, closed and opened again in one
 // page load, which re-runs this file - a top-level const would throw on the second
@@ -15,6 +14,110 @@
 (function () {
 
     const clientSelectDropdown = document.getElementById("changeClientSelect"); // Define client selector
+
+    // What each asset is assigned to and where it is, and where each contact
+    // sits - so picking an asset fills in its person and site, and picking a
+    // person their site, unless the agent has already picked those themselves
+    const assetLinks = {};
+    const contactLocations = {};
+    const touched = {};
+    let pending = 0;
+
+    function field(id) {
+        return document.getElementById(id);
+    }
+
+    // Set a field to a value it offers - a value it doesn't have would blank it
+    function offer(id, value) {
+        const dropdown = field(id);
+        if (!dropdown || !value || value === '0' || touched[id]) {
+            return;
+        }
+        if (Array.prototype.some.call(dropdown.options, function (option) { return option.value === String(value); })) {
+            dropdown.value = String(value);
+        }
+    }
+
+    function fillFromAsset() {
+        const asset = field("assetSelect");
+        const links = asset ? assetLinks[asset.value] : null;
+        if (!links) {
+            return;
+        }
+        offer("contactSelect", links.contact);
+        offer("locationSelect", links.location || contactLocations[field("contactSelect") ? field("contactSelect").value : 0]);
+    }
+
+    function fillFromContact() {
+        const contact = field("contactSelect");
+        const location = field("locationSelect");
+        if (contact && location && location.value === '0') {
+            offer("locationSelect", contactLocations[contact.value]);
+        }
+    }
+
+    function currentClientId() {
+        if (clientSelectDropdown) {
+            return clientSelectDropdown.value;
+        }
+        const hidden = field("clientIdHidden");
+        return hidden ? hidden.value : '';
+    }
+
+    // The other open tickets for the person or device picked
+    function refreshAlsoOpen() {
+        const box = field("ticketAlsoOpen");
+        if (!box) {
+            return;
+        }
+        const contact = field("contactSelect");
+        const asset = field("assetSelect");
+        const client_id = currentClientId();
+        if (!client_id || ((!contact || contact.value === '0') && (!asset || !asset.value || asset.value === '0'))) {
+            box.innerHTML = '';
+            return;
+        }
+        itflowGet("ajax.php", {
+            ticket_also_open: 1,
+            client_id: client_id,
+            contact_id: contact ? contact.value : 0,
+            asset_id: asset ? asset.value : 0
+        }, function (data) {
+            try {
+                box.innerHTML = JSON.parse(data).html || '';
+            } catch (e) {
+                box.innerHTML = '';
+            }
+        });
+    }
+
+    ["contactSelect", "assetSelect", "locationSelect"].forEach(function (id) {
+        const dropdown = field(id);
+        if (!dropdown) {
+            return;
+        }
+        // A change event is a pick - setting .value from here fires none
+        dropdown.addEventListener('change', function () {
+            touched[id] = true;
+            if (id === "assetSelect") {
+                fillFromAsset();
+            } else if (id === "contactSelect") {
+                fillFromContact();
+            }
+            refreshAlsoOpen();
+        });
+    });
+
+    // Once every list for the client is in: a modal opened for an asset gets its person and site
+    function loaded() {
+        pending--;
+        if (pending > 0) {
+            return;
+        }
+        fillFromAsset();
+        fillFromContact();
+        refreshAlsoOpen();
+    }
 
     if (clientSelectDropdown) {
 
@@ -51,6 +154,14 @@
     //  Called when the client select dropdown is used or if the client select is disabled
     function populateLists(client_id) {
 
+        // A new client starts over - nothing picked for it yet
+        Object.keys(touched).forEach(function (id) { delete touched[id]; });
+        pending = 0;
+        const alsoOpen = field("ticketAlsoOpen");
+        if (alsoOpen) {
+            alsoOpen.innerHTML = '';
+        }
+
         populateContactsDropdown(client_id);
 
         populateAssetsDropdowns(client_id);
@@ -73,24 +184,15 @@
             return null;
         }
 
-        // innerHTML rather than removing options one by one, which leaves empty optgroups behind
+        // innerHTML rather than removing options one by one, which leaves empty
+        // optgroups behind. The picker (js/itflow_select.js) redraws by itself.
         dropdown.innerHTML = '';
-
-        // A multi-select keeps showing its old selections until select2 is told the value changed
-        clearTomSelect(dropdown);
 
         if (placeholderLabel !== null) {
             dropdown[dropdown.length] = new Option(placeholderLabel, placeholderValue);
         }
 
         return dropdown;
-    }
-
-    // Redraws a select2 component after its options have been replaced
-    function refreshDropdown(dropdown) {
-        if (dropdown) {
-            refreshTomSelect(dropdown);
-        }
     }
 
     // Re-applies the value the modal was opened with (e.g. ticket_add.php?project_id=4),
@@ -102,6 +204,9 @@
         }
 
         dropdown.value = dropdown.dataset.selected;
+
+        // What the modal was opened for counts as picked
+        touched[dropdown.id] = true;
     }
 
     // True when the modal was opened with a specific value for this dropdown.
@@ -126,13 +231,17 @@
     }
 
     // Adds an option to an optgroup
-    function appendGroupedOption(group, label, value) {
+    function appendGroupedOption(group, label, value, icon) {
 
         if (!group) {
             return;
         }
 
-        group.appendChild(new Option(label, value));
+        const option = new Option(label, value);
+        if (icon) {
+            option.dataset.icon = 'fas fa-fw fa-' + icon;
+        }
+        group.appendChild(option);
     }
 
     // Builds the asset label as "Name - Make Model - (Contact)", matching how assets read elsewhere
@@ -163,6 +272,8 @@
             return;
         }
 
+        pending++;
+
         // Send a GET request to ajax.php as ajax.php?get_client_contacts=true&client_id=NUM
         itflowGet(
             "ajax.php",
@@ -181,20 +292,30 @@
                 // Watchers is a tags field - any address can be typed in, these are just the handy ones
                 const watchersDropdown = resetDropdown("watchersSelect", null, null);
 
-                // Populate dropdown
+                // Populate dropdown - the name, with title and role on the line under it
                 contacts.forEach(contact => {
-                    var appendText = "";
+                    contactLocations[contact.contact_id] = contact.contact_location_id;
+                    const details = [];
                     if (contact.contact_title) {
-                        appendText = " - " + contact.contact_title;
+                        details.push(contact.contact_title);
                     }
                     if (contact.contact_primary == "1") {
-                        appendText = appendText + " (Primary)";
+                        details.push("Primary");
                     } else if (contact.contact_technical == "1") {
-                        appendText = appendText + " (Technical)";
+                        details.push("Technical");
                     }
 
                     if (contactSelectDropdown) {
-                        contactSelectDropdown[contactSelectDropdown.length] = new Option(contact.contact_name + appendText, contact.contact_id);
+                        const option = new Option(contact.contact_name, contact.contact_id);
+                        option.dataset.description = details.join(' · ');
+                        option.dataset.initials = contact.contact_initials;
+                        option.dataset.shape = 'circle';
+                        option.dataset.tone = contact.contact_tone || 'secondary';
+                        option.dataset.soft = '1';
+                        if (contact.contact_photo_url) {
+                            option.dataset.image = contact.contact_photo_url;
+                        }
+                        contactSelectDropdown[contactSelectDropdown.length] = option;
                     }
 
                     if (watchersDropdown && contact.contact_email) {
@@ -214,10 +335,10 @@
 
                 applyPreselection(contactSelectDropdown);
 
-                refreshDropdown(contactSelectDropdown);
-                refreshDropdown(watchersDropdown);
+                loaded();
 
-            }
+            },
+            loaded
         );
     }
 
@@ -228,6 +349,8 @@
         if (!document.getElementById("assetSelect") && !document.getElementById("additionalAssetsSelect")) {
             return;
         }
+
+        pending++;
 
         itflowGet(
             "ajax.php",
@@ -257,18 +380,20 @@
                         additionalAssetGroup = appendOptionGroup(additionalAssetsDropdown, assetType);
                     }
 
+                    assetLinks[asset.asset_id] = {contact: asset.asset_contact_id, location: asset.asset_location_id};
+
                     const assetLabel = buildAssetLabel(asset);
 
-                    appendGroupedOption(assetGroup, assetLabel, asset.asset_id);
-                    appendGroupedOption(additionalAssetGroup, assetLabel, asset.asset_id);
+                    appendGroupedOption(assetGroup, assetLabel, asset.asset_id, asset.asset_icon);
+                    appendGroupedOption(additionalAssetGroup, assetLabel, asset.asset_id, asset.asset_icon);
                 });
 
                 applyPreselection(assetSelectDropdown);
 
-                refreshDropdown(assetSelectDropdown);
-                refreshDropdown(additionalAssetsDropdown);
+                loaded();
 
-            }
+            },
+            loaded
         );
     }
 
@@ -278,6 +403,8 @@
         if (!document.getElementById("locationSelect")) {
             return;
         }
+
+        pending++;
 
         itflowGet(
             "ajax.php",
@@ -300,9 +427,10 @@
 
                 applyPreselection(locationSelectDropdown);
 
-                refreshDropdown(locationSelectDropdown);
+                loaded();
 
-            }
+            },
+            loaded
         );
     }
 
@@ -329,12 +457,18 @@
 
                 // Populate dropdown
                 vendors.forEach(vendor => {
-                    vendorSelectDropdown[vendorSelectDropdown.length] = new Option(vendor.vendor_name, vendor.vendor_id);
+                    const option = new Option(vendor.vendor_name, vendor.vendor_id);
+                    // The vendor's tile and what they are, as on the vendor pages
+                    option.dataset.initials = vendor.vendor_initials || '';
+                    option.dataset.tone = vendor.vendor_tone || 'secondary';
+                    option.dataset.soft = '1';
+                    if (vendor.vendor_description) {
+                        option.dataset.description = vendor.vendor_description;
+                    }
+                    vendorSelectDropdown[vendorSelectDropdown.length] = option;
                 });
 
                 applyPreselection(vendorSelectDropdown);
-
-                refreshDropdown(vendorSelectDropdown);
 
             }
         );
@@ -361,14 +495,15 @@
                 // Projects dropdown
                 const projectSelectDropdown = resetDropdown("projectSelect", '- Select Project -', '0');
 
-                // Populate dropdown
+                // Populate dropdown - the client's own, then our internal ones
                 projects.forEach(project => {
-                    projectSelectDropdown[projectSelectDropdown.length] = new Option(project.project_name, project.project_id);
+                    const option = new Option(project.project_name, project.project_id);
+                    option.dataset.icon = 'fas fa-fw fa-project-diagram';
+                    option.dataset.description = (project.project_prefix || '') + project.project_number + (project.project_internal == '1' ? ' - internal' : '');
+                    projectSelectDropdown[projectSelectDropdown.length] = option;
                 });
 
                 applyPreselection(projectSelectDropdown);
-
-                refreshDropdown(projectSelectDropdown);
 
             }
         );

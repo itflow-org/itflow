@@ -15,7 +15,7 @@ if (!empty($domain_id)) {
 
         if ($update_sql) {
             $update_count = mysqli_affected_rows($mysqli);
-            logAudit("Domain", "Unarchive", "$domain_name unarchived via API ($api_key_name)", $client_id, $domain_id);
+            logAudit("Domain", "Restore", "$domain_name unarchived via API ($api_key_name)", $client_id, $domain_id);
         }
     }
 }

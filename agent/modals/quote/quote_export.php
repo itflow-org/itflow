@@ -14,6 +14,9 @@ if ($client_id) {
 // Search Filter
 $q_filter = $_GET['q'] ?? '';
 
+// Category Filter
+$category_filter = intval($_GET['category'] ?? 0);
+
 // Date Filter - the all-time sentinels from filter_header.php leave the fields blank
 $date_from_filter = (!empty($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') ? escapeHtml($_GET['dtf']) : '';
 $date_to_filter = (!empty($_GET['dtt']) && $_GET['dtt'] !== '2099-12-31') ? escapeHtml($_GET['dtt']) : '';
@@ -42,6 +45,17 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Number, scope, client, amount">
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Category</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                <select class="form-select select2" name="category">
+                    <option value="">- Any category -</option>
+                    <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT DISTINCT quote_category_id FROM quotes") ?>
+                </select>
             </div>
         </div>
 

@@ -1,7 +1,7 @@
 <?php
 
 // Query Settings
-$sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azure_client_secret, config_client_portal_enable,
+$sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azure_client_secret, config_client_portal_enable, config_client_portal_require_mfa,
     config_current_database_version, config_default_calendar, config_default_expense_account,
     config_default_expense_payment_method, config_default_hourly_rate,
     config_default_net_terms, config_default_payment_account, config_default_payment_method,
@@ -12,6 +12,7 @@ $sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azu
     config_invoice_from_email, config_invoice_from_name, config_invoice_late_fee_enable,
     config_invoice_late_fee_percent, config_invoice_next_number,
     config_invoice_paid_notification_email, config_invoice_prefix, config_invoice_show_tax_id,
+    config_tax_default_id, config_tax_time, config_tax_trips, config_tax_expenses, config_tax_discount_before,
     config_internal_client_id,
     config_log_retention, config_login_key_required, config_login_key_secret,
     config_login_message, config_login_remember_me_expire, config_mail_from_email,
@@ -32,7 +33,7 @@ $sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azu
     config_ticket_from_name, config_ticket_moving_columns,
     config_ticket_new_ticket_notification_email, config_ticket_next_number,
     config_ticket_ordering, config_ticket_prefix, config_ticket_timer_autostart,
-    config_timezone, config_whitelabel_enabled, config_whitelabel_key FROM settings WHERE company_id = 1");
+    config_share_max_hours, config_share_require_protection, config_timezone, config_whitelabel_enabled, config_whitelabel_key FROM settings WHERE company_id = 1");
 $row = mysqli_fetch_assoc($sql_settings);
 
 // Database version
@@ -90,6 +91,11 @@ $config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable'])
 $config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percent']);
 $config_invoice_paid_notification_email = $row['config_invoice_paid_notification_email'];
 $config_invoice_show_tax_id = intval($row['config_invoice_show_tax_id']);
+$config_tax_default_id = intval($row['config_tax_default_id']);
+$config_tax_time = intval($row['config_tax_time']);
+$config_tax_trips = intval($row['config_tax_trips']);
+$config_tax_expenses = intval($row['config_tax_expenses']);
+$config_tax_discount_before = intval($row['config_tax_discount_before']);
 
 // Recurring Invoices
 $config_recurring_invoice_prefix = $row['config_recurring_invoice_prefix'];
@@ -136,6 +142,7 @@ $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
 $config_module_enable_ticketing = intval($row['config_module_enable_ticketing']);
 $config_module_enable_accounting = intval($row['config_module_enable_accounting']);
 $config_client_portal_enable = intval($row['config_client_portal_enable']);
+$config_client_portal_require_mfa = intval($row['config_client_portal_require_mfa']);
 
 // The client record that represents this MSP's own company, or 0 for none
 $config_internal_client_id = intval($row['config_internal_client_id']);
@@ -146,6 +153,11 @@ $config_login_key_required = $row['config_login_key_required'];
 $config_login_key_secret = $row['config_login_key_secret'];
 $config_login_remember_me_expire = intval($row['config_login_remember_me_expire']);
 $config_log_retention = intval($row['config_log_retention']);
+
+// Shared links - the longest one may last, and whether a password or secure
+// note has to have a passphrase or an emailed code (functions/share.php)
+$config_share_max_hours = intval($row['config_share_max_hours']) ?: 720;
+$config_share_require_protection = intval($row['config_share_require_protection']);
 
 // Locale
 $config_currency_format = "US_en";
@@ -195,19 +207,5 @@ $records_per_page_array = array ('5','10','15','20','30','50','100');
 
 include_once "settings_localization_array.php";
 
-$asset_types_array = array (
-    'Laptop'=>'fa-laptop',
-    'Desktop'=>'fa-desktop',
-    'Server'=>'fa-server',
-    'Phone'=>'fa-phone',
-    'Mobile Phone'=>'fa-mobile-alt',
-    'Tablet'=>'fa-tablet-alt',
-    'Firewall/Router'=>'fa-fire-alt',
-    'Switch'=>'fa-network-wired',
-    'Access Point'=>'fa-wifi',
-    'Printer'=>'fa-print',
-    'Display'=>'fa-tv',
-    'Camera'=>'fa-video',
-    'Virtual Machine'=>'fa-cloud',
-    'Other'=>'fa-tag'
-);
+// Type => icon - the asset types, in order (ASSET_TYPES in functions/asset_type.php)
+$asset_types_array = function_exists('assetTypeIcons') ? assetTypeIcons() : [];

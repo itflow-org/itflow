@@ -1,18 +1,23 @@
 <?php
 
+/*
+ * Admin > Settings > Telemetry (admin/settings_telemetry.php):
+ * edit_telemetry_settings switches the nightly report on (2) or off (0). An
+ * install on Basic (1), which sent the same report, stays on it while the
+ * switch is left on.
+ */
+
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_telemetry_settings'])) {
 
     validateCSRFToken();
 
-    $config_telemetry = intval($_POST['config_telemetry']);
+    $before = settingsCurrent(['config_telemetry']);
+    $on = !empty($_POST['config_telemetry']);
+    $telemetry = $on ? (intval($before['config_telemetry']) > 0 ? intval($before['config_telemetry']) : 2) : 0;
 
-    mysqli_query($mysqli,"UPDATE settings SET config_telemetry = $config_telemetry WHERE company_id = 1");
-
-    logAudit("Settings", "Edit", "$session_name edited telemetry settings");
-
-    flashAlert("Telemetry Settings updated");
+    settingsSave('telemetry', $before, ['config_telemetry' => $telemetry]);
 
     redirect();
 

@@ -33,7 +33,7 @@ if (!empty($network_id)) {
             $update_count = mysqli_affected_rows($mysqli);
 
             // Logging
-            logAudit("Network", "Unarchive", "$network_name unarchived via API ($api_key_name)", $client_id, $network_id);
+            logAudit("Network", "Restore", "$network_name unarchived via API ($api_key_name)", $client_id, $network_id);
             logAudit("API", "Success", "Unarchived network $network_name via API ($api_key_name)", $client_id);
         }
     }

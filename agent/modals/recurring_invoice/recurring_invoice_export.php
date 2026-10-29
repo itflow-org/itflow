@@ -17,6 +17,9 @@ $q_filter = $_GET['q'] ?? '';
 // Status Filter
 $status_filter = $_GET['status'] ?? '';
 
+// Category Filter
+$category_filter = intval($_GET['category'] ?? 0);
+
 // Date Filter - the all-time sentinels from filter_header.php leave the fields blank
 $date_from_filter = (!empty($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') ? escapeHtml($_GET['dtf']) : '';
 $date_to_filter = (!empty($_GET['dtt']) && $_GET['dtt'] !== '2099-12-31') ? escapeHtml($_GET['dtt']) : '';
@@ -56,6 +59,17 @@ ob_start();
                     <option value="">- Any Status -</option>
                     <option <?php if ($status_filter === 'active') { echo "selected"; } ?> value="active">Active</option>
                     <option <?php if ($status_filter === 'inactive') { echo "selected"; } ?> value="inactive">Inactive</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Category</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                <select class="form-select select2" name="category">
+                    <option value="">- Any category -</option>
+                    <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT DISTINCT recurring_invoice_category_id FROM recurring_invoices WHERE recurring_invoice_archived_at IS NULL") ?>
                 </select>
             </div>
         </div>

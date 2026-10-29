@@ -148,7 +148,7 @@ while ($job_row = mysqli_fetch_assoc($sql)) {
                         <td><?= $next_run === null ? '-' : escapeHtml(cronJobTimeAgo($next_run)) ?></td>
                         <td class="text-center">
                             <div class="dropdown dropstart text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
                                 <div class="dropdown-menu">

@@ -16,5 +16,6 @@ if (isset($_GET['location_id'])) {
 }
 
 // Output
+$api_tag_entity = 'location'; // each one's tags
 require_once "../read_output.php";
 

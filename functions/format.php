@@ -232,14 +232,14 @@ function formatAddress($address, $city, $state, $zip, $country = '', $separator 
  * doesn't. Takes the RAW user columns and escapes them itself.
  * Bootstrap 5.3 utilities and Font Awesome only - no custom CSS.
  */
-function formatAssignee($user_id, $user_name, $user_avatar, $highlight_unassigned = true) {
+function formatAssignee($user_id, $user_name, $user_avatar, $highlight_unassigned = true, $none_label = 'Unassigned') {
     $pill = "badge rounded-pill d-inline-flex align-items-center align-middle gap-1 p-1 pe-2";
     $user_id = intval($user_id);
 
     if (!$user_id) {
         $tone = $highlight_unassigned ? 'danger' : 'secondary';
         $colors = $highlight_unassigned ? 'text-danger-emphasis bg-danger-subtle' : 'text-body-secondary bg-body-secondary';
-        return "<span class='$pill $colors'><span class='position-relative d-inline-flex' aria-hidden='true'><i class='fas fa-circle fs-5 text-$tone'></i><i class='fas fa-user-slash position-absolute top-50 start-50 translate-middle small text-white'></i></span>Unassigned</span>";
+        return "<span class='$pill $colors'><span class='position-relative d-inline-flex' aria-hidden='true'><i class='fas fa-circle fs-5 text-$tone'></i><i class='fas fa-user-slash position-absolute top-50 start-50 translate-middle small text-white'></i></span>" . escapeHtml($none_label) . "</span>";
     }
 
     $user_avatar = escapeHtml($user_avatar);
@@ -330,6 +330,108 @@ function shortenClientName($client) {
     return strtoupper(substr($shortened, 0, 3));
 }
 
+/**
+ * Up to three letters for a client's initials tile - their abbreviation when
+ * they have one, otherwise one made from the name. Raw: escape at output.
+ */
+function clientInitials($abbreviation, $name) {
+    $source = trim((string) $abbreviation) ?: shortenClientName((string) $name);
+    return mb_strtoupper(mb_substr($source, 0, 3));
+}
+
+/** The colour of a client's initials tile, picked by id so it is the same on every page. */
+function clientInitialsTone($client_id) {
+    $tones = ['primary', 'success', 'info', 'warning', 'secondary'];
+    return $tones[intval($client_id) % count($tones)];
+}
+
+
+/*
+ * Option extras for the select picker (js/itflow_select.js): data-*
+ * attributes that put a picture, initials, a colour or an icon in front of
+ * an <option>, and an optional second line under it.
+ *
+ *     <option value="<?= $id ?>"<?= selectOptionClient($id, $name, $abbr) ?>><?= $name ?></option>
+ *
+ * Takes values raw or already escaped - they are decoded and escaped again
+ * here, so either way the attribute comes out right.
+ */
+function selectOptionData(array $data) {
+    $html = '';
+    foreach ($data as $name => $value) {
+        $value = html_entity_decode((string) $value, ENT_QUOTES, 'UTF-8');
+        if ($value !== '') {
+            $html .= ' data-' . $name . '="' . escapeHtml($value) . '"';
+        }
+    }
+    return $html;
+}
+
+/** Up to two initials for a person's name - "Marla Whitfield" is MW. */
+function personInitials($name) {
+    $words = preg_split('/\s+/u', trim(html_entity_decode((string) $name, ENT_QUOTES, 'UTF-8')), -1, PREG_SPLIT_NO_EMPTY);
+    $initials = '';
+    foreach (array_slice($words, 0, 2) as $word) {
+        $initials .= mb_strtoupper(mb_substr($word, 0, 1));
+    }
+    return $initials;
+}
+
+/** A client - its coloured initials tile, the same as the client list and side nav. */
+function selectOptionClient($client_id, $client_name, $client_abbreviation = '') {
+    return selectOptionData([
+        'initials' => clientInitials(html_entity_decode((string) $client_abbreviation, ENT_QUOTES, 'UTF-8'), html_entity_decode((string) $client_name, ENT_QUOTES, 'UTF-8')),
+        'tone' => clientInitialsTone($client_id)
+    ]);
+}
+
+/** An agent - their avatar, or their initials in a circle. */
+function selectOptionUser($user_id, $user_name, $user_avatar = '') {
+    $user_avatar = html_entity_decode((string) $user_avatar, ENT_QUOTES, 'UTF-8');
+    if ($user_avatar !== '') {
+        return selectOptionData(['image' => '/uploads/users/' . intval($user_id) . '/' . rawurlencode($user_avatar)]);
+    }
+    return selectOptionData(['initials' => personInitials($user_name), 'shape' => 'circle', 'tone' => 'secondary']);
+}
+
+/**
+ * A contact - their photo, or their initials on the same soft colour as their
+ * avatar everywhere else (contactAvatar() in functions/contact.php), with
+ * their title underneath. Without $contact_id the initials are grey.
+ */
+function selectOptionContact($client_id, $contact_name, $contact_photo = '', $contact_title = '', $contact_id = 0) {
+    $contact_photo = html_entity_decode((string) $contact_photo, ENT_QUOTES, 'UTF-8');
+    $data = $contact_photo !== ''
+        ? ['image' => '/uploads/clients/' . intval($client_id) . '/' . rawurlencode($contact_photo)]
+        : ['initials' => personInitials($contact_name), 'shape' => 'circle', 'tone' => intval($contact_id) ? contactAvatarTone($contact_id) : 'secondary', 'soft' => '1'];
+    $data['description'] = $contact_title;
+    return selectOptionData($data);
+}
+
+/** A tag, category or status - its colour, and its icon if it has one. */
+function selectOptionColor($color, $icon = '') {
+    // A hex value, or a CSS colour name
+    $color = preg_match('/^(#[0-9a-f]{3,8}|[a-z]{3,24})$/i', trim((string) $color)) ? trim($color) : '';
+    // "star", "fa-star" (as categories keep them) or "fas fa-star"
+    $icon = trim(preg_replace('/[^a-z0-9 -]/', '', strtolower((string) $icon)));
+    if ($icon !== '' && strpos($icon, 'fa-') === false) {
+        $icon = "fas fa-$icon";
+    } elseif ($icon !== '' && !preg_match('/(^| )fa[srbl]?( |$)/', $icon)) {
+        $icon = "fas $icon";
+    }
+    return selectOptionData(['color' => $color, 'icon' => $icon]);
+}
+
+/** A ticket priority - the colour its badge has in the ticket lists. */
+function selectOptionPriority($priority) {
+    $colors = ['Urgent' => 'var(--bs-emphasis-color)', 'High' => 'var(--bs-danger)', 'Medium' => 'var(--bs-warning)', 'Low' => 'var(--bs-info)'];
+    return selectOptionData(['color' => $colors[html_entity_decode((string) $priority)] ?? '']);
+}
+
+/** An asset - the icon for its type, with make and model underneath. */
+function selectOptionAsset($asset_type, $description = '') {
+    return selectOptionData(['icon' => 'fas fa-' . getAssetIcon(html_entity_decode((string) $asset_type, ENT_QUOTES, 'UTF-8')), 'description' => $description]);
+}
 
 function roundUpToNearestMultiple($n, $increment = 1000) {
     return (int) ($increment * ceil($n / $increment));
@@ -366,8 +468,8 @@ function roundToNearest15Min($time) {
 
 
 function formatDuration($time) {
-    // expects "HH:MM:SS"
-    [$h, $m, $s] = array_map('intval', explode(':', $time));
+    // expects "HH:MM:SS" - nothing logged (NULL, '') is 0s
+    [$h, $m, $s] = array_map('intval', array_pad(explode(':', (string) $time), 3, 0));
 
     $parts = [];
 
@@ -391,14 +493,14 @@ function validateDate($date) {
 }
 
 /*
- * Validates a recurring invoice frequency against the only two values the UI
- * offers. This value is spliced into SQL *unquoted* (INTERVAL 1 <frequency>),
- * where escaping does nothing - a whitelist is the only safe handling. Apply it
- * at every write path AND at the read side before use, so a row planted before
- * this fix can't fire.
+ * Validates a recurring invoice frequency against the values the UI offers -
+ * month, quarter and year, each also a MySQL interval unit. A whitelist is the
+ * only safe handling for a value that could be spliced into SQL unquoted
+ * (INTERVAL 1 <frequency>). Apply it at every write path AND at the read side
+ * before use, so a row planted before this fix can't fire.
  */
 function validateRecurringFrequency($frequency) {
-    if (in_array($frequency, ['month', 'year'], true)) {
+    if (in_array($frequency, ['month', 'quarter', 'year'], true)) {
         return $frequency;
     }
     return 'month'; // Fallback
@@ -456,4 +558,131 @@ function secondsToTime($inputSeconds) {
     }
 
     return implode(', ', $timeParts);
+}
+
+/*
+ * The empty state of a list - one look on every list page. A page sets
+ * $empty_state and includes/inc_empty_state.php (from filter_footer.php)
+ * draws it when the list has nothing; a page with a layout of its own calls
+ * emptyStateHtml() where it wants it. Three kinds:
+ *
+ *   - nothing there yet: the list's icon, "No vendors yet", a line on what
+ *     goes there, and the page's own New buttons
+ *   - a search or filters left nothing: "No vendors match" and Clear filters
+ *   - a view that is empty for a good reason (nothing overdue, all caught
+ *     up): its own title, with a tick
+ *
+ * Archived, with nothing in it, says so and offers nothing to add.
+ */
+
+/**
+ * Whether a search or filter is on the request: any GET value but paging,
+ * sorting, the client, Archived and the page's views ($views - the GET keys
+ * that pick a view, such as a pill, rather than filter it).
+ */
+function emptyStateFiltered(array $views = []) {
+    $ignored = array_merge(['page', 'sort', 'order', 'canned_date', 'show_column', 'client_id', 'archived'], $views);
+    foreach ($_GET as $key => $value) {
+        if (in_array($key, $ignored, true)) {
+            continue;
+        }
+        if (is_array($value) ? count(array_filter($value, function ($v) { return is_scalar($v) && trim((string) $v) !== ''; })) : trim((string) $value) !== '') {
+            return true;
+        }
+    }
+    return false;
+}
+
+/** This page with its search and filters gone - the client, Archived and the page's views ($views) kept. */
+function emptyStateClearUrl(array $views = []) {
+    $keep = [];
+    foreach (array_merge(['client_id', 'archived'], $views) as $key) {
+        if (isset($_GET[$key]) && is_scalar($_GET[$key]) && trim((string) $_GET[$key]) !== '') {
+            $keep[$key] = (string) $_GET[$key];
+        }
+    }
+    return strtok($_SERVER['REQUEST_URI'] ?? '', '?') . ($keep ? '?' . http_build_query($keep) : '');
+}
+
+/**
+ * The empty state of the pill picked ($key, from a page's $pills - label,
+ * icon, title, alarm): "Nothing in Overdue" with the pill's own line under
+ * it - with a tick for a pill that flags trouble (alarm, or one of $good),
+ * as nothing there is good news. Null for the page's usual pill
+ * ($default), All and Archived, which have their own.
+ */
+function emptyStatePill(array $pills, $key, $default = '', array $good = []) {
+    $key = (string) $key;
+    if ($key === (string) $default || $key === 'all' || $key === 'archived' || !isset($pills[$key])) {
+        return null;
+    }
+    $pill = $pills[$key];
+    $view = ['title' => 'Nothing in ' . escapeHtml($pill['label'] ?? $key), 'text' => escapeHtml($pill['title'] ?? '')];
+    if (!empty($pill['alarm']) || in_array($key, array_map('strval', $good), true)) {
+        return $view + ['icon' => 'fa-check'];
+    }
+    return $view + ['icon' => $pill['icon'] ?? 'fa-filter'];
+}
+
+/**
+ * A list's empty state. $o:
+ *   thing   - what the list holds, plural ('vendors')
+ *   icon    - the list's icon ('fa-building', or full classes 'fab fa-...')
+ *   title   - HTML; "No {thing} yet" when left out
+ *   text    - HTML; a line on what goes there
+ *   actions - when nothing is there and nothing filters it: buttons, the first
+ *             the main one - each [label, modal (an ajax-modal URL) or href,
+ *             size (the modal's), icon]
+ *   archived - the Archived view: "No archived {thing}", nothing to add
+ *   view    - the pill picked, when it has a title of its own
+ *             (emptyStatePill()): title, text, icon and actions over the
+ *             ones above - a tick for good news
+ *   filtered - a search or filters left nothing; emptyStateFiltered($views)
+ *             when left out
+ *   views   - GET keys that pick a view rather than filter - not counted as
+ *             filters, and kept by Clear filters
+ *   match_title, match_text - HTML, for when filters left nothing
+ *   clear_url - where Clear filters goes, for a page that builds its own
+ */
+function emptyStateHtml(array $o) {
+    $thing = (string) ($o['thing'] ?? 'records');
+    $views = (array) ($o['views'] ?? []);
+    $filtered = array_key_exists('filtered', $o) ? (bool) $o['filtered'] : emptyStateFiltered($views);
+    $buttons = '';
+    if (!$filtered && empty($o['archived']) && !empty($o['view'])) {
+        $o = (array) $o['view'] + ['text' => ''] + $o;
+    }
+
+    if ($filtered) {
+        $icon = 'fas fa-filter';
+        $title = $o['match_title'] ?? 'No ' . escapeHtml($thing) . ' match';
+        $text = $o['match_text'] ?? 'Try a different search, or clear the filters to see everything.';
+        $buttons = '<a class="btn btn-outline-secondary" href="' . escapeHtml($o['clear_url'] ?? emptyStateClearUrl($views)) . '"><i class="fas fa-times me-2"></i>Clear filters</a>';
+    } elseif (!empty($o['archived'])) {
+        $icon = 'fas fa-archive';
+        $title = $o['archived_title'] ?? 'No archived ' . escapeHtml($thing);
+        $text = '';
+    } else {
+        $icon = (string) ($o['icon'] ?? 'fa-inbox');
+        $icon = strpos($icon, ' ') === false ? "fas $icon" : $icon;
+        $title = $o['title'] ?? 'No ' . escapeHtml($thing) . ' yet';
+        $text = (string) ($o['text'] ?? '');
+        foreach (array_values((array) ($o['actions'] ?? [])) as $i => $action) {
+            $class = 'btn ' . ($i ? 'btn-outline-primary' : 'btn-primary');
+            $inner = '<i class="fas ' . escapeHtml($action['icon'] ?? 'fa-plus') . ' me-2"></i>' . escapeHtml($action['label']);
+            if (isset($action['modal'])) {
+                $buttons .= '<button type="button" class="' . $class . ' ajax-modal" data-modal-url="' . escapeHtml($action['modal']) . '"'
+                    . (!empty($action['size']) ? ' data-modal-size="' . escapeHtml($action['size']) . '"' : '') . '>' . $inner . '</button>';
+            } else {
+                $buttons .= '<a class="' . $class . '" href="' . escapeHtml($action['href'] ?? '#') . '">' . $inner . '</a>';
+            }
+        }
+    }
+
+    return '<div class="itflow-empty-state">'
+        . '<div class="itflow-empty-state-icon"><i class="' . escapeHtml($icon) . ' fa-fw" aria-hidden="true"></i></div>'
+        . '<div class="itflow-empty-state-title">' . $title . '</div>'
+        . ($text !== '' ? '<div class="itflow-empty-state-text">' . $text . '</div>' : '')
+        . ($buttons !== '' ? '<div class="itflow-empty-state-actions">' . $buttons . '</div>' : '')
+        . '</div>';
 }

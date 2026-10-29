@@ -20,6 +20,9 @@ $client_filter = intval($_GET['client'] ?? 0);
 // Expiring In Filter
 $expire_filter = $_GET['expire_days'] ?? '';
 
+// Problems Filter
+$problems_filter = !empty($_GET['problems']) ? 1 : 0;
+
 // Archived Filter
 $archived_filter = (isset($_GET['archived']) && $_GET['archived'] == 1) ? 1 : 0;
 
@@ -46,7 +49,7 @@ ob_start();
             <label>Search</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
-                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, domain, issuer">
+                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, host, names covered, issuer, fingerprint">
             </div>
         </div>
 
@@ -58,12 +61,12 @@ ob_start();
                 <select class="form-select select2" name="client">
                     <option value="">- All Clients -</option>
                     <?php
-                    $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE EXISTS (SELECT 1 FROM certificates WHERE certificate_client_id = client_id) ORDER BY client_name ASC");
+                    $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE EXISTS (SELECT 1 FROM certificates WHERE certificate_client_id = client_id)" . clientScopeSql('client_id') . " ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                         $filter_client_id = intval($row['client_id']);
                         $filter_client_name = escapeHtml($row['client_name']);
                     ?>
-                        <option <?php if ($client_filter == $filter_client_id) { echo "selected"; } ?> value="<?= $filter_client_id ?>"><?= $filter_client_name ?></option>
+                        <option <?php if ($client_filter == $filter_client_id) { echo "selected"; } ?> value="<?= $filter_client_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $filter_client_name ?></option>
                     <?php
                     }
                     ?>
@@ -82,6 +85,17 @@ ob_start();
                     <?php foreach ([7, 30, 45, 60, 90] as $expire_option) { ?>
                         <option <?php if ($expire_filter !== '' && $expire_filter == $expire_option) { echo "selected"; } ?> value="<?= $expire_option ?>"><?= $expire_option ?> Days</option>
                     <?php } ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Last Check</label>
+            <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-shield-alt"></i></span>
+                <select class="form-select select2" name="problems">
+                    <option <?php if (!$problems_filter) { echo "selected"; } ?> value="0">- Any -</option>
+                    <option <?php if ($problems_filter) { echo "selected"; } ?> value="1">Problems found - mismatch, untrusted, expired or unreachable</option>
                 </select>
             </div>
         </div>

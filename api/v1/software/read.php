@@ -18,7 +18,7 @@ if (isset($_GET['software_id'])) {
 } elseif (isset($_GET['software_name'])) {
     // Software by name
     $name = mysqli_real_escape_string($mysqli, $_GET['software_name']);
-    $sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_name = '$name' AND software_archived_at IS NULL AND 1=1 " . apiClientScopeSql('software_client_id') . " ORDER BY asset_id LIMIT $limit OFFSET $offset");
+    $sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_name = '$name' AND software_archived_at IS NULL AND 1=1 " . apiClientScopeSql('software_client_id') . " ORDER BY software_id LIMIT $limit OFFSET $offset");
 
 } elseif (isset($_GET['software_type'])) {
     // Software via type
@@ -31,5 +31,6 @@ if (isset($_GET['software_id'])) {
 }
 
 // Output
+$api_tag_entity = 'license'; // each one's tags
 require_once "../read_output.php";
 

@@ -119,7 +119,7 @@ if (!empty($document_id)) {
         }
 
         // Logging
-        logAudit("Document", "Edit", "$name_db via API ($api_key_name), previous version kept", $client_id, $document_version_id);
+        logAudit("Document", "Edit", "$name_db via API ($api_key_name), previous version kept", $client_id, $document_id);
         logAudit("API", "Success", "Edited document $name_db via API ($api_key_name)", $client_id);
 
     } else {

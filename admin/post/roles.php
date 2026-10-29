@@ -1,7 +1,8 @@
 <?php
 
 /*
- * ITFlow - GET/POST request handler for roles
+ * Roles (Admin > Roles) - making, changing, copying, archiving, restoring
+ * and deleting them. The work is in functions/roles.php.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -10,31 +11,21 @@ if (isset($_POST['add_role'])) {
 
     validateCSRFToken();
 
-    $name = escapeSql($_POST['role_name']);
-    $description = escapeSql($_POST['role_description']);
-    $admin = intval($_POST['role_is_admin']);
-
-    mysqli_query($mysqli, "INSERT INTO user_roles SET role_name = '$name', role_description = '$description', role_is_admin = $admin");
-
-    $role_id = mysqli_insert_id($mysqli);
-
-    // Insert role permissions (only if not admin)
-    if ($admin == 0) {
-        foreach ($_POST as $key => $value) {
-            if (str_contains($key, '##module_')) {
-                $module_id = intval(explode('##', $key)[0]);
-                $access_level = intval($value);
-
-                if ($access_level > 0) {
-                    mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = $role_id, module_id = $module_id, user_role_permission_level = $access_level");
-                }
-            }
-        }
+    [$fields, $error] = roleFromInput($_POST);
+    if ($error !== '') {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
     }
 
-    logAudit("User Role", "Create", "$session_name created user role $name", 0, $role_id);
+    $role_id = roleSave($fields);
 
-    flashAlert("User Role <strong>$name</strong> created");
+    $access = $fields['admin'] ? 'an admin role' : (implode(', ', array_filter(array_map(function ($module_id) use ($fields) {
+        $level = $fields['levels'][$module_id];
+        return $level ? roleModules()[$module_id]['label'] . ' ' . ROLE_LEVELS[$level] : '';
+    }, array_keys($fields['levels'])))) ?: 'no access');
+    logAudit("User Role", "Create", "$session_name created role " . escapeSql($fields['name']) . " - " . escapeSql($access), 0, $role_id);
+
+    flashAlert("Role <strong>" . escapeHtml($fields['name']) . "</strong> created");
 
     redirect();
 
@@ -44,30 +35,30 @@ if (isset($_POST['edit_role'])) {
 
     validateCSRFToken();
 
-    $role_id = intval($_POST['role_id']);
-    $name = escapeSql($_POST['role_name']);
-    $description = escapeSql($_POST['role_description']);
-    $admin = intval($_POST['role_is_admin']);
+    $row = roleRow(intval($_POST['role_id'] ?? 0));
+    if (!$row) {
+        flashAlert("That role is gone - it may have been deleted", 'error');
+        redirect();
+    }
+    $role_id = intval($row['role_id']);
 
-    mysqli_query($mysqli, "UPDATE user_roles SET role_name = '$name', role_description = '$description', role_is_admin = $admin WHERE role_id = $role_id");
-
-    // Update role access levels
-    mysqli_query($mysqli, "DELETE FROM user_role_permissions WHERE user_role_id = $role_id");
-    foreach ($_POST as $key => $value) {
-        if (str_contains($key, '##module_')){
-            $module_id = intval(explode('##', $key)[0]);
-            $access_level = intval($value);
-
-            if ($access_level > 0) {
-                mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = $role_id, module_id = $module_id, user_role_permission_level = $access_level");
-            }
-        }
-
+    [$fields, $error] = roleFromInput($_POST, $role_id);
+    if ($error === '' && intval($row['role_is_admin']) && !$fields['admin'] && ($blocker = roleAdminBlocker($row)) !== '') {
+        $error = "$row[role_name] stays an admin role: $blocker";
+    }
+    if ($error !== '') {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
     }
 
-    logAudit("User Role", "Edit", "$session_name edited user role $name", 0, $role_id);
+    $changes = roleChangeText($row, $fields);
+    roleSave($fields, $role_id);
 
-    flashAlert("User Role <strong>$name</strong> edited");
+    if ($changes !== '') {
+        logAudit("User Role", "Edit", "$session_name edited role " . escapeSql($fields['name']) . " - " . escapeSql($changes), 0, $role_id);
+    }
+
+    flashAlert("Role <strong>" . escapeHtml($fields['name']) . "</strong> " . ($changes !== '' ? 'saved' : 'unchanged'));
 
     redirect();
 
@@ -77,24 +68,65 @@ if (isset($_GET['archive_role'])) {
 
     validateCSRFToken();
 
-    $role_id = intval($_GET['archive_role']);
-
-    // Check role isn't in use
-    $sql_role_user_count = mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
-    $role_user_count = mysqli_fetch_row($sql_role_user_count)[0];
-    if ($role_user_count != 0) {
-        flashAlert("Role must not in use to archive it", 'error');
-
+    $row = roleRow(intval($_GET['archive_role']));
+    if (!$row) {
+        flashAlert("That role is gone - it may have been deleted", 'error');
+        redirect();
+    }
+    if (($blocker = roleArchiveBlocker($row)) !== '') {
+        flashAlert("<strong>" . escapeHtml($row['role_name']) . "</strong> wasn't archived: " . escapeHtml($blocker), 'error');
         redirect();
     }
 
-    mysqli_query($mysqli, "UPDATE user_roles SET role_archived_at = NOW() WHERE role_id = $role_id");
+    roleSetArchived($row['role_id'], true);
 
-    $role_name = escapeSql(getFieldById('user_roles', $role_id, 'role_name'));
+    logAudit("User Role", "Archive", "$session_name archived role " . escapeSql($row['role_name']), 0, $row['role_id']);
 
-    logAudit("User Role", "Archive", "$session_name archived user role $role_name", 0, $role_id);
+    flashAlert("Role <strong>" . escapeHtml($row['role_name']) . "</strong> archived");
 
-    flashAlert("User Role <strong>$role_name</strong> archived", 'error');
+    redirect();
+
+}
+
+if (isset($_GET['restore_role'])) {
+
+    validateCSRFToken();
+
+    $row = roleRow(intval($_GET['restore_role']));
+    if (!$row) {
+        flashAlert("That role is gone - it may have been deleted", 'error');
+        redirect();
+    }
+
+    roleSetArchived($row['role_id'], false);
+
+    logAudit("User Role", "Restore", "$session_name restored role " . escapeSql($row['role_name']), 0, $row['role_id']);
+
+    flashAlert("Role <strong>" . escapeHtml($row['role_name']) . "</strong> restored");
+
+    redirect();
+
+}
+
+if (isset($_GET['delete_role'])) {
+
+    validateCSRFToken();
+
+    $row = roleRow(intval($_GET['delete_role']));
+    if (!$row) {
+        flashAlert("That role is gone - it may have been deleted", 'error');
+        redirect();
+    }
+    if (($blocker = roleDeleteBlocker($row)) !== '') {
+        flashAlert("<strong>" . escapeHtml($row['role_name']) . "</strong> wasn't deleted: " . escapeHtml($blocker), 'error');
+        redirect();
+    }
+
+    roleDelete($row['role_id']);
+
+    logAudit("User Role", "Delete", "$session_name deleted role " . escapeSql($row['role_name']), 0, $row['role_id']);
+
+    flashAlert("Role <strong>" . escapeHtml($row['role_name']) . "</strong> deleted", 'error');
 
     redirect();
 

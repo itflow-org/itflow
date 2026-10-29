@@ -28,6 +28,7 @@ if ($total_found_rows > 5) {
     <div class="row align-items-center g-2">
         <div class="col-auto col-sm">
             <form action="post.php" method="post">
+                <input type="hidden" name="csrf_token" value="<?= escapeHtml($_SESSION['csrf_token'] ?? '') ?>">
                 <div class="d-flex align-items-center">
                     <select onchange="this.form.submit()" class="form-select form-select-sm w-auto" name="change_records_per_page" aria-label="Records per page">
                         <option <?php if ($user_config_records_per_page == 5) { echo "selected"; } ?> >5</option>

@@ -27,6 +27,14 @@ if (!empty($_POST['api_key_decrypt_password']) && !empty($credential_id)) {
             mysqli_query($mysqli, "UPDATE credentials SET credential_password_changed_at = NOW() WHERE credential_id = $credential_id LIMIT 1");
         }
 
+        // The vendor and license it is for, when sent
+        if ($vendor_id) {
+            mysqli_query($mysqli, "INSERT IGNORE INTO vendor_credentials SET vendor_id = $vendor_id, credential_id = $credential_id");
+        }
+        if ($software_id) {
+            mysqli_query($mysqli, "INSERT IGNORE INTO software_credentials SET software_id = $software_id, credential_id = $credential_id");
+        }
+
         // Logging
         logAudit("Credential", "Edit", "$name via API ($api_key_name)", $client_id, $credential_id);
         logAudit("API", "Success", "Updated credential $name via API ($api_key_name)", $client_id);

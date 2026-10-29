@@ -1,52 +1,40 @@
 <?php
+
+/*
+ * Admin > Settings > Quotes - how quotes are numbered, the footer under each
+ * one, and who hears when a client accepts or declines one online. Saved by
+ * edit_quote_settings (admin/post/settings_quote.php).
+ */
+
 require_once "includes/inc_all_admin.php";
- ?>
 
-    <div class="card card-dark">
-        <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-comment-dollar me-2"></i>Quote Settings</h3>
-        </div>
+echo settingsPageStart('quote');
+
+?>
+
+<form action="post.php" method="post" autocomplete="off" data-settings-form>
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+
+    <div class="card itflow-settings-card">
         <div class="card-body">
-            <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-                <div class="mb-3">
-                    <label>Quote Prefix</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
-                        <input type="text" class="form-control" name="config_quote_prefix" placeholder="Quote Prefix" maxlength="200" value="<?= escapeHtml($config_quote_prefix) ?>" required>
-                    </div>
-                </div>
+            <?= settingsSectionStart('numbering', 'Numbering', 'Each quote gets the next number, after its prefix.') ?>
+                <?= settingsNumberingFields('quote', $config_quote_prefix, $config_quote_next_number) ?>
+            <?= settingsSectionEnd() ?>
 
-                <div class="mb-3">
-                    <label>Next Number</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
-                        <input type="number" min="0" class="form-control" name="config_quote_next_number" placeholder="Next Quote Number" value="<?= intval($config_quote_next_number) ?>" required>
-                    </div>
-                </div>
+            <?= settingsSectionStart('footer', 'Footer', 'Under every quote - on the page, the PDF and the client portal. Terms, how long a quote holds, what happens on accepting it.') ?>
+                <?= settingsTextarea('config_quote_footer', $config_quote_footer, ['rows' => 5, 'maxlength' => 65000, 'help' => 'Plain text - each new line is kept.']) ?>
+            <?= settingsSectionEnd() ?>
 
-                <div class="mb-3">
-                    <label>Quote Footer</label>
-                    <textarea class="form-control" rows="4" name="config_quote_footer"><?= escapeHtml($config_quote_footer) ?></textarea>
-                </div>
+            <?= settingsSectionStart('answers', 'Answers', 'A client can accept or decline a quote online - from the client portal, or the link in the email it was sent with.') ?>
+                <?= settingsInput('config_quote_notification_email', $config_quote_notification_email, ['icon' => 'fa-bell', 'type' => 'email', 'maxlength' => 200,
+                    'placeholder' => 'sales@company.com', 'help' => 'A shared mailbox or list works best. Empty, nobody is emailed - the quote still shows the answer.']) ?>
+            <?= settingsSectionEnd() ?>
 
-                <div class="mb-3">
-                    <label>Email address to notify when quotes are accepted/declined <small class="text-secondary">(Ideally a distribution list/shared mailbox)</small></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
-                        <input type="email" class="form-control" name="config_quote_notification_email" placeholder="Address to notify for quote accept/declines, leave blank for none" maxlength="200" value="<?= escapeHtml($config_quote_notification_email) ?>">
-                    </div>
-                </div>
-
-                <hr>
-
-                <button type="submit" name="edit_quote_settings" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-
-            </form>
+            <?= settingsSaveBar('edit_quote_settings') ?>
         </div>
     </div>
+</form>
 
 <?php
 require_once "../includes/footer.php";
-

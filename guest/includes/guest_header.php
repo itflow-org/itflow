@@ -28,7 +28,6 @@
 
     <!-- Custom Style Sheet -->
     <link rel="stylesheet" href="/libs/flatpickr/css/flatpickr.min.css">
-    <link rel="stylesheet" href="/libs/tom-select/css/tom-select.bootstrap5.min.css">
     <?php /* Required: includes/footer.php loads sweetalert2.min.js for the
              confirm-link dialogs used by guest_approve_ticket_task.php and
              guest_view_quote.php. Every bit of the dialog's positioning

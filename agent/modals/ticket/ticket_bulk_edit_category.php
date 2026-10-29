@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_ids = array_map('intval', $_GET['ticket_ids'] ?? []);
 
 $count = count($ticket_ids);
@@ -11,7 +13,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-layer-group me-2"></i>Set Category for <strong><?= $count ?></strong> Tickets</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-layer-group me-2"></i>Set Category for <strong><?= $count ?></strong> ticket<?= $count === 1 ? '' : 's' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -29,17 +31,9 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="bulk_category">
                     <option value="0">- Uncategorized -</option>
-                    <?php
-                    $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql_categories)) {
-                        $category_id = intval($row['category_id']);
-                        $category_name = escapeHtml($row['category_name']);
-
-                        ?>
-                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
-                    <?php } ?>
-
+                    <?= categoryOptionsHtml('Ticket') ?>
                 </select>
+                <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
             </div>
         </div>
     </div>

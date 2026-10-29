@@ -33,7 +33,7 @@ if (!empty($document_id)) {
             $update_count = mysqli_affected_rows($mysqli);
 
             // Logging
-            logAudit("Document", "Unarchive", "$document_name unarchived via API ($api_key_name)", $client_id, $document_id);
+            logAudit("Document", "Restore", "$document_name unarchived via API ($api_key_name)", $client_id, $document_id);
             logAudit("API", "Success", "Unarchived document $document_name via API ($api_key_name)", $client_id);
         }
     }

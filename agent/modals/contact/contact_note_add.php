@@ -33,19 +33,9 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
                 <select class="form-select select2" name="type">
-                    <?php
-                    $sql_contact_note_types_select = mysqli_query($mysqli, "
-                        SELECT category_name FROM categories
-                        WHERE category_type = 'contact_note_type'
-                        AND category_archived_at IS NULL
-                        ORDER BY category_order ASC, category_name ASC
-                    ");
-                    while ($row = mysqli_fetch_assoc($sql_contact_note_types_select)) {
-                        $contact_note_type_select = escapeHtml($row['category_name']);
-                        ?>
-                        <option><?= $contact_note_type_select ?></option>
-                    <?php } ?>
+                    <?= categoryOptionsHtml('contact_note_type') ?>
                 </select>
+                <?= categoryAddButtonHtml('contact_note_type', 'btn btn-secondary') ?>
             </div>
         </div>
 

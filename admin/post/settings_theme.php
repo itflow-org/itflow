@@ -1,50 +1,41 @@
 <?php
 
+/*
+ * Admin > Settings > Theme (admin/settings_theme.php): edit_theme_settings
+ * saves the colour - one of settingsThemes() - and a new tab icon, a real
+ * .ico; reset_favicon puts ITFlow's own icon back.
+ */
+
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_theme_settings'])) {
 
     validateCSRFToken();
 
-    $theme = preg_replace("/[^0-9a-zA-Z-]/", "", escapeSql($_POST['edit_theme_settings']));
+    $before = settingsCurrent(['config_theme']);
+    $theme = (string) ($_POST['config_theme'] ?? '');
 
-    mysqli_query($mysqli,"UPDATE settings SET config_theme = '$theme' WHERE company_id = 1");
+    $errors = [];
+    if (!isset(settingsThemes()[$theme])) {
+        $errors['config_theme'] = 'Pick one of the colours.';
+    }
+    $favicon_problem = settingsImageProblem($_FILES['favicon'] ?? null, ['ico'], ['ico'], '.ico', 1048576);
+    if ($favicon_problem !== '') {
+        $errors['favicon'] = $favicon_problem;
+    }
+    if ($errors) {
+        settingsRefuse('theme', $errors);
+    }
 
-    logAudit("Settings", "Edit", "$session_name edited theme settings to $theme");
-
-    flashAlert("Changed theme to <strong>$theme</strong>");
-
-    redirect();
-
-}
-
-if (isset($_POST['edit_favicon_settings'])) {
-
-    validateCSRFToken();
-
-    // Check to see if a file is attached
-    if (isset($_FILES['file']['tmp_name'])) {
-        if ($new_file_name = checkFileUpload($_FILES['file'], array('ico'))) {
-            $file_tmp_path = $_FILES['file']['tmp_name'];
-
-            // Delete old file
-            if(file_exists("../uploads/favicon.ico")) {
-                unlink("../uploads/favicon.ico");
-            }
-
-            // directory in which the uploaded file will be moved
-            $upload_file_dir = "../uploads/";
-            //Force File Name
-            $new_file_name = "favicon.ico";
-            $dest_path = $upload_file_dir . $new_file_name;
-
-            move_uploaded_file($file_tmp_path, $dest_path);
+    // A new tab icon - always uploads/favicon.ico, which every page header looks for
+    $also = [];
+    if (!empty($_FILES['favicon']['tmp_name']) && ($_FILES['favicon']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK && is_uploaded_file($_FILES['favicon']['tmp_name'])) {
+        if (move_uploaded_file($_FILES['favicon']['tmp_name'], dirname(__DIR__, 2) . '/uploads/favicon.ico')) {
+            $also[] = 'Browser tab icon changed';
         }
     }
 
-    logAudit("Settings", "Edit", "$session_name changed the favicon");
-
-    flashAlert("Favicon Updated");
+    settingsSave('theme', $before, ['config_theme' => $theme], 'settings', $also);
 
     redirect();
 
@@ -54,13 +45,13 @@ if (isset($_GET['reset_favicon'])) {
 
     validateCSRFToken();
 
-    if (file_exists("../uploads/favicon.ico")) {
-        unlink("../uploads/favicon.ico");
+    if (is_file(dirname(__DIR__, 2) . '/uploads/favicon.ico')) {
+        unlink(dirname(__DIR__, 2) . '/uploads/favicon.ico');
     }
 
-    logAudit("Settings", "Edit", "$session_name reset Favicon");
+    logAudit("Settings", "Edit", "$session_name put the ITFlow browser tab icon back");
 
-    flashAlert("Favicon reset", 'error');
+    flashAlert("The browser tab icon is ITFlow's own again");
 
     redirect();
 

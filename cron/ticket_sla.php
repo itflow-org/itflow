@@ -55,8 +55,6 @@ if ($warning_percent < 1 || $warning_percent > 99) {
 }
 
 $sla_notification_email = trim(strval($sla_settings['notification_email']));
-$from_email = $sla_settings['ticket_from_email'];
-$from_name = $sla_settings['ticket_from_name'];
 
 $now = time();
 
@@ -89,57 +87,6 @@ while ($running = mysqli_fetch_assoc($sql_running)) {
     syncTicketSlaClock(intval($running['ticket_id']));
 }
 
-// Queue in-app + email notifications for an SLA event
-function sendSlaAlert($ticket, $subject_line, $body_line)
-{
-    global $mysqli, $sla_notification_email, $from_email, $from_name, $config_base_url;
-
-    $ticket_id = intval($ticket['ticket_id']);
-    $client_id = intval($ticket['ticket_client_id']);
-
-    $ticket_ref = "{$ticket['ticket_prefix']}{$ticket['ticket_number']}";
-    $ticket_subject = strval($ticket['ticket_subject']);
-
-    // appNotify inserts what it is given - escape at the boundary
-    appNotify("Ticket SLA", escapeSql("$subject_line - $ticket_ref - $ticket_subject"), "/agent/ticket.php?ticket_id=$ticket_id", $client_id, $ticket_id);
-
-    // addToMailQueue also inserts raw, and the body's link markup contains
-    // single quotes - escape whole strings once here. The body keeps its HTML,
-    // so it gets mysqli_real_escape_string directly (escapeSql strips tags),
-    // same as the ticket email parser does for its bodies.
-    $email_subject = escapeSql("$subject_line: $ticket_ref - $ticket_subject");
-    $email_body = mysqli_real_escape_string($mysqli, "Hello,<br><br>$body_line<br><br>Ticket: $ticket_ref<br>Subject: $ticket_subject<br><br><a href='https://$config_base_url/agent/ticket.php?ticket_id=$ticket_id'>View ticket</a>");
-
-    $email_data = [];
-
-    if (!empty($sla_notification_email)) {
-        $email_data[] = [
-            'from' => $from_email,
-            'from_name' => escapeSql($from_name),
-            'recipient' => $sla_notification_email,
-            'recipient_name' => 'SLA Notifications',
-            'subject' => $email_subject,
-            'body' => $email_body,
-        ];
-    }
-
-    // Assigned agent (skip a duplicate if they are also the notification address)
-    if (!empty($ticket['user_email']) && strtolower($ticket['user_email']) != strtolower($sla_notification_email)) {
-        $email_data[] = [
-            'from' => $from_email,
-            'from_name' => escapeSql($from_name),
-            'recipient' => $ticket['user_email'],
-            'recipient_name' => escapeSql(strval($ticket['user_name'])),
-            'subject' => $email_subject,
-            'body' => $email_body,
-        ];
-    }
-
-    if (!empty($email_data)) {
-        addToMailQueue($email_data);
-    }
-}
-
 // --- Response SLA track ---
 // Open tickets awaiting a first response, not yet marked breached
 $sql_response = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_client_id, ticket_created_at, ticket_response_due_at, ticket_response_sla_alert_stage, sla_response_minutes, user_email, user_name
@@ -164,13 +111,13 @@ while ($ticket = mysqli_fetch_assoc($sql_response)) {
     if ($now >= $due) {
         // Breached without a response - the verdict is final, record the miss
         mysqli_query($mysqli, "UPDATE tickets SET ticket_response_sla_alert_stage = 2, ticket_response_sla_met = 0 WHERE ticket_id = $ticket_id");
-        sendSlaAlert($ticket, "Response SLA breached", "The response SLA on this ticket was missed (due {$ticket['ticket_response_due_at']}).");
+        ticketSlaAlert($ticket_id, 'response', true, $ticket['ticket_response_due_at'], $sla_notification_email);
 
     } elseif ($stage < 1 && $warning_percent) {
         $warn_at = strtotime(addBusinessMinutes($ticket['ticket_created_at'], floor(intval($ticket['sla_response_minutes']) * $warning_percent / 100)));
         if ($now >= $warn_at) {
             mysqli_query($mysqli, "UPDATE tickets SET ticket_response_sla_alert_stage = 1 WHERE ticket_id = $ticket_id");
-            sendSlaAlert($ticket, "Response SLA at risk", "This ticket is approaching its response SLA (due {$ticket['ticket_response_due_at']}).");
+            ticketSlaAlert($ticket_id, 'response', false, $ticket['ticket_response_due_at'], $sla_notification_email);
         }
     }
 }
@@ -199,14 +146,14 @@ while ($ticket = mysqli_fetch_assoc($sql_resolution)) {
 
     if ($now >= $due) {
         mysqli_query($mysqli, "UPDATE tickets SET ticket_resolution_sla_alert_stage = 2, ticket_resolution_sla_met = 0 WHERE ticket_id = $ticket_id");
-        sendSlaAlert($ticket, "Resolution SLA breached", "The resolution SLA on this ticket was missed (due {$ticket['ticket_resolution_due_at']}).");
+        ticketSlaAlert($ticket_id, 'resolution', true, $ticket['ticket_resolution_due_at'], $sla_notification_email);
 
     } elseif ($stage < 1 && $warning_percent) {
         // Measured against consumed clock time, so paused spells don't warn early
         $warn_after_minutes = floor(intval($ticket['sla_resolution_minutes']) * $warning_percent / 100);
         if (getTicketSlaConsumedMinutes($ticket_id) >= $warn_after_minutes) {
             mysqli_query($mysqli, "UPDATE tickets SET ticket_resolution_sla_alert_stage = 1 WHERE ticket_id = $ticket_id");
-            sendSlaAlert($ticket, "Resolution SLA at risk", "This ticket is approaching its resolution SLA (due {$ticket['ticket_resolution_due_at']}).");
+            ticketSlaAlert($ticket_id, 'resolution', false, $ticket['ticket_resolution_due_at'], $sla_notification_email);
         }
     }
 }

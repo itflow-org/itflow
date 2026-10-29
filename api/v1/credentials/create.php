@@ -13,11 +13,19 @@ $insert_id = false;
 if (!empty($api_key_decrypt_password) && !empty($name) && !(empty($password))) {
 
     // Add credential
-    $insert_sql = mysqli_query($mysqli,"INSERT INTO credentials SET credential_name = '$name', credential_description = '$description', credential_uri = '$uri', credential_uri_2 = '$uri_2', credential_username = '$username', credential_password = '$password', credential_otp_secret = '$otp_secret', credential_note = '$note', credential_favorite = $favorite, credential_contact_id = $contact_id, credential_asset_id = $asset_id, credential_client_id = $client_id");
+    $insert_sql = mysqli_query($mysqli,"INSERT INTO credentials SET credential_name = '$name', credential_description = '$description', credential_uri = '$uri', credential_uri_2 = '$uri_2', credential_username = '$username', credential_password = '$password', credential_password_changed_at = NOW(), credential_otp_secret = '$otp_secret', credential_note = '$note', credential_favorite = $favorite, credential_contact_id = $contact_id, credential_asset_id = $asset_id, credential_client_id = $client_id");
 
     // Check insert & get insert ID
     if ($insert_sql) {
         $insert_id = mysqli_insert_id($mysqli);
+
+        // The vendor and license it is for, when sent
+        if ($vendor_id) {
+            mysqli_query($mysqli, "INSERT IGNORE INTO vendor_credentials SET vendor_id = $vendor_id, credential_id = $insert_id");
+        }
+        if ($software_id) {
+            mysqli_query($mysqli, "INSERT IGNORE INTO software_credentials SET software_id = $software_id, credential_id = $insert_id");
+        }
 
         // Logging
         logAudit("Credential", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);

@@ -1,131 +1,63 @@
 <?php
 
+/*
+ * Move the ticked files and documents to one folder. The ids come from the
+ * ticked rows (js/bulk_actions.js adds them to this modal's URL).
+ */
+
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $client_id = intval($_GET['client_id'] ?? 0);
-$current_folder_id = intval($_GET['current_folder_id'] ?? 0);
-
-// Selected IDs from JS (may be empty arrays)
-$file_ids      = array_map('intval', $_GET['file_ids']      ?? []);
-$document_ids  = array_map('intval', $_GET['document_ids']  ?? []);
-
-$count_files = count($file_ids);
-$count_docs  = count($document_ids);
-$total       = $count_files + $count_docs;
-
 enforceClientAccess();
+
+$current_folder_id = folderOwnedId($_GET['current_folder_id'] ?? 0, $client_id);
+$file_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_GET['file_ids'] ?? [])))));
+$document_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_GET['document_ids'] ?? [])))));
+$total = count($file_ids) + count($document_ids);
+
+if (!$total) {
+    echo json_encode(['error' => 'Tick the files or documents to move first.']);
+    exit;
+}
+
+$summary = implode(' and ', array_filter([
+    $document_ids ? count($document_ids) . ' document' . (count($document_ids) === 1 ? '' : 's') : '',
+    $file_ids ? count($file_ids) . ' file' . (count($file_ids) === 1 ? '' : 's') : '',
+]));
 
 ob_start();
 
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title">
-        <i class="fa fa-fw fa-exchange-alt me-2"></i>
-        Move <strong><?= $total ?></strong> Item<?= $total === 1 ? '' : 's' ?>
-    </h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-folder-open me-2"></i>Move <?= $summary ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-
-    <?php foreach ($file_ids as $id): ?>
+    <?php foreach ($file_ids as $id) { ?>
         <input type="hidden" name="file_ids[]" value="<?= $id ?>">
-    <?php endforeach; ?>
-
-    <?php foreach ($document_ids as $id): ?>
+    <?php } ?>
+    <?php foreach ($document_ids as $id) { ?>
         <input type="hidden" name="document_ids[]" value="<?= $id ?>">
-    <?php endforeach; ?>
+    <?php } ?>
 
     <div class="modal-body">
-
-        <p>
-            Files: <strong><?= $count_files ?></strong><br>
-            Documents: <strong><?= $count_docs ?></strong>
-        </p>
-
-        <div class="mb-3">
-            <label>Target Folder</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
-                <select class="form-select select2" name="bulk_folder_id">
-                    <option value="0">/</option>
-                    <?php
-                    // NOTE: folder_location is gone now, so just use folder_client_id
-                    $sql_all_folders = mysqli_query(
-                        $mysqli,
-                        "SELECT folder_id, folder_name, parent_folder
-                         FROM folders
-                         WHERE folder_client_id = $client_id
-                         ORDER BY folder_name ASC"
-                    );
-
-                    $folders = [];
-
-                    while ($row = mysqli_fetch_assoc($sql_all_folders)) {
-                        $folders[$row['folder_id']] = [
-                            'folder_id'    => (int)$row['folder_id'],
-                            'folder_name'  => escapeHtml($row['folder_name']),
-                            'parent_folder'=> (int)$row['parent_folder'],
-                            'children'     => []
-                        ];
-                    }
-
-                    // Build hierarchy
-                    foreach ($folders as $id => &$folder) {
-                        if ($folder['parent_folder'] != 0 && isset($folders[$folder['parent_folder']])) {
-                            $folders[$folder['parent_folder']]['children'][] = &$folder;
-                        }
-                    }
-                    unset($folder);
-
-                    $root_folders = [];
-                    foreach ($folders as $id => $folder) {
-                        if ($folder['parent_folder'] == 0) {
-                            $root_folders[] = $folder;
-                        }
-                    }
-
-                    // Optional: if you want to default-select current folder, pass it in GET
-                    $current_folder_id = intval($_GET['current_folder_id'] ?? 0);
-
-                    $stack = [];
-                    foreach (array_reverse($root_folders) as $folder) {
-                        $stack[] = ['folder' => $folder, 'level' => 0];
-                    }
-
-                    while (!empty($stack)) {
-                        $node   = array_pop($stack);
-                        $folder = $node['folder'];
-                        $level  = $node['level'];
-
-                        $indentation = str_repeat('&nbsp;', $level * 4);
-
-                        $selected = ($folder['folder_id'] === $current_folder_id) ? 'selected' : '';
-
-                        echo "<option value=\"{$folder['folder_id']}\" $selected>$indentation{$folder['folder_name']}</option>";
-
-                        if (!empty($folder['children'])) {
-                            foreach (array_reverse($folder['children']) as $child) {
-                                $stack[] = ['folder' => $child, 'level' => $level + 1];
-                            }
-                        }
-                    }
-                    ?>
-                </select>
-            </div>
+        <label class="form-label">To folder</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-folder"></i></span>
+            <select class="form-select select2" name="bulk_folder_id">
+                <?= folderOptionsHtml($client_id, $current_folder_id) ?>
+            </select>
         </div>
-
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_move_files" class="btn btn-primary text-bold">
-            <i class="fa fa-check me-2"></i>Move Files
-        </button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-            <i class="fa fa-times me-2"></i>Cancel
-        </button>
+        <button type="submit" name="bulk_move_files" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Move</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

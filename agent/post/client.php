@@ -2,6 +2,9 @@
 
 /*
  * ITFlow - GET/POST request handler for clients/customers (overview)
+ *
+ * set_client_portal_signup (POST, Client Modify) lets people at a client sign
+ * up for the portal themselves (functions/portal_invite.php).
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -38,8 +41,11 @@ if (isset($_POST['add_client'])) {
 
     $extended_log_description = '';
 
+    // A referral typed in that isn't one yet is made one; one that is takes its own spelling
+    $referral = escapeSql(categoryEnsure('Referral', $_POST['referral'] ?? ''));
+
     // Create client
-    mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$session_company_currency', client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes', client_accessed_at = NOW()");
+    mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$session_company_currency', client_reminders = " . ($reminders ?? 1) . ", client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes', client_accessed_at = NOW()" . ($tax_input !== null ? ", " . taxClientSetSql($tax_input) : '') . billingClientLegacySql());
 
     $client_id = mysqli_insert_id($mysqli);
 
@@ -48,14 +54,6 @@ if (isset($_POST['add_client'])) {
     if (!file_exists($client_folder)) {
         mkdir($client_folder);
         file_put_contents("$client_folder/index.php", "");
-    }
-
-    // Create referral category if it doesn't exist
-    $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
-    if (mysqli_num_rows($sql) == 0) {
-        mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
-
-        logAudit("Category", "Create", "$session_name created referral category $referral");
     }
 
     // Create primary location
@@ -72,59 +70,32 @@ if (isset($_POST['add_client'])) {
         $extended_log_description .= ", primary contact $contact added";
     }
 
-    // Add tags
-    if (isset($_POST['tags'])) {
-        foreach ($_POST['tags'] as $tag) {
-            $tag = intval($tag);
-            mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
-        }
-    }
+    // Tags - client tags only, and an admin can type a new one in (functions/tags.php)
+    tagSetForRecord('client', $client_id, (array) ($_POST['tags'] ?? []));
 
-    // Create domain and SSL certificate
-    if (!empty($website) && filter_var($website, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-        $expire = getDomainExpirationDate($website);
-        $records = getDnsRecords($website);
-        $a = escapeSql($records['a']);
-        $ns = escapeSql($records['ns']);
-        $mx = escapeSql($records['mx']);
-        $whois = escapeSql($records['whois']);
-
-        try {
-            mysqli_query($mysqli, "INSERT INTO domains SET domain_name = '$website', domain_registrar = 0, domain_webhost = 0, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_client_id = $client_id");
-            $extended_log_description .= ", domain $website added";
-        } catch (Exception $e) {
-            $extended_log_description .= ", domain not added";
-            logApp("Client", "warning", "Failed to add domain $website during client creation");
-        }
-
+    // Create domain and SSL certificate - the website's domain, tidied, looked up
+    // like any other; one whose lookup finds nothing is still added, without records
+    $website_domain = domainNormalizeName($website);
+    if ($website_domain !== '') {
+        $website_domain_sql = escapeSql($website_domain);
+        mysqli_query($mysqli, "INSERT INTO domains SET domain_name = '$website_domain_sql', domain_description = 'Website', domain_client_id = $client_id");
         $domain_id = mysqli_insert_id($mysqli);
-        $certificate = getSslCertificate($website);
+        $extended_log_description .= ", domain $website_domain_sql added";
 
-        if ($certificate['success'] == "TRUE") {
-            $expire = escapeSql($certificate['expire']);
-            $issued_by = escapeSql($certificate['issued_by']);
-            $public_key = escapeSql($certificate['public_key']);
-
-            mysqli_query($mysqli, "INSERT INTO certificates SET certificate_name = '$website', certificate_domain = '$website', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id");
-
-            $extended_log_description .= ", SSL certificate $website added";
-        }
-    }
-
-    // Ticket SLA assignments (fields only rendered when active SLAs exist)
-    if (isset($_POST['client_sla_low'])) {
-        foreach (['Low', 'Medium', 'High', 'Urgent'] as $sla_priority) {
-            $sla_value = strval($_POST['client_sla_' . strtolower($sla_priority)] ?? 'default');
-            if ($sla_value !== 'default') {
-                $client_sla_id = intval($sla_value);
-                mysqli_query($mysqli, "INSERT INTO sla_assignments SET sla_assignment_client_id = $client_id, sla_assignment_priority = '$sla_priority', sla_assignment_sla_id = $client_sla_id");
-            }
+        if (domainApplyLookup($domain_id, domainLookup($website_domain)) && domainAddCertificate($domain_id, $website_domain, $client_id)) {
+            $extended_log_description .= ", SSL certificate $website_domain_sql added";
         }
     }
 
     logAudit("Client", "Create", "$session_name created client $name$extended_log_description", $client_id, $client_id);
 
-    flashAlert("Client <strong>$name</strong> created");
+    // A contract started from a template picked on the Billing tab - its rates, net terms and SLAs are the client's (functions/contract.php)
+    [$contract_id, $contract_name, $contract_error] = contractFromClientForm($client_id, $_POST);
+    if ($contract_error !== '') {
+        flashAlert("Client <strong>" . stripslashes($name) . "</strong> created - its contract wasn't added: " . escapeHtml($contract_error) . " Add it from the client's Contracts.", 'warning');
+    } else {
+        flashAlert("Client <strong>" . stripslashes($name) . "</strong> created" . ($contract_id ? ", with contract <strong>" . escapeHtml($contract_name) . "</strong>" : ''));
+    }
 
     redirect();
 
@@ -140,66 +111,71 @@ if (isset($_POST['edit_client'])) {
 
     $client_id = intval($_POST['client_id']);
 
+    enforceClientAccess();
+
+    // Its tax as it was, for what the form leaves out
+    $tax_set_sql = '';
+    if ($tax_input !== null) {
+        $tax_current = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_default_tax_id, client_tax_exempt, client_tax_exempt_number, client_tax_exempt_expires
+            FROM clients WHERE client_id = $client_id LIMIT 1")) ?: [];
+        $tax_set_sql = ", " . taxClientSetSql($tax_input, $tax_current);
+    }
+
+    // A referral typed in that isn't one yet is made one; one that is takes its own spelling
+    $referral = escapeSql(categoryEnsure('Referral', $_POST['referral'] ?? ''));
+
     // Update client
-    mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes' WHERE client_id = $client_id");
+    mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral'" . ($reminders !== null ? ", client_reminders = $reminders" : '') . ", client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes'$tax_set_sql WHERE client_id = $client_id");
 
-    // Create referral category if it doesn't exist
-    $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
-    if (mysqli_num_rows($sql) == 0) {
-        mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
-
-        logAudit("Category", "Create", "$session_name created referral category $referral");
-    }
-
-    // Tags - delete existing and re-insert
-    mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
-
-    if (isset($_POST['tags'])) {
-        foreach ($_POST['tags'] as $tag) {
-            $tag = intval($tag);
-            mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
-        }
-    }
-
-    // Ticket SLA assignments (fields only rendered when active SLAs exist)
-    if (isset($_POST['client_sla_low'])) {
-
-        // Compare with current state so an unrelated client edit doesn't
-        // restamp tickets (restamping clobbers manual per-ticket SLA pins)
-        $current_sla_assignments = [];
-        $sql_current_slas = mysqli_query($mysqli, "SELECT sla_assignment_priority, sla_assignment_sla_id FROM sla_assignments WHERE sla_assignment_client_id = $client_id");
-        while ($current_sla_row = mysqli_fetch_assoc($sql_current_slas)) {
-            $current_sla_assignments[$current_sla_row['sla_assignment_priority']] = strval(intval($current_sla_row['sla_assignment_sla_id']));
-        }
-
-        $sla_assignments_changed = false;
-        foreach (['Low', 'Medium', 'High', 'Urgent'] as $sla_priority) {
-            $sla_value = strval($_POST['client_sla_' . strtolower($sla_priority)] ?? 'default');
-            $sla_current = $current_sla_assignments[$sla_priority] ?? 'default';
-            if ($sla_value === $sla_current) {
-                continue;
-            }
-            $sla_assignments_changed = true;
-            mysqli_query($mysqli, "DELETE FROM sla_assignments WHERE sla_assignment_client_id = $client_id AND sla_assignment_priority = '$sla_priority'");
-            if ($sla_value !== 'default') {
-                $client_sla_id = intval($sla_value);
-                mysqli_query($mysqli, "INSERT INTO sla_assignments SET sla_assignment_client_id = $client_id, sla_assignment_priority = '$sla_priority', sla_assignment_sla_id = $client_sla_id");
-            }
-        }
-
-        if ($sla_assignments_changed) {
-            // Re-resolve this client's open tickets against the new assignments
-            $sql_sla_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_client_id = $client_id AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL");
-            while ($sla_ticket_row = mysqli_fetch_assoc($sql_sla_tickets)) {
-                applyTicketSla($sla_ticket_row['ticket_id']);
-            }
-        }
-    }
+    // Tags - client tags only, and an admin can type a new one in (functions/tags.php)
+    tagSetForRecord('client', $client_id, (array) ($_POST['tags'] ?? []));
 
     logAudit("Client", "Edit", "$session_name edited client $name", $client_id, $client_id);
 
-    flashAlert("Client <strong>$name</strong> updated");
+    // Another contract, started from a template picked on the Billing tab (functions/contract.php)
+    [$contract_id, $contract_name, $contract_error] = contractFromClientForm($client_id, $_POST);
+    if ($contract_error !== '') {
+        flashAlert("Client <strong>" . stripslashes($name) . "</strong> updated - the contract wasn't added: " . escapeHtml($contract_error), 'warning');
+    } else {
+        flashAlert("Client <strong>" . stripslashes($name) . "</strong> updated" . ($contract_id ? ", with new contract <strong>" . escapeHtml($contract_name) . "</strong>" : ''));
+    }
 
+    redirect();
+
+}
+
+if (isset($_POST['set_client_portal_signup'])) {
+
+    // Let people with an address at one of the client's Domains sign up for the portal, or stop it (functions/portal_invite.php)
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 2);
+
+    $client_id = intval($_POST['client_id'] ?? 0);
+
+    enforceClientAccess();
+
+    $on = !empty($_POST['portal_signup']);
+    $client = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name, client_archived_at FROM clients WHERE client_id = $client_id LIMIT 1"));
+    if (!$client || !portalInvitesReady() || ($on && $client['client_archived_at'])) {
+        flashAlert("Signing up can't be changed for this client", 'error');
+        redirect();
+    }
+    $domains = portalSignupDomains($client_id);
+    if ($on && !$domains) {
+        flashAlert("Add the client's email domain under Domains first - people sign up with an address at one of them", 'error');
+        redirect();
+    }
+    if (!portalSignupSet($client_id, $on)) {
+        redirect();
+    }
+    $client_name = escapeSql($client['client_name']);
+    logAudit("Client", "Edit", "$session_name " . ($on ? 'let people at ' . escapeSql(implode(', ', $domains)) . " sign up for the client portal for $client_name" : "stopped people signing up for the client portal for $client_name"), $client_id, $client_id);
+    if ($on) {
+        flashAlert('People with an address at <strong>' . escapeHtml(implode(', ', $domains)) . '</strong> can sign up now' . (portalSignupOn() ? '' : ' - once signing up is turned on in Admin > Settings > Client portal'));
+    } else {
+        flashAlert('Signing up is off for <strong>' . escapeHtml($client['client_name']) . '</strong> - invite people instead');
+    }
     redirect();
 
 }
@@ -211,6 +187,8 @@ if (isset($_GET['archive_client'])) {
     enforceUserPermission('module_client', 2);
 
     $client_id = intval($_GET['archive_client']);
+
+    enforceClientAccess();
 
     // Archive client
     mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
@@ -226,9 +204,12 @@ if (isset($_GET['archive_client'])) {
     // Get Client Name
     $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
-    logAudit("Client", "Archive", "$session_name archived client $client_name", $client_id, $client_id);
+    // Nothing more is signed on their contracts - a request still out, or waiting on our countersignature, is withdrawn
+    $contracts_withdrawn = contractSignatureWithdrawStale($client_id);
 
-    flashAlert("Client <strong>$client_name</strong> archived", 'error');
+    logAudit("Client", "Archive", "$session_name archived client $client_name" . ($contracts_withdrawn ? " - $contracts_withdrawn contract signing request" . ($contracts_withdrawn === 1 ? '' : 's') . " withdrawn" : ''), $client_id, $client_id);
+
+    flashAlert("Client <strong>" . stripslashes($client_name) . "</strong> archived" . ($contracts_withdrawn ? " - contract signing requests to them were withdrawn" : ''), 'error');
 
     redirect();
 
@@ -242,14 +223,16 @@ if (isset($_GET['restore_client'])) {
 
     $client_id = intval($_GET['restore_client']);
 
+    enforceClientAccess();
+
     // Get Client Name
     $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
     mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
 
-    logAudit("Client", "Restored", "$session_name restored client $client_name", $client_id);
+    logAudit("Client", "Restore", "$session_name restored client $client_name", $client_id);
 
-    flashAlert("Client <strong>$client_name</strong> restored");
+    flashAlert("Client <strong>" . stripslashes($client_name) . "</strong> restored");
 
     redirect();
 
@@ -263,8 +246,17 @@ if (isset($_GET['delete_client'])) {
 
     $client_id = intval($_GET['delete_client']);
 
+    enforceClientAccess();
+
     // Get Client Name
     $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
+
+    // Their payments and other income go with them - not once any has cleared on a reconciled statement
+    $lock = reconcileClientLock($client_id);
+    if ($lock) {
+        flashAlert(escapeHtml('Money from ' . stripslashes($client_name) . " cleared on the {$lock['account_name']} statement to " . date('M j, Y', strtotime($lock['reconciliation_statement_date'])) . ' - keep the client archived instead, or undo that reconciliation to delete them'), 'error');
+        redirect();
+    }
 
     // Delete Associations
     // Delete Client Data
@@ -277,9 +269,16 @@ if (isset($_GET['delete_client'])) {
     // Delete Assets
     mysqli_query($mysqli, "DELETE FROM assets WHERE asset_client_id = $client_id");
 
+    // Delete Racks (their items go with them)
+    mysqli_query($mysqli, "DELETE FROM racks WHERE rack_client_id = $client_id");
+
+    // Delete Projects - their tickets are the client's, and go below
+    mysqli_query($mysqli, "DELETE FROM projects WHERE project_client_id = $client_id");
+
     // Delete Domains and associated records
     mysqli_query($mysqli, "DELETE FROM domains WHERE domain_client_id = $client_id");
 
+    mysqli_query($mysqli, "DELETE calendar_event_attendees FROM calendar_event_attendees JOIN calendar_events ON event_id = attendee_event_id WHERE event_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM calendar_events WHERE event_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM files WHERE file_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM folders WHERE folder_client_id = $client_id");
@@ -340,6 +339,7 @@ if (isset($_GET['delete_client'])) {
     }
     mysqli_query($mysqli, "DELETE FROM tickets WHERE ticket_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = $client_id");
+    mysqli_query($mysqli, "DELETE FROM contracts WHERE contract_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_client_id = $client_id");
 
     //Delete Client Files
@@ -351,9 +351,9 @@ if (isset($_GET['delete_client'])) {
     // Don't leave the company's own-client designation pointing at a client that is gone
     mysqli_query($mysqli, "UPDATE settings SET config_internal_client_id = 0 WHERE config_internal_client_id = $client_id");
 
-    logAudit("Client", "Deleted", "$session_name deleted Client $client_name and all associated data");
+    logAudit("Client", "Delete", "$session_name deleted Client $client_name and all associated data");
 
-    flashAlert("Client <strong>$client_name</strong> deleted along with all associated data", 'error');
+    flashAlert("Client <strong>" . stripslashes($client_name) . "</strong> deleted, with everything that was theirs", 'error');
 
     redirect('clients.php');
 
@@ -465,6 +465,8 @@ if (isExportRequest('export_clients')) {
 
     $num_rows = mysqli_num_rows($sql);
 
+    guardExportHasRows($num_rows, 'clients');
+
     if ($num_rows > 0) {
 
         guardExportPdfRowCount($format, $num_rows);
@@ -472,6 +474,11 @@ if (isExportRequest('export_clients')) {
         $export = beginExport('clients', $format, "$session_company_name-$export_label", $export_label, summarizeExportFilters($filter_summary));
 
         while ($row = mysqli_fetch_assoc($sql)) {
+            $tax_client = taxClient($row['client_id']);
+            $row['client_tax_rate'] = intval($tax_client['default_id']) ? taxLabel(taxRow($tax_client['default_id'])) : '';
+            $row['client_tax_exempt_display'] = $tax_client['exempt'] ? 'Yes' : '';
+            $row['client_tax_exempt_number'] = $tax_client['exempt'] ? $tax_client['number'] : '';
+            $row['client_tax_exempt_expires'] = $tax_client['exempt'] ? $tax_client['expires'] : '';
             addExportRow($export, $row);
         }
 
@@ -543,7 +550,7 @@ if (isset($_POST["import_clients_csv"])) {
 
             $referral = '';
             if (isset($column[2])) {
-                $referral = escapeSql($column[2]);
+                $referral = (string) $column[2];
             }
 
             $website = '';
@@ -616,9 +623,10 @@ if (isset($_POST["import_clients_csv"])) {
                 $contact_email = escapeSql($column[16]);
             }
 
-            $hourly_rate = $config_default_hourly_rate;
-            if (isset($column[17])) {
-                $hourly_rate = floatval($column[17]);
+            // An hourly rate or payment terms other than the defaults become the client's Standard terms contract
+            $hourly_rate = null;
+            if (isset($column[17]) && trim($column[17]) !== '') {
+                $hourly_rate = floatval(str_replace([',', '$'], '', $column[17]));
             }
 
             $currency_code = escapeSql($session_company_currency);
@@ -626,9 +634,9 @@ if (isset($_POST["import_clients_csv"])) {
                 $currency_code = escapeSql($column[18]);
             }
 
-            $payment_terms = escapeSql($config_default_net_terms);
-            if (isset($column[19])) {
-                $payment_terms = intval($column[19]);
+            $payment_terms = null;
+            if (isset($column[19]) && trim($column[19]) !== '' && is_numeric(trim($column[19]))) {
+                $payment_terms = max(0, min(365, intval($column[19])));
             }
 
             $tax_id_number = '';
@@ -644,8 +652,11 @@ if (isset($_POST["import_clients_csv"])) {
             // Check if duplicate was detected
             if ($duplicate_detect == 0) {
                 //Add
+                // A referral that isn't one yet is made one; one that is takes its own spelling
+                $referral = escapeSql(categoryEnsure('Referral', $referral));
+
                 // Create client
-                mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$industry', client_website = '$website', client_referral = '$referral', client_rate = $hourly_rate, client_currency_code = '$currency_code', client_net_terms = $payment_terms, client_tax_id_number = '$tax_id_number', client_abbreviation = '$abbreviation'");
+                mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$industry', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_tax_id_number = '$tax_id_number', client_abbreviation = '$abbreviation'" . billingClientLegacySql());
 
                 $client_id = mysqli_insert_id($mysqli);
 
@@ -654,19 +665,16 @@ if (isset($_POST["import_clients_csv"])) {
                     file_put_contents("../uploads/clients/$client_id/index.php", "");
                 }
 
-                // Create Referral if it doesn't exist
-                $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
-                if(mysqli_num_rows($sql) == 0) {
-                    mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
-                    // Logging
-                    logAudit("Category", "Create", "$session_name created new refferal category $referral");
-                }
-
                 // Create Location
                 mysqli_query($mysqli, "INSERT INTO locations SET location_name = '$location_name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$location_phone', location_country = '$country', location_primary = 1, location_client_id = $client_id");
 
                 // Create Contact
                 mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_title = '$title', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_primary = 1, contact_important = 1, contact_client_id = $client_id");
+
+                // Its rate and terms, where they aren't the defaults (functions/contract.php)
+                if (function_exists('contractsReady') && contractsReady() && contractStandardTermsAdd($client_id, $hourly_rate, $payment_terms, [], null, 'Made by the client import from its Hourly Rate and Payment Terms.')) {
+                    $terms_count = ($terms_count ?? 0) + 1;
+                }
 
                 $row_count = $row_count + 1;
 
@@ -681,7 +689,7 @@ if (isset($_POST["import_clients_csv"])) {
 
         logAudit("Client", "Import", "$session_name imported $row_count client(s) via CSV file, $duplicate_count duplicate(s) found");
 
-        flashAlert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found");
+        flashAlert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found" . (!empty($terms_count) ? ", <strong>$terms_count</strong> with a Standard terms contract for their own rate or payment terms" : ''));
 
         redirect();
 
@@ -727,108 +735,93 @@ if (isset($_POST['bulk_add_client_ticket'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $assigned_to = intval($_POST['bulk_assigned_to']);
-    if ($assigned_to == 0) {
-        $ticket_status = 1;
-    } else {
-        $ticket_status = 2;
+    // Every client picked, checked before any ticket is made
+    $client_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_POST['client_ids'] ?? [])))));
+    foreach ($client_ids as $client_id) {
+        enforceClientAccess($client_id);
     }
-    $subject = escapeSql($_POST['bulk_subject']);
-    $priority = escapeSql($_POST['bulk_priority']);
-    $category_id = intval($_POST['bulk_category']);
-    $details = mysqli_real_escape_string($mysqli, $_POST['bulk_details']);
-    $project_id = intval($_POST['bulk_project']);
-    $use_primary_contact = intval($_POST['use_primary_contact']);
-    $ticket_template_id = intval($_POST['bulk_ticket_template_id']);
-    $billable = intval($_POST['bulk_billable'] ?? 0);
 
-    // Check to see if adding a ticket by template
-    if($ticket_template_id) {
-        $sql = mysqli_query($mysqli, "SELECT ticket_template_details, ticket_template_subject FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
-        $row = mysqli_fetch_assoc($sql);
+    $assigned_to = ticketAgentId($_POST['bulk_assigned_to'] ?? 0);
+    $ticket_status = $assigned_to ? TICKET_STATUS_OPEN : TICKET_STATUS_NEW;
+    $subject_input = trim((string) ($_POST['bulk_subject'] ?? ''));
+    $priority = escapeSql(ticketPriority($_POST['bulk_priority'] ?? ''));
+    $category_id = ticketCategoryId($_POST['bulk_category'] ?? 0);
+    $details = mysqli_real_escape_string($mysqli, (string) ($_POST['bulk_details'] ?? ''));
+    $project_id = intval($_POST['bulk_project'] ?? 0);
+    $use_primary_contact = !empty($_POST['use_primary_contact']);
+    $ticket_template_id = intval($_POST['bulk_ticket_template_id'] ?? 0);
+    $billable = intval($_POST['bulk_billable'] ?? 0) ? 1 : 0;
+    $ticket_prefix = escapeSql($config_ticket_prefix);
 
-        // Override Template Subject
-        if(empty($subject)) {
-            $subject = escapeSql($row['ticket_template_subject']);
+    // A template fills in what was left empty, and what it asks for is answered once for them all
+    $template = ticketTemplateRow($ticket_template_id);
+    $fill_in_answers = null;
+    if ($template) {
+        $subject_input = $subject_input !== '' ? $subject_input : (string) $template['ticket_template_subject'];
+        $details = trim((string) ($_POST['bulk_details'] ?? '')) !== '' ? $details : mysqli_real_escape_string($mysqli, (string) $template['ticket_template_details']);
+        $fill_in_answers = ticketFillInAnswers(ticketTemplateFillInsFor($ticket_template_id), $_POST['fill_ins'] ?? [], $fill_in_error);
+        if ($fill_in_answers === null) {
+            flashAlert($fill_in_error, 'error');
+            redirect();
         }
-        $details = mysqli_escape_string($mysqli, $row['ticket_template_details']);
-
-        // Get Associated Tasks from the ticket template
-        $sql_task_templates = mysqli_query($mysqli, "SELECT task_template_name, task_template_order FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
-
     }
+    if ($subject_input === '') {
+        flashAlert('The tickets need a subject.', 'error');
+        redirect();
+    }
+    $subject = escapeSql(mb_substr($subject_input, 0, 500));
 
-    // Create ticket for each selected asset
-    if (isset($_POST['client_ids'])) {
-
-        // Get a Asset Count
-        $client_count = count($_POST['client_ids']);
-
-        foreach ($_POST['client_ids'] as $client_id) {
-            $client_id = intval($client_id);
-
-            $sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
-            $row = mysqli_fetch_assoc($sql);
-
-            $client_name = escapeSql($row['client_name']);
-
-            // Atomically increment and get the new ticket number
-            mysqli_query($mysqli, "
-                UPDATE settings
-                SET
-                    config_ticket_next_number = LAST_INSERT_ID(config_ticket_next_number),
-                    config_ticket_next_number = config_ticket_next_number + 1
-                WHERE company_id = 1
-            ");
-
-            $ticket_number = mysqli_insert_id($mysqli);
-
-            // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-            $config_ticket_prefix = escapeSql($config_ticket_prefix);
-            $config_ticket_from_name = escapeSql($config_ticket_from_name);
-            $config_ticket_from_email = escapeSql($config_ticket_from_email);
-            $config_base_url = escapeSql($config_base_url);
-
-            //Generate a unique URL key for clients to access
-            $url_key = randomString(32);
-
-            mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $ticket_status, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_project_id = $project_id");
-
-            $ticket_id = mysqli_insert_id($mysqli);
-            applyTicketSla($ticket_id);
-
-            // Add Tasks
-            if (!empty($_POST['tasks'])) {
-                foreach ($_POST['tasks'] as $task) {
-                    $task_name = escapeSql($task);
-                    // Check that task_name is not-empty (For some reason the !empty on the array doesnt work here like in watchers)
-                    if (!empty($task_name)) {
-                        mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
-                    }
-                }
-            }
-
-            // Add Tasks from Template if Template was selected
-            if($ticket_template_id) {
-                if (mysqli_num_rows($sql_task_templates) > 0) {
-                    while ($row = mysqli_fetch_assoc($sql_task_templates)) {
-                        $task_order = intval($row['task_template_order']);
-                        $task_name = escapeSql($row['task_template_name']);
-
-                        mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_order = $task_order, task_ticket_id = $ticket_id");
-                    }
-                }
-            }
-
-            // Custom action/notif handler
-            triggerCustomAction('ticket_create', $ticket_id);
+    $ticket_ids = [];
+    foreach ($client_ids as $client_id) {
+        if (!getFieldById('clients', $client_id, 'client_name')) {
+            continue;
         }
 
-        logAudit("Ticket", "Bulk Create", "$session_name created $client_count tickets for $client_name");
+        // Each client's primary contact, when asked; a shared project only when it is internal
+        $contact_id = 0;
+        if ($use_primary_contact) {
+            $primary = mysqli_fetch_row(mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_primary = 1 AND contact_archived_at IS NULL LIMIT 1"));
+            $contact_id = $primary ? intval($primary[0]) : 0;
+        }
+        $ticket_project_id = ticketClientOwnedId('project', $project_id, $client_id);
 
-        flashAlert("<strong>$client_count</strong> tickets created for selected clients");
+        // Atomically increment and get the new ticket number
+        mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = LAST_INSERT_ID(config_ticket_next_number), config_ticket_next_number = config_ticket_next_number + 1 WHERE company_id = 1");
+        $ticket_number = mysqli_insert_id($mysqli);
+        $url_key = randomString(32);
 
+        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Agent', ticket_category = $category_id,
+            ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $ticket_status,
+            ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_url_key = '$url_key',
+            ticket_client_id = $client_id, ticket_invoice_id = 0, ticket_project_id = $ticket_project_id");
+        $ticket_id = mysqli_insert_id($mysqli);
+        applyTicketSla($ticket_id);
+
+        // Tasks typed in, then the template's - its tags and due time too, and [Client] filled in
+        foreach ((array) ($_POST['tasks'] ?? []) as $task) {
+            $task_name = escapeSql(mb_substr(trim((string) $task), 0, 255));
+            if ($task_name !== '') {
+                mysqli_query($mysqli, "INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
+            }
+        }
+        if ($template) {
+            ticketTemplateFinish($ticket_id, $ticket_template_id, true, true, $fill_in_answers);
+        }
+
+        logAudit("Ticket", "Create", "$session_name created ticket $ticket_prefix$ticket_number - $subject", $client_id, $ticket_id);
+        triggerCustomAction('ticket_create', $ticket_id);
+        $ticket_ids[] = $ticket_id;
     }
+    $count = count($ticket_ids);
+
+    // The agent they went to hears once, about all of them
+    if ($ticket_ids && $assigned_to) {
+        ticketMailAssigned($assigned_to, $ticket_ids, stripslashes($session_name));
+    }
+
+    logAudit("Ticket", "Bulk Create", "$session_name created $count ticket(s) for the clients picked");
+
+    flashAlert("Created <strong>$count</strong> ticket" . ($count === 1 ? '' : 's') . " for the clients picked");
 
     redirect();
 
@@ -843,6 +836,11 @@ if (isset($_POST['bulk_edit_client_industry'])) {
     $industry = escapeSql($_POST['bulk_industry']);
 
     if (isset($_POST['client_ids'])) {
+
+        // Check every selected client before changing any of them
+        foreach ($_POST['client_ids'] as $client_id) {
+            enforceClientAccess(intval($client_id));
+        }
 
         $count = count($_POST['client_ids']);
 
@@ -859,9 +857,9 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
         }
 
-        logAudit("Client", "Bulk Edit", "$session_name set the department $industry for $count client(s)", $client_id);
+        logAudit("Client", "Bulk Edit", "$session_name set the industry $industry for $count client(s)", $client_id);
 
-        flashAlert("Set the Industry to <strong>$industry</strong> for <strong>$count</strong> clients");
+        flashAlert("Industry set to <strong>" . stripslashes($industry) . "</strong> on <strong>$count</strong> client" . ($count === 1 ? '' : 's'));
     }
 
     redirect();
@@ -877,6 +875,11 @@ if (isset($_POST['bulk_edit_client_referral'])) {
     $referral = escapeSql($_POST['bulk_referral']);
 
     if (isset($_POST['client_ids'])) {
+
+        // Check every selected client before changing any of them
+        foreach ($_POST['client_ids'] as $client_id) {
+            enforceClientAccess(intval($client_id));
+        }
 
         $count = count($_POST['client_ids']);
 
@@ -895,121 +898,49 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
         logAudit("Client", "Bulk Edit", "$session_name set the referral $referral for $count client(s)", $client_id);
 
-        flashAlert("Set the Referral to <strong>$referral</strong> for <strong>$count</strong> clients");
+        flashAlert("Referral set to <strong>" . stripslashes($referral) . "</strong> on <strong>$count</strong> client" . ($count === 1 ? '' : 's'));
     }
 
     redirect();
 
 }
 
-if (isset($_POST['bulk_edit_client_hourly_rate'])) {
+if (isset($_POST['bulk_add_client_contract'])) {
 
+    // A contract from a template for each client ticked - active from the day picked (functions/contract.php)
     validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
+    enforceUserPermission('module_sales', 2);
 
-    $rate = floatval($_POST['bulk_rate']);
-
-    if (isset($_POST['client_ids'])) {
-
-        $count = count($_POST['client_ids']);
-
-        foreach($_POST['client_ids'] as $client_id) {
-            $client_id = intval($client_id);
-
-            $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-            $row = mysqli_fetch_assoc($sql);
-            $client_name = escapeSql($row['client_name']);
-
-            mysqli_query($mysqli,"UPDATE clients SET client_rate = '$rate' WHERE client_id = $client_id");
-
-            logAudit("Client", "Edit", "$session_name set Hourly Rate to" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $client_name", $client_id);
-
-        }
-
-        logAudit("Client", "Bulk Edit", "$session_name set the hourly rate" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $count client(s)", $client_id);
-
-        flashAlert("Set the Hourly Rate to <strong>" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "</strong> for <strong>$count</strong> client(s)");
+    $client_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_POST['client_ids'] ?? [])))));
+    $template = contractTemplateRow(intval($_POST['contract_template_id'] ?? 0));
+    if (!contractClientPickReady() || !$template || !empty($template['contract_template_archived_at'])) {
+        flashAlert("Pick a contract template.", 'error');
+        redirect();
     }
 
-    redirect();
-
-}
-
-if (isset($_POST['bulk_edit_client_net_terms'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    $net_terms = intval($_POST['net_terms']);
-
-    if (isset($_POST['client_ids'])) {
-
-        $count = count($_POST['client_ids']);
-
-        foreach($_POST['client_ids'] as $client_id) {
-            $client_id = intval($client_id);
-
-            $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-            $row = mysqli_fetch_assoc($sql);
-            $client_name = escapeSql($row['client_name']);
-
-            mysqli_query($mysqli,"UPDATE clients SET client_net_terms = $net_terms WHERE client_id = $client_id");
-
-            logAudit("Client", "Edit", "$session_name set net terms to $net_terms days for $client_name", $client_id);
-
-        }
-
-        logAudit("Client", "Bulk Edit", "$session_name set the net terms to $net_terms days for $count client(s)", $client_id);
-
-        flashAlert("Set Net Term to <strong>$net_terms days</strong> for <strong>$count</strong> client(s)");
+    // Check every selected client before starting any
+    foreach ($client_ids as $client_id) {
+        enforceClientAccess($client_id);
     }
 
-    redirect();
-
-}
-
-if (isset($_POST['bulk_assign_client_tags'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    if (isset($_POST['client_ids'])) {
-
-        $count = count($_POST['client_ids']);
-
-        foreach($_POST['client_ids'] as $client_id) {
-            $client_id = intval($client_id);
-
-            $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-            $row = mysqli_fetch_assoc($sql);
-            $client_name = escapeSql($row['client_name']);
-
-            if ($_POST['bulk_remove_tags']) {
-                mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
-            }
-
-            if (isset($_POST['bulk_tags'])) {
-                foreach($_POST['bulk_tags'] as $tag) {
-                    $tag = intval($tag);
-
-                    $sql = mysqli_query($mysqli,"SELECT 1 FROM client_tags WHERE client_id = $client_id AND tag_id = $tag");
-                    if (mysqli_num_rows($sql) == 0) {
-                        mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
-                    }
-                }
-            }
-
-            logAudit("Client", "Edit", "$session_name added tags to $client_name", $client_id, $client_id);
-
+    $made = 0;
+    $not_made = [];
+    foreach ($client_ids as $client_id) {
+        [$contract_id, $contract_name, $contract_error] = contractFromClientForm($client_id, ['contract_template_id' => intval($template['contract_template_id']), 'contract_start' => (string) ($_POST['contract_start'] ?? '')]);
+        if ($contract_id) {
+            $made++;
+        } else {
+            $not_made[] = getFieldById('clients', $client_id, 'client_name') . ($contract_error !== '' ? " ($contract_error)" : '');
         }
-
-        logAudit("Client", "Bulk Edit", "$session_name added tags for $count clients", $client_id);
-
-        flashAlert("Assigned tags for <strong>$count</strong> clients");
     }
+
+    if ($made) {
+        logAudit("Contract", "Bulk Create", "$session_name started contract " . escapeSql($template['contract_template_name']) . " from its template for $made client(s)", 0);
+    }
+    flashAlert("Contract <strong>" . escapeHtml($template['contract_template_name']) . "</strong> started for <strong>$made</strong> client" . ($made === 1 ? '' : 's')
+        . ($not_made ? " - not for " . escapeHtml(implode(', ', $not_made)) : ''), $not_made ? 'warning' : 'success');
 
     redirect();
 
@@ -1024,12 +955,10 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
     $client_ids = array_map('intval', $_POST['client_ids']);
     $count = count($client_ids);
 
-    // Email metadata
-    $mail_from = escapeSql($_POST['mail_from']);
-    $mail_from_name = escapeSql($_POST['mail_from_name']);
-    $subject = escapeSql($_POST['subject']);
-    $body = mysqli_real_escape_string($mysqli, $_POST['body']);
-    $queued_at = escapeSql($_POST['queued_at']);
+    // Check every selected client before queuing anything
+    foreach ($client_ids as $client_id) {
+        enforceClientAccess($client_id);
+    }
 
     // Build contact type filters
     $filters = [];
@@ -1055,52 +984,21 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
     // Prepare client ID list for SQL
     $client_ids_str = implode(',', $client_ids);
 
-    // SQL to fetch matching contacts
-    $sql = "SELECT * FROM contacts
-            WHERE contact_client_id IN ($client_ids_str)
-            $contact_filter_query";
+    // The clients' contacts that match, not archived - emailBulkSend() sends each address once
+    $result = mysqli_query($mysqli, "SELECT contact_email, contact_name, client_name FROM contacts
+        JOIN clients ON client_id = contact_client_id
+        WHERE contact_client_id IN ($client_ids_str) AND contact_archived_at IS NULL
+        $contact_filter_query
+        ORDER BY client_name ASC, contact_primary DESC, contact_name ASC");
 
-    $result = mysqli_query($mysqli, $sql);
-
-    $data = [];
-    $unique_contacts = [];
-
+    $recipients = [];
+    $company_name = (string) (billingCompany()['company_name'] ?? '');
     while ($row = mysqli_fetch_assoc($result)) {
-        $contact_email = escapeSql($row['contact_email']);
-
-        // Skip if email is missing or invalid
-        if (empty($contact_email) || !filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
-            continue;
-        }
-
-        // Skip duplicates (same email)
-        if (isset($unique_contacts[$contact_email])) {
-            continue;
-        }
-        $unique_contacts[$contact_email] = true;
-
-        $contact_name = escapeSql($row['contact_name']);
-
-        $data[] = [
-            'from' => $mail_from,
-            'from_name' => $mail_from_name,
-            'recipient' => $contact_email,
-            'recipient_name' => $contact_name,
-            'subject' => $subject,
-            'body' => $body,
-            'queued_at' => $queued_at
-        ];
+        $recipients[] = ['email' => trim((string) $row['contact_email']), 'name' => (string) $row['contact_name'],
+            'footnote' => "You received this as a contact for {$row['client_name']} with $company_name."];
     }
 
-    if (!empty($data)) {
-        addToMailQueue($data);
-        logAudit("Bulk Mail", "Send", "$session_name sent " . count($data) . " messages via bulk mail");
-        flashAlert("<strong>" . count($data) . "</strong> messages queued");
-    } else {
-        flashAlert("No valid contacts found to queue emails.", 'error');
-    }
-
-    redirect();
+    emailBulkPost($recipients, count($recipients));
 
 }
 
@@ -1111,6 +1009,11 @@ if (isset($_POST['bulk_archive_clients'])) {
     enforceUserPermission('module_client', 2);
 
     if (isset($_POST['client_ids'])) {
+
+        // Check every selected client before changing any of them
+        foreach ($_POST['client_ids'] as $client_id) {
+            enforceClientAccess(intval($client_id));
+        }
 
         $count = 0;
 
@@ -1123,8 +1026,9 @@ if (isset($_POST['bulk_archive_clients'])) {
             $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
+            $contracts_withdrawn = contractSignatureWithdrawStale($client_id);
 
-            logAudit("Client", "Archive", "$session_name archived $client_name", $client_id);
+            logAudit("Client", "Archive", "$session_name archived $client_name" . ($contracts_withdrawn ? " - $contracts_withdrawn contract signing request" . ($contracts_withdrawn === 1 ? '' : 's') . " withdrawn" : ''), $client_id);
 
             $count++;
 
@@ -1148,6 +1052,11 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
     if (isset($_POST['client_ids'])) {
 
+        // Check every selected client before changing any of them
+        foreach ($_POST['client_ids'] as $client_id) {
+            enforceClientAccess(intval($client_id));
+        }
+
         $count = count($_POST['client_ids']);
 
         foreach ($_POST['client_ids'] as $client_id) {
@@ -1160,7 +1069,7 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
 
-            logAudit("client", "Restore", "$session_name restored $client_name", $client_id);
+            logAudit("Client", "Restore", "$session_name restored $client_name", $client_id);
 
         }
 
@@ -1174,832 +1083,70 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
 }
 
-if (isset($_POST["export_client_pdf"])) {
+/*
+ * Export a client (functions/client_export.php): the documentation PDF, or
+ * everything as a zip. Client access is the floor; each section then needs
+ * its own module, so a role missing one goes without that section, and
+ * passwords only go out locked with a password the agent sets.
+ */
+if (isset($_POST['export_client_pdf']) || isset($_POST['export_client_archive'])) {
 
     validateCSRFToken();
 
-    // The pack always carries the client's own record, so client read is the floor.
-    // Everything past that is gated per section in resolveClientPackSections() - a
-    // role missing one module loses that section, not the whole export.
     enforceUserPermission('module_client');
 
-    $client_id = intval($_POST["client_id"]);
+    $client_id = intval($_POST['client_id'] ?? 0);
     enforceClientAccess();
 
-    $pack = resolveClientPackSections();
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id"));
+    if (!$row) {
+        flashAlert('That client no longer exists.', 'error');
+        redirect('clients.php');
+    }
+    $client_name = $row['client_name'];
 
-    $sql = mysqli_query($mysqli, "SELECT company_email, company_logo, company_name, company_phone, company_phone_country_code,
-        company_website FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
-    $row = mysqli_fetch_assoc($sql);
-    $company_name = escapeHtml($row['company_name']);
-    $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
-    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-    $company_email = escapeHtml($row['company_email']);
-    $company_website = escapeHtml($row['company_website']);
-    $company_logo = escapeHtml($row['company_logo']);
-
-    logAudit("Client", "Export", "$session_name exported client data to a PDF file", $client_id, $client_id);
-
-    // Get client record (joining primary contact and primary location)
-    $sql = mysqli_query($mysqli, "SELECT * FROM clients
-        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
-        LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
-        WHERE client_id = $client_id
-    ");
-    $row = mysqli_fetch_assoc($sql);
-
-    // Immediately sanitize retrieved values
-    $client_name = escapeHtml($row["client_name"]);
-    $location_address = escapeHtml($row["location_address"]);
-    $location_city = escapeHtml($row["location_city"]);
-    $location_state = escapeHtml($row["location_state"]);
-    $location_zip = escapeHtml($row["location_zip"]);
-    $contact_name = escapeHtml($row["contact_name"]);
-    $contact_phone_country_code = escapeHtml($row["contact_phone_country_code"]);
-    $contact_phone = escapeHtml(formatPhoneNumber($row["contact_phone"], $contact_phone_country_code));
-    $contact_extension = escapeHtml($row["contact_extension"]);
-    $contact_mobile_country_code = escapeHtml($row["contact_mobile_country_code"]);
-    $contact_mobile = escapeHtml(formatPhoneNumber($row["contact_mobile"], $contact_mobile_country_code));
-    $contact_email = escapeHtml($row["contact_email"]);
-    $client_website = escapeHtml($row["client_website"]);
-
-    // Other queries remain unchanged
-    $sql_contacts = $pack['contacts'] ? mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC") : false;
-    $sql_locations = $pack['locations'] ? mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC") : false;
-    $sql_vendors = $pack['vendors'] ? mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC") : false;
-    $sql_credentials = $pack['credentials'] ? mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_client_id = $client_id ORDER BY credential_name ASC") : false;
-    $sql_assets = $pack['assets'] ? mysqli_query($mysqli, "SELECT 1 FROM assets
-        LEFT JOIN contacts ON asset_contact_id = contact_id
-        LEFT JOIN locations ON asset_location_id = location_id
-        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
-        WHERE asset_client_id = $client_id
-        AND asset_archived_at IS NULL
-        ORDER BY asset_type ASC"
-    ) : false;
-    $sql_asset_workstations = $pack['assets'] ? mysqli_query($mysqli, "SELECT * FROM assets
-        LEFT JOIN contacts ON asset_contact_id = contact_id
-        LEFT JOIN locations ON asset_location_id = location_id
-        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
-        WHERE asset_client_id = $client_id
-        AND (asset_type = 'desktop' OR asset_type = 'laptop')
-        AND asset_archived_at IS NULL
-        ORDER BY asset_name ASC"
-    ) : false;
-    $sql_asset_servers = $pack['assets'] ? mysqli_query($mysqli, "SELECT * FROM assets
-        LEFT JOIN locations ON asset_location_id = location_id
-        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
-        WHERE asset_client_id = $client_id
-        AND asset_type = 'server'
-        AND asset_archived_at IS NULL
-        ORDER BY asset_name ASC"
-    ) : false;
-    $sql_asset_vms = $pack['assets'] ? mysqli_query($mysqli, "SELECT * FROM assets
-        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
-        WHERE asset_client_id = $client_id
-        AND asset_type = 'virtual machine'
-        AND asset_archived_at IS NULL
-        ORDER BY asset_name ASC"
-    ) : false;
-    $sql_asset_network = $pack['assets'] ? mysqli_query($mysqli, "SELECT * FROM assets
-        LEFT JOIN locations ON asset_location_id = location_id
-        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
-        WHERE asset_client_id = $client_id
-        AND (asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point')
-        AND asset_archived_at IS NULL
-        ORDER BY asset_type ASC"
-    ) : false;
-    $sql_asset_other = $pack['assets'] ? mysqli_query($mysqli, "SELECT * FROM assets
-        LEFT JOIN contacts ON asset_contact_id = contact_id
-        LEFT JOIN locations ON asset_location_id = location_id
-        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
-        WHERE asset_client_id = $client_id
-        AND (asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point')
-        AND asset_archived_at IS NULL
-        ORDER BY asset_type ASC"
-    ) : false;
-    $sql_networks = $pack['networks'] ? mysqli_query($mysqli, "SELECT * FROM networks WHERE network_client_id = $client_id AND network_archived_at IS NULL ORDER BY network_name ASC") : false;
-    $sql_domains = $pack['domains'] ? mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = $client_id AND domain_archived_at IS NULL ORDER BY domain_name ASC") : false;
-    $sql_certficates = $pack['certificates'] ? mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id = $client_id AND certificate_archived_at IS NULL ORDER BY certificate_name ASC") : false;
-    $sql_software = $pack['software'] ? mysqli_query($mysqli, "SELECT * FROM software WHERE software_client_id = $client_id AND software_archived_at IS NULL ORDER BY software_name ASC") : false;
-
-    $sql_user_licenses = $pack['software'] ? mysqli_query($mysqli, "
-        SELECT
-            contact_name,
-            software_name
-        FROM
-            software_contacts
-        JOIN
-            contacts ON software_contacts.contact_id = contacts.contact_id
-        JOIN
-            software ON software_contacts.software_id = software.software_id
-        WHERE software_archived_at IS NULL
-        AND contact_archived_at IS NULL
-        AND software_client_id = $client_id
-        AND contact_client_id = $client_id
-        ORDER BY
-            contact_name, software_name;"
-    ) : false;
-
-    $sql_asset_licenses = $pack['software'] ? mysqli_query($mysqli, "
-        SELECT
-            asset_name,
-            software_name
-        FROM
-            software_assets
-        JOIN
-            assets ON software_assets.asset_id = assets.asset_id
-        JOIN
-            software ON software_assets.software_id = software.software_id
-        WHERE software_archived_at IS NULL
-        AND asset_archived_at IS NULL
-        AND software_client_id = $client_id
-        AND asset_client_id = $client_id
-        ORDER BY
-            asset_name, software_name;"
-    ) : false;
-
-    require_once("../libs/TCPDF/tcpdf.php");
-
-    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, "UTF-8", false);
-    $pdf->SetCreator(PDF_CREATOR);
-    $pdf->SetAuthor($session_company_name);
-    $pdf->SetTitle("$client_name - IT Documentation");
-
-    // TODO: Add page numbers to footer, but can't work out how to do it without the ugly line
-    //    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-    //    $pdf->setFooterData();
-
-    // Enable auto page breaks with a margin from the bottom
-    $pdf->SetAutoPageBreak(true, 15);
-
-    // ----- Start Main Content -----
-    $pdf->AddPage();
-    $pdf->SetFont("freeserif", "", 10);
-
-    // Build the HTML content with enhanced styling and semantic markup
-    $html = "
-    <style>
-      body { font-family: sans-serif; margin: 0; padding: 0; }
-      .cover { text-align: center; margin-top: 50px; margin-bottom: 30px; }
-      .cover h1 { font-size: 28px; color: #000; margin-bottom: 10px; }
-      .cover h2 { font-size: 20px; color: #000; margin-bottom: 10px; }
-      .cover p { font-size: 14px; color: #000; }
-      .client-header { padding: 10px 20px; margin-bottom: 20px; border: 1px solid #000; }
-      .client-header p { margin: 4px 0; }
-      .client-header strong { display: inline-block; width: 140px; }
-      h2.section-title { color: #000; border-bottom: 2px solid #000; padding-bottom: 5px; margin-top: 30px; font-size: 18px; }
-      h3.subsection-title { color: #000; margin-top: 20px; font-size: 16px; }
-      table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-      table, th, td { border: 1px solid #000; }
-      table th { background-color: #000; color: #fff; padding: 10px; text-align: left; font-weight: bold; }
-      table td { padding: 10px; }
-      thead { display: table-header-group; }
-      tbody tr { page-break-inside: avoid; }
-      tr:nth-child(even) { background-color: #f2f2f2; }
-      hr { border: 0; border-top: 2px solid #000; margin: 20px 0; }
-    </style>
-    ";
-
-    // Cover page section (for main content, not the TOC)
-    $html .= '<div class="cover">';
-    if (!empty($company_logo)) {
-        //$pdf->Image('../uploads/settings/' . $company_logo, '', '', 35, 35, '', '', 'L', false, 300, '', false, false, 1, false, false, false);
-        $html .= '<div style="text-align:right;">
-        <img src="' . realpath('../uploads/settings/' . $company_logo) . '" width="120">
-        </div>';
+    $kind = isset($_POST['export_client_archive']) ? 'archive' : 'pdf';
+    $options = clientExportOptions($_POST, $kind);
+    if ($error = clientExportCheck($options, $_POST)) {
+        flashAlert($error, 'error');
+        redirect();
     }
 
-    $html .= "
-     <h1>IT Documentation</h1>
-     <h2>$client_name</h2>
-    ";
+    // A big client's files take a while to gather; the request is the export
+    set_time_limit(0);
 
-    $html .= "
-    <h4>Prepared by $session_name on " . date("F j, Y") . "</h4>
-    </div>
-    ";
+    $logged = escapeSql(clientExportSummary($options)) . ($options['secrets'] ? ', including passwords and 2FA secrets' : '');
 
-    $html .= "
-      <br>
-      <h4>$session_company_name</h4>
-      $company_phone<br>$company_email<br>
-    ";
-
-    if (!$config_whitelabel_enabled) {
-        $html .= '<div style="text-align:right;">
-        <small class="text-muted">Powered by ITFlow</small>
-        </div>';
-    }
-
-    $html .= '<hr>';
-
-    // Client header information (non-table)
-    $location_city_state_zip = formatAddress('', $location_city, $location_state, $location_zip, '', ' ');
-    $html .= "
-    <div class='client-header'>
-      <h3>$client_name</h3>
-      <p><strong>Address:</strong> $location_address</p>
-      <p><strong>City State Zip:</strong> $location_city_state_zip</p>
-      <p><strong>Phone:</strong> $contact_phone</p>
-      <p><strong>Website:</strong> $client_website</p>
-      <p><strong>Contact:</strong> $contact_name</p>
-      <p><strong>Email:</strong> $contact_email</p>
-    </div>";
-
-    // Add bookmarks and TOC entries for each major section:
-
-    // Contacts Section
-    if ($pack['contacts'] == 1 && mysqli_num_rows($sql_contacts) > 0) {
-        $pdf->Bookmark("Contacts", 0, 0, "", "B", array(0,0,0));
-        $html .= "
-        <h2 class='section-title'>Contacts</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Title</th>
-              <th>Department</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Mobile</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_contacts)) {
-            $contact_name = escapeHtml($row["contact_name"]) ?: '-';
-            $contact_title = escapeHtml($row["contact_title"]) ?: '-';
-            $contact_department = escapeHtml($row["contact_department"]);
-            $contact_email = escapeHtml($row["contact_email"]);
-            $contact_phone_country_code = escapeHtml($row["contact_phone_country_code"]);
-            $contact_phone = escapeHtml(formatPhoneNumber($row["contact_phone"], $contact_phone_country_code));
-            $contact_extension = escapeHtml($row["contact_extension"]);
-            if (!empty($contact_extension)) {
-                $contact_extension = "x$contact_extension";
-            }
-            $contact_mobile_country_code = escapeHtml($row["contact_mobile_country_code"]);
-            $contact_mobile = escapeHtml(formatPhoneNumber($row["contact_mobile"], $contact_mobile_country_code));
-            $html .= "
-            <tr>
-              <td>$contact_name</td>
-              <td>$contact_title</td>
-              <td>$contact_department</td>
-              <td>$contact_email</td>
-              <td>$contact_phone $contact_extension</td>
-              <td>$contact_mobile</td>
-            </tr>";
+    if ($kind === 'pdf') {
+        try {
+            $pdf = clientExportPdf($client_id, $options);
+        } catch (Exception $exception) {
+            error_log('ITFlow client export PDF: ' . $exception->getMessage());
+            flashAlert('The PDF could not be made. Try again with fewer sections, or use the full export.', 'error');
+            redirect();
         }
-        $html .= "
-          </tbody>
-        </table>";
+
+        logAudit("Client", "Export", "$session_name exported the documentation PDF for " . escapeSql($client_name) . " ($logged)", $client_id, $client_id);
+
+        clientExportSendHeaders(clientExportFileName($client_name, 'IT Documentation', 'pdf'), 'application/pdf', strlen($pdf));
+        echo $pdf;
+        exit;
     }
 
-    // Locations Section
-    if ($pack['locations'] == 1 && mysqli_num_rows($sql_locations) > 0) {
-        $pdf->Bookmark("Locations", 0, 0, "", "B", array(0,0,0));
-        $html .= "
-        <h2 class='section-title'>Locations</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Address</th>
-              <th>Phone</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_locations)) {
-            $location_name = escapeHtml($row["location_name"]);
-            $location_address = escapeHtml($row["location_address"]);
-            $location_city = escapeHtml($row["location_city"]);
-            $location_state = escapeHtml($row["location_state"]);
-            $location_zip = escapeHtml($row["location_zip"]);
-            $location_phone_country_code = escapeHtml($row["location_phone_country_code"]);
-            $location_phone = escapeHtml(formatPhoneNumber($row["location_phone"], $location_phone_country_code));
-            $location_full_address = formatAddress($location_address, $location_city, $location_state, $location_zip, '', ' ');
-            $html .= "
-            <tr>
-              <td>$location_name</td>
-              <td>$location_full_address</td>
-              <td>$location_phone</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
+    $zip_path = clientExportArchive($client_id, $options, $error);
+    if (!$zip_path) {
+        flashAlert($error, 'error');
+        redirect();
     }
+    logAudit("Client", "Export", "$session_name exported all data for " . escapeSql($client_name) . " ($logged" . ($options['archived'] ? ', archived records' : '')
+        . ($options['internal'] ? ', internal notes' : '') . ")", $client_id, $client_id);
 
-    // Vendors Section
-    if ($pack['vendors'] == 1 && mysqli_num_rows($sql_vendors) > 0) {
-        $pdf->Bookmark("Vendors", 0, 0, "", "B", array(0,0,0));
-        $html .= "
-        <h2 class='section-title'>Vendors</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Phone</th>
-              <th>Website</th>
-              <th>Account Number</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_vendors)) {
-            $vendor_name = escapeHtml($row["vendor_name"]);
-            $vendor_description = escapeHtml($row["vendor_description"]);
-            $vendor_account_number = escapeHtml($row["vendor_account_number"]);
-            $vendor_phone_country_code = escapeHtml($row["vendor_phone_country_code"]);
-            $vendor_phone = escapeHtml(formatPhoneNumber($row["vendor_phone"], $vendor_phone_country_code));
-            $vendor_website = escapeHtml($row["vendor_website"]);
-            $html .= "
-            <tr>
-              <td>$vendor_name</td>
-              <td>$vendor_description</td>
-              <td>$vendor_phone</td>
-              <td>$vendor_website</td>
-              <td>$vendor_account_number</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
+    clientExportSendHeaders(clientExportFileName($client_name, 'Export', 'zip'), 'application/zip', filesize($zip_path));
+    while (ob_get_level()) {
+        ob_end_clean();
     }
-
-    // Credentials Section
-    if ($pack['credentials'] == 1 && mysqli_num_rows($sql_credentials) > 0) {
-        $pdf->Bookmark("Credentials", 0, 0, "", "B", array(0,0,0));
-        $html .= "
-        <h2 class='section-title'>Credentials</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Username</th>
-              <th>Password</th>
-              <th>TOTP</th>
-              <th>URI</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_credentials)) {
-            $credential_name = escapeHtml($row["credential_name"]);
-            $credential_description = escapeHtml($row["credential_description"]) ?: '-';
-            $credential_username = escapeHtml(decryptCredentialEntry($row["credential_username"]));
-            $credential_password = escapeHtml(decryptCredentialEntry($row["credential_password"]));
-            $credential_totp_secret = escapeHtml($row['credential_otp_secret']) ?: '-';
-            $credential_uri = escapeHtml($row["credential_uri"]) ?: '-';
-            $html .= "
-            <tr>
-              <td>$credential_name</td>
-              <td>$credential_description</td>
-              <td>$credential_username</td>
-              <td>$credential_password</td>
-              <td>$credential_totp_secret</td>
-              <td>$credential_uri</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
-    }
-
-    // Assets Section Header
-    if ($pack['assets'] == 1 && mysqli_num_rows($sql_assets) > 0) {
-        $pdf->Bookmark("Assets", 0, 0, "", "B", array(0,0,0));
-        $html .= "
-        <h2 class='section-title'>Assets</h2>";
-    }
-
-    // Workstations
-    if ($pack['assets'] == 1 && mysqli_num_rows($sql_asset_workstations) > 0) {
-        $pdf->Bookmark("Workstations", 1, 0, "", "", array(0,0,0));
-        $html .= "
-        <h3 class='subsection-title'>Workstations</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Model</th>
-              <th>Serial</th>
-              <th>OS</th>
-              <th>Purchase Date</th>
-              <th>Warranty Expire</th>
-              <th>Install Date</th>
-              <th>Assigned To</th>
-              <th>Location</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_asset_workstations)) {
-            $asset_name = escapeHtml($row["asset_name"]);
-            $asset_type = escapeHtml($row["asset_type"]);
-            $asset_make = escapeHtml($row["asset_make"]);
-            $asset_model = escapeHtml($row["asset_model"]);
-            $asset_serial = escapeHtml($row["asset_serial"]);
-            $asset_os = escapeHtml($row["asset_os"]);
-            $asset_purchase_date = escapeHtml($row["asset_purchase_date"]);
-            $asset_warranty_expire = escapeHtml($row["asset_warranty_expire"]);
-            $asset_install_date = escapeHtml($row["asset_install_date"]);
-            $contact_name = escapeHtml($row["contact_name"]);
-            $location_name = escapeHtml($row["location_name"]);
-            $html .= "
-            <tr style='page-break-inside: avoid;'>
-              <td>$asset_name</td>
-              <td>$asset_type</td>
-              <td>$asset_make $asset_model</td>
-              <td>$asset_serial</td>
-              <td>$asset_os</td>
-              <td>$asset_purchase_date</td>
-              <td>$asset_warranty_expire</td>
-              <td>$asset_install_date</td>
-              <td>$contact_name</td>
-              <td>$location_name</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
-    }
-
-    // Servers
-    if ($pack['assets'] == 1 && mysqli_num_rows($sql_asset_servers) > 0) {
-        $pdf->Bookmark("Servers", 1, 0, "", "", array(0,0,0));
-        $html .= "
-        <h3 class='subsection-title'>Servers</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Model</th>
-              <th>Serial</th>
-              <th>OS</th>
-              <th>IP</th>
-              <th>Purchase Date</th>
-              <th>Warranty Expire</th>
-              <th>Install Date</th>
-              <th>Location</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_asset_servers)) {
-            $asset_name = escapeHtml($row["asset_name"]);
-            $asset_make = escapeHtml($row["asset_make"]);
-            $asset_model = escapeHtml($row["asset_model"]);
-            $asset_serial = escapeHtml($row["asset_serial"]);
-            $asset_os = escapeHtml($row["asset_os"]);
-            $asset_ip = escapeHtml($row["interface_ip"]);
-            $asset_purchase_date = escapeHtml($row["asset_purchase_date"]);
-            $asset_warranty_expire = escapeHtml($row["asset_warranty_expire"]);
-            $asset_install_date = escapeHtml($row["asset_install_date"]);
-            $location_name = escapeHtml($row["location_name"]);
-            $html .= "
-            <tr style='page-break-inside: avoid;'>
-              <td>$asset_name</td>
-              <td>$asset_make $asset_model</td>
-              <td>$asset_serial</td>
-              <td>$asset_os</td>
-              <td>$asset_ip</td>
-              <td>$asset_purchase_date</td>
-              <td>$asset_warranty_expire</td>
-              <td>$asset_install_date</td>
-              <td>$location_name</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
-    }
-
-    // Virtual Machines
-    if ($pack['assets'] == 1 && mysqli_num_rows($sql_asset_vms) > 0) {
-        $pdf->Bookmark("Virtual Machines", 1, 0, "", "", array(0,0,0));
-        $html .= "
-        <h3 class='subsection-title'>Virtual Machines</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>OS</th>
-              <th>IP</th>
-              <th>Install Date</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_asset_vms)) {
-            $asset_name = escapeHtml($row["asset_name"]);
-            $asset_os = escapeHtml($row["asset_os"]);
-            $asset_ip = escapeHtml($row["interface_ip"]);
-            $asset_install_date = escapeHtml($row["asset_install_date"]);
-            $html .= "
-            <tr style='page-break-inside: avoid;'>
-              <td>$asset_name</td>
-              <td>$asset_os</td>
-              <td>$asset_ip</td>
-              <td>$asset_install_date</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
-    }
-
-    // Network Devices
-    if ($pack['assets'] == 1 && mysqli_num_rows($sql_asset_network) > 0) {
-        $pdf->Bookmark("Network Devices", 1, 0, "", "", array(0,0,0));
-        $html .= "
-        <h3 class='subsection-title'>Network Devices</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Model</th>
-              <th>Serial</th>
-              <th>IP</th>
-              <th>Purchase Date</th>
-              <th>Warranty Expire</th>
-              <th>Install Date</th>
-              <th>Location</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_asset_network)) {
-            $asset_name = escapeHtml($row["asset_name"]);
-            $asset_type = escapeHtml($row["asset_type"]);
-            $asset_make = escapeHtml($row["asset_make"]);
-            $asset_model = escapeHtml($row["asset_model"]);
-            $asset_serial = escapeHtml($row["asset_serial"]);
-            $asset_ip = escapeHtml($row["interface_ip"]);
-            $asset_purchase_date = escapeHtml($row["asset_purchase_date"]);
-            $asset_warranty_expire = escapeHtml($row["asset_warranty_expire"]);
-            $asset_install_date = escapeHtml($row["asset_install_date"]);
-            $location_name = escapeHtml($row["location_name"]);
-            $html .= "
-            <tr style='page-break-inside: avoid;'>
-              <td>$asset_name</td>
-              <td>$asset_type</td>
-              <td>$asset_make $asset_model</td>
-              <td>$asset_serial</td>
-              <td>$asset_ip</td>
-              <td>$asset_purchase_date</td>
-              <td>$asset_warranty_expire</td>
-              <td>$asset_install_date</td>
-              <td>$location_name</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
-    }
-
-    // Other Devices
-    if ($pack['assets'] == 1 && mysqli_num_rows($sql_asset_other) > 0) {
-        $pdf->Bookmark("Other Devices", 1, 0, "", "", array(0,0,0));
-        $html .= "
-        <h3 class='subsection-title'>Other Devices</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Model</th>
-              <th>Serial</th>
-              <th>IP</th>
-              <th>Purchase Date</th>
-              <th>Warranty Expire</th>
-              <th>Install Date</th>
-              <th>Location</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_asset_other)) {
-            $asset_name = escapeHtml($row["asset_name"]);
-            $asset_type = escapeHtml($row["asset_type"]);
-            $asset_make = escapeHtml($row["asset_make"]);
-            $asset_model = escapeHtml($row["asset_model"]);
-            $asset_serial = escapeHtml($row["asset_serial"]);
-            $asset_ip = escapeHtml($row["interface_ip"]);
-            $asset_purchase_date = escapeHtml($row["asset_purchase_date"]);
-            $asset_warranty_expire = escapeHtml($row["asset_warranty_expire"]);
-            $asset_install_date = escapeHtml($row["asset_install_date"]);
-            $location_name = escapeHtml($row["location_name"]);
-            $html .= "
-            <tr style='page-break-inside: avoid;'>
-              <td>$asset_name</td>
-              <td>$asset_type</td>
-              <td>$asset_make $asset_model</td>
-              <td>$asset_serial</td>
-              <td>$asset_ip</td>
-              <td>$asset_purchase_date</td>
-              <td>$asset_warranty_expire</td>
-              <td>$asset_install_date</td>
-              <td>$location_name</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
-    }
-
-    // Software Section
-    if ($pack['software'] == 1 && mysqli_num_rows($sql_software) > 0) {
-        $pdf->Bookmark("Software", 0, 0, "", "B", array(0,0,0));
-        $html .= "
-        <h2 class='section-title'>Software</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>License</th>
-              <th>License Key</th>
-              <th>Purchase Date</th>
-              <th>Expiration Date</th>
-              <th>Notes</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_software)) {
-            $software_name = escapeHtml($row["software_name"]);
-            $software_type = escapeHtml($row["software_type"]);
-            $software_license_type = escapeHtml($row["software_license_type"]);
-            $software_key = escapeHtml($row["software_key"]);
-            $software_purchase = escapeHtml($row['software_purchase']);
-            $software_expire = escapeHtml($row['software_expire']);
-            $software_notes = escapeHtml($row["software_notes"]);
-            $html .= "
-            <tr style='page-break-inside: avoid;'>
-              <td>$software_name</td>
-              <td>$software_type</td>
-              <td>$software_license_type</td>
-              <td>$software_key</td>
-              <td>$software_purchase</td>
-              <td>$software_expire</td>
-              <td>$software_notes</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
-    }
-
-    // User Assigned Software Licenses
-    if ($pack['software'] == 1 && mysqli_num_rows($sql_user_licenses) > 0) {
-        $pdf->Bookmark("User Assigned Licenses", 0, 0, "", "B", array(0,0,0));
-        $html .= "
-        <h2 class='section-title'>User Assigned Licenses</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Software</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_user_licenses)) {
-            $contact_name = escapeHtml($row["contact_name"]);
-            $software_name = escapeHtml($row["software_name"]);
-            $html .= "
-            <tr style='page-break-inside: avoid;'>
-              <td>$contact_name</td>
-              <td>$software_name</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
-    }
-
-    // Asset Assigned Software Licenses
-    if ($pack['software'] == 1 && mysqli_num_rows($sql_asset_licenses) > 0) {
-        $pdf->Bookmark("Asset Assigned Licenses", 0, 0, "", "B", array(0,0,0));
-        $html .= "
-        <h2 class='section-title'>Asset Assigned Licenses</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Asset</th>
-              <th>Software</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_asset_licenses)) {
-            $asset_name = escapeHtml($row["asset_name"]);
-            $software_name = escapeHtml($row["software_name"]);
-            $html .= "
-            <tr style='page-break-inside: avoid;'>
-              <td>$asset_name</td>
-              <td>$software_name</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
-    }
-
-    // Networks Section
-    if ($pack['networks'] == 1 && mysqli_num_rows($sql_networks) > 0) {
-        $pdf->Bookmark("Networks", 0, 0, "", "B", array(0,0,0));
-        $html .= "
-        <h2 class='section-title'>Networks</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>vLAN</th>
-              <th>Network Subnet</th>
-              <th>Gateway</th>
-              <th>DHCP Range</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_networks)) {
-            $network_name = escapeHtml($row["network_name"]);
-            $network_vlan = escapeHtml($row["network_vlan"]);
-            $network = escapeHtml($row["network"]);
-            $network_gateway = escapeHtml($row["network_gateway"]);
-            $network_dhcp_range = escapeHtml($row["network_dhcp_range"]);
-            $html .= "
-            <tr style='page-break-inside: avoid;'>
-              <td>$network_name</td>
-              <td>$network_vlan</td>
-              <td>$network</td>
-              <td>$network_gateway</td>
-              <td>$network_dhcp_range</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
-    }
-
-    // Domains Section
-    if ($pack['domains'] == 1 && mysqli_num_rows($sql_domains) > 0) {
-        $pdf->Bookmark("Domains", 0, 0, "", "B", array(0,0,0));
-        $html .= "
-        <h2 class='section-title'>Domains</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Domain Name</th>
-              <th>Expiration Date</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_domains)) {
-            $domain_name = escapeHtml($row["domain_name"]);
-            $domain_expire = escapeHtml($row["domain_expire"]);
-            $html .= "
-            <tr style='page-break-inside: avoid;'>
-              <td>$domain_name</td>
-              <td>$domain_expire</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
-    }
-
-    // Certificates Section
-    if ($pack['certificates'] == 1 && mysqli_num_rows($sql_certficates) > 0) {
-        $pdf->Bookmark("Certificates", 0, 0, "", "B", array(0,0,0));
-        $html .= "
-        <h2 class='section-title'>Certificates</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Certificate Name</th>
-              <th>Domain Name</th>
-              <th>Issuer</th>
-              <th>Expiration Date</th>
-            </tr>
-          </thead>
-          <tbody>";
-        while ($row = mysqli_fetch_assoc($sql_certficates)) {
-            $certificate_name = escapeHtml($row["certificate_name"]);
-            $certificate_domain = escapeHtml($row["certificate_domain"]);
-            $certificate_issued_by = escapeHtml($row["certificate_issued_by"]);
-            $certificate_expire = escapeHtml($row["certificate_expire"]);
-            $html .= "
-            <tr style='page-break-inside: avoid;'>
-              <td>$certificate_name</td>
-              <td>$certificate_domain</td>
-              <td>$certificate_issued_by</td>
-              <td>$certificate_expire</td>
-            </tr>";
-        }
-        $html .= "
-          </tbody>
-        </table>";
-    }
-
-    // Write the HTML content to the PDF document
-    $pdf->writeHTML($html, true, false, true, false, "");
-
-    // Output the PDF document for download
-    $pdf->Output(toAlphanumeric($client_name) . "-IT_Documentation-" . date("Y-m-d") . ".pdf", "D");
+    readfile($zip_path);
+    @unlink($zip_path);
     exit;
 
 }

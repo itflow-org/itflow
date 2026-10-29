@@ -21,6 +21,9 @@ if (!empty($contact_id)) {
     if ($delete_sql && !empty($contact_name)) {
         $delete_count = mysqli_affected_rows($mysqli);
 
+        // Their logins stay with the client, no longer pointing at them
+        credentialsForget('contact', $contact_id);
+
         // Logging
         logAudit("Contact", "Delete", "$contact_name via API ($api_key_name)", $client_id);
     }

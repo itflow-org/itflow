@@ -33,7 +33,7 @@ if (!empty($credential_id)) {
             $update_count = mysqli_affected_rows($mysqli);
 
             // Logging
-            logAudit("Credential", "Unarchive", "$credential_name unarchived via API ($api_key_name)", $client_id, $credential_id);
+            logAudit("Credential", "Restore", "$credential_name unarchived via API ($api_key_name)", $client_id, $credential_id);
         }
     }
 }

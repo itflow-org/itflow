@@ -10,7 +10,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-link me-2"></i>Set Referral for <strong><?= $count ?></strong> Clients</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-link me-2"></i>Set Referral for <strong><?= $count ?></strong> client<?= $count === 1 ? '' : 's' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -26,18 +26,9 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                 <select class="form-select select2" name="bulk_referral">
                     <option value="">- Select a Referral -</option>
-                    <?php
-                    $referral_sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL ORDER BY category_name ASC");
-                    while ($row = mysqli_fetch_assoc($referral_sql)) {
-                        $referral = escapeHtml($row['category_name']); ?>
-                        <option><?= $referral ?></option>
-                    <?php } ?>
-
+                    <?= categoryOptionsHtml('Referral') ?>
                 </select>
-                    <button class="btn btn-secondary ajax-modal" type="button"
-                        data-modal-url="/admin/modals/category/category_add.php?category=Referral">
-                        <i class="fas fa-fw fa-plus"></i>
-                    </button>
+                <?= categoryAddButtonHtml('Referral', 'btn btn-secondary') ?>
             </div>
         </div>
 

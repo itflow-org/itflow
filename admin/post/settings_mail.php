@@ -1,9 +1,20 @@
 <?php
 
+/*
+ * Admin > Settings > Mail (admin/settings_mail.php). Each tab's form saves on
+ * its own and comes back to its tab; what changed is in the audit log, from
+ * what to what - passwords, the OAuth secret and the refresh token only as
+ * changed. Those are never sent to the page: left empty, they stay as saved.
+ * A server that isn't a name, a port that isn't one, an address that isn't an
+ * email address comes back to the tab saying so, and nothing is saved. Then
+ * the tests, the previews, and connecting Microsoft 365
+ * (admin/oauth_microsoft_mail_callback.php finishes that).
+ */
+
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 // Saves and tests return to the tab they were submitted from (see settings_mail.php)
-$mail_tabs = ['sending', 'receiving', 'oauth', 'from', 'tests'];
+$mail_tabs = ['sending', 'receiving', 'oauth', 'from', 'tests', 'previews'];
 $mail_tab_redirect = 'settings_mail.php';
 if (isset($_POST['tab']) && in_array($_POST['tab'], $mail_tabs, true)) {
     $mail_tab_redirect .= '?tab=' . $_POST['tab'];
@@ -13,35 +24,105 @@ if (!defined('MICROSOFT_OAUTH_BASE_URL')) {
     define('MICROSOFT_OAUTH_BASE_URL', 'https://login.microsoftonline.com/');
 }
 
-if (isset($_POST['oauth_connect_microsoft_mail'])) {
+if (isset($_POST['edit_mail_smtp_settings']) || isset($_POST['edit_mail_imap_settings'])) {
 
     validateCSRFToken();
 
-    // Save the OAuth credential fields from this form so the auth flow uses the latest inputs
-    $config_mail_oauth_client_id     = escapeSql($_POST['config_mail_oauth_client_id'] ?? '');
-    $config_mail_oauth_client_secret = escapeSql($_POST['config_mail_oauth_client_secret'] ?? '');
-    $config_mail_oauth_tenant_id     = escapeSql($_POST['config_mail_oauth_tenant_id'] ?? $config_mail_oauth_tenant_id);
-    $config_mail_oauth_refresh_token = escapeSql($_POST['config_mail_oauth_refresh_token'] ?? '');
-    $config_mail_oauth_access_token  = escapeSql($_POST['config_mail_oauth_access_token'] ?? '');
+    $server = isset($_POST['edit_mail_smtp_settings']) ? 'smtp' : 'imap';
+    $before = settingsCurrent(array_map(function ($column) use ($server) {
+        return "config_{$server}_$column";
+    }, ['provider', 'host', 'port', 'encryption', 'username', 'password']));
 
-    mysqli_query($mysqli, "UPDATE settings SET
-        config_mail_oauth_client_id     = '$config_mail_oauth_client_id',
-        config_mail_oauth_client_secret = '$config_mail_oauth_client_secret',
-        config_mail_oauth_tenant_id     = '$config_mail_oauth_tenant_id',
-        config_mail_oauth_refresh_token = '$config_mail_oauth_refresh_token',
-        config_mail_oauth_access_token  = '$config_mail_oauth_access_token'
-        WHERE company_id = 1
-    ");
+    [$after, $errors] = settingsMailServerCheck($server, $before, $_POST);
+    if ($errors) {
+        settingsRefuse('mail', $errors, $mail_tab_redirect);
+    }
 
-    // Check the SAVED providers (loaded from config at bootstrap), not $_POST —
-    // the provider dropdowns live in different forms and are never posted here
-    if ($config_imap_provider !== 'microsoft_oauth' && $config_smtp_provider !== 'microsoft_oauth') {
-        flashAlert("Please set the SMTP or IMAP Provider to Microsoft 365 (OAuth) and save it before connecting.", 'error');
+    settingsSave('mail', $before, $after);
+
+    redirect($mail_tab_redirect);
+
+}
+
+/*
+ * The OAuth app - its ID, secret and tenant (Microsoft only; kept as saved
+ * while Microsoft isn't picked), and the refresh token. No ID forgets the app:
+ * its secret and token go too. A changed app or token makes what ITFlow last
+ * signed in with useless, so that is fetched afresh when next needed.
+ * Connect Microsoft 365 saves the same way, then goes to Microsoft to sign in.
+ */
+if (isset($_POST['edit_mail_oauth_settings']) || isset($_POST['oauth_connect_microsoft_mail'])) {
+
+    validateCSRFToken();
+
+    $before = settingsCurrent(['config_mail_oauth_client_id', 'config_mail_oauth_client_secret', 'config_mail_oauth_tenant_id', 'config_mail_oauth_refresh_token',
+        'config_mail_oauth_access_token', 'config_mail_oauth_access_token_expires_at']);
+
+    $client_id = trim((string) ($_POST['config_mail_oauth_client_id'] ?? $before['config_mail_oauth_client_id']));
+    $secret = trim((string) ($_POST['config_mail_oauth_client_secret'] ?? ''));
+    $tenant = trim((string) ($_POST['config_mail_oauth_tenant_id'] ?? $before['config_mail_oauth_tenant_id']));
+    // A token pasted in with line breaks is still one token
+    $refresh_token = preg_replace('/\s+/', '', (string) ($_POST['config_mail_oauth_refresh_token'] ?? ''));
+
+    $errors = [];
+    if (preg_match('/\s/', $client_id)) {
+        $errors['config_mail_oauth_client_id'] = 'No spaces in it - copy it again from the app.';
+    } elseif (mb_strlen($client_id) > 255) {
+        $errors['config_mail_oauth_client_id'] = 'Up to 255 characters.';
+    }
+    if (mb_strlen($secret) > 255) {
+        $errors['config_mail_oauth_client_secret'] = 'Up to 255 characters.';
+    }
+    if ($tenant !== '' && (mb_strlen($tenant) > 255 || !preg_match('/^[A-Za-z0-9.-]+$/', $tenant))) {
+        $errors['config_mail_oauth_tenant_id'] = 'The Directory (tenant) ID, as 00000000-0000-0000-0000-000000000000 - or your domain, as example.onmicrosoft.com.';
+    } elseif ($tenant === '' && $client_id !== '' && isset($_POST['config_mail_oauth_tenant_id'])) {
+        // Only asked while Sending or Receiving is on Microsoft 365
+        $errors['config_mail_oauth_tenant_id'] = 'Microsoft 365 needs it - the Directory (tenant) ID, from the app registration\'s Overview.';
+    }
+    if ($errors) {
+        settingsRefuse('mail', $errors, $mail_tab_redirect);
+    }
+
+    $after = [
+        'config_mail_oauth_client_id' => $client_id,
+        'config_mail_oauth_client_secret' => $client_id === '' ? '' : ($secret !== '' ? $secret : (string) $before['config_mail_oauth_client_secret']),
+        'config_mail_oauth_tenant_id' => $tenant,
+        'config_mail_oauth_refresh_token' => $client_id === '' ? '' : ($refresh_token !== '' ? $refresh_token : (string) $before['config_mail_oauth_refresh_token']),
+    ];
+    foreach ($after as $column => $value) {
+        if (!settingsSame($before[$column], $value)) {
+            $after['config_mail_oauth_access_token'] = '';
+            $after['config_mail_oauth_access_token_expires_at'] = null;
+            break;
+        }
+    }
+
+    $changed = settingsWrite('settings', $before, $after);
+    // What it signed in with is only ever fetched - not something anyone changed
+    unset($changed['config_mail_oauth_access_token'], $changed['config_mail_oauth_access_token_expires_at']);
+    $lines = settingsChangeLines($before, $changed);
+
+    if (isset($_POST['edit_mail_oauth_settings'])) {
+        settingsSaid('mail', $lines);
         redirect($mail_tab_redirect);
     }
 
-    if (empty($config_mail_oauth_client_id) || empty($config_mail_oauth_client_secret) || empty($config_mail_oauth_tenant_id)) {
-        flashAlert("Missing Microsoft OAuth settings. Please provide Client ID, Client Secret, and Tenant ID first.", 'error');
+    // ---- Connect Microsoft 365 ----
+    if ($lines) {
+        settingsSaid('mail', $lines);
+    }
+
+    // The providers as saved - they are on the other tabs' forms
+    if ($config_imap_provider !== 'microsoft_oauth' && $config_smtp_provider !== 'microsoft_oauth') {
+        flashAlert("Set Sending or Receiving to Microsoft 365 and save it, then connect.", 'error');
+        redirect($mail_tab_redirect);
+    }
+
+    $config_mail_oauth_client_id = $after['config_mail_oauth_client_id'];
+    $config_mail_oauth_client_secret = $after['config_mail_oauth_client_secret'];
+    $config_mail_oauth_tenant_id = $after['config_mail_oauth_tenant_id'];
+    if ($config_mail_oauth_client_id === '' || $config_mail_oauth_client_secret === '' || $config_mail_oauth_tenant_id === '') {
+        flashAlert("The app's client ID, secret and tenant ID first - then connect.", 'error');
         redirect($mail_tab_redirect);
     }
 
@@ -75,139 +156,77 @@ if (isset($_POST['oauth_connect_microsoft_mail'])) {
             'prompt' => 'consent',
         ], '', '&', PHP_QUERY_RFC3986);
 
-    logAudit("Settings", "Edit", "$session_name started Microsoft OAuth connect flow for mail settings");
+    logAudit("Settings", "Edit", "$session_name started connecting Microsoft 365 for mail");
 
     redirect($authorize_url);
 }
 
-if (isset($_POST['edit_mail_smtp_settings'])) {
-
-    validateCSRFToken();
-
-    $config_smtp_provider            = escapeSql($_POST['config_smtp_provider']);
-    $config_smtp_host       = escapeSql($_POST['config_smtp_host'] ?? $config_smtp_host);
-    $config_smtp_port       = intval($_POST['config_smtp_port'] ?? $config_smtp_port);
-    $config_smtp_encryption = escapeSql($_POST['config_smtp_encryption'] ?? $config_smtp_encryption);
-    $config_smtp_username   = escapeSql($_POST['config_smtp_username'] ?? $config_smtp_username);
-    $config_smtp_password   = escapeSql($_POST['config_smtp_password'] ?? $config_smtp_password);
-
-    // The host/port/encryption/password inputs are hidden and disabled for OAuth
-    // providers, so they never post and the ?? fallbacks above keep whatever the
-    // install used before. Clear them instead: the endpoint is fixed by provider,
-    // and the stored values would otherwise be both wrong and unreachable from
-    // the settings page. The mailbox password is no longer used either.
-    if ($config_smtp_provider === 'google_oauth' || $config_smtp_provider === 'microsoft_oauth') {
-        $config_smtp_host       = '';
-        $config_smtp_port       = 0;
-        $config_smtp_encryption = '';
-        $config_smtp_password   = '';
-    }
-
-    mysqli_query($mysqli, "
-        UPDATE settings SET
-            config_smtp_provider              = '$config_smtp_provider',
-            config_smtp_host                  = '$config_smtp_host',
-            config_smtp_port                  = $config_smtp_port,
-            config_smtp_encryption            = '$config_smtp_encryption',
-            config_smtp_username              = '$config_smtp_username',
-            config_smtp_password              = '$config_smtp_password'
-        WHERE company_id = 1
-    ");
-
-    logAudit("Settings", "Edit", "$session_name edited SMTP settings");
-
-    flashAlert("SMTP Mail Settings updated");
-
-    redirect($mail_tab_redirect);
-
-}
-
-if (isset($_POST['edit_mail_imap_settings'])) {
-
-    validateCSRFToken();
-
-    $config_imap_provider            = escapeSql($_POST['config_imap_provider']);
-    $config_imap_host       = escapeSql($_POST['config_imap_host'] ?? $config_imap_host);
-    $config_imap_port       = intval($_POST['config_imap_port'] ?? $config_imap_port);
-    $config_imap_encryption = escapeSql($_POST['config_imap_encryption'] ?? $config_imap_encryption);
-    $config_imap_username   = escapeSql($_POST['config_imap_username'] ?? $config_imap_username);
-    $config_imap_password   = escapeSql($_POST['config_imap_password'] ?? $config_imap_password);
-
-    // Same as the SMTP handler above - the connection fields are hidden for OAuth
-    // providers and never post, so drop the leftovers rather than carrying them.
-    if ($config_imap_provider === 'google_oauth' || $config_imap_provider === 'microsoft_oauth') {
-        $config_imap_host       = '';
-        $config_imap_port       = 0;
-        $config_imap_encryption = '';
-        $config_imap_password   = '';
-    }
-
-    mysqli_query($mysqli, "
-        UPDATE settings SET
-            config_imap_provider              = '$config_imap_provider',
-            config_imap_host                  = '$config_imap_host',
-            config_imap_port                  = $config_imap_port,
-            config_imap_encryption            = '$config_imap_encryption',
-            config_imap_username              = '$config_imap_username',
-            config_imap_password              = '$config_imap_password'
-        WHERE company_id = 1
-    ");
-
-    logAudit("Settings", "Edit", "$session_name edited IMAP settings");
-
-    flashAlert("IMAP Mail Settings updated");
-
-    redirect($mail_tab_redirect);
-
-}
-
-if (isset($_POST['edit_mail_oauth_settings'])) {
-
-    validateCSRFToken();
-
-    $config_mail_oauth_client_id     = escapeSql($_POST['config_mail_oauth_client_id'] ?? '');
-    $config_mail_oauth_client_secret = escapeSql($_POST['config_mail_oauth_client_secret'] ?? '');
-    $config_mail_oauth_tenant_id     = escapeSql($_POST['config_mail_oauth_tenant_id'] ?? $config_mail_oauth_tenant_id);
-    $config_mail_oauth_refresh_token = escapeSql($_POST['config_mail_oauth_refresh_token'] ?? '');
-    $config_mail_oauth_access_token  = escapeSql($_POST['config_mail_oauth_access_token'] ?? '');
-
-    mysqli_query($mysqli, "UPDATE settings SET
-        config_mail_oauth_client_id     = '$config_mail_oauth_client_id',
-        config_mail_oauth_client_secret = '$config_mail_oauth_client_secret',
-        config_mail_oauth_tenant_id     = '$config_mail_oauth_tenant_id',
-        config_mail_oauth_refresh_token = '$config_mail_oauth_refresh_token',
-        config_mail_oauth_access_token  = '$config_mail_oauth_access_token'
-        WHERE company_id = 1
-    ");
-
-    logAudit("Settings", "Edit", "$session_name edited mail OAuth settings");
-    flashAlert("Mail OAuth Settings updated");
-    redirect($mail_tab_redirect);
-}
-
+/*
+ * The addresses and names emails come from. An address that isn't one comes
+ * back saying so; a name is kept as typed, bar line breaks and the like.
+ */
 if (isset($_POST['edit_mail_from_settings'])) {
 
     validateCSRFToken();
 
-    $config_mail_from_email = escapeSql(filter_var($_POST['config_mail_from_email'], FILTER_VALIDATE_EMAIL));
-    $config_mail_from_name = escapeSql(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_mail_from_name']));
+    $boxes = ['mail', 'invoice', 'quote', 'ticket'];
+    $columns = [];
+    foreach ($boxes as $box) {
+        $columns[] = "config_{$box}_from_email";
+        $columns[] = "config_{$box}_from_name";
+    }
+    $before = settingsCurrent($columns);
 
-    $config_invoice_from_email = escapeSql(filter_var($_POST['config_invoice_from_email'], FILTER_VALIDATE_EMAIL));
-    $config_invoice_from_name = escapeSql(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_invoice_from_name']));
+    $after = [];
+    $errors = [];
+    foreach ($boxes as $box) {
+        $email_key = "config_{$box}_from_email";
+        $name_key = "config_{$box}_from_name";
+        $email = trim((string) ($_POST[$email_key] ?? $before[$email_key]));
+        $name = trim(preg_replace('/\s+/u', ' ', preg_replace('/[\x00-\x1F\x7F]/u', ' ', (string) ($_POST[$name_key] ?? $before[$name_key]))));
+        if (($problem = settingsEmailProblem($email)) !== '') {
+            $errors[$email_key] = $problem;
+        } elseif (mb_strlen($email) > 200) {
+            $errors[$email_key] = 'Up to 200 characters.';
+        }
+        if (mb_strlen($name) > 200) {
+            $errors[$name_key] = 'Up to 200 characters.';
+        }
+        $after[$email_key] = $email;
+        $after[$name_key] = $name;
+    }
+    if ($errors) {
+        settingsRefuse('mail', $errors, $mail_tab_redirect);
+    }
 
-    $config_quote_from_email = escapeSql(filter_var($_POST['config_quote_from_email'], FILTER_VALIDATE_EMAIL));
-    $config_quote_from_name = escapeSql(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_quote_from_name']));
-
-    $config_ticket_from_email = escapeSql(filter_var($_POST['config_ticket_from_email'], FILTER_VALIDATE_EMAIL));
-    $config_ticket_from_name = escapeSql(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_ticket_from_name']));
-
-    mysqli_query($mysqli,"UPDATE settings SET config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_from_email = '$config_invoice_from_email', config_invoice_from_name = '$config_invoice_from_name', config_quote_from_email = '$config_quote_from_email', config_quote_from_name = '$config_quote_from_name', config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name' WHERE company_id = 1");
-
-    logAudit("Settings", "Edit", "$session_name edited mail from settings");
-
-    flashAlert("Mail From Settings updated");
+    settingsSave('mail', $before, $after);
 
     redirect($mail_tab_redirect);
+
+}
+
+// A copy of one of the previews (Admin > Mail > Previews), to the admin asking
+if (isset($_POST['send_email_preview'])) {
+
+    validateCSRFToken();
+
+    $key = (string) ($_POST['email'] ?? '');
+    $catalog = emailPreviewCatalog();
+    if (!isset($catalog[$key])) {
+        flashAlert('There is no such email', 'error');
+        redirect('settings_mail.php?tab=previews');
+    }
+    if (!emailReady()) {
+        flashAlert('Set up how mail is sent first, then send yourself a copy', 'error');
+        redirect('settings_mail.php?tab=previews&email=' . rawurlencode($key));
+    }
+    if (emailPreviewSendCopy($key, $session_email, stripslashes($session_name))) {
+        logAudit("Settings", "Edit", "$session_name sent themselves a preview of the " . escapeSql($catalog[$key]['group'] . ' - ' . $catalog[$key]['label']) . " email");
+        flashAlert('A copy of <strong>' . escapeHtml($catalog[$key]['label']) . '</strong> is queued to ' . escapeHtml($session_email));
+    } else {
+        flashAlert('The copy could not be sent - check your own email address in Your account', 'error');
+    }
+    redirect('settings_mail.php?tab=previews&email=' . rawurlencode($key));
 
 }
 
@@ -217,41 +236,21 @@ if (isset($_POST['test_email_smtp'])) {
 
     $test_email = intval($_POST['test_email']);
 
-    if($test_email == 1) {
-        $email_from = escapeSql($config_mail_from_email);
-        $email_from_name = escapeSql($config_mail_from_name);
-    } elseif ($test_email == 2) {
-        $email_from = escapeSql($config_invoice_from_email);
-        $email_from_name = escapeSql($config_invoice_from_name);
-    } elseif ($test_email == 3) {
-        $email_from = escapeSql($config_quote_from_email);
-        $email_from_name = escapeSql($config_quote_from_name);
-    } else {
-        $email_from = escapeSql($config_ticket_from_email);
-        $email_from_name = escapeSql($config_ticket_from_name);
+    // From the mailbox picked - the system's, invoices', quotes' or tickets' (emailTestSend(), functions/email.php)
+    $mailbox = [1 => 'system', 2 => 'invoice', 3 => 'quote'][$test_email] ?? 'ticket';
+    $to = trim((string) ($_POST['email_to'] ?? ''));
+
+    if (!emailReady()) {
+        flashAlert('Set up how mail is sent first, then send the test', 'error');
+        redirect($mail_tab_redirect);
     }
 
-    $email_to = escapeSql($_POST['email_to']);
-    $subject = "Test email from ITFlow";
-    $body = "This is a test email from ITFlow. If you are reading this, it worked!";
+    $sent = emailTestSend($to, $mailbox);
 
-    $data = [
-        [
-            'from' => $email_from,
-            'from_name' => $email_from_name,
-            'recipient' => $email_to,
-            'recipient_name' => 'Chap',
-            'subject' => $subject,
-            'body' => $body
-        ]
-    ];
-
-    $mail = addToMailQueue($data);
-
-    if ($mail === true) {
-        flashAlert("Test email queued! Check <strong>Admin &gt; Mail queue</strong>");
+    if ($sent) {
+        flashAlert('Test email queued - it goes within a minute. Watch it go in <strong>Maintenance &gt; Mail Queue</strong>');
     } else {
-        flashAlert("Failed to add test mail to queue", 'error');
+        flashAlert(escapeHtml($to) . " isn't an email address - nothing was queued", 'error');
     }
 
     redirect($mail_tab_redirect);

@@ -1,99 +1,67 @@
 <?php
 
+/*
+ * Maintenance > Mail Queue (admin/mail_queue.php): retry an email from the
+ * start, cancel it or delete it - one (retry_mail, cancel_mail, delete_mail)
+ * or the ones ticked (bulk_retry_emails, bulk_cancel_emails,
+ * bulk_delete_emails). Each is only done where it can be (mailQueueAct(),
+ * functions/mail_queue.php) - a sent email can't be retried, as what it said
+ * was cleared on sending, and one going this minute is left alone - and the
+ * message says how many it was done to, and why any weren't.
+ */
+
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
+$mail_queue_actions = [
+    'retry' => ['retry_mail', 'bulk_retry_emails', 'retried', 'Retry', ['it goes at the next run', 'they go at the next run'], 'A sent one can\'t be - what it said was cleared on sending - nor one waiting or going now.'],
+    'cancel' => ['cancel_mail', 'bulk_cancel_emails', 'cancelled', 'Cancel', ['it won\'t be sent', 'they won\'t be sent'], 'Only one still to be sent or tried again can be.'],
+    'delete' => ['delete_mail', 'bulk_delete_emails', 'deleted', 'Delete', ['', ''], 'One going this minute can\'t be.'],
+];
+// The Resend link before this page was rebuilt
 if (isset($_GET['send_failed_mail'])) {
+    $_GET['retry_mail'] = $_GET['send_failed_mail'];
+}
+
+foreach ($mail_queue_actions as $mail_queue_action => [$one_key, $bulk_key, $done_word, $log_action, $done_note, $why_not]) {
+    $mail_queue_ids = null;
+    if (isset($_GET[$one_key])) {
+        $mail_queue_ids = [$_GET[$one_key]];
+    } elseif (isset($_POST[$bulk_key])) {
+        $mail_queue_ids = is_array($_POST['email_ids'] ?? null) ? $_POST['email_ids'] : [];
+    }
+    if ($mail_queue_ids === null) {
+        continue;
+    }
 
     validateCSRFToken();
 
-    $email_id = intval($_GET['send_failed_mail']);
-
-    // Delivered mail has had its body cleared on send, so resending would deliver an empty message
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT email_status FROM email_queue WHERE email_id = $email_id LIMIT 1"));
-
-    if (!$row || intval($row['email_status']) === 3) {
-        flashAlert("That email has already been delivered and cannot be resent.", 'error');
+    $asked = count(array_unique(array_filter(array_map('intval', $mail_queue_ids))));
+    if (!$asked) {
+        flashAlert('None were ticked.', 'warning');
         redirect();
     }
 
-    mysqli_query($mysqli,"UPDATE email_queue SET email_status = 0, email_attempts = 3 WHERE email_id = $email_id");
+    $done = mailQueueAct($mail_queue_action, $mail_queue_ids);
+    $count = count($done);
 
-    logAudit("Email", "Send", "$session_name attempted to force send email id: $email_id in the mail queue", 0, $email_id);
+    if ($count) {
+        $ids = implode(', ', array_map(function ($id) { return "#$id"; }, array_slice($done, 0, 20))) . ($count > 20 ? ' and ' . ($count - 20) . ' more' : '');
+        logAudit("Email", $log_action, "$session_name $done_word " . ($count === 1 ? 'email' : "$count emails") . " in the mail queue: $ids", 0, $count === 1 ? $done[0] : 0);
+    }
 
-    flashAlert("Email Force Sent, give it a minute to resend");
-
-    redirect();
-
-}
-
-if (isset($_GET['cancel_mail'])) {
-
-    validateCSRFToken();
-
-    $email_id = intval($_GET['cancel_mail']);
-
-    mysqli_query($mysqli,"UPDATE email_queue SET email_status = 2, email_attempts = 99, email_failed_at = NOW() WHERE email_id = $email_id");
-
-    logAudit("Email", "Send", "$session_name canceled send email id: $email_id in the mail queue", 0, $email_id);
-
-    flashAlert("Email cancelled and marked as failed.", 'error');
-
-    redirect();
-
-}
-
-if (isset($_POST['bulk_cancel_emails'])) {
-
-    validateCSRFToken();
-
-    if (isset($_POST['email_ids'])) {
-
-        $count = count($_POST['email_ids']);
-
-        // Cycle through array and mark each email as failed
-        foreach ($_POST['email_ids'] as $email_id) {
-
-            $email_id = intval($email_id);
-            mysqli_query($mysqli,"UPDATE email_queue SET email_status = 2, email_attempts = 99, email_failed_at = NOW() WHERE email_id = $email_id");
-
-            logAudit("Email", "Cancel", "$session_name cancelled email id: $email_id in the mail queue", 0, $email_id);
-
-        }
-
-        logAudit("Email", "Bulk Cancel", "$session_name cancelled $count email(s) in the mail queue");
-
-        flashAlert("Cancelled <strong>$count</strong> email(s)", 'error');
-
+    $email_word = function ($n) {
+        return $n === 1 ? 'email' : 'emails';
+    };
+    if ($count === $asked) {
+        $note = $done_note[$count === 1 ? 0 : 1];
+        flashAlert(ucfirst($done_word) . " <strong>$count</strong> " . $email_word($count) . ($note !== '' ? " - $note" : ''), $mail_queue_action === 'delete' ? 'error' : 'success');
+    } elseif ($count) {
+        flashAlert(ucfirst($done_word) . " <strong>$count</strong> of $asked " . $email_word($asked) . ". $why_not", 'warning');
+    } else {
+        flashAlert(($asked === 1 ? 'That email' : 'None of those emails') . " couldn't be $done_word. $why_not", 'error');
     }
 
     redirect();
-
 }
 
-if (isset($_POST['bulk_delete_emails'])) {
-
-    validateCSRFToken();
-
-    if (isset($_POST['email_ids'])) {
-
-        $count = count($_POST['email_ids']);
-
-        // Cycle through array and delete each email
-        foreach ($_POST['email_ids'] as $email_id) {
-
-            $email_id = intval($email_id);
-            mysqli_query($mysqli,"DELETE FROM email_queue WHERE email_id = $email_id");
-
-            logAudit("Email", "Delete", "$session_name deleted email id: $email_id from the mail queue");
-
-        }
-
-        logAudit("Email", "Bulk Delete", "$session_name deleted $count email(s) from the mail queue");
-
-        flashAlert("Deleted <strong>$count</strong> email(s)", 'error');
-
-    }
-
-    redirect();
-
-}
+unset($mail_queue_actions, $mail_queue_action, $mail_queue_ids, $one_key, $bulk_key, $done_word, $log_action, $done_note, $why_not);

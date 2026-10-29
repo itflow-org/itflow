@@ -44,20 +44,19 @@
 
 <!-- REQUIRED SCRIPTS -->
 
-<?php /* Tom Select goes FIRST, ahead of Bootstrap itself. Order is load-bearing:
-         until js/tom_select.js runs, the browser is showing the raw <select>
-         controls it painted while parsing the body, so every byte in front of
-         it is time spent looking at the wrong widget. Nothing here is needed to
-         turn a <select> into a Tom Select, so nothing goes in front of it.
-         includes/header.php preloads both files. See js/tom_select.js.
+<?php /* The select picker goes FIRST, ahead of Bootstrap itself. Order is
+         load-bearing: until js/itflow_select.js runs, the browser is showing
+         the raw <select> controls it painted while parsing the body, so every
+         byte in front of it is time spent looking at the wrong widget. It
+         needs nothing else on the page, so nothing goes in front of it.
+         includes/header.php preloads it.
 
          Bootstrap moving down is safe: it has always loaded in the footer, so
          no markup above this point could ever have used the `bootstrap` global
          at parse time. Every call site is inside an event handler or waits for
          DOMContentLoaded - includes/inc_alert_feedback.php says so in its own
          comment - and all of those still run well after this block. */ ?>
-<script src="/libs/tom-select/js/tom-select.complete.min.js"></script>
-<script src="/js/tom_select.js"></script>
+<script src="/js/itflow_select.js"></script>
 
 <!-- Bootstrap 5 -->
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -68,7 +67,6 @@
 <script src="/libs/flatpickr/js/flatpickr.min.js"></script>
 <script src="/libs/imask/js/imask.min.js"></script>
 <script src="/libs/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
-<script src="/libs/clipboardjs/clipboard.min.js"></script>
 <script src="/js/keepalive.js"></script>
 <script src="/libs/DataTables/datatables.min.js"></script>
 <script src="/libs/intl-tel-input/js/intlTelInputWithUtils.min.js"></script>
@@ -78,10 +76,28 @@
 <script src="/libs/adminlte/js/adminlte.min.js"></script>
 <script src="/libs/sweetalert2/js/sweetalert2.min.js"></script>
 <script src="/js/autocomplete.js"></script>
+<?php /* What the editors' Reword button needs - false when AI isn't set up or the role may not use it (aiClientConfig(), functions/ai.php) */ ?>
+<?php
+// A page that closed the database before its footer (admin/debug.php does) gets no Reword, rather than a fatal error
+try {
+    $itflow_ai_config = function_exists('aiClientConfig') ? aiClientConfig() : false;
+} catch (Throwable $e) {
+    $itflow_ai_config = false;
+}
+?>
+<script>window.itflowAi = <?= json_encode($itflow_ai_config) ?>;</script>
 <script src="/js/app.js"></script>
+<script src="/js/credentials.js"></script>
+<script src="/js/tag_picker.js"></script>
+<script src="/js/quick_pick.js"></script>
 <script src="/js/ajax_modal.js"></script>
 <script src="/js/confirm_modal.js"></script>
 <script src="/js/date_filter.js"></script>
+<script src="/js/global_search.js"></script>
+<script src="/js/notifications.js"></script>
+<?php if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
+<script src="/js/settings.js"></script>
+<?php } ?>
 
 </body>
 </html>

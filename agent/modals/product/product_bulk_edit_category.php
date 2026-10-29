@@ -3,6 +3,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_sales', 2);
+
 $product_ids = array_map('intval', $_GET['product_ids'] ?? []);
 
 $count = count($product_ids);
@@ -22,23 +24,13 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Category <strong class="text-danger">*</strong></label>
+            <label class="form-label">Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                 <select class="form-select select2" name="bulk_category_id">
-                    <?php
-
-                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $category_id = intval($row['category_id']);
-                        $category_name = escapeHtml($row['category_name']);
-                        ?>
-                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
-
-                        <?php
-                    }
-                    ?>
+                    <?= categoryOptionsHtml('Income') ?>
                 </select>
+                <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
             </div>
         </div>
 

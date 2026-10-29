@@ -1,16 +1,14 @@
 <?php
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/check_login.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/page_title.php';
-// Reporting Perms
-enforceUserPermission('module_reporting');
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/top_nav.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/agent/reports/includes/reports_side_nav.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_wrapper.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_alert_feedback.php';
+/*
+ * The old single include for a report page - signed in, allowed to use
+ * reports, and the page drawn - kept for custom report pages that still use
+ * it. The pages here use inc_report.php and inc_report_layout.php, so they
+ * can send a CSV before anything is drawn.
+ */
+
+require_once __DIR__ . '/inc_report.php';
+require_once __DIR__ . '/inc_report_layout.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/filter_header.php';
 
 // Set variable default values

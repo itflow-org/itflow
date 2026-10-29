@@ -1,755 +1,325 @@
 <?php
 
+/*
+ * Admin > Debug - how ITFlow and the server under it are doing
+ * (functions/system_health.php). What needs putting right comes first, each
+ * with what to do and where; then the figures at a glance, every check by
+ * section, the database (its size, biggest tables and how its structure
+ * compares with db.sql) and the uploads folder. Copy for support puts it all
+ * on the clipboard as plain text for a forum post or a support email,
+ * without host names, paths or keys.
+ */
+
 require_once "includes/inc_all_admin.php";
 require_once "../includes/database_version.php";
-require_once "../config.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/cron_jobs.php'; // the jobs' names
 
-$checks = [];
+$sections = healthChecks();
+$summary = healthSummary($sections);
+$exact = !empty($_GET['exact']); // Count exactly - every table counted, rather than the database's estimate
+$database_stats = healthDatabaseTables($exact);
+$differences = healthStructureDifferences();
+$uploads = healthUploads();
+$report = healthReport($sections, $database_stats, $differences, $uploads);
+$levels = healthLevels();
 
-// Read straight out of .git - no shell needed, and it still answers on a hardened host
-$commitHash = gitCurrentCommit();
-
-$gitBranch = gitCurrentBranch();
-
-// Section: System Information
-$systemInfo = [];
-
-// Operating System and Version
-$os = php_uname();
-$systemInfo[] = [
-    'name' => 'Operating System',
-    'value' => $os,
-];
-
-// Web Server and Version
-$webServer = $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown';
-$systemInfo[] = [
-    'name' => 'Web Server',
-    'value' => $webServer,
-];
-
-// Kernel and Version
-$kernelVersion = php_uname('r');
-$systemInfo[] = [
-    'name' => 'Kernel Version',
-    'value' => $kernelVersion,
-];
-
-// Database and Version
-$dbVersion = $mysqli->server_info;
-$systemInfo[] = [
-    'name' => 'Database Version',
-    'value' => $dbVersion,
-];
-
-// Section: PHP Extensions
-$phpExtensions = [];
-$extensions = [
-    'php-mysqli' => 'mysqli',
-    'php-intl' => 'intl',
-    'php-curl' => 'curl',
-    'php-mbstring' => 'mbstring',
-    'php-gd' => 'gd',
-    'php-zip' => 'zip',
-    'php-xml' => 'xml',
-];
-
-foreach ($extensions as $name => $ext) {
-    $loaded = extension_loaded($ext);
-    $phpExtensions[] = [
-        'name' => "$name installed",
-        'passed' => $loaded,
-        'value' => $loaded ? 'Installed' : 'Not Installed',
-    ];
+// The figures along the top
+$cron = healthRow("SELECT config_cron_last_dispatch_at FROM settings WHERE company_id = 1");
+$cron_heard = $cron['config_cron_last_dispatch_at'] ?? null;
+$cron_stale = !$cron_heard || time() - strtotime($cron_heard) >= 300;
+$last_backup = healthRow("SELECT backup_completed_at, backup_size FROM backups WHERE backup_status = 'Complete' ORDER BY backup_completed_at DESC LIMIT 1");
+$errors_day = healthRow("SELECT COUNT(*) AS n FROM app_logs WHERE app_log_type = 'error' AND app_log_created_at > NOW() - INTERVAL 1 DAY");
+try {
+    $mail = mailQueueSummary();
+} catch (Throwable $e) {
+    $mail = null;
 }
-
-// Section: PHP Configuration
-$phpConfig = [];
-
-// Check if shell_exec is enabled
-$disabled_functions = explode(',', ini_get('disable_functions'));
-$disabled_functions = array_map('trim', $disabled_functions);
-$shell_exec_enabled = !in_array('shell_exec', $disabled_functions);
-
-$phpConfig[] = [
-    'name' => 'shell_exec is enabled',
-    'passed' => $shell_exec_enabled,
-    'value' => $shell_exec_enabled ? 'Enabled' : 'Disabled',
+$db_behind = version_compare((string) LATEST_DATABASE_VERSION, (string) CURRENT_DATABASE_VERSION, '>');
+$branch = gitCurrentBranch();
+$commit = gitCurrentCommit();
+$stats = [
+    ['label' => 'ITFlow', 'value' => APP_VERSION, 'sub' => escapeHtml($branch !== '' ? $branch . ($commit !== '' ? ' @ ' . substr($commit, 0, 7) : '') : 'Not a git checkout')],
+    ['label' => 'Database', 'value' => CURRENT_DATABASE_VERSION, 'tone' => $db_behind ? 'danger' : '', 'url' => $db_behind ? 'update.php' : '',
+        'sub' => $db_behind ? '<span class="text-danger-emphasis">Update to ' . escapeHtml(LATEST_DATABASE_VERSION) . ' waiting</span>' : 'Up to date'],
+    ['label' => 'PHP', 'value' => PHP_VERSION, 'sub' => escapeHtml(PHP_SAPI)],
+    ['label' => 'Cron', 'value' => healthShortAgo($cron_heard), 'title' => $cron_heard ? 'Last ran ' . healthAgo($cron_heard) : '', 'tone' => $cron_stale ? 'danger' : '', 'url' => 'cron.php',
+        'sub' => $cron_stale ? '<span class="text-danger-emphasis">Not running</span>' : 'Running'],
+    ['label' => 'Failed email', 'value' => $mail ? number_format($mail['failed_week']) : '-', 'tone' => $mail && $mail['failed_week'] ? 'warning' : '',
+        'url' => $mail && $mail['failed_week'] ? 'mail_queue.php?show=failed' : 'mail_queue.php', 'sub' => $mail ? 'This week · ' . number_format($mail['waiting']) . ' waiting' : 'Database update needed'],
+    ['label' => 'Last backup', 'value' => $last_backup ? healthShortAgo($last_backup['backup_completed_at']) : 'None yet', 'url' => 'backup.php',
+        'tone' => !$last_backup || strtotime($last_backup['backup_completed_at']) < time() - 7 * 86400 ? 'warning' : '',
+        'sub' => $last_backup ? escapeHtml(formatBytes(intval($last_backup['backup_size']), 1)) : 'Take one now'],
+    ['label' => 'Errors', 'value' => $errors_day ? number_format(intval($errors_day['n'])) : '-', 'tone' => !empty($errors_day['n']) ? 'warning' : '',
+        'url' => !empty($errors_day['n']) ? 'app_logs.php?view=error' : 'app_logs.php', 'sub' => 'In the last day'],
 ];
 
-// Check upload_max_filesize and post_max_size >= 500M
-function toBytes($val) {
-    $val = trim($val);
-    $unit = strtolower(substr($val, -1));
-    $num = (float)$val;
-    switch ($unit) {
-        case 'g':
-            $num *= 1024;
-        case 'm':
-            $num *= 1024;
-        case 'k':
-            $num *= 1024;
+$problems = $summary['counts']['danger'];
+$warnings = $summary['counts']['warning'];
+$checked = array_sum($summary['counts']);
+$plural = function ($n, $one, $many) {
+    return number_format($n) . ' ' . ($n === 1 ? $one : $many);
+};
+
+// A link from a check - ITFlow's own pages here, the docs in a new tab
+$action_link = function (array $item, $class) {
+    if ($item['url'] === '') {
+        return '';
     }
-    return $num;
-}
+    $outside = preg_match('#^https?://#i', $item['url']);
+    return '<a href="' . escapeHtml($item['url']) . '" class="' . $class . '"' . ($outside ? ' target="_blank" rel="noopener noreferrer"' : '') . '>'
+        . escapeHtml($item['action'] !== '' ? $item['action'] : 'Open') . '<i class="fas fa-' . ($outside ? 'external-link-alt' : 'arrow-right') . ' ms-1 small"></i></a>';
+};
 
-$required_bytes = 500 * 1024 * 1024; // 500M in bytes
-
-$upload_max_filesize = ini_get('upload_max_filesize');
-$post_max_size = ini_get('post_max_size');
-
-$upload_passed = toBytes($upload_max_filesize) >= $required_bytes;
-$post_passed = toBytes($post_max_size) >= $required_bytes;
-
-$phpConfig[] = [
-    'name' => 'upload_max_filesize >= 500M',
-    'passed' => $upload_passed,
-    'value' => $upload_max_filesize,
-];
-
-$phpConfig[] = [
-    'name' => 'post_max_size >= 500M',
-    'passed' => $post_passed,
-    'value' => $post_max_size,
-];
-
-// PHP Memory Limit >= 512M
-$memoryLimit = ini_get('memory_limit');
-$memoryLimitBytes = toBytes($memoryLimit);
-$memoryLimitPassed = $memoryLimitBytes >= (512 * 1024 * 1024);
-$phpConfig[] = [
-    'name' => 'PHP Memory Limit >= 512M',
-    'passed' => $memoryLimitPassed,
-    'value' => $memoryLimit,
-];
-
-// Max Execution Time >= 300 seconds
-$maxExecutionTime = ini_get('max_execution_time');
-$maxExecutionTimePassed = $maxExecutionTime >= 300;
-$phpConfig[] = [
-    'name' => 'Max Execution Time >= 300 seconds',
-    'passed' => $maxExecutionTimePassed,
-    'value' => $maxExecutionTime . ' seconds',
-];
-
-// Check PHP version >= 8.2.0
-$php_version = PHP_VERSION;
-$php_passed = version_compare($php_version, '8.2.0', '>=');
-
-$phpConfig[] = [
-    'name' => 'PHP version >= 8.2.0',
-    'passed' => $php_passed,
-    'value' => $php_version,
-];
-
-// Section: Shell Commands
-$shellCommands = [];
-
-// Located by walking PATH rather than by running `which`, so this reports the truth on a
-// host with shell_exec disabled instead of reporting the host's php.ini back at itself
-foreach (['git'] as $command) {
-    $path = commandPath($command);
-    $shellCommands[] = [
-        'name' => "Command '$command' available",
-        'passed' => $path !== '',
-        'value' => $path !== '' ? $path : 'Not Found',
-    ];
-}
-
-// Section: SSL Checks
-$sslChecks = [];
-
-// Check if accessing via HTTPS
-$https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
-$sslChecks[] = [
-    'name' => 'Accessing via HTTPS',
-    'passed' => $https,
-    'value' => $https ? 'Yes' : 'No',
-];
-
-// SSL Certificate Validity Check
-if ($https) {
-    $streamContext = stream_context_create(["ssl" => ["capture_peer_cert" => true]]);
-    $socket = @stream_socket_client("ssl://{$_SERVER['HTTP_HOST']}:443", $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $streamContext);
-
-    if ($socket) {
-        $params = stream_context_get_params($socket);
-        $cert = $params['options']['ssl']['peer_certificate'];
-        $certInfo = openssl_x509_parse($cert);
-
-        $validFrom = $certInfo['validFrom_time_t'];
-        $validTo = $certInfo['validTo_time_t'];
-        $currentTime = time();
-
-        $certValid = ($currentTime >= $validFrom && $currentTime <= $validTo);
-
-        $sslChecks[] = [
-            'name' => 'SSL Certificate is valid',
-            'passed' => $certValid,
-            'value' => $certValid ? 'Valid' : 'Invalid or Expired',
-        ];
-    } else {
-        $sslChecks[] = [
-            'name' => 'SSL Certificate is valid',
-            'passed' => false,
-            'value' => 'Unable to retrieve certificate',
-        ];
-    }
-} else {
-    $sslChecks[] = [
-        'name' => 'SSL Certificate is valid',
-        'passed' => false,
-        'value' => 'Not using HTTPS',
-    ];
-}
-
-// Section: Domain Checks
-$domainChecks = [];
-
-// Check if the site has a valid FQDN
-$fqdn = $_SERVER['HTTP_HOST'];
-$isValidFqdn = (bool) filter_var('http://' . $fqdn, FILTER_VALIDATE_URL) && preg_match('/^[a-z0-9.-]+\.[a-z]{2,}$/i', $fqdn);
-
-$domainChecks[] = [
-    'name' => 'Site has a valid FQDN',
-    'passed' => $isValidFqdn,
-    'value' => $fqdn,
-];
-
-// Section: File Permissions
-$filePermissions = [];
-
-// Check if web user has write access to webroot directory
-$webroot = $_SERVER['DOCUMENT_ROOT'];
-$writable = is_writable($webroot);
-$filePermissions[] = [
-    'name' => 'Web user has write access to webroot directory',
-    'passed' => $writable,
-    'value' => $webroot,
-];
-
-// Section: Uploads Directory Stats
-$uploadsStats = [];
-
-// Define the uploads directory path
-$uploadsDir = __DIR__ . '/../uploads'; // Adjust the path if needed
-
-if (is_dir($uploadsDir)) {
-    // Function to recursively count files and calculate total size
-    function getDirStats($dir) {
-        $files = 0;
-        $size = 0;
-
-        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
-        foreach ($iterator as $file) {
-            if ($file->isFile()) {
-                $files++;
-                $size += $file->getSize();
-            }
-        }
-        return ['files' => $files, 'size' => $size];
-    }
-
-    $stats = getDirStats($uploadsDir);
-    $sizeInMB = round($stats['size'] / (1024 * 1024), 2);
-
-    $uploadsStats[] = [
-        'name' => 'Number of files in uploads directory',
-        'value' => $stats['files'],
-    ];
-
-    $uploadsStats[] = [
-        'name' => 'Total size of uploads directory (MB)',
-        'value' => $sizeInMB . ' MB',
-    ];
-} else {
-    $uploadsStats[] = [
-        'name' => 'Uploads directory exists',
-        'value' => 'Directory not found',
-    ];
-}
-
-// Section: Database Stats
-$databaseStats = [];
-
-// Get list of tables
-$tablesResult = $mysqli->query("SHOW TABLE STATUS");
-if ($tablesResult) {
-    $totalTables = 0;
-    $totalFields = 0;
-    $totalRows = 0;
-    $totalSize = 0;
-    $tableDetails = [];
-
-    while ($table = $tablesResult->fetch_assoc()) {
-        $tableName = $table['Name'];
-
-        // Accurate row count
-        $countResult = $mysqli->query("SELECT COUNT(*) AS cnt FROM `$tableName`");
-        $countRow = $countResult->fetch_assoc();
-        $tableRows = $countRow['cnt'];
-        $countResult->free();
-
-        $dataLength = $table['Data_length'];
-        $indexLength = $table['Index_length'];
-        $tableSize = ($dataLength + $indexLength) / (1024 * 1024); // Size in MB
-
-        // Get number of fields
-        $fieldsResult = $mysqli->query("SHOW COLUMNS FROM `$tableName`");
-        $numFields = $fieldsResult->num_rows;
-        $fieldsResult->free();
-
-        $totalTables++;
-        $totalFields += $numFields;
-        $totalRows += $tableRows;
-        $totalSize += $tableSize;
-
-        $tableDetails[] = [
-            'name' => $tableName,
-            'fields' => $numFields,
-            'rows' => $tableRows,
-            'size' => round($tableSize, 2),
-        ];
-    }
-    $tablesResult->free();
-
-    $databaseStats[] = [
-        'name' => 'Total number of tables',
-        'value' => $totalTables,
-    ];
-    $databaseStats[] = [
-        'name' => 'Total number of fields',
-        'value' => $totalFields,
-    ];
-    $databaseStats[] = [
-        'name' => 'Total number of rows',
-        'value' => $totalRows,
-    ];
-    $databaseStats[] = [
-        'name' => 'Total database size (MB)',
-        'value' => round($totalSize, 2) . ' MB',
-    ];
-}
-
-// Section: Database Structure Comparison
-$dbComparison = [];
-
-// Path to the db.sql file
-$dbSqlFile = __DIR__ . '/../db.sql';
-
-if (file_exists($dbSqlFile)) {
-    // Read the db.sql file
-    $sqlContent = file_get_contents($dbSqlFile);
-
-    // Remove comments and empty lines
-    $lines = explode("\n", $sqlContent);
-    $sqlStatements = [];
-    $statement = '';
-
-    foreach ($lines as $line) {
-        // Remove single-line comments
-        $line = preg_replace('/--.*$/', '', $line);
-        $line = preg_replace('/\/\*.*?\*\//', '', $line);
-
-        // Skip empty lines
-        if (trim($line) == '') {
-            continue;
-        }
-
-        // Append line to the current statement
-        $statement .= $line . "\n";
-
-        // Check if the statement ends with a semicolon
-        if (preg_match('/;\s*$/', $line)) {
-            $sqlStatements[] = $statement;
-            $statement = '';
-        }
-    }
-
-    // Parse the CREATE TABLE statements
-    $sqlTables = [];
-
-    foreach ($sqlStatements as $sql) {
-        if (preg_match('/CREATE TABLE\s+`?([^` ]+)`?\s*\((.*)\)(.*?);/msi', $sql, $match)) {
-            $tableName = $match[1];
-            $columnsDefinition = $match[2];
-
-            // Extract column names and data types
-            $columns = [];
-            $columnLines = explode("\n", $columnsDefinition);
-            foreach ($columnLines as $line) {
-                $line = trim($line);
-                // Skip empty lines and lines that do not define columns
-                if ($line == '' || strpos($line, 'PRIMARY KEY') !== false || strpos($line, 'UNIQUE KEY') !== false || strpos($line, 'KEY') === 0 || strpos($line, 'CONSTRAINT') === 0 || strpos($line, ')') === 0) {
-                    continue;
-                }
-
-                // Remove trailing comma if present
-                $line = rtrim($line, ',');
-
-                // Match column definition
-                if (preg_match('/^`([^`]+)`\s+(.+)/', $line, $colMatch)) {
-                    $colName = $colMatch[1];
-                    $colDefinition = $colMatch[2];
-
-                    // Extract the data type from the column definition
-                    $tokens = preg_split('/\s+/', $colDefinition);
-                    $colType = $tokens[0];
-
-                    // Handle data types with parentheses (e.g., varchar(255), decimal(15,2))
-                    if (preg_match('/^([a-zA-Z]+)\(([^)]+)\)/', $colType, $typeMatch)) {
-                        $colType = $typeMatch[1] . '(' . $typeMatch[2] . ')';
-                    }
-
-                    $columns[$colName] = $colType;
-                }
-            }
-            $sqlTables[$tableName] = $columns;
-        }
-    }
-
-    // Get current database table structures
-    $dbTables = [];
-    $tablesResult = $mysqli->query("SHOW TABLES");
-    while ($row = $tablesResult->fetch_row()) {
-        $tableName = $row[0];
-        $columnsResult = $mysqli->query("SHOW COLUMNS FROM `$tableName`");
-        $columns = [];
-        while ($col = $columnsResult->fetch_assoc()) {
-            $columns[$col['Field']] = $col['Type'];
-        }
-        $columnsResult->free();
-        $dbTables[$tableName] = $columns;
-    }
-    $tablesResult->free();
-
-    // Compare the structures
-    foreach ($sqlTables as $tableName => $sqlColumns) {
-        if (!isset($dbTables[$tableName])) {
-            $dbComparison[] = [
-                'name' => "Table `$tableName` missing in database",
-                'status' => 'Missing Table',
-            ];
-            continue;
-        }
-
-        // Compare columns
-        $dbColumns = $dbTables[$tableName];
-        foreach ($sqlColumns as $colName => $colType) {
-            if (!isset($dbColumns[$colName])) {
-                $dbComparison[] = [
-                    'name' => "Column `$colName` missing in table `$tableName`",
-                    'status' => 'Missing Column',
-                ];
-            } else {
-                // Normalize data types for comparison
-                $sqlColType = strtolower($colType);
-                $dbColType = strtolower($dbColumns[$colName]);
-
-                // Remove attributes and constraints
-                $sqlColType = preg_replace('/\s+.*$/', '', $sqlColType);
-                $dbColType = preg_replace('/\s+.*$/', '', $dbColType);
-
-                // Remove additional attributes like unsigned, zerofill, etc.
-                $sqlColType = preg_replace('/\s+unsigned|\s+zerofill|\s+binary/', '', $sqlColType);
-                $dbColType = preg_replace('/\s+unsigned|\s+zerofill|\s+binary/', '', $dbColType);
-
-                if ($sqlColType != $dbColType) {
-                    $dbComparison[] = [
-                        'name' => "Data type mismatch for `$colName` in table `$tableName`",
-                        'status' => "Expected: $colType, Found: {$dbColumns[$colName]}",
-                    ];
-                }
-            }
-        }
-
-        // Check for extra columns in the database that are not in the SQL file
-        foreach ($dbColumns as $colName => $colType) {
-            if (!isset($sqlColumns[$colName])) {
-                $dbComparison[] = [
-                    'name' => "Extra column `$colName` in table `$tableName` not present in db.sql",
-                    'status' => 'Extra Column',
-                ];
-            }
-        }
-    }
-
-    // Check for tables in the database not present in the db.sql file
-    foreach ($dbTables as $tableName => $dbColumns) {
-        if (!isset($sqlTables[$tableName])) {
-            $dbComparison[] = [
-                'name' => "Extra table `$tableName` in database not present in db.sql",
-                'status' => 'Extra Table',
-            ];
-        }
-    }
-} else {
-    $dbComparison[] = [
-        'name' => 'db.sql file not found',
-        'status' => 'File Missing',
-    ];
-}
-
-$mysqli->close();
 ?>
 
 <div class="card card-dark">
     <div class="card-header py-3">
-        <h3 class="card-title"><i class="fas fa-fw fa-bug me-2"></i>Debug</h3>
+        <h3 class="card-title mt-1"><i class="fas fa-fw fa-bug me-2"></i>Debug</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-outline-light clipboardjs" data-clipboard-target="#debugReport" title="Everything here as plain text, for a forum post or a support email - without host names, paths or keys" data-debug-copy>
+                <i class="fas fa-fw fa-copy"></i><span class="d-none d-md-inline ms-2">Copy for support</span>
+            </button>
+            <a href="debug.php<?= $exact ? '?exact=1' : '' ?>" class="btn btn-outline-light ms-1" title="Check everything again">
+                <i class="fas fa-fw fa-redo-alt"></i><span class="d-none d-md-inline ms-2">Check again</span>
+            </a>
+        </div>
     </div>
+
     <div class="card-body">
 
-        <h2>Debugging</h2>
-        <ul>
-            <li>If you are experiencing a problem with ITFlow, this page should help you identify any configuration issues.</li>
-            <li>Note: You might also need to gather <a href="https://docs.itflow.org/gathering_logs#error_logs">error logs</a></li>
-        </ul>
-        <hr>
+        <!-- What needs putting right, worst first -->
+        <?php if (!$summary['attention']) { ?>
+            <div class="alert alert-success d-flex align-items-center gap-3 mb-4" data-debug-summary="ok">
+                <i class="fas fa-fw fa-check-circle fa-lg"></i>
+                <div><strong>Everything looks good.</strong> <?= $plural($checked, 'check', 'checks') ?>, nothing to put right.</div>
+            </div>
+        <?php } else {
+            $tone = $problems ? 'danger' : 'warning'; ?>
+            <div class="alert alert-<?= $tone ?> mb-4 itflow-debug-attention" data-debug-summary="<?= $tone ?>">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="fas fa-fw <?= $levels[$tone]['icon'] ?> fa-lg"></i>
+                    <strong><?= implode(' and ', array_filter([$problems ? $plural($problems, 'problem', 'problems') : '', $warnings ? $plural($warnings, 'warning', 'warnings') : ''])) ?></strong>
+                    <span class="d-none d-sm-inline">- <?= $problems ? 'parts of ITFlow won\'t work until they are put right.' : 'worth a look.' ?></span>
+                </div>
+                <ul class="list-unstyled mb-0">
+                    <?php foreach ($summary['attention'] as $item) { ?>
+                        <li class="d-flex align-items-baseline gap-2 py-1" data-debug-attention-item>
+                            <i class="fas fa-fw <?= $levels[$item['level']]['icon'] ?> text-<?= $levels[$item['level']]['tone'] ?>" title="<?= $levels[$item['level']]['word'] ?>"></i>
+                            <div class="d-flex flex-wrap align-items-baseline column-gap-3 flex-grow-1 min-w-0">
+                                <span class="min-w-0 text-break"><span class="text-body-secondary"><?= escapeHtml($item['section']) ?> ·</span> <strong><?= escapeHtml($item['label']) ?></strong> - <?= escapeHtml($item['value']) ?></span>
+                                <?= $action_link($item, 'ms-auto small text-nowrap alert-link') ?>
+                            </div>
+                        </li>
+                    <?php } ?>
+                </ul>
+            </div>
+        <?php } ?>
 
-        <div class="table-responsive">
-            <table class="table table-bordered mb-3">
-                <tr>
-                    <th>ITFlow release version</th>
-                    <th><?= APP_VERSION ?></th>
-                </tr>
-                <tr>
-                    <td>Current DB Version</td>
-                    <td><?= CURRENT_DATABASE_VERSION ?></td>
-                </tr>
-                <tr>
-                    <td>Current Code Commit</td>
-                    <td><?= $commitHash === '' ? 'Not a git checkout' : escapeHtml($commitHash) ?></td>
-                </tr>
-                <tr>
-                    <td>Current Branch</td>
-                    <td><?= $gitBranch === '' ? 'Not a git checkout' : escapeHtml($gitBranch) ?></td>
-                </tr>
-            </table>
+        <!-- At a glance -->
+        <div class="mb-4 itflow-debug-stats"><?= reportStats($stats) ?></div>
+
+        <!-- Every check, by section -->
+        <div class="row row-cols-1 row-cols-lg-2 row-cols-xxl-3 g-3 mb-4">
+            <?php foreach ($sections as $section) {
+                if (!$section['items']) {
+                    continue;
+                }
+                $bad = 0;
+                $worst = 'ok';
+                foreach ($section['items'] as $item) {
+                    if ($item['level'] === 'danger' || $item['level'] === 'warning') {
+                        $bad++;
+                        $worst = $worst === 'danger' ? 'danger' : $item['level'];
+                    }
+                } ?>
+                <div class="col">
+                    <section class="card h-100 mb-0 itflow-debug-section" data-debug-section="<?= $section['key'] ?>">
+                        <div class="card-header d-flex align-items-center gap-2 py-2">
+                            <span class="itflow-debug-section-icon"><i class="fas fa-fw <?= $section['icon'] ?>"></i></span>
+                            <h2 class="h6 mb-0 me-auto"><?= escapeHtml($section['title']) ?></h2>
+                            <?php if ($bad) { ?>
+                                <span class="badge text-bg-<?= $worst ?>"><?= $bad ?> to look at</span>
+                            <?php } elseif ($section['key'] !== 'server') { ?>
+                                <i class="fas fa-check-circle text-success" title="All OK"></i>
+                            <?php } ?>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <?php foreach ($section['items'] as $item) {
+                                $level = $levels[$item['level']]; ?>
+                                <li class="list-group-item itflow-debug-item" data-debug-item="<?= $item['level'] ?>">
+                                    <i class="fas fa-fw <?= $level['icon'] ?> text-<?= $level['tone'] ?> itflow-debug-item-icon" title="<?= $level['word'] ?>"></i>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <div class="d-flex flex-wrap column-gap-2">
+                                            <span class="fw-semibold"><?= escapeHtml($item['label']) ?></span>
+                                            <span class="text-body-secondary text-break"><?= escapeHtml($item['value']) ?></span>
+                                        </div>
+                                        <?php if ($item['fix'] !== '' && $item['level'] !== 'ok') { ?>
+                                            <div class="small mt-1 itflow-debug-fix"><?= $item['fix'] ?></div>
+                                        <?php } ?>
+                                        <?php if ($item['url'] !== '' && $item['level'] !== 'ok') { ?>
+                                            <div class="small mt-1"><?= $action_link($item, '') ?></div>
+                                        <?php } ?>
+                                    </div>
+                                </li>
+                            <?php } ?>
+                        </ul>
+                    </section>
+                </div>
+            <?php } ?>
         </div>
 
-        <!-- System Information Table -->
-        <h3>System Information</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <?php foreach ($systemInfo as $info): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($info['name']); ?></td>
-                        <td><?= htmlspecialchars($info['value']); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <div class="row g-3">
 
-        <!-- PHP Extensions and Configuration Table -->
-        <h3 class="mt-3">PHP Extensions and Configuration</h3>
-        <div class="table-responsive">
-            <table class="table table-sm table-bordered">
-                <!-- PHP Extensions Section -->
-                <thead>
-                    <tr class="table-secondary">
-                        <th colspan="3">PHP Extensions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($phpExtensions as $check): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($check['name']); ?></td>
-                            <td class="text-center">
-                                <?php if ($check['passed']): ?>
-                                    <i class="fas fa-check" style="color:green"></i>
-                                <?php else: ?>
-                                    <i class="fas fa-times" style="color:red"></i>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= htmlspecialchars($check['value']); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-                <!-- PHP Configuration Section -->
-                <thead>
-                    <tr class="table-secondary">
-                        <th colspan="3">PHP Configuration</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($phpConfig as $check): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($check['name']); ?></td>
-                            <td class="text-center">
-                                <?php if ($check['passed']): ?>
-                                    <i class="fas fa-check" style="color:green"></i>
-                                <?php else: ?>
-                                    <i class="fas fa-times" style="color:red"></i>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= htmlspecialchars($check['value']); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-                <thead>
-                    <tr class="table-secondary">
-                        <th colspan="3">Shell Commands</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($shellCommands as $check): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($check['name']); ?></td>
-                            <td class="text-center">
-                                <?php if ($check['passed']): ?>
-                                    <i class="fas fa-check" style="color:green"></i>
-                                <?php else: ?>
-                                    <i class="fas fa-times" style="color:red"></i>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= htmlspecialchars($check['value']); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-                <thead>
-                    <tr class="table-secondary">
-                        <th colspan="3">SSL Checks</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($sslChecks as $check): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($check['name']); ?></td>
-                            <td class="text-center">
-                                <?php if ($check['passed']): ?>
-                                    <i class="fas fa-check" style="color:green"></i>
-                                <?php else: ?>
-                                    <i class="fas fa-times" style="color:red"></i>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= htmlspecialchars($check['value']); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-                <thead>
-                    <tr class="table-secondary">
-                        <th colspan="3">Domain Checks</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($domainChecks as $check): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($check['name']); ?></td>
-                            <td class="text-center">
-                                <?php if ($check['passed']): ?>
-                                    <i class="fas fa-check" style="color:green"></i>
-                                <?php else: ?>
-                                    <i class="fas fa-times" style="color:red"></i>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= htmlspecialchars($check['value']); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
+            <!-- The database -->
+            <div class="col-xl-7">
+                <section class="card h-100 mb-0" id="debug-database" data-debug-database>
+                    <div class="card-header d-flex align-items-center gap-2 py-2">
+                        <span class="itflow-debug-section-icon"><i class="fas fa-fw fa-database"></i></span>
+                        <h2 class="h6 mb-0 me-auto">Database</h2>
+                        <span class="small text-body-secondary"><?= $plural(count($database_stats['tables']), 'table', 'tables') ?> · <?= $exact ? '' : 'about ' ?><?= number_format($database_stats['rows']) ?> rows · <?= escapeHtml(formatBytes($database_stats['size'], 1)) ?></span>
+                    </div>
+                    <div class="card-body">
 
-                <!-- File Permissions Table -->
-                <thead>
-                    <tr class="table-secondary">
-                        <th colspan="3">File Permissions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($filePermissions as $check): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($check['name']); ?></td>
-                            <td class="text-center">
-                                <?php if ($check['passed']): ?>
-                                    <i class="fas fa-check" style="color:green"></i>
-                                <?php else: ?>
-                                    <i class="fas fa-times" style="color:red"></i>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= htmlspecialchars($check['value']); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                        <h3 class="h6 text-uppercase text-body-secondary fw-semibold small mb-2">Structure</h3>
+                        <?php if ($differences === null) { ?>
+                            <p class="text-body-secondary" data-debug-structure="none"><i class="fas fa-fw fa-info-circle me-1"></i>db.sql isn't here to compare with.</p>
+                        <?php } elseif (!$differences) { ?>
+                            <p data-debug-structure="ok"><i class="fas fa-fw fa-check-circle text-success me-1"></i>Every table and column matches db.sql - what a fresh install makes.</p>
+                        <?php } else {
+                            $missing = count(array_filter($differences, function ($d) {
+                                return strpos($d['what'], 'Missing') === 0;
+                            })); ?>
+                            <p class="mb-2" data-debug-structure="<?= count($differences) ?>">
+                                <i class="fas fa-fw <?= $missing ? 'fa-times-circle text-danger' : 'fa-info-circle text-secondary' ?> me-1"></i>
+                                <?= $plural(count($differences), 'difference', 'differences') ?> from db.sql.
+                                <?php if ($missing) { ?>
+                                    Something missing usually means a database update didn't finish - <a href="update.php">Maintenance &gt; Update</a>.
+                                <?php } else { ?>
+                                    Extra tables and columns are usually left by older versions or a plugin, and do no harm.
+                                <?php } ?>
+                            </p>
+                            <details <?= count($differences) <= 10 ? 'open' : '' ?> class="mb-3">
+                                <summary class="small text-body-secondary mb-2">Show them</summary>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-borderless table-hover small mb-0">
+                                        <thead class="text-body-secondary">
+                                            <tr><th>What</th><th>Where</th><th>db.sql</th><th>Here</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($differences as $difference) { ?>
+                                                <tr>
+                                                    <td class="text-nowrap"><?= escapeHtml($difference['what']) ?></td>
+                                                    <td class="text-break"><code><?= escapeHtml($difference['table'] . ($difference['column'] !== '' ? '.' . $difference['column'] : '')) ?></code></td>
+                                                    <td><?= escapeHtml($difference['expected']) ?></td>
+                                                    <td><?= escapeHtml($difference['found']) ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </details>
+                        <?php } ?>
+
+                        <h3 class="h6 text-uppercase text-body-secondary fw-semibold small mb-2 mt-3">Biggest tables</h3>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-borderless table-hover mb-0" data-debug-tables>
+                                <thead class="text-body-secondary small">
+                                    <tr><th>Table</th><th class="text-end"><?= $exact ? 'Rows' : 'Rows (about)' ?></th><th class="text-end">Size</th><th class="d-none d-sm-table-cell w-25"></th></tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $biggest = max(1, max(array_column($database_stats['tables'], 'bytes') ?: [1]));
+                                    $i = 0;
+                                    foreach ($database_stats['tables'] as $table => $table_stats) {
+                                        $i++; ?>
+                                        <tr <?= $i > 10 ? 'class="d-none" data-debug-more-table' : '' ?>>
+                                            <td class="text-break"><?= escapeHtml($table) ?></td>
+                                            <td class="text-end text-nowrap"><?= number_format($table_stats['rows']) ?></td>
+                                            <td class="text-end text-nowrap"><?= escapeHtml(formatBytes($table_stats['bytes'], 1)) ?></td>
+                                            <td class="d-none d-sm-table-cell align-middle">
+                                                <div class="progress itflow-debug-bar" role="presentation"><div class="progress-bar bg-secondary" style="width: <?= round($table_stats['bytes'] / $biggest * 100, 1) ?>%"></div></div>
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php if (count($database_stats['tables']) > 10) { ?>
+                            <button type="button" class="btn btn-link btn-sm px-0" data-debug-show-tables>Show all <?= count($database_stats['tables']) ?> tables</button>
+                        <?php } ?>
+                        <p class="small text-body-secondary mt-2 mb-0" data-debug-rows="<?= $exact ? 'exact' : 'estimate' ?>">
+                            <?php if ($exact) { ?>
+                                Every table counted. <a href="debug.php">Back to estimates</a>
+                            <?php } else { ?>
+                                Row counts are the database's own estimate, so a big install opens this page quickly. <a href="debug.php?exact=1#debug-database">Count exactly</a> - slower on a big install.
+                            <?php } ?>
+                        </p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- The uploads folder -->
+            <div class="col-xl-5">
+                <section class="card h-100 mb-0" data-debug-uploads>
+                    <div class="card-header d-flex align-items-center gap-2 py-2">
+                        <span class="itflow-debug-section-icon"><i class="fas fa-fw fa-folder-open"></i></span>
+                        <h2 class="h6 mb-0 me-auto">Uploads</h2>
+                        <span class="small text-body-secondary"><?= $plural($uploads['files'], 'file', 'files') ?> · <?= escapeHtml(formatBytes($uploads['bytes'], 1)) ?><?= $uploads['partial'] ? ' at least' : '' ?></span>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!$uploads['folders']) { ?>
+                            <p class="text-body-secondary mb-0">Nothing uploaded yet.</p>
+                        <?php } else { ?>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-borderless table-hover mb-0">
+                                    <thead class="text-body-secondary small">
+                                        <tr><th>Folder</th><th class="text-end">Files</th><th class="text-end">Size</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($uploads['folders'] as $folder => $folder_stats) { ?>
+                                            <tr>
+                                                <td class="text-break"><i class="far fa-fw fa-folder text-body-secondary me-1"></i><?= escapeHtml($folder) ?></td>
+                                                <td class="text-end text-nowrap"><?= number_format($folder_stats['files']) ?></td>
+                                                <td class="text-end text-nowrap"><?= escapeHtml(formatBytes($folder_stats['bytes'], 1)) ?></td>
+                                            </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php } ?>
+                        <?php if ($uploads['partial']) { ?>
+                            <p class="small text-body-secondary mt-2 mb-0"><i class="fas fa-fw fa-hourglass-half me-1"></i>There are a lot of files - counting stopped after a few seconds, so these are at least what is there.</p>
+                        <?php } ?>
+                    </div>
+                </section>
+            </div>
         </div>
 
+        <!-- The report Copy for support copies - shown here too, for a browser that won't copy -->
+        <details class="mt-4" data-debug-report>
+            <summary class="text-body-secondary">The report Copy for support copies</summary>
+            <p class="small text-body-secondary mt-2 mb-2">Versions, what needs looking at, and the size of things - without host names, paths, addresses or keys. Read it before you post it.</p>
+            <textarea id="debugReport" class="form-control font-monospace small" rows="14" readonly><?= escapeHtml($report) ?></textarea>
+        </details>
 
-        <!-- Database Structure Comparison Table -->
-        <h3 class="mt-3">Database Structure Comparison</h3>
-        <div class="table-responsive">
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <?php if (!empty($dbComparison)): ?>
-                        <?php foreach ($dbComparison as $issue): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($issue['name']); ?></td>
-                                <td colspan="2"><?= htmlspecialchars($issue['status']); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="3">No discrepancies found between the database and db.sql file.</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Uploads Directory Stats Table -->
-        <h3 class="mt-3">Uploads Directory Stats</h3>
-        <div class="table-responsive">
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <?php foreach ($uploadsStats as $stat): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($stat['name']); ?></td>
-                            <td colspan="2"><?= htmlspecialchars($stat['value']); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Database Stats Table -->
-        <h3 class="mt-3">Database Stats</h3>
-        <div class="table-responsive">
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <?php foreach ($databaseStats as $stat): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($stat['name']); ?></td>
-                            <td colspan="2"><?= htmlspecialchars($stat['value']); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Table Stats Table -->
-        <h3 class="mt-3">Table Stats</h3>
-        <div class="table-responsive">
-            <table class="table table-sm table-bordered">
-                <thead>
-                    <tr>
-                        <th>Table Name</th>
-                        <th>Fields / Rows</th>
-                        <th>Size (MB)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($tableDetails as $table): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($table['name']); ?></td>
-                            <td><?= htmlspecialchars("Fields: {$table['fields']}, Rows: {$table['rows']}"); ?></td>
-                            <td><?= htmlspecialchars($table['size'] . ' MB'); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-
+        <p class="small text-body-secondary mt-4 mb-0">
+            <i class="fas fa-fw fa-life-ring me-1"></i>For a problem this page doesn't show, the web server's and PHP's own error logs say more -
+            <a href="https://docs.itflow.org/gathering_logs#error_logs" target="_blank" rel="noopener noreferrer">how to find them</a>.
+        </p>
     </div>
-
 </div>
 
-<?php
+<script>
+    // Show every table, not just the ten biggest
+    document.querySelectorAll('[data-debug-show-tables]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            document.querySelectorAll('[data-debug-more-table]').forEach(function (row) {
+                row.classList.remove('d-none');
+            });
+            button.remove();
+        });
+    });
+</script>
 
+<?php
 require_once "../includes/footer.php";

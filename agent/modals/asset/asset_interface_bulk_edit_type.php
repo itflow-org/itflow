@@ -16,7 +16,7 @@ ob_start();
     <?php foreach ($interface_ids as $interface_id) { ?><input type="hidden" name="interface_ids[]" value="<?= $interface_id ?>"><?php } ?>
 
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-ethernet me-2"></i>Bulk Set Interface Type</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-plug me-2"></i>Type of <strong><?= $count ?></strong> interface<?= $count === 1 ? '' : 's' ?></h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
 
@@ -28,20 +28,10 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
                 <select class="form-select select2" id="interface_type" name="bulk_type">
-                    <option value="">- Select Type -</option>
-                    <?php
-                    $sql_interface_types_select = mysqli_query($mysqli, "
-                        SELECT category_name FROM categories
-                        WHERE category_type = 'network_interface'
-                        AND category_archived_at IS NULL
-                        ORDER BY category_order ASC, category_name ASC
-                    ");
-                    while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
-                        $interface_type_select = escapeHtml($row['category_name']);
-                        ?>
-                        <option><?= $interface_type_select ?></option>
-                    <?php } ?>
+                    <option value="">- No type -</option>
+                    <?= categoryOptionsHtml('network_interface') ?>
                 </select>
+                <?= categoryAddButtonHtml('network_interface', 'btn btn-secondary') ?>
             </div>
         </div>
 

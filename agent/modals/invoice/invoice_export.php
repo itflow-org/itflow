@@ -60,6 +60,8 @@ ob_start();
                     <option <?php if ($status_filter === 'Draft') { echo "selected"; } ?> value="Draft">Draft</option>
                     <option <?php if ($status_filter === 'Unpaid') { echo "selected"; } ?> value="Unpaid">Unpaid</option>
                     <option <?php if ($status_filter === 'Overdue') { echo "selected"; } ?> value="Overdue">Overdue</option>
+                    <option <?php if ($status_filter === 'Paid') { echo "selected"; } ?> value="Paid">Paid</option>
+                    <option <?php if ($status_filter === 'Cancelled') { echo "selected"; } ?> value="Cancelled">Cancelled or non-billable</option>
                 </select>
             </div>
         </div>
@@ -70,16 +72,7 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                 <select class="form-select select2" name="category">
                     <option value="">- All Categories -</option>
-                    <?php
-                    $sql_category_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' ORDER BY category_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql_category_filter)) {
-                        $filter_option_id = intval($row['category_id']);
-                        $filter_option_name = escapeHtml($row['category_name']);
-                    ?>
-                        <option <?php if ($category_filter == $filter_option_id) { echo "selected"; } ?> value="<?= $filter_option_id ?>"><?= $filter_option_name ?></option>
-                    <?php
-                    }
-                    ?>
+                    <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT DISTINCT invoice_category_id FROM invoices") ?>
                 </select>
             </div>
         </div>

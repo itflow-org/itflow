@@ -3,7 +3,8 @@
  * API - Invoice Items - Read
  * GET /api/v1/invoice_items/read.php
  *
- * Returns line items belonging to invoices scoped to the API key's client.
+ * Returns line items belonging to invoices scoped to the API key's client,
+ * each with its rate's tax_name and tax_percent.
  *
  * Parameters (GET):
  *   api_key        required  - Your API key
@@ -29,9 +30,10 @@ if (isset($_GET['item_id'])) {
     // Single line item by item_id — still JOIN to invoices to enforce client scope
     $item_id = intval($_GET['item_id']);
     $sql = mysqli_query($mysqli,
-        "SELECT ii.*
+        "SELECT ii.*, t.tax_name, t.tax_percent
          FROM invoice_items ii
          INNER JOIN invoices i ON i.invoice_id = ii.item_invoice_id
+         LEFT JOIN taxes t ON t.tax_id = ii.item_tax_id
          WHERE ii.item_id = '$item_id'
            AND 1=1 " . apiClientScopeSql('i.invoice_client_id') . "
          LIMIT 1"
@@ -40,9 +42,10 @@ if (isset($_GET['item_id'])) {
     // All items on a specific invoice
     $invoice_id = intval($_GET['invoice_id']);
     $sql = mysqli_query($mysqli,
-        "SELECT ii.*
+        "SELECT ii.*, t.tax_name, t.tax_percent
          FROM invoice_items ii
          INNER JOIN invoices i ON i.invoice_id = ii.item_invoice_id
+         LEFT JOIN taxes t ON t.tax_id = ii.item_tax_id
          WHERE ii.item_invoice_id = '$invoice_id'
            AND 1=1 " . apiClientScopeSql('i.invoice_client_id') . "
          ORDER BY ii.item_order ASC, ii.item_id ASC

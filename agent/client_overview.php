@@ -1,830 +1,705 @@
 <?php
 
+/*
+ * Client overview.
+ *
+ * Who the client is and how to reach them, what needs attention, then the
+ * technical side (tickets, notes, contacts, favourites, schedule, projects,
+ * services, renewals, assets) and the financial side (balance, payments,
+ * recurring, unbilled work, open invoices). Each part shows to agents whose
+ * role can read it.
+ *
+ * The figures come from functions/client_overview.php; the chart is drawn by
+ * js/client_overview.js, which also saves the quick notes. While the client
+ * is being onboarded (functions/client_onboarding.php), a card at the top
+ * shows how far it has got.
+ */
+
+// This page draws its own client header, with the same actions menu
+$client_top_head_skip = true;
+
 require_once "includes/inc_all_client.php";
 
-$sql_recent_activities = mysqli_query(
-    $mysqli,
-    "SELECT log_created_at, log_description FROM logs
-    WHERE log_client_id = $client_id
-    ORDER BY log_created_at DESC
-    LIMIT 5"
-);
+$access = clientOverviewAccess();
+$renewals = $access['docs'] ? clientOverviewRenewals($client_id) : null;
+$attention = clientOverviewAttention($client_id, $access, $renewals);
+$open_tickets = $access['tickets'] ? clientOverviewOpenTickets($client_id) : null;
+$open_projects = $access['tickets'] ? clientOverviewProjects($client_id) : null;
+$client_services = $access['docs'] ? clientOverviewServices($client_id) : null;
+$overview_contacts = clientOverviewContacts($client_id);
+$favorites = clientOverviewFavorites($client_id, $access);
+$upcoming = clientOverviewUpcoming($client_id, $access);
+$asset_summary = $access['docs'] ? clientOverviewAssets($client_id) : null;
+$shared_items = clientOverviewSharedItems($client_id);
+$activity = clientOverviewActivity($client_id);
+$money = $access['financial'] ? clientOverviewMoney($client_id, $balance, $recurring_monthly) : null;
+$open_invoices = $access['sales'] ? clientOverviewOpenInvoices($client_id) : null;
+$onboarding = $client_archived_at ? null : clientOnboardingCard($client_id);
+$recurring_invoices = $access['sales'] ? clientOverviewRecurringInvoices($client_id) : null;
 
-$sql_important_contacts = mysqli_query(
-    $mysqli,
-    "SELECT contact_email, contact_extension, contact_id, contact_mobile, contact_mobile_country_code,
-        contact_name, contact_phone, contact_phone_country_code, contact_photo, contact_primary,
-        contact_title FROM contacts
-    WHERE contact_client_id = $client_id
-        AND (contact_important = 1
-            OR contact_billing = 1
-            OR contact_technical = 1
-            OR contact_primary = 1
-        )
-        AND contact_archived_at IS NULL
-    ORDER BY contact_primary DESC, contact_name DESC LIMIT 5"
-);
+$chart_data = [];
+if ($access['financial']) {
+    $chart_data['monthly'] = clientOverviewMonthly($client_id);
+    $chart_data['currency'] = $client_currency_code ?: $session_company_currency;
+}
 
-$sql_favorite_assets = mysqli_query(
-    $mysqli,
-    "SELECT asset_id, asset_make, asset_model, asset_name, asset_type FROM assets
-    WHERE asset_client_id = $client_id
-        AND asset_favorite = 1
-        AND asset_archived_at IS NULL
-    ORDER BY asset_type ASC, asset_name ASC"
-);
-
-$sql_favorite_credentials = mysqli_query(
-    $mysqli,
-    "SELECT credential_description, credential_id, credential_name, credential_otp_secret,
-        credential_uri, credential_uri_2, credential_username FROM credentials
-    WHERE credential_client_id = $client_id
-        AND credential_favorite = 1
-        AND credential_archived_at IS NULL
-        ORDER BY credential_name ASC"
-);
-
-$sql_recent_tickets = mysqli_query(
-    $mysqli,
-    "SELECT * FROM tickets
-    WHERE ticket_client_id = $client_id
-    ORDER BY ticket_created_at ASC
-    LIMIT 5"
-);
-
-$sql_recent_credentials = mysqli_query(
-    $mysqli,
-    "SELECT * FROM credentials
-     WHERE credential_client_id = $client_id
-     AND credential_archived_at IS NULL
-     ORDER BY credential_updated_at ASC
-     LIMIT 5"
-);
-
-$sql_shared_items = mysqli_query(
-    $mysqli,
-    "SELECT item_active, item_created_at, item_expire_at, item_id, item_key, item_note, item_recipient,
-        item_related_id, item_type, item_view_limit, item_views FROM shared_items
-    WHERE item_client_id = $client_id
-        AND item_active = 1
-    ORDER BY item_created_at ASC
-    LIMIT 5"
-);
-
-/*
- * EXPIRING/ACTION ITEMS
- */
-
-// Stale Tickets
-$sql_stale_tickets = mysqli_query(
-    $mysqli,
-    "SELECT ticket_created_at, ticket_id, ticket_number, ticket_prefix, ticket_subject FROM tickets
-    WHERE ticket_client_id = $client_id
-        AND ticket_updated_at < CURRENT_DATE - INTERVAL 7 DAY
-        AND ticket_resolved_At IS NULL
-        AND ticket_closed_at IS NULL
-    ORDER BY ticket_updated_at ASC"
-);
-
-// 8 - 45 Day Warning
-
-// Get Domains Expiring
-$sql_domains_expiring = mysqli_query(
-    $mysqli,
-    "SELECT domain_expire, domain_id, domain_name FROM domains
-    WHERE domain_client_id = $client_id
-        AND domain_expire IS NOT NULL
-        AND domain_archived_at IS NULL
-        AND domain_expire > CURRENT_DATE
-        AND domain_expire < CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY domain_expire ASC"
-);
-
-// Get Certificates Expiring
-$sql_certificates_expiring = mysqli_query(
-    $mysqli,
-    "SELECT certificate_expire, certificate_id, certificate_name FROM certificates
-    WHERE certificate_client_id = $client_id
-        AND certificate_expire IS NOT NULL
-        AND certificate_archived_at IS NULL
-        AND certificate_expire > CURRENT_DATE
-        AND certificate_expire < CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY certificate_expire ASC"
-);
-
-// Get Licenses Expiring
-$sql_licenses_expiring = mysqli_query(
-    $mysqli,
-    "SELECT software_expire, software_id, software_name FROM software
-    WHERE software_client_id = $client_id
-        AND software_expire IS NOT NULL
-        AND software_archived_at IS NULL
-        AND software_expire > CURRENT_DATE
-        AND software_expire < CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY software_expire ASC"
-);
-
-// Get Asset Warranties Expiring
-$sql_asset_warranties_expiring = mysqli_query(
-    $mysqli,
-    "SELECT asset_id, asset_name, asset_warranty_expire FROM assets
-    WHERE asset_client_id = $client_id
-        AND asset_warranty_expire IS NOT NULL
-        AND asset_archived_at IS NULL
-        AND asset_warranty_expire > CURRENT_DATE
-        AND asset_warranty_expire < CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY asset_warranty_expire ASC"
-);
-
-// Get Assets Retiring 7 Year
-$sql_asset_retire = mysqli_query(
-    $mysqli,
-    "SELECT asset_id, asset_install_date, asset_name FROM assets
-    WHERE asset_client_id = $client_id
-        AND asset_install_date IS NOT NULL
-        AND asset_archived_at IS NULL
-        AND asset_install_date + INTERVAL 7 YEAR > CURRENT_DATE
-        AND asset_install_date + INTERVAL 7 YEAR <= CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY asset_install_date ASC"
-);
-
-/*
- * EXPIRED ITEMS
- */
-
-// Get Domains Expired
-$sql_domains_expired = mysqli_query(
-    $mysqli,
-    "SELECT domain_expire, domain_id, domain_name FROM domains
-    WHERE domain_client_id = $client_id
-        AND domain_expire IS NOT NULL
-        AND domain_archived_at IS NULL
-        AND domain_expire < CURRENT_DATE
-    ORDER BY domain_expire ASC"
-);
-
-// Get Certificates Expired
-$sql_certificates_expired = mysqli_query(
-    $mysqli,
-    "SELECT certificate_expire, certificate_id, certificate_name FROM certificates
-    WHERE certificate_client_id = $client_id
-        AND certificate_expire IS NOT NULL
-        AND certificate_archived_at IS NULL
-        AND certificate_expire < CURRENT_DATE
-    ORDER BY certificate_expire ASC"
-);
-
-// Get Licenses Expired
-$sql_licenses_expired = mysqli_query(
-    $mysqli,
-    "SELECT software_expire, software_id, software_name FROM software
-    WHERE software_client_id = $client_id
-        AND software_expire IS NOT NULL
-        AND software_archived_at IS NULL
-        AND software_expire < CURRENT_DATE
-    ORDER BY software_expire ASC"
-);
-
-// Get Asset Warranties Expired
-$sql_asset_warranties_expired = mysqli_query(
-    $mysqli,
-    "SELECT asset_id, asset_name, asset_warranty_expire FROM assets
-    WHERE asset_client_id = $client_id
-        AND asset_warranty_expire IS NOT NULL
-        AND asset_archived_at IS NULL
-        AND asset_warranty_expire < CURRENT_DATE
-    ORDER BY asset_warranty_expire ASC"
-);
-
-// Get Retired Assets
-$sql_asset_retired = mysqli_query(
-    $mysqli,
-    "SELECT asset_id, asset_install_date, asset_name FROM assets
-    WHERE asset_client_id = $client_id
-        AND asset_install_date IS NOT NULL
-        AND asset_archived_at IS NULL
-        AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE  -- Assets retired (installed more than 7 years ago)
-    ORDER BY asset_install_date ASC"
-);
-
+$priority_colors = ['Urgent' => 'dark', 'High' => 'danger', 'Medium' => 'warning', 'Low' => 'info'];
+$tone_text = ['danger' => 'text-danger-emphasis', 'warning' => 'text-warning-emphasis', 'info' => 'text-info-emphasis', 'secondary' => 'text-body'];
+$money_format = function ($amount) use ($currency_format, $client_currency_code, $session_company_currency) {
+    return numfmt_format_currency($currency_format, floatval($amount), $client_currency_code ?: $session_company_currency);
+};
 
 ?>
 
-<div class="row">
+<div class="itflow-dash itflow-ov">
 
-    <!-- Notes -->
-
-    <div class="col-md-8">
-
-        <div class="card card-dark mb-3">
-            <div class="card-header p-2">
-                <h5 class="card-title"><i class="fa fa-fw fa-edit me-2"></i>Quick Notes</h5>
+    <!-- Who this is -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-start gap-3">
+                <span class="itflow-client-avatar itflow-client-avatar-lg text-bg-<?= $client_initials_tone ?>" aria-hidden="true"><?= $client_initials ?></span>
+                <div class="flex-grow-1 overflow-hidden itflow-ov-hero-name">
+                    <h1 class="itflow-dash-greeting mb-1">
+                        <?= $client_name ?>
+                        <?php if ($client_is_lead) { ?><span class="badge rounded-pill text-bg-info align-middle fs-6 fw-normal ms-1">Lead</span><?php } ?>
+                        <?php if ($client_archived_at) { ?><span class="badge rounded-pill text-bg-secondary align-middle fs-6 fw-normal ms-1">Archived</span><?php } ?>
+                        <?php if (!empty($config_module_enable_accounting) && ($ov_tax = taxClient($client_id))['exempt']) { ?>
+                            <span class="badge rounded-pill align-middle fs-6 fw-normal ms-1 <?= $ov_tax['expired'] ? 'bg-warning-subtle text-warning-emphasis' : 'bg-success-subtle text-success-emphasis' ?>" title="<?= escapeHtml(taxExemptText($ov_tax)) ?>"><?= $ov_tax['expired'] ? 'Tax exempt - certificate expired' : 'Tax exempt' ?></span>
+                        <?php } ?>
+                    </h1>
+                    <div class="d-flex flex-wrap align-items-center gap-1">
+                        <?php if ($client_type) { ?>
+                            <span class="text-body-secondary me-2"><?= $client_type ?></span>
+                        <?php } ?>
+                        <?= tagPills('client', $client_id, $client_tags) ?>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 ms-auto itflow-ov-hero-actions">
+                    <?php if (aiReady('General')) { ?>
+                        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/client/client_briefing.php?client_id=<?= $client_id ?>" data-modal-size="lg" title="How things stand with them, by AI - before a call, a visit or a quarterly review">
+                            <i class="fas fa-magic"></i><span class="d-none d-sm-inline ms-2">Briefing</span>
+                        </button>
+                    <?php } ?>
+                    <?php if ($access['add_ticket'] && !$client_archived_at) { ?>
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/ticket/ticket_add.php?client_id=<?= $client_id ?>" data-modal-size="lg">
+                            <i class="fas fa-plus me-2"></i>New Ticket
+                        </button>
+                    <?php } ?>
+                    <?php if ($access['edit']) { ?>
+                        <div class="dropdown dropstart">
+                            <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-fw fa-ellipsis-v"></i>
+                            </button>
+                            <?php require 'includes/client_actions_menu.php'; ?>
+                        </div>
+                    <?php } ?>
+                </div>
             </div>
-            <div class="card-body p-1">
-                <textarea class="form-control" rows=8 id="clientNotes" placeholder="Enter quick notes here" onblur="updateClientNotes(<?= $client_id ?>)"><?= $client_notes ?></textarea>
+        </div>
+        <div class="card-body border-top">
+            <div class="row g-3">
+                <?php require 'includes/client_details.php'; ?>
             </div>
         </div>
     </div>
 
-    <div class="col-md-4">
-
-        <?php if (mysqli_num_rows($sql_important_contacts) > 0) { ?>
-        <div class="card card-dark mb-3">
-            <div class="card-header p-2">
-                <h5 class="card-title"><i class="fa fa-fw fa-users me-2"></i>Important Contacts</h5>
-            </div>
-            <div class="card-body p-1">
-                <table class="table table-borderless table-sm">
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_important_contacts)) {
-                        $contact_id = intval($row['contact_id']);
-                        $contact_name = escapeHtml($row['contact_name']);
-                        $contact_title = escapeHtml($row['contact_title']);
-                        $contact_email = escapeHtml($row['contact_email']);
-                        $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
-                        $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-                        $contact_extension = escapeHtml($row['contact_extension']);
-                        $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
-                        $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-                        $contact_photo = escapeHtml($row['contact_photo']);
-                        $contact_primary = intval($row['contact_primary']);
-                        $contact_initials = initials($contact_name);
-                        if ($contact_primary == 1) {
-                            $contact_primary_display = "<small class='text-success'>Primary Contact</small>";
-                        } else {
-                            $contact_primary_display = false;
-                        }
-
-                        ?>
-                        <tr>
-                            <td>
-                                <a href="#" class="ajax-modal"
-                                    data-modal-size="xl"
-                                    data-modal-url="modals/contact/contact.php?id=<?= $contact_id ?>">
-                                    <div class="d-flex">
-                                        <?php if ($contact_photo) { ?>
-                                            <span class="fa-stack fa-2x me-2 text-center">
-                                                <img class="img-size-50 rounded-circle" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
-                                            </span>
-                                        <?php } else { ?>
-                                            <span class="fa-stack fa-2x me-2">
-                                                <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                                <span class="fa fa-stack-1x text-white"><?= $contact_initials ?></span>
-                                            </span>
-                                        <?php } ?>
-
-                                        <div class="flex-grow-1">
-                                            <div class="text-bold"><?= $contact_name ?></div>
-                                            <small class="text-secondary"><?= $contact_title ?></small>
-                                            <div><?= $contact_primary_display ?></div>
-                                            <?php
-                                            if (!empty($contact_tags_display)) { ?>
-                                                <div class="mt-1">
-                                                    <?= $contact_tags_display ?>
-                                                </div>
-                                            <?php } ?>
-                                        </div>
-                                    </div>
+    <?php if ($onboarding) {
+        $ob_progress = $onboarding['progress'];
+        $ob_next = $onboarding['steps'][$ob_progress['next']]; ?>
+        <section class="card itflow-gs-card mb-4" aria-labelledby="ovOnboarding" data-co-card>
+            <div class="card-body">
+                <div class="d-flex align-items-start gap-3">
+                    <span class="itflow-gs-card-icon" aria-hidden="true"><i class="fas fa-route"></i></span>
+                    <div class="min-w-0 flex-grow-1">
+                        <h2 id="ovOnboarding" class="h6 fw-semibold mb-1">Finish onboarding <span class="text-body-secondary fw-normal">· <?= $ob_progress['done'] ?> of <?= $ob_progress['total'] ?></span></h2>
+                        <div class="progress itflow-gs-progress mb-2" role="progressbar" aria-label="How far onboarding has got" aria-valuenow="<?= $ob_progress['done'] ?>" aria-valuemin="0" aria-valuemax="<?= $ob_progress['total'] ?>">
+                            <div class="progress-bar" style="width: <?= round($ob_progress['done'] * 100 / max(1, $ob_progress['total'])) ?>%"></div>
+                        </div>
+                        <div class="small text-body-secondary">Next: <strong class="text-body"><?= escapeHtml($ob_next['title']) ?></strong> - <?= escapeHtml($ob_next['status']) ?></div>
+                    </div>
+                    <form action="post.php" method="post" class="m-0 flex-shrink-0">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        <input type="hidden" name="client_id" value="<?= $client_id ?>">
+                        <button type="submit" name="client_onboarding_dismiss" value="1" class="btn-close" aria-label="Don't show this here" title="Don't show this here - Onboarding stays in the client's menu" data-co-card-dismiss></button>
+                    </form>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                    <ul class="list-unstyled d-flex flex-wrap gap-1 mb-0 me-auto">
+                        <?php foreach ($onboarding['steps'] as $ob_key => $ob_step) {
+                            $ob_state = $ob_step['done'] ? 'done' : ($ob_step['skipped'] ? 'skipped' : 'todo'); ?>
+                            <li>
+                                <a href="<?= clientOnboardingUrl($client_id, $ob_key) ?>" class="itflow-gs-chip is-<?= $ob_state ?>" data-co-card-step="<?= $ob_key ?>" title="<?= escapeHtml($ob_step['title'] . ' - ' . $ob_step['status']) ?>">
+                                    <i class="fas fa-fw <?= $ob_state === 'done' ? 'fa-check' : ($ob_state === 'skipped' ? 'fa-minus' : $ob_step['icon']) ?>"></i><?= escapeHtml($ob_step['label']) ?>
                                 </a>
-
-                            </td>
-                            <td>
-                                <?php if (!empty($contact_phone)) { ?>
-                                    <?= "<i class='fa fa-fw fa-phone text-secondary'></i> $contact_phone $contact_extension" ?>
-                                <?php } ?>
-                                <?php if (!empty($contact_mobile)) { ?>
-                                    <br>
-                                    <div class="text-secondary"><i class='fa fa-fw fa-mobile-alt text-secondary'></i> <?= "$contact_mobile" ?></div>
-                                <?php } ?>
-                            </td>
-                        </tr>
-                        <?php
-                    }
-                    ?>
-
-                </table>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                    <a href="<?= clientOnboardingUrl($client_id, $ob_progress['next']) ?>" class="btn btn-primary btn-sm" data-co-card-continue>Carry on<i class="fas fa-arrow-right ms-2"></i></a>
+                </div>
             </div>
-        </div>
+        </section>
+    <?php } ?>
+
+    <?php if ($attention) { ?>
+        <section class="mb-4" aria-labelledby="ovAttention">
+            <h2 id="ovAttention" class="itflow-dash-section mb-2">Needs attention</h2>
+            <div class="card mb-0 overflow-hidden">
+                <div class="itflow-dash-rail">
+                    <?php foreach ($attention as $item) {
+                        $tone = $item['tone']; ?>
+                        <a href="<?= escapeHtml($item['url']) ?>" class="itflow-dash-rail-item" style="--itflow-dash-tone: var(--bs-<?= $tone ?>)">
+                            <span class="itflow-dash-rail-count <?= $tone_text[$tone] ?? 'text-body' ?>"><?= number_format(intval($item['count'])) ?></span>
+                            <span class="itflow-dash-rail-label"><i class="fas fa-fw fa-<?= $item['icon'] ?> <?= $tone_text[$tone] ?? '' ?>" aria-hidden="true"></i><?= escapeHtml($item['label']) ?></span>
+                            <?php if (!empty($item['detail'])) { ?><span class="itflow-dash-rail-detail"><?= escapeHtml($item['detail']) ?></span><?php } ?>
+                        </a>
+                    <?php } ?>
+                </div>
+            </div>
+        </section>
+    <?php } ?>
+
+    <h2 class="itflow-dash-section mb-2">Technical</h2>
+
+    <div class="row g-3 mb-3">
+        <?php if ($open_tickets !== null) { ?>
+            <div class="col-xl-8">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex flex-wrap align-items-center gap-2">
+                        <h3 class="card-title mb-0 me-auto">Open tickets</h3>
+                        <span class="small text-body-secondary"><?= $open_tickets['opened_30'] ?> opened, <?= $open_tickets['resolved_30'] ?> resolved in the last 30 days</span>
+                        <?php if ($open_tickets['total']) { ?><a class="small ms-2" href="tickets.php?client_id=<?= $client_id ?>">View all <?= $open_tickets['total'] ?></a><?php } ?>
+                    </div>
+                    <?php if ($open_tickets['tickets']) { ?>
+                        <div class="list-group list-group-flush">
+                            <?php foreach ($open_tickets['tickets'] as $ticket) {
+                                $last_activity = $ticket['ticket_updated_at'] ?: $ticket['ticket_created_at'];
+                                $ticket_who = trim(implode(', ', array_filter([$ticket['contact_name'], $ticket['user_name'] ? 'assigned to ' . $ticket['user_name'] : 'unassigned'])));
+                                ?>
+                                <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= intval($ticket['ticket_id']) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2">
+                                    <span class="itflow-dash-dot bg-<?= $priority_colors[$ticket['ticket_priority']] ?? 'secondary' ?>" title="<?= escapeHtml($ticket['ticket_priority']) ?> priority"></span>
+                                    <span class="flex-grow-1 overflow-hidden">
+                                        <span class="d-block text-truncate"><span class="small text-body-secondary me-2"><?= escapeHtml($ticket['ticket_prefix'] . $ticket['ticket_number']) ?></span><?= escapeHtml($ticket['ticket_subject']) ?></span>
+                                        <span class="d-block small text-body-secondary text-truncate"><?= escapeHtml(ucfirst($ticket_who)) ?></span>
+                                    </span>
+                                    <?php if ($ticket['sla_breached']) { ?>
+                                        <span class="badge rounded-pill text-bg-danger" title="Past SLA"><i class="fas fa-stopwatch me-1" aria-hidden="true"></i>SLA</span>
+                                    <?php } ?>
+                                    <span class="d-none d-sm-inline"><?= ticketStatusHtml($ticket['ticket_status_name'], $ticket['ticket_status_color'], 'detail') ?></span>
+                                    <span class="small text-body-secondary text-nowrap d-none d-md-inline" title="Last activity <?= escapeHtml($last_activity) ?>"><?= escapeHtml(timeAgo($last_activity)) ?></span>
+                                </a>
+                            <?php } ?>
+                        </div>
+                    <?php } else { ?>
+                        <div class="card-body text-center text-body-secondary py-5">
+                            <i class="fas fa-check-circle fa-2x mb-2 d-block text-success" aria-hidden="true"></i>
+                            No open tickets.
+                        </div>
+                    <?php } ?>
+                </div>
+            </div>
         <?php } ?>
 
-    </div>
-
-    <?php if (mysqli_num_rows($sql_favorite_assets) > 0) { ?>
-
-    <div class="col-md-4">
-
-        <div class="card card-dark mb-3">
-            <div class="card-header p-2">
-                <h5 class="card-title"><i class="fas fa-fw fa-star me-2"></i>Favorite Assets</h5>
-            </div>
-            <table class="table table-sm table-hover mb-0">
-                <?php
-
-                while ($row = mysqli_fetch_assoc($sql_favorite_assets)) {
-                    $asset_id = intval($row['asset_id']);
-                    $asset_name = escapeHtml($row['asset_name']);
-                    $asset_type = escapeHtml($row['asset_type']);
-                    $asset_icon = getAssetIcon($asset_type);
-                    $asset_make = escapeHtml($row['asset_make']);
-                    $asset_model = escapeHtml($row['asset_model']);
-
-                    ?>
-                    <tr>
-                        <td>
-                            <a href="#" class="ajax-modal"
-                                data-modal-size="lg"
-                                data-modal-url="modals/asset/asset.php?id=<?= $asset_id ?>">
-                                    <i class="fas fa-fw fa-<?= $asset_icon ?> text-dark me-1"></i><?= $asset_name ?>
-                            </a>
-                        </td>
-                        <td>
-                            <div><?= "$asset_make $asset_model"; ?></div>
-                        </td>
-                    </tr>
-                    <?php
-                }
-                ?>
-
-            </table>
-        </div>
-
-    </div>
-
-    <?php } ?>
-
-    <?php if ((mysqli_num_rows($sql_favorite_credentials) > 0) && (lookupUserPermission('module_credential'))) { ?>
-
-    <div class="col-md-4">
-
-        <div class="card card-dark mb-3">
-            <div class="card-header p-2">
-                <h5 class="card-title"><i class="fas fa-fw fa-star me-2"></i>Favorite Credentials</h5>
-            </div>
-
-            <table class="table table-sm table-hover mb-0">
-                <?php
-
-                while ($row = mysqli_fetch_assoc($sql_favorite_credentials)) {
-                    $credential_id = intval($row['credential_id']);
-                    $credential_name = escapeHtml($row['credential_name']);
-                    $credential_description = escapeHtml($row['credential_description']);
-                    $credential_uri = escapeUrl($row['credential_uri']);
-                    if (empty($credential_uri)) {
-                        $credential_uri_display = "-";
-                    } else {
-                        $credential_uri_display = "<a href='$credential_uri'>" . truncate($credential_uri,40) . "</a><button class='btn btn-sm btn-link clipboardjs' type='button' title='$credential_uri' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button>";
-                    }
-                    $credential_uri_2 = escapeUrl($row['credential_uri_2']);
-                    $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
-                    if (empty($credential_username)) {
-                        $credential_username_display = "-";
-                    } else {
-                        $credential_username_display = "$credential_username<button class='btn btn-sm btn-link clipboardjs' type='button' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
-                    }
-                    $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
-                    if (empty($credential_otp_secret)) {
-                        $otp_display = "";
-                    } else {
-                        $otp_display = "<small class='text-secondary'><span onmouseenter='showOTPViaCredentialID($credential_id)'><i class='far fa-clock text-dark'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span><small>";
-                    }
-
-                    ?>
-                    <tr>
-                        <td>
-                            <a href="#" class="ajax-modal"
-                                data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
-                                    <i class="fas fa-fw fa-key text-dark me-1"></i><?= $credential_name ?>
-                            </a>
-                        </td>
-                        <td><?= $credential_username_display ?></td>
-                        <td class="text-nowrap">
-                            <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
-                            <div><?= $otp_display ?></div>
-                        </td>
-
-                    </tr>
-                    <?php
-                }
-                ?>
-
-            </table>
-        </div>
-
-    </div>
-
-    <?php } ?>
-
-    <?php if (mysqli_num_rows($sql_shared_items) > 0) { ?>
-
-        <div class="col-md-4">
-
-            <div class="card card-dark mb-3">
-                <div class="card-header p-2">
-                    <h5 class="card-title"><i class="fa fa-fw fa-share-square me-2"></i>Shared Items</h5>
+        <div class="<?= $open_tickets !== null ? 'col-xl-4' : 'col-md-6 col-xl-4' ?>">
+            <div class="card h-100 mb-0">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title mb-0 me-auto">Quick notes</h3>
+                    <span class="small text-body-secondary" data-notes-status><?= $access['edit'] ? 'Saves when you click away' : '' ?></span>
                 </div>
-                <div class="card-body p-2">
-                    <table class="table table-borderless table-sm">
-                        <tbody>
-                        <?php
+                <div class="card-body pt-2 d-flex">
+                    <textarea class="form-control itflow-ov-notes" id="clientNotes" rows="8" placeholder="<?= $access['edit'] ? 'Gate codes, quirks, who to ask for - anything the next person should know' : 'No notes' ?>"
+                        data-client-id="<?= $client_id ?>" data-csrf="<?= $_SESSION['csrf_token'] ?>" aria-label="Quick notes" <?= $access['edit'] ? '' : 'readonly' ?>><?= $client_notes ?></textarea>
+                </div>
+            </div>
+        </div>
 
-                        while ($row = mysqli_fetch_assoc($sql_shared_items)) {
-                            $item_id = intval($row['item_id']);
-                            $item_active = escapeHtml($row['item_active']);
-                            $item_key = escapeHtml($row['item_key']);
-                            $item_type = escapeHtml($row['item_type']);
-                            $item_related_id = intval($row['item_related_id']);
-                            $item_note = escapeHtml($row['item_note']);
-                            $item_recipient = escapeHtml($row['item_recipient']);
-                            $item_views = escapeHtml($row['item_views']);
-                            $item_view_limit = escapeHtml($row['item_view_limit']);
-                            $item_created_at = escapeHtml($row['item_created_at']);
-                            $item_expire_at = escapeHtml($row['item_expire_at']);
-                            $item_expire_at_human = timeAgo($row['item_expire_at']);
-
-                            if ($item_type == 'Credential') {
-                                $share_item_sql = mysqli_query($mysqli, "SELECT credential_name FROM credentials WHERE credential_id = $item_related_id AND credential_client_id = $client_id");
-                                $share_item = mysqli_fetch_assoc($share_item_sql);
-                                $item_name = escapeHtml($share_item['credential_name']);
-                                $item_icon = "fas fa-key";
-                            } elseif ($item_type == 'Document') {
-                                $share_item_sql = mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = $item_related_id AND document_client_id = $client_id");
-                                $share_item = mysqli_fetch_assoc($share_item_sql);
-                                $item_name = escapeHtml($share_item['document_name']);
-                                $item_icon = "fas fa-folder";
-                            } elseif ($item_type == 'File') {
-                                $share_item_sql = mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = $item_related_id AND file_client_id = $client_id");
-                                $share_item = mysqli_fetch_assoc($share_item_sql);
-                                $item_name = escapeHtml($share_item['file_name']);
-                                $item_icon = "fas fa-paperclip";
-                            }
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 mb-0">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title mb-0 me-auto">Key contacts</h3>
+                    <a class="small" href="contacts.php?client_id=<?= $client_id ?>">All contacts</a>
+                </div>
+                <?php if ($overview_contacts) { ?>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($overview_contacts as $person) {
+                            $person_id = intval($person['contact_id']);
+                            $person_name = escapeHtml($person['contact_name']);
+                            $person_phone = escapeHtml(formatPhoneNumber($person['contact_phone'], $person['contact_phone_country_code']));
+                            $person_mobile = escapeHtml(formatPhoneNumber($person['contact_mobile'], $person['contact_mobile_country_code']));
+                            $person_email = escapeHtml($person['contact_email']);
                             ?>
-                            <tr>
-                                <td title="<?= $item_type ?>">
-                                    <i class="<?= $item_icon ?> me-2 text-secondary"></i><?= $item_name ?>
-                                </td>
-                                <td>
-                                    <div>Views: <?= $item_views ?></div>
-                                    <div class="text-secondary"><?= $item_recipient ?></div>
-                                </td>
-                                <td title="Expires at <?= $item_expire_at ?>">Expires <?= $item_expire_at_human ?></td>
-                                <td title="Deactivate Link">
-                                    <a class="text-danger confirm-link" href="post.php?deactivate_shared_item=<?= $item_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                        <i class="fas fa-fw fa-calendar-times me-2"></i>
-                                    </a>
-                                </td>
-                            </tr>
-
-                            <?php } ?>
-
-                        </tbody>
-
-                    </table>
-                </div>
-            </div>
-        </div>
-
-    <?php } ?>
-
-    <?php
-    if (mysqli_num_rows($sql_domains_expiring) > 0
-        || mysqli_num_rows($sql_certificates_expiring) > 0
-        || mysqli_num_rows($sql_asset_warranties_expiring) > 0
-        || mysqli_num_rows($sql_asset_retire) > 0
-        || mysqli_num_rows($sql_licenses_expiring) > 0
-    ) { ?>
-
-        <div class="col-md-4">
-
-            <div class="card card-dark mb-3">
-                <div class="card-header p-2">
-                    <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning me-2"></i>Expiring in the Next 45 Days</h5>
-                </div>
-                <div class="card-body p-2">
-
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_domains_expiring)) {
-                        $domain_id = intval($row['domain_id']);
-                        $domain_name = escapeHtml($row['domain_name']);
-                        $domain_expire = escapeHtml($row['domain_expire']);
-                        $domain_expire_human = timeAgo($row['domain_expire']);
-
-                        ?>
-                        <p class="mb-1">
-                            <i class="fa fa-fw fa-globe text-secondary me-1"></i>
-                            <a href="domains.php?client_id=<?= $client_id ?>&q=<?= $domain_name ?>">Domain: <?= $domain_name ?></a>
-                            <span>-- <?= $domain_expire ?> (<?= $domain_expire_human ?>)</span>
-                        </p>
-                        <?php
-                    }
-                    ?>
-
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_certificates_expiring)) {
-                        $certificate_id = intval($row['certificate_id']);
-                        $certificate_name = escapeHtml($row['certificate_name']);
-                        $certificate_expire = escapeHtml($row['certificate_expire']);
-                        $certificate_expire_human = timeAgo($row['certificate_expire']);
-
-                        ?>
-                        <p class="mb-1">
-                            <i class="fa fa-fw fa-lock text-secondary me-1"></i>
-                            <a href="certificates.php?client_id=<?= $client_id ?>&q=<?= $certificate_name ?>">Certificate: <?= $certificate_name ?></a>
-                            <span>-- <?= $certificate_expire ?> (<?= $certificate_expire_human ?>)</span>
-                        </p>
-                        <?php
-                    }
-                    ?>
-
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_asset_warranties_expiring)) {
-                        $asset_id = intval($row['asset_id']);
-                        $asset_name = escapeHtml($row['asset_name']);
-                        $asset_warranty_expire = escapeHtml($row['asset_warranty_expire']);
-                        $asset_warranty_expire_human = timeAgo($row['asset_warranty_expire']);
-
-                        ?>
-                        <p class="mb-1">
-                            <i class="fa fa-fw fa-laptop text-secondary me-1"></i>
-                            <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">Asset Warranty: <?= $asset_name ?></a>
-                            <span>-- <?= $asset_warranty_expire ?> (<?= $asset_warranty_expire_human ?>)</span>
-                        </p>
-
-
-                        <?php
-                    }
-                    ?>
-
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_asset_retire)) {
-                        $asset_id = intval($row['asset_id']);
-                        $asset_name = escapeHtml($row['asset_name']);
-                        $asset_install_date = escapeHtml($row['asset_install_date']);
-                        $asset_install_date_human = timeAgo($row['asset_install_date']);
-
-                        ?>
-                        <p class="mb-1">
-                            <i class="fa fa-fw fa-laptop text-secondary me-1"></i>
-                            <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">Asset Retire: <?= $asset_name ?></a>
-                            <span>-- <?= $asset_install_date ?> (<?= $asset_install_date_human ?>)</span>
-                        </p>
-
-                        <?php
-                    }
-                    ?>
-
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_licenses_expiring)) {
-                        $software_id = intval($row['software_id']);
-                        $software_name = escapeHtml($row['software_name']);
-                        $software_expire = escapeHtml($row['software_expire']);
-                        $software_expire_human = timeAgo($row['software_expire']);
-
-                        ?>
-                        <p class="mb-1">
-                            <i class="fa fa-fw fa-cube text-secondary me-1"></i>
-                            <a href="software.php?client_id=<?= $client_id ?>&q=<?= $software_name ?>">License: <?= $software_name ?></a>
-                            <span>-- <?= $software_expire ?> (<?= $software_expire_human ?>)</span>
-                        </p>
-
-                        <?php
-                    }
-                    ?>
-
-                </div>
-            </div>
-        </div>
-
-    <?php } ?>
-
-
-    <?php
-    if (mysqli_num_rows($sql_domains_expired) > 0
-        || mysqli_num_rows($sql_certificates_expired) > 0
-        || mysqli_num_rows($sql_asset_warranties_expired) > 0
-        || mysqli_num_rows($sql_asset_retired) > 0
-        || mysqli_num_rows($sql_licenses_expired) > 0
-    )
-    { ?>
-
-        <div class="col-md-4">
-
-            <div class="card card-dark mb-3">
-                <div class="card-header p-2">
-                    <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-danger me-2"></i>Expired</h5>
-                </div>
-                <div class="card-body p-2">
-
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_domains_expired)) {
-                        $domain_id = intval($row['domain_id']);
-                        $domain_name = escapeHtml($row['domain_name']);
-                        $domain_expire = escapeHtml($row['domain_expire']);
-                        $domain_expire_human = timeAgo($row['domain_expire']);
-
-                        ?>
-                        <p class="mb-1">
-                            <i class="fa fa-fw fa-globe text-secondary me-1"></i>
-                            <a href="domains.php?client_id=<?= $client_id ?>&q=<?= $domain_name ?>">Domain: <?= $domain_name ?></a>
-                            <span>-- <?= $domain_expire ?> (<?= $domain_expire_human ?>)</span>
-                        </p>
-                        <?php
-                    }
-                    ?>
-
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_certificates_expired)) {
-                        $certificate_id = intval($row['certificate_id']);
-                        $certificate_name = escapeHtml($row['certificate_name']);
-                        $certificate_expire = escapeHtml($row['certificate_expire']);
-                        $certificate_expire_human = timeAgo($row['certificate_expire']);
-
-                        ?>
-                        <p class="mb-1">
-                            <i class="fa fa-fw fa-lock text-secondary me-1"></i>
-                            <a href="certificates.php?client_id=<?= $client_id ?>&q=<?= $certificate_name ?>">Certificate: <?= $certificate_name ?></a>
-                            <span>-- <?= $certificate_expire ?> (<?= $certificate_expire_human ?>)</span>
-                        </p>
-                        <?php
-                    }
-                    ?>
-
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_asset_warranties_expired)) {
-                        $asset_id = intval($row['asset_id']);
-                        $asset_name = escapeHtml($row['asset_name']);
-                        $asset_warranty_expire = escapeHtml($row['asset_warranty_expire']);
-                        $asset_warranty_expire_human = timeAgo($row['asset_warranty_expire']);
-
-                        ?>
-                        <p class="mb-1">
-                            <i class="fa fa-fw fa-laptop text-secondary me-1"></i>Asset Warranty:
-                            <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>"><?= $asset_name ?></a>
-                            <span>-- <?= $asset_warranty_expire ?> (<?= $asset_warranty_expire_human ?>)</span>
-                        </p>
-
-
-                        <?php
-                    }
-                    ?>
-
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_asset_retired)) {
-                        $asset_id = intval($row['asset_id']);
-                        $asset_name = escapeHtml($row['asset_name']);
-                        $asset_install_date = escapeHtml($row['asset_install_date']);
-                        $asset_install_date_human = timeAgo($row['asset_install_date']);
-
-                        ?>
-                        <p class="mb-1">
-                            <i class="fa fa-fw fa-laptop text-secondary me-1"></i>
-                            <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">Asset Retire: <?= $asset_name ?></a>
-                            <span>-- <?= $asset_install_date ?> (<?= $asset_install_date_human ?>)</span>
-                        </p>
-
-                        <?php
-                    }
-                    ?>
-
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_licenses_expired)) {
-                        $software_id = intval($row['software_id']);
-                        $software_name = escapeHtml($row['software_name']);
-                        $software_expire = escapeHtml($row['software_expire']);
-                        $software_expire_human = timeAgo($row['software_expire']);
-
-                        ?>
-                        <p class="mb-1">
-                            <i class="fa fa-fw fa-cube text-secondary me-1"></i>
-                            <a href="software.php?client_id=<?= $client_id ?>&q=<?= $software_name ?>">Software: <?= $software_name ?></a>
-                            <span>-- <?= $software_expire ?> (<?= $software_expire_human ?>)</span>
-                        </p>
-
-                        <?php
-                    }
-                    ?>
-
-                </div>
-            </div>
-        </div>
-
-    <?php } ?>
-
-    <?php if (mysqli_num_rows($sql_stale_tickets) > 0) { ?>
-
-        <!-- Stale Tickets -->
-
-        <div class="col-md-4">
-
-            <div class="card card-dark mb-3">
-                <div class="card-header p-2">
-                    <h5 class="card-title"><i class="fa fa-fw fa-life-ring me-2"></i>Stale Tickets <small>(Not updated within 3 days)</small></h5>
-                </div>
-                <table class="table table table-sm table-hover mb-0">
-                    <tbody>
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_stale_tickets)) {
-                        $ticket_id = intval($row['ticket_id']);
-                        $ticket_prefix = escapeHtml($row['ticket_prefix']);
-                        $ticket_number = intval($row['ticket_number']);
-                        $ticket_subject = escapeHtml($row['ticket_subject']);
-                        $ticket_created_at = escapeHtml($row['ticket_created_at']);
-                        $ticket_created_at_human = timeAgo($row['ticket_created_at']);
-
-                        ?>
-                        <tr>
-                            <td><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= "$ticket_prefix$ticket_number" ?></a></td>
-                            <td><?= $ticket_subject ?></td>
-                            <td><?= $ticket_created_at_human ?> <small class="text-muted"><?= $ticket_created_at ?></small></td>
-                        </tr>
-
-                        <?php
-                    }
-                    ?>
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-    <?php } ?>
-
-    <?php if (mysqli_num_rows($sql_recent_activities) > 0) { ?>
-
-        <!-- Recent Activities -->
-
-        <div class="col-md-6">
-
-            <div class="card card-dark mb-3">
-                <div class="card-header p-2">
-                    <h5 class="card-title"><i class="fa fa-fw fa-history me-2"></i>Recent Activities <small>(Last 10 tasks)</small></h5>
-                </div>
-                <table class="table table-sm table-hover mb-0">
-                    <tbody>
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_recent_activities)) {
-                        $log_created_at_time_ago = timeAgo($row['log_created_at']);
-                        $log_description = escapeHtml($row['log_description']);
-
-                        ?>
-                        <tr>
-                            <td class="text-nowrap text-secondary"><?= $log_created_at_time_ago ?></td>
-                            <td><?= $log_description ?></td>
-                        </tr>
-
-                        <?php
-                    }
-                    ?>
-
-                    </tbody>
-                </table>
-                <?php if ($session_user_role == 3) { ?>
-                <div class="card-footer p-2">
-                    <a href="../admin/audit_logs.php?client=<?= $client_id ?>">See More...</a>
-                </div>
+                            <div class="list-group-item d-flex gap-3 py-2">
+                                <?= contactAvatar($client_id, $person_id, $person['contact_name'], $person['contact_photo']) ?>
+                                <div class="overflow-hidden flex-grow-1">
+                                    <a class="ajax-modal fw-semibold" href="#" data-modal-url="modals/contact/contact.php?client_id=<?= $client_id ?>&id=<?= $person_id ?>" data-modal-size="lg"><?= $person_name ?></a>
+                                    <span class="ms-1"><?= contactFlagPills($person, false) ?></span>
+                                    <?php if ($person['contact_title']) { ?><div class="small text-body-secondary text-truncate"><?= escapeHtml($person['contact_title']) ?></div><?php } ?>
+                                    <div class="small d-flex flex-wrap column-gap-3">
+                                        <?php if ($person_phone) { ?><a class="text-reset text-decoration-none text-nowrap" href="tel:<?= escapeHtml(preg_replace('/[^0-9+]/', '', (string) $person['contact_phone'])) ?>"><i class="fas fa-fw fa-phone text-body-secondary me-1" aria-hidden="true"></i><?= $person_phone ?><?= $person['contact_extension'] ? ' x' . escapeHtml($person['contact_extension']) : '' ?></a><?php } ?>
+                                        <?php if ($person_mobile) { ?><a class="text-reset text-decoration-none text-nowrap" href="tel:<?= escapeHtml(preg_replace('/[^0-9+]/', '', (string) $person['contact_mobile'])) ?>"><i class="fas fa-fw fa-mobile-alt text-body-secondary me-1" aria-hidden="true"></i><?= $person_mobile ?></a><?php } ?>
+                                    </div>
+                                    <?php if ($person_email) { ?>
+                                        <div class="small d-flex align-items-center">
+                                            <a class="text-reset text-decoration-none text-truncate" href="mailto:<?= $person_email ?>"><i class="far fa-fw fa-envelope text-body-secondary me-1" aria-hidden="true"></i><?= $person_email ?></a>
+                                            <button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= $person_email ?>"><i class="far fa-copy"></i></button>
+                                        </div>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                <?php } else { ?>
+                    <div class="card-body text-center text-body-secondary py-4 small">
+                        Mark contacts as primary, billing, technical or important and they show here.
+                    </div>
                 <?php } ?>
             </div>
+        </div>
+
+        <?php if ($favorites['assets'] || $favorites['licenses'] || $favorites['credentials']) { ?>
+            <div class="col-md-6 col-xl-4">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Favorites</h3>
+                        <i class="fas fa-star text-warning" aria-hidden="true"></i>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($favorites['assets'] as $asset) {
+                            $asset_ip = escapeHtml($asset['interface_ip']); ?>
+                            <div class="list-group-item d-flex align-items-center gap-2 py-2">
+                                <i class="fas fa-fw fa-<?= getAssetIcon($asset['asset_type']) ?> text-body-secondary" title="<?= escapeHtml($asset['asset_type']) ?>"></i>
+                                <span class="flex-grow-1 overflow-hidden">
+                                    <a class="ajax-modal d-block text-truncate" href="#" data-modal-url="modals/asset/asset.php?id=<?= intval($asset['asset_id']) ?>" data-modal-size="lg"><?= escapeHtml($asset['asset_name']) ?></a>
+                                    <span class="d-block small text-body-secondary text-truncate"><?= escapeHtml(trim($asset['asset_make'] . ' ' . $asset['asset_model'])) ?></span>
+                                </span>
+                                <?php if ($asset_ip) { ?>
+                                    <span class="small text-nowrap"><?= $asset_ip ?><button type="button" class="itflow-copy clipboardjs" title="Copy IP" data-clipboard-text="<?= $asset_ip ?>"><i class="far fa-copy"></i></button></span>
+                                <?php } ?>
+                            </div>
+                        <?php } ?>
+                        <?php foreach ($favorites['licenses'] as $favorite_license) {
+                            $favorite_renewal = softwareRenewal($favorite_license['software_expire']); ?>
+                            <div class="list-group-item d-flex align-items-center gap-2 py-2">
+                                <i class="fas fa-fw <?= softwareTypeStyle($favorite_license['software_type'])['icon'] ?> text-body-secondary" title="License"></i>
+                                <span class="flex-grow-1 overflow-hidden">
+                                    <a class="ajax-modal d-block text-truncate" href="#" data-modal-url="modals/software/software.php?id=<?= intval($favorite_license['software_id']) ?>" data-modal-size="lg"><?= escapeHtml($favorite_license['software_name']) ?></a>
+                                    <span class="d-block small text-truncate text-<?= $favorite_renewal && $favorite_renewal['state'] !== 'active' ? $favorite_renewal['tone'] . '-emphasis' : 'body-secondary' ?>"><?= escapeHtml(implode(' · ', array_filter([$favorite_license['software_license_type'], $favorite_renewal ? $favorite_renewal['text'] : '']))) ?></span>
+                                </span>
+                                <?php if ($favorite_license['software_key']) { ?>
+                                    <span class="small text-nowrap"><?= softwareKeyHtml($favorite_license['software_key']) ?></span>
+                                <?php } ?>
+                            </div>
+                        <?php } ?>
+                        <?php foreach ($favorites['credentials'] as $credential) {
+                            $credential_id = intval($credential['credential_id']);
+                            $credential_username = credentialUsername($credential);
+                            ?>
+                            <div class="list-group-item d-flex align-items-center gap-2 py-2">
+                                <?= credentialTile($credential, 'sm') ?>
+                                <span class="flex-grow-1 min-w-0">
+                                    <a class="ajax-modal d-block text-truncate" href="#" data-modal-url="modals/credential/credential.php?id=<?= $credential_id ?>"><?= escapeHtml($credential['credential_name']) ?></a>
+                                    <span class="d-flex flex-wrap align-items-center column-gap-3 row-gap-1 small text-body-secondary">
+                                        <?php if ($credential_username !== '') { ?>
+                                            <span class="d-inline-flex align-items-center min-w-0"><?= credentialUsernameHtml($credential_username) ?></span>
+                                        <?php } ?>
+                                        <?= credentialPasswordHtml($credential_id) ?>
+                                        <?= credentialOtpHtml($credential_id, trim((string) $credential['credential_otp_secret']) !== '') ?>
+                                    </span>
+                                </span>
+                            </div>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <?php if ($upcoming) { ?>
+            <div class="col-md-6 col-xl-4">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Coming up <span class="small text-body-secondary fw-normal ms-1">14 days</span></h3>
+                        <a class="small" href="calendar.php?client_id=<?= $client_id ?>">Calendar</a>
+                    </div>
+                    <div class="itflow-dash-schedule">
+                        <?php
+                        $upcoming_day = null;
+                        foreach (array_slice($upcoming, 0, 10) as $item) {
+                            $item_day = dashboardDayLabel($item['when']);
+                            if ($item_day !== $upcoming_day) {
+                                $upcoming_day = $item_day; ?>
+                                <div class="itflow-dash-schedule-day"><?= escapeHtml($item_day) ?></div>
+                            <?php } ?>
+                            <a class="itflow-dash-schedule-item<?= !empty($item['modal']) ? ' ajax-modal' : '' ?>" href="<?= escapeHtml($item['url']) ?>"<?php if (!empty($item['modal'])) { ?> data-modal-size="lg" data-modal-url="<?= escapeHtml($item['modal']) ?>"<?php } ?>>
+                                <span class="itflow-dash-schedule-time"><?= $item['all_day'] ? 'All day' : escapeHtml(date('g:i A', strtotime($item['when']))) ?></span>
+                                <span class="itflow-dash-schedule-mark bg-<?= ['ticket' => 'primary', 'recurring' => 'info', 'event' => 'success', 'project' => 'warning', 'service' => 'secondary'][$item['kind']] ?>"></span>
+                                <span class="flex-grow-1 overflow-hidden">
+                                    <span class="d-block text-truncate"><?php if ($item['ref']) { ?><span class="small text-body-secondary me-2"><?= escapeHtml($item['ref']) ?></span><?php } ?><?= escapeHtml($item['title']) ?></span>
+                                    <?php if ($item['detail']) { ?><span class="d-block small text-body-secondary text-truncate"><?= escapeHtml($item['detail']) ?></span><?php } ?>
+                                </span>
+                            </a>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <?php if ($open_projects && $open_projects['total']) { ?>
+            <div class="col-md-6 col-xl-4">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Projects</h3>
+                        <a class="small" href="projects.php?client_id=<?= $client_id ?>">View all <?= $open_projects['total'] ?></a>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($open_projects['projects'] as $project_id => $project) {
+                            $project_stats = $open_projects['stats'][$project_id]; ?>
+                            <a href="<?= escapeHtml(projectUrl($project_id, $client_id)) ?>" class="list-group-item list-group-item-action py-2">
+                                <span class="d-flex align-items-center gap-2">
+                                    <span class="flex-grow-1 text-truncate"><span class="small text-body-secondary me-2"><?= escapeHtml(projectReference($project)) ?></span><?= escapeHtml($project['project_name']) ?></span>
+                                    <?= projectDuePill($project) ?>
+                                </span>
+                                <div class="mt-1 small text-body-secondary"><?= projectProgressHtml($project_stats) ?></div>
+                            </a>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <?php if ($client_services && $client_services['total']) { ?>
+            <div class="col-md-6 col-xl-4">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Services</h3>
+                        <a class="small" href="services.php?client_id=<?= $client_id ?>">View all <?= $client_services['total'] ?></a>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($client_services['services'] as $service_id => $service) {
+                            $service_issues = $client_services['issues'][$service_id];
+                            $service_review = serviceReview($service);
+                            $service_danger = in_array('danger', array_column($service_issues, 'tone'), true); ?>
+                            <a href="<?= escapeHtml(serviceUrl($service_id, $client_id)) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2">
+                                <?= serviceTile($service['service_category'], 'sm') ?>
+                                <span class="flex-grow-1 overflow-hidden">
+                                    <span class="d-block text-truncate"><?= escapeHtml($service['service_name']) ?></span>
+                                    <span class="d-block small text-truncate <?= $service_issues ? ($service_danger ? 'text-danger-emphasis' : 'text-warning-emphasis') : 'text-body-secondary' ?>">
+                                        <?php if ($service_issues) { ?>
+                                            <i class="fas fa-exclamation-triangle me-1"></i><?= escapeHtml($service_issues[0]['text']) ?>
+                                        <?php } else { ?>
+                                            <?= escapeHtml($service['service_category'] ?: $service['service_importance'] . ' importance') ?><?= in_array($service_review['state'], ['overdue', 'soon'], true) ? ' · ' . escapeHtml(lcfirst($service_review['text'])) : '' ?>
+                                        <?php } ?>
+                                    </span>
+                                </span>
+                                <?php if ($service['service_importance'] === 'High') { ?><?= serviceImportancePill('High') ?><?php } ?>
+                            </a>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <?php if ($renewals !== null) { ?>
+            <div class="col-md-6 col-xl-4" id="clientRenewals">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Renewals</h3>
+                        <span class="small text-body-secondary">Expired or due in <?= $renewals['days'] ?> days</span>
+                    </div>
+                    <?php if ($renewals['items']) { ?>
+                        <div class="list-group list-group-flush">
+                            <?php foreach (array_slice($renewals['items'], 0, 8) as $item) {
+                                $expired = $item['days'] < 0;
+                                $when = $item['days'] === 0 ? 'Today' : ($expired ? 'Expired ' . timeAgo($item['date']) : 'In ' . preg_replace('/^in /', '', timeAgo($item['date'])));
+                                ?>
+                                <a href="<?= escapeHtml($item['url']) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2">
+                                    <i class="fas fa-fw fa-<?= $item['icon'] ?> text-body-secondary" aria-hidden="true"></i>
+                                    <span class="flex-grow-1 overflow-hidden">
+                                        <span class="d-block text-truncate"><?= escapeHtml($item['name']) ?></span>
+                                        <span class="d-block small text-body-secondary"><?= $item['label'] ?></span>
+                                    </span>
+                                    <span class="small text-nowrap text-end <?= $expired ? 'text-danger-emphasis' : 'text-warning-emphasis' ?>" title="<?= escapeHtml(date('M j, Y', strtotime($item['date']))) ?>"><?= escapeHtml($when) ?></span>
+                                </a>
+                            <?php } ?>
+                        </div>
+                        <?php if (count($renewals['items']) > 8) { ?>
+                            <div class="card-footer small text-body-secondary py-2"><?= count($renewals['items']) - 8 ?> more not shown</div>
+                        <?php } ?>
+                    <?php } else { ?>
+                        <div class="card-body text-center text-body-secondary py-4">
+                            <i class="fas fa-check-circle fa-2x mb-2 d-block text-success" aria-hidden="true"></i>
+                            Nothing expired or due in the next <?= $renewals['days'] ?> days.
+                        </div>
+                    <?php } ?>
+                </div>
+            </div>
+        <?php } ?>
+
+        <?php if ($asset_summary !== null && $asset_summary['total']) { ?>
+            <div class="col-md-6 col-xl-4">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Assets</h3>
+                        <a class="small" href="assets.php?client_id=<?= $client_id ?>">View all <?= $asset_summary['total'] ?></a>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($asset_summary['groups'] as $group_key => $group) {
+                            if (!$group['count']) {
+                                continue;
+                            } ?>
+                            <a href="assets.php?client_id=<?= $client_id ?>&type=<?= $group_key ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2">
+                                <i class="fas fa-fw fa-<?= $group['icon'] ?> text-body-secondary" aria-hidden="true"></i>
+                                <span class="flex-grow-1"><?= $group['label'] ?></span>
+                                <span class="fw-semibold"><?= $group['count'] ?></span>
+                            </a>
+                        <?php } ?>
+                    </div>
+                    <div class="card-footer small text-body-secondary py-2">
+                        Warranty: <?= $asset_summary['warranty_active'] ?> covered<?php if ($asset_summary['warranty_expired']) { ?>, <span class="text-danger-emphasis"><?= $asset_summary['warranty_expired'] ?> expired</span><?php } ?><?php if ($asset_summary['warranty_unknown']) { ?>, <?= $asset_summary['warranty_unknown'] ?> not recorded<?php } ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <?php if ($shared_items) { ?>
+            <div class="col-md-6 col-xl-4">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Shared links</h3>
+                        <a class="small" href="shares.php?client_id=<?= $client_id ?>">All shared links</a>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($shared_items as $item) {
+                            $item_related_id = intval($item['item_related_id']);
+                            $item_label = escapeHtml(shareName($item));
+                            $item_type_info = shareTypes()[$item['item_type']] ?? ['label' => $item['item_type'], 'icon' => 'fa-share-alt'];
+                            // Documents and files look and open as they do everywhere else
+                            if ($item['item_type'] === 'Document' && $item['item_name']) {
+                                $item_tile = documentTile('sm');
+                            } elseif ($item['item_type'] === 'File' && $item['file_ext']) {
+                                $item_tile = fileTypeTile($item['file_ext'], 'sm');
+                            } elseif ($item['item_type'] === 'Credential' && $item['credential_uri'] !== null) {
+                                $item_tile = credentialTile(['credential_name' => $item['item_name'], 'credential_uri' => $item['credential_uri'], 'credential_description' => $item['credential_description']], 'sm');
+                            } else {
+                                $item_tile = '<span class="itflow-link-icon" title="' . escapeHtml($item_type_info['label']) . '" aria-hidden="true"><i class="fas fa-fw ' . $item_type_info['icon'] . '"></i></span>';
+                            }
+                            $item_received = $item['item_type'] === 'Request' && $item['item_received_at'];
+                            ?>
+                            <div class="list-group-item d-flex align-items-center gap-2 py-2">
+                                <?= $item_tile ?>
+                                <span class="flex-grow-1 overflow-hidden">
+                                    <a class="d-block text-truncate ajax-modal" href="#" data-modal-url="modals/share/share.php?id=<?= intval($item['item_id']) ?>"><?= $item_label ?></a>
+                                    <span class="d-block small text-body-secondary text-truncate">
+                                        <?php if ($item_received) { ?>
+                                            <span class="text-warning-emphasis"><i class="fas fa-inbox me-1"></i>Sent back <?= escapeHtml(timeAgo($item['item_received_at'])) ?> - save it</span>
+                                        <?php } else { ?>
+                                            <?= escapeHtml(ucfirst(($item['item_recipient'] ? $item['item_recipient'] . ', ' : '') . strtolower(shareViewsText($item)) . ', expires ' . timeAgo($item['item_expire_at']))) ?>
+                                        <?php } ?>
+                                    </span>
+                                </span>
+                                <?php if (!$item_received && shareCanMake($item['item_type'])) { ?><a class="btn btn-sm btn-link text-danger confirm-link" href="post.php?share_revoke=<?= intval($item['item_id']) ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Turn off this link"><i class="fas fa-fw fa-unlink" aria-hidden="true"></i></a><?php } ?>
+                            </div>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 mb-0">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title mb-0 me-auto">Recent activity</h3>
+                    <a class="small" href="audit_log.php?client_id=<?= $client_id ?>">Audit log</a>
+                </div>
+                <?php if ($activity) { ?>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($activity as $log) { ?>
+                            <div class="list-group-item py-2">
+                                <div class="small"><?= escapeHtml($log['log_description']) ?></div>
+                                <div class="small text-body-secondary" title="<?= escapeHtml($log['log_created_at']) ?>"><?= escapeHtml(timeAgo($log['log_created_at'])) ?></div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                <?php } else { ?>
+                    <div class="card-body text-center text-body-secondary py-4 small">Nothing recorded yet.</div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+
+    <?php if ($money !== null || $open_invoices !== null) { ?>
+
+        <h2 class="itflow-dash-section mt-4 mb-2">Financial</h2>
+
+        <?php if ($money !== null) { ?>
+            <div class="card mb-3 overflow-hidden">
+                <div class="itflow-dash-rail itflow-ov-stats">
+                    <a href="invoices.php?client_id=<?= $client_id ?>&status=Unpaid" class="itflow-dash-rail-item">
+                        <span class="small text-body-secondary">Balance</span>
+                        <span class="itflow-dash-money-value <?= $money['overdue'] > 0.004 ? 'text-danger-emphasis' : '' ?>"><?= $money_format($money['balance']) ?></span>
+                        <span class="small <?= $money['overdue'] > 0.004 ? 'text-danger-emphasis' : 'text-body-tertiary' ?>"><?= $money['overdue'] > 0.004 ? $money_format($money['overdue']) . ' overdue' : 'Nothing overdue' ?></span>
+                    </a>
+                    <a href="income.php?client_id=<?= $client_id ?>" class="itflow-dash-rail-item">
+                        <span class="small text-body-secondary">Paid this year</span>
+                        <span class="itflow-dash-money-value"><?= $money_format($money['paid_ytd']) ?></span>
+                        <?php if ($money['paid_change'] !== null) { ?>
+                            <span class="small"><span class="fw-semibold <?= $money['paid_change'] >= 0 ? 'text-success-emphasis' : 'text-danger-emphasis' ?>"><i class="fas fa-arrow-<?= $money['paid_change'] >= 0 ? 'up' : 'down' ?> me-1" aria-hidden="true"></i><?= abs($money['paid_change']) ?>%</span> <span class="text-body-tertiary">vs last year</span></span>
+                        <?php } else { ?>
+                            <span class="small text-body-tertiary">Nothing last year to compare</span>
+                        <?php } ?>
+                    </a>
+                    <a href="recurring_invoices.php?client_id=<?= $client_id ?>" class="itflow-dash-rail-item">
+                        <span class="small text-body-secondary">Recurring</span>
+                        <span class="itflow-dash-money-value"><?= $money_format($money['recurring']) ?><span class="fs-6 fw-normal text-body-secondary">/mo</span></span>
+                        <span class="small text-body-tertiary"><?= $num_recurring_invoices ?> recurring invoice<?= $num_recurring_invoices === 1 ? '' : 's' ?></span>
+                    </a>
+                    <?php if ($access['tickets'] || $money['unbilled_expenses']) {
+                        $unbilled_total = $money['unbilled_value'] + $money['unbilled_expense_value']; ?>
+                        <a href="unbilled_time.php?client_id=<?= $client_id ?>" class="itflow-dash-rail-item">
+                            <span class="small text-body-secondary">Not yet invoiced</span>
+                            <span class="itflow-dash-money-value <?= $unbilled_total > 0 ? 'text-info-emphasis' : '' ?>"><?= $money_format($unbilled_total) ?></span>
+                            <span class="small text-body-tertiary">
+                                <?php if ($access['tickets']) { ?><?= $money['unbilled_tickets'] ?> ticket<?= $money['unbilled_tickets'] === 1 ? '' : 's' ?><?= $money['unbilled_seconds'] && !$money['unbilled_expenses'] ? ', ' . dashboardDuration($money['unbilled_seconds']) . ' logged' : '' ?><?php } ?><?= $access['tickets'] && $money['unbilled_expenses'] ? ', ' : '' ?><?= $money['unbilled_expenses'] ? $money['unbilled_expenses'] . ' expense' . ($money['unbilled_expenses'] === 1 ? '' : 's') : '' ?>
+                            </span>
+                        </a>
+                    <?php } ?>
+                    <?php if ($access['sales'] && contractsReady()) {
+                        $overview_contracts = contractClientActive($client_id);
+                        $overview_contract = $overview_contracts[0] ?? null;
+                        // Prepaid hours left across them
+                        $overview_hours = contractHoursLeftFor(array_column($overview_contracts, 'contract_id'));
+                        $overview_hours_left = round(array_sum(array_column($overview_hours, 'left')), 2); ?>
+                        <a href="<?= $overview_contract && count($overview_contracts) === 1 ? 'contract.php?client_id=' . $client_id . '&contract_id=' . intval($overview_contract['contract_id']) : 'contracts.php?client_id=' . $client_id ?>" class="itflow-dash-rail-item" data-overview-contract>
+                            <span class="small text-body-secondary">Contract</span>
+                            <?php if ($overview_contract) {
+                                $overview_state = contractState($overview_contract); ?>
+                                <span class="fs-5 fw-semibold text-truncate" title="<?= escapeHtml($overview_contract['contract_name']) ?>"><?= escapeHtml($overview_contract['contract_name']) ?></span>
+                                <span class="small <?= in_array($overview_state['key'], ['ending', 'renewing'], true) ? 'text-' . ($overview_state['key'] === 'ending' ? 'warning' : 'primary') . '-emphasis' : 'text-body-tertiary' ?>"><?= escapeHtml($overview_state['when']) ?><?= count($overview_contracts) > 1 ? ' · ' . (count($overview_contracts) - 1) . ' more' : '' ?></span>
+                                <?php if ($overview_hours) { ?>
+                                    <span class="small <?= $overview_hours_left > 0 ? 'text-body-tertiary' : 'text-warning-emphasis' ?>" data-overview-hours><i class="fas fa-hourglass-half me-1" aria-hidden="true"></i><?= escapeHtml(contractHoursText($overview_hours_left)) ?> prepaid left</span>
+                                <?php } ?>
+                            <?php } else { ?>
+                                <span class="fs-5 fw-semibold text-body-tertiary">None</span>
+                                <span class="small text-body-tertiary">No contract in force</span>
+                            <?php } ?>
+                        </a>
+                    <?php } ?>
+                    <div class="itflow-dash-rail-item">
+                        <?php
+                        // The contract in force sets the rate and net terms, where it has them - else the defaults
+                        $overview_terms = contractClientTerms($client_id);
+                        $overview_rate = $overview_terms['rate'];
+                        [$overview_net, $overview_net_from] = $overview_terms['net_terms'];
+                        [$overview_after, $overview_after_from] = $overview_terms['after_hours'];
+                        $overview_from = $overview_rate['contract_name'] ?: ($overview_net_from ?: $overview_after_from);
+                        ?>
+                        <span class="small text-body-secondary">Terms</span>
+                        <span class="itflow-dash-money-value"><?= $money_format($overview_rate['rate']) ?><span class="fs-6 fw-normal text-body-secondary">/hr</span></span>
+                        <span class="small text-body-tertiary"><?= $overview_net ? "Net $overview_net" : 'Due on receipt' ?><?= $overview_after > 0 ? ', ' . $money_format($overview_after) . '/hr after hours' : '' ?><?= $client_tax_id_number ? ", tax ID $client_tax_id_number" : '' ?></span>
+                        <?php if ($overview_from !== '') { ?>
+                            <span class="small text-body-tertiary text-truncate" data-overview-terms-contract title="While it is in force, the contract's rates and net terms apply - the defaults for what it leaves empty"><i class="fas fa-file-contract me-1" aria-hidden="true"></i>From <?= escapeHtml($overview_from) ?></span>
+                        <?php } else { ?>
+                            <span class="small text-body-tertiary text-truncate" data-overview-terms-default title="No contract in force sets them - the defaults in Admin > Settings > Defaults apply"><i class="fas fa-sliders-h me-1" aria-hidden="true"></i>The defaults</span>
+                        <?php } ?>
+                        <?php
+                        $overview_tax = taxClient($client_id);
+                        $overview_rate = taxRow(taxDefaultFor($client_id));
+                        ?>
+                        <span class="small <?= $overview_tax['exempt'] && $overview_tax['expired'] ? 'text-warning-emphasis' : 'text-body-tertiary' ?>"<?= $overview_tax['exempt'] ? ' title="' . escapeHtml(taxExemptText($overview_tax)) . '"' : '' ?>>
+                            <?= $overview_tax['exempt'] ? ($overview_tax['expired'] ? 'Tax exempt - certificate expired' : 'Tax exempt') : ($overview_rate ? 'Tax: ' . escapeHtml(taxLabel($overview_rate)) : 'No tax rate') ?>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <div class="row g-3 mb-3">
+            <?php if ($open_invoices !== null) { ?>
+                <div class="col-xl-8">
+                    <div class="card h-100 mb-0">
+                        <div class="card-header d-flex align-items-center">
+                            <h3 class="card-title mb-0 me-auto">Unpaid invoices</h3>
+                            <a class="small" href="invoices.php?client_id=<?= $client_id ?>">All invoices</a>
+                        </div>
+                        <?php if ($open_invoices['invoices']) { ?>
+                            <div class="list-group list-group-flush">
+                                <?php foreach ($open_invoices['invoices'] as $invoice) {
+                                    $days_over = (int) (new DateTime('today'))->diff(new DateTime($invoice['invoice_due']))->format('%r%a') * -1;
+                                    ?>
+                                    <a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?= intval($invoice['invoice_id']) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2">
+                                        <span class="flex-grow-1 overflow-hidden">
+                                            <span class="d-block text-truncate"><span class="fw-semibold me-2"><?= escapeHtml($invoice['invoice_prefix'] . $invoice['invoice_number']) ?></span><span class="text-body-secondary"><?= escapeHtml($invoice['invoice_scope']) ?></span></span>
+                                            <span class="d-block small <?= $days_over > 0 ? 'text-danger-emphasis' : 'text-body-secondary' ?>">
+                                                <?= $days_over > 0 ? "$days_over day" . ($days_over === 1 ? '' : 's') . ' overdue' : 'Due ' . escapeHtml(date('M j', strtotime($invoice['invoice_due']))) ?>
+                                                <?= $invoice['invoice_status'] === 'Partial' ? ', part paid' : '' ?>
+                                            </span>
+                                        </span>
+                                        <span class="fw-semibold text-nowrap"><?= $money_format($invoice['balance']) ?></span>
+                                    </a>
+                                <?php } ?>
+                            </div>
+                            <?php if ($open_invoices['total'] > count($open_invoices['invoices'])) { ?>
+                                <a class="card-footer small text-decoration-none py-2" href="invoices.php?client_id=<?= $client_id ?>&status=Unpaid"><?= $open_invoices['total'] - count($open_invoices['invoices']) ?> more unpaid</a>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <div class="card-body text-center text-body-secondary py-4">
+                                <i class="fas fa-check-circle fa-2x mb-2 d-block text-success" aria-hidden="true"></i>
+                                All invoices are paid.
+                            </div>
+                        <?php } ?>
+                    </div>
+                </div>
+
+                <div class="col-xl-4">
+                    <div class="card h-100 mb-0">
+                        <div class="card-header d-flex align-items-center">
+                            <h3 class="card-title mb-0 me-auto">Recurring invoices</h3>
+                            <a class="small" href="recurring_invoices.php?client_id=<?= $client_id ?>">View all</a>
+                        </div>
+                        <?php if ($recurring_invoices) { ?>
+                            <div class="list-group list-group-flush">
+                                <?php foreach ($recurring_invoices as $recurring) { ?>
+                                    <a href="recurring_invoice.php?client_id=<?= $client_id ?>&recurring_invoice_id=<?= intval($recurring['recurring_invoice_id']) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2">
+                                        <span class="flex-grow-1 overflow-hidden">
+                                            <span class="d-block text-truncate"><?= escapeHtml($recurring['recurring_invoice_scope'] ?: $recurring['recurring_invoice_prefix'] . $recurring['recurring_invoice_number']) ?></span>
+                                            <span class="d-block small text-body-secondary"><?= recurringInvoiceFrequencies()[$recurring['recurring_invoice_frequency']] ?? 'Monthly' ?>, next <?= escapeHtml(date('M j', strtotime($recurring['recurring_invoice_next_date']))) ?></span>
+                                        </span>
+                                        <span class="fw-semibold text-nowrap"><?= $money_format($recurring['recurring_invoice_amount']) ?></span>
+                                    </a>
+                                <?php } ?>
+                            </div>
+                        <?php } else { ?>
+                            <div class="card-body text-center text-body-secondary py-4 small">No recurring invoices.</div>
+                        <?php } ?>
+                    </div>
+                </div>
+            <?php } ?>
+
+            <?php if ($chart_data) { ?>
+                <div class="col-12">
+                    <div class="card mb-0">
+                        <div class="card-header d-flex align-items-center">
+                            <h3 class="card-title mb-0 me-auto">Invoiced and paid</h3>
+                            <span class="small text-body-secondary">Last 12 months</span>
+                        </div>
+                        <?php if (array_sum($chart_data['monthly']['invoiced']) + array_sum($chart_data['monthly']['paid']) > 0) { ?>
+                            <div class="card-body">
+                                <div class="itflow-dash-chart"><canvas id="clientMonthly" aria-label="Invoiced and paid per month"></canvas></div>
+                            </div>
+                        <?php } else { ?>
+                            <div class="card-body text-center text-body-secondary py-4 small">Nothing invoiced or paid in the last 12 months.</div>
+                        <?php } ?>
+                    </div>
+                </div>
+            <?php } ?>
         </div>
 
     <?php } ?>
 
 </div>
 
-<!-- Include scripts to fetch TOTP codes and passwords via the credential ID -->
-<script src="js/credential_show_otp_via_id.js"></script>
-<script src="js/credential_show_password_via_id.js"></script>
 
-<script>
-    function updateClientNotes(client_id) {
-        var notes = document.getElementById("clientNotes").value;
+<?php require_once "../includes/footer.php"; ?>
 
-        // Send a POST request to ajax.php as ajax.php with data client_set_notes=true, client_id=NUM, notes=NOTES
-        itflowPost(
-            "ajax.php",
-            {
-                client_set_notes: 'TRUE',
-                csrf_token: '<?= $_SESSION['csrf_token'] ?>',
-                client_id: client_id,
-                notes: notes
-            }
-        )
-
-
-    }
-</script>
-
-<?php
-
-require_once "../includes/footer.php";
+<?php if ($chart_data) { ?>
+    <script>window.itflowClientOverviewData = <?= json_encode($chart_data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_INVALID_UTF8_SUBSTITUTE) ?>;</script>
+<?php } ?>
+<script src="/js/client_overview.js"></script>

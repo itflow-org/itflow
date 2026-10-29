@@ -1,14 +1,59 @@
 <?php
 /*
  * Client Portal
- * HTML Header
+ * HTML Header - the portal's shell: a light top bar carrying the company's
+ * logo (or its initials on the theme colour), the sections this contact can
+ * open, New ticket and their account menu. On a phone the sections move to
+ * a bar along the bottom and a menu that slides in.
+ *
+ * Portal pages set a Content-Security-Policy of default-src 'self', so nothing
+ * in here - or in a page that sets it - may use an inline script or a style=""
+ * attribute: behaviour lives in js/portal.js, looks in css/itflow_custom.css.
  */
 
 header("X-Frame-Options: DENY"); // Legacy
+
+// Hold the page until it is done, so a page that turns a contact away after
+// including this (enforceContactCan(), portalBillingGate(), portalItGate())
+// can still send them on with a real redirect - not the script fallback the
+// portal's policy blocks, which left the bare header on screen
+ob_start();
+
+// A page that turned the policy on keeps it, with data: images allowed - the
+// arrows on drop-downs, ticks in checkboxes and the close crosses are data:
+// SVGs in Bootstrap's CSS, which default-src 'self' alone blocked. A page
+// that takes a card sets $portal_stripe first: the same policy, with
+// Stripe's script, frames and API let in - Stripe's own list, from
+// docs.stripe.com/security/guide (Stripe.js, Checkout and Link)
+if (!empty($portal_stripe)) {
+    header("Content-Security-Policy: default-src 'self'; img-src 'self' data: https://*.stripe.com https://*.link.com; "
+        . "script-src 'self' https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com; "
+        . "frame-src https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://link.com https://*.link.com; "
+        . "connect-src 'self' https://api.stripe.com https://checkout.stripe.com https://link.com https://*.link.com");
+} else {
+    foreach (headers_list() as $portal_header) {
+        if (stripos($portal_header, 'Content-Security-Policy:') === 0) {
+            // A page showing HTML written elsewhere (a document) sets
+            // $portal_csp_inline_styles: its tables and colours are inline
+            // styles, already through HTMLPurifier's CSS filter
+            header("Content-Security-Policy: default-src 'self'; img-src 'self' data:" . (!empty($portal_csp_inline_styles) ? "; style-src 'self' 'unsafe-inline'" : ''));
+            break;
+        }
+    }
+}
+
+$portal_page = basename($_SERVER['PHP_SELF']);
+$portal_nav = portalNav();
+
+// Dark mode is the contact's own choice, kept in a cookie by js/portal.js -
+// read here so the first paint is already the right colour
+$portal_dark = ($_COOKIE['itflow_portal_theme'] ?? '') === 'dark';
+
+$portal_contact_name = (string) ($contact['contact_name'] ?? '');
 ?>
 
 <!DOCTYPE html>
-<html lang="en" data-lte-print="plain">
+<html lang="en" data-bs-theme="<?= $portal_dark ? 'dark' : 'light' ?>" data-lte-color-mode="off" data-lte-print="plain">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -17,6 +62,7 @@ header("X-Frame-Options: DENY"); // Legacy
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
+    <meta name="color-scheme" content="<?= $portal_dark ? 'dark' : 'light' ?>">
 
     <!-- Favicon: If Fav Icon exists, else use the default one -->
     <?php if(file_exists($_SERVER['DOCUMENT_ROOT'] . '/uploads/favicon.ico')) { ?>
@@ -35,9 +81,8 @@ header("X-Frame-Options: DENY"); // Legacy
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte-colors-v3.min.css">
     <link rel="stylesheet" href="/libs/sweetalert2/css/sweetalert2.min.css">
 
-    <!-- ITFlow style: the AdminLTE 3 compatibility layer and the theme colours. Must load
-         last so it wins, and must load HERE too - it used to be on the agent header only,
-         which left this portal without .text-bold, the bg-dark text pairing or any theme. -->
+    <!-- ITFlow style: the AdminLTE 3 compatibility layer, the theme colours and the
+         portal's own look. Must load last so it wins. -->
     <link rel="stylesheet" href="/css/itflow_custom.css">
 
     <?php /* Only the pages that set this flag before including inc_all.php pull
@@ -59,134 +104,134 @@ header("X-Frame-Options: DENY"); // Legacy
          (default-src 'self') would block outright. Empty when the company has
          no country set, which js/phone_inputs.js reads as "let the library
          decide". */ ?>
-<body class="d-flex flex-column min-vh-100 bg-body-tertiary theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>"
+<body class="itflow-portal d-flex flex-column min-vh-100 bg-body-tertiary theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>"
       data-itflow-phone-country="<?= escapeHtml($country_iso2_array[$session_company_country] ?? '') ?>">
 
-<!-- Navbar -->
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="index.php"><?= escapeHtml($session_company_name) ?></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
-            <i class="fas fa-bars text-white"></i>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item <?php if (basename($_SERVER['PHP_SELF']) == "index.php") {echo "active";} ?>">
-                    <a class="nav-link" href="/client/index.php">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "tickets.php" || basename($_SERVER['PHP_SELF']) == "ticket_add.php" || basename($_SERVER['PHP_SELF']) == "ticket.php") {echo "active";} ?>" href="/client/tickets.php">Tickets</a>
-                </li>
-
-                <?php if (contactCan('accounting') && $config_module_enable_accounting == 1) { ?>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle <?= in_array(basename($_SERVER['PHP_SELF']), ['invoices.php', 'quotes.php', 'autopay.php', 'statement.php']) ? 'active' : '' ?>" href="#" id="navbarDropdown1" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Finance
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
-                            <a class="dropdown-item" href="/client/invoices.php">Invoices</a>
-                            <a class="dropdown-item" href="/client/recurring_invoices.php">Recurring Invoices</a>
-                            <a class="dropdown-item" href="/client/quotes.php">Quotes</a>
-                            <a class="dropdown-item" href="/client/statement.php">Account Statement</a>
-                            <a class="dropdown-item" href="/client/saved_payment_methods.php">Saved Payments</a>
-                        </div>
-                    </li>
-                <?php } ?>
-
-                <?php if ($config_module_enable_itdoc && contactCan('itdoc')) { ?>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle <?= in_array(basename($_SERVER['PHP_SELF']), ['documents.php', 'contacts.php', 'domains.php', 'certificates.php']) ? 'active' : '' ?>" href="#" id="navbarDropdown2" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Technical
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
-                            <a class="dropdown-item" href="/client/contacts.php">Contacts</a>
-                            <a class="dropdown-item" href="/client/assets.php">Assets</a>
-                            <a class="dropdown-item" href="/client/documents.php">Documents</a>
-                            <a class="dropdown-item" href="/client/domains.php">Domains</a>
-                            <a class="dropdown-item" href="/client/certificates.php">Certificates</a>
-                            <a class="dropdown-item" href="/client/ticket_view_all.php">All tickets</a>
-                        </div>
-                    </li>
-                <?php } ?>
-
-                <?php
-                $sql_custom_links = mysqli_query($mysqli, "SELECT custom_link_name, custom_link_new_tab, custom_link_uri FROM custom_links WHERE custom_link_location = 3 AND custom_link_archived_at IS NULL
-                    ORDER BY custom_link_order ASC, custom_link_name ASC"
-                );
-
-                while ($row = mysqli_fetch_assoc($sql_custom_links)) {
-                    $custom_link_name = escapeHtml($row['custom_link_name']);
-                    $custom_link_uri = escapeHtml($row['custom_link_uri']);
-                    $custom_link_new_tab = intval($row['custom_link_new_tab']);
-                    if ($custom_link_new_tab == 1) {
-                        $target = "target='_blank' rel='noopener noreferrer'";
-                    } else {
-                        $target = "";
-                    }
-
-                    ?>
-
-                    <li class="nav-item">
-                        <a href="<?= $custom_link_uri ?>" <?= $target ?> class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == basename($custom_link_uri)) { echo "active"; } ?>"><?= $custom_link_name ?></a>
-                    </li>
-
-                <?php } ?>
-
-            </ul><!-- End left nav -->
-
-            <ul class="nav navbar-nav ms-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                        <?= stripslashes(escapeHtml($session_contact_name)) ?>
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="/client/profile.php"><i class="fas fa-fw fa-user me-2"></i>Account</a>
-                        <a class="dropdown-item" href="/client/activity.php"><i class="fas fa-fw fa-list me-2"></i>Activity</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="/client/post.php?logout"><i class="fas fa-fw fa-sign-out-alt me-2"></i>Sign out</a>
-                    </div>
-                </li>
-            </ul>
+<?php if ($portal_view_as) { ?>
+    <?php /* View as contact - an agent looking at the portal as this contact, read only */ ?>
+    <div class="itflow-portal-viewas d-print-none" role="status">
+        <div class="container d-flex flex-wrap align-items-center gap-2">
+            <i class="fas fa-eye"></i>
+            <span class="me-auto">You're viewing the portal as <strong><?= escapeHtml($portal_view_as['contact_name']) ?></strong> - read only<?= empty($portal_view_as['billing']) ? '. Billing is hidden, as your role doesn\'t see it' : '' ?></span>
+            <a class="btn btn-sm btn-light" href="/client/post.php?exit_view_as"><i class="fas fa-times me-1"></i>Exit</a>
         </div>
     </div>
+<?php } ?>
+
+<header class="itflow-portal-header">
+    <div class="container d-flex align-items-center gap-3">
+
+        <a class="itflow-portal-brand" href="/client/index.php">
+            <?php if ($session_company_logo) { ?>
+                <img src="/uploads/settings/<?= escapeHtml($session_company_logo) ?>" alt="<?= escapeHtml($session_company_name) ?>">
+            <?php } else { ?>
+                <span class="itflow-brand-mark itflow-brand-mark-initials" aria-hidden="true"><?= escapeHtml(clientInitials('', $session_company_name)) ?></span>
+                <span class="itflow-portal-brand-name"><?= escapeHtml($session_company_name) ?></span>
+            <?php } ?>
+        </a>
+
+        <nav class="itflow-portal-nav d-none d-lg-flex" aria-label="Portal">
+            <?php foreach ($portal_nav as $item) {
+                $active = in_array($portal_page, $item['pages'], true);
+                if (!empty($item['children'])) { ?>
+                    <div class="dropdown">
+                        <a class="itflow-portal-nav-link dropdown-toggle<?= $active ? ' active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-fw <?= escapeHtml($item['icon']) ?>"></i><?= escapeHtml($item['label']) ?>
+                        </a>
+                        <div class="dropdown-menu">
+                            <?php foreach ($item['children'] as $child) { ?>
+                                <a class="dropdown-item<?= in_array($portal_page, $child['pages'], true) ? ' active' : '' ?>" href="<?= escapeHtml($child['href']) ?>">
+                                    <i class="fas fa-fw <?= escapeHtml($child['icon']) ?> me-2"></i><?= escapeHtml($child['label']) ?>
+                                </a>
+                            <?php } ?>
+                        </div>
+                    </div>
+                <?php } else { ?>
+                    <a class="itflow-portal-nav-link<?= $active ? ' active' : '' ?>" href="<?= escapeHtml($item['href']) ?>"<?= !empty($item['new_tab']) ? ' target="_blank" rel="noopener noreferrer"' : '' ?><?= !empty($item['title']) ? ' title="' . escapeHtml($item['title']) . '"' : '' ?>>
+                        <i class="<?= escapeHtml($item['icon_class'] ?? 'fas fa-fw ' . $item['icon']) ?>"></i><?= escapeHtml($item['label']) ?>
+                    </a>
+                <?php } ?>
+            <?php } ?>
+        </nav>
+
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <a class="btn btn-primary d-none d-sm-inline-flex align-items-center" href="/client/ticket_add.php"><i class="fas fa-plus me-2"></i>New ticket</a>
+
+            <div class="dropdown">
+                <button type="button" class="itflow-portal-account" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Your account">
+                    <?= portalAvatarHtml($portal_contact_name, $session_contact_photo ? "/uploads/clients/$session_client_id/$session_contact_photo" : '') ?>
+                    <span class="d-none d-md-inline text-truncate"><?= escapeHtml($portal_contact_name) ?></span>
+                    <i class="fas fa-chevron-down small text-body-secondary d-none d-md-inline"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <div class="dropdown-header">
+                        <div class="fw-semibold text-body"><?= escapeHtml($portal_contact_name) ?></div>
+                        <div class="small"><?= escapeHtml($session_client_name) ?></div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item<?= $portal_page === 'profile.php' ? ' active' : '' ?>" href="/client/profile.php"><i class="fas fa-fw fa-user me-2"></i>Your account</a>
+                    <a class="dropdown-item<?= $portal_page === 'activity.php' ? ' active' : '' ?>" href="/client/activity.php"><i class="fas fa-fw fa-list me-2"></i>Activity</a>
+                    <button type="button" class="dropdown-item" data-portal-theme-toggle>
+                        <i class="fas fa-fw <?= $portal_dark ? 'fa-sun' : 'fa-moon' ?> me-2"></i><?= $portal_dark ? 'Light mode' : 'Dark mode' ?>
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <?php if ($portal_view_as) { ?>
+                        <a class="dropdown-item" href="/client/post.php?exit_view_as"><i class="fas fa-fw fa-times me-2"></i>Exit view</a>
+                    <?php } else { ?>
+                        <a class="dropdown-item" href="/client/post.php?logout"><i class="fas fa-fw fa-sign-out-alt me-2"></i>Sign out</a>
+                    <?php } ?>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</header>
+
+<?php /* Phone: the sections along the bottom of the screen, where a thumb
+         reaches them, and everything else in a menu that slides in. */ ?>
+<nav class="itflow-portal-tabbar d-lg-none" aria-label="Portal">
+    <a href="/client/index.php" class="<?= $portal_page === 'index.php' ? 'active' : '' ?>"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/client/tickets.php" class="<?= in_array($portal_page, $portal_nav['tickets']['pages'], true) && $portal_page !== 'ticket_add.php' ? 'active' : '' ?>"><i class="fas fa-life-ring"></i><span>Tickets</span></a>
+    <a href="/client/ticket_add.php" class="itflow-portal-tabbar-new<?= $portal_page === 'ticket_add.php' ? ' active' : '' ?>"><i class="fas fa-plus"></i><span>New</span></a>
+    <?php if (isset($portal_nav['billing'])) { ?>
+        <a href="/client/invoices.php" class="<?= in_array($portal_page, $portal_nav['billing']['pages'], true) ? 'active' : '' ?>"><i class="fas fa-file-invoice-dollar"></i><span>Billing</span></a>
+    <?php } ?>
+    <a href="#portalMenu" data-bs-toggle="offcanvas" role="button" aria-controls="portalMenu"><i class="fas fa-bars"></i><span>Menu</span></a>
 </nav>
 
-<?php /* The gap under the navbar used to be a bare line-break element sitting
-         directly in the body. That stopped working the moment the body became a
-         flex column: a break is only a break inside an inline formatting
-         context, and as a flex item it is blockified into an empty zero-height
-         box - so the gap vanished and the welcome row rode up against the
-         navbar.
-
-         Carried on the container as a real margin instead. mt-4 is 1.5rem,
-         exactly what the break was worth: one line box at the body's 1.5
-         line-height on a 1rem font. */ ?>
-<!-- Page content container -->
-<div class="container mt-4">
-
-    <!-- Flex row rather than col-md-1/col-md-11 -->
-    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-        <div class="flex-shrink-0">
-            <?php if (!empty($session_contact_photo)) { ?>
-                <img src="/uploads/clients/<?= $session_client_id ?>/<?= $session_contact_photo ?>" alt="..." height="50" width="50" class="rounded-circle img-fluid">
-
-            <?php } else { ?>
-                <span class="fa-stack fa-2x rounded-start">
-                    <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                    <span class="fa fa-stack-1x text-white"><?= $session_contact_initials ?></span>
-                </span>
-            <?php } ?>
+<div class="offcanvas offcanvas-end itflow-portal-menu" tabindex="-1" id="portalMenu" aria-label="Menu">
+    <div class="offcanvas-header">
+        <div class="min-w-0">
+            <div class="fw-semibold text-truncate"><?= escapeHtml($portal_contact_name) ?></div>
+            <div class="small text-body-secondary text-truncate"><?= escapeHtml($session_client_name) ?></div>
         </div>
-
-        <h4 class="mb-0 flex-grow-1">Welcome, <strong><?= stripslashes(escapeHtml($session_contact_name)) ?></strong>!</h4>
-
-        <?php if ($session_company_logo) { ?>
-            <img height="48" width="142" class="img-fluid flex-shrink-0" src="<?= "/uploads/settings/$session_company_logo" ?>">
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <?php foreach ($portal_nav as $item) { ?>
+            <?php if (!empty($item['children'])) { ?>
+                <div class="itflow-portal-menu-heading"><?= escapeHtml($item['label']) ?></div>
+                <?php foreach ($item['children'] as $child) { ?>
+                    <a class="itflow-portal-menu-link<?= in_array($portal_page, $child['pages'], true) ? ' active' : '' ?>" href="<?= escapeHtml($child['href']) ?>"><i class="fas fa-fw <?= escapeHtml($child['icon']) ?>"></i><?= escapeHtml($child['label']) ?></a>
+                <?php } ?>
+            <?php } else { ?>
+                <a class="itflow-portal-menu-link<?= in_array($portal_page, $item['pages'], true) ? ' active' : '' ?>" href="<?= escapeHtml($item['href']) ?>"<?= !empty($item['new_tab']) ? ' target="_blank" rel="noopener noreferrer"' : '' ?><?= !empty($item['title']) ? ' title="' . escapeHtml($item['title']) . '"' : '' ?>><i class="<?= escapeHtml($item['icon_class'] ?? 'fas fa-fw ' . $item['icon']) ?>"></i><?= escapeHtml($item['label']) ?></a>
+            <?php } ?>
+        <?php } ?>
+        <div class="itflow-portal-menu-heading">Your account</div>
+        <a class="itflow-portal-menu-link<?= $portal_page === 'profile.php' ? ' active' : '' ?>" href="/client/profile.php"><i class="fas fa-fw fa-user"></i>Your account</a>
+        <a class="itflow-portal-menu-link<?= $portal_page === 'activity.php' ? ' active' : '' ?>" href="/client/activity.php"><i class="fas fa-fw fa-list"></i>Activity</a>
+        <button type="button" class="itflow-portal-menu-link" data-portal-theme-toggle><i class="fas fa-fw <?= $portal_dark ? 'fa-sun' : 'fa-moon' ?>"></i><?= $portal_dark ? 'Light mode' : 'Dark mode' ?></button>
+        <?php if ($portal_view_as) { ?>
+            <a class="itflow-portal-menu-link" href="/client/post.php?exit_view_as"><i class="fas fa-fw fa-times"></i>Exit view</a>
+        <?php } else { ?>
+            <a class="itflow-portal-menu-link" href="/client/post.php?logout"><i class="fas fa-fw fa-sign-out-alt"></i>Sign out</a>
         <?php } ?>
     </div>
-    <hr>
+</div>
+
+<!-- Page content container -->
+<main class="itflow-portal-main container">
 
     <?php
     //Alert Feedback

@@ -1,242 +1,39 @@
 <?php
+
+/*
+ * Edit a contract template - contracts already started from it keep their
+ * own terms. The fields are contract_template_form.php.
+ */
+
 require_once '../../includes/modal_header.php';
 
-$contract_template_id = intval($_GET['id']);
-
-$contract_types_array = ['Fully Managed', 'Partialy Managed', 'Break/Fix'];
-$update_frequency_array = ['Manual', 'Annually', '2 Year', '3 Year', '5 Year', '7 Year'];
-
-// Fetch existing template
-$sql = mysqli_query($mysqli, "SELECT contract_template_description, contract_template_details, contract_template_name,
-    contract_template_net_terms, contract_template_rate_after_hours,
-    contract_template_rate_standard, contract_template_renewal_frequency,
-    contract_template_sla_high_resolution_time, contract_template_sla_high_response_time,
-    contract_template_sla_low_resolution_time, contract_template_sla_low_response_time,
-    contract_template_sla_medium_resolution_time, contract_template_sla_medium_response_time,
-    contract_template_support_hours, contract_template_type FROM contract_templates WHERE contract_template_id = $contract_template_id LIMIT 1");
-$row = mysqli_fetch_assoc($sql);
-
-// Assign locals
-$name          = escapeHtml($row['contract_template_name']);
-$description   = escapeHtml($row['contract_template_description']);
-$type          = escapeHtml($row['contract_template_type']);
-$renewal_frequency = escapeHtml($row['contract_template_renewal_frequency']);
-$sla_low_resp  = intval($row['contract_template_sla_low_response_time']);
-$sla_med_resp  = intval($row['contract_template_sla_medium_response_time']);
-$sla_high_resp = intval($row['contract_template_sla_high_response_time']);
-$sla_low_res   = intval($row['contract_template_sla_low_resolution_time']);
-$sla_med_res   = intval($row['contract_template_sla_medium_resolution_time']);
-$sla_high_res  = intval($row['contract_template_sla_high_resolution_time']);
-$hourly_rate   = intval($row['contract_template_rate_standard']);
-$after_hours   = intval($row['contract_template_rate_after_hours']);
-$support_hours = escapeHtml($row['contract_template_support_hours']);
-$net_terms     = intval($row['contract_template_net_terms']);
-$details       = escapeHtml($row['contract_template_details']);
+$template = contractTemplateRow(intval($_GET['id'] ?? 0));
 
 ob_start();
-?>
+
+if (!$template) { ?>
+    <div class="modal-body text-center text-secondary py-5">That template is gone - it may have been deleted.</div>
+<?php } else { ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-contract me-2"></i>Edit Contract Template</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-file-contract me-2"></i>Contract Template: <strong><?= escapeHtml($template['contract_template_name']) ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-
-<!-- Tabs Navigation -->
-<ul class="modal-header nav nav-pills nav-justified">
-    <li class="nav-item">
-        <a class="nav-link active" id="general-tab" data-bs-toggle="tab" href="#general" role="tab">General Info</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" id="sla-tab" data-bs-toggle="tab" href="#sla" role="tab">SLA</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" id="rates-tab" data-bs-toggle="tab" href="#rates" role="tab">Rates & Support</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" id="details-tab" data-bs-toggle="tab" href="#details" role="tab">Details</a>
-    </li>
-</ul>
-
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="contract_template_id" value="<?= $contract_template_id ?>">
-
+    <input type="hidden" name="contract_template_id" value="<?= intval($template['contract_template_id']) ?>">
     <div class="modal-body">
-        <div class="tab-content" id="contractTemplateTabContent">
-
-            <!-- General Info Tab -->
-            <div class="tab-pane fade show active" id="general" role="tabpanel">
-                <div class="mb-3">
-                    <label>Template Name <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-file-contract"></i></span>
-                        <input type="text" class="form-control" name="name"
-                            placeholder="Contract Template Name" maxlength="200" required autofocus
-                            value="<?= $name ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Template Description <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        <input type="text" class="form-control" name="description"
-                            placeholder="Contract Template Description" maxlength="200" required
-                            value="<?= $description ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Contract Type <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                        <select class="form-select select2" name="type" required>
-                            <option value="">- Select Type -</option>
-                            <?php foreach ($contract_types_array as $type_select) { ?>
-                                <option <?php if ($type == $type_select) { echo "selected"; } ?>><?= $type_select ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Renewal Frequency</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>
-                        <select class="form-select select2" name="renewal_frequency">
-                            <option value="">- Select Frequency -</option>
-                            <?php foreach ($renewal_frequency_array as $renewal_frequency_select) { ?>
-                                <option <?php if ($renewal_frequency == $renewal_frequency_select) { echo "selected"; } ?>><?= $renewal_frequency_select ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SLA Tab -->
-            <div class="tab-pane fade" id="sla" role="tabpanel">
-                <div class="row g-2">
-                    <div class="mb-3 col-md-6">
-                        <label>Low Priority Response (hrs)</label>
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                            <input type="number" class="form-control" name="sla_low_response_time" placeholder="e.g., 24"
-                                value="<?= $sla_low_resp ?>">
-                        </div>
-                    </div>
-                    <div class="mb-3 col-md-6">
-                        <label>Low Priority Resolution (hrs)</label>
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
-                            <input type="number" class="form-control" name="sla_low_resolution_time" placeholder="e.g., 48"
-                                value="<?= $sla_low_res ?>">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-2">
-                    <div class="mb-3 col-md-6">
-                        <label>Medium Priority Response (hrs)</label>
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                            <input type="number" class="form-control" name="sla_medium_response_time" placeholder="e.g., 12"
-                                value="<?= $sla_med_resp ?>">
-                        </div>
-                    </div>
-                    <div class="mb-3 col-md-6">
-                        <label>Medium Priority Resolution (hrs)</label>
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
-                            <input type="number" class="form-control" name="sla_medium_resolution_time" placeholder="e.g., 24"
-                                value="<?= $sla_med_res ?>">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-2">
-                    <div class="mb-3 col-md-6">
-                        <label>High Priority Response (hrs)</label>
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-bolt"></i></span>
-                            <input type="number" class="form-control" name="sla_high_response_time" placeholder="e.g., 1"
-                                value="<?= $sla_high_resp ?>">
-                        </div>
-                    </div>
-                    <div class="mb-3 col-md-6">
-                        <label>High Priority Resolution (hrs)</label>
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
-                            <input type="number" class="form-control" name="sla_high_resolution_time" placeholder="e.g., 4"
-                                value="<?= $sla_high_res ?>">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Rates & Support Tab -->
-            <div class="tab-pane fade" id="rates" role="tabpanel">
-                <div class="mb-3">
-                    <label>Standard Hourly Rate</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                        <input type="text" class="form-control" name="rate_standard" placeholder="e.g., 100"
-                            value="<?= $rate_standard ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>After Hours Hourly Rate</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-moon"></i></span>
-                        <input type="text" class="form-control" name="rate_after_hours" placeholder="e.g., 150"
-                            value="<?= $rate_after_hours ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Support Hours</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                        <input type="text" class="form-control" name="support_hours" placeholder="e.g., Mon-Fri 9am-5pm" maxlength="100"
-                            value="<?= $support_hours ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Net Terms</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
-                        <input type="text" class="form-control" name="net_terms" placeholder="e.g., Net 30" maxlength="50"
-                            value="<?= $net_terms ?>">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Details Tab -->
-            <div class="tab-pane fade" id="details" role="tabpanel">
-                <div class="mb-3">
-                    <label>Contract Details</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        <textarea class="form-control tinymce" rows="6" name="details"
-                            placeholder="Enter Contract Details"><?= $details ?></textarea>
-                    </div>
-                </div>
-            </div>
-
-        </div>
+        <?php if (!empty($template['contract_template_archived_at'])) { ?>
+            <div class="alert alert-secondary small py-2"><i class="fas fa-fw fa-archive me-1"></i>Archived - it isn't offered on a new contract. Restore it from the list.</div>
+        <?php } ?>
+        <?php require __DIR__ . '/contract_template_form.php'; ?>
+        <small class="text-secondary d-block mt-3">Contracts already started from it keep their own terms.</small>
     </div>
-
     <div class="modal-footer">
-        <button type="submit" name="edit_contract_template" class="btn btn-primary text-bold">
-            <i class="fa fa-check me-2"></i>Save Changes
-        </button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-            <i class="fa fa-times me-2"></i>Cancel
-        </button>
+        <button type="submit" name="edit_contract_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save changes</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 
-<?php
+<?php }
 require_once '../../../includes/modal_footer.php';
-?>

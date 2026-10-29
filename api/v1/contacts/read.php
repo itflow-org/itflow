@@ -18,7 +18,7 @@ if (isset($_GET['contact_id'])) {
 } elseif (isset($_GET['contact_phone_or_mobile'])) {
     // Specific contact via phone number or mobile (single)
     $phone_or_mob = mysqli_real_escape_string($mysqli, $_GET['contact_phone_or_mobile']);
-    $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_mobile = '$phone_or_mob' OR contact_phone = '$phone_or_mob' AND 1=1 " . apiClientScopeSql('contact_client_id') . " LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE (contact_mobile = '$phone_or_mob' OR contact_phone = '$phone_or_mob') " . apiClientScopeSql('contact_client_id') . " LIMIT 1");
 
 } else {
     // All contacts (by client ID, or all in general if key permits)
@@ -26,5 +26,6 @@ if (isset($_GET['contact_id'])) {
 }
 
 // Output
+$api_tag_entity = 'contact'; // each one's tags
 require_once "../read_output.php";
 

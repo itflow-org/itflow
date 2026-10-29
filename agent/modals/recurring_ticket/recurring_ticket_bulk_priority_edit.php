@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $recurring_ticket_ids = array_map('intval', $_GET['recurring_ticket_ids'] ?? []);
 
 $count = count($recurring_ticket_ids);
@@ -26,10 +28,10 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                 <select class="form-select select2" name="bulk_priority">
-                    <option>Low</option>
-                    <option>Medium</option>
-                    <option>High</option>
-                    <option>Urgent</option>
+                    <option data-color="var(--bs-info)">Low</option>
+                    <option data-color="var(--bs-warning)">Medium</option>
+                    <option data-color="var(--bs-danger)">High</option>
+                    <option data-color="var(--bs-emphasis-color)">Urgent</option>
                 </select>
             </div>
         </div>

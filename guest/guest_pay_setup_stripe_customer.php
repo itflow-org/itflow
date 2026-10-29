@@ -3,7 +3,14 @@
 require_once 'includes/inc_all_guest.php';
 
 // --- Get Stripe config from payment_providers table ---
-$stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_id, payment_provider_account, payment_provider_private_key, payment_provider_public_key FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
+$stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_id, payment_provider_account, payment_provider_private_key, payment_provider_public_key FROM payment_providers WHERE payment_provider_name = 'Stripe' AND payment_provider_active = 1 LIMIT 1"));
+
+// Stripe switched off (Admin > Payment Providers) saves no new cards
+if (!$stripe_provider) {
+    echo "<br><h2>Saving a card isn't available just now. Please get in touch.</h2>";
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+    exit();
+}
 
 $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
 $stripe_publishable = escapeHtml($stripe_provider['payment_provider_public_key']);
@@ -32,7 +39,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key'])) {
     // Ensure valid invoice
     if (!$sql || mysqli_num_rows($sql) !== 1) {
         echo "<br><h2>Oops, something went wrong! Please ensure you have the correct URL and have not already paid this invoice.</h2>";
-        require_once 'includes/guest_footer.php';
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
         error_log("Stripe payment error - Invoice with ID $invoice_id not found or not eligible.");
         exit();
     }

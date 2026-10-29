@@ -1,7 +1,7 @@
 <?php
 
 $session_ip = escapeSql(getIP());
-$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
+$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
 $session_user_id = intval($_SESSION['user_id']);
 
 $sql = mysqli_query(
@@ -27,7 +27,7 @@ $session_user_role = intval($row['user_role_id']);
 $session_user_role_display = escapeSql($row['role_name']);
 $session_is_admin = isset($row['role_is_admin']) && $row['role_is_admin'] == 1;
 $session_user_config_force_mfa = intval($row['user_config_force_mfa']);
-$user_config_records_per_page = intval($row['user_config_records_per_page']);
+$user_config_records_per_page = max(1, intval($row['user_config_records_per_page']));
 $user_config_theme_dark = intval($row['user_config_theme_dark']);
 
 // Check user type is agent aka 1

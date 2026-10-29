@@ -13,21 +13,26 @@ if (isset($_POST['create_folder'])) {
     enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
-    $folder_location = intval($_POST['folder_location']);
-    $folder_name = escapeSql($_POST['folder_name']);
-    $parent_folder = intval($_POST['parent_folder']);
+    $folder_name = escapeSql(trim($_POST['folder_name'] ?? ''));
 
     enforceClientAccess();
 
-    // Document folder add query
-    $add_folder = mysqli_query($mysqli,"INSERT INTO folders SET folder_name = '$folder_name', parent_folder = $parent_folder, folder_location = $folder_location, folder_client_id = $client_id");
+    // Under one of this client's folders, or at the top level
+    $parent_folder = folderOwnedId($_POST['parent_folder'] ?? 0, $client_id);
+
+    if ($folder_name === '') {
+        flashAlert('A folder needs a name.', 'error');
+        redirect();
+    }
+
+    mysqli_query($mysqli, "INSERT INTO folders SET folder_name = '$folder_name', parent_folder = $parent_folder, folder_location = 0, folder_client_id = $client_id");
     $folder_id = mysqli_insert_id($mysqli);
 
     logAudit("Folder", "Create", "$session_name created folder $folder_name", $client_id, $folder_id);
 
-    flashAlert("Folder <strong>$folder_name</strong> created");
+    flashAlert("Folder <strong>" . trim($_POST['folder_name']) . "</strong> created");
 
-    redirect();
+    redirect("files.php?client_id=$client_id&folder_id=$folder_id");
 
 }
 
@@ -38,57 +43,82 @@ if (isset($_POST['rename_folder'])) {
     enforceUserPermission('module_support', 2);
 
     $folder_id = intval($_POST['folder_id']);
-    $folder_name = escapeSql($_POST['folder_name']);
+    $folder_name = escapeSql(trim($_POST['folder_name'] ?? ''));
 
-    // Get old Folder Name Client ID for Logging
-    $sql = mysqli_query($mysqli,"SELECT folder_name, folder_client_id FROM folders WHERE folder_id = $folder_id");
-    $row = mysqli_fetch_assoc($sql);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT folder_name, folder_client_id, parent_folder FROM folders WHERE folder_id = $folder_id"));
+    if (!$row) {
+        flashAlert('That folder no longer exists.', 'error');
+        redirect();
+    }
     $old_folder_name = escapeSql($row['folder_name']);
     $client_id = intval($row['folder_client_id']);
 
     enforceClientAccess();
 
-    // Folder edit query
-    mysqli_query($mysqli,"UPDATE folders SET folder_name = '$folder_name' WHERE folder_id = $folder_id");
+    if ($folder_name === '') {
+        flashAlert('A folder needs a name.', 'error');
+        redirect();
+    }
 
-    logAudit("Folder", "Rename", "$session_name renamed folder $old_folder_name to $folder_name", $client_id, $folder_id);
+    // Moved as well? Only under one of this client's folders, and never into itself or below itself
+    $parent_folder = intval($row['parent_folder']);
+    if (isset($_POST['parent_folder'])) {
+        $new_parent = folderOwnedId($_POST['parent_folder'], $client_id);
+        if (!in_array($new_parent, folderSubtree(folderTree($client_id), $folder_id), true)) {
+            $parent_folder = $new_parent;
+        }
+    }
 
-    flashAlert("Folder <strong>$old_folder_name</strong> renamed to <strong>$folder_name</strong>");
+    mysqli_query($mysqli, "UPDATE folders SET folder_name = '$folder_name', parent_folder = $parent_folder WHERE folder_id = $folder_id");
+
+    if ($old_folder_name !== $folder_name) {
+        logAudit("Folder", "Rename", "$session_name renamed folder $old_folder_name to $folder_name", $client_id, $folder_id);
+    }
+    if ($parent_folder !== intval($row['parent_folder'])) {
+        logAudit("Folder", "Move", "$session_name moved folder $folder_name into " . escapeSql(folderDisplayName($parent_folder)), $client_id, $folder_id);
+    }
+
+    flashAlert("Folder <strong>" . trim($_POST['folder_name']) . "</strong> saved");
 
     redirect();
 
 }
 
-if (isset($_GET['delete_folder'])) {
+/*
+ * Deleting a folder never deletes what is in it: files, documents and
+ * subfolders move up to the folder it sat in. (Only documents used to be
+ * moved - files and subfolders were left pointing at a folder that no
+ * longer existed, and dropped out of sight.)
+ */
+if (isset($_POST['delete_folder']) || isset($_GET['delete_folder'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
-    $folder_id = intval($_GET['delete_folder']);
+    $folder_id = intval($_POST['folder_id'] ?? $_GET['delete_folder']);
 
-    // Get Folder Name Client ID for Logging
-    $sql = mysqli_query($mysqli,"SELECT folder_name, folder_client_id FROM folders WHERE folder_id = $folder_id");
-    $row = mysqli_fetch_assoc($sql);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT folder_name, folder_client_id, parent_folder FROM folders WHERE folder_id = $folder_id"));
+    if (!$row) {
+        flashAlert('That folder no longer exists.', 'error');
+        redirect();
+    }
     $folder_name = escapeSql($row['folder_name']);
     $client_id = intval($row['folder_client_id']);
 
     enforceClientAccess();
 
-    mysqli_query($mysqli,"DELETE FROM folders WHERE folder_id = $folder_id");
+    $parent_folder = folderOwnedId($row['parent_folder'], $client_id);
 
-    // Move files in deleted folder back to the root folder /
-    $sql_documents = mysqli_query($mysqli,"SELECT document_id FROM documents WHERE document_folder_id = $folder_id");
-    while($row = mysqli_fetch_assoc($sql_documents)) {
-        $document_id = intval($row['document_id']);
+    mysqli_query($mysqli, "UPDATE files SET file_folder_id = $parent_folder WHERE file_folder_id = $folder_id AND file_client_id = $client_id");
+    mysqli_query($mysqli, "UPDATE documents SET document_folder_id = $parent_folder, document_updated_at = document_updated_at WHERE document_folder_id = $folder_id AND document_client_id = $client_id");
+    mysqli_query($mysqli, "UPDATE folders SET parent_folder = $parent_folder WHERE parent_folder = $folder_id AND folder_client_id = $client_id");
+    mysqli_query($mysqli, "DELETE FROM folders WHERE folder_id = $folder_id");
 
-        mysqli_query($mysqli,"UPDATE documents SET document_folder_id = 0 WHERE document_id = $document_id");
-    }
+    logAudit("Folder", "Delete", "$session_name deleted folder $folder_name, its contents moved to " . escapeSql(folderDisplayName($parent_folder)), $client_id);
 
-    logAudit("Folder", "Delete", "$session_name deleted folder $folder_name", $client_id);
+    flashAlert("Folder <strong>{$row['folder_name']}</strong> deleted", 'error');
 
-    flashAlert("Folder <strong>$folder_name</strong> deleted", 'error');
-
-    redirect();
+    redirect("files.php?client_id=$client_id&folder_id=$parent_folder");
 
 }

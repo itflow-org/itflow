@@ -17,7 +17,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-exchange-alt me-2"></i>Transfer <strong><?= $count ?></strong> Asset(s) to Client</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-exchange-alt me-2"></i>Transfer <strong><?= $count ?></strong> asset<?= $count === 1 ? '' : 's' ?> to Client</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -34,13 +34,13 @@ ob_start();
                 <select class="form-select select2" name="bulk_client_id">
                     <option value="">- Select Client -</option>
                     <?php
-                        $clients_sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $client_select_query");
+                        $clients_sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL $client_select_query " . clientScopeSql('client_id') . " ORDER BY client_name ASC");
 
                         while ($row = mysqli_fetch_assoc($clients_sql)) {
                             $client_id_select = intval($row["client_id"]);
                             $client_name_select = escapeHtml($row["client_name"]);
                         ?>
-                        <option value='<?= $client_id_select ?>'><?= $client_name_select ?></option>
+                        <option value='<?= $client_id_select ?>'<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $client_name_select ?></option>
                         <?php
                         }
                     ?>

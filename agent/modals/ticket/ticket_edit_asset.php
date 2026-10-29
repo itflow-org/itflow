@@ -4,19 +4,20 @@ require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_support', 2);
 
-$ticket_id = intval($_GET['id']);
+// The ticket, after the module and client checks - or the modal's error
+$row = ticketForModal($_GET['id'] ?? 0, 2, true);
+$ticket_id = intval($row['ticket_id']);
 
-$sql = mysqli_query($mysqli, "SELECT client_name, ticket_asset_id, ticket_client_id, ticket_number, ticket_prefix FROM tickets LEFT JOIN clients ON client_id = ticket_client_id WHERE ticket_id = $ticket_id LIMIT 1");
-
-$row = mysqli_fetch_assoc($sql);
 $client_name = escapeHtml($row['client_name']);
 $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $asset_id = intval($row['ticket_asset_id']);
 $client_id = intval($row['ticket_client_id']);
 
-if ($client_id) {
-    enforceClientAccess();
+// A ticket with no client is internal work - nobody's assets
+if (!$client_id) {
+    echo json_encode(['error' => 'This ticket has no client, so no assets.']);
+    exit;
 }
 
 // Additional Assets Selected
@@ -26,13 +27,15 @@ while ($row = mysqli_fetch_assoc($sql_additional_assets)) {
     $additional_asset_id = intval($row['asset_id']);
     $additional_assets_array[] = $additional_asset_id;
 }
+// What it links to now stays on offer even once archived, so saving doesn't drop it
+$linked_asset_ids = implode(',', array_merge([0, $asset_id], $additional_assets_array));
 
 ob_start();
 
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-desktop me-2"></i>Editing ticket Asset: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-desktop me-2"></i>Assets <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -41,20 +44,20 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Asset</label>
+            <label>Primary asset</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                 <select class="form-select select2" name="asset">
-                    <option value="0">- None -</option>
+                    <option value="0">No asset</option>
                     <?php
 
-                    $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                    $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, asset_archived_at, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND (asset_archived_at IS NULL OR asset_id IN ($linked_asset_ids)) ORDER BY asset_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_assets)) {
                         $asset_id_select = intval($row['asset_id']);
-                        $asset_name_select = escapeHtml($row['asset_name']);
+                        $asset_name_select = escapeHtml($row['asset_name']) . ($row['asset_archived_at'] ? ' (archived)' : '');
                         $asset_contact_name_select = escapeHtml($row['contact_name']);
                         ?>
-                        <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= "$asset_name_select - $asset_contact_name_select" ?></option>
+                        <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"<?= selectOptionAsset($row['asset_type'] ?? '', trim(($row['asset_make'] ?? '') . ' ' . ($row['asset_model'] ?? ''))) ?>><?= $asset_contact_name_select ? "$asset_name_select ($asset_contact_name_select)" : $asset_name_select ?></option>
 
                         <?php
                     }
@@ -64,22 +67,22 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Additional Assets</label>
+            <label>Other assets</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                <select class="form-select select2" name="additional_assets[]" data-placeholder="- Select Additional Assets -" multiple>
+                <select class="form-select select2" name="additional_assets[]" data-placeholder="- Any other assets involved -" multiple>
                     <option value=""></option>
                     <?php
 
-                    $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_id != $asset_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                    $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, asset_archived_at, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_id != $asset_id AND (asset_archived_at IS NULL OR asset_id IN ($linked_asset_ids)) ORDER BY asset_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_assets)) {
                         $asset_id_select = intval($row['asset_id']);
-                        $asset_name_select = escapeHtml($row['asset_name']);
+                        $asset_name_select = escapeHtml($row['asset_name']) . ($row['asset_archived_at'] ? ' (archived)' : '');
                         $asset_contact_name_select = escapeHtml($row['contact_name']);
                     ?>
                         <option value="<?= $asset_id_select ?>"
                             <?php if (in_array($asset_id_select, $additional_assets_array)) { echo "selected"; } ?>
-                            ><?= "$asset_name_select - $asset_contact_name_select" ?></option>
+                            <?= selectOptionAsset($row['asset_type'] ?? '', trim(($row['asset_make'] ?? '') . ' ' . ($row['asset_model'] ?? ''))) ?>><?= $asset_contact_name_select ? "$asset_name_select ($asset_contact_name_select)" : $asset_name_select ?></option>
 
                     <?php } ?>
                 </select>

@@ -18,7 +18,7 @@ if (isset($_POST['asset_description'])) {
 }
 
 if (isset($_POST['asset_type'])) {
-    $type = escapeSql($_POST['asset_type']);
+    $type = escapeSql(assetTypeName($_POST['asset_type']) ?: $_POST['asset_type']); // as the list spells it, when it is one (functions/asset_type.php)
 } elseif (isset($asset_row) && isset($asset_row['asset_type'])) {
     $type = mysqli_real_escape_string($mysqli, $asset_row['asset_type']);
 } else {
@@ -159,3 +159,9 @@ if (isset($_POST['asset_network_id'])) {
 } else {
     $network = '0';
 }
+
+// Only the client's own, as in the asset form - another client's would show on this one's asset, and the asset on theirs
+$vendor = assetClientOwnedId('vendor', $vendor, $client_id);
+$location = assetClientOwnedId('location', $location, $client_id);
+$contact = assetClientOwnedId('contact', $contact, $client_id);
+$network = assetClientOwnedId('network', $network, $client_id);

@@ -1,18 +1,21 @@
 <?php
 
+/*
+ * Move a document to another of its client's folders.
+ */
+
 require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_support', 2);
 
-$document_id = intval($_GET['id']);
+$document_id = intval($_GET['id'] ?? 0);
 
-$sql = mysqli_query($mysqli, "SELECT document_client_id, document_folder_id, document_name FROM documents WHERE document_id = $document_id LIMIT 1");
-
-$row = mysqli_fetch_assoc($sql);
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_client_id, document_folder_id, document_name FROM documents WHERE document_id = $document_id LIMIT 1"));
+if (!$row) {
+    echo json_encode(['error' => 'That document no longer exists.']);
+    exit;
+}
 $client_id = intval($row['document_client_id']);
-$document_folder_id = escapeHtml($row['document_folder_id']);
-$document_name = escapeHtml($row['document_name']);
-
 enforceClientAccess();
 
 ob_start();
@@ -20,7 +23,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-alt me-2"></i>Moving document: <strong><?= $document_name ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-folder-open me-2"></i>Move <strong><?= escapeHtml($row['document_name']) ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -28,75 +31,12 @@ ob_start();
     <input type="hidden" name="document_id" value="<?= $document_id ?>">
     <div class="modal-body">
 
-        <div class="mb-3">
-            <label>Move Document to</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
-                <select class="form-select select2" name="folder">
-                    <option value="0">/</option>
-                    <?php
-                    // Fetch all folders for the client
-                    $sql_all_folders = mysqli_query($mysqli, "SELECT folder_id, folder_name, parent_folder FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
-                    $folders = array();
-
-                    // Build an associative array of folders indexed by folder_id
-                    while ($row = mysqli_fetch_assoc($sql_all_folders)) {
-                        $folders[$row['folder_id']] = array(
-                            'folder_id' => intval($row['folder_id']),
-                            'folder_name' => escapeHtml($row['folder_name']),
-                            'parent_folder' => intval($row['parent_folder']),
-                            'children' => array()
-                        );
-                    }
-
-                    // Build the folder hierarchy
-                    foreach ($folders as $id => &$folder) {
-                        if ($folder['parent_folder'] != 0 && isset($folders[$folder['parent_folder']])) {
-                            $folders[$folder['parent_folder']]['children'][] = &$folder;
-                        }
-                    }
-                    unset($folder); // Break the reference
-
-                    // Prepare a list of root folders
-                    $root_folders = array();
-                    foreach ($folders as $id => $folder) {
-                        if ($folder['parent_folder'] == 0) {
-                            $root_folders[] = $folder;
-                        }
-                    }
-
-                    // Display the folder options iteratively
-                    $stack = array();
-                    foreach (array_reverse($root_folders) as $folder) {
-                        $stack[] = array('folder' => $folder, 'level' => 0);
-                    }
-
-                    while (!empty($stack)) {
-                        $node = array_pop($stack);
-                        $folder = $node['folder'];
-                        $level = $node['level'];
-
-                        // Indentation for subfolders
-                        $indentation = str_repeat('&nbsp;', $level * 4);
-
-                        // Check if this folder is selected
-                        $selected = '';
-                        if ($folder['folder_id'] == $document_folder_id) {
-                            $selected = 'selected';
-                        }
-
-                        echo "<option value=\"{$folder['folder_id']}\" $selected>$indentation{$folder['folder_name']}</option>";
-
-                        // Add children to the stack
-                        if (!empty($folder['children'])) {
-                            foreach (array_reverse($folder['children']) as $child_folder) {
-                                $stack[] = array('folder' => $child_folder, 'level' => $level + 1);
-                            }
-                        }
-                    }
-                    ?>
-                </select>
-            </div>
+        <label class="form-label">To folder</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-folder"></i></span>
+            <select class="form-select select2" name="folder">
+                <?= folderOptionsHtml($client_id, intval($row['document_folder_id'])) ?>
+            </select>
         </div>
 
     </div>

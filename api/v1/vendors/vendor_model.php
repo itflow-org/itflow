@@ -34,6 +34,30 @@ if (isset($_POST['vendor_contact_name'])) {
     $contact_name = '';
 }
 
+if (isset($_POST['vendor_contact_phone_country_code'])) {
+    $contact_phone_country_code = preg_replace("/[^0-9]/", '', $_POST['vendor_contact_phone_country_code']);
+} elseif ($vendor_row) {
+    $contact_phone_country_code = mysqli_real_escape_string($mysqli, (string) $vendor_row['vendor_contact_phone_country_code']);
+} else {
+    $contact_phone_country_code = '';
+}
+
+if (isset($_POST['vendor_contact_phone'])) {
+    $contact_phone = preg_replace("/[^0-9]/", '', $_POST['vendor_contact_phone']);
+} elseif ($vendor_row) {
+    $contact_phone = mysqli_real_escape_string($mysqli, (string) $vendor_row['vendor_contact_phone']);
+} else {
+    $contact_phone = '';
+}
+
+if (isset($_POST['vendor_contact_email'])) {
+    $contact_email = escapeSql($_POST['vendor_contact_email']);
+} elseif ($vendor_row) {
+    $contact_email = mysqli_real_escape_string($mysqli, (string) $vendor_row['vendor_contact_email']);
+} else {
+    $contact_email = '';
+}
+
 if (isset($_POST['vendor_phone_country_code'])) {
     $phone_country_code = preg_replace("/[^0-9]/", '', $_POST['vendor_phone_country_code']);
 } elseif ($vendor_row) {
@@ -72,6 +96,22 @@ if (isset($_POST['vendor_website'])) {
     $website = mysqli_real_escape_string($mysqli, $vendor_row['vendor_website']);
 } else {
     $website = '';
+}
+
+if (isset($_POST['vendor_status_page'])) {
+    $status_page = preg_replace("(^https?://)", "", escapeSql($_POST['vendor_status_page']));
+} elseif ($vendor_row) {
+    $status_page = mysqli_real_escape_string($mysqli, (string) $vendor_row['vendor_status_page']);
+} else {
+    $status_page = '';
+}
+
+if (isset($_POST['vendor_portal'])) {
+    $portal = preg_replace("(^https?://)", "", escapeSql($_POST['vendor_portal']));
+} elseif ($vendor_row) {
+    $portal = mysqli_real_escape_string($mysqli, (string) $vendor_row['vendor_portal']);
+} else {
+    $portal = '';
 }
 
 if (isset($_POST['vendor_hours'])) {

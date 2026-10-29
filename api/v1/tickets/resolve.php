@@ -16,6 +16,10 @@ $update_count = false;
 if (!empty($ticket_id)) {
 
     $ticket_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_first_response_at, ticket_id, ticket_number, ticket_prefix FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_resolved_at IS NULL AND ticket_client_id = $client_id LIMIT 1"));
+}
+
+// Resolved already, another client's, or not there - nothing to do
+if (!empty($ticket_row)) {
 
     // Grab what we need, not using the model
     $ticket_id = intval($ticket_row['ticket_id']); // Override so things fail if this is bad
@@ -28,19 +32,20 @@ if (!empty($ticket_id)) {
         setTicketFirstResponse($ticket_id);
     }
 
-    // Resolve
+    // Resolve - counted straight away, before the SLA updates below run queries of their own
     $update_sql = mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
+    $resolved_count = $update_sql ? mysqli_affected_rows($mysqli) : 0;
     syncTicketSlaClock($ticket_id);
     setTicketResolutionSlaMet($ticket_id);
 
     // Check insert & get insert ID
     if ($update_sql) {
-        $update_count = mysqli_affected_rows($mysqli);
+        $update_count = $resolved_count;
 
         // Logging
         logTicketHistory($ticket_id, "Resolved via the API ($api_key_name)");
 
-        logAudit("Ticket", "Resolved", "$ticket_prefix$ticket_number ticket via API ($api_key_name)", $client_id, $ticket_id);
+        logAudit("Ticket", "Resolve", "$ticket_prefix$ticket_number ticket via API ($api_key_name)", $client_id, $ticket_id);
         logAudit("API", "Success", "Resolved ticket $ticket_prefix$ticket_number via API ($api_key_name)", $client_id);
     }
 

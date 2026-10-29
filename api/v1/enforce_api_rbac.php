@@ -33,6 +33,18 @@ function apiDeny($message) {
     exit();
 }
 
+// Why the key's user was refused a module at a level - what it needs, and what their role has.
+// Plain text, for apiDeny().
+function apiPermissionText($module, $level) {
+    global $api_user;
+    $label = roleModuleInfo()[$module]['label'] ?? ucfirst(str_replace('module_', '', (string) $module));
+    $level = max(1, min(3, intval($level)));
+    $has = intval(lookupUserPermission($module));
+    $role = permissionRoleName();
+    return "This needs " . ROLE_LEVELS[$level] . " on $label - the key's user, " . ($api_user['user_name'] ?? 'its user')
+        . ($role !== '' ? " ($role)" : '') . ", has " . ($has ? ROLE_LEVELS[min(3, $has)] : 'no access') . ". An admin can change their role in Admin > Roles.";
+}
+
 // Can the signed-in (key's) user access this single client? Mirrors enforceClientAccess:
 // admin -> yes; explicit deny -> no; otherwise allowed if in the allow list or the
 // user has no allow list (unrestricted).
@@ -133,6 +145,7 @@ $resource_module = [
     'documents'     => 'module_support',
     'domains'       => 'module_support',
     'networks'      => 'module_support',
+    'services'      => 'module_support',
     'software'      => 'module_support',
     'tickets'       => 'module_support',
     'ticket_replies' => 'module_support',
@@ -145,8 +158,16 @@ $resource_module = [
     'invoice_items' => 'module_sales',
     'quotes'        => 'module_sales',
     'products'      => 'module_sales',
+    'taxes'         => 'module_sales',
     'expenses'      => 'module_financial',
     'credentials'   => 'module_credential',
+    // Each kind of tag is its record's module - api/v1/tags/ checks the kind
+    // asked about (tagApiKind()), so there is no one module to check here
+    'tags'          => '',
+    // Likewise each kind of category - api/v1/categories/ checks the kind (categoryApiKind())
+    'categories'    => '',
+    // Roles: an admin key reads them all, any other its own user's - api/v1/roles/read.php decides
+    'roles'         => '',
 ];
 
 // Operation -> required permission level (read = 1, create/update = 2, delete = 3).
@@ -155,6 +176,8 @@ $operation_level = [
     'create.php' => 2,
     'update.php' => 2,
     'delete.php' => 3,
+    // technicians/time.php only reads
+    'time.php'   => 1,
 ];
 
 if (!isset($resource_module[$resource])) {
@@ -165,8 +188,8 @@ if (!isset($resource_module[$resource])) {
 }
 
 $required_level = $operation_level[$operation_file] ?? 2;
-if (lookupUserPermission($resource_module[$resource]) < $required_level) {
-    apiDeny("The user linked to this API key does not have permission for this action.");
+if ($resource_module[$resource] !== '' && lookupUserPermission($resource_module[$resource]) < $required_level) {
+    apiDeny(apiPermissionText($resource_module[$resource], $required_level));
 }
 
 // --- 3) Target client for writes: taken from the request, validated against the user ---
@@ -177,7 +200,10 @@ if (lookupUserPermission($resource_module[$resource]) < $required_level) {
 // permission at all, just an optional filter applied inside apiClientScopeSql().
 $client_id = intval($_POST['client_id'] ?? $_GET['client_id'] ?? 0);
 $client_id_supplied = isset($_POST['client_id']) || isset($_GET['client_id']);
-$is_write = in_array($operation_file, ['create.php', 'update.php', 'delete.php'], true);
+// Everything but a read is a write - archive, unarchive, resolve and close act on one
+// client's record just as update does, so they name a client the user can reach too.
+// Listing the reads, not the writes, keeps a new kind of write from slipping past.
+$is_write = !in_array($operation_file, ['read.php', 'time.php'], true);
 if ($is_write && !apiUserCanAccessClient($client_id)) {
     // Writes act on a single client the caller names (client_id 0 = a global record).
     // The user must be able to access it - this also blocks a restricted user from

@@ -2,7 +2,7 @@
  * ITFlow - intl-tel-input wiring, shared by the agent side and the client portal.
  *
  * Lived in js/app.js until the portal needed it too. app.js cannot be loaded in
- * the portal - it calls DataTables, TinyMCE, Tom Select, Flatpickr and IMask
+ * the portal - it calls DataTables, TinyMCE, Flatpickr and IMask
  * unconditionally with no typeof guards, none of which the portal loads - so
  * the choice was to copy this or to split it out. Copying it would have left
  * two implementations of a subtle piece of logic to drift apart, so it is here.

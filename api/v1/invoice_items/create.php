@@ -15,7 +15,7 @@
  *   description      optional - Item description
  *   qty              required - Quantity
  *   price            required - Unit price
- *   tax_id           optional - Tax ID (default 0)
+ *   tax_id           optional - Tax ID (default 0, no tax), or 'default' for the client's usual rate
  *   item_order       optional - Display order (default 0)
  *   product_id       optional - Product ID for inventory tracking
  *
@@ -23,7 +23,7 @@
  *   - The parent invoice is loaded through apiClientScopeSql(), so a restricted
  *     key cannot modify another client's invoice.
  *   - The supplied client_id must match the invoice's client.
- *   - Inventory is only adjusted for tangible products.
+ *   - Inventory is only adjusted for products whose stock is tracked.
  *   - Invoice totals are automatically recalculated.
  */
 
@@ -37,7 +37,9 @@ $name = escapeSql(substr($_POST['name'], 0, 200) ?? '');
 $description = escapeSql($_POST['description'] ?? '');
 $qty = floatval($_POST['qty'] ?? 0);
 $price = floatval($_POST['price'] ?? 0);
-$tax_id = intval($_POST['tax_id'] ?? 0);
+// 'default' takes the rate a new line for the client gets (functions/tax.php: taxDefaultFor())
+$tax_id_posted = (string) ($_POST['tax_id'] ?? '0');
+$tax_id = intval($tax_id_posted);
 $item_order = intval($_POST['item_order'] ?? 0);
 $product_id = intval($_POST['product_id'] ?? 0);
 
@@ -75,13 +77,13 @@ if (
         $invoice_discount = floatval($invoice_row['invoice_discount_amount']);
 
         $subtotal = $price * $qty;
+        $take_stock = false;
 
         // Product inventory
         if ($product_id) {
 
-            $product_type = escapeSql(getFieldById('products', $product_id, 'product_type'));
-
-            if ($product_type === 'product') {
+            // Only products whose stock is tracked move stock
+            if (intval(getFieldById('products', $product_id, 'product_track_stock')) === 1) {
 
                 $stock_sql = mysqli_query(
                     $mysqli,
@@ -95,13 +97,8 @@ if (
 
                 if ($available_stock >= $qty) {
 
-                    mysqli_query(
-                        $mysqli,
-                        "INSERT INTO product_stock
-                         SET stock_qty = -$qty,
-                             stock_note = 'QTY $qty - Invoice $invoice_id',
-                             stock_product_id = $product_id"
-                    );
+                    // Taken off the shelf once the line is in
+                    $take_stock = true;
 
                 } else {
 
@@ -121,22 +118,14 @@ if (
 
         }
 
-        // Tax
-        if ($tax_id > 0) {
-
-            $tax_sql = mysqli_query($mysqli, "SELECT tax_percent FROM taxes WHERE tax_id = $tax_id");
-            $tax_row = mysqli_fetch_assoc($tax_sql);
-
-            $tax_percent = floatval($tax_row['tax_percent']);
-            $tax_amount = $subtotal * $tax_percent / 100;
-
-        } else {
-
-            $tax_amount = 0;
-
+        // Tax - at the rate's parts, each to the cent; a rate that doesn't exist is none
+        if ($tax_id_posted === 'default') {
+            $tax_id = $product_id ? taxDefaultFor($client_id, 'product', intval(getFieldById('products', $product_id, 'product_tax_id'))) : taxDefaultFor($client_id);
         }
-
-        $total = $subtotal + $tax_amount;
+        if ($tax_id > 0 && !taxRow($tax_id)) {
+            $tax_id = 0;
+        }
+        [$subtotal, $tax_amount, $total] = billingLineTax($qty, $price, $tax_id);
 
         $insert_sql = mysqli_query(
             $mysqli,
@@ -158,26 +147,12 @@ if (
 
             $insert_id = mysqli_insert_id($mysqli);
 
-            // Recalculate invoice total
-            $items_sql = mysqli_query(
-                $mysqli,
-                "SELECT SUM(item_total) AS invoice_total
-                 FROM invoice_items
-                 WHERE item_invoice_id = $invoice_id"
-            );
+            if ($take_stock) {
+                productStockMove($product_id, -$qty, 'sold', ['invoice_id' => $invoice_id, 'item_id' => $insert_id, 'note' => stripslashes($invoice_prefix) . "$invoice_number - API"]);
+            }
 
-            $items_row = mysqli_fetch_assoc($items_sql);
-            $invoice_total = floatval($items_row['invoice_total']);
-
-            $new_invoice_amount = $invoice_total - $invoice_discount;
-
-            mysqli_query(
-                $mysqli,
-                "UPDATE invoices
-                 SET invoice_amount = $new_invoice_amount
-                 WHERE invoice_id = $invoice_id
-                 LIMIT 1"
-            );
+            // The invoice's total - and each line's tax after any discount (functions/billing.php)
+            billingRecalc('invoice', $invoice_id);
 
             logAudit(
                 "Invoice",

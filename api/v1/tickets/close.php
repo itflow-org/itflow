@@ -38,7 +38,7 @@ if (!empty($ticket_id)) {
             // Logging
             logTicketHistory($ticket_id, "Closed via the API ($api_key_name)");
 
-            logAudit("Ticket", "Closed", "$ticket_prefix$ticket_number ticket via API ($api_key_name)", $client_id, $ticket_id);
+            logAudit("Ticket", "Close", "$ticket_prefix$ticket_number ticket via API ($api_key_name)", $client_id, $ticket_id);
             logAudit("API", "Success", "Closed ticket $ticket_prefix$ticket_number via API ($api_key_name)", $client_id);
         }
 

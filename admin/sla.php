@@ -31,7 +31,7 @@ while ($holiday_row = mysqli_fetch_assoc($sql_holidays)) {
 
 $holiday_year = intval(date('Y'));
 
-// Global default assignments: [priority] = sla_id (per-client overrides live on the client edit modal)
+// Default assignments: [priority] = sla_id - a client's contract can set its own (functions/contract_billing.php)
 $assignments = [];
 $sql_assignments = mysqli_query($mysqli, "SELECT sla_assignment_priority, sla_assignment_sla_id FROM sla_assignments WHERE sla_assignment_client_id = 0");
 while ($assignment_row = mysqli_fetch_assoc($sql_assignments)) {
@@ -51,7 +51,7 @@ while ($assignment_row = mysqli_fetch_assoc($sql_assignments)) {
 
     <div class="card-body">
 
-        <p class="text-muted">SLAs are optional. Tickets only get response/resolution targets when an assignment below matches their client and priority - with nothing assigned, nothing changes.</p>
+        <p class="text-muted">SLAs are optional. A new ticket gets the SLA its client's contract sets for its priority, else the default for the priority below - with nothing assigned, nothing changes.</p>
 
         <div class="table-responsive-sm">
             <table class="table table-striped table-borderless table-hover">
@@ -94,7 +94,7 @@ while ($assignment_row = mysqli_fetch_assoc($sql_assignments)) {
                         </td>
                         <td>
                             <div class="dropdown dropstart text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
@@ -132,7 +132,7 @@ while ($assignment_row = mysqli_fetch_assoc($sql_assignments)) {
         <form action="post.php" method="post" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-            <strong>Default (all clients)</strong>
+            <strong>Default (for a client whose contract sets none)</strong>
             <div class="row g-2 mt-2">
                 <?php foreach (['Low', 'Medium', 'High', 'Urgent'] as $priority) {
                     $selected_sla_id = $assignments[0][$priority] ?? 0;
@@ -151,7 +151,7 @@ while ($assignment_row = mysqli_fetch_assoc($sql_assignments)) {
             <button type="submit" name="save_sla_assignments" class="btn btn-primary"><i class="fas fa-check me-2"></i>Save Defaults</button>
         </form>
 
-        <small class="text-muted d-block mt-2">Per-client overrides are set on each client (edit client, Notes tab).</small>
+        <small class="text-muted d-block mt-2">A client has no SLAs of its own: a contract in force for the client comes first, for the priorities it sets an SLA for, and these defaults cover the rest.</small>
     </div>
 </div>
 
@@ -258,7 +258,7 @@ while ($assignment_row = mysqli_fetch_assoc($sql_assignments)) {
                                     <form action="post.php" method="post" onsubmit="return confirm('Remove this closure day? Open ticket targets will be recalculated.');">
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="holiday_id" value="<?= $holiday_id ?>">
-                                        <button type="submit" name="delete_holiday" class="btn btn-sm btn-light border"><i class="fas fa-fw fa-trash text-danger"></i></button>
+                                        <button type="submit" name="delete_holiday" class="btn btn-sm btn-light border" title="Delete holiday"><i class="fas fa-fw fa-trash text-danger"></i></button>
                                     </form>
                                 </td>
                             </tr>

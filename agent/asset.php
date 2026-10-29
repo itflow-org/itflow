@@ -1,5 +1,18 @@
 <?php
 
+/*
+ * Asset - one asset.
+ *
+ * Built around what a tech needs from the box: what it is and its status
+ * (header), how to get on it (IP, MAC, links - each one copies or opens in a
+ * click), what it physically is and whether it is still under warranty, where
+ * it is and who has it. Everything linked to it - interfaces, credentials,
+ * tickets, licenses, documents, files, services, notes - and its history
+ * sit in tabs with counts, so nothing is hidden just because it is empty and
+ * the page does not run to ten screens. The open tab follows the URL hash
+ * (#tickets) and is remembered between visits.
+ */
+
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
@@ -14,1371 +27,1189 @@ if (isset($_GET['client_id'])) {
 // Perms
 enforceUserPermission('module_support');
 
-if (isset($_GET['asset_id'])) {
-    $asset_id = intval($_GET['asset_id']);
+$asset_id = intval($_GET['asset_id'] ?? 0);
 
-    $sql = mysqli_query($mysqli, "SELECT asset_contact_id, asset_created_at, asset_description, asset_favorite, asset_id,
-        asset_install_date, asset_location_id, asset_make, asset_model, asset_name, asset_notes,
-        asset_os, asset_photo, asset_physical_location, asset_purchase_date,
-        asset_purchase_reference, asset_serial, asset_status, asset_type, asset_uri, asset_uri_2,
-        asset_uri_client, asset_vendor_id, asset_warranty_expire, client_id, client_name,
-        contact_archived_at, contact_email, contact_extension, contact_mobile,
-        contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code,
-        interface_ip, interface_ipv6, interface_mac, interface_nat_ip, interface_network_id,
-        location_archived_at, location_name FROM assets
-        LEFT JOIN clients ON client_id = asset_client_id
-        LEFT JOIN contacts ON asset_contact_id = contact_id
-        LEFT JOIN locations ON asset_location_id = location_id
-        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
-        WHERE asset_id = $asset_id
-        " . clientScopeSql('asset_client_id') . "
-        $client_query
-        LIMIT 1
-    ");
+$sql = mysqli_query($mysqli, "SELECT asset_archived_at, asset_client_id, asset_contact_id, asset_created_at, asset_description, asset_favorite, asset_id,
+    asset_install_date, asset_location_id, asset_make, asset_model, asset_name, asset_notes,
+    asset_os, asset_photo, asset_physical_location, asset_purchase_date,
+    asset_purchase_reference, asset_serial, asset_status, asset_type, asset_uri, asset_uri_2,
+    asset_uri_client, asset_vendor_id, asset_warranty_expire, client_id, client_name,
+    contact_archived_at, contact_email, contact_extension, contact_mobile,
+    contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code, contact_photo,
+    interface_ip, interface_ipv6, interface_mac, interface_nat_ip, interface_network_id,
+    location_archived_at, location_name, network_name, network_type, network_description, vendor_name,
+    asset_product_id, asset_invoice_id, invoice_prefix, invoice_number, invoice_date, product_name FROM assets
+    LEFT JOIN clients ON client_id = asset_client_id
+    LEFT JOIN contacts ON asset_contact_id = contact_id
+    LEFT JOIN locations ON asset_location_id = location_id
+    LEFT JOIN vendors ON asset_vendor_id = vendor_id
+    LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
+    LEFT JOIN networks ON network_id = interface_network_id
+    LEFT JOIN invoices ON invoice_id = asset_invoice_id AND asset_invoice_id > 0
+    LEFT JOIN products ON product_id = asset_product_id AND asset_product_id > 0
+    WHERE asset_id = $asset_id
+    " . clientScopeSql('asset_client_id') . "
+    $client_query
+    LIMIT 1
+");
 
-    if (mysqli_num_rows($sql) == 0) {
-        echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+if (mysqli_num_rows($sql) == 0) {
 
-    } else {
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
-        $row = mysqli_fetch_assoc($sql);
-        $client_id = intval($row['client_id']);
-        $client_name = escapeHtml($row['client_name']);
-        $asset_id = intval($row['asset_id']);
-        $asset_type = escapeHtml($row['asset_type']);
-        $asset_name = escapeHtml($row['asset_name']);
-        $asset_description = escapeHtml($row['asset_description']);
-        $asset_make = escapeHtml($row['asset_make']);
-        $asset_model = escapeHtml($row['asset_model']);
-        $asset_serial = escapeHtml($row['asset_serial']);
-        $asset_os = escapeHtml($row['asset_os']);
-        $asset_uri = escapeUrl($row['asset_uri']);
-        $asset_uri_2 = escapeUrl($row['asset_uri_2']);
-        $asset_uri_client = escapeUrl($row['asset_uri_client']);
-        $asset_status = escapeHtml($row['asset_status']);
-        $asset_purchase_reference = escapeHtml($row['asset_purchase_reference']);
-        $asset_purchase_date = escapeHtml($row['asset_purchase_date']);
-        $asset_warranty_expire = escapeHtml($row['asset_warranty_expire']);
-        $asset_install_date = escapeHtml($row['asset_install_date']);
-        $asset_photo = escapeHtml($row['asset_photo']);
-        $asset_physical_location = escapeHtml($row['asset_physical_location']);
-        $asset_notes = escapeHtml($row['asset_notes']);
-        $asset_favorite = intval($row['asset_favorite']);
-        $asset_created_at = escapeHtml($row['asset_created_at']);
-        $asset_vendor_id = intval($row['asset_vendor_id']);
-        $asset_location_id = intval($row['asset_location_id']);
-        $asset_contact_id = intval($row['asset_contact_id']);
+} else {
 
-        $asset_ip = escapeHtml($row['interface_ip']);
-        $asset_ipv6 = escapeHtml($row['interface_ipv6']);
-        $asset_nat_ip = escapeHtml($row['interface_nat_ip']);
-        $asset_mac = escapeHtml($row['interface_mac']);
-        $asset_network_id = intval($row['interface_network_id']);
+    $row = mysqli_fetch_assoc($sql);
+    $asset_row = $row; // raw, for the quick pickers - $row gets reused below
+    $client_id = intval($row['client_id']);
+    $client_name = escapeHtml($row['client_name']);
+    $asset_id = intval($row['asset_id']);
+    $asset_type = escapeHtml($row['asset_type']);
+    $asset_name = escapeHtml($row['asset_name']);
+    $asset_description = escapeHtml($row['asset_description']);
+    $asset_make_model = escapeHtml(trim($row['asset_make'] . ' ' . $row['asset_model']));
+    $asset_serial = escapeHtml($row['asset_serial']);
+    $asset_os = escapeHtml($row['asset_os']);
+    $asset_os_icon = assetOsIcon($row['asset_os']);
+    $asset_links = assetLinks($row['asset_uri'], $row['asset_uri_2'], $row['asset_uri_client']);
+    $asset_status_pill = assetStatusPill($row['asset_status']);
+    $asset_purchase_reference = escapeHtml($row['asset_purchase_reference']);
+    $asset_purchase_date = escapeHtml($row['asset_purchase_date']);
+    $asset_purchase_age = assetAge($row['asset_purchase_date']);
+    $asset_install_date = escapeHtml($row['asset_install_date']);
+    $asset_install_age = assetAge($row['asset_install_date']);
+    $asset_warranty = assetWarranty($row['asset_warranty_expire']);
+    $asset_photo = escapeHtml($row['asset_photo']);
+    $asset_physical_location = escapeHtml($row['asset_physical_location']);
+    $asset_notes = escapeHtml($row['asset_notes']);
+    $asset_favorite = intval($row['asset_favorite']);
+    $asset_created_at = escapeHtml($row['asset_created_at']);
+    $asset_archived_at = escapeHtml($row['asset_archived_at']);
+    $asset_vendor_id = intval($row['asset_vendor_id']);
+    $asset_contact_id = intval($row['asset_contact_id']);
+    $asset_tone = assetTypeTone($row['asset_type']);
+    // Its type's details, what its OS field is called on it, and the fields it has (functions/asset_type.php)
+    $asset_spec_rows = assetSpecRows($row['asset_type'], assetSpecs($asset_id), intval($row['asset_client_id']));
+    $asset_os_label = assetTypeOsLabel($row['asset_type']) === 'Firmware' ? 'Firmware' : 'OS';
+    $asset_has_contact = assetTypeHasField($row['asset_type'], 'contact');
+    $asset_has_warranty = assetTypeHasField($row['asset_type'], 'warranty');
+    // The virtual machines that run on it
+    $asset_guests = assetGuests($asset_id, intval($row['asset_client_id']));
+    // Sold to the client on one of our invoices, from a catalog product
+    $can_sales = lookupUserPermission('module_sales') >= 1;
+    $asset_invoice_id = intval($row['asset_invoice_id']);
+    $asset_sold_number = $row['invoice_number'] !== null ? escapeHtml($row['invoice_prefix'] . $row['invoice_number']) : '';
+    $asset_sold_date = escapeHtml((string) $row['invoice_date']);
+    $asset_product_id = intval($row['asset_product_id']);
+    $asset_product_name = escapeHtml((string) $row['product_name']);
+    $device_icon = getAssetIcon($row['asset_type']);
 
-        $device_icon = getAssetIcon($asset_type);
+    $asset_ip = escapeHtml($row['interface_ip']);
+    $asset_ipv6 = escapeHtml($row['interface_ipv6']);
+    $asset_nat_ip = escapeHtml($row['interface_nat_ip']);
+    $asset_mac = escapeHtml($row['interface_mac']);
+    $asset_network_id = intval($row['interface_network_id']);
+    $asset_network_type = networkType($row);
+    $network_name = escapeHtml($row['network_name']);
+    $vendor_name = escapeHtml($row['vendor_name']);
 
-        $contact_name = escapeHtml($row['contact_name']);
-        $contact_email = escapeHtml($row['contact_email']);
-        $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
-        $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-        $contact_extension = escapeHtml($row['contact_extension']);
-        $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
-        $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-        $contact_archived_at = escapeHtml($row['contact_archived_at']);
-        if ($contact_archived_at) {
-            $contact_name_display = "<span class='text-danger' title='Archived'><s>$contact_name</s></span>";
-        } else {
-            $contact_name_display = $contact_name;
-        }
-        $location_name = escapeHtml($row['location_name']);
-        if (empty($location_name)) {
-            $location_name = "-";
-        }
-        $location_archived_at = escapeHtml($row['location_archived_at']);
-        if ($location_archived_at) {
-            $location_name_display = "<span class='text-danger' title='Archived'><s>$location_name</s></span>";
-        } else {
-            $location_name_display = $location_name;
-        }
+    $contact_name = escapeHtml($row['contact_name']);
+    $contact_archived = !empty($row['contact_archived_at']);
+    $location_name = escapeHtml($row['location_name']);
+    $location_archived = !empty($row['location_archived_at']);
 
-        // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
-        $page_title = $row['asset_name'];
+    $can_edit = lookupUserPermission('module_support') >= 2;
+    $can_delete = lookupUserPermission('module_support') >= 3;
+    $can_credentials = lookupUserPermission('module_credential') >= 1;
+    $can_credentials_edit = lookupUserPermission('module_credential') >= 2;
 
-        $sql_related_tickets = mysqli_query($mysqli, "
-            SELECT tickets.*, users.*, ticket_statuses.*
-            FROM tickets
-            LEFT JOIN users ON ticket_assigned_to = user_id
-            LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
-            LEFT JOIN ticket_assets ON tickets.ticket_id = ticket_assets.ticket_id
-            WHERE ticket_asset_id = $asset_id OR ticket_assets.asset_id = $asset_id
-            GROUP BY tickets.ticket_id
-            ORDER BY ticket_number DESC
-        ");
-        $ticket_count = mysqli_num_rows($sql_related_tickets);
+    // The rack it sits in, if any
+    $asset_rack = rackPositionForAsset($asset_id);
+    if ($asset_rack) {
+        $asset_rack_id = intval($asset_rack['rack_id']);
+        $asset_rack_name = escapeHtml($asset_rack['rack_name']);
+        $asset_rack_position = rackPositionLabel($asset_rack['unit_start_number'], $asset_rack['unit_end_number']) . ', ' . ($asset_rack['unit_face'] === 'rear' ? 'rear' : 'front');
+    }
 
-        // Related Recurring Tickets Query
-        $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_tickets.* FROM recurring_tickets
-            LEFT JOIN recurring_ticket_assets ON recurring_tickets.recurring_ticket_id = recurring_ticket_assets.recurring_ticket_id
-            WHERE recurring_ticket_asset_id = $asset_id OR recurring_ticket_assets.asset_id = $asset_id
-            GROUP BY recurring_tickets.recurring_ticket_id
-            ORDER BY recurring_ticket_next_run DESC"
-        );
-        $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
+    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    $page_title = $row['asset_name'];
 
-        // Related Documents
-        $sql_related_documents = mysqli_query($mysqli, "SELECT 1 FROM asset_documents
-            LEFT JOIN documents ON asset_documents.document_id = documents.document_id
-            WHERE asset_documents.asset_id = $asset_id
-            AND document_archived_at IS NULL
-            ORDER BY document_name DESC"
-        );
-        $document_count = mysqli_num_rows($sql_related_documents);
+    // Tags - functions/tags.php
+    $asset_tags_display = tagPills('asset', $asset_id, tagsForRecord('asset', $asset_id), "assets.php?client_id=$client_id&");
 
-        // Tags - many to many relationship
-        $asset_tag_name_display_array = array();
-        $asset_tag_id_array = array();
-        $sql_asset_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, tag_id, tag_name FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
-        while ($row = mysqli_fetch_assoc($sql_asset_tags)) {
+    // Tickets - linked as the ticket's asset or as one of its other assets (functions/ticket.php)
+    $related_tickets = ticketRows(ticketAssetSql($asset_id));
+    $ticket_count = count($related_tickets);
+    $ticket_open_count = count(array_filter(array_column($related_tickets, 'is_open')));
 
-            $asset_tag_id = intval($row['tag_id']);
-            $asset_tag_name = escapeHtml($row['tag_name']);
-            $asset_tag_color = escapeHtml($row['tag_color']);
-            if (empty($asset_tag_color)) {
-                $asset_tag_color = "dark";
-            }
-            $asset_tag_icon = escapeHtml($row['tag_icon']);
-            if (empty($asset_tag_icon)) {
-                $asset_tag_icon = "tag";
-            }
+    // Recurring tickets
+    $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_tickets.recurring_ticket_id, recurring_ticket_subject,
+            recurring_ticket_priority, recurring_ticket_frequency, recurring_ticket_next_run, recurring_ticket_paused_at
+        FROM recurring_tickets
+        LEFT JOIN recurring_ticket_assets ON recurring_tickets.recurring_ticket_id = recurring_ticket_assets.recurring_ticket_id
+        WHERE recurring_ticket_asset_id = $asset_id OR recurring_ticket_assets.asset_id = $asset_id
+        GROUP BY recurring_tickets.recurring_ticket_id
+        ORDER BY recurring_ticket_next_run ASC"
+    );
+    $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 
-            $asset_tag_id_array[] = $asset_tag_id;
-            $asset_tag_name_display_array[] = "<a href='client_assets.php?client_id=$client_id&q=$asset_tag_name'><span class='badge text-light p-1 me-1' style='background-color: $asset_tag_color;'><i class='fa fa-fw fa-$asset_tag_icon me-2'></i>$asset_tag_name</span></a>";
-        }
-        $asset_tags_display = implode('', $asset_tag_name_display_array);
+    // Network interfaces, in port order, and what each one is plugged into (functions/asset_interface.php)
+    $interfaces = [];
+    $sql_related_interfaces = mysqli_query($mysqli, "SELECT asset_interfaces.*, network_name, network, network_type, network_description, network_archived_at
+        FROM asset_interfaces
+        LEFT JOIN networks ON network_id = interface_network_id AND interface_network_id > 0
+        WHERE interface_asset_id = $asset_id AND interface_archived_at IS NULL");
+    while ($row = mysqli_fetch_assoc($sql_related_interfaces)) {
+        $interfaces[intval($row['interface_id'])] = $row;
+    }
+    $interface_links = interfaceLinks(array_keys($interfaces));
+    interfaceSort($interfaces);
+    $interface_count = count($interfaces);
+    // A switch, firewall or access point with a few ports is drawn as its ports too
+    $interface_port_map = in_array(html_entity_decode($asset_type, ENT_QUOTES, 'UTF-8'), INTERFACE_PORT_MAP_TYPES, true) && $interface_count >= 4;
 
-        // Network Interfaces
-        $sql_related_interfaces = mysqli_query($mysqli, "
-            SELECT
-                ai.interface_id,
-                ai.interface_name,
-                ai.interface_description,
-                ai.interface_type,
-                ai.interface_mac,
-                ai.interface_ip,
-                ai.interface_nat_ip,
-                ai.interface_ipv6,
-                ai.interface_primary,
-                ai.interface_notes,
-                n.network_name,
-                n.network_id,
-                connected_interfaces.interface_id AS connected_interface_id,
-                connected_interfaces.interface_name AS connected_interface_name,
-                connected_assets.asset_name AS connected_asset_name,
-                connected_assets.asset_id AS connected_asset_id,
-                connected_assets.asset_type AS connected_asset_type
-            FROM asset_interfaces AS ai
-            LEFT JOIN networks AS n
-              ON n.network_id = ai.interface_network_id
-            LEFT JOIN asset_interface_links AS ail
-              ON (ail.interface_a_id = ai.interface_id OR ail.interface_b_id = ai.interface_id)
-            LEFT JOIN asset_interfaces AS connected_interfaces
-              ON (
-                  (ail.interface_a_id = ai.interface_id AND ail.interface_b_id = connected_interfaces.interface_id)
-                  OR
-                  (ail.interface_b_id = ai.interface_id AND ail.interface_a_id = connected_interfaces.interface_id)
-              )
-            LEFT JOIN assets AS connected_assets
-              ON connected_assets.asset_id = connected_interfaces.interface_asset_id
-            WHERE
-                ai.interface_asset_id = $asset_id
-                AND ai.interface_archived_at IS NULL
-            ORDER BY ai.interface_name ASC
-        ");
+    // Files
+    $sql_related_files = mysqli_query($mysqli, "SELECT file_created_at, file_description, file_ext, files.file_id, file_name FROM asset_files
+        LEFT JOIN files ON asset_files.file_id = files.file_id
+        WHERE asset_files.asset_id = $asset_id
+        AND file_archived_at IS NULL
+        ORDER BY file_name ASC"
+    );
+    $files_count = mysqli_num_rows($sql_related_files);
 
-        $interface_count = mysqli_num_rows($sql_related_interfaces);
+    // Documents
+    $sql_related_documents = mysqli_query($mysqli, "SELECT document_created_at, document_description, documents.document_id, document_name,
+        document_updated_at, user_name FROM asset_documents, documents
+        LEFT JOIN users ON document_created_by = user_id
+        WHERE asset_documents.asset_id = $asset_id
+        AND asset_documents.document_id = documents.document_id
+        AND document_archived_at IS NULL
+        ORDER BY document_name ASC"
+    );
+    $document_count = mysqli_num_rows($sql_related_documents);
 
-        // Related Files
-        $sql_related_files = mysqli_query($mysqli, "SELECT file_created_at, file_description, file_ext, files.file_id, file_name FROM asset_files
-            LEFT JOIN files ON asset_files.file_id = files.file_id
-            WHERE asset_files.asset_id = $asset_id
-            AND file_archived_at IS NULL
-            ORDER BY file_name DESC"
-        );
-        $files_count = mysqli_num_rows($sql_related_files);
-        // View Mode -- 0 List, 1 Thumbnail
-        if (!empty($_GET['view'])) {
-            $view = intval($_GET['view']);
-        } else {
-            $view = 0;
-        }
-        if ($view == 1) {
-            $query_images = "AND (file_ext LIKE 'JPG' OR file_ext LIKE 'jpg' OR file_ext LIKE 'JPEG' OR file_ext LIKE 'jpeg' OR file_ext LIKE 'png' OR file_ext LIKE 'PNG' OR file_ext LIKE 'webp' OR file_ext LIKE 'WEBP')";
-        } else {
-            $query_images = '';
-        }
+    // Credentials
+    $related_credentials = $can_credentials ? credentialRows("credential_asset_id = $asset_id AND credential_client_id = $client_id") : [];
+    $credential_count = count($related_credentials);
 
-        // Related Documents
-        $sql_related_documents = mysqli_query($mysqli, "SELECT document_created_at, document_description, documents.document_id, document_name,
-            document_updated_at, user_name FROM asset_documents, documents
-            LEFT JOIN users ON document_created_by = user_id
-            WHERE asset_documents.asset_id = $asset_id
-            AND asset_documents.document_id = documents.document_id
-            AND document_archived_at IS NULL
-            ORDER BY document_name ASC"
-        );
-        $document_count = mysqli_num_rows($sql_related_documents);
+    // Licenses it holds a seat on, with each one's seats in use and the key it was given
+    $held_software = softwareHeldBy('asset', $asset_id);
+    $software_count = count($held_software);
 
+    // The services it is part of - most important first
+    $linked_services = servicesFor('asset', $asset_id);
+    $service_count = count($linked_services);
 
-        // Related Credentials Query
-        $sql_related_credentials = mysqli_query($mysqli, "
-            SELECT
-                credentials.credential_id AS credential_id,
-                credentials.credential_name,
-                credentials.credential_description,
-                credentials.credential_uri,
-                credentials.credential_username,
-                credentials.credential_password,
-                credentials.credential_otp_secret,
-                credentials.credential_note,
-                credentials.credential_favorite,
-                credentials.credential_contact_id,
-                credentials.credential_asset_id
-            FROM credentials
-            LEFT JOIN credential_tags ON credential_tags.credential_id = credentials.credential_id
-            LEFT JOIN tags ON tags.tag_id = credential_tags.tag_id
-            WHERE credential_asset_id = $asset_id
-              AND credential_archived_at IS NULL
-            GROUP BY credentials.credential_id
-            ORDER BY credential_name DESC
-        ");
-        $credential_count = mysqli_num_rows($sql_related_credentials);
+    // Notes - 1 to many relationship
+    $sql_related_notes = mysqli_query($mysqli, "SELECT asset_note, asset_note_created_at, asset_note_id, asset_note_type, user_name FROM asset_notes
+        LEFT JOIN users ON asset_note_created_by = user_id
+        WHERE asset_note_asset_id = $asset_id
+        AND asset_note_archived_at IS NULL
+        ORDER BY asset_note_created_at DESC"
+    );
+    $note_count = mysqli_num_rows($sql_related_notes);
 
-        // Related Software Query
-        $sql_related_software = mysqli_query(
-            $mysqli,
-            "SELECT software_expire, software_assets.software_id, software_key, software_license_type,
-                software_name, software_notes, software_purchase, software_seats, software_type,
-                software_version FROM software_assets
-            LEFT JOIN software ON software_assets.software_id = software.software_id
-            WHERE software_assets.asset_id = $asset_id
-            AND software_archived_at IS NULL
-            ORDER BY software_name DESC"
-        );
+    // Note type icons, read from the categories list so the seeded icons
+    // stay the single source of truth
+    $note_type_icons = array();
+    $sql_note_type_icons = mysqli_query($mysqli, "SELECT category_name, category_icon FROM categories WHERE category_type = 'asset_note_type'");
+    while ($row = mysqli_fetch_assoc($sql_note_type_icons)) {
+        $note_type_icons[escapeHtml($row['category_name'])] = escapeHtml($row['category_icon']);
+    }
 
-        $software_count = mysqli_num_rows($sql_related_software);
+    // The tabs, in the order a tech reaches for them
+    // Its history, from the audit log
+    $history = auditLogHistory('Asset', $asset_id);
 
-        // Linked Services
-        $sql_linked_services = mysqli_query($mysqli, "SELECT service_category, service_description, service_assets.service_id, service_importance,
-            service_name FROM service_assets, services
-            WHERE service_assets.asset_id = $asset_id
-            AND service_assets.service_id = services.service_id
-            ORDER BY service_name ASC"
-        );
-        $service_count = mysqli_num_rows($sql_linked_services);
+    $asset_tabs = [
+        'interfaces' => ['label' => 'Interfaces', 'icon' => 'fa-ethernet', 'count' => $interface_count],
+        'credentials' => ['label' => 'Credentials', 'icon' => 'fa-key', 'count' => $credential_count],
+        'tickets' => ['label' => 'Tickets', 'icon' => 'fa-life-ring', 'count' => $ticket_count, 'badge' => $ticket_open_count],
+        'recurring' => ['label' => 'Recurring', 'icon' => 'fa-redo-alt', 'count' => $recurring_ticket_count],
+        'licenses' => ['label' => 'Licenses', 'icon' => 'fa-cube', 'count' => $software_count],
+        'documents' => ['label' => 'Documents', 'icon' => 'fa-file-alt', 'count' => $document_count],
+        'files' => ['label' => 'Files', 'icon' => 'fa-paperclip', 'count' => $files_count],
+        'services' => ['label' => 'Services', 'icon' => 'fa-stream', 'count' => $service_count],
+        'notes' => ['label' => 'Notes', 'icon' => 'fa-sticky-note', 'count' => $note_count],
+        'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => $history['count']],
+    ];
+    if (!$can_credentials) {
+        unset($asset_tabs['credentials']);
+    }
 
-        $linked_services = array();
+    ?>
 
-        // Notes - 1 to many relationship
-        $sql_related_notes = mysqli_query($mysqli, "SELECT asset_note, asset_note_created_at, asset_note_id, asset_note_type, user_name FROM asset_notes
-            LEFT JOIN users ON asset_note_created_by = user_id
-            WHERE asset_note_asset_id = $asset_id
-            AND asset_note_archived_at IS NULL
-            ORDER BY asset_note_created_at DESC"
-        );
-        $note_count = mysqli_num_rows($sql_related_notes);
+    <ol class="breadcrumb d-print-none">
+        <li class="breadcrumb-item">
+            <a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="assets.php?client_id=<?= $client_id ?>">Assets</a>
+        </li>
+        <li class="breadcrumb-item active"><?= $asset_name ?></li>
+    </ol>
 
-        // Note type icons, read from the categories list so the seeded icons
-        // stay the single source of truth
-        $note_type_icons = array();
-        $sql_note_type_icons = mysqli_query($mysqli, "SELECT category_name, category_icon FROM categories WHERE category_type = 'asset_note_type'");
-        while ($row = mysqli_fetch_assoc($sql_note_type_icons)) {
-            $note_type_icons[escapeHtml($row['category_name'])] = escapeHtml($row['category_icon']);
-        }
+    <!-- What it is -->
+    <div class="card mb-3">
+        <div class="card-body d-flex flex-wrap align-items-center gap-3">
+            <?php if ($asset_photo) { ?>
+                <a href="<?= "../uploads/clients/$client_id/$asset_photo" ?>" target="_blank" rel="noopener" title="Open photo">
+                    <img class="itflow-asset-icon itflow-asset-icon-lg" src="<?= "../uploads/clients/$client_id/$asset_photo" ?>" alt="Photo of <?= $asset_name ?>">
+                </a>
+            <?php } else { ?>
+                <span class="itflow-asset-icon itflow-asset-icon-lg itflow-asset-tone-<?= $asset_tone ?>" aria-hidden="true"><i class="fas fa-fw fa-<?= $device_icon ?>"></i></span>
+            <?php } ?>
 
-        ?>
-
-        <div class="row">
-
-            <div class="col-md-3">
-
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <button type="button" class="btn btn-light float-end ajax-modal"
-                            data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
-                            <i class="fas fa-fw fa-edit"></i>
-                        </button>
-                        <h4 class="text-bold"><i class="fa fa-fw text-secondary fa-<?= $device_icon; ?> me-2"></i><?= $asset_name; ?>
-                            <?php if ($asset_favorite) { ?><i class="fas fa-fw text-warning fa-star" title="Favorite"></i><?php } ?>
-                        </h4>
-                        <?php if ($asset_photo) { ?>
-                            <img class="img-fluid rounded-circle p-3" alt="asset_photo" src="<?= "../uploads/clients/$client_id/$asset_photo"; ?>">
-                        <?php } ?>
-                        <?php if ($asset_description) { ?>
-                            <div class="text-secondary"><?= $asset_description; ?></div>
-                        <?php } ?>
-                    </div>
-                    <div class="card-body">
-                        <?php if ($asset_tags_display) { ?>
-                            <div>
-                                <?= $asset_tags_display ?>
-                            </div>
-                        <?php } ?>
-                        <?php if ($asset_type) { ?>
-                            <div class="mt-1"><i class="fa fa-fw fa-tag text-secondary me-2"></i><?= $asset_type; ?></div>
-                        <?php }
-                        if ($asset_make) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary me-2"></i><?= "$asset_make $asset_model"; ?></div>
-                        <?php }
-                        if ($asset_os) { ?>
-                            <div class="mt-2"><i class="fab fa-fw fa-windows text-secondary me-2"></i><?= "$asset_os"; ?></div>
-                        <?php }
-                        if ($asset_serial) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary me-1"></i><span class="badge"><?= $asset_serial; ?></span></div>
-                        <?php }
-                        if ($asset_purchase_date) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-shopping-cart text-secondary me-2"></i><?= date('Y-m-d', strtotime($asset_purchase_date)); ?></div>
-                        <?php }
-                        if ($asset_install_date) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-calendar-check text-secondary me-2"></i><?= date('Y-m-d', strtotime($asset_install_date)); ?></div>
-                        <?php }
-                        if ($asset_warranty_expire) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-exclamation-triangle text-secondary me-2"></i><?= date('Y-m-d', strtotime($asset_warranty_expire)); ?></div>
-                        <?php } ?>
-                    </div>
+            <div class="flex-grow-1 min-w-0">
+                <h1 class="h4 fw-semibold mb-1 d-flex flex-wrap align-items-center gap-2">
+                    <span><?= $asset_name ?></span>
+                    <?php if ($asset_favorite) { ?><i class="fas fa-star text-warning fs-6" title="Favorite"></i><?php } ?>
+                    <?php if ($asset_archived_at) { ?><span class="badge rounded-pill text-bg-secondary fw-normal fs-6">Archived</span><?php } ?>
+                    <?php if ($can_edit) { ?>
+                        <span class="fs-6"><?= quickPick('asset_status', $asset_id, (string) $asset_row['asset_status'], assetQuickHtml('asset_status', $asset_row), 'list', 0, $client_id) ?></span>
+                    <?php } else { ?>
+                        <span class="fs-6"><?= $asset_status_pill ?></span>
+                    <?php } ?>
+                </h1>
+                <div class="text-body-secondary small d-flex flex-wrap column-gap-3 row-gap-1">
+                    <span><i class="fas fa-fw fa-<?= $device_icon ?> me-1"></i><?= $asset_type ?></span>
+                    <?php if ($asset_make_model) { ?>
+                        <span><i class="fas fa-fw fa-cube me-1"></i><?= $asset_make_model ?></span>
+                    <?php } ?>
+                    <?php if ($asset_os) { ?>
+                        <span><i class="<?= $asset_os_icon ?> fa-fw me-1"></i><?= $asset_os ?></span>
+                    <?php } ?>
+                    <?php if ($asset_description) { ?>
+                        <span><?= $asset_description ?></span>
+                    <?php } ?>
                 </div>
-
-                <div class="card card-dark mb-3">
-                    <div class="card-header">
-                        <h5 class="card-title">Primary Network Interface</h5>
-                    </div>
-                    <div class="card-body">
-                        <?php if ($asset_ip) { ?>
-                            <div><i class="fa fa-fw fa-globe text-secondary me-2"></i><span class="font-monospace"><?= $asset_ip; ?></span></div>
-                        <?php } ?>
-                        <?php if ($asset_nat_ip) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-random text-secondary me-2"></i><span class="font-monospace"><?= $asset_nat_ip; ?></span></div>
-                        <?php }
-                        if ($asset_mac) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary me-2"></i><span class="font-monospace"><?= $asset_mac; ?></span></div>
-                        <?php }
-                        if ($asset_uri) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-link text-secondary me-2"></i><a href="<?= $asset_uri; ?>" target="_blank" title="<?= $asset_uri; ?>"><?= truncate($asset_uri, 40); ?></a></div>
-                        <?php }
-                        if ($asset_uri_2) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-link text-secondary me-2"></i><a href="<?= $asset_uri_2; ?>" target="_blank" title="<?= $asset_uri_2; ?>"><?= truncate($asset_uri_2, 40); ?></a></div>
-                        <?php } ?>
-                        <?php
-                        if ($asset_uri_client) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-link text-secondary me-2"></i>Client URI: <a href="<?= $asset_uri_client; ?>" target="_blank" title="<?= $asset_uri_client ?>"><?= truncate($asset_uri_client, 40); ?></a></div>
-                        <?php } ?>
-                    </div>
-                </div>
-
-
-                <div class="card card-dark mb-3">
-                    <div class="card-header">
-                        <h5 class="card-title">Assignment</h5>
-                    </div>
-                    <div class="card-body">
-                        <?php if ($location_name) { ?>
-                            <div><i class="fa fa-fw fa-map-marker-alt text-secondary me-2"></i><?= $location_name_display; ?></div>
-                        <?php }
-                        if ($contact_name) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-user text-secondary me-2"></i><?= $contact_name_display; ?></div>
-                        <?php }
-                        if ($contact_email) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href='mailto:<?= $contact_email; ?>'><?= $contact_email; ?></a><button class='btn btn-sm btn-link clipboardjs' data-clipboard-text='<?= $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
-                        <?php }
-                        if ($contact_phone) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary me-2"></i><?= $contact_phone ?></div>
-                        <?php }
-                        if ($contact_extension) { ?>
-                            <div class="mt-1"><i class="fa fa-fw text-secondary me-2"></i><?= "ext. $contact_extension" ?></div>
-                        <?php }
-                        if ($contact_mobile) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary me-2"></i><?= $contact_mobile ?></div>
-                        <?php } ?>
-
-                    </div>
-                </div>
-
-                <div class="card card-dark mb-3">
-                    <div class="card-header">
-                        <h5 class="card-title">Additional Notes</h5>
-                    </div>
-                    <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?= $asset_id ?>)"><?= $asset_notes ?></textarea>
-                </div>
-
+                <?php if ($asset_tags_display) { ?>
+                    <div class="mt-2"><?= $asset_tags_display ?></div>
+                <?php } ?>
             </div>
 
-            <div class="col-md-9">
-
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="clients.php">Clients</a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a href="client_overview.php?client_id=<?= $client_id; ?>"><?= $client_name; ?></a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a href="assets.php?client_id=<?= $client_id; ?>">Assets</a>
-                    </li>
-                    <li class="breadcrumb-item active"><?= $asset_name; ?></li>
-                </ol>
-
-                <div class="btn-group mb-3">
-                    <div class="dropdown dropstart me-2">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="dropdown"><i class="fas fa-plus me-2"></i>New</button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="lg">
-                                <i class="fa fa-fw fa-life-ring me-2"></i>New Ticket
+            <div class="d-flex flex-wrap gap-2 d-print-none">
+                <?php foreach ($asset_links as [$link_label, $link_url]) { ?>
+                    <a class="btn btn-outline-primary" href="<?= escapeUrl($link_url) ?>" target="_blank" rel="noopener" title="<?= $link_label ?>: <?= escapeHtml($link_url) ?>">
+                        <i class="<?= assetLinkIcon($link_url) ?> me-2"></i><?= escapeHtml(assetLinkLabel($link_url)) ?><?= $link_label === 'Client link' ? ' (client)' : '' ?>
+                    </a>
+                <?php } ?>
+                <?php if ($can_edit) { ?>
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-plus me-2"></i>New</button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="lg">
+                                <i class="fa fa-fw fa-life-ring text-secondary me-2"></i>Ticket
                             </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="lg">
-                                <i class="fa fa-fw fa-recycle me-2"></i>New Recurring Ticket
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="lg">
+                                <i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Ticket
                             </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>asset_id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-key me-2"></i>New Credential
+                            <?php if ($can_credentials_edit) { ?>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>asset_id=<?= $asset_id ?>">
+                                    <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
+                                </a>
+                            <?php } ?>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_add.php?asset_id=<?= $asset_id ?>">
+                                <i class="fa fa-fw fa-ethernet text-secondary me-2"></i>Interface
                             </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="lg">
-                                <i class="fa fa-fw fa-file-alt me-2"></i>New Document
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
+                                <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
                             </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-upload me-2"></i>Upload file(s)
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="xl">
+                                <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
                             </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-dark ajax-modal" href="#"
-                                data-modal-url="modals/asset/asset_note_add.php?id=<?= $asset_id ?>">
-                                <i class="fas fa-fw fa-sticky-note me-2"></i>New Note
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
+                                <i class="fa fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
+                            </a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_note_add.php?id=<?= $asset_id ?>">
+                                <i class="fas fa-fw fa-sticky-note text-secondary me-2"></i>Note
                             </a>
                         </div>
                     </div>
-
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/link/link.php?from=asset&id=<?= $asset_id ?>&to=software">
+                                <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
+                            </a>
+                            <?php if ($can_credentials_edit) { ?>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_credential.php?id=<?= $asset_id ?>">
+                                    <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
+                                </a>
+                            <?php } ?>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_service.php?id=<?= $asset_id ?>">
+                                <i class="fa fa-fw fa-stream text-secondary me-2"></i>Service
+                            </a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_document.php?id=<?= $asset_id ?>">
+                                <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
+                            </a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_file.php?id=<?= $asset_id ?>">
+                                <i class="fa fa-fw fa-paperclip text-secondary me-2"></i>File
+                            </a>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
+                        <i class="fas fa-edit me-2"></i>Edit
+                    </button>
                     <div class="dropdown dropstart">
-                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
+                        <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-fw fa-ellipsis-v"></i>
+                        </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item text-dark ajax-modal" href="#"
-                                data-modal-url="modals/asset/asset_link_software.php?id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-cube me-2"></i>License
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_copy.php?id=<?= $asset_id ?>">
+                                <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-dark ajax-modal" href="#"
-                                data-modal-url="modals/asset/asset_link_credential.php?id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-key me-2"></i>Credential
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-dark ajax-modal" href="#"
-                                data-modal-url="modals/asset/asset_link_service.php?id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-stream me-2"></i>Service
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-dark ajax-modal" href="#"
-                                data-modal-url="modals/asset/asset_link_document.php?id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-folder me-2"></i>Document
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-dark ajax-modal" href="#"
-                                data-modal-url="modals/asset/asset_link_file.php?id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-paperclip me-2"></i>File
-                            </a>
+                            <?php if ($asset_archived_at) { ?>
+                                <a class="dropdown-item" href="post.php?restore_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                    <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
+                                </a>
+                                <?php if ($can_delete) { ?>
+                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                    </a>
+                                <?php } ?>
+                            <?php } else { ?>
+                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                    <i class="fas fa-fw fa-archive me-2"></i>Archive
+                                </a>
+                            <?php } ?>
                         </div>
                     </div>
-                </div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
 
-                <div class="card card-dark mb-3">
-                    <div class="card-header py-2">
-                        <h3 class="card-title mt-1"><i class="fa fa-fw fa-ethernet me-2"></i>Interfaces</h3>
-                        <div class="card-tools">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-tool ajax-modal" data-modal-url="modals/asset/asset_interface_add.php?&asset_id=<?= $asset_id ?>">
-                                    <i class="fas fa-plus me-2"></i>New Interface
+    <div class="row g-3">
+
+        <!-- The facts: how to reach it, what it is, where it is -->
+        <div class="col-xl-4 col-lg-5">
+
+            <?php if ($asset_ip || $asset_ipv6 || $asset_nat_ip || $asset_mac || $network_name) { ?>
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0"><i class="fas fa-fw fa-network-wired text-secondary me-2"></i>Network</h3>
+                    </div>
+                    <div class="card-body">
+                        <dl class="itflow-asset-dl mb-0">
+                            <?php if ($asset_ip) { ?>
+                                <dt>IP</dt>
+                                <dd><span class="font-monospace"><?= $asset_ip ?></span><?php if ($asset_ip !== 'DHCP') { ?><button type="button" class="itflow-copy clipboardjs" title="Copy IP" data-clipboard-text="<?= $asset_ip ?>"><i class="far fa-copy"></i></button><?php } ?></dd>
+                            <?php } ?>
+                            <?php if ($asset_nat_ip) { ?>
+                                <dt>NAT</dt>
+                                <dd><span class="font-monospace"><?= $asset_nat_ip ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy NAT IP" data-clipboard-text="<?= $asset_nat_ip ?>"><i class="far fa-copy"></i></button></dd>
+                            <?php } ?>
+                            <?php if ($asset_ipv6) { ?>
+                                <dt>IPv6</dt>
+                                <dd><span class="font-monospace"><?= $asset_ipv6 ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy IPv6" data-clipboard-text="<?= $asset_ipv6 ?>"><i class="far fa-copy"></i></button></dd>
+                            <?php } ?>
+                            <?php if ($asset_mac) { ?>
+                                <dt>MAC</dt>
+                                <dd><span class="font-monospace"><?= $asset_mac ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy MAC" data-clipboard-text="<?= $asset_mac ?>"><i class="far fa-copy"></i></button></dd>
+                            <?php } ?>
+                            <?php if ($network_name) { ?>
+                                <dt>Network</dt>
+                                <dd><?= networkLink($asset_network_id, $network_name, $client_id, ['type' => $asset_network_type]) ?></dd>
+                            <?php } ?>
+                        </dl>
+                    </div>
+                </div>
+            <?php } ?>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3 class="card-title mb-0"><i class="fas fa-fw fa-microchip text-secondary me-2"></i>Hardware</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="itflow-asset-dl mb-0">
+                        <?php if ($asset_make_model) { ?>
+                            <dt>Model</dt><dd><?= $asset_make_model ?></dd>
+                        <?php } ?>
+                        <?php if ($asset_serial) { ?>
+                            <dt>Serial</dt>
+                            <dd><span class="font-monospace"><?= $asset_serial ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy serial" data-clipboard-text="<?= $asset_serial ?>"><i class="far fa-copy"></i></button></dd>
+                        <?php } ?>
+                        <?php if ($asset_os) { ?>
+                            <dt><?= $asset_os_label ?></dt><dd><i class="<?= $asset_os_icon ?> fa-fw text-secondary me-1"></i><?= $asset_os ?></dd>
+                        <?php } ?>
+                        <?php foreach ($asset_spec_rows as $spec_key => $spec_row) { ?>
+                            <dt><?= escapeHtml($spec_row['label']) ?></dt>
+                            <dd data-asset-spec-row="<?= $spec_key ?>">
+                                <?php if ($spec_row['flag']) { ?>
+                                    <span class="badge rounded-pill bg-<?= $spec_row['flag']['tone'] ?>-subtle text-<?= $spec_row['flag']['tone'] ?>-emphasis border border-<?= $spec_row['flag']['tone'] ?>-subtle fw-normal"><?= escapeHtml($spec_row['flag']['short']) ?></span>
+                                    <div class="small text-body-secondary"><?= escapeHtml($spec_row['flag']['text']) ?><?= $spec_row['flag']['tone'] !== 'success' ? ' (' . escapeHtml($spec_row['flag']['date']) . ')' : '' ?></div>
+                                <?php } else { ?>
+                                    <?= $spec_row['html'] ?>
+                                <?php } ?>
+                            </dd>
+                        <?php } ?>
+                        <?php if ($asset_guests) { ?>
+                            <dt>Runs</dt>
+                            <dd data-asset-guests>
+                                <?php foreach ($asset_guests as $guest_id => $guest_name) { ?>
+                                    <div><i class="fas fa-fw fa-cloud text-secondary me-1"></i><a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $guest_id ?>"><?= escapeHtml($guest_name) ?></a></div>
+                                <?php } ?>
+                            </dd>
+                        <?php } ?>
+                        <?php if ($asset_has_warranty || $asset_warranty) { ?>
+                            <dt>Warranty</dt>
+                            <dd>
+                                <?php if ($asset_warranty) { ?>
+                                    <span class="badge rounded-pill bg-<?= $asset_warranty['tone'] ?>-subtle text-<?= $asset_warranty['tone'] ?>-emphasis border border-<?= $asset_warranty['tone'] ?>-subtle fw-normal"><?= escapeHtml($asset_warranty['short']) ?></span>
+                                    <div class="small text-body-secondary"><?= escapeHtml($asset_warranty['text']) ?><?= $asset_warranty['tone'] !== 'success' ? ' (' . escapeHtml($asset_warranty['date']) . ')' : '' ?></div>
+                                <?php } else { ?>
+                                    <span class="text-body-secondary">Not recorded</span>
+                                <?php } ?>
+                            </dd>
+                        <?php } ?>
+                        <?php if ($asset_purchase_date) { ?>
+                            <dt>Purchased</dt>
+                            <dd><?= $asset_purchase_date ?><?php if ($asset_purchase_age) { ?><div class="small text-body-secondary"><?= $asset_purchase_age ?> old</div><?php } ?></dd>
+                        <?php } ?>
+                        <?php if ($asset_install_date) { ?>
+                            <dt>Installed</dt>
+                            <dd><?= $asset_install_date ?><?php if ($asset_install_age) { ?><div class="small text-body-secondary"><?= $asset_install_age ?> in service</div><?php } ?></dd>
+                        <?php } ?>
+                        <?php if ($vendor_name) { ?>
+                            <dt>Vendor</dt>
+                            <dd><?= vendorLink($asset_vendor_id, $vendor_name) ?></dd>
+                        <?php } ?>
+                        <?php if ($asset_sold_number) { ?>
+                            <dt>Sold on</dt>
+                            <dd>
+                                <?= $can_sales ? "<a href=\"invoice.php?invoice_id=$asset_invoice_id\">$asset_sold_number</a>" : $asset_sold_number ?>
+                                <div class="small text-body-secondary">Our invoice, <?= $asset_sold_date ?></div>
+                            </dd>
+                        <?php } ?>
+                        <?php if ($asset_product_name) { ?>
+                            <dt>Product</dt><dd><?= $can_sales ? "<a href=\"product.php?product_id=$asset_product_id\">$asset_product_name</a>" : $asset_product_name ?></dd>
+                        <?php } ?>
+                        <?php if ($asset_purchase_reference && $asset_purchase_reference !== $asset_sold_number) { ?>
+                            <dt>Order ref</dt><dd><?= $asset_purchase_reference ?></dd>
+                        <?php } ?>
+                        <dt>Added</dt><dd title="<?= $asset_created_at ?>"><?= timeAgo($asset_created_at) ?></dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3 class="card-title mb-0"><i class="fas fa-fw fa-map-marker-alt text-secondary me-2"></i>Where &amp; who</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="itflow-asset-dl mb-0">
+                        <dt>Location</dt>
+                        <dd>
+                            <?php if ($can_edit) { ?>
+                                <?= quickPick('asset_location', $asset_id, (string) intval($asset_row['asset_location_id']), assetQuickHtml('asset_location', $asset_row, 'detail'), 'detail', 0, $client_id) ?>
+                            <?php } elseif ($location_name) { ?>
+                                <span class="<?= $location_archived ? 'text-danger text-decoration-line-through' : '' ?>" <?= $location_archived ? 'title="Archived location"' : '' ?>><?= $location_name ?></span>
+                            <?php } else { ?>
+                                <span class="text-body-secondary">-</span>
+                            <?php } ?>
+                            <?php if ($asset_physical_location) { ?>
+                                <div class="small text-body-secondary"><?= $asset_physical_location ?></div>
+                            <?php } ?>
+                        </dd>
+                        <?php if ($asset_rack) { ?>
+                            <dt>Rack</dt>
+                            <dd><a href="rack.php?client_id=<?= $client_id ?>&rack_id=<?= $asset_rack_id ?>"><?= $asset_rack_name ?></a><div class="small text-body-secondary"><?= $asset_rack_position ?></div></dd>
+                        <?php } ?>
+                        <?php if ($asset_has_contact || $asset_contact_id) { ?>
+                        <dt>Assigned</dt>
+                        <dd>
+                            <?php if ($can_edit) { ?>
+                                <?= quickPick('asset_contact', $asset_id, (string) $asset_contact_id, assetQuickHtml('asset_contact', $asset_row, 'detail'), 'detail', 0, $client_id) ?>
+                            <?php } elseif ($contact_name) { ?>
+                                <?= contactLink($client_id, $asset_contact_id, $asset_row['contact_name'], $asset_row['contact_photo'], ['page' => true, 'archived' => $contact_archived]) ?>
+                            <?php } else { ?>
+                                <span class="text-body-secondary">Nobody</span>
+                            <?php } ?>
+                            <!-- How to reach them - redrawn when the contact changes -->
+                            <div data-quick-related="asset-contact-<?= $asset_id ?>"><?= assetContactDetails($asset_row) ?></div>
+                        </dd>
+                        <?php } ?>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3 class="card-title mb-0"><i class="fas fa-fw fa-pen text-secondary me-2"></i>Quick notes</h3>
+                </div>
+                <textarea class="form-control border-0 rounded-0 rounded-bottom" rows="5" id="assetNotes" placeholder="Jot something down - saves when you click away" onblur="updateAssetNotes(<?= $asset_id ?>)" <?= $can_edit ? '' : 'readonly' ?>><?= $asset_notes ?></textarea>
+            </div>
+
+        </div>
+
+        <!-- Everything linked to it -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card mb-3 itflow-asset-related">
+                <div class="card-header py-2">
+                    <ul class="nav nav-pills itflow-asset-pills" role="tablist">
+                        <?php foreach ($asset_tabs as $tab_key => $tab) { ?>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link text-nowrap <?= $tab['count'] ? '' : 'is-empty' ?>" id="asset-tab-<?= $tab_key ?>" data-bs-toggle="pill" data-bs-target="#asset-pane-<?= $tab_key ?>" data-asset-tab="<?= $tab_key ?>" type="button" role="tab">
+                                    <i class="fas fa-fw <?= $tab['icon'] ?> me-1 d-none d-xxl-inline"></i><?= $tab['label'] ?>
+                                    <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                                    <?php if (!empty($tab['badge'])) { ?>
+                                        <span class="badge rounded-pill text-bg-danger" title="Open"><?= intval($tab['badge']) ?> open</span>
+                                    <?php } ?>
                                 </button>
-                                <button type="button" class="btn btn-tool dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item text-dark" href="#" data-bs-toggle="modal" data-bs-target="#addMultipleAssetInterfacesModal">
-                                        <i class="fa fa-fw fa-check-double me-2"></i>Add Multiple
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-dark" href="#" data-bs-toggle="modal" data-bs-target="#importAssetInterfaceModal">
-                                        <i class="fa fa-fw fa-upload me-2"></i>Import
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-dark" href="#" data-bs-toggle="modal" data-bs-target="#exportAssetInterfaceModal">
-                                        <i class="fa fa-fw fa-download me-2"></i>Export
-                                    </a>
-                                </div>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                </div>
+                <div class="tab-content">
 
-                                <div class="dropdown ms-2" id="bulkActionButton" hidden>
-                                    <button class="btn btn-tool dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item text-dark ajax-modal" href="#"
-                                            data-modal-url="modals/asset/asset_interface_bulk_edit_network.php?client_id=<?= $client_id ?>"
-                                            data-bulk="true">
-                                            <i class="fas fa-fw fa-network-wired me-2"></i>Assign Network
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-dark ajax-modal" href="#"
-                                            data-modal-url="modals/asset/asset_interface_bulk_edit_type.php?client_id=<?= $client_id ?>"
-                                            data-bulk="true">
-                                            <i class="fas fa-fw fa-ethernet me-2"></i>Set Type
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <button class="dropdown-item text-dark" type="submit" form="bulkActions" name="bulk_edit_asset_interface_ip_dhcp">
-                                            <i class="fas fa-fw fa-list-ul me-2"></i>Set to DHCP
-                                        </button>
-                                        <?php if (lookupUserPermission("module_support") === 3) { ?>
-                                        <div class="dropdown-divider"></div>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_asset_interfaces">
-                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                        </button>
-                                        <?php } ?>
+                    <!-- Interfaces - a table, and for a switch, firewall or access point its ports drawn as a row -->
+                    <div class="tab-pane fade" id="asset-pane-interfaces" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">Ports, addresses and what each is plugged into. The primary is the address shown on the left.</span>
+                            <div class="d-flex flex-wrap gap-2">
+                                <?php if ($interface_port_map) { ?>
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Show as">
+                                        <input type="radio" class="btn-check" name="interfaceView" id="interfaceViewPorts" value="ports" autocomplete="off" checked>
+                                        <label class="btn btn-outline-secondary" for="interfaceViewPorts" title="Ports"><i class="fas fa-fw fa-th"></i></label>
+                                        <input type="radio" class="btn-check" name="interfaceView" id="interfaceViewTable" value="table" autocomplete="off">
+                                        <label class="btn btn-outline-secondary" for="interfaceViewTable" title="Table"><i class="fas fa-fw fa-list"></i></label>
                                     </div>
+                                <?php } ?>
+                                <?php if ($can_edit) { ?>
+                                    <div class="dropdown" id="bulkActionButton" hidden>
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_bulk_edit_network.php?client_id=<?= $client_id ?>" data-bulk="true">
+                                                <i class="fas fa-fw fa-network-wired me-2"></i>Network
+                                            </a>
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_bulk_edit_vlans.php" data-bulk="true">
+                                                <i class="fas fa-fw fa-layer-group me-2"></i>VLANs
+                                            </a>
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_bulk_edit_type.php?client_id=<?= $client_id ?>" data-bulk="true">
+                                                <i class="fas fa-fw fa-plug me-2"></i>Type
+                                            </a>
+                                            <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_edit_asset_interface_ip_dhcp">
+                                                <i class="fas fa-fw fa-random me-2"></i>Set to DHCP
+                                            </button>
+                                            <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_disconnect_asset_interfaces">
+                                                <i class="fas fa-fw fa-unlink me-2"></i>Disconnect
+                                            </button>
+                                            <?php if ($can_delete) { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_asset_interfaces"
+                                                    data-confirm-text="The interfaces go for good, and their connections with them.">
+                                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                                </button>
+                                            <?php } ?>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_add.php?asset_id=<?= $asset_id ?>">
+                                            <i class="fas fa-plus me-2"></i>New Interface
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_multiple_add.php?asset_id=<?= $asset_id ?>">
+                                                <i class="fa fa-fw fa-th me-2"></i>Add a run of ports
+                                            </a>
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_import.php?asset_id=<?= $asset_id ?>">
+                                                <i class="fa fa-fw fa-upload me-2"></i>Import
+                                            </a>
+                                            <?php if ($interface_count) { ?>
+                                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_export.php?asset_id=<?= $asset_id ?>">
+                                                    <i class="fa fa-fw fa-download me-2"></i>Export
+                                                </a>
+                                            <?php } ?>
+                                        </div>
+                                    </div>
+                                <?php } ?>
+                            </div>
+                        </div>
+
+                        <?php if ($interface_port_map) { ?>
+                            <!-- The ports as they sit on the front of the box: green is plugged in, blue has an address -->
+                            <div data-interface-view="ports">
+                                <div class="itflow-port-map">
+                                    <?php $port_map_sfp = false;
+                                    // Its ports, then its SFP cages on a row of their own (functions/asset_interface.php)
+                                    uasort($interfaces, function ($a, $b) {
+                                        return interfaceIsSfp($a['interface_type']) <=> interfaceIsSfp($b['interface_type']);
+                                    });
+                                    foreach ($interfaces as $interface_id => $row) {
+                                        if (!$port_map_sfp && interfaceIsSfp($row['interface_type'])) {
+                                            $port_map_sfp = true;
+                                            echo '<span class="itflow-port-break" aria-hidden="true"></span>';
+                                        }
+                                        $link = $interface_links[$interface_id] ?? null;
+                                        $states = array_filter([$link ? 'is-connected' : '', trim((string) $row['interface_ip']) !== '' ? 'is-addressed' : '', intval($row['interface_primary']) ? 'is-primary' : '']);
+                                        $tip = implode("\n", array_filter([
+                                            $row['interface_name'] . ($row['interface_description'] ? ' - ' . $row['interface_description'] : ''),
+                                            $link ? 'To ' . $link['asset_name'] . ' ' . $link['interface_name'] : 'Not connected',
+                                            $row['network_name'] ? $row['network_name'] . ($row['interface_vlans'] ? ' · VLAN ' . $row['interface_vlans'] : '') : ($row['interface_vlans'] ? 'VLAN ' . $row['interface_vlans'] : ''),
+                                            $row['interface_ip'],
+                                        ])); ?>
+                                        <a href="#" class="itflow-port <?= implode(' ', $states) ?> <?= $can_edit ? 'ajax-modal' : '' ?>" title="<?= escapeHtml($tip) ?>" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>">
+                                            <span class="itflow-port-lamp"></span>
+                                            <span class="itflow-port-name"><?= escapeHtml(preg_match('/(\d+)$/', $row['interface_name'], $m) && strlen($row['interface_name']) > 5 ? $m[1] : $row['interface_name']) ?></span>
+                                        </a>
+                                    <?php } ?>
+                                </div>
+                                <div class="itflow-port-legend">
+                                    <span><span class="itflow-port-lamp" style="background: var(--bs-success); border-color: var(--bs-success)"></span>Connected</span>
+                                    <span><span class="itflow-port-lamp" style="background: var(--bs-info); border-color: var(--bs-info)"></span>Has an address</span>
+                                    <span><span class="itflow-port-lamp"></span>Free</span>
+                                    <span><?= count($interface_links) ?> of <?= $interface_count ?> connected</span>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <form id="bulkActions" action="post.php" method="post">
-                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                        <div class="table-responsive-sm">
-                            <table class="table table-striped table-borderless table-hover table-sm">
-                                <thead class="<?php if ($interface_count == 0) { echo "d-none"; } ?>">
-                                    <tr>
-                                        <td class="checkbox-column border-end">
-                                            <div class="form-check">
-                                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)">
-                                            </div>
-                                        </td>
-                                        <th>Name / Port</th>
-                                        <th>Type</th>
-                                        <th>Network</th>
-                                        <th>IP</th>
-                                        <th>MAC</th>
-                                        <th>Connected To</th>
-                                        <th class="text-center">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                <?php while ($row = mysqli_fetch_assoc($sql_related_interfaces)) { ?>
-                                    <?php
-                                        $interface_id       = intval($row['interface_id']);
-                                        $interface_name     = escapeHtml($row['interface_name']);
-                                        $interface_description = escapeHtml($row['interface_description']);
-                                        $interface_type     = escapeHtml($row['interface_type']);
-                                        $interface_mac      = escapeHtml($row['interface_mac']);
-                                        $interface_ip       = escapeHtml($row['interface_ip']);
-                                        $interface_nat_ip   = escapeHtml($row['interface_nat_ip']);
-                                        $interface_ipv6     = escapeHtml($row['interface_ipv6']);
-                                        $interface_primary  = intval($row['interface_primary']);
-                                        $network_id         = intval($row['network_id']);
-                                        $network_name       = escapeHtml($row['network_name']);
-                                        $interface_notes    = escapeHtml($row['interface_notes']);
+                        <?php } ?>
 
-                                        // Prepare display text
-                                        $interface_mac_display = $interface_mac ?: '-';
-                                        $interface_ip_display  = $interface_ip ?: '-';
-                                        $interface_type_display = $interface_type ?: '-';
-                                        $network_name_display  = $network_name
-                                            ? "<i class='fas fa-fw fa-network-wired me-1'></i>$network_name"
-                                            : '-';
-
-                                        // Connected interface details
-                                        $connected_asset_id = intval($row['connected_asset_id']);
-                                        $connected_asset_name = escapeHtml($row['connected_asset_name']);
-                                        $connected_asset_type = escapeHtml($row['connected_asset_type']);
-                                        $connected_asset_icon = getAssetIcon($connected_asset_type);
-                                        $connected_interface_name = escapeHtml($row['connected_interface_name']);
-
-
-                                        // Show either "-" or "AssetName - Port"
-                                        if ($connected_asset_name) {
-                                            $connected_to_display = "<a class='ajax-modal' href='#'
-                                                data-modal-size='lg'
-                                                data-modal-url='modals/asset/asset.php?id=$connected_asset_id'>
-                                                <strong><i class='fa fa-fw text-dark fa-$connected_asset_icon me-1'></i>$connected_asset_name</strong> - $connected_interface_name
-                                            </a>";
-                                        } else {
-                                            $connected_to_display = "-";
-                                        }
-                                    ?>
-                                    <tr>
-                                        <td class="checkbox-column bg-light border-end">
-                                            <div class="form-check">
-                                                <input class="form-check-input bulk-select" type="checkbox" name="interface_ids[]" value="<?= $interface_id ?>">
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <i class="fa fa-fw fa-ethernet text-secondary me-1"></i>
-                                            <a class="text-dark ajax-modal" href="#"
-                                                data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>">
-                                                <?= $interface_name ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
-                                            </a>
-                                        </td>
-                                        <td><?= $interface_type_display; ?></td>
-                                        <td><?= $network_name_display; ?></td>
-                                        <td class="font-monospace">
-                                            <?= $interface_ip_display; ?>
-                                            <div><small class="text-secondary"><?= $interface_ipv6 ?></small></div>
-                                        </td>
-                                        <td class="font-monospace"><?= $interface_mac_display; ?></td>
-                                        <td><?= $connected_to_display; ?></td>
-                                        <td>
-                                            <div class="dropdown dropstart text-center">
-                                                <button class="btn btn-tool btn-sm" type="button" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-ellipsis-v"></i>
-                                                </button>
-                                                <div class="dropdown-menu">
-                                                    <a class="dropdown-item ajax-modal" href="#"
-                                                        data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>">
-                                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
-                                                    </a>
-                                                    <?php if ($session_user_role == 3 && $interface_primary == 0): ?>
-                                                        <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset_interface=<?= $interface_id; ?>&csrf_token=<?= $_SESSION['csrf_token']; ?>">
-                                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                                        </a>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </form>
-                </div>
-
-                <?php if (lookupUserPermission('module_credential')) { // Begin Credential Enforcement ?>
-
-                <div class="card card-dark mb-3 <?php if ($credential_count == 0) { echo "d-none"; } ?>">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fa fa-fw fa-key me-2"></i>Credentials</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive-sm">
-                            <table class="table table-striped table-borderless table-hover">
-                                <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th>Username</th>
-                                    <th>Password</th>
-                                    <th>OTP</th>
-                                    <th>URI</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php
-
-                                while ($row = mysqli_fetch_assoc($sql_related_credentials)) {
-                                    $credential_id = intval($row['credential_id']);
-                                    $credential_name = escapeHtml($row['credential_name']);
-                                    $credential_description = escapeHtml($row['credential_description']);
-                                    $credential_uri = escapeHtml($row['credential_uri']);
-                                    if (empty($credential_uri)) {
-                                        $credential_uri_display = "-";
-                                    } else {
-                                        $credential_uri_display = "$credential_uri<button class='btn btn-sm btn-link clipboardjs' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button><a href='$credential_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
-                                    }
-                                    $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
-                                    if (empty($credential_username)) {
-                                        $credential_username_display = "-";
-                                    } else {
-                                        $credential_username_display = "$credential_username<button class='btn btn-sm btn-link clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
-                                    }
-                                    $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
-                                    if (empty($credential_otp_secret)) {
-                                        $otp_display = "-";
-                                    } else {
-                                        $otp_display = "<span onmouseenter='showOTPViaCredentialID($credential_id)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
-                                    }
-                                    $credential_note = escapeHtml($row['credential_note']);
-                                    $credential_favorite = intval($row['credential_favorite']);
-                                    $credential_contact_id = intval($row['credential_contact_id']);
-                                    $credential_asset_id = intval($row['credential_asset_id']);
-
-                                    // Tags
-                                    $credential_tag_name_display_array = array();
-                                    $credential_tag_id_array = array();
-                                    $sql_credential_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, credential_tags.tag_id, tag_name FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
-                                    while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
-
-                                        $credential_tag_id = intval($row['tag_id']);
-                                        $credential_tag_name = escapeHtml($row['tag_name']);
-                                        $credential_tag_color = escapeHtml($row['tag_color']);
-                                        if (empty($credential_tag_color)) {
-                                            $credential_tag_color = "dark";
-                                        }
-                                        $credential_tag_icon = escapeHtml($row['tag_icon']);
-                                        if (empty($credential_tag_icon)) {
-                                            $credential_tag_icon = "tag";
-                                        }
-
-                                        $credential_tag_id_array[] = $credential_tag_id;
-                                        $credential_tag_name_display_array[] = "<a href='credentials.php?client_id=$client_id&tags[]=$credential_tag_id'><span class='badge text-light p-1 me-1' style='background-color: $credential_tag_color;'><i class='fa fa-fw fa-$credential_tag_icon me-2'></i>$credential_tag_name</span></a>";
-                                    }
-                                    $credential_tags_display = implode('', $credential_tag_name_display_array);
-
-                                    ?>
-                                    <tr>
-                                        <td>
-                                            <i class="fa fa-fw fa-key text-secondary"></i>
-                                            <a class="text-dark ajax-modal" href="#"
-                                                data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
-                                                <?= $credential_name ?>
-                                            </a>
-                                        </td>
-                                        <td><?= $credential_description; ?></td>
-                                        <td><?= $credential_username_display; ?></td>
-                                        <td>
-                                            <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
-                                        </td>
-                                        <td><?= $otp_display; ?></td>
-                                        <td><?= $credential_uri_display; ?></td>
-                                        <td>
-                                            <div class="dropdown dropstart text-center">
-                                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-ellipsis-h"></i>
-                                                </button>
-                                                <div class="dropdown-menu">
-                                                    <a class="dropdown-item ajax-modal" href="#"
-                                                        data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
-                                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
-                                                    </a>
-                                                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#shareModal" onclick="populateShareModal(<?= "$client_id, 'Credential', $credential_id"; ?>)">
-                                                        <i class="fas fa-fw fa-share-alt me-2"></i>Share
-                                                    </a>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item" href="post.php?unlink_credential_from_asset&asset_id=<?= $asset_id; ?>&credential_id=<?= $credential_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                        <i class="fas fa-fw fa-unlink me-2"></i>Unlink
-                                                    </a>
-                                                    <?php if ($session_user_role == 3) { ?>
-                                                        <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_credential=<?= $credential_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                                        </a>
-                                                    <?php } ?>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <?php
-
-                                }
-
-                                ?>
-
-                                </tbody>
-                            </table>
-                        </div>
-
-                    </div>
-                </div>
-
-                <?php } // End Credential Enforcement ?>
-
-                <div class="card card-dark mb-3 <?php if ($software_count == 0) { echo "d-none"; } ?>">
-                    <div class="card-header py-2">
-                        <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube me-2"></i>Licenses</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/asset/asset_link_software.php?id=<?= $asset_id ?>">
-                                <i class="fas fa-link me-2"></i>Link Software
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive-sm">
-                            <table class="table table-striped table-borderless table-hover">
-                                <thead class="text-dark">
-                                <tr>
-                                    <th>Software</th>
-                                    <th>Type</th>
-                                    <th>License Type</th>
-                                    <th>Seats</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php
-
-                                while ($row = mysqli_fetch_assoc($sql_related_software)) {
-                                    $software_id = intval($row['software_id']);
-                                    $software_name = escapeHtml($row['software_name']);
-                                    $software_version = escapeHtml($row['software_version']);
-                                    $software_type = escapeHtml($row['software_type']);
-                                    $software_license_type = escapeHtml($row['software_license_type']);
-                                    $software_key = escapeHtml($row['software_key']);
-                                    $software_seats = escapeHtml($row['software_seats']);
-                                    $software_purchase = escapeHtml($row['software_purchase']);
-                                    $software_expire = escapeHtml($row['software_expire']);
-                                    $software_notes = escapeHtml($row['software_notes']);
-
-                                    $seat_count = 0;
-
-                                    // Asset Licenses
-                                    $asset_licenses_sql = mysqli_query($mysqli, "SELECT asset_id FROM software_assets WHERE software_id = $software_id");
-                                    $asset_licenses_array = array();
-                                    while ($row = mysqli_fetch_assoc($asset_licenses_sql)) {
-                                        $asset_licenses_array[] = intval($row['asset_id']);
-                                        $seat_count = $seat_count + 1;
-                                    }
-                                    $asset_licenses = implode(',', $asset_licenses_array);
-
-                                    // Contact Licenses
-                                    $contact_licenses_sql = mysqli_query($mysqli, "SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
-                                    $contact_licenses_array = array();
-                                    while ($row = mysqli_fetch_assoc($contact_licenses_sql)) {
-                                        $contact_licenses_array[] = intval($row['contact_id']);
-                                        $seat_count = $seat_count + 1;
-                                    }
-                                    $contact_licenses = implode(',', $contact_licenses_array);
-
-                                    $linked_software[] = $software_id;
-
-                                    ?>
-                                    <tr>
-                                        <td>
-                                            <a class="text-dark ajax-modal" href="#"
-                                                data-modal-url="modals/software/software_edit.php?id=<?= $software_id ?>">
-                                                <?= "$software_name<br><span class='text-secondary'>$software_version</span>"; ?>
-                                            </a>
-                                        </td>
-                                        <td><?= $software_type; ?></td>
-                                        <td><?= $software_license_type; ?></td>
-                                        <td><?= "$seat_count / $software_seats"; ?></td>
-                                        <td class="text-center">
-                                            <a href="post.php?unlink_software_from_asset&asset_id=<?= $asset_id; ?>&software_id=<?= $software_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
-                                        </td>
-                                    </tr>
-
-                                    <?php
-
-                                }
-
-                                ?>
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card card-dark mb-3 <?php if ($document_count == 0) { echo "d-none"; } ?>">
-                    <div class="card-header py-2">
-                        <h3 class="card-title mt-2"><i class="fa fa-fw fa-folder me-2"></i>Documents</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/asset/asset_link_document.php?id=<?= $asset_id ?>">
-                                <i class="fas fa-link me-2"></i>Link Document
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive-sm">
-                            <table class="table table-striped table-borderless table-hover">
-                                <thead class="text-dark">
-                                <tr>
-                                    <th>Document Title</th>
-                                    <th>By</th>
-                                    <th>Created</th>
-                                    <th>Updated</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php
-
-                                while ($row = mysqli_fetch_assoc($sql_related_documents)) {
-                                    $document_id = intval($row['document_id']);
-                                    $document_name = escapeHtml($row['document_name']);
-                                    $document_description = escapeHtml($row['document_description']);
-                                    $document_created_by = escapeHtml($row['user_name']);
-                                    $document_created_at = escapeHtml($row['document_created_at']);
-                                    $document_updated_at = escapeHtml($row['document_updated_at']);
-
-                                    $linked_documents[] = $document_id;
-
-                                    ?>
-
-                                    <tr>
-                                        <td>
-                                            <div><a href="document.php?client_id=<?= $client_id; ?>&document_id=<?= $document_id; ?>"><?= $document_name; ?></a></div>
-                                            <div class="text-secondary"><?= $document_description; ?></div>
-                                        </td>
-                                        <td><?= $document_created_by ?></td>
-                                        <td><?= $document_created_at ?></td>
-                                        <td><?= $document_updated_at ?></td>
-                                        <td class="text-center">
-                                            <a href="#" class="btn btn-dark btn-sm ajax-modal"
-                                                data-modal-size="lg"
-                                                data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>">
-                                                <i class="fas fa-fw fa-eye"></i>
-                                            </a>
-                                            <a href="post.php?unlink_asset_from_document&asset_id=<?= $asset_id; ?>&document_id=<?= $document_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
-                                        </td>
-                                    </tr>
-
-                                    <?php
-
-                                }
-
-                                ?>
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card card-dark mb-3 <?php if ($files_count == 0) { echo "d-none"; } ?>">
-                    <div class="card-header py-2">
-                        <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube me-2"></i>Files</h3>
-                        <div class="card-tools">
-                            <div class="btn-group">
-                                <?php
-                                if ($view == 0) {
-                                ?>
-                                <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=0" class="btn btn-primary"><i class="fas fa-list-ul"></i></a>
-                                <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=1" class="btn btn-outline-secondary"><i class="fas fa-th-large"></i></a>
-                                <?php
-                                    } else {
-                                ?>
-                                <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=0" class="btn btn-outline-secondary"><i class="fas fa-list-ul"></i></a>
-                                <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=1" class="btn btn-primary"><i class="fas fa-th-large"></i></a>
-                                <?php
-                                    }
-                                ?>
-                            </div>
-                            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/asset/asset_link_file.php?id=<?= $asset_id ?>">
-                                <i class="fas fa-link me-2"></i>Link File
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive-sm">
-                            <table class="table table-striped table-borderless table-hover">
-                                <thead class="text-dark">
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Uploaded</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php
-
-                                while ($row = mysqli_fetch_assoc($sql_related_files)) {
-                                    $file_id = intval($row['file_id']);
-                                    $file_name = escapeHtml($row['file_name']);
-                                    $file_description = escapeHtml($row['file_description']);
-                                    $file_ext = escapeHtml($row['file_ext']);
-                                    if ($file_ext == 'pdf') {
-                                        $file_icon = "file-pdf";
-                                    } elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {
-                                        $file_icon = "file-archive";
-                                    } elseif ($file_ext == 'txt' || $file_ext == 'md') {
-                                        $file_icon = "file-alt";
-                                    } elseif ($file_ext == 'msg') {
-                                        $file_icon = "envelope";
-                                    } elseif ($file_ext == 'doc' || $file_ext == 'docx' || $file_ext == 'odt') {
-                                        $file_icon = "file-word";
-                                    } elseif ($file_ext == 'xls' || $file_ext == 'xlsx' || $file_ext == 'ods') {
-                                        $file_icon = "file-excel";
-                                    } elseif ($file_ext == 'pptx' || $file_ext == 'odp') {
-                                        $file_icon = "file-powerpoint";
-                                    } elseif ($file_ext == 'mp3' || $file_ext == 'wav' || $file_ext == 'ogg') {
-                                        $file_icon = "file-audio";
-                                    } elseif ($file_ext == 'mov' || $file_ext == 'mp4' || $file_ext == 'av1') {
-                                        $file_icon = "file-video";
-                                    } elseif ($file_ext == 'jpg' || $file_ext == 'jpeg' || $file_ext == 'png' || $file_ext == 'gif' || $file_ext == 'webp' || $file_ext == 'bmp' || $file_ext == 'tif') {
-                                        $file_icon = "file-image";
-                                    } else {
-                                        $file_icon = "file";
-                                    }
-                                    $file_created_at = escapeHtml($row['file_created_at']);
-
-                                    $linked_files[] = $file_id;
-
-                                    ?>
-                                    <tr>
-                                        <td><a class="text-dark" href="file.php?file_id=<?= $file_id; ?>&action=view" target="_blank" ><?= "$file_name<br><span class='text-secondary'>$file_description</span>"; ?></a></td>
-                                        <td><?= $file_created_at; ?></td>
-                                        <td class="text-center">
-                                            <a href="post.php?unlink_asset_from_file&asset_id=<?= $asset_id; ?>&file_id=<?= $file_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
-                                        </td>
-                                    </tr>
-
-                                    <?php
-
-                                }
-
-                                ?>
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card card-dark mb-3 <?php if ($recurring_ticket_count == 0) { echo "d-none"; } ?>">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fa fa-fw fa-recycle me-2"></i>Recurring Tickets</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive-sm">
-                            <table class="table table-striped table-borderless table-hover">
-                                <thead class="text-dark">
-                                <tr>
-                                    <th>Subject</th>
-                                    <th>Priority</th>
-                                    <th>Frequency</th>
-                                    <th>Next Run</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php
-
-                                while ($row = mysqli_fetch_assoc($sql_related_recurring_tickets)) {
-                                    $recurring_ticket_id = intval($row['recurring_ticket_id']);
-                                    $recurring_ticket_subject = escapeHtml($row['recurring_ticket_subject']);
-                                    $recurring_ticket_priority = escapeHtml($row['recurring_ticket_priority']);
-                                    $recurring_ticket_frequency = escapeHtml($row['recurring_ticket_frequency']);
-                                    $recurring_ticket_next_run = escapeHtml($row['recurring_ticket_next_run']);
-                                ?>
-
-                                    <tr>
-                                        <td class="text-bold">
-                                            <a class="ajax-modal" href="#"
-                                                data-modal-size="lg"
-                                                data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id; ?>">
-                                                <?= $recurring_ticket_subject ?>
-                                            </a>
-                                        </td>
-
-                                        <td><?= $recurring_ticket_priority ?></td>
-
-                                        <td><?= $recurring_ticket_frequency ?></td>
-
-                                        <td><?= $recurring_ticket_next_run ?></td>
-
-                                        <td>
-                                            <div class="dropdown dropstart text-center">
-                                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-ellipsis-h"></i>
-                                                </button>
-                                                <div class="dropdown-menu">
-                                                    <a class="dropdown-item ajax-modal" href="#"
-                                                        data-modal-size="lg"
-                                                        data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id; ?>">
-                                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
-                                                    </a>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item" href="post.php?force_recurring_ticket=<?= $recurring_ticket_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                        <i class="fa fa-fw fa-paper-plane text-secondary me-2"></i>Force Reoccur
-                                                    </a>
-                                                    <?php
-                                                    if ($session_user_role == 3) { ?>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                        <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                                    </a>
-                                                </div>
+                        <form id="bulkActions" action="post.php" method="post" <?= $interface_port_map ? 'data-interface-view="table" hidden' : '' ?>>
+                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="text-nowrap table-light <?php if ($interface_count == 0) { echo "d-none"; } ?>">
+                                        <tr>
+                                            <?php if ($can_edit) { ?>
+                                                <th class="checkbox-column border-end">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" title="Select all">
+                                                    </div>
+                                                </th>
+                                            <?php } ?>
+                                            <th>Interface</th>
+                                            <th>Network</th>
+                                            <th>Address</th>
+                                            <th class="d-none d-xl-table-cell">MAC</th>
+                                            <th>Connected to</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php foreach ($interfaces as $interface_id => $row) {
+                                        $link = $interface_links[$interface_id] ?? null;
+                                        $interface_primary = intval($row['interface_primary']);
+                                        $ip = normalizeIpAddress((string) $row['interface_ip']);
+                                        $outside = $ip !== false && $row['network'] && networkSubnetInfo($row['network']) && !isIpInSubnet($ip, $row['network']);
+                                        $details = implode(' · ', array_filter([$row['interface_type'], $row['interface_description']])); ?>
+                                        <tr>
+                                            <?php if ($can_edit) { ?>
+                                                <td class="checkbox-column bg-light border-end">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input bulk-select" type="checkbox" name="interface_ids[]" value="<?= $interface_id ?>" aria-label="Select <?= escapeHtml($row['interface_name']) ?>">
+                                                    </div>
+                                                </td>
+                                            <?php } ?>
+                                            <td class="itflow-iface-cell">
+                                                <?php if ($can_edit) { ?>
+                                                    <a class="text-body fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>"><?= escapeHtml($row['interface_name']) ?></a>
+                                                <?php } else { ?>
+                                                    <span class="fw-semibold"><?= escapeHtml($row['interface_name']) ?></span>
                                                 <?php } ?>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                                <?php if ($interface_primary) { ?><span class="badge rounded-pill text-bg-primary fw-normal ms-1">Primary</span><?php } ?>
+                                                <?php if ($details !== '') { ?><div class="small text-body-secondary"><?= escapeHtml($details) ?></div><?php } ?>
+                                            </td>
+                                            <td>
+                                                <?php if ($row['network_name']) { ?>
+                                                    <?= networkLink($row['interface_network_id'], $row['network_name'], $client_id, ['type' => networkType($row), 'archived' => !empty($row['network_archived_at'])]) ?>
+                                                <?php } elseif (!$row['interface_vlans']) { ?>
+                                                    <span class="text-body-secondary">-</span>
+                                                <?php } ?>
+                                                <?php if ($row['interface_vlans']) { ?><div><span class="itflow-net-vlan" title="VLANs">VLAN <?= escapeHtml($row['interface_vlans']) ?></span></div><?php } ?>
+                                            </td>
+                                            <td class="text-nowrap">
+                                                <?= interfaceIpHtml($row['interface_ip']) ?><?php if ($ip !== false) { ?><button type="button" class="itflow-copy clipboardjs" title="Copy IP" data-clipboard-text="<?= escapeHtml($ip) ?>"><i class="far fa-copy"></i></button><?php } ?>
+                                                <?php if ($outside) { ?><div class="small text-warning-emphasis"><i class="fas fa-exclamation-triangle me-1"></i>Outside <?= escapeHtml($row['network']) ?></div><?php } ?>
+                                                <?php if ($row['interface_nat_ip']) { ?><div class="small text-body-secondary font-monospace">NAT <?= escapeHtml($row['interface_nat_ip']) ?></div><?php } ?>
+                                                <?php if ($row['interface_ipv6']) { ?><div class="small text-body-secondary font-monospace"><?= escapeHtml($row['interface_ipv6']) ?></div><?php } ?>
+                                            </td>
+                                            <td class="text-nowrap d-none d-xl-table-cell">
+                                                <?php if ($row['interface_mac']) { ?>
+                                                    <span class="font-monospace small"><?= escapeHtml($row['interface_mac']) ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy MAC" data-clipboard-text="<?= escapeHtml($row['interface_mac']) ?>"><i class="far fa-copy"></i></button>
+                                                <?php } else { ?>
+                                                    <span class="text-body-secondary">-</span>
+                                                <?php } ?>
+                                            </td>
+                                            <td class="small">
+                                                <?php if ($link) { ?>
+                                                    <?= interfaceAssetRef($link['asset_id'], $link['asset_name'], $link['asset_type'], !empty($link['asset_archived_at'])) ?>
+                                                    <span class="text-body-secondary text-nowrap"><i class="fas fa-ethernet fa-fw opacity-75"></i><?= escapeHtml($link['interface_name']) ?></span>
+                                                <?php } else { ?>
+                                                    <span class="text-body-secondary">-</span>
+                                                <?php } ?>
+                                            </td>
+                                            <td class="text-end">
+                                                <?php if ($can_edit) { ?>
+                                                    <div class="dropdown dropstart">
+                                                        <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown">
+                                                            <i class="fas fa-fw fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>">
+                                                                <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
+                                                            </a>
+                                                            <?php if (!$interface_primary) { ?>
+                                                                <a class="dropdown-item" href="post.php?primary_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                                    <i class="fas fa-fw fa-star text-secondary me-2"></i>Make primary
+                                                                </a>
+                                                            <?php } ?>
+                                                            <?php if ($link) { ?>
+                                                                <a class="dropdown-item confirm-link" href="post.php?disconnect_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                                    data-confirm-title="Disconnect <?= escapeHtml($row['interface_name']) ?>?" data-confirm-button="Disconnect"
+                                                                    data-confirm-text="It is no longer shown as plugged into <?= escapeHtml($link['asset_name'] . ' ' . $link['interface_name']) ?>.">
+                                                                    <i class="fas fa-fw fa-unlink text-secondary me-2"></i>Disconnect
+                                                                </a>
+                                                            <?php } ?>
+                                                            <?php if ($row['interface_network_id'] && $ip !== false) { ?>
+                                                                <a class="dropdown-item" href="<?= escapeHtml(networkUrl($row['interface_network_id'], $client_id)) ?>#addresses">
+                                                                    <i class="fas fa-fw fa-list-ol text-secondary me-2"></i>On the address plan
+                                                                </a>
+                                                            <?php } ?>
+                                                            <?php if ($can_delete && !$interface_primary) { ?>
+                                                                <div class="dropdown-divider"></div>
+                                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                                    data-confirm-text="<?= escapeHtml($row['interface_name']) ?> goes for good<?= $link ? ', and its connection with it' : '' ?>.">
+                                                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                                                </a>
+                                                            <?php } ?>
+                                                        </div>
+                                                    </div>
+                                                <?php } ?>
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </form>
+                        <?php if (!$interface_count) { ?>
+                            <div class="itflow-asset-empty">No interfaces yet<?= $can_edit ? ' - add its ports, or one for its network card' : '' ?>.</div>
+                        <?php } ?>
+                    </div>
 
-                                <?php } ?>
-
-                                </tbody>
-                            </table>
+                    <?php if ($can_credentials) { ?>
+                    <!-- Credentials -->
+                    <div class="tab-pane fade" id="asset-pane-credentials" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">Logins for this asset. Passwords and codes are fetched only when you ask for them.</span>
+                            <?php if ($can_edit && $can_credentials_edit) { ?>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_credential.php?id=<?= $asset_id ?>">
+                                        <i class="fas fa-link me-2"></i>Link
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>asset_id=<?= $asset_id ?>">
+                                        <i class="fas fa-plus me-2"></i>New Credential
+                                    </button>
+                                </div>
+                            <?php } ?>
                         </div>
+                        <?php if ($related_credentials) { ?>
+                            <?= credentialTableHtml($related_credentials, [
+                                'for' => false,
+                                'unlink' => function ($row) use ($asset_id, $can_edit) {
+                                    return $can_edit && credentialCan(2) ? "post.php?unlink_credential_from_asset&asset_id=$asset_id&credential_id=" . intval($row['credential_id']) . "&csrf_token=" . $_SESSION['csrf_token'] : '';
+                                },
+                            ]) ?>
+                        <?php } else { ?>
+                            <div class="itflow-asset-empty">No credentials for this asset.</div>
+                        <?php } ?>
                     </div>
-                </div>
+                    <?php } ?>
 
-                <div class="card card-dark mb-3 <?php if ($ticket_count == 0) { echo "d-none"; } ?>">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fa fa-fw fa-life-ring me-2"></i>Tickets</h3>
+                    <!-- Tickets -->
+                    <div class="tab-pane fade" id="asset-pane-tickets" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">Open tickets first. Includes tickets where this is one of several assets.</span>
+                            <?php if ($can_edit) { ?>
+                                <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
+                                    <i class="fas fa-plus me-2"></i>New Ticket
+                                </button>
+                            <?php } ?>
+                        </div>
+                        <?php if ($related_tickets) { ?>
+                            <?= ticketTableHtml($related_tickets) ?>
+                        <?php } else { ?>
+                            <div class="itflow-asset-empty">No tickets have mentioned this asset.</div>
+                        <?php } ?>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive-sm">
-                            <table class="table table-striped table-borderless table-hover">
-                                <thead class="text-dark">
-                                <tr>
-                                    <th>Number</th>
-                                    <th>Subject</th>
-                                    <th>Priority</th>
-                                    <th>Status</th>
-                                    <th>Assigned</th>
-                                    <th>Last Response</th>
-                                    <th>Created</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php
 
-                                while ($row = mysqli_fetch_assoc($sql_related_tickets)) {
-                                    $ticket_id = intval($row['ticket_id']);
-                                    $ticket_prefix = escapeHtml($row['ticket_prefix']);
-                                    $ticket_number = intval($row['ticket_number']);
-                                    $ticket_subject = escapeHtml($row['ticket_subject']);
-                                    $ticket_priority = escapeHtml($row['ticket_priority']);
-                                    $ticket_status_id = intval($row['ticket_status_id']);
-                                    $ticket_status_name = escapeHtml($row['ticket_status_name']);
-                                    $ticket_status_color = escapeHtml($row['ticket_status_color']);
-                                    $ticket_created_at = escapeHtml($row['ticket_created_at']);
-                                    $ticket_updated_at = escapeHtml($row['ticket_updated_at']);
-                                    if (empty($ticket_updated_at)) {
-                                        if ($ticket_status_name == "Closed") {
-                                            $ticket_updated_at_display = "<p>Never</p>";
-                                        } else {
-                                            $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
-                                        }
-                                    } else {
-                                        $ticket_updated_at_display = $ticket_updated_at;
-                                    }
-                                    $ticket_closed_at = escapeHtml($row['ticket_closed_at']);
-
-                                    if ($ticket_priority == "Urgent") {
-                                        $ticket_priority_display = "<span class='p-2 badge bg-dark'>$ticket_priority</span>";
-                                    } elseif ($ticket_priority == "High") {
-                                        $ticket_priority_display = "<span class='p-2 badge bg-danger'>$ticket_priority</span>";
-                                    } elseif ($ticket_priority == "Medium") {
-                                        $ticket_priority_display = "<span class='p-2 badge bg-warning text-dark'>$ticket_priority</span>";
-                                    } elseif ($ticket_priority == "Low") {
-                                        $ticket_priority_display = "<span class='p-2 badge bg-info text-dark'>$ticket_priority</span>";
-                                    } else {
-                                        $ticket_priority_display = "-";
-                                    }
-                                    $ticket_assigned_to_display = formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], !in_array($ticket_status_id, [4, 5]));
-
-                                    ?>
-
+                    <!-- Recurring tickets -->
+                    <div class="tab-pane fade" id="asset-pane-recurring" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">Scheduled work - patching, checks, maintenance visits.</span>
+                            <?php if ($can_edit) { ?>
+                                <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
+                                    <i class="fas fa-plus me-2"></i>New Recurring Ticket
+                                </button>
+                            <?php } ?>
+                        </div>
+                        <?php if ($recurring_ticket_count) { ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="text-nowrap table-light">
                                     <tr>
-                                        <td><a href="ticket.php?client_id=<?= $client_id; ?>&ticket_id=<?= $ticket_id; ?>"><span class="badge rounded-pill bg-secondary p-3"><?= "$ticket_prefix$ticket_number"; ?></span></a></td>
-                                        <td><a href="ticket.php?client_id=<?= $client_id; ?>&ticket_id=<?= $ticket_id; ?>"><?= $ticket_subject; ?></a></td>
-                                        <td><?= $ticket_priority_display; ?></td>
-                                        <td>
-                                            <span class='badge rounded-pill text-light p-2' style="background-color: <?= $ticket_status_color; ?>"><?= $ticket_status_name; ?></span>
-                                        </td>
-                                        <td><?= $ticket_assigned_to_display; ?></td>
-                                        <td><?= $ticket_updated_at_display; ?></td>
-                                        <td><?= $ticket_created_at; ?></td>
+                                        <th>Subject</th>
+                                        <th>Priority</th>
+                                        <th>Frequency</th>
+                                        <th>Next Run</th>
+                                        <th></th>
                                     </tr>
-
-                                    <?php
-
-                                }
-
-                                ?>
-
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                    <?php while ($row = mysqli_fetch_assoc($sql_related_recurring_tickets)) {
+                                        $recurring_ticket_id = intval($row['recurring_ticket_id']);
+                                        $recurring_ticket_subject = escapeHtml($row['recurring_ticket_subject']);
+                                        $recurring_ticket_priority = escapeHtml($row['recurring_ticket_priority']);
+                                        $recurring_ticket_frequency = escapeHtml($row['recurring_ticket_frequency']);
+                                        $recurring_ticket_next_run = escapeHtml($row['recurring_ticket_next_run']);
+                                        ?>
+                                        <tr>
+                                            <td>
+                                                <?php if ($can_edit) { ?>
+                                                    <a class="text-body fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id ?>"><?= $recurring_ticket_subject ?></a>
+                                                <?php } else { ?>
+                                                    <span class="fw-semibold"><?= $recurring_ticket_subject ?></span>
+                                                <?php } ?>
+                                            </td>
+                                            <td><?= ticketPriorityHtml($row['recurring_ticket_priority'], 'detail') ?></td>
+                                            <td><?= $recurring_ticket_frequency ?></td>
+                                            <td class="text-nowrap"><?= recurringTicketNextRunPill($row) ?> <span class="small text-body-secondary ms-1"><?= $recurring_ticket_next_run ?></span></td>
+                                            <td class="text-end">
+                                                <?php if ($can_edit) { ?>
+                                                    <div class="dropdown dropstart">
+                                                        <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown">
+                                                            <i class="fas fa-fw fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id ?>">
+                                                                <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
+                                                            </a>
+                                                            <a class="dropdown-item confirm-link" href="post.php?force_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                                data-confirm-text="A ticket is raised now, and the next run moves on a step - this takes its place.">
+                                                                <i class="fa fa-fw fa-paper-plane text-secondary me-2"></i>Raise now
+                                                            </a>
+                                                            <?php if ($can_delete) { ?>
+                                                                <div class="dropdown-divider"></div>
+                                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                                                </a>
+                                                            <?php } ?>
+                                                        </div>
+                                                    </div>
+                                                <?php } ?>
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php } else { ?>
+                            <div class="itflow-asset-empty">Nothing scheduled for this asset.</div>
+                        <?php } ?>
                     </div>
-                </div>
 
-                <div class="card card-dark mb-3 <?php if ($service_count == 0) { echo "d-none"; } ?>">
-                    <div class="card-header py-2">
-                        <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream me-2"></i>Linked Services</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/asset/asset_link_service.php?id=<?= $asset_id ?>">
-                                <i class="fas fa-link me-2"></i>Link Service
-                            </button>
+                    <!-- Licenses -->
+                    <div class="tab-pane fade" id="asset-pane-licenses" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">Licenses this asset holds a seat on, and the key to install.</span>
+                            <?php if ($can_edit) { ?>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/link/link.php?from=asset&id=<?= $asset_id ?>&to=software">
+                                        <i class="fas fa-link me-2"></i>Link
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
+                                        <i class="fas fa-plus me-2"></i>New License
+                                    </button>
+                                </div>
+                            <?php } ?>
                         </div>
+                        <?php if ($software_count) { ?>
+                            <?= softwareHeldTable($held_software, 'asset', $asset_id, $can_edit) ?>
+                        <?php } else { ?>
+                            <div class="itflow-asset-empty">No licenses linked.</div>
+                        <?php } ?>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive-sm">
-                            <table class="table table-striped table-borderless table-hover dataTables" style="width:100%">
-                                <thead class="text-dark">
-                                <tr>
-                                    <th>Service</th>
-                                    <th>Category</th>
-                                    <th>Importance</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php
 
-                                while ($row = mysqli_fetch_assoc($sql_linked_services)) {
-                                    $service_id = intval($row['service_id']);
-                                    $service_name = escapeHtml($row['service_name']);
-                                    $service_description = escapeHtml($row['service_description']);
-                                    $service_category = escapeHtml($row['service_category']);
-                                    $service_importance = escapeHtml($row['service_importance']);
-
-                                    $linked_services[] = $service_id;
-
-                                    ?>
-
+                    <!-- Documents -->
+                    <div class="tab-pane fade" id="asset-pane-documents" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">Runbooks, configs and how-tos for this asset.</span>
+                            <?php if ($can_edit) { ?>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_document.php?id=<?= $asset_id ?>">
+                                        <i class="fas fa-link me-2"></i>Link
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
+                                        <i class="fas fa-plus me-2"></i>New Document
+                                    </button>
+                                </div>
+                            <?php } ?>
+                        </div>
+                        <?php if ($document_count) { ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="text-nowrap table-light">
                                     <tr>
-                                        <td>
-                                            <div><?= $service_name; ?></div>
-                                            <div class="text-secondary"><?= $service_description; ?></div>
-                                        </td>
-                                        <td><?= $service_category; ?></td>
-                                        <td><?= $service_importance; ?></td>
-                                        <td class="text-center">
-                                            <a href="post.php?unlink_service_from_asset&asset_id=<?= $asset_id; ?>&service_id=<?= $service_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
-                                        </td>
+                                        <th>Document</th>
+                                        <th>By</th>
+                                        <th>Updated</th>
+                                        <th></th>
                                     </tr>
-
-                                    <?php
-
-                                }
-
-                                ?>
-
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                    <?php while ($row = mysqli_fetch_assoc($sql_related_documents)) {
+                                        $document_id = intval($row['document_id']);
+                                        $document_name = escapeHtml($row['document_name']);
+                                        $document_description = escapeHtml($row['document_description']);
+                                        $document_created_by = escapeHtml($row['user_name']);
+                                        $document_updated_at = escapeHtml($row['document_updated_at'] ?: $row['document_created_at']);
+                                        ?>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <?= documentTile('sm') ?>
+                                                    <div class="min-w-0">
+                                                        <a class="fw-semibold" href="document.php?client_id=<?= $client_id ?>&document_id=<?= $document_id ?>"><?= $document_name ?></a>
+                                                        <?php if ($document_description) { ?><div class="small text-body-secondary"><?= $document_description ?></div><?php } ?>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><?= $document_created_by ?></td>
+                                            <td class="text-nowrap small" title="<?= $document_updated_at ?>"><?= timeAgo($document_updated_at) ?></td>
+                                            <td class="text-end text-nowrap">
+                                                <a href="#" class="btn btn-sm btn-light ajax-modal" title="View document" data-modal-size="lg" data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>"><i class="fas fa-fw fa-eye"></i></a>
+                                                <?php if ($can_edit) { ?>
+                                                    <a href="post.php?unlink_asset_from_document&asset_id=<?= $asset_id ?>&document_id=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-light" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                                <?php } ?>
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php } else { ?>
+                            <div class="itflow-asset-empty">No documents linked.</div>
+                        <?php } ?>
                     </div>
-                </div>
 
-                <div class="card card-dark <?php if ($note_count == 0) { echo "d-none"; } ?>">
-                    <div class="card-header py-2">
-                        <h3 class="card-title mt-2"><i class="fa fa-fw fa-sticky-note me-2"></i>Notes</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-primary ajax-modal"
-                                data-modal-url="modals/asset/asset_note_add.php?id=<?= $asset_id ?>">
-                                <i class="fas fa-plus me-2"></i>New Note
-                            </button>
+                    <!-- Files -->
+                    <div class="tab-pane fade" id="asset-pane-files" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">Configs, photos, invoices, exports.</span>
+                            <?php if ($can_edit) { ?>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_file.php?id=<?= $asset_id ?>">
+                                        <i class="fas fa-link me-2"></i>Link
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
+                                        <i class="fas fa-upload me-2"></i>Upload
+                                    </button>
+                                </div>
+                            <?php } ?>
                         </div>
+                        <?php if ($files_count) {
+                            ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="text-nowrap table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Uploaded</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php while ($row = mysqli_fetch_assoc($sql_related_files)) {
+                                        $file_id = intval($row['file_id']);
+                                        $file_name = escapeHtml($row['file_name']);
+                                        $file_description = escapeHtml($row['file_description']);
+                                        $file_created_at = escapeHtml($row['file_created_at']);
+                                        ?>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <?= fileTypeTile($row['file_ext'], 'sm') ?>
+                                                    <div class="min-w-0">
+                                                        <a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $file_id ?>"><?= $file_name ?></a>
+                                                        <?php if ($file_description) { ?><div class="small text-body-secondary"><?= $file_description ?></div><?php } ?>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-nowrap small" title="<?= $file_created_at ?>"><?= timeAgo($file_created_at) ?></td>
+                                            <td class="text-end">
+                                                <?php if ($can_edit) { ?>
+                                                    <a href="post.php?unlink_asset_from_file&asset_id=<?= $asset_id ?>&file_id=<?= $file_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-light" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                                <?php } ?>
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php } else { ?>
+                            <div class="itflow-asset-empty">No files linked.</div>
+                        <?php } ?>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive-sm">
-                            <table class="table table-striped table-borderless table-hover dataTables" style="width:100%">
-                                <thead class="text-dark">
-                                <tr>
-                                    <th>Type</th>
-                                    <th>Note</th>
-                                    <th>By</th>
-                                    <th>Created</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php
 
-                                while ($row = mysqli_fetch_assoc($sql_related_notes)) {
+                    <!-- Services -->
+                    <div class="tab-pane fade" id="asset-pane-services" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">Services that run on it - when it is down, so are they.</span>
+                            <?php if ($can_edit) { ?>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_service.php?id=<?= $asset_id ?>">
+                                    <i class="fas fa-link me-2"></i>Link Service
+                                </button>
+                            <?php } ?>
+                        </div>
+                        <?php if ($service_count) { ?>
+                            <?= serviceRowsHtml($linked_services, $can_edit ? function ($row) use ($asset_id) {
+                                return "post.php?unlink_item&from=asset&id=$asset_id&to=service&other=" . intval($row['service_id']) . "&csrf_token=" . $_SESSION['csrf_token'];
+                            } : null) ?>
+                        <?php } else { ?>
+                            <div class="itflow-asset-empty">Not part of any service.</div>
+                        <?php } ?>
+                    </div>
+
+                    <!-- History, from the audit log -->
+                    <div class="tab-pane fade" id="asset-pane-history" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">Changes, moves and notes - newest first.</span>
+                        </div>
+                        <?= auditLogHistoryHtml($history, ['client_id' => $client_id]) ?>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="tab-pane fade" id="asset-pane-notes" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">A dated log - visits, changes, findings.</span>
+                            <?php if ($can_edit) { ?>
+                                <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/asset/asset_note_add.php?id=<?= $asset_id ?>">
+                                    <i class="fas fa-plus me-2"></i>New Note
+                                </button>
+                            <?php } ?>
+                        </div>
+                        <?php if ($note_count) { ?>
+                            <div class="list-group list-group-flush">
+                                <?php while ($row = mysqli_fetch_assoc($sql_related_notes)) {
                                     $asset_note_id = intval($row['asset_note_id']);
                                     $asset_note_type = escapeHtml($row['asset_note_type']);
                                     $asset_note = nl2br(escapeHtml($row['asset_note']));
                                     $note_by = escapeHtml($row['user_name']);
                                     $asset_note_created_at = escapeHtml($row['asset_note_created_at']);
-
-                                    // Get the corresponding icon for the note type
                                     $note_type_icon = !empty($note_type_icons[$asset_note_type]) ? $note_type_icons[$asset_note_type] : 'fa-sticky-note';
-
                                     ?>
-
-                                    <tr>
-                                        <td><i class="fa fa-fw <?= $note_type_icon ?> me-2"></i><?= $asset_note_type ?></td>
-                                        <td><?= $asset_note ?></td>
-                                        <td><?= $note_by ?></td>
-                                        <td><?= $asset_note_created_at ?></td>
-                                        <td>
-                                            <div class="dropdown dropstart text-center">
-                                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-ellipsis-h"></i>
+                                    <div class="list-group-item d-flex gap-3 py-3">
+                                        <span class="itflow-asset-icon itflow-asset-icon-sm itflow-asset-tone-other" title="<?= $asset_note_type ?>"><i class="fas fa-fw <?= $note_type_icon ?>"></i></span>
+                                        <div class="flex-grow-1 min-w-0">
+                                            <div class="small text-body-secondary mb-1">
+                                                <span class="fw-semibold text-body"><?= $asset_note_type ?></span>
+                                                &middot; <?= $note_by ?> &middot; <span title="<?= $asset_note_created_at ?>"><?= timeAgo($asset_note_created_at) ?></span>
+                                            </div>
+                                            <div><?= $asset_note ?></div>
+                                        </div>
+                                        <?php if ($can_edit) { ?>
+                                            <div class="dropdown dropstart">
+                                                <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-fw fa-ellipsis-v"></i>
                                                 </button>
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item text-danger" href="post.php?archive_asset_note=<?= $asset_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                     </a>
-                                                    <?php if (lookupUserPermission("module_support") >= 3) { ?>
-                                                        <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset_note=<?= $asset_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                    <?php if ($can_delete) { ?>
+                                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset_note=<?= $asset_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                         </a>
                                                     <?php } ?>
                                                 </div>
                                             </div>
-                                        </td>
-                                    </tr>
-
-                                    <?php
-
-                                }
-
-                                ?>
-
-                                </tbody>
-                            </table>
-                        </div>
+                                        <?php } ?>
+                                    </div>
+                                <?php } ?>
+                            </div>
+                        <?php } else { ?>
+                            <div class="itflow-asset-empty">No notes yet.</div>
+                        <?php } ?>
                     </div>
+
                 </div>
-
             </div>
-
         </div>
 
-        <?php
+    </div>
 
-        require_once "modals/share_modal.php";
-
-        }
-
-        ?>
 
     <script>
-        function updateAssetNotes(asset_id) {
-            var notes = document.getElementById("assetNotes").value;
-
-            // Send a POST request to ajax.php as ajax.php with data contact_set_notes=true, contact_id=NUM, notes=NOTES
-            itflowPost(
-                "ajax.php",
-                {
-                    asset_set_notes: 'TRUE',
-                    csrf_token: '<?= $_SESSION['csrf_token'] ?>',
-                    asset_id: asset_id,
-                    notes: notes
-                }
-            )
-        }
-    </script>
-
-    <!-- JavaScript to Show/Hide Password Form Group -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            function syncAuthForm(select) {
-                var form = select.closest('.authForm');
-                if (!form) {
-                    return;
-                }
-                form.querySelectorAll('.passwordGroup').forEach(function (group) {
-                    group.style.display = select.value === 'local' ? '' : 'none';
-                });
+        // Interfaces as ports or as a table - remembered between visits
+        (function () {
+            var radios = document.querySelectorAll('input[name="interfaceView"]');
+            if (!radios.length) {
+                return;
             }
-
-            document.querySelectorAll('.authMethod').forEach(function (select) {
-                select.addEventListener('change', function () {
-                    syncAuthForm(this);
+            function show(view) {
+                document.querySelectorAll('[data-interface-view]').forEach(function (box) {
+                    box.hidden = box.getAttribute('data-interface-view') !== view;
                 });
-                syncAuthForm(select);
+                document.getElementById(view === 'table' ? 'interfaceViewTable' : 'interfaceViewPorts').checked = true;
+            }
+            var saved = '';
+            try { saved = localStorage.getItem('itflow.interfaceView') || ''; } catch (e) {}
+            show(saved === 'table' ? 'table' : 'ports');
+            radios.forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    show(radio.value);
+                    try { localStorage.setItem('itflow.interfaceView', radio.value); } catch (e) {}
+                });
+            });
+        })();
+
+        function updateAssetNotes(asset_id) {
+            itflowPost("ajax.php", {
+                asset_set_notes: 'TRUE',
+                csrf_token: '<?= $_SESSION['csrf_token'] ?>',
+                asset_id: asset_id,
+                notes: document.getElementById("assetNotes").value
+            });
+        }
+
+        /*
+         * Which tab is open: the URL hash wins (#tickets - links from elsewhere
+         * use it), then the tab last used on any asset, then Interfaces.
+         * Choosing a tab updates the hash without adding a history entry, so a
+         * refresh or the redirect back from a save lands on the same tab.
+         * Bootstrap loads in the footer, so this waits for it.
+         */
+        document.addEventListener('DOMContentLoaded', function () {
+            var key = 'itflow.assetTab';
+            var tabs = document.querySelectorAll('[data-asset-tab]');
+            if (!tabs.length) {
+                return;
+            }
+            function byName(name) {
+                return document.querySelector('[data-asset-tab="' + name + '"]');
+            }
+            var wanted = location.hash.replace('#', '');
+            var remembered = '';
+            try { remembered = localStorage.getItem(key) || ''; } catch (e) {}
+            var start = byName(wanted) || byName(remembered) || tabs[0];
+            bootstrap.Tab.getOrCreateInstance(start).show();
+
+            tabs.forEach(function (tab) {
+                tab.addEventListener('shown.bs.tab', function () {
+                    var name = tab.getAttribute('data-asset-tab');
+                    try { localStorage.setItem(key, name); } catch (e) {}
+                    history.replaceState(null, '', location.pathname + location.search + '#' + name);
+                });
             });
         });
-        });
     </script>
-
-    <!-- Include scripts to fetch TOTP codes and passwords via the credential ID -->
-    <script src="js/credential_show_otp_via_id.js"></script>
-    <script src="js/credential_show_password_via_id.js"></script>
 
     <script src="../js/bulk_actions.js"></script>
 
-    <?php
-    require_once "modals/asset/asset_interface_multiple_add.php";
-    require_once "modals/asset/asset_interface_import.php";
-    require_once "modals/asset/asset_interface_export.php";
-
+<?php
 }
 
 require_once "../includes/footer.php";

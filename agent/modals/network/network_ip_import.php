@@ -28,7 +28,7 @@ ob_start();
     <input type="hidden" name="network_id" value="<?= $network_id ?>">
 
     <div class="modal-body">
-        <p><strong>Format csv file with headings &amp; data:</strong><br>IP Address, Hostname, Description</p>
+        <p><strong>Format csv file with headings &amp; data:</strong><br>IP Address, Hostname, Description, Type, MAC <span class="text-secondary">(Type and MAC may be left off - an address is Static, Reservation, Reserved or Virtual)</span></p>
         <p class="text-secondary mb-0">Importing into <strong><?= $network_name ?></strong> (<span class="font-monospace"><?= $network ?></span>). Rows that aren't a valid address, fall outside the subnet, or are already documented here are skipped.</p>
         <hr>
         <div class="mb-3 my-4">

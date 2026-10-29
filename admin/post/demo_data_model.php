@@ -31,6 +31,7 @@ function demoDataAccounts() {
         ['Operating Checking', 'Day to day business banking - client payments in, bills out', 18500.00],
         ['Business Savings', 'Tax and reserve holding', 42000.00],
         ['Merchant Settlement', 'Card and online payments waiting to be paid out', 0.00],
+        ['Business Visa', 'Company card for subscriptions, supplies and meals', 0.00],
     ];
 }
 
@@ -86,12 +87,14 @@ function demoDataSlas() {
 // ------------------------------
 // demoDataTaxes
 // Sales tax on goods lines. Labor is not taxed in this fictional jurisdiction,
-// which is why only hardware lines carry a rate.
+// which is why only hardware lines carry a rate. Name, whole percent,
+// description, registration number, and the parts it is made of.
 // ------------------------------
 function demoDataTaxes() {
     return [
-        ['PA Sales Tax', 6.0],
-        ['Allegheny County Sales Tax', 7.0],
+        ['PA Sales Tax', 6.0, 'Pennsylvania state sales tax', '75520193', []],
+        // The state's part is named as the state's own rate, so Tax Collected adds the two up in one row
+        ['Allegheny County Sales Tax', 7.0, 'Pennsylvania 6% plus the Allegheny County local 1%', '75520193', [['PA Sales Tax', 6.0], ['Allegheny County', 1.0]]],
     ];
 }
 
@@ -133,38 +136,72 @@ function demoCategoryId($mysqli, $name, $type) {
 // whatever the Products starter pack put in. Deliberately a mix - the open
 // source stack is sold as hosting and support rather than licences, which is
 // where the margin on it comes from.
-// name, type, code, price, income category, description
+// name, type, code, price, income category, description, billed (frequency, or
+// frequency:per user), cost, vendor (one of ours), vendor part number, track stock
 // ------------------------------
 function demoDataProducts() {
     return [
         // Hosting - the open source side of the business
-        ['Nextcloud Hosting - Per User', 'service', 'HOST-NC', '6.50', 'Web and Hosting', 'Per user, per month. Managed Nextcloud instance with sync, sharing and mobile access, backed up nightly.'],
-        ['Nextcloud Hosting - Instance', 'service', 'HOST-NCI', '95.00', 'Web and Hosting', 'Per instance, per month. Dedicated Nextcloud instance, updates, monitoring and support.'],
-        ['Web Hosting - Standard', 'service', 'HOST-WEB', '25.00', 'Web and Hosting', 'Per site, per month. Managed hosting with TLS, nightly backup and uptime monitoring.'],
-        ['Web Hosting - Business', 'service', 'HOST-WEBB', '65.00', 'Web and Hosting', 'Per site, per month. Higher resource allocation, staging site and priority restore.'],
-        ['Email Hosting - Per Mailbox', 'service', 'HOST-MAIL', '4.50', 'Web and Hosting', 'Per mailbox, per month. Mail hosting with spam filtering, webmail and mobile sync.'],
-        ['Mail Relay and Filtering', 'service', 'HOST-RELAY', '2.00', 'Web and Hosting', 'Per mailbox, per month. Inbound filtering and outbound relay with reputation monitoring.'],
-        ['Offsite Backup Storage - Self Hosted', 'service', 'HOST-BKP', '0.09', 'Backup', 'Per GB, per month. Encrypted offsite backup storage on our own infrastructure rather than a third party cloud.'],
-        ['Virtual Server Hosting', 'service', 'HOST-VPS', '55.00', 'Cloud Services', 'Per guest, per month. Proxmox hosted virtual server with backup and monitoring.'],
+        ['Nextcloud Hosting - Per User', 'service', 'HOST-NC', '6.50', 'Web and Hosting', 'Per user, per month. Managed Nextcloud instance with sync, sharing and mobile access, backed up nightly.', 'month:contacts', '2.40', 'Nextcloud Hosting Partner', '', 0],
+        ['Nextcloud Hosting - Instance', 'service', 'HOST-NCI', '95.00', 'Web and Hosting', 'Per instance, per month. Dedicated Nextcloud instance, updates, monitoring and support.', 'month', '38.00', 'Nextcloud Hosting Partner', '', 0],
+        ['Web Hosting - Standard', 'service', 'HOST-WEB', '25.00', 'Web and Hosting', 'Per site, per month. Managed hosting with TLS, nightly backup and uptime monitoring.', 'month', '6.00', '', '', 0],
+        ['Web Hosting - Business', 'service', 'HOST-WEBB', '65.00', 'Web and Hosting', 'Per site, per month. Higher resource allocation, staging site and priority restore.', 'month', '14.00', '', '', 0],
+        ['Email Hosting - Per Mailbox', 'service', 'HOST-MAIL', '4.50', 'Web and Hosting', 'Per mailbox, per month. Mail hosting with spam filtering, webmail and mobile sync.', 'month', '1.10', '', '', 0],
+        ['Mail Relay and Filtering', 'service', 'HOST-RELAY', '2.00', 'Web and Hosting', 'Per mailbox, per month. Inbound filtering and outbound relay with reputation monitoring.', 'month', '0.45', '', '', 0],
+        ['Offsite Backup Storage - Self Hosted', 'service', 'HOST-BKP', '0.09', 'Backup', 'Per GB, per month. Encrypted offsite backup storage on our own infrastructure rather than a third party cloud.', 'month', '0.03', '', '', 0],
+        ['Virtual Server Hosting', 'service', 'HOST-VPS', '55.00', 'Cloud Services', 'Per guest, per month. Proxmox hosted virtual server with backup and monitoring.', 'month', '18.00', '', '', 0],
 
         // Open source support and migration work
-        ['Proxmox VE Support', 'service', 'FOSS-PVE', '145.00', 'Managed Services', 'Per host, per month. Proxmox VE monitoring, updates and enterprise repository access.'],
-        ['pfSense Plus Support', 'service', 'FOSS-PF', '65.00', 'Managed Services', 'Per firewall, per month. pfSense Plus subscription, firmware and rule management.'],
-        ['OPNsense Support', 'service', 'FOSS-OPN', '65.00', 'Managed Services', 'Per firewall, per month. OPNsense updates, firmware and rule management.'],
-        ['TrueNAS Support', 'service', 'FOSS-TN', '95.00', 'Managed Services', 'Per array, per month. TrueNAS monitoring, pool health, snapshots and replication.'],
-        ['LibreOffice Migration', 'service', 'FOSS-LO', '145.00', 'Projects', 'Per hour. Template conversion, macro rework and user training when moving off a proprietary office suite.'],
-        ['Linux Desktop Build', 'service', 'FOSS-DSK', '125.00', 'Projects', 'Per machine. Standard Linux desktop build, data migration and handover.'],
-        ['Open Source Stack Review', 'service', 'FOSS-REV', '850.00', 'Consulting', 'Fixed fee. Review of a self hosted stack with a written report and a costed roadmap.'],
+        ['Proxmox VE Support', 'service', 'FOSS-PVE', '145.00', 'Managed Services', 'Per host, per month. Proxmox VE monitoring, updates and enterprise repository access.', 'month', '32.00', 'Proxmox Server Solutions', 'PVE-BASIC-1S', 0],
+        ['pfSense Plus Support', 'service', 'FOSS-PF', '65.00', 'Managed Services', 'Per firewall, per month. pfSense Plus subscription, firmware and rule management.', 'month', '12.00', 'Netgate', 'PFS-PLUS-TAC', 0],
+        ['OPNsense Support', 'service', 'FOSS-OPN', '65.00', 'Managed Services', 'Per firewall, per month. OPNsense updates, firmware and rule management.', 'month', '0.00', '', '', 0],
+        ['TrueNAS Support', 'service', 'FOSS-TN', '95.00', 'Managed Services', 'Per array, per month. TrueNAS monitoring, pool health, snapshots and replication.', 'month', '0.00', '', '', 0],
+        ['LibreOffice Migration', 'service', 'FOSS-LO', '145.00', 'Projects', 'Per hour. Template conversion, macro rework and user training when moving off a proprietary office suite.', '', '0.00', '', '', 0],
+        ['Linux Desktop Build', 'service', 'FOSS-DSK', '125.00', 'Projects', 'Per machine. Standard Linux desktop build, data migration and handover.', '', '0.00', '', '', 0],
+        ['Open Source Stack Review', 'service', 'FOSS-REV', '850.00', 'Consulting', 'Fixed fee. Review of a self hosted stack with a written report and a costed roadmap.', '', '0.00', '', '', 0],
 
         // Corporate licensing and hardware, resold
-        ['Google Workspace Business Standard', 'service', 'LIC-GWBS', '14.00', 'Managed Services', 'Per user, per month. Licence resold and managed.'],
-        ['Synology Active Backup Licence', 'product', 'LIC-SYNAB', '0.00', 'Hardware Sales', 'Included with Synology hardware. Listed so it appears on the quote.'],
-        ['Netgate 6100 MAX Firewall', 'product', 'HW-NG6100', '1245.00', 'Hardware Sales', 'pfSense Plus appliance with three years of support included.'],
-        ['Ubiquiti U6-Pro Access Point', 'product', 'HW-U6PRO', '245.00', 'Hardware Sales', 'Wi-Fi 6 ceiling mounted access point, PoE powered.'],
-        ['Ubiquiti USW-Pro-24-PoE Switch', 'product', 'HW-USW24', '785.00', 'Hardware Sales', '24 port managed PoE switch with SFP+ uplinks.'],
-        ['Synology RS1221+ with Drives', 'product', 'HW-RS1221', '2850.00', 'Hardware Sales', 'Rack NAS populated with NAS rated drives, running Active Backup for Business.'],
-        ['Rack Mount UPS 1500VA', 'product', 'HW-UPS15', '685.00', 'Hardware Sales', 'Rack mount UPS with network management card and graceful shutdown.'],
+        ['Google Workspace Business Standard', 'service', 'LIC-GWBS', '14.00', 'Managed Services', 'Per user, per month. Licence resold and managed.', 'month:contacts', '11.20', 'Cascade Cloud Licensing', 'GWS-BSTD-FLEX', 0],
+        ['Synology Active Backup Licence', 'product', 'LIC-SYNAB', '0.00', 'Hardware Sales', 'Included with Synology hardware. Listed so it appears on the quote.', '', '0.00', 'Synology Direct', '', 0],
+        ['Netgate 6100 MAX Firewall', 'product', 'HW-NG6100', '1245.00', 'Hardware Sales', 'pfSense Plus appliance with three years of support included.', '', '935.00', 'Netgate', '6100-MAX', 0, 'Firewall/Router', 'Netgate', '6100 MAX', 36],
+        ['Ubiquiti U6-Pro Access Point', 'product', 'HW-U6PRO', '245.00', 'Hardware Sales', 'Wi-Fi 6 ceiling mounted access point, PoE powered.', '', '179.00', 'Ubiquiti Store', 'U6-Pro', 1, 'Access Point', 'Ubiquiti', 'U6-Pro', 12],
+        ['Ubiquiti USW-Pro-24-PoE Switch', 'product', 'HW-USW24', '785.00', 'Hardware Sales', '24 port managed PoE switch with SFP+ uplinks.', '', '599.00', 'Ubiquiti Store', 'USW-Pro-24-PoE', 0, 'Switch', 'Ubiquiti', 'USW-Pro-24-PoE', 12],
+        ['Synology RS1221+ with Drives', 'product', 'HW-RS1221', '2850.00', 'Hardware Sales', 'Rack NAS populated with NAS rated drives, running Active Backup for Business.', '', '2140.00', 'Synology Direct', 'RS1221+', 0, 'Server', 'Synology', 'RS1221+', 36],
+        ['Rack Mount UPS 1500VA', 'product', 'HW-UPS15', '685.00', 'Hardware Sales', 'Rack mount UPS with network management card and graceful shutdown.', '', '498.00', 'Ridgeline Technology Distribution', 'SMT1500RM2UNC', 1, 'Other', 'APC', 'Smart-UPS SMT1500RM2UNC', 36],
     ];
+}
+
+// ------------------------------
+// demoProductExtras
+// How a demo product is billed, what it costs, who it comes from, whether
+// its stock is tracked and, for hardware, the client asset it becomes - the
+// columns past the description.
+// ------------------------------
+function demoProductExtras($product, $vendors) {
+    [$frequency, $seat] = array_pad(explode(':', (string) ($product[6] ?? '')), 2, '');
+    $extras = [
+        'product_cost' => $product[7] ?? '0.00',
+        'product_track_stock' => intval($product[10] ?? 0),
+    ];
+    if ($frequency !== '') {
+        $extras['product_frequency'] = $frequency;
+    }
+    if ($seat !== '') {
+        $extras['product_seat_source'] = $seat;
+    }
+    if (!empty($product[8]) && isset($vendors[$product[8]])) {
+        $extras['product_vendor_id'] = $vendors[$product[8]];
+    }
+    if (!empty($product[9])) {
+        $extras['product_vendor_part'] = $product[9];
+    }
+    if (!empty($product[11])) {
+        $extras['product_asset_type'] = $product[11];
+        $extras['product_make'] = $product[12] ?? '';
+        $extras['product_model'] = $product[13] ?? '';
+        $extras['product_warranty_months'] = intval($product[14] ?? 0);
+    }
+    return $extras;
 }
 
 // ------------------------------
@@ -172,7 +209,7 @@ function demoDataProducts() {
 // Matched on the product code, which is what makes a catalogue line ours - a
 // name on its own could easily be something the install already sells.
 // ------------------------------
-function demoEnsureProducts($mysqli, $currency) {
+function demoEnsureProducts($mysqli, $currency, $vendors = []) {
 
     $products = [];
 
@@ -199,7 +236,7 @@ function demoEnsureProducts($mysqli, $currency) {
             'product_description' => $product[5],
             'product_category_id' => demoCategoryId($mysqli, $product[4], 'Income'),
             'product_tax_id' => 0,
-        ]);
+        ] + demoProductExtras($product, $vendors));
     }
 
     return $products;
@@ -367,6 +404,17 @@ function demoFirstId($mysqli, $table, $id_column, $archived_column = '') {
 
 // Deterministic stand-in for a serial number - same input, same serial, so a
 // reload after a removal does not produce a whole new set of numbers
+/** A 2FA seed that comes out the same on every run - 32 base32 characters from the seed. */
+function demoTotpSeed($seed) {
+    $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    $bytes = md5('itflow-demo-totp-' . $seed, true) . md5('itflow-demo-totp-2-' . $seed, true);
+    $out = '';
+    for ($i = 0; $i < 32; $i++) {
+        $out .= $alphabet[ord($bytes[$i]) % 32];
+    }
+    return $out;
+}
+
 function demoSerial($seed, $length = 10) {
     return strtoupper(substr(md5('itflow-demo-' . $seed), 0, $length));
 }
@@ -408,6 +456,57 @@ function demoAttachTags($mysqli, $join_table, $join_column, $tag_column, $row_id
             mysqli_query($mysqli, "INSERT INTO $join_table SET $join_column = $row_id, $tag_column = $tag_id");
         }
     }
+}
+
+// ------------------------------
+// demoVendorTags / demoVendorManager
+// What kind of vendor each demo vendor is, as Tags starter pack vendor tags,
+// and the account manager who looks after the account - a name, a direct
+// line and an email at the vendor's domain, the same every time it is seeded.
+// ------------------------------
+function demoVendorTags($name, $description, $notes = '', $ours = false) {
+    if ($ours) {
+        $map = [
+            'Distribution' => ['Distributor', 'Hardware'], 'Netgate' => ['Hardware', 'Security'], 'Ubiquiti' => ['Hardware'],
+            'Synology' => ['Hardware'], 'Proxmox' => ['Software'], 'Nextcloud' => ['Cloud', 'Hosting'], 'Licensing' => ['Cloud', 'Distributor'],
+            'Colocation' => ['Hosting'], 'Bank' => ['Professional Services'], 'CPA' => ['Professional Services'],
+            'Insurance' => ['Professional Services'], 'Property' => ['Professional Services'],
+        ];
+        foreach ($map as $match => $tags) {
+            if (stripos($name, $match) !== false) {
+                return $tags;
+            }
+        }
+        return [];
+    }
+    $text = "$name $description";
+    $tags = [];
+    if (preg_match('/internet|fibre|fiber|circuit|broadband|connect|wireless|cable/i', $text)) {
+        $tags[] = 'ISP';
+    }
+    if (preg_match('/phone|telecom|voice/i', $text)) {
+        $tags[] = 'Telecom';
+    }
+    if (!$tags) {
+        $tags[] = 'Line of Business';
+    }
+    if (stripos($notes, 'authorised list') !== false) {
+        $tags[] = 'Authorised Contacts Only';
+    }
+    return $tags;
+}
+
+function demoVendorManager($name, $phone, $domain) {
+    $people = ['Dana Whitlock', 'Marcus Feld', 'Priya Raman', 'Owen Castell', 'Jolene Avery', 'Theo Marsh', 'Rosa Delgado', 'Ian Kowalski', 'Hannah Pryce', 'Victor Lund'];
+    $person = $people[crc32($name) % count($people)];
+    $digits = preg_replace('/[^0-9]/', '', (string) $phone);
+    $direct = $digits !== '' ? substr($digits, 0, -2) . str_pad((string) ((intval(substr($digits, -2)) + 37) % 100), 2, '0', STR_PAD_LEFT) : '';
+    return [
+        'vendor_contact_name' => $person,
+        'vendor_contact_phone_country_code' => '1',
+        'vendor_contact_phone' => $direct,
+        'vendor_contact_email' => strtolower(str_replace(' ', '.', $person)) . '@' . $domain,
+    ];
 }
 
 // ------------------------------
@@ -453,6 +552,7 @@ function demoEnsureAccounts($mysqli, $currency) {
             'account_description' => $account[1],
             'opening_balance' => number_format($account[2], 2, '.', ''),
             'account_currency_code' => $currency,
+            'account_type' => accountTypeGuess($account[0]),
             'account_created_at' => demoMonthDateTime(24, 1, 9, 0),
         ]);
     }
@@ -475,10 +575,9 @@ function demoEnsureOrgVendors($mysqli) {
             $vendors[$vendor[0]] = intval($row['vendor_id']);
             continue;
         }
-        $vendors[$vendor[0]] = starterInsert($mysqli, 'vendors', [
+        $vendors[$vendor[0]] = starterInsert($mysqli, 'vendors', demoVendorManager($vendor[0], $vendor[2], $vendor[3]) + [
             'vendor_name' => $vendor[0],
             'vendor_description' => $vendor[1],
-            'vendor_contact_name' => 'Account Manager',
             'vendor_phone_country_code' => '1',
             'vendor_phone' => $vendor[2],
             'vendor_extension' => (string)(200 + (crc32($vendor[0]) % 90)),
@@ -492,6 +591,7 @@ function demoEnsureOrgVendors($mysqli) {
             'vendor_client_id' => 0,
             'vendor_created_at' => demoMonthDateTime(24, 2, 9, 0),
         ]);
+        demoAttachTags($mysqli, 'vendor_tags', 'vendor_id', 'tag_id', $vendors[$vendor[0]], 6, demoVendorTags($vendor[0], $vendor[1], '', true));
     }
 
     return $vendors;
@@ -538,8 +638,18 @@ function demoEnsureTaxes($mysqli) {
         $tax_id = starterInsert($mysqli, 'taxes', [
             'tax_name' => $tax[0],
             'tax_percent' => $tax[1],
+            'tax_description' => $tax[2],
+            'tax_registration_number' => $tax[3],
             'tax_created_at' => demoMonthDateTime(24, 3, 9, 0),
         ]);
+        foreach ($tax[4] as $order => $part) {
+            starterInsert($mysqli, 'tax_components', [
+                'component_tax_id' => $tax_id,
+                'component_name' => $part[0],
+                'component_percent' => $part[1],
+                'component_order' => $order + 1,
+            ]);
+        }
         $taxes[$tax[0]] = ['id' => $tax_id, 'percent' => $tax[1]];
     }
 
@@ -576,8 +686,8 @@ function demoDataLoad($mysqli) {
         'currency' => $currency,
         'accounts' => demoEnsureAccounts($mysqli, $currency),
         'cash_account_id' => demoCashAccountId($mysqli),
-        'org_vendors' => demoEnsureOrgVendors($mysqli),
-        'products' => demoEnsureProducts($mysqli, $currency),
+        'org_vendors' => $org_vendors = demoEnsureOrgVendors($mysqli),
+        'products' => demoEnsureProducts($mysqli, $currency, $org_vendors),
         'calendars' => demoEnsureCalendars($mysqli),
         'slas' => demoEnsureSlas($mysqli),
         'taxes' => demoEnsureTaxes($mysqli),
@@ -613,6 +723,7 @@ function demoDataLoad($mysqli) {
     // missing clients does not double anything up.
     demoBuildInternalDiary($mysqli, $context, $counts);
     demoBuildCompanyFinancials($mysqli, $context, $counts);
+    demoReconcileAccounts($mysqli, $context);
 
     if (!$context['vault_open'] && $counts['clients']) {
         $counts['skipped_credentials'] = 1;
@@ -752,6 +863,8 @@ function demoDataRemove($mysqli) {
         while ($row = mysqli_fetch_assoc($sql)) {
             $location_id = intval($row['location_id']);
             mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
+            mysqli_query($mysqli, "DELETE FROM location_documents WHERE location_id = $location_id");
+            mysqli_query($mysqli, "DELETE FROM location_files WHERE location_id = $location_id");
         }
         mysqli_query($mysqli, "DELETE FROM locations WHERE location_client_id = $client_id");
 
@@ -804,7 +917,6 @@ function demoDataRemove($mysqli) {
         }
         mysqli_query($mysqli, "DELETE FROM calendar_events WHERE event_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_client_id = $client_id");
-        mysqli_query($mysqli, "DELETE FROM sla_assignments WHERE sla_assignment_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM logs WHERE log_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
@@ -882,6 +994,11 @@ function demoDataRemove($mysqli) {
             mysqli_query($mysqli, "DELETE FROM transfers WHERE transfer_id = $transfer_id");
         }
 
+        // The company's other income - rebates, interest and referral fees on our accounts
+        mysqli_query($mysqli, "DELETE FROM revenues WHERE revenue_client_id = 0 AND revenue_account_id IN ($owned_ids)
+            AND (revenue_reference LIKE 'RBT-%' OR revenue_reference LIKE 'INT-%' OR revenue_reference LIKE 'REF-%')
+            AND NOT EXISTS (SELECT 1 FROM transfers WHERE transfer_revenue_id = revenue_id)");
+
     }
 
     // The transfer categories are ours - the Categories pack has no equivalent.
@@ -940,6 +1057,7 @@ function demoDataRemove($mysqli) {
         }
         if (!$in_use) {
             mysqli_query($mysqli, "DELETE FROM product_stock WHERE stock_product_id = $product_id");
+            mysqli_query($mysqli, "DELETE FROM product_prices WHERE price_product_id = $product_id");
             mysqli_query($mysqli, "DELETE FROM products WHERE product_id = $product_id");
         }
     }
@@ -970,6 +1088,21 @@ function demoDataRemove($mysqli) {
         $purpose = escapeSql($errand[0]);
         $destination = escapeSql($errand[1]);
         mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = 0 AND trip_source = 'Office' AND trip_purpose = '$purpose' AND trip_destination = '$destination'");
+    }
+
+    // The statements reconciled on our accounts go with the demo - their lines
+    // are mostly gone, and any left are free to change again
+    foreach (demoDataAccounts() as $account) {
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT account_id FROM accounts WHERE account_name = '" . escapeSql($account[0]) . "' AND account_description = '" . escapeSql($account[1]) . "' LIMIT 1"));
+        $account_id = intval($row['account_id'] ?? 0);
+        if (!$account_id) {
+            continue;
+        }
+        foreach (['payments' => 'payment', 'revenues' => 'revenue', 'expenses' => 'expense'] as $table => $prefix) {
+            mysqli_query($mysqli, "UPDATE $table SET {$prefix}_reconciliation_id = NULL
+                WHERE {$prefix}_reconciliation_id IN (SELECT reconciliation_id FROM account_reconciliations WHERE reconciliation_account_id = $account_id)");
+        }
+        mysqli_query($mysqli, "DELETE FROM account_reconciliations WHERE reconciliation_account_id = $account_id");
     }
 
     // Accounts, SLAs and tax rates are shared company config, so each one only
@@ -1007,6 +1140,11 @@ function demoDataRemove($mysqli) {
             $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS total FROM $table WHERE $column = $sla_id"));
             $in_use = $in_use + intval($row['total'] ?? 0);
         }
+        // Or set by a contract or contract template of the install's own - the demo's went with its clients
+        foreach (['contracts' => 'contract_sla_', 'contract_templates' => 'contract_template_sla_'] as $table => $prefix) {
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS total FROM $table WHERE {$prefix}low_id = $sla_id OR {$prefix}medium_id = $sla_id OR {$prefix}high_id = $sla_id OR {$prefix}urgent_id = $sla_id"));
+            $in_use = $in_use + intval($row['total'] ?? 0);
+        }
         if (!$in_use) {
             mysqli_query($mysqli, "DELETE FROM slas WHERE sla_id = $sla_id");
         }
@@ -1025,8 +1163,14 @@ function demoDataRemove($mysqli) {
             $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS total FROM $table WHERE $column = $tax_id"));
             $in_use = $in_use + intval($row['total'] ?? 0);
         }
+        foreach (['clients' => 'client_default_tax_id'] as $table => $column) {
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS total FROM $table WHERE $column = $tax_id"));
+            $in_use = $in_use + intval($row['total'] ?? 0);
+        }
         if (!$in_use) {
+            mysqli_query($mysqli, "DELETE FROM tax_components WHERE component_tax_id = $tax_id");
             mysqli_query($mysqli, "DELETE FROM taxes WHERE tax_id = $tax_id");
+            mysqli_query($mysqli, "UPDATE settings SET config_tax_default_id = 0 WHERE config_tax_default_id = $tax_id");
         }
     }
 
@@ -1045,16 +1189,16 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     $user_id = $context['user_id'];
     $months = demoClientMonths($profile);
 
-    $client_id = starterInsert($mysqli, 'clients', [
+    $client_id = starterInsert($mysqli, 'clients', array_merge([
         'client_name' => $profile['name'],
         'client_type' => $profile['type'],
         'client_website' => 'https://www.' . $profile['domain'],
         'client_referral' => $profile['referral'],
-        'client_rate' => $profile['rate'],
         'client_currency_code' => $currency,
-        'client_net_terms' => $profile['net_terms'],
         'client_abbreviation' => $profile['abbreviation'],
         'client_tax_id_number' => '82-' . demoSerial($profile['abbreviation'] . 'ein', 7),
+        // The rate where it is
+        'client_default_tax_id' => intval($context['taxes'][$profile['tax']]['id'] ?? 0),
         'client_lead' => $profile['lead'],
         'client_favorite' => $profile['favorite'],
         'client_notes' => $profile['notes'],
@@ -1062,20 +1206,17 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         // first - a client record cannot postdate its own opening invoice
         'client_created_at' => demoMonthDateTime($months, 1, 9, 14),
         'client_accessed_at' => demoDateTime($index % 5, 11, 20),
-    ]);
+    ], billingClientLegacyFields(), !empty($profile['tax_exempt']) ? [
+        // Or exempt on a certificate - a church, a school
+        'client_tax_exempt' => 1,
+        'client_tax_exempt_number' => $profile['tax_exempt'][0],
+        'client_tax_exempt_expires' => date('Y-m-d', strtotime($profile['tax_exempt'][1])),
+    ] : []));
 
     demoAttachTags($mysqli, 'client_tags', 'client_id', 'tag_id', $client_id, 1, $profile['tags']);
 
-    // Response targets, by priority
-    foreach ($profile['slas'] as $priority => $sla_name) {
-        if (isset($context['slas'][$sla_name])) {
-            starterInsert($mysqli, 'sla_assignments', [
-                'sla_assignment_client_id' => $client_id,
-                'sla_assignment_priority' => $priority,
-                'sla_assignment_sla_id' => $context['slas'][$sla_name]['id'],
-            ]);
-        }
-    }
+    // Its hourly rate, net terms and response targets - a client's come from its contract
+    demoBuildContract($mysqli, $profile, $client_id, $months, $context);
 
     // Locations
     $location_ids = [];
@@ -1135,6 +1276,11 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     $primary_contact_id = $contact_ids[0] ?? 0;
     $technical_contact_id = $contact_ids[2] ?? $primary_contact_id;
 
+    // Who to ask for at the main site - the technical contact
+    if ($primary_location_id && $technical_contact_id) {
+        mysqli_query($mysqli, "UPDATE locations SET location_contact_id = " . intval($technical_contact_id) . " WHERE location_id = " . intval($primary_location_id));
+    }
+
     // Notes on the account and on the technical contact
     starterInsert($mysqli, 'client_notes', [
         'client_note_type' => 'General',
@@ -1163,10 +1309,9 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     // The client's own vendors - who they buy their line of business kit from
     $vendor_ids = [];
     foreach ($profile['vendors'] as $vendor_index => $vendor) {
-        $vendor_ids[] = starterInsert($mysqli, 'vendors', [
+        $vendor_id = starterInsert($mysqli, 'vendors', demoVendorManager($vendor[0], $vendor[2], $vendor[3]) + [
             'vendor_name' => $vendor[0],
             'vendor_description' => $vendor[1],
-            'vendor_contact_name' => 'Business Support',
             'vendor_phone_country_code' => '1',
             'vendor_phone' => $vendor[2],
             'vendor_email' => 'support@' . $vendor[3],
@@ -1176,9 +1321,12 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
             'vendor_code' => demoSerial($profile['abbreviation'] . $vendor[0], 6),
             'vendor_account_number' => demoSerial($profile['abbreviation'] . 'acct' . $vendor_index, 8),
             'vendor_notes' => $vendor[5],
+            'vendor_favorite' => $vendor_index === 0 ? 1 : 0,
             'vendor_client_id' => $client_id,
             'vendor_created_at' => demoMonthDateTime($months, 5, 13, 0),
         ]);
+        demoAttachTags($mysqli, 'vendor_tags', 'vendor_id', 'tag_id', $vendor_id, 6, demoVendorTags($vendor[0], $vendor[1], $vendor[5]));
+        $vendor_ids[] = $vendor_id;
         $counts['documentation']++;
     }
     $primary_vendor_id = $vendor_ids[0] ?? 0;
@@ -1189,9 +1337,9 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         $network_ids[$network[0]] = starterInsert($mysqli, 'networks', [
             'network_name' => $network[0],
             'network_description' => $network[1],
+            'network_type' => $network[9] ?? networkGuessType($network[0], $network[1]),
             'network_vlan' => $network[2],
             'network' => $network[3],
-            'network_subnet' => '24',
             'network_gateway' => $network[4],
             'network_primary_dns' => $network[5],
             'network_secondary_dns' => $network[6],
@@ -1206,45 +1354,101 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     }
     $primary_network_id = reset($network_ids) ?: 0;
 
+    // The internet connection, from the client's ISP - a /29 of public
+    // addresses (documentation range), the provider's router on the first
+    $wan = null;
+    $fleet = $profile['fleet'] ?? [];
+    foreach ($profile['vendors'] as $vendor_index => $vendor) {
+        if (!empty($fleet['Firewall/Router']) && preg_match('/internet|fibre|fiber|circuit|broadband|connect|cable/i', $vendor[0] . ' ' . $vendor[1])) {
+            $block = '203.0.113.' . (($index % 32) * 8);
+            $wan = ['base' => substr($block, 0, strrpos($block, '.')), 'first' => ($index % 32) * 8 + 1, 'vendor' => $vendor[0]];
+            $network_ids['Internet'] = starterInsert($mysqli, 'networks', [
+                'network_name' => 'Internet - ' . $vendor[0],
+                'network_description' => $vendor[1],
+                'network_type' => 'WAN',
+                'network' => $block . '/29',
+                'network_gateway' => $wan['base'] . '.' . $wan['first'],
+                'network_primary_dns' => '1.1.1.1',
+                'network_secondary_dns' => '8.8.8.8',
+                'network_dhcp_range' => '',
+                'network_notes' => 'Five usable static addresses. The first is the provider\'s router; the firewall WAN has the next one. Call the provider with the account number before touching the router.',
+                'network_location_id' => $primary_location_id,
+                'network_vendor_id' => $vendor_ids[$vendor_index] ?? 0,
+                'network_client_id' => $client_id,
+                'network_created_at' => demoMonthDateTime($months, 6, 14, 20),
+                'network_accessed_at' => demoDateTime($index % 13, 10, 5),
+            ]);
+            $counts['documentation']++;
+            break;
+        }
+    }
+
     // Assets, and the rack the infrastructure sits in
     $assets = demoBuildAssets($mysqli, $profile, $index, $client_id, $primary_location_id, $contact_ids, $primary_vendor_id, $network_ids, $months, $user_id, $counts);
     demoBuildRack($mysqli, $profile, $client_id, $primary_location_id, $assets, $months, $counts);
     demoBuildNetworkIps($mysqli, $profile, $assets, $network_ids, $counts);
     demoBuildPatchPanel($mysqli, $profile, $assets, $network_ids, $months, $counts);
+    demoBuildWan($mysqli, $profile, $assets, $network_ids, $wan, $months, $counts);
 
-    // Domain, DNS and the certificate on it
+    // Domain, DNS and the certificate on it. Half renew by themselves; the
+    // email records vary so the Email checks have something to say - DMARC
+    // enforced, monitoring only, or missing
+    $domain_auto_renew = $index % 2;
+    $domain_m365 = strpos($profile['mail_servers'], 'google') === false;
     $domain_id = starterInsert($mysqli, 'domains', [
         'domain_name' => $profile['domain'],
         'domain_description' => 'Primary domain - website and email',
         'domain_expire' => demoDate(-1 * (60 + ($index * 21))),
+        'domain_auto_renew' => $domain_auto_renew,
         'domain_ip' => '203.0.113.' . (10 + $index),
-        'domain_name_servers' => 'ns1.' . $profile['dns_host'] . ', ns2.' . $profile['dns_host'],
-        'domain_raw_whois' => 'Registrar: Harbour Registrar Services. Status: clientTransferProhibited. Registrant: ' . $profile['name'] . '.',
-        'domain_mail_servers' => $profile['mail_servers'],
+        'domain_name_servers' => 'ns1.' . $profile['dns_host'] . "\nns2." . $profile['dns_host'],
+        'domain_raw_whois' => "Registrar: Harbour Registrar Services\nRegistered: " . demoDate(365 * (6 + $index % 9) + $index * 11) . "\nExpires: " . demoDate(-1 * (60 + ($index * 21))) . "\nStatus: client transfer prohibited\nNameservers: ns1." . $profile['dns_host'] . ', ns2.' . $profile['dns_host'],
+        'domain_mail_servers' => '0 ' . $profile['mail_servers'],
+        'domain_dmarc' => [0 => 'v=DMARC1; p=reject; rua=mailto:dmarc@' . $profile['domain'], 1 => 'v=DMARC1; p=none; rua=mailto:dmarc@' . $profile['domain'], 2 => ''][$index % 3],
+        'domain_dkim' => $index % 4 === 3 ? '' : ($domain_m365 ? "selector1\nselector2" : 'google'),
+        'domain_refreshed_at' => demoDateTime(1 + $index % 6, 4, 0),
         // These three are vendor IDs, not names - who hosts the site, who runs
         // DNS, and who the mail lands with
         'domain_webhost' => intval($profile['build'] === 1 ? ($context['org_vendors']['Nextcloud Hosting Partner'] ?? 0) : $primary_vendor_id),
         'domain_dnshost' => intval($primary_vendor_id),
         'domain_mailhost' => intval($context['org_vendors']['Cascade Cloud Licensing'] ?? 0),
-        'domain_txt' => 'v=spf1 include:' . $profile['dns_host'] . ' -all',
-        'domain_notes' => 'Registrar login is held in the credential vault. Renewal is set to manual so it cannot lapse without a ticket.',
+        'domain_txt' => 'v=spf1 include:' . $profile['dns_host'] . ' -all' . ($domain_m365 ? "\nMS=ms" . substr(demoSerial($profile['domain'], 8), 0, 8) : "\ngoogle-site-verification=" . strtolower(demoSerial($profile['domain'], 20))),
+        'domain_notes' => 'Registrar login is held in the credential vault. ' . ($domain_auto_renew ? 'Auto-renew is on and charged to the card on file - check it before the card expires.' : 'Renewal is set to manual so it cannot lapse without a ticket.'),
         'domain_registrar' => $primary_vendor_id,
         'domain_client_id' => $client_id,
         'domain_created_at' => demoMonthDateTime($months, 7, 9, 45),
         'domain_accessed_at' => demoDateTime($index % 13, 15, 5),
     ]);
 
-    $certificate_id = starterInsert($mysqli, 'certificates', [
-        'certificate_name' => 'www.' . $profile['domain'],
-        'certificate_description' => $profile['cert_issuer'] === "Let's Encrypt" ? 'Public website certificate, renewed automatically by the reverse proxy' : 'Public website certificate, renewed manually at expiry',
-        'certificate_domain' => 'www.' . $profile['domain'],
-        'certificate_issued_by' => $profile['cert_issuer'],
-        'certificate_expire' => demoDate(-1 * (20 + ($index * 9))),
-        'certificate_domain_id' => $domain_id,
-        'certificate_client_id' => $client_id,
-        'certificate_created_at' => demoMonthDateTime($months, 7, 9, 50),
-    ]);
-    $counts['documentation'] += 2;
+    demoAttachTags($mysqli, 'domain_tags', 'domain_id', 'tag_id', $domain_id, 7, ['Primary', 'Managed DNS']);
+
+    // Every third client also keeps a campaign domain nobody remembers - parked,
+    // no mail, and close to lapsing or already lapsed
+    if ($index % 3 === 0) {
+        $campaign_days = $index % 2 ? -12 : 20;
+        $campaign_domain_id = starterInsert($mysqli, 'domains', [
+            'domain_name' => 'get' . $profile['domain'],
+            'domain_description' => 'Old campaign domain - forwards to the main site',
+            'domain_expire' => demoDate(-1 * $campaign_days),
+            'domain_auto_renew' => 0,
+            'domain_ip' => '203.0.113.' . (10 + $index),
+            'domain_name_servers' => 'ns1.' . $profile['dns_host'] . "\nns2." . $profile['dns_host'],
+            'domain_txt' => 'v=spf1 -all',
+            'domain_dmarc' => 'v=DMARC1; p=reject',
+            'domain_raw_whois' => "Registrar: Harbour Registrar Services\nRegistered: " . demoDate(365 * 3 + $index) . "\nStatus: client transfer prohibited",
+            'domain_notes' => 'Ask the client whether to keep it before it renews.',
+            'domain_registrar' => $primary_vendor_id,
+            'domain_dnshost' => intval($primary_vendor_id),
+            'domain_client_id' => $client_id,
+            'domain_created_at' => demoMonthDateTime($months, 7, 10, 5),
+            'domain_refreshed_at' => demoDateTime(2 + $index % 5, 4, 0),
+        ]);
+        demoAttachTags($mysqli, 'domain_tags', 'domain_id', 'tag_id', $campaign_domain_id, 7, ['Parked', 'Marketing']);
+        $counts['documentation']++;
+    }
+
+    $certificate_id = demoBuildCertificates($mysqli, $profile, $index, $client_id, $domain_id, $months, $counts);
+    $counts['documentation']++;
 
     // The renewals behind them. Both tables cascade off their parent, so the
     // client purge takes these with the domain and the certificate.
@@ -1262,13 +1466,6 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         'domain_history_domain_id' => $domain_id,
         'domain_history_modified_at' => demoMonthDateTime(max(1, min(9, $months)), 6, 15, 40),
     ]);
-    starterInsert($mysqli, 'certificate_history', [
-        'certificate_history_column' => 'certificate_expire',
-        'certificate_history_old_value' => demoMonthDate(3, 20),
-        'certificate_history_new_value' => demoDate(-1 * (20 + ($index * 9))),
-        'certificate_history_certificate_id' => $certificate_id,
-        'certificate_history_modified_at' => demoMonthDateTime(3, 20, 4, 15),
-    ]);
 
     // Credentials - only when the vault actually opened for this session
     $credential_ids = [];
@@ -1282,9 +1479,12 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
                 'credential_password' => encryptCredentialEntry(demoSerial($profile['abbreviation'] . $credential[0], 14) . '!aA1'),
                 'credential_note' => $credential[4],
                 'credential_favorite' => $credential[6],
+                // A 2FA seed on the logins that have one, so the codes count down like the real thing
+                'credential_otp_secret' => !empty($credential[7]) ? demoTotpSeed($profile['abbreviation'] . $credential[0]) : '',
                 'credential_client_id' => $client_id,
                 'credential_created_at' => demoMonthDateTime($months, 8, 16, 10),
-                'credential_password_changed_at' => demoMonthDateTime(max(0, min(4, $months)), 8, 16, 10),
+                // Some changed lately, some due, one well over a year - never before the client was taken on
+                'credential_password_changed_at' => demoDateTime(min($credential[8] ?? 30, max(0, $months * 30 - 10)), 16, 10),
                 'credential_accessed_at' => demoDateTime(($index + 2) % 15, 11, 30),
             ]);
             $credential_ids[$credential[0]] = $credential_id;
@@ -1312,6 +1512,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         ], ['document_content', 'document_content_raw']);
         $document_ids[] = $document_id;
         $counts['documentation']++;
+        demoAttachTags($mysqli, 'document_tags', 'document_id', 'tag_id', $document_id, 11, $document_index === 0 ? ['Runbook'] : ($document[3] ? ['Client-facing'] : ['Procedure']));
 
         // The runbook has been revised at least once since it was written
         if ($document_index === 0 && $written_months_ago > 2) {
@@ -1327,9 +1528,16 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     }
     $runbook_id = $document_ids[0] ?? 0;
 
-    // Services, linked to the kit and credentials that actually run them
-    foreach ($profile['services'] as $service) {
+    // The site runbook belongs to the main site too
+    demoLink($mysqli, 'location_documents', 'location_id', $primary_location_id, 'document_id', $runbook_id);
 
+    // Services, linked to the kit and credentials that actually run them. The
+    // important ones are reviewed every six months, the rest yearly - last
+    // reviewed at different times, so a few are due and one or two are late
+    foreach ($profile['services'] as $service_index => $service) {
+
+        $review_months = $service[3] === 'High' ? 6 : 12;
+        $reviewed_days_ago = 20 + (($index * 37 + $service_index * 71) % ($review_months * 30));
         $service_id = starterInsert($mysqli, 'services', [
             'service_name' => $service[0],
             'service_description' => $service[1],
@@ -1337,12 +1545,15 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
             'service_importance' => $service[3],
             'service_backup' => $service[4],
             'service_notes' => $service[5],
-            'service_review_due' => demoDate(-1 * (90 + ($index * 5))),
+            'service_review_interval' => $review_months,
+            'service_reviewed_at' => demoDateTime($reviewed_days_ago, 14, 30),
+            'service_review_due' => demoDate($reviewed_days_ago - $review_months * 30),
             'service_client_id' => $client_id,
             'service_created_at' => demoMonthDateTime($months, 9, 10, 30),
             'service_accessed_at' => demoDateTime($index % 12, 16, 20),
         ]);
         $counts['documentation']++;
+        demoAttachTags($mysqli, 'service_tags', 'service_id', 'tag_id', $service_id, 9, in_array($service[2], ['Email', 'Web'], true) ? ['Managed', 'Cloud'] : ['Managed']);
 
         // Link it to the assets whose type it runs on
         foreach ($assets as $asset) {
@@ -1389,6 +1600,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
 
         $software_id = starterInsert($mysqli, 'software', $software_fields);
         $counts['documentation']++;
+        demoAttachTags($mysqli, 'software_tags', 'software_id', 'tag_id', $software_id, 8, $software[4] === 'Subscription' ? ['We Resell', 'Core Stack'] : []);
 
         // Open source software has no key to hold
         if ($software[4] !== 'Open Source') {
@@ -1417,6 +1629,8 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         foreach ($assets as $asset) {
             if (!empty($asset['credential']) && $asset['credential'] === $credential_name) {
                 demoLink($mysqli, 'asset_credentials', 'credential_id', $credential_id, 'asset_id', $asset['id']);
+                // The credential's own asset - what the asset's Credentials tab and the credential show
+                mysqli_query($mysqli, "UPDATE credentials SET credential_asset_id = " . intval($asset['id']) . " WHERE credential_id = " . intval($credential_id) . " AND credential_asset_id = 0");
             }
         }
     }
@@ -1431,7 +1645,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     }
 
     // Support and billing
-    $projects = demoBuildProjects($mysqli, $profile, $index, $client_id, $months, $counts);
+    $projects = demoBuildProjects($mysqli, $profile, $index, $client_id, $months, $counts, $primary_contact_id);
     demoBuildTickets($mysqli, $profile, $index, $client_id, $contact_ids, $assets, $primary_location_id, $projects, $vendor_ids, $months, $context, $counts);
     demoBuildBilling($mysqli, $profile, $index, $client_id, $primary_vendor_id, $months, $context, $counts);
 
@@ -1454,43 +1668,67 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
                 'event_client_id' => $client_id,
                 'event_location_id' => $primary_location_id,
                 'event_calendar_id' => $onsite_calendar_id,
+                'event_created_by' => $context['user_id'],
                 'event_created_at' => demoDateTime($days_ago + 10, 9, 0),
             ]);
 
-            // Whoever is meeting us on site
-            if ($technical_contact_id) {
-                // attendee_invitation_status is a tinyint nothing in the app
-                // reads or writes yet, so it is left on its default rather than
-                // guessing at a meaning for it
+            // The agent going, and whoever is meeting us on site - who was sent
+            // the invitation when the visit was booked
+            if ($context['user_id']) {
                 starterInsert($mysqli, 'calendar_event_attendees', [
-                    'attendee_name' => $profile['people'][2][0] ?? $profile['people'][0][0],
-                    'attendee_email' => demoContactEmail($profile['people'][2][0] ?? $profile['people'][0][0], $profile['domain']),
+                    'attendee_user_id' => $context['user_id'],
+                    'attendee_event_id' => $event_id,
+                    'attendee_created_at' => demoDateTime($days_ago + 10, 9, 0),
+                ]);
+            }
+            if ($technical_contact_id) {
+                starterInsert($mysqli, 'calendar_event_attendees', [
                     'attendee_contact_id' => $technical_contact_id,
                     'attendee_event_id' => $event_id,
                     'attendee_created_at' => demoDateTime($days_ago + 10, 9, 0),
+                    'attendee_invitation_status' => 1,
+                    'attendee_invited_at' => demoDateTime($days_ago + 10, 9, 5),
                 ]);
             }
 
         }
     }
 
-    // The quarterly review, for the clients who get one
+    // The quarterly review, for the clients who get one - every three months,
+    // the first a couple of quarters back
     $internal_calendar_id = $context['calendars']['Internal'] ?? 0;
     if ($internal_calendar_id && in_array('Key Account', $profile['tags'])) {
-        starterInsert($mysqli, 'calendar_events', [
+        $review_id = starterInsert($mysqli, 'calendar_events', [
             'event_title' => $profile['abbreviation'] . ' - quarterly business review',
             'event_location' => $profile['sites'][0]['city'] . ', ' . $profile['sites'][0]['state'],
             'event_description' => 'Spend to date, open projects, asset age and anything coming up in the next quarter.',
-            'event_start' => demoDateTime(-1 * (14 + ($index % 30)), 14, 0),
-            'event_end' => demoDateTime(-1 * (14 + ($index % 30)), 15, 30),
+            'event_start' => demoDateTime(166 - ($index % 30), 14, 0),
+            'event_end' => demoDateTime(166 - ($index % 30), 15, 30),
             'event_all_day' => 0,
+            'event_repeat' => 'Month',
+            'event_repeat_interval' => 3,
             'event_client_id' => $client_id,
             'event_location_id' => $primary_location_id,
             'event_calendar_id' => $internal_calendar_id,
-            'event_created_at' => demoDateTime(3, 9, 0),
+            'event_created_by' => $context['user_id'],
+            'event_created_at' => demoDateTime(170, 9, 0),
         ]);
+        foreach (array_filter([$context['user_id'] ? ['attendee_user_id' => $context['user_id']] : null, $primary_contact_id ? ['attendee_contact_id' => $primary_contact_id] : null]) as $attendee) {
+            starterInsert($mysqli, 'calendar_event_attendees', $attendee + [
+                'attendee_event_id' => $review_id,
+                'attendee_created_at' => demoDateTime(170, 9, 0),
+            ]);
+        }
     }
 
+    // The driving out to them (functions/trips.php): the quarterly visit to
+    // their main site, and a trip for each onsite ticket fixed in the last six
+    // months - to the ticket's site, on the day it was fixed, by who fixed it.
+    // The last six weeks in the agent's own vehicle, to pay back for; a
+    // billable ticket's trip in the last month is billable too, when trips
+    // bill (Admin > Settings > Invoice)
+    $trip_miles = 8.5 + ($index * 2.5);
+    $main_site = $profile['sites'][0];
     for ($trip_month = min(6, $months); $trip_month >= 0; $trip_month = $trip_month - 3) {
         if (demoIsFuture(demoMonthDate($trip_month, 17))) {
             continue;
@@ -1499,16 +1737,148 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
             'trip_date' => demoMonthDate($trip_month, 17),
             'trip_purpose' => 'Onsite - ' . $profile['onsite_visit'],
             'trip_source' => 'Office',
-            'trip_destination' => $profile['sites'][0]['city'] . ', ' . $profile['sites'][0]['state'],
-            'trip_miles' => 8.5 + ($index * 2.5),
+            'trip_destination' => formatAddress($main_site['address'], $main_site['city'], $main_site['state'], $main_site['zip'], '', ' '),
+            'trip_miles' => $trip_miles,
             'round_trip' => 1,
+            'trip_own_vehicle' => strtotime(demoMonthDate($trip_month, 17)) >= strtotime('-45 days') ? 1 : 0,
             'trip_user_id' => $user_id,
+            'trip_created_by' => $user_id,
             'trip_client_id' => $client_id,
+            'trip_location_id' => $primary_location_id,
             'trip_created_at' => demoMonthDateTime($trip_month, 17, 17, 30),
+        ]);
+    }
+    $bill_trips = tripBillingOn();
+    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_subject, ticket_assigned_to, ticket_resolved_at, ticket_billable, location_id, location_name, location_address, location_city, location_state, location_zip
+        FROM tickets LEFT JOIN locations ON location_id = ticket_location_id
+        WHERE ticket_client_id = " . intval($client_id) . " AND ticket_onsite = 1 AND ticket_resolved_at IS NOT NULL
+            AND ticket_resolved_at >= NOW() - INTERVAL 6 MONTH AND ticket_resolved_at <= NOW()
+        ORDER BY ticket_resolved_at ASC");
+    while ($ticket = mysqli_fetch_assoc($sql)) {
+        $driver_id = intval($ticket['ticket_assigned_to']) ?: $user_id;
+        starterInsert($mysqli, 'trips', [
+            'trip_date' => substr($ticket['ticket_resolved_at'], 0, 10),
+            'trip_purpose' => mb_substr('Onsite - ' . $ticket['ticket_subject'], 0, 200),
+            'trip_source' => 'Office',
+            'trip_destination' => $ticket['location_id'] !== null ? tripLocationAddress($ticket) : formatAddress($main_site['address'], $main_site['city'], $main_site['state'], $main_site['zip'], '', ' '),
+            'trip_miles' => $trip_miles,
+            'round_trip' => 1,
+            'trip_own_vehicle' => strtotime($ticket['ticket_resolved_at']) >= strtotime('-45 days') ? 1 : 0,
+            'trip_billable' => $bill_trips && intval($ticket['ticket_billable']) && strtotime($ticket['ticket_resolved_at']) >= strtotime('-30 days') ? 1 : 0,
+            'trip_user_id' => $driver_id,
+            'trip_created_by' => $driver_id,
+            'trip_client_id' => $client_id,
+            'trip_location_id' => intval($ticket['location_id']),
+            'trip_ticket_id' => intval($ticket['ticket_id']),
+            'trip_created_at' => $ticket['ticket_resolved_at'],
         ]);
     }
 
 }
+
+/**
+ * The client's certificates: the one on their website (checked, OK - the
+ * Let's Encrypt ones short-lived, one of them overdue to renew), and for some
+ * clients the firewall's factory self-signed admin certificate, a remote
+ * access portal still serving the certificate for its old name, and a RADIUS
+ * certificate from their own CA that has no host to check. Returns the
+ * website certificate's id, for the services that use it.
+ */
+function demoBuildCertificates($mysqli, $profile, $index, $client_id, $domain_id, $months, &$counts) {
+    $domain = $profile['domain'];
+    $fingerprint = function ($seed) {
+        return implode(':', str_split(strtoupper(hash('sha256', 'itflow-demo-' . $seed)), 2));
+    };
+    $short_lived = $profile['cert_issuer'] === "Let's Encrypt";
+    // Let's Encrypt certificates last 90 days and renew with 30 left; one is stuck
+    $expire_days = $short_lived ? ($index % 7 === 4 ? 12 : 31 + ($index * 13) % 58) : 20 + ($index * 9);
+    $expire = demoDate(-1 * $expire_days);
+    $issued = date('Y-m-d', strtotime($expire . ($short_lived ? ' -90 days' : ' -397 days')));
+
+    $website_id = starterInsert($mysqli, 'certificates', [
+        'certificate_name' => 'www.' . $domain,
+        'certificate_description' => $short_lived ? 'Public website certificate, renewed automatically by the reverse proxy' : 'Public website certificate, renewed manually at expiry',
+        'certificate_domain' => 'www.' . $domain,
+        'certificate_names' => 'www.' . $domain . "\n" . $domain,
+        'certificate_issued_by' => $profile['cert_issuer'],
+        'certificate_issued_at' => $issued,
+        'certificate_expire' => $expire,
+        'certificate_fingerprint' => $fingerprint('www.' . $domain . $issued),
+        'certificate_check_status' => 'ok',
+        'certificate_checked_at' => demoDateTime(1 + $index % 3, 3, 30),
+        'certificate_notes' => $short_lived ? 'Issued and renewed by the reverse proxy over HTTP-01 - port 80 has to stay open to it.' : 'Renewed by us at expiry - the CSR is generated on the web server and the key never leaves it.',
+        'certificate_domain_id' => $domain_id,
+        'certificate_client_id' => $client_id,
+        'certificate_created_at' => demoMonthDateTime($months, 7, 9, 50),
+    ]);
+    starterInsert($mysqli, 'certificate_history', [
+        'certificate_history_column' => 'certificate_expire',
+        'certificate_history_old_value' => date('Y-m-d', strtotime($expire . ($short_lived ? ' -60 days' : ' -365 days'))),
+        'certificate_history_new_value' => $expire,
+        'certificate_history_certificate_id' => $website_id,
+        'certificate_history_modified_at' => $issued . ' 04:15:00',
+    ]);
+    $counts['documentation']++;
+
+    // The firewall's admin page - the factory certificate, which browsers don't trust
+    $gateway = $profile['networks'][0][4] ?? '';
+    if ($index % 3 === 1 && $gateway !== '') {
+        starterInsert($mysqli, 'certificates', [
+            'certificate_name' => 'Firewall admin',
+            'certificate_description' => 'Management page on the LAN - still the factory self-signed certificate',
+            'certificate_domain' => $gateway . ':8443',
+            'certificate_names' => $gateway,
+            'certificate_issued_by' => 'Self-signed (factory)',
+            'certificate_issued_at' => demoDate(365 * 3 + $index * 17),
+            'certificate_expire' => demoDate(-1 * (365 * 7 - $index * 17)),
+            'certificate_fingerprint' => $fingerprint('fw-' . $domain),
+            'certificate_check_status' => 'untrusted',
+            'certificate_checked_at' => demoDateTime(1 + $index % 3, 3, 35),
+            'certificate_notes' => 'Replace with one from the internal CA at the next firmware upgrade, so the browser warning stops training people to click through.',
+            'certificate_client_id' => $client_id,
+            'certificate_created_at' => demoMonthDateTime($months, 7, 10, 10),
+        ]);
+        $counts['documentation']++;
+    }
+
+    // A remote access portal renamed in the spring, still serving the old name's certificate
+    if ($index % 4 === 2) {
+        starterInsert($mysqli, 'certificates', [
+            'certificate_name' => 'Remote access portal',
+            'certificate_description' => 'SSL VPN portal for staff working from home',
+            'certificate_domain' => 'remote.' . $domain,
+            'certificate_names' => 'vpn.' . $domain,
+            'certificate_issued_by' => 'Sectigo',
+            'certificate_issued_at' => demoDate(200 + $index),
+            'certificate_expire' => demoDate(-1 * (165 - $index)),
+            'certificate_fingerprint' => $fingerprint('vpn-' . $domain),
+            'certificate_check_status' => 'mismatch',
+            'certificate_checked_at' => demoDateTime(1 + $index % 3, 3, 40),
+            'certificate_notes' => 'The portal moved from vpn. to remote. - the new certificate is bought but not installed yet.',
+            'certificate_domain_id' => $domain_id,
+            'certificate_client_id' => $client_id,
+            'certificate_created_at' => demoMonthDateTime($months, 7, 10, 20),
+        ]);
+        $counts['documentation']++;
+    }
+
+    // From the client's own CA, for Wi-Fi - nothing to connect to, so nobody checks it
+    if ($index % 5 === 3) {
+        starterInsert($mysqli, 'certificates', [
+            'certificate_name' => 'Wi-Fi RADIUS (NPS)',
+            'certificate_description' => 'Server certificate the laptops check before joining the staff Wi-Fi',
+            'certificate_issued_by' => strtoupper($profile['abbreviation'] ?: substr($domain, 0, 4)) . '-DC01-CA',
+            'certificate_expire' => demoDate(-1 * (40 + $index * 3)),
+            'certificate_notes' => 'Renew from the internal CA before it expires - when it lapses, every laptop drops off the staff Wi-Fi at once.',
+            'certificate_client_id' => $client_id,
+            'certificate_created_at' => demoMonthDateTime($months, 7, 10, 30),
+        ]);
+        $counts['documentation']++;
+    }
+
+    return $website_id;
+}
+
 
 // ------------------------------
 // demoBuildAssets
@@ -1563,6 +1933,11 @@ function demoBuildAssets($mysqli, $profile, $index, $client_id, $location_id, $c
             // fleet anyone recognises.
             $batch = (int)floor(($number - 1) / 4);
             $purchase_months = min(70, 3 + ($batch * 12) + (($seed + $index) % 7) + (int)floor($profile['age_days'] / 120));
+            // A few of the oldest Windows machines never made the move to Windows 11
+            $os = $model[2];
+            if (strpos($os, 'Windows 11') === 0 && $purchase_months >= 50 && ($seed + $index) % 3 === 0) {
+                $os = 'Windows 10 Pro 22H2';
+            }
             $status = 'Deployed';
             if ($number === $quantity && $quantity > 3) {
                 $status = 'Ready to Deploy';
@@ -1578,7 +1953,7 @@ function demoBuildAssets($mysqli, $profile, $index, $client_id, $location_id, $c
                 'asset_make' => $model[0],
                 'asset_model' => $model[1],
                 'asset_serial' => demoSerial($profile['abbreviation'] . $asset_type . $number),
-                'asset_os' => $model[2],
+                'asset_os' => $os,
                 'asset_uri' => $ip ? demoAssetUri($asset_type, $ip) : '',
                 'asset_status' => $status,
                 'asset_purchase_reference' => 'PO-' . demoSerial($profile['abbreviation'] . 'po' . $seed, 6),
@@ -1646,6 +2021,7 @@ function demoBuildAssets($mysqli, $profile, $index, $client_id, $location_id, $c
                 'os' => $model[2],
                 'contact_id' => $contact_id,
                 'ip' => $ip,
+                'mac' => $interface_id ? demoMacAddress($profile['abbreviation'] . $asset_type . $number . 'mgmt') : null,
                 'interface_id' => $interface_id,
                 'install_months_ago' => $purchase_months,
                 'credential' => demoAssetCredentialName($asset_type),
@@ -1678,45 +2054,58 @@ function demoBuildRack($mysqli, $profile, $client_id, $location_id, $assets, $mo
     $rack_id = starterInsert($mysqli, 'racks', [
         'rack_name' => $profile['abbreviation'] . '-RACK-01',
         'rack_description' => 'Main comms rack',
-        'rack_model' => 'StarTech 12U Wall Mount',
-        'rack_depth' => 'Full',
-        'rack_type' => 'Wall Mount',
+        'rack_model' => 'StarTech 12U Wall Mount Enclosure',
+        'rack_depth' => '18 in',
+        'rack_type' => 'Wall-Mount Enclosed',
         'rack_units' => 12,
+        'rack_power_capacity' => 1000,
         'rack_physical_location' => 'Server room',
-        'rack_notes' => 'Keyed alike with the comms cupboard. Spare key is held by the onsite point of contact.',
+        'rack_notes' => 'Keyed alike with the comms cupboard. Spare key is held by the onsite point of contact. Fed from the 1500VA UPS at the bottom of the rack.',
         'rack_location_id' => $location_id,
         'rack_client_id' => $client_id,
         'rack_created_at' => demoMonthDateTime($months, 6, 15, 0),
     ]);
     $counts['documentation']++;
 
-    // Patch panel at the top, then the kit under it
-    $unit = 12;
-    starterInsert($mysqli, 'rack_units', [
-        'unit_start_number' => $unit,
-        'unit_end_number' => $unit,
-        'unit_device' => 'Patch panel - 24 port',
-        'unit_rack_id' => $rack_id,
-        'unit_created_at' => demoMonthDateTime($months, 6, 15, 5),
-    ]);
+    $racked_at = demoMonthDateTime($months, 6, 15, 5);
+    $rack_item = function ($start, $end, $fields) use ($mysqli, $rack_id, $racked_at) {
+        starterInsert($mysqli, 'rack_units', $fields + [
+            'unit_start_number' => $start,
+            'unit_end_number' => $end,
+            'unit_face' => 'front',
+            'unit_full_depth' => 1,
+            'unit_rack_id' => $rack_id,
+            'unit_created_at' => $racked_at,
+        ]);
+    };
 
+    // Patching at the top, front only - the PDU shares those units at the back
+    $rack_item(12, 12, ['unit_device' => 'Patch panel - 24 port Cat6', 'unit_type' => 'Patch Panel', 'unit_full_depth' => 0]);
+    $rack_item(11, 11, ['unit_device' => 'Horizontal cable manager', 'unit_type' => 'Cable Management', 'unit_full_depth' => 0]);
+    $rack_item(11, 12, ['unit_device' => 'Switched PDU - 8 outlet', 'unit_type' => 'PDU', 'unit_face' => 'rear', 'unit_full_depth' => 0]);
+
+    // Then the kit, top down. Firewalls and switches are short-depth; servers are not.
+    $unit = 11;
     foreach ($rackable as $asset) {
-        $unit--;
-        if ($unit < 1) {
+        $height = $asset['type'] === 'Server' ? 2 : 1;
+        $end = $unit - 1;
+        $start = $end - ($height - 1);
+        if ($start < 3) {
             break;
         }
-        $height = $asset['type'] === 'Server' ? 2 : 1;
-        $start = max(1, $unit - ($height - 1));
-        starterInsert($mysqli, 'rack_units', [
-            'unit_start_number' => $start,
-            'unit_end_number' => $unit,
-            'unit_device' => $asset['name'] . ' - ' . $asset['make'] . ' ' . $asset['model'],
+        $is_server = $asset['type'] === 'Server';
+        $is_poe = stripos($asset['model'], 'poe') !== false;
+        $rack_item($start, $end, [
+            'unit_device' => '',
             'unit_asset_id' => $asset['id'],
-            'unit_rack_id' => $rack_id,
-            'unit_created_at' => demoMonthDateTime($months, 6, 15, 5),
+            'unit_full_depth' => $is_server ? 1 : 0,
+            'unit_power_watts' => $is_server ? 220 : ($is_poe ? 150 : 35),
         ]);
         $unit = $start;
     }
+
+    // The UPS everything runs on, at the bottom where the weight belongs
+    $rack_item(1, 2, ['unit_device' => 'APC Smart-UPS 1500VA 2U', 'unit_type' => 'UPS', 'unit_notes' => 'Battery replaced at install']);
 
 }
 
@@ -1752,10 +2141,15 @@ function demoBuildPatchPanel($mysqli, $profile, $assets, $network_ids, $months, 
     $ports = [];
 
     for ($port = 1; $port <= $port_count; $port++) {
+        // Access ports on the office VLAN; the uplink carries every VLAN to the firewall
+        $trunk = array_unique(array_merge([1], array_filter(array_column($profile['networks'], 2))));
+        sort($trunk);
+        $vlans = $port === $port_count ? 'Trunk ' . implode(', ', $trunk) : (string) ($profile['networks'][0][2] ?? '');
         $ports[$port] = starterInsert($mysqli, 'asset_interfaces', [
             'interface_name' => 'Gi1/0/' . $port,
             'interface_description' => $port === $port_count ? 'Uplink to the edge firewall' : 'Access port',
             'interface_type' => 'Ethernet',
+            'interface_vlans' => $vlans,
             'interface_primary' => 0,
             'interface_network_id' => $network_id,
             'interface_asset_id' => $switch['id'],
@@ -1782,6 +2176,65 @@ function demoBuildPatchPanel($mysqli, $profile, $assets, $network_ids, $months, 
 }
 
 // ------------------------------
+// demoBuildWan
+// The edge firewall's WAN port on the internet connection, with the two
+// public addresses written down - the provider's router and the firewall.
+// ------------------------------
+function demoBuildWan($mysqli, $profile, $assets, $network_ids, $wan, $months, &$counts) {
+
+    $network_id = $network_ids['Internet'] ?? 0;
+    if (!$network_id || !$wan) {
+        return;
+    }
+    $firewall = null;
+    foreach ($assets as $asset) {
+        if ($asset['type'] === 'Firewall/Router') {
+            $firewall = $asset;
+            break;
+        }
+    }
+
+    $router_ip = $wan['base'] . '.' . $wan['first'];
+    $wan_ip = $wan['base'] . '.' . ($wan['first'] + 1);
+
+    starterInsert($mysqli, 'network_ips', [
+        'ip_address' => $router_ip,
+        'ip_type' => 'Static',
+        'ip_hostname' => 'isp-router',
+        'ip_description' => $wan['vendor'] . ' router - theirs, not ours',
+        'ip_network_id' => $network_id,
+    ]);
+    $counts['documentation']++;
+
+    if (!$firewall) {
+        return;
+    }
+
+    $mac = demoMacAddress($profile['abbreviation'] . 'wan' . $firewall['name']);
+    starterInsert($mysqli, 'asset_interfaces', [
+        'interface_name' => 'WAN',
+        'interface_description' => 'Internet - ' . $wan['vendor'],
+        'interface_type' => 'Ethernet',
+        'interface_mac' => $mac,
+        'interface_ip' => $wan_ip,
+        'interface_primary' => 0,
+        'interface_network_id' => $network_id,
+        'interface_asset_id' => $firewall['id'],
+        'interface_created_at' => demoMonthDateTime(min($months, $firewall['install_months_ago']), 15, 12, 6),
+    ]);
+    starterInsert($mysqli, 'network_ips', [
+        'ip_address' => $wan_ip,
+        'ip_type' => 'Static',
+        'ip_hostname' => $firewall['name'],
+        'ip_mac' => $mac,
+        'ip_description' => 'Firewall WAN - VPN and published services land here',
+        'ip_network_id' => $network_id,
+    ]);
+    $counts['documentation'] += 2;
+
+}
+
+// ------------------------------
 // demoBuildNetworkIps
 // Static IP documentation for the kit on the office network, plus the reserved
 // addresses at the top of the range an MSP would write down.
@@ -1798,6 +2251,7 @@ function demoBuildNetworkIps($mysqli, $profile, $assets, $network_ids, &$counts)
 
     starterInsert($mysqli, 'network_ips', [
         'ip_address' => $base . '.1',
+        'ip_type' => 'Static',
         'ip_hostname' => $profile['abbreviation'] . '-FW-01',
         'ip_description' => 'Default gateway',
         'ip_network_id' => $network_id,
@@ -1810,17 +2264,38 @@ function demoBuildNetworkIps($mysqli, $profile, $assets, $network_ids, &$counts)
         }
         starterInsert($mysqli, 'network_ips', [
             'ip_address' => $asset['ip'],
+            'ip_type' => 'Static',
             'ip_hostname' => $asset['name'],
+            'ip_mac' => $asset['mac'] ?? null,
             'ip_description' => $asset['make'] . ' ' . $asset['model'],
             'ip_network_id' => $network_id,
         ]);
         $counts['documentation']++;
     }
 
+    // The printers get their addresses from DHCP, pinned by reservation
+    $printer_number = 0;
+    foreach ($assets as $asset) {
+        if ($asset['type'] !== 'Printer' || $printer_number >= 3) {
+            continue;
+        }
+        starterInsert($mysqli, 'network_ips', [
+            'ip_address' => $base . '.' . (60 + $printer_number),
+            'ip_type' => 'Reservation',
+            'ip_hostname' => $asset['name'],
+            'ip_mac' => demoMacAddress($profile['abbreviation'] . $asset['name'] . 'dhcp'),
+            'ip_description' => $asset['make'] . ' ' . $asset['model'],
+            'ip_network_id' => $network_id,
+        ]);
+        $printer_number++;
+        $counts['documentation']++;
+    }
+
     starterInsert($mysqli, 'network_ips', [
         'ip_address' => $base . '.240',
+        'ip_type' => 'Reserved',
         'ip_hostname' => 'reserved-printers',
-        'ip_description' => 'Static reservations for printers and label writers',
+        'ip_description' => 'Held back for printers and label writers set by hand',
         'ip_network_id' => $network_id,
     ]);
     $counts['documentation']++;
@@ -1833,7 +2308,7 @@ function demoBuildNetworkIps($mysqli, $profile, $assets, $network_ids, &$counts)
 // actually arrives at an MSP, and it is what the per asset onboarding tickets
 // hang off. A refresh project sits behind them, and some have work running now.
 // ------------------------------
-function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$counts) {
+function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$counts, $contact_id = 0) {
 
     global $config_project_prefix;
 
@@ -1847,8 +2322,11 @@ function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$cou
         'project_number' => demoNextNumber($mysqli, 'config_project_next_number'),
         'project_name' => 'Onboarding - ' . $profile['name'],
         'project_description' => 'Take on ' . $profile['name'] . ': document the environment, deploy monitoring and backup, capture credentials, standardise the endpoint build and hand over to the service desk.',
+        'project_start' => demoMonthDate($months, 3),
         'project_due' => demoMonthDate(max(0, $months - 1), 28),
+        'project_budget_hours' => 16 + ($index % 3) * 8,
         'project_manager' => $user_id,
+        'project_contact_id' => intval($contact_id),
         'project_client_id' => $client_id,
         'project_created_at' => demoMonthDateTime($months, 3, 9, 30),
         'project_completed_at' => demoMonthDateTime(max(0, $months - 1), 26, 16, 0),
@@ -1862,8 +2340,11 @@ function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$cou
             'project_number' => demoNextNumber($mysqli, 'config_project_next_number'),
             'project_name' => 'Server and network refresh',
             'project_description' => 'Replaced end of life server hardware, rebuilt the switching and brought the site onto the standard build.',
+            'project_start' => demoMonthDate(15, 4),
             'project_due' => demoMonthDate(13, 20),
+            'project_budget_hours' => 40,
             'project_manager' => $user_id,
+            'project_contact_id' => intval($contact_id),
             'project_client_id' => $client_id,
             'project_created_at' => demoMonthDateTime(15, 4, 9, 30),
             'project_completed_at' => demoMonthDateTime(13, 18, 16, 45),
@@ -1871,15 +2352,25 @@ function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$cou
         $counts['projects']++;
     }
 
-    // And whatever is running now
+    // And whatever is running now - one running late, one due soon, one not
+    // started yet and one with time in hand, so the projects list has some of each
     if (!empty($profile['project'])) {
+        $timing = [
+            ['start' => date('Y-m-d', strtotime('-45 days')), 'due' => date('Y-m-d', strtotime('-6 days'))],
+            ['start' => date('Y-m-d', strtotime('-30 days')), 'due' => date('Y-m-d', strtotime('+9 days'))],
+            ['start' => date('Y-m-d', strtotime('+14 days')), 'due' => date('Y-m-d', strtotime('+75 days'))],
+            ['start' => demoMonthDate(1, 8), 'due' => demoMonthDate(-2, 15)],
+        ][$index % 4];
         $projects['active'] = starterInsert($mysqli, 'projects', [
             'project_prefix' => $prefix,
             'project_number' => demoNextNumber($mysqli, 'config_project_next_number'),
             'project_name' => $profile['project'][0],
             'project_description' => $profile['project'][1],
-            'project_due' => demoMonthDate(-2, 15),
+            'project_start' => $timing['start'],
+            'project_due' => $timing['due'],
+            'project_budget_hours' => [12, 24, 32, 40][$index % 4],
             'project_manager' => $user_id,
+            'project_contact_id' => intval($contact_id),
             'project_client_id' => $client_id,
             'project_created_at' => demoMonthDateTime(1, 8, 10, 0),
         ]);
@@ -1894,6 +2385,22 @@ function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$cou
 // One place that writes a ticket and its trail, so every ticket in the demo
 // gets the same history, SLA treatment and reply handling.
 // ------------------------------
+/* A demo ticket's tags, from what it is about - the Tags starter pack's ticket tags. */
+function demoTicketTags($subject) {
+    $map = [
+        'New starter' => 'Onboarding', 'leaving' => 'Offboarding', 'Ransomware' => 'Security', 'Suspicious' => 'Security',
+        'Multi factor' => 'Security', 'Drive failed' => 'Warranty Claim', 'screen cracked' => 'Warranty Claim', 'will not power on' => 'Warranty Claim',
+        'internet dropping' => 'Waiting on Vendor',
+    ];
+    $tags = [];
+    foreach ($map as $words => $tag) {
+        if (stripos((string) $subject, $words) !== false) {
+            $tags[] = $tag;
+        }
+    }
+    return array_values(array_unique($tags));
+}
+
 function demoSeedTicket($mysqli, $fields, $trail, $context, &$counts) {
 
     global $config_ticket_prefix;
@@ -1921,6 +2428,7 @@ function demoSeedTicket($mysqli, $fields, $trail, $context, &$counts) {
 
     $ticket_id = starterInsert($mysqli, 'tickets', $fields, ['ticket_details']);
     $counts['tickets']++;
+    demoAttachTags($mysqli, 'ticket_tags', 'ticket_id', 'tag_id', $ticket_id, 12, demoTicketTags($fields['ticket_subject']));
 
     if (!empty($fields['ticket_asset_id'])) {
         mysqli_query($mysqli, "INSERT INTO ticket_assets SET ticket_id = $ticket_id, asset_id = {$fields['ticket_asset_id']}");
@@ -2226,6 +2734,12 @@ function demoBuildTickets($mysqli, $profile, $index, $client_id, $contact_ids, $
                 'ticket_onsite' => !empty($ticket['onsite']) ? 1 : 0,
             ];
 
+            // Some contacts rate their closed tickets from the portal - a slow
+            // first reply is what earns most of the bad ratings
+            if (($sequence + $index) % 5 < 2) {
+                $fields['ticket_feedback'] = $slow || ($sequence + $index) % 23 === 0 ? 'Bad' : 'Good';
+            }
+
             if (!empty($ticket['vendor']) && $vendor_ids) {
                 $fields['ticket_vendor_id'] = $vendor_ids[0];
                 $fields['ticket_vendor_ticket_number'] = 'V' . demoSerial($profile['abbreviation'] . 'vt' . $sequence, 7);
@@ -2305,7 +2819,7 @@ function demoBuildTickets($mysqli, $profile, $index, $client_id, $contact_ids, $
         if ($stage['closed']) {
             $fields['ticket_closed_at'] = demoDateTime($stage['closed'], 15, 30);
             $fields['ticket_closed_by'] = $user_id;
-            $fields['ticket_feedback'] = $slot === 0 ? 'Great' : 'Ok';
+            $fields['ticket_feedback'] = 'Good';
         }
         if ($stage['status'] === $context['status_open'] && !empty($ticket['onsite'])) {
             $fields['ticket_schedule'] = demoDateTime(-2, 10, 0);
@@ -2324,6 +2838,28 @@ function demoBuildTickets($mysqli, $profile, $index, $client_id, $contact_ids, $
         }
 
         $on_hold = $stage['status'] === $context['status_hold'];
+
+        // A live ticket is mid-conversation. The pool's last word is the fix, so it
+        // is left off; the newest has no replies yet; of the other two, one has the
+        // client chasing (our move) and one is with them, or on hold.
+        if (!$stage['resolved']) {
+            if ($stage['status'] === $context['status_new']) {
+                $replies = [];
+            } else {
+                if ($replies && end($replies)['type'] === 'Public') {
+                    array_pop($replies);
+                }
+                if ($slot === 3) {
+                    if (!$replies || end($replies)['type'] !== 'Client') {
+                        $replies[] = ['type' => 'Client', 'body' => '<p>Any update on this one? It is still happening.</p>', 'worked' => '', 'at' => demoDateTime(1, 9, 5)];
+                    }
+                } else {
+                    $replies[] = ['type' => 'Public', 'worked' => '00:20:00', 'at' => demoDateTime(1, 11, 20), 'body' => $on_hold
+                        ? '<p>Parts are on order - we will pick this back up as soon as they arrive.</p>'
+                        : '<p>Made a change on our side. Can you try again and let us know if it is still happening?</p>'];
+                }
+            }
+        }
 
         demoSeedTicket($mysqli, $fields, [
             'closed_at' => $stage['closed'] ? demoDateTime($stage['closed'], 15, 30) : '',
@@ -2455,6 +2991,56 @@ function demoPayment($mysqli, $invoice_id, $amount, $currency, $method, $account
         'payment_invoice_id' => $invoice_id,
         'payment_created_at' => $date . ' 14:00:00',
     ]);
+}
+
+// ------------------------------
+// demoBuildContract
+// A client has no hourly rate, net terms or SLAs of its own - they are its
+// contract's: the managed services agreement, or the terms a break fix or
+// hosting only client is billed on. It starts with the client and renews
+// itself a year at a time, so it is in force today. Clients with after-hours
+// cover pay time and a half for tickets opened out of hours.
+// ------------------------------
+function demoBuildContract($mysqli, $profile, $client_id, $months, $context) {
+
+    // Before the contracts update (3.4.2) there is nothing to make it in
+    if (!contractsReady()) {
+        return 0;
+    }
+
+    $kind = $profile['billing'] === 'managed' ? 'managed' : ($profile['billing'] === 'hosting' ? 'other' : 'break_fix');
+    $start = demoMonthDate($months, 1);
+    $end = date('Y-m-d', strtotime('+12 months -1 day', strtotime($start)));
+    while ($end < date('Y-m-d')) {
+        $end = date('Y-m-d', strtotime('+12 months -1 day', strtotime('+1 day', strtotime($end))));
+    }
+
+    $fields = [
+        'contract_name' => ['managed' => 'Managed Services Agreement', 'other' => 'Hosting Agreement', 'break_fix' => 'Break Fix Terms'][$kind],
+        'contract_status' => 'Active',
+        'contract_type' => $kind,
+        'contract_client_id' => $client_id,
+        'contract_rate_standard' => $profile['rate'],
+        'contract_net_terms' => intval($profile['net_terms']),
+        'contract_support_hours' => 'Weekdays 8:00 to 18:00',
+        'contract_start_date' => $start,
+        'contract_end_date' => $end,
+        'contract_term_months' => 12,
+        'contract_auto_renew' => 1,
+        'contract_notice_days' => $kind === 'managed' ? 60 : 0,
+        'contract_created_at' => demoMonthDateTime($months, 1, 9, 20),
+    ];
+    if (in_array('After Hours Support', $profile['tags'])) {
+        // Time and a half, to the nearest 5
+        $fields['contract_rate_after_hours'] = number_format(round(floatval($profile['rate']) * 1.5 / 5) * 5, 2, '.', '');
+    }
+    foreach ($profile['slas'] as $priority => $sla_name) {
+        if (isset($context['slas'][$sla_name])) {
+            $fields['contract_sla_' . strtolower($priority) . '_id'] = intval($context['slas'][$sla_name]['id']);
+        }
+    }
+
+    return starterInsert($mysqli, 'contracts', $fields);
 }
 
 // ------------------------------
@@ -2765,11 +3351,14 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
             'expense_currency_code' => $currency,
             'expense_date' => demoMonthDate($month, 14),
             'expense_reference' => 'INV-' . demoSerial($profile['abbreviation'] . $expense[0] . $month, 8),
-            'expense_payment_method' => 'Credit Card',
+            'expense_payment_method' => 'ACH',
             'expense_vendor_id' => $context['org_vendors'][$expense[3]] ?? 0,
             'expense_client_id' => $client_id,
             'expense_category_id' => demoCategoryId($mysqli, $expense[2], 'Expense'),
             'expense_account_id' => $bank_account_id,
+            // The latest ones are still to bill on to the client, with a markup
+            'expense_billable' => $month <= 2 ? 1 : 0,
+            'expense_markup' => $month <= 2 ? '15.00' : '0.00',
             'expense_created_at' => demoMonthDateTime($month, 14, 16, 45),
         ]);
         $counts['billing']++;
@@ -2790,6 +3379,7 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
             'revenue_category_id' => $support_category_id,
             'revenue_account_id' => $bank_account_id,
             'revenue_client_id' => $client_id,
+            'revenue_created_by' => intval($context['user_id']),
             'revenue_created_at' => demoMonthDateTime($month, 22, 10, 15),
         ]);
         $counts['billing']++;
@@ -2865,6 +3455,16 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
         ['Conference and travel', 1450.00, 'Travel', 12, 18, 'Alcott and Reyes CPA'],
     ];
 
+    // The smaller, recurring costs go on the company card, paid off from the
+    // bank early the next month - so the card shows what is owed on it
+    $card_id = $context['accounts']['Business Visa'] ?? 0;
+    $card_categories = ['Software', 'Cloud and Hosting', 'Office Supplies', 'Meals', 'Shipping and Postage', 'Dues and Subscriptions', 'Telecom and Internet'];
+    $card_spent = [];
+
+    // What we buy for our own use pays sales tax; stock to resell doesn't
+    $taxed_categories = ['Office Supplies', 'Tools and Test Equipment', 'Equipment', 'Vehicle and Fuel'];
+    $purchase_tax_id = intval($context['taxes']['PA Sales Tax']['id'] ?? 0);
+
     // Which purchases put hardware on the shelf, and what they bring in
     $stock_lines = [
         'UniFi shelf stock for the workshop' => ['Ubiquiti U6-Pro Access Point', 4],
@@ -2880,18 +3480,26 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
 
             // Payroll and rent creep up over two years rather than sitting flat
             $drift = 1 + ((24 - $month) * 0.004);
+            $on_card = $card_id && in_array($cost[2], $card_categories, true);
+            if ($on_card) {
+                $card_spent[$month] = ($card_spent[$month] ?? 0) + round($cost[1] * $drift, 2);
+            }
 
+            $taxed = $purchase_tax_id && in_array($cost[2], $taxed_categories, true);
             $expense_id = starterInsert($mysqli, 'expenses', [
                 'expense_description' => $cost[0],
                 'expense_amount' => number_format($cost[1] * $drift, 2, '.', ''),
+                'expense_tax_id' => $taxed ? $purchase_tax_id : 0,
+                'expense_tax_amount' => number_format($taxed ? taxIncluded(round($cost[1] * $drift, 2), $purchase_tax_id) : 0, 2, '.', ''),
                 'expense_currency_code' => $currency,
                 'expense_date' => demoMonthDate($month, $cost[4]),
                 'expense_reference' => 'BILL-' . demoSerial('company' . $cost[0] . $month, 8),
-                'expense_payment_method' => $cost[0] === 'Payroll' ? 'ACH' : 'Credit Card',
+                // Payroll and the bills from the bank go by ACH, the card's own costs by card
+                'expense_payment_method' => $cost[0] !== 'Payroll' && ($on_card || !$card_id) ? 'Credit Card' : 'ACH',
                 'expense_vendor_id' => $vendors[$cost[5]] ?? 0,
                 'expense_client_id' => 0,
                 'expense_category_id' => demoCategoryId($mysqli, $cost[2], 'Expense'),
-                'expense_account_id' => $operating_id,
+                'expense_account_id' => $on_card ? $card_id : $operating_id,
                 'expense_created_at' => demoMonthDateTime($month, $cost[4], 17, 0),
             ]);
             $counts['company']++;
@@ -2942,31 +3550,39 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
         }
     }
 
-    // The standing costs, as the recurring expenses they actually are
+    // The standing costs, as the recurring expenses they actually are - each
+    // picks up from the last of its history above, which it is linked to
     foreach ([
-        ['Office rent', 1850.00, 'Rent and Utilities', 1, 1, 'Monongahela Property Group'],
-        ['Colocation, power and transit', 495.00, 'Infrastructure', 1, 3, 'Three Rivers Colocation'],
-        ['Microsoft and Google partner licensing', 2450.00, 'Licensing - Cost of Goods', 1, 6, 'Cascade Cloud Licensing'],
-        ['Business insurance', 1450.00, 'Insurance', 2, 12, 'Keystone Commercial Insurance'],
+        ['Office rent', 1850.00, 'Rent and Utilities', 'month', 1, 'Monongahela Property Group'],
+        ['Colocation, power and transit', 495.00, 'Infrastructure', 'month', 3, 'Three Rivers Colocation'],
+        ['Microsoft and Google partner licensing', 2450.00, 'Licensing - Cost of Goods', 'month', 6, 'Cascade Cloud Licensing'],
+        ['Business insurance', 1450.00, 'Insurance', 'quarter', 12, 'Keystone Commercial Insurance'],
     ] as $recurring) {
-        starterInsert($mysqli, 'recurring_expenses', [
+        $vendor_id = intval($vendors[$recurring[5]] ?? 0);
+        $description = mysqli_real_escape_string($mysqli, $recurring[0]);
+        $last = mysqli_fetch_row(mysqli_query($mysqli, "SELECT MAX(expense_date) FROM expenses WHERE expense_vendor_id = $vendor_id AND expense_description = '$description'"))[0]
+            ?: demoMonthDate(1, $recurring[4]);
+        $next = recurringInvoiceStep($last, $recurring[3], $recurring[4]);
+        $recurring_id = starterInsert($mysqli, 'recurring_expenses', [
             'recurring_expense_frequency' => $recurring[3],
-            'recurring_expense_day' => $recurring[4],
-            'recurring_expense_month' => 1,
-            'recurring_expense_next_date' => date('Y-m-d', strtotime('+1 month')),
-            'recurring_expense_last_sent' => demoMonthDate(0, $recurring[4]),
+            'recurring_expense_anchor_day' => $recurring[4],
+            'recurring_expense_next_date' => $next,
+            'recurring_expense_last_sent' => $last,
             'recurring_expense_status' => 1,
             'recurring_expense_description' => $recurring[0],
             'recurring_expense_amount' => number_format($recurring[1], 2, '.', ''),
             'recurring_expense_payment_method' => 'ACH',
             'recurring_expense_reference' => 'STANDING-' . demoSerial('recurring' . $recurring[0], 6),
             'recurring_expense_currency_code' => $currency,
-            'recurring_expense_vendor_id' => $vendors[$recurring[5]] ?? 0,
+            'recurring_expense_vendor_id' => $vendor_id,
             'recurring_expense_client_id' => 0,
             'recurring_expense_category_id' => demoCategoryId($mysqli, $recurring[2], 'Expense'),
             'recurring_expense_account_id' => $operating_id,
             'recurring_expense_created_at' => demoMonthDateTime(24, $recurring[4], 9, 0),
         ]);
+        if ($recurring_id) {
+            mysqli_query($mysqli, "UPDATE expenses SET expense_recurring_expense_id = " . intval($recurring_id) . " WHERE expense_vendor_id = $vendor_id AND expense_description = '$description'");
+        }
         $counts['company']++;
     }
 
@@ -3017,6 +3633,13 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
         }
     }
 
+    // The card's statement paid in full from the bank on the 2nd of the next month
+    foreach ($card_spent as $month => $spent) {
+        if ($month > 0 && $spent > 0) {
+            demoTransfer($mysqli, $operating_id, $card_id, $spent, $currency, 'Bank Transfer', 'Business Visa statement paid in full', $month - 1, 2, $counts);
+        }
+    }
+
     // Card settlements landing in the bank, and the quarterly tax reserve
     $cash_id = $context['cash_account_id'];
     for ($month = 24; $month >= 0; $month--) {
@@ -3036,6 +3659,82 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
 
     }
 
+    // Money in that never went through an invoice - the distributor's partner
+    // rebate each quarter, interest on the savings, and the odd referral fee.
+    // The RBT-, INT- and REF- references are how removal finds them again.
+    $other_income = [];
+    for ($month = 24; $month >= 0; $month--) {
+        if ($month % 3 === 1) {
+            $other_income[] = [$month, 12, 380.00 + (($month % 5) * 45), 'Rebates', 'ACH', 'RBT-', "Distributor partner rebate for last quarter's licensing", $operating_id];
+        }
+        if ($savings_id) {
+            $other_income[] = [$month, 28, 18.40 + ((24 - $month) * 0.65), 'Interest', 'ACH', 'INT-', 'Interest on the tax reserve', $savings_id];
+        }
+        if ($month === 9 || $month === 2) {
+            $other_income[] = [$month, 17, 250.00, 'Referral Fees', 'Check', 'REF-', "Referral fee - passed a website rebuild to a design partner", $operating_id];
+        }
+    }
+    foreach ($other_income as [$month, $day, $amount, $category, $method, $prefix, $description, $account_id]) {
+        if (demoIsFuture(demoMonthDate($month, $day))) {
+            continue;
+        }
+        starterInsert($mysqli, 'revenues', [
+            'revenue_date' => demoMonthDate($month, $day),
+            'revenue_amount' => number_format($amount, 2, '.', ''),
+            'revenue_currency_code' => $currency,
+            'revenue_payment_method' => $method,
+            'revenue_reference' => $prefix . demoSerial($category . $month . $day, 8),
+            'revenue_description' => $description,
+            'revenue_category_id' => demoCategoryId($mysqli, $category, 'Income'),
+            'revenue_account_id' => $account_id,
+            'revenue_client_id' => 0,
+            'revenue_created_by' => intval($context['user_id']),
+            'revenue_created_at' => demoMonthDateTime($month, $day, 11, 5),
+        ]);
+        $counts['company']++;
+    }
+
+}
+
+// ------------------------------
+// demoReconcileAccounts
+// Operating Checking and the Business Visa are reconciled to each month's
+// statement through last month (functions/reconcile.php), so Reconcile and the
+// ledger's cleared marks have history to show and this month is left to do.
+// Only an account with no reconciliations yet - a second run adds nothing.
+// ------------------------------
+function demoReconcileAccounts($mysqli, $context) {
+    foreach (['Operating Checking', 'Business Visa'] as $name) {
+        $account_id = intval($context['accounts'][$name] ?? 0);
+        if (!$account_id || mysqli_fetch_row(mysqli_query($mysqli, "SELECT 1 FROM account_reconciliations WHERE reconciliation_account_id = $account_id LIMIT 1"))) {
+            continue;
+        }
+        $balance = floatval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT opening_balance FROM accounts WHERE account_id = $account_id"))[0] ?? 0);
+        for ($month = 24; $month >= 1; $month--) {
+            $statement = date('Y-m-t', strtotime(demoMonthDate($month, 1)));
+            $ending = round($balance + floatval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT
+                COALESCE((SELECT SUM(payment_amount) FROM payments WHERE payment_account_id = $account_id AND payment_reconciliation_id IS NULL AND payment_date <= '$statement'), 0)
+                + COALESCE((SELECT SUM(revenue_amount) FROM revenues WHERE revenue_account_id = $account_id AND revenue_reconciliation_id IS NULL AND revenue_date <= '$statement'), 0)
+                - COALESCE((SELECT SUM(expense_amount) FROM expenses WHERE expense_account_id = $account_id AND expense_reconciliation_id IS NULL AND expense_date <= '$statement'), 0)"))[0]), 2);
+            $finished = min(time(), strtotime($statement . ' +4 days 10:15'));
+            $reconciliation_id = starterInsert($mysqli, 'account_reconciliations', [
+                'reconciliation_account_id' => $account_id,
+                'reconciliation_statement_date' => $statement,
+                'reconciliation_starting_balance' => number_format($balance, 2, '.', ''),
+                'reconciliation_ending_balance' => number_format($ending, 2, '.', ''),
+                'reconciliation_notes' => 'Statement for ' . date('F Y', strtotime($statement)),
+                'reconciliation_created_by' => intval($context['user_id']),
+                'reconciliation_created_at' => date('Y-m-d H:i:s', $finished - 1800),
+                'reconciliation_finished_by' => intval($context['user_id']),
+                'reconciliation_finished_at' => date('Y-m-d H:i:s', $finished),
+            ]);
+            foreach (['payments' => 'payment', 'revenues' => 'revenue', 'expenses' => 'expense'] as $table => $prefix) {
+                mysqli_query($mysqli, "UPDATE $table SET {$prefix}_reconciliation_id = $reconciliation_id, {$prefix}_updated_at = {$prefix}_updated_at
+                    WHERE {$prefix}_account_id = $account_id AND {$prefix}_reconciliation_id IS NULL AND {$prefix}_date <= '$statement'");
+            }
+            $balance = $ending;
+        }
+    }
 }
 
 // ------------------------------
@@ -3122,7 +3821,8 @@ function demoBuildInternalDiary($mysqli, $context, &$counts) {
         return;
     }
 
-    // Weekly and monthly fixtures, running back a quarter and forward a month
+    // The standing meetings and windows - each one repeating event, every N
+    // weeks from a quarter back, with us on it
     // title, calendar, description, weekday offset from Monday, start hour, length in hours, every N weeks
     $fixtures = [
         ['Team stand up', $internal_id, 'Fifteen minutes on the queue, anything stuck and who is out.', 0, 8, 1, 1],
@@ -3136,31 +3836,34 @@ function demoBuildInternalDiary($mysqli, $context, &$counts) {
     ];
 
     foreach ($fixtures as $fixture) {
-        for ($week = 13; $week >= -4; $week--) {
 
-            if ($week % $fixture[6] !== 0) {
-                continue;
-            }
+        // Monday a quarter back, then the weekday offset
+        $days_ago = (13 * 7) - $fixture[3] + (int)date('N') - 1;
+        $start = demoDateTime($days_ago, $fixture[4], 0);
+        $end = date('Y-m-d H:i:s', strtotime($start . ' +' . $fixture[5] . ' hours'));
 
-            // Monday of that week, then the weekday offset
-            $days_ago = ($week * 7) - $fixture[3] + (int)date('N') - 1;
-            $start = demoDateTime($days_ago, $fixture[4], 0);
-            $end = date('Y-m-d H:i:s', strtotime($start . ' +' . $fixture[5] . ' hours'));
-
-            starterInsert($mysqli, 'calendar_events', [
-                'event_title' => $fixture[0],
-                'event_location' => $fixture[0] === 'Monthly maintenance window' ? 'Remote' : 'Office',
-                'event_description' => $fixture[2],
-                'event_start' => $start,
-                'event_end' => $end,
-                'event_all_day' => 0,
-                'event_client_id' => 0,
-                'event_calendar_id' => $fixture[1],
-                'event_created_at' => demoDateTime($days_ago + 7, 9, 0),
+        $event_id = starterInsert($mysqli, 'calendar_events', [
+            'event_title' => $fixture[0],
+            'event_location' => $fixture[0] === 'Monthly maintenance window' ? 'Remote' : 'Office',
+            'event_description' => $fixture[2],
+            'event_start' => $start,
+            'event_end' => $end,
+            'event_all_day' => 0,
+            'event_repeat' => 'Week',
+            'event_repeat_interval' => $fixture[6],
+            'event_client_id' => 0,
+            'event_calendar_id' => $fixture[1],
+            'event_created_by' => $user_id,
+            'event_created_at' => demoDateTime($days_ago + 7, 9, 0),
+        ]);
+        if ($user_id) {
+            starterInsert($mysqli, 'calendar_event_attendees', [
+                'attendee_user_id' => $user_id,
+                'attendee_event_id' => $event_id,
+                'attendee_created_at' => demoDateTime($days_ago + 7, 9, 0),
             ]);
-            $counts['company']++;
-
         }
+        $counts['company']++;
     }
 
     // One off internal days
@@ -3201,7 +3904,9 @@ function demoBuildInternalDiary($mysqli, $context, &$counts) {
                 'trip_destination' => $errand[1],
                 'trip_miles' => $errand[2],
                 'round_trip' => 1,
+                'trip_own_vehicle' => $days_ago <= 45 ? 1 : 0,
                 'trip_user_id' => $user_id,
+                'trip_created_by' => $user_id,
                 'trip_client_id' => 0,
                 'trip_created_at' => demoDateTime($days_ago, 17, 45),
             ]);
@@ -4087,7 +4792,7 @@ function demoDataSpecs() {
             'second_site' => null,
             'age_days' => 760, 'seats' => 8, 'servers' => 1, 'build' => 1, 'billing' => 'managed',
             'balance' => 'clear', 'hosting' => [['Web Hosting - Standard', 1, 25.00, 'Church website and service times, hosted with nightly backup', 0], ['Email Hosting - Per Mailbox', 8, 4.50, 'Staff and volunteer mailboxes with filtering', 0]],
-            'lead' => 0, 'favorite' => 0, 'tax' => 'PA Sales Tax',
+            'lead' => 0, 'favorite' => 0, 'tax' => '', 'tax_exempt' => ['75-0012847', '+2 years'],
             'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
             'tags' => ['Managed', 'Non Profit', 'Block Hours'],
             'notes' => 'Non profit rate. Mostly volunteers on the machines, so the build is locked down and simple.',
@@ -4124,7 +4829,7 @@ function demoDataSpecs() {
             'recurring_ticket' => 'Monthly maintenance visit - Verity Insurance',
             'project' => null,
             'vendors' => [
-                ['Allegheny Business Fiber', 'Office internet and failover', '412-555-0158', 'alleghenyfiber.example', '4 hour response', 'Primary fibre with a 4G backup that has never been tested under load.'],
+                ['Allegheny Business Fiber', 'Office internet and failover', '412-555-0158', 'alleghenyfiber.example', '4 hour response', 'Primary fiber with a 4G backup that has never been tested under load.'],
                 ['Carrier Gateway Systems', 'Insurance carrier portal aggregator', '412-555-0159', 'carriergateway.example', '8x5 support', 'Browser fussy. Keep one machine on the known good version.'],
             ],
             'fleet' => ['Firewall/Router' => 1, 'Switch' => 2, 'Access Point' => 3, 'Server' => 2, 'Desktop' => 15, 'Laptop' => 5, 'Printer' => 3, 'Phone' => 14],
@@ -4197,7 +4902,7 @@ function demoDataSpecs() {
             'second_site' => null,
             'age_days' => 1320, 'seats' => 38, 'servers' => 3, 'build' => 1, 'billing' => 'managed',
             'balance' => 'clear', 'hosting' => [['Nextcloud Hosting - Instance', 1, 95.00, 'Staff and coursework file sharing', 0], ['Web Hosting - Standard', 1, 25.00, 'School website and newsletter archive', 0]],
-            'lead' => 0, 'favorite' => 0, 'tax' => 'Allegheny County Sales Tax',
+            'lead' => 0, 'favorite' => 0, 'tax' => '', 'tax_exempt' => ['75-0031906', '-20 days'],
             'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
             'tags' => ['Co-Managed', 'Managed', 'Non Profit', 'Seasonal', 'Compliance'],
             'notes' => 'Runs on open source deliberately - budget goes on staff, not licences. Quiet in July, chaotic in late August.',
@@ -4410,27 +5115,30 @@ function demoExpandProfile($spec) {
     }
 
     // Networks
+    // Name, description, VLAN, subnet, gateway, DNS, DNS, DHCP range, notes, type -
+    // the internet connection is added per client from its ISP (demoBuildClient)
     $networks = [
-        ['Office LAN', 'Staff workstations, printers and handsets', 10, '192.168.10.0', '192.168.10.1', '192.168.10.1', '1.1.1.1', '192.168.10.50 - 192.168.10.220', 'Static addressing above .240 is reserved and documented in the IP list.'],
-        ['Guest Wireless', 'Isolated guest access - no route to the office LAN', 40, '192.168.40.0', '192.168.40.1', '1.1.1.1', '9.9.9.9', '192.168.40.20 - 192.168.40.200', 'Client isolation is on. Password is rotated at each quarterly visit.'],
+        ['Office LAN', 'Staff workstations, printers and handsets', 10, '192.168.10.0/24', '192.168.10.1', '192.168.10.1', '1.1.1.1', '192.168.10.50 - 192.168.10.220', 'Static addressing above .240 is reserved and documented in the IP list.', 'LAN'],
+        ['Guest Wireless', 'Isolated guest access - no route to the office LAN', 40, '192.168.40.0/24', '192.168.40.1', '1.1.1.1', '9.9.9.9', '192.168.40.20 - 192.168.40.200', 'Client isolation is on. Password is rotated at each quarterly visit.', 'Guest'],
     ];
     if ($servers > 1) {
-        $networks[] = ['Server VLAN', 'Hypervisors, storage and management interfaces', 20, '192.168.20.0', '192.168.20.1', '192.168.20.1', '1.1.1.1', 'Static addressing only', 'No DHCP. Every address here is recorded against the asset.'];
+        $networks[] = ['Server VLAN', 'Hypervisors, storage and management interfaces', 20, '192.168.20.0/24', '192.168.20.1', '192.168.20.1', '1.1.1.1', 'Static addressing only', 'No DHCP. Every address here is recorded against the asset.', 'Servers'];
     }
     if (in_array($spec['type'], ['Manufacturing', 'Logistics'])) {
-        $networks[] = ['Equipment VLAN', 'Shop floor and warehouse equipment - no internet access', 30, '192.168.30.0', '192.168.30.1', '192.168.30.1', '1.1.1.1', '192.168.30.40 - 192.168.30.240', 'Outbound internet is blocked at the firewall by design. Do not "fix" this.'];
+        $networks[] = ['Equipment VLAN', 'Shop floor and warehouse equipment - no internet access', 30, '192.168.30.0/24', '192.168.30.1', '192.168.30.1', '1.1.1.1', '192.168.30.40 - 192.168.30.240', 'Outbound internet is blocked at the firewall by design. Do not "fix" this.', 'IoT'];
     }
 
     // Credentials - names line up with demoAssetCredentialName so the vault
     // entries attach to the kit they actually open
     $mail_admin_uri = $mail === 'Google Workspace' ? 'https://admin.google.com' : 'https://admin.microsoft.com';
+    // [name, description, uri, username, note, tags, starred, has 2FA, password last changed (days ago)]
     $credentials = [
-        ['Firewall Administrator', 'Edge firewall management interface', 'https://192.168.10.1', 'msp-admin', 'Local administrator on the edge firewall. Rotated at every quarterly review.', ['Firewall', 'Local Admin', 'Rotate Quarterly'], 1],
-        [$mail . ' Administrator', 'Tenant administration for mail and identity', $mail_admin_uri, 'msp-admin@' . $domain, 'Break glass administrator. MFA enforced - the token lives with the on call phone.', ['Microsoft 365', 'Domain Admin', 'Break Glass'], 1],
-        ['Hypervisor and Storage Administrator', $foss ? 'Proxmox VE and TrueNAS management' : 'Hypervisor and NAS management', 'https://192.168.20.10:8006', 'msp-admin', 'Root equivalent. Use the individual accounts for day to day work and this only for maintenance.', ['Hypervisor', 'Local Admin', 'Break Glass'], 0],
-        ['Network Controller', 'UniFi controller for switching and wireless', 'https://192.168.10.12', 'msp-' . strtolower($short), 'Controller runs on the management stack, not on site.', ['Switch', 'Wireless', 'Shared'], 0],
-        ['Backup Console', $foss ? 'Proxmox Backup Server and Synology Active Backup' : 'Backup platform for servers and endpoints', 'https://backup.example', 'msp-' . strtolower($short), 'Console login for restore requests and job monitoring.', ['Backup Console', 'Service Account'], 0],
-        ['Registrar and DNS', 'Domain registrar and DNS control panel', 'https://registrar.example', 'billing@' . $domain, 'Registrar account is in the client name with us as technical contact.', ['Registrar and DNS', 'Shared'], 0],
+        ['Firewall Administrator', 'Edge firewall management interface', 'https://192.168.10.1', 'msp-admin', 'Local administrator on the edge firewall. Rotated at every quarterly review.', ['Firewall', 'Local Admin', 'Rotate Quarterly'], 1, 0, 25],
+        [$mail . ' Administrator', 'Tenant administration for mail and identity', $mail_admin_uri, 'msp-admin@' . $domain, 'Break glass administrator. MFA enforced - the token lives with the on call phone.', ['Microsoft 365', 'Domain Admin', 'Break Glass'], 1, 1, 120],
+        ['Hypervisor and Storage Administrator', $foss ? 'Proxmox VE and TrueNAS management' : 'Hypervisor and NAS management', 'https://192.168.20.10:8006', 'msp-admin', 'Root equivalent. Use the individual accounts for day to day work and this only for maintenance.', ['Hypervisor', 'Local Admin', 'Break Glass'], 0, 0, 430],
+        ['Network Controller', 'UniFi controller for switching and wireless', 'https://192.168.10.12', 'msp-' . strtolower($short), 'Controller runs on the management stack, not on site.', ['Switch', 'Wireless', 'Shared'], 0, 0, 60],
+        ['Backup Console', $foss ? 'Proxmox Backup Server and Synology Active Backup' : 'Backup platform for servers and endpoints', 'https://backup.example', 'msp-' . strtolower($short), 'Console login for restore requests and job monitoring.', ['Backup Console', 'Service Account'], 0, 1, 210],
+        ['Registrar and DNS', 'Domain registrar and DNS control panel', 'https://registrar.example', 'billing@' . $domain, 'Registrar account is in the client name with us as technical contact.', ['Registrar and DNS', 'Shared'], 0, 1, 15],
     ];
 
     // Services - the last two entries say which asset types run it and which
@@ -4599,6 +5307,7 @@ function demoExpandProfile($spec) {
         'lead' => $spec['lead'],
         'favorite' => $spec['favorite'],
         'tax' => $spec['tax'],
+        'tax_exempt' => $spec['tax_exempt'] ?? null,
         'notes' => $spec['notes'],
         'account_note' => $spec['account_note'],
         'review_note' => $spec['review_note'],

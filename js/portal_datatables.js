@@ -2,7 +2,7 @@
  * ITFlow - DataTables for the client portal.
  *
  * The agent side initialises DataTables from js/app.js, which the portal cannot
- * load: app.js calls TinyMCE, Tom Select, Flatpickr and IMask unconditionally
+ * load: app.js calls TinyMCE, Flatpickr and IMask unconditionally
  * and none of them exist here. This is the portal's own one-liner rather than a
  * shared extraction, because unlike the phone-input logic there is no real
  * behaviour to keep in step - just a constructor.

@@ -8,81 +8,16 @@
 
 if(isset($_POST['change_records_per_page'])){
 
+    validateCSRFToken();
+
+    // One of the sizes the list footer offers (includes/filter_footer.php) - 0 would break every list
     $records_per_page = intval($_POST['change_records_per_page']);
+    if (!in_array($records_per_page, [5, 10, 20, 50, 100, 500], true)) {
+        redirect();
+    }
 
     mysqli_query($mysqli,"UPDATE user_settings SET user_config_records_per_page = $records_per_page WHERE user_id = $session_user_id");
 
     redirect();
 
-}
-
-// In app notifications
-
-if (isset($_GET['dismiss_notification'])) {
-
-    validateCSRFToken();
-
-    $notification_id = intval($_GET['dismiss_notification']);
-
-    mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = NOW(), notification_dismissed_by = $session_user_id WHERE notification_user_id = $session_user_id AND notification_id = $notification_id");
-
-    // Logging
-    logAudit("Notification", "Dismiss", "$session_name dismissed notification");
-
-    $_SESSION['alert_message'] = "Notification Dismissed";
-
-    redirect();
-
-}
-
-if (isset($_GET['dismiss_all_notifications'])) {
-
-    validateCSRFToken();
-
-    $sql = mysqli_query($mysqli,"SELECT notification_dismissed_at, notification_id FROM notifications WHERE notification_user_id = $session_user_id AND notification_dismissed_at IS NULL");
-
-    $num_notifications = mysqli_num_rows($sql);
-
-    while($row = mysqli_fetch_assoc($sql)) {
-        $notification_id = intval($row['notification_id']);
-        $notification_dismissed_at = escapeSql($row['notification_dismissed_at']);
-
-        mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = NOW(), notification_dismissed_by = $session_user_id WHERE notification_id = $notification_id");
-
-    }
-
-    // Logging
-    logAudit("Notification", "Dismiss", "$session_name dismissed $num_notifications notifications");
-
-    $_SESSION['alert_message'] = "<strong>$num_notifications</strong> Notifications Dismissed";
-
-    redirect();
-
-}
-
-// Revoke sharing (sharing itself is done via ajax.php)
-if (isset($_GET['deactivate_shared_item'])) {
-
-    validateCSRFToken();
-
-    $item_id = intval($_GET['deactivate_shared_item']);
-
-    // Get details of the shared link
-    $sql = mysqli_query($mysqli, "SELECT item_type, item_related_id, item_client_id FROM shared_items WHERE item_id = $item_id");
-    $row = mysqli_fetch_assoc($sql);
-    $item_type = escapeSql($row['item_type']);
-    $item_related_id = intval($row['item_related_id']);
-    $client_id = intval($row['item_client_id']);
-
-    enforceClientAccess();
-
-    // Deactivate item id
-    mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_id = $item_id");
-
-    // Logging
-    logAudit("Sharing", "Delete", "$session_name deactivated shared $item_type link Item ID: $item_related_id. Share ID $item_id", $client_id, $item_id);
-
-    $_SESSION['alert_message'] = "Share Link deactivated";
-
-    redirect();
 }

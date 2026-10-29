@@ -12,32 +12,555 @@ require_once "../includes/check_login.php";
 require_once "../libs/totp/totp.php";
 
 /*
- * Fetches SSL certificates from remote hosts & returns the relevant info (issuer, expiry, public key)
+ * The host in a New / Edit Certificate form, checked when asked: connect,
+ * take the certificate it serves and say what it is - OK, for another name,
+ * untrusted, expired, or nothing answering - with what will be saved, the
+ * client's domain it belongs to, and whether the client has it already.
  */
-if (isset($_GET['certificate_fetch_parse_json_details'])) {
-    enforceUserPermission('module_support');
+if (isset($_GET['certificate_check'])) {
+    enforceUserPermission('module_support', 2);
 
-    // PHP doesn't appreciate attempting SSL sockets to non-existent domains
-    if (empty($_GET['domain'])) {
+    header('Content-Type: application/json');
+
+    $input = trim((string) ($_GET['host'] ?? ''));
+    $check_client_id = intval($_GET['client_id'] ?? 0);
+    $check_certificate_id = intval($_GET['certificate_id'] ?? 0);
+
+    if ($input === '') {
+        echo json_encode(['state' => '', 'message' => '', 'html' => '']);
+        exit;
+    }
+    $host = certificateHost($input);
+    if (!$host) {
+        echo json_encode(['state' => 'bad', 'message' => "That isn't a host - something like www.example.com, or portal.example.com:8443.", 'html' => '']);
+        exit;
+    }
+
+    $response = ['host' => $host['display'], 'domain_id' => 0, 'html' => ''];
+    $notes = [];
+    if (strcasecmp($input, $host['display']) !== 0) {
+        $notes[] = "Saved as {$host['display']}.";
+    }
+
+    // Already on this client? Which of its domains is it under?
+    if ($check_client_id) {
+        $client_id = $check_client_id;
+        enforceClientAccess();
+        $host_sql = escapeSql($host['display']);
+        $existing = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT certificate_name FROM certificates WHERE certificate_domain = '$host_sql' AND certificate_client_id = $check_client_id AND certificate_id <> $check_certificate_id AND certificate_archived_at IS NULL LIMIT 1"));
+        if ($existing) {
+            $notes[] = 'This client already has it, as ' . $existing['certificate_name'] . '.';
+        }
+        $response['domain_id'] = certificateDomainFor($host['host'], $check_client_id);
+    }
+
+    $check = certificateCheck($host);
+    if (empty($check['reachable'])) {
+        $response['state'] = 'bad';
+        $response['message'] = trim(implode(' ', $notes) . " Nothing answered on {$host['display']} - check the host and port. If ITFlow can't reach it, paste the certificate instead.");
+        echo json_encode($response);
+        exit;
+    }
+
+    $state = CERTIFICATE_CHECK_STATES[$check['status']];
+    $response['state'] = $check['status'] === 'ok' ? 'ok' : 'warn';
+    $response['message'] = trim(implode(' ', $notes) . ' ' . $state['text'] . '.');
+
+    $expiry = certificateExpiry(['certificate_expire' => $check['expire'], 'certificate_issued_at' => $check['issued_at']]);
+    $names = $check['names'];
+    $response['html'] = '<div class="d-flex flex-wrap gap-2 mb-2">'
+        . certificateStatusPill(['certificate_check_status' => $check['status'], 'certificate_domain' => $host['display']])
+        . certificateExpiryPill($expiry, true) . '</div>'
+        . '<dl class="itflow-asset-dl mb-0">'
+        . '<dt>Issuer</dt><dd class="text-break">' . escapeHtml($check['issuer'] ?: 'Unknown') . ($check['self_signed'] ? ' <span class="text-body-secondary">(self-signed)</span>' : '') . '</dd>'
+        . '<dt>Valid</dt><dd>' . escapeHtml($check['issued_at']) . ' to ' . escapeHtml($check['expire']) . ' <span class="text-body-secondary">(' . $check['days'] . ' days)</span></dd>'
+        . '<dt>Covers</dt><dd class="text-break">' . escapeHtml(implode(', ', array_slice($names, 0, 6))) . (count($names) > 6 ? ' <span class="text-body-secondary">and ' . (count($names) - 6) . ' more</span>' : '') . '</dd>'
+        . '</dl>';
+
+    echo json_encode($response);
+    exit;
+}
+
+/*
+ * Tag picker (js/tag_picker.js) - replaces the "Assign Tags" modals.
+ *
+ * GET lists the tags one record, or a bulk selection of records, can have and
+ * how many of them have each. POST ticks a tag on or off for all of them -
+ * or, for an admin, makes a new tag and ticks it on - and sends back the
+ * redrawn pills for every record, so the page updates in place.
+ *
+ * Same checks the modals' post handlers made: edit rights on the module and
+ * access to each record's client. tagRecordsEditable() does both.
+ */
+if (isset($_GET['tag_picker'])) {
+
+    header('Content-Type: application/json');
+
+    $entity = (string) ($_GET['entity'] ?? '');
+    $config = tagEntity($entity);
+    $records = $config ? tagRecordsEditable($entity, (array) ($_GET['ids'] ?? [])) : false;
+
+    if ($records === false) {
+        http_response_code(403);
+        echo json_encode(['error' => 'You cannot change the tags on these.']);
         exit();
     }
 
-    $name = $_GET['domain'];
+    $ids = implode(',', array_keys($records));
+    $response = [
+        'records' => count($records),
+        'type' => $config['type'],
+        'create' => (bool) $session_is_admin,
+        'manage' => $session_is_admin ? "/admin/tags.php?type={$config['type']}" : '',
+        'tags' => []
+    ];
 
-    // Get SSL cert for domain (if exists)
-    $certificate = getSslCertificate($name);
-
-    if ($certificate['success'] == "TRUE") {
-        $response['success'] = "TRUE";
-        $response['expire'] = $certificate['expire'];
-        $response['issued_by'] = $certificate['issued_by'];
-        $response['public_key'] = $certificate['public_key'];
-    } else {
-        $response['success'] = "FALSE";
+    // An archived tag is only offered to take it off the records that still have it
+    $sql = mysqli_query($mysqli,
+        "SELECT tag_id, tag_name, tag_description, tag_color, tag_icon, tag_archived_at,
+            (SELECT COUNT(*) FROM {$config['link_table']}
+                WHERE {$config['link_tag']} = tags.tag_id AND {$config['link_record']} IN ($ids)) AS chosen
+        FROM tags
+        WHERE tag_type = {$config['type']}
+        ORDER BY tag_name ASC"
+    );
+    while ($row = mysqli_fetch_assoc($sql)) {
+        if ($row['tag_archived_at'] && !intval($row['chosen'])) {
+            continue;
+        }
+        $response['tags'][] = [
+            'id' => intval($row['tag_id']),
+            'name' => $row['tag_name'],
+            'description' => trim((string) $row['tag_description']) . ($row['tag_archived_at'] ? (trim((string) $row['tag_description']) !== '' ? ' - ' : '') . 'Archived' : ''),
+            'color' => tagColor($row['tag_color']),
+            'icon' => tagIcon($row['tag_icon']),
+            'chosen' => intval($row['chosen'])
+        ];
     }
 
     echo json_encode($response);
+    exit();
+}
 
+if (isset($_POST['tag_picker_set']) || isset($_POST['tag_picker_create'])) {
+
+    validateCSRFToken();
+
+    header('Content-Type: application/json');
+
+    $entity = (string) ($_POST['entity'] ?? '');
+    $config = tagEntity($entity);
+    $records = $config ? tagRecordsEditable($entity, (array) ($_POST['ids'] ?? [])) : false;
+
+    if ($records === false) {
+        http_response_code(403);
+        echo json_encode(['error' => 'You cannot change the tags on these.']);
+        exit();
+    }
+
+    $type = $config['type'];
+    $link = $config['link_table'];
+    $link_record = $config['link_record'];
+    $link_tag = $config['link_tag'];
+
+    if (isset($_POST['tag_picker_create'])) {
+
+        // Making tags is an admin job everywhere else (Admin > Tags), so it is here too
+        $name = trim((string) ($_POST['name'] ?? ''));
+        if (!$session_is_admin || $name === '' || mb_strlen($name) > 200) {
+            http_response_code(403);
+            echo json_encode(['error' => 'That tag cannot be made here.']);
+            exit();
+        }
+        $name_sql = escapeSql($name);
+
+        // Typing the name of a tag that already exists just picks it - an archived one comes back
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tag_id, tag_archived_at FROM tags WHERE tag_type = $type AND LOWER(tag_name) = LOWER('$name_sql') LIMIT 1"));
+        if ($row) {
+            $tag_id = intval($row['tag_id']);
+            if ($row['tag_archived_at']) {
+                tagRestore($tag_id);
+                logAudit("Tag", "Restore", "$session_name restored {$config['label']} tag $name_sql", 0, $tag_id);
+            }
+        } else {
+            $tag_id = tagCreate(['name' => $name, 'description' => '', 'type' => $type, 'color' => tagNextColor($type), 'icon' => 'tag']);
+            logAudit("Tag", "Create", "$session_name created {$config['label']} tag $name_sql", 0, $tag_id);
+        }
+        $on = true;
+
+    } else {
+        $tag_id = intval($_POST['tag_id'] ?? 0);
+        $on = !empty($_POST['on']);
+    }
+
+    // The tag has to be one of this kind of record's tags
+    $tag = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tag_name, tag_archived_at FROM tags WHERE tag_id = $tag_id AND tag_type = $type"));
+    if (!$tag) {
+        http_response_code(404);
+        echo json_encode(['error' => 'That tag no longer exists.']);
+        exit();
+    }
+    // An archived tag can come off records, not go on more
+    if ($on && $tag['tag_archived_at']) {
+        http_response_code(409);
+        echo json_encode(['error' => 'That tag is archived.']);
+        exit();
+    }
+    $tag_name = escapeSql($tag['tag_name']);
+
+    $changed = 0;
+    foreach ($records as $record_id => $record) {
+        $has = mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM $link WHERE $link_record = $record_id AND $link_tag = $tag_id")) > 0;
+        $record_name = escapeSql($record['name']);
+        if ($on && !$has) {
+            mysqli_query($mysqli, "INSERT INTO $link SET $link_record = $record_id, $link_tag = $tag_id");
+            logAudit($config['log'], "Edit", "$session_name added tag $tag_name to $record_name", $record['client_id'], $record_id);
+            if ($entity === 'ticket') {
+                logTicketHistory($record_id, "$session_name added tag $tag_name");
+            }
+            $changed++;
+        } elseif (!$on && $has) {
+            mysqli_query($mysqli, "DELETE FROM $link WHERE $link_record = $record_id AND $link_tag = $tag_id");
+            logAudit($config['log'], "Edit", "$session_name removed tag $tag_name from $record_name", $record['client_id'], $record_id);
+            if ($entity === 'ticket') {
+                logTicketHistory($record_id, "$session_name removed tag $tag_name");
+            }
+            $changed++;
+        }
+    }
+
+    $filter = (string) ($_POST['filter'] ?? '');
+    $pills = [];
+    foreach (tagsForRecords($entity, array_keys($records)) as $record_id => $tags) {
+        $pills[$record_id] = tagPills($entity, $record_id, $tags, $filter);
+    }
+
+    echo json_encode(['tag_id' => $tag_id, 'changed' => $changed, 'pills' => $pills]);
+    exit();
+}
+
+/*
+ * Quick pickers (js/quick_pick.js) - a ticket's status, priority, assignee
+ * and billable, a project's manager, a recurring ticket's assignee, a
+ * service's importance and an asset's status, location and contact, changed in place instead of through a modal. GET lists the choices; POST makes the change through the same
+ * functions the post.php handlers use (functions/ticket_fields.php) and sends
+ * back the redrawn values.
+ */
+if (isset($_GET['quick_pick_options'])) {
+
+    header('Content-Type: application/json');
+    // A contact's location is the clients module's; everything else here is support's
+    enforceUserPermission(($_GET['field'] ?? '') === 'contact_location' ? 'module_client' : 'module_support', 2);
+
+    $field = (string) ($_GET['field'] ?? '');
+    $options = [];
+
+    if ($field === 'priority') {
+        $colors = ['Urgent' => 'var(--bs-emphasis-color)', 'High' => 'var(--bs-danger)', 'Medium' => 'var(--bs-warning)', 'Low' => 'var(--bs-info)'];
+        foreach (TICKET_PRIORITIES as $priority) {
+            $options[] = ['value' => $priority, 'label' => $priority, 'color' => $colors[$priority]];
+        }
+    } elseif ($field === 'status') {
+        $all_statuses = ticketStatusesAll();
+        foreach (ticketPickableStatuses() as $status_id => $status) {
+            $options[] = ['value' => (string) $status_id, 'label' => $status['ticket_status_name'], 'color' => ticketStatusColor($status['ticket_status_color']),
+                'title' => isset($all_statuses[$status_id]) ? ticketStatusAbout($all_statuses[$status_id]) : ''];
+        }
+    } elseif ($field === 'billable') {
+        $options[] = ['value' => '1', 'label' => 'Billable', 'icon' => 'fas fa-dollar-sign', 'description' => 'Shows under Unbilled Time once done, until invoiced'];
+        $options[] = ['value' => '0', 'label' => 'Not billable', 'icon' => 'fas fa-minus'];
+    } elseif ($field === 'assignee' || $field === 'recurring_assignee') {
+        $options = quickPickAgents();
+    } elseif ($field === 'project_manager') {
+        $options = quickPickAgents('No manager');
+    } elseif ($field === 'service_importance') {
+        $colors = ['High' => 'var(--bs-danger)', 'Medium' => 'var(--bs-warning)', 'Low' => 'var(--bs-secondary)'];
+        $descriptions = ['High' => 'Down means the client cannot work', 'Medium' => 'Down hurts, but there is a way round it', 'Low' => 'Down is an inconvenience'];
+        foreach (SERVICE_IMPORTANCE as $importance) {
+            $options[] = ['value' => $importance, 'label' => $importance, 'color' => $colors[$importance], 'description' => $descriptions[$importance]];
+        }
+    } elseif ($field === 'network_type') {
+        foreach (NETWORK_TYPES as $type => [$icon, $tone, $hint]) {
+            $options[] = ['value' => $type, 'label' => $type, 'icon' => "fas $icon", 'color' => networkToneColor($tone), 'description' => $hint];
+        }
+    } elseif (in_array($field, ASSET_QUICK_FIELDS, true) || $field === 'contact_location') {
+        // Locations and contacts are the client's own - functions/asset.php
+        $options = assetQuickOptions($field === 'contact_location' ? 'asset_location' : $field, intval($_GET['scope'] ?? 0));
+        if ($options === null) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You cannot see that client.']);
+            exit();
+        }
+    } else {
+        http_response_code(400);
+        echo json_encode(['error' => 'Unknown field']);
+        exit();
+    }
+
+    echo json_encode(['options' => $options]);
+    exit();
+}
+
+if (isset($_POST['quick_pick_set'])) {
+
+    validateCSRFToken();
+
+    header('Content-Type: application/json');
+
+    $field = (string) ($_POST['field'] ?? '');
+    $value = (string) ($_POST['value'] ?? '');
+    $ticket_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_POST['ids'] ?? [])))));
+
+    // An asset's status, location or contact - assets of clients this agent
+    // can reach, with the same permission as Edit Asset (functions/asset.php)
+    if (in_array($field, ASSET_QUICK_FIELDS, true)) {
+        $asset_ids = $ticket_ids;
+        $allowed = lookupUserPermission('module_support') >= 2 && $asset_ids;
+        foreach ($allowed ? $asset_ids : [] as $id) {
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT asset_client_id FROM assets WHERE asset_id = $id"));
+            if (!$row || !hasClientAccess($row['asset_client_id'])) {
+                $allowed = false;
+                break;
+            }
+        }
+        if (!$allowed) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You cannot change that on these assets.']);
+            exit();
+        }
+
+        $message = '';
+        $response = ['records' => []];
+        foreach ($asset_ids as $id) {
+            [$ok, $message] = assetQuickSet($id, $field, $value);
+            if (!$ok) {
+                http_response_code(422);
+                echo json_encode(['error' => $message]);
+                exit();
+            }
+            $response['records'][$id] = assetQuickRecord($id, $field);
+        }
+        $response['message'] = count($asset_ids) === 1 ? $message : 'Updated ' . count($asset_ids) . ' assets';
+        echo json_encode($response);
+        exit();
+    }
+
+    // A contact's location - contacts of clients this agent can reach, with
+    // the same permission as Edit Contact (functions/contact.php)
+    if ($field === 'contact_location') {
+        $contact_ids = $ticket_ids;
+        $allowed = lookupUserPermission('module_client') >= 2 && $contact_ids;
+        foreach ($allowed ? $contact_ids : [] as $id) {
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_client_id FROM contacts WHERE contact_id = $id"));
+            if (!$row || !hasClientAccess($row['contact_client_id'])) {
+                $allowed = false;
+                break;
+            }
+        }
+        if (!$allowed) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You cannot change that on these contacts.']);
+            exit();
+        }
+
+        $message = '';
+        $response = ['records' => []];
+        foreach ($contact_ids as $id) {
+            [$ok, $message] = contactQuickSetLocation($id, $value);
+            if (!$ok) {
+                http_response_code(422);
+                echo json_encode(['error' => $message]);
+                exit();
+            }
+            $response['records'][$id] = contactQuickRecord($id);
+        }
+        $response['message'] = count($contact_ids) === 1 ? $message : 'Updated ' . count($contact_ids) . ' contacts';
+        echo json_encode($response);
+        exit();
+    }
+
+    // A service's importance - services of clients this agent can reach, not archived, like Edit Service
+    // A network's type - networks of clients this agent can reach, like Edit Network
+    if ($field === 'network_type') {
+        $allowed = networkCan(2) && $ticket_ids && isset(NETWORK_TYPES[$value]);
+        $rows = [];
+        foreach ($allowed ? $ticket_ids : [] as $id) {
+            $row = networkRow($id);
+            if (!$row || !hasClientAccess($row['network_client_id'])) {
+                $allowed = false;
+                break;
+            }
+            $rows[$id] = $row;
+        }
+        if (!$allowed) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You cannot change that on these networks.']);
+            exit();
+        }
+
+        $response = ['records' => []];
+        foreach ($rows as $id => $row) {
+            mysqli_query($mysqli, "UPDATE networks SET network_type = '$value' WHERE network_id = $id");
+            if ($row['network_type'] !== $value) {
+                logAudit("Network", "Edit", "$session_name changed the type of network " . escapeSql($row['network_name']) . " from " . escapeSql(networkType($row)) . " to $value", intval($row['network_client_id']), $id);
+            }
+            $html = networkTypeLabel($value);
+            $response['records'][$id] = ['current' => $value, 'html' => ['list' => $html, 'detail' => $html]];
+        }
+        $response['message'] = count($rows) === 1 ? 'Type set to ' . $value : 'Updated ' . count($rows) . ' networks';
+        echo json_encode($response);
+        exit();
+    }
+
+    if ($field === 'service_importance') {
+        $service_ids = $ticket_ids;
+        $allowed = serviceCan(2) && $service_ids && in_array($value, SERVICE_IMPORTANCE, true);
+        $rows = [];
+        foreach ($allowed ? $service_ids : [] as $id) {
+            $row = serviceRow($id);
+            if (!$row || $row['service_archived_at'] || !hasClientAccess($row['service_client_id'])) {
+                $allowed = false;
+                break;
+            }
+            $rows[$id] = $row;
+        }
+        if (!$allowed) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You cannot change that on these services.']);
+            exit();
+        }
+
+        $response = ['records' => []];
+        foreach ($rows as $id => $row) {
+            mysqli_query($mysqli, "UPDATE services SET service_importance = '$value' WHERE service_id = $id");
+            if ($row['service_importance'] !== $value) {
+                logAudit("Service", "Edit", "$session_name changed the importance of service " . escapeSql($row['service_name']) . " from {$row['service_importance']} to $value", intval($row['service_client_id']), $id);
+            }
+            $html = serviceImportancePill($value);
+            $response['records'][$id] = ['current' => $value, 'html' => ['list' => $html, 'detail' => $html]];
+        }
+        $response['message'] = count($rows) === 1 ? 'Importance set to ' . $value : 'Updated ' . count($rows) . ' services';
+        echo json_encode($response);
+        exit();
+    }
+
+    // A project's manager or a recurring ticket's assignee - open projects
+    // and recurring tickets of clients this agent can reach, like their edit modals
+    if ($field === 'project_manager' || $field === 'recurring_assignee') {
+        $is_project = $field === 'project_manager';
+        $allowed = lookupUserPermission('module_support') >= 2 && $ticket_ids;
+        foreach ($allowed ? $ticket_ids : [] as $id) {
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, $is_project
+                ? "SELECT project_client_id AS client_id, project_completed_at IS NULL AND project_archived_at IS NULL AS is_open FROM projects WHERE project_id = $id"
+                : "SELECT recurring_ticket_client_id AS client_id, 1 AS is_open FROM recurring_tickets WHERE recurring_ticket_id = $id"
+            ));
+            if (!$row || !$row['is_open'] || (intval($row['client_id']) && !hasClientAccess($row['client_id']))) {
+                $allowed = false;
+                break;
+            }
+        }
+        if (!$allowed) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You cannot change that here.']);
+            exit();
+        }
+
+        $response = ['records' => []];
+        foreach ($ticket_ids as $id) {
+            [$ok, $message] = $is_project ? projectChangeManager($id, intval($value)) : recurringTicketChangeAssignee($id, intval($value));
+            if (!$ok) {
+                http_response_code(422);
+                echo json_encode(['error' => $message]);
+                exit();
+            }
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, $is_project
+                ? "SELECT project_manager AS user_id, user_name, user_avatar FROM projects LEFT JOIN users ON user_id = project_manager WHERE project_id = $id"
+                : "SELECT recurring_ticket_assigned_to AS user_id, user_name, user_avatar FROM recurring_tickets LEFT JOIN users ON user_id = recurring_ticket_assigned_to WHERE recurring_ticket_id = $id"
+            ));
+            $html = formatAssignee($row['user_id'], $row['user_name'], $row['user_avatar'], false, $is_project ? 'No manager' : 'Unassigned');
+            $response['records'][$id] = ['current' => (string) intval($row['user_id']), 'html' => ['list' => $html, 'detail' => $html]];
+        }
+        $response['message'] = $message;
+        echo json_encode($response);
+        exit();
+    }
+
+    $allowed = lookupUserPermission('module_support') >= 2
+        && in_array($field, ['priority', 'assignee', 'billable', 'status'], true)
+        && ($field !== 'billable' || lookupUserPermission('module_sales') >= 2)
+        && $ticket_ids;
+
+    // Every ticket has to be one this agent can reach, and still open
+    // for priority and assignee - the same tickets the pickers are shown on
+    if ($allowed) {
+        foreach ($ticket_ids as $ticket_id) {
+            $row = ticketFieldsRow($ticket_id);
+            if (!$row || (intval($row['ticket_client_id']) && !hasClientAccess($row['ticket_client_id']))
+                || ($field !== 'billable' && $row['ticket_closed_at'])) {
+                $allowed = false;
+                break;
+            }
+        }
+    }
+    if (!$allowed) {
+        http_response_code(403);
+        echo json_encode(['error' => 'You cannot change that on these tickets.']);
+        exit();
+    }
+
+    $message = '';
+    $response = ['records' => []];
+    foreach ($ticket_ids as $ticket_id) {
+        if ($field === 'priority') {
+            [$ok, $message] = ticketChangePriority($ticket_id, $value);
+        } elseif ($field === 'assignee') {
+            [$ok, $message] = ticketChangeAssignee($ticket_id, intval($value));
+        } elseif ($field === 'status') {
+            [$ok, $message] = ticketChangeStatus($ticket_id, intval($value));
+        } else {
+            [$ok, $message] = ticketChangeBillable($ticket_id, intval($value));
+        }
+        if (!$ok) {
+            http_response_code(422);
+            echo json_encode(['error' => strip_tags($message)]);
+            exit();
+        }
+
+        // Redraw what changed, in both looks, plus the status (assigning a New ticket opens it)
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,
+            "SELECT ticket_priority, ticket_assigned_to, ticket_billable, ticket_closed_at, ticket_resolved_at, ticket_status,
+                ticket_status_name, ticket_status_color, user_name, user_avatar
+            FROM tickets
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+            LEFT JOIN users ON user_id = ticket_assigned_to
+            WHERE ticket_id = $ticket_id"
+        ));
+        $is_open = empty($row['ticket_resolved_at']) && empty($row['ticket_closed_at']);
+        if ($field === 'priority') {
+            $current = $row['ticket_priority'];
+            $html = ['list' => ticketPriorityHtml($current, 'list'), 'detail' => ticketPriorityHtml($current, 'detail')];
+        } elseif ($field === 'assignee') {
+            $current = (string) intval($row['ticket_assigned_to']);
+            $assignee = formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], $is_open);
+            $html = ['list' => $assignee, 'detail' => $assignee];
+        } elseif ($field === 'status') {
+            $current = (string) intval($row['ticket_status']);
+            $html = ['list' => ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'list'), 'detail' => ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail')];
+        } else {
+            $current = (string) intval($row['ticket_billable']);
+            $html = ['list' => ticketBillableHtml($current, 'list'), 'detail' => ticketBillableHtml($current, 'detail')];
+        }
+        $response['records'][$ticket_id] = [
+            'current' => $current,
+            'html' => $html,
+            'status_id' => intval($row['ticket_status']),
+            'status' => ['list' => ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'list'), 'detail' => ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail')]
+        ];
+    }
+
+    $response['message'] = count($ticket_ids) === 1 ? strip_tags($message) : 'Updated ' . count($ticket_ids) . ' tickets';
+    echo json_encode($response);
+    exit();
 }
 
 if (isset($_POST['client_set_notes'])) {
@@ -110,6 +633,25 @@ if (isset($_POST['quote_set_notes'])) {
     mysqli_query($mysqli, "UPDATE quotes SET quote_note = '$note' WHERE quote_id = $quote_id");
 
     logAudit("Quote", "Edit", "$session_name edited notes on quote $quote_prefix$quote_number", $client_id, $quote_id);
+
+}
+
+if (isset($_POST['product_set_notes'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    // A product's internal notes, from its page
+    $product_id = intval($_POST['product_id'] ?? 0);
+    $product = productRow($product_id);
+    if (!$product) {
+        http_response_code(404);
+        exit;
+    }
+    productSave(['notes' => (string) ($_POST['note'] ?? '')], $product_id);
+
+    logAudit("Product", "Edit", "$session_name edited notes on product " . escapeSql($product['product_name']), 0, $product_id);
 
 }
 
@@ -191,14 +733,91 @@ if (isset($_POST['asset_set_notes'])) {
 }
 
 /*
+ * Location notes (access, parking, alarm) - the location page and quick look save on blur
+ */
+if (isset($_POST['location_set_notes'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 2);
+
+    $row = locationRow($_POST['location_id'] ?? 0);
+    if (!$row) {
+        exit;
+    }
+    $client_id = intval($row['location_client_id']);
+
+    enforceClientAccess();
+
+    $location_id = intval($row['location_id']);
+    $notes = escapeSql($_POST['notes'] ?? '');
+    mysqli_query($mysqli, "UPDATE locations SET location_notes = '$notes' WHERE location_id = $location_id");
+
+    logAudit("Location", "Edit", "$session_name edited the notes on location " . escapeSql($row['location_name']), $client_id, $location_id);
+
+}
+
+/*
+ * Vendor notes (escalation path, who is authorised to call) - the vendor page saves on blur
+ */
+if (isset($_POST['vendor_set_notes'])) {
+
+    validateCSRFToken();
+
+    $row = vendorRow($_POST['vendor_id'] ?? 0);
+    if (!$row) {
+        exit;
+    }
+    $client_id = intval($row['vendor_client_id']);
+
+    vendorEnforce($client_id, 2);
+
+    $vendor_id = intval($row['vendor_id']);
+    $notes = escapeSql($_POST['notes'] ?? '');
+    mysqli_query($mysqli, "UPDATE vendors SET vendor_notes = '$notes' WHERE vendor_id = $vendor_id");
+
+    logAudit("Vendor", "Edit", "$session_name edited the notes on vendor " . escapeSql($row['vendor_name']), $client_id, $vendor_id);
+
+}
+
+/*
+ * License quick notes - the license page and quick look save on blur
+ */
+if (isset($_POST['software_set_notes'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $software_id = intval($_POST['software_id'] ?? 0);
+    $row = softwareRow($software_id);
+    if (!$row) {
+        exit;
+    }
+    $client_id = intval($row['software_client_id']);
+
+    enforceClientAccess();
+
+    $notes = escapeSql($_POST['notes'] ?? '');
+    mysqli_query($mysqli, "UPDATE software SET software_notes = '$notes' WHERE software_id = $software_id");
+
+    logAudit("Software", "Edit", "$session_name edited the notes on license " . escapeSql($row['software_name']), $client_id, $software_id);
+
+}
+
+/*
  * Ticketing Collision Detection/Avoidance
  * Called upon loading a ticket, and every 2 mins thereafter
  * Is used in conjunction with ticket_query_views to show who is currently viewing a ticket
  */
 if (isset($_GET['ticket_add_view'])) {
-    $ticket_id = intval($_GET['ticket_id']);
+    $ticket_id = intval($_GET['ticket_id'] ?? 0);
+    $view_ticket = ticketRow($ticket_id);
 
-    mysqli_query($mysqli, "INSERT INTO ticket_views SET view_ticket_id = $ticket_id, view_user_id = $session_user_id, view_timestamp = NOW()");
+    // Only a ticket this agent may open - the list of who is looking is no one else's business
+    if (lookupUserPermission('module_support') >= 1 && $view_ticket && (!intval($view_ticket['ticket_client_id']) || hasClientAccess($view_ticket['ticket_client_id']))) {
+        mysqli_query($mysqli, "INSERT INTO ticket_views SET view_ticket_id = $ticket_id, view_user_id = $session_user_id, view_timestamp = NOW()");
+    }
 }
 
 /*
@@ -207,210 +826,350 @@ if (isset($_GET['ticket_add_view'])) {
  * Called upon loading a ticket, and every 2 mins thereafter
  */
 if (isset($_GET['ticket_query_views'])) {
-    $ticket_id = intval($_GET['ticket_id']);
+    $ticket_id = intval($_GET['ticket_id'] ?? 0);
+    $view_ticket = ticketRow($ticket_id);
+    $users = [];
 
-    $query = mysqli_query($mysqli, "SELECT user_name FROM ticket_views LEFT JOIN users ON view_user_id = user_id WHERE view_ticket_id = $ticket_id AND view_user_id != $session_user_id AND view_timestamp > DATE_SUB(NOW(), INTERVAL 2 MINUTE)");
-    while ($row = mysqli_fetch_assoc($query)) {
-        $users[] = $row['user_name'];
+    if (lookupUserPermission('module_support') >= 1 && $view_ticket && (!intval($view_ticket['ticket_client_id']) || hasClientAccess($view_ticket['ticket_client_id']))) {
+        $query = mysqli_query($mysqli, "SELECT user_name FROM ticket_views LEFT JOIN users ON view_user_id = user_id WHERE view_ticket_id = $ticket_id AND view_user_id != $session_user_id AND view_timestamp > DATE_SUB(NOW(), INTERVAL 2 MINUTE)");
+        while ($row = mysqli_fetch_assoc($query)) {
+            $users[] = $row['user_name'];
+        }
     }
 
-    if (!empty($users)) {
-        $users = array_unique($users);
-        if (count($users) > 1) {
-            // Multiple viewers
-            $response['message'] = "<i class='fas fa-fw fa-eye me-2'></i>" . escapeHtml(implode(", ", $users) . " are viewing this ticket.");
-        } else {
-            // Single viewer
-            $response['message'] = "<i class='fas fa-fw fa-eye me-2'></i>" . escapeHtml(implode("", $users) . " is viewing this ticket.");
-        }
-    } else {
-        // No viewers
-        $response['message'] = "";
+    $users = array_values(array_unique($users));
+    $response = ['message' => ''];
+    if (count($users) > 1) {
+        $response['message'] = "<i class='fas fa-fw fa-eye me-2'></i>" . escapeHtml(implode(", ", $users) . " are viewing this ticket.");
+    } elseif ($users) {
+        $response['message'] = "<i class='fas fa-fw fa-eye me-2'></i>" . escapeHtml($users[0] . " is viewing this ticket.");
     }
 
     echo json_encode($response);
 }
 
 /*
- * Generates public/guest links for sharing credentials/docs
+ * Make a shared link (agent/modals/share/share_add.php, functions/share.php)
+ * - a login, a document, a file, a secure note, or a request for a login.
+ * The link comes back once, with a QR code of it; its secret is not kept.
  */
-if (isset($_GET['share_generate_link'])) {
+if (isset($_POST['share_create'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    header('Content-Type: application/json');
 
-    $item_encrypted_username = '';  // Default empty
-    $item_encrypted_credential = '';  // Default empty
-
-    $client_id = intval($_GET['client_id']);
-    $item_type = escapeSql($_GET['type']);
-    $item_id = intval($_GET['id']);
-    $item_email = escapeSql($_GET['contact_email']);
-    $item_note = escapeSql($_GET['note']);
-    $item_view_limit = intval($_GET['views']);
-    $item_view_limit_wording = "";
-    if ($item_view_limit == 1) {
-        $item_view_limit_wording = " and may only be viewed <strong>once</strong>, before the link is destroyed.";
+    $type = (string) ($_POST['type'] ?? '');
+    if (!shareCanMake($type)) {
+        exit(json_encode(['error' => "You don't have access to share that."]));
     }
-    $item_expires = intval($_GET['expires']);
-    $item_expires_friendly = "never"; // default never
-    if ($item_expires == 1) {
-        $item_expires_friendly = "1 hour";
-    } elseif ($item_expires == 24) {
-        $item_expires_friendly = "1 day";
-    } elseif ($item_expires == 168) {
-        $item_expires_friendly = "1 week";
-    } elseif ($item_expires == 730) {
-        $item_expires_friendly = "1 month";
+    $client_id = intval($_POST['client_id'] ?? 0);
+    if (!$client_id || !hasClientAccess($client_id)) {
+        exit(json_encode(['error' => "You don't have access to that client."]));
     }
 
-    enforceClientAccess($client_id);
+    $result = shareCreate([
+        'client_id' => $client_id,
+        'type' => $type,
+        'related_id' => intval($_POST['id'] ?? 0),
+        'name' => (string) ($_POST['name'] ?? ''),
+        'text' => (string) ($_POST['text'] ?? ''),
+        'recipient' => (string) ($_POST['recipient'] ?? ''),
+        'send' => !empty($_POST['send']),
+        'expires' => intval($_POST['expires'] ?? 0),
+        'views' => intval($_POST['views'] ?? 1),
+        'protect' => (string) ($_POST['protect'] ?? ''),
+        'passphrase' => (string) ($_POST['passphrase'] ?? ''),
+        'otp' => !empty($_POST['otp']),
+        'notify' => !empty($_POST['notify']),
+        'note' => (string) ($_POST['note'] ?? ''),
+    ], $error);
 
-    $item_key = randomString(32);
-
-    if ($item_type == "Document") {
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = $item_id AND document_client_id = $client_id LIMIT 1"));
-        $item_name = escapeSql($row['document_name']);
+    if (!$result) {
+        exit(json_encode(['error' => $error]));
     }
 
-    if ($item_type == "File") {
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = $item_id AND file_client_id = $client_id LIMIT 1"));
-        $item_name = escapeSql($row['file_name']);
+    // "Works until Oct 17 at 9:00 AM, opens once, needs a passphrase, emailed to bob@example.com"
+    $summary = ['Works until ' . date('M j \a\t g:i A', strtotime($result['expire_at']))];
+    if ($type !== 'Request') {
+        $summary[] = $result['views'] ? 'opens ' . strtolower(shareViewOptions()[$result['views']]) : 'opens any number of times';
+    }
+    if ($result['protect'] === 'passphrase') {
+        $summary[] = 'needs the passphrase';
+    } elseif ($result['protect'] === 'code') {
+        $summary[] = 'needs a code emailed to ' . $result['recipient'];
+    }
+    if ($result['emailed']) {
+        $summary[] = 'emailed to ' . $result['recipient'];
     }
 
-    if ($item_type == "Credential") {
-
-        // Sharing a credential hands out the plaintext, so it needs the same
-        // module access as reading one anywhere else in the app
-        enforceUserPermission('module_credential');
-
-        $credential = mysqli_query($mysqli, "SELECT credential_name, credential_username, credential_password FROM credentials WHERE credential_id = $item_id AND credential_client_id = $client_id LIMIT 1");
-        $row = mysqli_fetch_assoc($credential);
-
-        $item_name = escapeSql($row['credential_name']);
-
-        // Decrypt & re-encrypt username/password for sharing
-        $credential_encryption_key = randomString();
-
-        $credential_username_cleartext = decryptCredentialEntry($row['credential_username']);
-        $iv = randomString();
-        $username_ciphertext = openssl_encrypt($credential_username_cleartext, 'aes-128-cbc', $credential_encryption_key, 0, $iv);
-        $item_encrypted_username = $iv . $username_ciphertext;
-
-        $credential_password_cleartext = decryptCredentialEntry($row['credential_password']);
-        $iv = randomString();
-        $password_ciphertext = openssl_encrypt($credential_password_cleartext, 'aes-128-cbc', $credential_encryption_key, 0, $iv);
-        $item_encrypted_credential = $iv . $password_ciphertext;
-    }
-
-    // Insert entry into DB
-    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = 1, item_key = '$item_key', item_type = '$item_type', item_related_id = $item_id, item_encrypted_username = '$item_encrypted_username', item_encrypted_credential = '$item_encrypted_credential', item_note = '$item_note', item_recipient = '$item_email', item_views = 0, item_view_limit = $item_view_limit, item_expire_at = NOW() + INTERVAL + $item_expires HOUR, item_client_id = $client_id");
-    $share_id = $mysqli->insert_id;
-
-    // Return URL
-    if ($item_type == "Credential") {
-        $url = "https://$config_base_url/guest/guest_view_item.php?id=$share_id&key=$item_key&ek=$credential_encryption_key";
-    }
-    else {
-        $url = "https://$config_base_url/guest/guest_view_item.php?id=$share_id&key=$item_key";
-    }
-
-    $sql = mysqli_query($mysqli,"SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
-    $row = mysqli_fetch_assoc($sql);
-    $company_name = escapeSql($row['company_name']);
-    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-
-    // Sanitize Config vars from get_settings.php
-    $config_ticket_from_name = escapeSql($config_ticket_from_name);
-    $config_ticket_from_email = escapeSql($config_ticket_from_email);
-    $config_mail_from_name = escapeSql($config_mail_from_name);
-    $config_mail_from_email = escapeSql($config_mail_from_email);
-
-    // Send user e-mail, if specified
-    if(!empty($config_smtp_host) && filter_var($item_email, FILTER_VALIDATE_EMAIL)){
-
-        $subject = "Time sensitive - $company_name secure link enclosed";
-        if ($item_expires_friendly == "never") {
-            $subject = "$company_name secure link enclosed";
-        }
-        $body = "Hello,<br><br>$session_name from $company_name sent you a time sensitive secure link regarding \"$item_name\".<br><br>The link will expire in <strong>$item_expires_friendly</strong>$item_view_limit_wording.<br><br><strong><a href=\'$url\'>Click here to access your secure content</a></strong><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
-        // Add the intended recipient disclosure
-        $body .= "<br><br><em>This email and any attachments are confidential and intended for the specified recipient(s) only. If you are not the intended recipient, please notify the sender and delete this email. Unauthorized use, disclosure, or distribution is prohibited.</em>";
-
-        $data = [
-            [
-                'from' => $config_mail_from_email,
-                'from_name' => $config_mail_from_name,
-                'recipient' => $item_email,
-                'recipient_name' => $item_email,
-                'subject' => $subject,
-                'body' => $body
-            ]
-        ];
-
-        addToMailQueue($data);
-
-    }
-
-    echo json_encode($url);
-
-    // Logging
-    logAudit("Share", "Create", "$session_name created shared link for $item_type - $item_name", $client_id, $item_id);
-
+    echo json_encode([
+        'url' => $result['url'],
+        'passphrase' => $result['passphrase'],
+        'summary' => implode(', ', $summary),
+        'qr' => shareQrSvg($result['url']),
+    ]);
+    exit;
 }
 
 /*
  * Returns sorted list of active clients
+ */
+/*
+ * Every active client this agent can open, most recently opened first - the
+ * client switcher in the client side nav (js/client_switcher.js) loads it once
+ * and filters it as you type. Names are raw; the script renders them as text.
  */
 if (isset($_GET['get_active_clients'])) {
     enforceUserPermission('module_client');
 
     $client_sql = mysqli_query(
         $mysqli,
-        "SELECT client_id, client_name FROM clients
+        "SELECT client_id, client_name, client_abbreviation FROM clients
         WHERE client_archived_at IS NULL
         " . clientScopeSql('clients.client_id') . "
         ORDER BY client_accessed_at DESC"
     );
 
+    $response = ['clients' => []];
     while ($row = mysqli_fetch_assoc($client_sql)) {
-        $response['clients'][] = $row;
+        $response['clients'][] = [
+            'client_id' => intval($row['client_id']),
+            'client_name' => $row['client_name'],
+            'client_initials' => clientInitials($row['client_abbreviation'], $row['client_name']),
+            'client_tone' => clientInitialsTone($row['client_id']),
+        ];
     }
 
-    echo json_encode($response);
+    echo json_encode($response, JSON_INVALID_UTF8_SUBSTITUTE);
 }
 
 /*
- * Returns the body of one canned response, for the picker on the ticket reply form.
- * Fetched on demand rather than rendered into every ticket page, because the bodies are
- * full HTML replies and an install can have a lot of them.
+ * The bell panel in the top bar (js/notifications.js).
+ *
+ * notifications_feed  - the latest notifications for the panel, and the unread count
+ * notifications_count - just the count, polled for the badge
+ * notifications_mark  - POST: mark ids read or unread, or all=1 for everything
+ *
+ * All of it goes through functions/notifications.php, which only ever reads or
+ * changes the current user's own rows. Reading one is not audited; marking all
+ * read is, as the old "Dismiss all" was.
  */
+if (isset($_GET['notifications_feed'])) {
+    $notifications_view = ($_GET['view'] ?? '') === 'all' ? 'all' : 'unread';
+
+    header('Content-Type: application/json');
+    echo json_encode([
+        'unread_count' => notificationUnreadCount(),
+        'items' => notificationsFetch($notifications_view, 20),
+    ], JSON_INVALID_UTF8_SUBSTITUTE);
+    exit;
+}
+
+if (isset($_GET['notifications_count'])) {
+    header('Content-Type: application/json');
+    echo json_encode(['unread_count' => notificationUnreadCount()]);
+    exit;
+}
+
+if (isset($_POST['notifications_mark'])) {
+
+    validateCSRFToken();
+
+    if (!empty($_POST['all'])) {
+        $notifications_changed = notificationsMarkAllRead();
+        if ($notifications_changed) {
+            logAudit("Notification", "Dismiss", "$session_name marked $notifications_changed notifications as read");
+        }
+    } else {
+        notificationsMark($_POST['ids'] ?? [], ($_POST['state'] ?? 'read') !== 'unread');
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode(['unread_count' => notificationUnreadCount()]);
+    exit;
+}
+
+/*
+ * Live results for the search palette in the top bar (js/global_search.js).
+ *
+ * Same search as the full results page - functions/search.php - so the two can
+ * never disagree about what this user may see. Five per group plus any app page
+ * whose name matches, and for admins the settings that match (settingsSearch());
+ * with nothing typed yet, the recently opened clients.
+ * Values are raw: the palette renders them as text, never as HTML.
+ */
+if (isset($_GET['global_search'])) {
+
+    $global_search_query = (string) ($_GET['q'] ?? '');
+
+    $response = [
+        'query' => $global_search_query,
+        'pages' => [],
+        'settings' => [],
+        'groups' => [],
+        'recent' => [],
+    ];
+
+    if (trim($global_search_query) === '') {
+        $response['recent'] = globalSearchRecentClients();
+    } else {
+        $response['pages'] = globalSearchPages($global_search_query);
+        // Admins find a setting too - Admin > Settings, the page and where on it
+        $response['settings'] = !empty($session_is_admin) ? settingsSearch($global_search_query) : [];
+        $response['groups'] = globalSearch($global_search_query, 5);
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($response, JSON_INVALID_UTF8_SUBSTITUTE);
+    exit;
+}
+
+/*
+ * Returns the body of one canned response, for the picker on the ticket reply form,
+ * filled in for the ticket (ticket_id) - cannedResponseFill(). Fetched on demand rather
+ * than rendered into every ticket page, because the bodies are full HTML replies and an
+ * install can have a lot of them.
+ */
+/*
+ * What making a document from a template asks for, for a client - the site
+ * and contact its placeholders come from (when it uses them; the client's
+ * primary ones picked), and its fill-ins - as the window's fields (HTML), with
+ * a line on what is filled in from the client. agent/js/document_template_make.js
+ * draws it in the Document from template and New document for a client windows.
+ */
+if (isset($_GET['document_template_asks'])) {
+    header('Content-Type: application/json');
+
+    $asks_template = documentTemplateRow($_GET['document_template_asks']);
+    $asks_client_id = intval($_GET['client_id'] ?? 0);
+    if (intval(lookupUserPermission('module_support')) < 2 || !$asks_template || $asks_template['document_template_archived_at'] || !$asks_client_id || !hasClientAccess($asks_client_id)) {
+        echo json_encode(['html' => '']);
+        exit;
+    }
+    $asks_used = documentTemplateWordsUsed($asks_template);
+    $asks_fill_ins = documentTemplateFillIns($asks_template, documentTemplateFillInRowsFor([$asks_template['document_template_id']])[$asks_template['document_template_id']]);
+    $asks_site = array_intersect(array_keys($asks_used['placeholder']), DOCUMENT_TEMPLATE_SITE_PLACEHOLDERS);
+    $asks_contact = array_intersect(array_keys($asks_used['placeholder']), DOCUMENT_TEMPLATE_CONTACT_PLACEHOLDERS);
+
+    $html = '';
+    if ($asks_used['placeholder'] || $asks_used['table']) {
+        $filled = array_map(function ($word) {
+            return '[' . $word . ']';
+        }, array_values($asks_used['placeholder'] + $asks_used['table']));
+        $html .= '<div class="small text-secondary mb-2"><i class="fas fa-fw fa-magic me-1"></i>Filled in from the client: <span class="font-monospace">' . escapeHtml(implode(' ', $filled)) . '</span>'
+            . ($asks_used['table'] ? ' - its records as they are now' : '') . '</div>';
+    }
+    if ($asks_site || $asks_contact) {
+        $html .= '<div class="row g-2 mb-2">';
+        if ($asks_site) {
+            $html .= '<div class="col-md-6"><label class="form-label mb-1">Site</label><div class="input-group"><span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>'
+                . '<select class="form-select select2" name="location_id"><option value="-1">- None -</option>';
+            $first = true;
+            foreach (documentTemplateClientLocations($asks_client_id) as $location_id => $location) {
+                $html .= '<option value="' . $location_id . '"' . ($first ? ' selected' : '') . '>' . escapeHtml($location['location_name']) . (intval($location['location_primary']) ? ' (primary)' : '') . '</option>';
+                $first = false;
+            }
+            $html .= '</select></div></div>';
+        }
+        if ($asks_contact) {
+            $html .= '<div class="col-md-6"><label class="form-label mb-1">Contact</label><div class="input-group"><span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>'
+                . '<select class="form-select select2" name="contact_id"><option value="-1">- None -</option>';
+            $first = true;
+            foreach (documentTemplateClientContacts($asks_client_id) as $contact_id => $contact) {
+                $html .= '<option value="' . $contact_id . '"' . ($first ? ' selected' : '') . '>' . escapeHtml($contact['contact_name']) . (intval($contact['contact_primary']) ? ' (primary)' : '') . '</option>';
+                $first = false;
+            }
+            $html .= '</select></div></div>';
+        }
+        $html .= '</div>';
+    }
+    if ($asks_fill_ins) {
+        $html .= '<div class="fw-semibold mt-2 mb-1"><i class="fas fa-fw fa-pen-square text-secondary me-1"></i>It asks for</div>'
+            . '<div class="small text-secondary mb-2">Each answer goes in wherever its [Name] is. Leave one blank to fill it in on the document later.</div><div class="row g-2">';
+        foreach ($asks_fill_ins as $fill_in) {
+            $html .= '<div class="col-md-6">' . ticketFillInFieldHtml($fill_in, '') . '</div>';
+        }
+        $html .= '</div>';
+    }
+
+    echo json_encode(['html' => $html !== '' ? '<div class="border rounded p-3 bg-body-tertiary">' . $html . '</div>' : '']);
+    exit;
+}
+
 if (isset($_GET['get_canned_response'])) {
     enforceUserPermission('module_support');
 
-    $canned_response_id = intval($_GET['get_canned_response']);
+    // A current one this agent may use - shared, or their own
+    $canned_row = cannedResponseRow($_GET['get_canned_response']);
+    if ($canned_row && ($canned_row['canned_response_archived_at'] || !cannedResponseUsable($canned_row, $session_user_id))) {
+        $canned_row = null;
+    }
 
-    $canned_sql = mysqli_query($mysqli, "SELECT canned_response_body FROM canned_responses
-        WHERE canned_response_id = $canned_response_id AND canned_response_archived_at IS NULL LIMIT 1");
-
-    $canned_row = mysqli_fetch_assoc($canned_sql);
+    // The ticket it goes into, if this agent may see it - otherwise nothing is filled in
+    $canned_ticket_id = 0;
+    $canned_ticket = ticketRow(intval($_GET['ticket_id'] ?? 0));
+    if ($canned_ticket) {
+        $client_id = intval($canned_ticket['ticket_client_id']);
+        if ($client_id) {
+            enforceClientAccess();
+        }
+        $canned_ticket_id = intval($canned_ticket['ticket_id']);
+    }
 
     // Purified here rather than at save time, the same way ticket replies and ticket
-    // template details are - what lands in the editor is what would have been rendered
-    require_once "../libs/htmlpurifier/HTMLPurifier.standalone.php";
-
-    $canned_purifier_config = HTMLPurifier_Config::createDefault();
-    $canned_purifier_config->set('Cache.DefinitionImpl', null);
-    $canned_purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $canned_purifier = new HTMLPurifier($canned_purifier_config);
-
-    $response = [];
-    $response['body'] = $canned_row ? $canned_purifier->purify($canned_row['canned_response_body']) : '';
+    // template details are - what lands in the editor is what would have been rendered.
+    // With what picking it sets up on the reply (cannedResponseActions())
+    $response = ['found' => false, 'body' => ''];
+    if ($canned_row) {
+        $actions = cannedResponseActions($canned_row);
+        $response = [
+            'found' => true,
+            'id' => intval($canned_row['canned_response_id']),
+            'name' => $canned_row['canned_response_name'],
+            'body' => cannedResponseFill($canned_row['canned_response_body'], $canned_ticket_id, stripslashes($session_name)),
+            'reply_type' => $actions['reply_type'],
+            'reply_type_name' => $actions['reply_type'] === null ? '' : CANNED_RESPONSE_REPLY_TYPES[$actions['reply_type']][0],
+            'ticket_status' => $actions['ticket_status'],
+            'status_name' => $actions['status_name'],
+            'minutes' => $actions['minutes'],
+            'minutes_text' => $actions['minutes'] ? cannedResponseMinutesText($actions['minutes']) : '',
+            // The files that go with it - copied onto the ticket when the reply is sent
+            'files' => array_map(function ($file) {
+                return ['id' => intval($file['canned_response_file_id']), 'name' => $file['canned_response_file_name'], 'size' => cannedResponseFileSizeText($file['canned_response_file_size'])];
+            }, cannedResponseFiles($canned_row['canned_response_id'])),
+        ];
+    }
 
     echo json_encode($response);
 
+}
+
+/*
+ * A reply being written on a ticket, for saving as a canned response (Save
+ * your reply as a canned response - agent/js/canned_response_save.js): made safe, with this
+ * ticket's details in it swapped for placeholders (cannedResponseUnfill()).
+ * POST html and ticket_id; answers html and the placeholders put in. Nothing
+ * is kept.
+ */
+if (isset($_GET['canned_response_unfill'])) {
+    header('Content-Type: application/json');
+
+    if (intval(lookupUserPermission('module_support')) < 2 || !hash_equals($_SESSION['csrf_token'] ?? '', (string) ($_POST['csrf_token'] ?? ''))) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'html' => '', 'placeholders' => []]);
+        exit;
+    }
+
+    $unfill_html = documentHtmlPurify((string) ($_POST['html'] ?? ''));
+    $unfill_ticket = ticketRow(intval($_POST['ticket_id'] ?? 0));
+    if ($unfill_ticket && intval($unfill_ticket['ticket_client_id']) && !hasClientAccess($unfill_ticket['ticket_client_id'])) {
+        $unfill_ticket = null;
+    }
+    [$unfilled, $placeholders] = $unfill_ticket ? cannedResponseUnfill($unfill_html, $unfill_ticket['ticket_id'], stripslashes($session_name)) : [$unfill_html, []];
+
+    echo json_encode(['ok' => true, 'html' => $unfilled, 'original' => $unfill_html, 'placeholders' => $placeholders]);
+    exit;
 }
 
 /*
@@ -426,7 +1185,8 @@ if (isset($_GET['get_canned_response'])) {
  * and agent/document.php do it.
  */
 if (isset($_GET['get_document_content'])) {
-    enforceUserPermission('module_support');
+    // Whoever can open the files list can preview its documents in the grid
+    enforceUserPermission('module_client');
 
     $document_id = intval($_GET['get_document_content']);
 
@@ -443,15 +1203,8 @@ if (isset($_GET['get_document_content'])) {
         $client_id = intval($document_row['document_client_id']);
         enforceClientAccess();
 
-        require_once "../libs/htmlpurifier/HTMLPurifier.standalone.php";
-
-        $document_purifier_config = HTMLPurifier_Config::createDefault();
-        $document_purifier_config->set('Cache.DefinitionImpl', null);
-        $document_purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-        $document_purifier = new HTMLPurifier($document_purifier_config);
-
         $response['name'] = $document_row['document_name'];
-        $response['content'] = $document_purifier->purify($document_row['document_content']);
+        $response['content'] = documentHtmlPurify($document_row['document_content']);
     } else {
         $response['name'] = '';
         $response['content'] = '';
@@ -473,7 +1226,7 @@ if (isset($_GET['get_client_contacts'])) {
 
     $contact_sql = mysqli_query(
         $mysqli,
-        "SELECT contact_id, contact_name, contact_title, contact_email, contact_primary, contact_important, contact_technical FROM contacts
+        "SELECT contact_id, contact_name, contact_title, contact_email, contact_photo, contact_primary, contact_important, contact_technical, contact_location_id FROM contacts
         LEFT JOIN clients on contact_client_id = client_id
         WHERE contacts.contact_archived_at IS NULL AND contact_client_id = $client_id
         " . clientScopeSql('contact_client_id') . "
@@ -484,10 +1237,48 @@ if (isset($_GET['get_client_contacts'])) {
     $response['contacts'] = [];
 
     while ($row = mysqli_fetch_assoc($contact_sql)) {
+        // For the picker: initials on their own colour, or the photo when there is one
+        $row['contact_initials'] = personInitials($row['contact_name']);
+        $row['contact_tone'] = contactAvatarTone($row['contact_id']);
+        $row['contact_photo_url'] = $row['contact_photo'] ? "/uploads/clients/$client_id/" . rawurlencode($row['contact_photo']) : '';
+        unset($row['contact_photo']);
         $response['contacts'][] = $row;
     }
 
     echo json_encode($response);
+}
+
+/*
+ * New Ticket - the other open tickets for the contact or asset picked, so a
+ * second ticket for the same problem shows up before it is raised.
+ */
+if (isset($_GET['ticket_also_open'])) {
+    enforceUserPermission('module_support', 2);
+
+    header('Content-Type: application/json');
+
+    $client_id = intval($_GET['client_id'] ?? 0);
+    if (!$client_id || !hasClientAccess($client_id)) {
+        echo json_encode(['html' => '']);
+        exit;
+    }
+    $also_contact_id = ticketClientOwnedId('contact', $_GET['contact_id'] ?? 0, $client_id);
+    $also_asset_id = ticketClientOwnedId('asset', $_GET['asset_id'] ?? 0, $client_id);
+    $rows = ticketAlsoOpen($also_contact_id, $also_asset_id, 0, 5);
+
+    $html = '';
+    if ($rows) {
+        $html = '<div class="alert alert-warning small py-2 mb-3"><div class="fw-semibold mb-1"><i class="fas fa-layer-group me-1"></i>Already open for '
+            . ($also_contact_id && $also_asset_id ? 'this contact or asset' : ($also_contact_id ? 'this contact' : 'this asset')) . '</div>';
+        foreach ($rows as $row) {
+            $html .= '<div class="d-flex align-items-center gap-2 text-truncate">' . ticketLink($row)
+                . ' <span class="ms-auto flex-shrink-0">' . ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail') . '</span></div>';
+        }
+        $html .= '<div class="text-body-secondary mt-1">Add to one of these instead, if it is the same problem.</div></div>';
+    }
+
+    echo json_encode(['html' => $html]);
+    exit;
 }
 
 /*
@@ -502,7 +1293,7 @@ if (isset($_GET['get_client_assets'])) {
 
     $asset_sql = mysqli_query(
         $mysqli,
-        "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name FROM assets
+        "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, asset_contact_id, asset_location_id, contact_name FROM assets
         LEFT JOIN clients on asset_client_id = client_id
         LEFT JOIN contacts ON contact_id = asset_contact_id
         WHERE assets.asset_archived_at IS NULL AND asset_client_id = $client_id
@@ -514,6 +1305,7 @@ if (isset($_GET['get_client_assets'])) {
     $response['assets'] = [];
 
     while ($row = mysqli_fetch_assoc($asset_sql)) {
+        $row['asset_icon'] = getAssetIcon($row['asset_type']);
         $response['assets'][] = $row;
     }
 
@@ -561,17 +1353,20 @@ if (isset($_GET['get_client_vendors'])) {
 
     $vendors_sql = mysqli_query(
         $mysqli,
-        "SELECT vendor_id, vendor_name FROM vendors
+        "SELECT vendor_id, vendor_name, vendor_description FROM vendors
         LEFT JOIN clients on vendor_client_id = client_id
         WHERE vendors.vendor_archived_at IS NULL AND vendor_client_id = $client_id
         " . clientScopeSql('vendor_client_id') . "
-        ORDER BY vendor_name ASC"
+        ORDER BY vendor_favorite DESC, vendor_name ASC"
     );
 
     // Always return the key, so a client with none gives [] rather than null
     $response['vendors'] = [];
 
     while ($row = mysqli_fetch_assoc($vendors_sql)) {
+        // The vendor's tile in the picker, the same as everywhere else
+        $row['vendor_initials'] = vendorInitials($row['vendor_name']);
+        $row['vendor_tone'] = vendorTone($row['vendor_name']);
         $response['vendors'][] = $row;
     }
 
@@ -579,7 +1374,8 @@ if (isset($_GET['get_client_vendors'])) {
 }
 
 /*
- * Returns open projects for a specified client
+ * Returns the open projects a ticket of this client can go on - the client's
+ * own, then our internal ones
  */
 if (isset($_GET['get_client_projects'])) {
     enforceUserPermission('module_client');
@@ -590,11 +1386,10 @@ if (isset($_GET['get_client_projects'])) {
 
     $projects_sql = mysqli_query(
         $mysqli,
-        "SELECT project_id, project_name FROM projects
-        LEFT JOIN clients on project_client_id = client_id
-        WHERE projects.project_archived_at IS NULL AND projects.project_completed_at IS NULL AND project_client_id = $client_id
+        "SELECT project_id, project_name, project_prefix, project_number, project_client_id = 0 AS project_internal FROM projects
+        WHERE projects.project_archived_at IS NULL AND projects.project_completed_at IS NULL AND project_client_id IN (0, $client_id)
         " . clientScopeSql('project_client_id') . "
-        ORDER BY project_name ASC"
+        ORDER BY project_client_id = 0, project_name ASC"
     );
 
     // Always return the key, so a client with none gives [] rather than null
@@ -617,13 +1412,19 @@ if (isset($_GET['get_totp_token_via_id'])) {
     $credential_id = intval($_GET['credential_id']);
 
     $sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT credential_name, credential_otp_secret, credential_client_id FROM credentials WHERE credential_id = $credential_id"));
+    if (!$sql) {
+        echo json_encode('');
+        exit;
+    }
     $name = escapeSql($sql['credential_name']);
     $totp_secret = $sql['credential_otp_secret'];
     $client_id = intval($sql['credential_client_id']);
 
     enforceClientAccess();
 
-    $otp = TokenAuth6238::getTokenCode(strtoupper($totp_secret));
+    // Seeds saved before they were tidied on save may still carry spaces, dashes or the whole otpauth:// link
+    $totp_seed = credentialOtpSeed($totp_secret);
+    $otp = $totp_seed ? TokenAuth6238::getTokenCode($totp_seed) : '';
     echo json_encode($otp);
 
     // Logging
@@ -645,164 +1446,109 @@ if (isset($_GET['get_readable_pass'])) {
 /*
  * ITFlow - POST request handler for client tickets
  */
+/*
+ * The ticket board (agent/ticket_kanban.php, js/tickets_kanban.js).
+ *
+ * Moving a column reorders the statuses - only when the admin allows it.
+ * Moving a card changes its status the way the ticket page does: into
+ * Resolved resolves it (open tasks first, and the client is told), out of
+ * Resolved reopens it, anything else is a status change. New is set when a
+ * ticket comes in and Closed by closing it, so neither is a place to drop
+ * one. With ticket ordering on, the column's order is kept too.
+ */
 if (isset($_POST['update_kanban_status_position'])) {
-    // Update multiple ticket status kanban orders
-    enforceUserPermission('module_support', 2);
 
-    $positions = $_POST['positions'];
+    validateCSRFToken();
 
-    foreach ($positions as $position) {
-        $status_id = intval($position['status_id']);
-        $kanban = intval($position['status_kanban']);
+    header('Content-Type: application/json');
 
+    if (lookupUserPermission('module_support') < 2 || intval($config_ticket_moving_columns) !== 1) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Columns cannot be moved here.']);
+        exit;
+    }
+
+    foreach ((array) ($_POST['positions'] ?? []) as $position) {
+        $status_id = intval($position['status_id'] ?? 0);
+        $kanban = intval($position['status_kanban'] ?? 0);
         mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_order = $kanban WHERE ticket_status_id = $status_id");
     }
 
-    // return a response
-    echo json_encode(['status' => 'success']);
+    echo json_encode(['ok' => true]);
     exit;
 }
 
 if (isset($_POST['update_kanban_ticket'])) {
-    // Update ticket kanban order and status
-    enforceUserPermission('module_support', 2);
 
-    // all tickets on the column
-    $positions = $_POST['positions'];
+    validateCSRFToken();
 
-    foreach ($positions as $position) {
-        $ticket_id = intval($position['ticket_id']);
+    header('Content-Type: application/json');
 
-        // Client perms check
-        $client_query = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_client_id FROM tickets WHERE ticket_id = $ticket_id"));
-        $client_id = intval($client_query['ticket_client_id']);
-        enforceClientAccess();
+    $kanban_error = function ($message, $code = 422) {
+        http_response_code($code);
+        echo json_encode(['error' => $message]);
+        exit;
+    };
 
-        $kanban = intval($position['ticket_order']); // ticket kanban position
-        $status = intval($position['ticket_status']); // ticket statuses
-        $oldStatus = intval($position['ticket_oldStatus']); // ticket old status if moved
-
-        $statuses['Closed'] = 5;
-        $statuses['Resolved'] = 4;
-
-        // Continue if status is null / Closed
-        if ($status === null || $status === $statuses['Closed']) {
-            continue;
-        }
-
-
-        if ($oldStatus === false) {
-            // if ticket was not moved, just uptdate the order on kanban
-            mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban WHERE ticket_id = $ticket_id");
-            triggerCustomAction('ticket_update', $ticket_id);
-        } else {
-            // If the ticket was moved from a resolved status to another status, we need to update ticket_resolved_at
-            if ($oldStatus === $statuses['Resolved']) {
-                mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id");
-                resetTicketResolutionSla($ticket_id);
-                syncTicketSlaClock($ticket_id);
-                $new_status_name = escapeSql(getTicketStatusName($status));
-                logTicketHistory($ticket_id, "$session_name reopened the ticket to $new_status_name from the kanban");
-                triggerCustomAction('ticket_update', $ticket_id);
-            } elseif ($status === $statuses['Resolved']) {
-                // If the ticket was moved to a resolved status, we need to update ticket_resolved_at
-                mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
-                // An agent resolving the ticket counts as a response, same as
-                // resolving from the ticket itself does
-                setTicketFirstResponse($ticket_id);
-                setTicketResolutionSlaMet($ticket_id);
-                syncTicketSlaClock($ticket_id);
-                logTicketHistory($ticket_id, "$session_name resolved the ticket from the kanban");
-                triggerCustomAction('ticket_update', $ticket_id);
-
-                // Client notification email
-                if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
-
-                    // Get details
-                    $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status_name, ticket_assigned_to, ticket_url_key, ticket_client_id FROM tickets
-                        LEFT JOIN contacts ON ticket_contact_id = contact_id
-                        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-                        WHERE ticket_id = $ticket_id
-                    ");
-                    $row = mysqli_fetch_assoc($ticket_sql);
-
-                    $contact_name = escapeSql($row['contact_name']);
-                    $contact_email = escapeSql($row['contact_email']);
-                    $ticket_prefix = escapeSql($row['ticket_prefix']);
-                    $ticket_number = intval($row['ticket_number']);
-                    $ticket_subject = escapeSql($row['ticket_subject']);
-                    $client_id = intval($row['ticket_client_id']);
-                    $ticket_assigned_to = intval($row['ticket_assigned_to']);
-                    $ticket_status = escapeSql($row['ticket_status_name']);
-                    $url_key = escapeSql($row['ticket_url_key']);
-
-                    // Sanitize Config vars from get_settings.php
-                    $config_ticket_from_name = escapeSql($config_ticket_from_name);
-                    $config_ticket_from_email = escapeSql($config_ticket_from_email);
-                    $config_base_url = escapeSql($config_base_url);
-
-                    // Get Company Info
-                    $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
-                    $row = mysqli_fetch_assoc($sql);
-                    $company_name = escapeSql($row['company_name']);
-                    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-
-                    // EMAIL
-                    $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
-                    $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been marked as solved and is pending closure.<br><br>If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>View ticket</a><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
-                    // Check email valid
-                    if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
-
-                        $data = [];
-
-                        // Email Ticket Contact
-                        // Queue Mail
-
-                        $data[] = [
-                            'from' => $config_ticket_from_email,
-                            'from_name' => $config_ticket_from_name,
-                            'recipient' => $contact_email,
-                            'recipient_name' => $contact_name,
-                            'subject' => $subject,
-                            'body' => $body
-                        ];
-                    }
-
-                    // Also Email all the watchers
-                    $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
-                    $body .= "<br><br>----------------------------------------<br>YOU ARE A COLLABORATOR ON THIS TICKET";
-                    while ($row = mysqli_fetch_assoc($sql_watchers)) {
-                        $watcher_email = escapeSql($row['watcher_email']);
-
-                        // Queue Mail
-                        $data[] = [
-                            'from' => $config_ticket_from_email,
-                            'from_name' => $config_ticket_from_name,
-                            'recipient' => $watcher_email,
-                            'recipient_name' => $watcher_email,
-                            'subject' => $subject,
-                            'body' => $body
-                        ];
-                    }
-                    addToMailQueue($data);
-                }
-                //End Mail IF
-
-            } else {
-                // If the ticket was moved from any status to another status
-                mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status WHERE ticket_id = $ticket_id");
-                syncTicketSlaClock($ticket_id);
-                $new_status_name = escapeSql(getTicketStatusName($status));
-                logTicketHistory($ticket_id, "$session_name set the status to $new_status_name from the kanban");
-                triggerCustomAction('ticket_update', $ticket_id);
-            }
-        }
-
+    if (lookupUserPermission('module_support') < 2) {
+        $kanban_error('You cannot change tickets.', 403);
     }
 
-    // return a response
-    echo json_encode(['status' => 'success','payload' => $positions]);
+    $row = ticketRow($_POST['ticket_id'] ?? 0);
+    if (!$row || (intval($row['ticket_client_id']) && !hasClientAccess($row['ticket_client_id']))) {
+        $kanban_error('That ticket is not there any more - reload the board.', 404);
+    }
+    $ticket_id = intval($row['ticket_id']);
+    $reference = ticketReference($row);
+    if (!empty($row['ticket_closed_at'])) {
+        $kanban_error("$reference is closed.");
+    }
+
+    $status_id = intval($_POST['status_id'] ?? 0);
+    $current_status = intval($row['ticket_status']);
+    $message = '';
+
+    if ($status_id !== $current_status) {
+        $pickable = ticketPickableStatuses();
+        if ($status_id === TICKET_STATUS_RESOLVED) {
+            $open_tasks = ticketOpenTaskCount($ticket_id);
+            if ($open_tasks) {
+                $kanban_error("Finish the $open_tasks open task" . ($open_tasks === 1 ? '' : 's') . " on $reference before resolving it.");
+            }
+            ticketResolve($row, ' from the board');
+            if (intval($config_ticket_client_general_notifications) === 1) {
+                ticketMailResolved($ticket_id);
+            }
+            $message = "$reference resolved";
+        } elseif (isset($pickable[$status_id])) {
+            if (!empty($row['ticket_resolved_at'])) {
+                ticketReopen($row, $status_id, ' from the board');
+                $message = "$reference reopened";
+            } else {
+                [$ok, $message] = ticketChangeStatus($ticket_id, $status_id);
+                if (!$ok) {
+                    $kanban_error(strip_tags($message));
+                }
+                $message = "$reference: " . strip_tags($message);
+            }
+        } elseif ($status_id === TICKET_STATUS_NEW) {
+            $kanban_error('New is for tickets nobody has picked up yet - a ticket can only move on from there.');
+        } else {
+            $kanban_error('A ticket cannot be moved to that status.');
+        }
+    }
+
+    // The column's order, when the admin keeps one. Setting ticket_updated_at to
+    // itself stops ON UPDATE moving it - reordering a board is not activity.
+    if (intval($config_ticket_ordering) === 1) {
+        $scope = clientScopeSql('ticket_client_id');
+        foreach (array_values((array) ($_POST['order'] ?? [])) as $position => $order_ticket_id) {
+            $order_ticket_id = intval($order_ticket_id);
+            mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $position, ticket_updated_at = ticket_updated_at WHERE ticket_id = $order_ticket_id $scope");
+        }
+    }
+
+    echo json_encode(['ok' => true, 'message' => $message, 'status_id' => $status_id]);
     exit;
 }
 
@@ -813,12 +1559,20 @@ if (isset($_POST['update_ticket_tasks_order'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $positions = $_POST['positions'];
-    $ticket_id = intval($_POST['ticket_id']);
+    $positions = (array) ($_POST['positions'] ?? []);
+    $ticket_id = intval($_POST['ticket_id'] ?? 0);
+
+    // A ticket this agent can reach - one with no client is internal work anyone can
+    $task_ticket = ticketRow($ticket_id);
+    if (!$task_ticket || (intval($task_ticket['ticket_client_id']) && !hasClientAccess($task_ticket['ticket_client_id']))) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error']);
+        exit;
+    }
 
     foreach ($positions as $position) {
-        $id = intval($position['id']);
-        $order = intval($position['order']);
+        $id = intval($position['id'] ?? 0);
+        $order = intval($position['order'] ?? 0);
 
         mysqli_query($mysqli, "UPDATE tasks SET task_order = $order WHERE task_ticket_id = $ticket_id AND task_id = $id");
     }
@@ -854,9 +1608,14 @@ if (isset($_POST['update_project_template_ticket_order'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    // Project templates are the admins' - admin/project_template.php
+    if (empty($session_is_admin)) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'Only an admin can change a project template.']);
+        exit;
+    }
 
-    $positions = $_POST['positions'];
+    $positions = (array) ($_POST['positions'] ?? []);
     $project_template_id = intval($_POST['project_template_id']);
 
     foreach ($positions as $position) {
@@ -871,69 +1630,70 @@ if (isset($_POST['update_project_template_ticket_order'])) {
     exit;
 }
 
-if (isset($_POST['update_quote_items_order'])) {
-    // Update multiple quote items order
+/*
+ * The order of the lines on an invoice, quote or recurring invoice, after a
+ * drag - "items" is the line ids top to bottom, comma separated.
+ */
+if (isset($_POST['billing_items_order'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
-    $positions = $_POST['positions'];
-    $quote_id = intval($_POST['quote_id']);
+    header('Content-Type: application/json');
 
-    foreach ($positions as $position) {
-        $id = intval($position['id']);
-        $order = intval($position['order']);
-
-        mysqli_query($mysqli, "UPDATE quote_items SET item_order = $order WHERE item_quote_id = $quote_id AND item_id = $id");
+    $type = (string) ($_POST['type'] ?? '');
+    $doc = billingType($type) ? billingRow($type, intval($_POST['doc_id'] ?? 0)) : null;
+    if (!$doc || !hasClientAccess(intval($doc['client_id'])) || !billingCanEditItems($type, $doc)) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => "Those lines can't be moved now."]);
+        exit;
     }
 
-    // return a response
+    $item_ids = array_filter(array_map('intval', explode(',', (string) ($_POST['items'] ?? ''))));
+    billingItemsOrder($type, intval($doc[billingType($type)['col'] . '_id']), $item_ids);
+
     echo json_encode(['status' => 'success']);
     exit;
 }
 
-if (isset($_POST['update_invoice_items_order'])) {
-    // Update multiple invoice items order
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_sales', 2);
-
-    $positions = $_POST['positions'];
-    $invoice_id = intval($_POST['invoice_id']);
-
-    foreach ($positions as $position) {
-        $id = intval($position['id']);
-        $order = intval($position['order']);
-
-        mysqli_query($mysqli, "UPDATE invoice_items SET item_order = $order WHERE item_invoice_id = $invoice_id AND item_id = $id");
-    }
-
-    // return a response
-    echo json_encode(['status' => 'success']);
-    exit;
-}
-
-if (isset($_POST['update_recurring_invoice_items_order'])) {
-    // Update multiple recurring invoice items order
-
-    validateCSRFToken();
+/*
+ * How many a seat line on a recurring invoice would count now - for the Edit
+ * Line window as its choices change. source, tag, types[], software_id,
+ * count (used or total) and minimum, as the form posts them.
+ */
+if (isset($_GET['recurring_seat_count'])) {
 
     enforceUserPermission('module_sales', 2);
 
-    $positions = $_POST['positions'];
-    $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
+    header('Content-Type: application/json');
 
-    foreach ($positions as $position) {
-        $id = intval($position['id']);
-        $order = intval($position['order']);
-
-        mysqli_query($mysqli, "UPDATE recurring_invoice_items SET item_order = $order WHERE item_recurring_invoice_id = $recurring_invoice_id AND item_id = $id");
+    $recurring = billingRow('recurring', intval($_GET['recurring_invoice_id'] ?? 0));
+    if (!$recurring || !hasClientAccess(intval($recurring['client_id']))) {
+        http_response_code(403);
+        echo json_encode(['error' => "That recurring invoice can't be opened."]);
+        exit;
     }
 
-    // return a response
-    echo json_encode(['status' => 'success']);
+    $source = (string) ($_GET['source'] ?? '');
+    if (!isset(recurringSeatSources()[$source])) {
+        echo json_encode(['error' => 'Pick what to count.']);
+        exit;
+    }
+    $filter = recurringSeatFilter($source, ['tag' => $_GET['seat_tag'] ?? 0, 'types' => (array) ($_GET['seat_types'] ?? []),
+        'software_id' => $_GET['seat_software_id'] ?? 0, 'count' => $_GET['seat_count'] ?? 'used']);
+    $count = recurringSeatCount(intval($recurring['client_id']), $source, $filter);
+    if ($count === null) {
+        echo json_encode(['error' => "Pick one of the client's licenses."]);
+        exit;
+    }
+    $minimum = billingNumberInput($_GET['seat_minimum'] ?? '0');
+    if ($minimum === null || $minimum < 0) {
+        echo json_encode(['error' => 'The minimum has to be a number, zero or more.']);
+        exit;
+    }
+
+    echo json_encode(['count' => $count, 'quantity' => billingQuantity(max($count, $minimum)), 'label' => recurringSeatDescribe($source, $filter)]);
     exit;
 }
 
@@ -945,7 +1705,7 @@ if (isset($_GET['client_duplicate_check'])) {
     $response['message'] = ""; // default
 
     if (strlen($name) >= 5) {
-        $sql_clients = mysqli_query($mysqli, "SELECT client_name FROM clients
+        $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
         WHERE client_archived_at IS NULL
         AND client_name LIKE '%$name%'
         ORDER BY client_id DESC LIMIT 1"
@@ -953,7 +1713,10 @@ if (isset($_GET['client_duplicate_check'])) {
 
         if (mysqli_num_rows($sql_clients) > 0) {
             while ($row = mysqli_fetch_assoc($sql_clients)) {
-                $response['message'] = "<i class='fas fa-fw fa-copy me-2'></i> Potential duplicate: <i>" . escapeHtml($row['client_name']) . "</i> already exists.";
+                // Named only to an agent who can open it - otherwise typing names would list the clients they can't see
+                $response['message'] = hasClientAccess($row['client_id'])
+                    ? "<i class='fas fa-fw fa-copy me-2'></i> Potential duplicate: <i>" . escapeHtml($row['client_name']) . "</i> already exists."
+                    : "<i class='fas fa-fw fa-copy me-2'></i> Potential duplicate: a client you cannot open has a name like this.";
             }
         }
     }
@@ -989,7 +1752,23 @@ if (isset($_GET['network_ip_check'])) {
         if ($ip_error === '') {
             $response['ok'] = true;
             $response['ip'] = $ip;
-            $response['message'] = "<i class='fas fa-fw fa-check me-2'></i>" . escapeHtml($ip) . " is available";
+            // Worth knowing, not wrong - a device has it already, or DHCP hands it out
+            $notes = [];
+            $network = networkRow($network_id);
+            $device = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT asset_name, interface_name FROM asset_interfaces JOIN assets ON asset_id = interface_asset_id
+                WHERE interface_network_id = $network_id AND interface_ip = '" . escapeSql($ip) . "' AND interface_archived_at IS NULL AND asset_archived_at IS NULL LIMIT 1"));
+            if ($device) {
+                $notes[] = 'on ' . escapeHtml($device['asset_name'] . ' ' . $device['interface_name']);
+            }
+            $pool = networkParseRange($network['network_dhcp_range'] ?? '', networkSubnetInfo($network['network'] ?? ''));
+            $int = ipv4ToInt($ip);
+            if ($pool && $int !== null && $int >= $pool[0] && $int <= $pool[1]) {
+                $notes[] = 'inside the DHCP range - right for a reservation, not a fixed address';
+            }
+            if ($ip === normalizeIpAddress((string) ($network['network_gateway'] ?? ''))) {
+                $notes[] = 'the gateway';
+            }
+            $response['message'] = "<i class='fas fa-fw fa-check me-2'></i>" . escapeHtml($ip) . ($notes ? ' - ' . implode('; ', $notes) : ' is free');
         } else {
             // checkIpForNetwork() builds its message for flashAlert(), which
             // escapes at render - this lands in innerHTML instead, so it has
@@ -1000,6 +1779,140 @@ if (isset($_GET['network_ip_check'])) {
     }
 
     echo json_encode($response);
+}
+
+/*
+ * What a subnet typed into New / Edit Network is - its size, mask, first and
+ * last host, a gateway and DHCP range to suggest, and the client's networks it
+ * overlaps (agent/js/network_form.js).
+ */
+if (isset($_GET['network_subnet_info'])) {
+
+    header('Content-Type: application/json');
+    enforceUserPermission('module_support', 2);
+
+    $client_id = intval($_GET['client_id'] ?? 0);
+    if ($client_id) {
+        enforceClientAccess();
+    }
+
+    $info = networkSubnetInfo((string) ($_GET['cidr'] ?? ''));
+    if (!$info) {
+        echo json_encode(['ok' => false]);
+        exit();
+    }
+
+    $response = ['ok' => true, 'cidr' => $info['cidr'], 'family' => $info['family'], 'size' => networkSizeText($info), 'first' => $info['first_host'], 'last' => $info['last_host'], 'gateway' => '', 'range' => '', 'overlaps' => []];
+    if ($info['family'] === 4 && $info['prefix'] <= 30) {
+        $first = ipv4ToInt($info['first_host']);
+        $last = ipv4ToInt($info['last_host']);
+        $response['gateway'] = $info['first_host'];
+        // Room at the bottom for fixed addresses and some at the top, the middle to DHCP: .100 to .199 of a /24;
+        // the second /24 of a /23; the second /24 to the second-last of anything bigger
+        $hosts = $last - $first + 1;
+        $base = ipv4ToInt($info['network']);
+        if ($info['prefix'] === 24) {
+            [$start, $end] = [$first + 99, $first + 198];
+        } elseif ($info['prefix'] === 23) {
+            [$start, $end] = [$base + 257, $base + 510];
+        } elseif ($info['prefix'] < 23) {
+            [$start, $end] = [$base + 257, $last - 256];
+        } elseif ($hosts >= 30) {
+            [$start, $end] = [$first + intdiv($hosts * 2, 5), $first + intdiv($hosts * 4, 5)];
+        }
+        if (isset($start) && $start < $end) {
+            $response['range'] = intToIpv4($start) . ' - ' . intToIpv4($end);
+        }
+    }
+    if ($client_id) {
+        foreach (networkOverlaps(['network' => $info['cidr'], 'network_client_id' => $client_id, 'network_id' => intval($_GET['network_id'] ?? 0)]) as $overlap) {
+            $response['overlaps'][] = $overlap['network_name'] . ' (' . $overlap['network'] . ')' . ($overlap['location_name'] ? ' at ' . $overlap['location_name'] : '');
+        }
+    }
+
+    echo json_encode($response);
+    exit();
+}
+
+// The first address on a network nothing has - not documented, on no device, not the gateway, outside the DHCP range
+if (isset($_GET['network_next_free_ip'])) {
+
+    header('Content-Type: application/json');
+    enforceUserPermission('module_support', 2);
+
+    $network = networkRow($_GET['network_id'] ?? 0);
+    if (!$network || !hasClientAccess($network['network_client_id'])) {
+        echo json_encode(['ip' => '', 'message' => 'That network no longer exists.']);
+        exit();
+    }
+
+    $plan = networkAddressPlan($network);
+    echo json_encode([
+        'ip' => $plan['next_free'],
+        'message' => $plan['next_free'] ? '' : ($plan['info'] && $plan['info']['family'] === 4 && $plan['info']['prefix'] >= 20 ? 'Every address outside the DHCP range is taken.' : 'Next free works on IPv4 networks up to a /20.'),
+    ]);
+    exit();
+}
+
+/*
+ * The address typed on New / Edit Interface - whether it is one, inside the
+ * network picked, and who else has it (agent/js/interface_form.js). The same
+ * checks interfaceFormSet() makes on saving.
+ */
+if (isset($_GET['interface_ip_check'])) {
+
+    header('Content-Type: application/json');
+    enforceUserPermission('module_support', 2);
+
+    $ip_typed = trim((string) ($_GET['ip'] ?? ''));
+    $network = intval($_GET['network_id'] ?? 0) ? networkRow($_GET['network_id']) : null;
+    if ($network && !hasClientAccess($network['network_client_id'])) {
+        $network = null;
+    }
+
+    $reply = function ($state, $message) {
+        echo json_encode(['state' => $state, 'message' => $message]);
+        exit();
+    };
+
+    if ($ip_typed === '') {
+        $reply('', '');
+    }
+    $ip = normalizeIpAddress($ip_typed);
+    if ($ip === false) {
+        $reply('error', escapeHtml($ip_typed) . ' is not an IP address');
+    }
+    if (!$network) {
+        $reply('ok', escapeHtml($ip) . ' - pick its network to check it against the others there');
+    }
+    if (networkSubnetInfo($network['network']) && !isIpInSubnet($ip, $network['network'])) {
+        $reply('error', escapeHtml($ip) . ' is outside ' . escapeHtml($network['network_name']) . ' (' . escapeHtml($network['network']) . ')');
+    }
+    $info = networkSubnetInfo($network['network']);
+    if ($info && $info['family'] === 4 && $info['prefix'] <= 30 && ($ip === $info['network'] || $ip === $info['last'])) {
+        $reply('error', escapeHtml($ip) . ' is the ' . ($ip === $info['network'] ? 'network' : 'broadcast') . ' address of ' . escapeHtml($network['network']) . ' - no device can use it');
+    }
+    $clash = interfaceIpClash($ip, $network['network_id'], intval($_GET['interface_id'] ?? 0), intval($_GET['asset_id'] ?? 0));
+    if ($clash) {
+        $reply('warning', escapeHtml($ip) . ' is on ' . escapeHtml($clash) . ' too');
+    }
+    $documented = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ip_type, ip_hostname, ip_mac FROM network_ips WHERE ip_network_id = " . intval($network['network_id']) . " AND ip_address = '" . escapeSql($ip) . "' LIMIT 1"));
+    $mac = normalizeMacAddress($_GET['mac'] ?? '');
+    if ($documented && $documented['ip_type'] === 'Reservation' && $mac && normalizeMacAddress($documented['ip_mac']) && normalizeMacAddress($documented['ip_mac']) !== $mac) {
+        $reply('warning', escapeHtml($ip) . ' is reserved for ' . escapeHtml($documented['ip_mac']) . ($documented['ip_hostname'] ? ' (' . escapeHtml($documented['ip_hostname']) . ')' : ''));
+    }
+    if ($documented && $documented['ip_type'] === 'Reserved') {
+        $reply('warning', escapeHtml($ip) . ' is held back' . ($documented['ip_hostname'] ? ' for ' . escapeHtml($documented['ip_hostname']) : '') . ' - not to be used');
+    }
+    $pool = networkParseRange($network['network_dhcp_range'], $info);
+    $int = ipv4ToInt($ip);
+    if ($pool && $int !== null && $int >= $pool[0] && $int <= $pool[1]) {
+        $reply('warning', escapeHtml($ip) . ' is inside the DHCP range (' . escapeHtml($network['network_dhcp_range']) . ') - fixed there, DHCP can hand it to something else');
+    }
+    if ($ip === normalizeIpAddress((string) $network['network_gateway'])) {
+        $reply('warning', escapeHtml($ip) . ' is the gateway of ' . escapeHtml($network['network_name']));
+    }
+    $reply('ok', escapeHtml($ip) . ($documented ? ' - documented' . ($documented['ip_hostname'] ? ' as ' . escapeHtml($documented['ip_hostname']) : '') : ' is free on ' . escapeHtml($network['network_name'])));
 }
 
 if (isset($_GET['contact_email_check'])) {
@@ -1030,32 +1943,64 @@ if (isset($_GET['contact_email_check'])) {
     echo json_encode($response);
 }
 
+/*
+ * AI - Reword, the ticket features and a document template draft. Each needs
+ * the role's Use AI permission (module_ai) and a model for its use case
+ * (functions/ai.php), and names itself so AI Usage can tell them apart.
+ * Passwords and keys are taken out of what is sent, and put back in the answer,
+ * by callAiApi(). What comes back as HTML goes through the purifier first.
+ */
+
+// The agent may not use AI - said as the rest of ajax.php says it, JSON with a 403
+$aiRefuse = function () {
+    permissionRefuse(permissionRefusedText('module_ai', 1, 0));
+};
+
 if (isset($_GET['ai_reword'])) {
 
     header('Content-Type: application/json');
+    if (!aiCan()) {
+        $aiRefuse();
+    }
 
-    // The reword button sits on every TinyMCE instance, so the ticket editor asks for
-    // the Tickets model and everything else gets General. Anything unrecognised is
-    // treated as General rather than trusted into the query.
+    // The ticket reply editor asks for the Tickets model, every other editor General.
+    // Anything unrecognised is treated as General rather than trusted into the query.
     $use_case = ($_GET['use_case'] ?? '') === 'Tickets' ? 'Tickets' : 'General';
-
     $model = getAiModel($use_case);
-
     if (!$model) {
         echo json_encode(['error' => aiModelMissingError($use_case)]);
         exit;
     }
 
-    // Collecting the input data from the AJAX request.
-    $inputJSON = file_get_contents('php://input');
-    $input = json_decode($inputJSON, TRUE); // Convert JSON into array.
+    $input = json_decode(file_get_contents('php://input'), true);
+    $text = is_array($input) ? (string) ($input['text'] ?? '') : '';
+    if (trim(str_replace("\xC2\xA0", ' ', html_entity_decode(strip_tags($text), ENT_QUOTES, 'UTF-8'))) === '') {
+        echo json_encode(['error' => 'There is nothing to reword yet - write something first.']);
+        exit;
+    }
+    if (mb_strlen($text) > 60000) {
+        echo json_encode(['error' => 'That is too long to reword in one go - reword it a part at a time.']);
+        exit;
+    }
+    // The client it is for, when the editor knows - for AI Usage
+    $reword_client_id = intval($input['client_id'] ?? 0);
+    if ($reword_client_id && !getFieldById('clients', $reword_client_id, 'client_id')) {
+        $reword_client_id = 0;
+    }
 
-    $userText = $input['text'] ?? '';
+    // What to do to it - a tone from the button's menu, and for Translate, the language
+    $tone = (string) ($input['tone'] ?? 'reword');
+    $tone = isset(aiRewordTones()[$tone]) ? $tone : 'reword';
+    $language = (string) ($input['language'] ?? '');
+    if ($tone === 'translate' && !in_array($language, aiLanguages(), true)) {
+        echo json_encode(['error' => 'Pick a language to translate it into.']);
+        exit;
+    }
 
     $result = callAiApi($model, [
-        ["role" => "system", "content" => $model['ai_model_prompt']],
-        ["role" => "user", "content" => $userText],
-    ]);
+        ['role' => 'system', 'content' => aiRewordInstructions($use_case, $tone, $language)],
+        ['role' => 'user', 'content' => $text],
+    ], ['feature' => $tone === 'translate' ? 'translate' : ($use_case === 'Tickets' ? 'reword_ticket' : 'reword'), 'client_id' => $reword_client_id]);
 
     // Report failures as an error, never as reworded text - the editor writes
     // rewordedText straight back over the user's content
@@ -1063,181 +2008,272 @@ if (isset($_GET['ai_reword'])) {
         echo json_encode(['error' => $result['error']]);
         exit;
     }
+    $reworded = aiCleanHtml($result['content']);
+    if ($reworded === '') {
+        echo json_encode(['error' => 'The AI provider answered with nothing - try again.']);
+        exit;
+    }
 
-    $content = $result['content'];
-
-    // Clean any leading "html" word or other unwanted text at the beginning.
-    $content = preg_replace('/^html/i', '', $content);  // Remove any occurrence of 'html' at the start
-
-    // Clean the response content to remove backticks or code block markers.
-    $cleanedContent = str_replace('```', '', $content); // Remove backticks if they exist.
-
-    // Trim any leading/trailing whitespace.
-    $cleanedContent = trim($cleanedContent);
-
-    echo json_encode(['rewordedText' => $cleanedContent]);
+    echo json_encode(['rewordedText' => $reworded]);
+    exit;
 
 }
 
 if (isset($_GET['ai_create_document_template'])) {
 
     enforceUserPermission('module_support');
+    if (!aiCan()) {
+        $aiRefuse();
+    }
 
     header('Content-Type: text/html; charset=UTF-8');
 
-    $prompt = $_POST['prompt'] ?? '';
-
-    // Basic validation
-    if (empty($prompt)) {
+    $prompt = trim((string) ($_POST['prompt'] ?? ''));
+    if ($prompt === '') {
         echo "No prompt provided.";
         exit;
     }
 
     $model = getAiModel('Documentation');
-
     if (!$model) {
         echo escapeHtml(aiModelMissingError('Documentation'));
         exit;
     }
 
-    // Prepare prompt
-    $system_message = "You are a helpful IT documentation assistant. You will create a well-structured HTML template for IT documentation based on a given prompt. Include headings, subheadings, bullet points, and possibly tables for clarity. No Lorem Ipsum, use realistic placeholders and professional language.";
+    // It writes in the words a document template fills in from the client, and asks for the rest
+    $system_message = "You are a helpful IT documentation assistant. You will create a well-structured HTML template for IT documentation based on a given prompt. Include headings, subheadings, bullet points, and possibly tables for clarity. No Lorem Ipsum, professional language."
+        . " These words in square brackets are filled in from the client when a document is made from the template - use them where those details belong: " . implode(', ', array_map(function ($word) {
+            return "[$word]";
+        }, array_keys(DOCUMENT_TEMPLATE_PLACEHOLDERS))) . "."
+        . " These put in the client's records, as a table when on a line of their own (<p>[Networks]</p>) and as a list of names in a sentence - use them instead of drawing those tables yourself: " . implode(', ', array_map(function ($word) {
+            return "[$word]";
+        }, array_keys(DOCUMENT_TEMPLATE_TABLES))) . "."
+        . " For anything else someone fills in, use a short name of its own in square brackets, like [Firewall Model] or [Backup Schedule] - letters, digits and spaces, starting with a letter."
+        . " Answer with the HTML only - no <html>, <head> or <body>, no introduction, no code fences.";
     $user_message = "Create an HTML formatted IT documentation template based on the following request:\n\n\"$prompt\"\n\nThe template should be structured, professional, and useful for IT staff. Include relevant sections, instructions, prerequisites, and best practices.";
 
     $result = callAiApi($model, [
         ["role" => "system", "content" => $system_message],
         ["role" => "user", "content" => $user_message]
-    ]);
+    ], ['feature' => 'document_template']);
 
     if (!$result['ok']) {
         echo "<p>" . escapeHtml($result['error']) . "</p>";
         exit;
     }
 
-    // Print the generated HTML template directly
-    echo $result['content'];
+    echo aiCleanHtml($result['content']);
+    exit;
+
 }
 
+/*
+ * The ticket features - each answers JSON: what was asked for, or 'error'.
+ * The agent needs Support (to change it, for a draft or a document), the
+ * ticket's client, and Use AI.
+ */
+$aiTicket = function ($ticket_id, $level) use ($aiRefuse) {
+    header('Content-Type: application/json');
+    if (!aiCan()) {
+        $aiRefuse();
+    }
+    enforceUserPermission('module_support', $level);
+    $row = ticketRow($ticket_id);
+    if (!$row) {
+        echo json_encode(['error' => 'That ticket no longer exists.']);
+        exit;
+    }
+    if (intval($row['ticket_client_id']) && !hasClientAccess(intval($row['ticket_client_id']))) {
+        permissionRefuse("You don't have access to " . ($row['client_name'] ?: 'that client') . "'s tickets.");
+    }
+    return $row;
+};
+
+// The ticket summed up for the agents working it
 if (isset($_GET['ai_ticket_summary'])) {
+    $row = $aiTicket($_POST['ticket_id'] ?? 0, 1);
+    $result = aiTicketSummary(intval($row['ticket_id']));
+    echo json_encode($result['ok'] ? ['html' => $result['html']] : ['error' => $result['error']]);
+    exit;
+}
 
-    enforceUserPermission('module_support');
-
-    header('Content-Type: text/html; charset=UTF-8');
-
-    $model = getAiModel('Tickets');
-
-    if (!$model) {
-        echo escapeHtml(aiModelMissingError('Tickets'));
+// The next reply, drafted - from what the agent has typed so far, for who will read it
+if (isset($_GET['ai_ticket_draft'])) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $input = is_array($input) ? $input : [];
+    $row = $aiTicket($input['ticket_id'] ?? 0, 2);
+    if (!empty($row['ticket_closed_at'])) {
+        echo json_encode(['error' => 'This ticket is closed - start a new one instead.']);
         exit;
     }
+    $result = aiTicketDraft(intval($row['ticket_id']), (string) ($input['notes'] ?? ''), (string) ($input['type'] ?? 'email'));
+    echo json_encode($result['ok'] ? ['html' => $result['html']] : ['error' => $result['error']]);
+    exit;
+}
 
-    // Retrieve the ticket_id from POST
-    $ticket_id = intval($_POST['ticket_id']);
+// The ticket written up as a document - its title, summary and what it says, passwords and keys left out
+if (isset($_GET['ai_ticket_document'])) {
+    $row = $aiTicket($_POST['ticket_id'] ?? 0, 2);
+    $result = aiTicketDocument(intval($row['ticket_id']));
+    echo json_encode($result['ok'] ? ['title' => $result['title'], 'description' => $result['description'], 'html' => $result['html'], 'removed' => $result['removed']] : ['error' => $result['error']]);
+    exit;
+}
 
-    // Query the database for ticket details
-    $sql = mysqli_query($mysqli, "
-        SELECT ticket_subject, ticket_details, ticket_source, ticket_priority, ticket_status_name, category_name, ticket_client_id
-        FROM tickets
-        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-        LEFT JOIN categories ON ticket_category = category_id
-        WHERE ticket_id = $ticket_id
-        LIMIT 1
-    ");
-    $row = mysqli_fetch_assoc($sql);
-    $ticket_subject = $row['ticket_subject'];
-    $ticket_details = strip_tags($row['ticket_details']); // strip HTML for cleaner prompt
-    $ticket_status = $row['ticket_status_name'];
-    $ticket_category = $row['category_name'];
-    $ticket_source = $row['ticket_source'];
-    $ticket_priority = $row['ticket_priority'];
-    $client_id = intval($row['ticket_client_id']);
-
-    enforceClientAccess();
-
-    // Get ticket replies
-    $sql_replies = mysqli_query($mysqli, "
-        SELECT ticket_reply, ticket_reply_type, user_name
-        FROM ticket_replies
-        LEFT JOIN users ON ticket_reply_by = user_id
-        WHERE ticket_reply_ticket_id = $ticket_id
-        AND ticket_reply_archived_at IS NULL
-        ORDER BY ticket_reply_id ASC
-    ");
-
-    $all_replies_text = "";
-    while ($reply = mysqli_fetch_assoc($sql_replies)) {
-        $reply_type = $reply['ticket_reply_type'];
-        $reply_text = strip_tags($reply['ticket_reply']);
-        $reply_by = $reply['user_name'];
-        $all_replies_text .= "\nReply Type: $reply_type Reply By: $reply_by: Reply Text: $reply_text";
+/*
+ * A client's things - the briefing, and documents. Each answers JSON; the
+ * agent needs Use AI, the client, and Clients (a briefing) or Support (a
+ * document - to change one, for a draft).
+ */
+$aiClient = function ($client_id, $module, $level) use ($aiRefuse) {
+    header('Content-Type: application/json');
+    if (!aiCan()) {
+        $aiRefuse();
     }
-
-    $prompt = "
-    Summarize the following IT support ticket and its responses in a concise, clear, and professional manner.
-    The summary should include:
-
-    1. Main Issue: What was the problem reported by the user?
-    2. Actions Taken: What steps were taken to address the issue?
-    3. Resolution or Next Steps: Was the issue resolved or is it ongoing?
-
-    Please ensure:
-    - If there are multiple issues, summarize each separately.
-    - Urgency: If the ticket or replies express urgency or escalation, highlight it.
-    - Attachments: If mentioned in the ticket, note any relevant attachments or files.
-    - Avoid extra explanations or unnecessary information.
-
-    Ticket Data:
-    - Ticket Source: $ticket_source
-    - Current Ticket Status: $ticket_status
-    - Ticket Priority: $ticket_priority
-    - Ticket Category: $ticket_category
-    - Ticket Subject: $ticket_subject
-    - Ticket Details: $ticket_details
-    - Replies:
-    $all_replies_text
-
-    Formatting instructions:
-    - Use valid HTML tags only.
-    - Use <h3> for section headers (Main Issue, Actions Taken, Resolution).
-    - Use <ul><li> for bullet points under each section.
-    - Do NOT wrap the output in ```html or any other code fences.
-    - Do NOT include <html>, <head>, or <body>.
-    - Output only the summary content in pure HTML.
-    If any part of the ticket or replies is unclear or ambiguous, mention it in the summary and suggest if further clarification is needed.
-    ";
-
-    $result = callAiApi($model, [
-        ["role" => "system", "content" => "Your task is to summarize IT support tickets with clear, concise details."],
-        ["role" => "user", "content" => $prompt]
-    ]);
-
-    if (!$result['ok']) {
-        echo "<p>" . escapeHtml($result['error']) . "</p>";
+    enforceUserPermission($module, $level);
+    $client_id = intval($client_id);
+    $name = getFieldById('clients', $client_id, 'client_name');
+    if ($name === null) {
+        echo json_encode(['error' => 'That client no longer exists.']);
         exit;
     }
+    if (!hasClientAccess($client_id)) {
+        permissionRefuse("You don't have access to $name.");
+    }
+    return $client_id;
+};
 
-    echo $result['content'];
+// A client briefing, for the last 30, 90 or 365 days
+if (isset($_GET['ai_client_briefing'])) {
+    $client_id = $aiClient($_POST['client_id'] ?? 0, 'module_client', 1);
+    $result = aiClientBriefing($client_id, intval($_POST['days'] ?? 90));
+    echo json_encode($result['ok'] ? ['html' => $result['html']] : ['error' => $result['error']]);
+    exit;
+}
+
+// A new document drafted from a line on what it is for - with what ITFlow knows of the client, unless asked not to
+if (isset($_GET['ai_document_draft'])) {
+    $client_id = $aiClient($_POST['client_id'] ?? 0, 'module_support', 2);
+    $result = aiDocumentDraft($client_id, (string) ($_POST['prompt'] ?? ''), !empty($_POST['use_client']));
+    echo json_encode($result['ok'] ? ['title' => $result['title'], 'description' => $result['description'], 'html' => $result['html']] : ['error' => $result['error']]);
+    exit;
+}
+
+// A document reviewed - what to fix or check, a summary for it, and the passwords written in it
+if (isset($_GET['ai_document_review'])) {
+    $document_id = intval($_POST['document_id'] ?? 0);
+    $document_client_id = getFieldById('documents', $document_id, 'document_client_id');
+    if ($document_client_id === null) {
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'That document no longer exists.']);
+        exit;
+    }
+    $client_id = $aiClient($document_client_id, 'module_support', 1);
+    $result = aiDocumentReview($document_id);
+    echo json_encode($result['ok'] ? array_diff_key($result, ['ok' => 1]) : ['error' => $result['error']]);
+    exit;
+}
+
+/*
+ * Quotes and invoices (functions/ai_billing.php). Each answers JSON; the agent
+ * needs Use AI, the client, and Sales to change them. Nothing is saved here.
+ */
+
+// A ticket's work in words, for the invoice line that bills its time
+if (isset($_GET['ai_ticket_invoice_description'])) {
+    $row = $aiTicket($_POST['ticket_id'] ?? 0, 1);
+    enforceUserPermission('module_sales', 2);
+    if (!intval($row['ticket_client_id'])) {
+        echo json_encode(['error' => 'Move the ticket to a client before invoicing it.']);
+        exit;
+    }
+    $result = aiTicketInvoiceDescription(intval($row['ticket_id']));
+    echo json_encode($result['ok'] ? ['text' => $result['text']] : ['error' => $result['error']]);
+    exit;
+}
+
+// A quote or invoice written from a line on what it is for - its scope, lines and a note, for the agent to tick and change
+if (isset($_GET['ai_billing_draft'])) {
+    header('Content-Type: application/json');
+    if (!aiCan()) {
+        $aiRefuse();
+    }
+    enforceUserPermission('module_sales', 2);
+    $type = (string) ($_POST['type'] ?? '');
+    $row = in_array($type, ['quote', 'invoice'], true) ? billingRow($type, intval($_POST['doc_id'] ?? 0)) : null;
+    if (!$row) {
+        echo json_encode(['error' => 'That document no longer exists, or is not one you can open.']);
+        exit;
+    }
+    if (!hasClientAccess(intval($row['client_id']))) {
+        permissionRefuse("You don't have access to {$row['client_name']}.");
+    }
+    if (!billingCanEditItems($type, $row)) {
+        echo json_encode(['error' => billingNumber($type, $row) . " can't be changed now - " . ($type === 'quote' ? 'it has been answered or invoiced.' : 'it is paid, cancelled or non-billable.')]);
+        exit;
+    }
+    $result = aiBillingDraft($type, $row, (string) ($_POST['prompt'] ?? ''), !empty($_POST['use_ticket']), !empty($_POST['use_client']));
+    echo json_encode($result['ok'] ? array_diff_key($result, ['ok' => 1]) : ['error' => $result['error']]);
+    exit;
 }
 
 // Stops people trying to use sub-domains in the domains tracker
-if (isset($_GET['apex_domain_check'])) {
+/*
+ * The domain name in a New / Edit Domain form, checked as it is typed: what it
+ * is saved as, whether DNS answers for it, whether it looks like a subdomain
+ * of one that does, and whether the client has it already.
+ */
+if (isset($_GET['domain_check'])) {
     enforceUserPermission('module_support', 2);
 
-    $domain = escapeSql($_GET['domain']);
+    $input = (string) ($_GET['domain'] ?? '');
+    $name = domainNormalizeName($input);
+    $check_client_id = intval($_GET['client_id'] ?? 0);
+    $check_domain_id = intval($_GET['domain_id'] ?? 0);
+    $response = ['state' => '', 'message' => '', 'name' => $name];
 
-    $response['message'] = ""; // default
+    if (trim($input) === '') {
+        echo json_encode($response);
+        exit;
+    }
+    if ($name === '') {
+        echo json_encode(['state' => 'bad', 'message' => "That isn't a domain name - something like example.com.", 'name' => '']);
+        exit;
+    }
 
-    if (strlen($domain) >= 4) {
+    $saved_as = strcasecmp(trim($input), $name) !== 0 ? "Saved as $name. " : '';
 
-        // SOA record check
-        //  This isn't 100%, as sub-domains can have their own SOA but will capture 99%
-        if (!checkdnsrr($domain, 'SOA')) {
-            $response['message'] = "<i class='fas fa-fw fa-exclamation-triangle me-2'></i> Domain name is invalid.";
+    // Already on this client?
+    if ($check_client_id) {
+        $client_id = $check_client_id;
+        enforceClientAccess();
+        $name_sql = escapeSql($name);
+        if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM domains WHERE domain_name = '$name_sql' AND domain_client_id = $check_client_id AND domain_id <> $check_domain_id LIMIT 1"))) {
+            echo json_encode(['state' => 'bad', 'message' => $saved_as . "$name is already on this client.", 'name' => $name]);
+            exit;
         }
+    }
 
+    if (@checkdnsrr($name, 'SOA')) {
+        $response = ['state' => 'ok', 'message' => $saved_as . 'Found in DNS - its records and expiry are looked up when it is saved.', 'name' => $name];
+    } else {
+        // Nothing for the name itself - is it a subdomain of one that does answer?
+        $parts = explode('.', $name);
+        $parent = '';
+        while (count($parts) > 2) {
+            array_shift($parts);
+            $candidate = implode('.', $parts);
+            if (@checkdnsrr($candidate, 'SOA')) {
+                $parent = $candidate;
+                break;
+            }
+        }
+        $response = $parent
+            ? ['state' => 'warn', 'message' => $saved_as . "That looks like a subdomain of $parent - add $parent instead, unless it is registered on its own.", 'name' => $name]
+            : ['state' => 'warn', 'message' => $saved_as . "Nothing answers for it in DNS yet - check the spelling. It can still be saved.", 'name' => $name];
     }
 
     echo json_encode($response);
+    exit;
 }
 
 // Get internal users/techs
@@ -1266,6 +2302,10 @@ if (isset($_GET['get_credential_via_id'])) {
     $credential_id = intval($_GET['credential_id']);
 
     $sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT credential_name, credential_username, credential_password, credential_client_id FROM credentials WHERE credential_id = $credential_id"));
+    if (!$sql) {
+        echo json_encode(['error' => 'That credential no longer exists.']);
+        exit;
+    }
     $name = escapeSql($sql['credential_name']);
     $client_id = intval($sql['credential_client_id']);
 
@@ -1277,10 +2317,262 @@ if (isset($_GET['get_credential_via_id'])) {
     );
     echo json_encode($response);
 
+    // When it was last used - the credentials list sorts by it. Kept off the updated date, which means an edit
+    mysqli_query($mysqli, "UPDATE credentials SET credential_accessed_at = NOW(), credential_updated_at = credential_updated_at WHERE credential_id = $credential_id");
+
     // Only log if this user hasn't viewed this credential recently (mirrors TOTP dedup)
     $check_recent_view = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS recent_view FROM logs WHERE log_type = 'Credential' AND log_action = 'View' AND log_user_id = $session_user_id AND log_entity_id = $credential_id AND log_client_id = $client_id AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
 
     if (intval($check_recent_view['recent_view']) == 0) {
         logAudit("Credential", "View", "$session_name viewed credential $name", $client_id, $credential_id);
     }
+}
+
+/*
+ * The calendar page's items between two days: the events on the calendars
+ * shown, and what the built-in sources shown have dated (calendarSources()),
+ * for one client or every client this agent can reach, everyone's or one
+ * agent's. Repeating events come back as their occurrences.
+ */
+if (isset($_GET['calendar_items'])) {
+
+    header('Content-Type: application/json');
+
+    $from = calendarIsDate($_GET['from'] ?? '') ? $_GET['from'] . ' 00:00:00' : date('Y-m-01 00:00:00');
+    $to = calendarIsDate($_GET['to'] ?? '') ? $_GET['to'] . ' 23:59:59' : date('Y-m-t 23:59:59');
+    // A window of more than a year is not something the page asks for
+    if (strtotime($to) - strtotime($from) > 86400 * 400) {
+        $to = date('Y-m-d 23:59:59', strtotime($from) + 86400 * 400);
+    }
+
+    $client_id = intval($_GET['client_id'] ?? 0);
+    if ($client_id && !hasClientAccess($client_id)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'You do not have access to that client.']);
+        exit;
+    }
+    $opts = ['client_id' => $client_id, 'user_id' => intval($_GET['user_id'] ?? 0)];
+
+    $calendar_ids = array_filter(array_map('intval', explode(',', (string) ($_GET['calendars'] ?? ''))));
+    $items = calendarEventItems($calendar_ids, $from, $to, $opts);
+    foreach (array_filter(explode(',', (string) ($_GET['sources'] ?? ''))) as $key) {
+        $items = array_merge($items, calendarSourceItems($key, $from, $to, $opts));
+    }
+
+    echo json_encode($items);
+    exit;
+}
+
+/*
+ * Something dragged on the calendar: a scheduled ticket to a new time, a
+ * ticket from To schedule onto the calendar, or an event that does not repeat
+ * to a new day or length. A ticket is booked exactly as from the ticket - the
+ * agent, contact and watchers are emailed - and an event moved with notify
+ * sends the update to the people who have it in their calendar.
+ */
+if (isset($_POST['calendar_move'])) {
+
+    validateCSRFToken();
+
+    header('Content-Type: application/json');
+    $fail = function ($message, $code = 400) {
+        http_response_code($code);
+        echo json_encode(['error' => $message]);
+        exit;
+    };
+
+    $start = ticketScheduleValue($_POST['start'] ?? '');
+    if ($start === '') {
+        $fail('That is not a date and time.');
+    }
+
+    if (($_POST['kind'] ?? '') === 'ticket') {
+
+        if (!calendarCanScheduleTickets()) {
+            $fail('Your role cannot schedule tickets.', 403);
+        }
+        $row = ticketRow($_POST['id'] ?? 0);
+        if (!$row || !empty($row['ticket_archived_at'])) {
+            $fail('That ticket no longer exists.', 404);
+        }
+        if (intval($row['ticket_client_id']) && !hasClientAccess($row['ticket_client_id'])) {
+            $fail('You do not have access to that client.', 403);
+        }
+        if (!ticketIsOpen($row)) {
+            $fail('Ticket ' . ticketReference($row) . ' is resolved or closed - reopen it to schedule work.');
+        }
+        // Dropped on a whole day: the time it already had, or 9:00
+        if (!empty($_POST['all_day'])) {
+            $start = substr($start, 0, 10) . ' ' . ($row['ticket_schedule'] ? date('H:i:s', strtotime($row['ticket_schedule'])) : '09:00:00');
+        }
+        $onsite = isset($_POST['onsite']) ? intval($_POST['onsite']) : intval($row['ticket_onsite']);
+        $result = ticketSetSchedule($row, $start, $onsite);
+
+        echo json_encode(['ok' => true, 'message' => ticketReference($row) . ' scheduled for ' . $result['when_text'], 'conflicts' => $result['conflicts']]);
+        exit;
+    }
+
+    $event = calendarEventRow($_POST['id'] ?? 0);
+    if (!$event) {
+        $fail('That event no longer exists.', 404);
+    }
+    if (intval($event['event_client_id']) && !hasClientAccess($event['event_client_id'])) {
+        $fail('You do not have access to that client.', 403);
+    }
+    if (!calendarEventCan($event, 'edit')) {
+        $fail(permissionRefusedText('module_client', 2, intval(lookupUserPermission('module_client'))), 403);
+    }
+    if (calendarEventRepeats($event)) {
+        $fail('A repeating event is moved from Edit, so the whole series moves together.');
+    }
+    $event_id = intval($event['event_id']);
+
+    if (!empty($_POST['all_day'])) {
+        // FullCalendar's all-day end is exclusive; event_end is the last day covered
+        $start = substr($start, 0, 10) . ' 00:00:00';
+        $end_value = ticketScheduleValue($_POST['end'] ?? '');
+        $end = $end_value !== '' ? date('Y-m-d 00:00:00', strtotime(substr($end_value, 0, 10) . ' -1 day')) : $start;
+        if ($end < $start) {
+            $end = $start;
+        }
+        $all_day = 1;
+    } else {
+        $end = ticketScheduleValue($_POST['end'] ?? '');
+        if ($end === '' || $end <= $start) {
+            // Keep its length - or an hour, coming off a whole day
+            $length = $event['event_all_day'] ? 3600 : max(900, strtotime($event['event_end'] ?: $event['event_start']) - strtotime($event['event_start']));
+            $end = date('Y-m-d H:i:s', strtotime($start) + $length);
+        }
+        $all_day = 0;
+    }
+
+    mysqli_query($mysqli, "UPDATE calendar_events SET event_start = '$start', event_end = '$end', event_all_day = $all_day, event_sequence = event_sequence + 1 WHERE event_id = $event_id");
+
+    $event = calendarEventRow($event_id);
+    $sent = !empty($_POST['notify']) ? calendarSendInvites($event, 'update', calendarInvitedAttendees($event_id)) : 0;
+
+    logAudit("Calendar Event", "Edit", "$session_name moved the event " . escapeSql($event['event_title']) . " to " . escapeSql(calendarWhenText($event)), intval($event['event_client_id']), $event_id);
+
+    echo json_encode(['ok' => true, 'message' => $event['event_title'] . ' moved to ' . calendarWhenText($event) . ($sent ? " - the update was emailed to $sent " . ($sent === 1 ? 'person' : 'people') : '')]);
+    exit;
+}
+
+/*
+ * The calendar's To schedule list: an agent's open tickets with no work booked
+ * (most urgent first), to drag onto the calendar - in one client, or all.
+ */
+if (isset($_GET['calendar_unscheduled'])) {
+
+    header('Content-Type: application/json');
+
+    if (!calendarCanScheduleTickets()) {
+        echo json_encode(['tickets' => []]);
+        exit;
+    }
+    $user_id = intval($_GET['user_id'] ?? 0) ?: $session_user_id;
+    $client_id = intval($_GET['client_id'] ?? 0);
+    if ($client_id && !hasClientAccess($client_id)) {
+        echo json_encode(['tickets' => []]);
+        exit;
+    }
+
+    $sql = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_priority, ticket_onsite, ticket_client_id, client_name
+        FROM tickets
+        LEFT JOIN clients ON client_id = ticket_client_id
+        WHERE ticket_schedule IS NULL AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL
+        AND ticket_assigned_to = $user_id
+        " . ($client_id ? "AND ticket_client_id = $client_id" : '') . "
+        " . clientScopeSql('ticket_client_id') . "
+        ORDER BY FIELD(ticket_priority, 'Urgent', 'High', 'Medium', 'Low'), ticket_created_at ASC
+        LIMIT 25");
+    $tickets = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $tickets[] = [
+            'id' => intval($row['ticket_id']),
+            'reference' => ticketReference($row),
+            'subject' => $row['ticket_subject'],
+            'client' => $row['client_name'] ?: 'Internal',
+            'priority' => $row['ticket_priority'],
+            'onsite' => intval($row['ticket_onsite']),
+        ];
+    }
+
+    echo json_encode(['tickets' => $tickets]);
+    exit;
+}
+
+/*
+ * One agent's day - their scheduled tickets and the events they are on - for
+ * the ticket's Schedule dialog, so a visit is not booked on top of another.
+ * $_GET: date, user_id, ticket_id (the ticket being scheduled, left out).
+ */
+if (isset($_GET['calendar_day'])) {
+
+    header('Content-Type: application/json');
+
+    $date = calendarIsDate($_GET['date'] ?? '') ? $_GET['date'] : date('Y-m-d');
+    $user_id = intval($_GET['user_id'] ?? 0);
+    $skip_ticket = 'ticket-' . intval($_GET['ticket_id'] ?? 0);
+    if (!$user_id || lookupUserPermission('module_support') < 1) {
+        echo json_encode(['items' => []]);
+        exit;
+    }
+
+    $from = "$date 00:00:00";
+    $to = "$date 23:59:59";
+    $opts = ['user_id' => $user_id];
+    $items = array_merge(
+        calendarSourceItems('tickets', $from, $to, $opts),
+        calendarEventItems(array_keys(calendarList()), $from, $to, $opts)
+    );
+
+    $day = [];
+    foreach ($items as $item) {
+        if ($item['id'] === $skip_ticket) {
+            continue;
+        }
+        $all_day = !empty($item['allDay']);
+        $day[] = [
+            'start' => $all_day ? $date . ' 00:00:00' : $item['start'],
+            'time' => $all_day ? 'All day' : date('g:i A', strtotime($item['start'])) . (!empty($item['end']) ? ' - ' . date('g:i A', strtotime($item['end'])) : ''),
+            'title' => $item['title'],
+            'kind' => $item['extendedProps']['kind'] ?? '',
+            'color' => $item['color'] ?? '',
+        ];
+    }
+    usort($day, function ($a, $b) {
+        return strcmp($a['start'], $b['start']);
+    });
+
+    echo json_encode(['items' => $day]);
+    exit;
+}
+
+/*
+ * Reconcile (agent/reconcile.php, js/reconcile.js): tick or untick lines on
+ * a statement being reconciled - POST reconciliation_id, lines[] (payment-12,
+ * revenue-5, expense-9) and tick (1 or 0). Answers with where it stands now
+ * (reconcileTotals()).
+ */
+if (isset($_POST['reconcile_tick'])) {
+
+    validateCSRFToken();
+
+    header('Content-Type: application/json');
+
+    if (lookupUserPermission('module_financial') < 2) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Reconciling takes write access to Financial.']);
+        exit;
+    }
+    $reconciliation_id = intval($_POST['reconciliation_id'] ?? 0);
+    $lines = array_slice(array_values(array_filter(array_map('strval', (array) ($_POST['lines'] ?? [])))), 0, 5000);
+    $changed = reconcileTick($reconciliation_id, $lines, !empty($_POST['tick']), $error);
+    if ($changed === null) {
+        echo json_encode(['error' => $error]);
+        exit;
+    }
+    $row = reconcileRow($reconciliation_id);
+    echo json_encode(['changed' => $changed, 'totals' => reconcileTotals($row)]);
+    exit;
 }

@@ -1,357 +1,428 @@
 #!/usr/bin/env php
 <?php
 
-// Example
-//php setup_cli.php --help
-//php setup_cli.php --host=localhost --username=itflow --password=secret --database=itflow --base-url=example.com/itflow --locale=en_US --timezone=UTC --currency=USD --company-name="My Company" --country="United States" --user-name="John Doe" --user-email="john@example.com" --user-password="admin123" --non-interactive
+/*
+ * ITFlow setup from the command line - the web wizard's steps in one go, through
+ * the same code: its checks (setup/setup_checks.php), its database step
+ * (setup_database.php), its checks on what it is given (setup_forms.php) and its
+ * writes (setup_install.php), so an install made here comes out as one made in a
+ * browser does.
+ *
+ * Whatever is not given as an option is asked for, with a suggestion where there
+ * is one - Enter takes it. --non-interactive asks nothing: it stops at the first
+ * thing missing or wrong, before the database is touched, and takes the suggestion
+ * or the default for the rest.
+ *
+ * Signing in the first time opens Get started, the walk through what is left to
+ * set up (functions/getting_started.php). --skip-get-started leaves it in Admin,
+ * for an install set up by script or brought up to match another.
+ *
+ *   php setup_cli.php --help
+ *   php setup_cli.php --host=localhost --username=itflow --password=secret --database=itflow \
+ *       --base-url=itflow.example.com --company-name="My Company" --country="United States" \
+ *       --user-name="John Doe" --user-email=john@example.com --user-password='a long password' \
+ *       --non-interactive
+ */
 
-// Change to the directory of this script so that all shell commands run here
+// Run from here, so ../config.php and ../db.sql are ITFlow's own
 chdir(__DIR__);
 
-// Ensure we're running from command line
 if (php_sapi_name() !== 'cli') {
     die("This script must be run from the command line.\n");
 }
 
-// Define required arguments
-$required_args = [
-    'host'         => 'Database host',
-    'username'     => 'Database username',
-    'password'     => 'Database password',
-    'database'     => 'Database name',
-    'base-url'     => 'Base URL (without protocol, e.g. example.com/itflow)',
-    'locale'       => 'Locale (e.g. en_US)',
-    'timezone'     => 'Timezone (e.g. UTC)',
-    'currency'     => 'Currency code (e.g. USD)',
-    'company-name' => 'Company name',
-    'country'      => 'Company country (e.g. United States)',
-    'user-name'    => 'Admin user full name',
-    'user-email'   => 'Admin user email',
-    'user-password'=> 'Admin user password (min 8 chars)'
+// Every option - what it is, whether setup needs it, and its default
+$cli_fields = [
+    'Database' => [
+        'database' => ['Database name', true],
+        'host' => ['Database host', true, 'localhost'],
+        'username' => ['Database user', true],
+        'password' => ['Database password', false],
+    ],
+    'Where ITFlow is reached' => [
+        'base-url' => ['Its address, without https:// (e.g. itflow.example.com)', true],
+        'repo-branch' => ['Git branch it updates from', false, 'master'],
+    ],
+    'Your account - an administrator' => [
+        'user-name' => ['Your name', true],
+        'user-email' => ['Your email - what you sign in with', true],
+        'user-password' => ['Password (at least 8 characters)', true],
+    ],
+    'Company' => [
+        'company-name' => ['Company name', true],
+        'country' => ['Country (e.g. United States)', true],
+        'address' => ['Address', false],
+        'city' => ['City', false],
+        'state' => ['State / province', false],
+        'zip' => ['Postal code', false],
+        'phone-country-code' => ['Phone country code (e.g. 1)', false],
+        'phone' => ['Phone', false],
+        'company-email' => ['Company email', false],
+        'website' => ['Website', false],
+        'tax-id' => ['Tax ID', false],
+    ],
+    'Region' => [
+        'locale' => ['Language (e.g. en_US)', true],
+        'currency' => ['Currency code (e.g. USD)', true],
+        'timezone' => ['Timezone (e.g. America/New_York)', true],
+    ],
+];
+$cli_flags = [
+    'skip-get-started' => "Don't open Get started on first signing in, or show Finish setting up on the dashboard - it stays in Admin > Get started",
+    'share-telemetry' => 'Tell the ITFlow project about this install, once - its company name, website, city, state, country and currency',
+    'comments' => 'Something to tell the ITFlow project with it (optional)',
+    'non-interactive' => 'Ask for nothing - stop if anything needed is missing or wrong',
+    'help' => 'Show this help',
 ];
 
-// Additional optional arguments
-// address, city, state, zip, phone, company-email, website
-// These are optional and don't need error checks if missing.
-$optional_args = [
-    'address'       => 'Company address (optional)',
-    'city'          => 'Company city (optional)',
-    'state'         => 'Company state (optional)',
-    'zip'           => 'Company postal code (optional)',
-    'phone'         => 'Company phone (optional)',
-    'company-email' => 'Company email (optional)',
-    'website'       => 'Company website (optional)',
-    'repo-branch'   => 'Git repo branch to track (optional, default master)'
-];
+$longopts = ['help', 'non-interactive', 'share-telemetry', 'skip-get-started', 'comments:'];
+foreach ($cli_fields as $fields) {
+    foreach ($fields as $key => $field) {
+        $longopts[] = "$key:";
+    }
+}
+$options = getopt('', $longopts);
+$non_interactive = isset($options['non-interactive']);
 
-// Parse command line options
-$shortopts = "";
-$longopts = [
-    "help",
-    "host:",
-    "username:",
-    "password:",
-    "database:",
-    "base-url:",
-    "locale:",
-    "timezone:",
-    "currency:",
-    "company-name:",
-    "country:",
-    "address::",
-    "city::",
-    "state::",
-    "zip::",
-    "phone::",
-    "company-email::",
-    "website::",
-    "repo-branch::",
-    "user-name:",
-    "user-email:",
-    "user-password:",
-    "non-interactive"
-];
-
-$options = getopt($shortopts, $longopts);
-
-// If --help is set, print usage and exit
 if (isset($options['help'])) {
-    echo "ITFlow CLI Setup Script\n\n";
-    echo "Usage:\n";
-    echo "  php setup_cli.php [options]\n\n";
-    echo "Options:\n";
-    foreach ($required_args as $arg => $desc) {
-        echo "  --$arg\t$desc (required)\n";
+    echo "ITFlow setup from the command line\n\n";
+    echo "Usage:\n  php setup_cli.php [options]\n\n";
+    foreach ($cli_fields as $group => $fields) {
+        echo "$group:\n";
+        foreach ($fields as $key => $field) {
+            echo sprintf("  --%-20s %s%s%s\n", $key, $field[0], $field[1] ? ' (needed)' : '', isset($field[2]) ? " [default: {$field[2]}]" : '');
+        }
+        echo "\n";
     }
-    foreach ($optional_args as $arg => $desc) {
-        echo "  --$arg\t$desc\n";
+    foreach ($cli_flags as $key => $what) {
+        echo sprintf("  --%-20s %s\n", $key, $what);
     }
-    echo "  --non-interactive\tRun in non-interactive mode (fail if required args missing)\n";
-    echo "  --help\t\tShow this help message\n\n";
-    echo "If running interactively (without --non-interactive), any missing required arguments will be prompted.\n";
-    echo "If running non-interactively, all required arguments must be provided.\n\n";
+    echo "\nLeft out, an option is asked for - unless --non-interactive. The language, currency and timezone\n";
+    echo "are suggested from the country, and --non-interactive takes the suggestion when there is one.\n";
     exit(0);
 }
 
+$config_error = '';
 if (file_exists("../config.php")) {
-    include_once "../config.php";
+    try {
+        include_once "../config.php";
+    } catch (Throwable $e) {
+        $config_error = $e->getMessage();
+    }
 }
 
 require_once "../functions.php";
 require_once "../includes/database_version.php";
 define('FROM_SETUP', true);
-require_once "../setup/seed_data.php"; // Shared install-time seed data
-
-if (!isset($config_enable_setup)) {
-    $config_enable_setup = 1;
-}
-
-if ($config_enable_setup == 0) {
-    echo "Setup is disabled. Please delete or modify config.php if you need to re-run the setup.\n";
-    exit;
-}
-
-$errorLog = ini_get('error_log') ?: "/var/log/apache2/error.log";
+require_once "../setup/seed_data.php";
+require_once "../setup/setup_checks.php";
+require_once "../setup/setup_database.php";
+require_once "../setup/setup_forms.php";
+require_once "../setup/setup_install.php";
+require_once "../includes/settings_localization_array.php";
 
 $timezones = DateTimeZone::listIdentifiers();
 
-function prompt($message) {
-    echo $message . ": ";
-    return trim(fgets(STDIN));
+/* Stop, saying why - to stderr, with a failing exit code. */
+function cliStop($message) {
+    fwrite(STDERR, "\n$message\n");
+    exit(1);
 }
 
-$non_interactive = isset($options['non-interactive']);
+/* A setup hint is written for the page - as plain text. */
+function cliText($html) {
+    return html_entity_decode(strip_tags((string) $html), ENT_QUOTES, 'UTF-8');
+}
 
-function getOptionOrPrompt($key, $promptMessage, $required = false, $default = '', $optionsGlobal = []) {
+/*
+ * A line typed in answer - null at the end of input. A secret is not shown
+ * as it is typed, and kept exactly as typed; anything else is trimmed.
+ */
+function cliPrompt($label, $secret = false) {
+    echo "$label: ";
+    $hidden = $secret && function_exists('posix_isatty') && @posix_isatty(STDIN) && trim((string) @shell_exec('command -v stty')) !== '';
+    if ($hidden) {
+        @shell_exec('stty -echo');
+    }
+    $line = fgets(STDIN);
+    if ($hidden) {
+        @shell_exec('stty echo');
+        echo "\n";
+    }
+    if ($line === false) {
+        return null;
+    }
+    $line = rtrim($line, "\r\n");
+    return $secret ? $line : trim($line);
+}
+
+/*
+ * One answer - the option given, or else asked for (with its default) until
+ * $check, which says what is wrong with a value or '', is happy. With
+ * --non-interactive, a missing or wrong one stops setup.
+ */
+function cliAsk($key, $label, $required, $default = '', $check = null, $secret = false) {
     global $options, $non_interactive;
-    if (isset($options[$key])) {
-        return $options[$key];
-    } else {
-        if ($non_interactive && $required) {
-            die("Missing required argument: --$key\n");
+
+    // What was given rather than typed, said back
+    $given = function ($value) use ($label, $secret) {
+        if ($value !== '') {
+            echo "  $label: " . ($secret ? str_repeat('*', 8) : $value) . "\n";
         }
-        $val = prompt($promptMessage . (strlen($default) ? " [$default]" : ''));
-        if (empty($val) && !empty($default)) {
-            $val = $default;
+        return $value;
+    };
+    $problem = function ($value) use ($required, $check) {
+        if ($value === '') {
+            return $required ? 'This is needed.' : '';
         }
-        if ($required && empty($val)) {
-            die("Error: $promptMessage is required.\n");
+        return $check ? (string) $check($value) : '';
+    };
+
+    if (array_key_exists($key, $options)) {
+        $value = is_string($options[$key]) ? $options[$key] : '';
+        $value = $secret ? $value : trim($value);
+        if ($value === '') {
+            $value = (string) $default;
         }
-        return $val;
+        $error = $problem($value);
+        if ($error === '') {
+            return $given($value);
+        }
+        if ($non_interactive) {
+            cliStop("--$key: $error");
+        }
+        echo "  --$key: $error\n";
+    } elseif ($non_interactive) {
+        if ($required && (string) $default === '') {
+            cliStop("--$key is needed - $label.");
+        }
+        return $given((string) $default);
+    }
+
+    while (true) {
+        $value = cliPrompt($label . ((string) $default !== '' && !$secret ? " [$default]" : '') . ($required ? '' : ' (optional)'), $secret);
+        if ($value === null) {
+            cliStop("No answer for: $label.");
+        }
+        if ($value === '') {
+            $value = (string) $default;
+        }
+        $error = $problem($value);
+        if ($error === '') {
+            return $value;
+        }
+        echo "  $error\n";
     }
 }
 
-// Start setup
-echo "Welcome to the ITFlow CLI Setup.\n";
+/* Yes or no, asked - no unless answered yes. */
+function cliConfirm($question) {
+    $answer = cliPrompt("$question [y/N]");
+    return $answer !== null && in_array(strtolower($answer), ['y', 'yes'], true);
+}
 
-// If config exists, abort
+echo "ITFlow setup\n";
+
+// ---------- Already set up? ----------
 if (file_exists('../config.php')) {
-    echo "Database is already configured in config.php.\n";
-    echo "To re-run the setup, remove config.php and run this script again.\n";
-    exit;
+    if (isset($config_enable_setup) && $config_enable_setup == 0) {
+        cliStop("ITFlow is already set up. To start again, remove config.php and empty the database.");
+    }
+    cliStop("config.php is already there" . ($config_error !== '' ? " (and can't connect: $config_error)" : '') . ". Finish setting up in a browser at /setup, or remove config.php and run this again.");
 }
 
-// If non-interactive is set, ensure all required arguments are present
+// ---------- What this server has ----------
+echo "\n== Checks ==\n";
+$checks = setupChecks(dirname(__DIR__), false);
+foreach (['required' => 'Needed', 'recommended' => 'Worth having'] as $kind => $heading) {
+    foreach ($checks[$kind] as $check) {
+        echo sprintf("  %s %s - %s\n", $check['passed'] ? '[ok]' : ($kind === 'required' ? '[!!]' : '[--]'), $check['label'], $check['value']);
+        if (!$check['passed'] && $check['fix'] !== '') {
+            echo "       " . cliText($check['fix']) . "\n";
+        }
+    }
+}
+if (setupChecksFailed($checks['required'])) {
+    cliStop("Fix what is marked [!!], then run this again.");
+}
+
+// Asking nothing, all that has no default or suggestion has to be given - said before anything is done
 if ($non_interactive) {
-    foreach (array_keys($required_args) as $arg) {
-        if (!isset($options[$arg])) {
-            die("Missing required argument: --$arg\n");
+    foreach ($cli_fields as $fields) {
+        foreach ($fields as $key => $field) {
+            if ($field[1] && !isset($field[2]) && !in_array($key, ['locale', 'currency', 'timezone'], true) && trim((string) ($options[$key] ?? '')) === '') {
+                cliStop("--$key is needed - {$field[0]}.");
+            }
         }
     }
 }
 
-// Database Setup
-echo "\n=== Database Setup ===\n";
-$database = getOptionOrPrompt('database', "Enter the database name", true);
-$host = getOptionOrPrompt('host', "Enter the database host", true, 'localhost');
-if (empty($host)) $host = "localhost";
-$username = getOptionOrPrompt('username', "Enter the database username", true);
-$password = getOptionOrPrompt('password', "Enter the database password", true);
+// ---------- Database ----------
+echo "\n== Database ==\n";
+$database_defaults = ['database' => '', 'host' => 'localhost', 'username' => ''];
+while (true) {
+    $database = cliAsk('database', 'Database name', true, $database_defaults['database']);
+    $host = cliAsk('host', 'Database host', true, $database_defaults['host'], 'setupHostProblem');
+    $username = cliAsk('username', 'Database user', true, $database_defaults['username']);
+    $password = cliAsk('password', 'Database password', false, '', null, true);
 
-// Base URL
-$base_url = getOptionOrPrompt('base-url', "Enter the base URL (e.g. example.com/itflow)", true);
-$base_url = rtrim($base_url, '/');
-
-// Repo Branch
-$repo_branch = getOptionOrPrompt('repo-branch', "Git repo branch to track", false, 'master');
-if (empty($repo_branch)) $repo_branch = 'master';
-
-// Locale, Timezone, Currency
-echo "\n=== Localization ===\n";
-$locale = getOptionOrPrompt('locale', "Enter the locale (e.g. en_US)", true);
-$timezone = getOptionOrPrompt('timezone', "Enter the timezone (e.g. UTC or America/New_York)", true);
-$currency_code = getOptionOrPrompt('currency', "Enter the currency code (e.g. USD)", true);
-
-// Company Details
-echo "\n=== Company Details ===\n";
-$company_name = getOptionOrPrompt('company-name', "Company Name", true);
-$country = getOptionOrPrompt('country', "Country (e.g. United States)", true);
-$address = getOptionOrPrompt('address', "Address (optional)", false);
-$city = getOptionOrPrompt('city', "City (optional)", false);
-$state = getOptionOrPrompt('state', "State/Province (optional)", false);
-$zip = getOptionOrPrompt('zip', "Postal Code (optional)", false);
-$phone = getOptionOrPrompt('phone', "Phone (optional)", false);
-$phone = preg_replace("/[^0-9]/", '', $phone);
-$company_email = getOptionOrPrompt('company-email', "Company Email (optional)", false);
-$website = getOptionOrPrompt('website', "Website (optional)", false);
-
-// User Setup
-echo "\n=== Create First User ===\n";
-$user_name = getOptionOrPrompt('user-name', "Full Name", true);
-$user_email = getOptionOrPrompt('user-email', "Email Address", true);
-while (!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
-    echo "Invalid email.\n";
+    $connection = setupConnect($host, $username, $password, $database, $connect_error);
+    if ($connection && !setupTables($connection)) {
+        echo "  Connected to $database on $host - it is empty.\n";
+        break;
+    }
+    $why = $connection
+        ? "$database already has tables in it. A new install needs an empty database - to bring a backup back, create an empty one, run setup, then restore."
+        : "Could not connect to $database on $host as $username: $connect_error.";
     if ($non_interactive) {
-        die("Invalid email address: $user_email\n");
+        cliStop($why);
     }
-    $user_email = prompt("Email Address");
+    echo "  $why\n";
+    // Asked again - with what was given, bar the password, as the defaults
+    foreach (['database', 'host', 'username', 'password'] as $key) {
+        unset($options[$key]);
+    }
+    $database_defaults = ['database' => $database, 'host' => $host, 'username' => $username];
 }
-$user_password_plain = getOptionOrPrompt('user-password', "Password (at least 8 chars)", true);
-if (strlen($user_password_plain) < 8) {
-    if ($non_interactive) {
-        die("Password must be at least 8 characters.\n");
+
+echo "\n== Where ITFlow is reached ==\n";
+$base_url = cliAsk('base-url', 'Its address, without https:// (e.g. itflow.example.com)', true, '', function ($value) {
+    $value = rtrim(preg_replace('#^[a-z][a-z0-9+.-]*://#i', '', $value), '/');
+    return $value === '' || preg_match('/\s/', $value) ? 'An address like itflow.example.com, or example.com/itflow.' : '';
+});
+$base_url = rtrim(preg_replace('#^[a-z][a-z0-9+.-]*://#i', '', $base_url), '/');
+$repo_branch = $options['repo-branch'] ?? 'master';
+$repo_branch = is_string($repo_branch) && trim($repo_branch) !== '' ? trim($repo_branch) : 'master';
+
+// ---------- Your account ----------
+echo "\n== Your account - an administrator ==\n";
+$user_field = function ($field) {
+    return function ($value) use ($field) {
+        $sample = ['name' => 'Name', 'email' => 'name@example.com', 'password' => str_repeat('x', USER_PASSWORD_MIN)];
+        [, $errors] = setupUserForm([$field => $value] + $sample);
+        return $errors[$field] ?? '';
+    };
+};
+$user = [
+    'name' => cliAsk('user-name', 'Your name', true, '', $user_field('name')),
+    'email' => cliAsk('user-email', 'Your email - what you sign in with', true, '', $user_field('email')),
+];
+$password_given = array_key_exists('user-password', $options);
+while (true) {
+    $user['password'] = cliAsk('user-password', 'Password (at least ' . USER_PASSWORD_MIN . ' characters)', true, '', 'userPasswordProblem', true);
+    if ($password_given || $non_interactive) {
+        break;
     }
-    while (strlen($user_password_plain) < 8) {
-        echo "Password too short. Try again.\n";
-        $user_password_plain = prompt("Password");
+    $again = cliPrompt('The same again', true);
+    if ($again === null) {
+        cliStop('No answer for: the password again.');
+    }
+    if ($again === $user['password']) {
+        break;
+    }
+    echo "  The two passwords are not the same.\n";
+}
+
+// ---------- Company ----------
+echo "\n== Company ==\n";
+$country_names = [];
+foreach ($countries_array as $country_name) {
+    $country_names[strtolower($country_name)] = $country_name;
+}
+$company_field = function ($field) use ($countries_array) {
+    return function ($value) use ($field, $countries_array) {
+        [, $errors] = setupCompanyForm([$field => $value] + ['name' => 'Company', 'country' => $countries_array[0]], $countries_array);
+        return $errors[$field] ?? '';
+    };
+};
+$company = ['name' => cliAsk('company-name', 'Company name', true, '', $company_field('name'))];
+$company['country'] = cliAsk('country', 'Country (e.g. United States)', true, '', function ($value) use ($country_names) {
+    return isset($country_names[strtolower($value)]) ? '' : 'Not a country ITFlow knows - as it is named in Admin > Settings > Company, like United States or United Kingdom.';
+});
+$company['country'] = $country_names[strtolower($company['country'])];
+foreach (['address' => 'address', 'city' => 'city', 'state' => 'state', 'zip' => 'zip', 'phone_country_code' => 'phone-country-code', 'phone' => 'phone', 'email' => 'company-email', 'website' => 'website', 'tax_id' => 'tax-id'] as $field => $key) {
+    $company[$field] = cliAsk($key, $cli_fields['Company'][$key][0], false, '', in_array($field, ['email', 'website'], true) ? $company_field($field) : null);
+}
+[$company] = setupCompanyForm($company, $countries_array);
+
+// ---------- Region ----------
+echo "\n== Region ==\n";
+$iso2 = $country_iso2_array[$company['country']] ?? '';
+$shell_language = str_replace('_', '-', strtok((string) (getenv('LC_ALL') ?: getenv('LANG') ?: ''), '.'));
+$region_field = function ($field) use ($locales_array, $currencies_array, $timezones) {
+    return function ($value) use ($field, $locales_array, $currencies_array, $timezones) {
+        $sample = ['locale' => 'en_US', 'currency_code' => 'USD', 'timezone' => 'UTC'];
+        [, $errors] = setupRegionForm([$field => $value] + $sample, $locales_array, $currencies_array, $timezones);
+        return $errors[$field] ?? '';
+    };
+};
+$region = [
+    'locale' => cliAsk('locale', 'Language (e.g. en_US)', true, setupSuggestLocale($iso2, in_array($shell_language, ['', 'C', 'POSIX'], true) ? '' : $shell_language, $locales_array), $region_field('locale')),
+    'currency_code' => strtoupper(cliAsk('currency', 'Currency code (e.g. USD)', true, setupSuggestCurrency($iso2, $currencies_array), $region_field('currency_code'))),
+    'timezone' => cliAsk('timezone', 'Timezone (e.g. America/New_York)', true, setupSuggestTimezone($iso2), $region_field('timezone')),
+];
+
+// ---------- Telling the ITFlow project ----------
+$share = isset($options['share-telemetry']);
+$comments = is_string($options['comments'] ?? null) ? trim($options['comments']) : '';
+if (!$share && !$non_interactive) {
+    echo "\n== Tell the ITFlow project about this install? ==\n";
+    echo "  Once, now: the company's name, website, city, state, country and currency, and this install's id.\n";
+    $share = cliConfirm('Share them');
+    if ($share && !array_key_exists('comments', $options)) {
+        $comments = (string) cliPrompt('Anything to tell us? (Enter for nothing)');
     }
 }
 
-if (!preg_match('/^[a-zA-Z0-9.\-\/]+$/', $host)) {
-    die("Invalid host format.\n");
+// ---------- Setting it up ----------
+echo "\n== Setting up ==\n";
+if (!setupImportSchema($connection, '../db.sql', $import_error)) {
+    cliStop("Creating ITFlow's tables failed: $import_error. The tables it had made were taken away again - fix the cause and run this again.");
 }
-
-// Test Database
-$conn = @mysqli_connect($host, $username, $password, $database);
-if (!$conn) {
-    die("Database connection failed - " . mysqli_connect_error() . "\n");
-}
+echo "  ITFlow's tables are made.\n";
 
 $installation_id = randomString(32);
+if (@file_put_contents('../config.php', setupConfigContents($host, $username, $password, $database, $base_url, $installation_id, $repo_branch)) === false) {
+    setupDropTables($connection);
+    cliStop("config.php could not be written to " . dirname(__DIR__) . " - make the folder writable, then run this again.");
+}
+echo "  config.php is written.\n";
 
-$new_config = "<?php\n\n";
-$new_config .= "\$dbhost = " . var_export($host, true) . ";\n";
-$new_config .= "\$dbusername = " . var_export($username, true) . ";\n";
-$new_config .= "\$dbpassword = " . var_export($password, true) . ";\n";
-$new_config .= "\$database = " . var_export($database, true) . ";\n";
-$new_config .= "\$mysqli = mysqli_connect(\$dbhost, \$dbusername, \$dbpassword, \$database) or die('Database Connection Failed');\n";
-$new_config .= "\$config_app_name = 'ITFlow';\n";
-$new_config .= "\$config_base_url = '" . addslashes($base_url) . "';\n";
-$new_config .= "\$config_https_only = TRUE;\n";
-$new_config .= "\$repo_branch = '" . addslashes($repo_branch) . "';\n";
-$new_config .= "\$installation_id = '$installation_id';\n";
+// What follows writes through the global connection, as the wizard's does
+$mysqli = $connection;
 
-if (file_put_contents("../config.php", $new_config) === false) {
-    die("Failed to write config.php. Check file permissions.\n");
+setupCreateFirstUser($mysqli, $user);
+echo "  Your account, {$user['name']}, is made.\n";
+setupCreateCompany($mysqli, $company);
+echo "  {$company['name']} is saved.\n";
+setupSaveRegion($mysqli, $region);
+echo "  {$region['locale']}, {$region['currency_code']} and {$region['timezone']} are saved.\n";
+
+if ($share) {
+    echo setupShareTelemetry($mysqli, $installation_id, $comments) ? "  Thank you - the ITFlow project has it.\n" : "  The ITFlow project could not be reached - nothing was sent.\n";
 }
 
-if (!file_exists('../config.php')) {
-    die("config.php does not exist after write attempt.\n");
+$skip_get_started = isset($options['skip-get-started']);
+if ($skip_get_started) {
+    gettingStartedDismiss();
+    echo "  Get started won't open on signing in - it is in Admin > Get started.\n";
 }
 
-require "../config.php";
-
-// Import DB Schema
-echo "Importing database schema...\n";
-$filename = '../db.sql';
-if (!file_exists($filename)) {
-    die("db.sql file not found.\n");
-}
-$templine = '';
-$lines = file($filename);
-foreach ($lines as $line) {
-    if (substr($line, 0, 2) == '--' || trim($line) == '')
-        continue;
-    $templine .= $line;
-    if (substr(trim($line), -1, 1) == ';') {
-        mysqli_query($mysqli, $templine) or die("Error performing query: $templine\n" . mysqli_error($mysqli) . "\n");
-        $templine = '';
-    }
-}
-echo "Database imported successfully.\n";
-
-// Create User
-$password_hash = password_hash(trim($user_password_plain), PASSWORD_DEFAULT);
-$site_encryption_master_key = randomString();
-$user_specific_encryption_ciphertext = setupFirstUserSpecificKey($user_password_plain, $site_encryption_master_key);
-
-mysqli_query($mysqli,"INSERT INTO users SET user_name = '$user_name', user_email = '$user_email', user_password = '$password_hash', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext', user_role_id = 3");
-mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = 1");
-echo "User $user_name created successfully.\n";
-
-// Company Details
-mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$company_name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$company_email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code'");
-
-// Seed the defaults shared with the web installer
-seedDefaultData($mysqli);
-
-// Finalizing
-mysqli_query($mysqli,"UPDATE companies SET company_locale = '$locale', company_currency = '$currency_code' WHERE company_id = 1");
-mysqli_query($mysqli,"UPDATE settings SET config_timezone = '$timezone' WHERE company_id = 1");
-mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_currency_code = '$currency_code'");
-
-// Telemetry (optional if interactive)
-if (!$non_interactive) {
-    echo "\n=== Telemetry ===\n";
-    echo "Would you like to share anonymous usage data with the project maintainers? [y/N]: ";
-    $share = strtolower(trim(fgets(STDIN)));
-    if ($share === 'y') {
-        mysqli_query($mysqli,"UPDATE settings SET config_telemetry = 2");
-
-        echo "Any comments to include? Press Enter if none: ";
-        $comments = trim(fgets(STDIN));
-
-        $sql = mysqli_query($mysqli,"SELECT company_city, company_country, company_currency, company_name, company_state,
-            company_website FROM companies WHERE company_id = 1");
-        $row = mysqli_fetch_assoc($sql);
-        $company_name_db = $row['company_name'];
-        $website_db = $row['company_website'];
-        $city_db = $row['company_city'];
-        $state_db = $row['company_state'];
-        $country_db = $row['company_country'];
-        $currency_db = $row['company_currency'];
-
-        $postdata = http_build_query([
-            'installation_id' => "$installation_id",
-            'company_name' => "$company_name_db",
-            'website' => "$website_db",
-            'city' => "$city_db",
-            'state' => "$state_db",
-            'country' => "$country_db",
-            'currency' => "$currency_db",
-            'comments' => "$comments",
-            'collection_method' => 1
-        ]);
-
-        $opts = ['http' =>
-            [
-                'method' => 'POST',
-                'header' => 'Content-type: application/x-www-form-urlencoded',
-                'content' => $postdata
-            ]
-        ];
-
-        $context = stream_context_create($opts);
-        $result = @file_get_contents('https://telemetry.itflow.org', false, $context);
-        echo "Telemetry response: $result\n";
-    }
+if (!setupClose('../config.php')) {
+    cliStop("Setup is done, but config.php could not be written to. Add this line to the end of it: \$config_enable_setup = 0;");
 }
 
-// finalize config
-$myfile = fopen("../config.php", "a");
-$txt = "\$config_enable_setup = 0;\n\n";
-fwrite($myfile, $txt);
-fclose($myfile);
+// The key backups are encrypted with - made now, so it can be written down now
+$config_backup_key = null;
+$backup_key = backupEncryptionKey();
 
-echo "\nSetup complete!\n";
-echo "You can now log in with the user you created at: https://$base_url/login.php\n";
-
-// Whoever ran this is already at a shell on the right host, which makes this the one moment
-// they can paste the crontab line without going and finding it. The web setup shows the same
-// two steps on its finish page.
 $itflow_path = realpath(__DIR__ . '/..');
-
-echo "\nTwo things left before ITFlow can send mail, parse tickets or bill anyone:\n\n";
+echo "\nITFlow is set up. Sign in at https://$base_url/login.php" . ($skip_get_started ? '' : " - Get started opens and walks you through the rest") . "\n";
+if ($backup_key !== '') {
+    echo "\nBackup key - keep a copy somewhere safe, away from this server; a backup can't be restored without it:\n\n";
+    echo "     $backup_key\n";
+}
+echo "\nNext, before ITFlow can send mail, parse tickets or bill anyone:\n\n";
 echo "  1. Add this single entry to the crontab of the user that owns the ITFlow files:\n\n";
 echo "     * * * * * php $itflow_path/cron/cron.php >/dev/null\n\n";
 echo "  2. Turn cron on in Maintenance > Cron. It ships off, and every job stops\n";

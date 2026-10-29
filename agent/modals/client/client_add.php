@@ -5,22 +5,6 @@ require_once '../../../includes/modal_header.php';
 // Filters
 $leads_filter = intval($_GET['lead'] ?? 0);
 
-// Selects
-$referral_sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL ORDER BY category_name ASC");
-
-$sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
-
-$net_terms_array = array (
-    '0'=>'On Receipt',
-    '7'=>'7 Days',
-    '10'=>'10 Days',
-    '15'=>'15 Days',
-    '30'=>'30 Days',
-    '45'=>'45 Days',
-    '60'=>'60 Days',
-    '90'=>'90 Days'
-);
-
 ob_start();
 
 ?>
@@ -94,18 +78,9 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                         <select class="form-select select2" data-tags="true" name="referral">
                             <option value="">- Select Referral -</option>
-                            <?php
-
-                            while ($row = mysqli_fetch_assoc($referral_sql)) {
-                                $referral = escapeHtml($row['category_name']); ?>
-                                <option><?= $referral ?></option>
-                            <?php } ?>
-
+                            <?= categoryOptionsHtml('Referral') ?>
                         </select>
-                            <button class="btn btn-secondary ajax-modal" type="button"
-                                data-modal-url="../admin/modals/category/category_add.php?category=Referral">
-                                <i class="fas fa-fw fa-plus"></i>
-                            </button>
+                        <?= categoryAddButtonHtml('Referral', 'btn btn-secondary') ?>
                     </div>
                 </div>
 
@@ -121,21 +96,9 @@ ob_start();
                     <label>Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-select select2" name="tags[]" data-placeholder="- Select Tags -"multiple>
-                            <?php
-
-                            while ($row = mysqli_fetch_assoc($sql_tags_select)) {
-                                $tag_id_select = intval($row['tag_id']);
-                                $tag_name_select = escapeHtml($row['tag_name']);
-                                ?>
-                                <option value="<?= $tag_id_select ?>"><?= $tag_name_select ?></option>
-                            <?php } ?>
-
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
+                            <?= tagOptionsHtml('client', []) ?>
                         </select>
-                            <button class="btn btn-secondary ajax-modal" type="button"
-                                data-modal-url="../admin/modals/tag/tag_add.php?type=1">
-                                <i class="fas fa-fw fa-plus"></i>
-                            </button>
                     </div>
                 </div>
 
@@ -285,25 +248,9 @@ ob_start();
 
                 <div class="tab-pane fade" id="pills-billing">
 
-                    <div class="mb-3">
-                        <label>Hourly Rate</label>
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                            <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00" value="<?= "$config_default_hourly_rate" ?>">
-                        </div>
-                    </div>
+                    <?php $contract_pick_edit = false; require __DIR__ . '/client_contract_pick.php'; ?>
 
-                    <div class="mb-3">
-                        <label>Payment Terms</label>
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                            <select class="form-select select2" name="net_terms">
-                                <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
-                                    <option <?php if ($config_default_net_terms == $net_term_value) { echo "selected"; } ?> value="<?= $net_term_value ?>"><?= $net_term_name ?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
+                    <?php $terms_note_client_id = 0; require __DIR__ . '/client_terms_note.php'; ?>
 
                     <div class="mb-3">
                         <label>Tax ID</label>
@@ -311,6 +258,21 @@ ob_start();
                                 <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                             <input type="text" class="form-control" name="tax_id_number" placeholder="Tax ID Number" maxlength="255">
                         </div>
+                    </div>
+
+                    <?php
+                    $client_tax = [];
+                    $client_tax_key = 'New';
+                    require __DIR__ . '/client_tax_fields.php';
+                    ?>
+
+                    <div class="mb-3">
+                        <input type="hidden" name="reminders_field" value="1">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input" name="reminders" value="1" id="clientRemindersNew" checked>
+                            <label class="form-check-label" for="clientRemindersNew">Payment reminders and statements</label>
+                        </div>
+                        <small class="text-secondary">Emailed as set in Invoice Settings. Off, this client gets neither - invoices can still be sent by hand.</small>
                     </div>
 
 
@@ -323,33 +285,6 @@ ob_start();
                     <textarea class="form-control" rows="10" name="notes" placeholder="Enter some notes"></textarea>
                 </div>
 
-                <?php
-                // Ticket SLA assignments - only offered when active SLAs exist
-                $sla_options = [];
-                $sla_options_sql = mysqli_query($mysqli, "SELECT sla_id, sla_name FROM slas WHERE sla_archived_at IS NULL ORDER BY sla_name ASC");
-                while ($sla_option_row = mysqli_fetch_assoc($sla_options_sql)) {
-                    $sla_options[intval($sla_option_row['sla_id'])] = $sla_option_row['sla_name'];
-                }
-                if ($config_module_enable_ticketing && !empty($sla_options)) { ?>
-                    <div class="mb-3">
-                        <label>Ticket SLAs</label>
-                        <div class="row g-2">
-                            <?php foreach (['Low', 'Medium', 'High', 'Urgent'] as $sla_priority) { ?>
-                                <div class="col-3">
-                                    <small class="text-secondary"><?= $sla_priority ?></small>
-                                    <select class="form-select" name="client_sla_<?= strtolower($sla_priority) ?>">
-                                        <option value="default">Default</option>
-                                        <option value="0">None</option>
-                                        <?php foreach ($sla_options as $sla_option_id => $sla_option_name) { ?>
-                                            <option value="<?= $sla_option_id ?>"><?= escapeHtml($sla_option_name) ?></option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                            <?php } ?>
-                        </div>
-                        <small class="text-muted">Default follows the global SLA assignment for each priority.</small>
-                    </div>
-                <?php } ?>
             </div>
 
         </div>

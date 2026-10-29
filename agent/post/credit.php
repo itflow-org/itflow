@@ -13,6 +13,9 @@ if (isset($_POST['add_credit'])) {
     enforceUserPermission('module_sales', 2);
 
     $client_id = intval($_POST['client']);
+
+    enforceClientAccess();
+
     $amount = floatval($_POST['amount']);
     $type = escapeSql($_POST['type']);
     $expire = escapeSql($_POST['expire']);

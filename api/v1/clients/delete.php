@@ -11,13 +11,21 @@ if (!empty($client_id)) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id AND client_archived_at IS NOT NULL LIMIT 1"));
     $client_name = $row['client_name'];
 
+    // Their payments and other income go with them - not once any has cleared on a reconciled statement
+    if (!empty($client_name) && reconcileClientLock($client_id)) {
+        echo json_encode(['success' => 'False', 'message' => 'Money from this client cleared on a reconciled bank statement - keep the client archived, or undo that reconciliation in ITFlow first.']);
+        exit();
+    }
+
     if (!empty($client_name)) {
         // Delete Associations
         mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM documents WHERE document_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM assets WHERE asset_client_id = $client_id");
+        mysqli_query($mysqli, "DELETE FROM racks WHERE rack_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM domains WHERE domain_client_id = $client_id");
+        mysqli_query($mysqli, "DELETE calendar_event_attendees FROM calendar_event_attendees JOIN calendar_events ON event_id = attendee_event_id WHERE event_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM calendar_events WHERE event_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM files WHERE file_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM folders WHERE folder_client_id = $client_id");

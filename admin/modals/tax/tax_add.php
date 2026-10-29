@@ -2,6 +2,8 @@
 
 require_once '../../includes/modal_header.php';
 
+$tax = null;
+
 ob_start();
 
 ?>
@@ -14,14 +16,13 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
-        <div class="mb-3">
-            <label>Name <strong class="text-danger">*</strong></label>
-            <input type="text" class="form-control" name="name" placeholder="Tax name" maxlength="200" required autofocus>
-        </div>
-        <div class="mb-3">
-            <label>Percent <strong class="text-danger">*</strong></label>
-            <input type="number" min="0" step="any" class="form-control w-25" name="percent">
-        </div>
+        <?php require __DIR__ . '/tax_form.php'; ?>
+        <?php if (!taxSettings()['default_id']) { ?>
+            <div class="form-check form-switch mt-3">
+                <input type="checkbox" class="form-check-input" name="make_default" value="1" id="taxMakeDefault">
+                <label class="form-check-label" for="taxMakeDefault">Make it the default for new lines</label>
+            </div>
+        <?php } ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_tax" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>

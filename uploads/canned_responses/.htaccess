@@ -1,0 +1,3 @@
+Require all denied
+Options -ExecCGI -Indexes
+php_flag engine off

@@ -1,143 +1,109 @@
 <?php
 
-// Vendor Templates
+/*
+ * Vendor templates (Admin > Vendor Templates) - making, changing (the
+ * vendors made from it that still said what it did changing with it),
+ * copying, archiving, restoring and deleting them, saying who should have
+ * one, and taking them to and from a file (functions/vendor_template_transfer.php).
+ * The work is in functions/vendor_template.php; a vendor is made from
+ * one by add_vendor, add_vendor_from_template and
+ * add_vendor_template_to_clients, and brought in line with one, linked to one
+ * or unlinked by update_vendors_from_template, link_vendors_to_template and
+ * unlink_vendor_template (agent/post/vendor.php).
+ */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
-// Import shared code from user-side vendor management  as we reuse functions
-require_once '../agent/post/vendor.php';
+/* The template a request is for - or back to the list, saying it is gone. */
+function vendorTemplateForRequest($vendor_template_id) {
+    $row = vendorTemplateInfo($vendor_template_id);
+    if (!$row) {
+        flashAlert('That vendor template no longer exists.', 'error');
+        redirect('vendor_templates.php');
+    }
+    return $row;
+}
 
-if (isset($_POST['add_vendor_template'])) {
+if (isset($_POST['add_vendor_template']) || isset($_POST['edit_vendor_template'])) {
 
     validateCSRFToken();
 
-    $name = escapeSql($_POST['name']);
-    $description = escapeSql($_POST['description']);
-    $account_number = escapeSql($_POST['account_number']);
-    $contact_name = escapeSql($_POST['contact_name']);
-    $phone_country_code = preg_replace("/[^0-9]/", '', $_POST['phone_country_code']);
-    $phone = preg_replace("/[^0-9]/", '', $_POST['phone']);
-    $extension = preg_replace("/[^0-9]/", '', $_POST['extension']);
-    $email = escapeSql($_POST['email']);
-    $website = preg_replace("(^https?://)", "", escapeSql($_POST['website']));
-    $hours = escapeSql($_POST['hours']);
-    $sla = escapeSql($_POST['sla']);
-    $code = escapeSql($_POST['code']);
-    $notes = escapeSql($_POST['notes']);
+    $editing = isset($_POST['edit_vendor_template']);
+    $before = $editing ? vendorTemplateForRequest($_POST['vendor_template_id'] ?? 0) : null;
+    $vendor_template_id = $before ? intval($before['vendor_template_id']) : 0;
 
-    mysqli_query($mysqli,"INSERT INTO vendor_templates SET vendor_template_name = '$name', vendor_template_description = '$description', vendor_template_contact_name = '$contact_name', vendor_template_phone = '$phone', vendor_template_extension = '$extension', vendor_template_email = '$email', vendor_template_website = '$website', vendor_template_hours = '$hours', vendor_template_sla = '$sla', vendor_template_code = '$code', vendor_template_account_number = '$account_number', vendor_template_notes = '$notes'");
+    $fields = vendorTemplateFields($_POST, $error);
+    if (!$fields) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
+    }
+    $vendor_template_id = vendorTemplateSave($vendor_template_id, $fields);
+    $name = $fields['name'];
 
-    $vendor_template_id = mysqli_insert_id($mysqli);
+    if ($editing) {
+        $changed = vendorTemplateChanged(vendorTemplateRowFields($before), $fields);
+        $renamed = $before['vendor_template_name'] !== $name ? ' (was ' . $before['vendor_template_name'] . ')' : '';
+        logAudit("Vendor Template", "Edit", "$session_name edited vendor template " . escapeSql($name . $renamed) . ($changed ? ' - ' . escapeSql(mb_strtolower(implode(', ', $changed))) : ''), 0, $vendor_template_id);
 
-    logAudit("Vendor Template", "Create", "$session_name created vendor template $name", 0, $vendor_template_id);
+        // The vendors made from it that still said what it did follow it (vendorTemplateFollow())
+        $followed = !empty($_POST['follow']) ? vendorTemplateFollow($vendor_template_id, vendorTemplateRowFields($before), $fields) : [];
+        foreach ($followed as $vendor_id => $vendor) {
+            logAudit("Vendor", "Edit", "$session_name updated vendor " . escapeSql($vendor['name']) . " from template " . escapeSql($name) . " - " . escapeSql(mb_strtolower(implode(', ', $vendor['fields']))), $vendor['client_id'], $vendor_id);
+        }
+        $out_of_step = $followed || !empty($_POST['follow']) ? (vendorTemplateOutOfStep([$vendor_template_id])[$vendor_template_id] ?? 0) : 0;
 
-    flashAlert("Vendor template <strong>$name</strong> created");
+        flashAlert("Vendor template <strong>" . escapeHtml($name) . "</strong> saved" . ($followed ? ", and " . count($followed) . " vendor" . (count($followed) === 1 ? '' : 's') . " made from it changed with it" : '')
+            . ($out_of_step ? " - $out_of_step out of step" : ''));
 
-    redirect();
+        redirect();
+    }
+
+    // Made from one of a client's vendors - that vendor is now made from it
+    $from_vendor = vendorRow($_POST['from_vendor'] ?? 0);
+    if ($from_vendor) {
+        mysqli_query($mysqli, "UPDATE vendors SET vendor_template_id = $vendor_template_id, vendor_updated_at = vendor_updated_at WHERE vendor_id = " . intval($from_vendor['vendor_id']));
+    }
+
+    logAudit("Vendor Template", "Create", "$session_name created vendor template " . escapeSql($name) . ($from_vendor ? " from vendor " . escapeSql($from_vendor['vendor_name']) . ($from_vendor['client_name'] !== null ? " of " . escapeSql($from_vendor['client_name']) : '') : ''), 0, $vendor_template_id);
+
+    flashAlert("Vendor template <strong>" . escapeHtml($name) . "</strong> created");
+
+    // A new one opens on its page
+    redirect("vendor_template.php?vendor_template_id=$vendor_template_id");
 
 }
 
-if (isset($_POST['edit_vendor_template'])) {
+if (isset($_GET['copy_vendor_template'])) {
 
     validateCSRFToken();
 
-    $vendor_template_id = intval($_POST['vendor_template_id']);
-    $name = escapeSql($_POST['name']);
-    $description = escapeSql($_POST['description']);
-    $account_number = escapeSql($_POST['account_number']);
-    $contact_name = escapeSql($_POST['contact_name']);
-    $phone_country_code = preg_replace("/[^0-9]/", '', $_POST['phone_country_code']);
-    $phone = preg_replace("/[^0-9]/", '', $_POST['phone']);
-    $extension = preg_replace("/[^0-9]/", '', $_POST['extension']);
-    $email = escapeSql($_POST['email']);
-    $website = preg_replace("(^https?://)", "", escapeSql($_POST['website']));
-    $hours = escapeSql($_POST['hours']);
-    $sla = escapeSql($_POST['sla']);
-    $code = escapeSql($_POST['code']);
-    $notes = escapeSql($_POST['notes']);
+    $row = vendorTemplateForRequest($_GET['copy_vendor_template']);
+    $new_id = vendorTemplateCopy($row['vendor_template_id']);
+    $new_name = (string) vendorTemplateInfo($new_id)['vendor_template_name'];
 
-    if ($_POST['global_update_vendor_name'] == 1 ?? 0) {
-        $sql_global_update_vendor_name = ", vendor_name = '$name'";
-    } else {
-        $sql_global_update_vendor_name = "";
-    }
+    logAudit("Vendor Template", "Create", "$session_name copied vendor template " . escapeSql($row['vendor_template_name']) . " as " . escapeSql($new_name), 0, $new_id);
 
-    if ($_POST['global_update_vendor_description'] == 1) {
-        $sql_global_update_vendor_description = ", vendor_description = '$description'";
-    } else {
-        $sql_global_update_vendor_description = "";
-    }
+    flashAlert("Vendor template <strong>" . escapeHtml($row['vendor_template_name']) . "</strong> copied as <strong>" . escapeHtml($new_name) . "</strong>");
 
-    if ($_POST['global_update_vendor_account_number'] == 1) {
-        $sql_global_update_vendor_account_number = ", vendor_account_number = '$account_number'";
-    } else {
-        $sql_global_update_vendor_account_number = "";
-    }
+    redirect("vendor_template.php?vendor_template_id=$new_id");
 
-    if ($_POST['global_update_vendor_contact_name'] == 1) {
-        $sql_global_update_vendor_contact_name = ", vendor_contact_name = '$contact_name'";
-    } else {
-        $sql_global_update_vendor_contact_name = "";
-    }
+}
 
-    if ($_POST['global_update_vendor_phone'] == 1) {
-        $sql_global_update_vendor_phone = ", vendor_phone_country_code = '$phone_country_code', vendor_phone = '$phone', vendor_extension = '$extension'";
-    } else {
-        $sql_global_update_vendor_phone = "";
-    }
+if (isset($_GET['archive_vendor_template']) || isset($_GET['restore_vendor_template'])) {
 
-    if ($_POST['global_update_vendor_hours'] == 1) {
-        $sql_global_update_vendor_hours = ", vendor_hours = '$hours'";
-    } else {
-        $sql_global_update_vendor_hours = "";
-    }
+    validateCSRFToken();
 
-    if ($_POST['global_update_vendor_email'] == 1) {
-        $sql_global_update_vendor_email = ", vendor_email = '$email'";
-    } else {
-        $sql_global_update_vendor_email = "";
-    }
+    $archive = isset($_GET['archive_vendor_template']);
+    $row = vendorTemplateForRequest($archive ? $_GET['archive_vendor_template'] : $_GET['restore_vendor_template']);
+    $vendor_template_id = intval($row['vendor_template_id']);
 
-    if ($_POST['global_update_vendor_website'] == 1) {
-        $sql_global_update_vendor_website = ", vendor_website = '$website'";
-    } else {
-        $sql_global_update_vendor_website = "";
-    }
+    // Archived, it isn't offered for new vendors; the ones made from it stay
+    mysqli_query($mysqli, "UPDATE vendor_templates SET vendor_template_archived_at = " . ($archive ? 'NOW()' : 'NULL') . ", vendor_template_updated_at = vendor_template_updated_at
+        WHERE vendor_template_id = $vendor_template_id");
 
-    if ($_POST['global_update_vendor_sla'] == 1) {
-        $sql_global_update_vendor_sla = ", vendor_sla = '$sla'";
-    } else {
-        $sql_global_update_vendor_sla = "";
-    }
+    logAudit("Vendor Template", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " vendor template " . escapeSql($row['vendor_template_name']), 0, $vendor_template_id);
 
-    if ($_POST['global_update_vendor_code'] == 1) {
-        $sql_global_update_vendor_code = ", vendor_code = '$code'";
-    } else {
-        $sql_global_update_vendor_code = "";
-    }
-
-    if ($_POST['global_update_vendor_notes'] == 1) {
-        $sql_global_update_vendor_notes = ", vendor_notes = '$notes'";
-    } else {
-        $sql_global_update_vendor_notes = "";
-    }
-
-    // Update just the template
-    mysqli_query($mysqli,"UPDATE vendor_templates SET vendor_template_name = '$name', vendor_template_description = '$description', vendor_template_contact_name = '$contact_name', vendor_template_phone_country_code = '$phone_country_code', vendor_template_phone = '$phone', vendor_template_extension = '$extension', vendor_template_email = '$email', vendor_template_website = '$website', vendor_template_hours = '$hours', vendor_template_sla = '$sla', vendor_template_code = '$code', vendor_template_account_number = '$account_number', vendor_template_notes = '$notes' WHERE vendor_template_id = $vendor_template_id");
-
-    if ($_POST['update_base_vendors'] == 1) {
-        // Update client related vendors if anything is checked
-        $sql = "$sql_global_update_vendor_name $sql_global_update_vendor_description $sql_global_update_vendor_account_number $sql_global_update_vendor_contact_name $sql_global_update_vendor_phone $sql_global_update_vendor_hours $sql_global_update_vendor_email $sql_global_update_vendor_website $sql_global_update_vendor_sla $sql_global_update_vendor_code $sql_global_update_vendor_notes";
-
-        // Remove the first comma to prevent MySQL error
-        $sql = preg_replace('/,/', '', $sql, 1);
-
-        mysqli_query($mysqli,"UPDATE vendors SET $sql WHERE vendor_template_id = $vendor_template_id");
-    }
-
-    logAudit("Vendor Template", "Edit", "$session_name edited vendor template $name", 0, $vendor_template_id);
-
-    flashAlert("Vendor template <strong>$name</strong> edited");
+    flashAlert("Vendor template <strong>" . escapeHtml($row['vendor_template_name']) . "</strong> " . ($archive ? 'archived' : 'restored'), $archive ? 'error' : 'success');
 
     redirect();
 
@@ -147,19 +113,108 @@ if (isset($_GET['delete_vendor_template'])) {
 
     validateCSRFToken();
 
-    $vendor_template_id = intval($_GET['delete_vendor_template']);
+    $row = vendorTemplateForRequest($_GET['delete_vendor_template']);
 
-    $vendor_template_name = escapeSql(getFieldById('vendor_templates', $vendor_template_id, 'vendor_template_name'));
+    // The vendors made from it stay, no longer linked to it
+    vendorTemplateDelete($row['vendor_template_id']);
 
-    // If its a template reset all vendors based off this template to no template base
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_template_id = 0 WHERE vendor_template_id = $vendor_template_id");
+    logAudit("Vendor Template", "Delete", "$session_name deleted vendor template " . escapeSql($row['vendor_template_name']), 0, intval($row['vendor_template_id']));
 
-    mysqli_query($mysqli,"DELETE FROM vendor_templates WHERE vendor_template_id = $vendor_template_id");
+    flashAlert("Vendor template <strong>" . escapeHtml($row['vendor_template_name']) . "</strong> deleted", 'error');
 
-    logAudit("Vendor Template", "Delete", "$session_name deleted vendor template $vendor_template_name");
+    // From its own page, back to the list
+    redirect(!empty($_GET['from_page']) ? 'vendor_templates.php' : null);
 
-    flashAlert("Vendor Template <strong>$vendor_template_name</strong> deleted", 'error');
+}
+
+if (isset($_POST['save_vendor_template_required'])) {
+
+    // Who should have a vendor from it
+    validateCSRFToken();
+
+    $row = vendorTemplateForRequest($_POST['vendor_template_id'] ?? 0);
+    $vendor_template_id = intval($row['vendor_template_id']);
+    $required = intval($_POST['required'] ?? 0);
+    $tag_ids = array_map('intval', array_filter((array) ($_POST['tags'] ?? []), 'is_scalar'));
+    if ($required === VENDOR_TEMPLATE_REQUIRED_TAGGED && !array_filter($tag_ids)) {
+        flashAlert('Pick the client tags - or Every client.', 'error');
+        redirect();
+    }
+    vendorTemplateSetRequired($vendor_template_id, $required, $tag_ids);
+
+    $saved = vendorTemplateInfo($vendor_template_id);
+    $scope = vendorTemplateScopeText($saved['vendor_template_required'], vendorTemplateRequiredTags([$vendor_template_id])[$vendor_template_id]);
+    $said = $scope !== '' ? "required of " . lcfirst($scope) : 'not required of anyone';
+
+    logAudit("Vendor Template", "Edit", "$session_name set vendor template " . escapeSql($row['vendor_template_name']) . " " . escapeSql($said), 0, $vendor_template_id);
+
+    flashAlert("<strong>" . escapeHtml($row['vendor_template_name']) . "</strong> is " . escapeHtml($said));
 
     redirect();
+
+}
+
+if (isset($_POST['export_vendor_templates']) || isset($_GET['export_vendor_template'])) {
+
+    // A file of templates to import into another ITFlow - every current one, the ones picked, or one
+    validateCSRFToken();
+
+    if (isset($_GET['export_vendor_template'])) {
+        $row = vendorTemplateForRequest($_GET['export_vendor_template']);
+        $export = vendorTemplatesExport([intval($row['vendor_template_id'])]);
+    } else {
+        $export = vendorTemplatesExport((array) ($_POST['vendor_template_ids'] ?? []), !empty($_POST['archived']), !empty($_POST['manager']));
+    }
+    if (!$export['templates']) {
+        flashAlert('There are no vendor templates to export.', 'error');
+        redirect();
+    }
+
+    $count = count($export['templates']);
+    logAudit("Vendor Template", "Export", "$session_name exported $count vendor template" . ($count === 1 ? ' ' . escapeSql($export['templates'][0]['name']) : 's')
+        . (!empty($_POST['manager']) ? ' with their account managers' : ''));
+
+    header('Content-Type: application/json; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . vendorTemplatesExportFileName($export) . '"');
+    header('Cache-Control: no-store');
+    echo json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    exit;
+
+}
+
+if (isset($_POST['import_vendor_templates'])) {
+
+    // Templates from a file exported by ITFlow
+    validateCSRFToken();
+
+    $file = $_FILES['file'] ?? null;
+    if ($file && in_array($file['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+        flashAlert('That file is bigger than this server takes in an upload - export a few at a time.', 'error');
+        redirect('vendor_templates.php');
+    }
+    if (!$file || $file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) {
+        flashAlert('Pick the file to import.', 'error');
+        redirect('vendor_templates.php');
+    }
+    if ($file['size'] > 10 * 1024 * 1024) {
+        flashAlert('That file is too big to be vendor templates.', 'error');
+        redirect('vendor_templates.php');
+    }
+    $templates = vendorTemplatesImportRead(file_get_contents($file['tmp_name']), $import_error);
+    if ($templates === null) {
+        flashAlert(escapeHtml($import_error), 'error');
+        redirect('vendor_templates.php');
+    }
+    $existing = in_array($_POST['existing'] ?? '', ['skip', 'copy', 'replace'], true) ? $_POST['existing'] : 'skip';
+    $counts = vendorTemplatesImport($templates, $existing);
+    vendorTemplatesImportLogFollowed($counts);
+    $followed = vendorTemplatesImportFollowedCount($counts);
+
+    logAudit("Vendor Template", "Import", "$session_name imported vendor templates from " . escapeSql(mb_substr((string) $file['name'], 0, 100)) . " - {$counts['added']} added, {$counts['replaced']} replaced, {$counts['skipped']} skipped"
+        . ($followed ? ", $followed vendors changed with them" : ''));
+
+    flashAlert(vendorTemplatesImportSummary($counts), $counts['added'] || $counts['replaced'] ? 'success' : 'info');
+
+    redirect('vendor_templates.php');
 
 }

@@ -1,50 +1,30 @@
 <?php
 
+/*
+ * Move a file to another of its client's folders.
+ */
+
 require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_support', 2);
 
-$file_id = intval($_GET['id']);
+$file_id = intval($_GET['id'] ?? 0);
 
-$sql = mysqli_query($mysqli, "SELECT file_client_id, file_ext, file_folder_id, file_name FROM files WHERE file_id = $file_id LIMIT 1");
-
-$row = mysqli_fetch_assoc($sql);
-$client_id = intval($row['file_client_id']);
-$file_folder_id = escapeHtml($row['file_folder_id']);
-$file_name = escapeHtml($row['file_name']);
-$file_ext = escapeHtml($row['file_ext']);
-if ($file_ext == 'pdf') {
-    $file_icon = "file-pdf";
-} elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {
-    $file_icon = "file-archive";
-} elseif ($file_ext == 'txt' || $file_ext == 'md') {
-    $file_icon = "file-alt";
-} elseif ($file_ext == 'msg') {
-    $file_icon = "envelope";
-} elseif ($file_ext == 'doc' || $file_ext == 'docx' || $file_ext == 'odt') {
-    $file_icon = "file-word";
-} elseif ($file_ext == 'xls' || $file_ext == 'xlsx' || $file_ext == 'ods') {
-    $file_icon = "file-excel";
-} elseif ($file_ext == 'pptx' || $file_ext == 'odp') {
-    $file_icon = "file-powerpoint";
-} elseif ($file_ext == 'mp3' || $file_ext == 'wav' || $file_ext == 'ogg') {
-    $file_icon = "file-audio";
-} elseif ($file_ext == 'mov' || $file_ext == 'mp4' || $file_ext == 'av1') {
-    $file_icon = "file-video";
-} elseif ($file_ext == 'jpg' || $file_ext == 'jpeg' || $file_ext == 'png' || $file_ext == 'gif' || $file_ext == 'webp' || $file_ext == 'bmp' || $file_ext == 'tif') {
-    $file_icon = "file-image";
-} else {
-    $file_icon = "file";
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_client_id, file_ext, file_folder_id, file_name FROM files WHERE file_id = $file_id LIMIT 1"));
+if (!$row) {
+    echo json_encode(['error' => 'That file no longer exists.']);
+    exit;
 }
-
+$client_id = intval($row['file_client_id']);
 enforceClientAccess();
+
+$file_name = escapeHtml($row['file_name']);
 
 ob_start();
 
 ?>
-
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-<?= $file_icon ?> me-2"></i>Moving File: <strong><?= $file_name ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-folder-open me-2"></i>Move <strong><?= $file_name ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -52,75 +32,12 @@ ob_start();
     <input type="hidden" name="file_id" value="<?= $file_id ?>">
     <div class="modal-body">
 
-        <div class="mb-3">
-            <label>Move File to</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
-                <select class="form-select select2" name="folder_id">
-                    <option value="0">/</option>
-                    <?php
-                    // Fetch all folders for the client
-                    $sql_all_folders = mysqli_query($mysqli, "SELECT folder_id, folder_name, parent_folder FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
-                    $folders = array();
-
-                    // Build an associative array of folders indexed by folder_id
-                    while ($row = mysqli_fetch_assoc($sql_all_folders)) {
-                        $folders[$row['folder_id']] = array(
-                            'folder_id' => intval($row['folder_id']),
-                            'folder_name' => escapeHtml($row['folder_name']),
-                            'parent_folder' => intval($row['parent_folder']),
-                            'children' => array()
-                        );
-                    }
-
-                    // Build the folder hierarchy
-                    foreach ($folders as $id => &$folder) {
-                        if ($folder['parent_folder'] != 0 && isset($folders[$folder['parent_folder']])) {
-                            $folders[$folder['parent_folder']]['children'][] = &$folder;
-                        }
-                    }
-                    unset($folder); // Break the reference
-
-                    // Prepare a list of root folders
-                    $root_folders = array();
-                    foreach ($folders as $id => $folder) {
-                        if ($folder['parent_folder'] == 0) {
-                            $root_folders[] = $folder;
-                        }
-                    }
-
-                    // Display the folder options iteratively
-                    $stack = array();
-                    foreach (array_reverse($root_folders) as $folder) {
-                        $stack[] = array('folder' => $folder, 'level' => 0);
-                    }
-
-                    while (!empty($stack)) {
-                        $node = array_pop($stack);
-                        $folder = $node['folder'];
-                        $level = $node['level'];
-
-                        // Indentation for subfolders
-                        $indentation = str_repeat('&nbsp;', $level * 4);
-
-                        // Check if this folder is selected
-                        $selected = '';
-                        if ($folder['folder_id'] == $file_folder_id) {
-                            $selected = 'selected';
-                        }
-
-                        echo "<option value=\"{$folder['folder_id']}\" $selected>$indentation{$folder['folder_name']}</option>";
-
-                        // Add children to the stack
-                        if (!empty($folder['children'])) {
-                            foreach (array_reverse($folder['children']) as $child_folder) {
-                                $stack[] = array('folder' => $child_folder, 'level' => $level + 1);
-                            }
-                        }
-                    }
-                    ?>
-                </select>
-            </div>
+        <label class="form-label">To folder</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-folder"></i></span>
+            <select class="form-select select2" name="folder_id">
+                <?= folderOptionsHtml($client_id, intval($row['file_folder_id'])) ?>
+            </select>
         </div>
 
     </div>

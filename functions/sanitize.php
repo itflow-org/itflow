@@ -202,7 +202,9 @@ function alertMessageHtml($message) {
         '<br>', '<br/>', '<br />',
     ];
 
-    $safe = htmlspecialchars((string) $message, ENT_QUOTES, 'UTF-8');
+    // Entities already in the message stay as they are - a name a handler ran
+    // through escapeHtml() first shows as "A & B", not "A &amp; B"
+    $safe = htmlspecialchars((string) $message, ENT_QUOTES, 'UTF-8', false);
 
     foreach ($allowed_tags as $tag) {
         $safe = str_replace(htmlspecialchars($tag, ENT_QUOTES, 'UTF-8'), $tag, $safe);

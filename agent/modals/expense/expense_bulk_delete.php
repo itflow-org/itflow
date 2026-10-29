@@ -1,41 +1,46 @@
 <?php
 
+/*
+ * Delete the ticked expenses, with their receipts. Transfers between
+ * accounts are left alone.
+ */
+
 require_once '../../../includes/modal_header.php';
 
-$expense_ids = array_map('intval', $_GET['expense_ids'] ?? []);
+enforceUserPermission('module_financial', 3);
 
+$expense_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_GET['expense_ids'] ?? [])))));
 $count = count($expense_ids);
+if (!$count) {
+    echo json_encode(['error' => 'Tick the expenses to delete first.']);
+    exit;
+}
 
-// Generate the HTML form content using output buffering.
 ob_start();
 
 ?>
+<div class="modal-header bg-dark">
+    <h5 class="modal-title"><i class="fas fa-fw fa-trash me-2"></i>Delete <?= $count ?> Expense<?= $count === 1 ? '' : 's' ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+</div>
 
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <?php foreach ($expense_ids as $expense_id) { ?> <input type="hidden" name="expense_ids[]" value="<?= $expense_id ?>"><?php } ?>
-    <div class="modal-body text-center">
-
-        <div class="mb-4" style="text-align: center;">
-            <i class="far fa-10x fa-times-circle text-danger mb-3 mt-3"></i>
-            <h2>Are you really, really, really sure?</h2>
-            <h6 class="mb-4 text-secondary">This will permanently delete the selected expense<?= $count == 1 ? '' : 's' ?>. and ALL associated data</b>?<br><br>This process cannot be undone.</h6>
-            <button type="button" class="btn btn-outline-secondary btn-lg px-5 me-4" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-danger btn-lg px-5">Yes, Delete!</button>
+    <?php foreach ($expense_ids as $expense_id) { ?>
+        <input type="hidden" name="expense_ids[]" value="<?= $expense_id ?>">
+    <?php } ?>
+    <div class="modal-body">
+        <div class="d-flex gap-3 align-items-start">
+            <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+            <div>
+                <div class="fw-semibold"><?= $count === 1 ? 'This expense goes' : "These $count expenses go" ?> for good, with <?= $count === 1 ? 'its receipt' : 'their receipts' ?>.</div>
+                <div class="text-body-secondary small mt-1">They come out of the account balances and the reports. Stock deliveries that named them stay, unlinked. This can't be undone.</div>
+            </div>
         </div>
-
-
-
-        <p class="mb-2">
-
-            This will permanently delete the selected expense<?= $count == 1 ? '' : 's' ?>.
-        </p>
-        <p class="text-muted small mb-0">
-            This action cannot be undone.
-        </p>
-
-        <button type="submit" name="bulk_delete_expenses" class="btn btn-danger btn-lg px-5"><i class="fa fa-fw fa-trash me-2"></i>Delete</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" name="bulk_delete_expenses" class="btn btn-danger text-bold"><i class="fas fa-trash me-2"></i>Delete <?= $count ?></button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -2,6 +2,9 @@
 
 // Variable assignment from POST (or: blank/from DB is updating)
 
+// create.php has no row to fall back on
+$client_row = $client_row ?? null;
+
 if (isset($_POST['client_name'])) {
     $name = escapeSql($_POST['client_name']);
 } elseif ($client_row) {
@@ -34,13 +37,11 @@ if (isset($_POST['client_referral'])) {
     $referral = '';
 }
 
-if (isset($_POST['client_rate'])) {
-    $rate = floatval($_POST['client_rate']);
-} elseif ($client_row) {
-    $rate = $client_row['client_rate'];
-} else {
-    $rate = 0;
-}
+// A client has no rate or net terms of its own - its contract's apply, else the defaults
+// (functions/contract_billing.php). create.php turns client_rate and client_net_terms that
+// aren't the defaults into a Standard terms contract; update.php says they weren't kept.
+$rate = isset($_POST['client_rate']) && trim((string) $_POST['client_rate']) !== '' ? floatval($_POST['client_rate']) : null;
+$net_terms = isset($_POST['client_net_terms']) && trim((string) $_POST['client_net_terms']) !== '' ? max(0, min(365, intval($_POST['client_net_terms']))) : null;
 
 if (isset($_POST['client_currency_code'])) {
     $currency_code = escapeSql($_POST['client_currency_code']);
@@ -50,13 +51,6 @@ if (isset($_POST['client_currency_code'])) {
     $currency_code = '';
 }
 
-if (isset($_POST['client_net_terms'])) {
-    $net_terms = intval($_POST['client_net_terms']);
-} elseif ($client_row) {
-    $net_terms = $client_row['client_net_terms'];
-} else {
-    $net_terms = 0;
-}
 
 if (isset($_POST['client_tax_id_number'])) {
     $tax_id_number = escapeSql($_POST['client_tax_id_number']);
@@ -91,3 +85,14 @@ if (isset($_POST['client_notes'])) {
 } else {
     $notes = '';
 }
+
+// Its tax rate (0: the default) and exemption - client_default_tax_id,
+// client_tax_exempt, client_tax_exempt_number, client_tax_exempt_expires
+// (YYYY-MM-DD); those not sent keep what the client has
+$tax_input = [];
+foreach (['client_default_tax_id' => 'default_tax_id', 'client_tax_exempt' => 'tax_exempt', 'client_tax_exempt_number' => 'tax_exempt_number', 'client_tax_exempt_expires' => 'tax_exempt_expires'] as $api_field => $tax_field) {
+    if (isset($_POST[$api_field])) {
+        $tax_input[$tax_field] = $_POST[$api_field];
+    }
+}
+$tax_set_sql = taxClientSetSql($tax_input, $client_row ?? []);

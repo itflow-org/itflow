@@ -2,16 +2,31 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_ids = array_map('intval', $_GET['ticket_ids'] ?? []);
 
 $count = count($ticket_ids);
+
+// The canned responses for the tickets' categories, and the ones for every ticket - filled in for each ticket as it is sent
+$bulk_category_ids = [];
+if ($ticket_ids) {
+    $sql_bulk_categories = mysqli_query($mysqli, "SELECT DISTINCT ticket_category FROM tickets WHERE ticket_id IN (" . implode(',', array_filter($ticket_ids) ?: [0]) . ")");
+    while ($row = mysqli_fetch_row($sql_bulk_categories)) {
+        $bulk_category_ids[] = intval($row[0]);
+    }
+}
+$canned_picker_groups = cannedResponsePickerGroups($bulk_category_ids, $session_user_id);
+$canned_picker_id = 'cannedPickerBulk';
+$canned_picker_editor = 'bulkReplyDetails';
+$canned_picker_ticket_id = 0;
 
 ob_start();
 
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-paper-plane me-2"></i>Update & Reply <strong><?= $count ?></strong> Tickets</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-paper-plane me-2"></i>Update & Reply <strong><?= $count ?></strong> ticket<?= $count === 1 ? '' : 's' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -27,26 +42,32 @@ ob_start();
             <select class="form-select select2" name="bulk_status" required>
 
                 <!-- Show all active ticket statuses, apart from new or closed as these are system-managed -->
-                <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1");
+                <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name, ticket_status_color FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1");
                 while ($row = mysqli_fetch_assoc($sql_ticket_status)) {
                     $ticket_status_id_select = intval($row['ticket_status_id']);
                     $ticket_status_name_select = escapeHtml($row['ticket_status_name']); ?>
 
-                    <option value="<?= $ticket_status_id_select ?>"> <?= $ticket_status_name_select ?> </option>
+                    <option value="<?= $ticket_status_id_select ?>"<?= selectOptionColor($row['ticket_status_color'] ?? '') ?>> <?= $ticket_status_name_select ?> </option>
 
                 <?php } ?>
             </select>
 
         </div>
 
-        <div class="mb-3">
-            <textarea class="form-control tinymce" rows="5" name="bulk_reply_details" placeholder="Type an update here"></textarea>
+        <?php require __DIR__ . '/../../includes/inc_canned_response_picker.php'; ?>
+
+        <div class="mb-1">
+            <textarea class="form-control tinymce" rows="5" id="bulkReplyDetails" name="bulk_reply_details" placeholder="Type an update here"<?= $canned_picker_groups ? ' data-canned-picker="cannedPickerBulk"' : '' ?>></textarea>
         </div>
+        <div class="small text-secondary mb-3">[First Name], [Ticket], [Subject] and the other placeholders are filled in for each ticket as it is sent.</div>
 
         <div class="col-3">
             <div class="mb-3">
                 <label>Time worked</label>
-                <input class="form-control timepicker" id="time_worked" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="00:01:00" required/>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
+                    <input class="form-control timepicker" id="time_worked" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="00:01:00" required/>
+                </div>
             </div>
         </div>
 
@@ -54,7 +75,7 @@ ob_start();
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="bulkPrivateReplyCheckbox" name="bulk_private_reply" value="1">
                 <label class="form-check-label" for="bulkPrivateReplyCheckbox">Mark as internal</label>
-                <small class="form-text text-muted">If checked this note will only be visible to agents.</small>
+                <small class="form-text text-muted">Only agents see it.</small>
             </div>
         </div>
 

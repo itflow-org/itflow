@@ -19,10 +19,10 @@ if (isset($_GET['client_id'])) {
     $sql = mysqli_query(
         $mysqli,
         "SELECT client_abbreviation, client_archived_at, client_created_at, client_currency_code,
-            client_lead, client_name, client_net_terms, client_notes, client_rate, client_referral,
+            client_lead, client_name, client_notes, client_referral,
             client_tax_id_number, client_type, client_website, contact_email, contact_extension,
             contact_id, contact_mobile, contact_mobile_country_code, contact_name, contact_phone,
-            contact_phone_country_code, contact_primary, contact_title, location_address,
+            contact_phone_country_code, contact_photo, contact_primary, contact_title, location_address,
             location_city, location_country, location_id, location_name, location_phone,
             location_phone_country_code, location_primary, location_state, location_zip FROM clients
         LEFT JOIN locations ON client_id = location_client_id AND location_primary = 1
@@ -39,21 +39,21 @@ if (isset($_GET['client_id'])) {
 
         $row = mysqli_fetch_assoc($sql);
         $client_name = escapeHtml($row['client_name']);
-        $client_name_truncated = escapeHtml(truncate($row['client_name'], 7));
         $client_is_lead = intval($row['client_lead']);
         $client_type = escapeHtml($row['client_type']);
         $client_website = escapeHtml($row['client_website']);
         $client_referral = escapeHtml($row['client_referral']);
         $client_currency_code = escapeHtml($row['client_currency_code']);
-        $client_net_terms = intval($row['client_net_terms']);
         $client_tax_id_number = escapeHtml($row['client_tax_id_number']);
         $client_abbreviation = escapeHtml($row['client_abbreviation']);
-        $client_rate = floatval($row['client_rate']);
+        $client_initials = escapeHtml(clientInitials($row['client_abbreviation'], $row['client_name']));
+        $client_initials_tone = clientInitialsTone($client_id);
         $client_notes = escapeHtml($row['client_notes']);
         $client_created_at = escapeHtml($row['client_created_at']);
         $client_archived_at = escapeHtml($row['client_archived_at']);
         $contact_id = intval($row['contact_id']);
         $contact_name = escapeHtml($row['contact_name']);
+        $contact_photo = escapeHtml($row['contact_photo']);
         $contact_title = escapeHtml($row['contact_title']);
         $contact_email = escapeHtml($row['contact_email']);
         $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
@@ -77,28 +77,12 @@ if (isset($_GET['client_id'])) {
         // Tab Title // No Sanitizing needed
         $tab_title = $row['client_name'];
 
-        // Client Tags
-
-        $client_tag_name_display_array = array();
-        $client_tag_id_array = array();
-        $sql_client_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, client_tags.tag_id, tag_name FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
+        // Client Tags - raw rows, drawn by tagPills() (functions/tags.php)
+        $client_tags = [];
+        $sql_client_tags = mysqli_query($mysqli, "SELECT tags.tag_id, tag_name, tag_description, tag_color, tag_icon FROM client_tags JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
         while ($row = mysqli_fetch_assoc($sql_client_tags)) {
-
-            $client_tag_id = intval($row['tag_id']);
-            $client_tag_name = escapeHtml($row['tag_name']);
-            $client_tag_color = escapeHtml($row['tag_color']);
-            if (empty($client_tag_color)) {
-                $client_tag_color = "dark";
-            }
-            $client_tag_icon = escapeHtml($row['tag_icon']);
-            if (empty($client_tag_icon)) {
-                $client_tag_icon = "tag";
-            }
-
-            $client_tag_id_array[] = $client_tag_id;
-            $client_tag_name_display_array[] = "<span class='badge text-light p-1 me-1' style='background-color: $client_tag_color;'><i class='fa fa-fw fa-$client_tag_icon me-2'></i>$client_tag_name</span>";
+            $client_tags[] = $row;
         }
-        $client_tags_display = implode('', $client_tag_name_display_array);
 
         /*
          * Client badge counts and money totals.
@@ -168,19 +152,25 @@ if (isset($_GET['client_id'])) {
 
         $num_income = $num_payments + intval($row['num']);
 
-        // Recurring invoices - the monthly and yearly totals and the count.
-        // The two totals key off recurring_invoice_status, the count off
+        // Recurring invoices - what the running ones bring in a month, and the
+        // count. The total keys off recurring_invoice_status, the count off
         // recurring_invoice_archived_at, so neither test can sit in the WHERE.
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT
-            COALESCE(SUM(CASE WHEN recurring_invoice_status = 1 AND recurring_invoice_frequency = 'month' THEN recurring_invoice_amount END), 0) AS recurring_monthly_total,
-            COALESCE(SUM(CASE WHEN recurring_invoice_status = 1 AND recurring_invoice_frequency = 'year' THEN recurring_invoice_amount END), 0) AS recurring_yearly_total,
+            COALESCE(SUM(CASE WHEN recurring_invoice_status = 1 THEN " . recurringInvoiceMonthlySql() . " END), 0) AS recurring_monthly,
             COALESCE(SUM(recurring_invoice_archived_at IS NULL), 0) AS num_recurring_invoices
             FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id"));
 
-        $recurring_monthly_total = floatval($row['recurring_monthly_total']);
-        $recurring_yearly_total = floatval($row['recurring_yearly_total']) / 12;
-        $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
+        $recurring_monthly = floatval($row['recurring_monthly']);
         $num_recurring_invoices = intval($row['num_recurring_invoices']);
+
+        // Contracts in force
+        $num_contracts = contractClientCount($client_id);
+
+        // Billable tickets done and not invoiced yet, for Unbilled Time
+        $num_unbilled_tickets = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM tickets WHERE " . billingUnbilledSql() . " AND ticket_client_id = $client_id"))[0]);
+        // ...and their expenses to bill on, for those who can see expenses
+        $num_unbilled_expenses = lookupUserPermission('module_financial') >= 1 ? expenseUnbilledCount($client_id)['count'] : 0;
+        $num_unbilled_trips = lookupUserPermission('module_financial') >= 1 ? tripUnbilledCount($client_id)['count'] : 0;
 
         // Get Credit Balance
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COALESCE(SUM(credit_amount), 0) AS credit_balance
@@ -242,13 +232,13 @@ if (isset($_GET['client_id'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(asset_id) AS num FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id"));
         $num_assets = intval($row['num']);
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(recurring_ticket_id) AS num FROM recurring_tickets WHERE recurring_ticket_client_id = $client_id"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(recurring_ticket_id) AS num FROM recurring_tickets WHERE recurring_ticket_client_id = $client_id AND recurring_ticket_paused_at IS NULL"));
         $num_recurring_tickets = intval($row['num']);
 
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(project_id) AS num FROM projects WHERE project_archived_at IS NULL AND project_completed_at IS NULL AND project_client_id = $client_id"));
         $num_active_projects = intval($row['num']);
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(service_id) AS num FROM services WHERE service_client_id = $client_id"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(service_id) AS num FROM services WHERE service_client_id = $client_id AND service_archived_at IS NULL"));
         $num_services = intval($row['num']);
 
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(vendor_id) AS num FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id"));
@@ -272,11 +262,19 @@ if (isset($_GET['client_id'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(document_id) AS num FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id"));
         $num_documents = intval($row['num']);
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(event_id) AS num FROM calendar_events WHERE event_client_id = $client_id"));
+        // Shared links still to do something about - open, or a login sent back and not saved yet
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS num, COALESCE(SUM(item_type = 'Request' AND item_received_at IS NOT NULL), 0) AS received
+            FROM shared_items WHERE item_client_id = $client_id AND item_type IN (" . shareVisibleTypesSql() . ") AND " . shareLiveSql()));
+        $num_shares = intval($row['num']);
+        $num_shares_received = intval($row['received']);
+
+        // What is coming up - events still ahead, and series still running
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(event_id) AS num FROM calendar_events WHERE event_client_id = $client_id AND event_archived_at IS NULL
+            AND (COALESCE(event_end, event_start) >= CURDATE() OR (event_repeat <> '' AND (event_repeat_until IS NULL OR event_repeat_until >= CURDATE())))"));
         $num_calendar_events = intval($row['num']);
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(trip_id) AS num FROM trips WHERE trip_archived_at IS NULL AND trip_client_id = $client_id"));
-        $num_trips = intval($row['num']);
+        // The trips this agent may see - all of them with Financial access, else their own
+        [$num_trips] = tripTotalsFor('trip_client_id', $client_id);
 
     }
 }

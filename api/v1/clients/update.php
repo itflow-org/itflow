@@ -25,13 +25,12 @@ if (!empty($client_id)) {
             client_type = '$type',
             client_website = '$website',
             client_referral = '$referral',
-            client_rate = $rate,
             client_currency_code = '$currency_code',
-            client_net_terms = $net_terms,
             client_abbreviation = '$abbreviation',
             client_tax_id_number = '$tax_id_number',
             client_lead = $lead,
-            client_notes = '$notes'
+            client_notes = '$notes',
+            $tax_set_sql
         WHERE client_id = $client_id
         LIMIT 1
     ");
@@ -39,6 +38,11 @@ if (!empty($client_id)) {
     // Check update & get affected rows
     if ($update_sql) {
         $update_count = mysqli_affected_rows($mysqli);
+
+        // Set on the client's contract now, not the client
+        if ($rate !== null || $net_terms !== null) {
+            $return_arr['not_kept'] = "client_rate and client_net_terms - a client's rates and net terms are its contract's, else the defaults";
+        }
 
         // Logging
         logAudit("Client", "Edit", "$name via API ($api_key_name)", $client_id);

@@ -15,5 +15,6 @@ if (isset($_GET['client_name'])) {
 }
 
 // Output
+$api_tag_entity = 'client'; // each one's tags
 require_once "../read_output.php";
 

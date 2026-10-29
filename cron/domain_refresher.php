@@ -37,86 +37,46 @@ if ($config_enable_cron == 0) {
  * ###############################################################################################################
  */
 
-// REFRESH DOMAIN WHOIS DATA (1 a day/run)
-//  Get the oldest updated domain (MariaDB shows NULLs first when ordering by default)
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_expire FROM `domains` WHERE domain_archived_at IS NULL ORDER BY domain_updated_at LIMIT 1"));
+// A batch a run - as many as fit in a few minutes, up to 50. Due are the ones
+// never looked up, not looked up in a week, or expiring within 60 days and not
+// looked up today. Least recently tried first: a domain that answers nothing is
+// touched anyway, so it goes to the back rather than taking a slot every run.
+// A lookup that finds nothing changes nothing (domainApplyLookup()).
+$started = time();
+$checked = $found = 0;
+$sql = mysqli_query($mysqli, "SELECT domain_id, domain_name FROM domains
+    LEFT JOIN clients ON client_id = domain_client_id
+    WHERE domain_archived_at IS NULL AND client_archived_at IS NULL
+    AND (domain_refreshed_at IS NULL OR domain_refreshed_at < NOW() - INTERVAL 7 DAY
+        OR (domain_expire IS NOT NULL AND domain_expire <= CURDATE() + INTERVAL 60 DAY AND domain_refreshed_at < NOW() - INTERVAL 1 DAY))
+    ORDER BY domain_updated_at ASC
+    LIMIT 50");
 
-if ($row) {
+while ($row = mysqli_fetch_assoc($sql)) {
 
-    // Get current data in database
+    if (time() - $started > 240) {
+        break;
+    }
+
     $domain_id = intval($row['domain_id']);
-    $domain_name = escapeSql($row['domain_name']);
-    $current_expire = escapeSql($row['domain_expire']);
+    $checked++;
 
     // Touch the record we're refreshing to ensure we don't loop
     mysqli_query($mysqli, "UPDATE domains SET domain_updated_at = NOW() WHERE domain_id = $domain_id");
 
-    // Lookup fresh info
-    $expire = getDomainExpirationDate($domain_name);
-    $records = getDnsRecords($domain_name);
-    $a = escapeSql($records['a']);
-    $ns = escapeSql($records['ns']);
-    $mx = escapeSql($records['mx']);
-    $txt = escapeSql($records['txt']);
-    $whois = escapeSql($records['whois']);
-
-    // Handle expiry date
-    if (strtotime($expire)) {
-        $expire = "'" . $expire . "'"; // Valid
-    } elseif (!strtotime($expire) && strtotime($current_expire)) {
-        // New expiry date is invalid, but old one is OK - reverting back
-        $expire = "'" . $current_expire . "'";
+    $before = domainHistorySnapshot($domain_id);
+    if (domainApplyLookup($domain_id, domainLookup($row['domain_name']))) {
+        domainWriteHistory($domain_id, $before, domainHistorySnapshot($domain_id));
+        $found++;
+        echo "Updated {$row['domain_name']}.\n";
     } else {
-        // Neither are valid, setting expiry to NULL
-        $expire = 'NULL';
+        echo "Nothing answered for {$row['domain_name']} - left as it was.\n";
     }
 
-    // Current domain info
-    $original_domain_info = mysqli_fetch_assoc(mysqli_query($mysqli,"
-        SELECT
-            domains.*,
-            registrar.vendor_name AS registrar_name,
-            dnshost.vendor_name AS dnshost_name,
-            mailhost.vendor_name AS mailhost_name,
-            webhost.vendor_name AS webhost_name
-        FROM domains
-        LEFT JOIN vendors AS registrar ON domains.domain_registrar = registrar.vendor_id
-        LEFT JOIN vendors AS dnshost ON domains.domain_dnshost = dnshost.vendor_id
-        LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
-        LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
-        WHERE domain_id = $domain_id
-    "));
+    // Be gentle on the registries
+    sleep(1);
+}
 
-    // Update the domain
-    mysqli_query($mysqli, "UPDATE domains SET domain_name = '$domain_name',  domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
-    echo "Updated $domain_name.";
-
-    // Fetch updated info
-    $new_domain_info = mysqli_fetch_assoc(mysqli_query($mysqli,"
-        SELECT
-            domains.*,
-            registrar.vendor_name AS registrar_name,
-            dnshost.vendor_name AS dnshost_name,
-            mailhost.vendor_name AS mailhost_name,
-            webhost.vendor_name AS webhost_name
-        FROM domains
-        LEFT JOIN vendors AS registrar ON domains.domain_registrar = registrar.vendor_id
-        LEFT JOIN vendors AS dnshost ON domains.domain_dnshost = dnshost.vendor_id
-        LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
-        LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
-        WHERE domain_id = $domain_id
-    "));
-
-    // Compare/log changes
-    $ignored_columns = ["domain_updated_at", "domain_accessed_at", "domain_registrar", "domain_webhost", "domain_dnshost", "domain_mailhost"];
-    foreach ($original_domain_info as $column => $old_value) {
-        $new_value = $new_domain_info[$column];
-        if ($old_value != $new_value && !in_array($column, $ignored_columns)) {
-            $column = escapeSql($column);
-            $old_value = escapeSql($old_value);
-            $new_value = escapeSql($new_value);
-            mysqli_query($mysqli,"INSERT INTO domain_history SET domain_history_column = '$column', domain_history_old_value = '$old_value', domain_history_new_value = '$new_value', domain_history_domain_id = $domain_id");
-        }
-    }
-
+if ($checked) {
+    logApp("Cron-Domain-Refresher", "info", "Looked up $checked domain(s), $found answered.");
 }
