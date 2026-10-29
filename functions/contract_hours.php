@@ -131,19 +131,35 @@ function contractHoursLeftFor(array $contract_ids, $today = null) {
     return $left;
 }
 
+/*
+ * Whether time is drawn from a contract's prepaid hours - while it is active,
+ * and once cancelled, until its last day (it is in force till then).
+ */
+function contractHoursLive(array $row, $today = null) {
+    $today = $today ?? date('Y-m-d');
+    $status = (string) ($row['contract_status'] ?? '');
+    return $status === 'Active' || ($status === 'Cancelled' && (string) ($row['contract_end_date'] ?? '') >= $today);
+}
+
+/** SQL for contractHoursLive(). */
+function contractHoursLiveSql($today = null) {
+    $today = $today !== null ? "'" . escapeSql($today) . "'" : 'CURDATE()';
+    return "(contract_status = 'Active' OR (contract_status = 'Cancelled' AND contract_end_date >= $today))";
+}
+
 /** Whether a contract has prepaid hours to show - blocks, hours each month, or it is a block hours contract. */
 function contractHasHours(array $row, array $blocks) {
     return $blocks || floatval($row['contract_monthly_hours'] ?? 0) > 0 || ($row['contract_type'] ?? '') === 'block';
 }
 
-/** The client's active contracts that have prepaid hours - id => row with its blocks and summary. */
+/** The client's contracts that have prepaid hours to draw from (contractHoursLive()) - id => row with its blocks and summary. */
 function contractClientHours($client_id) {
     global $mysqli;
     $contracts = [];
     if (!contractHoursReady()) {
         return $contracts;
     }
-    $sql = mysqli_query($mysqli, "SELECT * FROM contracts WHERE contract_client_id = " . intval($client_id) . " AND contract_status = 'Active' AND contract_archived_at IS NULL
+    $sql = mysqli_query($mysqli, "SELECT * FROM contracts WHERE contract_client_id = " . intval($client_id) . " AND " . contractHoursLiveSql() . " AND contract_archived_at IS NULL
         AND (contract_monthly_hours > 0 OR EXISTS (SELECT 1 FROM contract_blocks WHERE contract_block_contract_id = contract_id))
         ORDER BY contract_id ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
@@ -163,7 +179,7 @@ function contractHoursEnsureMonthly(array $row, $today = null) {
     global $mysqli;
     $today = $today ?? date('Y-m-d');
     $hours = round(floatval($row['contract_monthly_hours'] ?? 0), 2);
-    if (!contractHoursReady() || $hours <= 0 || ($row['contract_status'] ?? '') !== 'Active') {
+    if (!contractHoursReady() || $hours <= 0 || !contractHoursLive($row, $today)) {
         return false;
     }
     $start = (string) ($row['contract_start_date'] ?? '');
@@ -595,14 +611,14 @@ function contractHoursNightly($today = null) {
     if (!contractHoursReady()) {
         return 0;
     }
-    $sql = mysqli_query($mysqli, "SELECT * FROM contracts WHERE contract_status = 'Active' AND contract_archived_at IS NULL AND contract_monthly_hours > 0");
+    $sql = mysqli_query($mysqli, "SELECT * FROM contracts WHERE " . contractHoursLiveSql($today) . " AND contract_archived_at IS NULL AND contract_monthly_hours > 0");
     while ($row = mysqli_fetch_assoc($sql)) {
         contractHoursEnsureMonthly($row, $today);
     }
     $drawn = 0;
     $sql = mysqli_query($mysqli, "SELECT DISTINCT contract_client_id FROM contracts
         JOIN contract_blocks ON contract_block_contract_id = contract_id
-        WHERE contract_status = 'Active' AND contract_archived_at IS NULL");
+        WHERE " . contractHoursLiveSql($today) . " AND contract_archived_at IS NULL");
     while ($row = mysqli_fetch_row($sql)) {
         $drawn += count(contractHoursDraw(intval($row[0]))['drawn']);
     }

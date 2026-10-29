@@ -19,8 +19,10 @@
         const year = Number(m[1]);
         const month = Number(m[2]) - 1 + Number(months);
         const day = Number(m[3]);
-        // PHP's +N months rolls an overflowing day into the next month (Jan 31 + 1 month is Mar 3) - so does Date
-        const end = new Date(Date.UTC(year, month, day));
+        // The next term starts on the same day of the month - or the last day of a month too short for it
+        // (Jan 31 a month on is Feb 28) - and this one ends the day before
+        const last = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+        const end = new Date(Date.UTC(year, month, Math.min(day, last)));
         end.setUTCDate(end.getUTCDate() - 1);
         return end.toISOString().slice(0, 10);
     }

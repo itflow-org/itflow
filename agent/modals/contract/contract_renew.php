@@ -23,7 +23,8 @@ if (!$contract || $contract['contract_status'] === 'Draft' || !$contract['contra
 <?php } else {
     $end = (string) $contract['contract_end_date'];
     $from = $end >= date('Y-m-d', strtotime('-1 day')) ? $end : date('Y-m-d', strtotime('-1 day'));
-    $new_end = contractNextEnd($from, $contract['contract_term_months']); ?>
+    // Carried on from its last day, on the day of the month it started; from today, a term from today
+    $new_end = contractNextEnd($from, $contract['contract_term_months'], $from === $end ? contractAnchorDay($contract) : 0); ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-sync-alt me-2"></i>Renew <strong><?= escapeHtml($contract['contract_name']) ?></strong></h5>

@@ -20,7 +20,9 @@
  * countersigns, the signed PDF goes to the client, and a draft contract
  * becomes active. A round can be withdrawn; sending again starts a new one,
  * and the earlier rounds are kept. Changing a contract while it is out for
- * signature withdraws the request when the document comes out different.
+ * signature withdraws the request when the document comes out different, and
+ * one that is cancelled or ends, or whose client is archived, has its request
+ * withdrawn - nothing is signed on it after that (contractSignatureWithdrawStale()).
  *
  * The PDF is functions/contract_pdf.php; the pages are agent/contract.php,
  * agent/contract_document.php, guest/guest_view_contract.php and
@@ -294,7 +296,7 @@ function contractDocumentHash($html) {
 /** The columns a round is read with, and the contract and client it belongs to. */
 function contractSignatureSelectSql() {
     return "SELECT contract_signatures.*, contract_id, contract_name, contract_status, contract_client_id, contract_owner_id, contract_start_date, contract_end_date, contract_term_months,
-            client_name, user_name AS owner_name, user_email AS owner_email
+            client_name, client_archived_at, user_name AS owner_name, user_email AS owner_email
         FROM contract_signatures
         JOIN contracts ON contract_signature_contract_id = contract_id
         LEFT JOIN clients ON contract_client_id = client_id
@@ -349,7 +351,9 @@ function contractSignatureSigned(array $rounds) {
  * Where a round stands - key, label, Bootstrap tone, icon and a line saying
  * when: sent, viewed, countersign (the client has signed), signed (both),
  * withdrawn, incomplete (recorded before 3.4.3 and not signed by both - it
- * has no link, and waits on no one). null for no round.
+ * has no link, and waits on no one). One still waiting on a contract that has
+ * ended or was cancelled, or whose client was archived, is withdrawn - the
+ * nightly job marks it so (contractSignatureWithdrawStale()). null for no round.
  */
 function contractSignatureState($round) {
     if (!$round) {
@@ -365,6 +369,12 @@ function contractSignatureState($round) {
     }
     if (!empty($round['contract_signature_withdrawn_at'])) {
         return ['key' => 'withdrawn', 'label' => 'Withdrawn', 'tone' => 'secondary', 'icon' => 'fa-undo', 'when' => 'Withdrawn ' . $day($round['contract_signature_withdrawn_at'])];
+    }
+    // Waiting on a contract that is over, or an archived client's - nothing more is signed on it
+    $closed = in_array($round['contract_status'] ?? '', ['Ended', 'Cancelled'], true) || !empty($round['client_archived_at']);
+    if ($closed && !$agent && !empty($round['contract_signature_sent_at']) && (string) ($round['contract_signature_url_key'] ?? 'x') !== '') {
+        return ['key' => 'withdrawn', 'label' => 'Withdrawn', 'tone' => 'secondary', 'icon' => 'fa-undo',
+            'when' => ['Cancelled' => 'The contract was cancelled', 'Ended' => 'The contract ended'][$round['contract_status']] ?? 'The client was archived'];
     }
     // One recorded before 3.4.3 has no link - it waits on no one
     if (array_key_exists('contract_signature_url_key', $round) && (string) $round['contract_signature_url_key'] === '') {
@@ -548,6 +558,35 @@ function contractEmailFrom() {
     return $from['email'] !== '' ? $from : emailFrom();
 }
 
+/*
+ * Withdraw what is still waiting - on the client's signature, or ours - on
+ * contracts that have ended or were cancelled, or whose client was archived:
+ * every one, or a client's ($client_id) or a contract's ($contract_id). Run
+ * when a contract is cancelled, a client archived, and nightly. How many.
+ */
+function contractSignatureWithdrawStale($client_id = 0, $contract_id = 0) {
+    global $mysqli;
+    if (!contractSignaturesReady()) {
+        return 0;
+    }
+    mysqli_query($mysqli, "UPDATE contract_signatures
+        JOIN contracts ON contract_signature_contract_id = contract_id
+        LEFT JOIN clients ON contract_client_id = client_id
+        SET contract_signature_withdrawn_at = NOW(),
+            contract_signature_withdrawn_reason = CASE WHEN contract_status = 'Cancelled' THEN 'The contract was cancelled'
+                WHEN contract_status = 'Ended' THEN 'The contract ended' ELSE 'The client was archived' END
+        WHERE contract_signature_withdrawn_at IS NULL AND contract_signature_agent_signed_at IS NULL AND contract_signature_url_key <> ''
+            AND contract_signature_sent_at IS NOT NULL AND (contract_status IN ('Ended', 'Cancelled') OR client_archived_at IS NOT NULL)"
+        . (intval($client_id) ? " AND contract_client_id = " . intval($client_id) : '') . (intval($contract_id) ? " AND contract_id = " . intval($contract_id) : ''));
+    return max(0, mysqli_affected_rows($mysqli));
+}
+
+/** SQL: the round's contract is still open to signing - a draft or active one, its client not archived. */
+function contractSignatureOpenSql() {
+    return "EXISTS (SELECT 1 FROM contracts JOIN clients ON contract_client_id = client_id WHERE contract_id = contract_signature_contract_id
+        AND contract_status IN ('Draft', 'Active') AND client_archived_at IS NULL)";
+}
+
 /** Withdraw a round - its link stops working for signing - and why. */
 function contractSignatureWithdraw(array $round, $reason) {
     global $mysqli;
@@ -580,8 +619,9 @@ function contractAgentPath(array $row) {
 
 /*
  * The client signs a round - $f from contractSignatureFromInput(), $via
- * 'link' or 'portal', $contact_id who signed in the portal. Once only, and
- * not a withdrawn round. The agents are told, and the owner emailed, to
+ * 'link' or 'portal', $contact_id who signed in the portal. Once only, not a
+ * withdrawn round, and only while the contract is a draft or active and its
+ * client isn't archived. The agents are told, and the owner emailed, to
  * countersign. Whether it was signed.
  */
 function contractSignatureClientSign(array $round, array $f, $via, $contact_id = 0) {
@@ -596,7 +636,7 @@ function contractSignatureClientSign(array $round, array $f, $via, $contact_id =
         contract_signature_client_user_agent = '" . mysqli_real_escape_string($mysqli, $agent) . "',
         contract_signature_viewed_at = IFNULL(contract_signature_viewed_at, NOW())
         WHERE contract_signature_id = " . intval($round['contract_signature_id']) . " AND contract_signature_client_signed_at IS NULL AND contract_signature_withdrawn_at IS NULL
-        AND contract_signature_url_key <> ''");
+        AND contract_signature_url_key <> '' AND " . contractSignatureOpenSql());
     if (mysqli_affected_rows($mysqli) !== 1) {
         return false;
     }
@@ -619,9 +659,10 @@ function contractSignatureClientSign(array $round, array $f, $via, $contact_id =
 
 /*
  * An agent countersigns a round the client has signed - $f from
- * contractSignatureFromInput(). A draft contract becomes active (from its
- * start date, or today), and the client gets the PDF signed by both - unless
- * $email is false. Whether it was signed.
+ * contractSignatureFromInput() - while the contract is a draft or active and
+ * its client isn't archived. A draft contract becomes active (from its start
+ * date, or today), and the client gets the PDF signed by both - unless $email
+ * is false. Whether it was signed.
  */
 function contractSignatureAgentSign(array $round, array $f, $user_id, $email = true) {
     global $mysqli;
@@ -630,7 +671,7 @@ function contractSignatureAgentSign(array $round, array $f, $user_id, $email = t
         contract_signature_agent_image = " . ($f['image'] ? "'" . mysqli_real_escape_string($mysqli, $f['image']) . "'" : 'NULL') . ",
         contract_signature_agent_signed_at = NOW(), contract_signature_agent_ip = '" . escapeSql(getIP()) . "'
         WHERE contract_signature_id = " . intval($round['contract_signature_id']) . " AND contract_signature_client_signed_at IS NOT NULL
-        AND contract_signature_agent_signed_at IS NULL AND contract_signature_withdrawn_at IS NULL");
+        AND contract_signature_agent_signed_at IS NULL AND contract_signature_withdrawn_at IS NULL AND " . contractSignatureOpenSql());
     if (mysqli_affected_rows($mysqli) !== 1) {
         return false;
     }

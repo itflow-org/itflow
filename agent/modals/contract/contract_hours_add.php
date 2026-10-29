@@ -19,9 +19,9 @@ if ($contract) {
 
 ob_start();
 
-if (!$contract || !contractHoursReady() || in_array($contract['contract_status'], ['Ended', 'Cancelled'], true)) { ?>
+if (!$contract || !contractHoursReady() || !($contract['contract_status'] === 'Draft' || contractHoursLive($contract))) { ?>
     <div class="modal-body text-center text-secondary py-5">
-        <?= !$contract ? 'That contract is gone - it may have been deleted.' : (!contractHoursReady() ? 'Prepaid hours need the database update - run it from Maintenance > Update first.' : "Hours are added to a draft or active contract - renew it first.") ?>
+        <?= !$contract ? 'That contract is gone - it may have been deleted.' : (!contractHoursReady() ? 'Prepaid hours need the database update - run it from Maintenance > Update first.' : "Hours are added to a draft or active contract, or a cancelled one until its last day - renew it first.") ?>
     </div>
 <?php } else {
     $can_invoice = intval($config_module_enable_accounting) === 1;

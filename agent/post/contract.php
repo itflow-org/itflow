@@ -93,7 +93,7 @@ if (isset($_POST['activate_contract'])) {
 
     $row = contractPostRow($_POST['contract_id'] ?? 0);
     $start = trim((string) ($_POST['start_date'] ?? ''));
-    if ($row['contract_status'] !== 'Draft' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $start) || !strtotime($start)) {
+    if ($row['contract_status'] !== 'Draft' || !contractDateValid($start)) {
         flashAlert("Pick the day it is in force from.", 'error');
         redirect();
     }
@@ -119,7 +119,7 @@ if (isset($_POST['renew_contract'])) {
 
     $row = contractPostRow($_POST['contract_id'] ?? 0);
     $end = trim((string) ($_POST['end_date'] ?? ''));
-    if ($row['contract_status'] === 'Draft' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $end) || !strtotime($end) || $end < date('Y-m-d') || ($row['contract_end_date'] && $end <= $row['contract_end_date'])) {
+    if ($row['contract_status'] === 'Draft' || !contractDateValid($end) || $end < date('Y-m-d') || ($row['contract_end_date'] && $end <= $row['contract_end_date'])) {
         flashAlert("Pick a new last day - after its current one, and not in the past.", 'error');
         redirect();
     }
@@ -142,7 +142,7 @@ if (isset($_POST['cancel_contract'])) {
     $row = contractPostRow($_POST['contract_id'] ?? 0);
     $last_day = trim((string) ($_POST['last_day'] ?? ''));
     $reason = mb_substr(trim(strip_tags((string) ($_POST['reason'] ?? ''))), 0, 255);
-    if ($row['contract_status'] !== 'Active' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $last_day) || !strtotime($last_day)
+    if ($row['contract_status'] !== 'Active' || !contractDateValid($last_day)
         || ($row['contract_start_date'] && $last_day < $row['contract_start_date'])) {
         flashAlert("Pick its last day - not before it started.", 'error');
         redirect();
@@ -151,9 +151,14 @@ if (isset($_POST['cancel_contract'])) {
     contractCancel($row, $last_day, $reason);
     // Its recurring invoice stops once the last day has passed - now, when it already has
     $recurring_state = contractRecurringFollow(intval($row['contract_id']), stripslashes($session_name));
+    // Nothing more is signed on it - a request still out, or waiting on our countersignature, is withdrawn
+    $withdrawn = contractSignatureWithdrawStale(0, intval($row['contract_id']));
     logAudit("Contract", "Edit", "$session_name cancelled contract " . escapeSql($row['contract_name']) . ", last day " . escapeSql($last_day) . ($reason !== '' ? " - " . escapeSql($reason) : ''), $client_id, intval($row['contract_id']));
+    if ($withdrawn) {
+        logAudit("Contract", "Withdraw", "The signing request for contract " . escapeSql($row['contract_name']) . " was withdrawn - the contract was cancelled", $client_id, intval($row['contract_id']));
+    }
     flashAlert("Contract <strong>" . escapeHtml($row['contract_name']) . "</strong> cancelled" . ($last_day >= date('Y-m-d') ? " - in force until " . date('M j, Y', strtotime($last_day)) : '')
-        . ($recurring_state === 'stopped' ? ' - its recurring invoice is paused' : ''), 'error');
+        . ($recurring_state === 'stopped' ? ' - its recurring invoice is paused' : '') . ($withdrawn ? ' - its signing request was withdrawn' : ''), 'error');
 
     redirect();
 
@@ -165,6 +170,12 @@ if (isset($_GET['delete_contract'])) {
     enforceUserPermission('module_sales', 3);
 
     $row = contractPostRow($_GET['delete_contract']);
+    // Not once tickets drew on its hours, or it was signed by both
+    $blocker = contractDeleteBlocker($row);
+    if ($blocker !== '') {
+        flashAlert("Contract <strong>" . escapeHtml($row['contract_name']) . "</strong> wasn't deleted. " . escapeHtml($blocker), 'error');
+        redirect();
+    }
     mysqli_query($mysqli, "DELETE FROM contracts WHERE contract_id = " . intval($row['contract_id']));
     logAudit("Contract", "Delete", "$session_name deleted contract " . escapeSql($row['contract_name']), $client_id, intval($row['contract_id']));
     flashAlert("Contract <strong>" . escapeHtml($row['contract_name']) . "</strong> deleted", 'error');
@@ -186,6 +197,10 @@ if (isset($_POST['send_contract_signature'])) {
     }
     if (in_array($row['contract_status'], ['Ended', 'Cancelled'], true)) {
         flashAlert("An ended or cancelled contract isn't sent for signature - renew it first.", 'error');
+        redirect();
+    }
+    if (!empty(getFieldById('clients', $client_id, 'client_archived_at'))) {
+        flashAlert("The client is archived - restore them before sending them a contract to sign.", 'error');
         redirect();
     }
 
@@ -319,8 +334,8 @@ if (isset($_POST['add_contract_hours'])) {
         flashAlert("Prepaid hours need the database update - run it from Maintenance > Update first.", 'error');
         redirect();
     }
-    if (in_array($row['contract_status'], ['Ended', 'Cancelled'], true)) {
-        flashAlert("Hours are added to a draft or active contract - renew it first.", 'error');
+    if (!($row['contract_status'] === 'Draft' || contractHoursLive($row))) {
+        flashAlert("Hours are added to a draft or active contract, or a cancelled one until its last day - renew it first.", 'error');
         redirect();
     }
     [$f, $error] = contractHoursFromInput($_POST);

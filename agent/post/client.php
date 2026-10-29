@@ -204,9 +204,12 @@ if (isset($_GET['archive_client'])) {
     // Get Client Name
     $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
-    logAudit("Client", "Archive", "$session_name archived client $client_name", $client_id, $client_id);
+    // Nothing more is signed on their contracts - a request still out, or waiting on our countersignature, is withdrawn
+    $contracts_withdrawn = contractSignatureWithdrawStale($client_id);
 
-    flashAlert("Client <strong>" . stripslashes($client_name) . "</strong> archived", 'error');
+    logAudit("Client", "Archive", "$session_name archived client $client_name" . ($contracts_withdrawn ? " - $contracts_withdrawn contract signing request" . ($contracts_withdrawn === 1 ? '' : 's') . " withdrawn" : ''), $client_id, $client_id);
+
+    flashAlert("Client <strong>" . stripslashes($client_name) . "</strong> archived" . ($contracts_withdrawn ? " - contract signing requests to them were withdrawn" : ''), 'error');
 
     redirect();
 
@@ -1023,8 +1026,9 @@ if (isset($_POST['bulk_archive_clients'])) {
             $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
+            $contracts_withdrawn = contractSignatureWithdrawStale($client_id);
 
-            logAudit("Client", "Archive", "$session_name archived $client_name", $client_id);
+            logAudit("Client", "Archive", "$session_name archived $client_name" . ($contracts_withdrawn ? " - $contracts_withdrawn contract signing request" . ($contracts_withdrawn === 1 ? '' : 's') . " withdrawn" : ''), $client_id);
 
             $count++;
 

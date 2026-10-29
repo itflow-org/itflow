@@ -115,22 +115,108 @@ function contractTermLabel($months) {
     return $months === 1 ? '1 month' : "$months months";
 }
 
-/** The last day of a term that starts on $start and runs $months months - 'Y-m-d'. */
-function contractTermEnd($start, $months) {
-    $start = strtotime((string) $start);
-    if (!$start || intval($months) <= 0) {
-        return '';
-    }
-    return date('Y-m-d', strtotime('+' . intval($months) . ' months -1 day', $start));
+/** Whether $date is a real day, written 'Y-m-d' - 2026-02-30 isn't. */
+function contractDateValid($date) {
+    $date = (string) $date;
+    $parsed = DateTime::createFromFormat('!Y-m-d', $date);
+    return $parsed && $parsed->format('Y-m-d') === $date;
 }
 
-/** The day after the last day of the term following one that ends on $end - its new last day. */
-function contractNextEnd($end, $months) {
-    $end = strtotime((string) $end);
-    if (!$end || intval($months) <= 0) {
+/*
+ * $date ('Y-m-d') $months months on, on day $day of that month - the date's
+ * own day when not given - or the month's last day when it is shorter: Jan 31
+ * a month on is Feb 28, not PHP's Mar 3.
+ */
+function contractAddMonths($date, $months, $day = 0) {
+    if (!contractDateValid($date)) {
         return '';
     }
-    return contractTermEnd(date('Y-m-d', strtotime('+1 day', $end)), $months);
+    [$year, $month, $own_day] = array_map('intval', explode('-', $date));
+    $total = $year * 12 + ($month - 1) + intval($months);
+    $year = intdiv($total, 12);
+    $month = $total % 12 + 1;
+    $last = intval(date('t', mktime(0, 0, 0, $month, 1, $year)));
+    return sprintf('%04d-%02d-%02d', $year, $month, min(intval($day) > 0 ? intval($day) : $own_day, $last));
+}
+
+/*
+ * The day of the month a contract's terms start on, for its renewals to keep
+ * to - its start date's - while its term ends the day before that day (or
+ * before the last day of a month too short for it). 0 when it has no start or
+ * end, or its end date was set to another day: it carries on from there.
+ */
+function contractAnchorDay(array $row) {
+    $start = (string) ($row['contract_start_date'] ?? '');
+    $end = (string) ($row['contract_end_date'] ?? '');
+    if (!contractDateValid($start) || !contractDateValid($end)) {
+        return 0;
+    }
+    $day = intval(substr($start, 8, 2));
+    $next = strtotime('+1 day', strtotime($end));
+    return intval(date('j', $next)) === min($day, intval(date('t', $next))) ? $day : 0;
+}
+
+/*
+ * The last day of a term that starts on $start and runs $months months -
+ * 'Y-m-d': the day before the next term starts, on the same day of the month
+ * as $day (the start's own day when not given), or the last day of a month
+ * too short for it. A monthly term from Jan 31 ends Feb 27; the next one
+ * starts Feb 28 and ends Mar 30.
+ */
+function contractTermEnd($start, $months, $day = 0) {
+    if (!contractDateValid($start) || intval($months) <= 0) {
+        return '';
+    }
+    $next = contractAddMonths($start, $months, $day);
+    return date('Y-m-d', strtotime('-1 day', strtotime($next)));
+}
+
+/*
+ * The new last day of the term after one that ends on $end - the next term
+ * starts the day after. $day is the contract's anchor (contractAnchorDay()),
+ * so a contract that started on the 31st goes back to the 31st after a short
+ * month rather than drifting.
+ */
+function contractNextEnd($end, $months, $day = 0) {
+    if (!contractDateValid($end) || intval($months) <= 0) {
+        return '';
+    }
+    return contractTermEnd(date('Y-m-d', strtotime('+1 day', strtotime($end))), $months, $day);
+}
+
+/*
+ * SQL: an active contract coming up to its notice date - within a month of
+ * it - with something to do about it: one that doesn't renew itself is
+ * ending; one that does has notice to give during its term. One with no
+ * notice (Standard terms), or whose notice is as long as its term (a monthly
+ * one with 30 days' notice), just renews - nothing to remind anyone of. On
+ * $today ('Y-m-d'), or MySQL's today.
+ */
+function contractDueSoonSql($today = null) {
+    $today = $today !== null ? "'" . escapeSql($today) . "'" : 'CURDATE()';
+    return "(contract_status = 'Active' AND contract_end_date IS NOT NULL AND contract_end_date <= $today + INTERVAL (contract_notice_days + " . CONTRACT_REMINDER_DAYS . ") DAY
+        AND (contract_auto_renew = 0 OR (contract_notice_days > 0
+            AND contract_end_date - INTERVAL contract_notice_days DAY > contract_end_date + INTERVAL 1 DAY - INTERVAL contract_term_months MONTH)))";
+}
+
+/*
+ * Whether notice to stop a contract renewing falls during its term - after
+ * the day the term started - so there is something to remind anyone of
+ * (contractDueSoonSql()). Not with no notice, or notice as long as the term.
+ */
+function contractNoticeInTerm(array $row) {
+    $notice = contractNoticeDate($row);
+    $end = (string) ($row['contract_end_date'] ?? '');
+    if (intval($row['contract_notice_days'] ?? 0) <= 0 || $notice === '' || !contractDateValid($end)) {
+        return false;
+    }
+    $started = contractAddMonths(date('Y-m-d', strtotime('+1 day', strtotime($end))), -intval($row['contract_term_months']));
+    return $started !== '' && $notice > $started;
+}
+
+/** SQL: a contract whose client isn't archived - an archived client's contracts are left alone. */
+function contractClientLiveSql($column = 'contract_client_id') {
+    return "$column IN (SELECT client_id FROM clients WHERE client_archived_at IS NULL)";
 }
 
 /** The last day notice can be given to stop it renewing (or to end it) - '' when it has no end date. */
@@ -178,7 +264,8 @@ function contractState(array $row, $today = null) {
     }
     $remind = contractReminderDate($row);
     if (intval($row['contract_auto_renew'])) {
-        if ($remind !== '' && $today >= $remind) {
+        // Renews soon when it has notice to give during its term - without, it just renews (contractDueSoonSql())
+        if ($remind !== '' && $today >= $remind && contractNoticeInTerm($row)) {
             return ['key' => 'renewing', 'label' => 'Renews soon', 'tone' => 'primary', 'icon' => 'fa-sync-alt',
                 'when' => 'Renews ' . $day(date('Y-m-d', strtotime('+1 day', strtotime($end))))];
         }
@@ -197,12 +284,13 @@ function contractStateHtml(array $row) {
 }
 
 /*
- * The list's tabs - key => label, icon and SQL. Due soon is active, with an
- * end date within its notice period and a month before it; Signing is out
- * for signature or waiting to be countersigned (once 3.4.3 has run).
+ * The list's tabs - key => label, icon and SQL. Due soon is active and within
+ * a month of its notice date, with something to do about it
+ * (contractDueSoonSql()); Signing is out for signature or waiting to be
+ * countersigned (once 3.4.3 has run).
  */
 function contractViews() {
-    $soon = "contract_status = 'Active' AND contract_end_date IS NOT NULL AND contract_end_date <= CURDATE() + INTERVAL (contract_notice_days + " . CONTRACT_REMINDER_DAYS . ") DAY";
+    $soon = contractDueSoonSql();
     $views = [
         'active' => ['label' => 'Active', 'icon' => 'fa-check-circle', 'where' => "contract_status = 'Active'", 'title' => 'In force, or starting soon'],
         'soon' => ['label' => 'Due soon', 'icon' => 'fa-hourglass-end', 'where' => $soon, 'title' => 'Renewing or ending - within a month of their notice date'],
@@ -366,7 +454,7 @@ function contractFromInput(array $in, $kind = 'contract') {
             return [$f, 'Pick a client you can open.'];
         }
         foreach (['start_date', 'end_date'] as $date) {
-            if ($f[$date] !== '' && (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $f[$date]) || !strtotime($f[$date]))) {
+            if ($f[$date] !== '' && !contractDateValid($f[$date])) {
                 return [$f, 'A date is a day, like 2026-11-01.'];
             }
         }
@@ -464,10 +552,11 @@ function contractStandardTermsAdd($client_id, $rate, $net_terms, array $slas = [
         return 0;
     }
     // In force from $start, its term carried on a year at a time to the one running today
-    $in['start_date'] = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $start) ? $start : date('Y-m-d');
+    $in['start_date'] = contractDateValid($start) ? $start : date('Y-m-d');
+    $day = intval(substr($in['start_date'], 8, 2));
     $end = contractTermEnd($in['start_date'], 12);
     while ($end !== '' && $end < date('Y-m-d')) {
-        $end = contractNextEnd($end, 12);
+        $end = contractNextEnd($end, 12, $day);
     }
     $in['end_date'] = $end;
     [$f, $error] = contractFromInput($in, 'contract');
@@ -504,7 +593,7 @@ function contractFromTemplateAdd($client_id, $template_id, $start = null, $owner
         return [0, "That template isn't there any more."];
     }
     $start = trim((string) $start) !== '' ? trim((string) $start) : date('Y-m-d');
-    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $start) || !strtotime($start)) {
+    if (!contractDateValid($start)) {
         return [0, 'A start date is a day, like 2026-11-01.'];
     }
     $client_id = intval($client_id);
@@ -512,7 +601,7 @@ function contractFromTemplateAdd($client_id, $template_id, $start = null, $owner
     $end = contractTermEnd($start, $term);
     $status = $status === 'Draft' ? 'Draft' : 'Active';
     while ($status === 'Active' && intval($template['contract_template_auto_renew']) && $end !== '' && $end < date('Y-m-d')) {
-        $end = contractNextEnd($end, $term);
+        $end = contractNextEnd($end, $term, intval(substr($start, 8, 2)));
     }
     $contact = mysqli_fetch_row(mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL
         ORDER BY contact_primary DESC, contact_id ASC LIMIT 1"));
@@ -665,12 +754,18 @@ function contractCancel(array $row, $last_day, $reason) {
 
 /*
  * The night's work, run by cron/nightly_tasks.php - [renewed, ended,
- * reminded, drawn, paused] for the log:
+ * reminded, drawn, paused, withdrawn] for the log:
  *  - an active contract whose last day has passed renews for another term
- *    when it renews itself (as many terms as it takes to reach today), and
- *    ends when it doesn't;
- *  - the owner of one coming up to its notice date is reminded, once a term,
- *    by email and in ITFlow - or everyone, when it has no owner;
+ *    when it renews itself (as many terms as it takes to reach today, each on
+ *    its start day of the month), and ends when it doesn't;
+ *  - one coming up to its notice date with something to do about it - it
+ *    ends, or has notice to give during its term (contractDueSoonSql()) - is
+ *    reminded of, once a term - its owner by email, and the agents in ITFlow;
+ *  - an archived client's contracts are left as they are - not renewed,
+ *    ended or reminded of - until the client is restored;
+ *  - a signing request still waiting on a contract that has ended or was
+ *    cancelled, or whose client was archived, is withdrawn
+ *    (contractSignatureWithdrawStale());
  *  - prepaid hours: each month's included hours are added, and the tickets
  *    done since are drawn from them (contractHoursNightly());
  *  - the recurring invoice of one that ended, or is past a cancellation's
@@ -679,12 +774,12 @@ function contractCancel(array $row, $last_day, $reason) {
 function contractsNightly($today = null) {
     global $mysqli;
     $today = $today ?? date('Y-m-d');
-    $done = ['renewed' => 0, 'ended' => 0, 'reminded' => 0, 'drawn' => 0, 'paused' => 0];
+    $done = ['renewed' => 0, 'ended' => 0, 'reminded' => 0, 'drawn' => 0, 'paused' => 0, 'withdrawn' => 0];
     if (!contractsReady()) {
         return $done;
     }
 
-    $sql = mysqli_query($mysqli, "SELECT contract_id FROM contracts WHERE contract_status = 'Active' AND contract_archived_at IS NULL
+    $sql = mysqli_query($mysqli, "SELECT contract_id FROM contracts WHERE contract_status = 'Active' AND contract_archived_at IS NULL AND " . contractClientLiveSql() . "
         AND contract_end_date IS NOT NULL AND contract_end_date < '" . escapeSql($today) . "'");
     while ($id = mysqli_fetch_row($sql)) {
         $row = contractRow($id[0]);
@@ -695,7 +790,7 @@ function contractsNightly($today = null) {
         if (intval($row['contract_auto_renew'])) {
             $end = (string) $row['contract_end_date'];
             while ($end !== '' && $end < $today) {
-                $end = contractNextEnd($end, $row['contract_term_months']);
+                $end = contractNextEnd($end, $row['contract_term_months'], contractAnchorDay($row));
             }
             contractRenew($row, $end);
             logAudit("Contract", "Edit", "Contract $name renewed itself to " . escapeSql($end), intval($row['contract_client_id']), intval($row['contract_id']));
@@ -708,9 +803,8 @@ function contractsNightly($today = null) {
         }
     }
 
-    $sql = mysqli_query($mysqli, "SELECT contract_id FROM contracts WHERE contract_status = 'Active' AND contract_archived_at IS NULL AND contract_reminded_at IS NULL
-        AND contract_end_date IS NOT NULL AND contract_end_date >= '" . escapeSql($today) . "'
-        AND contract_end_date <= '" . escapeSql($today) . "' + INTERVAL (contract_notice_days + " . CONTRACT_REMINDER_DAYS . ") DAY");
+    $sql = mysqli_query($mysqli, "SELECT contract_id FROM contracts WHERE contract_archived_at IS NULL AND contract_reminded_at IS NULL AND " . contractClientLiveSql() . "
+        AND contract_end_date >= '" . escapeSql($today) . "' AND " . contractDueSoonSql($today));
     while ($id = mysqli_fetch_row($sql)) {
         $row = contractRow($id[0]);
         if (!$row) {
@@ -728,6 +822,10 @@ function contractsNightly($today = null) {
     // Recurring invoices of contracts that ended, or are past a cancellation's last day, are paused
     if (function_exists('contractRecurringNightly')) {
         $done['paused'] = contractRecurringNightly($today);
+    }
+    // Nothing is signed on a contract that ended or was cancelled, or an archived client's
+    if (function_exists('contractSignatureWithdrawStale')) {
+        $done['withdrawn'] = contractSignatureWithdrawStale();
     }
     return $done;
 }
@@ -761,6 +859,60 @@ function contractRemind(array $row) {
             'button' => ['label' => 'Open the contract', 'url' => "https://$config_base_url$url"],
         ]);
     }
+}
+
+/*
+ * Why a contract can't be deleted - '' when it can. Not once tickets' time
+ * was drawn from its prepaid hours (deleting would send them back to bill,
+ * when the hours were paid for), nor once it was signed by both (the record
+ * of what was agreed). An active one can be cancelled instead.
+ */
+function contractDeleteBlocker(array $row) {
+    return contractDeleteBlockers([$row])[intval($row['contract_id'])] ?? '';
+}
+
+/* What deleting a contract that can be deleted takes with it - for the confirm. */
+function contractDeleteWarning(array $row) {
+    return 'It goes for good, with any prepaid hours and signing requests on it.'
+        . (($row['contract_status'] ?? '') === 'Active' ? ' Cancel it instead to keep a record of it.' : '');
+}
+
+/* Of these contracts (rows with contract_id and contract_status), the ones that can't be deleted - id => why. */
+function contractDeleteBlockers(array $rows) {
+    global $mysqli;
+    $status = [];
+    foreach ($rows as $row) {
+        if (intval($row['contract_id'] ?? 0) > 0) {
+            $status[intval($row['contract_id'])] = (string) ($row['contract_status'] ?? '');
+        }
+    }
+    $blocked = [];
+    if (!$status) {
+        return $blocked;
+    }
+    $in = implode(',', array_keys($status));
+    $why = [];
+    if (function_exists('contractSignaturesReady') && contractSignaturesReady()) {
+        $sql = mysqli_query($mysqli, "SELECT DISTINCT contract_signature_contract_id FROM contract_signatures WHERE contract_signature_contract_id IN ($in)
+            AND contract_signature_client_signed_at IS NOT NULL AND contract_signature_agent_signed_at IS NOT NULL");
+        while ($row = mysqli_fetch_row($sql)) {
+            $why[intval($row[0])] = 'signed';
+        }
+    }
+    if (function_exists('contractHoursReady') && contractHoursReady()) {
+        $sql = mysqli_query($mysqli, "SELECT DISTINCT contract_block_contract_id FROM contract_blocks JOIN contract_block_uses ON contract_block_use_block_id = contract_block_id
+            WHERE contract_block_contract_id IN ($in) AND contract_block_use_hours > 0");
+        while ($row = mysqli_fetch_row($sql)) {
+            $why[intval($row[0])] = 'drawn';
+        }
+    }
+    foreach ($why as $id => $what) {
+        $active = $status[$id] === 'Active';
+        $blocked[$id] = $what === 'drawn'
+            ? "Tickets' time was drawn from its prepaid hours - deleting it would send them back to bill. " . ($active ? 'Cancel it instead, or put those tickets back first.' : 'Put those tickets back first.')
+            : 'It was signed by both - it stays, as the record of what was agreed.' . ($active ? ' Cancel it instead.' : '');
+    }
+    return $blocked;
 }
 
 /* How many contracts a client has that are active - for the client menu. */

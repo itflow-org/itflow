@@ -7,7 +7,8 @@
  * Tabs: Active (the default), Due soon (within a month of their notice
  * date), Signing (out for signature, or to countersign), Drafts, Ended
  * (ended or cancelled) and All. Each row says where its signing stands,
- * and how many prepaid hours are left on it.
+ * and how many prepaid hours are left on it. Across every client, archived
+ * clients' contracts are left out - they are on the client's own page.
  * The work is in functions/contract.php; the handlers are
  * agent/post/contract.php.
  */
@@ -23,7 +24,8 @@ if (isset($_GET['client_id'])) {
     $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
-    $client_query = '';
+    // An archived client's contracts are on their own page, not here
+    $client_query = "AND " . contractClientLiveSql();
     $client_url = '';
 }
 
@@ -35,7 +37,7 @@ $can_delete = lookupUserPermission('module_sales') >= 3;
 $client = '';
 if (!$client_url && !empty($_GET['client'])) {
     $client = intval($_GET['client']);
-    $client_query = "AND contract_client_id = $client";
+    $client_query = "AND contract_client_id = $client AND " . contractClientLiveSql();
 }
 
 $type_filter = isset(CONTRACT_TYPES[$_GET['type'] ?? '']) ? $_GET['type'] : '';
@@ -66,7 +68,7 @@ $num_rows = [0];
 $counts = array_fill_keys(array_keys($views), 0);
 $stats = ['active' => 0, 'ending' => 0, 'renewing' => 0, 'draft' => 0];
 if (contractsReady()) {
-    $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contracts.*, client_name, user_name AS owner_name
+    $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contracts.*, client_name, client_archived_at, user_name AS owner_name
         FROM contracts $joins
         WHERE {$views[$view]['where']} $filters
         ORDER BY {$sortable_columns[$sort]}, contract_id ASC LIMIT $record_from, $record_to");
@@ -82,10 +84,15 @@ if (contractsReady()) {
         $sql = mysqli_query($mysqli, "SELECT contract_signature_id, contract_signature_contract_id, contract_signature_url_key, contract_signature_sent_at, contract_signature_viewed_at, contract_signature_client_name,
                 contract_signature_client_signed_at, contract_signature_agent_signed_at, contract_signature_withdrawn_at
             FROM contract_signatures WHERE contract_signature_id IN (SELECT MAX(contract_signature_id) FROM contract_signatures WHERE contract_signature_contract_id IN ($ids) GROUP BY contract_signature_contract_id)");
+        $by_id = array_column($contracts, null, 'contract_id');
         while ($round = mysqli_fetch_assoc($sql)) {
-            $signing[intval($round['contract_signature_contract_id'])] = contractSignatureState($round);
+            $id = intval($round['contract_signature_contract_id']);
+            $signing[$id] = contractSignatureState($round + array_intersect_key($by_id[$id] ?? [], ['contract_status' => 1, 'client_archived_at' => 1]));
         }
     }
+
+    // The ones that can't be deleted, and why
+    $delete_blocked = $can_delete ? contractDeleteBlockers($contracts) : [];
 
     // Prepaid hours left on each
     $hours_left = contractHoursLeftFor(array_column($contracts, 'contract_id'));
@@ -287,10 +294,14 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php } ?>
                                 <?php if ($can_delete) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contract=<?= $contract_id ?>&csrf_token=<?= $csrf ?>"
-                                        data-confirm-title="Delete <?= escapeHtml($row['contract_name']) ?>?" data-confirm-text="It goes for good. Cancel it instead to keep a record of it." data-confirm-button="Delete">
-                                        <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                    </a>
+                                    <?php if (isset($delete_blocked[$contract_id])) { ?>
+                                        <div class="dropdown-item-text small text-body-secondary text-wrap" style="max-width: 18rem;" data-delete-blocked><i class="fas fa-fw fa-lock me-1"></i>Can't be deleted. <?= escapeHtml($delete_blocked[$contract_id]) ?></div>
+                                    <?php } else { ?>
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contract=<?= $contract_id ?>&csrf_token=<?= $csrf ?>"
+                                            data-confirm-title="Delete <?= escapeHtml($row['contract_name']) ?>?" data-confirm-text="<?= escapeHtml(contractDeleteWarning($row)) ?>" data-confirm-button="Delete">
+                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                        </a>
+                                    <?php } ?>
                                 <?php } ?>
                             </div>
                         </div>

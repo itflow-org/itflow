@@ -69,9 +69,11 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
     $hours = contractHoursSummary($blocks);
     $show_hours = $hours_on && contractHasHours($contract, $blocks);
     $hours_uses = $show_hours ? contractHoursUses($contract_id, 20) : [];
-    $can_hours = $hours_on && $can_edit && !in_array($status, ['Ended', 'Cancelled'], true);
+    // Drawn from while active, and once cancelled, until its last day
+    $hours_live = $hours_on && contractHoursLive($contract, $today);
+    $can_hours = $hours_on && $can_edit && ($status === 'Draft' || $hours_live);
     $hours_alert = $hours_on ? floatval($contract['contract_hours_alert']) : 0;
-    $hours_low = $show_hours && $status === 'Active' && $hours['bought'] > 0 && ($hours['left'] <= 0 || ($hours_alert > 0 && $hours['left'] < $hours_alert));
+    $hours_low = $show_hours && $hours_live && $hours['bought'] > 0 && ($hours['left'] <= 0 || ($hours_alert > 0 && $hours['left'] < $hours_alert));
     // In force today - its SLAs, rates and net terms are the client's - and the recurring invoice that bills it
     $in_force = contractInForceOn($contract, $today);
     $billing_on = contractBillingReady() && intval($config_module_enable_accounting) === 1;
@@ -154,12 +156,17 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                             <?php if ($status === 'Active') { ?>
                                 <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/contract/contract_cancel.php?id=<?= $contract_id ?>"><i class="fas fa-fw fa-ban me-2"></i>Cancel</a>
                             <?php } ?>
-                            <?php if ($can_delete) { ?>
+                            <?php if ($can_delete) {
+                                $delete_blocked = contractDeleteBlocker($contract); ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contract=<?= $contract_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                    data-confirm-title="Delete <?= $name ?>?" data-confirm-text="It goes for good. Cancel it instead to keep a record of it." data-confirm-button="Delete">
-                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                </a>
+                                <?php if ($delete_blocked !== '') { ?>
+                                    <div class="dropdown-item-text small text-body-secondary text-wrap" style="max-width: 18rem;" data-delete-blocked><i class="fas fa-fw fa-lock me-1"></i>Can't be deleted. <?= escapeHtml($delete_blocked) ?></div>
+                                <?php } else { ?>
+                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contract=<?= $contract_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                        data-confirm-title="Delete <?= $name ?>?" data-confirm-text="<?= escapeHtml(contractDeleteWarning($contract)) ?>" data-confirm-button="Delete">
+                                        <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                    </a>
+                                <?php } ?>
                             <?php } ?>
                         </div>
                     </div>
@@ -437,7 +444,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                     <div class="card-header d-flex flex-wrap align-items-center gap-2">
                         <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-hourglass-half text-secondary me-2"></i>Prepaid hours</h3>
                         <?php if ($can_hours) { ?>
-                            <?php if ($status === 'Active' && $hours['left'] > 0) { ?>
+                            <?php if ($hours_live && $hours['left'] > 0) { ?>
                                 <form action="post.php" method="post" class="d-inline">
                                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                     <input type="hidden" name="contract_id" value="<?= $contract_id ?>">
@@ -456,7 +463,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                                     <?php if ($hours['bought'] > 0) { ?>
                                         Of <?= escapeHtml(contractHoursText($hours['bought'])) ?> &middot; <?= escapeHtml(contractHoursText($hours['used'])) ?> used
                                     <?php } else { ?>
-                                        No hours to draw from<?= $monthly > 0 && $status !== 'Active' ? ' until it is active' : '' ?>
+                                        No hours to draw from<?= $monthly > 0 && $status === 'Draft' ? ' until it is active' : '' ?>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -480,8 +487,10 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                                 </ul>
                             </div>
                         </div>
-                        <?php if ($status !== 'Active') { ?>
+                        <?php if (!$hours_live) { ?>
                             <div class="alert alert-secondary small py-2 mb-3"><i class="fas fa-fw fa-info-circle me-1"></i>Time is drawn from them only while the contract is active.</div>
+                        <?php } elseif ($status === 'Cancelled') { ?>
+                            <div class="alert alert-secondary small py-2 mb-3" data-contract-hours-until><i class="fas fa-fw fa-info-circle me-1"></i>Cancelled - time is drawn from them until its last day, <?= escapeHtml(date('M j, Y', strtotime($contract['contract_end_date']))) ?>.</div>
                         <?php } elseif ($hours_low) { ?>
                             <div class="alert alert-warning small py-2 mb-3" data-contract-hours-low><i class="fas fa-fw fa-exclamation-triangle me-1"></i><?= $hours['left'] > 0 ? 'Running low.' : 'All used.' ?> Time beyond them goes to Unbilled Time to bill as usual.</div>
                         <?php } ?>

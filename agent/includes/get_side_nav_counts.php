@@ -27,7 +27,7 @@ $num_recurring_invoices = $row['num'];
 
 // Contracts ending or renewing soon - within a month of their notice date
 $num_contracts_soon = lookupUserPermission('module_sales') >= 1 && contractsReady()
-    ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM contracts WHERE contract_archived_at IS NULL AND " . contractViews()['soon']['where'] . clientScopeSql('contract_client_id')))[0]) : 0;
+    ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM contracts WHERE contract_archived_at IS NULL AND " . contractClientLiveSql() . " AND " . contractViews()['soon']['where'] . clientScopeSql('contract_client_id')))[0]) : 0;
 
 // Unbilled tickets - billable, done and on no invoice (Billing > Unbilled Time)
 $num_unbilled_tickets = $config_module_enable_accounting == 1 && $config_module_enable_ticketing == 1 && lookupUserPermission('module_sales') >= 1 ? billingUnbilledCount() : 0;

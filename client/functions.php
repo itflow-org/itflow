@@ -446,14 +446,14 @@ function portalContractsGate() {
     }
 }
 
-/** SQL: a contract sent to sign and not withdrawn - out for signature, or signed (3.4.3 on). */
+/** SQL: a contract sent to sign and not withdrawn - out for signature (while a draft or active), or signed (3.4.3 on). */
 function portalContractSentSql($client_signed = null) {
     if (!contractSignaturesReady()) {
         return '0';
     }
     return "EXISTS (SELECT 1 FROM contract_signatures WHERE contract_signature_contract_id = contract_id AND contract_signature_url_key <> ''
         AND contract_signature_sent_at IS NOT NULL AND contract_signature_withdrawn_at IS NULL"
-        . ($client_signed === false ? ' AND contract_signature_client_signed_at IS NULL' : '') . ")";
+        . ($client_signed === false ? " AND contract_signature_client_signed_at IS NULL AND contract_status IN ('Draft', 'Active')" : '') . ")";
 }
 
 /** SQL: the session client's contracts the portal shows - not drafts, unless sent to sign. */
