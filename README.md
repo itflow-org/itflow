@@ -162,7 +162,7 @@ Either way, ITFlow updates its files to the latest release and then applies the 
 
 ### Managed hosting
 
-If you'd rather not run a server, we can [host ITFlow for you](https://services.itflow.org/hosting.php) (coming soon).
+If you'd rather not run a server, we can [host ITFlow for you](https://itflow.org/hosting.php) (coming soon).
 
 ## Community and support
 
