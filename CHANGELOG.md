@@ -2,6 +2,12 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.11.1]
+
+- Update README.
+- Fix long decimal data for trips for spome instances.
+
+
 ## [26.11]
 
 ### Upgrading to 26.11

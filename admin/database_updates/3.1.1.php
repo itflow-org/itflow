@@ -7,6 +7,10 @@
 
 defined('FROM_DB_UPDATER') || die("Direct file access is not allowed");
 
+    // A rate past what decimal(9,4) holds - 100,000% or more - was typed in by
+    // mistake: it goes to 0, or the change below is refused and the update stops here
+    mysqli_query($mysqli, "UPDATE `taxes` SET `tax_percent` = 0 WHERE ABS(`tax_percent`) >= 100000");
+
     // A rate to the ten-thousandth of a percent (Quebec's 9.975%) rather than
     // a float, a description and the registration number the rate is charged
     // under, and - when a rate in use was changed - the rate that took its place

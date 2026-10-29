@@ -68,16 +68,21 @@ defined('FROM_DB_UPDATER') || die("Direct file access is not allowed");
         }
 
         $itflow_today = date('Y-m-d');
+        // A client given its Standard terms by an earlier run that stopped part way is left as it is
         $itflow_sql = mysqli_query($mysqli, "SELECT client_id, client_rate, client_net_terms, client_created_at, client_archived_at,
                 (SELECT MIN(contract_start_date) FROM contracts WHERE contract_client_id = client_id AND contract_start_date IS NOT NULL) AS first_contract_start
-            FROM clients ORDER BY client_id");
+            FROM clients
+            WHERE NOT EXISTS (SELECT 1 FROM contracts WHERE contract_client_id = client_id AND contract_name = 'Standard terms' AND contract_notes LIKE 'Made by the 26.11 update%')
+            ORDER BY client_id");
         while ($itflow_sql && ($itflow_client = mysqli_fetch_assoc($itflow_sql))) {
             $itflow_client_id = intval($itflow_client['client_id']);
             $itflow_set = [];
 
-            // Only what differs from the defaults - a rate of nothing was no rate, the default applied
+            // Only what differs from the defaults - a rate of nothing was no rate, the default applied. A
+            // contract's rate holds under 100,000,000.00 - a rate past that was typed in by mistake, and
+            // is left out (the default applies), or the contract couldn't be made and the update would stop
             $itflow_rate = round(floatval($itflow_client['client_rate']), 2);
-            if ($itflow_rate > 0 && $itflow_rate != $itflow_default_rate) {
+            if ($itflow_rate > 0 && $itflow_rate < 100000000 && $itflow_rate != $itflow_default_rate) {
                 $itflow_set[] = "contract_rate_standard = " . sprintf('%.2f', $itflow_rate);
             }
             if ($itflow_client['client_net_terms'] !== null && intval($itflow_client['client_net_terms']) !== $itflow_default_net) {
