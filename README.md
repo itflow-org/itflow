@@ -180,11 +180,23 @@ We have temporarily paused pull requests from the community. See [CONTRIBUTING.m
 
 ### Supporters
 
-We're incredibly grateful to the organizations and individuals who [sponsor](https://services.itflow.org) the project - a big thank you to:
+We're incredibly grateful to the organizations and individuals who [sponsor](https://itflow.org/hosting.php?want=sponsor) the project - a big thank you to:
 
-- CompuMatter
-- F1 for HELP
-- digiBandit
+| Sponsor | Since |
+|---|---|
+| [F1 for Help](https://f1forhelp.net) | Jan 2024 |
+| [CompuMatter](https://compumatter.com) | Feb 2024 |
+| [DINadmin ApS](https://dinadmin.dk) | Mar 2025 |
+| [DigiBandit](https://dbits.ca) | May 2025 |
+| [Mountaineer IT](https://mountaineerit.com) | Dec 2025 |
+| [DataBit Solutions](https://databitsolutions.com) | Dec 2025 |
+| [City of Rathdrum](https://rathdrumpolice.gov) | Dec 2025 |
+| [Algolibre](https://algolibre.io) | Aug 2026 |
+| [Pentagon Networks](https://pentagon.net) | Aug 2026 |
+| [Hanobox e.K.](https://hanobox.de) | Oct 2026 |
+| [Innovarro Group Limited](https://innovarro.com) | Oct 2026 |
+
+...and the many more who have sponsored anonymously since 2024.
 
 ## Security
 
