@@ -17,7 +17,7 @@ Ticketing, client documentation, contracts and billing - with a client portal - 
 [![Stargazers][stars-shield]][stars-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Commits][commit-shield]][commit-url]
-[![GPL License][license-shield]][license-url]
+[![AGPL License][license-shield]][license-url]
 
 [**Live demo**](https://demo.itflow.org) &nbsp;·&nbsp; [Website](https://itflow.org) &nbsp;·&nbsp; [Docs](https://docs.itflow.org) &nbsp;·&nbsp; [Forum](https://forum.itflow.org) &nbsp;·&nbsp; [What's new](CHANGELOG.md)
 
@@ -206,7 +206,11 @@ If you find a security issue, please report it privately through our [security p
 
 ## License
 
-ITFlow is distributed "as is" under the GPL-3.0 license, WITHOUT WARRANTY OF ANY KIND. See [`LICENSE`](LICENSE) for details.
+ITFlow is free and open source under the GNU Affero General Public License v3.0 (AGPL-3.0), distributed "as is", WITHOUT WARRANTY OF ANY KIND. See [`LICENSE`](LICENSE) for details.
+
+You're free to use, change and share ITFlow, for your own MSP and your clients included. If you change ITFlow and let other people use your changed version over a network - hosting it for customers, for example - the AGPL requires you to offer them the source code of your version.
+
+ITFlow 26.11.1 and earlier were released under the GPL-3.0.
 
 <p align="right"><a href="#top">Back to top</a></p>
 
