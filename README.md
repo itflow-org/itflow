@@ -210,8 +210,6 @@ ITFlow is free and open source under the GNU Affero General Public License v3.0 
 
 You're free to use, change and share ITFlow, for your own MSP and your clients included. If you change ITFlow and let other people use your changed version over a network - hosting it for customers, for example - the AGPL requires you to offer them the source code of your version.
 
-ITFlow 26.11.1 and earlier were released under the GPL-3.0.
-
 <p align="right"><a href="#top">Back to top</a></p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
