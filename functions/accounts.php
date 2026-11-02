@@ -363,6 +363,11 @@ function accountLedgerKinds() {
  * it is only worked out with $with_balance - where it is shown. Without it,
  * txn_balance is NULL: counts, totals and lists across every account don't
  * need it.
+ *
+ * The lines are read first and each looks its account up (STRAIGHT_JOIN).
+ * Left to choose, the optimizer starts from the few accounts and finds their
+ * lines through an index it builds on the lines' temporary table, which is
+ * two to three times slower.
  */
 function accountLedgerSql($account_id = 0, $with_balance = true) {
     $account_id = intval($account_id);
@@ -416,7 +421,7 @@ function accountLedgerSql($account_id = 0, $with_balance = true) {
             " . ($with_balance ? "accounts.opening_balance + SUM(ledger_lines.txn_amount) OVER (PARTITION BY ledger_lines.txn_account_id ORDER BY ledger_lines.txn_date ASC, ledger_lines.txn_created_at ASC,
                 ledger_lines.txn_order ASC, ledger_lines.txn_id ASC)" : "NULL") . " AS txn_balance
         FROM ($rows) AS ledger_lines
-        JOIN accounts ON accounts.account_id = ledger_lines.txn_account_id
+        STRAIGHT_JOIN accounts ON accounts.account_id = ledger_lines.txn_account_id
         LEFT JOIN accounts AS other_account ON ledger_lines.txn_kind IN ('transfer_in', 'transfer_out') AND other_account.account_id = ledger_lines.txn_other_account_id
         LEFT JOIN account_reconciliations AS cleared ON cleared.reconciliation_id = ledger_lines.txn_reconciliation_id AND cleared.reconciliation_finished_at IS NOT NULL
         LEFT JOIN categories ON category_id = ledger_lines.txn_category_id

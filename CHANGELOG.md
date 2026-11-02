@@ -6,11 +6,12 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's one database change (3.5.3 to 3.5.4) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's two database changes (3.5.3 to 3.5.5) in the same pass. Nothing else is required.
 
 ### Bug Fixes
 
-- Transactions: the list, its Transfers pill, Reconcile and the transactions export got slower as the books grew, taking several seconds with a few years of history, and saving a new transfer waited on the same list. They load quickly again. On a test with eight years of books, the Transfers pill went from over six seconds to about a third of a second.
+- Transactions: the list, its Transfers pill, Reconcile and the transactions export got slower as the books grew, taking several seconds with a few years of history, and saving a new transfer waited on the same list. They load quickly again. On a test with eight years of books, the Transfers pill went from over six seconds to under a fifth of a second.
+- Expenses: billable expenses waiting to go on an invoice slowed down every page, because the side menu counts them and each one was checked against every expense. With a few hundred waiting, that was about a third of a second on every page. The invoice page, Add Expenses and an expense's quick look had the same delay. All of them are quick again.
 
 ### Developer Updates
 
@@ -19,6 +20,8 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
   - `agent/transactions.php` passes it for one account sorted by date, the only view that shows the balance.
   - The transactions export passes it for one account. Reconcile (`reconcileLines()` and the uncleared count in `agent/reconcile.php`) never does.
 - `agent/transactions.php` works out the Transfers summary cards in the same query as the pill counts and totals, so the Transfers pill reads the ledger twice instead of three times.
+- `accountLedgerSql()` reads its lines first and joins each to its account with `STRAIGHT_JOIN`. Left to choose, the optimizer started from the accounts and found their lines through an index it built on the lines' temporary table (`derived_with_keys`), which was two to three times slower.
+- Database 3.5.5 indexes `expenses.expense_refund_of_id`. `expenseUnbilledCount()` (the side menu, on every agent page), `expenseUnbilled()`, `expenseOnInvoice()` and `expenseRow()` sum each expense's refunds in a correlated subquery, which scanned every expense for each one. Like 3.5.4, it is safe to run again, and `db.sql` has the key.
 
 ## [26.11.1]
 
