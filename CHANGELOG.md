@@ -2,6 +2,24 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [Unreleased]
+
+### Upgrading
+
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's one database change (3.5.3 to 3.5.4) in the same pass. Nothing else is required.
+
+### Bug Fixes
+
+- Transactions: the list, its Transfers pill, Reconcile and the transactions export got slower as the books grew, taking several seconds with a few years of history, and saving a new transfer waited on the same list. They load quickly again. On a test with eight years of books, the Transfers pill went from over six seconds to about a third of a second.
+
+### Developer Updates
+
+- Database 3.5.4 indexes `transfers.transfer_expense_id`. `accountLedgerSql()` joins every expense to the transfer it may belong to, and with no index the join compared every expense with every transfer (a block nested-loop join on MariaDB). `transfer_revenue_id` has been indexed since 2.7.5. The migration checks `information_schema.STATISTICS` first, so it is safe to run again, and `db.sql` has the key.
+- `accountLedgerSql($account_id = 0, $with_balance = true)`: the running balance, a `SUM() OVER` the account's whole history, is only worked out with `$with_balance`. Without it, `txn_balance` is NULL.
+  - `agent/transactions.php` passes it for one account sorted by date, the only view that shows the balance.
+  - The transactions export passes it for one account. Reconcile (`reconcileLines()` and the uncleared count in `agent/reconcile.php`) never does.
+- `agent/transactions.php` works out the Transfers summary cards in the same query as the pill counts and totals, so the Transfers pill reads the ledger twice instead of three times.
+
 ## [26.11.1]
 
 - Update README.
