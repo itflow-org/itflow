@@ -151,7 +151,7 @@ function reconcileLines(array $row, &$later = 0) {
     global $mysqli;
     $id = intval($row['reconciliation_id']);
     $date = escapeSql($row['reconciliation_statement_date']);
-    $sql = mysqli_query($mysqli, "SELECT ledger.*, IF(ledger.txn_reconciliation_id = $id, 1, 0) AS ticked FROM (" . accountLedgerSql($row['reconciliation_account_id']) . ") AS ledger
+    $sql = mysqli_query($mysqli, "SELECT ledger.*, IF(ledger.txn_reconciliation_id = $id, 1, 0) AS ticked FROM (" . accountLedgerSql($row['reconciliation_account_id'], false) . ") AS ledger
         WHERE ledger.txn_reconciliation_id = $id OR (ledger.txn_reconciliation_id IS NULL AND ledger.txn_date <= '$date')
         ORDER BY ledger.txn_date ASC, ledger.txn_created_at ASC, ledger.txn_order ASC, ledger.txn_id ASC");
     $lines = [];
@@ -159,7 +159,7 @@ function reconcileLines(array $row, &$later = 0) {
         $line['ticked'] = intval($line['ticked']) === 1;
         $lines[] = $line;
     }
-    $later = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM (" . accountLedgerSql($row['reconciliation_account_id']) . ") AS ledger
+    $later = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM (" . accountLedgerSql($row['reconciliation_account_id'], false) . ") AS ledger
         WHERE ledger.txn_reconciliation_id IS NULL AND ledger.txn_date > '$date'"))[0]);
     return $lines;
 }

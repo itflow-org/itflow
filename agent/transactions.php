@@ -72,7 +72,8 @@ $balance_visible = !$all && $sort === 'txn_date';
 $filter_src = array_merge($_GET, ['dtf' => $dtf, 'dtt' => $dtt, 'kind' => $kind_filter, 'show' => $show]);
 $where = accountLedgerFiltersSql($filter_src, $summary, false, $all);
 $show_query = $show !== '' ? 'AND ' . $shows[$show]['where'] : '';
-$ledger = accountLedgerSql($account_filter);
+// The balance after each line only where it shows - one account, in date order
+$ledger = accountLedgerSql($account_filter, $balance_visible);
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS ledger.* FROM ($ledger) AS ledger WHERE $where $show_query ORDER BY $order_sql LIMIT $record_from, $record_to");
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -81,21 +82,35 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $rows[] = accountLedgerVisible($row);
 }
 
-// The pills, and the money in and out of what is listed
+// The pills, and the money in and out of what is listed - and, on every account's
+// transfers, what was moved, what paid off cards and what payment processors paid out.
+// One pass over the ledger, without the balance after each line.
+$transfer_cards = $all && $show === 'transfers';
 $count_sql = [];
 foreach ($shows as $key => $s) {
     $count_sql[] = $key === '' ? 'COUNT(*)' : "COALESCE(SUM({$s['where']}), 0)";
 }
-$row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . ",
-        COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.txn_amount > 0 THEN ledger.txn_amount END), 0),
-        COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.txn_amount < 0 THEN -ledger.txn_amount END), 0)
-    FROM ($ledger) AS ledger WHERE $where"));
+$count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.txn_amount > 0 THEN ledger.txn_amount END), 0)";
+$count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.txn_amount < 0 THEN -ledger.txn_amount END), 0)";
+if ($transfer_cards) {
+    $count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query THEN -ledger.txn_amount END), 0)";
+    $count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.other_account_type = 3 THEN -ledger.txn_amount END), 0)";
+    $count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.other_account_type = 3 THEN 1 END), 0)";
+    $count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.account_type = 5 THEN -ledger.txn_amount END), 0)";
+    $count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.account_type = 5 THEN 1 END), 0)";
+}
+$row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . " FROM (" . accountLedgerSql($account_filter, false) . ") AS ledger WHERE $where"));
 $counts = [];
 foreach (array_keys($shows) as $i => $key) {
     $counts[$key] = intval($row[$i]);
 }
-$total_in = round(floatval($row[count($shows)]), 2);
-$total_out = round(floatval($row[count($shows) + 1]), 2);
+$n = count($shows);
+$total_in = round(floatval($row[$n]), 2);
+$total_out = round(floatval($row[$n + 1]), 2);
+if ($transfer_cards) {
+    $moved = ['count' => $counts['transfers'], 'total' => round(floatval($row[$n + 2]), 2), 'cards' => round(floatval($row[$n + 3]), 2), 'card_count' => intval($row[$n + 4]),
+        'payouts' => round(floatval($row[$n + 5]), 2), 'payout_count' => intval($row[$n + 6])];
+}
 $currency = $account ? (string) $account['account_currency_code'] : (string) $session_company_currency;
 $money = function ($amount, $code = null) use ($currency) {
     return escapeHtml(billingMoney($amount, $code ?? $currency));
@@ -117,17 +132,6 @@ foreach ($open_accounts as $open) {
 }
 $is_card = $account && $account['type'] === 3;
 
-// Every account's transfers: what was moved, what paid off cards and what payment processors paid out
-$transfer_cards = $all && $show === 'transfers';
-if ($transfer_cards) {
-    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(-ledger.txn_amount), 0),
-            COALESCE(SUM(CASE WHEN ledger.other_account_type = 3 THEN -ledger.txn_amount END), 0), COALESCE(SUM(CASE WHEN ledger.other_account_type = 3 THEN 1 END), 0),
-            COALESCE(SUM(CASE WHEN ledger.account_type = 5 THEN -ledger.txn_amount END), 0), COALESCE(SUM(CASE WHEN ledger.account_type = 5 THEN 1 END), 0)
-        FROM ($ledger) AS ledger
-        WHERE $where $show_query"));
-    $moved = ['count' => intval($row[0]), 'total' => round(floatval($row[1]), 2), 'cards' => round(floatval($row[2]), 2), 'card_count' => intval($row[3]),
-        'payouts' => round(floatval($row[4]), 2), 'payout_count' => intval($row[5])];
-}
 
 ?>
 

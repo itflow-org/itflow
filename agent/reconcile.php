@@ -78,7 +78,7 @@ if ($open) {
     $lines = reconcileLines($open, $later);
     $statement_date = $open['reconciliation_statement_date'];
 } else {
-    $uncleared = $account ? mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(ledger.txn_amount), 0) FROM (" . accountLedgerSql($account_id) . ") AS ledger WHERE ledger.txn_cleared_id IS NULL")) : [0, 0];
+    $uncleared = $account ? mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(ledger.txn_amount), 0) FROM (" . accountLedgerSql($account_id, false) . ") AS ledger WHERE ledger.txn_cleared_id IS NULL")) : [0, 0];
 }
 
 $statement_form = function ($row) use ($mysqli, $account, $is_card, $suggest, $last, $starting, $money, $statement_money) {

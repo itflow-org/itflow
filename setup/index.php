@@ -610,7 +610,7 @@ $setup_title = ['restore' => 'Restore a backup', 'restored' => 'Backup restored'
             <a href="?restore">Restore a backup</a>
         <?php } ?>
         <div class="mt-2">
-            ITFlow is free software under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" rel="noopener">GNU General Public License</a>, without any warranty.
+            ITFlow is free software under the <a href="https://www.gnu.org/licenses/agpl-3.0.en.html" target="_blank" rel="noopener">GNU Affero General Public License</a>, without any warranty.
         </div>
     </footer>
 

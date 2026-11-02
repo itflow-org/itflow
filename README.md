@@ -17,7 +17,7 @@ Ticketing, client documentation, contracts and billing - with a client portal - 
 [![Stargazers][stars-shield]][stars-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Commits][commit-shield]][commit-url]
-[![GPL License][license-shield]][license-url]
+[![AGPL License][license-shield]][license-url]
 
 [**Live demo**](https://demo.itflow.org) &nbsp;·&nbsp; [Website](https://itflow.org) &nbsp;·&nbsp; [Docs](https://docs.itflow.org) &nbsp;·&nbsp; [Forum](https://forum.itflow.org) &nbsp;·&nbsp; [What's new](CHANGELOG.md)
 
@@ -180,11 +180,23 @@ We have temporarily paused pull requests from the community. See [CONTRIBUTING.m
 
 ### Supporters
 
-We're incredibly grateful to the organizations and individuals who [sponsor](https://services.itflow.org) the project - a big thank you to:
+We're incredibly grateful to the organizations and individuals who [sponsor](https://itflow.org/hosting.php?want=sponsor) the project - a big thank you to:
 
-- CompuMatter
-- F1 for HELP
-- digiBandit
+| Sponsor | Since |
+|---|---|
+| [F1 for Help](https://f1forhelp.net) | Jan 2024 |
+| [CompuMatter](https://compumatter.com) | Feb 2024 |
+| [DINadmin ApS](https://dinadmin.dk) | Mar 2025 |
+| [DigiBandit](https://dbits.ca) | May 2025 |
+| [Mountaineer IT](https://mountaineerit.com) | Dec 2025 |
+| [DataBit Solutions](https://databitsolutions.com) | Dec 2025 |
+| [City of Rathdrum](https://rathdrumpolice.gov) | Dec 2025 |
+| [Algolibre](https://algolibre.io) | Aug 2026 |
+| [Pentagon Networks](https://pentagon.net) | Aug 2026 |
+| [Hanobox e.K.](https://hanobox.de) | Oct 2026 |
+| [Innovarro Group Limited](https://innovarro.com) | Oct 2026 |
+
+...and the many more who have sponsored anonymously since 2024.
 
 ## Security
 
@@ -194,7 +206,9 @@ If you find a security issue, please report it privately through our [security p
 
 ## License
 
-ITFlow is distributed "as is" under the GPL-3.0 license, WITHOUT WARRANTY OF ANY KIND. See [`LICENSE`](LICENSE) for details.
+ITFlow is free and open source under the GNU Affero General Public License v3.0 (AGPL-3.0), distributed "as is", WITHOUT WARRANTY OF ANY KIND. See [`LICENSE`](LICENSE) for details.
+
+You're free to use, change and share ITFlow, for your own MSP and your clients included. If you change ITFlow and let other people use your changed version over a network - hosting it for customers, for example - the AGPL requires you to offer them the source code of your version.
 
 <p align="right"><a href="#top">Back to top</a></p>
 
