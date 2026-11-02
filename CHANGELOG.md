@@ -2,7 +2,7 @@
 
 This file documents all notable changes made to ITFlow.
 
-## [Unreleased]
+## [26.11.2]
 
 ### Upgrading
 
