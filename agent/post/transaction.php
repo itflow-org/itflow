@@ -30,7 +30,8 @@ if (isExportRequest('export_transactions')) {
     }
     $kinds = accountLedgerKinds();
 
-    $sql = mysqli_query($mysqli, "SELECT ledger.* FROM (" . accountLedgerSql($account_id) . ") AS ledger WHERE $where
+    // The balance after each line is in the export of one account only
+    $sql = mysqli_query($mysqli, "SELECT ledger.* FROM (" . accountLedgerSql($account_id, (bool) $account) . ") AS ledger WHERE $where
         ORDER BY ledger.txn_date ASC, ledger.txn_created_at ASC, ledger.txn_order ASC, ledger.txn_id ASC");
 
     $num_rows = mysqli_num_rows($sql);

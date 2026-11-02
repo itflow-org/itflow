@@ -358,8 +358,13 @@ function accountLedgerKinds() {
  * txn_method, txn_reference, txn_invoice_id, txn_currency, txn_imported and
  * txn_balance - the account's balance after the line, in date order. Select
  * from it as a derived table.
+ *
+ * The balance after each line means sorting the account's whole history, so
+ * it is only worked out with $with_balance - where it is shown. Without it,
+ * txn_balance is NULL: counts, totals and lists across every account don't
+ * need it.
  */
-function accountLedgerSql($account_id = 0) {
+function accountLedgerSql($account_id = 0, $with_balance = true) {
     $account_id = intval($account_id);
     $on = function ($column) use ($account_id) {
         return $account_id ? "$column = $account_id" : "$column > 0";
@@ -408,8 +413,8 @@ function accountLedgerSql($account_id = 0) {
     return "SELECT ledger_lines.*, accounts.account_name, accounts.account_type, accounts.account_currency_code, category_name, category_color, category_icon, client_name,
             ledger_lines.txn_other_name AS other_account_name, other_account.account_type AS other_account_type,
             cleared.reconciliation_id AS txn_cleared_id, cleared.reconciliation_statement_date AS txn_cleared_date, cleared.reconciliation_opening AS txn_cleared_opening,
-            accounts.opening_balance + SUM(ledger_lines.txn_amount) OVER (PARTITION BY ledger_lines.txn_account_id ORDER BY ledger_lines.txn_date ASC, ledger_lines.txn_created_at ASC,
-                ledger_lines.txn_order ASC, ledger_lines.txn_id ASC) AS txn_balance
+            " . ($with_balance ? "accounts.opening_balance + SUM(ledger_lines.txn_amount) OVER (PARTITION BY ledger_lines.txn_account_id ORDER BY ledger_lines.txn_date ASC, ledger_lines.txn_created_at ASC,
+                ledger_lines.txn_order ASC, ledger_lines.txn_id ASC)" : "NULL") . " AS txn_balance
         FROM ($rows) AS ledger_lines
         JOIN accounts ON accounts.account_id = ledger_lines.txn_account_id
         LEFT JOIN accounts AS other_account ON ledger_lines.txn_kind IN ('transfer_in', 'transfer_out') AND other_account.account_id = ledger_lines.txn_other_account_id
