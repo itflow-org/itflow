@@ -323,6 +323,17 @@ foreach ($certificateAlertArray as $day) {
 // Logging
 // logAudit("Cron", "Task", "Cron created notifications for certificates expiring");
 
+// API KEYS EXPIRING
+$sql = mysqli_query($mysqli, "SELECT api_key_id, api_key_name, api_key_expire FROM api_keys
+    WHERE api_key_expire = CURDATE() + INTERVAL 7 DAY");
+
+while ($row = mysqli_fetch_assoc($sql)) {
+    $api_key_id = intval($row['api_key_id']);
+    $api_key_name = escapeSql($row['api_key_name']);
+    $api_key_expire = escapeSql($row['api_key_expire']);
+    appNotify("API Key Expiring", "API key $api_key_name will expire in 7 days on $api_key_expire", "/admin/api_keys.php", 0, $api_key_id);
+}
+
 // Asset Warranties Expiring
 
 $warranty_alert_array = [1,7,45];
