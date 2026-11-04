@@ -105,9 +105,14 @@ if (!$portal_view_as) {
 }
 
 // Two-step sign-in required for password accounts (Admin > Client Portal) and
-// not set up yet: Your account until it is, and nothing else
+// not set up yet: Your account until it is, and nothing else. The one gate for the
+// pages and for client/post.php, judged on the script really running and every key
+// in the request (requestIsMfaSetup()).
 $portal_mfa_setup_needed = !$portal_view_as && intval($config_client_portal_require_mfa ?? 0) === 1 && $session_auth_method === 'local' && !$session_mfa_on;
-if ($portal_mfa_setup_needed && !in_array(basename($_SERVER['PHP_SELF']), ['profile.php', 'post.php'], true)) {
+if ($portal_mfa_setup_needed && !requestIsMfaSetup([
+    'client/profile.php' => [[['mfa'], []]],
+    'client/post.php' => [[[], ['csrf_token', 'portal_mfa_enable', 'verify_code']], [['logout'], []]],
+])) {
     redirect("/client/profile.php?mfa=setup");
 }
 

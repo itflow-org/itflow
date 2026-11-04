@@ -25,10 +25,8 @@ if (portalViewingAs() && !isset($_GET['export_statement_pdf'])) {
     redirect();
 }
 
-// Two-step sign-in required and not set up yet: setting it up, or signing out
-if ($portal_mfa_setup_needed && !isset($_POST['portal_mfa_enable']) && !isset($_GET['logout'])) {
-    redirect('profile.php?mfa=setup');
-}
+// Two-step sign-in required and not set up yet: client/includes/check_login.php has
+// already turned away everything but setting it up, or signing out
 
 if (isset($_POST['add_ticket'])) {
 

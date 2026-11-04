@@ -343,9 +343,15 @@ function portalViewAsAccess($agent_user_id, $contact_id) {
     if (intval($config_client_portal_enable) !== 1 || !$agent_user_id || !$contact_id) {
         return null;
     }
-    $agent = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_password, user_type, user_status, user_archived_at, user_role_id, role_is_admin
-        FROM users LEFT JOIN user_roles ON role_id = user_role_id WHERE user_id = $agent_user_id LIMIT 1"));
+    $agent = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_password, user_type, user_status, user_archived_at, user_role_id, role_is_admin,
+        user_token, user_config_force_mfa
+        FROM users LEFT JOIN user_roles ON role_id = user_role_id LEFT JOIN user_settings ON user_settings.user_id = users.user_id
+        WHERE users.user_id = $agent_user_id LIMIT 1"));
     if (!$agent || intval($agent['user_type']) !== 1 || intval($agent['user_status']) !== 1 || $agent['user_archived_at'] !== null) {
+        return null;
+    }
+    // Still has to set up the MFA their account requires (includes/load_user_session.php)
+    if (intval($agent['user_config_force_mfa'] ?? 0) === 1 && trim((string) $agent['user_token']) === '') {
         return null;
     }
     $admin = intval($agent['role_is_admin'] ?? 0) === 1;

@@ -64,6 +64,17 @@ if (!hash_equals($session_stamp_current, (string) ($_SESSION['user_session_stamp
     redirect("/login.php");
 }
 
+// MFA required on this account and not set up yet: setting it up, or signing out, is all
+// this session may do - every other page, modal, AJAX call and POST goes back to the set
+// up page. Signing in only sends them there; this is what keeps them there, including when
+// an admin requires MFA, or resets it, on an agent who is already signed in.
+if ($session_user_config_force_mfa === 1 && trim((string) $session_token) === '' && !requestIsMfaSetup([
+    'agent/user/mfa_enforcement.php' => [[[], []]],
+    'agent/user/post.php' => [[[], ['csrf_token', 'enable_mfa', 'verify_code']], [['logout'], []]],
+])) {
+    redirect("/agent/user/mfa_enforcement.php");
+}
+
 // Load user client permissions (allow + deny lists)
 $user_client_access_sql = "SELECT client_id, permission_type FROM user_client_permissions WHERE user_id = $session_user_id";
 $user_client_access_result = mysqli_query($mysqli, $user_client_access_sql);
