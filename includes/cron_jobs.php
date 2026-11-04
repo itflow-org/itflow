@@ -76,6 +76,14 @@ function cronJobRegistry(): array
             'interval_minutes' => 1,
         ],
         [
+            'name' => 'payment_provider_fees',
+            'label' => 'Payment Provider Fees',
+            'script' => 'payment_provider_fees.php',
+            'description' => 'Records what Stripe charged on each card payment as an expense, once Stripe has settled it - while Admin > Payment Providers records its fees.',
+            'schedule' => 'Interval',
+            'interval_minutes' => 15,
+        ],
+        [
             'name' => 'domain_refresher',
             'label' => 'Domain Refresher',
             'script' => 'domain_refresher.php',

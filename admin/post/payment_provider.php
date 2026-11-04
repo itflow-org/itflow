@@ -165,7 +165,7 @@ if (isset($_GET['check_payment_provider_connection'])) {
 
 }
 
-// Record fees now - what the nightly run does, for the payments whose fee is still to record
+// Record fees now - what the Payment Provider Fees job does every few minutes, for the payments whose fee is still to record
 if (isset($_GET['record_payment_provider_fees'])) {
 
     validateCSRFToken();
@@ -182,6 +182,10 @@ if (isset($_GET['record_payment_provider_fees'])) {
     }
 
     $done = paymentProviderRecordFees($row);
+    if ($done['busy']) {
+        flashAlert('<strong>' . escapeHtml($name) . '</strong>\'s fees are being recorded right now by the scheduled run - look again in a minute', 'info');
+        redirect();
+    }
     $said = [];
     if ($done['recorded']) {
         $said[] = 'Recorded its fee on ' . $done['recorded'] . ' payment' . ($done['recorded'] === 1 ? '' : 's') . ' - ' . paymentProviderMoneyText($done['amount']);
