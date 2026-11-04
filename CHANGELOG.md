@@ -2,16 +2,44 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.11.3]
+
+### Upgrading
+
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's one database change (3.5.4 to 3.5.5) in the same pass. Nothing else is required.
+
+### Security
+
+- Setup: the Restore a backup option on the setup page is open to anyone until the first user is created, as it has to be on a new install. A backup built for the purpose could use it to make the web server run code it carried into the uploads folder. This needed Apache with .htaccess overrides switched on - installs on nginx, and Apache servers that ignore .htaccess files, were not affected. A restore no longer brings in the files that decide how the web server treats a folder, it never writes into the folder backups are kept in, and ITFlow's own protections on the uploads folder are put back after every restore. Every release from 26.08 to 26.11.2 is affected. If an install of yours sat at the setup page where others could reach it, look through its uploads folder for .htaccess, .user.ini or .php files that ITFlow didn't put there.
+
+### New Features & Updates
+
+- API: products can be updated through the API (`products/update`). Only the fields you send are changed, and the key's user needs edit access to Sales, the same as editing a product in ITFlow.
+- API keys: agents are notified in ITFlow a week before an API key expires, so an integration doesn't stop without warning.
+
+### Bug Fixes
+
+- Transactions: the list, its Transfers pill, Reconcile and the transactions export load faster again. On a test with eight years of books, the Transfers pill went from about a third of a second in 26.11.2 to under a fifth.
+- Expenses: billable expenses waiting to go on an invoice slowed down every page, because the side menu counts them and each one was checked against every expense. With a few hundred waiting, that was about a third of a second on every page. The invoice page, Add Expenses and an expense's quick look had the same delay. All of them are quick again.
+
+### Developer Updates
+
+- `backupRestoreArchive()` no longer extracts the inner `uploads.zip` wholesale. It builds an allow-list of entries and extracts with `extractTo($dir, $entries)`, leaving out any entry whose basename is `.htaccess`, `.user.ini` or `.htpasswd` and any entry that resolves inside `backupStorageDir()`, which the restore preserves while it empties the rest of `uploads/`. Unsafe paths (`..`, absolute) still fail the restore as before. `scripts/restore_cli.php` gets the same, as it calls the same function.
+- `backupHardenStorageDir()` writes its `.htaccess` every time instead of only when there is none, so a guard carried in by an archive can't survive. `backupAssertUploadsGuards()` also rewrites the deny-all guards in `uploads/backups`, `canned_responses`, `expenses` and `tmp`, so a restored `uploads/` has the same guards as a fresh install. Both use the new `BACKUP_UPLOADS_DENY_GUARD` constant.
+- `accountLedgerSql()` reads its lines first and joins each to its account with `STRAIGHT_JOIN`. Left to choose, the optimizer started from the accounts and found their lines through an index it built on the lines' temporary table (`derived_with_keys`), which was two to three times slower.
+- Database 3.5.5 indexes `expenses.expense_refund_of_id`. `expenseUnbilledCount()` (the side menu, on every agent page), `expenseUnbilled()`, `expenseOnInvoice()` and `expenseRow()` sum each expense's refunds in a correlated subquery, which scanned every expense for each one. Like 3.5.4, it is safe to run again, and `db.sql` has the key.
+- `api/v1/products/update.php` takes `product_id` and any of the `product_*` fields mapped in `api/v1/products/product_model.php`, and saves through `productSave()`. At least one field is required and each must be a scalar. `product_track_stock` accepts `1`, `true`, `yes`, `on` or `tracked`, and sending `product_type` without `product_track_stock` turns stock tracking off, as the product form does. `enforce_api_rbac.php` gates it on `module_sales` at write level, and it logs a Product Edit and an API Success.
+- `cron/nightly_tasks.php` sends an `appNotify()` "API Key Expiring" notification for each key whose `api_key_expire` is seven days away, once, on that day.
+
 ## [26.11.2]
 
 ### Upgrading
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's two database changes (3.5.3 to 3.5.5) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's one database change (3.5.3 to 3.5.4) in the same pass. Nothing else is required.
 
 ### Bug Fixes
 
-- Transactions: the list, its Transfers pill, Reconcile and the transactions export got slower as the books grew, taking several seconds with a few years of history, and saving a new transfer waited on the same list. They load quickly again. On a test with eight years of books, the Transfers pill went from over six seconds to under a fifth of a second.
-- Expenses: billable expenses waiting to go on an invoice slowed down every page, because the side menu counts them and each one was checked against every expense. With a few hundred waiting, that was about a third of a second on every page. The invoice page, Add Expenses and an expense's quick look had the same delay. All of them are quick again.
+- Transactions: the list, its Transfers pill, Reconcile and the transactions export got slower as the books grew, taking several seconds with a few years of history, and saving a new transfer waited on the same list. They load quickly again. On a test with eight years of books, the Transfers pill went from over six seconds to about a third of a second.
 
 ### Developer Updates
 
@@ -20,8 +48,6 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
   - `agent/transactions.php` passes it for one account sorted by date, the only view that shows the balance.
   - The transactions export passes it for one account. Reconcile (`reconcileLines()` and the uncleared count in `agent/reconcile.php`) never does.
 - `agent/transactions.php` works out the Transfers summary cards in the same query as the pill counts and totals, so the Transfers pill reads the ledger twice instead of three times.
-- `accountLedgerSql()` reads its lines first and joins each to its account with `STRAIGHT_JOIN`. Left to choose, the optimizer started from the accounts and found their lines through an index it built on the lines' temporary table (`derived_with_keys`), which was two to three times slower.
-- Database 3.5.5 indexes `expenses.expense_refund_of_id`. `expenseUnbilledCount()` (the side menu, on every agent page), `expenseUnbilled()`, `expenseOnInvoice()` and `expenseRow()` sum each expense's refunds in a correlated subquery, which scanned every expense for each one. Like 3.5.4, it is safe to run again, and `db.sql` has the key.
 
 ## [26.11.1]
 
