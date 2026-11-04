@@ -90,8 +90,11 @@ $count_sql = [];
 foreach ($shows as $key => $s) {
     $count_sql[] = $key === '' ? 'COUNT(*)' : "COALESCE(SUM({$s['where']}), 0)";
 }
-$count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.txn_amount > 0 THEN ledger.txn_amount END), 0)";
-$count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.txn_amount < 0 THEN -ledger.txn_amount END), 0)";
+// Across every account a transfer is money moved between them, so Money in and Money out
+// leave it out (accountLedgerShows()) - except on Transfers, where it is what is listed
+$not_transfer = $all && $show !== 'transfers' ? "AND ledger.txn_kind NOT IN ('transfer_in', 'transfer_out')" : '';
+$count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query $not_transfer AND ledger.txn_amount > 0 THEN ledger.txn_amount END), 0)";
+$count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query $not_transfer AND ledger.txn_amount < 0 THEN -ledger.txn_amount END), 0)";
 if ($transfer_cards) {
     $count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query THEN -ledger.txn_amount END), 0)";
     $count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.other_account_type = 3 THEN -ledger.txn_amount END), 0)";
@@ -186,14 +189,14 @@ $is_card = $account && $account['type'] === 3;
         <a class="itflow-billing-stat <?= $show === 'in' ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => 'in'])) ?>">
             <div class="itflow-billing-stat-label"><i class="fas fa-arrow-down me-1"></i>Money in</div>
             <div class="itflow-billing-stat-value text-success-emphasis"><?= $money($total_in) ?></div>
-            <div class="itflow-billing-stat-note"><?= $dated ? escapeHtml(formatExportDateRange($dtf, $dtt)) : ($all ? 'All time' : 'Since it opened') ?><?= $all ? ' - transfers counted both ways' : '' ?></div>
+            <div class="itflow-billing-stat-note"><?= $dated ? escapeHtml(formatExportDateRange($dtf, $dtt)) : ($all ? 'All time' : 'Since it opened') ?><?= $all ? ' - transfers between accounts left out' : '' ?></div>
         </a>
     </div>
     <div class="col-sm-6 col-xl-3">
         <a class="itflow-billing-stat <?= $show === 'out' ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => 'out'])) ?>">
             <div class="itflow-billing-stat-label"><i class="fas fa-arrow-up me-1"></i>Money out</div>
             <div class="itflow-billing-stat-value"><?= $money($total_out) ?></div>
-            <div class="itflow-billing-stat-note"><?= $dated ? escapeHtml(formatExportDateRange($dtf, $dtt)) : ($all ? 'All time' : 'Since it opened') ?></div>
+            <div class="itflow-billing-stat-note"><?= $dated ? escapeHtml(formatExportDateRange($dtf, $dtt)) : ($all ? 'All time' : 'Since it opened') ?><?= $all ? ' - transfers between accounts left out' : '' ?></div>
         </a>
     </div>
     <div class="col-sm-6 col-xl-3">
@@ -428,7 +431,7 @@ $is_card = $account && $account['type'] === 3;
                 <tfoot>
                 <tr class="table-light">
                     <td colspan="<?= 4 + ($all ? 1 : 0) ?>" class="text-body-secondary small">
-                        <?= intval($num_rows[0]) ?> line<?= intval($num_rows[0]) === 1 ? '' : 's' ?><?= $num_rows[0] > count($rows) ? ' - the totals are for all of them, not just this page' : '' ?>
+                        <?= intval($num_rows[0]) ?> line<?= intval($num_rows[0]) === 1 ? '' : 's' ?><?= $num_rows[0] > count($rows) ? ' - the totals are for all of them, not just this page' : '' ?><?= $not_transfer !== '' && !in_array($show, ['in', 'out'], true) ? ' - transfers between accounts are listed but left out of the totals' : '' ?>
                     </td>
                     <td class="text-end fw-semibold text-nowrap itflow-money text-success-emphasis"><?= $money($total_in) ?></td>
                     <td class="text-end fw-semibold text-nowrap itflow-money"><?= $money($total_out) ?></td>

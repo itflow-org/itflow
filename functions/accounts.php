@@ -471,14 +471,17 @@ function accountLedgerWhat(array $row) {
 }
 
 /**
- * The ways the ledger can be cut - ?show=. Across every account a transfer
- * shows once on Transfers, from the account it left.
+ * The ways the ledger can be cut - ?show=. Across every account a transfer is
+ * money moved between them, not money in or out: Money in and Money out leave
+ * both of its lines out, and Transfers shows it once, from the account it left.
+ * On one account a transfer is money in or out of that account like any other.
  */
 function accountLedgerShows($all_accounts = false) {
+    $not_transfer = $all_accounts ? " AND ledger.txn_kind NOT IN ('transfer_in', 'transfer_out')" : '';
     return [
         '' => ['label' => 'All', 'where' => ''],
-        'in' => ['label' => 'Money in', 'icon' => 'fa-arrow-down', 'where' => 'ledger.txn_amount > 0'],
-        'out' => ['label' => 'Money out', 'icon' => 'fa-arrow-up', 'where' => 'ledger.txn_amount < 0'],
+        'in' => ['label' => 'Money in', 'icon' => 'fa-arrow-down', 'where' => 'ledger.txn_amount > 0' . $not_transfer],
+        'out' => ['label' => 'Money out', 'icon' => 'fa-arrow-up', 'where' => 'ledger.txn_amount < 0' . $not_transfer],
         'transfers' => ['label' => 'Transfers', 'icon' => 'fa-exchange-alt', 'where' => $all_accounts ? "ledger.txn_kind = 'transfer_out'" : "ledger.txn_kind IN ('transfer_in', 'transfer_out')"],
         'uncleared' => ['label' => 'Uncleared', 'icon' => 'fa-hourglass-half', 'where' => 'ledger.txn_cleared_id IS NULL'],
     ];
