@@ -42,7 +42,12 @@ if ($portal_view_as) {
 }
 
 // Load user session vars
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_archived_at, user_auth_method, user_avatar, user_status, user_token, user_type FROM users WHERE users.user_id = $session_user_id"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_archived_at, user_auth_method, user_avatar, user_password, user_status, user_token, user_type FROM users WHERE users.user_id = $session_user_id"));
+
+$session_stamp_current = userSessionStamp($row['user_password'] ?? '');
+if ($row) {
+    unset($row['user_password']);
+}
 
 $session_avatar = $row['user_avatar'] ?? '';
 $session_auth_method = (string) ($row['user_auth_method'] ?? '');
@@ -82,6 +87,21 @@ if (!$portal_view_as) {
         session_destroy();
         redirect("/login.php");
     }
+
+    // Check the password hasn't changed since this session signed in - by the contact
+    // elsewhere, an agent, or a reset link (userSessionStamp())
+    if (!hash_equals($session_stamp_current, (string) ($_SESSION['user_session_stamp'] ?? ''))) {
+        session_unset();
+        session_destroy();
+        redirect("/login.php");
+    }
+
+} elseif (!hash_equals((string) $portal_view_as['agent_session_stamp'], (string) ($_SESSION['user_session_stamp'] ?? ''))) {
+
+    // View as contact runs on the agent's session, so their password changing ends it too
+    session_unset();
+    session_destroy();
+    redirect("/login.php");
 }
 
 // Two-step sign-in required for password accounts (Admin > Client Portal) and

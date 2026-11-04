@@ -343,7 +343,7 @@ function portalViewAsAccess($agent_user_id, $contact_id) {
     if (intval($config_client_portal_enable) !== 1 || !$agent_user_id || !$contact_id) {
         return null;
     }
-    $agent = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_type, user_status, user_archived_at, user_role_id, role_is_admin
+    $agent = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_password, user_type, user_status, user_archived_at, user_role_id, role_is_admin
         FROM users LEFT JOIN user_roles ON role_id = user_role_id WHERE user_id = $agent_user_id LIMIT 1"));
     if (!$agent || intval($agent['user_type']) !== 1 || intval($agent['user_status']) !== 1 || $agent['user_archived_at'] !== null) {
         return null;
@@ -391,6 +391,7 @@ function portalViewAsAccess($agent_user_id, $contact_id) {
         'user_id' => intval($contact['contact_user_id']),
         'agent_user_id' => $agent_user_id,
         'agent_name' => (string) $agent['user_name'],
+        'agent_session_stamp' => userSessionStamp($agent['user_password'] ?? ''), // client/includes/check_login.php
         'billing' => $level('module_sales') >= 1 && $level('module_financial') >= 1,
     ];
 }

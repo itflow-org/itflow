@@ -8,13 +8,18 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT role_is_admin, role_name, user_archived_at, user_avatar, user_config_force_mfa,
         user_config_records_per_page, user_config_theme_dark, user_email, user_name, user_role_id,
-        user_status, user_token, user_type FROM users
+        user_password, user_status, user_token, user_type FROM users
      LEFT JOIN user_settings ON users.user_id = user_settings.user_id
      LEFT JOIN user_roles ON user_role_id = role_id
      WHERE users.user_id = $session_user_id"
 );
 
 $row = mysqli_fetch_assoc($sql);
+
+$session_stamp_current = userSessionStamp($row['user_password'] ?? '');
+if ($row) {
+    unset($row['user_password']);
+}
 
 $session_name = escapeSql($row['user_name']);
 $session_email = $row['user_email'];
@@ -46,6 +51,14 @@ if ($session_user_status !== 1) {
 
 // Check User is archived
 if ($session_user_archived_at !== null) {
+    session_unset();
+    session_destroy();
+    redirect("/login.php");
+}
+
+// Check the password hasn't changed since this session signed in - by them elsewhere,
+// an admin, or the incident-response reset (userSessionStamp())
+if (!hash_equals($session_stamp_current, (string) ($_SESSION['user_session_stamp'] ?? ''))) {
     session_unset();
     session_destroy();
     redirect("/login.php");

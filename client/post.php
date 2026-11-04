@@ -562,9 +562,11 @@ if (isset($_POST['portal_password_change'])) {
         redirect('profile.php#security');
     }
 
-    $hash = escapeSql(password_hash($new_password, PASSWORD_DEFAULT));
-    mysqli_query($mysqli, "UPDATE users SET user_password = '$hash' WHERE user_id = $session_user_id AND user_type = 2");
+    $new_hash = password_hash($new_password, PASSWORD_DEFAULT);
+    mysqli_query($mysqli, "UPDATE users SET user_password = '" . escapeSql($new_hash) . "' WHERE user_id = $session_user_id AND user_type = 2");
     portalPasswordLinkClear($session_user_id);
+    // This browser stays signed in, with a new session id - every other session of theirs ends
+    userSessionRestamp($session_user_id, $new_hash);
 
     logAudit("Contact", "Edit", "Client contact $session_contact_name changed their password in the client portal", $session_client_id, $session_contact_id);
     portalMailAccountChange(stripslashes($session_contact_email), stripslashes($session_contact_name), 'password');
