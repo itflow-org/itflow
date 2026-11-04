@@ -18,6 +18,10 @@ DEFINE("BACKUP_TYPE_FULL", "full");
 DEFINE("BACKUP_TYPE_DATABASE", "database");
 DEFINE("BACKUP_TYPE_MASTER_KEY", "master_key");
 
+// The deny-all guard written into upload directories that must never be served. Kept in one
+// place so the restore path and the storage-dir hardening agree on what "our guard" is.
+DEFINE("BACKUP_UPLOADS_DENY_GUARD", "Require all denied\nOptions -ExecCGI -Indexes\nphp_flag engine off\n");
+
 /**
  * The backup types that can be produced without a logged-in user.
  * master_key needs the session master key, so cron can never make one.
@@ -187,6 +191,12 @@ function backupStorageDir(): string
  * "turn PHP off" rule used elsewhere in uploads/, because nothing in here should ever
  * be reachable over HTTP by any means. nginx installs get no protection from this file
  * at all, which is why the archives are encrypted and their names carry a random token.
+ *
+ * The guard is written unconditionally. A restore preserves this directory (it holds the
+ * other archives) while it clears and repopulates the rest of uploads/ from an archive that,
+ * at the setup restore, is supplied by an unauthenticated requester - so "write it only if
+ * absent" would let a backup keep whatever .htaccess it carried in. Re-assert means
+ * re-assert: ours is what ends up on disk.
  */
 function backupHardenStorageDir(string $dir): void
 {
@@ -194,10 +204,7 @@ function backupHardenStorageDir(string $dir): void
         return;
     }
 
-    $htaccess = $dir . "/.htaccess";
-    if (!file_exists($htaccess)) {
-        @file_put_contents($htaccess, "Require all denied\nOptions -ExecCGI -Indexes\nphp_flag engine off\n");
-    }
+    @file_put_contents($dir . "/.htaccess", BACKUP_UPLOADS_DENY_GUARD);
 
     $index = $dir . "/index.php";
     if (!file_exists($index)) {
@@ -228,6 +235,19 @@ function backupAssertUploadsGuards(): void
     $index = $uploads . "/index.php";
     if (!file_exists($index)) {
         @file_put_contents($index, "");
+    }
+
+    // The subdirectories that ship their own deny-all guard. A restore has just cleared and
+    // repopulated uploads/ from the archive, and the extraction step drops any .htaccess the
+    // archive carried, so these are rewritten from our own copy rather than trusted from the
+    // backup - the same reasoning as the root guard above. The root rule covers them by
+    // inheritance on Apache; keeping their own guard on disk means a restored tree matches a
+    // fresh install and survives a host that narrows AllowOverride to a subdirectory.
+    foreach (['backups', 'canned_responses', 'expenses', 'tmp'] as $sub) {
+        $sub_dir = $uploads . "/" . $sub;
+        if (is_dir($sub_dir)) {
+            @file_put_contents($sub_dir . "/.htaccess", BACKUP_UPLOADS_DENY_GUARD);
+        }
     }
 }
 
@@ -1267,6 +1287,10 @@ function backupRestoreArchive(mysqli $mysqli, string $zip_path, string $key, ?st
             return false;
         }
 
+        $storage_real = realpath(backupStorageDir());
+        $uploads_real = realpath($uploads_dir) ?: $uploads_dir;
+        $safe_entries = [];
+
         for ($i = 0; $i < $uz->numFiles; $i++) {
             $name = $uz->getNameIndex($i);
             if ($name === false) {
@@ -1279,6 +1303,27 @@ function backupRestoreArchive(mysqli $mysqli, string $zip_path, string $key, ?st
                 $error = "The database was restored but uploads.zip contains an unsafe path: $name";
                 return false;
             }
+
+            // An archive may carry uploads, it may not decide what the web server will run.
+            // A .htaccess / .user.ini that re-enables PHP in a directory our own guards keep
+            // inert is a code-execution path the moment the archive is attacker-supplied -
+            // and the setup restore accepts one before the first user exists. Uploads carry
+            // no such file of their own, and our guards are rewritten from source below
+            // regardless, so these entries are simply never extracted.
+            if (in_array(strtolower(basename($name)), ['.htaccess', '.user.ini', '.htpasswd'], true)) {
+                continue;
+            }
+
+            // Never let the archive write into the preserved backup storage directory - it
+            // survives the wipe, so anything landing there would stay without being re-guarded.
+            if ($storage_real !== false) {
+                $target = $uploads_real . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, rtrim($name, '/'));
+                if ($target === $storage_real || strpos($target, $storage_real . DIRECTORY_SEPARATOR) === 0) {
+                    continue;
+                }
+            }
+
+            $safe_entries[] = $name;
         }
 
         if (!is_dir($uploads_dir)) {
@@ -1290,7 +1335,7 @@ function backupRestoreArchive(mysqli $mysqli, string $zip_path, string $key, ?st
             backupEmptyDirectory($uploads_dir, [backupStorageDir()]);
         }
 
-        $extracted = $uz->extractTo($uploads_dir);
+        $extracted = empty($safe_entries) ? true : $uz->extractTo($uploads_dir, $safe_entries);
         $uz->close();
 
         if (!$extracted) {

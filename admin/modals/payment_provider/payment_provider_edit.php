@@ -170,7 +170,7 @@ ob_start();
                 <input type="checkbox" class="form-check-input" name="record_fees" value="1" id="paymentProviderRecordFees" <?= $records_fees ? 'checked' : '' ?> data-provider-fees-switch>
                 <label class="form-check-label" for="paymentProviderRecordFees">Record its fees as expenses</label>
             </div>
-            <div class="form-text ps-5">Each night, its fee on each card payment is recorded as an expense from the account above.</div>
+            <div class="form-text ps-5">Its fee on each card payment is recorded as an expense from the account above, a few minutes after Stripe settles the payment.</div>
         </div>
 
         <div data-provider-fees>

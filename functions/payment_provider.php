@@ -6,8 +6,8 @@
  * The services clients pay invoices by card through - Stripe, for now. Each
  * has its keys (live or test, as the keys say), whether it is on, the account
  * its payments go into, the invoices it is too small for (the card limit), and
- * whether its fees are recorded as expenses - each night, by
- * cron/nightly_tasks.php. Paying through one is functions/billing_pay.php.
+ * whether its fees are recorded as expenses - every few minutes, by
+ * cron/payment_provider_fees.php. Paying through one is functions/billing_pay.php.
  *
  * A provider is saved only once it is right: its keys look like that
  * provider's, come from the same mode, and - when they are new or changed -
@@ -411,16 +411,19 @@ function paymentProviderUnrecordedSql() {
 
 /*
  * Record the provider's fee on its recent card payments that have none yet,
- * from what it actually charged - each night (cron/nightly_tasks.php), or
- * now from Payment Providers. A payment it hasn't settled yet waits for the
+ * from what it actually charged - every few minutes (cron/payment_provider_fees.php),
+ * or now from Payment Providers. A payment it hasn't settled yet waits for the
  * next run. Only while its fees are recorded, under a vendor and a category.
  * ['recorded' => how many, 'amount' => their fees by currency, 'waiting' =>
  * how many not settled yet, 'failed' => how many it wouldn't say, 'error' =>
- * the last thing it said].
+ * the last thing it said, 'busy' => another run had it in hand, so nothing was done].
+ *
+ * One run at a time: "has no fee yet" is read before the fee is written, so two runs
+ * at once - the job, and someone pressing Record fees now - would each record it.
  */
 function paymentProviderRecordFees(array $provider, $limit = 50) {
     global $mysqli;
-    $result = ['recorded' => 0, 'amount' => [], 'waiting' => 0, 'failed' => 0, 'error' => ''];
+    $result = ['recorded' => 0, 'amount' => [], 'waiting' => 0, 'failed' => 0, 'error' => '', 'busy' => false];
     $private_key = (string) ($provider['payment_provider_private_key'] ?? '');
     $vendor_id = intval($provider['payment_provider_expense_vendor'] ?? 0);
     $category_id = intval($provider['payment_provider_expense_category'] ?? 0);
@@ -428,6 +431,26 @@ function paymentProviderRecordFees(array $provider, $limit = 50) {
     if (($provider['payment_provider_name'] ?? '') !== 'Stripe' || $private_key === '' || !$vendor_id || !$category_id) {
         return $result;
     }
+
+    $lock = mysqli_fetch_row(mysqli_query($mysqli, "SELECT GET_LOCK('itflow_payment_provider_fees', 0)"));
+    if (intval($lock[0] ?? 0) !== 1) {
+        $result['busy'] = true;
+        return $result;
+    }
+    try {
+        return paymentProviderRecordFeesLocked($provider, $limit, $result);
+    } finally {
+        mysqli_query($mysqli, "SELECT RELEASE_LOCK('itflow_payment_provider_fees')");
+    }
+}
+
+/* paymentProviderRecordFees(), with its lock held. */
+function paymentProviderRecordFeesLocked(array $provider, $limit, array $result) {
+    global $mysqli;
+    $private_key = (string) $provider['payment_provider_private_key'];
+    $vendor_id = intval($provider['payment_provider_expense_vendor']);
+    $category_id = intval($provider['payment_provider_expense_category']);
+    $account_id = intval($provider['payment_provider_account'] ?? 0);
 
     $sql = mysqli_query($mysqli, "SELECT payment_reference, MIN(payment_date) AS payment_date, SUM(payment_amount) AS payment_amount,
             GROUP_CONCAT(CONCAT(invoice_prefix, invoice_number) ORDER BY invoice_number SEPARATOR ', ') AS invoice_numbers,
@@ -477,8 +500,8 @@ function paymentProviderRecordFees(array $provider, $limit = 50) {
  * What has gone through a provider in the last 30 days - 'payments' (card
  * payments, a split one once), 'paid' and 'fees' (by currency), and, while
  * its fees are recorded, 'waiting' (payments with no fee recorded yet) and
- * 'stale' (of those, the ones more than two days old - the nightly run
- * should have had them).
+ * 'stale' (of those, the ones more than two days old - the Payment
+ * Provider Fees job should have had them).
  */
 function paymentProviderActivity(array $provider) {
     global $mysqli;
@@ -541,7 +564,7 @@ function paymentProviderProblems() {
         $activity = paymentProviderActivity($provider);
         if ($activity['stale']) {
             $problems[] = ['warning', 'fa-receipt', "$name's fees aren't being recorded",
-                $activity['stale'] . ' card payment' . ($activity['stale'] === 1 ? '' : 's') . ' more than two days old ' . ($activity['stale'] === 1 ? 'has' : 'have') . ' no fee recorded. The nightly run records them - or record them now.', 'payment_providers.php', 'Payment Providers'];
+                $activity['stale'] . ' card payment' . ($activity['stale'] === 1 ? '' : 's') . ' more than two days old ' . ($activity['stale'] === 1 ? 'has' : 'have') . ' no fee recorded. The Payment Provider Fees job in Maintenance > Cron records them - check it is on, or record them now.', 'payment_providers.php', 'Payment Providers'];
         }
     }
     return $problems;

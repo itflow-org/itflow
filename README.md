@@ -191,7 +191,7 @@ We're incredibly grateful to the organizations and individuals who [sponsor](htt
 | [Mountaineer IT](https://mountaineerit.com) | Dec 2025 |
 | [DataBit Solutions](https://databitsolutions.com) | Dec 2025 |
 | [City of Rathdrum](https://rathdrumpolice.gov) | Dec 2025 |
-| [Algolibre](https://algolibre.io) | Aug 2026 |
+| [AlgoLibre Inc.](https://algolibre.io) | Aug 2026 |
 | [Pentagon Networks](https://pentagon.net) | Aug 2026 |
 | [Hanobox e.K.](https://hanobox.de) | Oct 2026 |
 | [Innovarro Group Limited](https://innovarro.com) | Oct 2026 |

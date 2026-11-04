@@ -8,7 +8,7 @@
  * and how many are still to record), its saved cards and the autopay on
  * them, and its card payments in the last 30 days. Check connection asks
  * the provider whose account the key is; Record fees now does what the
- * nightly run does. Add and Edit are one window
+ * Payment Provider Fees job does every few minutes. Add and Edit are one window
  * (modals/payment_provider/payment_provider_edit.php); the rest are
  * admin/post/payment_provider.php.
  */
@@ -155,7 +155,7 @@ $csrf = $_SESSION['csrf_token'];
                             <?php } ?>
                             <?php if ($activity['waiting']) { ?>
                                 <span class="badge <?= $activity['stale'] ? 'bg-warning-subtle text-warning-emphasis border border-warning-subtle' : 'text-bg-light border' ?> fw-normal mt-1" data-provider-fees-waiting="<?= $activity['waiting'] ?>"
-                                    title="<?= $activity['stale'] ? 'Some are more than two days old - the nightly run should have had them' : 'The nightly run records them once Stripe has settled them' ?>"><?= $activity['waiting'] ?> to record</span>
+                                    title="<?= $activity['stale'] ? 'Some are more than two days old - the Payment Provider Fees job in Maintenance > Cron should have had them' : 'Recorded a few minutes after Stripe settles them' ?>"><?= $activity['waiting'] ?> to record</span>
                             <?php } ?>
                         <?php } else { ?>
                             <span class="text-body-secondary">Not recorded</span>
@@ -187,7 +187,7 @@ $csrf = $_SESSION['csrf_token'];
                                     <i class="fas fa-fw fa-plug text-secondary me-2"></i>Check connection
                                 </a>
                                 <?php if ($fees_on && $activity['waiting']) { ?>
-                                    <a class="dropdown-item" href="post.php?record_payment_provider_fees=<?= $provider_id ?>&csrf_token=<?= $csrf ?>" title="What the nightly run does - for the card payments whose fee is still to record">
+                                    <a class="dropdown-item" href="post.php?record_payment_provider_fees=<?= $provider_id ?>&csrf_token=<?= $csrf ?>" title="What the Payment Provider Fees job does every few minutes - for the card payments whose fee is still to record">
                                         <i class="fas fa-fw fa-receipt text-secondary me-2"></i>Record fees now
                                     </a>
                                 <?php } ?>

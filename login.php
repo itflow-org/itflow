@@ -471,6 +471,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                         $_SESSION['user_id']    = $user_id;
                         $_SESSION['csrf_token'] = randomString(32);
                         $_SESSION['logged']     = true;
+                        // A later password change ends this session (userSessionStamp())
+                        $_SESSION['user_session_stamp'] = userSessionStamp($selectedRow['user_password'] ?? '');
 
                         if ($force_mfa == 1 && $token == NULL) {
                             $config_start_page = "user/mfa_enforcement.php";
@@ -710,6 +712,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                             $_SESSION['user_type']        = 2;
                             $_SESSION['contact_id']       = $contact_id;
                             $_SESSION['login_method']     = "local";
+                            // A later password change ends this session (userSessionStamp())
+                            $_SESSION['user_session_stamp'] = userSessionStamp($selectedRow['user_password'] ?? '');
 
                             // Keep consistent with agent flow (helps any shared session checks)
                             $_SESSION['logged']     = true;

@@ -5,6 +5,31 @@
 
 // When provided a module name (e.g. module_support), returns the associated permission level (false=none, 1=read, 2=write, 3=full).
 // The role's levels are read once a request - a page asks dozens of times.
+/*
+ * Is this request one of the few a session may make while it still has to set up MFA?
+ *
+ * $allowed maps a script, from the app root, to the request shapes it may take - each a
+ * [GET keys, POST keys] pair, and every key in the request has to be one of them. The
+ * script is the file actually running, never PHP_SELF: a path tacked onto the end of a
+ * URL (client/tickets.php/profile.php) changes PHP_SELF but not what runs. And the keys
+ * are checked whole, because post handlers run one after another - a request that carries
+ * the set-up action and another one alongside it must not get the other one through.
+ */
+function requestIsMfaSetup(array $allowed) {
+    $root = realpath(dirname(__DIR__));
+    $script = realpath((string) ($_SERVER['SCRIPT_FILENAME'] ?? ''));
+    if ($root === false || $script === false || strpos($script, $root . DIRECTORY_SEPARATOR) !== 0) {
+        return false;
+    }
+    $script = str_replace(DIRECTORY_SEPARATOR, '/', substr($script, strlen($root) + 1));
+    foreach ($allowed[$script] ?? [] as [$get_keys, $post_keys]) {
+        if (!array_diff(array_keys($_GET), $get_keys) && !array_diff(array_keys($_POST), $post_keys)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function lookupUserPermission($module) {
     global $mysqli, $session_is_admin, $session_user_role;
     static $levels = [];

@@ -1746,7 +1746,8 @@ CREATE TABLE `expenses` (
   KEY `expense_invoice_id` (`expense_invoice_id`),
   KEY `expense_import_key` (`expense_import_key`),
   KEY `expense_reimbursement_id` (`expense_reimbursement_id`),
-  KEY `expense_reconciliation_id` (`expense_reconciliation_id`)
+  KEY `expense_reconciliation_id` (`expense_reconciliation_id`),
+  KEY `expense_refund_of_id` (`expense_refund_of_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

@@ -157,6 +157,11 @@ if (isset($_POST['enable_mfa'])) {
 
         logAudit("User Account", "Edit", "$session_name enabled MFA on their account");
 
+        // Setting MFA up needs only the password, so whoever holds it can do it - the email
+        // is how the real owner finds out an authenticator was added (the portal sends one too)
+        $me = userRow($session_user_id);
+        userNotifyChange($me['user_name'], $me['user_email'], 'multi-factor authentication was turned on');
+
         flashAlert("Multi-factor authentication is on - you will be asked for a code when you sign in");
 
         // Clear the mfa_token from the session to avoid re-use.

@@ -202,9 +202,34 @@ function userPasswordProblem($password) {
  */
 function userSetPassword($user_id, $password) {
     global $mysqli;
-    $hash = escapeSql(password_hash((string) $password, PASSWORD_DEFAULT));
+    $hash = password_hash((string) $password, PASSWORD_DEFAULT);
     $ciphertext = escapeSql(encryptUserSpecificKey((string) $password));
-    mysqli_query($mysqli, "UPDATE users SET user_password = '$hash', user_specific_encryption_ciphertext = '$ciphertext' WHERE user_id = " . intval($user_id));
+    mysqli_query($mysqli, "UPDATE users SET user_password = '" . escapeSql($hash) . "', user_specific_encryption_ciphertext = '$ciphertext' WHERE user_id = " . intval($user_id));
+    userSessionRestamp($user_id, $hash);
+}
+
+/**
+ * What a session keeps of the password it was signed in with - a digest of the hash,
+ * never the hash. A new password makes every session signed in before it stop
+ * matching, and the next page each one loads signs it out: includes/load_user_session.php
+ * for agents, client/includes/check_login.php for the portal. That covers every way a
+ * password is set - by its owner, by an admin, the incident-response reset, a portal
+ * reset link - with nothing to call, the same way disabling a user already ends their
+ * sessions.
+ */
+function userSessionStamp($password_hash) {
+    return hash('sha256', 'itflow-session|' . (string) $password_hash);
+}
+
+/**
+ * Keep this browser signed in when the password just changed is its own user's - a new
+ * session id, and the stamp of the new hash. Every other session of theirs still ends.
+ */
+function userSessionRestamp($user_id, $password_hash) {
+    if (session_status() === PHP_SESSION_ACTIVE && intval($_SESSION['user_id'] ?? 0) === intval($user_id) && !headers_sent()) {
+        session_regenerate_id(true);
+        $_SESSION['user_session_stamp'] = userSessionStamp($password_hash);
+    }
 }
 
 /** Turn an agent's MFA off - and forget the browsers it trusted, which have to sign in afresh. */
