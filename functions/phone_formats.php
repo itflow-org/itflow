@@ -2,11 +2,18 @@
 
 /*
  * ITFlow - how phone numbers are written, by calling code (formatPhoneNumber()
- * in functions/format.php). Built by scripts/phone_formats_build.php from
- * Google's libphonenumber metadata, v9.0.43 - the same data the phone fields'
- * intl-tel-input formats with, so a number reads the same on the page as in
- * its field. Licensed under the Apache License 2.0, Copyright (C) 2009 The
- * Libphonenumber Authors. Don't edit it by hand - build it again.
+ * in functions/format.php). Taken from Google's libphonenumber metadata,
+ * resources/PhoneNumberMetadata.xml at v9.0.43 - the same data the phone
+ * fields' intl-tel-input formats with, so a number reads the same on the page
+ * as in its field. Licensed under the Apache License 2.0, Copyright (C) 2009
+ * The Libphonenumber Authors. When a country changes how its numbers are
+ * written, make it again from a newer release rather than editing it by hand.
+ *
+ * Each calling code takes its main country's rules (mainCountryForCode) -
+ * ITFlow keeps the calling code, not the country, and +1 is the US, Canada
+ * and more, written the same way. The leading digits are the last, most
+ * precise, pattern of each format, and the national prefix rule has $NP and
+ * $FG filled in.
  *
  * Each calling code, for its main country: np, the prefix dialled before a
  * number at home (0 in most countries, 1 in North America, none in Italy);
