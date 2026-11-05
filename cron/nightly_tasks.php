@@ -683,23 +683,31 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
                 $stripe = new \Stripe\StripeClient($provider_private_key);
 
                 $balance_to_pay = round($invoice_amount, 2);
-                $pi_description = "ITFlow: $client_name payment of $recurring_payment_currency_code $balance_to_pay for $invoice_prefix$invoice_number";
+                // The card fee, when the client pays it (functions/billing_pay.php) - it goes on the invoice once the charge goes through
+                $balance_cents = (int) round($balance_to_pay * 100);
+                $fee_cents = billingCardFeeCents($balance_cents, billingCardFeeFor($client_id));
+                $pi_metadata = [
+                    'itflow_client_id' => $client_id,
+                    'itflow_client_name' => $client_name,
+                    'itflow_invoice_number' => $invoice_prefix . $invoice_number,
+                    'itflow_invoice_id' => $invoice_id,
+                ];
+                if ($fee_cents > 0) {
+                    $pi_metadata['itflow_fees'] = "$invoice_id:$fee_cents";
+                }
+                $pi_description = "ITFlow: $client_name payment of $recurring_payment_currency_code " . number_format(($balance_cents + $fee_cents) / 100, 2, '.', '')
+                    . ($fee_cents > 0 ? ' (with a ' . number_format($fee_cents / 100, 2, '.', '') . ' card fee)' : '') . " for $invoice_prefix$invoice_number";
 
                 try {
                     $payment_intent = $stripe->paymentIntents->create([
-                        'amount' => intval(round($balance_to_pay * 100)),
+                        'amount' => $balance_cents + $fee_cents,
                         'currency' => $recurring_payment_currency_code,
                         'customer' => $stripe_customer_id,
                         'payment_method' => $stripe_payment_method_id,
                         'off_session' => true,
                         'confirm' => true,
                         'description' => $pi_description,
-                        'metadata' => [
-                            'itflow_client_id' => $client_id,
-                            'itflow_client_name' => $client_name,
-                            'itflow_invoice_number' => $invoice_prefix . $invoice_number,
-                            'itflow_invoice_id' => $invoice_id,
-                        ]
+                        'metadata' => $pi_metadata,
                     ]);
 
                     $pi_id = escapeSql($payment_intent->id);
@@ -717,14 +725,17 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
                     continue;
                 }
 
-                if ($payment_intent->status == "succeeded" && intval($balance_to_pay) == intval($pi_amount_paid)) {
+                if ($payment_intent->status == "succeeded" && intval($payment_intent->amount_received) === $balance_cents + $fee_cents) {
 
                     // Update Invoice Status
                     mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
 
+                    // The card fee goes on the invoice, so the payment - the invoice and its fee - pays it to the cent
+                    billingCardFeeAdd($invoice_id, $fee_cents / 100, $pi_date);
+
                     // Add Payment to History
                     mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $account_id, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
-                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (autopay)', history_invoice_id = $invoice_id");
+                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (autopay)" . ($fee_cents > 0 ? ', with a ' . escapeSql(billingMoney($fee_cents / 100, $pi_currency)) . ' card fee' : '') . "', history_invoice_id = $invoice_id");
 
                     // The client's receipt, and the paid notification address - functions/billing_email.php
                     if (!empty($config_smtp_provider)) {
@@ -737,7 +748,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
                     // LOGGING
                     $extended_log_desc = !$pi_livemode ? '(DEV MODE)' : '';
                     appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
-                    logAudit("Invoice", "Payment", "Auto Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
+                    logAudit("Invoice", "Payment", "Auto Stripe payment amount of " . numfmt_format_currency($currency_format, $pi_amount_paid, $recurring_payment_currency_code) . ($fee_cents > 0 ? ' (with a ' . numfmt_format_currency($currency_format, $fee_cents / 100, $recurring_payment_currency_code) . ' card fee)' : '') . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
                     triggerCustomAction('invoice_pay', $invoice_id);
 
                 } else {

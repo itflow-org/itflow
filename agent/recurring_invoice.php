@@ -86,6 +86,8 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $saved_methods[intval($row['saved_payment_id'])] = $row;
 }
 $autopay_id = intval($recurring['recurring_payment_saved_payment_id'] ?? 0);
+// The card fee autopay adds, when the client pays one (functions/billing_pay.php)
+$autopay_fee = billingCardFeeFor($client_id);
 
 // Override Tab Title // No Sanitizing needed as this var will only be used in the tab title
 $tab_title = $recurring['client_name'];
@@ -367,7 +369,7 @@ $paper = [
                             </select>
                         </div>
                     </form>
-                    <div class="form-text"><?= $autopay_id ? 'Charged on the due date of each invoice it makes.' : 'Charge a card on file on the due date of each invoice it makes.' ?></div>
+                    <div class="form-text"><?= $autopay_id ? 'Charged on the due date of each invoice it makes.' : 'Charge a card on file on the due date of each invoice it makes.' ?><?= $autopay_fee ? ' With the ' . escapeHtml(billingCardFeeText($autopay_fee, $recurring['recurring_invoice_currency_code'] ?? '')) . ' card fee, as a line on the invoice.' : '' ?></div>
                 <?php } else { ?>
                     <div class="small text-body-secondary">No card on file for <?= escapeHtml($recurring['client_name']) ?>. Once they save one paying an invoice online, it can be charged here automatically.</div>
                 <?php } ?>

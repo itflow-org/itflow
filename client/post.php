@@ -1047,12 +1047,12 @@ if (isset($_POST['portal_pay'])) {
     if (!$booked['ok']) {
         $pi_id = escapeSql((string) $charge['pi']->id);
         logApp("Stripe", "error", "Saved card payment $pi_id for client $session_client_id went through but could not be booked: " . $booked['error']);
-        appNotify("Invoice Payment", "A card payment of " . escapeSql(billingMoney($selection['total'], $selection['currency'])) . " from $session_client_name went through in the client portal but could not be recorded - $pi_id", "/agent/invoices.php?client_id=$session_client_id", $session_client_id);
+        appNotify("Invoice Payment", "A card payment of " . escapeSql(billingMoney($selection['charge'], $selection['currency'])) . " from $session_client_name went through in the client portal but could not be recorded - $pi_id", "/agent/invoices.php?client_id=$session_client_id", $session_client_id);
         flashAlert('Your card was charged, but we could not record the payment here - we have been told and will put it right', 'error');
         redirect('invoices.php');
     }
 
-    flashAlert('Thank you - your payment of <strong>' . escapeHtml(billingMoney($selection['total'], $selection['currency'])) . '</strong> went through');
+    flashAlert('Thank you - your payment of <strong>' . escapeHtml(billingMoney($selection['charge'], $selection['currency'])) . '</strong> went through');
     redirect('receipt.php?id=' . $booked['payment_id']);
 
 }

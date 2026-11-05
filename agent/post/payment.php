@@ -320,24 +320,32 @@ if (isset($_POST['add_payment_stripe'])) {
     $stripe = new \Stripe\StripeClient($private_key);
 
     $balance_to_pay = round($invoice_amount, 2);
-    $pi_description = "ITFlow: $client_name payment of $invoice_currency_code $balance_to_pay for $invoice_prefix$invoice_number";
+    // The card fee, when the client pays it - as the Charge Saved Card window showed it (functions/billing_pay.php)
+    $balance_cents = (int) round($balance_to_pay * 100);
+    $fee_cents = billingCardFeeCents($balance_cents, billingCardFeeFor($client_id));
+    $pi_metadata = [
+        'itflow_client_id' => $client_id,
+        'itflow_client_name' => $client_name,
+        'itflow_invoice_number' => $invoice_prefix . $invoice_number,
+        'itflow_invoice_id' => $invoice_id,
+    ];
+    if ($fee_cents > 0) {
+        $pi_metadata['itflow_fees'] = "$invoice_id:$fee_cents";
+    }
+    $pi_description = "ITFlow: $client_name payment of $invoice_currency_code " . number_format(($balance_cents + $fee_cents) / 100, 2, '.', '')
+        . ($fee_cents > 0 ? ' (with a ' . number_format($fee_cents / 100, 2, '.', '') . ' card fee)' : '') . " for $invoice_prefix$invoice_number";
 
     // Create a payment intent
     try {
         $payment_intent = $stripe->paymentIntents->create([
-            'amount' => intval(round($balance_to_pay * 100)), // Times by 100 as Stripe expects values in cents
+            'amount' => $balance_cents + $fee_cents, // Stripe expects cents
             'currency' => $invoice_currency_code,
             'customer' => $payment_provider_client,
             'payment_method' => $saved_payment_method,
             'off_session' => true,
             'confirm' => true,
             'description' => $pi_description,
-            'metadata' => [
-                'itflow_client_id' => $client_id,
-                'itflow_client_name' => $client_name,
-                'itflow_invoice_number' => $invoice_prefix . $invoice_number,
-                'itflow_invoice_id' => $invoice_id,
-            ]
+            'metadata' => $pi_metadata,
         ]);
 
         // Get details from PI
@@ -353,14 +361,17 @@ if (isset($_POST['add_payment_stripe'])) {
         logApp("Stripe", "error", "Exception during PI for invoice ID $invoice_id: $error");
     }
 
-    if ($payment_intent->status == "succeeded" && intval($balance_to_pay) == intval($pi_amount_paid)) {
+    if (isset($payment_intent) && $payment_intent->status == "succeeded" && intval($payment_intent->amount_received) === $balance_cents + $fee_cents) {
 
         // Update Invoice Status
         mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
 
+        // The card fee goes on the invoice, so the payment - the invoice and its fee - pays it to the cent
+        billingCardFeeAdd($invoice_id, $fee_cents / 100, $pi_date);
+
         // Add Payment to History
         mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $account_id, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
-        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (agent)', history_invoice_id = $invoice_id");
+        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (agent)" . ($fee_cents > 0 ? ', with a ' . escapeSql(billingMoney($fee_cents / 100, $pi_currency)) . ' card fee' : '') . "', history_invoice_id = $invoice_id");
 
         // The client's receipt, and the paid notification address - functions/billing_email.php
         if (!empty($config_smtp_provider)) {
@@ -378,10 +389,11 @@ if (isset($_POST['add_payment_stripe'])) {
 
         // Notify/log
         appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
-        logAudit("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
+        $fee_text = $fee_cents > 0 ? ' (with a ' . numfmt_format_currency($currency_format, $fee_cents / 100, $invoice_currency_code) . ' card fee)' : '';
+        logAudit("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "$fee_text added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
         triggerCustomAction('invoice_pay', $invoice_id);
 
-        flashAlert("Payment amount <strong>" . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "</strong> added");
+        flashAlert("Payment amount <strong>" . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "</strong>$fee_text added");
 
         redirect();
 
@@ -652,12 +664,24 @@ if (isset($_GET['refund_payment_stripe'])) {
 
     mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
 
+    // A card fee the payment carried was refunded with it - its line comes off the invoice too
+    $fee_removed = 0.0;
+    try {
+        $refunded_pi = $stripe->paymentIntents->retrieve($stripe_payment_intent_id);
+        $refunded_fee = intval(billingCardFeeSplit($refunded_pi->metadata->toArray())[$invoice_id] ?? 0) / 100;
+        if ($refunded_fee > 0 && billingCardFeeRemove($invoice_id, $refunded_fee)) {
+            $fee_removed = $refunded_fee;
+        }
+    } catch (Exception $e) {
+        logApp("Stripe", "warning", "Refunded $stripe_payment_intent_id but could not check it for a card fee on invoice ID $invoice_id: " . $e->getMessage());
+    }
+
     // Recalculate from what is left rather than from the pre-delete total
     $invoice_status = updateInvoiceStatusFromPayments($invoice_id);
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = '$invoice_status', history_description = 'Payment $stripe_payment_intent_id deleted and refunded', history_invoice_id = $invoice_id");
   
-    logAudit("Invoice", "Edit", "$session_name refunded and deleted Payment $stripe_payment_intent_id on Invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name refunded and deleted Payment $stripe_payment_intent_id on Invoice $invoice_prefix$invoice_number" . ($fee_removed > 0 ? ', and took off its ' . escapeSql(billingMoney($fee_removed, $invoice_currency_code)) . ' card fee' : ''), $client_id, $invoice_id);
 
     flashAlert("Payment deleted and refunded in Stripe", 'error');
 

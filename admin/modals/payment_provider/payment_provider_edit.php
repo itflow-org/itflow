@@ -4,8 +4,8 @@
  * Admin > Payment Providers - one provider's window: Add (no id, or from
  * payment_provider_add.php) or Edit. Its keys - the secret one never put back
  * into the page, so left empty it stays - whether it is on, the account its
- * payments go into, the card limit, and whether its fees are recorded as
- * expenses. Save asks first (check_payment_provider,
+ * payments go into, the card limit, whether its fees are recorded as
+ * expenses, and whether clients pay a card fee to cover them. Save asks first (check_payment_provider,
  * admin/post/payment_provider.php): what is wrong shows beside each field and
  * the window stays open; once all is right, it saves.
  */
@@ -35,6 +35,9 @@ $vendor_id = intval($row['payment_provider_expense_vendor'] ?? 0);
 $category_id = intval($row['payment_provider_expense_category'] ?? 0);
 $threshold = round(floatval($row['payment_provider_threshold'] ?? 0), 2);
 $records_fees = $row ? ($vendor_id > 0 && $category_id > 0) : true;
+$card_fee = intval($row['payment_provider_card_fee'] ?? 0) === 1;
+$card_fee_percent = round(floatval($row['payment_provider_card_fee_percent'] ?? 0), 2);
+$card_fee_fixed = round(floatval($row['payment_provider_card_fee_fixed'] ?? 0), 2);
 
 // A new one starts on an account and a vendor named for it, and Processing Fee, where there are those
 if (!$row) {
@@ -204,6 +207,38 @@ ob_start();
             </div>
         </div>
 
+        <div class="mb-3">
+            <div class="form-check form-switch">
+                <input type="checkbox" class="form-check-input" name="card_fee" value="1" id="paymentProviderCardFee" <?= $card_fee ? 'checked' : '' ?> data-provider-card-fee-switch>
+                <label class="form-check-label" for="paymentProviderCardFee">Clients pay the card fee</label>
+            </div>
+            <div class="form-text ps-5">Each card payment is made bigger by what <?= escapeHtml($name) ?> takes of it, so you get what the invoice is for. The fee goes on the invoice as a Card Fee line, and clients see it before they pay - in the client portal, through an invoice's link, by autopay, or when you charge a saved card. A client can be let off it on their Billing tab.</div>
+        </div>
+
+        <div data-provider-card-fee>
+            <div class="row">
+                <div class="col-sm-6 mb-3">
+                    <label class="form-label" for="paymentProviderCardFeePercent">Percent</label>
+                    <div class="input-group has-validation">
+                        <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                        <input type="text" class="form-control" name="card_fee_percent" id="paymentProviderCardFeePercent" inputmode="decimal" maxlength="5" placeholder="2.9" value="<?= $card_fee_percent > 0 ? escapeHtml(rtrim(rtrim(number_format($card_fee_percent, 2, '.', ''), '0'), '.')) : '' ?>">
+                        <span class="input-group-text">%</span>
+                    </div>
+                    <?= $error_for('card_fee_percent') ?>
+                </div>
+                <div class="col-sm-6 mb-3">
+                    <label class="form-label" for="paymentProviderCardFeeFixed">Plus</label>
+                    <div class="input-group has-validation">
+                        <span class="input-group-text"><i class="fa fa-fw fa-coins"></i></span>
+                        <input type="text" class="form-control" name="card_fee_fixed" id="paymentProviderCardFeeFixed" inputmode="decimal" maxlength="6" placeholder="0.30" value="<?= $card_fee_fixed > 0 ? escapeHtml(number_format($card_fee_fixed, 2, '.', '')) : '' ?>">
+                        <?php if ($currency !== '') { ?><span class="input-group-text"><?= escapeHtml($currency) ?></span><?php } ?>
+                    </div>
+                    <?= $error_for('card_fee_fixed') ?>
+                </div>
+            </div>
+            <div class="form-text mt-n2 mb-3">What <?= escapeHtml($name) ?> charges you on a card payment - your account's rate, as 2.9% plus 0.30. Card surcharges have rules where you and your clients are: in the US, for one, the card networks cap them and don't allow them on debit cards, and some states limit them further.</div>
+        </div>
+
     </div>
     <div class="modal-footer">
         <button type="submit" name="<?= $row ? 'edit_payment_provider' : 'add_payment_provider' ?>" class="btn btn-primary text-bold" data-provider-save <?= !$row && !$free_kinds ? 'disabled' : '' ?>>
@@ -214,7 +249,7 @@ ob_start();
 </form>
 
 <script>
-// Fees - their vendor and category only while they are recorded. Save - asked first, so what is wrong shows here
+// Fees - their vendor and category only while they are recorded, the card fee's rates only while clients pay it. Save - asked first, so what is wrong shows here
 (function () {
     var form = document.querySelector('[data-payment-provider-form]:not([data-ready])');
     if (!form) {
@@ -223,6 +258,8 @@ ob_start();
     form.setAttribute('data-ready', '1');
     var feesSwitch = form.querySelector('[data-provider-fees-switch]');
     var fees = form.querySelector('[data-provider-fees]');
+    var cardFeeSwitch = form.querySelector('[data-provider-card-fee-switch]');
+    var cardFee = form.querySelector('[data-provider-card-fee]');
     var save = form.querySelector('[data-provider-save]');
     var accountNote = form.querySelector('[data-provider-account]');
     var checked = false;
@@ -237,6 +274,17 @@ ob_start();
     }
     feesSwitch.addEventListener('change', showFees);
     showFees();
+
+    // The card fee's rates only while clients pay it - off, they aren't sent and stay as saved
+    function showCardFee() {
+        var on = cardFeeSwitch.checked;
+        cardFee.classList.toggle('opacity-50', !on);
+        cardFee.querySelectorAll('input').forEach(function (el) {
+            el.disabled = !on;
+        });
+    }
+    cardFeeSwitch.addEventListener('change', showCardFee);
+    showCardFee();
 
     function clearErrors() {
         form.querySelectorAll('.is-invalid').forEach(function (el) { el.classList.remove('is-invalid'); });

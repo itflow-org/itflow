@@ -199,15 +199,19 @@
     });
 
     // ---------- Paying invoices ----------
-    // The ticks on Pay invoices: the total, how many, and the button's words
-    // follow them, and a total over the card limit is stopped here as well as
-    // on the server
+    // The ticks on Pay invoices: the total, the card fee, how many, and the
+    // button's words follow them, and a total over the card limit is stopped
+    // here as well as on the server
     document.querySelectorAll('form[data-portal-pay]').forEach(function (form) {
         var boxes = Array.prototype.slice.call(form.querySelectorAll('input[data-pay-cents]'));
         var all = form.querySelector('[data-pay-all]');
         var button = form.querySelector('[data-pay-button]');
         var limit = parseInt(form.getAttribute('data-pay-limit') || '0', 10);
         var max = parseInt(form.getAttribute('data-pay-max') || '0', 10);
+        // The card fee in hundredths of a percent and cents - worked as billingCardFeeCents() does
+        var feeOn = form.hasAttribute('data-pay-fee-percent');
+        var feePercent = parseInt(form.getAttribute('data-pay-fee-percent') || '0', 10);
+        var feeFixed = parseInt(form.getAttribute('data-pay-fee-fixed') || '0', 10);
         var money;
         try {
             money = new Intl.NumberFormat(form.getAttribute('data-pay-locale') || undefined, {style: 'currency', currency: form.getAttribute('data-pay-currency') || 'USD'});
@@ -220,6 +224,14 @@
             if (el) {
                 el.textContent = value;
             }
+        }
+
+        function cardFee(cents) {
+            var keep = 10000 - feePercent;
+            if (!feeOn || cents <= 0 || keep <= 0) {
+                return 0;
+            }
+            return Math.max(0, Math.floor(((cents + feeFixed) * 10000 + keep - 1) / keep) - cents);
         }
 
         function update() {
@@ -235,10 +247,13 @@
                     row.classList.toggle('is-selected', box.checked);
                 }
             });
-            var amount = money.format(cents / 100);
+            var fee = cardFee(cents);
+            var amount = money.format((cents + fee) / 100);
             var method = form.querySelector('input[name=method]:checked');
             var over = limit > 0 && cents >= limit;
             var tooMany = max > 0 && count > max;
+            text('[data-pay-subtotal]', money.format(cents / 100));
+            text('[data-pay-fee]', money.format(fee / 100));
             text('[data-pay-total]', amount);
             text('[data-pay-count]', count + (count === 1 ? ' invoice' : ' invoices'));
             text('[data-pay-label]', !count ? 'Tick an invoice to pay' : (tooMany ? 'Pay up to ' + max + ' invoices at a time'

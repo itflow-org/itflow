@@ -5,9 +5,10 @@
  *
  * The services clients pay invoices by card through - Stripe, for now. Each
  * has its keys (live or test, as the keys say), whether it is on, the account
- * its payments go into, the invoices it is too small for (the card limit), and
+ * its payments go into, the invoices it is too small for (the card limit),
  * whether its fees are recorded as expenses - every few minutes, by
- * cron/payment_provider_fees.php. Paying through one is functions/billing_pay.php.
+ * cron/payment_provider_fees.php - and whether clients pay a card fee to cover
+ * them. Paying through one is functions/billing_pay.php.
  *
  * A provider is saved only once it is right: its keys look like that
  * provider's, come from the same mode, and - when they are new or changed -
@@ -77,6 +78,12 @@ function paymentProviderTiesText(array $ties) {
     return $parts[0] ?? '';
 }
 
+/* The card fee clients pay as it reads - "2.9% + $0.30", or "Off". */
+function paymentProviderCardFeeText($row) {
+    $rates = billingCardFeeRates($row);
+    return $rates ? billingCardFeeText($rates) : 'Off';
+}
+
 /* A card limit as it reads - "Under $1,000.00", or "No limit". */
 function paymentProviderLimitText($threshold) {
     $threshold = round(floatval($threshold), 2);
@@ -88,7 +95,8 @@ function paymentProviderLimitText($threshold) {
  * for a new one) - [the columns to save, errors by field]. Keys: one that
  * isn't that provider's shape, or one live and one test, is wrong; a secret
  * left empty stays as saved. Fees are recorded with a vendor and a category,
- * or not at all.
+ * or not at all. The card fee clients pay is a percent and a fixed part, at
+ * least one of them more than nothing; turned off, both stay as saved.
  */
 function paymentProviderCheck(array $post, $before = null) {
     global $mysqli;
@@ -165,6 +173,28 @@ function paymentProviderCheck(array $post, $before = null) {
         }
     }
 
+    // The card fee clients pay - what the provider charges on a card payment. Off, its rates stay as they were for next time.
+    $card_fee = !empty($post['card_fee']) ? 1 : 0;
+    $card_fee_percent = round(floatval($before['payment_provider_card_fee_percent'] ?? 0), 2);
+    $card_fee_fixed = round(floatval($before['payment_provider_card_fee_fixed'] ?? 0), 2);
+    if ($card_fee) {
+        $percent_text = str_replace(['%', ' '], '', trim((string) ($post['card_fee_percent'] ?? '')));
+        $fixed_text = str_replace([',', ' '], '', trim((string) ($post['card_fee_fixed'] ?? '')));
+        if ($percent_text !== '' && (!preg_match('/^\d{1,2}(\.\d{1,2})?$/', $percent_text) || floatval($percent_text) > 15)) {
+            $errors['card_fee_percent'] = 'A percent from 0 to 15, as 2.9.';
+        } else {
+            $card_fee_percent = round(floatval($percent_text), 2);
+        }
+        if ($fixed_text !== '' && (!preg_match('/^\d{1,3}(\.\d{1,2})?$/', $fixed_text) || floatval($fixed_text) > 100)) {
+            $errors['card_fee_fixed'] = 'A sum up to 100, as 0.30.';
+        } else {
+            $card_fee_fixed = round(floatval($fixed_text), 2);
+        }
+        if (!isset($errors['card_fee_percent']) && !isset($errors['card_fee_fixed']) && $card_fee_percent <= 0 && $card_fee_fixed <= 0) {
+            $errors['card_fee_percent'] = "What $name charges on a card payment - a percent, a fixed part or both.";
+        }
+    }
+
     $after = [
         'payment_provider_name' => $name,
         'payment_provider_description' => $description,
@@ -175,6 +205,9 @@ function paymentProviderCheck(array $post, $before = null) {
         'payment_provider_account' => $account_id,
         'payment_provider_expense_vendor' => $vendor_id,
         'payment_provider_expense_category' => $category_id,
+        'payment_provider_card_fee' => $card_fee,
+        'payment_provider_card_fee_percent' => $card_fee_percent,
+        'payment_provider_card_fee_fixed' => $card_fee_fixed,
     ];
     return [$after, $errors];
 }
@@ -259,6 +292,11 @@ function paymentProviderChangeLines(array $before, array $after) {
     $fees_after = $fees($after['payment_provider_expense_vendor'], $after['payment_provider_expense_category']);
     if ($fees_before !== $fees_after) {
         $lines[] = "Fees $fees_before → $fees_after";
+    }
+    $card_fee_before = paymentProviderCardFeeText($before);
+    $card_fee_after = paymentProviderCardFeeText($after);
+    if ($card_fee_before !== $card_fee_after) {
+        $lines[] = "Card fee clients pay $card_fee_before → $card_fee_after";
     }
     if (intval($before['payment_provider_active']) !== $after['payment_provider_active']) {
         $lines[] = $after['payment_provider_active'] ? 'Turned on' : 'Turned off';

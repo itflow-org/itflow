@@ -13,6 +13,8 @@ $notes = escapeSql($_POST['notes'] ?? '');
 $lead = intval($_POST['lead'] ?? 0);
 // Reminders and statements - only when the Billing tab was on the form
 $reminders = isset($_POST['reminders_field']) ? intval(!empty($_POST['reminders'])) : null;
+// No card fee - only when the Billing tab had it (agent/modals/client/client_card_fee_field.php)
+$card_fee_exempt = isset($_POST['card_fee_field']) ? intval(!empty($_POST['card_fee_exempt'])) : null;
 // Its tax rate and exemption - only when the Billing tab was on the form;
 // client.php adds the client's row when editing (taxClientSetSql())
 $tax_input = isset($_POST['tax_fields']) ? [

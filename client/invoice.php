@@ -40,6 +40,9 @@ $company = billingCompany();
 $owing = in_array($state['state'], ['open', 'overdue'], true) && invoiceCanPay($invoice, $state);
 $cards = billingStripeProvider() !== null;
 $can_pay = $owing && $cards && billingOnlinePayAllowed($state['balance']);
+// The card fee on paying the balance by card, when the client pays one - autopay adds it too
+$fee_rates = $cards ? billingCardFeeFor($session_client_id) : null;
+$card_fee = billingCardFeeCents((int) round($state['balance'] * 100), $fee_rates) / 100;
 
 // The other invoices still owed, to pay with this one
 $others = array_filter(billingClientOpenInvoices($session_client_id), function ($row) use ($invoice_id) {
@@ -122,11 +125,14 @@ $paper = [
                     <?php if ($autopay_card) { ?>
                         <div class="itflow-portal-note mb-3">
                             <i class="<?= escapeHtml($autopay_card['icon']) ?> fa-fw"></i>
-                            <span>Autopay will charge <?= escapeHtml($autopay_card['label']) ?> on <?= escapeHtml(date('M j', strtotime($invoice['invoice_due']))) ?> - nothing to do, unless you would rather pay now.</span>
+                            <span>Autopay will charge <?= escapeHtml($autopay_card['label']) ?><?= $card_fee > 0 ? ' ' . escapeHtml(billingMoney($state['balance'] + $card_fee, $currency)) . ', with a ' . escapeHtml(billingMoney($card_fee, $currency)) . ' card fee,' : '' ?> on <?= escapeHtml(date('M j', strtotime($invoice['invoice_due']))) ?> - nothing to do, unless you would rather pay now.</span>
                         </div>
                     <?php } ?>
                     <?php if ($can_pay) { ?>
                         <a class="btn btn-success btn-lg w-100" href="unpaid_invoices.php?select=<?= $invoice_id ?>"><i class="fas fa-credit-card me-2"></i>Pay <?= escapeHtml(billingMoney($state['balance'], $currency)) ?></a>
+                        <?php if ($card_fee > 0) { ?>
+                            <div class="small text-body-secondary text-center mt-2" title="<?= escapeHtml(billingCardFeeTerms($fee_rates, $currency)) ?>">Plus a <?= escapeHtml(billingMoney($card_fee, $currency)) ?> card fee</div>
+                        <?php } ?>
                         <?php if ($others) { ?>
                             <div class="text-center mt-2"><a class="small" href="unpaid_invoices.php">Or pay it with your <?= count($others) ?> other open <?= count($others) === 1 ? 'invoice' : 'invoices' ?></a></div>
                         <?php } ?>

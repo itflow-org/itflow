@@ -48,6 +48,9 @@ $recurring = mysqli_query($mysqli, "SELECT recurring_invoice_id, recurring_invoi
     ORDER BY recurring_invoice_next_date ASC, recurring_invoice_id ASC");
 $company = billingCompany();
 $autostart = isset($_GET['add']) && $customer !== '';
+// The card fee, when the client pays one - said where they agree to charges and turn on autopay
+$fee_rates = billingCardFeeFor($session_client_id);
+$fee_terms = $fee_rates ? ' Each card payment has a card fee added: ' . billingCardFeeTerms($fee_rates) . '.' : '';
 ?>
 
 <div class="itflow-portal-page-head">
@@ -96,7 +99,7 @@ $autostart = isset($_GET['add']) && $customer !== '';
                 <?php if ($customer !== '') { ?>
                     <button type="button" class="btn btn-outline-primary" data-stripe-add-card<?= $autostart ? ' hidden' : '' ?>><i class="fas fa-plus me-2"></i>Add a card</button>
                     <div data-stripe-add-card-holder data-stripe-key="<?= escapeHtml($provider['payment_provider_public_key']) ?>"<?= $autostart ? ' data-autostart' : '' ?> hidden>
-                        <p class="small text-body-secondary">By saving a card you agree <?= escapeHtml($company['company_name'] ?? 'we') ?> may charge it for invoices you pay with it, and for the recurring invoices you set to autopay.</p>
+                        <p class="small text-body-secondary">By saving a card you agree <?= escapeHtml($company['company_name'] ?? 'we') ?> may charge it for invoices you pay with it, and for the recurring invoices you set to autopay.<?= escapeHtml($fee_terms) ?></p>
                         <div class="text-body-secondary small" data-stripe-loading><span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Loading Stripe...</div>
                         <div class="alert alert-warning small mb-0" data-stripe-unavailable hidden>Stripe's form did not load - check your connection and reload the page.</div>
                         <div id="checkout"></div>
@@ -104,7 +107,7 @@ $autostart = isset($_GET['add']) && $customer !== '';
                 <?php } else { ?>
                     <form action="post.php" method="post" data-portal-once>
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                        <p class="small text-body-secondary">By saving a card you agree <?= escapeHtml($company['company_name'] ?? 'we') ?> may charge it for invoices you pay with it, and for the recurring invoices you set to autopay. Stripe keeps the card details, under its privacy policy and terms.</p>
+                        <p class="small text-body-secondary">By saving a card you agree <?= escapeHtml($company['company_name'] ?? 'we') ?> may charge it for invoices you pay with it, and for the recurring invoices you set to autopay.<?= escapeHtml($fee_terms) ?> Stripe keeps the card details, under its privacy policy and terms.</p>
                         <button type="submit" class="btn btn-outline-primary" name="create_stripe_customer"><i class="fas fa-plus me-2"></i>Add a card</button>
                     </form>
                 <?php } ?>
@@ -121,7 +124,7 @@ $autostart = isset($_GET['add']) && $customer !== '';
                 <?= emptyStateHtml(['title' => 'Nothing to autopay', 'text' => 'Recurring invoices - monthly services and the like - can be paid automatically once you have one.', 'icon' => 'fa-sync-alt', 'filtered' => false]) ?>
             <?php } else { ?>
                 <div class="itflow-portal-panel-body">
-                    <p class="small text-body-secondary mb-0">Autopay charges the card on each invoice's due date, and we email you a receipt every time.<?= !$usable ? ' Add a card to turn it on.' : '' ?></p>
+                    <p class="small text-body-secondary mb-0">Autopay charges the card on each invoice's due date, and we email you a receipt every time.<?= escapeHtml($fee_terms) ?><?= !$usable ? ' Add a card to turn it on.' : '' ?></p>
                 </div>
                 <ul class="itflow-portal-list border-top">
                     <?php while ($row = mysqli_fetch_assoc($recurring)) {

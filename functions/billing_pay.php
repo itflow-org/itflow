@@ -7,7 +7,8 @@
  * cards a client has saved for it.
  *
  * One card payment can pay several invoices. The PaymentIntent carries the
- * split in its metadata - itflow_invoices, "invoice_id:cents,..." - and
+ * split in its metadata - itflow_invoices, "invoice_id:cents,...", and the
+ * card fee each carries in itflow_fees when the client pays one - and
  * billingStripeBook() books it as one payment per invoice, all with the same
  * date and reference ("Stripe - pi_..."). That is how the portal's receipt
  * and payment history, the agent pages and the nightly Stripe fee
@@ -19,15 +20,15 @@ const BILLING_PAY_MAX_INVOICES = 25;
 
 /**
  * Stripe as set up under Admin > Payment Providers, when it is turned on and
- * has its keys - id, keys, threshold and the account payments go to. Null
- * when clients can't pay by card.
+ * has its keys - id, keys, threshold, the account payments go to and the card
+ * fee. Null when clients can't pay by card.
  */
 function billingStripeProvider() {
     global $mysqli;
     static $provider = false;
     if ($provider === false) {
         $provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_id, payment_provider_public_key, payment_provider_private_key,
-                payment_provider_threshold, payment_provider_account
+                payment_provider_threshold, payment_provider_account, payment_provider_card_fee, payment_provider_card_fee_percent, payment_provider_card_fee_fixed
             FROM payment_providers WHERE payment_provider_name = 'Stripe' AND payment_provider_active = 1 LIMIT 1")) ?: null;
         if ($provider && (trim((string) $provider['payment_provider_public_key']) === '' || trim((string) $provider['payment_provider_private_key']) === '')) {
             $provider = null;
@@ -70,6 +71,178 @@ function billingOnlinePayAllowed($amount) {
     }
     $threshold = floatval($provider['payment_provider_threshold']);
     return $threshold == 0 || $threshold > round(floatval($amount), 2);
+}
+
+/* ---------------------------------------------------------------- Card fee */
+
+/** The name of the line a card fee goes on the invoice as. */
+const BILLING_CARD_FEE_NAME = 'Card Fee';
+
+/**
+ * The card fee clients pay, when Stripe is set to have them pay it (Admin >
+ * Payment Providers) - ['percent', 'fixed'] as Stripe charges them, or null.
+ * The fee is worked out so Stripe's own fee on everything charged comes out
+ * of it, and what is left is what was owed (billingCardFeeCents()).
+ */
+function billingCardFeeRates($provider = null) {
+    $provider = $provider ?? billingStripeProvider();
+    if (!$provider || !intval($provider['payment_provider_card_fee'] ?? 0)) {
+        return null;
+    }
+    $percent = round(floatval($provider['payment_provider_card_fee_percent'] ?? 0), 2);
+    $fixed = round(floatval($provider['payment_provider_card_fee_fixed'] ?? 0), 2);
+    if ($percent <= 0 && $fixed <= 0) {
+        return null;
+    }
+    return ['percent' => $percent, 'fixed' => $fixed];
+}
+
+/** The card fee a client pays - billingCardFeeRates(), unless they are let off it (No card fee, on the client's Billing tab). */
+function billingCardFeeFor($client_id) {
+    global $mysqli;
+    static $exempt = [];
+    $rates = billingCardFeeRates();
+    $client_id = intval($client_id);
+    if (!$rates || !$client_id) {
+        return $rates;
+    }
+    if (!isset($exempt[$client_id])) {
+        $exempt[$client_id] = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT client_card_fee_exempt FROM clients WHERE client_id = $client_id"))[0] ?? 0) === 1;
+    }
+    return $exempt[$client_id] ? null : $rates;
+}
+
+/**
+ * The card fee on paying $cents by card, in cents - 0 without $rates. It is
+ * the percent of everything charged plus the fixed part: (cents + fixed) /
+ * (1 - percent), rounded up to the cent, less cents. Worked in whole numbers
+ * so it comes out the same as the portal's script (js/portal.js).
+ */
+function billingCardFeeCents($cents, $rates) {
+    $cents = intval($cents);
+    if (!$rates || $cents <= 0) {
+        return 0;
+    }
+    $keep = 10000 - (int) round(floatval($rates['percent']) * 100);   // what Stripe leaves, in hundredths of a percent
+    $fixed = (int) round(floatval($rates['fixed']) * 100);
+    if ($keep <= 0) {
+        return 0;
+    }
+    $charge = intdiv(($cents + $fixed) * 10000 + $keep - 1, $keep);
+    return max(0, $charge - $cents);
+}
+
+/**
+ * One card fee shared over the invoices one payment pays, in proportion to
+ * what each comes to - [invoice_id => cents], adding up to $fee_cents.
+ */
+function billingCardFeeShares(array $cents, $fee_cents) {
+    $fee_cents = intval($fee_cents);
+    $pool = array_sum(array_map('intval', $cents));
+    $shares = array_fill_keys(array_keys($cents), 0);
+    if ($fee_cents <= 0 || $pool <= 0) {
+        return $shares;
+    }
+    $remainders = [];
+    $given = 0;
+    foreach ($cents as $id => $amount) {
+        $exact = $fee_cents * intval($amount) / $pool;
+        $shares[$id] = intval(floor($exact));
+        $remainders[$id] = $exact - $shares[$id];
+        $given += $shares[$id];
+    }
+    arsort($remainders);
+    foreach (array_keys($remainders) as $id) {
+        if ($given >= $fee_cents) {
+            break;
+        }
+        $shares[$id]++;
+        $given++;
+    }
+    return $shares;
+}
+
+/** The card fee as it reads - "2.9% + $0.30", "3%" or "$0.50". */
+function billingCardFeeText($rates, $currency = '') {
+    if (!$rates) {
+        return '';
+    }
+    $parts = [];
+    if ($rates['percent'] > 0) {
+        $parts[] = rtrim(rtrim(number_format($rates['percent'], 2, '.', ''), '0'), '.') . '%';
+    }
+    if ($rates['fixed'] > 0) {
+        $parts[] = billingMoney($rates['fixed'], $currency);
+    }
+    return implode(' + ', $parts);
+}
+
+/**
+ * The card fee as it is put to a client - "2.9% of what is charged, plus
+ * $0.30", "3% of what is charged" or "$0.50 a payment". Of what is charged,
+ * fee and all, because that is what the provider takes its percent of.
+ */
+function billingCardFeeTerms($rates, $currency = '') {
+    if (!$rates) {
+        return '';
+    }
+    $percent = $rates['percent'] > 0 ? rtrim(rtrim(number_format($rates['percent'], 2, '.', ''), '0'), '.') . '% of what is charged' : '';
+    $fixed = $rates['fixed'] > 0 ? billingMoney($rates['fixed'], $currency) : '';
+    if ($percent !== '' && $fixed !== '') {
+        return "$percent, plus $fixed";
+    }
+    return $percent !== '' ? $percent : "$fixed a payment";
+}
+
+/**
+ * Put a card fee on an invoice, as a line of its own with no tax, and its
+ * total up by as much - as a payment that carries it is booked. The invoice's
+ * other lines are left as they are, so the payment pays it to the cent. The
+ * line's id, or 0 when there is no fee.
+ */
+function billingCardFeeAdd($invoice_id, $fee, $date = '') {
+    global $mysqli;
+    $invoice_id = intval($invoice_id);
+    $fee = round(floatval($fee), 2);
+    if (!$invoice_id || $fee <= 0) {
+        return 0;
+    }
+    $date = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $date) ? $date : date('Y-m-d');
+    $order = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(MAX(item_order), 0) + 1 FROM invoice_items WHERE item_invoice_id = $invoice_id"))[0]);
+    mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = '" . escapeSql(BILLING_CARD_FEE_NAME) . "', item_description = '" . escapeSql("For paying by card on $date") . "',
+        item_quantity = 1, item_price = $fee, item_subtotal = $fee, item_tax = 0, item_total = $fee, item_tax_id = 0, item_product_id = 0, item_order = $order, item_invoice_id = $invoice_id");
+    $item_id = intval(mysqli_insert_id($mysqli));
+    mysqli_query($mysqli, "UPDATE invoices SET invoice_amount = invoice_amount + $fee WHERE invoice_id = $invoice_id");
+    return $item_id;
+}
+
+/**
+ * Take a card fee back off an invoice - the payment that carried it was
+ * refunded. The latest Card Fee line of that amount goes, and the total comes
+ * down by as much. Whether there was one.
+ */
+function billingCardFeeRemove($invoice_id, $fee) {
+    global $mysqli;
+    $invoice_id = intval($invoice_id);
+    $fee = round(floatval($fee), 2);
+    if (!$invoice_id || $fee <= 0) {
+        return false;
+    }
+    $item = mysqli_fetch_row(mysqli_query($mysqli, "SELECT item_id FROM invoice_items
+        WHERE item_invoice_id = $invoice_id AND item_name = '" . escapeSql(BILLING_CARD_FEE_NAME) . "' AND item_total = $fee
+        ORDER BY item_id DESC LIMIT 1"));
+    if (!$item) {
+        return false;
+    }
+    mysqli_query($mysqli, "DELETE FROM invoice_items WHERE item_id = " . intval($item[0]));
+    mysqli_query($mysqli, "UPDATE invoices SET invoice_amount = invoice_amount - $fee WHERE invoice_id = $invoice_id");
+    return true;
+}
+
+/** The card fee each invoice a payment paid carried - [invoice_id => cents] from its metadata (itflow_fees), [] when none. */
+function billingCardFeeSplit($metadata) {
+    $metadata = (array) $metadata;
+    return isset($metadata['itflow_fees']) && (string) $metadata['itflow_fees'] !== '' ? billingPaySplitParse($metadata['itflow_fees']) : [];
 }
 
 /* ------------------------------------------------------------- Saved cards */
@@ -145,8 +318,10 @@ function billingSavedCards($client_id) {
  * The invoices a client chose to pay, checked: theirs, still open with
  * something left on them, in one currency, no more than a card payment can
  * carry. ['invoices' => [id => row, with balance], 'cents' => [id =>
- * cents], 'total', 'currency', 'numbers'] - or null, with $error for the
- * client.
+ * cents], 'total', 'currency', 'numbers', and the card fee when the client
+ * pays it - 'fees' => [id => cents], 'fee', 'charge' (total and fee),
+ * 'fee_rates'] - or null, with $error for the client. The card limit is on
+ * what the invoices come to, without the fee.
  */
 function billingPaySelection($client_id, array $invoice_ids, &$error = '') {
     $invoice_ids = array_values(array_unique(array_filter(array_map('intval', $invoice_ids))));
@@ -187,6 +362,12 @@ function billingPaySelection($client_id, array $invoice_ids, &$error = '') {
             . ' at a time - pay fewer invoices at once, or pay another way';
         return null;
     }
+    // The card fee - one on the whole payment, shared over the invoices it pays
+    $selection['fee_rates'] = billingCardFeeFor($client_id);
+    $fee_cents = billingCardFeeCents(array_sum($selection['cents']), $selection['fee_rates']);
+    $selection['fees'] = $fee_cents ? billingCardFeeShares($selection['cents'], $fee_cents) : [];
+    $selection['fee'] = $fee_cents / 100;
+    $selection['charge'] = (array_sum($selection['cents']) + $fee_cents) / 100;
     return $selection;
 }
 
@@ -212,9 +393,10 @@ function billingPaySplitParse($split) {
 }
 
 /**
- * What every PaymentIntent for a selection carries - amount, currency,
- * description and the metadata billingStripeBook() books from. $by: the
- * contact paying (name).
+ * What every PaymentIntent for a selection carries - amount (with the card
+ * fee), currency, description and the metadata billingStripeBook() books
+ * from: itflow_invoices, what each invoice was owed, and itflow_fees, the card
+ * fee each carries. $by: the contact paying (name).
  */
 function billingStripeIntentParams(array $selection, $client_id, array $by = []) {
     global $mysqli;
@@ -233,10 +415,16 @@ function billingStripeIntentParams(array $selection, $client_id, array $by = [])
         // The one-invoice key the guest and autopay payments carry
         $metadata['itflow_invoice_id'] = intval(array_key_first($selection['cents']));
     }
+    $fee_cents = array_sum($selection['fees'] ?? []);
+    if ($fee_cents > 0) {
+        $metadata['itflow_fees'] = billingPaySplit(['cents' => $selection['fees']]);
+    }
+    $charge = (array_sum($selection['cents']) + $fee_cents) / 100;
     return [
-        'amount' => array_sum($selection['cents']),
+        'amount' => array_sum($selection['cents']) + $fee_cents,
         'currency' => strtolower($selection['currency']),
-        'description' => mb_substr("ITFlow: $client_name payment of {$selection['currency']} " . number_format($selection['total'], 2, '.', '') . " for $numbers", 0, 1000),
+        'description' => mb_substr("ITFlow: $client_name payment of {$selection['currency']} " . number_format($charge, 2, '.', '')
+            . ($fee_cents > 0 ? ' (with a ' . number_format($fee_cents / 100, 2, '.', '') . ' card fee)' : '') . " for $numbers", 0, 1000),
         'metadata' => $metadata,
         'payment_method_types' => ['card'],
     ];
@@ -302,6 +490,7 @@ function billingStripeCheckoutIntent(array $selection, $client_id, array $by = [
             $old = $stripe->paymentIntents->retrieve($reuse_id);
             $waiting = in_array($old->status, ['requires_payment_method', 'requires_confirmation', 'requires_action'], true);
             if ($waiting && intval($old->amount) === intval($params['amount']) && ($old->metadata['itflow_invoices'] ?? '') === $params['metadata']['itflow_invoices']
+                && (string) ($old->metadata['itflow_fees'] ?? '') === (string) ($params['metadata']['itflow_fees'] ?? '')
                 && intval($old->metadata['itflow_client_id'] ?? 0) === intval($client_id)) {
                 return $old;
             }
@@ -320,7 +509,9 @@ function billingStripeCheckoutIntent(array $selection, $client_id, array $by = [
 /**
  * Book a card payment that went through: one payment per invoice in its
  * split, dated the day it was made, into Stripe's account, referenced
- * "Stripe - pi_...", and each invoice's status from its payments. The money
+ * "Stripe - pi_...", and each invoice's status from its payments. A card fee
+ * it carried goes on each invoice as a line first (billingCardFeeAdd()), and
+ * the invoice's payment is what it was owed and its fee. The money
  * has been taken, so an invoice paid some other way meanwhile (now overpaid)
  * or no longer open is booked all the same and flagged to the agents. Booked
  * once: another call for the same payment finds it and books nothing.
@@ -354,11 +545,15 @@ function billingStripeBook($pi, $client_id, array $by = []) {
     if (intval($metadata['itflow_client_id'] ?? 0) !== $client_id) {
         return $fail('not this client');
     }
+    $fees = billingCardFeeSplit($metadata);
+    if (isset($metadata['itflow_fees']) && (string) $metadata['itflow_fees'] !== '' && !$fees) {
+        return $fail('card fee does not read');
+    }
     $split = billingPaySplitParse($metadata['itflow_invoices'] ?? '');
     if (!$split && intval($metadata['itflow_invoice_id'] ?? 0)) {
-        $split = [intval($metadata['itflow_invoice_id']) => $received];
+        $split = [intval($metadata['itflow_invoice_id']) => $received - array_sum($fees)];
     }
-    if (!$split || array_sum($split) !== $received) {
+    if (!$split || array_sum($split) + array_sum($fees) !== $received || array_diff_key($fees, $split)) {
         return $fail('split does not add up');
     }
 
@@ -385,7 +580,7 @@ function billingStripeBook($pi, $client_id, array $by = []) {
         mysqli_query($mysqli, "SELECT RELEASE_LOCK('$lock')");
         $applied = [];
         foreach ($invoices as $invoice_id => $invoice) {
-            $applied[] = ['invoice' => billingRow('invoice', $invoice_id, false), 'amount' => $split[$invoice_id] / 100];
+            $applied[] = ['invoice' => billingRow('invoice', $invoice_id, false), 'amount' => ($split[$invoice_id] + ($fees[$invoice_id] ?? 0)) / 100];
         }
         return ['ok' => true, 'error' => '', 'applied' => $applied, 'payment_id' => intval($booked[0]), 'already' => true];
     }
@@ -402,8 +597,10 @@ function billingStripeBook($pi, $client_id, array $by = []) {
     $first_payment_id = 0;
 
     foreach ($invoices as $invoice_id => $invoice) {
-        $amount = $split[$invoice_id] / 100;
+        $fee = ($fees[$invoice_id] ?? 0) / 100;
+        $amount = ($split[$invoice_id] + ($fees[$invoice_id] ?? 0)) / 100;
         $status_before = (string) $invoice['invoice_status'];
+        billingCardFeeAdd($invoice_id, $fee, $date);
         mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$date', payment_amount = $amount, payment_currency_code = '" . escapeSql($currency) . "',
             payment_account_id = $account_id, payment_method = 'Stripe', payment_reference = '$reference', payment_invoice_id = $invoice_id");
         $first_payment_id = $first_payment_id ?: intval(mysqli_insert_id($mysqli));
@@ -412,7 +609,7 @@ function billingStripeBook($pi, $client_id, array $by = []) {
         $number = billingNumber('invoice', $invoice);
         $money = billingMoney($amount, $currency);
 
-        billingLog('invoice', $invoice_id, $status, "Paid $money online by card" . ($name !== '' ? " - $name" : '') . ($via !== '' ? " $via" : '')
+        billingLog('invoice', $invoice_id, $status, "Paid $money online by card" . ($fee > 0 ? ', with a ' . billingMoney($fee, $currency) . ' card fee' : '') . ($name !== '' ? " - $name" : '') . ($via !== '' ? " $via" : '')
             . ($many ? ', in one payment of ' . billingMoney($total, $currency) . ' for ' . count($invoices) . ' invoices' : ''));
 
         $state = invoiceState($invoice, invoicePaid($invoice_id));
@@ -424,7 +621,7 @@ function billingStripeBook($pi, $client_id, array $by = []) {
         if ($status === 'Paid') {
             triggerCustomAction('invoice_pay', $invoice_id);
         }
-        logAudit("Invoice", "Payment", escapeSql(($name !== '' ? $name : 'Client') . " paid $money on invoice $number by card" . ($via !== '' ? " $via" : '') . " - $pi_id$dev"), $client_id, $invoice_id);
+        logAudit("Invoice", "Payment", escapeSql(($name !== '' ? $name : 'Client') . " paid $money on invoice $number by card" . ($fee > 0 ? ', with a ' . billingMoney($fee, $currency) . ' card fee' : '') . ($via !== '' ? " $via" : '') . " - $pi_id$dev"), $client_id, $invoice_id);
         $applied[] = ['invoice' => $invoice, 'amount' => $amount];
     }
 

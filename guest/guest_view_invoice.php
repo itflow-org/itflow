@@ -49,6 +49,8 @@ if ($stripe && invoiceCanPay($invoice, $state) && (floatval($stripe['payment_pro
     $stripe_customer = mysqli_fetch_row(mysqli_query($mysqli, "SELECT payment_provider_client FROM client_payment_provider WHERE client_id = $client_id AND payment_provider_id = " . intval($stripe['payment_provider_id']) . " LIMIT 1"));
     $pay_url = ($stripe_customer ? 'guest_pay_invoice_stripe.php' : 'guest_pay_setup_stripe_customer.php') . "?invoice_id=$invoice_id&url_key=$query_key";
 }
+// The card fee on paying by card, when the client pays one (functions/billing_pay.php)
+$card_fee = $pay_url ? billingCardFeeCents((int) round($state['balance'] * 100), billingCardFeeFor($client_id)) / 100 : 0;
 
 $paper = [
     'type' => 'invoice',
@@ -95,7 +97,7 @@ $paper = [
                     <div class="mb-3"><?= invoiceDuePill($state) ?: '<span class="small text-body-secondary">Due ' . escapeHtml($invoice['invoice_due']) . '</span>' ?></div>
                     <?php if ($pay_url) { ?>
                         <a class="btn btn-success btn-lg w-100 mb-2" href="<?= escapeHtml($pay_url) ?>"><i class="fas fa-credit-card me-2"></i>Pay Now</a>
-                        <div class="small text-body-secondary text-center mb-3"><i class="fas fa-lock me-1"></i>Securely, by card</div>
+                        <div class="small text-body-secondary text-center mb-3"><i class="fas fa-lock me-1"></i>Securely, by card<?= $card_fee > 0 ? ' - plus a ' . $money($card_fee) . ' card fee' : '' ?></div>
                     <?php } ?>
                 <?php } ?>
                 <div class="d-flex gap-2 <?= $state['state'] === 'paid' || in_array($state['state'], ['cancelled', 'nonbillable'], true) ? 'mt-3' : '' ?>">

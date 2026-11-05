@@ -893,6 +893,7 @@ CREATE TABLE `clients` (
   `client_tax_exempt` tinyint(1) NOT NULL DEFAULT 0,
   `client_tax_exempt_number` varchar(200) DEFAULT NULL,
   `client_tax_exempt_expires` date DEFAULT NULL,
+  `client_card_fee_exempt` tinyint(1) NOT NULL DEFAULT 0,
   `client_abbreviation` varchar(10) DEFAULT NULL,
   `client_notes` text DEFAULT NULL,
   `client_favorite` tinyint(1) NOT NULL DEFAULT 0,
@@ -2164,6 +2165,9 @@ CREATE TABLE `payment_providers` (
   `payment_provider_account` int(11) NOT NULL,
   `payment_provider_expense_vendor` int(11) NOT NULL DEFAULT 0,
   `payment_provider_expense_category` int(11) NOT NULL DEFAULT 0,
+  `payment_provider_card_fee` tinyint(1) NOT NULL DEFAULT 0,
+  `payment_provider_card_fee_percent` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `payment_provider_card_fee_fixed` decimal(15,2) NOT NULL DEFAULT 0.00,
   `payment_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `payment_provider_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`payment_provider_id`)

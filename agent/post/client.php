@@ -45,7 +45,7 @@ if (isset($_POST['add_client'])) {
     $referral = escapeSql(categoryEnsure('Referral', $_POST['referral'] ?? ''));
 
     // Create client
-    mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$session_company_currency', client_reminders = " . ($reminders ?? 1) . ", client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes', client_accessed_at = NOW()" . ($tax_input !== null ? ", " . taxClientSetSql($tax_input) : '') . billingClientLegacySql());
+    mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_currency_code = '$session_company_currency', client_reminders = " . ($reminders ?? 1) . ", client_card_fee_exempt = " . ($card_fee_exempt ?? 0) . ", client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes', client_accessed_at = NOW()" . ($tax_input !== null ? ", " . taxClientSetSql($tax_input) : '') . billingClientLegacySql());
 
     $client_id = mysqli_insert_id($mysqli);
 
@@ -125,7 +125,7 @@ if (isset($_POST['edit_client'])) {
     $referral = escapeSql(categoryEnsure('Referral', $_POST['referral'] ?? ''));
 
     // Update client
-    mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral'" . ($reminders !== null ? ", client_reminders = $reminders" : '') . ", client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes'$tax_set_sql WHERE client_id = $client_id");
+    mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral'" . ($reminders !== null ? ", client_reminders = $reminders" : '') . ($card_fee_exempt !== null ? ", client_card_fee_exempt = $card_fee_exempt" : '') . ", client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes'$tax_set_sql WHERE client_id = $client_id");
 
     // Tags - client tags only, and an admin can type a new one in (functions/tags.php)
     tagSetForRecord('client', $client_id, (array) ($_POST['tags'] ?? []));
