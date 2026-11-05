@@ -2017,6 +2017,70 @@ CREATE TABLE `logs` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `managed_instance_commands`
+--
+
+DROP TABLE IF EXISTS `managed_instance_commands`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `managed_instance_commands` (
+  `managed_command_id` int(11) NOT NULL AUTO_INCREMENT,
+  `managed_command_instance_id` int(11) NOT NULL,
+  `managed_command` varchar(40) NOT NULL,
+  `managed_command_status` varchar(20) NOT NULL DEFAULT 'queued',
+  `managed_command_source` varchar(20) NOT NULL DEFAULT 'manual',
+  `managed_command_requested_by` varchar(200) DEFAULT NULL,
+  `managed_command_result` varchar(1000) DEFAULT NULL,
+  `managed_command_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `managed_command_sent_at` datetime DEFAULT NULL,
+  `managed_command_done_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`managed_command_id`),
+  KEY `managed_command_instance_id` (`managed_command_instance_id`,`managed_command_status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `managed_instances`
+--
+
+DROP TABLE IF EXISTS `managed_instances`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `managed_instances` (
+  `managed_instance_id` int(11) NOT NULL AUTO_INCREMENT,
+  `managed_instance_uuid` varchar(36) NOT NULL,
+  `managed_instance_name` varchar(200) NOT NULL,
+  `managed_instance_client_id` int(11) NOT NULL DEFAULT 0,
+  `managed_instance_notes` text DEFAULT NULL,
+  `managed_instance_enroll_hash` varchar(64) DEFAULT NULL,
+  `managed_instance_enroll_expires_at` datetime DEFAULT NULL,
+  `managed_instance_secret_hash` varchar(64) DEFAULT NULL,
+  `managed_instance_enrolled_at` datetime DEFAULT NULL,
+  `managed_instance_url` varchar(255) DEFAULT NULL,
+  `managed_instance_mode` varchar(20) NOT NULL DEFAULT 'active',
+  `managed_instance_mode_message` varchar(500) DEFAULT NULL,
+  `managed_instance_seat_limit` int(11) NOT NULL DEFAULT 0,
+  `managed_instance_white_label_key` text DEFAULT NULL,
+  `managed_instance_update_policy` varchar(20) NOT NULL DEFAULT 'manual',
+  `managed_instance_update_delay_days` int(11) NOT NULL DEFAULT 7,
+  `managed_instance_version` varchar(20) DEFAULT NULL,
+  `managed_instance_db_version` varchar(20) DEFAULT NULL,
+  `managed_instance_update_version` varchar(40) DEFAULT NULL,
+  `managed_instance_update_seen_at` datetime DEFAULT NULL,
+  `managed_instance_report` mediumtext DEFAULT NULL,
+  `managed_instance_last_checkin_at` datetime DEFAULT NULL,
+  `managed_instance_last_ip` varchar(45) DEFAULT NULL,
+  `managed_instance_offline_notified_at` datetime DEFAULT NULL,
+  `managed_instance_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `managed_instance_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `managed_instance_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`managed_instance_id`),
+  UNIQUE KEY `managed_instance_uuid` (`managed_instance_uuid`),
+  KEY `managed_instance_client_id` (`managed_instance_client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `modules`
 --
 
@@ -3187,6 +3251,8 @@ CREATE TABLE `settings` (
   `config_update_pending_commits` text DEFAULT NULL,
   `config_update_checked_at` datetime DEFAULT NULL,
   `config_update_details` mediumtext DEFAULT NULL,
+  `config_manager_keys` text DEFAULT NULL,
+  `config_managed` mediumtext DEFAULT NULL,
   `config_share_max_hours` int(11) NOT NULL DEFAULT 720,
   `config_share_require_protection` tinyint(1) NOT NULL DEFAULT 0,
   `config_login_alert_failures` int(11) NOT NULL DEFAULT 10,

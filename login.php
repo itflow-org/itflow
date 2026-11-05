@@ -31,6 +31,9 @@ if (
 
 require_once "includes/inc_set_timezone.php";
 
+// A managed instance its manager has suspended shows why, rather than a sign-in that leads nowhere
+managedRequestGuard('login');
+
 $session_ip = escapeSql(getIP());
 $session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
 

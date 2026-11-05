@@ -12,6 +12,9 @@ require_once __DIR__ . "/../includes/session_init.php";
 // Set Timezone after session starts
 require_once "../includes/inc_set_timezone.php";
 
+// A managed instance its manager has suspended (functions/managed.php)
+managedRequestGuard('login');
+
 $session_ip = escapeSql(getIP());
 $session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
 

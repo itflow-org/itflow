@@ -103,3 +103,4 @@ require_once __DIR__ . '/functions/ticket_mention.php';
 require_once __DIR__ . '/functions/getting_started.php';
 require_once __DIR__ . '/functions/settings.php';
 require_once __DIR__ . '/functions/mail_queue.php';
+require_once __DIR__ . '/functions/managed.php';

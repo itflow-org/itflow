@@ -154,3 +154,6 @@ $client_sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE clien
 $client = mysqli_fetch_assoc($client_sql);
 
 $session_client_name = $client['client_name'];
+
+// A managed instance its manager has made read-only or suspended (functions/managed.php)
+managedRequestGuard('portal');

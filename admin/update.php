@@ -147,8 +147,12 @@ if ($update_running) {
     $state = 'current';
 }
 
+// A managed instance is updated by its manager, not from here (functions/managed.php)
+$updates_managed = managedLocks()['updates'];
+$updates_policy = managedState();
+
 // Update ITFlow where there is something to update (or no telling), Check where a check can run
-$show_update_button = in_array($state, ['database', 'available', 'unknown'], true) && $update_queue_available;
+$show_update_button = in_array($state, ['database', 'available', 'unknown'], true) && $update_queue_available && !$updates_managed;
 $show_check_button = in_array($state, ['available', 'unknown', 'current'], true) && $update_check_available && $is_git_checkout;
 
 $queue_url = "post.php?queue_update&csrf_token=" . urlencode($_SESSION['csrf_token']);
@@ -277,6 +281,15 @@ $hero = [
                             <?php if (rand(1, 10) === 1) { ?>
                                 <p class="mb-0 mt-1 small text-body-secondary"><i class="fas fa-fw fa-life-ring me-1"></i>While you're here - when did you last check that your backup restores?</p>
                             <?php } ?>
+                        <?php } ?>
+
+                        <?php if ($updates_managed && in_array($state, ['database', 'available', 'unknown', 'current'], true)) { ?>
+                            <p class="mb-0 mt-2 small text-body-secondary" data-update-managed>
+                                <i class="fas fa-fw fa-network-wired me-1"></i><strong><?= escapeHtml(managedManagerName()) ?></strong> manages this ITFlow, so it is updated from there<?php
+                                if ($updates_policy['update_policy'] === 'auto') {
+                                    echo ' - automatically, ' . ($updates_policy['update_delay_days'] > 0 ? $updates_policy['update_delay_days'] . ' day' . ($updates_policy['update_delay_days'] === 1 ? '' : 's') . ' after a release comes out' : 'as soon as a release comes out') . ', and straight away for security fixes';
+                                } ?>.
+                            </p>
                         <?php } ?>
 
                         <?php if ($show_update_button || $show_check_button) { ?>

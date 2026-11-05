@@ -79,7 +79,7 @@ function encryptUserSpecificKey($user_password) {
     $salt = randomString();
 
     // Get the session info.
-    $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
+    $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'] ?? '';
     $user_encryption_session_iv = base64_decode($_SESSION['user_encryption_session_iv'] ?? '');
     $user_encryption_session_key = base64_decode($_COOKIE['user_encryption_session_key'] ?? '');
 
@@ -146,7 +146,7 @@ function decryptCredentialEntry($credential_password_ciphertext) {
     $credential_ciphertext = $salt = substr($credential_password_ciphertext, 16);
 
     // Get the user session info.
-    $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
+    $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'] ?? '';
     $user_encryption_session_iv =  base64_decode($_SESSION['user_encryption_session_iv'] ?? '');
     $user_encryption_session_key = base64_decode($_COOKIE['user_encryption_session_key'] ?? '');
 
@@ -162,7 +162,7 @@ function encryptCredentialEntry($credential_password_cleartext) {
     $iv = randomString();
 
     // Get the user session info.
-    $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
+    $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'] ?? '';
     $user_encryption_session_iv =  base64_decode($_SESSION['user_encryption_session_iv'] ?? '');
     $user_encryption_session_key = base64_decode($_COOKIE['user_encryption_session_key'] ?? '');
 

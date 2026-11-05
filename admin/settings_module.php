@@ -14,6 +14,9 @@ $whitelabel_key = trim((string) $config_whitelabel_key);
 $whitelabel = $whitelabel_key !== '' ? validateWhitelabelKey($whitelabel_key) : false;
 $whitelabel_expires = $whitelabel ? strtotime((string) $whitelabel['expires']) : 0;
 
+// A managed instance whose manager sets the key - shown, not changed here (functions/managed.php)
+$whitelabel_managed = managedLocks()['white_label'];
+
 $modules = [
     'config_module_enable_itdoc' => [$config_module_enable_itdoc, 'fa-laptop', 'A client\'s assets, credentials, documents, networks, domains, certificates and the rest of their IT documentation.'],
     'config_module_enable_ticketing' => [$config_module_enable_ticketing, 'fa-life-ring', 'Tickets, recurring tickets and projects - and their settings.'],
@@ -62,7 +65,11 @@ echo settingsPageStart('module');
                         <div>The key below has run out, so "Powered by ITFlow" is back.</div>
                     </div>
                 <?php } ?>
-                <?= settingsTextarea('config_whitelabel_key', $whitelabel_key, ['rows' => 3, 'placeholder' => 'Paste the key here', 'help' => 'Left empty, "Powered by ITFlow" shows.']) ?>
+                <?php if ($whitelabel_managed) { ?>
+                    <p class="small text-body-secondary mb-0" data-whitelabel-state="managed"><i class="fas fa-fw fa-lock me-1"></i>The key is set by <strong><?= escapeHtml(managedManagerName()) ?></strong>, who manages this ITFlow - it can't be changed here.</p>
+                <?php } else { ?>
+                    <?= settingsTextarea('config_whitelabel_key', $whitelabel_key, ['rows' => 3, 'placeholder' => 'Paste the key here', 'help' => 'Left empty, "Powered by ITFlow" shows.']) ?>
+                <?php } ?>
             <?= settingsSectionEnd() ?>
 
             <?= settingsSaveBar('edit_module_settings') ?>

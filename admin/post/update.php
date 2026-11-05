@@ -46,6 +46,12 @@ if (isset($_GET['queue_update'])) {
 
     enforceAdminPermission();
 
+    // A managed instance is updated by its manager (functions/managed.php)
+    if (managedLocks()['updates']) {
+        flashAlert(escapeHtml(managedManagerName()) . " manages this ITFlow, so updates come from there.", 'error');
+        redirect();
+    }
+
     // The files can be newer than the schema - that is the window this whole page exists to
     // close - and the column the queue is written to arrives with a migration. There is no
     // longer a button that applies migrations on their own, so the way out is the shell.

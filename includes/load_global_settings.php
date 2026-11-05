@@ -209,3 +209,11 @@ include_once "settings_localization_array.php";
 
 // Type => icon - the asset types, in order (ASSET_TYPES in functions/asset_type.php)
 $asset_types_array = function_exists('assetTypeIcons') ? assetTypeIcons() : [];
+
+// A managed instance its manager has made read-only or suspended (functions/managed.php). The
+// pages anyone can open - guest links, signing up, joining, password resets - are checked here,
+// as nearly all of them load this file. Client portal pages that load it before functions.php
+// are checked by client/includes/check_login.php instead
+if (PHP_SAPI !== 'cli' && function_exists('managedRequestGuard')) {
+    managedRequestGuard(str_starts_with((string) ($_SERVER['SCRIPT_NAME'] ?? ''), '/api/') ? 'api' : 'public');
+}

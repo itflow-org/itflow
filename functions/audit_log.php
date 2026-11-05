@@ -59,6 +59,7 @@ function auditLogKinds() {
         'Document Template' => ['icon' => 'fa-file-alt', 'table' => 'document_templates', 'id' => 'document_template_id', 'name' => 'document_template_name', 'url' => '/admin/document_template.php?document_template_id={id}'],
         'Software Template' => ['icon' => 'fa-cube', 'table' => 'software_templates', 'id' => 'software_template_id', 'name' => 'software_template_name', 'url' => '/admin/software_template.php?software_template_id={id}'],
         'Vendor Template' => ['icon' => 'fa-building', 'table' => 'vendor_templates', 'id' => 'vendor_template_id', 'name' => 'vendor_template_name', 'url' => '/admin/vendor_template.php?vendor_template_id={id}'],
+        'Managed Instance' => ['icon' => 'fa-network-wired', 'table' => 'managed_instances', 'id' => 'managed_instance_id', 'name' => 'managed_instance_name', 'url' => '/admin/managed_instance.php?id={id}'],
 
         // Not one record to open, or nothing to open it with - just an icon
         'Login' => ['icon' => 'fa-sign-in-alt'],
@@ -117,6 +118,7 @@ function auditLogKinds() {
         'Sharing' => ['icon' => 'fa-share-alt'],
         'Audit Log' => ['icon' => 'fa-history'],
         'App Log' => ['icon' => 'fa-clipboard-list'],
+        'Management' => ['icon' => 'fa-handshake'],
     ];
 }
 
@@ -151,6 +153,8 @@ function auditLogActionStyle($action) {
         'Check' => ['info', 'fa-check'], 'Review' => ['info', 'fa-clipboard-check'], 'Save' => ['success', 'fa-save'], 'Bill' => ['success', 'fa-file-invoice-dollar'], 'Renew' => ['success', 'fa-redo-alt'],
         'Reimburse' => ['success', 'fa-hand-holding-usd'], 'Finish' => ['success', 'fa-flag-checkered'],
         'Invite' => ['primary', 'fa-user-plus'], 'Onboard' => ['primary', 'fa-route'], 'Sign Up Requested' => ['secondary', 'fa-user-plus'], 'Sign Up Sent' => ['primary', 'fa-paper-plane'], 'Sign Up Refused' => ['warning', 'fa-user-times'],
+        'Connect' => ['success', 'fa-plug'], 'Disconnect' => ['secondary', 'fa-unlink'], 'Remove' => ['danger', 'fa-unlink'], 'Release' => ['secondary', 'fa-unlink'], 'Code' => ['primary', 'fa-key'],
+        'Mode' => ['warning', 'fa-lock'], 'Support' => ['warning', 'fa-headset'],
     ];
     $style = $styles[$action] ?? ['secondary', 'fa-circle'];
     return ['tone' => $style[0], 'icon' => $style[1]];

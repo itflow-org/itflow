@@ -42,15 +42,14 @@ $row = mysqli_fetch_assoc($sql);
 $company_name = escapeSql($row['company_name']);
 $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
-// Check cron is enabled
+// Check cron is enabled. Switched off isn't an error - Maintenance > Cron shows why it stopped,
+// where an App Logs entry every minute only buried the real errors
 if ($config_enable_cron == 0) {
-    logApp("Cron-Email-Parser", "error", "Cron Email Parser unable to run - cron not enabled in admin settings.");
     cronJobStop("Cron: is not enabled -- Quitting..");
 }
 
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {
-    logApp("Cron-Email-Parser", "error", "Cron Email Parser unable to run - not enabled in admin settings.");
     cronJobStop("Email Parser: Feature is not enabled - check Settings > Ticketing > Email-to-ticket parsing. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
 }
 

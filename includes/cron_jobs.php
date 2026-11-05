@@ -36,13 +36,23 @@
  * switch is off. It is not a dispatcher-level gate - a new job has to make the check
  * itself, and a job that skips it will keep running on an install that thinks cron is off.
  *
- * Order matters: the dispatcher works down this list. app_update replaces the files every
- * job is loaded from, so it stays at the end and ends the cycle behind itself.
+ * Order matters: the dispatcher works down this list. manager_checkin goes first, so what a
+ * manager sets - read-only or suspended pause most jobs (MANAGED_KEEP_JOBS) - applies to the
+ * rest of the same cycle. app_update replaces the files every job is loaded from, so it stays
+ * at the end and ends the cycle behind itself.
  */
 
 function cronJobRegistry(): array
 {
     return [
+        [
+            'name' => 'manager_checkin',
+            'label' => 'Manager Check-in',
+            'script' => 'manager_checkin.php',
+            'description' => 'For an ITFlow managed by another (Admin > Managed By): reports how it is doing and takes what its manager sets. Stops straight away when it isn\'t managed.',
+            'schedule' => 'Interval',
+            'interval_minutes' => 1,
+        ],
         [
             'name' => 'mail_queue',
             'label' => 'Mail Queue',
@@ -74,6 +84,14 @@ function cronJobRegistry(): array
             'description' => 'Gives new tickets from email, the portal and the API a category and priority by AI, when Settings > Tickets says to. Up to 5 a run.',
             'schedule' => 'Interval',
             'interval_minutes' => 1,
+        ],
+        [
+            'name' => 'managed_instances',
+            'label' => 'Managed Instances',
+            'script' => 'managed_instances.php',
+            'description' => 'For an ITFlow that manages others (Admin > Managed Instances): notifies when one stops checking in, and closes requests that were never answered.',
+            'schedule' => 'Interval',
+            'interval_minutes' => 5,
         ],
         [
             'name' => 'payment_provider_fees',

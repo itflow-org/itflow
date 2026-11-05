@@ -67,8 +67,11 @@ require_once "../includes/cron_jobs.php";
  *
  * Every comparison is made against PHP's clock, not the database's, so the schedule follows
  * the timezone ITFlow is configured for however the database server is set up.
+ *
+ * With $paused (why), the job is not claimed: if it is due, its status says why it hasn't run,
+ * and it is left due - a Run Now request standing - so it runs as soon as it isn't paused.
  */
-function cronJobClaim($mysqli, array $job): bool
+function cronJobClaim($mysqli, array $job, string $paused = ''): bool
 {
     $name = escapeSql($job['name']);
     $now = date('Y-m-d H:i:s');
@@ -131,6 +134,13 @@ function cronJobClaim($mysqli, array $job): bool
             $threshold = escapeSql($threshold);
             $due_clause .= " OR (cron_job_enabled = 1 AND (cron_job_last_run_at IS NULL OR cron_job_last_run_at < '$threshold'))";
         }
+    }
+
+    if ($paused !== '') {
+        mysqli_query($mysqli, "UPDATE cron_jobs SET cron_job_last_status = '" . escapeSql(substr("Stopped: $paused", 0, 200)) . "'
+            WHERE cron_job_name = '$name' AND (cron_job_last_status IS NULL OR cron_job_last_status <> 'Running')
+            AND ($due_clause)");
+        return false;
     }
 
     mysqli_query($mysqli, "UPDATE cron_jobs SET
@@ -232,7 +242,14 @@ foreach (cronJobRegistry() as $cron_dispatch_job) {
         continue;
     }
 
-    if (!cronJobClaim($mysqli, $cron_dispatch_job)) {
+    // A managed instance its manager has made read-only or suspended runs only the jobs that
+    // keep it looked after (MANAGED_KEEP_JOBS) - the rest wait, due, until it's active again.
+    // Asked for each job, as the Manager Check-in job at the top of the list can change it.
+    $cron_dispatch_mode = managedMode();
+    $cron_dispatch_paused = $cron_dispatch_mode !== 'active' && !in_array($cron_dispatch_job['name'], MANAGED_KEEP_JOBS[$cron_dispatch_mode] ?? [], true)
+        ? 'Paused - this ITFlow is ' . ($cron_dispatch_mode === 'suspended' ? 'suspended' : 'read-only') . ' by its manager' : '';
+
+    if (!cronJobClaim($mysqli, $cron_dispatch_job, $cron_dispatch_paused)) {
         cronLockRelease($cron_dispatch_lock);
         continue;
     }
