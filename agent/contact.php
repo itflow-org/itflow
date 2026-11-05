@@ -236,11 +236,11 @@ if (!$can_support) {
 
         <div class="d-flex flex-wrap gap-2 d-print-none">
             <?php if ($contact_dial === 'phone') { ?>
-                <a class="btn btn-outline-primary" href="tel:<?= escapeHtml(preg_replace('/[^0-9+]/', '', ($contact_row['contact_phone_country_code'] ? '+' . $contact_row['contact_phone_country_code'] : '') . $contact_row['contact_phone']) . ($contact_row['contact_extension'] ? ',' . preg_replace('/[^0-9]/', '', $contact_row['contact_extension']) : '')) ?>" title="Call <?= $contact_phone_copy ?>">
+                <a class="btn btn-outline-primary" href="tel:<?= escapeHtml(phoneDialNumber($contact_row['contact_phone'], $contact_row['contact_phone_country_code']) . ($contact_row['contact_extension'] ? ',' . preg_replace('/[^0-9]/', '', $contact_row['contact_extension']) : '')) ?>" title="Call <?= $contact_phone_copy ?>">
                     <i class="fas fa-phone me-2"></i>Call
                 </a>
             <?php } elseif ($contact_dial === 'mobile') { ?>
-                <a class="btn btn-outline-primary" href="tel:<?= escapeHtml(preg_replace('/[^0-9+]/', '', ($contact_row['contact_mobile_country_code'] ? '+' . $contact_row['contact_mobile_country_code'] : '') . $contact_row['contact_mobile'])) ?>" title="Call <?= $contact_mobile_copy ?>">
+                <a class="btn btn-outline-primary" href="tel:<?= escapeHtml(phoneDialNumber($contact_row['contact_mobile'], $contact_row['contact_mobile_country_code'])) ?>" title="Call <?= $contact_mobile_copy ?>">
                     <i class="fas fa-mobile-alt me-2"></i>Call
                 </a>
             <?php } ?>

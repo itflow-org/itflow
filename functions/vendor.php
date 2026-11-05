@@ -136,12 +136,7 @@ function vendorWebsiteLabel($website) {
 
 /** The support line to dial, with the country code - for a Call button. '' without one. */
 function vendorDialNumber($phone, $country_code) {
-    $digits = preg_replace('/[^0-9]/', '', (string) $phone);
-    if ($digits === '') {
-        return '';
-    }
-    $country = preg_replace('/[^0-9]/', '', (string) $country_code);
-    return ($country !== '' ? "+$country" : '') . $digits;
+    return phoneDialNumber($phone, $country_code);
 }
 
 /**

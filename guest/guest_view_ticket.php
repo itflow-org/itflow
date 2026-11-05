@@ -38,7 +38,7 @@ $purifier = new HTMLPurifier($purifier_config);
 
 $company = billingCompany();
 $company_phone = (string) ($company['phone_display'] ?? '');
-$company_tel = preg_replace('/[^0-9+]/', '', $company_phone);
+$company_tel = phoneDialNumber($company['company_phone'] ?? '', $company['company_phone_country_code'] ?? '');
 $company_website = trim((string) ($company['company_website'] ?? ''));
 $support_email = (string) ticketEmailFrom()['email'];
 

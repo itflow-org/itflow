@@ -1295,14 +1295,14 @@ if (isset($_GET['ticket_id'])) {
 
                                 <?php if (!empty($contact_phone)) { ?>
                                     <div class="mt-2">
-                                        <i class="fa fa-fw fa-phone text-secondary me-2"></i><a href="tel:<?= $contact_phone ?>"><?= $contact_phone ?></a>
+                                        <i class="fa fa-fw fa-phone text-secondary me-2"></i><a href="tel:<?= escapeHtml(phoneDialNumber($ticket['contact_phone'], $ticket['contact_phone_country_code'])) ?>"><?= $contact_phone ?></a>
                                         <?php if ($contact_extension) { ?><span class="text-muted small">ext. <?= $contact_extension ?></span><?php } ?>
                                     </div>
                                 <?php } ?>
 
                                 <?php if (!empty($contact_mobile)) { ?>
                                     <div class="mt-2">
-                                        <i class="fa fa-fw fa-mobile-alt text-secondary me-2"></i><a href="tel:<?= $contact_mobile ?>"><?= $contact_mobile ?></a>
+                                        <i class="fa fa-fw fa-mobile-alt text-secondary me-2"></i><a href="tel:<?= escapeHtml(phoneDialNumber($ticket['contact_mobile'], $ticket['contact_mobile_country_code'])) ?>"><?= $contact_mobile ?></a>
                                     </div>
                                 <?php } ?>
 

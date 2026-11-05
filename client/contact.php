@@ -114,8 +114,8 @@ $value = function ($field, $fallback = '') use ($form, $contact) {
                 $mobile = !empty($contact['contact_mobile']) ? formatPhoneNumber($contact['contact_mobile'], $contact['contact_mobile_country_code']) : '';
                 $facts = array_filter([
                     'Email' => !empty($contact['contact_email']) ? '<a href="mailto:' . escapeHtml($contact['contact_email']) . '">' . escapeHtml($contact['contact_email']) . '</a>' : '',
-                    'Phone' => $phone !== '' ? '<a href="tel:' . escapeHtml(preg_replace('/[^0-9+]/', '', ($contact['contact_phone_country_code'] ? '+' . $contact['contact_phone_country_code'] : '') . $contact['contact_phone'])) . '">' . escapeHtml($phone) . '</a>' : '',
-                    'Mobile' => $mobile !== '' ? '<a href="tel:' . escapeHtml(preg_replace('/[^0-9+]/', '', ($contact['contact_mobile_country_code'] ? '+' . $contact['contact_mobile_country_code'] : '') . $contact['contact_mobile'])) . '">' . escapeHtml($mobile) . '</a>' : '',
+                    'Phone' => $phone !== '' ? '<a href="tel:' . escapeHtml(phoneDialNumber($contact['contact_phone'], $contact['contact_phone_country_code'])) . '">' . escapeHtml($phone) . '</a>' : '',
+                    'Mobile' => $mobile !== '' ? '<a href="tel:' . escapeHtml(phoneDialNumber($contact['contact_mobile'], $contact['contact_mobile_country_code'])) . '">' . escapeHtml($mobile) . '</a>' : '',
                     'Title' => escapeHtml($contact['contact_title']),
                     'Department' => escapeHtml($contact['contact_department']),
                     'Location' => escapeHtml($contact['location_name'] ?? ''),

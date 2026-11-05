@@ -162,7 +162,7 @@ ob_start();
                 <?php if ($contact_row['contact_phone'] || $contact_row['contact_mobile']) {
                     $dial_number = $contact_row['contact_phone'] ?: $contact_row['contact_mobile'];
                     $dial_country = $contact_row['contact_phone'] ? $contact_row['contact_phone_country_code'] : $contact_row['contact_mobile_country_code'];
-                    $dial = preg_replace('/[^0-9+]/', '', ($dial_country ? "+$dial_country" : '') . $dial_number); ?>
+                    $dial = phoneDialNumber($dial_number, $dial_country); ?>
                     <a class="btn btn-sm btn-outline-primary" href="tel:<?= escapeHtml($dial) ?>"><i class="fas fa-phone me-1"></i>Call</a>
                 <?php } ?>
                 <?php if ($contact_email) { ?>
