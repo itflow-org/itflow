@@ -11,8 +11,10 @@
  * inside the request - same mechanism as Queue Update, and the page shows "Checking" until
  * the dispatcher consumes the flag.
  *
- * Safe to run twice: it reads and overwrites, and changes nothing outside the three settings
- * columns it owns.
+ * Safe to run twice: it reads and overwrites, and changes nothing outside the settings
+ * columns it owns. Besides the commits it stores what the Update page shows about the update
+ * (updateCheckDetails()): the release it brings, the changelog up to it, and the files this
+ * install has changed that updating would put back.
  */
 
 // Set working directory to the directory this cron script lives at.
@@ -77,5 +79,12 @@ mysqli_query($mysqli, "UPDATE settings SET
     config_update_pending_commits = '$update_check_commits',
     config_update_checked_at = '" . date('Y-m-d H:i:s') . "'
     WHERE company_id = 1");
+
+// Arrives with a later migration than the columns above. Not escapeSql(): it strips anything
+// tag-shaped, and the changelog quotes markup in its examples
+if (settingsColumnExists($mysqli, 'config_update_details')) {
+    $update_check_details = mysqli_real_escape_string($mysqli, (string) json_encode(updateCheckDetails(count($updates->pending_commits))));
+    mysqli_query($mysqli, "UPDATE settings SET config_update_details = '$update_check_details' WHERE company_id = 1");
+}
 
 echo count($updates->pending_commits) . " commit(s) behind the remote\n";

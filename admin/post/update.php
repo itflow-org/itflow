@@ -59,7 +59,7 @@ if (isset($_GET['queue_update'])) {
 
     logAudit("App", "Update", "$session_name queued an update to be applied by cron");
 
-    flashAlert("Update queued - cron will start it within a minute.");
+    flashAlert("Updating ITFlow - cron starts within a minute, and this page shows how it goes.");
 
     redirect();
 

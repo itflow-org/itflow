@@ -3186,6 +3186,7 @@ CREATE TABLE `settings` (
   `config_update_latest_commit` varchar(40) DEFAULT NULL,
   `config_update_pending_commits` text DEFAULT NULL,
   `config_update_checked_at` datetime DEFAULT NULL,
+  `config_update_details` mediumtext DEFAULT NULL,
   `config_share_max_hours` int(11) NOT NULL DEFAULT 720,
   `config_share_require_protection` tinyint(1) NOT NULL DEFAULT 0,
   `config_login_alert_failures` int(11) NOT NULL DEFAULT 10,

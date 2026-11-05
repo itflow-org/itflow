@@ -118,3 +118,7 @@ if ($app_update_return !== 0) {
 
 appNotify("Update", "The queued update finished", "/admin/update.php");
 logAudit("App", "Update", "Cron applied a queued update");
+
+// What the Update page knows about updates is from before this one - check again, so it doesn't
+// go on offering what was just installed (the dispatcher runs it next cycle, on the new code)
+mysqli_query($mysqli, "UPDATE cron_jobs SET cron_job_run_now = 1 WHERE cron_job_name = 'update_check'");
