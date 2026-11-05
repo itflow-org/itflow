@@ -7,6 +7,11 @@
 // pass on another way, and a QR code. The link is shown once - its secret is
 // not kept anywhere to show again.
 //
+// For the IT documentation: All / None for its parts, the passwords switch only
+// while Credentials is ticked, the PDF's password pair only while that is on -
+// and, when the sharing policy wants it for passwords, no "Nothing" to open it.
+// Making that link makes the PDF too, so the button says so while it works.
+//
 // An IIFE wired to the newest window, as the modal can be opened again in
 // one page load.
 
@@ -34,12 +39,73 @@
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     let result = null;
 
+    // The IT documentation's own choices
+    const exportBox = form.querySelector('[data-share-export]');
+    const exportCredentials = exportBox ? exportBox.querySelector('[data-client-export-credentials]') : null;
+    const exportSecretsRow = form.querySelector('[data-share-export-secrets-row]');
+    const exportSecrets = form.querySelector('[data-share-export-secrets]');
+    const exportPasswordBox = form.querySelector('[data-share-export-password]');
+    const exportPasswords = exportPasswordBox ? exportPasswordBox.querySelectorAll('input[type=password]') : [];
+    const protectNone = form.querySelector('input[name="protect"][value=""]');
+    const protectNoneLocked = protectNone ? protectNone.disabled : false;
+
+    function syncExport() {
+        if (!exportBox) {
+            return;
+        }
+        const canSecrets = !!(exportCredentials && exportCredentials.checked);
+        if (exportSecretsRow) {
+            exportSecretsRow.hidden = !canSecrets;
+        }
+        const wantSecrets = canSecrets && exportSecrets && exportSecrets.checked;
+        if (exportPasswordBox) {
+            exportPasswordBox.hidden = !wantSecrets;
+        }
+        exportPasswords.forEach(function (field) {
+            field.disabled = !wantSecrets;
+            field.required = wantSecrets;
+        });
+        // The policy asks for a passphrase or code on passwords - these are passwords now
+        if (protectNone && form.hasAttribute('data-share-protect-secrets')) {
+            protectNone.disabled = protectNoneLocked || wantSecrets;
+            if (protectNone.disabled && protectNone.checked) {
+                form.querySelector('input[name="protect"][value="passphrase"]').checked = true;
+            }
+        }
+    }
+
+    if (exportBox) {
+        exportBox.querySelectorAll('[data-share-export-all], [data-share-export-none]').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const on = link.hasAttribute('data-share-export-all');
+                exportBox.querySelectorAll('input[name="sections[]"]').forEach(function (box) {
+                    box.checked = on;
+                });
+                sync();
+            });
+        });
+        // The two passwords have to match before anything is sent
+        if (exportPasswords.length === 2) {
+            const match = function () {
+                exportPasswords[1].setCustomValidity(exportPasswords[1].value === exportPasswords[0].value ? '' : 'The passwords do not match');
+            };
+            exportPasswords[0].addEventListener('input', function () {
+                if (exportPasswords[1].value !== '') {
+                    match();
+                }
+            });
+            exportPasswords[1].addEventListener('input', match);
+        }
+    }
+
     function protection() {
         const picked = form.querySelector('input[name="protect"]:checked');
         return picked ? picked.value : '';
     }
 
     function sync() {
+        syncExport();
         const email = isEmail.test((recipient.value || '').trim());
         if (send) {
             send.disabled = !email;
@@ -117,14 +183,25 @@
         }
         error.hidden = true;
         make.disabled = true;
+        const makeLabel = make.innerHTML;
+        if (exportBox) {
+            make.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Making the PDF...';
+        }
 
+        // Ticked parts go as a list - sections[] is sent as sections[0], sections[1]...
         const data = { share_create: 1 };
         new FormData(form).forEach(function (value, key) {
-            data[key] = value;
+            if (key.slice(-2) === '[]') {
+                key = key.slice(0, -2);
+                (data[key] = data[key] || []).push(value);
+            } else {
+                data[key] = value;
+            }
         });
 
         itflowPost('ajax.php', data, function (text) {
             make.disabled = false;
+            make.innerHTML = makeLabel;
             let response;
             try {
                 response = JSON.parse(text);
@@ -160,6 +237,7 @@
             }, function () {});
         }, function () {
             make.disabled = false;
+            make.innerHTML = makeLabel;
             showError('The link could not be made - check your connection and try again.');
         });
     });

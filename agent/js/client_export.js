@@ -5,6 +5,7 @@
 // is on (disabled otherwise, so a hidden field never blocks the submit).
 // A download does not leave the page, so the button shows it is working
 // until the server's itflow_download cookie says the file is on its way.
+// Share a link carries the ticked parts to the share window in its address.
 //
 // Wrapped in an IIFE because the modal can be opened again in one page load.
 
@@ -27,8 +28,17 @@
         const passwordBox = form.querySelector('[data-client-export-password]');
         const passwords = passwordBox ? passwordBox.querySelectorAll('input[type=password]') : [];
         const submit = form.querySelector('[data-client-export-submit]');
+        const share = form.querySelector('[data-client-export-share]');
+        const shareUrl = share ? share.dataset.modalUrl : '';
 
         function sync() {
+            // Share a link opens the share window with the same parts ticked
+            if (share) {
+                const picked = Array.from(form.querySelectorAll('input[name="sections[]"]:checked')).map(function (box) {
+                    return 'sections[]=' + encodeURIComponent(box.value);
+                });
+                share.dataset.modalUrl = shareUrl + (picked.length ? '&' + picked.join('&') : '&sections[]=');
+            }
             const canSecrets = !!(credentials && credentials.checked);
             if (secretsRow) {
                 secretsRow.hidden = !canSecrets;

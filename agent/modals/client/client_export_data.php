@@ -4,6 +4,8 @@
  * Export a client's data (functions/client_export.php) - two tabs, each its
  * own form: the documentation PDF, and the full export as a zip. Only the
  * sections this agent may read are offered; the handler checks them again.
+ * The PDF can go out as a secure link instead - Share a link opens the share
+ * window (agent/modals/share/share_add.php) with the same parts ticked.
  */
 
 require_once '../../../includes/modal_header.php';
@@ -97,6 +99,12 @@ ob_start();
                 <?php } ?>
             </div>
             <div class="modal-footer">
+                <?php if (shareCanMake('Export')) { ?>
+                    <button type="button" class="btn btn-outline-primary me-auto ajax-modal" data-bs-dismiss="modal" data-client-export-share data-modal-size="lg"
+                        data-modal-url="modals/share/share_add.php?type=Export&amp;client_id=<?= $client_id ?>" title="A secure link to the PDF instead - for someone outside">
+                        <i class="fas fa-fw fa-share-alt me-2"></i>Share a link
+                    </button>
+                <?php } ?>
                 <button type="submit" name="export_client_pdf" value="1" class="btn btn-primary text-bold" data-client-export-submit>
                     <i class="fas fa-fw fa-file-pdf me-2"></i>Download PDF
                 </button>

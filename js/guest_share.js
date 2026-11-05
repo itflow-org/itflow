@@ -19,7 +19,9 @@
     const id = page.dataset.id;
     const key = window.location.hash.replace(/^#/, '') || query.get('key') || '';
     const ek = query.get('ek') || '';
-    const typeIcons = { Credential: 'fa-key', Note: 'fa-user-secret', Document: 'fa-file-alt', File: 'fa-paperclip', Request: 'fa-paper-plane' };
+    const typeIcons = { Credential: 'fa-key', Note: 'fa-user-secret', Document: 'fa-file-alt', File: 'fa-paperclip', Export: 'fa-book', Request: 'fa-paper-plane' };
+    // These come down as a download rather than showing on the page
+    const downloads = ['File', 'Export'];
     let link = null;
     let content = null;
     let otpTimer = null;
@@ -149,8 +151,8 @@
         $('[data-share-title]', ready).textContent = data.title;
         $('[data-share-intro]', ready).textContent = data.intro;
         $('[data-share-limits]', ready).textContent = data.limits;
-        $('[data-share-reveal-label]', ready).textContent = data.type === 'File' ? 'Download' : (data.type === 'Document' ? 'Open the document' : 'Reveal');
-        $('[data-share-reveal]', ready).querySelector('i').className = 'fas me-2 ' + (data.type === 'File' ? 'fa-download' : 'fa-eye');
+        $('[data-share-reveal-label]', ready).textContent = data.type === 'Export' ? 'Download the PDF' : (data.type === 'File' ? 'Download' : (data.type === 'Document' ? 'Open the document' : 'Reveal'));
+        $('[data-share-reveal]', ready).querySelector('i').className = 'fas me-2 ' + (downloads.indexOf(data.type) !== -1 ? 'fa-download' : 'fa-eye');
         $('[data-share-reveal-hint]', ready).textContent = data.hint || '';
         note(ready, data.note);
         error('ready', '');
@@ -223,7 +225,7 @@
     // Reveal - this is what uses a view
     $('[data-share-reveal]').addEventListener('click', function (e) {
         const button = e.currentTarget;
-        if (link.type === 'File') {
+        if (downloads.indexOf(link.type) !== -1) {
             download(button);
             return;
         }

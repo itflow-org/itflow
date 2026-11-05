@@ -8,7 +8,7 @@
  * now. The pills along the top: the links still open, logins clients sent
  * back to save, the ones that ended, all of them.
  *
- * From here: a secure note or a login request for the client, a link's quick
+ * From here: a secure note, the IT documentation or a login request for the client, a link's quick
  * look (agent/modals/share/share.php) with who opened it and from where,
  * turning links off - one, the ticked ones, or every open link the client
  * has - and saving what a client sent back.
@@ -40,6 +40,7 @@ $visible_types = array_values(array_filter(array_keys($types), 'shareCanSee'));
 $can_end = (bool) array_filter($visible_types, 'shareCanMake');
 $can_note = $client_url && shareCanMake('Note');
 $can_request = $client_url && shareCanMake('Request');
+$can_export = $client_url && shareCanMake('Export');
 
 // Client Filter (all clients)
 $client = '';
@@ -107,7 +108,7 @@ $filter_url = function ($changes) {
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-share-alt me-2"></i>Shared Links</h3>
         <div class="card-tools">
-            <?php if ($can_note || $can_request || ($client_url && $can_end && $counts[''])) { ?>
+            <?php if ($can_note || $can_request || $can_export || ($client_url && $can_end && $counts[''])) { ?>
             <div class="btn-group">
                 <?php if ($can_note) { ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/share/share_add.php?type=Note&amp;client_id=<?= intval($client_id) ?>">
@@ -116,13 +117,18 @@ $filter_url = function ($changes) {
                 <?php } ?>
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_note ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_note ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
+                    <?php if ($can_export) { ?>
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/share/share_add.php?type=Export&amp;client_id=<?= intval($client_id) ?>">
+                            <i class="fa fa-fw fa-book me-2"></i>Share the IT documentation
+                        </a>
+                    <?php } ?>
                     <?php if ($can_request) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Request&amp;client_id=<?= intval($client_id) ?>">
                             <i class="fa fa-fw fa-inbox me-2"></i>Ask the client for a login
                         </a>
                     <?php } ?>
                     <?php if ($client_url && $can_end && $counts['']) { ?>
-                        <?php if ($can_request) { ?><div class="dropdown-divider"></div><?php } ?>
+                        <?php if ($can_request || $can_export) { ?><div class="dropdown-divider"></div><?php } ?>
                         <form action="post.php" method="post" class="m-0">
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             <input type="hidden" name="client_id" value="<?= intval($client_id) ?>">
@@ -371,9 +377,10 @@ $filter_url = function ($changes) {
         'views' => ['show'],
         'view' => emptyStatePill($shows, $show),
         'title' => 'No open links' . ($client_url ? ' for this client' : ''),
-        'text' => 'Share a credential, document or file from its menu' . ($can_note || $can_request ? ', or send a secure note or ask for a login here' : '') . '.',
+        'text' => 'Share a credential, document or file from its menu' . ($can_note || $can_request || $can_export ? ', or send a secure note, the IT documentation or ask for a login here' : '') . '.',
         'actions' => array_merge(
             $can_note ? [['label' => 'Secure Note', 'modal' => 'modals/share/share_add.php?type=Note&client_id=' . intval($client_id), 'icon' => 'fa-user-secret']] : [],
+            $can_export ? [['label' => 'IT documentation', 'modal' => 'modals/share/share_add.php?type=Export&client_id=' . intval($client_id), 'icon' => 'fa-book', 'size' => 'lg']] : [],
             $can_request ? [['label' => 'Ask the client for a login', 'modal' => 'modals/share/share_add.php?type=Request&client_id=' . intval($client_id), 'icon' => 'fa-inbox']] : []
         ),
     ];

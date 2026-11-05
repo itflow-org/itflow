@@ -850,8 +850,9 @@ if (isset($_GET['ticket_query_views'])) {
 
 /*
  * Make a shared link (agent/modals/share/share_add.php, functions/share.php)
- * - a login, a document, a file, a secure note, or a request for a login.
- * The link comes back once, with a QR code of it; its secret is not kept.
+ * - a login, a document, a file, a secure note, the client's IT documentation
+ * as a PDF, or a request for a login. The link comes back once, with a QR
+ * code of it; its secret is not kept.
  */
 if (isset($_POST['share_create'])) {
 
@@ -866,6 +867,30 @@ if (isset($_POST['share_create'])) {
     $client_id = intval($_POST['client_id'] ?? 0);
     if (!$client_id || !hasClientAccess($client_id)) {
         exit(json_encode(['error' => "You don't have access to that client."]));
+    }
+
+    // The IT documentation - the PDF Export Data makes (functions/client_export.php), made now
+    // with what this agent may see, and locked with a password when passwords go in it
+    $export = null;
+    $export_options = null;
+    if ($type === 'Export') {
+        $client_name = (string) getFieldById('clients', $client_id, 'client_name');
+        $export_options = clientExportOptions($_POST, 'pdf');
+        if ($export_error = clientExportCheck($export_options, $_POST)) {
+            exit(json_encode(['error' => $export_error]));
+        }
+        set_time_limit(0);
+        try {
+            $export_pdf = clientExportPdf($client_id, $export_options);
+        } catch (Exception $exception) {
+            error_log('ITFlow client export PDF (share): ' . $exception->getMessage());
+            exit(json_encode(['error' => 'The PDF could not be made. Try again with fewer sections.']));
+        }
+        $export = [
+            'pdf' => $export_pdf,
+            'name' => clientExportFileName($client_name, 'IT Documentation', 'pdf'),
+            'secret' => $export_options['secrets'],
+        ];
     }
 
     $result = shareCreate([
@@ -883,10 +908,18 @@ if (isset($_POST['share_create'])) {
         'otp' => !empty($_POST['otp']),
         'notify' => !empty($_POST['notify']),
         'note' => (string) ($_POST['note'] ?? ''),
+        'export' => $export,
     ], $error);
 
     if (!$result) {
         exit(json_encode(['error' => $error]));
+    }
+
+    if ($type === 'Export') {
+        // In the client's history as an export, as a download would be
+        logAudit("Client", "Export", "$session_name shared the documentation PDF for " . escapeSql($client_name) . " by link"
+            . ($result['recipient'] !== '' ? ' for ' . escapeSql($result['recipient']) : '') . " (" . escapeSql(clientExportSummary($export_options))
+            . ($export_options['secrets'] ? ', including passwords and 2FA secrets' : '') . ")", $client_id, $client_id);
     }
 
     // "Works until Oct 17 at 9:00 AM, opens once, needs a passphrase, emailed to bob@example.com"

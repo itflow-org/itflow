@@ -2,9 +2,15 @@
 
 /*
  * Share something with someone outside - a login, a document or a file, a
- * secure note typed here, or a request for them to send us a login. One
- * window for all of them (functions/share.php, js/share_add.js), opened with
- * ?type=Credential|Document|File&id=N, or ?type=Note|Request&client_id=N.
+ * secure note typed here, the client's IT documentation as a PDF, or a
+ * request for them to send us a login. One window for all of them
+ * (functions/share.php, js/share_add.js), opened with
+ * ?type=Credential|Document|File&id=N, or ?type=Note|Request|Export&client_id=N.
+ *
+ * The IT documentation is the PDF of Export Data (functions/client_export.php),
+ * made when the link is, from the parts picked here - with passwords only
+ * when asked for, and then locked with a password, as a download would be.
+ * Export Data's Share a link opens it with the parts ticked there (&sections[]=).
  *
  * The link is made by agent/ajax.php share_create and shown once, with a QR
  * code - its secret is not kept, so it cannot be shown again later.
@@ -57,6 +63,9 @@ $uid = 'shareAdd' . preg_replace('/[^A-Za-z0-9]/', '', randomString(8));
 $defaults = shareDefaults($type);
 $mail_ready = shareMailReady();
 $must_protect = shareNeedsProtection($type);
+// IT documentation needs a passphrase or code by policy only once its passwords go in it
+$protect_with_secrets = $type === 'Export' && shareNeedsProtection($type, true);
+$export_secrets = $type === 'Export' && isset(clientExportAllowedSections()['credentials']);
 $suggested_passphrase = generateReadablePassword();
 
 // Who it might go to - the client's people with an email, or anyone typed in
@@ -71,6 +80,7 @@ $titles = [
     'Credential' => ['fa-key', 'Share <strong>' . escapeHtml($item_label) . '</strong>'],
     'Document' => ['fa-file-alt', 'Share <strong>' . escapeHtml($item_label) . '</strong>'],
     'File' => ['fa-paperclip', 'Share <strong>' . escapeHtml($item_label) . '</strong>'],
+    'Export' => ['fa-book', 'Share the IT documentation'],
     'Note' => ['fa-user-secret', 'Send a secure note'],
     'Request' => ['fa-inbox', 'Ask for a login'],
 ];
@@ -79,6 +89,7 @@ $intros = [
     'Credential' => 'They get a link to the username and password' . ($has_otp ? ', and the 2FA code if you include it' : '') . '. What they see is fixed now - changing the credential later does not change the link.',
     'Document' => 'They get a link to read the document as it is when they open it, and print it.',
     'File' => 'They get a link to download the file.',
+    'Export' => 'They get a link to download the documentation PDF - a cover, contents, an overview with the key contacts, then a chapter for each part you pick. It is made now, so changes after this are not in it, and kept encrypted until the link stops working.',
     'Note' => 'Type a password, a recovery key or anything else private. It is encrypted, and only the link opens it - it is not saved anywhere else.',
     'Request' => 'They get a form for the website, username, password and 2FA secret. What they send is encrypted, and you save it to the client\'s credentials from Shared Links.',
 ];
@@ -92,7 +103,7 @@ ob_start();
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
-<form autocomplete="off" data-share-add id="<?= $uid ?>">
+<form autocomplete="off" data-share-add id="<?= $uid ?>"<?= $protect_with_secrets ? ' data-share-protect-secrets' : '' ?>>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="client_id" value="<?= $client_id ?>">
     <input type="hidden" name="type" value="<?= escapeHtml($type) ?>">
@@ -102,7 +113,39 @@ ob_start();
         <p class="small text-body-secondary"><?= $intros[$type] ?></p>
         <div class="alert alert-danger py-2 small" role="alert" data-share-error hidden></div>
 
-        <?php if ($type === 'Note') { ?>
+        <?php if ($type === 'Export') { ?>
+            <div class="mb-3" data-share-export>
+                <div class="d-flex align-items-baseline mb-1">
+                    <label class="form-label mb-0 me-auto">Include</label>
+                    <a href="#" class="small me-2" data-share-export-all>All</a>
+                    <a href="#" class="small" data-share-export-none>None</a>
+                </div>
+                <?= clientExportSectionPicker($client_id, 'pdf', $uid, isset($_GET['sections']) ? array_map('strval', (array) $_GET['sections']) : null) ?>
+                <?php if ($export_secrets) { ?>
+                    <div class="form-check form-switch mt-2" data-share-export-secrets-row hidden>
+                        <input class="form-check-input" type="checkbox" role="switch" name="secrets" value="1" id="<?= $uid ?>Secrets" data-share-export-secrets>
+                        <label class="form-check-label" for="<?= $uid ?>Secrets">Include passwords and 2FA secrets</label>
+                    </div>
+                    <div class="border rounded p-3 mt-2 bg-body-tertiary" data-share-export-password hidden>
+                        <div class="mb-2">
+                            <label class="form-label" for="<?= $uid ?>PdfPassword">Password for the PDF</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
+                                <input type="password" class="form-control" id="<?= $uid ?>PdfPassword" name="password" minlength="<?= CLIENT_EXPORT_PASSWORD_MIN ?>" maxlength="200" autocomplete="new-password" disabled>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label" for="<?= $uid ?>PdfPasswordConfirm">Confirm password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
+                                <input type="password" class="form-control" id="<?= $uid ?>PdfPasswordConfirm" name="password_confirm" minlength="<?= CLIENT_EXPORT_PASSWORD_MIN ?>" maxlength="200" autocomplete="new-password" disabled>
+                            </div>
+                        </div>
+                        <div class="small text-body-secondary">At least <?= CLIENT_EXPORT_PASSWORD_MIN ?> characters. The PDF asks for it when it is opened, so it stays locked once it is downloaded - tell them by phone or text, not with the link.</div>
+                    </div>
+                <?php } ?>
+            </div>
+        <?php } elseif ($type === 'Note') { ?>
             <div class="mb-3">
                 <label class="form-label" for="<?= $uid ?>Name">Title</label>
                 <div class="input-group">
@@ -202,11 +245,11 @@ ob_start();
         <?php } ?>
         <div class="form-check form-switch mb-3">
             <input class="form-check-input" type="checkbox" role="switch" name="notify" value="1" id="<?= $uid ?>Notify" checked>
-            <label class="form-check-label" for="<?= $uid ?>Notify"><?= $type === 'Request' ? 'Tell me when they send it' : 'Tell me when it is opened' ?></label>
+            <label class="form-check-label" for="<?= $uid ?>Notify"><?= $type === 'Request' ? 'Tell me when they send it' : (in_array($type, ['File', 'Export'], true) ? 'Tell me when it is downloaded' : 'Tell me when it is opened') ?></label>
         </div>
 
         <label class="form-label" for="<?= $uid ?>Note">Note for them</label>
-        <textarea class="form-control" id="<?= $uid ?>Note" name="note" rows="2" maxlength="1000" placeholder="<?= $type === 'Request' ? 'What it is for, and anything they should know' : 'What it is for, and to change the password once they are in' ?>"></textarea>
+        <textarea class="form-control" id="<?= $uid ?>Note" name="note" rows="2" maxlength="1000" placeholder="<?= ['Request' => 'What it is for, and anything they should know', 'Export' => 'What it is for - a handover, an audit, your records', 'Document' => 'What it is for', 'File' => 'What it is for'][$type] ?? 'What it is for, and to change the password once they are in' ?>"></textarea>
     </div>
 
     <div class="modal-body" data-share-done hidden>
