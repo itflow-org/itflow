@@ -329,7 +329,13 @@ function cannedResponsesForTicket($category_id, $user_id) {
     return cannedResponsePickerGroups([$category_id], $user_id);
 }
 
-/* What the placeholders become on a ticket for $agent_name replying - lowercase name => value, as ticketPlaceholderFill() takes them; [] for no ticket. Raw. */
+/*
+ * What the placeholders become on a ticket for $agent_name replying - lowercase
+ * name => value, as ticketPlaceholderFill() takes them; [] for no ticket. Raw.
+ * A ticket raised from a template fills in its fill-ins' answers too - [Hostname]
+ * on one whose template asked for it - where they don't share a name with one of
+ * the placeholders above. One not answered stays for the agent to fill in.
+ */
 function cannedResponseValues($ticket_id, $agent_name) {
     global $mysqli;
     $values = ticketPlaceholderValues($ticket_id);
@@ -341,6 +347,13 @@ function cannedResponseValues($ticket_id, $agent_name) {
     $values['first name'] = $contact !== '' ? preg_split('/\s+/u', $contact)[0] : '';
     $values['subject'] = (string) ($row['ticket_subject'] ?? '');
     $values['agent'] = (string) $agent_name;
+    foreach (ticketFillInsStored('ticket', $ticket_id) as $answer) {
+        $key = strtolower($answer['name']);
+        $text = ticketFillInText($answer);
+        if ($text !== '' && !array_key_exists($key, $values)) {
+            $values[$key] = $text;
+        }
+    }
     return $values;
 }
 

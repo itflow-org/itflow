@@ -75,7 +75,7 @@ $files = !empty($r['canned_response_id']) ? cannedResponseFiles($r['canned_respo
             <button type="button" class="btn btn-sm btn-light border font-monospace" data-canned-placeholder="<?= escapeHtml($placeholder) ?>" title="<?= escapeHtml(ucfirst($means)) ?>">[<?= escapeHtml($placeholder) ?>]</button>
         <?php } ?>
     </div>
-    <div class="small text-secondary">Anything else in square brackets - [Date of visit] - stays as it is, and the agent is asked about it before sending.</div>
+    <div class="small text-secondary">On a ticket raised from a template, its answers fill in too - [Hostname] on a ticket whose template asked for one. Anything else in square brackets - [Date of visit] - stays as it is, and the agent is asked about it before sending.</div>
 </div>
 
 <div class="tab-pane fade" id="cannedResponseFormSetsUp">

@@ -2,6 +2,10 @@
 define('number_regex', '/[^0-9]/');
 
 // Variable assignment from POST (or: blank/from DB is updating)
+
+// create.php has no row to fall back on
+$contact_row = $contact_row ?? null;
+
 if (isset($_POST['contact_name'])) {
     $name = escapeSql($_POST['contact_name']);
 } elseif ($contact_row) {

@@ -848,7 +848,7 @@ function ticketMailAgent($user_id) {
  * What an email to an agent about a ticket says - emailHtml()'s fields
  * (functions/email.php), all but who it is to and why. $row is ticketRow().
  * $kind and its $opts:
- *   new       it was raised - how: portal, email or scheduled
+ *   new       it was raised - how: portal, email, api or scheduled
  *   replied   the client replied - how: portal or email, message (the reply, HTML), by (who)
  *   assigned  it was assigned to them - by (who)
  *   mentioned an internal note mentions them - by (who), message (the note, HTML), reply_id (the note, to open)
@@ -866,7 +866,7 @@ function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
         'button' => ['label' => 'Open in ITFlow', 'url' => ticketAgentUrl($row)],
     ];
     if ($kind === 'new') {
-        $how = ['portal' => ' in the client portal', 'email' => ' by email', 'scheduled' => ', as scheduled'][$opts['how'] ?? ''] ?? '';
+        $how = ['portal' => ' in the client portal', 'email' => ' by email', 'api' => ' through the API', 'scheduled' => ', as scheduled'][$opts['how'] ?? ''] ?? '';
         $who = ($opts['how'] ?? '') === 'scheduled' ? 'A recurring ticket was raised' : (trim((string) ($row['contact_name'] ?? '')) !== '' ? $row['contact_name'] . ' raised a ticket' : 'A ticket was raised');
         $email['kind'] = 'New ticket';
         $email['intro'] = [($opts['how'] ?? '') === 'scheduled' ? "$who for $client, as scheduled." : "$who$how for $client."];
