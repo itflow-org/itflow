@@ -7,6 +7,11 @@
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
+// Off unless config.php turns it on (managedEnabled()) - then none of this answers
+if (!managedEnabled()) {
+    return;
+}
+
 if (isset($_POST['managed_connect'])) {
 
     validateCSRFToken();

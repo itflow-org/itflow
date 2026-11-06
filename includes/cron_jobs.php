@@ -36,6 +36,10 @@
  * switch is off. It is not a dispatcher-level gate - a new job has to make the check
  * itself, and a job that skips it will keep running on an install that thinks cron is off.
  *
+ * Managed mode's two jobs - manager_checkin and managed_instances - are only listed on an
+ * install config.php turns that side on for (managedEnabled(), managerEnabled() in
+ * functions/managed.php). Off, they aren't run or shown, and their rows wait untouched.
+ *
  * Order matters: the dispatcher works down this list. manager_checkin goes first, so what a
  * manager sets - read-only or suspended pause most jobs (MANAGED_KEEP_JOBS) - applies to the
  * rest of the same cycle. app_update replaces the files every job is loaded from, so it stays
@@ -44,7 +48,7 @@
 
 function cronJobRegistry(): array
 {
-    return [
+    $jobs = [
         [
             'name' => 'manager_checkin',
             'label' => 'Manager Check-in',
@@ -155,6 +159,16 @@ function cronJobRegistry(): array
             'interval_safe' => false,
         ],
     ];
+
+    // Managed mode's jobs, only where config.php turns their side on
+    $managed_side = [
+        'manager_checkin' => function_exists('managedEnabled') && managedEnabled(),
+        'managed_instances' => function_exists('managerEnabled') && managerEnabled(),
+    ];
+
+    return array_values(array_filter($jobs, function ($job) use ($managed_side) {
+        return $managed_side[$job['name']] ?? true;
+    }));
 }
 
 /*

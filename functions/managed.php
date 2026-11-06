@@ -21,6 +21,10 @@
  * On a managed instance, what the manager sets is locked: seat limit, white label and updates.
  * Everything else stays the instance's own. $config_manager_required = true in config.php
  * stops its admins disconnecting it - for a provider hosting it.
+ *
+ * Both sides are off until config.php turns them on (managerEnabled(), managedEnabled()), and
+ * a side that's off isn't there at all - no pages, menu entries, cron jobs or endpoints, nothing
+ * locked and no support sign-in.
  */
 
 /* What each mode means - read-only lets people look, suspended shuts the doors */
@@ -43,6 +47,31 @@ const MANAGED_KEEP_JOBS = [
 ];
 
 /* ------------------------------------------------------------------- Both sides */
+
+/*
+ * Whether config.php turns each side on - both are off unless it does:
+ *
+ *   $config_enable_managed_instances = true;   this ITFlow manages others (Admin > Managed Instances,
+ *                                              api/managed/, the Managed Instances cron job)
+ *   $config_enable_managed_by = true;          another ITFlow can manage this one (Admin > Managed By,
+ *                                              the Manager Check-in cron job, support sign-in, locks)
+ *
+ * $config_manager_required = true (managedRequired()) turns the second on as well. Turning a side
+ * off keeps what it holds: an instance stays connected but stops checking in, and its manager's
+ * locks, read-only and suspended lift; a manager keeps its instances, which are told it isn't
+ * answering and keep trying.
+ */
+function managerEnabled(): bool
+{
+    global $config_enable_managed_instances;
+    return !empty($config_enable_managed_instances);
+}
+
+function managedEnabled(): bool
+{
+    global $config_enable_managed_by;
+    return !empty($config_enable_managed_by) || managedRequired();
+}
 
 function managedBase64UrlEncode(string $data): string
 {
@@ -155,7 +184,14 @@ function managedConfigSave(array $config): void
     managedConfig(true);
 }
 
+/* Managed - connected to a manager, with config.php's Managed By on (managedEnabled()) */
 function managedIsManaged(): bool
+{
+    return managedEnabled() && managedConnected();
+}
+
+/* Connected to a manager, whether or not config.php has Managed By on */
+function managedConnected(): bool
 {
     $config = managedConfig();
     return !empty($config['manager_url']) && !empty($config['uuid']) && !empty($config['secret']);
@@ -216,9 +252,10 @@ function managedLocks(): array
     ];
 }
 
+/* The support user - while connected, even with Managed By off, so it never takes a seat */
 function managedSupportUserId(): int
 {
-    return managedIsManaged() ? intval(managedConfig()['support_user_id'] ?? 0) : 0;
+    return managedConnected() ? intval(managedConfig()['support_user_id'] ?? 0) : 0;
 }
 
 /* A manager's connection code - ITFLOW-MANAGE:<base64url {"u": manager address, "t": token}> - read, or null */
@@ -244,6 +281,11 @@ function managedParseCode(string $code): ?array
 function managedEnroll(string $code, string $self_url, &$error = ''): bool
 {
     global $mysqli;
+
+    if (!managedEnabled()) {
+        $error = 'Managed By is off - add $config_enable_managed_by = true; to config.php first.';
+        return false;
+    }
 
     $parsed = managedParseCode($code);
     if (!$parsed) {
@@ -585,6 +627,10 @@ function managedRunCommand(string $command): array
 function managedVerifySupportToken(string $token, &$error = ''): ?array
 {
     $config = managedConfig();
+    if (!managedEnabled()) {
+        $error = 'This ITFlow takes no support sign-ins - managed mode is off here.';
+        return null;
+    }
     if (!managedIsManaged() || empty($config['public_key'])) {
         $error = 'This ITFlow is not managed, so it takes no support sign-ins.';
         return null;
@@ -695,6 +741,13 @@ function managedSupportUser(): int
 function managedRequestGuard(string $surface): void
 {
     if (!managedIsManaged()) {
+        // Not managed, or Managed By turned off in config.php - a support session has nothing
+        // left to stand on, so it ends here rather than outliving the two hours unchecked
+        if (!empty($_SESSION['managed_support']) && session_status() === PHP_SESSION_ACTIVE) {
+            session_unset();
+            session_destroy();
+            redirect('/login.php');
+        }
         return;
     }
 
@@ -1270,6 +1323,10 @@ function managedSupportLink(array $row, string $name, string $email): string
 function managedOfflineCount(): int
 {
     global $mysqli;
+
+    if (!managerEnabled()) {
+        return 0;
+    }
 
     try {
         return intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM managed_instances WHERE managed_instance_archived_at IS NULL

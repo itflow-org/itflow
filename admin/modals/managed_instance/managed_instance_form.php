@@ -11,12 +11,18 @@ require_once '../../includes/modal_header.php';
 
 enforceAdminPermission();
 
-$instance = isset($_GET['id']) ? managedInstanceRow(intval($_GET['id'])) : null;
+$instance = managerEnabled() && isset($_GET['id']) ? managedInstanceRow(intval($_GET['id'])) : null;
 $is_new = $instance === null;
 
 ob_start();
 
-if (!$is_new && !empty($instance['managed_instance_archived_at'])) { ?>
+if (!managerEnabled()) { ?>
+    <div class="modal-header bg-dark">
+        <h5 class="modal-title"><i class="fas fa-fw fa-server me-2"></i>Instance</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center text-secondary py-5">Managing other ITFlow installs is off in this install's config.php.</div>
+<?php } elseif (!$is_new && !empty($instance['managed_instance_archived_at'])) { ?>
     <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-server me-2"></i><?= escapeHtml($instance['managed_instance_name']) ?></h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>

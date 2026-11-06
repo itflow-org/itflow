@@ -8,6 +8,11 @@
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
+// Off unless config.php turns it on (managerEnabled()) - then none of this answers
+if (!managerEnabled()) {
+    return;
+}
+
 /* The instance a request is about, not removed - or back with why */
 $managed_instance_for_request = function ($id, bool $connected = false) {
     $row = managedInstanceRow(intval($id));

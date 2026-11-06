@@ -13,7 +13,8 @@
 
 require_once "includes/inc_all_admin.php";
 
-if (!settingsColumnExists($mysqli, 'config_manager_keys')) {
+// Off unless config.php turns it on - the list says how
+if (!managerEnabled() || !settingsColumnExists($mysqli, 'config_manager_keys')) {
     redirect('managed_instances.php');
 }
 

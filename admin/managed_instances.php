@@ -15,6 +15,14 @@ $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
+// Off unless config.php turns it on (managerEnabled())
+if (!managerEnabled()) { ?>
+    <div class="alert alert-secondary"><i class="fas fa-fw fa-toggle-off me-2"></i>Managing other ITFlow installs is off. To turn it on, add this line to the end of config.php: <code>$config_enable_managed_instances = true;</code></div>
+    <?php
+    require_once "../includes/footer.php";
+    exit;
+}
+
 // The manager's tables arrive with a migration - before it, say so rather than throw
 if (!settingsColumnExists($mysqli, 'config_manager_keys')) { ?>
     <div class="alert alert-warning"><i class="fas fa-fw fa-database me-2"></i>Managing other ITFlow installs needs this install's database update - apply it from <a href="update.php" class="alert-link">Maintenance &gt; Update</a> first.</div>

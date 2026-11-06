@@ -41,6 +41,11 @@ if (!settingsColumnExists($mysqli, 'config_managed')) {
     cronJobStop("The database update has not been applied yet\n");
 }
 
+// Off unless config.php turns it on - the dispatcher doesn't list this job then (includes/cron_jobs.php)
+if (!managedEnabled()) {
+    cronJobStop("Managed By is off in config.php\n");
+}
+
 if (!managedIsManaged()) {
     cronJobStop("Not managed\n");
 }

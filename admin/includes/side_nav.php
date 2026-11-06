@@ -180,27 +180,33 @@
                     </li>
                 <?php } ?>
 
-                <!-- One ITFlow managing others (functions/managed.php) -->
-                <li class="nav-header">MANAGEMENT</li>
+                <!-- One ITFlow managing others (functions/managed.php) - each side only when config.php turns it on -->
+                <?php if (managerEnabled() || managedEnabled()) { ?>
+                    <li class="nav-header">MANAGEMENT</li>
+                <?php } ?>
 
-                <li class="nav-item">
-                    <a href="/admin/managed_instances.php" class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['managed_instances.php', 'managed_instance.php']) ? 'active' : '') ?>">
-                        <i class="nav-icon fas fa-network-wired"></i>
-                        <p>
-                            Managed Instances
-                            <?php $nav_managed_offline = managedOfflineCount(); ?>
-                            <?php if ($nav_managed_offline) { ?>
-                                <span class="right badge text-bg-danger" data-bs-toggle="tooltip" title="Not checking in" data-nav-managed-offline><?= $nav_managed_offline ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/admin/managed_by.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'managed_by.php' ? 'active' : '') ?>">
-                        <i class="nav-icon fas fa-handshake"></i>
-                        <p>Managed By</p>
-                    </a>
-                </li>
+                <?php if (managerEnabled()) { ?>
+                    <li class="nav-item">
+                        <a href="/admin/managed_instances.php" class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['managed_instances.php', 'managed_instance.php']) ? 'active' : '') ?>">
+                            <i class="nav-icon fas fa-network-wired"></i>
+                            <p>
+                                Managed Instances
+                                <?php $nav_managed_offline = managedOfflineCount(); ?>
+                                <?php if ($nav_managed_offline) { ?>
+                                    <span class="right badge text-bg-danger" data-bs-toggle="tooltip" title="Not checking in" data-nav-managed-offline><?= $nav_managed_offline ?></span>
+                                <?php } ?>
+                            </p>
+                        </a>
+                    </li>
+                <?php } ?>
+                <?php if (managedEnabled()) { ?>
+                    <li class="nav-item">
+                        <a href="/admin/managed_by.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'managed_by.php' ? 'active' : '') ?>">
+                            <i class="nav-icon fas fa-handshake"></i>
+                            <p>Managed By</p>
+                        </a>
+                    </li>
+                <?php } ?>
 
                 <li class="nav-header">MAINTENANCE</li>
 

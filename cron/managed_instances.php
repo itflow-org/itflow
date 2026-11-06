@@ -33,6 +33,11 @@ if (intval($managed_instances_settings['config_enable_cron'] ?? 0) === 0) {
     cronJobStop("Cron: is not enabled\n");
 }
 
+// Off unless config.php turns it on - the dispatcher doesn't list this job then (includes/cron_jobs.php)
+if (!managerEnabled()) {
+    cronJobStop("Managed Instances is off in config.php\n");
+}
+
 // Files newer than the schema - the tables arrive with the migration
 if (!settingsColumnExists($mysqli, 'config_manager_keys')) {
     cronJobStop("The database update has not been applied yet\n");

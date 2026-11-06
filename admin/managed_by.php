@@ -6,9 +6,25 @@
  * how its check-ins are going, what the manager sets here - and so what's locked - and exactly
  * what this ITFlow tells it. Disconnecting is here too, unless config.php keeps it managed
  * ($config_manager_required). The handlers are admin/post/managed_by.php.
+ *
+ * Off unless config.php turns it on ($config_enable_managed_by, managedEnabled()) - then the
+ * page says how, and whether this ITFlow is still connected to a manager from before.
  */
 
 require_once "includes/inc_all_admin.php";
+
+if (!managedEnabled()) {
+    $managed_off_connected = settingsColumnExists($mysqli, 'config_managed') && managedConnected();
+    $managed_off_from = trim((string) (managedConfig()['manager_name'] ?? '')); ?>
+    <div class="alert alert-secondary"><i class="fas fa-fw fa-toggle-off me-2"></i>Being managed by another ITFlow is off. To turn it on, add this line to the end of config.php: <code>$config_enable_managed_by = true;</code>
+        <?php if ($managed_off_connected) { ?>
+            <div class="mt-2">This ITFlow is still connected to <strong><?= escapeHtml($managed_off_from !== '' ? $managed_off_from : 'its manager') ?></strong>, but doesn't check in while this is off, and nothing it set is locked here. Turn it back on to carry on, or to disconnect.</div>
+        <?php } ?>
+    </div>
+    <?php
+    require_once "../includes/footer.php";
+    exit;
+}
 
 if (!settingsColumnExists($mysqli, 'config_managed')) { ?>
     <div class="alert alert-warning"><i class="fas fa-fw fa-database me-2"></i>Being managed by another ITFlow needs this install's database update - apply it from <a href="update.php" class="alert-link">Maintenance &gt; Update</a> first.</div>
