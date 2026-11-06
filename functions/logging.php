@@ -9,6 +9,10 @@ function triggerCustomAction($trigger, $entity) {
     if (function_exists('emailCapturing') && emailCapturing()) {
         return;
     }
+    // ITFlow's own follow-up first: an invoice paid in full (invoicePaidFollowUp(), functions/billing.php)
+    if ($trigger === 'invoice_pay' && function_exists('invoicePaidFollowUp')) {
+        invoicePaidFollowUp($entity);
+    }
     $original_dir = getcwd(); // Save
 
     chdir(dirname(__FILE__));

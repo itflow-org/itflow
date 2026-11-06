@@ -854,6 +854,7 @@ function ticketMailAgent($user_id) {
  *   mentioned an internal note mentions them - by (who), message (the note, HTML), reply_id (the note, to open)
  *   sla       an SLA alert - track: response or resolution, breached: true once missed, due (when)
  *   scheduled the work was booked - when, where, or cancelled: true
+ *   paid      the invoice it waits on was paid - invoice (its number), amount, reopened (On Hold to Open)
  */
 function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
     $reference = ticketReference($row);
@@ -873,6 +874,12 @@ function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
         $email['message'] = ['html' => (string) $row['ticket_details'], 'label' => 'Details'];
         $email['summary'] = ['Client' => $client, 'Ticket' => $reference, 'Priority' => (string) $row['ticket_priority']]
             + (trim((string) ($row['contact_name'] ?? '')) !== '' ? ['Contact' => (string) $row['contact_name']] : []);
+    } elseif ($kind === 'paid') {
+        $email['kind'] = 'Paid';
+        $email['tone'] = 'success';
+        $email['intro'] = [(string) ($opts['invoice'] ?? 'Its invoice') . " for $client was paid in full - " . (string) ($opts['amount'] ?? '') . '.',
+            "$reference is ready to work on" . (!empty($opts['reopened']) ? ' - it is Open again, from On Hold.' : '.')];
+        $email['history'] = ticketEmailHistory($row, ['limit' => 2, 'label' => 'The conversation']);
     } elseif ($kind === 'replied') {
         $how = ['portal' => ' in the client portal', 'email' => ' by email'][$opts['how'] ?? ''] ?? '';
         $email['kind'] = 'Client replied';

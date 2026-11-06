@@ -2440,3 +2440,186 @@ function billingClientOpenInvoices($client_id) {
     }
     return $rows;
 }
+
+/* -------------------------------------------- Issuing an invoice, and what follows its payment */
+
+/*
+ * Send an invoice that is still a draft: emailed to the client's primary and
+ * billing contacts when mail is set up, and marked Sent either way, so its
+ * link can be paid at once (a draft can't be). $by says who, raw. Who it was
+ * emailed to - [] when nobody was, or it wasn't a draft.
+ */
+function billingInvoiceIssue($invoice_id, $by) {
+    global $mysqli;
+    $invoice = billingRow('invoice', $invoice_id, false);
+    if (!$invoice || $invoice['invoice_status'] !== 'Draft') {
+        return [];
+    }
+    $invoice_id = intval($invoice['invoice_id']);
+    $sent_to = [];
+    if (billingEmailReady() && ($recipients = billingEmailRecipients(intval($invoice['invoice_client_id'])))) {
+        [$subject, $email] = billingInvoiceEmail($invoice);
+        $attach = [];
+        if (billingReminderRules()['attach_pdf'] && ($file = billingEmailPdf(billingPdf('invoice', $invoice)))) {
+            $attach[] = $file;
+        }
+        $sent_to = billingEmailQueue($recipients, $subject, $email, ['attach' => $attach]);
+    }
+    mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id AND invoice_status = 'Draft'");
+    billingLog('invoice', $invoice_id, 'Sent', $sent_to ? 'Emailed to ' . implode(', ', $sent_to) . " by $by" : "Marked sent by $by - its link was handed on, nobody was emailed");
+    return $sent_to;
+}
+
+/*
+ * A recurring invoice made from $in - the API's recurring_invoices/create:
+ * client_id; frequency (month, quarter or year); start_date (Y-m-d, today
+ * when left out - the first run); scope, note, category_id, discount;
+ * auto_send (1, the default: the invoices it makes are emailed by
+ * themselves); and items, each [product_id, name, description, qty, price,
+ * tax_id] - a product gives the name, description and price not sent, and
+ * tax_id 'default' is the client's usual rate (taxDefaultFor()). $by is who,
+ * raw. [id, null] or [null, why].
+ */
+function recurringInvoiceCreate(array $in, $by) {
+    global $mysqli;
+    $client_id = intval($in['client_id'] ?? 0);
+    $client = $client_id ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_id, client_currency_code FROM clients WHERE client_id = $client_id AND client_archived_at IS NULL")) : null;
+    if (!$client) {
+        return [null, 'client_id is not a client here, or it is archived.'];
+    }
+    $items = is_array($in['items'] ?? null) ? array_values($in['items']) : [];
+    if (!$items || count($items) > 100) {
+        return [null, 'items is a list of 1 to 100 lines - each a product_id, or a name and price.'];
+    }
+    $start = trim((string) ($in['start_date'] ?? ''));
+    if ($start === '') {
+        $start = date('Y-m-d');
+    } elseif (!($date = DateTime::createFromFormat('!Y-m-d', $start)) || $date->format('Y-m-d') !== $start) {
+        return [null, 'start_date is a date - 2026-11-05.'];
+    }
+    $frequency = validateRecurringFrequency((string) ($in['frequency'] ?? 'month'));
+    $category_id = intval($in['category_id'] ?? 0);
+    if ($category_id && !mysqli_num_rows(mysqli_query($mysqli, "SELECT category_id FROM categories WHERE category_id = $category_id AND category_type = 'Income'"))) {
+        $category_id = 0;
+    }
+    $discount = round(max(0, floatval($in['discount'] ?? 0)), 2);
+    $auto_send = intval($in['auto_send'] ?? 1) ? 1 : 0;
+    $currency = escapeSql((string) ($client['client_currency_code'] ?: (mysqli_fetch_row(mysqli_query($mysqli, "SELECT company_currency FROM companies WHERE company_id = 1"))[0] ?? 'USD')));
+
+    // Each line as billingItemSave() takes it - checked before anything is made
+    $lines = [];
+    foreach ($items as $i => $item) {
+        if (!is_array($item)) {
+            return [null, "items[$i] is an object - a product_id, or a name and price."];
+        }
+        $product = null;
+        if (!empty($item['product_id'])) {
+            $product = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT product_id, product_name, product_description, product_price FROM products
+                WHERE product_id = " . intval($item['product_id']) . " AND product_archived_at IS NULL"));
+            if (!$product) {
+                return [null, "items[$i]: there is no product " . intval($item['product_id']) . " - it may be archived."];
+            }
+        }
+        $tax = (string) ($item['tax_id'] ?? '0');
+        $line = [
+            'name' => trim((string) ($item['name'] ?? ($product['product_name'] ?? ''))),
+            'description' => (string) ($item['description'] ?? ($product['product_description'] ?? '')),
+            'qty' => (string) ($item['qty'] ?? '1'),
+            'price' => (string) ($item['price'] ?? ($product['product_price'] ?? '')),
+            'tax_id' => $tax === 'default' ? taxDefaultFor($client_id) : intval($tax),
+            'product_id' => intval($product['product_id'] ?? 0),
+        ];
+        if ($line['name'] === '' || $line['price'] === '' || billingNumberInput($line['qty']) === null || billingNumberInput($line['price']) === null || billingNumberInput($line['qty']) <= 0) {
+            return [null, "items[$i] needs a name, a price and a quantity above 0 - or a product_id for the name and price."];
+        }
+        $lines[] = $line;
+    }
+
+    mysqli_query($mysqli, "UPDATE settings SET config_recurring_invoice_next_number = LAST_INSERT_ID(config_recurring_invoice_next_number),
+        config_recurring_invoice_next_number = config_recurring_invoice_next_number + 1 WHERE company_id = 1");
+    $number = intval(mysqli_insert_id($mysqli));
+    $prefix = escapeSql((string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_recurring_invoice_prefix FROM settings WHERE company_id = 1"))[0] ?? ''));
+    $scope = escapeSql(mb_substr(trim((string) ($in['scope'] ?? '')), 0, 255));
+    $note = mysqli_real_escape_string($mysqli, (string) ($in['note'] ?? ''));
+    mysqli_query($mysqli, "INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$prefix', recurring_invoice_number = $number, recurring_invoice_scope = '$scope',
+        recurring_invoice_note = '$note', recurring_invoice_frequency = '$frequency', recurring_invoice_next_date = '$start', recurring_invoice_anchor_day = DAY('$start'),
+        recurring_invoice_category_id = $category_id, recurring_invoice_status = 1, recurring_invoice_discount_amount = $discount, recurring_invoice_amount = " . (0 - $discount) . ",
+        recurring_invoice_auto_send = $auto_send, recurring_invoice_currency_code = '$currency', recurring_invoice_client_id = $client_id");
+    $recurring_invoice_id = intval(mysqli_insert_id($mysqli));
+    if (!$recurring_invoice_id) {
+        return [null, 'The recurring invoice could not be saved.'];
+    }
+    foreach ($lines as $line) {
+        billingItemSave('recurring', $recurring_invoice_id, $line, 0, $error);
+    }
+    billingRecalc('recurring', $recurring_invoice_id);
+    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Active', history_description = '" . escapeSql("Recurring Invoice created by $by") . "', history_recurring_invoice_id = $recurring_invoice_id");
+    return [$recurring_invoice_id, null];
+}
+
+/*
+ * An invoice paid in full, wherever the money came from - recorded by hand,
+ * paid in the portal or from its link, autopay, an import. triggerCustomAction()
+ * calls it on 'invoice_pay', which every one of those roads fires.
+ *
+ *   - A lead that pays becomes a client, while settings.config_invoice_paid_lead_to_client
+ *     is on (Admin > Settings > Invoices and billing, Paid).
+ *   - A ticket waiting on the invoice that is still open gets an internal note
+ *     that it was paid, goes back to Open from On Hold, and the agent it is
+ *     assigned to is told - in ITFlow and by email. Waiting on it: tied to it
+ *     (tickets.ticket_invoice_id - by the API's tickets/create, or a quote's
+ *     tickets going on its invoice) and not billable itself; a billable ticket
+ *     on an invoice is its time being billed, and is left alone.
+ *
+ * Nothing until it is paid in full, and each ticket only the first time
+ * (its history says so).
+ */
+function invoicePaidFollowUp($invoice_id) {
+    global $mysqli;
+    $invoice = billingRow('invoice', $invoice_id, false);
+    if (!$invoice || $invoice['invoice_status'] !== 'Paid') {
+        return;
+    }
+    $invoice_id = intval($invoice['invoice_id']);
+    $client_id = intval($invoice['invoice_client_id']);
+    $number = billingNumber('invoice', $invoice);
+    $amount = billingMoney($invoice['invoice_amount'], $invoice['invoice_currency_code']);
+
+    // A lead that pays is a client
+    if ($client_id && settingsColumnExists($mysqli, 'config_invoice_paid_lead_to_client')
+        && intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_invoice_paid_lead_to_client FROM settings WHERE company_id = 1"))[0] ?? 0) === 1) {
+        mysqli_query($mysqli, "UPDATE clients SET client_lead = 0 WHERE client_id = $client_id AND client_lead = 1");
+        if (mysqli_affected_rows($mysqli) === 1) {
+            logAudit("Client", "Edit", escapeSql("{$invoice['client_name']} became a client when it paid invoice $number"), $client_id, $client_id);
+            appNotify("Client", escapeSql("{$invoice['client_name']} paid $number and is a client now - it was a lead"), "/agent/client_overview.php?client_id=$client_id", $client_id);
+        }
+    }
+
+    // Tickets waiting on it
+    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_status, ticket_assigned_to FROM tickets
+        WHERE ticket_invoice_id = $invoice_id AND ticket_billable = 0 AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL");
+    while ($ticket = mysqli_fetch_assoc($sql)) {
+        $ticket_id = intval($ticket['ticket_id']);
+        $marker = escapeSql("Invoice $number paid");
+        if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM ticket_history WHERE ticket_history_ticket_id = $ticket_id AND ticket_history_description LIKE '$marker%' LIMIT 1"))) {
+            continue;
+        }
+        $note = escapeSql('<p><strong>Invoice ' . escapeHtml($number) . ' was paid in full</strong> - ' . escapeHtml($amount) . '.</p>');
+        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$note', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
+        $reopened = intval($ticket['ticket_status']) === TICKET_STATUS_ON_HOLD;
+        if ($reopened) {
+            mysqli_query($mysqli, "UPDATE tickets SET ticket_status = " . TICKET_STATUS_OPEN . " WHERE ticket_id = $ticket_id");
+        }
+        logTicketHistory($ticket_id, "Invoice $number paid in full" . ($reopened ? ' - On Hold to Open' : ''));
+        $row = ticketRow($ticket_id);
+        $assigned_to = intval($ticket['ticket_assigned_to']);
+        if ($row && $assigned_to) {
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '" . escapeSql("Ticket " . ticketReference($row) . " - $number was paid, so " . $row['ticket_subject'] . " is ready to work on") . "',
+                notification_action = '" . escapeSql('/agent/' . ticketUrl($ticket_id, $client_id)) . "', notification_client_id = $client_id, notification_user_id = $assigned_to");
+            if ($agent = ticketMailAgent($assigned_to)) {
+                ticketMailAgents([$agent + ['footnote' => 'You get this as the agent ' . ticketReference($row) . ' is assigned to.']],
+                    'Paid - ' . ticketReference($row) . ' is ready - ' . $row['ticket_subject'], ticketAgentEmailContent($row, 'paid', ['invoice' => $number, 'amount' => $amount, 'reopened' => $reopened]));
+            }
+        }
+    }
+}

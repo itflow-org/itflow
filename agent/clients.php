@@ -324,7 +324,7 @@ if ($clients) {
     if ($show_contracts) {
         $contract_today = date('Y-m-d');
         $sql_contracts = mysqli_query($mysqli, "SELECT contract_id, contract_client_id, contract_name, contract_type, contract_status, contract_start_date, contract_end_date,
-                contract_auto_renew, contract_notice_days, contract_cancelled_at
+                contract_auto_renew, contract_notice_days, contract_term_months, contract_cancelled_at
             FROM contracts
             WHERE contract_client_id IN ($page_ids) AND contract_archived_at IS NULL AND contract_status IN ('Active', 'Draft', 'Ended', 'Cancelled')
             ORDER BY contract_start_date DESC, contract_id DESC");

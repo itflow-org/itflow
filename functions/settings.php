@@ -184,6 +184,7 @@ function settingsFields() {
         'config_invoice_late_fee_enable' => ['page' => 'invoice', 'section' => 'Late fees', 'label' => 'Late fees', 'words' => 'late fee overdue charge penalty'] + $on_off,
         'config_invoice_late_fee_percent' => ['page' => 'invoice', 'section' => 'Late fees', 'label' => 'Late fee %', 'words' => 'late fee percent'],
         'config_invoice_paid_notification_email' => ['page' => 'invoice', 'section' => 'Paid online', 'label' => 'Email invoices paid online to', 'words' => 'paid notification email stripe payment'],
+        'config_invoice_paid_lead_to_client' => ['page' => 'invoice', 'section' => 'Paid online', 'label' => 'A lead that pays an invoice becomes a client', 'words' => 'lead client convert paid payment'] + $on_off,
         'config_send_invoice_reminders' => ['page' => 'invoice', 'section' => 'Reminders and statements', 'label' => 'Email payment reminders', 'words' => 'overdue reminder dunning past due'] + $on_off,
         'reminder_before' => ['page' => 'invoice', 'section' => 'Reminders and statements', 'label' => 'Remind before it is due', 'words' => 'reminder days before due'],
         'reminder_after' => ['page' => 'invoice', 'section' => 'Reminders and statements', 'label' => 'Remind after it is due', 'words' => 'reminder days late overdue'],
