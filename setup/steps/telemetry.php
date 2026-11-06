@@ -82,7 +82,7 @@ if ($localization_done) {
                     <li data-finish-cron>
                         <strong>Cron</strong> - ITFlow needs one crontab entry, for the user that owns its files. The install script adds it for you; by hand, it is:
                         <?= $copy_field('setupCron', "* * * * * php " . dirname(__DIR__, 2) . "/cron/cron.php >/dev/null", 'Crontab entry') ?>
-                        <span class="d-block small text-body-secondary mt-1">It ships off - Get started's first step turns it on.</span>
+                        <span class="d-block small text-body-secondary mt-1">On a hosting control panel such as Jabali, HestiaCP or cPanel, add it as a cron job that runs every minute. Jobs start as soon as it runs.</span>
                     </li>
                     <li><strong>Email, backups, billing and support</strong> - the mailbox ITFlow sends from, a nightly backup, your rate and tax, and response times.</li>
                     <li><strong>Your team and starter content</strong> - the people who work with you, and templates to start from.</li>

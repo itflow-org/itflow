@@ -114,7 +114,7 @@ Be precise about what it does, because it is easy to oversell. It is **not** a g
 
 That last part is the reason it is not redundant with `cron_job_enabled`. Turning the switch off and back on returns you to exactly the configuration you had. Sweeping all seven rows off and back on does not: `backup` ships `'enabled' => 0`, so the sweep quietly turns on nightly backups nobody asked for, along with anything else that was deliberately disabled.
 
-It defaults to `0`. That is a weaker guard than it looks — an install with no crontab entry runs nothing whatever the switch says, so the entry is the real gate — but it does mean adding the crontab line to a half-configured install is not enough on its own to start emailing. Both setup paths name the step on the way out.
+It defaults to `1`. An install with no crontab entry runs nothing whatever the switch says, so the entry is the real gate, and a new install has nothing to email or charge until someone adds it. Shipping it off only added a second step that could be missed in silence. Database 3.6.2 changed the column's default and nothing else: an install that already has the switch off keeps it off, because turning it on would start late fees, overdue reminders and autopay retries it has stopped. Don't write a migration that flips the value itself.
 
 ## Backups
 

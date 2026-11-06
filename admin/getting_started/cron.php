@@ -1,9 +1,10 @@
 <?php
 
 /*
- * Get started - Cron: the crontab line, whether cron has been heard from
- * (checked again every 10 seconds while it hasn't - js/getting_started.js),
- * and its switch, which ships off (getting_started_cron_on).
+ * Get started - Cron: the crontab line, and whether cron has been heard from
+ * (checked again every 10 seconds while it hasn't - js/getting_started.js).
+ * Cron is on in a new install, so the switch only shows when someone has
+ * turned it off (getting_started_cron_on).
  */
 
 defined('FROM_GETTING_STARTED') || die("Direct file access is not allowed");
@@ -19,8 +20,8 @@ $gs_cron_command = gettingStartedCronCommand();
     <li class="<?= $gs_cron_running ? 'is-done' : '' ?>" data-gs-cron-heard="<?= $gs_cron_running ? 'yes' : 'no' ?>">
         <span class="itflow-gs-task-mark"><i class="fas <?= $gs_cron_running ? 'fa-check' : 'fa-terminal' ?>"></i></span>
         <div class="min-w-0 flex-grow-1">
-            <div class="fw-semibold">Add one line to the crontab</div>
-            <div class="small text-body-secondary mb-2">For the user that owns the ITFlow files - <code>crontab -e</code> as them. The install script adds it for you.</div>
+            <div class="fw-semibold">Add the cron job</div>
+            <div class="small text-body-secondary mb-2">One line, for the user that owns the ITFlow files - <code>crontab -e</code> as them. On a hosting control panel such as Jabali, HestiaCP or cPanel, add it as a cron job that runs every minute. The install script adds it for you.</div>
             <div class="input-group input-group-sm">
                 <input type="text" class="form-control font-monospace" value="<?= escapeHtml($gs_cron_command) ?>" aria-label="Crontab line" readonly>
                 <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-text="<?= escapeHtml($gs_cron_command) ?>" title="Copy"><i class="far fa-copy"></i></button>
@@ -34,21 +35,19 @@ $gs_cron_command = gettingStartedCronCommand();
             </div>
         </div>
     </li>
-    <li class="<?= $gs_cron_on ? 'is-done' : '' ?>" data-gs-cron-switch="<?= $gs_cron_on ? 'on' : 'off' ?>">
-        <span class="itflow-gs-task-mark"><i class="fas <?= $gs_cron_on ? 'fa-check' : 'fa-toggle-off' ?>"></i></span>
-        <div class="min-w-0 flex-grow-1">
-            <div class="fw-semibold">Turn cron on</div>
-            <div class="small text-body-secondary mb-2">It ships off, so a copy of ITFlow never emails clients or charges cards by surprise. Every job stops itself while it is off.</div>
-            <?php if ($gs_cron_on) { ?>
-                <div class="small text-success"><i class="fas fa-check-circle me-1"></i>On. Each job's schedule is in Maintenance &gt; Cron.</div>
-            <?php } else { ?>
+    <?php if (!$gs_cron_on) { ?>
+        <li data-gs-cron-switch="off">
+            <span class="itflow-gs-task-mark"><i class="fas fa-toggle-off"></i></span>
+            <div class="min-w-0 flex-grow-1">
+                <div class="fw-semibold">Turn cron back on</div>
+                <div class="small text-body-secondary mb-2">Someone switched it off in Maintenance &gt; Cron, and every job stops itself while it is off.</div>
                 <form action="post.php" method="post" class="m-0">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <button type="submit" name="getting_started_cron_on" value="1" class="btn btn-primary"><i class="fas fa-toggle-on me-2"></i>Turn cron on</button>
                 </form>
-            <?php } ?>
-        </div>
-    </li>
+            </div>
+        </li>
+    <?php } ?>
 </ol>
 <?php if (!$gs_cron_running) { ?>
     <div class="small text-body-secondary mt-3" data-gs-cron-poll="<?= gettingStartedUrl() ?>?cron_status=1">Nothing is emailed or backed up until cron runs - the other steps can be done meanwhile.</div>

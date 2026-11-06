@@ -422,10 +422,9 @@ if ($backup_key !== '') {
     echo "\nBackup key - keep a copy somewhere safe, away from this server; a backup can't be restored without it:\n\n";
     echo "     $backup_key\n";
 }
-echo "\nNext, before ITFlow can send mail, parse tickets or bill anyone:\n\n";
-echo "  1. Add this single entry to the crontab of the user that owns the ITFlow files:\n\n";
+echo "\nNext, before ITFlow can send mail, parse tickets or bill anyone, add this single entry\n";
+echo "to the crontab of the user that owns the ITFlow files:\n\n";
 echo "     * * * * * php $itflow_path/cron/cron.php >/dev/null\n\n";
-echo "  2. Turn cron on in Maintenance > Cron. It ships off, and every job stops\n";
-echo "     itself until it is enabled. Per-job schedules live on the same page.\n\n";
+echo "Jobs start as soon as it runs. Their schedules are in Maintenance > Cron.\n\n";
 
 exit(0);
