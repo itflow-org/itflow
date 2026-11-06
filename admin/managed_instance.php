@@ -54,6 +54,7 @@ $worst = $health['issues'][0][0] ?? '';
 $hero = match (true) {
     $removed => ['tone' => 'secondary', 'icon' => 'fa-unlink'],
     $state === 'pending' => ['tone' => 'secondary', 'icon' => 'fa-plug'],
+    $state === 'waiting' => ['tone' => 'warning', 'icon' => 'fa-hourglass-half'],
     $state === 'offline' => ['tone' => 'danger', 'icon' => 'fa-server'],
     $worst === 'danger' => ['tone' => 'danger', 'icon' => 'fa-server'],
     $worst === 'warning' => ['tone' => 'warning', 'icon' => 'fa-server'],
@@ -131,6 +132,16 @@ $size = function ($mb) {
                                 Removed <?= escapeHtml(timeAgo($row['managed_instance_archived_at'])) ?>. It lets go at its next check-in - what this manager set comes off it, and its support user is archived.
                             <?php } elseif ($state === 'pending') { ?>
                                 <?= $row['managed_instance_enrolled_at'] ? 'It disconnected itself. To manage it again, it needs a new connection code.' : 'Waiting to connect - give its admin the connection code below.' ?>
+                            <?php } elseif ($state === 'waiting') {
+                                $cron_command = (string) ($report['cron']['command'] ?? ''); ?>
+                                <span class="text-warning-emphasis"><i class="fas fa-fw fa-hourglass-half me-1"></i>Connected <?= escapeHtml(timeAgo($row['managed_instance_enrolled_at'] ?? $row['managed_instance_last_checkin_at'])) ?> - waiting for its cron job.</span>
+                                It checks in from cron every minute, so add the cron job in its hosting control panel: every minute (<code>* * * * *</code>)<?= $cron_command !== '' ? ', running' : '' ?>
+                                <?php if ($cron_command !== '') { ?>
+                                    <span class="d-flex align-items-center gap-2 mt-2" data-managed-cron-command>
+                                        <code class="text-break"><?= escapeHtml($cron_command) ?></code>
+                                        <button type="button" class="btn btn-sm btn-link p-0 clipboardjs" title="Copy" data-clipboard-text="<?= escapeHtml($cron_command) ?>"><i class="far fa-copy"></i></button>
+                                    </span>
+                                <?php } ?>
                             <?php } elseif ($state === 'offline') { ?>
                                 <span class="text-danger-emphasis"><i class="fas fa-fw fa-exclamation-circle me-1"></i><?= $row['managed_instance_last_checkin_at'] ? 'Not checked in since ' . escapeHtml(timeAgo($row['managed_instance_last_checkin_at'])) : 'Connected, but it hasn\'t checked in' ?>.</span>
                                 It checks in every minute from its own cron - either cron has stopped there, the server is down, or it can't reach this ITFlow.
@@ -226,6 +237,17 @@ $size = function ($mb) {
                             <button type="button" class="btn btn-sm btn-link position-absolute top-0 end-0 m-1 clipboardjs" title="Copy" data-clipboard-text="<?= escapeHtml($new_code) ?>"><i class="far fa-copy"></i></button>
                         </div>
                         <p class="small text-warning-emphasis mb-0"><i class="fas fa-fw fa-eye-slash me-1"></i>Copy it now - it isn't shown again. If it's lost, make a new one.</p>
+
+                        <?php $setup_command = managedSetupCommand($row, $new_code); ?>
+                        <div class="border-top mt-3 pt-3" data-managed-setup-command>
+                            <div class="fw-semibold mb-1"><i class="fas fa-fw fa-terminal me-1"></i>Setting up a new install for it?</div>
+                            <p class="small text-body-secondary mb-2">Run this in the new install's folder, as the user that owns its files - it sets ITFlow up, connects it with this code and keeps it connected. It asks for the database<?= trim((string) ($row['managed_instance_url'] ?? '')) === '' ? ', the address' : '' ?> and anything else it needs<?= $client_id ? ", and fills in the rest from " . escapeHtml((string) $row['client_name']) : '' ?>.</p>
+                            <div class="position-relative">
+                                <pre class="itflow-command bg-body-tertiary border rounded p-3 pe-5 mb-2"><code><?= escapeHtml($setup_command) ?></code></pre>
+                                <button type="button" class="btn btn-sm btn-link position-absolute top-0 end-0 m-1 clipboardjs" title="Copy" data-clipboard-text="<?= escapeHtml($setup_command) ?>"><i class="far fa-copy"></i></button>
+                            </div>
+                            <p class="small text-body-secondary mb-0">When it's done, it shows the password made for the first admin<?= $client_id ? '' : ' (or asks for one)' ?> and the cron job to add in the hosting panel. This page says it's waiting for that cron job until it runs. Leave off <code>--manager-required</code> if its admins should be able to disconnect it.</p>
+                        </div>
                     <?php } elseif (!empty($row['managed_instance_enroll_expires_at']) && strtotime($row['managed_instance_enroll_expires_at']) > time()) { ?>
                         <p class="small text-body-secondary mb-2">The code was shown when it was made - only a fingerprint of it is kept here. If it's lost, make a new one; the old one stops working.</p>
                         <a class="btn btn-sm btn-outline-primary" href="post.php?managed_instance_new_code=<?= $instance_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-key me-2"></i>New connection code</a>

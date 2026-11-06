@@ -114,11 +114,11 @@ $csrf = $_SESSION['csrf_token'];
                 $seat_limit = intval($row['managed_instance_seat_limit']);
                 $update = (array) ($report['update'] ?? []);
                 $url = (string) $row['managed_instance_url'];
-                $dot = ['online' => 'success', 'offline' => 'danger', 'pending' => 'secondary'][$health['state']];
+                $dot = ['online' => 'success', 'offline' => 'danger', 'pending' => 'secondary', 'waiting' => 'warning'][$health['state']];
                 $last = $row['managed_instance_last_checkin_at'];
                 $last_html = $health['state'] === 'pending'
                     ? '<span class="text-body-secondary">Not connected yet</span>'
-                    : ($last ? '<span title="' . escapeHtml($last) . '"><i class="fas fa-circle fa-xs text-' . $dot . ' me-1"></i>' . escapeHtml(timeAgo($last)) . '</span>' : '<span class="text-body-secondary">Never</span>');
+                    : ($health['state'] === 'waiting' ? '<span class="text-warning-emphasis"><i class="fas fa-circle fa-xs text-warning me-1"></i>Waiting for its cron job</span>' : ($last ? '<span title="' . escapeHtml($last) . '"><i class="fas fa-circle fa-xs text-' . $dot . ' me-1"></i>' . escapeHtml(timeAgo($last)) . '</span>' : '<span class="text-body-secondary">Never</span>'));
                 $page = "managed_instance.php?id=$instance_id";
                 ?>
                 <tr data-managed-instance-id="<?= $instance_id ?>" data-managed-state="<?= $health['state'] ?>">

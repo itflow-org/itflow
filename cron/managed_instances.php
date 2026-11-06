@@ -51,7 +51,7 @@ if ($managed_instances_count === 0) {
 }
 
 // Gone quiet - told once, until it checks in again
-$managed_instances_quiet = mysqli_query($mysqli, "SELECT managed_instance_id, managed_instance_name, managed_instance_client_id, managed_instance_last_checkin_at FROM managed_instances
+$managed_instances_quiet = mysqli_query($mysqli, "SELECT managed_instance_id, managed_instance_name, managed_instance_client_id, managed_instance_last_checkin_at, managed_instance_secret_hash, managed_instance_report FROM managed_instances
     WHERE managed_instance_archived_at IS NULL AND managed_instance_secret_hash IS NOT NULL AND managed_instance_offline_notified_at IS NULL
     AND (managed_instance_last_checkin_at IS NULL OR managed_instance_last_checkin_at < NOW() - INTERVAL " . MANAGED_OFFLINE_MINUTES . " MINUTE)");
 
@@ -59,7 +59,11 @@ while ($managed_instance = mysqli_fetch_assoc($managed_instances_quiet)) {
     $managed_instance_id = intval($managed_instance['managed_instance_id']);
     $managed_instance_last = $managed_instance['managed_instance_last_checkin_at'];
 
-    appNotify("Managed Instance", escapeSql($managed_instance['managed_instance_name'] . " has stopped checking in" . ($managed_instance_last ? " - last " . date('M j, g:i A', strtotime($managed_instance_last)) : '')),
+    // Connected, and its cron has never run - a new install whose cron job isn't in yet
+    $managed_instance_waiting = managedInstanceHealth($managed_instance)['state'] === 'waiting';
+
+    appNotify("Managed Instance", escapeSql($managed_instance['managed_instance_name'] . ($managed_instance_waiting ? " is waiting for its cron job - add it in its hosting control panel"
+        : " has stopped checking in" . ($managed_instance_last ? " - last " . date('M j, g:i A', strtotime($managed_instance_last)) : ''))),
         "/admin/managed_instance.php?id=$managed_instance_id", intval($managed_instance['managed_instance_client_id']), $managed_instance_id);
 
     mysqli_query($mysqli, "UPDATE managed_instances SET managed_instance_offline_notified_at = NOW() WHERE managed_instance_id = $managed_instance_id");

@@ -47,7 +47,11 @@ if (!managerEnabled()) { ?>
         'managed_instance_white_label_key' => '',
         'managed_instance_mode' => 'active',
         'managed_instance_mode_message' => '',
+        'managed_instance_url' => '',
+        'managed_instance_secret_hash' => '',
     ];
+    // Its address is typed until it connects - then it's the one it says it has
+    $address_typed = empty($form['managed_instance_secret_hash']);
     $form_id = 'managedInstanceForm' . intval($form['managed_instance_id']);
     $value = function ($key) use ($form) {
         return escapeHtml((string) ($form[$key] ?? ''));
@@ -91,6 +95,17 @@ if (!managerEnabled()) { ?>
                     </div>
                     <div class="form-text">What it's called here - its own company name shows from its reports.</div>
                 </div>
+
+                <?php if ($address_typed) { ?>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-fw fa-globe"></i></span>
+                            <input type="text" class="form-control" name="url" placeholder="e.g. itflow.ravenwooddental.com" maxlength="240" value="<?= escapeHtml(preg_replace('#^https?://#', '', (string) $form['managed_instance_url'])) ?>">
+                        </div>
+                        <div class="form-text">Where it's reached, without https:// - it goes in the command that sets up a new install for it. Once it connects, it's the address it says it has.</div>
+                    </div>
+                <?php } ?>
 
                 <div class="mb-3">
                     <label class="form-label">Client</label>

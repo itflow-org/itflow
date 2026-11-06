@@ -498,6 +498,8 @@ function managedReport(): array
         'cron' => [
             'enabled' => !empty($settings['config_enable_cron']),
             'last_dispatch_at' => managedIsoTime($settings['config_cron_last_dispatch_at'] ?? null),
+            // Its cron job - with the PHP that runs this when that's the command line (setup, or cron itself)
+            'command' => (PHP_SAPI === 'cli' && PHP_BINARY !== '' && !preg_match('/\s/', PHP_BINARY) ? PHP_BINARY : 'php') . ' ' . dirname(__DIR__) . '/cron/cron.php',
         ],
         'backup' => [
             'last_status' => (string) ($backup['backup_status'] ?? ''),
@@ -944,17 +946,22 @@ function managedInstanceReport(array $row): array
 }
 
 /*
- * How an instance is doing, from its last report - state (pending: never connected,
- * offline, online), what needs a look (issues, worst first, each [tone, text]), and what
- * the list shows of it.
+ * How an instance is doing, from its last report - state (pending: never connected;
+ * waiting: connected, but its cron has never run - a new install whose cron job isn't in
+ * yet; offline; online), what needs a look (issues, worst first, each [tone, text]), and
+ * what the list shows of it.
  */
 function managedInstanceHealth(array $row): array
 {
     $report = managedInstanceReport($row);
     $last = $row['managed_instance_last_checkin_at'] ?? null;
 
+    $cron = (array) ($report['cron'] ?? []);
     if (empty($row['managed_instance_secret_hash'])) {
         $state = 'pending';
+    } elseif ($report && empty($cron['last_dispatch_at'])) {
+        // It checked in as it connected, and its cron has never run since - a new install whose cron job isn't in yet
+        $state = 'waiting';
     } elseif (!$last || strtotime($last) < strtotime('-' . MANAGED_OFFLINE_MINUTES . ' minutes')) {
         $state = 'offline';
     } else {
@@ -962,11 +969,12 @@ function managedInstanceHealth(array $row): array
     }
 
     $issues = [];
-    if ($state === 'offline') {
+    if ($state === 'waiting') {
+        $issues[] = ['warning', 'Waiting for its cron job - add it in its hosting control panel'];
+    } elseif ($state === 'offline') {
         $issues[] = ['danger', $last ? 'Not checked in for ' . str_replace(' ago', '', timeAgo($last)) : 'Connected, but never checked in'];
     }
-    if ($report) {
-        $cron = (array) ($report['cron'] ?? []);
+    if ($report && $state !== 'waiting') {
         if (empty($cron['enabled'])) {
             $issues[] = ['danger', 'Cron is switched off'];
         } elseif (empty($cron['last_dispatch_at']) || strtotime($cron['last_dispatch_at']) < strtotime((string) ($report['reported_at'] ?? 'now')) - 600) {
@@ -1064,10 +1072,18 @@ function managedInstanceFromInput(array $input): array
         'white_label_key' => preg_replace('/\s+/', '', (string) ($input['white_label_key'] ?? '')),
         'mode' => isset(MANAGED_MODES[$input['mode'] ?? '']) ? $input['mode'] : 'active',
         'mode_message' => mb_substr(trim((string) ($input['mode_message'] ?? '')), 0, 500),
+        // Its address, before it connects - its setup command uses it; once connected, it says its own
+        'url' => array_key_exists('url', $input) ? rtrim(preg_replace('#^[a-z][a-z0-9+.-]*://#i', '', trim((string) $input['url'])), '/') : null,
     ];
 
     if ($fields['name'] === '') {
         return [$fields, 'Give it a name.'];
+    }
+    if ($fields['url'] !== null && $fields['url'] !== '') {
+        if (preg_match('/[\s"\'<>]/', $fields['url']) || mb_strlen($fields['url']) > 240) {
+            return [$fields, 'Its address is a name like itflow.example.com, without https://.'];
+        }
+        $fields['url'] = 'https://' . $fields['url'];
     }
     if ($fields['client_id'] && !mysqli_fetch_row(mysqli_query($mysqli, "SELECT 1 FROM clients WHERE client_id = " . $fields['client_id']))) {
         return [$fields, 'That client is gone - pick another.'];
@@ -1096,7 +1112,63 @@ function managedInstanceSetSql(array $fields): string
         managed_instance_update_delay_days = " . intval($fields['update_delay_days']) . ",
         managed_instance_white_label_key = " . $text($fields['white_label_key']) . ",
         managed_instance_mode = '" . $fields['mode'] . "',
-        managed_instance_mode_message = " . $text($fields['mode_message']);
+        managed_instance_mode_message = " . $text($fields['mode_message'])
+        . (($fields['url'] ?? null) !== null ? ", managed_instance_url = " . $text($fields['url']) : '');
+}
+
+/*
+ * The command that sets up a new install for an instance and connects it, in one go
+ * (scripts/setup_cli.php) - with its connection code and what this ITFlow knows: its address,
+ * and its client's name, primary location, phone, website, tax id and currency, with its primary
+ * contact as the first admin and a password made for them. Kept connected (--manager-required),
+ * for an install you host. Run in the new install's folder, as the user that owns its files; it
+ * asks for the database and anything else it has to (--ask-missing).
+ */
+function managedSetupCommand(array $row, string $code): string
+{
+    global $mysqli;
+
+    $client_id = intval($row['managed_instance_client_id']);
+    $client = $client_id ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name, client_website, client_currency_code, client_tax_id_number FROM clients WHERE client_id = $client_id")) : null;
+    $location = $client_id ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT location_country, location_address, location_city, location_state, location_zip, location_phone_country_code, location_phone
+        FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_primary DESC, location_id ASC LIMIT 1")) : null;
+    $contact = $client_id ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_name, contact_email FROM contacts
+        WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contact_email <> '' ORDER BY contact_primary DESC, contact_id ASC LIMIT 1")) : null;
+
+    $options = [
+        'base-url' => preg_replace('#^https?://#', '', (string) ($row['managed_instance_url'] ?? '')),
+        'company-name' => $client['client_name'] ?? $row['managed_instance_name'],
+        'country' => $location['location_country'] ?? '',
+        'address' => $location['location_address'] ?? '',
+        'city' => $location['location_city'] ?? '',
+        'state' => $location['location_state'] ?? '',
+        'zip' => $location['location_zip'] ?? '',
+        'phone-country-code' => !empty($location['location_phone']) ? ($location['location_phone_country_code'] ?? '') : '',
+        'phone' => $location['location_phone'] ?? '',
+        'website' => $client['client_website'] ?? '',
+        'tax-id' => $client['client_tax_id_number'] ?? '',
+        'currency' => $client['client_currency_code'] ?? '',
+        'user-name' => $contact['contact_name'] ?? '',
+        'user-email' => $contact['contact_email'] ?? '',
+    ];
+
+    // Quoted only where a shell would read something into it
+    $word = function (string $value) {
+        return preg_match('#^[A-Za-z0-9_./=:@%+-]+$#', $value) ? $value : escapeshellarg($value);
+    };
+    $lines = ['php scripts/setup_cli.php --ask-missing'];
+    foreach ($options as $key => $value) {
+        if (trim((string) $value) !== '') {
+            $lines[] = "--$key=" . $word(trim((string) $value));
+        }
+    }
+    if ($contact) {
+        $lines[] = '--generate-password';
+    }
+    $lines[] = '--manager-code=' . $word($code);
+    $lines[] = '--manager-required';
+
+    return implode(" \\\n  ", $lines);
 }
 
 /* Words for a command */

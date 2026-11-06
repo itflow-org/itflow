@@ -13,9 +13,24 @@
  * thing missing or wrong, before the database is touched, and takes the suggestion
  * or the default for the rest.
  *
+ * --ask-missing asks only for what is needed and wasn't given, and the database
+ * password - the rest takes its default or suggestion. Any option can come from
+ * the environment instead, as ITFLOW_SETUP_<OPTION> (ITFLOW_SETUP_PASSWORD for
+ * --password), so a password needn't be on the command line.
+ *
  * Signing in the first time opens Get started, the walk through what is left to
  * set up (functions/getting_started.php). --skip-get-started leaves it in Admin,
  * for an install set up by script or brought up to match another.
+ *
+ * For an install another ITFlow manages - one you host for a client - the
+ * connection code from its Admin > Managed Instances page (--manager-code)
+ * connects it as setup finishes, and --manager-required keeps it connected
+ * (functions/managed.php). That page gives the whole command, with what it knows
+ * of the client filled in. --generate-password makes the first account's password
+ * and shows it once at the end; --json ends with a summary for a script to read.
+ *
+ * Exit codes: 0 set up; 1 stopped, nothing set up; 3 set up, but it couldn't
+ * connect to the managing ITFlow - connect it from Admin > Managed By.
  *
  *   php setup_cli.php --help
  *   php setup_cli.php --host=localhost --username=itflow --password=secret --database=itflow \
@@ -67,22 +82,48 @@ $cli_fields = [
         'timezone' => ['Timezone (e.g. America/New_York)', true],
     ],
 ];
+// Given, never asked for - an install another ITFlow manages (functions/managed.php)
+$cli_managed = [
+    'manager-code' => 'The connection code from Admin > Managed Instances on the ITFlow that manages this one - it connects as setup finishes',
+];
 $cli_flags = [
+    'manager-required' => "Keep it managed - its admins can't disconnect it. For an install you host",
+    'generate-password' => 'Make a strong password for your account, shown once at the end, instead of asking for one',
     'skip-get-started' => "Don't open Get started on first signing in, or show Finish setting up on the dashboard - it stays in Admin > Get started",
     'share-telemetry' => 'Tell the ITFlow project about this install, once - its company name, website, city, state, country and currency',
     'comments' => 'Something to tell the ITFlow project with it (optional)',
+    'ask-missing' => 'Ask only for what is needed and not given, and the database password - the rest takes its default or suggestion',
     'non-interactive' => 'Ask for nothing - stop if anything needed is missing or wrong',
+    'json' => 'End with a summary in JSON on standard output - the progress goes to standard error',
     'help' => 'Show this help',
 ];
 
-$longopts = ['help', 'non-interactive', 'share-telemetry', 'skip-get-started', 'comments:'];
+$longopts = ['help', 'non-interactive', 'ask-missing', 'share-telemetry', 'skip-get-started', 'manager-required', 'generate-password', 'json', 'comments:', 'manager-code:'];
 foreach ($cli_fields as $fields) {
     foreach ($fields as $key => $field) {
         $longopts[] = "$key:";
     }
 }
 $options = getopt('', $longopts);
+
+// An option left off can come from the environment - ITFLOW_SETUP_PASSWORD for --password - so no password has to be typed on the command line
+foreach (array_merge(array_keys(array_merge(...array_values($cli_fields))), array_keys($cli_managed), ['comments']) as $key) {
+    $env = getenv('ITFLOW_SETUP_' . strtoupper(str_replace('-', '_', $key)));
+    if (!array_key_exists($key, $options) && $env !== false) {
+        $options[$key] = $env;
+    }
+}
 $non_interactive = isset($options['non-interactive']);
+$ask_missing = !$non_interactive && isset($options['ask-missing']);
+$json = isset($options['json']);
+
+// With --json, everything but the summary goes to standard error
+if ($json && !isset($options['help'])) {
+    ob_start(function ($text) {
+        fwrite(STDERR, $text);
+        return '';
+    }, 1);
+}
 
 if (isset($options['help'])) {
     echo "ITFlow setup from the command line\n\n";
@@ -94,11 +135,20 @@ if (isset($options['help'])) {
         }
         echo "\n";
     }
+    echo "Managed by another ITFlow:\n";
+    foreach ($cli_managed as $key => $what) {
+        echo sprintf("  --%-20s %s\n", $key, $what);
+    }
+    echo "\n";
     foreach ($cli_flags as $key => $what) {
         echo sprintf("  --%-20s %s\n", $key, $what);
     }
     echo "\nLeft out, an option is asked for - unless --non-interactive. The language, currency and timezone\n";
     echo "are suggested from the country, and --non-interactive takes the suggestion when there is one.\n";
+    echo "Any option can be set in the environment instead, as ITFLOW_SETUP_ and its name - ITFLOW_SETUP_PASSWORD\n";
+    echo "for --password, ITFLOW_SETUP_USER_PASSWORD for --user-password.\n\n";
+    echo "Exit codes: 0 set up; 1 stopped, nothing set up; 3 set up, but it couldn't connect to the ITFlow\n";
+    echo "managing it - connect it from Admin > Managed By with a new code.\n";
     exit(0);
 }
 
@@ -123,10 +173,19 @@ require_once "../includes/settings_localization_array.php";
 
 $timezones = DateTimeZone::listIdentifiers();
 
-/* Stop, saying why - to stderr, with a failing exit code. */
+/* Stop, saying why - to stderr, with a failing exit code. With --json, said in the summary too. */
 function cliStop($message) {
+    global $json;
     fwrite(STDERR, "\n$message\n");
+    if ($json) {
+        fwrite(STDOUT, json_encode(['ok' => false, 'error' => $message], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "\n");
+    }
     exit(1);
+}
+
+/* A path for a command line - as it is, or quoted when it has anything a shell would read. */
+function cliShellWord($text) {
+    return preg_match('#^[A-Za-z0-9_./=:@%+-]+$#', $text) ? $text : escapeshellarg($text);
 }
 
 /* A setup hint is written for the page - as plain text. */
@@ -159,10 +218,11 @@ function cliPrompt($label, $secret = false) {
 /*
  * One answer - the option given, or else asked for (with its default) until
  * $check, which says what is wrong with a value or '', is happy. With
- * --non-interactive, a missing or wrong one stops setup.
+ * --non-interactive, a missing or wrong one stops setup. With --ask-missing,
+ * only what is needed with no default, or a secret, is asked for.
  */
 function cliAsk($key, $label, $required, $default = '', $check = null, $secret = false) {
-    global $options, $non_interactive;
+    global $options, $non_interactive, $ask_missing;
 
     // What was given rather than typed, said back
     $given = function ($value) use ($label, $secret) {
@@ -192,7 +252,7 @@ function cliAsk($key, $label, $required, $default = '', $check = null, $secret =
             cliStop("--$key: $error");
         }
         echo "  --$key: $error\n";
-    } elseif ($non_interactive) {
+    } elseif ($non_interactive || ($ask_missing && !$secret && !($required && (string) $default === ''))) {
         if ($required && (string) $default === '') {
             cliStop("--$key is needed - $label.");
         }
@@ -246,11 +306,28 @@ if (setupChecksFailed($checks['required'])) {
     cliStop("Fix what is marked [!!], then run this again.");
 }
 
+// The managing ITFlow's code - a code that can't work stops setup before anything is done
+$manager_code = trim((string) ($options['manager-code'] ?? ''));
+$manager_required = isset($options['manager-required']);
+$manager = $manager_code !== '' ? managedParseCode($manager_code) : null;
+if ($manager_code !== '' && !$manager) {
+    cliStop("--manager-code: that isn't a connection code - copy it again from Admin > Managed Instances on the ITFlow that manages this one. It starts ITFLOW-MANAGE:");
+}
+if ($manager || $manager_required) {
+    echo "\n== Managed ==\n";
+    echo $manager ? "  Connects to {$manager['manager_url']} once it is set up" . ($manager_required ? ", and stays connected - its admins can't disconnect it" : '') . ".\n"
+        : "  Kept managed - connect it from Admin > Managed By with a code from the ITFlow that manages it.\n";
+}
+if (isset($options['generate-password']) && trim((string) ($options['user-password'] ?? '')) !== '') {
+    cliStop('Give --user-password or --generate-password, not both.');
+}
+
 // Asking nothing, all that has no default or suggestion has to be given - said before anything is done
 if ($non_interactive) {
     foreach ($cli_fields as $fields) {
         foreach ($fields as $key => $field) {
-            if ($field[1] && !isset($field[2]) && !in_array($key, ['locale', 'currency', 'timezone'], true) && trim((string) ($options[$key] ?? '')) === '') {
+            if ($field[1] && !isset($field[2]) && !in_array($key, ['locale', 'currency', 'timezone'], true) && trim((string) ($options[$key] ?? '')) === ''
+                && !($key === 'user-password' && isset($options['generate-password']))) {
                 cliStop("--$key is needed - {$field[0]}.");
             }
         }
@@ -308,7 +385,12 @@ $user = [
     'email' => cliAsk('user-email', 'Your email - what you sign in with', true, '', $user_field('email')),
 ];
 $password_given = array_key_exists('user-password', $options);
-while (true) {
+$password_generated = isset($options['generate-password']);
+if ($password_generated) {
+    $user['password'] = generateReadablePassword();
+    echo "  Password: made for it - shown at the end, once.\n";
+}
+while (!$password_generated) {
     $user['password'] = cliAsk('user-password', 'Password (at least ' . USER_PASSWORD_MIN . ' characters)', true, '', 'userPasswordProblem', true);
     if ($password_given || $non_interactive) {
         break;
@@ -365,7 +447,7 @@ $region = [
 // ---------- Telling the ITFlow project ----------
 $share = isset($options['share-telemetry']);
 $comments = is_string($options['comments'] ?? null) ? trim($options['comments']) : '';
-if (!$share && !$non_interactive) {
+if (!$share && !$non_interactive && !$ask_missing) {
     echo "\n== Tell the ITFlow project about this install? ==\n";
     echo "  Once, now: the company's name, website, city, state, country and currency, and this install's id.\n";
     $share = cliConfirm('Share them');
@@ -408,6 +490,17 @@ if ($skip_get_started) {
     echo "  Get started won't open on signing in - it is in Admin > Get started.\n";
 }
 
+// Managed by another ITFlow - turned on in config.php, as by hand (functions/managed.php)
+if ($manager || $manager_required) {
+    $managed_line = $manager_required ? '$config_manager_required = true;' : '$config_enable_managed_by = true;';
+    if (@file_put_contents('../config.php', "\n// Managed by another ITFlow - its admins " . ($manager_required ? "can't disconnect it" : 'can disconnect it in Admin > Managed By') . "\n$managed_line\n", FILE_APPEND | LOCK_EX) === false) {
+        cliStop("Setup is done, but config.php could not be written to. Add these lines to the end of it: $managed_line \$config_enable_setup = 0;");
+    }
+    $config_enable_managed_by = true;
+    $config_manager_required = $manager_required;
+    echo "  Managed mode is on in config.php.\n";
+}
+
 if (!setupClose('../config.php')) {
     cliStop("Setup is done, but config.php could not be written to. Add this line to the end of it: \$config_enable_setup = 0;");
 }
@@ -416,15 +509,57 @@ if (!setupClose('../config.php')) {
 $config_backup_key = null;
 $backup_key = backupEncryptionKey();
 
+// Connected last, so an ITFlow that can't be reached leaves a whole install behind
+$manager_result = null;
+if ($manager) {
+    $enroll_error = '';
+    if (managedEnroll($manager_code, "https://$base_url", $enroll_error)) {
+        $manager_result = ['connected' => true, 'name' => managedManagerName(), 'url' => $manager['manager_url']];
+        echo "  Connected to {$manager_result['name']} - it checks in every minute once its cron job runs.\n";
+    } else {
+        $manager_result = ['connected' => false, 'url' => $manager['manager_url'], 'error' => $enroll_error];
+        echo "  Not connected to {$manager['manager_url']}: $enroll_error\n";
+    }
+}
+
 $itflow_path = realpath(__DIR__ . '/..');
+$cron_command = cliShellWord(PHP_BINARY !== '' ? PHP_BINARY : 'php') . ' ' . cliShellWord("$itflow_path/cron/cron.php") . ' >/dev/null';
+
 echo "\nITFlow is set up. Sign in at https://$base_url/login.php" . ($skip_get_started ? '' : " - Get started opens and walks you through the rest") . "\n";
+if ($password_generated) {
+    echo "\nPassword for {$user['email']} - it isn't shown again:\n\n";
+    echo "     {$user['password']}\n";
+}
 if ($backup_key !== '') {
     echo "\nBackup key - keep a copy somewhere safe, away from this server; a backup can't be restored without it:\n\n";
     echo "     $backup_key\n";
 }
-echo "\nNext, before ITFlow can send mail, parse tickets or bill anyone, add this single entry\n";
-echo "to the crontab of the user that owns the ITFlow files:\n\n";
-echo "     * * * * * php $itflow_path/cron/cron.php >/dev/null\n\n";
-echo "Jobs start as soon as it runs. Their schedules are in Maintenance > Cron.\n\n";
+echo "\nNext, add its cron job - nothing is emailed, turned into tickets, billed or backed up until it runs.\n";
+echo "In the crontab of the user that owns the ITFlow files:\n\n";
+echo "     * * * * * $cron_command\n\n";
+echo "Or in a hosting control panel such as Jabali, HestiaCP or cPanel, a cron job that runs every minute\n";
+echo "(* * * * *) with this command:\n\n";
+echo "     $cron_command\n\n";
+echo "Jobs start as soon as it runs. Their schedules are in Maintenance > Cron.\n";
+if ($manager_result && $manager_result['connected']) {
+    echo "Until then, {$manager_result['name']} shows it as waiting for its cron job.\n";
+} elseif ($manager_result) {
+    echo "\nIt isn't connected to the ITFlow that manages it. Make a new connection code there, in Admin > Managed\n";
+    echo "Instances, and paste it into Admin > Managed By here.\n";
+}
+echo "\n";
 
-exit(0);
+if ($json) {
+    ob_end_flush();
+    fwrite(STDOUT, json_encode([
+        'ok' => true,
+        'url' => "https://$base_url",
+        'sign_in' => "https://$base_url/login.php",
+        'account' => ['name' => $user['name'], 'email' => $user['email']] + ($password_generated ? ['password' => $user['password']] : []),
+        'backup_key' => $backup_key,
+        'cron' => ['schedule' => '* * * * *', 'command' => $cron_command],
+        'manager' => $manager_result ?? ($manager_required ? ['connected' => false, 'error' => 'No connection code was given - connect it from Admin > Managed By'] : null),
+    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "\n");
+}
+
+exit($manager_result && !$manager_result['connected'] ? 3 : 0);

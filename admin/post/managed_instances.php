@@ -74,6 +74,10 @@ if (isset($_POST['edit_managed_instance'])) {
         flashAlert(escapeHtml($error), 'error');
         redirect();
     }
+    // Once it has connected, its address is the one it says it has
+    if (!empty($row['managed_instance_secret_hash'])) {
+        $fields['url'] = null;
+    }
 
     mysqli_query($mysqli, "UPDATE managed_instances SET " . managedInstanceSetSql($fields) . " WHERE managed_instance_id = $instance_id");
 
@@ -96,6 +100,9 @@ if (isset($_POST['edit_managed_instance'])) {
     }
     if (intval($row['managed_instance_client_id']) !== $fields['client_id']) {
         $changes[] = 'client changed';
+    }
+    if ($fields['url'] !== null && (string) $row['managed_instance_url'] !== $fields['url']) {
+        $changes[] = $fields['url'] === '' ? 'address taken off' : 'address ' . $fields['url'];
     }
     if ($changes) {
         logAudit("Managed Instance", "Edit", "$session_name edited managed instance " . escapeSql($fields['name']) . " - " . escapeSql(implode(', ', $changes)), $fields['client_id'], $instance_id);
