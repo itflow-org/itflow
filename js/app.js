@@ -337,7 +337,7 @@ function itflowAiReword(editor, ticket) {
  */
 function itflowAiDraft(editor, ticketId, say) {
     var buttonApi = null;
-    var types = { '0': 'internal', '1': 'public', '2': 'email' };
+    var types = { '0': 'internal', '1': 'public', '2': 'email', '3': 'text' };
     editor.ui.registry.addButton('aidraft', {
         icon: 'ai-prompt',
         text: 'Draft',

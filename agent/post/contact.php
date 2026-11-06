@@ -46,6 +46,9 @@ if (isset($_POST['add_contact'])) {
 
     $contact_id = mysqli_insert_id($mysqli);
 
+    // Texts - whether they agreed to texts about their work (functions/sms.php)
+    smsContactOptInFromForm($contact_id, $_POST, $client_id);
+
     // Tags - contact tags only, and an admin can type a new one in (functions/tags.php)
     tagSetForRecord('contact', $contact_id, (array) ($_POST['tags'] ?? []));
 
@@ -151,6 +154,9 @@ if (isset($_POST['edit_contact'])) {
     }
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone_country_code = '$phone_country_code', contact_phone = '$phone', contact_extension = '$extension', contact_mobile_country_code = '$mobile_country_code', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_department = '$department', contact_location_id = $location_id, contact_user_id = $contact_user_id WHERE contact_id = $contact_id");
+
+    // Texts - whether they agreed to texts about their work (functions/sms.php)
+    smsContactOptInFromForm($contact_id, $_POST, $client_id);
 
     // Upload Photo - replacing the old one, if there was one
     $old_photo_path = $existing_file_name !== '' ? "../uploads/clients/$client_id/$existing_file_name" : '';

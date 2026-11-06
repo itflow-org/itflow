@@ -51,7 +51,7 @@ $breakdown = function ($column) use ($filter, $opened_in) {
     }
     return $rows;
 };
-$sources = $breakdown("CASE WHEN ticket_source IN ('Email', 'Portal', 'Agent', 'API', 'Recurring', 'Project') THEN ticket_source WHEN ticket_source LIKE '%Recurring%' THEN 'Recurring' ELSE COALESCE(NULLIF(ticket_source, ''), 'Agent') END");
+$sources = $breakdown("CASE WHEN ticket_source IN ('Email', 'Portal', 'Text', 'Agent', 'API', 'Recurring', 'Project') THEN ticket_source WHEN ticket_source LIKE '%Recurring%' THEN 'Recurring' ELSE COALESCE(NULLIF(ticket_source, ''), 'Agent') END");
 $priorities = $breakdown('ticket_priority');
 
 // By category: opened, resolved, how long, how much time
@@ -157,7 +157,7 @@ if (reportExporting()) {
 require_once "includes/inc_report_layout.php";
 
 $ticket_list = '/agent/tickets.php?' . http_build_query(array_filter(['client_id' => $client_id ?: null, 'assigned' => $agent_id ?: null]));
-$source_icons = ['Email' => 'envelope', 'Portal' => 'globe', 'Agent' => 'headset', 'API' => 'plug', 'Recurring' => 'redo-alt', 'Project' => 'project-diagram'];
+$source_icons = ['Email' => 'envelope', 'Portal' => 'globe', 'Text' => 'sms', 'Agent' => 'headset', 'API' => 'plug', 'Recurring' => 'redo-alt', 'Project' => 'project-diagram'];
 $priority_tones = ['Urgent' => 'dark', 'High' => 'danger', 'Medium' => 'warning', 'Low' => 'info'];
 $source_rows = reportTopN(array_map(function ($k, $v) { return ['label' => $k, 'value' => $v]; }, array_keys($sources), array_values($sources)), 6);
 $source_colors = array_map(function ($i) { return reportPalette($i); }, array_keys($source_rows));

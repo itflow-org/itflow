@@ -2329,6 +2329,53 @@ if (isset($_GET['get_internal_users'])) {
     exit;
 }
 
+/*
+ * Texts > Codes - one verification code revealed, while it is fresh (functions/sms.php).
+ * Asked each time, by POST, so every reveal is in the audit log.
+ */
+if (isset($_GET['sms_reveal_code'])) {
+    enforceUserPermission('module_credential');
+    validateCSRFToken();
+
+    header('Content-Type: application/json');
+
+    $row = smsMessageRow($_POST['id'] ?? 0);
+    if (!$row || $row['sms_message_status'] !== 'code' || $row['sms_message_direction'] !== 'in') {
+        echo json_encode(['error' => 'That code is gone.']);
+        exit;
+    }
+    if (!hasClientAccess($row['sms_message_client_id'])) {
+        echo json_encode(['error' => 'That code is gone.']);
+        exit;
+    }
+    if (!smsCodeFresh($row)) {
+        echo json_encode(['error' => 'It came more than ' . SMS_CODE_MASK_MINUTES . ' minutes ago - ask for a new one.']);
+        exit;
+    }
+    $sender = smsNumberLabel($row['sms_message_number']);
+    $sender = $sender !== '' ? "$sender (" . smsNumberText($row['sms_message_number']) . ')' : smsNumberText($row['sms_message_number']);
+    logAudit('Text Message', 'View', "$session_name revealed a verification code texted by " . escapeSql($sender), 0, intval($row['sms_message_id']));
+
+    echo json_encode(['code' => (string) $row['sms_message_code'], 'body' => (string) $row['sms_message_body']]);
+    exit;
+}
+
+/* Texts > Codes - the newest code's id, so the page can come again when another lands */
+if (isset($_GET['sms_latest_code'])) {
+    enforceUserPermission('module_credential');
+
+    header('Content-Type: application/json');
+
+    $latest = 0;
+    try {
+        $latest = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(MAX(sms_message_id), 0) FROM sms_messages WHERE sms_message_direction = 'in' AND sms_message_status = 'code'"))[0]);
+    } catch (Throwable $e) {
+        // Before the 3.6.0 database update
+    }
+    echo json_encode(['latest' => $latest]);
+    exit;
+}
+
 if (isset($_GET['get_credential_via_id'])) {
     enforceUserPermission('module_credential');
 

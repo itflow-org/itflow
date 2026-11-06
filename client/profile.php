@@ -190,6 +190,34 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
             </div>
         </form>
 
+        <?php
+        // Texts from us - once texting is set up (functions/sms.php)
+        $my_texts = smsContactTextState(intval($session_contact_id));
+        if ($my_texts['ready']) {
+            $texting_number = smsNumberText(smsProvider()['sms_provider_number']); ?>
+            <form class="itflow-portal-panel mb-4" action="post.php" method="post" autocomplete="off" data-portal-once id="texts">
+                <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                <div class="itflow-portal-panel-head">
+                    <h2><i class="fas fa-sms"></i>Texts from us</h2>
+                </div>
+                <div class="itflow-portal-panel-body">
+                    <?php if ($my_texts['number'] === '') { ?>
+                        <p class="small text-body-secondary mb-0">Add your mobile above and you can choose to get texts about your tickets, visits and invoices.</p>
+                    <?php } else { ?>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" role="switch" name="sms_opt_in" value="1" id="portalSmsOptIn" <?= $my_texts['on'] && !$my_texts['stopped'] ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="portalSmsOptIn">Text me about my tickets, visits and invoices</label>
+                        </div>
+                        <p class="small text-body-secondary">To <?= escapeHtml(smsNumberText($my_texts['number'])) ?>, from <?= escapeHtml($texting_number) ?>. Reply to a text about a ticket to add to it. Reply STOP to any text and they stop. Message and data rates may apply.</p>
+                        <?php if ($my_texts['stopped']) { ?>
+                            <p class="small text-warning-emphasis">You replied STOP to our texts, so we send none. Turn this on to get them again.</p>
+                        <?php } ?>
+                        <button type="submit" class="btn btn-primary" name="portal_sms_prefs"><i class="fas fa-check me-2"></i>Save</button>
+                    <?php } ?>
+                </div>
+            </form>
+        <?php } ?>
+
     </div>
     <div class="col-lg-5">
 

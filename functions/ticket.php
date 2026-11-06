@@ -867,7 +867,7 @@ function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
         'button' => ['label' => 'Open in ITFlow', 'url' => ticketAgentUrl($row)],
     ];
     if ($kind === 'new') {
-        $how = ['portal' => ' in the client portal', 'email' => ' by email', 'api' => ' through the API', 'scheduled' => ', as scheduled'][$opts['how'] ?? ''] ?? '';
+        $how = ['portal' => ' in the client portal', 'email' => ' by email', 'text' => ' by text', 'api' => ' through the API', 'scheduled' => ', as scheduled'][$opts['how'] ?? ''] ?? '';
         $who = ($opts['how'] ?? '') === 'scheduled' ? 'A recurring ticket was raised' : (trim((string) ($row['contact_name'] ?? '')) !== '' ? $row['contact_name'] . ' raised a ticket' : 'A ticket was raised');
         $email['kind'] = 'New ticket';
         $email['intro'] = [($opts['how'] ?? '') === 'scheduled' ? "$who for $client, as scheduled." : "$who$how for $client."];
@@ -881,7 +881,7 @@ function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
             "$reference is ready to work on" . (!empty($opts['reopened']) ? ' - it is Open again, from On Hold.' : '.')];
         $email['history'] = ticketEmailHistory($row, ['limit' => 2, 'label' => 'The conversation']);
     } elseif ($kind === 'replied') {
-        $how = ['portal' => ' in the client portal', 'email' => ' by email'][$opts['how'] ?? ''] ?? '';
+        $how = ['portal' => ' in the client portal', 'email' => ' by email', 'text' => ' by text'][$opts['how'] ?? ''] ?? '';
         $email['kind'] = 'Client replied';
         $email['intro'] = [($by !== '' ? $by : 'The client') . " replied to $reference$how."];
         $email['message'] = ['html' => (string) ($opts['message'] ?? ''), 'label' => ($by !== '' ? $by : 'They') . ' wrote'];
@@ -1572,7 +1572,7 @@ function ticketActivityHtml($reply, $row) {
 function ticketSourceIcon($source) {
     $icons = ['Email' => ['fa-envelope', 'Came in by email'], 'Portal' => ['fa-globe', 'Raised in the client portal'],
         'Recurring' => ['fa-redo-alt', 'Raised by a recurring ticket'], 'API' => ['fa-plug', 'Raised through the API'],
-        'Project' => ['fa-project-diagram', 'From a project template']];
+        'Project' => ['fa-project-diagram', 'From a project template'], 'Text' => ['fa-sms', 'Came in by text']];
     foreach ($icons as $match => [$icon, $title]) {
         if (stripos((string) $source, $match) !== false) {
             return '<i class="fas fa-fw ' . $icon . '" title="' . $title . '"></i>';

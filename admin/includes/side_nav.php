@@ -122,6 +122,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="/admin/text_messaging.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'text_messaging.php' ? 'active' : '') ?>">
+                        <i class="nav-icon fas fa-sms"></i>
+                        <p>Text Messaging</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/admin/custom_links.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'custom_links.php' ? 'active' : '') ?>">
                         <i class="nav-icon fas fa-external-link-alt"></i>
                         <p>Custom Links</p>
@@ -228,6 +234,20 @@
                         </p>
                     </a>
                 </li>
+                <?php if (smsProvider()) { ?>
+                    <li class="nav-item">
+                        <a href="/admin/text_messages.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'text_messages.php' ? 'active' : '') ?>">
+                            <i class="nav-icon fas fa-comment-dots"></i>
+                            <p>
+                                Text Messages
+                                <?php $nav_sms_failed = smsFailedRecently(); ?>
+                                <?php if ($nav_sms_failed) { ?>
+                                    <span class="right badge text-bg-danger" data-bs-toggle="tooltip" title="Failed to send in the last week" data-nav-sms-failed><?= $nav_sms_failed ?></span>
+                                <?php } ?>
+                            </p>
+                        </a>
+                    </li>
+                <?php } ?>
                 <li class="nav-item">
                     <a href="/admin/audit_logs.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'audit_logs.php' ? 'active' : '') ?>">
                         <i class="nav-icon fas fa-history"></i>

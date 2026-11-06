@@ -2,7 +2,8 @@
 
 /*
  * Admin > Settings > Tickets - how tickets are numbered, made from email
- * (cron/ticket_email_parser.php, reading the mailbox in Mail > Receiving),
+ * (cron/ticket_email_parser.php, reading the mailbox in Mail > Receiving) and
+ * from texts (functions/sms.php, once texting is set up in Text Messaging),
  * timed and billed, who hears about new ones, when resolved ones close, and
  * how the tickets page opens, and whether AI triages new tickets
  * (functions/ai_ticket.php). Saved by edit_ticket_settings
@@ -34,6 +35,20 @@ echo settingsPageStart('ticket');
                     <?= settingsSwitch('config_ticket_email_parse_unknown_senders', $config_ticket_email_parse_unknown_senders, ['help' => 'From someone who isn\'t a contact, at a domain no client has - otherwise those are left in the mailbox, flagged and unread.']) ?>
                 </div>
             <?= settingsSectionEnd() ?>
+
+            <?php if (settingsColumnExists($mysqli, 'config_ticket_sms_parse')) {
+                $sms_settings = smsTicketSettings(); ?>
+                <?= settingsSectionStart('text', 'Text to ticket', 'A text to your number from one of your contacts becomes a ticket, and a text on a ticket goes on it - texts from anyone else, verification codes and spam wait in Texts instead. Texting is set up in <a href="text_messaging.php">Text Messaging</a>.') ?>
+                    <?php if (!smsProvider()) { ?>
+                        <div class="alert alert-light border py-2 small" data-ticket-no-texting><i class="fas fa-info-circle me-2"></i>Texting isn't set up yet, so no texts come in.</div>
+                    <?php } ?>
+                    <?= settingsSwitch('config_ticket_sms_parse', intval($sms_settings['config_ticket_sms_parse']), ['help' => 'Off, every text waits in Texts for an agent - STOP, START and HELP are still answered.']) ?>
+                    <div data-settings-depends-on="config_ticket_sms_parse">
+                        <?= settingsSwitch('config_ticket_sms_unknown_senders', intval($sms_settings['config_ticket_sms_unknown_senders']), ['help' => 'From a number that isn\'t a contact\'s, as a ticket for no client - otherwise those wait in Texts, where an agent opens a ticket from one. Codes and spam wait there either way.']) ?>
+                        <?= settingsSwitch('config_ticket_sms_acknowledge', intval($sms_settings['config_ticket_sms_acknowledge']), ['help' => 'The first text of a new ticket is answered with its number, so they know it landed and that replying adds to it.']) ?>
+                    </div>
+                <?= settingsSectionEnd() ?>
+            <?php } ?>
 
             <?= settingsSectionStart('new', 'New tickets', 'Who hears about a ticket as it is raised - in the portal, by email or on a schedule - and whether AI sorts it.') ?>
                 <?= settingsInput('config_ticket_new_ticket_notification_email', $config_ticket_new_ticket_notification_email, ['icon' => 'fa-bell', 'type' => 'email', 'maxlength' => 200,

@@ -534,7 +534,9 @@ if ($reminder_rules['enabled']) {
             $attach[] = $file;
         }
         $sent = billingEmailQueue($recipients, $subject, $email, ['attach' => $attach]);
-        billingLog('invoice', $invoice_id, $invoice['invoice_status'], 'Reminder emailed to ' . implode(', ', $sent) . ' - ' . billingReminderWhen($days));
+        // Texted too, in the morning, to those of them who agreed to texts (functions/sms.php)
+        $texted = smsInvoiceNotify($invoice, 'reminder', $recipients);
+        billingLog('invoice', $invoice_id, $invoice['invoice_status'], 'Reminder emailed to ' . implode(', ', $sent) . ' - ' . billingReminderWhen($days) . ($texted ? ' - and texted to ' . implode(', ', $texted) : ''));
     }
 
     // Statements each month, on the day in the invoice settings, to every client with a balance

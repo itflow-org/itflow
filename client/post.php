@@ -670,6 +670,26 @@ if (isset($_POST['portal_email_prefs'])) {
 
 }
 
+// Your account > Texts from us - their own say-so, so a STOP they sent before is lifted when they turn it on (functions/sms.php)
+if (isset($_POST['portal_sms_prefs'])) {
+
+    validateCSRFToken();
+
+    $state = smsContactTextState(intval($session_contact_id));
+    if (!$state['ready'] || $state['number'] === '') {
+        flashAlert('Add your mobile first.', 'error');
+        redirect('profile.php#texts');
+    }
+    $want = !empty($_POST['sms_opt_in']);
+    if ($want !== ($state['on'] && !$state['stopped'])) {
+        smsOptInSet(intval($session_contact_id), $want, 'them, in the client portal');
+        logAudit("Contact", "Edit", "Client contact $session_contact_name turned " . ($want ? 'on' : 'off') . " texts about their tickets, visits and invoices in the client portal", $session_client_id, $session_contact_id);
+    }
+    flashAlert($want ? 'Saved - we\'ll text you about your tickets, visits and invoices' : 'Saved - we won\'t text you');
+    redirect('profile.php#texts');
+
+}
+
 if (isset($_POST['portal_contact_save'])) {
 
     validateCSRFToken();

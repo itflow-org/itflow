@@ -66,6 +66,14 @@ function cronJobRegistry(): array
             'interval_minutes' => 1,
         ],
         [
+            'name' => 'sms_queue',
+            'label' => 'Text Messages',
+            'script' => 'sms_queue.php',
+            'description' => 'Sends the texts waiting to go, a second apart, texts reminders of visits and calls coming up, and tidies the text log - once texting is set up in Admin > Text Messaging.',
+            'schedule' => 'Interval',
+            'interval_minutes' => 1,
+        ],
+        [
             'name' => 'ticket_email_parser',
             'label' => 'Ticket Email Parser',
             'script' => 'ticket_email_parser.php',

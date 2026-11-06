@@ -100,6 +100,7 @@ function auditLogKinds() {
         'Payment Method' => ['icon' => 'fa-credit-card', 'module' => 'module_financial'],
         'Email' => ['icon' => 'fa-envelope'],
         'Bulk Mail' => ['icon' => 'fa-mail-bulk'],
+        'Text Message' => ['icon' => 'fa-sms'],
         'Notification' => ['icon' => 'fa-bell'],
         'Announcement' => ['icon' => 'fa-bullhorn'],
         'Tag' => ['icon' => 'fa-tag'],

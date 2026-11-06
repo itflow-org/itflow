@@ -432,6 +432,33 @@ if (!$can_support) {
                             <?php } ?>
                         </dd>
                     <?php } ?>
+                    <?php
+                    // Texts about their work - once texting is set up (functions/sms.php)
+                    $contact_texts = smsContactTextState($contact_id);
+                    if ($contact_texts['ready']) { ?>
+                        <dt>Texts</dt>
+                        <dd data-contact-texts="<?= $contact_texts['stopped'] ? 'stopped' : ($contact_texts['on'] ? 'on' : 'off') ?>">
+                            <?php if ($contact_texts['stopped']) { ?>
+                                <span class="text-danger-emphasis">Replied STOP</span>
+                                <div class="small text-body-secondary">Nothing is texted to them until they text START to your number.</div>
+                            <?php } elseif ($contact_texts['on']) { ?>
+                                About their tickets, visits and invoices
+                                <div class="small text-body-secondary">Agreed <?= escapeHtml(date('M j, Y', strtotime($contact_texts['at']))) ?><?= $contact_texts['by'] !== '' ? ' - ' . escapeHtml($contact_texts['by']) : '' ?></div>
+                            <?php } elseif ($contact_texts['number'] === '') { ?>
+                                <span class="text-body-secondary">No mobile number</span>
+                            <?php } else { ?>
+                                <span class="text-body-secondary">Not asked yet</span>
+                                <?php if ($contact_texts['asked_at']) { ?>
+                                    <div class="small text-body-secondary">Asked by text <?= timeAgo($contact_texts['asked_at']) ?> - a YES turns them on</div>
+                                <?php } ?>
+                                <?php if ($can_edit && !$contact_archived_at) { ?>
+                                    <div class="small d-print-none"><a class="confirm-link" href="post.php?sms_ask_opt_in=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                        data-confirm-title="Ask <?= $contact_name ?> by text?" data-confirm-button="Ask"
+                                        data-confirm-text="<?= escapeHtml(smsNumberText($contact_texts['number'])) ?> is texted asking whether texts about their tickets, visits and invoices are all right. A YES turns them on."><i class="fas fa-sms me-1"></i>Ask them by text</a></div>
+                                <?php } ?>
+                            <?php } ?>
+                        </dd>
+                    <?php } ?>
                     <dt>Added</dt>
                     <dd title="<?= $contact_created_at ?>"><?= timeAgo($contact_created_at) ?></dd>
                 </dl>

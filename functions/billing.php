@@ -2269,7 +2269,9 @@ function recurringInvoiceGenerate($recurring_invoice_id, $by = 'Cron', $early = 
         }
         if ($sent_to) {
             mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
-            billingLog('invoice', $invoice_id, 'Sent', 'Emailed to ' . implode(', ', $sent_to) . ($attach ? ' with the PDF' : ''));
+            // Texted with its link too, to those of them who agreed to texts (functions/sms.php)
+            $texted = smsInvoiceNotify(billingRow('invoice', $invoice_id, false), 'invoice', $recipients);
+            billingLog('invoice', $invoice_id, 'Sent', 'Emailed to ' . implode(', ', $sent_to) . ($attach ? ' with the PDF' : '') . ($texted ? ' - and texted to ' . implode(', ', $texted) : ''));
         } else {
             billingLog('invoice', $invoice_id, 'Draft', 'Nobody to email it to - no primary or billing contact with an email address');
         }
@@ -2466,7 +2468,9 @@ function billingInvoiceIssue($invoice_id, $by) {
         $sent_to = billingEmailQueue($recipients, $subject, $email, ['attach' => $attach]);
     }
     mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id AND invoice_status = 'Draft'");
-    billingLog('invoice', $invoice_id, 'Sent', $sent_to ? 'Emailed to ' . implode(', ', $sent_to) . " by $by" : "Marked sent by $by - its link was handed on, nobody was emailed");
+    // Texted with its link too, to those emailed who agreed to texts (functions/sms.php)
+    $texted = $sent_to ? smsInvoiceNotify(billingRow('invoice', $invoice_id, false), 'invoice', $recipients) : [];
+    billingLog('invoice', $invoice_id, 'Sent', ($sent_to ? 'Emailed to ' . implode(', ', $sent_to) . " by $by" : "Marked sent by $by - its link was handed on, nobody was emailed") . ($texted ? ' - and texted to ' . implode(', ', $texted) : ''));
     return $sent_to;
 }
 

@@ -1078,13 +1078,16 @@ if (isset($_POST['add_ticket_reply'])) {
     // Time tracking, inputs & combine into string
     $ticket_reply_time_worked = escapeSql(sprintf("%02d:%02d:%02d", max(0, intval($_POST['hours'] ?? 0)), max(0, min(59, intval($_POST['minutes'] ?? 0))), max(0, min(59, intval($_POST['seconds'] ?? 0)))));
 
-    // Who sees it: internal note, public note, or public and emailed
+    // Who sees it: internal note, public note, or public and emailed - or texted (functions/sms.php)
     $send_email = 0;
+    $send_text = 0;
     $ticket_reply_id = 0;
     $public_reply_type = intval($_POST['public_reply_type'] ?? 0);
     $ticket_reply_type = $public_reply_type ? 'Public' : 'Internal';
     if ($public_reply_type === 2) {
         $send_email = 1;
+    } elseif ($public_reply_type === 3) {
+        $send_text = 1;
     }
     // Its @mentions put right - each one an agent who can open the ticket, in an internal note only (functions/ticket_mention.php)
     [$ticket_reply, $mentioned] = ticketMentionsFromHtml($ticket_reply, $row['ticket_client_id'], $ticket_reply_type === 'Internal');
@@ -1141,9 +1144,16 @@ if (isset($_POST['add_ticket_reply'])) {
             // The reply as saved - with the signature - read back
             $emailed_to = ticketMailReply($ticket_id, (string) getFieldById('ticket_replies', $ticket_reply_id, 'ticket_reply'), stripslashes($session_name),
                 $ticket_status === TICKET_STATUS_RESOLVED, $emailable_attachments['send'], $ticket_reply_id);
+            // And a text saying so, to a contact who agreed to texts - when Texts to clients says each reply (functions/sms.php)
+            if ($emailed_to) {
+                smsTicketReplyNotify($row);
+            }
         } else {
             ticketReplyEmailed($ticket_reply_id, false);
         }
+
+        // Text it to the contact's mobile, or the number texting on the ticket - as it reads, without the formatting
+        $texted = $send_text ? smsTicketReplySend($row, $ticket_reply_id, $ticket_reply_html, intval($session_user_id)) : null;
 
         // Tell the agent it is assigned to, and whoever opened it - unless it mentions them, which told them already
         if (!isset($told[intval($row['ticket_assigned_to'])])) {
@@ -1163,6 +1173,14 @@ if (isset($_POST['add_ticket_reply'])) {
         $reference_html = "<strong>" . escapeHtml(ticketReference($row)) . "</strong>";
         if ($ticket_reply_type === 'Internal') {
             flashAlert("Internal note added to ticket $reference_html" . ($told ? " - <strong>" . escapeHtml(ticketMentionNames($told)) . "</strong> " . (count($told) === 1 ? 'was' : 'were') . " told" : ''));
+        } elseif ($texted) {
+            if ($texted['ok']) {
+                flashAlert("Reply added to ticket $reference_html and texted to <strong>" . escapeHtml($texted['to']) . "</strong>");
+            } elseif ($texted['queued']) {
+                flashAlert("Reply added to ticket $reference_html - the text to <strong>" . escapeHtml($texted['to']) . "</strong> is waiting to go: " . escapeHtml($texted['error']), 'warning');
+            } else {
+                flashAlert("Reply added to ticket $reference_html but not texted - " . escapeHtml($texted['error']), 'error');
+            }
         } elseif (!$send_email) {
             flashAlert("Public note added to ticket $reference_html - not emailed");
         } elseif ($emailed_to) {
@@ -1199,7 +1217,7 @@ if (isset($_POST['add_ticket_reply'])) {
         logTicketHistory($ticket_id, "$session_name set the status to " . escapeSql(getTicketStatusName($ticket_status)));
     }
 
-    logAudit("Ticket", "Reply", "$session_name replied to ticket $reference - $subject and was a $ticket_reply_type reply", $client_id, $ticket_id);
+    logAudit("Ticket", "Reply", "$session_name replied to ticket $reference - $subject and was a $ticket_reply_type reply" . (!empty($texted['ok']) ? ', texted' : ''), $client_id, $ticket_id);
 
     redirect();
 
