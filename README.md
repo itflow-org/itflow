@@ -21,7 +21,7 @@ Ticketing, client documentation, contracts and billing - with a client portal - 
 
 [**Live demo**](https://demo.itflow.org) &nbsp;·&nbsp; [Website](https://itflow.org) &nbsp;·&nbsp; [Docs](https://docs.itflow.org) &nbsp;·&nbsp; [Forum](https://forum.itflow.org) &nbsp;·&nbsp; [What's new](CHANGELOG.md)
 
-Demo sign in: `demo@demo.com` / `demo`
+Sign in to the demo with one click as an admin, technician, accountant or client portal contact
 
 </div>
 

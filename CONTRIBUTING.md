@@ -137,6 +137,13 @@ Every script in `cron/` still runs standalone (`php cron/mail_queue.php`) and st
 
 ---
 
+## Demo mode
+
+`$config_demo_mode = true;` in `config.php` makes an install a public demo, like demo.itflow.org (`functions/demo.php`). Two parts of it need you when you add a feature:
+
+- **Locks go by request key.** `demoModeGuard()` refuses a `post.php` or `ajax.php` request carrying a key in `DEMO_MODE_LOCKS`: anything that would reach outside the install, cost money or lock other visitors out - users and roles, a visitor's own sign-in, the mail, payment, AI and texting providers, API keys, backups, updates, cron and share links. A new handler in one of those areas adds its key there, or it is open on the demo. Anything new that connects somewhere a visitor types needs the same thought; certificate checks go through `demoModePublicAddress()`. Pages under `/guest/` open only for a signed-in session (`demoModeGuestGuard()`, from `includes/load_global_settings.php`) - a new guest page has to load that file.
+- **The nightly reset builds from the code.** The Demo Reset job (`demoModeReset()`) drops every table, loads `db.sql`, runs `seedDefaultData()`, loads every Starter Content pack and `demoDataLoad()`, and makes the demo accounts. What you add to those is in the demo the next morning, and the demo never needs a database update. They all have to work without a request: the reset runs from cron, with the vault opened in-process and `$session_user_id` set to the demo admin.
+
 ## Security rules (non-negotiable)
  
 ITFlow does not use prepared statements or an ORM; queries are built as strings. That works **only** if every value is neutralized before interpolation. The rules:

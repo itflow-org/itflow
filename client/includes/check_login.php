@@ -157,3 +157,6 @@ $session_client_name = $client['client_name'];
 
 // A managed instance its manager has made read-only or suspended (functions/managed.php)
 managedRequestGuard('portal');
+
+// The demo - what visitors can't change there (functions/demo.php)
+demoModeGuard();

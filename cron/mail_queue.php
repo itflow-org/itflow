@@ -84,6 +84,14 @@ if ($config_enable_cron == 0) {
     cronJobStop("Cron: is not enabled -- Quitting..");
 }
 
+// The demo sends no email - what was queued is cancelled, and still shows in Maintenance > Mail
+// Queue with why (functions/demo.php)
+if (demoModeOn()) {
+    mysqli_query($mysqli, "UPDATE email_queue SET email_status = " . MAIL_QUEUE_CANCELLED . ", email_failed_at = NOW()"
+        . mailQueueErrorSql("Not sent - this is the demo, which sends no email") . " WHERE email_status IN (0, 2)");
+    cronJobStop("Demo - no email is sent");
+}
+
 if (empty($config_smtp_provider)) {
     logApp("Cron-Mail-Queue", "info", "SMTP sending skipped: provider not configured.");
     cronJobStop();

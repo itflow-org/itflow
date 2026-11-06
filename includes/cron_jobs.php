@@ -40,6 +40,10 @@
  * install config.php turns that side on for (managedEnabled(), managerEnabled() in
  * functions/managed.php). Off, they aren't run or shown, and their rows wait untouched.
  *
+ * Demo mode (functions/demo.php) adds demo_reset at the top and leaves out the domain and
+ * certificate refreshers - the demo's are made up, and the refreshers would mark them all
+ * unreachable a night after the reset made them.
+ *
  * Order matters: the dispatcher works down this list. manager_checkin goes first, so what a
  * manager sets - read-only or suspended pause most jobs (MANAGED_KEEP_JOBS) - applies to the
  * rest of the same cycle. app_update replaces the files every job is loaded from, so it stays
@@ -49,6 +53,15 @@
 function cronJobRegistry(): array
 {
     $jobs = [
+        [
+            'name' => 'demo_reset',
+            'label' => 'Demo Reset',
+            'script' => 'demo_reset.php',
+            'description' => 'For the demo (config.php\'s $config_demo_mode): puts it back to fresh demo data - the demo accounts, Starter Content and the demo clients - and signs everyone out. Locked in the demo; php cron/demo_reset.php runs it now.',
+            'schedule' => 'Daily',
+            'daily_at' => '02:00',
+            'interval_safe' => false,
+        ],
         [
             'name' => 'manager_checkin',
             'label' => 'Manager Check-in',
@@ -168,14 +181,19 @@ function cronJobRegistry(): array
         ],
     ];
 
-    // Managed mode's jobs, only where config.php turns their side on
-    $managed_side = [
+    // Managed mode's jobs, only where config.php turns their side on; the demo's job only in the
+    // demo, and its made-up domains and certificates left alone there
+    $demo = function_exists('demoModeOn') && demoModeOn();
+    $listed = [
         'manager_checkin' => function_exists('managedEnabled') && managedEnabled(),
         'managed_instances' => function_exists('managerEnabled') && managerEnabled(),
+        'demo_reset' => $demo,
+        'domain_refresher' => !$demo,
+        'certificate_refresher' => !$demo,
     ];
 
-    return array_values(array_filter($jobs, function ($job) use ($managed_side) {
-        return $managed_side[$job['name']] ?? true;
+    return array_values(array_filter($jobs, function ($job) use ($listed) {
+        return $listed[$job['name']] ?? true;
     }));
 }
 

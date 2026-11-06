@@ -182,8 +182,18 @@ function certificateStatus(array $parsed, $host, $trusted) {
     return $trusted ? 'ok' : 'untrusted';
 }
 
-/** Open a TLS connection to a host - [stream or false]. Verification is the caller's choice; SNI is always sent. */
+/**
+ * Open a TLS connection to a host - [stream or false]. Verification is the caller's choice; SNI is always sent.
+ * In the demo, only to a public address on port 443 (demoModePublicAddress()).
+ */
 function certificateConnect($host, $port, $verify) {
+    $address = $host;
+    if (demoModeOn()) {
+        $address = demoModePublicAddress((string) $host, intval($port));
+        if ($address === null) {
+            return false;
+        }
+    }
     $options = ['ssl' => [
         'capture_peer_cert' => true,
         'verify_peer' => $verify,
@@ -192,7 +202,7 @@ function certificateConnect($host, $port, $verify) {
         'SNI_enabled' => true,
         'peer_name' => $host,
     ]];
-    $target = strpos($host, ':') !== false ? "[$host]" : $host;
+    $target = strpos($address, ':') !== false ? "[$address]" : $address;
     return @stream_socket_client("ssl://$target:$port", $errno, $errstr, 5, STREAM_CLIENT_CONNECT, stream_context_create($options));
 }
 

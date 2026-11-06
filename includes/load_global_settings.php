@@ -217,3 +217,8 @@ $asset_types_array = function_exists('assetTypeIcons') ? assetTypeIcons() : [];
 if (PHP_SAPI !== 'cli' && function_exists('managedRequestGuard')) {
     managedRequestGuard(str_starts_with((string) ($_SERVER['SCRIPT_NAME'] ?? ''), '/api/') ? 'api' : 'public');
 }
+
+// The demo - links that open without signing in open only for someone signed in to it (functions/demo.php)
+if (PHP_SAPI !== 'cli' && function_exists('demoModeGuestGuard')) {
+    demoModeGuestGuard();
+}

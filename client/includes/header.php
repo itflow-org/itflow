@@ -234,6 +234,7 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
 <main class="itflow-portal-main container">
 
     <?= managedBannerHtml() ?>
+    <?= demoModeBannerHtml() ?>
 
     <?php
     //Alert Feedback
