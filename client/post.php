@@ -779,7 +779,7 @@ if (isset($_POST['portal_contact_save'])) {
     mysqli_query($mysqli, "INSERT INTO contacts SET $set, contact_client_id = $session_client_id, contact_user_id = 0");
     $contact_id = intval(mysqli_insert_id($mysqli));
     logAudit("Contact", "Create", "Client contact $session_contact_name added contact $name_sql in the client portal", $session_client_id, $contact_id);
-    appNotify("Contact", "$session_contact_name added $name_sql as a contact for $session_client_name in the client portal", "/agent/contact.php?client_id=$session_client_id&contact_id=$contact_id", $session_client_id, $contact_id);
+    appNotify("Contact", "$session_contact_name added $name_sql as a contact for " . escapeSql($session_client_name) . " in the client portal", "/agent/contact.php?client_id=$session_client_id&contact_id=$contact_id", $session_client_id, $contact_id);
     triggerCustomAction('contact_create', $contact_id);
 
     $message = "Added <strong>" . escapeHtml($in['contact_name']) . "</strong>";
@@ -819,7 +819,7 @@ if (isset($_POST['portal_contact_access']) || isset($_POST['portal_contact_left'
     if (isset($_POST['portal_contact_left'])) {
         portalContactAccessOff($contact_id);
         logAudit("Contact", "Edit", "Client contact $session_contact_name said $name_sql has left and turned off their portal access", $session_client_id, $contact_id);
-        appNotify("Contact", "$session_contact_name says $name_sql has left $session_client_name - their portal access is off", $agent_link, $session_client_id, $contact_id);
+        appNotify("Contact", "$session_contact_name says $name_sql has left " . escapeSql($session_client_name) . " - their portal access is off", $agent_link, $session_client_id, $contact_id);
         flashAlert(escapeHtml($name) . "'s portal access is off. Tell us below what else to close down - their email, accounts and devices - and their last day.");
         redirect('ticket_add.php?' . http_build_query(['subject' => "Offboarding: $name has left"]));
     }
@@ -1067,7 +1067,7 @@ if (isset($_POST['portal_pay'])) {
     if (!$booked['ok']) {
         $pi_id = escapeSql((string) $charge['pi']->id);
         logApp("Stripe", "error", "Saved card payment $pi_id for client $session_client_id went through but could not be booked: " . $booked['error']);
-        appNotify("Invoice Payment", "A card payment of " . escapeSql(billingMoney($selection['charge'], $selection['currency'])) . " from $session_client_name went through in the client portal but could not be recorded - $pi_id", "/agent/invoices.php?client_id=$session_client_id", $session_client_id);
+        appNotify("Invoice Payment", "A card payment of " . escapeSql(billingMoney($selection['charge'], $selection['currency'])) . " from " . escapeSql($session_client_name) . " went through in the client portal but could not be recorded - $pi_id", "/agent/invoices.php?client_id=$session_client_id", $session_client_id);
         flashAlert('Your card was charged, but we could not record the payment here - we have been told and will put it right', 'error');
         redirect('invoices.php');
     }
@@ -1121,7 +1121,7 @@ if (isset($_GET['portal_pay_return'])) {
     if (!$booked['ok']) {
         $pi_id_sql = escapeSql($pi_id);
         logApp("Stripe", "error", "Card payment $pi_id for client $session_client_id went through but could not be booked: " . $booked['error']);
-        appNotify("Invoice Payment", "A card payment from $session_client_name went through in the client portal but could not be recorded - $pi_id_sql", "/agent/invoices.php?client_id=$session_client_id", $session_client_id);
+        appNotify("Invoice Payment", "A card payment from " . escapeSql($session_client_name) . " went through in the client portal but could not be recorded - $pi_id_sql", "/agent/invoices.php?client_id=$session_client_id", $session_client_id);
         flashAlert('Your card was charged, but we could not record the payment here - we have been told and will put it right', 'error');
         redirect('invoices.php');
     }
@@ -1198,7 +1198,7 @@ if (isset($_POST['create_stripe_customer'])) {
                     client_payment_provider_created_at = NOW()
             ");
 
-            logAudit("Stripe", "Create", "$session_contact_name created Stripe customer for $session_client_name as $stripe_customer_id and authorized future automatic payments", $session_client_id, $session_client_id);
+            logAudit("Stripe", "Create", "$session_contact_name created Stripe customer for " . escapeSql($session_client_name) . " as $stripe_customer_id and authorized future automatic payments", $session_client_id, $session_client_id);
 
             flashAlert("Thank you - now add your card.");
 

@@ -1045,6 +1045,8 @@ function smsSaveMedia(array $urls, int $ticket_id, ?int $reply_id, int $message_
             CURLOPT_USERAGENT => 'ITFlow',
             CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
             CURLOPT_FOLLOWLOCATION => false,
+            // To the address checked above - looked up again, the name could point somewhere else
+            CURLOPT_RESOLVE => [$host . ':' . (parse_url($url, PHP_URL_PORT) ?: 443) . ':' . $ip],
             CURLOPT_WRITEFUNCTION => function ($ch, $chunk) use (&$data) {
                 $data .= $chunk;
                 return strlen($data) > SMS_MEDIA_MAX_BYTES ? 0 : strlen($chunk);
