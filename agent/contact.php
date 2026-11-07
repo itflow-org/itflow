@@ -236,11 +236,11 @@ if (!$can_support) {
 
         <div class="d-flex flex-wrap gap-2 d-print-none">
             <?php if ($contact_dial === 'phone') { ?>
-                <a class="btn btn-outline-primary" href="tel:<?= escapeHtml(preg_replace('/[^0-9+]/', '', ($contact_row['contact_phone_country_code'] ? '+' . $contact_row['contact_phone_country_code'] : '') . $contact_row['contact_phone']) . ($contact_row['contact_extension'] ? ',' . preg_replace('/[^0-9]/', '', $contact_row['contact_extension']) : '')) ?>" title="Call <?= $contact_phone_copy ?>">
+                <a class="btn btn-outline-primary" href="tel:<?= escapeHtml(phoneDialNumber($contact_row['contact_phone'], $contact_row['contact_phone_country_code']) . ($contact_row['contact_extension'] ? ',' . preg_replace('/[^0-9]/', '', $contact_row['contact_extension']) : '')) ?>" title="Call <?= $contact_phone_copy ?>">
                     <i class="fas fa-phone me-2"></i>Call
                 </a>
             <?php } elseif ($contact_dial === 'mobile') { ?>
-                <a class="btn btn-outline-primary" href="tel:<?= escapeHtml(preg_replace('/[^0-9+]/', '', ($contact_row['contact_mobile_country_code'] ? '+' . $contact_row['contact_mobile_country_code'] : '') . $contact_row['contact_mobile'])) ?>" title="Call <?= $contact_mobile_copy ?>">
+                <a class="btn btn-outline-primary" href="tel:<?= escapeHtml(phoneDialNumber($contact_row['contact_mobile'], $contact_row['contact_mobile_country_code'])) ?>" title="Call <?= $contact_mobile_copy ?>">
                     <i class="fas fa-mobile-alt me-2"></i>Call
                 </a>
             <?php } ?>
@@ -429,6 +429,33 @@ if (!$can_support) {
                             <?= escapeHtml(PORTAL_TICKET_EMAILS[$contact_row['contact_ticket_emails']]['label'] ?? 'Every email') ?>
                             <?php if (($contact_primary || intval($contact_row['contact_technical'])) && $contact_row['contact_company_ticket_emails'] !== 'none') { ?>
                                 <div class="small text-body-secondary">And about the company's tickets: <?= escapeHtml(strtolower(PORTAL_COMPANY_TICKET_EMAILS[$contact_row['contact_company_ticket_emails']]['label'] ?? '')) ?></div>
+                            <?php } ?>
+                        </dd>
+                    <?php } ?>
+                    <?php
+                    // Texts about their work - once texting is set up (functions/sms.php)
+                    $contact_texts = smsContactTextState($contact_id);
+                    if ($contact_texts['ready']) { ?>
+                        <dt>Texts</dt>
+                        <dd data-contact-texts="<?= $contact_texts['stopped'] ? 'stopped' : ($contact_texts['on'] ? 'on' : 'off') ?>">
+                            <?php if ($contact_texts['stopped']) { ?>
+                                <span class="text-danger-emphasis">Replied STOP</span>
+                                <div class="small text-body-secondary">Nothing is texted to them until they text START to your number.</div>
+                            <?php } elseif ($contact_texts['on']) { ?>
+                                About their tickets, visits and invoices
+                                <div class="small text-body-secondary">Agreed <?= escapeHtml(date('M j, Y', strtotime($contact_texts['at']))) ?><?= $contact_texts['by'] !== '' ? ' - ' . escapeHtml($contact_texts['by']) : '' ?></div>
+                            <?php } elseif ($contact_texts['number'] === '') { ?>
+                                <span class="text-body-secondary">No mobile number</span>
+                            <?php } else { ?>
+                                <span class="text-body-secondary">Not asked yet</span>
+                                <?php if ($contact_texts['asked_at']) { ?>
+                                    <div class="small text-body-secondary">Asked by text <?= timeAgo($contact_texts['asked_at']) ?> - a YES turns them on</div>
+                                <?php } ?>
+                                <?php if ($can_edit && !$contact_archived_at) { ?>
+                                    <div class="small d-print-none"><a class="confirm-link" href="post.php?sms_ask_opt_in=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                        data-confirm-title="Ask <?= $contact_name ?> by text?" data-confirm-button="Ask"
+                                        data-confirm-text="<?= escapeHtml(smsNumberText($contact_texts['number'])) ?> is texted asking whether texts about their tickets, visits and invoices are all right. A YES turns them on."><i class="fas fa-sms me-1"></i>Ask them by text</a></div>
+                                <?php } ?>
                             <?php } ?>
                         </dd>
                     <?php } ?>

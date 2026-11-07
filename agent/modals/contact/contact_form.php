@@ -6,8 +6,8 @@
  * including this. Posts the field set agent/post/contact_model.php reads.
  *
  * Tabs like the other add / edit modals: Details (who and how to reach them),
- * Roles (primary, important, billing, technical), Access (PIN and the client
- * portal) and Notes (photo, notes, tags).
+ * Roles (primary, important, billing, technical, and texts once texting is set
+ * up), Access (PIN and the client portal) and Notes (photo, notes, tags).
  *
  * Should not be accessed directly.
  */
@@ -30,6 +30,9 @@ if ($client_id) {
         $client_options[] = $row;
     }
 }
+
+// Texts about their work - once texting is set up (functions/sms.php)
+$contact_texts = smsContactTextState($contact_form_mode === 'edit' ? intval($contact_id) : 0);
 
 // The roles, with what each one does
 $contact_roles = [
@@ -176,6 +179,24 @@ $contact_roles = [
                 <span>
                     <span class="fw-semibold"><i class="fas fa-fw <?= $role['icon'] ?> text-secondary me-1"></i><?= $role['label'] ?></span>
                     <span class="d-block small text-body-secondary"><?= $role['help'] ?></span>
+                </span>
+            </label>
+        <?php } ?>
+        <?php if ($contact_texts['ready']) { ?>
+            <input type="hidden" name="sms_opt_in_shown" value="1">
+            <label class="list-group-item form-switch d-flex gap-3 align-items-start py-3 ps-3">
+                <input class="form-check-input flex-shrink-0 mt-1 ms-0" type="checkbox" role="switch" name="contact_sms_opt_in" value="1" <?= $contact_texts['on'] ? 'checked' : '' ?>>
+                <span>
+                    <span class="fw-semibold"><i class="fas fa-fw fa-sms text-secondary me-1"></i>Texts</span>
+                    <span class="d-block small text-body-secondary">
+                        Texts about their tickets, visits and invoices go to their mobile. Only with their say-so - or ask them by text from their page, or they turn it on in the client portal.
+                        <?php if ($contact_texts['on'] && $contact_texts['by'] !== '') { ?>
+                            <br>Agreed <?= escapeHtml(date('M j, Y', strtotime($contact_texts['at']))) ?> - <?= escapeHtml($contact_texts['by']) ?>.
+                        <?php } ?>
+                        <?php if ($contact_texts['stopped']) { ?>
+                            <br><span class="text-danger-emphasis">They replied STOP, so nothing is texted until they text START.</span>
+                        <?php } ?>
+                    </span>
                 </span>
             </label>
         <?php } ?>

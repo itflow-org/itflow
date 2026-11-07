@@ -73,6 +73,10 @@ echo settingsPageStart('invoice');
                 </div>
                 <?= settingsInput('config_invoice_paid_notification_email', $config_invoice_paid_notification_email, ['icon' => 'fa-bell', 'type' => 'email', 'maxlength' => 200,
                     'placeholder' => 'billing@company.com', 'help' => 'A shared mailbox or list works best. Empty, nobody is emailed - the payment is still recorded.']) ?>
+                <?php if (settingsColumnExists($mysqli, 'config_invoice_paid_lead_to_client')) { ?>
+                    <?= settingsSwitch('config_invoice_paid_lead_to_client', settingsCurrent(['config_invoice_paid_lead_to_client'])['config_invoice_paid_lead_to_client'],
+                        ['help' => 'However it is paid in full - online, by autopay or a payment you record. A ticket linked to the invoice that is On Hold opens again at the same time, and its agent is told.']) ?>
+                <?php } ?>
             <?= settingsSectionEnd() ?>
 
             <?= settingsSectionStart('reminders', 'Reminders and statements', 'Reminders go to each client\'s primary and billing contacts while an invoice is still owed, with a button to view and pay it. A client can be left out of reminders and statements on the Billing tab of its Edit window.', 'reminders') ?>

@@ -275,6 +275,12 @@ ob_start();
                         <small class="text-secondary">Emailed as set in Invoice Settings. Off, this client gets neither - invoices can still be sent by hand.</small>
                     </div>
 
+                    <?php
+                    $client_card_fee_exempt = false;
+                    $client_card_fee_key = 'New';
+                    require __DIR__ . '/client_card_fee_field.php';
+                    ?>
+
 
                 </div>
 

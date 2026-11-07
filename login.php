@@ -31,6 +31,9 @@ if (
 
 require_once "includes/inc_set_timezone.php";
 
+// A managed instance its manager has suspended shows why, rather than a sign-in that leads nowhere
+managedRequestGuard('login');
+
 $session_ip = escapeSql(getIP());
 $session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
 
@@ -110,6 +113,22 @@ $show_role_choice = false;
 
 $email    = '';
 $password = ''; // only ever used in the initial POST request
+
+// The demo's sign-in buttons - each signs in as one of its accounts, through the same sign-in as
+// an email and password (functions/demo.php)
+if (demoModeOn() && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['demo_sign_in'])) {
+    $demo_email = demoModeSignInEmail((string) $_POST['demo_sign_in']);
+    if ($demo_email === null) {
+        $response = "
+          <div class='alert alert-warning'>
+            That demo account isn't there right now - another visitor changed it. It's back after the nightly reset, so try another for now.
+          </div>";
+    } else {
+        $_POST['email'] = $demo_email;
+        $_POST['password'] = DEMO_MODE_PASSWORD;
+        $_POST['login'] = '';
+    }
+}
 
 // Helpers
 function pendingExpired($sess, $ttl_seconds = 120) {
@@ -457,7 +476,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                         "));
                         $ua_prev_logins = escapeSql($sql_ua_prev_logins['ua_previous_logins']);
 
-                        if ($ip_previous_logins == 0 && $ua_prev_logins == 0) {
+                        // Not in the demo, where everyone signs in from somewhere new (functions/demo.php)
+                        if ($ip_previous_logins == 0 && $ua_prev_logins == 0 && !demoModeOn()) {
                             userMailSignInAlert($selectedRow['user_name'], $selectedRow['user_email'], 'new', getIP(), $_SERVER['HTTP_USER_AGENT'] ?? '');
                         }
 
@@ -797,6 +817,39 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
 
             <?php if (isset($response)) { ?>
                 <p><?= $response ?></p>
+            <?php } ?>
+
+            <?php if ($show_login_form && demoModeOn()) {
+                $demo_portal = $config_client_portal_enable == 1 ? demoModePortalContact() : null; ?>
+                <!-- The demo - a button for each of its accounts (functions/demo.php) -->
+                <div data-demo-sign-in>
+                    <p class="fw-semibold mb-2">Try the demo - sign in as</p>
+                    <form method="post" class="row g-2 mb-2">
+                        <?php foreach (DEMO_MODE_ACCOUNTS as $demo_account => $demo_details) { ?>
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-outline-primary w-100" name="demo_sign_in" value="<?= escapeHtml($demo_account) ?>">
+                                    <i class="fas fa-fw <?= escapeHtml($demo_details['icon']) ?> me-1"></i><?= escapeHtml($demo_details['label']) ?>
+                                </button>
+                            </div>
+                        <?php } ?>
+                        <?php if ($demo_portal) { ?>
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-outline-secondary w-100" name="demo_sign_in" value="portal">
+                                    <i class="fas fa-fw fa-user me-1"></i>Client portal
+                                </button>
+                            </div>
+                        <?php } ?>
+                    </form>
+                    <p class="small text-body-secondary mb-0">
+                        <?php if ($demo_portal) { ?>
+                            Client portal signs in as <?= escapeHtml($demo_portal['name']) ?> at <?= escapeHtml($demo_portal['client']) ?>.
+                        <?php } ?>
+                        Anyone can sign in, so don't put anything real in it - it goes back to fresh demo data every night.
+                    </p>
+                    <div class="d-flex align-items-center gap-2 my-3 small text-body-secondary">
+                        <hr class="flex-grow-1 my-0"><span>or with an email</span><hr class="flex-grow-1 my-0">
+                    </div>
+                </div>
             <?php } ?>
 
             <form method="post">

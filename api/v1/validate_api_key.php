@@ -17,6 +17,9 @@ require_once __DIR__ . "/../../includes/inc_set_timezone.php";
 // JSON header
 header('Content-Type: application/json');
 
+// A managed instance its manager has made read-only or suspended (functions/managed.php)
+managedRequestGuard('api');
+
 // POST data
 $_POST = json_decode(file_get_contents('php://input'), true);
 

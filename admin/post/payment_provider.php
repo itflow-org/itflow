@@ -70,7 +70,7 @@ if (isset($_POST['check_payment_provider']) || isset($_POST['add_payment_provide
         $provider_id = paymentProviderWrite($after);
         $account_name = (string) (paymentProviderRow($provider_id)['account_name'] ?? '');
         logAudit("Payment Provider", "Create", "$session_name added payment provider " . escapeSql("$name ($mode mode), payments into $account_name, card limit " . paymentProviderLimitText($after['payment_provider_threshold'])
-            . ', fees ' . ($after['payment_provider_expense_vendor'] ? 'recorded' : 'not recorded')), 0, $provider_id);
+            . ', fees ' . ($after['payment_provider_expense_vendor'] ? 'recorded' : 'not recorded') . ', card fee clients pay ' . paymentProviderCardFeeText($after)), 0, $provider_id);
         flashAlert('<strong>' . escapeHtml($name) . '</strong> added - clients can pay invoices by card' . ($mode === 'test' ? '. Its keys are test keys, so no real money moves until they are live ones' : ''));
         redirect();
     }

@@ -219,6 +219,10 @@ function healthJobChecks() {
     $off = [];
     $result = healthQuery("SELECT cron_job_name, cron_job_enabled, cron_job_last_error, cron_job_last_error_at FROM cron_jobs ORDER BY cron_job_name");
     while ($result && $row = mysqli_fetch_assoc($result)) {
+        // A row the registry doesn't list isn't run (managed mode's jobs, with that side off)
+        if ($labels && !isset($labels[$row['cron_job_name']])) {
+            continue;
+        }
         $label = $labels[$row['cron_job_name']] ?? $row['cron_job_name'];
         if (!intval($row['cron_job_enabled'])) {
             $off[] = $label;

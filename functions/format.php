@@ -42,166 +42,138 @@ function truncate($text, $chars) {
  * Pass false where the output feeds a form INPUT - intl-tel-input runs in
  * separateDialCode mode, so its dropdown owns the code and the field must hold
  * the national number alone. Those are the only call sites that should.
+ *
+ * Written the way the country writes it, from libphonenumber's rules
+ * (functions/phone_formats.php) - the ones intl-tel-input formats the field
+ * with. With the dial code, the prefix dialled at home goes: a German mobile
+ * stored as 01721234567 is "+49 172 1234567", and "0172 1234567" without it.
+ * Italy keeps its 0, as Italians dial it from abroad too. North America keeps
+ * the look it has always had here, "+1 (412) 555-0100". A number its country
+ * doesn't write that way - too short, too long - is left as its digits.
  */
 function formatPhoneNumber($phoneNumber, $country_code = '', $show_country_code = true) {
-    // Remove all non-digit characters
-    $digits = preg_replace('/\D/', '', $phoneNumber ?? '');
-    $formatted = '';
-
-    // If no digits at all, fallback early
-    if (strlen($digits) === 0) {
+    $parts = phoneParts($phoneNumber, $country_code);
+    if ($parts['national'] === '') {
         return $phoneNumber;
     }
+    $cc = $parts['cc'];
+    if ($cc === '') {
+        return $parts['national'];
+    }
+    if (!$parts['rules']) {
+        // A dial code with no rules - shown as stored
+        return $show_country_code ? "+$cc " . $parts['national'] : $parts['national'];
+    }
 
-    // Helper function to safely check the first digit
-    $startsWith = function($str, $char) {
-        return isset($str[0]) && $str[0] === $char;
+    if (!$show_country_code) {
+        return phoneFormatNational($parts) ?? $parts['as_stored'];
+    }
+    if ($cc === '1') {
+        $national = phoneFormatNational($parts);
+        return '+1 ' . ($national ?? $parts['national']);
+    }
+    return "+$cc " . (phoneFormatWith($parts['national'], $parts['rules']['formats'], 'international') ?? $parts['national']);
+}
+
+/**
+ * A number to dial - +, the dial code and the number without the prefix
+ * dialled at home ("+491721234567"), for a tel: link. Just its digits when
+ * it has no dial code, and '' when there is no number.
+ */
+function phoneDialNumber($phoneNumber, $country_code = '') {
+    $parts = phoneParts($phoneNumber, $country_code);
+    if ($parts['national'] === '') {
+        return '';
+    }
+    return $parts['cc'] !== '' ? '+' . $parts['cc'] . $parts['national'] : $parts['national'];
+}
+
+/** libphonenumber's rules for a dial code (functions/phone_formats.php, read once) - null for a code it doesn't know. */
+function phoneFormatRules($country_code) {
+    static $rules = null;
+    if ($rules === null) {
+        $rules = require __DIR__ . '/phone_formats.php';
+    }
+    return $rules[(string) $country_code] ?? null;
+}
+
+/**
+ * A stored number in its parts - cc, the dial code's digits; national, the
+ * number dialled after the dial code; as_stored, its digits as they were; and
+ * rules, phoneFormatRules(). The prefix dialled at home comes off (the 0 in
+ * Germany, the 1 in North America, the 8 in Russia), and so does the dial
+ * code when it was typed in with the number, as libphonenumber takes them
+ * off: only where what is left still looks like a number of that country.
+ */
+function phoneParts($phoneNumber, $country_code = '') {
+    $digits = preg_replace('/\D/', '', (string) $phoneNumber);
+    $cc = preg_replace('/\D/', '', (string) $country_code);
+    $parts = ['cc' => $cc, 'national' => $digits, 'as_stored' => $digits, 'rules' => null];
+    if ($cc === '' || $digits === '' || !($rules = phoneFormatRules($cc))) {
+        return $parts;
+    }
+    $parts['rules'] = $rules;
+    $looks_right = function ($number) use ($rules) {
+        return $rules['valid'] === '' || preg_match('/^(?:' . $rules['valid'] . ')$/', $number) === 1;
     };
 
-    switch ($country_code) {
-        case '1': // USA/Canada
-            if (strlen($digits) === 10) {
-                $formatted = '(' . substr($digits, 0, 3) . ') ' . substr($digits, 3, 3) . '-' . substr($digits, 6);
-            }
+    // The dial code typed in front of the number - "+49 172..." or "0049 172..."
+    foreach (["00$cc", $cc] as $lead) {
+        if (strpos($digits, $lead) === 0 && !$looks_right($digits) && $looks_right(substr($digits, strlen($lead)))) {
+            $digits = substr($digits, strlen($lead));
             break;
-
-        case '44': // UK
-            if ($startsWith($digits, '0')) {
-                $digits = substr($digits, 1);
-            }
-            if (strlen($digits) === 10) {
-                $formatted = '0' . substr($digits, 0, 4) . ' ' . substr($digits, 4, 3) . ' ' . substr($digits, 7);
-            }
-            break;
-
-        case '61': // Australia
-            if ($startsWith($digits, '0')) {
-                $digits = substr($digits, 1);
-            }
-            if (strlen($digits) === 9) {
-                $formatted = '0' . substr($digits, 0, 4) . ' ' . substr($digits, 4, 3) . ' ' . substr($digits, 7);
-            }
-            break;
-
-        case '91': // India
-            if (strlen($digits) === 10) {
-                $formatted = substr($digits, 0, 5) . ' ' . substr($digits, 5);
-            }
-            break;
-
-        case '81': // Japan
-            if ($startsWith($digits, '0')) {
-                $digits = substr($digits, 1);
-            }
-            if (strlen($digits) >= 9 && strlen($digits) <= 10) {
-                $formatted = '0' . substr($digits, 0, 2) . '-' . substr($digits, 2, 4) . '-' . substr($digits, 6);
-            }
-            break;
-
-        case '49': // Germany
-            if ($startsWith($digits, '0')) {
-                $digits = substr($digits, 1);
-            }
-            if (strlen($digits) >= 10) {
-                $formatted = '0' . substr($digits, 0, 3) . ' ' . substr($digits, 3);
-            }
-            break;
-
-        case '33': // France
-            if ($startsWith($digits, '0')) {
-                $digits = substr($digits, 1);
-            }
-            if (strlen($digits) === 9) {
-                $formatted = '0' . implode(' ', str_split($digits, 2));
-            }
-            break;
-
-        case '34': // Spain
-            if (strlen($digits) === 9) {
-                $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6);
-            }
-            break;
-
-        case '39': // Italy
-            if ($startsWith($digits, '0')) {
-                $digits = substr($digits, 1);
-            }
-            $formatted = '0' . implode(' ', str_split($digits, 3));
-            break;
-
-        case '55': // Brazil
-            if (strlen($digits) === 11) {
-                $formatted = '(' . substr($digits, 0, 2) . ') ' . substr($digits, 2, 5) . '-' . substr($digits, 7);
-            }
-            break;
-
-        case '7': // Russia
-            if ($startsWith($digits, '8')) {
-                $digits = substr($digits, 1);
-            }
-            if (strlen($digits) === 10) {
-                $formatted = '8 (' . substr($digits, 0, 3) . ') ' . substr($digits, 3, 3) . '-' . substr($digits, 6, 2) . '-' . substr($digits, 8);
-            }
-            break;
-
-        case '86': // China
-            if (strlen($digits) === 11) {
-                $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 4) . ' ' . substr($digits, 7);
-            }
-            break;
-
-        case '82': // South Korea
-            if (strlen($digits) === 11) {
-                $formatted = substr($digits, 0, 3) . '-' . substr($digits, 3, 4) . '-' . substr($digits, 7);
-            }
-            break;
-
-        case '62': // Indonesia
-            if (!$startsWith($digits, '0')) {
-                $digits = '0' . $digits;
-            }
-            if (strlen($digits) === 12) {
-                $formatted = substr($digits, 0, 4) . ' ' . substr($digits, 4, 4) . ' ' . substr($digits, 8);
-            }
-            break;
-
-        case '63': // Philippines
-            if (strlen($digits) === 11) {
-                $formatted = substr($digits, 0, 4) . ' ' . substr($digits, 4, 3) . ' ' . substr($digits, 7);
-            }
-            break;
-
-        case '234': // Nigeria
-            if (!$startsWith($digits, '0')) {
-                $digits = '0' . $digits;
-            }
-            if (strlen($digits) === 11) {
-                $formatted = substr($digits, 0, 4) . ' ' . substr($digits, 4, 3) . ' ' . substr($digits, 7);
-            }
-            break;
-
-        case '27': // South Africa
-            if (strlen($digits) >= 9 && strlen($digits) <= 10) {
-                $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6);
-            }
-            break;
-
-        case '971': // UAE
-            if (strlen($digits) === 9) {
-                $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6);
-            }
-            break;
-
-        default:
-            // fallback — do nothing, use raw digits later
-            break;
+        }
     }
 
-    if (!$formatted) {
-        $formatted = $digits ?: $phoneNumber;
+    // The prefix dialled at home - kept when taking it off leaves something that isn't a number
+    $prefix = $rules['npfp'] !== '' ? $rules['npfp'] : ($rules['np'] !== '' ? preg_quote($rules['np'], '/') : '');
+    if ($prefix !== '' && preg_match('/^(?:' . $prefix . ')/', $digits, $match, PREG_UNMATCHED_AS_NULL)) {
+        // A transform rule rewrites the number only when the prefix's last group matched
+        $last_group = count($match) - 1;
+        $rest = $rules['nptr'] !== '' && $last_group > 0 && $match[$last_group] !== null
+            ? preg_replace('/^(?:' . $prefix . ')/', $rules['nptr'], $digits, 1)
+            : substr($digits, strlen($match[0]));
+        if ($rest !== '' && !($looks_right($digits) && !$looks_right($rest))) {
+            $digits = $rest;
+        }
     }
+    $parts['national'] = $digits;
+    return $parts;
+}
 
-    return $show_country_code && $country_code ? "+$country_code $formatted" : $formatted;
+/** A number as it is written at home - "0172 1234567" - or null when its country doesn't write one like it. */
+function phoneFormatNational(array $parts) {
+    return phoneFormatWith($parts['national'], $parts['rules']['formats'] ?? [], 'national');
+}
+
+/**
+ * A national number in the first of its country's formats that fits it
+ * (libphonenumber's way: the leading digits, then the whole number), as
+ * written at home - with the prefix dialled there - or after the dial code.
+ * Null when none fits.
+ */
+function phoneFormatWith($national, array $formats, $style) {
+    foreach ($formats as [$pattern, $format, $leading, $prefix_rule, $international]) {
+        if ($style === 'international') {
+            if ($international === 'NA') {
+                continue;
+            }
+            $format = $international !== '' ? $international : $format;
+        } elseif ($prefix_rule !== '') {
+            // The prefix rule ("0$1", "($1)") stands in for the format's first group, whichever group that is
+            $format = preg_replace_callback('/\$\d/', function ($group) use ($prefix_rule) {
+                return str_replace('$1', $group[0], $prefix_rule);
+            }, $format, 1);
+        }
+        if ($leading !== '' && !preg_match('/^(?:' . $leading . ')/', $national)) {
+            continue;
+        }
+        if (!preg_match('/^(?:' . $pattern . ')$/', $national)) {
+            continue;
+        }
+        return preg_replace('/^(?:' . $pattern . ')$/', $format, $national);
+    }
+    return null;
 }
 
 

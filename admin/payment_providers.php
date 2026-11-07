@@ -5,12 +5,12 @@
  * through (functions/payment_provider.php). Each row says whether it is on,
  * live or test (as its keys say), the account its payments go into, its card
  * limit, whether its fees are recorded as expenses (and what they came to,
- * and how many are still to record), its saved cards and the autopay on
- * them, and its card payments in the last 30 days. Check connection asks
- * the provider whose account the key is; Record fees now does what the
- * Payment Provider Fees job does every few minutes. Add and Edit are one window
- * (modals/payment_provider/payment_provider_edit.php); the rest are
- * admin/post/payment_provider.php.
+ * and how many are still to record) and the card fee clients pay, its saved
+ * cards and the autopay on them, and its card payments in the last 30 days.
+ * Check connection asks the provider whose account the key is; Record fees
+ * now does what the Payment Provider Fees job does every few minutes. Add
+ * and Edit are one window (modals/payment_provider/payment_provider_edit.php);
+ * the rest are admin/post/payment_provider.php.
  */
 
 // Default Column Sortby Filter
@@ -33,6 +33,7 @@ if (!isset($sortable_columns[$sort])) {
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS payment_provider_id, payment_provider_name, payment_provider_description, payment_provider_private_key,
         payment_provider_threshold, payment_provider_active, payment_provider_account, payment_provider_expense_vendor, payment_provider_expense_category,
+        payment_provider_card_fee, payment_provider_card_fee_percent, payment_provider_card_fee_fixed,
         account_name, account_archived_at, vendor_name, category_name,
         COALESCE(cards.saved_cards, 0) AS saved_cards, COALESCE(cards.autopay, 0) AS autopay,
         (SELECT MAX(payment_date) FROM payments WHERE payment_archived_at IS NULL AND payment_reference LIKE CONCAT(payment_provider_name, ' - %')) AS last_paid
@@ -159,6 +160,9 @@ $csrf = $_SESSION['csrf_token'];
                             <?php } ?>
                         <?php } else { ?>
                             <span class="text-body-secondary">Not recorded</span>
+                        <?php } ?>
+                        <?php if (billingCardFeeRates($row)) { ?>
+                            <div class="mt-1" data-provider-card-fee title="Clients pay it on each card payment, as a Card Fee line on the invoice"><i class="fas fa-fw fa-hand-holding-usd text-secondary me-1"></i>Clients pay <?= escapeHtml(paymentProviderCardFeeText($row)) ?></div>
                         <?php } ?>
                     </td>
                     <td class="d-none d-md-table-cell small text-nowrap">

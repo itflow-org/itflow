@@ -66,7 +66,7 @@ $back = 'unpaid_invoices.php' . ($checkout && !empty($checkout['ids']) ? '?' . h
     </section>
 
 <?php } else {
-    $amount = billingMoney($selection['total'], $selection['currency']);
+    $amount = billingMoney($selection['charge'], $selection['currency']);
     $count = count($selection['invoices']); ?>
 
     <div class="itflow-portal-page-head">
@@ -116,6 +116,15 @@ $back = 'unpaid_invoices.php' . ($checkout && !empty($checkout['ids']) ? '?' . h
                                 <div><?= trim((string) $row['invoice_scope']) !== '' ? escapeHtml($row['invoice_scope']) : 'Due ' . escapeHtml(date('M j, Y', strtotime($row['invoice_due']))) ?></div>
                             </span>
                             <span class="itflow-money"><?= escapeHtml(billingMoney($selection['cents'][$id] / 100, $selection['currency'])) ?></span>
+                        </li>
+                    <?php } ?>
+                    <?php if ($selection['fee'] > 0) { ?>
+                        <li class="itflow-portal-todo" data-pay-fee-line>
+                            <span class="itflow-portal-todo-main">
+                                <div>Card fee</div>
+                                <div><?= escapeHtml(billingCardFeeTerms($selection['fee_rates'], $selection['currency'])) ?></div>
+                            </span>
+                            <span class="itflow-money"><?= escapeHtml(billingMoney($selection['fee'], $selection['currency'])) ?></span>
                         </li>
                     <?php } ?>
                 </ul>

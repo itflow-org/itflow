@@ -83,12 +83,15 @@ if ($tasks && $tasks[0] < $tasks[1]) {
 
 $move_text = ['us' => ['fa-reply text-primary', 'Needs a reply from us'], 'client' => ['fa-hourglass-half', 'With the client - we replied last'],
     'parked' => ['fa-pause', 'Parked - the SLA clock is paused in this status']][$move] ?? null;
+// Each as it reads, and as it is dialled - the extension after a pause
 $phones = [];
 if (!empty($ticket['contact_phone'])) {
-    $phones[] = formatPhoneNumber($ticket['contact_phone'], $ticket['contact_phone_country_code']) . ($ticket['contact_extension'] ? ' x' . $ticket['contact_extension'] : '');
+    $extension = preg_replace('/[^0-9]/', '', (string) $ticket['contact_extension']);
+    $phones[] = [formatPhoneNumber($ticket['contact_phone'], $ticket['contact_phone_country_code']) . ($ticket['contact_extension'] ? ' x' . $ticket['contact_extension'] : ''),
+        phoneDialNumber($ticket['contact_phone'], $ticket['contact_phone_country_code']) . ($extension !== '' ? ",$extension" : '')];
 }
 if (!empty($ticket['contact_mobile'])) {
-    $phones[] = formatPhoneNumber($ticket['contact_mobile'], $ticket['contact_mobile_country_code']);
+    $phones[] = [formatPhoneNumber($ticket['contact_mobile'], $ticket['contact_mobile_country_code']), phoneDialNumber($ticket['contact_mobile'], $ticket['contact_mobile_country_code'])];
 }
 
 ob_start();
@@ -142,9 +145,9 @@ ob_start();
                         <a href="mailto:<?= escapeHtml($ticket['contact_email']) ?>"><?= escapeHtml($ticket['contact_email']) ?></a><button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= escapeHtml($ticket['contact_email']) ?>"><i class="far fa-copy"></i></button>
                     </div>
                 <?php } ?>
-                <?php foreach ($phones as $phone) { ?>
+                <?php foreach ($phones as [$phone, $phone_dial]) { ?>
                     <div class="small">
-                        <a href="tel:<?= escapeHtml(preg_replace('/[^0-9+]/', '', $phone)) ?>"><?= escapeHtml($phone) ?></a><button type="button" class="itflow-copy clipboardjs" title="Copy number" data-clipboard-text="<?= escapeHtml($phone) ?>"><i class="far fa-copy"></i></button>
+                        <a href="tel:<?= escapeHtml($phone_dial) ?>"><?= escapeHtml($phone) ?></a><button type="button" class="itflow-copy clipboardjs" title="Copy number" data-clipboard-text="<?= escapeHtml($phone) ?>"><i class="far fa-copy"></i></button>
                     </div>
                 <?php } ?>
             <?php } else { ?>

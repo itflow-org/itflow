@@ -2,7 +2,8 @@
 
 /*
  * Charge a card the client saved - the invoice's balance, through the
- * provider the card is with. ?id= (the invoice)
+ * provider the card is with, and the card fee when the client pays it
+ * (functions/billing_pay.php). ?id= (the invoice)
  */
 
 require_once '../../../includes/modal_header.php';
@@ -29,6 +30,13 @@ if (!$cards) {
     exit(json_encode(['error' => $invoice['client_name'] . ' has no card on file with a payment provider that is turned on.']));
 }
 
+// What is charged - agent/post/payment.php works it out the same way
+$currency = (string) $invoice['invoice_currency_code'];
+$fee_rates = billingCardFeeFor($client_id);
+$invoice_cents = (int) round(floatval($invoice['invoice_amount']) * 100);
+$fee = billingCardFeeCents($invoice_cents, $fee_rates) / 100;
+$charge = $invoice_cents / 100 + $fee;
+
 ob_start();
 
 ?>
@@ -43,7 +51,12 @@ ob_start();
     <div class="modal-body">
         <div class="text-center p-3 mb-3 rounded bg-body-tertiary">
             <div class="itflow-billing-stat-label">Charging</div>
-            <div class="itflow-billing-stat-value"><?= escapeHtml(billingMoney($invoice['invoice_amount'], $invoice['invoice_currency_code'])) ?></div>
+            <div class="itflow-billing-stat-value"><?= escapeHtml(billingMoney($charge, $currency)) ?></div>
+            <?php if ($fee > 0) { ?>
+                <div class="small text-body-secondary" title="<?= escapeHtml(billingCardFeeTerms($fee_rates, $currency)) ?>">
+                    <?= escapeHtml(billingMoney($invoice['invoice_amount'], $currency)) ?> and a <?= escapeHtml(billingMoney($fee, $currency)) ?> card fee, which goes on the invoice
+                </div>
+            <?php } ?>
         </div>
         <label class="form-label">Card <strong class="text-danger">*</strong></label>
         <div class="input-group">
@@ -58,7 +71,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_payment_stripe" class="btn btn-success text-bold confirm-link" data-confirm-title="Charge the card?"
-            data-confirm-text="<?= escapeHtml(billingMoney($invoice['invoice_amount'], $invoice['invoice_currency_code'])) ?> is taken from the card now." data-confirm-button="Charge">
+            data-confirm-text="<?= escapeHtml(billingMoney($charge, $currency)) ?> is taken from the card now<?= $fee > 0 ? ', with its ' . escapeHtml(billingMoney($fee, $currency)) . ' card fee' : '' ?>." data-confirm-button="Charge">
             <i class="fas fa-bolt me-2"></i>Charge
         </button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>

@@ -22,6 +22,7 @@
 
 <script src="/js/itflow_select.js"></script>
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/js/bootstrap_defaults.js"></script>
 <script src="/js/http.js"></script>
 
 <!--- TinyMCE - set up on any .tinymce by js/portal.js -->

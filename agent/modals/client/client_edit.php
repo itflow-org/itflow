@@ -10,7 +10,7 @@ enforceClientAccess();
 
 $sql = mysqli_query($mysqli, "SELECT client_abbreviation, client_archived_at, client_created_at, client_lead, client_name,
     client_notes, client_reminders, client_referral, client_tax_id_number,
-    client_default_tax_id, client_tax_exempt, client_tax_exempt_number, client_tax_exempt_expires,
+    client_default_tax_id, client_tax_exempt, client_tax_exempt_number, client_tax_exempt_expires, client_card_fee_exempt,
     client_type, client_website FROM clients WHERE client_id = $client_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
@@ -22,6 +22,7 @@ $client_website = escapeHtml($row['client_website']);
 $client_referral = escapeHtml($row['client_referral']);
 $row_referral = (string) $row['client_referral'];
 $client_reminders = intval($row['client_reminders'] ?? 1);
+$client_card_fee_exempt = intval($row['client_card_fee_exempt'] ?? 0) === 1;
 $client_tax_id_number = escapeHtml($row['client_tax_id_number']);
 $client_abbreviation = escapeHtml($row['client_abbreviation']);
 $client_notes = escapeHtml($row['client_notes']);
@@ -167,6 +168,11 @@ ob_start();
                         </div>
                         <small class="text-secondary">Emailed as set in Invoice Settings. Off, this client gets neither - invoices can still be sent by hand.</small>
                     </div>
+
+                    <?php
+                    $client_card_fee_key = $client_id;
+                    require __DIR__ . '/client_card_fee_field.php';
+                    ?>
 
 
                 </div>

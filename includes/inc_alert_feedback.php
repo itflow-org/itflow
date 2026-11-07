@@ -113,3 +113,11 @@ if (!empty($_SESSION['alert_message'])) {
 }
 
 ?>
+<?php
+
+// A managed instance its manager has made read-only, or a support session from the manager
+// (functions/managed.php)
+echo managedBannerHtml();
+
+// The demo - what it is and when it goes back to fresh data (functions/demo.php)
+echo demoModeBannerHtml();

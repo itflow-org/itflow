@@ -2,7 +2,7 @@
 
 /*
  * Admin > Settings > Tickets (admin/settings_ticket.php):
- * edit_ticket_settings saves the numbering, email to ticket, who hears of a
+ * edit_ticket_settings saves the numbering, email and text to ticket, who hears of a
  * new ticket and whether AI triages it, the timer and billing, closing and the
  * tickets page. A next
  * number already in use, an email address that isn't one or a closing time
@@ -20,7 +20,8 @@ if (isset($_POST['edit_ticket_settings'])) {
 
     $before = settingsCurrent(array_merge(['config_ticket_prefix', 'config_ticket_next_number', 'config_ticket_email_parse', 'config_ticket_email_parse_unknown_senders',
         'config_ticket_new_ticket_notification_email', 'config_ticket_timer_autostart', 'config_ticket_default_billable', 'config_ticket_autoclose_hours',
-        'config_ticket_default_view', 'config_ticket_ordering', 'config_ticket_moving_columns'], aiTriageReady() ? ['config_ticket_ai_triage'] : []));
+        'config_ticket_default_view', 'config_ticket_ordering', 'config_ticket_moving_columns'], aiTriageReady() ? ['config_ticket_ai_triage'] : [],
+        settingsColumnExists($mysqli, 'config_ticket_sms_parse') ? ['config_ticket_sms_parse', 'config_ticket_sms_unknown_senders', 'config_ticket_sms_acknowledge'] : []));
 
     // What was sent, and what is saved for anything that wasn't - a switch not sent is off
     $in = $_POST + array_map(function ($value) { return (string) $value; }, $before);
@@ -36,6 +37,12 @@ if (isset($_POST['edit_ticket_settings'])) {
     ];
     foreach (['config_ticket_email_parse', 'config_ticket_email_parse_unknown_senders', 'config_ticket_timer_autostart', 'config_ticket_ordering', 'config_ticket_moving_columns'] as $switch) {
         $after[$switch] = empty($_POST[$switch]) ? 0 : 1;
+    }
+    // Text to ticket - once the database has it
+    if (array_key_exists('config_ticket_sms_parse', $before)) {
+        foreach (['config_ticket_sms_parse', 'config_ticket_sms_unknown_senders', 'config_ticket_sms_acknowledge'] as $switch) {
+            $after[$switch] = empty($_POST[$switch]) ? 0 : 1;
+        }
     }
     if ($config_module_enable_accounting) {
         $after['config_ticket_default_billable'] = empty($_POST['config_ticket_default_billable']) ? 0 : 1;

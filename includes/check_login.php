@@ -8,3 +8,10 @@ require_once "load_user_session.php";
 require_once "load_company_settings.php";
 require_once "load_global_settings.php";
 require_once "detect_device_type.php";
+
+// A managed instance its manager has made read-only or suspended, and support sessions from
+// the manager (functions/managed.php)
+managedRequestGuard('agent');
+
+// The demo - what visitors can't change there (functions/demo.php)
+demoModeGuard();

@@ -2,7 +2,8 @@
 
 /*
  * Shared links - a link for someone outside to open a login, a secure note,
- * a document or a file, or to send a login back to us (a request).
+ * a document or a file, the client's IT documentation as a PDF, or to send a
+ * login back to us (a request).
  *
  * A link carries one secret, after the # (guest/share.php?id=12#secret), so
  * it never reaches the server's access log, a proxy or a Referer header -
@@ -22,6 +23,12 @@
  * A link made before 2.9.0 (item_version 1) carried key= and ek= in the query
  * string, with the login under aes-128-cbc - those keep working until they
  * expire (at most a month after the update).
+ *
+ * The IT documentation (type Export) is the documentation PDF of Export Data
+ * (clientExportPdf()), made when the link is - what the agent making it may
+ * see, as it was then. It is kept in uploads/shares encrypted under the link's
+ * content key (shareExportStore()), so neither the disk nor the database opens
+ * it without the link, and goes when the link stops working (shareSweep()).
  *
  * Every link stays listed after it ends - used up, expired, turned off,
  * locked - for SHARE_KEEP_DAYS, with who opened it and when from the audit
@@ -53,6 +60,7 @@ function shareTypes() {
         'Note' => ['label' => 'Secure note', 'icon' => 'fa-user-secret', 'secret' => true],
         'Document' => ['label' => 'Document', 'icon' => 'fa-file-alt', 'secret' => false],
         'File' => ['label' => 'File', 'icon' => 'fa-paperclip', 'secret' => false],
+        'Export' => ['label' => 'IT documentation', 'icon' => 'fa-book', 'secret' => false],
         'Request' => ['label' => 'Login request', 'icon' => 'fa-inbox', 'secret' => false],
     ];
 }
@@ -79,7 +87,7 @@ function shareViewOptions() {
 
 /** The window's starting choices for a type - a short, single-use link for anything secret. */
 function shareDefaults($type) {
-    $expiry = ['Credential' => 24, 'Note' => 24, 'Request' => 72, 'Document' => 168, 'File' => 168][$type] ?? 24;
+    $expiry = ['Credential' => 24, 'Note' => 24, 'Request' => 72, 'Document' => 168, 'File' => 168, 'Export' => 168][$type] ?? 24;
     // The longest choice the admin's limit leaves that is no longer than that
     $hours = array_keys(shareExpiryOptions());
     $fit = array_filter($hours, function ($option) use ($expiry) {
@@ -88,14 +96,17 @@ function shareDefaults($type) {
     $expiry = $fit ? max($fit) : min($hours);
     return [
         'expires' => $expiry,
-        'views' => in_array($type, ['Document', 'File']) ? 0 : 1,
+        'views' => in_array($type, ['Document', 'File', 'Export']) ? 0 : 1,
     ];
 }
 
-/** Must a link of this type have a passphrase or an emailed code? (Settings > Security) */
-function shareNeedsProtection($type) {
+/**
+ * Must a link of this type have a passphrase or an emailed code? (Settings > Security)
+ * IT documentation holds a secret when its passwords go with it - $secret says.
+ */
+function shareNeedsProtection($type, $secret = null) {
     global $config_share_require_protection;
-    return !empty($config_share_require_protection) && !empty(shareTypes()[$type]['secret']);
+    return !empty($config_share_require_protection) && ($secret ?? !empty(shareTypes()[$type]['secret']));
 }
 
 /**
@@ -109,12 +120,17 @@ function shareCanSee($type) {
     if (in_array($type, ['Credential', 'Request'])) {
         return lookupUserPermission('module_credential') >= 1;
     }
+    if ($type === 'Export') {
+        return lookupUserPermission('module_client') >= 1;
+    }
     return true;
 }
 
 /**
  * May this agent make, or turn off, a link of this type? Sharing a login
- * hands out what reading one does; asking for one makes a credential.
+ * hands out what reading one does; asking for one makes a credential. The IT
+ * documentation needs what exporting it does - each section its own module,
+ * left out without it (clientExportOptions()).
  */
 function shareCanMake($type) {
     if (!isset(shareTypes()[$type]) || lookupUserPermission('module_support') < 2) {
@@ -125,6 +141,9 @@ function shareCanMake($type) {
     }
     if ($type === 'Request') {
         return lookupUserPermission('module_credential') >= 2;
+    }
+    if ($type === 'Export') {
+        return lookupUserPermission('module_client') >= 1;
     }
     return true;
 }
@@ -337,10 +356,12 @@ function shareItemLive($row) {
 
 /**
  * Make a link. $in: client_id, type, related_id (Credential, Document,
- * File), name (Note, Request), text (Note), recipient, send (email it),
- * expires (hours), views, protect ('', 'passphrase', 'code'), passphrase,
- * otp (share the login's 2FA codes), notify, note. The caller has checked
- * the agent may (shareCanMake) and the client (enforceClientAccess).
+ * File), name (Note, Request), text (Note), export (Export: pdf, the PDF's
+ * bytes; name, its file name; secret, whether passwords are in it),
+ * recipient, send (email it), expires (hours), views, protect ('',
+ * 'passphrase', 'code'), passphrase, otp (share the login's 2FA codes),
+ * notify, note. The caller has checked the agent may (shareCanMake) and the
+ * client (enforceClientAccess).
  *
  * Returns [item_id, url, emailed, expire_at, passphrase, protect, recipient,
  * views] - the url and passphrase only this once - or null with $error set.
@@ -393,7 +414,7 @@ function shareCreate(array $in, &$error = '') {
     if (!in_array($protect, ['', 'passphrase', 'code'], true)) {
         $protect = '';
     }
-    if ($protect === '' && shareNeedsProtection($type)) {
+    if ($protect === '' && shareNeedsProtection($type, $type === 'Export' ? !empty($in['export']['secret']) : null)) {
         $error = 'Your sharing policy needs a passphrase or an emailed code on passwords and secure notes.';
         return null;
     }
@@ -474,6 +495,17 @@ function shareCreate(array $in, &$error = '') {
         }
         $name = trim((string) ($in['name'] ?? '')) ?: 'Secure note';
         $payload = shareSeal(['text' => $text], $key);
+    } elseif ($type === 'Export') {
+        // The PDF made for it - written to disk, encrypted, once the link has its id
+        $related_id = 0;
+        $export = $in['export'] ?? null;
+        if (!is_array($export) || !is_string($export['pdf'] ?? null) || $export['pdf'] === '') {
+            $error = 'The PDF could not be made.';
+            return null;
+        }
+        $name = trim((string) ($export['name'] ?? '')) ?: 'IT Documentation.pdf';
+        // What the page says about it - 'locked' when the PDF asks for its own password
+        $payload = shareSeal(['name' => $name, 'size' => strlen($export['pdf']), 'sha256' => hash('sha256', $export['pdf']), 'locked' => !empty($export['secret'])], $key);
     } elseif ($type === 'Request') {
         $related_id = 0;
         $name = trim((string) ($in['name'] ?? ''));
@@ -515,6 +547,11 @@ function shareCreate(array $in, &$error = '') {
     ];
     mysqli_query($mysqli, "INSERT INTO shared_items SET " . implode(', ', $set));
     $item_id = mysqli_insert_id($mysqli);
+    if ($type === 'Export' && !shareExportStore($item_id, $in['export']['pdf'], $key)) {
+        mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_id = " . intval($item_id));
+        $error = 'The PDF could not be kept for the link - the server could not write to uploads/shares.';
+        return null;
+    }
     $url = shareUrl($item_id, $secret);
     $row = shareRow($item_id);
 
@@ -603,10 +640,10 @@ function shareEmailLink($row, $url, $protect) {
         $summary = ['For' => $name, 'Link works' => "Once, until $expiry"];
         $button = 'Send it securely';
     } else {
-        $what = ['Credential' => 'login details', 'Note' => 'a secure note', 'Document' => 'a document', 'File' => 'a file'][$row['item_type']] ?? 'something';
+        $what = ['Credential' => 'login details', 'Note' => 'a secure note', 'Document' => 'a document', 'File' => 'a file', 'Export' => 'your IT documentation'][$row['item_type']] ?? 'something';
         $subject = $company['name'] . ' sent you ' . $what . ' - secure link';
-        $email = ['kind' => 'Secure link', 'title' => $row['item_type'] === 'Credential' ? 'Login details for you' : 'Something to open securely', 'preview' => "$from sent you $what"];
-        $named = in_array($row['item_type'], ['Credential', 'Document', 'File'], true);
+        $email = ['kind' => 'Secure link', 'title' => ['Credential' => 'Login details for you', 'Export' => 'Your IT documentation'][$row['item_type']] ?? 'Something to open securely', 'preview' => "$from sent you $what"];
+        $named = in_array($row['item_type'], ['Credential', 'Document', 'File', 'Export'], true);
         $intro[] = "$from sent you $what" . ($named ? ": $name" : '') . '.';
         $summary = ($named ? ['What' => $name] : []) + ['Link works' => "Until $expiry" . ($limit === 1 ? ', once' : ($limit > 1 ? ", $limit times" : ''))];
         if ($limit === 1) {
@@ -703,7 +740,9 @@ function shareEnd($item_id, $reason, $user_id = 0) {
     mysqli_query($mysqli, "UPDATE shared_items SET item_active = 0, item_ended_at = NOW(), item_ended_by = $user_id, item_end_reason = '$reason',
             item_payload = NULL, item_vault_key = NULL, item_encrypted_username = '', item_encrypted_credential = '', item_code = NULL
         WHERE item_id = $item_id AND item_ended_at IS NULL");
-    return mysqli_affected_rows($mysqli) === 1;
+    $ended = mysqli_affected_rows($mysqli) === 1;
+    shareExportDelete($item_id);
+    return $ended;
 }
 
 /**
@@ -715,11 +754,17 @@ function shareEnd($item_id, $reason, $user_id = 0) {
 function shareSweep() {
     global $mysqli;
     $grace = SHARE_GRACE_MINUTES;
+    $done = "(item_ended_at IS NOT NULL OR item_expire_at <= NOW()
+        OR (item_view_limit > 0 AND item_views >= item_view_limit AND (item_last_viewed_at IS NULL OR item_last_viewed_at < NOW() - INTERVAL $grace MINUTE)))";
+    // IT documentation goes from the disk with its payload
+    $exports = mysqli_query($mysqli, "SELECT item_id FROM shared_items WHERE item_type = 'Export' AND item_payload IS NOT NULL AND $done");
+    while ($export = mysqli_fetch_row($exports)) {
+        shareExportDelete($export[0]);
+    }
     mysqli_query($mysqli, "UPDATE shared_items SET item_payload = NULL, item_encrypted_username = '', item_encrypted_credential = '', item_code = NULL
         WHERE item_type <> 'Request'
         AND (item_payload IS NOT NULL OR item_encrypted_credential <> '' OR item_encrypted_username <> '')
-        AND (item_ended_at IS NOT NULL OR item_expire_at <= NOW()
-            OR (item_view_limit > 0 AND item_views >= item_view_limit AND (item_last_viewed_at IS NULL OR item_last_viewed_at < NOW() - INTERVAL $grace MINUTE)))");
+        AND $done");
     mysqli_query($mysqli, "UPDATE shared_items SET item_vault_key = NULL
         WHERE item_type = 'Request' AND item_vault_key IS NOT NULL AND item_received_at IS NULL AND (item_ended_at IS NOT NULL OR item_expire_at <= NOW())");
     $keep = SHARE_RECEIVED_KEEP_DAYS;
@@ -727,7 +772,11 @@ function shareSweep() {
         WHERE item_type = 'Request' AND item_ended_at IS NULL AND item_received_at < NOW() - INTERVAL $keep DAY");
 }
 
-/** Forget links that ended, or expired, more than SHARE_KEEP_DAYS ago - nightly. */
+/**
+ * Forget links that ended, or expired, more than SHARE_KEEP_DAYS ago - nightly. And any IT
+ * documentation left on the disk without a link that can still open it - a client deleted
+ * with its links, say.
+ */
 function sharePrune() {
     global $mysqli;
     $keep = SHARE_KEEP_DAYS;
@@ -735,6 +784,67 @@ function sharePrune() {
     mysqli_query($mysqli, "DELETE FROM shared_items
         WHERE (item_ended_at IS NOT NULL AND item_ended_at < NOW() - INTERVAL $keep DAY)
         OR (item_ended_at IS NULL AND item_received_at IS NULL AND item_expire_at < NOW() - INTERVAL $keep DAY)");
+    foreach (glob(dirname(__DIR__) . '/uploads/shares/export-*.bin') ?: [] as $path) {
+        $item_id = intval(substr(basename($path), 7));
+        $live = $item_id ? mysqli_fetch_row(mysqli_query($mysqli, "SELECT 1 FROM shared_items WHERE item_id = $item_id AND item_type = 'Export' AND item_payload IS NOT NULL")) : null;
+        if (!$live) {
+            @unlink($path);
+        }
+    }
+}
+
+/*
+ * ---------- IT documentation on disk ----------
+ */
+
+/** Where IT documentation links keep their PDF - made, and kept from the web, the first time. */
+function shareExportDir() {
+    $dir = dirname(__DIR__) . '/uploads/shares';
+    if (!is_dir($dir)) {
+        mkdirMissing($dir);
+        backupHardenStorageDir($dir);
+    }
+    return $dir;
+}
+
+function shareExportPath($item_id) {
+    return shareExportDir() . '/export-' . intval($item_id) . '.bin';
+}
+
+/** Keep a link's PDF - AES-256-GCM under the link's content key, iv . tag . ciphertext. True when it is written. */
+function shareExportStore($item_id, $pdf, $key) {
+    $iv = random_bytes(12);
+    $tag = '';
+    $ciphertext = openssl_encrypt((string) $pdf, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag);
+    if ($ciphertext === false) {
+        return false;
+    }
+    $raw = $iv . $tag . $ciphertext;
+    return @file_put_contents(shareExportPath($item_id), $raw, LOCK_EX) === strlen($raw);
+}
+
+/** A link's PDF, opened with its content key - null when it is gone, or the key is not its. */
+function shareExportRead($item_id, $key) {
+    $path = shareExportPath($item_id);
+    $raw = is_file($path) ? file_get_contents($path) : false;
+    if ($raw === false || strlen($raw) < 29) {
+        return null;
+    }
+    $pdf = openssl_decrypt(substr($raw, 28), 'aes-256-gcm', $key, OPENSSL_RAW_DATA, substr($raw, 0, 12), substr($raw, 12, 16));
+    return $pdf === false ? null : $pdf;
+}
+
+/** How big a link's PDF is, in bytes - 0 when it is gone. */
+function shareExportSize($item_id) {
+    $path = shareExportPath($item_id);
+    return is_file($path) ? max(0, filesize($path) - 28) : 0;
+}
+
+function shareExportDelete($item_id) {
+    $path = dirname(__DIR__) . '/uploads/shares/export-' . intval($item_id) . '.bin';
+    if (is_file($path)) {
+        @unlink($path);
+    }
 }
 
 /**

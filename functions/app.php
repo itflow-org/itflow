@@ -572,6 +572,175 @@ function checkForUpdates() {
 
 }
 
+/*
+ * What the Update page says about an update besides its commits, asked by
+ * cron/update_check.php once checkForUpdates() has fetched - the page never runs git.
+ *
+ *   version        APP_VERSION on the remote branch - the release an update brings
+ *   changelog      [[version, markdown], ...], newest first: the CHANGELOG.md sections
+ *                  newer than this install's release, and on a branch that keeps one
+ *                  version while work lands (develop), that version's section too
+ *   local_changes  ITFlow's own files this install has changed, which updating puts back
+ *                  (update_cli.php resets to the remote) - the first 50, and how many in all
+ *
+ * Anything that can't be read comes back empty rather than failing the check.
+ */
+function updateCheckDetails(int $pending_commits): array
+{
+    if (!defined('APP_VERSION')) {
+        require_once __DIR__ . '/../includes/app_version.php';
+    }
+
+    $details = ['version' => '', 'changelog' => [], 'local_changes' => [], 'local_changes_count' => 0];
+
+    if (!shellCommandsAvailable()) {
+        return $details;
+    }
+
+    $remote = "origin/" . getRepoBranch();
+
+    $version_file = (string) shell_exec("git show " . escapeshellarg("$remote:includes/app_version.php") . " 2>/dev/null");
+    if (preg_match('/DEFINE\(\s*["\']APP_VERSION["\']\s*,\s*["\']([^"\']+)["\']\s*\)/i', $version_file, $version_match)) {
+        $details['version'] = $version_match[1];
+    }
+
+    $changelog = (string) shell_exec("git show " . escapeshellarg("$remote:CHANGELOG.md") . " 2>/dev/null");
+    $include_current = $pending_commits > 0 && $details['version'] === APP_VERSION;
+    $details['changelog'] = updateChangelogSections($changelog, APP_VERSION, $include_current);
+
+    $changed = [];
+    exec("git status --porcelain --untracked-files=no 2>/dev/null", $changed);
+    foreach ($changed as $line) {
+        $path = trim(substr($line, 3));
+        if ($path !== '') {
+            $details['local_changes_count']++;
+            if (count($details['local_changes']) < 50) {
+                $details['local_changes'][] = $path;
+            }
+        }
+    }
+
+    return $details;
+}
+
+/*
+ * The sections of a CHANGELOG.md newer than $installed - [[version, markdown], ...] in the
+ * file's order, newest first - plus $installed's own when $include_current. At most twelve
+ * releases and about 200 KB, so an install far behind still stores a sensible amount.
+ */
+function updateChangelogSections(string $markdown, string $installed, bool $include_current = false): array
+{
+    preg_match_all('/^## \[([^\]\n]+)\][^\n]*\n(.*?)(?=^## \[|\z)/ms', $markdown, $matches, PREG_SET_ORDER);
+
+    $sections = [];
+    $size = 0;
+
+    foreach ($matches as [, $version, $body]) {
+        $version = trim($version);
+        $newer = $installed === '' || version_compare($version, $installed, '>');
+
+        if (!$newer && !($include_current && $version === $installed)) {
+            continue;
+        }
+
+        $body = trim($body);
+        $size += strlen($body);
+
+        if (count($sections) >= 12 || ($sections && $size > 200000)) {
+            break;
+        }
+
+        $sections[] = [$version, $body];
+    }
+
+    return $sections;
+}
+
+/*
+ * One changelog section as HTML for the Update page. CHANGELOG.md uses a small part of
+ * Markdown - ### headings, - lists, paragraphs, `code`, **bold** and links - and only that is
+ * understood. Everything is escaped first, so nothing in the file reaches the page as markup.
+ * Developer Updates is folded away: the people reading this page are the MSP's admins.
+ */
+function updateChangelogHtml(string $markdown): string
+{
+    $inline = function (string $text): string {
+        $text = escapeHtml($text);
+        $text = preg_replace('/`([^`]+)`/', '<code>$1</code>', $text);
+        $text = preg_replace('/\*\*([^*]+)\*\*/', '<strong>$1</strong>', $text);
+        return preg_replace_callback('/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/', function ($link) {
+            return '<a href="' . $link[2] . '" target="_blank" rel="noopener noreferrer">' . $link[1] . '</a>';
+        }, $text);
+    };
+
+    // Into its ### parts - the text before the first heading has none
+    $parts = [];
+    $title = '';
+    $lines = [];
+    foreach (preg_split('/\r?\n/', $markdown) as $line) {
+        if (preg_match('/^###\s+(.+)$/', $line, $heading)) {
+            if ($title !== '' || trim(implode('', $lines)) !== '') {
+                $parts[] = [$title, $lines];
+            }
+            $title = trim($heading[1]);
+            $lines = [];
+            continue;
+        }
+        $lines[] = $line;
+    }
+    if ($title !== '' || trim(implode('', $lines)) !== '') {
+        $parts[] = [$title, $lines];
+    }
+
+    $html = '';
+    foreach ($parts as [$title, $lines]) {
+        // Paragraphs and lists - a line indented under a list item carries on that item
+        $body = '';
+        $paragraph = [];
+        $items = [];
+        $flush = function () use (&$body, &$paragraph, &$items, $inline) {
+            if ($paragraph) {
+                $body .= '<p>' . $inline(implode(' ', $paragraph)) . '</p>';
+                $paragraph = [];
+            }
+            if ($items) {
+                $body .= '<ul>' . implode('', array_map(function ($item) use ($inline) {
+                    return '<li>' . $inline($item) . '</li>';
+                }, $items)) . '</ul>';
+                $items = [];
+            }
+        };
+        foreach ($lines as $line) {
+            if (trim($line) === '') {
+                $flush();
+            } elseif (preg_match('/^\s{0,3}[-*]\s+(.*)$/', $line, $item)) {
+                if ($paragraph) {
+                    $flush();
+                }
+                $items[] = $item[1];
+            } elseif ($items && preg_match('/^\s+\S/', $line)) {
+                $items[count($items) - 1] .= ' ' . trim($line);
+            } else {
+                if ($items) {
+                    $flush();
+                }
+                $paragraph[] = trim($line);
+            }
+        }
+        $flush();
+
+        if ($title === '') {
+            $html .= $body;
+        } elseif (stripos($title, 'developer') !== false) {
+            $html .= '<details class="itflow-changelog-dev mt-3"><summary class="text-secondary">' . escapeHtml($title) . '</summary><div class="mt-2 small">' . $body . '</div></details>';
+        } else {
+            $html .= '<h6 class="text-uppercase text-secondary small fw-semibold mt-3 mb-2">' . escapeHtml($title) . '</h6>' . $body;
+        }
+    }
+
+    return $html;
+}
+
 function addToMailQueue($data) {
 
     global $mysqli;
@@ -820,13 +989,22 @@ function getProductsForAutocomplete($mysqli, $client_id = 0): string
  * instance the provider controls config.php and the customer's admins do not, so
  * nobody inside the app can raise their own limit.
  *
+ * A managed instance's manager can set one instead (functions/managed.php), and when it does,
+ * it is the one that counts - that is where the instance's plan is kept.
+ *
  * An active agent is user_type 1, enabled and not archived. Disabled and archived
  * users do not use a seat. An invite waiting and in date does
  * (userInvitesHoldingSeats(), functions/user_invite.php) - it is a seat promised.
+ * The manager's support user doesn't: it is the manager's, not one of theirs.
  */
 function getAgentUserLimit(): int
 {
     global $config_agent_user_limit;
+
+    $managed = managedSeatLimit();
+    if ($managed > 0) {
+        return $managed;
+    }
 
     return max(0, intval($config_agent_user_limit ?? 0));
 }
@@ -835,7 +1013,10 @@ function getActiveAgentUserCount(): int
 {
     global $mysqli;
 
-    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL"));
+    $support_user_id = managedSupportUserId();
+
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL"
+        . ($support_user_id ? " AND user_id <> $support_user_id" : '')));
 
     return intval($row[0]);
 }
@@ -857,8 +1038,9 @@ function agentUserLimitMessage(): string
 {
     $limit = getAgentUserLimit();
     $invites = userInvitesHoldingSeats();
+    $provider = managedSeatLimit() > 0 ? escapeHtml(managedManagerName()) : 'your provider';
 
     return "Agent user limit reached - this installation allows <strong>$limit</strong> active agent " . ($limit == 1 ? "user" : "users")
         . ($invites ? ", and $invites invite" . ($invites === 1 ? ' is' : 's are') . " waiting for one" : '')
-        . ". Archive or disable a user" . ($invites ? ' or cancel an invite' : '') . " first, or contact your provider to add more.";
+        . ". Archive or disable a user" . ($invites ? ' or cancel an invite' : '') . " first, or contact $provider to add more.";
 }

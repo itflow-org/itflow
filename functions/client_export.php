@@ -1978,9 +1978,10 @@ function clientExportCounts($client_id) {
 /**
  * The section boxes for the export window, two columns, each with how many
  * records it holds. $kind 'pdf' offers only the sections the PDF has a
- * chapter for.
+ * chapter for. $id_prefix keeps the boxes' ids apart in another window;
+ * $picked, the sections to start ticked (otherwise the defaults).
  */
-function clientExportSectionPicker($client_id, $kind) {
+function clientExportSectionPicker($client_id, $kind, $id_prefix = 'clientExport', ?array $picked = null) {
     $counts = clientExportCounts($client_id);
     $nouns = ['billing' => 'invoice', 'software' => 'license'];
     $html = '<div class="row row-cols-1 row-cols-sm-2 g-0">';
@@ -1988,8 +1989,8 @@ function clientExportSectionPicker($client_id, $kind) {
         if ($kind === 'pdf' && !$section['pdf']) {
             continue;
         }
-        $checked = $kind === 'pdf' ? ($section['pdf_default'] ?? true) : true;
-        $id = 'clientExport' . ucfirst($kind) . ucfirst($key);
+        $checked = $picked !== null ? in_array($key, $picked, true) : ($kind === 'pdf' ? ($section['pdf_default'] ?? true) : true);
+        $id = $id_prefix . ucfirst($kind) . ucfirst($key);
         $count = $counts[$key] ?? 0;
         $html .= '<div class="col"><div class="form-check py-1">'
             . '<input class="form-check-input" type="checkbox" name="sections[]" value="' . $key . '" id="' . $id . '"' . ($checked ? ' checked' : '')

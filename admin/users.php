@@ -122,6 +122,10 @@ $agent_user_count = getActiveAgentUserCount();
 $agent_invites_holding = userInvitesHoldingSeats();
 $agent_user_limit_reached = $agent_user_limit > 0 && $agent_user_count + $agent_invites_holding >= $agent_user_limit;
 
+// A managed instance - the user its manager signs in as for support, and the limit when the manager sets it
+$managed_support_id = managedSupportUserId();
+$managed_limit_by = managedLocks()['seat_limit'] ? managedManagerName() : '';
+
 // An invite link to pass on - shown this once
 $invite_link = userInviteTakeLink();
 $invite_mail_ready = userInviteMailReady();
@@ -146,7 +150,7 @@ $csrf = $_SESSION['csrf_token'];
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-users me-2"></i>Users
             <?php if ($agent_user_limit > 0) { ?>
                 <span class="badge rounded-pill text-bg-<?= $agent_user_limit_reached ? 'danger' : 'secondary' ?> fw-normal ms-2"
-                    title="<?= $agent_user_count ?> active agent<?= $agent_user_count === 1 ? '' : 's' ?><?= $agent_invites_holding ? " and $agent_invites_holding invite" . ($agent_invites_holding === 1 ? '' : 's') . ' waiting' : '' ?>, of the agent user limit set for this installation">
+                    title="<?= $agent_user_count ?> active agent<?= $agent_user_count === 1 ? '' : 's' ?><?= $agent_invites_holding ? " and $agent_invites_holding invite" . ($agent_invites_holding === 1 ? '' : 's') . ' waiting' : '' ?>, of the agent user limit <?= $managed_limit_by !== '' ? 'set by ' . escapeHtml($managed_limit_by) : 'set for this installation' ?>">
                     <?= $agent_user_count + $agent_invites_holding ?> of <?= $agent_user_limit ?> seats
                 </span>
             <?php } ?>
@@ -414,7 +418,7 @@ $csrf = $_SESSION['csrf_token'];
                     );
                     $remember_count = $remembered[$user_id] ?? 0;
                     ?>
-                    <tr class="itflow-ticket-row <?= !$has_mfa && $is_active ? 'is-warning' : '' ?>">
+                    <tr class="itflow-ticket-row <?= !$has_mfa && $is_active && $user_id !== $managed_support_id ? 'is-warning' : '' ?>">
                         <td class="checkbox-column bg-light border-end">
                             <div class="form-check">
                                 <?php if ($is_self) { ?>
@@ -432,6 +436,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <div class="min-w-0">
                                     <a class="ajax-modal <?= $is_active ? 'fw-semibold text-body' : 'text-body-secondary' ?>" href="#" data-modal-url="<?= $quick_url ?>"><?= $name ?></a>
                                     <?php if ($is_self) { ?><span class="badge rounded-pill bg-primary-subtle text-primary-emphasis fw-normal ms-1">You</span><?php } ?>
+                                    <?php if ($user_id === $managed_support_id) { ?><span class="badge rounded-pill bg-info-subtle text-info-emphasis fw-normal ms-1" data-managed-support-user title="<?= escapeHtml(managedManagerName()) ?> signs in as this user for support - only from there, with no password. It takes no seat."><i class="fas fa-headset me-1"></i>Support</span><?php } ?>
                                     <div class="small text-body-secondary text-truncate">
                                         <?= escapeHtml($row['user_email']) ?><button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= escapeHtml($row['user_email']) ?>"><i class="far fa-copy"></i></button>
                                     </div>

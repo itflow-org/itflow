@@ -162,24 +162,29 @@ function aiTicketSummary($ticket_id) {
 /*
  * The next reply on a ticket, drafted - ['ok', 'html'] or ['ok' => false,
  * 'error']. $notes is what the agent has typed in the editor so far: the reply
- * says what it says, in full. $type is who reads it: 'internal', 'public' or
- * 'email' - a reply the client reads is drafted without the internal notes, so
- * nothing in them can find its way to the client, and an email has no sign-off
- * (the agent's signature is added when it is sent).
+ * says what it says, in full. $type is who reads it: 'internal', 'public',
+ * 'email' or 'text' - a reply the client reads is drafted without the internal
+ * notes, so nothing in them can find its way to the client, an email has no
+ * sign-off (the agent's signature is added when it is sent), and a text is a
+ * few short plain sentences.
  */
 function aiTicketDraft($ticket_id, $notes = '', $type = 'email') {
     $model = getAiModel('Tickets');
     if (!$model) {
         return ['ok' => false, 'error' => aiModelMissingError('Tickets')];
     }
-    $type = in_array($type, ['internal', 'public', 'email'], true) ? $type : 'email';
+    $type = in_array($type, ['internal', 'public', 'email', 'text'], true) ? $type : 'email';
     $ticket = aiTicketContext($ticket_id, $type === 'internal');
     if (!$ticket) {
         return ['ok' => false, 'error' => 'That ticket no longer exists.'];
     }
     $notes = aiHtmlToText($notes, 6000);
 
-    if ($type === 'internal') {
+    if ($type === 'text') {
+        $instructions = 'You draft the text messages the agents of a managed service provider send to their clients about support tickets.'
+            . ' One to three short, plain, friendly sentences - it is read on a phone - with no jargon, no formatting, no greeting beyond'
+            . ($ticket['first_name'] !== '' ? " \"Hi {$ticket['first_name']},\"" : ' a short "Hi,"') . ' and no sign-off.';
+    } elseif ($type === 'internal') {
         $instructions = 'You write internal notes on IT support tickets for the agents of a managed service provider - for colleagues, not the client: concise and technical, no greeting and no sign-off.';
     } else {
         $instructions = 'You draft the replies the agents of a managed service provider send to their clients on support tickets.'

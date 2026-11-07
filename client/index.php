@@ -393,7 +393,7 @@ $first_name = strtok(trim((string) $contact['contact_name']), ' ') ?: '';
                 <div class="itflow-portal-panel-body">
                     <p class="text-body-secondary small mb-2">For anything urgent, call us - and raise a ticket so it is on record.</p>
                     <?php if (!empty($company['company_phone'])) { ?>
-                        <div class="mb-1"><i class="fas fa-fw fa-phone me-2 text-body-secondary"></i><a href="tel:<?= escapeHtml(preg_replace('/[^0-9+]/', '', ($company['company_phone_country_code'] ? '+' . $company['company_phone_country_code'] : '') . $company['company_phone'])) ?>"><?= escapeHtml(formatPhoneNumber($company['company_phone'], $company['company_phone_country_code'])) ?></a></div>
+                        <div class="mb-1"><i class="fas fa-fw fa-phone me-2 text-body-secondary"></i><a href="tel:<?= escapeHtml(phoneDialNumber($company['company_phone'], $company['company_phone_country_code'])) ?>"><?= escapeHtml(formatPhoneNumber($company['company_phone'], $company['company_phone_country_code'])) ?></a></div>
                     <?php } ?>
                     <?php if (!empty($company['company_email'])) { ?>
                         <div><i class="fas fa-fw fa-envelope me-2 text-body-secondary"></i><a href="mailto:<?= escapeHtml($company['company_email']) ?>"><?= escapeHtml($company['company_email']) ?></a></div>

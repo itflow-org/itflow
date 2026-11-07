@@ -36,18 +36,53 @@
  * switch is off. It is not a dispatcher-level gate - a new job has to make the check
  * itself, and a job that skips it will keep running on an install that thinks cron is off.
  *
- * Order matters: the dispatcher works down this list. app_update replaces the files every
- * job is loaded from, so it stays at the end and ends the cycle behind itself.
+ * Managed mode's two jobs - manager_checkin and managed_instances - are only listed on an
+ * install config.php turns that side on for (managedEnabled(), managerEnabled() in
+ * functions/managed.php). Off, they aren't run or shown, and their rows wait untouched.
+ *
+ * Demo mode (functions/demo.php) adds demo_reset at the top and leaves out the domain and
+ * certificate refreshers - the demo's are made up, and the refreshers would mark them all
+ * unreachable a night after the reset made them.
+ *
+ * Order matters: the dispatcher works down this list. manager_checkin goes first, so what a
+ * manager sets - read-only or suspended pause most jobs (MANAGED_KEEP_JOBS) - applies to the
+ * rest of the same cycle. app_update replaces the files every job is loaded from, so it stays
+ * at the end and ends the cycle behind itself.
  */
 
 function cronJobRegistry(): array
 {
-    return [
+    $jobs = [
+        [
+            'name' => 'demo_reset',
+            'label' => 'Demo Reset',
+            'script' => 'demo_reset.php',
+            'description' => 'For the demo (config.php\'s $config_demo_mode): puts it back to fresh demo data - the demo accounts, Starter Content and the demo clients - and signs everyone out. Locked in the demo; php cron/demo_reset.php runs it now.',
+            'schedule' => 'Daily',
+            'daily_at' => '02:00',
+            'interval_safe' => false,
+        ],
+        [
+            'name' => 'manager_checkin',
+            'label' => 'Manager Check-in',
+            'script' => 'manager_checkin.php',
+            'description' => 'For an ITFlow managed by another (Admin > Managed By): reports how it is doing and takes what its manager sets. Stops straight away when it isn\'t managed.',
+            'schedule' => 'Interval',
+            'interval_minutes' => 1,
+        ],
         [
             'name' => 'mail_queue',
             'label' => 'Mail Queue',
             'script' => 'mail_queue.php',
             'description' => 'Sends everything ITFlow has queued - invoices, quotes, ticket replies, notifications.',
+            'schedule' => 'Interval',
+            'interval_minutes' => 1,
+        ],
+        [
+            'name' => 'sms_queue',
+            'label' => 'Text Messages',
+            'script' => 'sms_queue.php',
+            'description' => 'Sends the texts waiting to go, a second apart, texts reminders of visits and calls coming up, and tidies the text log - once texting is set up in Admin > Text Messaging.',
             'schedule' => 'Interval',
             'interval_minutes' => 1,
         ],
@@ -74,6 +109,14 @@ function cronJobRegistry(): array
             'description' => 'Gives new tickets from email, the portal and the API a category and priority by AI, when Settings > Tickets says to. Up to 5 a run.',
             'schedule' => 'Interval',
             'interval_minutes' => 1,
+        ],
+        [
+            'name' => 'managed_instances',
+            'label' => 'Managed Instances',
+            'script' => 'managed_instances.php',
+            'description' => 'For an ITFlow that manages others (Admin > Managed Instances): notifies when one stops checking in, and closes requests that were never answered.',
+            'schedule' => 'Interval',
+            'interval_minutes' => 5,
         ],
         [
             'name' => 'payment_provider_fees',
@@ -137,6 +180,21 @@ function cronJobRegistry(): array
             'interval_safe' => false,
         ],
     ];
+
+    // Managed mode's jobs, only where config.php turns their side on; the demo's job only in the
+    // demo, and its made-up domains and certificates left alone there
+    $demo = function_exists('demoModeOn') && demoModeOn();
+    $listed = [
+        'manager_checkin' => function_exists('managedEnabled') && managedEnabled(),
+        'managed_instances' => function_exists('managerEnabled') && managerEnabled(),
+        'demo_reset' => $demo,
+        'domain_refresher' => !$demo,
+        'certificate_refresher' => !$demo,
+    ];
+
+    return array_values(array_filter($jobs, function ($job) use ($listed) {
+        return $listed[$job['name']] ?? true;
+    }));
 }
 
 /*

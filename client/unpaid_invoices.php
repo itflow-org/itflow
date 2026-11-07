@@ -4,7 +4,8 @@
  * Pay invoices - everything still owed, ticked to pay, paid together in one
  * card payment: with a saved card there and then, or a new card on the
  * checkout page (pay.php). ?select=ID,ID ticks just those - the Pay button
- * on an invoice. The total and the button follow the ticks (js/portal.js).
+ * on an invoice. The total and the button follow the ticks (js/portal.js),
+ * with the card fee when the client pays one (billingCardFeeCents()).
  *
  * SCOPING: billingClientOpenInvoices() keys the list to $session_client_id,
  * and post.php (portal_pay) checks the choice again before any charge.
@@ -39,6 +40,9 @@ foreach ($open as $i => $row) {
     }
 }
 $limit_cents = $provider ? (int) round(floatval($provider['payment_provider_threshold']) * 100) : 0;
+// The card fee, worked out again by js/portal.js as the ticks change - in hundredths of a percent and cents
+$fee_rates = $provider ? billingCardFeeFor($session_client_id) : null;
+$fee_cents = billingCardFeeCents($total_cents, $fee_rates);
 $locale = str_replace('_', '-', (string) ($session_company_locale ?: 'en_US'));
 $pay_token = bin2hex(random_bytes(16));
 ?>
@@ -67,7 +71,8 @@ $pay_token = bin2hex(random_bytes(16));
 <?php } else { ?>
 
     <form action="post.php" method="post" data-portal-pay data-portal-once
-        data-pay-currency="<?= escapeHtml($currency) ?>" data-pay-locale="<?= escapeHtml($locale) ?>" data-pay-limit="<?= $limit_cents ?>" data-pay-max="<?= BILLING_PAY_MAX_INVOICES ?>">
+        data-pay-currency="<?= escapeHtml($currency) ?>" data-pay-locale="<?= escapeHtml($locale) ?>" data-pay-limit="<?= $limit_cents ?>" data-pay-max="<?= BILLING_PAY_MAX_INVOICES ?>"<?php if ($fee_rates) { ?>
+        data-pay-fee-percent="<?= (int) round($fee_rates['percent'] * 100) ?>" data-pay-fee-fixed="<?= (int) round($fee_rates['fixed'] * 100) ?>"<?php } ?>>
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <input type="hidden" name="pay_token" value="<?= $pay_token ?>">
 
@@ -137,16 +142,34 @@ $pay_token = bin2hex(random_bytes(16));
                         </div>
                     </div>
                     <div class="itflow-portal-paybar">
-                        <div class="d-flex justify-content-between align-items-baseline mb-2">
-                            <span class="text-body-secondary" data-pay-count><?= count($ticked) ?> <?= count($ticked) === 1 ? 'invoice' : 'invoices' ?></span>
-                            <span class="itflow-portal-big-amount itflow-money" data-pay-total><?= escapeHtml(billingMoney($total_cents / 100, $currency)) ?></span>
-                        </div>
+                        <?php if ($fee_rates) { ?>
+                            <div class="d-flex justify-content-between align-items-baseline small">
+                                <span class="text-body-secondary" data-pay-count><?= count($ticked) ?> <?= count($ticked) === 1 ? 'invoice' : 'invoices' ?></span>
+                                <span class="itflow-money" data-pay-subtotal><?= escapeHtml(billingMoney($total_cents / 100, $currency)) ?></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-baseline small mb-1">
+                                <span class="text-body-secondary" title="<?= escapeHtml(billingCardFeeTerms($fee_rates, $currency)) ?>">Card fee</span>
+                                <span class="itflow-money" data-pay-fee><?= escapeHtml(billingMoney($fee_cents / 100, $currency)) ?></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-baseline mb-2">
+                                <span class="text-body-secondary">Total</span>
+                                <span class="itflow-portal-big-amount itflow-money" data-pay-total><?= escapeHtml(billingMoney(($total_cents + $fee_cents) / 100, $currency)) ?></span>
+                            </div>
+                        <?php } else { ?>
+                            <div class="d-flex justify-content-between align-items-baseline mb-2">
+                                <span class="text-body-secondary" data-pay-count><?= count($ticked) ?> <?= count($ticked) === 1 ? 'invoice' : 'invoices' ?></span>
+                                <span class="itflow-portal-big-amount itflow-money" data-pay-total><?= escapeHtml(billingMoney($total_cents / 100, $currency)) ?></span>
+                            </div>
+                        <?php } ?>
                         <div class="alert alert-warning small py-2" data-pay-limit-note<?= $limit_cents > 0 && $total_cents >= $limit_cents ? '' : ' hidden' ?>>
                             Card payments are limited to under <?= escapeHtml(billingMoney($limit_cents / 100, $currency)) ?> at a time - untick some invoices, or pay another way.
                         </div>
                         <button type="submit" class="btn btn-success btn-lg w-100" name="portal_pay" data-pay-button<?= !$ticked ? ' disabled' : '' ?>>
-                            <i class="fas fa-lock me-2"></i><span data-pay-label><?= $usable ? 'Pay ' : 'Continue to pay ' ?><?= escapeHtml(billingMoney($total_cents / 100, $currency)) ?></span>
+                            <i class="fas fa-lock me-2"></i><span data-pay-label><?= $usable ? 'Pay ' : 'Continue to pay ' ?><?= escapeHtml(billingMoney(($total_cents + $fee_cents) / 100, $currency)) ?></span>
                         </button>
+                        <?php if ($fee_rates) { ?>
+                            <p class="small text-body-secondary text-center mt-2 mb-0">Paying by card adds a card fee: <?= escapeHtml(billingCardFeeTerms($fee_rates, $currency)) ?>. It goes on each invoice as a line.</p>
+                        <?php } ?>
                         <p class="small text-body-secondary text-center mt-2 mb-0">Paid securely through Stripe - your card details never reach us.</p>
                     </div>
                 </section>

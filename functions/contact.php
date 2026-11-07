@@ -120,8 +120,7 @@ function contactPhoneLink($phone, $country_code, $extension = '', $class = '') {
         return '';
     }
     $display = escapeHtml(formatPhoneNumber($phone, $country_code));
-    $country_digits = preg_replace('/[^0-9]/', '', (string) $country_code);
-    $dial = escapeHtml(($country_digits !== '' ? "+$country_digits" : '') . preg_replace('/[^0-9]/', '', $phone));
+    $dial = escapeHtml(phoneDialNumber($phone, $country_code));
     $extension = escapeHtml($extension);
     return '<a class="' . $class . '" href="tel:' . $dial . ($extension ? ",$extension" : '') . '">' . $display . '</a>'
         . ($extension ? ' <span class="text-body-secondary">x' . $extension . '</span>' : '');

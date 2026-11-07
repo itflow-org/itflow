@@ -38,6 +38,7 @@ $usable = array_filter($cards, function ($card) {
     return !$card['card']['expired'];
 });
 $autopay = intval($recurring['recurring_payment_saved_payment_id']);
+$fee_rates = $cards_on ? billingCardFeeFor($session_client_id) : null;
 $made = array_filter(recurringInvoiceGenerated($recurring_id, 8), function ($row) {
     return $row['invoice_status'] !== 'Draft';
 });
@@ -92,7 +93,7 @@ $paper = [
                         </div>
                         <div class="form-text">
                             <?php if ($usable) { ?>
-                                Charged on each invoice's due date, with a receipt by email.
+                                Charged on each invoice's due date, with a receipt by email.<?php if ($fee_rates) { ?> Each charge has a card fee added: <?= escapeHtml(billingCardFeeTerms($fee_rates, $currency)) ?>.<?php } ?>
                             <?php } else { ?>
                                 <a href="saved_payment_methods.php">Add a card</a> to have these paid automatically.
                             <?php } ?>

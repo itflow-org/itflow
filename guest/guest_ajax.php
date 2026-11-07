@@ -81,21 +81,30 @@ if (isset($_GET['stripe_create_pi'])) {
     $stripe_customer = mysqli_fetch_assoc($stripe_customer_query);
     $stripe_customer_id = $stripe_customer ? escapeSql($stripe_customer['payment_provider_client']) : null;
 
-    $pi_description = "ITFlow: $client_name payment of $invoice_currency_code $balance_to_pay for $invoice_prefix$invoice_number";
+    // The card fee, when the client pays it - as guest_pay_invoice_stripe.php showed it, and booked from itflow_fees on the way back
+    $balance_cents = (int) round($balance_to_pay * 100);
+    $fee_cents = billingCardFeeCents($balance_cents, billingCardFeeFor($client_id));
+    $pi_metadata = [
+        'itflow_client_id' => $client_id,
+        'itflow_client_name' => $client_name,
+        'itflow_invoice_number' => $invoice_prefix . $invoice_number,
+        'itflow_invoice_id' => $invoice_id,
+    ];
+    if ($fee_cents > 0) {
+        $pi_metadata['itflow_fees'] = "$invoice_id:$fee_cents";
+    }
+
+    $pi_description = "ITFlow: $client_name payment of $invoice_currency_code " . number_format(($balance_cents + $fee_cents) / 100, 2, '.', '')
+        . ($fee_cents > 0 ? ' (with a ' . number_format($fee_cents / 100, 2, '.', '') . ' card fee)' : '') . " for $invoice_prefix$invoice_number";
 
     try {
         \Stripe\Stripe::setApiKey($stripe_secret_key);
 
         $paymentIntent = \Stripe\PaymentIntent::create([
-            'amount' => intval(round($balance_to_pay * 100)), // Stripe expects cents
+            'amount' => $balance_cents + $fee_cents, // Stripe expects cents
             'currency' => $invoice_currency_code,
             'description' => $pi_description,
-            'metadata' => [
-                'itflow_client_id' => $client_id,
-                'itflow_client_name' => $client_name,
-                'itflow_invoice_number' => $invoice_prefix . $invoice_number,
-                'itflow_invoice_id' => $invoice_id,
-            ],
+            'metadata' => $pi_metadata,
             'payment_method_types' => ['card'],
             'customer' => $stripe_customer_id,
         ]);

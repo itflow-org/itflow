@@ -70,6 +70,10 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $amount_paid = floatval(mysqli_fetch_assoc($sql_amount_paid)['amount_paid']);
     $balance_to_pay = round($invoice_amount - $amount_paid, 2);
 
+    // The card fee, when the client pays it - guest_ajax.php charges the same
+    $fee_rates = billingCardFeeFor($client_id);
+    $card_fee = billingCardFeeCents((int) round($balance_to_pay * 100), $fee_rates) / 100;
+
     // Get invoice items
     $sql_invoice_items = mysqli_query($mysqli, "SELECT item_name, item_quantity, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
 
@@ -125,6 +129,16 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                                 </td>
                             </tr>
                         <?php } ?>
+                        <?php if ($card_fee > 0) { ?>
+                            <tr class="text-end">
+                                <td colspan="2">Balance</td>
+                                <td><?= numfmt_format_currency($currency_format, $balance_to_pay, $invoice_currency_code) ?></td>
+                            </tr>
+                            <tr class="text-end">
+                                <td colspan="2">Card fee <div class="small text-body-secondary"><?= escapeHtml(billingCardFeeTerms($fee_rates, $invoice_currency_code)) ?></div></td>
+                                <td><?= numfmt_format_currency($currency_format, $card_fee, $invoice_currency_code) ?></td>
+                            </tr>
+                        <?php } ?>
                         </tbody>
                     </table>
                 </div>
@@ -134,9 +148,12 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         <div class="col-sm offset-sm-1">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Payment Total: <strong><?= numfmt_format_currency($currency_format, $balance_to_pay, $invoice_currency_code) ?></strong></h3>
+                    <h3 class="card-title">Payment Total: <strong><?= numfmt_format_currency($currency_format, $balance_to_pay + $card_fee, $invoice_currency_code) ?></strong></h3>
                 </div>
                 <div class="card-body">
+                    <?php if ($card_fee > 0) { ?>
+                        <p class="small text-body-secondary">With a <?= numfmt_format_currency($currency_format, $card_fee, $invoice_currency_code) ?> card fee for paying by card, which goes on the invoice as a line.</p>
+                    <?php } ?>
                     <form id="payment-form">
                         <input type="hidden" id="stripe_publishable_key" value="<?= $stripe_publishable ?>">
                         <input type="hidden" id="invoice_id" value="<?= $invoice_id ?>">
@@ -227,9 +244,17 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $amount_paid_previously = floatval(mysqli_fetch_assoc($sql_amount_paid_previously)['amount_paid']);
     $balance_to_pay = $invoice_amount - $amount_paid_previously;
 
+    // The card fee it carried, if the client pays one (guest_ajax.php) - only for this invoice
+    $pi_fees = billingCardFeeSplit($pi_obj->metadata->toArray());
+    $pi_fee_cents = intval($pi_fees[$invoice_id] ?? 0);
+    if (array_diff_key($pi_fees, [$invoice_id => true])) {
+        error_log("Stripe payment error - card fee is not for invoice $invoice_id on $pi_id");
+        exit(WORDING_PAYMENT_FAILED);
+    }
+
     // Compare in whole cents - intval() truncates, which silently accepted an underpayment
     // of up to 99c as payment in full while rejecting a 1c overpayment.
-    if ((int) round($balance_to_pay * 100) !== (int) round($pi_amount_paid * 100)) {
+    if ((int) round($balance_to_pay * 100) + $pi_fee_cents !== (int) round($pi_amount_paid * 100)) {
         error_log("Stripe payment error - Invoice balance does not match amount paid for $pi_id");
         exit(WORDING_PAYMENT_FAILED);
     }
@@ -251,10 +276,13 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         exit();
     }
 
+    // The card fee goes on the invoice first, so the payment - balance and fee - pays it to the cent
+    billingCardFeeAdd($invoice_id, $pi_fee_cents / 100, $pi_date);
+
     // Add Payment to History
     mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $stripe_account, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
     
-    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (client) - $ip - $os - $browser', history_invoice_id = $invoice_id");
+    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (client)" . ($pi_fee_cents > 0 ? ', with a ' . escapeSql(billingMoney($pi_fee_cents / 100, $pi_currency)) . ' card fee' : '') . " - $ip - $os - $browser', history_invoice_id = $invoice_id");
 
     // Notify
     appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number has been paid by $client_name - $ip - $os - $browser", "/agent/invoice.php?invoice_id=$invoice_id", $pi_client_id);

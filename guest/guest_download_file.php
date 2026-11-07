@@ -1,11 +1,13 @@
 <?php
 
 /*
- * Download the file a shared link shares (functions/share.php). Posted by
- * js/guest_share.js with the link's id and secret - never a GET, so the
- * secret stays out of the address and the logs. Uses a view, after the
- * passphrase or code the link needs, unless this browser downloaded it in
- * the last SHARE_GRACE_MINUTES. Anything wrong comes back as JSON.
+ * Download the file a shared link shares (functions/share.php) - one of the
+ * client's files, or the IT documentation PDF made with the link, opened
+ * with the link's secret (shareExportRead()). Posted by js/guest_share.js
+ * with the link's id and secret - never a GET, so the secret stays out of
+ * the address and the logs. Uses a view, after the passphrase or code the
+ * link needs, unless this browser downloaded it in the last
+ * SHARE_GRACE_MINUTES. Anything wrong comes back as JSON.
  */
 
 require_once "../config.php";
@@ -38,8 +40,9 @@ if (!is_array($input)) {
 }
 
 shareSweep();
-$row = shareFind(intval($input['id'] ?? 0), (string) ($input['key'] ?? ''));
-if (!$row || $row['item_type'] !== 'File') {
+$secret = (string) ($input['key'] ?? '');
+$row = shareFind(intval($input['id'] ?? 0), $secret);
+if (!$row || !in_array($row['item_type'], ['File', 'Export'], true)) {
     shareDownloadStop('The link is not right - check you have all of it.', true);
 }
 
@@ -52,14 +55,25 @@ if (!shareVerified($row)) {
     shareDownloadStop('Enter the passphrase or code first.');
 }
 
-$file = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_name, file_reference_name, file_client_id FROM files
-    WHERE file_id = " . intval($row['item_related_id']) . " AND file_client_id = " . intval($row['item_client_id']) . " LIMIT 1"));
-$client_dir = realpath(dirname(__DIR__) . '/uploads/clients/' . intval($row['item_client_id']));
-$path = $file ? realpath(dirname(__DIR__) . '/uploads/clients/' . intval($row['item_client_id']) . '/' . basename($file['file_reference_name'])) : false;
+if ($row['item_type'] === 'Export') {
+    // The PDF made with the link - opened with its secret, read before a view is used
+    $pdf = shareExportRead($row['item_id'], shareContentKey($secret));
+    if ($pdf === null) {
+        shareDownloadStop('The documentation it shared is no longer there - ask for a new link.', true);
+    }
+    $file = ['file_name' => shareName($row)];
+    $what = 'IT documentation ' . $file['file_name'];
+} else {
+    $file = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_name, file_reference_name, file_client_id FROM files
+        WHERE file_id = " . intval($row['item_related_id']) . " AND file_client_id = " . intval($row['item_client_id']) . " LIMIT 1"));
+    $client_dir = realpath(dirname(__DIR__) . '/uploads/clients/' . intval($row['item_client_id']));
+    $path = $file ? realpath(dirname(__DIR__) . '/uploads/clients/' . intval($row['item_client_id']) . '/' . basename($file['file_reference_name'])) : false;
 
-// Don't use a view on a file that is missing from disk
-if (!$file || !$client_dir || !$path || strpos($path, $client_dir . DIRECTORY_SEPARATOR) !== 0 || !is_readable($path)) {
-    shareDownloadStop('The file it shared has been removed.', true);
+    // Don't use a view on a file that is missing from disk
+    if (!$file || !$client_dir || !$path || strpos($path, $client_dir . DIRECTORY_SEPARATOR) !== 0 || !is_readable($path)) {
+        shareDownloadStop('The file it shared has been removed.', true);
+    }
+    $what = 'File ' . $file['file_name'];
 }
 
 if (!$again) {
@@ -70,7 +84,7 @@ if (!$again) {
     shareSessionMark($row['item_id'], 'opened');
     $who = shareProtection($row) === 'code' ? ' by ' . $row['item_recipient'] . ' (emailed code)' : (shareProtection($row) === 'passphrase' ? ' with the passphrase' : '');
     logAudit('Share', 'Download', escapeSql("Downloaded$who"), intval($row['item_client_id']), intval($row['item_id']));
-    shareNotifyCreator($row, 'Shared link opened', 'File ' . $file['file_name'] . " was downloaded$who - " . $row['client_name']);
+    shareNotifyCreator($row, 'Shared link opened', "$what was downloaded$who - " . $row['client_name']);
 }
 
 // What the page says after - whether it downloads again
@@ -83,14 +97,18 @@ $after = intval($after_row['item_view_limit']) && $left <= 0
 $name = str_replace(["\r", "\n", '"'], ['', '', "'"], (string) $file['file_name']);
 $ascii = preg_replace('/[^\x20-\x7E]/', '_', $name);
 
-header('Content-Type: application/octet-stream');
+header('Content-Type: ' . ($row['item_type'] === 'Export' ? 'application/pdf' : 'application/octet-stream'));
 header('Content-Disposition: attachment; filename="' . $ascii . '"; filename*=UTF-8\'\'' . rawurlencode($name));
-header('Content-Length: ' . filesize($path));
+header('Content-Length: ' . ($row['item_type'] === 'Export' ? strlen($pdf) : filesize($path)));
 header('X-Content-Type-Options: nosniff');
 header('X-Share-After: ' . rawurlencode($after));
 
 while (ob_get_level()) {
     ob_end_clean();
 }
-readfile($path);
+if ($row['item_type'] === 'Export') {
+    echo $pdf;
+} else {
+    readfile($path);
+}
 exit;

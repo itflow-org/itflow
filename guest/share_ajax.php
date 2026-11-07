@@ -15,7 +15,7 @@
  *   destroy     end the link, for the browser that revealed it
  *   submit      a request answered - the login they send us
  *
- * Files come down through guest_download_file.php. What this browser has
+ * Files, and IT documentation, come down through guest_download_file.php. What this browser has
  * passed (passphrase, code) and opened is kept in its session, for
  * SHARE_GRACE_MINUTES - opening again in that time uses no view.
  */
@@ -134,7 +134,7 @@ function shareGuestOpen($row) {
     $verified = shareVerified($row);
     $type = $row['item_type'];
     $from = trim((string) $row['creator_name']) !== '' ? $row['creator_name'] . ' at ' . $company['name'] : $company['name'];
-    $what = ['Credential' => 'login details', 'Note' => 'a secure note', 'Document' => 'a document', 'File' => 'a file'][$type] ?? 'something';
+    $what = ['Credential' => 'login details', 'Note' => 'a secure note', 'Document' => 'a document', 'File' => 'a file', 'Export' => 'your IT documentation'][$type] ?? 'something';
 
     $response = [
         'state' => 'ready',
@@ -169,6 +169,21 @@ function shareGuestOpen($row) {
         $response['file_name'] = $file['file_name'];
         $response['title'] = $file['file_name'];
         $response['intro'] = "$from sent you a file - " . formatBytes(intval($file['file_size'])) . '.';
+    }
+    if ($type === 'Export') {
+        // The PDF made with the link, kept encrypted until it stops working
+        global $secret;
+        $size = shareExportSize($row['item_id']);
+        $meta = shareUnseal($row['item_payload'], shareContentKey($secret));
+        if (!$size || !$meta) {
+            shareGuestGone('The documentation it shared is no longer there - ask for a new link.');
+        }
+        $response['file_name'] = shareName($row);
+        $response['title'] = 'IT documentation for ' . $row['client_name'];
+        $response['intro'] = "$from sent you your IT documentation, as a PDF - " . formatBytes($size) . ', made ' . date('M j, Y', strtotime((string) $row['item_created_at'])) . '.';
+        if (!empty($meta['locked'])) {
+            $response['hint'] = 'It has passwords in it, so the PDF asks for a password of its own when you open it - ' . (trim((string) $row['creator_name']) !== '' ? $row['creator_name'] : $company['name']) . ' will give it to you another way.';
+        }
     }
     return $response;
 }

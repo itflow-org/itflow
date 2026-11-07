@@ -2,6 +2,9 @@
 
 // Variable assignment from POST (or: blank/from DB is updating)
 
+// create.php has no row to fall back on
+$location_row = $location_row ?? null;
+
 if (isset($_POST['location_name'])) {
     $name = escapeSql($_POST['location_name']);
 } elseif ($location_row) {

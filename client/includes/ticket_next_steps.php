@@ -20,7 +20,7 @@ isset($company) || die("Direct file access is not allowed");
         <?php if (!empty($company['company_phone'])) { ?>
             <hr>
             <p class="small mb-1"><strong>Stopping everyone?</strong> Call us as well:</p>
-            <a href="tel:<?= escapeHtml(preg_replace('/[^0-9+]/', '', ($company['company_phone_country_code'] ? '+' . $company['company_phone_country_code'] : '') . $company['company_phone'])) ?>"><i class="fas fa-phone me-2"></i><?= escapeHtml(formatPhoneNumber($company['company_phone'], $company['company_phone_country_code'])) ?></a>
+            <a href="tel:<?= escapeHtml(phoneDialNumber($company['company_phone'], $company['company_phone_country_code'])) ?>"><i class="fas fa-phone me-2"></i><?= escapeHtml(formatPhoneNumber($company['company_phone'], $company['company_phone_country_code'])) ?></a>
         <?php } ?>
     </div>
 </section>

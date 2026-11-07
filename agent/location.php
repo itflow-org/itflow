@@ -44,7 +44,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
     $location_map_url = locationMapUrl($location);
     $location_directions_url = locationDirectionsUrl($location);
     $location_phone = contactPhoneLink($location['location_phone'], $location['location_phone_country_code'], $location['location_phone_extension']);
-    $location_phone_dial = preg_replace('/[^0-9]/', '', (string) $location['location_phone']);
+    $location_phone_dial = phoneDialNumber($location['location_phone'], $location['location_phone_country_code']);
     $location_fax = $location['location_fax'] ? escapeHtml(formatPhoneNumber($location['location_fax'], $location['location_fax_country_code'])) : '';
     $location_hours = escapeHtml($location['location_hours']);
     $location_notes = escapeHtml($location['location_notes']);
@@ -181,7 +181,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                     <a class="btn btn-outline-primary" href="<?= escapeHtml($location_directions_url) ?>" target="_blank" rel="noopener"><i class="fas fa-directions me-2"></i>Directions</a>
                 <?php } ?>
                 <?php if ($location_phone_dial !== '') { ?>
-                    <a class="btn btn-outline-primary" href="tel:<?= escapeHtml(($location['location_phone_country_code'] ? '+' . preg_replace('/[^0-9]/', '', $location['location_phone_country_code']) : '') . $location_phone_dial) ?>"><i class="fas fa-phone me-2"></i>Call</a>
+                    <a class="btn btn-outline-primary" href="tel:<?= escapeHtml($location_phone_dial) ?>"><i class="fas fa-phone me-2"></i>Call</a>
                 <?php } ?>
                 <?php if ($can_edit || $can_support_edit) { ?>
                     <div class="dropdown">

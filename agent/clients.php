@@ -324,7 +324,7 @@ if ($clients) {
     if ($show_contracts) {
         $contract_today = date('Y-m-d');
         $sql_contracts = mysqli_query($mysqli, "SELECT contract_id, contract_client_id, contract_name, contract_type, contract_status, contract_start_date, contract_end_date,
-                contract_auto_renew, contract_notice_days, contract_cancelled_at
+                contract_auto_renew, contract_notice_days, contract_term_months, contract_cancelled_at
             FROM contracts
             WHERE contract_client_id IN ($page_ids) AND contract_archived_at IS NULL AND contract_status IN ('Active', 'Draft', 'Ended', 'Cancelled')
             ORDER BY contract_start_date DESC, contract_id DESC");
@@ -597,10 +597,10 @@ $total_leads = intval($row['leads']);
                     $contact_id = intval($row['contact_id']);
                     $contact_name = escapeHtml($row['contact_name']);
                     $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
-                    $contact_phone_digits = preg_replace('/[^0-9+]/', '', (string) $row['contact_phone']);
+                    $contact_phone_digits = phoneDialNumber($row['contact_phone'], $row['contact_phone_country_code']);
                     $contact_extension = escapeHtml($row['contact_extension']);
                     $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
-                    $contact_mobile_digits = preg_replace('/[^0-9+]/', '', (string) $row['contact_mobile']);
+                    $contact_mobile_digits = phoneDialNumber($row['contact_mobile'], $row['contact_mobile_country_code']);
                     $contact_email = escapeHtml($row['contact_email']);
 
                     $location_id = intval($row['location_id']);

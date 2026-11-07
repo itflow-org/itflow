@@ -101,6 +101,20 @@
                                 </p>
                             </a>
                         </li>
+                        <?php if (smsProvider()) { ?>
+                            <li class="nav-item">
+                                <a href="/agent/texts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "texts.php") { echo "active"; } ?>">
+                                    <i class="nav-icon fas fa-sms"></i>
+                                    <p>
+                                        Texts
+                                        <?php $nav_texts_waiting = smsInboxWaiting(); ?>
+                                        <?php if ($nav_texts_waiting) { ?>
+                                            <span class="right badge text-bg-warning" data-bs-toggle="tooltip" title="Texts waiting for someone - unmatched, and codes just in" data-nav-texts-waiting><?= $nav_texts_waiting ?></span>
+                                        <?php } ?>
+                                    </p>
+                                </a>
+                            </li>
+                        <?php } ?>
                         <li class="nav-item">
                             <a href="/agent/recurring_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_tickets.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-redo-alt"></i>

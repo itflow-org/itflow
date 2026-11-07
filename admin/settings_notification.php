@@ -3,7 +3,8 @@
 /*
  * Admin > Settings > Notifications - the alerts ITFlow raises for your team,
  * and the emails it sends clients by itself: about their tickets, and the
- * invoices recurring invoices make. Payment reminders and statements are set
+ * invoices recurring invoices make - and the texts, to those who agreed
+ * (functions/sms.php). Payment reminders and statements are set
  * with their schedule in Invoices and billing - shown here, not set. Saved by
  * edit_notification_settings (admin/post/settings_notification.php).
  */
@@ -42,6 +43,23 @@ echo settingsPageStart('notification');
                     </div>
                 <?php } ?>
             <?= settingsSectionEnd() ?>
+
+            <?php if (smsColumnExists('settings', 'config_sms_client_tickets')) {
+                $sms_client = smsClientSettings(); ?>
+                <?= settingsSectionStart('texts', 'Texts to clients', 'What ITFlow texts your clients by itself - only to contacts who agreed to texts, on their contact or in the client portal. Texts that would land between ' . date('ga', mktime(SMS_QUIET_FROM, 0)) . ' and ' . date('ga', mktime(SMS_QUIET_UNTIL, 0)) . ' wait for the morning. A reply to one about a ticket goes on the ticket.') ?>
+                    <?php if (!smsReady()) { ?>
+                        <div class="alert alert-light border py-2 small" data-notification-no-texting><i class="fas fa-info-circle me-2"></i>Texting isn't set up, so none of these go. <a href="text_messaging.php">Set up texting</a></div>
+                    <?php } ?>
+                    <?php if ($config_module_enable_ticketing) { ?>
+                        <?= settingsSelect('config_sms_client_tickets', $sms_client['config_sms_client_tickets'], settingsFields()['config_sms_client_tickets']['options'], ['icon' => 'fa-life-ring']) ?>
+                        <?= settingsSwitch('config_sms_client_visits', $sms_client['config_sms_client_visits'], ['help' => 'When a visit or remote work is booked on their ticket, and when it is cancelled.']) ?>
+                        <?= settingsSelect('config_sms_visit_reminder_hours', $sms_client['config_sms_visit_reminder_hours'], smsReminderChoices(), ['icon' => 'fa-bell']) ?>
+                    <?php } ?>
+                    <?php if ($config_module_enable_accounting) { ?>
+                        <?= settingsSwitch('config_sms_client_invoices', $sms_client['config_sms_client_invoices'], ['help' => 'Texted with the email, to the people it is emailed to who agreed to texts.']) ?>
+                    <?php } ?>
+                <?= settingsSectionEnd() ?>
+            <?php } ?>
 
             <?= settingsSaveBar('edit_notification_settings') ?>
         </div>

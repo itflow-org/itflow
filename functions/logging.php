@@ -9,6 +9,14 @@ function triggerCustomAction($trigger, $entity) {
     if (function_exists('emailCapturing') && emailCapturing()) {
         return;
     }
+    // ITFlow's own follow-up first: an invoice paid in full (invoicePaidFollowUp(), functions/billing.php)
+    if ($trigger === 'invoice_pay' && function_exists('invoicePaidFollowUp')) {
+        invoicePaidFollowUp($entity);
+    }
+    // ...and a text to the ticket's contact, when they agreed to texts (smsClientNotify(), functions/sms.php)
+    if (in_array($trigger, ['ticket_create', 'ticket_resolve', 'ticket_schedule', 'ticket_unschedule'], true) && function_exists('smsClientNotify')) {
+        smsClientNotify($trigger, $entity);
+    }
     $original_dir = getcwd(); // Save
 
     chdir(dirname(__FILE__));

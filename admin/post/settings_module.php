@@ -5,7 +5,8 @@
  * edit_module_settings saves which modules are in use, and the white-label
  * key. A key that isn't one is refused rather than saved; the key already in
  * use, run out, can stay while the modules are saved - it is just not in
- * force. Empty, white-labelling is off.
+ * force. Empty, white-labelling is off. On a managed instance whose manager
+ * sets the key, the key is left as the manager set it.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -24,7 +25,9 @@ if (isset($_POST['edit_module_settings'])) {
 
     $key = trim((string) ($_POST['config_whitelabel_key'] ?? ''));
     $errors = [];
-    if ($key === '') {
+    if (managedLocks()['white_label']) {
+        // Set by the manager of this managed instance - not this page's to change (functions/managed.php)
+    } elseif ($key === '') {
         $after['config_whitelabel_key'] = '';
         $after['config_whitelabel_enabled'] = 0;
     } elseif (validateWhitelabelKey($key)) {

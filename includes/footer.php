@@ -60,6 +60,7 @@
 
 <!-- Bootstrap 5 -->
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/js/bootstrap_defaults.js"></script>
 <script src="/js/http.js"></script>
 
 <!-- Custom js-->

@@ -9287,3 +9287,10 @@ a.itflow-portal-request:focus-visible {
         width: 460px;
     }
 }
+
+/* A shell command to copy (Maintenance > Update) - its lines kept, a long path wrapped
+   rather than scrolled out of sight */
+.itflow-command {
+    white-space: pre-wrap;
+    word-break: break-all;
+}

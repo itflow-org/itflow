@@ -114,7 +114,7 @@ Be precise about what it does, because it is easy to oversell. It is **not** a g
 
 That last part is the reason it is not redundant with `cron_job_enabled`. Turning the switch off and back on returns you to exactly the configuration you had. Sweeping all seven rows off and back on does not: `backup` ships `'enabled' => 0`, so the sweep quietly turns on nightly backups nobody asked for, along with anything else that was deliberately disabled.
 
-It defaults to `0`. That is a weaker guard than it looks — an install with no crontab entry runs nothing whatever the switch says, so the entry is the real gate — but it does mean adding the crontab line to a half-configured install is not enough on its own to start emailing. Both setup paths name the step on the way out.
+It defaults to `1`. An install with no crontab entry runs nothing whatever the switch says, so the entry is the real gate, and a new install has nothing to email or charge until someone adds it. Shipping it off only added a second step that could be missed in silence. Database 3.6.2 changed the column's default and nothing else: an install that already has the switch off keeps it off, because turning it on would start late fees, overdue reminders and autopay retries it has stopped. Don't write a migration that flips the value itself.
 
 ## Backups
 
@@ -136,6 +136,13 @@ Setup's restore step closes itself once the `users` table has rows, whatever `co
 Every script in `cron/` still runs standalone (`php cron/mail_queue.php`) and still takes its own lock when it does, so anything can be run by hand for testing.
 
 ---
+
+## Demo mode
+
+`$config_demo_mode = true;` in `config.php` makes an install a public demo, like demo.itflow.org (`functions/demo.php`). Two parts of it need you when you add a feature:
+
+- **Locks go by request key.** `demoModeGuard()` refuses a `post.php` or `ajax.php` request carrying a key in `DEMO_MODE_LOCKS`: anything that would reach outside the install, cost money or lock other visitors out - users and roles, a visitor's own sign-in, the mail, payment, AI and texting providers, API keys, backups, updates, cron and share links. A new handler in one of those areas adds its key there, or it is open on the demo. Anything new that connects somewhere a visitor types needs the same thought; certificate checks go through `demoModePublicAddress()`. Pages under `/guest/` open only for a signed-in session (`demoModeGuestGuard()`, from `includes/load_global_settings.php`) - a new guest page has to load that file.
+- **The nightly reset builds from the code.** The Demo Reset job (`demoModeReset()`) drops every table, loads `db.sql`, runs `seedDefaultData()`, loads every Starter Content pack and `demoDataLoad()`, and makes the demo accounts. What you add to those is in the demo the next morning, and the demo never needs a database update. They all have to work without a request: the reset runs from cron, with the vault opened in-process and `$session_user_id` set to the demo admin.
 
 ## Security rules (non-negotiable)
  

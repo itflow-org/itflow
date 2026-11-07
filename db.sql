@@ -893,6 +893,7 @@ CREATE TABLE `clients` (
   `client_tax_exempt` tinyint(1) NOT NULL DEFAULT 0,
   `client_tax_exempt_number` varchar(200) DEFAULT NULL,
   `client_tax_exempt_expires` date DEFAULT NULL,
+  `client_card_fee_exempt` tinyint(1) NOT NULL DEFAULT 0,
   `client_abbreviation` varchar(10) DEFAULT NULL,
   `client_notes` text DEFAULT NULL,
   `client_favorite` tinyint(1) NOT NULL DEFAULT 0,
@@ -1068,6 +1069,9 @@ CREATE TABLE `contacts` (
   `contact_technical` tinyint(1) DEFAULT 0,
   `contact_ticket_emails` varchar(10) NOT NULL DEFAULT 'all',
   `contact_company_ticket_emails` varchar(10) NOT NULL DEFAULT 'none',
+  `contact_sms_opt_in` tinyint(1) NOT NULL DEFAULT 0,
+  `contact_sms_opt_in_at` datetime DEFAULT NULL,
+  `contact_sms_opt_in_by` varchar(200) DEFAULT NULL,
   `contact_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `contact_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `contact_archived_at` datetime DEFAULT NULL,
@@ -2016,6 +2020,70 @@ CREATE TABLE `logs` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `managed_instance_commands`
+--
+
+DROP TABLE IF EXISTS `managed_instance_commands`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `managed_instance_commands` (
+  `managed_command_id` int(11) NOT NULL AUTO_INCREMENT,
+  `managed_command_instance_id` int(11) NOT NULL,
+  `managed_command` varchar(40) NOT NULL,
+  `managed_command_status` varchar(20) NOT NULL DEFAULT 'queued',
+  `managed_command_source` varchar(20) NOT NULL DEFAULT 'manual',
+  `managed_command_requested_by` varchar(200) DEFAULT NULL,
+  `managed_command_result` varchar(1000) DEFAULT NULL,
+  `managed_command_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `managed_command_sent_at` datetime DEFAULT NULL,
+  `managed_command_done_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`managed_command_id`),
+  KEY `managed_command_instance_id` (`managed_command_instance_id`,`managed_command_status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `managed_instances`
+--
+
+DROP TABLE IF EXISTS `managed_instances`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `managed_instances` (
+  `managed_instance_id` int(11) NOT NULL AUTO_INCREMENT,
+  `managed_instance_uuid` varchar(36) NOT NULL,
+  `managed_instance_name` varchar(200) NOT NULL,
+  `managed_instance_client_id` int(11) NOT NULL DEFAULT 0,
+  `managed_instance_notes` text DEFAULT NULL,
+  `managed_instance_enroll_hash` varchar(64) DEFAULT NULL,
+  `managed_instance_enroll_expires_at` datetime DEFAULT NULL,
+  `managed_instance_secret_hash` varchar(64) DEFAULT NULL,
+  `managed_instance_enrolled_at` datetime DEFAULT NULL,
+  `managed_instance_url` varchar(255) DEFAULT NULL,
+  `managed_instance_mode` varchar(20) NOT NULL DEFAULT 'active',
+  `managed_instance_mode_message` varchar(500) DEFAULT NULL,
+  `managed_instance_seat_limit` int(11) NOT NULL DEFAULT 0,
+  `managed_instance_white_label_key` text DEFAULT NULL,
+  `managed_instance_update_policy` varchar(20) NOT NULL DEFAULT 'manual',
+  `managed_instance_update_delay_days` int(11) NOT NULL DEFAULT 7,
+  `managed_instance_version` varchar(20) DEFAULT NULL,
+  `managed_instance_db_version` varchar(20) DEFAULT NULL,
+  `managed_instance_update_version` varchar(40) DEFAULT NULL,
+  `managed_instance_update_seen_at` datetime DEFAULT NULL,
+  `managed_instance_report` mediumtext DEFAULT NULL,
+  `managed_instance_last_checkin_at` datetime DEFAULT NULL,
+  `managed_instance_last_ip` varchar(45) DEFAULT NULL,
+  `managed_instance_offline_notified_at` datetime DEFAULT NULL,
+  `managed_instance_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `managed_instance_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `managed_instance_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`managed_instance_id`),
+  UNIQUE KEY `managed_instance_uuid` (`managed_instance_uuid`),
+  KEY `managed_instance_client_id` (`managed_instance_client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `modules`
 --
 
@@ -2164,6 +2232,9 @@ CREATE TABLE `payment_providers` (
   `payment_provider_account` int(11) NOT NULL,
   `payment_provider_expense_vendor` int(11) NOT NULL DEFAULT 0,
   `payment_provider_expense_category` int(11) NOT NULL DEFAULT 0,
+  `payment_provider_card_fee` tinyint(1) NOT NULL DEFAULT 0,
+  `payment_provider_card_fee_percent` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `payment_provider_card_fee_fixed` decimal(15,2) NOT NULL DEFAULT 0.00,
   `payment_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `payment_provider_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`payment_provider_id`)
@@ -3108,6 +3179,7 @@ CREATE TABLE `settings` (
   `config_invoice_late_fee_enable` tinyint(1) NOT NULL DEFAULT 0,
   `config_invoice_late_fee_percent` decimal(5,2) NOT NULL DEFAULT 0.00,
   `config_invoice_paid_notification_email` varchar(200) DEFAULT NULL,
+  `config_invoice_paid_lead_to_client` tinyint(1) NOT NULL DEFAULT 1,
   `config_invoice_show_tax_id` tinyint(1) NOT NULL DEFAULT 0,
   `config_tax_default_id` int(11) NOT NULL DEFAULT 0,
   `config_tax_time` tinyint(1) NOT NULL DEFAULT 0,
@@ -3128,13 +3200,20 @@ CREATE TABLE `settings` (
   `config_ticket_from_email` varchar(200) DEFAULT NULL,
   `config_ticket_email_parse` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_email_parse_unknown_senders` int(1) NOT NULL DEFAULT 0,
+  `config_ticket_sms_parse` tinyint(1) NOT NULL DEFAULT 1,
+  `config_ticket_sms_unknown_senders` tinyint(1) NOT NULL DEFAULT 0,
+  `config_ticket_sms_acknowledge` tinyint(1) NOT NULL DEFAULT 1,
+  `config_sms_client_tickets` tinyint(1) NOT NULL DEFAULT 1,
+  `config_sms_client_visits` tinyint(1) NOT NULL DEFAULT 1,
+  `config_sms_visit_reminder_hours` int(11) NOT NULL DEFAULT 24,
+  `config_sms_client_invoices` tinyint(1) NOT NULL DEFAULT 1,
   `config_ticket_client_general_notifications` tinyint(1) NOT NULL DEFAULT 1,
   `config_ticket_autoclose_hours` int(5) NOT NULL DEFAULT 72,
   `config_ticket_new_ticket_notification_email` varchar(200) DEFAULT NULL,
   `config_ticket_ai_triage` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_default_billable` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_timer_autostart` tinyint(1) NOT NULL DEFAULT 0,
-  `config_enable_cron` tinyint(1) NOT NULL DEFAULT 0,
+  `config_enable_cron` tinyint(1) NOT NULL DEFAULT 1,
   `config_recurring_auto_send_invoice` tinyint(1) NOT NULL DEFAULT 1,
   `config_enable_alert_domain_expire` tinyint(1) NOT NULL DEFAULT 1,
   `config_send_invoice_reminders` tinyint(1) NOT NULL DEFAULT 1,
@@ -3182,6 +3261,9 @@ CREATE TABLE `settings` (
   `config_update_latest_commit` varchar(40) DEFAULT NULL,
   `config_update_pending_commits` text DEFAULT NULL,
   `config_update_checked_at` datetime DEFAULT NULL,
+  `config_update_details` mediumtext DEFAULT NULL,
+  `config_manager_keys` text DEFAULT NULL,
+  `config_managed` mediumtext DEFAULT NULL,
   `config_share_max_hours` int(11) NOT NULL DEFAULT 720,
   `config_share_require_protection` tinyint(1) NOT NULL DEFAULT 0,
   `config_login_alert_failures` int(11) NOT NULL DEFAULT 10,
@@ -3294,6 +3376,87 @@ CREATE TABLE `slas` (
   `sla_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `sla_archived_at` datetime DEFAULT NULL,
   PRIMARY KEY (`sla_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sms_messages`
+--
+
+DROP TABLE IF EXISTS `sms_messages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sms_messages` (
+  `sms_message_id` int(11) NOT NULL AUTO_INCREMENT,
+  `sms_message_direction` varchar(3) NOT NULL,
+  `sms_message_status` varchar(20) NOT NULL,
+  `sms_message_number` varchar(20) NOT NULL,
+  `sms_message_our_number` varchar(20) NOT NULL DEFAULT '',
+  `sms_message_body` text DEFAULT NULL,
+  `sms_message_media` text DEFAULT NULL,
+  `sms_message_code` varchar(20) DEFAULT NULL,
+  `sms_message_purpose` varchar(30) NOT NULL DEFAULT '',
+  `sms_message_attempts` tinyint(4) NOT NULL DEFAULT 0,
+  `sms_message_error` varchar(500) DEFAULT NULL,
+  `sms_message_provider_ref` varchar(100) DEFAULT NULL,
+  `sms_message_contact_id` int(11) NOT NULL DEFAULT 0,
+  `sms_message_client_id` int(11) NOT NULL DEFAULT 0,
+  `sms_message_ticket_id` int(11) NOT NULL DEFAULT 0,
+  `sms_message_ticket_reply_id` int(11) NOT NULL DEFAULT 0,
+  `sms_message_user_id` int(11) NOT NULL DEFAULT 0,
+  `sms_message_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `sms_message_send_after` datetime DEFAULT NULL,
+  `sms_message_attempted_at` datetime DEFAULT NULL,
+  `sms_message_sent_at` datetime DEFAULT NULL,
+  `sms_message_handled_at` datetime DEFAULT NULL,
+  `sms_message_handled_by` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`sms_message_id`),
+  KEY `sms_message_status` (`sms_message_status`,`sms_message_id`),
+  KEY `sms_message_number` (`sms_message_number`,`sms_message_created_at`),
+  KEY `sms_message_ticket_id` (`sms_message_ticket_id`),
+  KEY `sms_message_created_at` (`sms_message_created_at`),
+  KEY `sms_message_purpose` (`sms_message_purpose`,`sms_message_ticket_id`,`sms_message_created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sms_numbers`
+--
+
+DROP TABLE IF EXISTS `sms_numbers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sms_numbers` (
+  `sms_number_phone` varchar(20) NOT NULL,
+  `sms_number_label` varchar(100) DEFAULT NULL,
+  `sms_number_opted_out_at` datetime DEFAULT NULL,
+  `sms_number_blocked_at` datetime DEFAULT NULL,
+  `sms_number_blocked_by` int(11) NOT NULL DEFAULT 0,
+  `sms_number_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`sms_number_phone`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sms_providers`
+--
+
+DROP TABLE IF EXISTS `sms_providers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sms_providers` (
+  `sms_provider_id` int(11) NOT NULL AUTO_INCREMENT,
+  `sms_provider_name` varchar(100) NOT NULL,
+  `sms_provider_description` varchar(255) DEFAULT NULL,
+  `sms_provider_username` varchar(255) NOT NULL DEFAULT '',
+  `sms_provider_secret` varchar(500) NOT NULL DEFAULT '',
+  `sms_provider_number` varchar(20) NOT NULL DEFAULT '',
+  `sms_provider_inbound_key` varchar(64) NOT NULL DEFAULT '',
+  `sms_provider_active` tinyint(1) NOT NULL DEFAULT 1,
+  `sms_provider_last_inbound_at` datetime DEFAULT NULL,
+  `sms_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `sms_provider_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`sms_provider_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

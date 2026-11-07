@@ -268,6 +268,8 @@ if (isset($_GET['ticket_id'])) {
         $reply_mentions = ticketMentionsForTicket($ticket_id);
         // Whether each email went, from the mail queue while it has them
         $reply_email_states = ticketReplyEmailStates($ticket_reply_rows);
+        // Which replies were texts, either way, and whether the ones out went (functions/sms.php)
+        $reply_sms_states = smsRepliesForTicket($ticket_id);
         $reply_email_queue_url = $session_is_admin ? '/admin/mail_queue.php?q=' . rawurlencode('[' . ticketReference($ticket) . ']') : '';
 
         /*
@@ -421,6 +423,8 @@ if (isset($_GET['ticket_id'])) {
             $ticket_opened_wording = "Created $ticket_created_at_ago from a recurring ticket";
         } elseif ($ticket_source == 'API') {
             $ticket_opened_wording = "Created $ticket_created_at_ago through the API";
+        } elseif ($ticket_source == 'Text') {
+            $ticket_opened_wording = "Came in by text $ticket_created_at_ago";
         } elseif ($ticket_source && $ticket_source !== 'Agent') {
             $ticket_opened_wording = "Opened $ticket_created_at_ago via $ticket_source";
         } else {
@@ -442,6 +446,8 @@ if (isset($_GET['ticket_id'])) {
         // An emailed reply needs an address to go to and mail set up to send it -
         // without mail configured the option used to save as public and email nobody
         $can_email_reply = !empty($contact_email) && !empty($config_smtp_provider);
+        // A text reply - to its contact's mobile, or the number texting on it (functions/sms.php)
+        $sms_recipient = smsTicketRecipient($ticket);
 
         // The Resolve confirmation says what resolving does - resolve_ticket emails the
         // contact when client notifications are on, and the nightly job closes it later
@@ -796,7 +802,14 @@ if (isset($_GET['ticket_id'])) {
                                         <input class="btn-check" id="public_reply_type_opt2" type="radio" name="public_reply_type" value="2">
                                         <label class="btn btn-outline-info" for="public_reply_type_opt2"><i class="fas fa-fw fa-paper-plane me-1"></i>Email reply</label>
                                     <?php } ?>
+                                    <?php if ($sms_recipient) { ?>
+                                        <input class="btn-check" id="public_reply_type_opt3" type="radio" name="public_reply_type" value="3" <?= $sms_recipient['opted_out'] ? 'disabled' : '' ?>>
+                                        <label class="btn btn-outline-info" for="public_reply_type_opt3"<?= $sms_recipient['opted_out'] ? ' title="They replied STOP to your texts - they get none until they reply START"' : '' ?>><i class="fas fa-fw fa-sms me-1"></i>Text reply</label>
+                                    <?php } ?>
                                 </div>
+                                <?php if ($sms_recipient && $sms_recipient['opted_out']) { ?>
+                                    <div class="small text-body-secondary mt-2"><i class="fas fa-fw fa-ban me-1"></i><?= escapeHtml(smsNumberText($sms_recipient['number'])) ?> replied STOP to your texts - they can't be texted until they reply START.</div>
+                                <?php } ?>
 
                                 <div class="collapse" id="replyComposer">
                                     <div class="pt-3">
@@ -808,6 +821,13 @@ if (isset($_GET['ticket_id'])) {
                                             <?php if ($can_email_reply) { ?>
                                                 <div data-audience="2" hidden>
                                                     <i class="fas fa-fw fa-paper-plane me-1"></i>Emails <strong><?= $contact_name ?></strong> &lt;<?= $contact_email ?>&gt;<?php if ($watcher_count) { ?> and <?= $watcher_count ?> watcher<?= $watcher_count == 1 ? '' : 's' ?><?php } ?>, and shows in the portal.
+                                                </div>
+                                            <?php } ?>
+                                            <?php if ($sms_recipient && !$sms_recipient['opted_out']) { ?>
+                                                <div data-audience="3" hidden>
+                                                    <i class="fas fa-fw fa-sms me-1"></i>Texts <?= $sms_recipient['name'] !== '' ? '<strong>' . escapeHtml($sms_recipient['name']) . '</strong> at ' : '' ?><strong><?= escapeHtml(smsNumberText($sms_recipient['number'])) ?></strong>, and shows in the portal.
+                                                    It goes as plain text - formatting is dropped, and attached files stay on the ticket.
+                                                    <span class="text-body-secondary" data-sms-count></span>
                                                 </div>
                                             <?php } ?>
                                         </div>
@@ -968,6 +988,23 @@ if (isset($_GET['ticket_id'])) {
                     // Who it was emailed to, and whether it went
                     $reply_emailed = isset($reply_email_states[$ticket_reply_id]) ? ticketReplyEmailHtml($ticket_reply_id, $reply_email_states[$ticket_reply_id], $reply_email_queue_url) : null;
 
+                    // A text - the one it was texted to and whether it went, or that it came in by text
+                    $reply_sms = $reply_sms_states[$ticket_reply_id] ?? null;
+                    $reply_sms_line = '';
+                    if ($reply_sms && $reply_sms['direction'] === 'out') {
+                        [$sms_icon, $sms_words, $sms_tone] = smsReplyStateText($reply_sms);
+                        $reply_sms_line = "<span class='$sms_tone' data-reply-sms='" . escapeHtml($reply_sms['status']) . "'><i class='fas fa-fw $sms_icon me-1'></i>" . escapeHtml($sms_words) . '</span>';
+                        if ($ticket_reply_type == 'Public') {
+                            $reply_badge = "<span class='badge text-bg-info' title='The client can see this, and it was texted'><i class='fas fa-fw fa-sms me-1'></i>Text reply</span>";
+                        }
+                    } elseif ($reply_sms && $ticket_reply_type == 'Client') {
+                        $reply_badge .= " <span class='badge text-bg-light border' title='Texted from " . escapeHtml(smsNumberText($reply_sms['number'])) . "' data-reply-sms='in'><i class='fas fa-fw fa-sms me-1'></i>By text</span>";
+                        if (trim((string) $reply_row['contact_name']) === '' || !intval($reply_row['ticket_reply_by'])) {
+                            $ticket_reply_by_display = escapeHtml(smsNumberText($reply_sms['number']));
+                            $reply_contact_avatar = '<span class="fa-stack" title="Not one of your contacts"><i class="fa fa-circle fa-stack-2x text-secondary"></i><i class="fas fa-mobile-alt fa-stack-1x text-white"></i></span>';
+                        }
+                    }
+
                     ?>
 
                     <!-- Begin ticket reply card -->
@@ -1000,6 +1037,9 @@ if (isset($_GET['ticket_id'])) {
                                             <?php } ?>
                                             <?php if ($reply_emailed) { ?>
                                                 <span class="mx-1">&middot;</span><?= $reply_emailed['line'] ?>
+                                            <?php } ?>
+                                            <?php if ($reply_sms_line !== '') { ?>
+                                                <span class="mx-1">&middot;</span><?= $reply_sms_line ?>
                                             <?php } ?>
                                         </div>
                                     </div>
@@ -1295,14 +1335,14 @@ if (isset($_GET['ticket_id'])) {
 
                                 <?php if (!empty($contact_phone)) { ?>
                                     <div class="mt-2">
-                                        <i class="fa fa-fw fa-phone text-secondary me-2"></i><a href="tel:<?= $contact_phone ?>"><?= $contact_phone ?></a>
+                                        <i class="fa fa-fw fa-phone text-secondary me-2"></i><a href="tel:<?= escapeHtml(phoneDialNumber($ticket['contact_phone'], $ticket['contact_phone_country_code'])) ?>"><?= $contact_phone ?></a>
                                         <?php if ($contact_extension) { ?><span class="text-muted small">ext. <?= $contact_extension ?></span><?php } ?>
                                     </div>
                                 <?php } ?>
 
                                 <?php if (!empty($contact_mobile)) { ?>
                                     <div class="mt-2">
-                                        <i class="fa fa-fw fa-mobile-alt text-secondary me-2"></i><a href="tel:<?= $contact_mobile ?>"><?= $contact_mobile ?></a>
+                                        <i class="fa fa-fw fa-mobile-alt text-secondary me-2"></i><a href="tel:<?= escapeHtml(phoneDialNumber($ticket['contact_mobile'], $ticket['contact_mobile_country_code'])) ?>"><?= $contact_mobile ?></a>
                                     </div>
                                 <?php } ?>
 
@@ -1903,7 +1943,35 @@ if (!empty($can_edit_ticket) && !empty($ticket_is_open)) { ?>
         // Who will see it and what the button does, for whichever type is picked
         const replyAudience = document.getElementById('replyAudience');
         const replySubmitLabel = document.getElementById('replySubmitLabel');
-        const replySubmitLabels = { '0': 'Add note', '1': 'Post note', '2': 'Send email' };
+        const replySubmitLabels = { '0': 'Add note', '1': 'Post note', '2': 'Send email', '3': 'Send text' };
+
+        // A text reply's length, and how many texts it goes as (SMS_TEXT_LIMIT in functions/sms.php)
+        const smsCount = document.querySelector('[data-sms-count]');
+        function countSms() {
+            if (!smsCount) {
+                return;
+            }
+            const editor = window.tinymce ? tinymce.get('ticket_reply') : null;
+            const text = (editor ? editor.getContent({ format: 'text' }) : (document.getElementById('ticket_reply') || {}).value || '').trim();
+            const parts = text.length ? Math.ceil(text.length / <?= SMS_TEXT_LIMIT ?>) : 0;
+            smsCount.textContent = text.length ? text.length + ' characters' + (parts > 1 ? ', as ' + parts + ' texts' : '') : '';
+        }
+        if (smsCount) {
+            const hookSmsCount = function () {
+                const editor = window.tinymce ? tinymce.get('ticket_reply') : null;
+                if (editor) {
+                    editor.on('input change keyup SetContent', countSms);
+                } else {
+                    const textarea = document.getElementById('ticket_reply');
+                    if (textarea) textarea.addEventListener('input', countSms);
+                }
+            };
+            if (window.tinymce && tinymce.get('ticket_reply')) {
+                hookSmsCount();
+            } else {
+                window.addEventListener('load', hookSmsCount);
+            }
+        }
 
         function showReplyType(type) {
             if (replyAudience) {

@@ -411,10 +411,12 @@ if (isset($_POST['email_invoice'])) {
     }
     $sent = billingEmailQueue($recipients, $subject, $email, ['attach' => $attach]);
     $reminder = $kind === 'reminder' && $email['kind'] === 'Payment reminder';
+    // Texted with its link too, to those of them who agreed to texts (functions/sms.php)
+    $texted = smsInvoiceNotify($invoice, $reminder ? 'reminder' : 'invoice', $recipients);
 
     $by = stripslashes($session_name);
     billingLog('invoice', $invoice_id, $invoice['invoice_status'] === 'Draft' ? 'Sent' : $invoice['invoice_status'],
-        ($reminder ? 'Reminder emailed' : 'Invoice emailed') . " by $by to " . implode(', ', $sent) . ($attach ? ' with the PDF' : ''));
+        ($reminder ? 'Reminder emailed' : 'Invoice emailed') . " by $by to " . implode(', ', $sent) . ($attach ? ' with the PDF' : '') . ($texted ? ' - and texted to ' . implode(', ', $texted) : ''));
     foreach ($recipients as $recipient) {
         logAudit("Invoice", "Email", "$session_name emailed " . escapeSql($recipient['email']) . ($reminder ? " a reminder for" : "") . " invoice " . escapeSql($number), $client_id, $invoice_id);
     }
@@ -424,7 +426,7 @@ if (isset($_POST['email_invoice'])) {
         mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
     }
 
-    flashAlert(($reminder ? 'Reminder' : 'Invoice') . " queued to " . count($sent) . " " . (count($sent) === 1 ? "recipient" : "recipients"));
+    flashAlert(($reminder ? 'Reminder' : 'Invoice') . " queued to " . count($sent) . " " . (count($sent) === 1 ? "recipient" : "recipients") . ($texted ? ' - and texted to ' . count($texted) : ''));
 
     redirect();
 

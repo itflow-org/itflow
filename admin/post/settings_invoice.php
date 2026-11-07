@@ -3,7 +3,8 @@
 /*
  * Admin > Settings > Invoices and billing (admin/settings_invoice.php):
  * edit_invoice_settings saves the numbering, the footer and tax ID, late
- * fees, who is emailed an invoice paid online, payment reminders and
+ * fees, who is emailed an invoice paid online and whether a lead that pays
+ * becomes a client, payment reminders and
  * statements, how time is billed, the markup billable expenses start with,
  * and trips and mileage.
  *
@@ -44,6 +45,11 @@ if (isset($_POST['edit_invoice_settings'])) {
     ];
     foreach (['config_invoice_show_tax_id', 'config_invoice_late_fee_enable', 'config_send_invoice_reminders', 'config_statement_monthly', 'config_billing_email_attach_pdf'] as $switch) {
         $after[$switch] = empty($_POST[$switch]) ? 0 : 1;
+    }
+    // From 3.5.9 - a lead that pays becomes a client (invoicePaidFollowUp())
+    if (settingsColumnExists($mysqli, 'config_invoice_paid_lead_to_client')) {
+        $before += settingsCurrent(['config_invoice_paid_lead_to_client']);
+        $after['config_invoice_paid_lead_to_client'] = empty($_POST['config_invoice_paid_lead_to_client']) ? 0 : 1;
     }
 
     // Late fees - a percent of what is owed
