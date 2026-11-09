@@ -94,4 +94,4 @@ $r_admin_locked = ($role_admin_blocker ?? '') !== '';
     <div class="small text-secondary" data-role-admin-note<?= $r_admin ? '' : ' hidden' ?>><i class="fas fa-fw fa-info-circle me-1"></i>An admin role opens every part of ITFlow, so there are no levels to set. Its levels are kept, for if it stops being one.</div>
 </div>
 
-<script src="/js/role_form.js"></script>
+<script src="<?= staticFileUrl('/js/role_form.js') ?>"></script>

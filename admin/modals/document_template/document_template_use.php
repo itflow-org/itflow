@@ -75,7 +75,7 @@ if (!$template || $template['document_template_archived_at']) { ?>
     </div>
 </form>
 
-<script src="/agent/js/document_template_make.js"></script>
+<script src="<?= staticFileUrl('/agent/js/document_template_make.js') ?>"></script>
 
 <?php }
 

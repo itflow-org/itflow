@@ -65,4 +65,4 @@ $group_tones = ['finance' => 'success', 'billing' => 'primary', 'service' => 'in
 </div>
 
 <?php require_once "../../includes/footer.php"; ?>
-<script src="/js/reports.js"></script>
+<script src="<?= staticFileUrl('/js/reports.js') ?>"></script>

@@ -680,7 +680,7 @@ if (!$product) {
         show(document.querySelector('[data-product-tab="' + hash + '"]') ? hash : first.dataset.productTab);
     });
     </script>
-    <script src="/js/inline_notes.js"></script>
+    <script src="<?= staticFileUrl('/js/inline_notes.js') ?>"></script>
 
 <?php
 }

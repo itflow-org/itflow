@@ -160,7 +160,7 @@ $approve_link = "guest_post.php?approve_ticket_task=$task_id&approval_id=$approv
 
     <?php /* prettyContent above is inert without this - it is what constrains a
              pasted screenshot to the column and styles tables in the ticket body */ ?>
-    <script src="/js/pretty_content.js"></script>
+    <script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>
 
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';

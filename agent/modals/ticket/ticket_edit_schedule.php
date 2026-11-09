@@ -73,7 +73,7 @@ ob_start();
 
 </form>
 
-<script src="/agent/js/ticket_schedule_modal.js"></script>
+<script src="<?= staticFileUrl('/agent/js/ticket_schedule_modal.js') ?>"></script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

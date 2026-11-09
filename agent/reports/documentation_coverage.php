@@ -118,4 +118,4 @@ $top_gap = array_key_first(array_filter($missing_counts));
 </div>
 
 <?php require_once "../../includes/footer.php"; ?>
-<script src="/js/reports.js"></script>
+<script src="<?= staticFileUrl('/js/reports.js') ?>"></script>

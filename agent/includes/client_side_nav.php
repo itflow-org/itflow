@@ -58,7 +58,7 @@
                 <div class="itflow-client-switcher-list" data-client-switcher-list></div>
             </div>
         </div>
-        <script src="/js/client_switcher.js" defer></script>
+        <script src="<?= staticFileUrl('/js/client_switcher.js') ?>" defer></script>
 
         <!-- Sidebar Menu -->
         <nav>

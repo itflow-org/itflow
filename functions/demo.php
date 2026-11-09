@@ -224,8 +224,8 @@ function demoModeGuestGuard(): void
     header('Cache-Control: no-store');
     header('Content-Type: text/html; charset=UTF-8');
     exit('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Demo</title><meta name="viewport" content="width=device-width, initial-scale=1">'
-        . '<meta name="robots" content="noindex"><link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">'
-        . '<link rel="stylesheet" href="/css/itflow_custom.css"></head><body class="hold-transition login-page"><div class="login-box"><div class="card" data-demo-guest><div class="card-body p-4 text-center">'
+        . '<meta name="robots" content="noindex"><link rel="stylesheet" href="' . staticFileUrl('/libs/fontawesome-free/css/all.min.css') . '"><link rel="stylesheet" href="' . staticFileUrl('/libs/adminlte/css/adminlte.min.css') . '">'
+        . '<link rel="stylesheet" href="' . staticFileUrl('/css/itflow_custom.css') . '"></head><body class="hold-transition login-page"><div class="login-box"><div class="card" data-demo-guest><div class="card-body p-4 text-center">'
         . '<i class="fas fa-flask fa-2x text-info mb-3" aria-hidden="true"></i><h1 class="h4 mb-2">Sign in to the demo first</h1>'
         . '<p class="text-body-secondary">This is a demo, so links from it open only for someone signed in to it.</p>'
         . '<a href="/login.php" class="btn btn-primary"><i class="fas fa-fw fa-sign-in-alt me-2"></i>Sign in</a></div></div></div></body></html>');

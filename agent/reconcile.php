@@ -392,7 +392,7 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
     </div>
 </div>
 
-<script src="/js/reconcile.js"></script>
+<script src="<?= staticFileUrl('/js/reconcile.js') ?>"></script>
 <script>
     itflowReconcile({
         id: <?= intval($open['reconciliation_id']) ?>,

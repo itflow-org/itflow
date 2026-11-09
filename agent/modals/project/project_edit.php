@@ -43,7 +43,7 @@ ob_start();
     </div>
 </form>
 
-<script src="/agent/js/project_modal.js"></script>
+<script src="<?= staticFileUrl('/agent/js/project_modal.js') ?>"></script>
 
 <?php
 

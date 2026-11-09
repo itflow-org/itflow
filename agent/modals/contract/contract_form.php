@@ -338,4 +338,4 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
     </div>
 </div>
 
-<script src="/js/contract_form.js"></script>
+<script src="<?= staticFileUrl('/js/contract_form.js') ?>"></script>

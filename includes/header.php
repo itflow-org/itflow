@@ -46,23 +46,23 @@ header("X-Frame-Options: DENY");
              parallel with the stylesheets, so the bytes are already warm when
              the parser reaches the tag. A hint only - the <script> tag in
              footer.php is what actually loads it. */ ?>
-    <link rel="preload" as="script" href="/js/itflow_select.js">
+    <link rel="preload" as="script" href="<?= staticFileUrl('/js/itflow_select.js') ?>">
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/fontawesome-free/css/all.min.css') ?>">
 
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="/libs/flatpickr/css/flatpickr.min.css">
-    <link rel="stylesheet" href="/libs/sweetalert2/css/sweetalert2.min.css">
-    <link rel="stylesheet" href="/libs/DataTables/datatables.min.css">
-    <link rel="stylesheet" href="/libs/intl-tel-input/css/intlTelInput.min.css">
-    <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/flatpickr/css/flatpickr.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/sweetalert2/css/sweetalert2.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/DataTables/datatables.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/intl-tel-input/css/intlTelInput.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte.min.css') ?>">
     <?php /* Opt-in AdminLTE 3 palette, new in v4.5.0. Supplies the
              --bs-<colour> tokens plus .text-bg-* / .card-* / .callout-*
              / .bg-gradient-* families. Loads BEFORE itflow_custom.css so
              our own .bg-<colour> box colours still win. */ ?>
-    <link rel="stylesheet" href="/libs/adminlte/css/adminlte-colors-v3.min.css">
-    <link rel="stylesheet" href="/css/itflow_custom.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte-colors-v3.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/css/itflow_custom.css') ?>">
 
     <!-- Scripts -->
 </head>

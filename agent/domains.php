@@ -499,6 +499,6 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
     </script>
 <?php } ?>
 
-<script src="../js/bulk_actions.js"></script>
+<script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
 
 <?php require_once "../includes/footer.php";

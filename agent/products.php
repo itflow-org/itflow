@@ -484,7 +484,7 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 
-<script src="/js/bulk_actions.js"></script>
+<script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
 
 <?php
 require_once "../includes/footer.php";

@@ -252,9 +252,9 @@ ob_start();
 
 
 <!-- Recurring Ticket Client/Contact JS -->
-<script src="/agent/js/tickets_add_modal.js"></script>
+<script src="<?= staticFileUrl('/agent/js/tickets_add_modal.js') ?>"></script>
 
-<script src="/agent/js/ticket_tasks_modal.js"></script>
+<script src="<?= staticFileUrl('/agent/js/ticket_tasks_modal.js') ?>"></script>
 
 <?php
 

@@ -585,8 +585,8 @@ if (isset($_POST['ir_reset_user_password'])) {
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noindex">
         <title>Incident response - new agent passwords</title>
-        <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
-        <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
+        <link rel="stylesheet" href="<?= staticFileUrl('/libs/fontawesome-free/css/all.min.css') ?>">
+        <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte.min.css') ?>">
     </head>
     <body class="bg-body-tertiary">
     <div class="container py-4" style="max-width: 52rem">

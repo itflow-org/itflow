@@ -171,7 +171,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         </div>
     </div>
 
-    <script src="../js/guest_pay_invoice_stripe.js"></script>
+    <script src="<?= staticFileUrl('/js/guest_pay_invoice_stripe.js') ?>"></script>
 
     <?php
 

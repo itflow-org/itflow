@@ -309,4 +309,4 @@ $top_categories = array_slice($categories, 0, 10);
 </div>
 
 <?php require_once "../../includes/footer.php"; ?>
-<script src="/js/reports.js"></script>
+<script src="<?= staticFileUrl('/js/reports.js') ?>"></script>

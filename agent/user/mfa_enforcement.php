@@ -37,11 +37,11 @@ $mfa_secret = $_SESSION['mfa_token'];
     <?php } ?>
 
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="../../libs/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/fontawesome-free/css/all.min.css') ?>">
 
     <!-- Theme style -->
-    <link rel="stylesheet" href="../../libs/adminlte/css/adminlte.min.css">
-    <link rel="stylesheet" href="../../css/itflow_custom.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/css/itflow_custom.css') ?>">
 
     <!-- jQuery -->
 
@@ -83,11 +83,11 @@ $mfa_secret = $_SESSION['mfa_token'];
     <!-- REQUIRED SCRIPTS -->
 
     <!-- Bootstrap 4 -->
-    <script src="/js/http.js"></script>
-    <script src="../../libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="<?= staticFileUrl('/js/http.js') ?>"></script>
+    <script src="<?= staticFileUrl('/libs/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
 
     <!-- Custom js-->
-    <script src="../../libs/clipboardjs/clipboard.min.js"></script>
+    <script src="<?= staticFileUrl('/libs/clipboardjs/clipboard.min.js') ?>"></script>
 
     <script>
 

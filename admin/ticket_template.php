@@ -408,8 +408,8 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
     </div>
 </div>
 
-<script src="../js/pretty_content.js"></script>
-<script src="../libs/SortableJS/Sortable.min.js"></script>
+<script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>
+<script src="<?= staticFileUrl('/libs/SortableJS/Sortable.min.js') ?>"></script>
 <script>
     (function () {
         var list = document.getElementById('ticketTemplateFillIns');

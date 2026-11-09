@@ -66,7 +66,7 @@ $ai_model = aiReady('Documentation') ? getAiModel('Documentation') : null;
     <?php } ?>
 </div>
 <div class="small text-secondary">Any other word in square brackets - <span class="font-monospace">[Firewall Model]</span> - is asked for when a document is made, and set up on the template's page. Pasted images are kept with the template and copied into each document made from it.</div>
-<script src="/js/document_template_form.js"></script>
+<script src="<?= staticFileUrl('/js/document_template_form.js') ?>"></script>
 
 <?php if ($ai_model) { ?>
 <script>

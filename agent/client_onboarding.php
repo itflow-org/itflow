@@ -93,11 +93,11 @@ define('FROM_CLIENT_ONBOARDING', true);
     <?php if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/uploads/favicon.ico')) { ?>
         <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
     <?php } ?>
-    <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
-    <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
-    <link rel="stylesheet" href="/libs/sweetalert2/css/sweetalert2.min.css">
-    <link rel="stylesheet" href="/libs/intl-tel-input/css/intlTelInput.min.css">
-    <link rel="stylesheet" href="/css/itflow_custom.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/fontawesome-free/css/all.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/sweetalert2/css/sweetalert2.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/intl-tel-input/css/intlTelInput.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/css/itflow_custom.css') ?>">
 </head>
 
 <body class="itflow-setup itflow-gs itflow-co bg-body-tertiary" data-itflow-phone-country="<?= escapeHtml($country_iso2_array[$session_company_country] ?? '') ?>">
@@ -196,14 +196,14 @@ define('FROM_CLIENT_ONBOARDING', true);
 
 </div>
 
-<script src="/js/itflow_select.js"></script>
-<script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/libs/sweetalert2/js/sweetalert2.min.js"></script>
-<script src="/libs/intl-tel-input/js/intlTelInputWithUtils.min.js"></script>
-<script src="/js/phone_inputs.js"></script>
-<script src="/js/confirm_modal.js"></script>
-<script src="/js/app.js"></script>
-<script src="/js/getting_started.js"></script>
+<script src="<?= staticFileUrl('/js/itflow_select.js') ?>"></script>
+<script src="<?= staticFileUrl('/libs/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
+<script src="<?= staticFileUrl('/libs/sweetalert2/js/sweetalert2.min.js') ?>"></script>
+<script src="<?= staticFileUrl('/libs/intl-tel-input/js/intlTelInputWithUtils.min.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/phone_inputs.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/confirm_modal.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/app.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/getting_started.js') ?>"></script>
 
 </body>
 

@@ -170,4 +170,4 @@ $over_30 = array_filter($tickets, function ($t) { return $t['waiting'] > 30; });
 </div>
 
 <?php require_once "../../includes/footer.php"; ?>
-<script src="/js/reports.js"></script>
+<script src="<?= staticFileUrl('/js/reports.js') ?>"></script>

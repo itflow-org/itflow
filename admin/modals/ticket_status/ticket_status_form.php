@@ -109,4 +109,4 @@ $s_reply = $s ? (intval($s['ticket_status_client_reply'] ?? 1) === 0 ? 0 : 1) : 
     </div>
 </div>
 
-<script src="/js/ticket_status_form.js"></script>
+<script src="<?= staticFileUrl('/js/ticket_status_form.js') ?>"></script>

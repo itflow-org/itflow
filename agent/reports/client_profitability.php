@@ -225,4 +225,4 @@ $target_control = '<div class="col-sm-6 col-lg-2"><div class="input-group" title
 </div>
 
 <?php require_once "../../includes/footer.php"; ?>
-<script src="/js/reports.js"></script>
+<script src="<?= staticFileUrl('/js/reports.js') ?>"></script>

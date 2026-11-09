@@ -194,4 +194,4 @@ usort($overdue, function ($a, $b) { return intval($b['days_late']) <=> intval($a
 </div>
 
 <?php require_once "../../includes/footer.php"; ?>
-<script src="/js/reports.js"></script>
+<script src="<?= staticFileUrl('/js/reports.js') ?>"></script>

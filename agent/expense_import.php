@@ -349,7 +349,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
         </div>
     </form>
 
-    <script src="/js/expense_import.js"></script>
+    <script src="<?= staticFileUrl('/js/expense_import.js') ?>"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         itflowExpenseImport({

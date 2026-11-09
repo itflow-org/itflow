@@ -3,6 +3,24 @@
 // App/UI helpers - icons, badges, lookups, mail queue, iCal, taxes, update check
 // Split from the former monolithic functions.php
 
+/*
+ * The address of one of ITFlow's own scripts or stylesheets, with when the file last changed
+ * on the end - /js/app.js?v=1762700000. Browsers keep these files between visits, so without
+ * it they went on using the copies from before an update, against pages that expect the new
+ * ones, until someone cleared their cache. An update changes the files it brings, so their
+ * addresses change with them and browsers fetch them again; the files it didn't touch keep
+ * theirs, and stay cached.
+ *
+ * Every <script src> and <link rel="stylesheet" href> to a file in ITFlow - libs/ included -
+ * goes through this: src="<?= staticFileUrl('/js/app.js') ?>".
+ */
+function staticFileUrl(string $path): string
+{
+    $changed = @filemtime(dirname(__DIR__) . '/' . ltrim($path, '/'));
+
+    return $changed ? "$path?v=$changed" : $path;
+}
+
 /** The icon of an asset type, without its fa- (laptop) - from ASSET_TYPES (functions/asset_type.php); a tag for one it doesn't know. */
 function getAssetIcon($asset_type) {
     return substr(assetTypeInfo($asset_type)['icon'], 3);

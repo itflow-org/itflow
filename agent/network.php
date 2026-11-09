@@ -584,7 +584,7 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
 
     </div>
 
-    <script src="../js/bulk_actions.js"></script>
+    <script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
     <script>
         // Notes save when you click away
         document.querySelectorAll('.itflow-service-notes[data-network-id]').forEach(function (notes) {

@@ -444,6 +444,6 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
     </script>
 <?php } ?>
 
-<script src="../js/bulk_actions.js"></script>
+<script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
 
 <?php require_once "../includes/footer.php";

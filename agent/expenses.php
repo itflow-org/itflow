@@ -479,6 +479,6 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
     </script>
 <?php } ?>
 
-<script src="../js/bulk_actions.js"></script>
+<script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
 
 <?php require_once "../includes/footer.php";
