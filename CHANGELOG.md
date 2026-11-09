@@ -2,6 +2,22 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.11.5]
+
+### Upgrading
+
+Update from Maintenance > Update — Queue Update hands the job to cron and it applies on its own. There is no database change in this release, so nothing else is required. From 26.11.3 or earlier, the same update also brings 26.11.4 and its database changes - see its notes below. Nobody needs to clear their browser's cache afterwards.
+
+### Bug Fixes
+
+- Updates: after an update, pages could act up - menus, buttons, editors and forms not working, or pages looking half old and half new - until each person cleared their browser's cache, and sometimes closed the browser and cleared it again. Browsers kept the copies of ITFlow's scripts and stylesheets from before the update and went on using them with the new pages, for days or weeks. Each one is now asked for by an address that changes when the file does, so after an update browsers fetch what changed straight away and keep using what didn't. This starts with this update: nobody needs to clear their cache for it.
+
+### Developer Updates
+
+- `staticFileUrl($path)` in `functions/app.php` returns `$path?v=` and the file's `filemtime()`, or the path as it is when the file isn't there. Every `<script src>` and `<link href>` to a file in ITFlow - `libs/` included - goes through it, and those that were relative to the page (`libs/...`, `../js/...`, `css/ticket.css`) are now from the site root. ITFlow sends no caching headers for static files, so browsers used heuristic freshness - a share of the time since the file last changed - and reused old copies without asking. `.htaccess` and server configuration are unchanged. New tags must use it (CONTRIBUTING.md).
+- `js/tinymce_defaults.js`, loaded straight after `tinymce.min.js` in `includes/footer.php` and `client/includes/footer.php`, sets TinyMCE's `cache_suffix` through `tinymce.overrideDefaults()` to the `?v=` of `tinymce.min.js`'s own tag, so the plugins, theme, icons, model and skins TinyMCE fetches by itself are versioned too. A file, not an inline script, as the portal's pages with `Content-Security-Policy: default-src 'self'` allow no inline scripts.
+- `agent/ticket.php` loads `agent/js/ticket_collision_detection.js` only when a ticket is shown (`isset($ticket_is_open)`). On Nothing to see here it found no `#ticket_id` and threw.
+
 ## [26.11.4]
 
 ### Upgrading
@@ -38,7 +54,6 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Phone numbers: outside North America, a number shown with its country code kept the 0 - or the 8 in Russia - that is only dialled within the country, as "+49 0172 1234567" for a German mobile, wherever it showed: ITFlow's pages, the client portal (a contact's own profile, and the Contact us details), emails, PDFs and exports. Click-to-call dialled it that way too, and so failed. Numbers are now written the way each country writes them: "+49 172 1234567", and "0172 1234567" without the country code. This covers every country, not only the ones ITFlow had its own rules for. A German landline such as Munich's is split after its area code ("+49 89 1234567"), Italy keeps the 0 its landlines are dialled with from abroad ("+39 06 1234 5678"), and South African numbers read "+27 82 123 4567". A number typed with or without that leading 0, or with its country code at the front, shows and dials the same. North American numbers look as they did.
 - Lists: on a list with only a row or two, a row's actions menu was cut off at the bottom of the list, hiding its last options - Delete among them. Menus now open over the page, and still turn upward when there's no room below. This covers every list, the board and the client portal.
 - Client portal: for a client whose name has an apostrophe - O'Brien Dental, say - adding a contact or saying one has left, setting up autopay, and the alert that a card payment went through but couldn't be recorded all ended in an error. The contact was saved but nobody was told, and that payment alert never reached you. They work now.
-- Updates: after an update, pages could act up - menus, buttons, editors and forms not working, or pages looking half old and half new - until each person cleared their browser's cache, and sometimes closed the browser and cleared it again. Browsers kept the copies of ITFlow's scripts and stylesheets from before the update and went on using them with the new pages, for days or weeks. Each one is now asked for by an address that changes when the file does, so after an update browsers fetch what changed straight away and keep using what didn't. This starts with this update: nobody needs to clear their cache for it.
 
 ### Developer Updates
 
@@ -85,9 +100,6 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - `demoModeReset()` (`cron/demo_reset.php`, registered only in demo mode, daily at 02:00, `interval_safe` false, ends the cycle) keeps the companies row, the timezone, `config_cron_last_dispatch_at` and the `cron_jobs` rows (columns db.sql still has), drops every table and loads db.sql, then `seedDefaultData()`, `setupSaveRegion()`, the three demo agents with a new vault key under the demo password, every `starterContentLoad()` pack and `demoDataLoad()` with the vault opened in-process and the session globals set to the demo admin, and a portal user for the first demo client's primary contact; it empties every folder in uploads/ but settings/, keeping their index.php and .htaccess. A reset that stopped part way leaves no settings - `php cron/demo_reset.php` still runs then. The domain and certificate refreshers aren't registered in demo mode. The Mail Queue job cancels queued mail with a reason, and `certificateConnect()` connects only to a public address on port 443, by that address (`demoModePublicAddress()`).
 - `js/bootstrap_defaults.js`, loaded straight after `bootstrap.bundle.min.js` in `includes/footer.php` and `client/includes/footer.php`, sets `bootstrap.Dropdown.Default.popperConfig` to `{strategy: 'fixed'}`, so dropdown menus are placed against the viewport and a `.table-responsive` wrapper (overflow auto) no longer clips them. Dropdowns in a navbar are unaffected - Bootstrap doesn't use Popper there.
 - `client/post.php`: `$session_client_name` is the client's name as stored (`client/includes/check_login.php`), so the five `appNotify()` and `logAudit()` calls that put it in their text now pass it through `escapeSql()`. `smsSaveMedia()` pins curl to the address it checked (`CURLOPT_RESOLVE`), so a name that resolves differently the second time can't point the download somewhere private.
-- `staticFileUrl($path)` in `functions/app.php` returns `$path?v=` and the file's `filemtime()`, or the path as it is when the file isn't there. Every `<script src>` and `<link href>` to a file in ITFlow - `libs/` included - goes through it, and those that were relative to the page (`libs/...`, `../js/...`, `css/ticket.css`) are now from the site root. ITFlow sends no caching headers for static files, so browsers used heuristic freshness - a share of the time since the file last changed - and reused old copies without asking. `.htaccess` and server configuration are unchanged. New tags must use it (CONTRIBUTING.md).
-- `js/tinymce_defaults.js`, loaded straight after `tinymce.min.js` in `includes/footer.php` and `client/includes/footer.php`, sets TinyMCE's `cache_suffix` through `tinymce.overrideDefaults()` to the `?v=` of `tinymce.min.js`'s own tag, so the plugins, theme, icons, model and skins TinyMCE fetches by itself are versioned too. A file, not an inline script, as the portal's pages with `Content-Security-Policy: default-src 'self'` allow no inline scripts.
-- `agent/ticket.php` loads `agent/js/ticket_collision_detection.js` only when a ticket is shown (`isset($ticket_is_open)`). On Nothing to see here it found no `#ticket_id` and threw.
 
 ## [26.11.3]
 
