@@ -287,7 +287,7 @@ ob_start();
     </div>
 </form>
 
-<script src="/agent/js/share_add.js"></script>
+<script src="<?= staticFileUrl('/agent/js/share_add.js') ?>"></script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

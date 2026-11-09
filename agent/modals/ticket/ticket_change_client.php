@@ -74,6 +74,6 @@ ob_start();
     </div>
 </form>
 
-<script src="/agent/js/ticket_change_client.js"></script>
+<script src="<?= staticFileUrl('/agent/js/ticket_change_client.js') ?>"></script>
 
 <?php require_once '../../../includes/modal_footer.php'; ?>

@@ -254,8 +254,8 @@ $item_id = intval($_GET['id'] ?? 0);
     </div>
 </div>
 
-<script src="/js/pretty_content.js"></script>
-<script src="/js/guest_share.js"></script>
+<script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/guest_share.js') ?>"></script>
 
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';

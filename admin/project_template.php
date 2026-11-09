@@ -166,7 +166,7 @@ $archived = !empty($template['project_template_archived_at']);
     </div>
 </div>
 
-<script src="../libs/SortableJS/Sortable.min.js"></script>
+<script src="<?= staticFileUrl('/libs/SortableJS/Sortable.min.js') ?>"></script>
 <script>
     (function () {
         var list = document.getElementById('projectTemplateTickets');

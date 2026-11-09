@@ -332,8 +332,8 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
     </div>
 </div>
 
-<script src="../js/pretty_content.js"></script>
-<script src="../libs/SortableJS/Sortable.min.js"></script>
+<script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>
+<script src="<?= staticFileUrl('/libs/SortableJS/Sortable.min.js') ?>"></script>
 <script>
     (function () {
         var list = document.getElementById('documentTemplateFillIns');

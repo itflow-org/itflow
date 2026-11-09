@@ -539,12 +539,12 @@ $setup_title = ['restore' => 'Restore a backup', 'restored' => 'Backup restored'
         })();
     </script>
 
-    <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
-    <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/fontawesome-free/css/all.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte.min.css') ?>">
     <?php if ($setup_step === 'company') { ?>
-        <link rel="stylesheet" href="/libs/intl-tel-input/css/intlTelInput.min.css">
+        <link rel="stylesheet" href="<?= staticFileUrl('/libs/intl-tel-input/css/intlTelInput.min.css') ?>">
     <?php } ?>
-    <link rel="stylesheet" href="/css/itflow_custom.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/css/itflow_custom.css') ?>">
 </head>
 
 <body class="itflow-setup bg-body-tertiary">
@@ -616,15 +616,15 @@ $setup_title = ['restore' => 'Restore a backup', 'restored' => 'Backup restored'
 
 </div>
 
-<script src="/js/itflow_select.js"></script>
-<script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="<?= staticFileUrl('/js/itflow_select.js') ?>"></script>
+<script src="<?= staticFileUrl('/libs/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
 <?php if ($setup_step === 'company') { ?>
     <!-- The company's phone, with its country code - as on Admin > Settings > Company -->
-    <script src="/libs/intl-tel-input/js/intlTelInputWithUtils.min.js"></script>
-    <script src="/js/phone_inputs.js"></script>
+    <script src="<?= staticFileUrl('/libs/intl-tel-input/js/intlTelInputWithUtils.min.js') ?>"></script>
+    <script src="<?= staticFileUrl('/js/phone_inputs.js') ?>"></script>
 <?php } ?>
-<script src="/js/app.js"></script>
-<script src="/js/setup.js"></script>
+<script src="<?= staticFileUrl('/js/app.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/setup.js') ?>"></script>
 
 </body>
 

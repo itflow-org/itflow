@@ -70,30 +70,30 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
     <?php } ?>
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/fontawesome-free/css/all.min.css') ?>">
 
     <!-- Theme style -->
-    <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte.min.css') ?>">
     <?php /* Opt-in AdminLTE 3 palette, new in v4.5.0. Supplies the
              --bs-<colour> tokens plus .text-bg-* / .card-* / .callout-*
              / .bg-gradient-* families. Loads BEFORE itflow_custom.css so
              our own .bg-<colour> box colours still win. */ ?>
-    <link rel="stylesheet" href="/libs/adminlte/css/adminlte-colors-v3.min.css">
-    <link rel="stylesheet" href="/libs/sweetalert2/css/sweetalert2.min.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte-colors-v3.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/sweetalert2/css/sweetalert2.min.css') ?>">
 
     <!-- ITFlow style: the AdminLTE 3 compatibility layer, the theme colours and the
          portal's own look. Must load last so it wins. -->
-    <link rel="stylesheet" href="/css/itflow_custom.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/css/itflow_custom.css') ?>">
 
     <?php /* Only the pages that set this flag before including inc_all.php pull
              in intl-tel-input - it is ~200KB of JS and flag sprites, and one
              page uses it. */ ?>
     <?php if (!empty($portal_load_phone_inputs)) { ?>
-        <link rel="stylesheet" href="/libs/intl-tel-input/css/intlTelInput.min.css">
+        <link rel="stylesheet" href="<?= staticFileUrl('/libs/intl-tel-input/css/intlTelInput.min.css') ?>">
     <?php } ?>
 
     <?php if (!empty($portal_load_datatables)) { ?>
-        <link rel="stylesheet" href="/libs/DataTables/datatables.min.css">
+        <link rel="stylesheet" href="<?= staticFileUrl('/libs/DataTables/datatables.min.css') ?>">
     <?php } ?>
 
 </head>

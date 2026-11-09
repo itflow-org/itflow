@@ -623,8 +623,8 @@ $hours_text = function ($hours) {
 
 <?php } ?>
 
-<script src="/js/billing_items.js"></script>
-<script src="/js/unbilled_time.js"></script>
+<script src="<?= staticFileUrl('/js/billing_items.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/unbilled_time.js') ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     itflowUnbilledTime({

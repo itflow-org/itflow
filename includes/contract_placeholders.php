@@ -17,4 +17,4 @@ defined('CONTRACT_PLACEHOLDERS') || die("Direct file access is not allowed");
         <button type="button" class="badge rounded-pill text-bg-light border font-monospace fw-normal mb-1" data-contract-placeholder="[<?= escapeHtml($placeholder_word) ?>]" title="<?= escapeHtml(ucfirst($placeholder_about)) ?>">[<?= escapeHtml($placeholder_word) ?>]</button>
     <?php } ?>
 </div>
-<script src="/js/contract_placeholders.js"></script>
+<script src="<?= staticFileUrl('/js/contract_placeholders.js') ?>"></script>

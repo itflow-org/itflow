@@ -106,4 +106,4 @@ $tax_part_row = function ($key, array $part = []) {
     </div>
 </div>
 
-<script src="/js/tax_form.js"></script>
+<script src="<?= staticFileUrl('/js/tax_form.js') ?>"></script>

@@ -57,7 +57,7 @@ if (!$round || $state['key'] !== 'countersign') { ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
-<script src="/js/signature_pad.js"></script>
+<script src="<?= staticFileUrl('/js/signature_pad.js') ?>"></script>
 
 <?php }
 require_once '../../../includes/modal_footer.php';

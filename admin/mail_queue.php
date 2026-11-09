@@ -257,7 +257,7 @@ $filtered_dates = isset($_GET['dtf']) && $_GET['dtf'] !== '' && $_GET['dtf'] !==
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 
-<script src="../js/bulk_actions.js"></script>
+<script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
 
 <?php
 require_once "../includes/footer.php";

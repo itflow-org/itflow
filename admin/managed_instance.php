@@ -400,7 +400,7 @@ $size = function ($mb) {
 </div>
 
 <?php if ($waiting && !$removed) { ?>
-    <script src="../js/auto_reload.js"></script>
+    <script src="<?= staticFileUrl('/js/auto_reload.js') ?>"></script>
 <?php } ?>
 
 <?php

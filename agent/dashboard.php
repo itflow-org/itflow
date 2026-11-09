@@ -662,5 +662,5 @@ if ($getting_started) {
 
 <?php if ($chart_data) { ?>
     <script>window.itflowDashboardData = <?= json_encode($chart_data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_INVALID_UTF8_SUBSTITUTE) ?>;</script>
-    <script src="/js/dashboard.js"></script>
+    <script src="<?= staticFileUrl('/js/dashboard.js') ?>"></script>
 <?php } ?>

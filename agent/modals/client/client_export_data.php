@@ -161,7 +161,7 @@ ob_start();
 
 </div>
 
-<script src="/agent/js/client_export.js"></script>
+<script src="<?= staticFileUrl('/agent/js/client_export.js') ?>"></script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

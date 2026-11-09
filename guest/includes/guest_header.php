@@ -17,27 +17,27 @@
     <?php } ?>
 
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/fontawesome-free/css/all.min.css') ?>">
     <!-- Theme style -->
-    <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte.min.css') ?>">
     <?php /* Opt-in AdminLTE 3 palette, new in v4.5.0. Supplies the
              --bs-<colour> tokens plus .text-bg-* / .card-* / .callout-*
              / .bg-gradient-* families. Loads BEFORE itflow_custom.css so
              our own .bg-<colour> box colours still win. */ ?>
-    <link rel="stylesheet" href="/libs/adminlte/css/adminlte-colors-v3.min.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte-colors-v3.min.css') ?>">
 
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="/libs/flatpickr/css/flatpickr.min.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/flatpickr/css/flatpickr.min.css') ?>">
     <?php /* Required: includes/footer.php loads sweetalert2.min.js for the
              confirm-link dialogs used by guest_approve_ticket_task.php and
              guest_view_quote.php. Every bit of the dialog's positioning
              (position:fixed, inset:0, the centering grid) lives in this
              stylesheet, so without it the popup renders as a static block at
              the foot of the document. */ ?>
-    <link rel="stylesheet" href="/libs/sweetalert2/css/sweetalert2.min.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/sweetalert2/css/sweetalert2.min.css') ?>">
 
     <!-- ITFlow style: loaded last so it wins. See includes/header.php -->
-    <link rel="stylesheet" href="/css/itflow_custom.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/css/itflow_custom.css') ?>">
 
     <!-- Scripts -->
 

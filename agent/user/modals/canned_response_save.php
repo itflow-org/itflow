@@ -62,7 +62,7 @@ ob_start();
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
-<script src="/agent/js/canned_response_save.js"></script>
+<script src="<?= staticFileUrl('/agent/js/canned_response_save.js') ?>"></script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

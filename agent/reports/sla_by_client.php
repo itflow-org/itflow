@@ -146,4 +146,4 @@ $chart_rows = array_slice($clients, 0, 15);
 </div>
 
 <?php require_once "../../includes/footer.php"; ?>
-<script src="/js/reports.js"></script>
+<script src="<?= staticFileUrl('/js/reports.js') ?>"></script>

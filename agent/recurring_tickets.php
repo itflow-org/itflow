@@ -412,7 +412,7 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
     ?>
 </div>
 
-<script src="../js/bulk_actions.js"></script>
+<script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
 
 <?php
 require_once "../includes/footer.php";

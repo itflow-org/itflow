@@ -72,7 +72,7 @@ ob_start();
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
 </div>
 
-<script src="../js/pretty_content.js"></script>
+<script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

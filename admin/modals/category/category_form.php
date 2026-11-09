@@ -117,4 +117,4 @@ $c_max = $c_config['max'] ?? 200;
     </div>
 </div>
 
-<script src="/js/category_form.js"></script>
+<script src="<?= staticFileUrl('/js/category_form.js') ?>"></script>

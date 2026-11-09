@@ -110,7 +110,7 @@ ob_start();
     </div>
 </form>
 
-<script src="/agent/js/document_template_make.js"></script>
+<script src="<?= staticFileUrl('/agent/js/document_template_make.js') ?>"></script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

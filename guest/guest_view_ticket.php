@@ -425,7 +425,7 @@ $urgent = $open && $company_phone !== '' && in_array($ticket['ticket_priority'],
     </div>
 </div>
 
-<script src="/js/pretty_content.js"></script>
+<script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>
 
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';

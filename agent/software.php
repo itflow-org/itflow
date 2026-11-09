@@ -590,7 +590,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
     ?>
 </div>
 
-<script src="../js/bulk_actions.js"></script>
+<script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
 
 <?php
 require_once "../includes/footer.php";

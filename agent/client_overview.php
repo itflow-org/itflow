@@ -702,4 +702,4 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
 <?php if ($chart_data) { ?>
     <script>window.itflowClientOverviewData = <?= json_encode($chart_data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_INVALID_UTF8_SUBSTITUTE) ?>;</script>
 <?php } ?>
-<script src="/js/client_overview.js"></script>
+<script src="<?= staticFileUrl('/js/client_overview.js') ?>"></script>

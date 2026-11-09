@@ -78,5 +78,5 @@ if (!empty($canned_picker_groups) || intval($canned_picker_ticket_id) > 0) { ?>
             <span class="text-body-secondary me-1"><i class="fas fa-fw fa-paperclip me-1"></i>Goes with it:</span>
         </div>
     </div>
-    <script src="/agent/js/canned_response_picker.js"></script>
+    <script src="<?= staticFileUrl('/agent/js/canned_response_picker.js') ?>"></script>
 <?php }

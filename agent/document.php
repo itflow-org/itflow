@@ -293,7 +293,7 @@ $page_title = $row['document_name'];
 
 </div>
 
-<script src="../js/pretty_content.js"></script>
+<script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>
 
 <?php
 

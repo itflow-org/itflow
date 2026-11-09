@@ -501,7 +501,7 @@ $filter_url = function ($changes) use ($client_url) {
     </script>
 <?php } ?>
 
-<script src="../js/bulk_actions.js"></script>
+<script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
 
 <?php
 require_once "../includes/footer.php";

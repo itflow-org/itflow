@@ -38,7 +38,7 @@ ob_start();
     </div>
 </form>
 
-<script src="/agent/js/interface_form.js"></script>
+<script src="<?= staticFileUrl('/agent/js/interface_form.js') ?>"></script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

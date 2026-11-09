@@ -223,6 +223,6 @@ foreach ($starter_content_status as $pack_status) {
 </div>
 
 <?= starterPreviewModalHtml() ?>
-<script src="/js/starter_content.js"></script>
+<script src="<?= staticFileUrl('/js/starter_content.js') ?>"></script>
 
 <?php require_once "../includes/footer.php"; ?>

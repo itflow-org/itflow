@@ -49,7 +49,7 @@ $tickets_tags = tagsForRecords('ticket', $board_ids);
 
 ?>
 
-<link rel="stylesheet" href="css/ticket_kanban.css">
+<link rel="stylesheet" href="<?= staticFileUrl('/agent/css/ticket_kanban.css') ?>">
 
 <?php if ($off_board_count) { ?>
     <div class="alert alert-secondary py-2 mx-3 mt-3 mb-0 small">
@@ -180,6 +180,6 @@ $tickets_tags = tagsForRecords('ticket', $board_ids);
 <?php } ?>
 
 <?php if ($can_edit) { ?>
-    <script src="../libs/SortableJS/Sortable.min.js"></script>
-    <script src="js/tickets_kanban.js"></script>
+    <script src="<?= staticFileUrl('/libs/SortableJS/Sortable.min.js') ?>"></script>
+    <script src="<?= staticFileUrl('/agent/js/tickets_kanban.js') ?>"></script>
 <?php } ?>

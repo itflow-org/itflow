@@ -93,12 +93,12 @@ $title = $state === 'pending' ? ($signup ? 'Finish signing up' : 'Join ' . $invi
     <title><?= escapeHtml($company_name) ?> | <?= escapeHtml($title) ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
-    <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/fontawesome-free/css/all.min.css') ?>">
     <?php if (file_exists(__DIR__ . '/../uploads/favicon.ico')) { ?>
         <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
     <?php } ?>
-    <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
-    <link rel="stylesheet" href="/css/itflow_custom.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/css/itflow_custom.css') ?>">
 </head>
 <body class="hold-transition login-page">
 
@@ -193,7 +193,7 @@ $title = $state === 'pending' ? ($signup ? 'Finish signing up' : 'Join ' . $invi
     </div>
 </div>
 
-<script src="/js/login_prevent_resubmit.js"></script>
+<script src="<?= staticFileUrl('/js/login_prevent_resubmit.js') ?>"></script>
 
 </body>
 </html>

@@ -531,7 +531,7 @@ $hero = [
 
 </div>
 
-<script src="../js/auto_reload.js"></script>
+<script src="<?= staticFileUrl('/js/auto_reload.js') ?>"></script>
 
 <?php
 

@@ -184,4 +184,4 @@ $span = ['30' => '30 days', '60' => '60 days', '90' => '90 days', '180' => '6 mo
 </div>
 
 <?php require_once "../../includes/footer.php"; ?>
-<script src="/js/reports.js"></script>
+<script src="<?= staticFileUrl('/js/reports.js') ?>"></script>

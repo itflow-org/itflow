@@ -172,9 +172,9 @@ foreach ($sources as $key => $source) {
 <?php require_once "../includes/footer.php"; ?>
 
 <!-- FullCalendar v7: theme + CSS are separate plugins, loaded alongside the core bundle -->
-<link href="/libs/fullcalendar/skeleton.css" rel="stylesheet">
-<link href="/libs/fullcalendar/themes/classic/theme.css" rel="stylesheet">
-<link href="/libs/fullcalendar/themes/classic/palette.css" rel="stylesheet">
-<script src="/libs/fullcalendar/fullcalendar.global.js"></script>
-<script src="/libs/fullcalendar/themes/classic/global.js"></script>
-<script src="/agent/js/calendar.js"></script>
+<link href="<?= staticFileUrl('/libs/fullcalendar/skeleton.css') ?>" rel="stylesheet">
+<link href="<?= staticFileUrl('/libs/fullcalendar/themes/classic/theme.css') ?>" rel="stylesheet">
+<link href="<?= staticFileUrl('/libs/fullcalendar/themes/classic/palette.css') ?>" rel="stylesheet">
+<script src="<?= staticFileUrl('/libs/fullcalendar/fullcalendar.global.js') ?>"></script>
+<script src="<?= staticFileUrl('/libs/fullcalendar/themes/classic/global.js') ?>"></script>
+<script src="<?= staticFileUrl('/agent/js/calendar.js') ?>"></script>

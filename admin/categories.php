@@ -312,9 +312,9 @@ $csrf = $_SESSION['csrf_token'];
     </div>
 </div>
 
-<script src="../js/bulk_actions.js"></script>
+<script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
 <?php if ($can_reorder) { ?>
-    <script src="/libs/SortableJS/Sortable.min.js"></script>
+    <script src="<?= staticFileUrl('/libs/SortableJS/Sortable.min.js') ?>"></script>
     <script>
         (function () {
             // Dragged into order - saved as soon as one is dropped, in their place among the rest (offset - the ones on the pages before);

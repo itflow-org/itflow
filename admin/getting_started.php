@@ -81,10 +81,10 @@ define('FROM_GETTING_STARTED', true);
     <?php if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/uploads/favicon.ico')) { ?>
         <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
     <?php } ?>
-    <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
-    <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
-    <link rel="stylesheet" href="/libs/sweetalert2/css/sweetalert2.min.css">
-    <link rel="stylesheet" href="/css/itflow_custom.css">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/fontawesome-free/css/all.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/sweetalert2/css/sweetalert2.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/css/itflow_custom.css') ?>">
 </head>
 
 <body class="itflow-setup itflow-gs bg-body-tertiary">
@@ -189,14 +189,14 @@ define('FROM_GETTING_STARTED', true);
 
 </div>
 
-<script src="/js/itflow_select.js"></script>
-<script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/libs/sweetalert2/js/sweetalert2.min.js"></script>
-<script src="/js/confirm_modal.js"></script>
-<script src="/js/app.js"></script>
-<script src="/js/settings.js"></script>
-<script src="/js/getting_started.js"></script>
-<script src="/js/starter_content.js"></script>
+<script src="<?= staticFileUrl('/js/itflow_select.js') ?>"></script>
+<script src="<?= staticFileUrl('/libs/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
+<script src="<?= staticFileUrl('/libs/sweetalert2/js/sweetalert2.min.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/confirm_modal.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/app.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/settings.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/getting_started.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/starter_content.js') ?>"></script>
 
 </body>
 

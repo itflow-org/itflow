@@ -489,7 +489,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
     ?>
 </div>
 
-<script src="../js/bulk_actions.js"></script>
+<script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
 
 <?php
 require_once "../includes/footer.php";

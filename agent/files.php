@@ -758,9 +758,9 @@ $preview = []; // the grid's previewer payload
 <script>
     window.itflowFilesPreview = <?= json_encode($preview) ?>;
 </script>
-<script src="js/files.js"></script>
-<script src="../js/bulk_actions.js"></script>
-<script src="../js/pretty_content.js"></script>
+<script src="<?= staticFileUrl('/agent/js/files.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>
 
 <?php
 require_once "../includes/footer.php";

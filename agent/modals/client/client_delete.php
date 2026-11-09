@@ -26,4 +26,4 @@
     </div>
 </div>
 <?php /* defer is safe here */ ?>
-<script src="/agent/js/client_delete_confirm.js" defer></script>
+<script src="<?= staticFileUrl('/agent/js/client_delete_confirm.js') ?>" defer></script>

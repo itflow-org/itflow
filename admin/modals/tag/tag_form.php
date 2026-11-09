@@ -103,4 +103,4 @@ if (!in_array($t_icon, $t_icons, true)) {
     </div>
 </div>
 
-<script src="/js/tag_form.js"></script>
+<script src="<?= staticFileUrl('/js/tag_form.js') ?>"></script>

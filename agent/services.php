@@ -443,7 +443,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
     ?>
 </div>
 
-<script src="../js/bulk_actions.js"></script>
+<script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
 
 <?php
 require_once "../includes/footer.php";

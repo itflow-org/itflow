@@ -100,4 +100,4 @@ $l_description = (string) ($l['custom_link_description'] ?? '');
     </div>
 </div>
 
-<script src="/js/custom_link_form.js"></script>
+<script src="<?= staticFileUrl('/js/custom_link_form.js') ?>"></script>

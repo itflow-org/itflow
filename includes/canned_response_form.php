@@ -152,4 +152,4 @@ $files = !empty($r['canned_response_id']) ? cannedResponseFiles($r['canned_respo
 
 </div>
 
-<script src="/js/canned_response_form.js"></script>
+<script src="<?= staticFileUrl('/js/canned_response_form.js') ?>"></script>

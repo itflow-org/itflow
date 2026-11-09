@@ -490,7 +490,7 @@ if (isset($_GET['ticket_id'])) {
 
         ?>
 
-        <link rel="stylesheet" href="css/ticket.css">
+        <link rel="stylesheet" href="<?= staticFileUrl('/agent/css/ticket.css') ?>">
 
         <!-- Collision detection reads this - keep it outside the reply form so it exists on resolved tickets too -->
         <input type="hidden" id="ticket_id" value="<?= $ticket_id ?>">
@@ -1884,7 +1884,7 @@ require_once "../includes/footer.php";
 
 ?>
 
-<script src="/js/show_modals.js"></script>
+<script src="<?= staticFileUrl('/js/show_modals.js') ?>"></script>
 
 <?php
 // The timer drives the Time worked fields in the reply form, so it only loads where that form is.
@@ -1896,17 +1896,19 @@ if (!empty($can_edit_ticket) && !empty($ticket_is_open)) { ?>
     </script>
 
     <!-- Ticket Time Tracking JS -->
-    <script src="js/ticket_time_tracking.js"></script>
+    <script src="<?= staticFileUrl('/agent/js/ticket_time_tracking.js') ?>"></script>
 <?php } ?>
 
-<?php if (empty($ticket_closed_at)) { ?>
+<?php
+// Only with a ticket on the page - for one that's gone or not theirs ("Nothing to see here") it found no ticket and threw.
+if (isset($ticket_is_open) && empty($ticket_closed_at)) { ?>
     <!-- Ticket collision detect JS (jQuery is called in footer, so collision detection script MUST be below it) -->
-    <script src="js/ticket_collision_detection.js"></script>
+    <script src="<?= staticFileUrl('/agent/js/ticket_collision_detection.js') ?>"></script>
 <?php } ?>
 
-<script src="/js/pretty_content.js"></script>
+<script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>
 
-<script src="/libs/SortableJS/Sortable.min.js"></script>
+<script src="<?= staticFileUrl('/libs/SortableJS/Sortable.min.js') ?>"></script>
 <script>
 (function () {
     // Task reordering

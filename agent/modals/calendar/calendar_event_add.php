@@ -80,7 +80,7 @@ ob_start();
     </div>
 </form>
 
-<script src="/agent/js/calendar_event_modal.js"></script>
+<script src="<?= staticFileUrl('/agent/js/calendar_event_modal.js') ?>"></script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

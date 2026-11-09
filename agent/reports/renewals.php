@@ -163,4 +163,4 @@ foreach (REPORT_RENEWAL_KINDS as $key => $meta) {
 </div>
 
 <?php require_once "../../includes/footer.php"; ?>
-<script src="/js/reports.js"></script>
+<script src="<?= staticFileUrl('/js/reports.js') ?>"></script>

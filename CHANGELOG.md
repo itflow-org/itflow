@@ -2,6 +2,22 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.11.5]
+
+### Upgrading
+
+Update from Maintenance > Update — Queue Update hands the job to cron and it applies on its own. There is no database change in this release, so nothing else is required. From 26.11.3 or earlier, the same update also brings 26.11.4 and its database changes - see its notes below. Nobody needs to clear their browser's cache afterwards.
+
+### Bug Fixes
+
+- Updates: after an update, pages could act up - menus, buttons, editors and forms not working, or pages looking half old and half new - until each person cleared their browser's cache, and sometimes closed the browser and cleared it again. Browsers kept the copies of ITFlow's scripts and stylesheets from before the update and went on using them with the new pages, for days or weeks. Each one is now asked for by an address that changes when the file does, so after an update browsers fetch what changed straight away and keep using what didn't. This starts with this update: nobody needs to clear their cache for it.
+
+### Developer Updates
+
+- `staticFileUrl($path)` in `functions/app.php` returns `$path?v=` and the file's `filemtime()`, or the path as it is when the file isn't there. Every `<script src>` and `<link href>` to a file in ITFlow - `libs/` included - goes through it, and those that were relative to the page (`libs/...`, `../js/...`, `css/ticket.css`) are now from the site root. ITFlow sends no caching headers for static files, so browsers used heuristic freshness - a share of the time since the file last changed - and reused old copies without asking. `.htaccess` and server configuration are unchanged. New tags must use it (CONTRIBUTING.md).
+- `js/tinymce_defaults.js`, loaded straight after `tinymce.min.js` in `includes/footer.php` and `client/includes/footer.php`, sets TinyMCE's `cache_suffix` through `tinymce.overrideDefaults()` to the `?v=` of `tinymce.min.js`'s own tag, so the plugins, theme, icons, model and skins TinyMCE fetches by itself are versioned too. A file, not an inline script, as the portal's pages with `Content-Security-Policy: default-src 'self'` allow no inline scripts.
+- `agent/ticket.php` loads `agent/js/ticket_collision_detection.js` only when a ticket is shown (`isset($ticket_is_open)`). On Nothing to see here it found no `#ticket_id` and threw.
+
 ## [26.11.4]
 
 ### Upgrading

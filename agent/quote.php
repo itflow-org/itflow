@@ -341,9 +341,9 @@ $paper = [
     </form>
 <?php } ?>
 
-<script src="/js/inline_notes.js"></script>
-<script src="/libs/SortableJS/Sortable.min.js"></script>
-<script src="/js/billing_items.js"></script>
+<script src="<?= staticFileUrl('/js/inline_notes.js') ?>"></script>
+<script src="<?= staticFileUrl('/libs/SortableJS/Sortable.min.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/billing_items.js') ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     itflowBillingItems({
