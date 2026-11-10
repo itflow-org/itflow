@@ -83,7 +83,7 @@ if (!$contract || !contractHoursReady() || !($contract['contract_status'] === 'D
             </div>
             <div class="input-group mb-1">
                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <select class="form-select" name="category" aria-label="Invoice category">
+                <select class="form-select select2" name="category" aria-label="Invoice category">
                     <option value="0">- Invoice category -</option>
                     <?= categoryOptionsHtml('Income') ?>
                 </select>
