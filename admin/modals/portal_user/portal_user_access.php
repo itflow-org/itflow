@@ -49,7 +49,7 @@ if (!$portal_user) { ?>
                 <div class="mb-3">
                     <label class="form-label">They sign in</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-sign-in-alt"></i></span>
                         <select class="form-select select2" name="method">
                             <?php foreach ($methods as $method => $label) { ?>
                                 <option value="<?= $method ?>"<?= selectOptionData(['icon' => $method === 'azure' ? 'fab fa-microsoft' : 'fas fa-key']) ?>><?= escapeHtml($label) ?></option>

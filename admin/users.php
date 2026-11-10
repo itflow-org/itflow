@@ -389,7 +389,7 @@ $csrf = $_SESSION['csrf_token'];
 
     <?php if (!intval($config_client_portal_enable)) { ?>
         <div class="alert alert-warning border-0 rounded-0 mb-0 px-3 py-2 small" data-portal-off>
-            <i class="fas fa-exclamation-triangle me-2"></i>The client portal is turned off, so nobody here can sign in. Turn it on in <a href="settings_client_portal.php" class="alert-link">Settings &gt; Client Portal</a>.
+            <i class="fas fa-exclamation-triangle me-2"></i>The client portal is off, so nobody here can sign in - turn it on in <a href="settings_module.php" class="alert-link">Modules</a>.
         </div>
     <?php } ?>
 
