@@ -116,6 +116,103 @@ function portalContactAccess(array $row) {
     return ['key' => $method, 'label' => $method === 'azure' ? 'Signs in with Microsoft' : 'Signs in with a password', 'icon' => 'fa-check', 'class' => 'itflow-portal-state-resolved'];
 }
 
+/*
+ * ---------- every client's portal users (Admin > Users > Client portal) ----------
+ */
+
+/** In SQL, over users joined to its contact and client: can sign in - a way to, not disabled, and nothing archived. */
+const PORTAL_USER_ON_SQL = "user_auth_method IN ('local', 'azure') AND user_status = 1 AND user_archived_at IS NULL AND contact_archived_at IS NULL AND client_archived_at IS NULL";
+
+/**
+ * A portal user with the contact it signs in as and their client - raw, or
+ * null when it isn't a portal user or has no contact. 'portal_on' is whether
+ * they can sign in, and 'portal_off_why' says why not, in words.
+ */
+function portalUserRow($user_id) {
+    global $mysqli;
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT users.user_id, user_name, user_email, user_auth_method, user_status, user_token, user_archived_at, user_created_at,
+            contact_id, contact_name, contact_email, contact_title, contact_photo, contact_archived_at, client_id, client_name, client_archived_at
+        FROM users JOIN contacts ON contact_user_id = users.user_id JOIN clients ON client_id = contact_client_id
+        WHERE users.user_id = " . intval($user_id) . " AND user_type = 2 LIMIT 1"));
+    if (!$row) {
+        return null;
+    }
+    $row['portal_off_why'] = portalUserOffWhy($row);
+    $row['portal_on'] = $row['portal_off_why'] === '';
+    return $row;
+}
+
+/** Why a portal user can't sign in, in words - '' when they can. From a row with the user, contact and client columns. */
+function portalUserOffWhy(array $row) {
+    if (!empty($row['client_archived_at'])) {
+        return 'Their client is archived';
+    }
+    if (!empty($row['contact_archived_at']) || !empty($row['user_archived_at'])) {
+        return 'The contact is archived';
+    }
+    if (intval($row['user_status'] ?? 0) !== 1) {
+        return 'Their login is disabled';
+    }
+    return in_array((string) ($row['user_auth_method'] ?? ''), ['local', 'azure'], true) ? '' : 'Portal access is turned off';
+}
+
+/**
+ * The last time each of some portal users signed in - [user_id => log row
+ * with log_created_at, log_ip, log_user_agent], and nothing for one who never
+ * has. For userLoginHtml().
+ */
+function portalLastSignIns(array $user_ids) {
+    global $mysqli;
+    $user_ids = array_values(array_filter(array_map('intval', $user_ids)));
+    $logins = [];
+    if ($user_ids) {
+        $sql = mysqli_query($mysqli, "SELECT log_user_id, log_created_at, log_ip, log_user_agent FROM logs
+            WHERE log_id IN (SELECT MAX(log_id) FROM logs WHERE log_user_id IN (" . implode(',', $user_ids) . ") AND log_type = 'Client Login' AND log_action = 'Success' GROUP BY log_user_id)");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $logins[intval($row['log_user_id'])] = $row;
+        }
+    }
+    return $logins;
+}
+
+/**
+ * Turn a portal user's access off, as a contact's page and the portal's own
+ * People page do: no way to sign in, so the portal signs them out on their
+ * next click (client/includes/check_login.php), and no password link or
+ * remembered browser left to get back in with.
+ */
+function portalUserAccessOff($user_id) {
+    global $mysqli;
+    $user_id = intval($user_id);
+    mysqli_query($mysqli, "UPDATE users SET user_auth_method = '', user_password_reset_token = NULL, user_password_reset_token_expire = NULL WHERE user_id = $user_id AND user_type = 2");
+    mysqli_query($mysqli, "DELETE remember_tokens FROM remember_tokens JOIN users ON user_id = remember_token_user_id WHERE user_id = $user_id AND user_type = 2");
+}
+
+/**
+ * Turn a portal user's access back on with $method (local or azure). Only for
+ * one whose contact and client aren't archived, and whose email no other
+ * account signs in with now. '' when done, or why not.
+ */
+function portalUserAccessOn($user_id, $method) {
+    global $mysqli;
+    $row = portalUserRow($user_id);
+    if (!$row) {
+        return 'That portal user no longer exists';
+    }
+    if (!empty($row['client_archived_at']) || !empty($row['contact_archived_at'])) {
+        return ($row['client_archived_at'] ? 'Their client' : 'The contact') . ' is archived - restore it first';
+    }
+    if (!isset(portalSignInMethods()[$method])) {
+        $method = 'local';
+    }
+    $error = '';
+    if (userCheckIdentity(['name' => $row['contact_name'], 'email' => $row['user_email']], $row['user_id'], $error) === null) {
+        return strip_tags($error);
+    }
+    mysqli_query($mysqli, "UPDATE users SET user_auth_method = '" . escapeSql($method) . "', user_status = 1, user_archived_at = NULL WHERE user_id = " . intval($row['user_id']) . " AND user_type = 2");
+    return '';
+}
+
 /** The ways a portal user can sign in here - a password, and Microsoft when it is set up. method => label. */
 function portalSignInMethods() {
     global $config_azure_client_id;
