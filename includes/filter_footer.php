@@ -72,14 +72,11 @@ if ($total_found_rows > 5) {
 
                 <?php
 
-                if ($total_pages <= 100) {
-                    $pages_split = 10;
-                }
-                if (($total_pages <= 1000) && ($total_pages > 100)) {
-                    $pages_split = 100;
-                }
-                if (($total_pages <= 10000) && ($total_pages > 1000)) {
-                    $pages_split = 1000;
+                // Every 10th page is linked up to 100 pages, every 100th up to 1,000, and so on up -
+                // past 10,000 pages this had no value, and the division below ended the page
+                $pages_split = 10;
+                while ($pages_split * 10 < $total_pages) {
+                    $pages_split *= 10;
                 }
                 if ($page > 1) {
                     $prev_class = "";

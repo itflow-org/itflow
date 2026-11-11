@@ -2,6 +2,27 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.11.7]
+
+### Upgrading
+
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's one database change (3.6.3 to 3.6.4) in the same pass. That change adds indexes to the tickets, ticket replies, invoices and expenses tables: a few seconds on most installs, and up to a few minutes on one with many years of tickets. Nothing else is required.
+
+### New Features & Updates
+
+- Speed: the dashboard, and the menu on every page, are much quicker on an ITFlow with years of history in it. Most of what they show is about what is still open - open tickets, unpaid invoices, unbilled time - and finding those few meant reading through every ticket and invoice ever made, several times over. They are now found directly. On a test install with 280,000 tickets, 380,000 replies and 70,000 invoices the dashboard went from about 5 seconds to under 1, a technician's dashboard from under 3 seconds to a tenth of one, and every other page opened about half a second sooner. A smaller install won't see much difference. Every figure shown is the same as before.
+
+### Bug Fixes
+
+- Lists: a list long enough to run past 10,000 pages - closed tickets at 10 a page on an install with over 100,000 of them, say - stopped drawing at its page numbers, so the rest of the page was missing and its menus and buttons did nothing. Lists of any length now finish, with their page numbers.
+
+### Developer Updates
+
+- Database 3.6.4 (`admin/database_updates/3.6.4.php`) adds seven indexes, each only where it isn't there already, and `db.sql` has them for new installs: `tickets` (`ticket_resolved_at`), (`ticket_closed_at`), (`ticket_created_at`) and (`ticket_billable`, `ticket_invoice_id`, `ticket_status`, `ticket_client_id`, `ticket_archived_at`); `ticket_replies` (`ticket_reply_by`, `ticket_reply_created_at`); `invoices` (`invoice_status`); `expenses` (`expense_date`). `ticket_resolved_at IS NULL` and `ticket_closed_at IS NULL` are a sliver of a mature install's tickets, where `*_archived_at IS NULL` is nearly all of them; the five-column one answers `billingUnbilledCount()` from the index alone; `invoice_status` is taken for Sent, Viewed and Partial and still scanned for Paid. The reasoning for each, and what was left out, is in the migration's comment.
+- `dashboardPeriodOptions()` finds the years with data by asking each of payments, revenues, expenses and tickets for its first date from a year on - `SELECT MIN(col) ... WHERE col >= 'Y-01-01'`, one step into the index a year - in place of a `UNION` of `YEAR()` over every row of five tables; invoices get one `SELECT DISTINCT YEAR(invoice_date)`. The list it returns is the same.
+- `dashboardLatestIncome()` joins with `STRAIGHT_JOIN` from `payments`, so the last five are read off `payment_date` backwards; the optimizer started from `clients` and sorted every payment.
+- `includes/filter_footer.php` works `$pages_split` out for any number of pages (10, 100, 1,000, 10,000 and so on up). It was set only up to 10,000 pages, and past that `is_int($i / $pages_split)` threw a `DivisionByZeroError` in the middle of the pager.
+
 ## [26.11.6]
 
 ### Upgrading

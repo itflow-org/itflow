@@ -36,19 +36,34 @@ function dashboardPeriodOptions() {
         'ytd' => 'Year to date',
     ];
 
-    $sql = mysqli_query($mysqli, "
-        SELECT YEAR(payment_date) AS y FROM payments
-        UNION SELECT YEAR(revenue_date) FROM revenues
-        UNION SELECT YEAR(expense_date) FROM expenses
-        UNION SELECT YEAR(invoice_date) FROM invoices
-        UNION SELECT YEAR(ticket_created_at) FROM tickets
-        ORDER BY y DESC
-    ");
+    // The years with anything in them. Each table is asked for its first date from a year on, then
+    // from the year after the one that gave - one step into the date's index a time (3.6.4 gave
+    // expenses and tickets theirs), so it costs the same with ten years of tickets as with ten
+    // tickets. As a YEAR() of every row it read all five tables through on every visit.
+    $this_year = intval(date('Y'));
+    $years = [];
+    foreach (['payments' => 'payment_date', 'revenues' => 'revenue_date', 'expenses' => 'expense_date', 'tickets' => 'ticket_created_at'] as $table => $column) {
+        $year = 1970;
+        while ($year < $this_year) {
+            $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT MIN($column) FROM $table WHERE $column >= '" . ($year + 1) . "-01-01'"));
+            $year = intval(substr((string) ($row[0] ?? ''), 0, 4));
+            if ($year < 1971 || $year > $this_year) {
+                break;
+            }
+            $years[$year] = true;
+        }
+    }
+    // Invoices are few and narrow next to tickets, and invoice_date has no index - read once
+    $sql = mysqli_query($mysqli, "SELECT DISTINCT YEAR(invoice_date) AS y FROM invoices");
     while ($row = mysqli_fetch_assoc($sql)) {
         $year = intval($row['y']);
-        if ($year > 1970 && $year <= intval(date('Y'))) {
-            $options["year-$year"] = (string) $year;
+        if ($year > 1970 && $year <= $this_year) {
+            $years[$year] = true;
         }
+    }
+    krsort($years);
+    foreach (array_keys($years) as $year) {
+        $options["year-$year"] = (string) $year;
     }
 
     return $options;
@@ -1034,11 +1049,14 @@ function dashboardAccountBalances() {
 function dashboardLatestIncome($limit = 5) {
     global $mysqli;
 
+    // In this order - payments, newest first, and stop at $limit. Left to itself the database started
+    // from the clients and sorted every payment there is to find the last few.
+
     $sql = mysqli_query($mysqli, "
         SELECT payment_amount, payment_date, invoice_id, invoice_prefix, invoice_number, invoice_client_id, client_name
         FROM payments
-        JOIN invoices ON payment_invoice_id = invoice_id
-        JOIN clients ON invoice_client_id = client_id
+        STRAIGHT_JOIN invoices ON payment_invoice_id = invoice_id
+        STRAIGHT_JOIN clients ON invoice_client_id = client_id
         WHERE 1 = 1 " . clientScopeSql('invoice_client_id') . "
         ORDER BY payment_date DESC, payment_id DESC
         LIMIT " . intval($limit));
