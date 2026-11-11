@@ -162,7 +162,7 @@ Either way, ITFlow updates its files to the latest release and then applies the 
 
 ### Managed hosting
 
-If you'd rather not run a server, we can [host ITFlow for you](https://itflow.org/hosting.php) (coming soon).
+If you'd rather not run a server, we can [host ITFlow for you](https://itflow.org/signup.php?want=hosting): your own instance, on your own address or a name.itflow.app one, with backups and updates taken care of.
 
 ## Community and support
 
@@ -180,7 +180,7 @@ We have temporarily paused pull requests from the community. See [CONTRIBUTING.m
 
 ### Supporters
 
-We're incredibly grateful to the organizations and individuals who [sponsor](https://itflow.org/hosting.php?want=sponsor) the project - a big thank you to:
+We're incredibly grateful to the organizations and individuals who [sponsor](https://itflow.org/sponsor.php) the project - a big thank you to:
 
 | Sponsor | Since |
 |---|---|

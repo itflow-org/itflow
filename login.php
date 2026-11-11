@@ -35,7 +35,7 @@ require_once "includes/inc_set_timezone.php";
 managedRequestGuard('login');
 
 $session_ip = escapeSql(getIP());
-$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
+$session_user_agent = escapeSql(mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 250));  // log_user_agent is varchar(250), and the new-device check below compares with what was stored
 
 // IMPORTANT (Option B support): ensure this exists in this scope so logAudit() can use it
 $session_user_id = intval($_SESSION['user_id'] ?? 0);

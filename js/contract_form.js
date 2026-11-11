@@ -1,9 +1,11 @@
 // New Contract, Copy and Edit (agent/modals/contract/contract_form.php).
 // Picking a template fills the type, term, renewal, notice, cover and terms
-// from it. Picking the client shows only that client's contacts. The end
-// date follows the start and the term - a term's length less a day - until
-// it is changed by hand, and the line under the term says when notice is
-// due. The server checks it all again.
+// from it. Picking the client fetches that client's contacts, its primary
+// contact picked - only New Contract opened without a client has a client to
+// pick; anywhere else the form comes with the client's contacts already.
+// The end date follows the start and the term - a term's length less a day -
+// until it is changed by hand, and the line under the term says when notice
+// is due. The server checks it all again.
 //
 // Wrapped in an IIFE because a modal can be opened, closed and opened again
 // in one page load, which re-runs this file.
@@ -68,21 +70,59 @@
             drawNotice();
         }
 
-        // Only the client's own contacts
-        function filterContacts() {
+        // The contacts of the client picked, primary first and picked. The list is rebuilt from what
+        // ajax.php sends for that client - it used to hold every client's contacts with the others
+        // hidden, which Safari ignores on an <option>, so there it listed them all.
+        let contactsAsked = 0;
+        function loadContacts() {
             if (!client || !contact) {
                 return;
             }
-            const id = client.value;
-            Array.prototype.forEach.call(contact.options, function (option) {
-                if (option.value === '0') {
+            const asked = ++contactsAsked;
+            contact.innerHTML = '';
+            contact.add(new Option('- None -', '0'));
+            contact.value = '0';
+            if (!client.value) {
+                return;
+            }
+            itflowGet('/agent/ajax.php', {get_client_contacts: 'true', client_id: client.value}, function (data) {
+                // Another client was picked while this one's were on their way
+                if (asked !== contactsAsked) {
                     return;
                 }
-                const mine = option.dataset.client === id;
-                option.hidden = !mine;
-                if (!mine && option.selected) {
-                    contact.value = '0';
+                let contacts = [];
+                try {
+                    contacts = JSON.parse(data).contacts || [];
+                } catch (e) {
+                    contacts = [];
                 }
+                let primary = '0';
+                contacts.forEach(function (row) {
+                    const details = [];
+                    if (row.contact_title) {
+                        details.push(row.contact_title);
+                    }
+                    if (row.contact_primary == '1') {
+                        details.push('Primary');
+                        if (primary === '0') {
+                            primary = String(row.contact_id);
+                        }
+                    } else if (row.contact_technical == '1') {
+                        details.push('Technical');
+                    }
+                    const option = new Option(row.contact_name, row.contact_id);
+                    option.dataset.description = details.join(' \u00b7 ');
+                    if (row.contact_photo_url) {
+                        option.dataset.image = row.contact_photo_url;
+                    } else {
+                        option.dataset.initials = row.contact_initials;
+                        option.dataset.shape = 'circle';
+                        option.dataset.tone = row.contact_tone || 'secondary';
+                        option.dataset.soft = '1';
+                    }
+                    contact.add(option);
+                });
+                contact.value = primary;
             });
         }
 
@@ -130,12 +170,7 @@
             });
         }
         if (client && client.tagName === 'SELECT') {
-            client.addEventListener('change', filterContacts);
-            // Select2 changes the select without a native event
-            if (window.jQuery) {
-                window.jQuery(client).on('change', filterContacts);
-            }
-            filterContacts();
+            client.addEventListener('change', loadContacts);
         }
         start.addEventListener('change', followTerm);
         term.addEventListener('change', followTerm);

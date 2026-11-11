@@ -640,7 +640,7 @@ function portalContactAccessOff($contact_id) {
     $client_id = intval($session_client_id);
     $user_id = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT contact_user_id FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $client_id"))[0] ?? 0);
     if ($user_id) {
-        mysqli_query($mysqli, "UPDATE users SET user_auth_method = '', user_password_reset_token = NULL, user_password_reset_token_expire = NULL WHERE user_id = $user_id AND user_type = 2");
+        portalUserAccessOff($user_id);
     }
     return $user_id > 0;
 }

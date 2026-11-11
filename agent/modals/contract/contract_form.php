@@ -9,9 +9,9 @@
  * Cover: support hours, hours included each month and when to tell the
  * owner they run low, rates, net terms and an SLA for each priority.
  * Terms: the agreement's words. Notes: internal. Picking a template fills
- * the fields from it, and the end date follows the start and term until it
- * is changed (js/contract_form.js). The server checks it all again
- * (contractFromInput()).
+ * the fields from it, picking the client fetches its contacts, and the end
+ * date follows the start and term until it is changed (js/contract_form.js).
+ * The server checks it all again (contractFromInput()).
  */
 
 isset($mysqli) || die("Direct file access is not allowed");
@@ -35,7 +35,8 @@ $c_hours = function ($value) {
     return floatval($value) > 0 ? rtrim(rtrim(number_format(floatval($value), 2, '.', ''), '0'), '.') : '';
 };
 
-// The clients to pick from, and their contacts - shown for the client picked
+// The clients to pick from, and the contacts of the client it is for. With no client yet (New Contract
+// from the contracts page) there are none here - they are fetched when one is picked (js/contract_form.js)
 $c_clients = [];
 $c_contacts = [];
 $client_where = $c_client_id ? "client_id = $c_client_id" : "client_archived_at IS NULL " . clientScopeSql('clients.client_id');
@@ -43,10 +44,10 @@ $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation
 while ($row = mysqli_fetch_assoc($sql)) {
     $c_clients[intval($row['client_id'])] = $row;
 }
-if ($c_clients) {
-    $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_client_id, contact_primary FROM contacts
-        WHERE contact_client_id IN (" . implode(',', array_keys($c_clients)) . ") AND (contact_archived_at IS NULL OR contact_id = " . intval($c_value('contact_id', 0)) . ")
-        ORDER BY contact_primary DESC, contact_name ASC");
+if ($c_client_id && $c_clients) {
+    $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_photo, contact_client_id, contact_primary, contact_technical FROM contacts
+        WHERE contact_client_id = $c_client_id AND (contact_archived_at IS NULL OR contact_id = " . intval($c_value('contact_id', 0)) . ")
+        ORDER BY contact_primary DESC, contact_technical DESC, contact_important DESC, contact_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $c_contacts[] = $row;
     }
@@ -62,9 +63,9 @@ if ($c_new && !$c_contact_id && $c_client_id) {
 }
 $c_owner_id = intval($c_value('owner_id', $c_new ? ($session_user_id ?? 0) : 0));
 $c_owners = [];
-$sql = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND (user_archived_at IS NULL OR user_id = $c_owner_id) ORDER BY user_name ASC");
+$sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND (user_archived_at IS NULL OR user_id = $c_owner_id) ORDER BY user_name ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
-    $c_owners[intval($row['user_id'])] = $row['user_name'];
+    $c_owners[intval($row['user_id'])] = $row;
 }
 
 // The templates, for filling the fields from one
@@ -106,10 +107,11 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     <label class="form-label">Start from a template</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-clone"></i></span>
-                        <select class="form-select" name="template_id" data-contract-template>
+                        <select class="form-select select2" name="template_id" data-contract-template>
                             <option value="0">- None -</option>
-                            <?php foreach ($c_templates as $template_id => $template) { ?>
-                                <option value="<?= $template_id ?>"<?= intval($c_value('template_id', 0)) === $template_id ? ' selected' : '' ?>><?= escapeHtml($template['contract_template_name']) ?></option>
+                            <?php foreach ($c_templates as $template_id => $template) {
+                                $template_about = implode(' · ', array_filter([CONTRACT_TYPES[$template['contract_template_type']]['label'] ?? '', contractTermLabel(intval($template['contract_template_term_months']))])); ?>
+                                <option value="<?= $template_id ?>"<?= intval($c_value('template_id', 0)) === $template_id ? ' selected' : '' ?><?= selectOptionData(['icon' => 'fas fa-clone', 'description' => $template_about]) ?>><?= escapeHtml($template['contract_template_name']) ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -154,9 +156,9 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     <label class="form-label">Type</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                        <select class="form-select" name="type" data-contract-field="type">
+                        <select class="form-select select2" name="type" data-contract-field="type">
                             <?php foreach (CONTRACT_TYPES as $key => $type) { ?>
-                                <option value="<?= $key ?>"<?= $c_value('type', 'managed') === $key ? ' selected' : '' ?> title="<?= escapeHtml($type['about']) ?>"><?= escapeHtml($type['label']) ?></option>
+                                <option value="<?= $key ?>"<?= $c_value('type', 'managed') === $key ? ' selected' : '' ?><?= selectOptionData(['description' => $type['about']]) ?>><?= escapeHtml($type['label']) ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -168,10 +170,10 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     <label class="form-label">Contact at the client</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-address-card"></i></span>
-                        <select class="form-select" name="contact_id" data-contract-contact>
+                        <select class="form-select select2" name="contact_id" data-contract-contact>
                             <option value="0">- None -</option>
                             <?php foreach ($c_contacts as $contact) { ?>
-                                <option value="<?= intval($contact['contact_id']) ?>" data-client="<?= intval($contact['contact_client_id']) ?>"<?= intval($contact['contact_id']) === $c_contact_id ? ' selected' : '' ?><?= $c_client_id && intval($contact['contact_client_id']) !== $c_client_id ? ' hidden' : '' ?>><?= escapeHtml($contact['contact_name'] . ($contact['contact_title'] ? " - {$contact['contact_title']}" : '')) ?></option>
+                                <option value="<?= intval($contact['contact_id']) ?>"<?= intval($contact['contact_id']) === $c_contact_id ? ' selected' : '' ?><?= selectOptionContact($c_client_id, $contact['contact_name'], $contact['contact_photo'], contactOptionDescription($contact), $contact['contact_id']) ?>><?= escapeHtml($contact['contact_name']) ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -180,10 +182,10 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     <label class="form-label">Owner</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-user-tie"></i></span>
-                        <select class="form-select" name="owner_id">
+                        <select class="form-select select2" name="owner_id">
                             <option value="0">- No one -</option>
-                            <?php foreach ($c_owners as $user_id => $user_name) { ?>
-                                <option value="<?= $user_id ?>"<?= $user_id === $c_owner_id ? ' selected' : '' ?>><?= escapeHtml($user_name) ?></option>
+                            <?php foreach ($c_owners as $user_id => $owner) { ?>
+                                <option value="<?= $user_id ?>"<?= $user_id === $c_owner_id ? ' selected' : '' ?><?= selectOptionUser($user_id, $owner['user_name'], $owner['user_avatar'] ?? '') ?>><?= escapeHtml($owner['user_name']) ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -196,7 +198,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     <label class="form-label">Status</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                        <select class="form-select" name="status">
+                        <select class="form-select select2" name="status">
                             <option value="Active">Active - in force from its start date</option>
                             <option value="Draft">Draft - not in force yet</option>
                         </select>
@@ -216,7 +218,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     <label class="form-label">Term</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-history"></i></span>
-                        <select class="form-select" name="term_months" data-contract-field="term_months" data-contract-term>
+                        <select class="form-select select2" name="term_months" data-contract-field="term_months" data-contract-term>
                             <?php $terms = CONTRACT_TERMS + ($c_term && !isset(CONTRACT_TERMS[$c_term]) ? [$c_term => contractTermLabel($c_term)] : []);
                             ksort($terms);
                             foreach ($terms as $months => $label) { ?>
@@ -312,7 +314,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
             <?php foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) { ?>
                 <div class="input-group mb-2">
                     <span class="input-group-text" style="width: 7rem;"><i class="fa fa-fw fa-stopwatch me-2"></i><?= $priority ?></span>
-                    <select class="form-select" name="sla_<?= $part ?>" data-contract-field="sla_<?= $part ?>" aria-label="<?= $priority ?> priority SLA">
+                    <select class="form-select select2" name="sla_<?= $part ?>" data-contract-field="sla_<?= $part ?>" aria-label="<?= $priority ?> priority SLA">
                         <option value="0"><?= escapeHtml($c_hints['slas'][$priority]) ?></option>
                         <?php foreach ($c_slas as $sla_id => $sla) { ?>
                             <option value="<?= $sla_id ?>"<?= intval($c_value("sla_{$part}_id", 0)) === $sla_id ? ' selected' : '' ?>><?= escapeHtml($sla['sla_name'] . ' - ' . contractSlaTargets($sla)) ?><?= $sla['sla_archived_at'] ? ' (archived)' : '' ?></option>

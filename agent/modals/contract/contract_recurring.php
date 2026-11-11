@@ -93,7 +93,7 @@ if ($refuse !== '') { ?>
                         <label class="form-label">Category</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                            <select class="form-select" name="category">
+                            <select class="form-select select2" name="category">
                                 <option value="0">- Category -</option>
                                 <?= categoryOptionsHtml('Income') ?>
                             </select>
@@ -147,10 +147,11 @@ if ($refuse !== '') { ?>
                 <label class="form-label">Recurring invoice</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
-                    <select class="form-select" name="recurring_invoice_id" required>
-                        <?php foreach ($choices as $choice_id => $choice) { ?>
-                            <option value="<?= $choice_id ?>"><?= escapeHtml(billingNumber('recurring', $choice) . (trim((string) $choice['recurring_invoice_scope']) !== '' ? ' - ' . $choice['recurring_invoice_scope'] : '')
-                                . ' (' . billingMoney($choice['recurring_invoice_amount'], $session_company_currency) . ' a ' . recurringInvoicePeriodWord($choice['recurring_invoice_frequency']) . ', ' . (intval($choice['recurring_invoice_status']) ? 'active' : 'paused') . ')') ?></option>
+                    <select class="form-select select2" name="recurring_invoice_id" required>
+                        <?php foreach ($choices as $choice_id => $choice) {
+                            // Under its number and scope: what it bills and whether it is running
+                            $choice_about = billingMoney($choice['recurring_invoice_amount'], $session_company_currency) . ' a ' . recurringInvoicePeriodWord($choice['recurring_invoice_frequency']) . ' · ' . (intval($choice['recurring_invoice_status']) ? 'Active' : 'Paused'); ?>
+                            <option value="<?= $choice_id ?>"<?= selectOptionData(['icon' => 'fas fa-redo-alt', 'description' => $choice_about]) ?>><?= escapeHtml(billingNumber('recurring', $choice) . (trim((string) $choice['recurring_invoice_scope']) !== '' ? ' - ' . $choice['recurring_invoice_scope'] : '')) ?></option>
                         <?php } ?>
                     </select>
                 </div>

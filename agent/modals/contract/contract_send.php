@@ -26,7 +26,7 @@ if (!$contract || !contractSignaturesReady() || in_array($contract['contract_sta
     </div>
 <?php } else {
     $contacts = [];
-    $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_email, contact_primary, contact_billing FROM contacts
+    $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_email, contact_photo, contact_primary, contact_billing FROM contacts
         WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_billing DESC, contact_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $contacts[intval($row['contact_id'])] = $row;
@@ -70,14 +70,14 @@ if (!$contract || !contractSignaturesReady() || in_array($contract['contract_sta
         <label class="form-label">Who signs for <?= escapeHtml($contract['client_name']) ?></label>
         <div class="input-group mb-2">
             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-            <select class="form-select" name="contact_id">
+            <select class="form-select select2" name="contact_id">
                 <?php foreach ($contacts as $id => $row) {
-                    $has_email = filter_var((string) $row['contact_email'], FILTER_VALIDATE_EMAIL); ?>
-                    <option value="<?= $id ?>"<?= $id === $pick ? ' selected' : '' ?><?= $has_email ? '' : ' disabled' ?>>
-                        <?= escapeHtml($row['contact_name'] . ($row['contact_title'] ? ' - ' . $row['contact_title'] : '') . ($has_email ? ' (' . $row['contact_email'] . ')' : ' - no email')) ?>
-                    </option>
+                    $has_email = filter_var((string) $row['contact_email'], FILTER_VALIDATE_EMAIL);
+                    // Under their name: their title, and the address it goes to - one without an address can't be picked
+                    $about = implode(' · ', array_filter([trim((string) $row['contact_title']), $has_email ? $row['contact_email'] : 'No email'])); ?>
+                    <option value="<?= $id ?>"<?= $id === $pick ? ' selected' : '' ?><?= $has_email ? '' : ' disabled' ?><?= selectOptionContact($client_id, $row['contact_name'], $row['contact_photo'], $about, $id) ?>><?= escapeHtml($row['contact_name']) ?></option>
                 <?php } ?>
-                <option value="0"<?= $pick === 0 ? ' selected' : '' ?>>Someone else - below</option>
+                <option value="0"<?= $pick === 0 ? ' selected' : '' ?> data-icon="fas fa-user-plus">Someone else - below</option>
             </select>
         </div>
         <div class="row g-2 mb-3">

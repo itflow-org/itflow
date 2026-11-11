@@ -1589,6 +1589,25 @@ select.select2[multiple]:not(.itflow-select-native) {
     padding-top: .375rem;
     font-size: .8125rem;
 }
+/* Suggestions under a text field (js/autocomplete.js) - this panel, as wide as its rows need,
+   with a value at the end of a row where the tick would be: a product's price, and its stock under it */
+.itflow-ac-panel {
+    width: max-content;
+}
+.itflow-ac-aside {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: flex-end;
+    padding-left: .5rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+.itflow-ac-aside-note {
+    font-size: .8125rem;
+    color: var(--bs-secondary-color);
+}
 .itflow-select-footer {
     display: flex;
     align-items: center;

@@ -9,6 +9,13 @@
  * or run out (functions/user_invite.php), to send again, get the link to
  * pass on, or cancel. A link made to pass on is shown once, at the top.
  *
+ * Client portal is the other people who sign in: the contacts with a login to
+ * the client portal, at every client (functions/portal.php). Each row is the
+ * contact, their client, how they sign in and when they last did - to email
+ * a password link or the invite again, turn two-step sign-in off, and turn
+ * their access off or back on (admin/post/portal_users.php). They are made
+ * from a client's Contacts page, or by a primary contact in the portal.
+ *
  * The admin's own row is shown but not changed here: that is their Account
  * pages, so nobody locks themselves out by mistake.
  */
@@ -27,7 +34,12 @@ if (($_GET['canned_date'] ?? '') === 'custom' && empty($_GET['dtf'])) {
 $roles = userRoles();
 $role_filter = isset($roles[intval($_GET['role'] ?? 0)]) ? intval($_GET['role']) : 0;
 
-$filters = "user_type = 1 AND (user_name LIKE '%$q%' OR user_email LIKE '%$q%' OR role_name LIKE '%$q%')" . ($role_filter ? " AND user_role_id = $role_filter" : '');
+// The search is for the side being looked at - agents and their invites, or portal users - and leaves the other side's counts alone
+$on_portal = ($_GET['show'] ?? '') === 'portal';
+$agent_q = $on_portal ? '' : $q;
+$portal_q = $on_portal ? $q : '';
+
+$filters = "user_type = 1 AND (user_name LIKE '%$agent_q%' OR user_email LIKE '%$agent_q%' OR role_name LIKE '%$agent_q%')" . ($role_filter ? " AND user_role_id = $role_filter" : '');
 $joins = "LEFT JOIN user_roles ON user_role_id = role_id
     LEFT JOIN user_settings ON user_settings.user_id = users.user_id";
 
@@ -39,14 +51,30 @@ $shows = [
     'disabled' => ['label' => 'Disabled', 'icon' => 'fa-ban', 'where' => 'user_archived_at IS NULL AND user_status <> 1', 'title' => 'Cannot sign in'],
     'invited' => ['label' => 'Invited', 'icon' => 'fa-paper-plane', 'where' => null, 'title' => 'Asked to join and not in yet - their invite waiting, or run out'],
     'archived' => ['label' => 'Archived', 'icon' => 'fa-archive', 'where' => 'user_archived_at IS NOT NULL', 'title' => 'Gone - restore one with a new password'],
+    'portal' => ['label' => 'Client portal', 'icon' => 'fa-user-circle', 'where' => null, 'title' => 'The contacts who sign in to the client portal, at every client'],
 ];
 if (!userInvitesReady()) {
     unset($shows['invited']);
 }
 $show = isset($shows[$_GET['show'] ?? '']) ? ($_GET['show'] ?? '') : '';
 
+// Client portal - contacts, not agents, so a list of their own: narrowed to a client, and by how they sign in
+$portal_joins = "JOIN contacts ON contact_user_id = users.user_id JOIN clients ON client_id = contact_client_id";
+$portal_never_sql = "NOT EXISTS (SELECT 1 FROM logs WHERE log_user_id = users.user_id AND log_type = 'Client Login' AND log_action = 'Success')";
+$portal_accesses = [
+    '' => ['label' => 'Can sign in', 'icon' => 'fas fa-check-circle', 'where' => PORTAL_USER_ON_SQL],
+    'local' => ['label' => 'Password', 'icon' => 'fas fa-key', 'where' => PORTAL_USER_ON_SQL . " AND user_auth_method = 'local'"],
+    'azure' => ['label' => 'Microsoft 365', 'icon' => 'fab fa-microsoft', 'where' => PORTAL_USER_ON_SQL . " AND user_auth_method = 'azure'"],
+    'nomfa' => ['label' => 'No two-step', 'icon' => 'fas fa-unlock', 'where' => PORTAL_USER_ON_SQL . " AND user_auth_method = 'local' AND (user_token IS NULL OR user_token = '')"],
+    'never' => ['label' => 'Never signed in', 'icon' => 'fas fa-user-clock', 'where' => PORTAL_USER_ON_SQL . " AND $portal_never_sql"],
+    'off' => ['label' => 'Access off', 'icon' => 'fas fa-ban', 'where' => 'NOT (' . PORTAL_USER_ON_SQL . ')'],
+];
+$portal_access = isset($portal_accesses[$_GET['access'] ?? '']) ? ($_GET['access'] ?? '') : '';
+$portal_client = intval($_GET['client'] ?? 0);
+$portal_filters = "user_type = 2 AND (contact_name LIKE '%$portal_q%' OR user_email LIKE '%$portal_q%' OR client_name LIKE '%$portal_q%')" . ($portal_client ? " AND client_id = $portal_client" : '');
+
 // The invites - not users yet, so a list of their own
-$invite_filters = "invite_accepted_at IS NULL AND invite_cancelled_at IS NULL AND (invite_name LIKE '%$q%' OR invite_email LIKE '%$q%' OR role_name LIKE '%$q%')"
+$invite_filters = "invite_accepted_at IS NULL AND invite_cancelled_at IS NULL AND (invite_name LIKE '%$agent_q%' OR invite_email LIKE '%$agent_q%' OR role_name LIKE '%$agent_q%')"
     . ($role_filter ? " AND invite_role_id = $role_filter" : '');
 $invite_joins = "LEFT JOIN user_roles ON role_id = invite_role_id
     LEFT JOIN users inviter ON inviter.user_id = invite_created_by AND invite_created_by > 0";
@@ -69,13 +97,34 @@ $invite_sortable_columns = [
     'user_status' => "invite_expires_at $order, invite_name ASC",
     'user_created_at' => "invite_created_at $order, invite_name ASC",
 ];
-if (!isset(($show === 'invited' ? $invite_sortable_columns : $sortable_columns)[$sort])) {
+// ...and the portal users: their contact's name, their client, how they sign in, when they last did
+$portal_last_login_sql = "(SELECT MAX(log_id) FROM logs WHERE log_user_id = users.user_id AND log_type = 'Client Login' AND log_action = 'Success')";
+$portal_sortable_columns = [
+    'user_name' => "contact_name $order",
+    'user_email' => "user_email $order, contact_name ASC",
+    'client_name' => "client_name $order, contact_name ASC",
+    'user_status' => "user_auth_method $order, (user_token IS NULL OR user_token = '') $order, contact_name ASC",
+    'last_login' => "$portal_last_login_sql IS NULL, $portal_last_login_sql $order, contact_name ASC",
+];
+if (!isset(($show === 'invited' ? $invite_sortable_columns : ($show === 'portal' ? $portal_sortable_columns : $sortable_columns))[$sort])) {
     $sort = 'user_name';
 }
 
 $users = [];
 $invites = [];
-if ($show === 'invited') {
+$portal_users = [];
+if ($show === 'portal') {
+    $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS users.user_id, user_email, user_auth_method, user_status, user_token, user_archived_at, user_created_at,
+            contact_id, contact_name, contact_title, contact_photo, contact_archived_at, client_id, client_name, client_archived_at
+        FROM users $portal_joins
+        WHERE $portal_filters AND {$portal_accesses[$portal_access]['where']}
+        ORDER BY {$portal_sortable_columns[$sort]}, users.user_id ASC
+        LIMIT $record_from, $record_to");
+    $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $portal_users[intval($row['user_id'])] = $row;
+    }
+} elseif ($show === 'invited') {
     $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS user_invites.*, role_name, role_is_admin, inviter.user_name AS invite_by_name
         FROM user_invites $invite_joins
         WHERE $invite_filters
@@ -101,6 +150,29 @@ $logins = userLastLogins(array_keys($users));
 $access = userClientAccess(array_keys($users));
 $remembered = userRememberCounts(array_keys($users));
 
+// For the portal view: their last sign in, the browsers that skip their code, and the clients to narrow it to
+$portal_logins = portalLastSignIns(array_keys($portal_users));
+$portal_remembered = userRememberCounts(array_keys($portal_users));
+$portal_clients = [];
+if ($show === 'portal') {
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation, COUNT(*) AS portal_users FROM users $portal_joins
+        WHERE user_type = 2 GROUP BY client_id, client_name, client_abbreviation ORDER BY client_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $portal_clients[intval($row['client_id'])] = $row;
+    }
+}
+$portal_mail_ready = portalMailReady();
+$portal_two_step = function ($row) use ($config_client_portal_require_mfa) {
+    // Two-step sign-in is theirs to turn on, unless the portal requires it - so no alarm for one without
+    if (trim((string) $row['user_token']) !== '') {
+        return '<span class="badge rounded-pill bg-success-subtle text-success-emphasis fw-normal" title="Signs in with a code from an authenticator app"><i class="fas fa-lock me-1"></i>Two-step</span>';
+    }
+    if (intval($config_client_portal_require_mfa)) {
+        return '<span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal" title="Required - they set it up at their next sign in"><i class="fas fa-hourglass-half me-1"></i>Two-step pending</span>';
+    }
+    return '<span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal" title="Password only - two-step sign-in is theirs to turn on in the portal"><i class="fas fa-unlock me-1"></i>No two-step</span>';
+};
+
 // How many in each view, over what the search and role leave
 $user_views = array_filter($shows, function ($s) {
     return $s['where'] !== null;
@@ -115,6 +187,8 @@ foreach (array_keys($user_views) as $i => $key) {
 if (isset($shows['invited'])) {
     $view_counts['invited'] = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM user_invites $invite_joins WHERE $invite_filters"))[0]);
 }
+// Those who can sign in to the portal
+$view_counts['portal'] = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM users $portal_joins WHERE $portal_filters AND " . PORTAL_USER_ON_SQL))[0]);
 
 // Agent user limit (set in config.php, 0 / unset = unlimited) - an invite waiting holds a seat
 $agent_user_limit = getAgentUserLimit();
@@ -192,24 +266,67 @@ $csrf = $_SESSION['csrf_token'];
             <div class="row g-2 align-items-center">
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?= escapeHtml($_GET['q'] ?? '') ?>" placeholder="Search users..." title="Name, email or role">
+                        <input type="search" class="form-control" name="q" value="<?= escapeHtml($_GET['q'] ?? '') ?>" placeholder="<?= $show === 'portal' ? 'Search portal users...' : 'Search users...' ?>" title="<?= $show === 'portal' ? 'Name, email or client' : 'Name, email or role' ?>">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <select class="form-select select2" name="role" onchange="this.form.submit()">
-                        <option value="">- Any role -</option>
-                        <?php foreach ($roles as $role_id => $role) { ?>
-                            <option value="<?= $role_id ?>" <?= $role_filter === $role_id ? 'selected' : '' ?><?= selectOptionRole($role) ?>><?= escapeHtml($role['role_name']) ?></option>
-                        <?php } ?>
-                    </select>
-                </div>
-                <div class="col-lg-5 col-md-12">
+                <?php if ($show === 'portal') { ?>
+                    <div class="col-lg-3 col-md-6">
+                        <select class="form-select select2" name="client" onchange="this.form.submit()" aria-label="Client">
+                            <option value="">- Any client -</option>
+                            <?php foreach ($portal_clients as $option_id => $option) { ?>
+                                <option value="<?= $option_id ?>" <?= $portal_client === $option_id ? 'selected' : '' ?><?= selectOptionClient($option_id, $option['client_name'], $option['client_abbreviation'] ?? '') ?><?= selectOptionData(['description' => intval($option['portal_users']) . ' portal login' . (intval($option['portal_users']) === 1 ? '' : 's')]) ?>><?= escapeHtml($option['client_name']) ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <select class="form-select select2" name="access" onchange="this.form.submit()" aria-label="How they sign in">
+                            <?php foreach ($portal_accesses as $key => $option) { ?>
+                                <option value="<?= $key ?>" <?= $portal_access === $key ? 'selected' : '' ?><?= selectOptionData(['icon' => $option['icon']]) ?>><?= $option['label'] ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                <?php } else { ?>
+                    <div class="col-lg-3 col-md-6">
+                        <select class="form-select select2" name="role" onchange="this.form.submit()">
+                            <option value="">- Any role -</option>
+                            <?php foreach ($roles as $role_id => $role) { ?>
+                                <option value="<?= $role_id ?>" <?= $role_filter === $role_id ? 'selected' : '' ?><?= selectOptionRole($role) ?>><?= escapeHtml($role['role_name']) ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                <?php } ?>
+                <div class="<?= $show === 'portal' ? 'col-lg-3' : 'col-lg-5' ?> col-md-12">
                     <div class="d-flex justify-content-end gap-2">
                         <div class="dropdown" id="bulkActionButton" hidden>
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
+                            <?php if ($show === 'portal') { ?>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <?php if ($portal_mail_ready) { ?>
+                                    <button class="dropdown-item confirm-link" type="submit" form="bulkActions" name="bulk_portal_reset_links"
+                                        data-confirm-title="Email them a password link?" data-confirm-icon="info"
+                                        data-confirm-text="Each one who signs in with a password is emailed a link to choose a new one, good for <?= PORTAL_RESET_LINK_MINUTES ?> minutes. Their password stays as it is until they use it."
+                                        data-confirm-button="Email the links">
+                                        <i class="fas fa-fw fa-key text-secondary me-2"></i>Email a password link
+                                    </button>
+                                <?php } ?>
+                                <button class="dropdown-item confirm-link" type="submit" form="bulkActions" name="bulk_portal_reset_mfa"
+                                    data-confirm-text="They sign in with their password alone until they set two-step sign-in up again, and are emailed that it was turned off. For a lost or replaced phone."
+                                    data-confirm-button="Turn off two-step">
+                                    <i class="fas fa-fw fa-mobile-alt text-secondary me-2"></i>Turn off two-step sign-in
+                                </button>
+                                <?php if ($portal_access !== 'off') { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_portal_access_off"
+                                        data-confirm-text="They are signed out of the client portal and can't sign in. Their contact stays as it is - turn their access back on here or from the contact."
+                                        data-confirm-button="Turn off access">
+                                        <i class="fas fa-fw fa-user-slash me-2"></i>Turn off portal access
+                                    </button>
+                                <?php } ?>
+                            </div>
+                            <?php } else { ?>
                             <div class="dropdown-menu dropdown-menu-end">
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/user/user_bulk_role.php" data-bulk="true">
                                     <i class="fas fa-fw fa-user-tag text-secondary me-2"></i>Role
@@ -235,6 +352,7 @@ $csrf = $_SESSION['csrf_token'];
                                     </button>
                                 <?php } ?>
                             </div>
+                            <?php } ?>
                         </div>
                     </div>
                 </div>
@@ -243,8 +361,10 @@ $csrf = $_SESSION['csrf_token'];
 
         <nav class="nav nav-pills itflow-asset-tabs mt-2 flex-nowrap overflow-auto">
             <?php foreach ($shows as $key => $view) {
-                if ($key === 'archived') { ?><span class="vr mx-1 my-1"></span><?php } ?>
-                <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $key === '' || $show === $key ? null : $key])) ?>" title="<?= escapeHtml($view['title']) ?>">
+                if ($key === 'archived' || $key === 'portal') { ?><span class="vr mx-1 my-1"></span><?php }
+                // The search and role narrow agents, and the search, client and sign-in narrow portal users - none follow to the other side
+                $view_filters = ($key === 'portal') === ($show === 'portal') ? [] : ['q' => null, 'role' => null, 'client' => null, 'access' => null, 'sort' => null, 'order' => null]; ?>
+                <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $key === '' || $show === $key ? null : $key] + $view_filters)) ?>" title="<?= escapeHtml($view['title']) ?>">
                     <i class="fas fa-fw <?= $view['icon'] ?> me-1"></i><?= $view['label'] ?> <span class="badge rounded-pill ms-1"><?= $view_counts[$key] ?></span>
                 </a>
             <?php } ?>
@@ -265,7 +385,158 @@ $csrf = $_SESSION['csrf_token'];
         </div>
     <?php } ?>
 
-    <?php if ($show === 'invited') { ?>
+    <?php if ($show === 'portal') { ?>
+
+    <?php if (!intval($config_client_portal_enable)) { ?>
+        <div class="alert alert-warning border-0 rounded-0 mb-0 px-3 py-2 small" data-portal-off>
+            <i class="fas fa-exclamation-triangle me-2"></i>The client portal is off, so nobody here can sign in - turn it on in <a href="settings_module.php" class="alert-link">Modules</a>.
+        </div>
+    <?php } ?>
+
+    <form id="bulkActions" action="post.php" method="post">
+        <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 itflow-asset-table itflow-ticket-list itflow-user-list" data-portal-users>
+                <thead class="<?php if (!$portal_users) { echo "d-none"; } ?> text-nowrap table-light">
+                <tr>
+                    <th class="checkbox-column border-end">
+                        <div class="form-check">
+                            <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" title="Select all on this page">
+                        </div>
+                    </th>
+                    <th><?= $sort_link('user_name', 'Contact') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('user_email', 'by email') ?></span></th>
+                    <th class="d-none d-md-table-cell"><?= $sort_link('client_name', 'Client') ?></th>
+                    <th class="d-none d-md-table-cell"><?= $sort_link('user_status', 'Sign in') ?></th>
+                    <th class="d-none d-lg-table-cell"><?= $sort_link('last_login', 'Last signed in') ?></th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($portal_users as $user_id => $row) {
+                    $contact_id = intval($row['contact_id']);
+                    $client_id = intval($row['client_id']);
+                    $off_why = portalUserOffWhy($row);
+                    $is_on = $off_why === '';
+                    $is_local = $row['user_auth_method'] === 'local';
+                    $has_mfa = trim((string) $row['user_token']) !== '';
+                    $can_turn_on = !$is_on && empty($row['client_archived_at']) && empty($row['contact_archived_at']);
+                    $name = escapeHtml($row['contact_name']);
+                    $contact_url = "/agent/contact.php?client_id=$client_id&amp;contact_id=$contact_id";
+                    $client_link = '<a class="text-body" href="/agent/client_overview.php?client_id=' . $client_id . '">' . escapeHtml($row['client_name']) . '</a>'
+                        . (!empty($row['client_archived_at']) ? ' <span class="text-body-secondary small">(archived)</span>' : '');
+                    $login = $portal_logins[$user_id] ?? null;
+                    $remember_count = $portal_remembered[$user_id] ?? 0;
+                    $sign_in_pills = $is_on
+                        ? '<span class="badge rounded-pill bg-success-subtle text-success-emphasis fw-normal" title="' . ($is_local ? 'Signs in with a password' : 'Signs in with their Microsoft 365 account') . '"><i class="'
+                            . ($is_local ? 'fas fa-key' : 'fab fa-microsoft') . ' me-1"></i>' . ($is_local ? 'Password' : 'Microsoft 365') . '</span>' . ($is_local ? ' ' . $portal_two_step($row) : '')
+                        : '<span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal" title="' . escapeHtml($off_why) . '"><i class="fas fa-ban me-1"></i>Access off</span>';
+                    ?>
+                    <tr class="itflow-ticket-row" data-portal-user="<?= $user_id ?>">
+                        <td class="checkbox-column bg-light border-end">
+                            <div class="form-check">
+                                <input class="form-check-input bulk-select" type="checkbox" name="user_ids[]" value="<?= $user_id ?>" aria-label="Select <?= $name ?>">
+                            </div>
+                        </td>
+
+                        <!-- Who -->
+                        <td class="itflow-ticket-main itflow-user-main">
+                            <div class="d-flex align-items-center gap-3">
+                                <a class="text-decoration-none <?= $is_on ? '' : 'opacity-50' ?>" href="<?= $contact_url ?>" tabindex="-1" aria-hidden="true"><?= contactAvatar($client_id, $contact_id, $row['contact_name'], $row['contact_photo']) ?></a>
+                                <div class="min-w-0">
+                                    <a class="<?= $is_on ? 'fw-semibold text-body' : 'text-body-secondary' ?>" href="<?= $contact_url ?>" title="Open the contact"><?= $name ?></a>
+                                    <?php if (trim((string) $row['contact_title']) !== '') { ?><span class="small text-body-secondary ms-1"><?= escapeHtml($row['contact_title']) ?></span><?php } ?>
+                                    <div class="small text-body-secondary text-truncate">
+                                        <?= escapeHtml($row['user_email']) ?><button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= escapeHtml($row['user_email']) ?>"><i class="far fa-copy"></i></button>
+                                    </div>
+                                    <!-- On a phone the client and sign in columns are off to the side - they come along -->
+                                    <div class="d-md-none small text-body-secondary"><i class="fas fa-fw fa-building me-1"></i><?= $client_link ?></div>
+                                    <div class="d-md-none d-flex flex-wrap gap-1 mt-1"><?= $sign_in_pills ?></div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="d-none d-md-table-cell"><?= $client_link ?></td>
+
+                        <!-- Can they sign in, and how -->
+                        <td class="d-none d-md-table-cell">
+                            <div class="d-flex flex-wrap gap-1"><?= $sign_in_pills ?></div>
+                            <?php if (!$is_on) { ?>
+                                <div class="small text-body-secondary mt-1"><?= escapeHtml($off_why) ?></div>
+                            <?php } elseif ($remember_count) { ?>
+                                <div class="small text-body-secondary mt-1 text-nowrap" title="Browsers that skip their two-step code - remember me, at sign in"><i class="fas fa-fw fa-laptop me-1"></i><?= $remember_count ?> remembered browser<?= $remember_count === 1 ? '' : 's' ?></div>
+                            <?php } ?>
+                        </td>
+
+                        <td class="d-none d-lg-table-cell small"><?= userLoginHtml($login) ?></td>
+
+                        <td class="text-end">
+                            <div class="dropdown dropstart">
+                                <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="<?= $contact_url ?>">
+                                        <i class="fas fa-fw fa-address-card text-secondary me-2"></i>Open contact
+                                    </a>
+                                    <?php if ($is_on && intval($config_client_portal_enable)) { ?>
+                                        <a class="dropdown-item" href="/agent/post.php?portal_view_as=<?= $contact_id ?>&csrf_token=<?= $csrf ?>" title="The portal as they see it, read only">
+                                            <i class="fas fa-fw fa-eye text-secondary me-2"></i>View the portal as them
+                                        </a>
+                                    <?php } ?>
+                                    <a class="dropdown-item" href="audit_logs.php?user=<?= $user_id ?>">
+                                        <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit log
+                                    </a>
+                                    <?php if ($is_on && $portal_mail_ready) { ?>
+                                        <?php if ($is_local) { ?>
+                                            <a class="dropdown-item confirm-link" href="post.php?portal_user_reset_link=<?= $user_id ?>&csrf_token=<?= $csrf ?>"
+                                                data-confirm-title="Email <?= $name ?> a password link?" data-confirm-icon="info"
+                                                data-confirm-text="<?= $name ?> is emailed a link to choose a new password, good for <?= PORTAL_RESET_LINK_MINUTES ?> minutes. Their password stays as it is until they use it."
+                                                data-confirm-button="Email the link">
+                                                <i class="fas fa-fw fa-key text-secondary me-2"></i>Email a password link
+                                            </a>
+                                        <?php } ?>
+                                        <?php if (!$login) { ?>
+                                            <a class="dropdown-item" href="post.php?portal_user_invite=<?= $user_id ?>&csrf_token=<?= $csrf ?>">
+                                                <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send the invite again
+                                            </a>
+                                        <?php } ?>
+                                    <?php } ?>
+                                    <?php if ($has_mfa) { ?>
+                                        <a class="dropdown-item confirm-link" href="post.php?portal_user_reset_mfa=<?= $user_id ?>&csrf_token=<?= $csrf ?>"
+                                            data-confirm-text="<?= $name ?> signs in with their password alone until they set two-step sign-in up again, and is emailed that it was turned off. For a lost or replaced phone."
+                                            data-confirm-button="Turn off two-step">
+                                            <i class="fas fa-fw fa-mobile-alt text-secondary me-2"></i>Turn off two-step sign-in
+                                        </a>
+                                    <?php } ?>
+                                    <?php if ($remember_count) { ?>
+                                        <a class="dropdown-item" href="post.php?portal_user_forget_browsers=<?= $user_id ?>&csrf_token=<?= $csrf ?>">
+                                            <i class="fas fa-fw fa-laptop text-secondary me-2"></i>Forget <?= $remember_count ?> remembered browser<?= $remember_count === 1 ? '' : 's' ?>
+                                        </a>
+                                    <?php } ?>
+                                    <?php if ($is_on) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?portal_user_access_off=<?= $user_id ?>&csrf_token=<?= $csrf ?>"
+                                            data-confirm-title="Turn off portal access for <?= $name ?>?"
+                                            data-confirm-text="<?= $name ?> is signed out of the client portal and can't sign in. Their contact stays as it is - turn their access back on here or from the contact."
+                                            data-confirm-button="Turn off access">
+                                            <i class="fas fa-fw fa-user-slash me-2"></i>Turn off portal access
+                                        </a>
+                                    <?php } elseif ($can_turn_on) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/portal_user/portal_user_access.php?id=<?= $user_id ?>">
+                                            <i class="fas fa-fw fa-user-check text-secondary me-2"></i>Turn on portal access
+                                        </a>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </form>
+
+    <?php } elseif ($show === 'invited') { ?>
 
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0 itflow-asset-table itflow-ticket-list itflow-user-list" data-user-invites>
@@ -541,7 +812,14 @@ $csrf = $_SESSION['csrf_token'];
 
     <?php } ?>
     <?php
-    $empty_state = [
+    $empty_state = $show === 'portal' ? [
+        'thing' => 'portal users',
+        'icon' => 'fa-user-circle',
+        'filtered' => $q !== '' || $portal_client || $portal_access !== '',
+        'views' => ['show'],
+        'title' => 'Nobody signs in to the client portal yet',
+        'text' => "Give a contact portal access from their client's Contacts page - they show here, whichever client they are at.",
+    ] : [
         'thing' => 'users',
         'icon' => 'fa-users',
         'filtered' => $q !== '' || $role_filter,

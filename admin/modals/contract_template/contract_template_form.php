@@ -46,9 +46,9 @@ $tab = 'templateTab' . bin2hex(random_bytes(3));
                 <label class="form-label">Type</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                    <select class="form-select" name="type">
+                    <select class="form-select select2" name="type">
                         <?php foreach (CONTRACT_TYPES as $key => $type) { ?>
-                            <option value="<?= $key ?>"<?= $t_value('type', 'managed') === $key ? ' selected' : '' ?> title="<?= escapeHtml($type['about']) ?>"><?= escapeHtml($type['label']) ?></option>
+                            <option value="<?= $key ?>"<?= $t_value('type', 'managed') === $key ? ' selected' : '' ?><?= selectOptionData(['description' => $type['about']]) ?>><?= escapeHtml($type['label']) ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -66,7 +66,7 @@ $tab = 'templateTab' . bin2hex(random_bytes(3));
                 <label class="form-label">Term</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-history"></i></span>
-                    <select class="form-select" name="term_months">
+                    <select class="form-select select2" name="term_months">
                         <?php $terms = CONTRACT_TERMS + (!isset(CONTRACT_TERMS[$t_term]) ? [$t_term => contractTermLabel($t_term)] : []);
                         ksort($terms);
                         foreach ($terms as $months => $label) { ?>
@@ -150,7 +150,7 @@ $tab = 'templateTab' . bin2hex(random_bytes(3));
         <?php foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) { ?>
             <div class="input-group mb-2">
                 <span class="input-group-text" style="width: 7rem;"><i class="fa fa-fw fa-stopwatch me-2"></i><?= $priority ?></span>
-                <select class="form-select" name="sla_<?= $part ?>" aria-label="<?= $priority ?> priority SLA">
+                <select class="form-select select2" name="sla_<?= $part ?>" aria-label="<?= $priority ?> priority SLA">
                     <option value="0"><?= escapeHtml($t_hints['slas'][$priority]) ?></option>
                     <?php foreach ($t_slas as $sla_id => $sla) { ?>
                         <option value="<?= $sla_id ?>"<?= intval($t_value("sla_{$part}_id", 0)) === $sla_id ? ' selected' : '' ?>><?= escapeHtml($sla['sla_name'] . ' - ' . contractSlaTargets($sla)) ?><?= $sla['sla_archived_at'] ? ' (archived)' : '' ?></option>

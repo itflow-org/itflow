@@ -27,7 +27,7 @@ require_once __DIR__ . "/../includes/session_init.php";
 require_once "../includes/inc_set_timezone.php";
 
 $ip = escapeSql(getIP());
-$user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
+$user_agent = escapeSql(mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 250));  // log_user_agent is varchar(250)
 $can_email = portalMailReady();
 
 $company = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_name, company_logo FROM companies WHERE company_id = 1"));

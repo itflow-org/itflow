@@ -80,6 +80,7 @@ function getExportColumns($export_type) {
             'contact_extension'  => ['label' => 'Ext'],
             'contact_mobile'     => ['label' => 'Mobile', 'format' => 'phone'],
             'location_name'      => ['label' => 'Location'],
+            'client_name'        => ['label' => 'Client', 'default' => false],
         ],
 
         // location_primary_text, contact_name and the counts are built by the handler's query
