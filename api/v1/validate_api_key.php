@@ -25,7 +25,7 @@ $_POST = json_decode(file_get_contents('php://input'), true);
 
 // Get IP & UA
 $ip = escapeSql(getIP());
-$user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
+$user_agent = escapeSql(mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 250));  // log_user_agent is varchar(250)
 
 // Temp Added this to work with the new logAction function
 $session_ip = $ip;

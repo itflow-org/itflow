@@ -12,6 +12,7 @@ if (isset($_POST['add_invoice_recurring'])) {
 
     enforceUserPermission('module_sales', 2);
 
+    $config_recurring_invoice_prefix = escapeSql($config_recurring_invoice_prefix);
     $invoice_id = intval($_POST['invoice_id']);
     $recurring_invoice_frequency = validateRecurringFrequency($_POST['frequency']);
 
@@ -82,6 +83,7 @@ if (isset($_POST['add_recurring_invoice'])) {
 
     enforceUserPermission('module_sales', 2);
 
+    $config_recurring_invoice_prefix = escapeSql($config_recurring_invoice_prefix);
     $client_id = intval($_POST['client_id']);
     $frequency = validateRecurringFrequency($_POST['frequency']);
     $start_date = escapeSql(validateDate((string) ($_POST['start_date'] ?? '')));

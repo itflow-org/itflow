@@ -709,7 +709,7 @@ function portalSignupRequest($email, $ip, $user_agent) {
     $email = trim(mb_substr((string) $email, 0, 200));
     $email_sql = escapeSql($email);
     $ip_sql = escapeSql((string) $ip);
-    $user_agent_sql = escapeSql(mb_substr((string) $user_agent, 0, 255));
+    $user_agent_sql = escapeSql(mb_substr((string) $user_agent, 0, 250));
     $log = function ($action, $description, $user_id = 0, $client_id = 0) use ($mysqli, $ip_sql, $user_agent_sql) {
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = '" . escapeSql($action) . "', log_description = '" . escapeSql(mb_substr($description, 0, 1000)) . "',
             log_ip = '$ip_sql', log_user_agent = '$user_agent_sql', log_client_id = " . intval($client_id) . ", log_user_id = " . intval($user_id));

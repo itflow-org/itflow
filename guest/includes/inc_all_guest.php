@@ -10,7 +10,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/session_init.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_set_timezone.php';
 
 $ip = escapeSql(getIP());
-$user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
+$user_agent = escapeSql(mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 250));  // log_user_agent is varchar(250)
 $os = escapeSql(getOS($user_agent));
 $browser = escapeSql(getWebBrowser($user_agent));
 

@@ -96,6 +96,7 @@ if (isset($_POST['add_invoice_copy'])) {
 
     enforceUserPermission('module_sales', 2);
 
+    $config_invoice_prefix = escapeSql($config_invoice_prefix);
     $invoice_id = intval($_POST['invoice_id']);
     $date = escapeSql($_POST['date']);
 
