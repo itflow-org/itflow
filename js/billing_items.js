@@ -116,25 +116,35 @@ function itflowBillingLineForm(root, options) {
                 || String(item.product_name || '').toLowerCase().indexOf(term) !== -1
                 || String(item.product_code || '').toLowerCase().indexOf(term) !== -1;
         },
-        render: function (item) {
-            var esc = itflowEscapeHtml;
+        // A row as the select picker draws one: what it is in front, its name, a quieter line of its
+        // code, how it is billed, its tax and what it says, and its price - with its stock - at the end
+        row: function (item) {
             var isService = String(item.type || '').toLowerCase() === 'service';
             var tracked = String(item.track_stock) === '1';
             var stock = Number(item.available_stock || 0);
             var billed = itflowBillingBilledText(item.frequency, item.seat_source);
-            return "<div class='d-flex justify-content-between align-items-start gap-3'>" +
-                "<div class='min-w-0'>" +
-                    "<div class='fw-semibold'>" + esc(item.label) + "</div>" +
-                    (item.description ? "<div class='small text-body-secondary text-truncate'>" + esc(item.description) + "</div>" : "") +
-                    "<div class='small mt-1'>" +
-                        "<span class='badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal me-1'>" + (isService ? 'Service' : 'Product') + "</span>" +
-                        (item.tax_percent != null ? "<span class='badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal me-1'>Tax " + esc(parseFloat(item.tax_percent)) + "%</span>" : "") +
-                        (billed ? "<span class='badge rounded-pill bg-info-subtle text-info-emphasis fw-normal me-1'><i class='fas fa-redo-alt me-1'></i>" + esc(billed) + "</span>" : "") +
-                        (tracked ? "<span class='badge rounded-pill fw-normal " + (stock > 0 ? "bg-success-subtle text-success-emphasis" : "bg-danger-subtle text-danger-emphasis") + "'>" + esc(stock) + " in stock</span>" : "") +
-                    "</div>" +
-                "</div>" +
-                "<div class='fw-semibold text-nowrap'>" + esc(item.price != null && item.price !== '' ? itflowBillingMoney(Number(item.price), opts.currency, opts.locale) : '') + "</div>" +
-            "</div>";
+            var facts = [];
+            if (item.product_code) {
+                facts.push(item.product_code);
+            }
+            if (billed) {
+                facts.push(billed);
+            }
+            if (item.tax_percent != null) {
+                facts.push('Tax ' + parseFloat(item.tax_percent) + '%');
+            }
+            if (item.description) {
+                facts.push(item.description);
+            }
+            return {
+                icon: isService ? 'fas fa-wrench' : 'fas fa-box-open',
+                iconTitle: isService ? 'Service' : 'Product',
+                label: item.product_name || item.label,
+                description: facts.join(' \u00b7 '),
+                aside: item.price != null && item.price !== '' ? itflowBillingMoney(Number(item.price), opts.currency, opts.locale) : '',
+                asideNote: tracked ? stock + ' in stock' : '',
+                asideTone: tracked && stock <= 0 ? 'danger' : ''
+            };
         },
         onSelect: function (item) {
             name.value = item.product_name;
@@ -221,7 +231,7 @@ function itflowBillingItems(options) {
         // Enter in the name, quantity or price adds the line
         addRow.querySelectorAll('input').forEach(function (input) {
             input.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter' && !e.defaultPrevented && !document.querySelector('.itflow-ac-menu.show')) {
+                if (e.key === 'Enter' && !e.defaultPrevented && !document.querySelector('.itflow-ac-panel')) {
                     e.preventDefault();
                     if (addForm && addForm.reportValidity()) {
                         addForm.requestSubmit ? addForm.requestSubmit() : addForm.submit();
