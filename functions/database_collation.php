@@ -24,9 +24,12 @@
  * Two things keep it that way. The connection is given the tables' collation
  * on every request (databaseConnectionCollation(), from functions.php), so a
  * string the server makes itself matches them. And the database updater runs
- * the repair after the updates it applies (admin/database_updates.php), so a
- * table a future update creates without a COLLATE is put right in the same
- * run, on the servers where that matters.
+ * the repair before each update it applies and after the last
+ * (admin/database_updates.php), so an update never meets two collations and
+ * a table one creates without a COLLATE is put right in the same run.
+ *
+ * This file is loaded by that updater in a process that started on older
+ * code, so it leans on nothing but the connection and db.sql.
  */
 
 /*
@@ -159,7 +162,8 @@ function databaseCollationDifferences() {
 /*
  * Give every table and text column in databaseCollationDifferences() the
  * collation db.sql has for it. Returns ['changed' => [table, ...], 'failed'
- * => [table => why]].
+ * => [table => why]]. $skip is tables to leave - the ones that failed a
+ * moment ago, for a caller that comes back more than once in a run.
  *
  * A table's ALTER changes all of it or none of it, so one that fails is
  * exactly as it was and the rest go on. What stops one is a unique text
@@ -172,11 +176,11 @@ function databaseCollationDifferences() {
  * mode is put back after; strict mode itself stays on, so text that would
  * not fit is an error and never cut short.
  */
-function databaseCollationRepair() {
+function databaseCollationRepair(array $skip = []) {
     global $mysqli;
     $changed = [];
     $failed = [];
-    $differences = databaseCollationDifferences();
+    $differences = array_diff_key((array) databaseCollationDifferences(), array_flip($skip));
     if (!$differences) {
         return ['changed' => $changed, 'failed' => $failed];
     }
