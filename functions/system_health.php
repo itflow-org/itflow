@@ -148,7 +148,7 @@ function healthChecks() {
     ];
 }
 
-/** ITFlow itself - its version, where its code came from, the database's version against the code's, and updates. */
+/** ITFlow itself - its version, where its code came from, the database's version against the code's, the collation of its tables, and updates. */
 function healthItflowChecks() {
     $items = [];
     $branch = gitCurrentBranch();
@@ -165,6 +165,17 @@ function healthItflowChecks() {
             'The database has been updated past these files - the code was rolled back, or the update didn\'t finish. Update the files to match.', 'update.php', 'Maintenance > Update');
     } else {
         $items[] = healthItem('Database version', 'ok', "$installed - up to date");
+    }
+
+    // Every table's collation against db.sql (functions/database_collation.php)
+    $collations = databaseCollationDifferences();
+    if ($collations) {
+        $count = count($collations);
+        $items[] = healthItem('Database collation', 'warning', "$count " . ($count === 1 ? 'table differs' : 'tables differ') . ' from db.sql',
+            'Text in ' . ($count === 1 ? 'this table' : 'these tables') . ' is compared by different rules from the rest of the database, and a page that reads both can stop with &quot;Illegal mix of collations&quot;. Repair collations, under Database below, puts ' . ($count === 1 ? 'it' : 'them') . ' right.',
+            '#debug-collation', 'Repair collations');
+    } elseif ($collations !== null) {
+        $items[] = healthItem('Database collation', 'ok', 'Every table matches db.sql');
     }
 
     // Updates - Maintenance > Update fetches them with git, run through exec and shell_exec
@@ -531,8 +542,13 @@ function healthColumnType($type) {
 /*
  * How the database's tables and columns compare with db.sql - what a fresh
  * install makes. Each difference ['what' => missing table, missing column,
- * extra table, extra column or type, 'table', 'column', 'expected', 'found'].
- * null when db.sql isn't there.
+ * extra table, extra column, type or collation, 'table', 'column',
+ * 'expected', 'found']. null when db.sql isn't there.
+ *
+ * Collations (databaseCollationDifferences()) come a row a table, not a row
+ * a column - a table that differs usually differs in all of them, and an
+ * install with every table off would list hundreds. A column db.sql gives a
+ * collation of its own, the binary ones, gets its own row.
  */
 function healthStructureDifferences() {
     global $database;
@@ -580,6 +596,23 @@ function healthStructureDifferences() {
     foreach (array_keys($found) as $table) {
         if (!isset($expected[$table])) {
             $differences[] = ['what' => 'Extra table', 'table' => $table, 'column' => '', 'expected' => '', 'found' => ''];
+        }
+    }
+    foreach ((array) databaseCollationDifferences() as $table => $collation) {
+        $here = $collation['found'] !== '' ? [$collation['found']] : [];
+        $own = [];
+        foreach ($collation['columns'] as $column => $c) {
+            if ($c['expected'] === $collation['expected']) {
+                $here[] = $c['found'];
+            } else {
+                $own[$column] = $c;
+            }
+        }
+        if ($here) {
+            $differences[] = ['what' => 'Different collation', 'table' => $table, 'column' => '', 'expected' => $collation['expected'], 'found' => implode(', ', array_unique($here))];
+        }
+        foreach ($own as $column => $c) {
+            $differences[] = ['what' => 'Different collation', 'table' => $table, 'column' => $column, 'expected' => $c['expected'], 'found' => $c['found']];
         }
     }
     return $differences;

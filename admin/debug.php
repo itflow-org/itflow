@@ -5,7 +5,8 @@
  * (functions/system_health.php). What needs putting right comes first, each
  * with what to do and where; then the figures at a glance, every check by
  * section, the database (its size, biggest tables and how its structure
- * compares with db.sql) and the uploads folder. Copy for support puts it all
+ * compares with db.sql - with Repair collations for tables whose collation
+ * differs, admin/post/debug.php) and the uploads folder. Copy for support puts it all
  * on the clipboard as plain text for a forum post or a support email,
  * without host names, paths or keys.
  */
@@ -188,16 +189,39 @@ $action_link = function (array $item, $class) {
                         <?php } else {
                             $missing = count(array_filter($differences, function ($d) {
                                 return strpos($d['what'], 'Missing') === 0;
-                            })); ?>
+                            }));
+                            // Collations - a row a table, and one more for a column with a collation of its own
+                            $collation_rows = array_filter($differences, function ($d) {
+                                return $d['what'] === 'Different collation';
+                            });
+                            $collation_tables = count(array_unique(array_column($collation_rows, 'table'))); ?>
                             <p class="mb-2" data-debug-structure="<?= count($differences) ?>">
-                                <i class="fas fa-fw <?= $missing ? 'fa-times-circle text-danger' : 'fa-info-circle text-secondary' ?> me-1"></i>
+                                <i class="fas fa-fw <?= $missing ? 'fa-times-circle text-danger' : ($collation_tables ? 'fa-exclamation-triangle text-warning' : 'fa-info-circle text-secondary') ?> me-1"></i>
                                 <?= $plural(count($differences), 'difference', 'differences') ?> from db.sql.
                                 <?php if ($missing) { ?>
                                     Something missing usually means a database update didn't finish - <a href="update.php">Maintenance &gt; Update</a>.
-                                <?php } else { ?>
+                                <?php } elseif (count($differences) > count($collation_rows)) { ?>
                                     Extra tables and columns are usually left by older versions or a plugin, and do no harm.
                                 <?php } ?>
                             </p>
+                            <?php if ($collation_tables) {
+                                $collation_confirm = $plural($collation_tables, 'table', 'tables') . ' will be given the collation db.sql has for ' . ($collation_tables === 1 ? 'it' : 'them')
+                                    . '. A table is rebuilt as it is changed - a moment for most, minutes for a very large one, and ITFlow can be slow meanwhile. Nothing in a table is changed. Take a backup first if the last one is old.'; ?>
+                                <div class="alert alert-warning d-flex flex-column flex-md-row align-items-md-center gap-3 mb-3" id="debug-collation" data-debug-collation="<?= $collation_tables ?>">
+                                    <div class="flex-grow-1 small">
+                                        <strong><?= $plural($collation_tables, 'table has', 'tables have') ?> a collation other than db.sql's.</strong>
+                                        Text in <?= $collation_tables === 1 ? 'it' : 'them' ?> is compared by different rules from the rest of the database, and a page that reads both can stop with
+                                        &quot;Illegal mix of collations&quot;. Repair gives each the collation db.sql has for it; what is in the tables stays as it is.
+                                    </div>
+                                    <form action="post.php" method="post" class="flex-shrink-0">
+                                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                        <button type="submit" name="repair_database_collation" class="btn btn-warning btn-sm confirm-link" data-confirm-title="Repair collations?" data-confirm-button="Repair"
+                                            data-confirm-icon="question" data-confirm-text="<?= escapeHtml($collation_confirm) ?>">
+                                            <i class="fas fa-fw fa-wrench me-2"></i>Repair collations
+                                        </button>
+                                    </form>
+                                </div>
+                            <?php } ?>
                             <details <?= count($differences) <= 10 ? 'open' : '' ?> class="mb-3">
                                 <summary class="small text-body-secondary mb-2">Show them</summary>
                                 <div class="table-responsive">
