@@ -30,6 +30,45 @@ define("FROM_DB_UPDATER", true);
 // Outputs for the caller (update_cli.php)
 $database_updates_applied = [];   // Versions successfully applied this run
 $database_updates_error = null;   // "version: error message" if a migration failed
+$database_updates_collations = null;   // ['changed' => [table, ...], 'failed' => [table => why]] when collations were checked
+
+// Every table's collation against db.sql's (functions/database_collation.php), before each
+// update and after the last - $database_updates_collations is what that changed and couldn't.
+//
+// Before each, because an update can compare text in one table with text in another, and two
+// tables in different collations stop it with "Illegal mix of collations". The tables that
+// 2.1.6 to 2.4.1 created took the server's collation, which on MariaDB 11.5 and later isn't
+// the other tables'; 3.2.8 then matched license names against template names across the two,
+// failed with its columns already added, and from there every run stopped at "Duplicate
+// column name" - and 3.6.5, which puts those tables right, is on the far side of it. With
+// the tables brought into line first, no update meets that, whichever version it starts from.
+//
+// After the last, because one of these updates may be the one that made a table without a
+// COLLATE - right on the server it was written on, wrong on the others. Put right here, in
+// the run that made it, the slip never reaches a page.
+//
+// A process that started on code from before these functions (see update_cli.php, on handing
+// the database phase to a new process - one that couldn't, reads this file fresh off the new
+// tree against the functions it started with) loads them here. Nothing in this can fail the
+// update: a table that can't be changed is left as it was, said so, and not tried again.
+if (!function_exists('databaseCollationRepair') && is_file(__DIR__ . '/../functions/database_collation.php')) {
+    require_once __DIR__ . '/../functions/database_collation.php';
+}
+
+$database_updates_collation_pass = function () use (&$database_updates_collations) {
+    if (!function_exists('databaseCollationRepair')) {
+        return;
+    }
+    try {
+        $pass = databaseCollationRepair(array_keys($database_updates_collations['failed'] ?? []));
+        $database_updates_collations = [
+            'changed' => array_values(array_unique(array_merge($database_updates_collations['changed'] ?? [], $pass['changed']))),
+            'failed' => ($database_updates_collations['failed'] ?? []) + $pass['failed'],
+        ];
+    } catch (Throwable $e) {
+        error_log("ITFlow database update: checking collations failed: " . $e->getMessage());
+    }
+};
 
 // Collect and order the migration files by version (glob sorts alphabetically,
 // which would put 2.4.10 before 2.4.9 - version_compare gets it right)
@@ -52,6 +91,8 @@ foreach ($database_update_files as $version => $file) {
         continue;
     }
 
+    $database_updates_collation_pass();
+
     try {
         require $file;
     } catch (Throwable $e) {
@@ -66,4 +107,21 @@ foreach ($database_update_files as $version => $file) {
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '" . escapeSql($version) . "'");
     $database_current_version = $version;
     $database_updates_applied[] = $version;
+}
+
+if ($database_updates_applied && !$database_updates_error) {
+    $database_updates_collation_pass();
+}
+
+if ($database_updates_collations && function_exists('logApp')) {
+    try {
+        if ($database_updates_collations['changed']) {
+            logApp('Database Update', 'info', "Gave " . (count($database_updates_collations['changed']) === 1 ? '1 table' : count($database_updates_collations['changed']) . ' tables') . " the collation db.sql has during the database update: " . implode(', ', $database_updates_collations['changed']));
+        }
+        foreach ($database_updates_collations['failed'] as $table => $why) {
+            logApp('Database Update', 'warning', "The table $table doesn't have the collation db.sql has, and the database update could not give it: $why");
+        }
+    } catch (Throwable $e) {
+        error_log("ITFlow database update: logging collations failed: " . $e->getMessage());
+    }
 }

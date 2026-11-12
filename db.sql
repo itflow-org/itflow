@@ -1751,7 +1751,8 @@ CREATE TABLE `expenses` (
   KEY `expense_import_key` (`expense_import_key`),
   KEY `expense_reimbursement_id` (`expense_reimbursement_id`),
   KEY `expense_reconciliation_id` (`expense_reconciliation_id`),
-  KEY `expense_refund_of_id` (`expense_refund_of_id`)
+  KEY `expense_refund_of_id` (`expense_refund_of_id`),
+  KEY `expense_date` (`expense_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1901,7 +1902,8 @@ CREATE TABLE `invoices` (
   `invoice_quote_id` int(11) NOT NULL DEFAULT 0,
   `invoice_client_id` int(11) NOT NULL,
   PRIMARY KEY (`invoice_id`),
-  KEY `invoice_client_id` (`invoice_client_id`)
+  KEY `invoice_client_id` (`invoice_client_id`),
+  KEY `invoice_status` (`invoice_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3920,7 +3922,8 @@ CREATE TABLE `ticket_replies` (
   `ticket_reply_by` int(11) NOT NULL,
   `ticket_reply_ticket_id` int(11) NOT NULL,
   PRIMARY KEY (`ticket_reply_id`),
-  KEY `ticket_reply_ticket_id` (`ticket_reply_ticket_id`,`ticket_reply_archived_at`)
+  KEY `ticket_reply_ticket_id` (`ticket_reply_ticket_id`,`ticket_reply_archived_at`),
+  KEY `ticket_reply_by` (`ticket_reply_by`,`ticket_reply_created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4156,7 +4159,11 @@ CREATE TABLE `tickets` (
   KEY `ticket_resolution_due_at` (`ticket_resolution_due_at`),
   KEY `ticket_client_id` (`ticket_client_id`,`ticket_archived_at`),
   KEY `ticket_project_id` (`ticket_project_id`),
-  KEY `ticket_template_id` (`ticket_template_id`)
+  KEY `ticket_template_id` (`ticket_template_id`),
+  KEY `ticket_resolved_at` (`ticket_resolved_at`),
+  KEY `ticket_closed_at` (`ticket_closed_at`),
+  KEY `ticket_created_at` (`ticket_created_at`),
+  KEY `ticket_billable` (`ticket_billable`,`ticket_invoice_id`,`ticket_status`,`ticket_client_id`,`ticket_archived_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
