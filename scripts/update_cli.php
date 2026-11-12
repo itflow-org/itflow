@@ -194,6 +194,14 @@ foreach ($database_updates_applied as $applied_version) {
     echo "Applied database update $applied_version\n";
 }
 
+// The collations the runner checked after them (admin/database_updates.php)
+if (!empty($database_updates_collations['changed'])) {
+    echo "Gave " . (count($database_updates_collations['changed']) === 1 ? '1 table' : count($database_updates_collations['changed']) . ' tables') . " the collation db.sql has: " . implode(', ', $database_updates_collations['changed']) . "\n";
+}
+foreach ($database_updates_collations['failed'] ?? [] as $collation_table => $collation_why) {
+    echo "Warning: the table $collation_table doesn't have the collation db.sql has and could not be given it ($collation_why) - Admin > Debug lists it.\n";
+}
+
 if ($database_updates_error) {
     $stopped_at_version = count($database_updates_applied) > 0 ? end($database_updates_applied) : $old_db_version;
     fwrite(STDERR, "Error: database update failed at $database_updates_error\n");

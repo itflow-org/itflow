@@ -30,6 +30,7 @@ define("FROM_DB_UPDATER", true);
 // Outputs for the caller (update_cli.php)
 $database_updates_applied = [];   // Versions successfully applied this run
 $database_updates_error = null;   // "version: error message" if a migration failed
+$database_updates_collations = null;   // ['changed' => [table, ...], 'failed' => [table => why]] when collations were checked
 
 // Collect and order the migration files by version (glob sorts alphabetically,
 // which would put 2.4.10 before 2.4.9 - version_compare gets it right)
@@ -66,4 +67,28 @@ foreach ($database_update_files as $version => $file) {
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '" . escapeSql($version) . "'");
     $database_current_version = $version;
     $database_updates_applied[] = $version;
+}
+
+// After the updates, every table against db.sql's collation (functions/database_collation.php).
+// A migration that creates a table without a COLLATE gives it the server's default - right on
+// the server it was written on, and utf8mb4_0900_ai_ci on MySQL 8 or utf8mb4_uca1400_ai_ci on
+// MariaDB 11.5 and later, where the first query to read it beside another table then fails.
+// 2.1.6 to 2.4.1 did exactly that, and it took 26.11.4's dashboard to show it. Putting it
+// right here, in the run that made the table, means such a slip never reaches a page.
+//
+// Only when this run applied something and finished: a run that stopped has the database
+// part-way, and the re-run that completes it comes through here. Nothing here can fail the
+// update - a table that can't be changed is left as it was and said so.
+if ($database_updates_applied && !$database_updates_error && function_exists('databaseCollationRepair')) {
+    try {
+        $database_updates_collations = databaseCollationRepair();
+        if ($database_updates_collations['changed']) {
+            logApp('Database Update', 'info', "Gave " . (count($database_updates_collations['changed']) === 1 ? '1 table' : count($database_updates_collations['changed']) . ' tables') . " the collation db.sql has after the database update: " . implode(', ', $database_updates_collations['changed']));
+        }
+        foreach ($database_updates_collations['failed'] as $table => $why) {
+            logApp('Database Update', 'warning', "After the database update the table $table doesn't have the collation db.sql has, and could not be given it: $why");
+        }
+    } catch (Throwable $e) {
+        error_log("ITFlow database update: checking collations failed: " . $e->getMessage());
+    }
 }

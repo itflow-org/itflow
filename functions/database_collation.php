@@ -20,7 +20,50 @@
  * CHARACTER SET, which takes every text column in the table - the binary ones
  * with the rest - and turns a utf8mb3 TEXT into a MEDIUMTEXT. Only tables and
  * columns db.sql has are looked at; anything else in the database is left.
+ *
+ * Two things keep it that way. The connection is given the tables' collation
+ * on every request (databaseConnectionCollation(), from functions.php), so a
+ * string the server makes itself matches them. And the database updater runs
+ * the repair after the updates it applies (admin/database_updates.php), so a
+ * table a future update creates without a COLLATE is put right in the same
+ * run, on the servers where that matters.
  */
+
+/*
+ * Give the connection the collation the tables have.
+ *
+ * config.php connects without saying, so the connection takes the server's:
+ * utf8mb4_0900_ai_ci on MySQL 8. A quoted string in a query gives way to the
+ * column it meets, so nothing shows - until a query has the server make a
+ * string of its own. CAST(x AS CHAR) comes out in the connection's collation
+ * and does not give way: beside a column, in a comparison or a UNION, it is
+ * "Illegal mix of collations", on a new install as much as an upgraded one.
+ *
+ * Only the collation is set, never the character set (SET NAMES, or
+ * mysqli_set_charset()). On a server that defaults to latin1 - MySQL 5.7,
+ * MariaDB before 11.6 where the packager didn't change it - the connection
+ * has been latin1 since the install was made, and everything in it was
+ * written through that and reads back right through it. Changing the
+ * character set there turns every accented letter already stored into two
+ * wrong ones. Setting collation_connection changes what the server makes
+ * strings as, and leaves how text travels in and out exactly as it was -
+ * tried on a latin1 server: what was stored reads back the same, and what
+ * is written after is stored the same.
+ *
+ * Here and not in config.php, which each install has its own copy of. It is
+ * one short statement on a connection that is already open.
+ */
+function databaseConnectionCollation() {
+    global $mysqli;
+    if (!isset($mysqli) || !($mysqli instanceof mysqli)) {
+        return;
+    }
+    try {
+        mysqli_query($mysqli, "SET collation_connection = 'utf8mb4_general_ci'");
+    } catch (Throwable $e) {
+        // The page goes on with the server's own - as every page did before this
+    }
+}
 
 /** A text column's type as SHOW CREATE TABLE and db.sql write it, for a regex. An enum's values are quoted, with a quote inside one doubled. */
 function databaseCollationTextType() {
