@@ -994,7 +994,8 @@ function getProductsForAutocomplete($mysqli, $client_id = 0): string
         $products[] = $row;
     }
 
-    return json_encode($products) ?: '[]';
+    // Safe inside a <script> element, whatever a product's name or description holds
+    return json_encode($products, JSON_HEX_TAG | JSON_HEX_AMP) ?: '[]';
 }
 
 /*

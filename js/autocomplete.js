@@ -15,6 +15,12 @@
  *                  aside        a value at the end of the row, a price say
  *                  asideNote    a quieter line under it; asideTone "danger" colours it
  *     onSelect:  fn(item)
+ *     extra:     fn(typed) -> one more row under the suggestions, drawn as row
+ *                gives them, for taking what was typed as it is - or null.
+ *                It stays in view under a long list, and is there when
+ *                nothing matches too. onExtra: fn(typed)
+ *     pickFirst: true picks out the first row as the list opens, so Enter
+ *                takes it - for a field that is for picking
  * })
  *
  * It looks and moves like the select picker (js/itflow_select.js), whose
@@ -22,7 +28,7 @@
  * the arrow keys is the one picked out, what was typed is marked in each row,
  * and a long list says how many more there are. Up/Down to move, Enter to
  * pick, Escape to dismiss. Nothing is picked out until you move, so Enter on
- * what you typed still just sends the form.
+ * what you typed still just sends the form - unless pickFirst says otherwise.
  *
  * The list is capped to the room the window has and scrolls inside itself,
  * and opens above the field when there is more room there.
@@ -45,6 +51,7 @@ function itflowAutocomplete(input, options) {
     var MIN_HEIGHT = 120;
     var MAX_WIDTH = 520;
     var items = [];
+    var extra = null;
     var rows = [];
     var active = -1;
     var isOpen = false;
@@ -68,6 +75,8 @@ function itflowAutocomplete(input, options) {
     list.id = id + '-list';
     list.setAttribute('role', 'listbox');
     panel.appendChild(list);
+    // The row for what was typed sits under the list, not in it, so it doesn't scroll away
+    var foot = make('div', 'itflow-ac-foot');
 
     function defaultMatch(item, term) {
         return String(item.label || '').toLowerCase().indexOf(term) !== -1;
@@ -99,8 +108,10 @@ function itflowAutocomplete(input, options) {
         isOpen = false;
         panel.remove();
         list.textContent = '';
+        foot.textContent = '';
         list.style.maxHeight = '';
         rows = [];
+        extra = null;
         active = -1;
         input.setAttribute('aria-expanded', 'false');
         input.removeAttribute('aria-activedescendant');
@@ -114,16 +125,17 @@ function itflowAutocomplete(input, options) {
         var r = input.getBoundingClientRect();
         var below = window.innerHeight - r.bottom - GAP - MARGIN;
         var above = r.top - GAP - MARGIN;
-        var up = below < MIN_HEIGHT && above > below;
-        var room = Math.max(up ? above : below, MIN_HEIGHT);
 
         panel.style.left = r.left + 'px';
         panel.style.minWidth = r.width + 'px';
         panel.style.maxWidth = Math.max(r.width, Math.min(MAX_WIDTH, window.innerWidth - (MARGIN * 2))) + 'px';
 
-        // The list is as tall as the stylesheet lets it be, less whatever doesn't fit
+        // The list is as tall as the stylesheet lets it be, less whatever doesn't fit -
+        // above the field when it doesn't all fit below and there is more room there, as the select picker goes
         list.style.maxHeight = '';
         var height = panel.offsetHeight;
+        var up = height > below && above > below;
+        var room = Math.max(up ? above : below, MIN_HEIGHT);
         if (height > room) {
             list.style.maxHeight = Math.max(96, list.offsetHeight - (height - room)) + 'px';
         }
@@ -161,17 +173,21 @@ function itflowAutocomplete(input, options) {
 
     function choose(index) {
         var item = items[index];
-        if (!item) {
+        // The row after the suggestions is the one for what was typed
+        if (!item && !(extra && index === items.length)) {
             return;
         }
+        var typed = input.value.trim();
         close();
-        if (typeof opts.onSelect === 'function') {
+        if (item && typeof opts.onSelect === 'function') {
             opts.onSelect(item);
+        } else if (!item && typeof opts.onExtra === 'function') {
+            opts.onExtra(typed);
         }
     }
 
-    function draw(item, index, term) {
-        var row = typeof opts.row === 'function' ? (opts.row(item) || {}) : { label: item.label };
+    function draw(item, index, term, as) {
+        var row = as || (typeof opts.row === 'function' ? (opts.row(item) || {}) : { label: item.label });
         var node = make('div', 'itflow-select-option');
         node.id = id + '-o' + index;
         node.setAttribute('role', 'option');
@@ -220,7 +236,8 @@ function itflowAutocomplete(input, options) {
             return matcher(item, term);
         });
         items = all.slice(0, maxItems);
-        if (!items.length) {
+        extra = typeof opts.extra === 'function' ? (opts.extra(input.value.trim()) || null) : null;
+        if (!items.length && !extra) {
             // Nothing like it - the field takes what was typed as it is
             close();
             return;
@@ -233,8 +250,19 @@ function itflowAutocomplete(input, options) {
         if (all.length > items.length) {
             list.appendChild(make('div', 'itflow-select-more', 'Showing ' + items.length + ' of ' + all.length.toLocaleString() + ' - type to narrow it down'));
         }
+        foot.textContent = '';
+        if (extra) {
+            rows.push(foot.appendChild(draw(null, items.length, '', extra)));
+            panel.appendChild(foot);
+        } else {
+            foot.remove();
+        }
+        list.hidden = !items.length;
         active = -1;
         input.removeAttribute('aria-activedescendant');
+        if (opts.pickFirst) {
+            setActive(0, false);
+        }
 
         if (!isOpen) {
             isOpen = true;
@@ -296,7 +324,7 @@ function itflowAutocomplete(input, options) {
         }
     });
     // The row under the mouse is the one picked out, as in the select picker
-    list.addEventListener('mousemove', function (e) {
+    panel.addEventListener('mousemove', function (e) {
         var node = e.target.closest('[data-row]');
         var index = node ? parseInt(node.getAttribute('data-row'), 10) : -1;
         if (index >= 0 && index !== active) {

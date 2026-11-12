@@ -465,6 +465,78 @@ function billingItemSetPrice($type, $doc_id, $item_id, $price) {
     return true;
 }
 
+/**
+ * Change one thing about a line - its name, description, quantity, price or
+ * tax, or how often a quote's line is billed - as the document pages do when
+ * a line is changed where it sits. The rest of the line stays as it is and
+ * billingItemSave() does the work, so stock and the totals follow as they do
+ * from the Edit Line window. The line's id, or null with $error. $change says
+ * what changed, for the audit log - "quantity 1 to 2" - and is '' when the
+ * line already had that value, which saves nothing.
+ */
+function billingItemSetField($type, $doc_id, $item_id, $field, $value, &$error = '', &$change = '') {
+    $error = '';
+    $change = '';
+    $item_id = intval($item_id);
+    $item = null;
+    foreach (billingType($type) ? billingItems($type, $doc_id) : [] as $line) {
+        if (intval($line['item_id']) === $item_id) {
+            $item = $line;
+        }
+    }
+    if (!$item) {
+        $error = 'That line no longer exists.';
+        return null;
+    }
+    $value = is_scalar($value) ? trim(str_replace("\r", '', (string) $value)) : '';
+    $in = [
+        'name' => $item['item_name'], 'description' => str_replace("\r", '', (string) $item['item_description']),
+        'qty' => $item['item_quantity'], 'price' => $item['item_price'], 'tax_id' => intval($item['item_tax_id']),
+    ];
+
+    if ($field === 'name') {
+        $was = (string) $item['item_name'];
+        $change = "renamed from $was";
+    } elseif ($field === 'description') {
+        $was = trim($in['description']);
+        $change = 'description changed';
+    } elseif ($field === 'qty' || $field === 'price') {
+        if ($field === 'qty' && (string) ($item['item_seat_source'] ?? '') !== '') {
+            $error = 'Its quantity is counted for each invoice - Edit, in its menu, has what it counts.';
+            return null;
+        }
+        $number = $value === '' ? null : billingNumberInput($value);
+        if ($number === null) {
+            $error = 'The quantity and price have to be numbers.';
+            return null;
+        }
+        $old = round(floatval($item[$field === 'qty' ? 'item_quantity' : 'item_price']), 2);
+        [$was, $value] = [(string) $old, (string) $number];
+        $change = $field === 'qty' ? 'quantity ' . billingQuantity($old) . ' to ' . billingQuantity($number)
+            : 'price ' . number_format($old, 2, '.', '') . ' to ' . number_format($number, 2, '.', '');
+    } elseif ($field === 'tax_id') {
+        [$was, $value] = [(string) $in['tax_id'], (string) max(0, intval($value))];
+        $change = 'tax ' . (taxLabel(taxRow($was)) ?: 'none') . ' to ' . (taxLabel(taxRow($value)) ?: 'none');
+    } elseif ($field === 'frequency' && $type === 'quote') {
+        [$was, $value] = [quoteFrequency($item['item_frequency'] ?? ''), quoteFrequency($value)];
+        $change = 'billed ' . strtolower(quoteFrequencies()[$was]) . ' to ' . strtolower(quoteFrequencies()[$value]);
+    } else {
+        $error = "That can't be changed here.";
+        return null;
+    }
+    if ($value === $was) {
+        $change = '';
+        return $item_id;
+    }
+    // A line whose rate has been deleted keeps its tax until it is given another
+    if ($field !== 'tax_id' && $in['tax_id'] && !taxRow($in['tax_id'])) {
+        $error = 'Its tax rate no longer exists - choose its tax first.';
+        return null;
+    }
+    $in[$field] = $value;
+    return billingItemSave($type, $doc_id, $in, $item_id, $error);
+}
+
 /** Take a line off a document - a tracked product goes back on the shelf. The line, or null. */
 function billingItemDelete($type, $doc_id, $item_id) {
     global $mysqli;

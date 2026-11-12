@@ -93,7 +93,7 @@ $paper = [
 </ol>
 
 <!-- What it is, where it stands, and the next thing to do -->
-<div class="card mb-3 d-print-none">
+<div class="card mb-3 d-print-none" data-billing-live="head">
     <div class="card-body d-flex flex-wrap align-items-center gap-3">
         <?= billingTile('quote', 'lg') ?>
 
@@ -221,7 +221,7 @@ $paper = [
     </div>
 <?php } ?>
 
-<?= taxDocWarning('quote', $quote_id, $client_id, $items, billingLinesOpen('quote', $status), $can_edit) ?>
+<div data-billing-live="warning"><?= taxDocWarning('quote', $quote_id, $client_id, $items, billingLinesOpen('quote', $status), $can_edit) ?></div>
 
 <div class="row g-3">
 
@@ -230,7 +230,7 @@ $paper = [
         <?php require "../includes/billing_paper.php"; ?>
     </div>
 
-    <div class="col-xl-4 d-print-none">
+    <div class="col-xl-4 d-print-none" data-billing-live="side">
 
         <div class="card mb-3">
             <div class="card-header">
@@ -347,7 +347,6 @@ $paper = [
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     itflowBillingItems({
-        products: <?= $can_edit_lines ? getProductsForAutocomplete($mysqli, intval($quote['client_id'])) : '[]' ?>,
         csrf: <?= json_encode($csrf) ?>,
         currency: <?= json_encode($currency) ?>,
         locale: <?= json_encode(str_replace('_', '-', (string) $session_company_locale)) ?>

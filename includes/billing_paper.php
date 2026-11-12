@@ -12,13 +12,15 @@
  *   paid       what has been paid (invoices)
  *   balance    what is still owed (invoices)
  *   edit       the lines can be changed here (agent pages): drag handles,
- *              a menu on each line and the add-a-line row
+ *              a menu on each line, the add field, and a line's name,
+ *              description, quantity, price and tax changed where they sit
+ *              (js/billing_items.js)
  *   notes_edit the notes save in place (agent pages)
- *   taxes      billingTaxes(), for the add-a-line row
+ *   taxes      billingTaxes(), the rates a line's tax is picked from
  *   logo_url   the company logo, relative to the page
  *   client     shown to the client (the client portal) - no agent-only notes
  *   csrf       the agent's token, for the edit controls
- *   ai         Write it with AI under the add-a-line row (quotes and
+ *   ai         Write it with AI under the add field (quotes and
  *              invoices, when the agent may use AI for Billing)
  *
  * Everything in it is escaped here.
@@ -75,6 +77,19 @@ $paper_seat_sources = recurringSeatSources();
 $paper_groups = $paper_type === 'quote' && !empty($paper_totals['recurring']) ? $paper_totals['groups'] : null;
 $paper_line_groups = $paper_groups ?: ['' => ['frequency' => '', 'label' => '', 'items' => $paper_items]];
 
+// Where the lines can be changed, what can be changed where it sits is wrapped
+// as a field: which one, its value as it is typed, and what a click on it
+// does. And the parts of the paper that follow the lines are marked, to be
+// drawn again after a change.
+$paper_field = function ($field, $value, $what, $html, $class = '') use ($paper_edit) {
+    return $paper_edit
+        ? '<span class="itflow-line-field' . ($class !== '' ? " $class" : '') . '" data-line-field="' . $field . '" data-value="' . escapeHtml($value) . '" tabindex="0" role="button" title="Change the ' . $what . '">' . $html . '</span>'
+        : $html;
+};
+$paper_live = function ($part) use ($paper_edit) {
+    return $paper_edit ? ' data-billing-live="' . $part . '"' : '';
+};
+
 $paper_post = function ($params) use ($paper_type, $paper_id, $paper) {
     return 'post.php?' . http_build_query(array_merge($params, ['type' => $paper_type, 'doc_id' => $paper_id, 'csrf_token' => $paper['csrf'] ?? '']));
 };
@@ -94,7 +109,7 @@ $paper_bill_lines = array_filter([
 ]);
 
 ?>
-<div class="itflow-paper" id="items" data-billing-type="<?= $paper_type ?>" data-billing-id="<?= $paper_id ?>">
+<div class="itflow-paper" id="items" data-billing-type="<?= $paper_type ?>" data-billing-id="<?= $paper_id ?>"<?= $paper_edit ? ' data-billing-edit' : '' ?>>
 
     <?php if ($paper_stamp) { ?>
         <div class="itflow-paper-stamp text-<?= $paper_stamp[1] ?>" aria-hidden="true"><?= $paper_stamp[0] ?></div>
@@ -127,7 +142,7 @@ $paper_bill_lines = array_filter([
             <div class="fw-semibold"><?= escapeHtml($paper_bill_to['client_name'] ?? $paper_row['client_name']) ?></div>
             <div class="small text-body-secondary"><?= nl2br(escapeHtml(implode("\n", $paper_bill_lines))) ?></div>
         </div>
-        <div class="itflow-paper-due text-md-end">
+        <div class="itflow-paper-due text-md-end"<?= $paper_live('due') ?>>
             <?php if ($paper_type === 'invoice') { ?>
                 <div class="itflow-paper-label"><?= in_array($paper_status, ['Paid', 'Cancelled', 'Non-Billable'], true) ? 'Balance' : 'Amount due' ?></div>
                 <div class="itflow-paper-amount"><?= $paper_money($paper['balance'] ?? $paper_totals['total']) ?></div>
@@ -160,13 +175,9 @@ $paper_bill_lines = array_filter([
 
     <!-- The lines -->
     <?php if ($paper_edit) { ?>
-        <form id="billingAddLine" action="post.php" method="post" autocomplete="off" class="d-none">
-            <input type="hidden" name="csrf_token" value="<?= escapeHtml($paper['csrf'] ?? '') ?>">
-            <input type="hidden" name="billing_item_save" value="1">
-            <input type="hidden" name="type" value="<?= $paper_type ?>">
-            <input type="hidden" name="doc_id" value="<?= $paper_id ?>">
-            <input type="hidden" name="product_id" value="0" data-line-product>
-        </form>
+        <!-- What the add field offers, and the rates a line's tax is picked from -->
+        <script type="application/json" data-billing-products><?= getProductsForAutocomplete($GLOBALS['mysqli'], intval($paper_row['client_id'])) ?></script>
+        <template data-billing-taxes><?= taxOptionsHtml($paper['taxes'] ?? [], 0) ?></template>
     <?php } ?>
     <div class="table-responsive">
         <table class="table itflow-paper-items align-top mb-0" data-billing-items>
@@ -192,15 +203,21 @@ $paper_bill_lines = array_filter([
                     $item_id = intval($item['item_id']);
                     $item_tax_label = floatval($item['item_tax']) != 0 || intval($item['item_tax_id'])
                         ? trim(($item['tax_name'] ?? '') . ' ' . ($item['tax_percent'] !== null ? taxPercentText($item['tax_percent']) . '%' : ''))
-                        : ''; ?>
+                        : '';
+                    $item_tax_html = $item_tax_label !== ''
+                        ? $paper_money($item['item_tax']) . '<div class="small text-body-secondary itflow-paper-tax-label">' . escapeHtml($item_tax_label) . '</div>'
+                        : '<span class="text-body-secondary">-</span>';
+                    $item_quantity = billingQuantity($item['item_quantity']); ?>
                     <tr id="line-<?= $item_id ?>" data-item-id="<?= $item_id ?>" data-group="<?= $paper_frequency ?>">
                         <?php if ($paper_edit) { ?>
                             <td class="itflow-paper-handle d-print-none"><span class="drag-handle" title="Drag to reorder"><i class="fas fa-grip-vertical"></i></span></td>
                         <?php } ?>
                         <td class="itflow-paper-item">
-                            <div class="fw-semibold"><?= escapeHtml($item['item_name']) ?></div>
+                            <div class="fw-semibold"><?= $paper_field('name', $item['item_name'], 'name', escapeHtml($item['item_name']), 'd-block') ?></div>
                             <?php if (trim((string) $item['item_description']) !== '') { ?>
-                                <div class="small text-body-secondary"><?= nl2br(escapeHtml($item['item_description'])) ?></div>
+                                <div class="small text-body-secondary"><?= $paper_field('description', $item['item_description'], 'description', nl2br(escapeHtml($item['item_description'])), 'd-block') ?></div>
+                            <?php } elseif ($paper_edit) { // shown while the line is being worked on ?>
+                                <div class="small text-body-secondary itflow-line-blank d-print-none"><?= $paper_field('description', '', 'description', 'Add a description', 'd-block') ?></div>
                             <?php } ?>
                             <?php if (isset($paper_seats[$item_id])) {
                                 $seat = $paper_seats[$item_id];
@@ -217,16 +234,10 @@ $paper_bill_lines = array_filter([
                                 </div>
                             <?php } ?>
                         </td>
-                        <td class="text-end text-nowrap"><?= billingQuantity($item['item_quantity']) ?></td>
-                        <td class="text-end text-nowrap"><?= $paper_money($item['item_price']) ?></td>
-                        <td class="text-end text-nowrap">
-                            <?php if ($item_tax_label !== '') { ?>
-                                <?= $paper_money($item['item_tax']) ?>
-                                <div class="small text-body-secondary itflow-paper-tax-label"><?= escapeHtml($item_tax_label) ?></div>
-                            <?php } else { ?>
-                                <span class="text-body-secondary">-</span>
-                            <?php } ?>
-                        </td>
+                        <?php // A counted quantity isn't typed - the Edit Line window has what it counts ?>
+                        <td class="text-end text-nowrap"><?= isset($paper_seats[$item_id]) ? $item_quantity : $paper_field('qty', $item_quantity, 'quantity', $item_quantity) ?></td>
+                        <td class="text-end text-nowrap"><?= $paper_field('price', number_format(floatval($item['item_price']), 2, '.', ''), 'price', $paper_money($item['item_price'])) ?></td>
+                        <td class="text-end text-nowrap"><?= $paper_field('tax_id', intval($item['item_tax_id']), 'tax', $item_tax_html) ?></td>
                         <td class="text-end text-nowrap fw-semibold"><?= $paper_money($item['item_total']) ?></td>
                         <?php if ($paper_edit) { ?>
                             <td class="text-end d-print-none itflow-paper-actions">
@@ -236,6 +247,16 @@ $paper_bill_lines = array_filter([
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/billing/billing_item.php?type=<?= $paper_type ?>&doc_id=<?= $paper_id ?>&item_id=<?= $item_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?php if ($paper_type === 'quote') {
+                                            $item_frequency = quoteFrequency($item['item_frequency'] ?? ''); ?>
+                                            <div class="dropdown-divider"></div>
+                                            <h6 class="dropdown-header">Billed</h6>
+                                            <?php foreach (quoteFrequencies() as $frequency_value => $frequency_label) { ?>
+                                                <button type="button" class="dropdown-item" data-line-set="frequency" data-value="<?= $frequency_value ?>"<?= $item_frequency === $frequency_value ? ' aria-current="true"' : '' ?>>
+                                                    <i class="fas fa-fw <?= $item_frequency === $frequency_value ? 'fa-check' : '' ?> text-secondary me-2"></i><?= $frequency_label ?>
+                                                </button>
+                                            <?php } ?>
+                                        <?php } ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger confirm-link" href="<?= escapeHtml($paper_post(['billing_item_delete' => $item_id])) ?>"
                                             data-confirm-text="<?= escapeHtml($item['item_name']) ?> comes off <?= escapeHtml(billingNumber($paper_type, $paper_row)) ?><?= $paper_type === 'invoice' && intval($item['item_product_id']) ? ' - anything taken from stock goes back' : '' ?>.">
@@ -256,48 +277,11 @@ $paper_bill_lines = array_filter([
                 <tfoot class="d-print-none">
                 <tr class="itflow-paper-add" id="add-line">
                     <td colspan="7">
-                        <div class="itflow-paper-add-grid<?= in_array($paper_type, ['recurring', 'quote'], true) ? ' itflow-paper-add-grid-seats' : '' ?>" data-billing-add>
-                            <div class="itflow-paper-add-item">
-                                <input type="text" class="form-control form-control-sm mb-1" name="name" form="billingAddLine" placeholder="<?= $paper_items ? 'Add a line - type a product, or anything' : 'First line - type a product, or anything' ?>" maxlength="200" required data-line-name aria-label="Item">
-                                <textarea class="form-control form-control-sm" name="description" form="billingAddLine" rows="1" placeholder="Description (optional)" data-line-description aria-label="Description"></textarea>
-                            </div>
-                            <div class="itflow-paper-add-qty">
-                                <label class="form-label small text-body-secondary mb-0">Qty</label>
-                                <input type="text" class="form-control form-control-sm text-end" name="qty" form="billingAddLine" inputmode="decimal" placeholder="1" value="1" data-line-qty>
-                            </div>
-                            <?php if ($paper_type === 'recurring') { ?>
-                                <div class="itflow-paper-add-seat">
-                                    <label class="form-label small text-body-secondary mb-0">Counted</label>
-                                    <select class="form-select form-select-sm" name="seat_source" form="billingAddLine" data-add-seat title="Bill per user or per device - counted again for each invoice">
-                                        <option value="">As typed</option>
-                                        <option value="contacts" data-count="<?= intval(recurringSeatCount($paper_row['client_id'], 'contacts', [])) ?>">Per user</option>
-                                        <option value="assets" data-count="<?= intval(recurringSeatCount($paper_row['client_id'], 'assets', [])) ?>">Per device</option>
-                                    </select>
-                                </div>
-                            <?php } elseif ($paper_type === 'quote') { ?>
-                                <div class="itflow-paper-add-seat">
-                                    <label class="form-label small text-body-secondary mb-0">Billed</label>
-                                    <select class="form-select form-select-sm" name="frequency" form="billingAddLine" title="Billed once, or each month, quarter or year - those go on a recurring invoice when the quote is invoiced">
-                                        <?php foreach (quoteFrequencies() as $frequency_value => $frequency_label) { ?>
-                                            <option value="<?= $frequency_value ?>"><?= $frequency_label ?></option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                            <?php } ?>
-                            <div class="itflow-paper-add-price">
-                                <label class="form-label small text-body-secondary mb-0">Price</label>
-                                <input type="text" class="form-control form-control-sm text-end" name="price" form="billingAddLine" inputmode="decimal" placeholder="0.00" data-line-price>
-                            </div>
-                            <div class="itflow-paper-add-tax">
-                                <label class="form-label small text-body-secondary mb-0">Tax</label>
-                                <select class="form-select form-select-sm" name="tax_id" form="billingAddLine" data-line-tax>
-                                    <?= taxOptionsHtml($paper['taxes'] ?? [], taxDefaultFor($paper_row['client_id'] ?? 0)) ?>
-                                </select>
-                            </div>
-                            <div class="itflow-paper-add-go">
-                                <span class="small text-body-secondary text-nowrap" data-line-preview></span>
-                                <button type="submit" form="billingAddLine" class="btn btn-sm btn-primary text-nowrap" title="Add the line"><i class="fas fa-plus me-1"></i>Add</button>
-                            </div>
+                        <!-- One field: pick a product and it goes on as a line, or type anything and press Enter -->
+                        <div class="itflow-paper-add-field">
+                            <i class="fas fa-plus" aria-hidden="true"></i>
+                            <input type="text" class="form-control" maxlength="200" autocomplete="off" data-billing-add aria-label="Add a line"
+                                placeholder="<?= $paper_items ? 'Add a line' : 'First line' ?> - type a product, or anything">
                         </div>
                         <?php if (!empty($paper['ai'])) { ?>
                             <div class="d-flex flex-wrap align-items-center column-gap-2 row-gap-1 mt-2 pt-2 border-top" data-billing-ai>
@@ -330,7 +314,7 @@ $paper_bill_lines = array_filter([
             <?php } ?>
         </div>
         <?php if ($paper_groups) { ?>
-            <table class="itflow-paper-totals">
+            <table class="itflow-paper-totals"<?= $paper_live('totals') ?>>
                 <?php foreach ($paper_groups as $paper_frequency => $paper_group) {
                     if ($paper_frequency === '' && !$paper_group['items'] && $paper_group['discount'] == 0) {
                         continue;
@@ -347,7 +331,7 @@ $paper_bill_lines = array_filter([
                 <?php } ?>
             </table>
         <?php } else { ?>
-        <table class="itflow-paper-totals">
+        <table class="itflow-paper-totals"<?= $paper_live('totals') ?>>
             <tr><th>Subtotal</th><td><?= $paper_money($paper_totals['subtotal']) ?></td></tr>
             <?php if ($paper_totals['discount'] != 0) { ?>
                 <tr><th>Discount</th><td>-<?= $paper_money($paper_totals['discount']) ?></td></tr>

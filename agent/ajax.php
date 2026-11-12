@@ -1691,6 +1691,58 @@ if (isset($_POST['billing_items_order'])) {
 }
 
 /*
+ * A line added to an invoice, quote or recurring invoice from the page's
+ * add field, or one thing about a line changed where it sits
+ * (js/billing_items.js). The same rules as post.php's billing_item_save,
+ * answered as {status: 'success', item_id} or {status: 'error', message} -
+ * with reload when the document can no longer be changed, so the page shows
+ * why. The page draws itself again from its own address afterwards, so how a
+ * line and the totals look is written once, in includes/billing_paper.php.
+ *
+ *   billing_item_add  name, and from a picked product its description,
+ *                     price, tax_id, product_id, and frequency (a quote) or
+ *                     seat_source (a recurring invoice)
+ *   billing_item_set  item_id, field (name, description, qty, price, tax_id,
+ *                     or frequency on a quote) and value
+ */
+if (isset($_POST['billing_item_add']) || isset($_POST['billing_item_set'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    header('Content-Type: application/json');
+
+    $type = (string) ($_POST['type'] ?? '');
+    $doc_id = intval($_POST['doc_id'] ?? 0);
+    $doc = billingType($type) ? billingRow($type, $doc_id) : null;
+    if (!$doc || !hasClientAccess(intval($doc['client_id'])) || !billingCanEditItems($type, $doc)) {
+        echo json_encode(['status' => 'error', 'reload' => true, 'message' => $doc ? billingNumber($type, $doc) . " can't be changed now." : 'That document no longer exists, or is not one you can open.']);
+        exit;
+    }
+    $client_id = intval($doc['client_id']);
+    $number = billingNumber($type, $doc);
+    $audit_type = ucwords(billingType($type)['label']);
+
+    if (isset($_POST['billing_item_add'])) {
+        // A line typed in, not picked, gets the rate the client's lines usually do
+        $item_id = billingItemSave($type, $doc_id, $_POST + ['tax_id' => taxDefaultFor($client_id)], 0, $error);
+        if ($item_id) {
+            logAudit($audit_type, 'Edit', escapeSql("$session_name added line " . trim((string) ($_POST['name'] ?? '')) . " to $number"), $client_id, $doc_id);
+        }
+    } else {
+        $item_id = billingItemSetField($type, $doc_id, intval($_POST['item_id'] ?? 0), (string) ($_POST['field'] ?? ''), $_POST['value'] ?? '', $error, $change);
+        if ($item_id && $change !== '') {
+            $name = (string) mysqli_fetch_row(mysqli_query($mysqli, "SELECT item_name FROM " . billingType($type)['items'] . " WHERE item_id = " . intval($item_id)))[0];
+            logAudit($audit_type, 'Edit', escapeSql("$session_name edited line $name on $number - $change"), $client_id, $doc_id);
+        }
+    }
+
+    echo json_encode($item_id ? ['status' => 'success', 'item_id' => intval($item_id)] : ['status' => 'error', 'message' => $error]);
+    exit;
+}
+
+/*
  * How many a seat line on a recurring invoice would count now - for the Edit
  * Line window as its choices change. source, tag, types[], software_id,
  * count (used or total) and minimum, as the form posts them.
