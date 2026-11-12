@@ -14,6 +14,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 
 ### Bug Fixes
 
+- Dashboard: on some upgraded installs the dashboard came up blank after 26.11.4 and the menu under your name did nothing; a product's page, the products list and a draft invoice, quote or recurring invoice could stop the same way. All of them open again. Installs set up new were not affected.
 - Lists: a list long enough to run past 10,000 pages - closed tickets at 10 a page on an install with over 100,000 of them, say - stopped drawing at its page numbers, so the rest of the page was missing and its menus and buttons did nothing. Lists of any length now finish, with their page numbers.
 
 ### Developer Updates
@@ -21,6 +22,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Database 3.6.4 (`admin/database_updates/3.6.4.php`) adds seven indexes, each only where it isn't there already, and `db.sql` has them for new installs: `tickets` (`ticket_resolved_at`), (`ticket_closed_at`), (`ticket_created_at`) and (`ticket_billable`, `ticket_invoice_id`, `ticket_status`, `ticket_client_id`, `ticket_archived_at`); `ticket_replies` (`ticket_reply_by`, `ticket_reply_created_at`); `invoices` (`invoice_status`); `expenses` (`expense_date`). `ticket_resolved_at IS NULL` and `ticket_closed_at IS NULL` are a sliver of a mature install's tickets, where `*_archived_at IS NULL` is nearly all of them; the five-column one answers `billingUnbilledCount()` from the index alone; `invoice_status` is taken for Sent, Viewed and Partial and still scanned for Paid. The reasoning for each, and what was left out, is in the migration's comment.
 - `dashboardPeriodOptions()` finds the years with data by asking each of payments, revenues, expenses and tickets for its first date from a year on - `SELECT MIN(col) ... WHERE col >= 'Y-01-01'`, one step into the index a year - in place of a `UNION` of `YEAR()` over every row of five tables; invoices get one `SELECT DISTINCT YEAR(invoice_date)`. The list it returns is the same.
 - `dashboardLatestIncome()` joins with `STRAIGHT_JOIN` from `payments`, so the last five are read off `payment_date` backwards; the optimizer started from `clients` and sorted every payment.
+- `productRepriceUnionSql()` gives every text column of its three branches one collation (`CONVERT(... USING utf8mb4) COLLATE utf8mb4_general_ci`). Database 2.4.1 made `quote_items` and `recurring_invoice_items` with `DEFAULT CHARSET=utf8mb4` and no `COLLATE`, so on a server whose default isn't `utf8mb4_general_ci` (MySQL 8: `utf8mb4_0900_ai_ci`) their `item_name` differs from `invoice_items` and the `UNION ALL` threw `Illegal mix of collations for operation 'UNION'` - from `productRepriceCount()`, which the dashboard's attention list calls. The tables themselves are left as they are.
 - `includes/filter_footer.php` works `$pages_split` out for any number of pages (10, 100, 1,000, 10,000 and so on up). It was set only up to 10,000 pages, and past that `is_int($i / $pages_split)` threw a `DivisionByZeroError` in the middle of the pager.
 
 ## [26.11.6]

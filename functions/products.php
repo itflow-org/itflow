@@ -913,21 +913,30 @@ function productRepriceKinds() {
  * kind, item_id, doc_id, number, status, client_id, item_name, item_price,
  * item_quantity, item_product_id, frequency and currency. Recurring invoices
  * not archived, draft invoices and draft quotes.
+ *
+ * Every text column is given one collation. The three item tables and their
+ * documents were made by different database updates, some of which left the
+ * collation to the server's default, so on an upgraded install they can differ
+ * (utf8mb4_general_ci beside MySQL 8's utf8mb4_0900_ai_ci, say) and the UNION
+ * fails with "Illegal mix of collations".
  */
 function productRepriceUnionSql() {
-    return "SELECT 'recurring' AS kind, item_id, recurring_invoice_id AS doc_id, CONCAT(recurring_invoice_prefix, recurring_invoice_number) AS number,
-                IF(recurring_invoice_status = 1, 'Active', 'Paused') AS status, recurring_invoice_client_id AS client_id, item_name, item_price, item_quantity,
-                item_product_id, recurring_invoice_frequency AS frequency, recurring_invoice_currency_code AS currency
+    $t = function ($sql) {
+        return "CONVERT($sql USING utf8mb4) COLLATE utf8mb4_general_ci";
+    };
+    return "SELECT " . $t("'recurring'") . " AS kind, item_id, recurring_invoice_id AS doc_id, " . $t("CONCAT(recurring_invoice_prefix, recurring_invoice_number)") . " AS number,
+                " . $t("IF(recurring_invoice_status = 1, 'Active', 'Paused')") . " AS status, recurring_invoice_client_id AS client_id, " . $t('item_name') . " AS item_name, item_price, item_quantity,
+                item_product_id, " . $t('recurring_invoice_frequency') . " AS frequency, " . $t('recurring_invoice_currency_code') . " AS currency
             FROM recurring_invoice_items JOIN recurring_invoices ON recurring_invoice_id = item_recurring_invoice_id
             WHERE recurring_invoice_archived_at IS NULL AND item_product_id > 0
         UNION ALL
-        SELECT 'invoice', item_id, invoice_id, CONCAT(invoice_prefix, invoice_number), invoice_status, invoice_client_id, item_name, item_price, item_quantity,
-                item_product_id, NULL, invoice_currency_code
+        SELECT " . $t("'invoice'") . ", item_id, invoice_id, " . $t("CONCAT(invoice_prefix, invoice_number)") . ", " . $t('invoice_status') . ", invoice_client_id, " . $t('item_name') . ", item_price, item_quantity,
+                item_product_id, " . $t('NULL') . ", " . $t('invoice_currency_code') . "
             FROM invoice_items JOIN invoices ON invoice_id = item_invoice_id
             WHERE invoice_status = 'Draft' AND invoice_archived_at IS NULL AND item_product_id > 0
         UNION ALL
-        SELECT 'quote', item_id, quote_id, CONCAT(quote_prefix, quote_number), quote_status, quote_client_id, item_name, item_price, item_quantity,
-                item_product_id, item_frequency, quote_currency_code
+        SELECT " . $t("'quote'") . ", item_id, quote_id, " . $t("CONCAT(quote_prefix, quote_number)") . ", " . $t('quote_status') . ", quote_client_id, " . $t('item_name') . ", item_price, item_quantity,
+                item_product_id, " . $t('item_frequency') . ", " . $t('quote_currency_code') . "
             FROM quote_items JOIN quotes ON quote_id = item_quote_id
             WHERE quote_status = 'Draft' AND quote_archived_at IS NULL AND item_product_id > 0";
 }
