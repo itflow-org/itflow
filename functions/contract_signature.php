@@ -117,16 +117,16 @@ function contractSlaRows(array $row, $date = null) {
     return $rows;
 }
 
-/** The response times as a table - for [SLA] and the document's own section - as of $date. */
-function contractSlaTableHtml(array $row, $date = null) {
+/** The response times as a table - for [SLA] and the document's own section - as of $date. $old_wording: see slaMinutesText(). */
+function contractSlaTableHtml(array $row, $date = null, $old_wording = false) {
     $html = '<table class="itflow-contract-doc-table itflow-contract-doc-slas" width="100%" cellpadding="5" cellspacing="0"><thead><tr>'
         . '<th width="22%">Priority</th><th width="38%">Respond within</th><th width="40%">Resolve within</th></tr></thead><tbody>';
     foreach (contractSlaRows($row, $date) as $priority => $item) {
         $sla = $item['sla'];
         $html .= '<tr><td width="22%">' . escapeHtml($priority) . '</td>';
         if ($sla) {
-            $html .= '<td width="38%">' . escapeHtml(slaMinutesText($sla['sla_response_minutes'])) . '</td>'
-                . '<td width="40%">' . (intval($sla['sla_resolution_minutes']) > 0 ? escapeHtml(slaMinutesText($sla['sla_resolution_minutes'])) : 'No set time') . '</td>';
+            $html .= '<td width="38%">' . escapeHtml(slaMinutesText($sla['sla_response_minutes'], $old_wording)) . '</td>'
+                . '<td width="40%">' . (intval($sla['sla_resolution_minutes']) > 0 ? escapeHtml(slaMinutesText($sla['sla_resolution_minutes'], $old_wording)) : 'No set time') . '</td>';
         } else {
             $html .= '<td width="38%">No set time</td><td width="40%">No set time</td>';
         }
@@ -135,8 +135,8 @@ function contractSlaTableHtml(array $row, $date = null) {
     return $html . '</tbody></table>';
 }
 
-/** What the placeholders become for a contract - lowercase name => value, raw. $as_of is the day it is sent ('Y-m-d'). */
-function contractPlaceholderValues(array $row, $as_of = null) {
+/** What the placeholders become for a contract - lowercase name => value, raw. $as_of is the day it is sent ('Y-m-d'). $old_wording: see slaMinutesText(). */
+function contractPlaceholderValues(array $row, $as_of = null, $old_wording = false) {
     global $mysqli;
     $as_of = $as_of ?: date('Y-m-d');
     $company = billingCompany();
@@ -161,7 +161,7 @@ function contractPlaceholderValues(array $row, $as_of = null) {
     $slas = [];
     foreach (contractSlaRows($row, $as_of) as $priority => $item) {
         if ($item['sla']) {
-            $slas[] = "$priority: " . strtolower(contractSlaTargets($item['sla']));
+            $slas[] = "$priority: " . strtolower(contractSlaTargets($item['sla'], $old_wording));
         }
     }
     return [
@@ -196,12 +196,12 @@ function contractPlaceholderValues(array $row, $as_of = null) {
  * becomes the table of response times, in a sentence the times in words. A
  * [word] with nothing to put in stays as it is. $html is already made safe.
  */
-function contractFillTerms($html, array $row, $as_of = null) {
+function contractFillTerms($html, array $row, $as_of = null, $old_wording = false) {
     $space = '(?:\s|&nbsp;|\x{00A0})';
-    $html = preg_replace_callback('/<(p|div|h[1-6])\b[^>]*>' . $space . '*\[SLA\]' . $space . '*<\/\1>/iu', function () use ($row, $as_of) {
-        return contractSlaTableHtml($row, $as_of);
+    $html = preg_replace_callback('/<(p|div|h[1-6])\b[^>]*>' . $space . '*\[SLA\]' . $space . '*<\/\1>/iu', function () use ($row, $as_of, $old_wording) {
+        return contractSlaTableHtml($row, $as_of, $old_wording);
     }, (string) $html);
-    return ticketPlaceholderFill($html, contractPlaceholderValues($row, $as_of), true);
+    return ticketPlaceholderFill($html, contractPlaceholderValues($row, $as_of, $old_wording), true);
 }
 
 /** The [words] left in filled-in terms - placeholders with nothing to put in, or words that aren't placeholders. */
@@ -212,12 +212,14 @@ function contractUnfilled($html) {
 /*
  * The contract as a document - as of $as_of, the day it is sent (today when
  * not given). Escaped here; its terms are purified HTML. Classes only, no
- * styles: includes/contract_paper.php and the PDF dress it.
+ * styles: includes/contract_paper.php and the PDF dress it. $old_wording
+ * gives the response times as documents had them up to 26.11.7
+ * (slaMinutesText()) - only contractDocumentIs() asks for that.
  */
-function contractDocumentHtml(array $row, $as_of = null) {
+function contractDocumentHtml(array $row, $as_of = null, $old_wording = false) {
     $company = billingCompany();
     $bill_to = billingBillTo(intval($row['contract_client_id']));
-    $values = contractPlaceholderValues($row, $as_of);
+    $values = contractPlaceholderValues($row, $as_of, $old_wording);
     $e = function ($value) {
         return escapeHtml((string) $value);
     };
@@ -276,9 +278,9 @@ function contractDocumentHtml(array $row, $as_of = null) {
     $html .= '</tbody></table>';
 
     $html .= '<h2 class="itflow-contract-doc-heading">Response times</h2>';
-    $html .= contractSlaTableHtml($row, $as_of);
+    $html .= contractSlaTableHtml($row, $as_of, $old_wording);
 
-    $terms = trim((string) $row['contract_details']) !== '' ? contractFillTerms(documentHtmlPurify((string) $row['contract_details']), $row, $as_of) : '';
+    $terms = trim((string) $row['contract_details']) !== '' ? contractFillTerms(documentHtmlPurify((string) $row['contract_details']), $row, $as_of, $old_wording) : '';
     if (trim(strip_tags($terms, '<img><table>')) !== '') {
         $html .= '<h2 class="itflow-contract-doc-heading">Terms</h2>';
         $html .= '<div class="itflow-contract-doc-terms">' . $terms . '</div>';
@@ -289,6 +291,20 @@ function contractDocumentHtml(array $row, $as_of = null) {
 /** The fingerprint a document is signed by. */
 function contractDocumentHash($html) {
     return hash('sha256', (string) $html);
+}
+
+/*
+ * Whether a contract still comes out as the document with fingerprint $hash,
+ * as of $as_of. A document sent up to 26.11.7 worded its response times in
+ * plain time ("2 days"); they are now in the SLA clock's business time ("6
+ * business days"), so one that no longer matches is tried in the old wording
+ * too - the same contract reworded has not changed, and a copy signed or out
+ * for signature stays as it was sent.
+ */
+function contractDocumentIs(array $row, $as_of, $hash) {
+    $hash = (string) $hash;
+    return contractDocumentHash(contractDocumentHtml($row, $as_of)) === $hash
+        || contractDocumentHash(contractDocumentHtml($row, $as_of, true)) === $hash;
 }
 
 /* ---------------------------------------------------------------- rounds of signing */
@@ -813,7 +829,7 @@ function contractSignatureCheckChanged(array $row) {
         return null;
     }
     $as_of = date('Y-m-d', strtotime((string) $round['contract_signature_sent_at']));
-    if (contractDocumentHash(contractDocumentHtml($row, $as_of)) === (string) $round['contract_signature_document_hash']) {
+    if (contractDocumentIs($row, $as_of, $round['contract_signature_document_hash'])) {
         return null;
     }
     return contractSignatureWithdraw($round, 'The contract was changed after it was sent') ? $round : null;
@@ -825,7 +841,7 @@ function contractSignatureOutdated(array $row, array $round) {
         return false;
     }
     $as_of = date('Y-m-d', strtotime((string) $round['contract_signature_sent_at']));
-    return contractDocumentHash(contractDocumentHtml($row, $as_of)) !== (string) $round['contract_signature_document_hash'];
+    return !contractDocumentIs($row, $as_of, $round['contract_signature_document_hash']);
 }
 
 /** A contract as a PDF - the copy of a round ($round) when given, else the document as it is today. ['name', 'data']. */

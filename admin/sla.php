@@ -168,13 +168,13 @@ if (intval($row['config_enable_cron']) !== 1) {
 
 // An SLA's targets in a line - "Respond in 4 business hours, resolve in 6 business days"
 $targets_text = function ($sla) {
-    return 'Respond in ' . formatSlaMinutes($sla['sla_response_minutes'])
-        . (intval($sla['sla_resolution_minutes'] ?? 0) > 0 ? ', resolve in ' . formatSlaMinutes($sla['sla_resolution_minutes']) : '');
+    return 'Respond in ' . formatSlaMinutes($sla['sla_response_minutes'], true)
+        . (intval($sla['sla_resolution_minutes'] ?? 0) > 0 ? ', resolve in ' . formatSlaMinutes($sla['sla_resolution_minutes'], true) : '');
 };
 // A target for the list: how long it is in business time, and under it the hours as typed once that is days
 $target_html = function ($minutes) use ($day_minutes) {
     $minutes = intval($minutes);
-    $html = '<span class="fw-semibold">' . escapeHtml(ucfirst(formatSlaMinutes($minutes))) . '</span>';
+    $html = '<span class="fw-semibold">' . escapeHtml(ucfirst(formatSlaMinutes($minutes, true))) . '</span>';
     if ($minutes >= ($day_minutes ?: 1440)) {
         $html .= '<div class="small text-body-secondary" title="As it was typed">' . escapeHtml(formatSlaClockMinutes($minutes)) . '</div>';
     }
@@ -486,7 +486,7 @@ $pill_url = function ($view) use ($on_days) {
             <div class="card-body small text-secondary">
                 <div class="row g-3">
                     <p class="col-md-6 mb-0"><i class="fas fa-fw fa-stopwatch me-1"></i><strong>SLAs are optional.</strong> A new ticket gets the SLA its client's contract gives its priority, else the default for the priority. With neither, it has none and nothing about it changes.</p>
-                    <p class="col-md-6 mb-0"><i class="fas fa-fw fa-business-time me-1"></i><strong>Targets are business time.</strong> <?= $day_minutes > 0 ? 'Four hours given an hour before the day ends runs out three hours into the next business day - and 24 hours is ' . escapeHtml(formatSlaMinutes(1440)) . '.' : 'With no business days picked the clocks run around the clock, so a target is plain time.' ?></p>
+                    <p class="col-md-6 mb-0"><i class="fas fa-fw fa-business-time me-1"></i><strong>Targets are business time.</strong> <?= $day_minutes > 0 ? 'Four hours given an hour before the day ends runs out three hours into the next business day - and 24 hours is ' . escapeHtml(formatSlaMinutes(1440, true)) . '.' : 'With no business days picked the clocks run around the clock, so a target is plain time.' ?></p>
                     <p class="col-md-6 mb-0"><i class="fas fa-fw fa-pause-circle me-1"></i><strong>Two clocks.</strong> Response runs until the first reply. Resolution runs until the ticket is resolved, and stops while it is in a status that pauses it, like On Hold - set in <a href="ticket_statuses.php">Ticket Statuses</a>.</p>
                     <p class="col-md-6 mb-0"><i class="fas fa-fw fa-chart-line me-1"></i><strong>How you're doing.</strong> The <a href="/agent/reports/sla_summary.php">SLA Summary</a> and <a href="/agent/reports/sla_by_client.php">SLA by Client</a> reports show how often targets were met.</p>
                 </div>

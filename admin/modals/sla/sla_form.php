@@ -70,7 +70,7 @@ $f_day_minutes = slaBusinessDayMinutes();
 <div class="small text-secondary mb-1">
     <i class="fas fa-fw fa-business-time me-1"></i>
     <?php if ($f_day_minutes > 0) { ?>
-        Targets count business hours only. Your business day is <?= escapeHtml(formatSlaClockMinutes($f_day_minutes)) ?>, so <strong>24 hours here is <?= escapeHtml(formatSlaMinutes(1440)) ?></strong>, not one - for a target of two business days, give <?= escapeHtml(formatSlaClockMinutes(2 * $f_day_minutes)) ?>.
+        Targets count business hours only. Your business day is <?= escapeHtml(formatSlaClockMinutes($f_day_minutes)) ?>, so <strong>24 hours here is <?= escapeHtml(formatSlaMinutes(1440, true)) ?></strong>, not one - for a target of two business days, give <?= escapeHtml(formatSlaClockMinutes(2 * $f_day_minutes)) ?>.
     <?php } else { ?>
         No business hours are set, so the clocks run around the clock and a target is plain time - 24 hours is one day.
     <?php } ?>

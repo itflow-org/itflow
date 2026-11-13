@@ -565,7 +565,10 @@ function applyTicketSla($ticket_id, $forced_sla_id = null)
 // in the email, so the wording only has to give the right impression - a
 // remainder under five minutes is dropped rather than rendering the likes of
 // "1 business hour 1 minute".
-function formatSlaMinutes($minutes)
+//
+// $exact drops nothing - "1 business day 7 hours 30 minutes" - for where the
+// words stand alone: a contract's response times, and Admin > SLAs.
+function formatSlaMinutes($minutes, $exact = false)
 {
     $minutes = intval($minutes);
 
@@ -592,8 +595,8 @@ function formatSlaMinutes($minutes)
         $remainder = $minutes % 60;
 
         $text = $hours . ' ' . $qualifier . 'hour' . ($hours == 1 ? '' : 's');
-        if ($remainder >= 5) {
-            $text .= ' ' . $remainder . ' minutes';
+        if ($remainder >= 5 || ($exact && $remainder > 0)) {
+            $text .= ' ' . $remainder . ' minute' . ($remainder == 1 ? '' : 's');
         }
 
         return $text;
@@ -601,10 +604,14 @@ function formatSlaMinutes($minutes)
 
     $days = intdiv($minutes, $day_minutes);
     $hours = intdiv($minutes % $day_minutes, 60);
+    $remainder = $minutes % $day_minutes % 60;
 
     $text = $days . ' ' . $qualifier . 'day' . ($days == 1 ? '' : 's');
     if ($hours > 0) {
         $text .= ' ' . $hours . ' hour' . ($hours == 1 ? '' : 's');
+    }
+    if ($exact && $remainder > 0) {
+        $text .= ' ' . $remainder . ' minute' . ($remainder == 1 ? '' : 's');
     }
 
     return $text;
