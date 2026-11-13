@@ -2930,6 +2930,99 @@ CREATE TABLE `revenues` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `rmm_clients`
+--
+
+DROP TABLE IF EXISTS `rmm_clients`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `rmm_clients` (
+  `rmm_client_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rmm_client_provider_id` int(11) NOT NULL,
+  `rmm_client_remote_id` varchar(100) NOT NULL,
+  `rmm_client_name` varchar(255) NOT NULL,
+  `rmm_client_sites` int(11) NOT NULL DEFAULT 0,
+  `rmm_client_devices` int(11) NOT NULL DEFAULT 0,
+  `rmm_client_client_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_client_seen_at` datetime DEFAULT NULL,
+  `rmm_client_synced_at` datetime DEFAULT NULL,
+  `rmm_client_removed_at` datetime DEFAULT NULL,
+  `rmm_client_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `rmm_client_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`rmm_client_id`),
+  UNIQUE KEY `rmm_client_remote` (`rmm_client_provider_id`,`rmm_client_remote_id`),
+  KEY `rmm_client_client_id` (`rmm_client_client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `rmm_devices`
+--
+
+DROP TABLE IF EXISTS `rmm_devices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `rmm_devices` (
+  `rmm_device_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rmm_device_provider_id` int(11) NOT NULL,
+  `rmm_device_remote_id` varchar(100) NOT NULL,
+  `rmm_device_asset_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_device_client_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_device_rmm_client_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_device_hostname` varchar(255) NOT NULL DEFAULT '',
+  `rmm_device_site` varchar(255) DEFAULT NULL,
+  `rmm_device_role` varchar(20) NOT NULL DEFAULT '',
+  `rmm_device_platform` varchar(20) NOT NULL DEFAULT '',
+  `rmm_device_os` varchar(255) DEFAULT NULL,
+  `rmm_device_status` varchar(20) NOT NULL DEFAULT '',
+  `rmm_device_last_seen_at` datetime DEFAULT NULL,
+  `rmm_device_boot_at` datetime DEFAULT NULL,
+  `rmm_device_logged_user` varchar(255) DEFAULT NULL,
+  `rmm_device_public_ip` varchar(100) DEFAULT NULL,
+  `rmm_device_local_ips` varchar(500) DEFAULT NULL,
+  `rmm_device_needs_reboot` tinyint(1) NOT NULL DEFAULT 0,
+  `rmm_device_patches_pending` tinyint(1) NOT NULL DEFAULT 0,
+  `rmm_device_checks_total` int(11) NOT NULL DEFAULT 0,
+  `rmm_device_checks_failing` int(11) NOT NULL DEFAULT 0,
+  `rmm_device_maintenance` tinyint(1) NOT NULL DEFAULT 0,
+  `rmm_device_agent_version` varchar(50) DEFAULT NULL,
+  `rmm_device_synced` text DEFAULT NULL,
+  `rmm_device_synced_at` datetime DEFAULT NULL,
+  `rmm_device_removed_at` datetime DEFAULT NULL,
+  `rmm_device_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`rmm_device_id`),
+  UNIQUE KEY `rmm_device_remote` (`rmm_device_provider_id`,`rmm_device_remote_id`),
+  KEY `rmm_device_asset_id` (`rmm_device_asset_id`),
+  KEY `rmm_device_client_id` (`rmm_device_client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `rmm_providers`
+--
+
+DROP TABLE IF EXISTS `rmm_providers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `rmm_providers` (
+  `rmm_provider_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rmm_provider_kind` varchar(50) NOT NULL,
+  `rmm_provider_name` varchar(100) NOT NULL,
+  `rmm_provider_api_url` varchar(500) NOT NULL DEFAULT '',
+  `rmm_provider_web_url` varchar(500) NOT NULL DEFAULT '',
+  `rmm_provider_api_key` varchar(500) NOT NULL DEFAULT '',
+  `rmm_provider_api_secret` varchar(500) NOT NULL DEFAULT '',
+  `rmm_provider_active` tinyint(1) NOT NULL DEFAULT 1,
+  `rmm_provider_sync_at` datetime DEFAULT NULL,
+  `rmm_provider_sync_ok` tinyint(1) NOT NULL DEFAULT 0,
+  `rmm_provider_sync_note` varchar(500) DEFAULT NULL,
+  `rmm_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `rmm_provider_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`rmm_provider_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `service_assets`
 --
 

@@ -128,6 +128,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="/admin/rmm_providers.php"
+                    class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['rmm_providers.php', 'rmm_clients.php']) ? 'active' : '') ?>">
+                        <i class="nav-icon fas fa-laptop-medical"></i>
+                        <p>RMM Providers</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/admin/custom_links.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'custom_links.php' ? 'active' : '') ?>">
                         <i class="nav-icon fas fa-external-link-alt"></i>
                         <p>Custom Links</p>

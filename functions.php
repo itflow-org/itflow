@@ -100,6 +100,8 @@ require_once __DIR__ . '/functions/portal.php';
 require_once __DIR__ . '/functions/portal_invite.php';
 require_once __DIR__ . '/functions/user_invite.php';
 require_once __DIR__ . '/functions/sms.php';
+require_once __DIR__ . '/functions/rmm.php';
+require_once __DIR__ . '/functions/rmm_tactical.php';
 require_once __DIR__ . '/functions/client_onboarding.php';
 require_once __DIR__ . '/functions/ticket_mention.php';
 require_once __DIR__ . '/functions/getting_started.php';

@@ -9415,3 +9415,18 @@ a.itflow-portal-request:focus-visible {
     white-space: pre-wrap;
     word-break: break-all;
 }
+
+/* RMM Providers (functions/rmm.php): a device's state as a dot after its name on the assets
+   list - green online, grey offline, red overdue; hollow once its RMM no longer has it */
+.itflow-rmm-dot {
+    display: inline-block;
+    width: .55rem;
+    height: .55rem;
+    margin-left: .35rem;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+.itflow-rmm-dot.is-removed {
+    background-color: transparent !important;
+    border: 1px solid var(--bs-secondary-color);
+}

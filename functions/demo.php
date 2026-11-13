@@ -98,6 +98,11 @@ const DEMO_MODE_LOCKS = [
             'sms_number_opt_in', 'sms_number_unblock', 'turn_sms_provider_off', 'turn_sms_provider_on'],
     ],
     [
+        'message' => "RMM providers can't be set up in the demo.",
+        'keys' => ['add_rmm_provider', 'check_rmm_provider', 'edit_rmm_provider', 'delete_rmm_provider', 'test_rmm_provider', 'sync_rmm', 'turn_rmm_provider_off',
+            'turn_rmm_provider_on', 'link_rmm_client', 'link_rmm_suggested', 'unlink_rmm_client', 'rmm_bring_back'],
+    ],
+    [
         'message' => "Managed instances are turned off in the demo.",
         'keys' => ['managed_checkin_now', 'managed_connect', 'managed_disconnect', 'add_managed_instance', 'delete_managed_instance', 'edit_managed_instance',
             'managed_command', 'managed_instance_mode', 'managed_instance_new_code', 'managed_support_sign_in', 'remove_managed_instance'],
@@ -136,7 +141,7 @@ const DEMO_MODE_LOCKED_PAGES = [
     '/admin/users.php' => true, '/admin/roles.php' => true, '/admin/api_keys.php' => true, '/admin/backup.php' => true, '/admin/update.php' => true,
     '/admin/settings_mail.php' => true, '/admin/settings_security.php' => true, '/admin/identity_providers.php' => true, '/admin/settings_telemetry.php' => true,
     '/admin/cron.php' => true, '/admin/payment_providers.php' => true, '/admin/saved_payment_methods.php' => true, '/admin/ai_providers.php' => true,
-    '/admin/ai_models.php' => true, '/admin/text_messaging.php' => true, '/admin/managed_by.php' => true, '/admin/managed_instances.php' => true,
+    '/admin/ai_models.php' => true, '/admin/text_messaging.php' => true, '/admin/rmm_providers.php' => true, '/admin/rmm_clients.php' => true, '/admin/managed_by.php' => true, '/admin/managed_instances.php' => true,
     '/admin/managed_instance.php' => true, '/admin/settings_logs.php' => true, '/admin/settings_company.php' => true, '/admin/settings_module.php' => true,
     '/admin/settings_client_portal.php' => true, '/admin/custom_links.php' => true, '/admin/starter_content.php' => true, '/admin/getting_started.php' => true,
     '/agent/user/user_details.php' => true, '/agent/user/user_security.php' => false, '/client/profile.php' => false,

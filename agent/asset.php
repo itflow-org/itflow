@@ -123,6 +123,14 @@ if (mysqli_num_rows($sql) == 0) {
     $can_credentials = lookupUserPermission('module_credential') >= 1;
     $can_credentials_edit = lookupUserPermission('module_credential') >= 2;
 
+    // Its devices in an RMM, if it came from one (functions/rmm.php) - the one that matters most first; its links go up top
+    $rmm_devices = rmmDevicesForAsset($asset_id);
+    $rmm_device = $rmm_devices[0] ?? null;
+    $rmm_urls = $rmm_device && $rmm_device['rmm_device_removed_at'] === null ? rmmDeviceUrls($rmm_device) : [];
+    $rmm_links = $rmm_device ? (rmmKind($rmm_device)['links'] ?? []) : [];
+    $rmm_first = $rmm_urls ? (isset($rmm_urls['control']) ? 'control' : (string) array_key_first($rmm_urls)) : '';
+    $rmm_icons = ['open' => 'fa-external-link-alt', 'control' => 'fa-desktop', 'background' => 'fa-terminal'];
+
     // The rack it sits in, if any
     $asset_rack = rackPositionForAsset($asset_id);
     if ($asset_rack) {
@@ -270,6 +278,9 @@ if (mysqli_num_rows($sql) == 0) {
                     <?php } else { ?>
                         <span class="fs-6"><?= $asset_status_pill ?></span>
                     <?php } ?>
+                    <?php if ($rmm_device) { ?>
+                        <span class="fs-6"><?= rmmDeviceStatePill($rmm_device) ?></span>
+                    <?php } ?>
                 </h1>
                 <div class="text-body-secondary small d-flex flex-wrap column-gap-3 row-gap-1">
                     <span><i class="fas fa-fw fa-<?= $device_icon ?> me-1"></i><?= $asset_type ?></span>
@@ -289,6 +300,23 @@ if (mysqli_num_rows($sql) == 0) {
             </div>
 
             <div class="d-flex flex-wrap gap-2 d-print-none">
+                <?php if ($rmm_urls) {
+                    $rmm_name = rmmProviderName($rmm_device); ?>
+                    <div class="btn-group" data-rmm-links>
+                        <a class="btn btn-outline-primary" href="<?= escapeHtml($rmm_urls[$rmm_first]) ?>" target="_blank" rel="noopener noreferrer" title="<?= escapeHtml(($rmm_links[$rmm_first] ?? 'Open') . " - $rmm_name") ?>"><i class="fas <?= $rmm_icons[$rmm_first] ?? 'fa-external-link-alt' ?> me-2"></i><?= escapeHtml($rmm_links[$rmm_first] ?? "Open in $rmm_name") ?></a>
+                        <?php if (count($rmm_urls) > 1) { ?>
+                            <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More in <?= escapeHtml($rmm_name) ?>"></button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <?php foreach ($rmm_urls as $rmm_key => $rmm_url) {
+                                    if ($rmm_key === $rmm_first) {
+                                        continue;
+                                    } ?>
+                                    <a class="dropdown-item" href="<?= escapeHtml($rmm_url) ?>" target="_blank" rel="noopener noreferrer"><i class="fas fa-fw <?= $rmm_icons[$rmm_key] ?? 'fa-external-link-alt' ?> text-secondary me-2"></i><?= escapeHtml($rmm_links[$rmm_key] ?? $rmm_key) ?></a>
+                                <?php } ?>
+                            </div>
+                        <?php } ?>
+                    </div>
+                <?php } ?>
                 <?php foreach ($asset_links as [$link_label, $link_url]) { ?>
                     <a class="btn btn-outline-primary" href="<?= escapeUrl($link_url) ?>" target="_blank" rel="noopener" title="<?= $link_label ?>: <?= escapeHtml($link_url) ?>">
                         <i class="<?= assetLinkIcon($link_url) ?> me-2"></i><?= escapeHtml(assetLinkLabel($link_url)) ?><?= $link_label === 'Client link' ? ' (client)' : '' ?>
@@ -385,6 +413,72 @@ if (mysqli_num_rows($sql) == 0) {
 
         <!-- The facts: how to reach it, what it is, where it is -->
         <div class="col-xl-4 col-lg-5">
+
+            <?php foreach ($rmm_devices as $rmm_each) {
+                $rmm_state = rmmDeviceState($rmm_each);
+                $rmm_attention = rmmDeviceAttention($rmm_each);
+                $rmm_each_name = rmmProviderName($rmm_each);
+                $rmm_each_kind = rmmKind($rmm_each);
+                $rmm_each_urls = $rmm_each !== $rmm_device && $rmm_state['key'] !== 'removed' ? rmmDeviceUrls($rmm_each) : [];
+                $rmm_elsewhere = intval($rmm_each['rmm_client_client_id'] ?? 0) && intval($rmm_each['rmm_client_client_id']) !== $client_id; ?>
+                <div class="card mb-3" data-rmm-card="<?= escapeHtml($rmm_state['key']) ?>">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0"><i class="<?= escapeHtml($rmm_each_kind['icon'] ?? 'fas fa-laptop-medical') ?> fa-fw text-secondary me-2"></i><?= escapeHtml($rmm_each_name) ?></h3>
+                        <?php if (isset($rmm_each_urls['open'])) { ?>
+                            <a class="ms-auto ps-2 text-secondary" href="<?= escapeHtml($rmm_each_urls['open']) ?>" target="_blank" rel="noopener noreferrer" title="<?= escapeHtml(($rmm_each_kind['links']['open'] ?? 'Open') . " - $rmm_each_name") ?>"><i class="fas fa-fw fa-external-link-alt"></i></a>
+                        <?php } ?>
+                    </div>
+                    <div class="card-body">
+                        <?php if ($rmm_state['key'] === 'removed') { ?>
+                            <p class="text-body-secondary small mb-0"><i class="fas fa-fw fa-ghost me-1"></i><?= escapeHtml($rmm_each_name) ?> stopped listing it <?= escapeHtml(timeAgo($rmm_each['rmm_device_removed_at'])) ?> - its agent was removed, or it moved to a client that isn't linked. <?= escapeHtml(preg_replace('/^[^:]*: /', '', $rmm_state['title'])) ?> there.</p>
+                        <?php } else { ?>
+                            <dl class="itflow-asset-dl mb-0">
+                                <dt>Status</dt>
+                                <dd><span class="text-<?= $rmm_state['tone'] ?>-emphasis fw-semibold"><?= escapeHtml($rmm_state['label']) ?></span>
+                                    <?php if ($rmm_each['rmm_device_last_seen_at'] && $rmm_state['key'] !== 'online') { ?>
+                                        <span class="small text-body-secondary">- last seen <span title="<?= escapeHtml($rmm_each['rmm_device_last_seen_at']) ?>"><?= escapeHtml(timeAgo($rmm_each['rmm_device_last_seen_at'])) ?></span></span>
+                                    <?php } ?>
+                                </dd>
+                                <?php if ((string) $rmm_each['rmm_device_logged_user'] !== '') { ?>
+                                    <dt><?= $rmm_state['key'] === 'online' ? 'Signed in' : 'Last user' ?></dt>
+                                    <dd><?= escapeHtml($rmm_each['rmm_device_logged_user']) ?></dd>
+                                <?php } ?>
+                                <?php if ($rmm_each['rmm_device_boot_at'] && $rmm_state['key'] === 'online') { ?>
+                                    <dt>Up since</dt>
+                                    <dd title="<?= escapeHtml($rmm_each['rmm_device_boot_at']) ?>"><?= escapeHtml(timeAgo($rmm_each['rmm_device_boot_at'])) ?></dd>
+                                <?php } ?>
+                                <?php if ((string) $rmm_each['rmm_device_public_ip'] !== '') { ?>
+                                    <dt>Public IP</dt>
+                                    <dd><span class="font-monospace"><?= escapeHtml($rmm_each['rmm_device_public_ip']) ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy public IP" data-clipboard-text="<?= escapeHtml($rmm_each['rmm_device_public_ip']) ?>"><i class="far fa-copy"></i></button></dd>
+                                <?php } ?>
+                                <?php if ((string) $rmm_each['rmm_device_local_ips'] !== '' && $rmm_each['rmm_device_local_ips'] !== (string) $asset_row['interface_ip']) { ?>
+                                    <dt>Local IPs</dt>
+                                    <dd class="font-monospace small"><?= escapeHtml($rmm_each['rmm_device_local_ips']) ?></dd>
+                                <?php } ?>
+                                <dt>Site</dt>
+                                <dd><?= escapeHtml(trim($rmm_each['rmm_client_name'] . ' / ' . $rmm_each['rmm_device_site'], ' /')) ?></dd>
+                                <?php if ((string) $rmm_each['rmm_device_agent_version'] !== '') { ?>
+                                    <dt>Agent</dt>
+                                    <dd class="small"><?= escapeHtml($rmm_each['rmm_device_agent_version']) ?><?= $rmm_each['rmm_device_role'] !== '' ? ' &middot; ' . escapeHtml($rmm_each['rmm_device_role']) : '' ?></dd>
+                                <?php } ?>
+                            </dl>
+                            <?php if ($rmm_attention) { ?>
+                                <ul class="list-unstyled small mt-3 mb-0" data-rmm-attention>
+                                    <?php foreach ($rmm_attention as $item) { ?>
+                                        <li class="text-<?= $item['tone'] ?>-emphasis"><i class="fas fa-fw <?= $item['icon'] ?> me-1"></i><?= escapeHtml($item['text']) ?></li>
+                                    <?php } ?>
+                                </ul>
+                            <?php } elseif (intval($rmm_each['rmm_device_checks_total'])) { ?>
+                                <div class="small text-success-emphasis mt-3"><i class="fas fa-fw fa-check-circle me-1"></i>All <?= intval($rmm_each['rmm_device_checks_total']) ?> checks passing</div>
+                            <?php } ?>
+                            <?php if ($rmm_elsewhere) { ?>
+                                <div class="small text-warning-emphasis mt-2"><i class="fas fa-fw fa-exclamation-triangle me-1"></i><?= escapeHtml($rmm_each_name) ?> has it under <?= escapeHtml($rmm_each['rmm_client_name']) ?>, which is linked to another client.</div>
+                            <?php } ?>
+                        <?php } ?>
+                        <div class="small text-body-secondary mt-2" title="<?= escapeHtml((string) $rmm_each['rmm_device_synced_at']) ?>">As <?= escapeHtml($rmm_each_kind['short'] ?? $rmm_each_name) ?> said <?= escapeHtml(timeAgo($rmm_each['rmm_device_synced_at'])) ?>.</div>
+                    </div>
+                </div>
+            <?php } ?>
 
             <?php if ($asset_ip || $asset_ipv6 || $asset_nat_ip || $asset_mac || $network_name) { ?>
                 <div class="card mb-3">

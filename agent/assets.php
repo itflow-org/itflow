@@ -83,6 +83,23 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
     $tag_query = '';
 }
 
+// RMM Filter - only once an RMM provider is set up (functions/rmm.php): any of its devices, online, offline or overdue, or not one of them.
+// With one provider it goes by its name
+$rmm_set_up = (bool) rmmProviders();
+$rmm_name = $rmm_set_up ? rmmListLabel() : '';
+$rmm_short = $rmm_name === 'an RMM' ? 'RMM' : $rmm_name;
+$rmm_filters = ['any' => "In $rmm_name", 'online' => "$rmm_short: online", 'offline' => "$rmm_short: offline", 'overdue' => "$rmm_short: overdue", 'none' => "Not in $rmm_name"];
+$rmm_filter = $rmm_set_up && isset($rmm_filters[$_GET['rmm'] ?? '']) ? (string) $_GET['rmm'] : '';
+$rmm_in = "SELECT rmm_device_asset_id FROM rmm_devices WHERE rmm_device_asset_id > 0 AND rmm_device_removed_at IS NULL";
+$rmm_query = [
+    '' => '',
+    'any' => "AND asset_id IN ($rmm_in)",
+    'online' => "AND asset_id IN ($rmm_in AND rmm_device_status = 'online')",
+    'offline' => "AND asset_id IN ($rmm_in AND rmm_device_status = 'offline')",
+    'overdue' => "AND asset_id IN ($rmm_in AND rmm_device_status = 'overdue')",
+    'none' => "AND asset_id NOT IN ($rmm_in)",
+][$rmm_filter];
+
 // Expiring In Filter
 if (!empty($_GET['expire_days'])) {
     if ($_GET['expire_days'] == "expired") {
@@ -141,6 +158,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
     WHERE $archive_query
     $status_query
     $tag_query
+    $rmm_query
     " . clientScopeSql('asset_client_id') . "
     $client_query
 "));
@@ -170,6 +188,7 @@ $sql = mysqli_query(
     $status_query
     $location_query
     $expire_query
+    $rmm_query
     $client_query
     GROUP BY asset_id
     ORDER BY $order_by LIMIT $record_from, $record_to"
@@ -184,8 +203,9 @@ while ($row = mysqli_fetch_assoc($sql)) {
 // Each one's details - its type's (functions/asset_type.php): a UPS battery due is flagged like a warranty, and Details lists them
 $asset_list_specs = assetSpecsFor(array_keys($assets));
 
-// Tags and rack positions for the whole page in two queries, not two per row
+// Tags, rack positions and what its RMM says of each for the whole page in three queries, not three per row
 $assets_tags = tagsForRecords('asset', array_keys($assets));
+$assets_rmm = $rmm_set_up ? rmmDevicesForAssets(array_keys($assets)) : [];
 $assets_racked = [];
 if ($assets) {
     $sql_racked = mysqli_query($mysqli, "SELECT unit_asset_id, unit_start_number, unit_end_number, rack_id, rack_name FROM rack_units
@@ -259,7 +279,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
             <input type="hidden" name="type" value="<?= $type_filter ?>">
             <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row g-2 align-items-center">
-                <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="<?= $rmm_set_up ? 'col-xl-2' : 'col-xl-3' ?> col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?= strtolower($search_noun) ?>, IPs, serials...">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
@@ -338,6 +358,16 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                         <?php } ?>
                     </select>
                 </div>
+                <?php if ($rmm_set_up) { ?>
+                    <div class="col-xl col-lg-3 col-md-6">
+                        <select class="form-select select2" name="rmm" onchange="this.form.submit()" aria-label="<?= escapeHtml($rmm_short) ?>">
+                            <option value="">- <?= escapeHtml($rmm_short) ?> -</option>
+                            <?php foreach ($rmm_filters as $rmm_key => $rmm_label) { ?>
+                                <option value="<?= $rmm_key ?>" <?= $rmm_filter === $rmm_key ? 'selected' : '' ?>><?= escapeHtml($rmm_label) ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                <?php } ?>
                 <div class="col-xl col-lg-3 col-md-6">
                     <select class="form-select select2" name="expire_days" onchange="this.form.submit()">
                         <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Warranty -</option>
@@ -588,6 +618,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                 <span class="itflow-asset-icon itflow-asset-tone-<?= $asset_tone ?>" aria-hidden="true"><i class="fas fa-fw fa-<?= $device_icon ?>"></i></span>
                                 <div class="min-w-0">
                                     <a class="fw-semibold text-body stretched-link" href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>"><?= $asset_name ?></a>
+                                    <?php if (isset($assets_rmm[$asset_id])) { ?><?= rmmDeviceStateDot($assets_rmm[$asset_id]) ?><?php } ?>
                                     <?php if ($asset_favorite) { ?><i class="fas fa-star text-warning ms-1" title="Favorite"></i><?php } ?>
                                     <?php if ($asset_archived_at) { ?><span class="badge rounded-pill text-bg-secondary fw-normal ms-1">Archived</span><?php } ?>
                                     <?php if ($asset_description) { ?>
