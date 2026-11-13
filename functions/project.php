@@ -240,15 +240,27 @@ function projectDateSql($input) {
  * ---------- progress, time and activity ----------
  */
 
+/*
+ * Correlated on projects, the lookups below find a project's tickets by
+ * KEY ticket_project_id - and each says ticket_project_id > 0 as well, which
+ * changes nothing they find. A lookup by a value that changes from project
+ * to project goes by the index's statistics; most tickets are on no project,
+ * and on an install where none is yet they say every ticket has the same
+ * value, so the database read every ticket once for each project (Projects
+ * took over 5 seconds on a test install with 280,000 tickets). A range on a
+ * constant it measures on the index itself, and that holds it to the index.
+ */
+define('PROJECT_TICKETS_SQL', 'pt.ticket_project_id = projects.project_id AND pt.ticket_project_id > 0 AND pt.ticket_archived_at IS NULL');
+
 /** SQL: when its tickets last moved - the latest ticket update, or NULL with none. Correlated on projects. */
 function projectLastActivitySql() {
-    return "(SELECT MAX(COALESCE(pt.ticket_updated_at, pt.ticket_created_at)) FROM tickets pt WHERE pt.ticket_project_id = projects.project_id AND pt.ticket_archived_at IS NULL)";
+    return "(SELECT MAX(COALESCE(pt.ticket_updated_at, pt.ticket_created_at)) FROM tickets pt WHERE " . PROJECT_TICKETS_SQL . ")";
 }
 
 /** SQL: seconds logged on its tickets. Correlated on projects. */
 function projectSecondsSql() {
     return "(SELECT COALESCE(SUM(TIME_TO_SEC(pr.ticket_reply_time_worked)), 0) FROM ticket_replies pr JOIN tickets pt ON pt.ticket_id = pr.ticket_reply_ticket_id
-        WHERE pt.ticket_project_id = projects.project_id AND pr.ticket_reply_archived_at IS NULL)";
+        WHERE pt.ticket_project_id = projects.project_id AND pt.ticket_project_id > 0 AND pr.ticket_reply_archived_at IS NULL)";
 }
 
 /**
@@ -260,8 +272,8 @@ function projectViews($with_budget = true) {
     global $session_user_id;
     $open = PROJECT_OPEN_SQL;
     $started = "(projects.project_start IS NULL OR projects.project_start <= CURDATE())";
-    $has_tickets = "EXISTS (SELECT 1 FROM tickets rt WHERE rt.ticket_project_id = projects.project_id AND rt.ticket_archived_at IS NULL)";
-    $has_open = "EXISTS (SELECT 1 FROM tickets rt WHERE rt.ticket_project_id = projects.project_id AND rt.ticket_archived_at IS NULL AND rt.ticket_resolved_at IS NULL AND rt.ticket_closed_at IS NULL)";
+    $has_tickets = "EXISTS (SELECT 1 FROM tickets pt WHERE " . PROJECT_TICKETS_SQL . ")";
+    $has_open = "EXISTS (SELECT 1 FROM tickets pt WHERE " . PROJECT_TICKETS_SQL . " AND pt.ticket_resolved_at IS NULL AND pt.ticket_closed_at IS NULL)";
     $views = [
         '' => ['label' => 'Active', 'icon' => 'fa-project-diagram', 'where' => $open, 'title' => 'Not completed or archived'],
         'mine' => ['label' => 'Mine', 'icon' => 'fa-user-tie', 'where' => "$open AND projects.project_manager = " . intval($session_user_id), 'title' => 'Active projects you manage'],

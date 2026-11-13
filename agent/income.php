@@ -63,27 +63,31 @@ $where = incomeFiltersSql($filter_src, $summary, false);
 $show_query = $show !== '' ? 'AND ' . $shows[$show]['where'] : '';
 $union = incomeUnionSql();
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS income.* FROM ($union) AS income
-    WHERE $where $show_query
-    ORDER BY {$sortable_columns[$sort]} $order, income.income_created_at DESC, income.income_id DESC LIMIT $record_from, $record_to");
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
-$rows = [];
-while ($row = mysqli_fetch_assoc($sql)) {
-    $rows[] = $row;
-}
-
-// The pills, and the total of what is listed
+// The pills, and the total of what is listed - without the names unless a search looks at them
 $count_sql = [];
 foreach ($shows as $key => $s) {
     $count_sql[] = $key === '' ? 'COUNT(*)' : "COALESCE(SUM({$s['where']}), 0)";
 }
 $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . ", COALESCE(SUM(CASE WHEN 1 $show_query THEN income.income_amount END), 0)
-    FROM ($union) AS income WHERE $where"));
+    FROM (" . incomeUnionSql(trim((string) ($_GET['q'] ?? '')) !== '') . ") AS income WHERE $where"));
 $counts = [];
 foreach (array_keys($shows) as $i => $key) {
     $counts[$key] = intval($row[$i]);
 }
 $listed_total = floatval($row[count($shows)]);
+
+// The page. Its count is its pill's - SQL_CALC_FOUND_ROWS counted every line again - and in date
+// order, newest first, it is read from the newest dates back (listNewestFirst())
+$num_rows = [$counts[$show]];
+$income_page = function ($and) use ($mysqli, $union, $where, $show_query, $sortable_columns, $sort, $order, $record_from, $record_to) {
+    $sql = mysqli_query($mysqli, "SELECT income.* FROM ($union) AS income
+        WHERE $where $show_query $and
+        ORDER BY {$sortable_columns[$sort]} $order, income.income_created_at DESC, income.income_id DESC LIMIT $record_from, $record_to");
+    return mysqli_fetch_all($sql, MYSQLI_ASSOC);
+};
+$rows = $sort === 'income_date' && $order === 'DESC'
+    ? listNewestFirst($income_page, 'income.income_date', min($record_to, $num_rows[0] - $record_from))
+    : $income_page('');
 
 $stats = incomeStats($client_page ? $client_id : 0);
 $money = function ($amount, $currency = '') {

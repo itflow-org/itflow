@@ -42,8 +42,8 @@ function expenseRow($expense_id, $scoped = true) {
             refunded.expense_date AS refund_of_date, refunded.expense_amount AS refund_of_amount, refunded.expense_description AS refund_of_description,
             payer.user_name AS paid_by_name, paid_back.reimbursement_date, paid_back_account.account_name AS reimbursed_account_name,
             paying_out.reimbursement_id AS reimbursement_out_id, (SELECT u.user_name FROM users AS u WHERE u.user_id = paying_out.reimbursement_user_id) AS reimbursed_to_name,
-            (SELECT COALESCE(SUM(-r.expense_amount), 0) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id) AS refunded_amount,
-            (SELECT COUNT(*) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id) AS refund_count
+            (SELECT COALESCE(SUM(-r.expense_amount), 0) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id AND r.expense_refund_of_id > 0) AS refunded_amount,
+            (SELECT COUNT(*) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id AND r.expense_refund_of_id > 0) AS refund_count
         FROM expenses
         LEFT JOIN vendors ON vendor_id = expenses.expense_vendor_id
         LEFT JOIN categories ON category_id = expenses.expense_category_id
@@ -1019,7 +1019,7 @@ function expenseUnbilled($client_id = 0, array $ids = []) {
         . ' ' . clientScopeSql('expense_client_id');
     $rows = [];
     $sql = mysqli_query($mysqli, "SELECT expenses.*, vendor_name, category_name, client_name, client_abbreviation,
-            (SELECT COALESCE(SUM(-r.expense_amount), 0) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id) AS refunded,
+            (SELECT COALESCE(SUM(-r.expense_amount), 0) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id AND r.expense_refund_of_id > 0) AS refunded,
             DATEDIFF(CURDATE(), expense_date) AS waiting
         FROM expenses
         JOIN clients ON client_id = expense_client_id
@@ -1062,7 +1062,7 @@ function expenseUnbilledCount($client_id = 0) {
     $client_id = intval($client_id);
     $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(ROUND((expense_amount - refunded) * (1 + expense_markup / 100), 2)), 0)
         FROM (SELECT expense_amount, expense_markup,
-                (SELECT COALESCE(SUM(-r.expense_amount), 0) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id) AS refunded
+                (SELECT COALESCE(SUM(-r.expense_amount), 0) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id AND r.expense_refund_of_id > 0) AS refunded
             FROM expenses
             WHERE " . expenseUnbilledSql() . ($client_id ? " AND expense_client_id = $client_id" : '') . ' ' . clientScopeSql('expense_client_id') . ") AS waiting
         WHERE expense_amount - refunded > 0"));
@@ -1238,7 +1238,7 @@ function expenseOnInvoice($invoice_id) {
     $invoice_id = intval($invoice_id);
     $rows = [];
     $sql = mysqli_query($mysqli, "SELECT expenses.*, vendor_name, category_name, item_subtotal,
-            (SELECT COALESCE(SUM(-r.expense_amount), 0) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id) AS refunded
+            (SELECT COALESCE(SUM(-r.expense_amount), 0) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id AND r.expense_refund_of_id > 0) AS refunded
         FROM expenses
         LEFT JOIN vendors ON vendor_id = expense_vendor_id
         LEFT JOIN categories ON category_id = expense_category_id

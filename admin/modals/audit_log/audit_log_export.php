@@ -71,7 +71,7 @@ ob_start();
                         <option value="">- Anyone -</option>
                         <option value="system" <?= $user_filter === 'system' ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas fa-cog']) ?>>ITFlow itself</option>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar, user_type FROM users WHERE EXISTS (SELECT 1 FROM logs WHERE log_user_id = user_id) ORDER BY user_type ASC, user_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar, user_type FROM users JOIN (" . auditLogDistinctSql('log_user_id') . ") AS logged ON logged.log_user_id = user_id ORDER BY user_type ASC, user_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $option_id = intval($row['user_id']); ?>
                             <option value="<?= $option_id ?>" <?= $user_filter === (string) $option_id ? 'selected' : '' ?><?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?><?= intval($row['user_type']) === 2 ? ' data-description="Portal"' : '' ?>><?= escapeHtml($row['user_name']) ?></option>
@@ -86,7 +86,7 @@ ob_start();
                     <select class="form-select select2" name="client">
                         <option value="">- Any client -</option>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE EXISTS (SELECT 1 FROM logs WHERE log_client_id = client_id) ORDER BY client_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients JOIN (" . auditLogDistinctSql('log_client_id') . ") AS logged ON logged.log_client_id = client_id ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $option_id = intval($row['client_id']); ?>
                             <option value="<?= $option_id ?>" <?= $client_filter === $option_id ? 'selected' : '' ?><?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
@@ -101,7 +101,7 @@ ob_start();
                     <select class="form-select select2" name="type">
                         <option value="">- Any type -</option>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT DISTINCT log_type FROM logs ORDER BY log_type ASC");
+                        $sql = mysqli_query($mysqli, auditLogDistinctSql('log_type') . " ORDER BY log_type ASC");
                         while ($row = mysqli_fetch_row($sql)) { ?>
                             <option value="<?= escapeHtml($row[0]) ?>" <?= $type_filter === $row[0] ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas ' . auditLogTypeIcon($row[0])]) ?>><?= escapeHtml($row[0]) ?></option>
                         <?php } ?>
@@ -115,7 +115,7 @@ ob_start();
                     <select class="form-select select2" name="action">
                         <option value="">- Any action -</option>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT DISTINCT log_action FROM logs ORDER BY log_action ASC");
+                        $sql = mysqli_query($mysqli, "SELECT DISTINCT log_action FROM (" . auditLogDistinctSql('log_type, log_action') . ") AS actions ORDER BY log_action ASC");
                         while ($row = mysqli_fetch_row($sql)) { ?>
                             <option value="<?= escapeHtml($row[0]) ?>" <?= $action_filter === $row[0] ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas ' . auditLogActionStyle($row[0])['icon']]) ?>><?= escapeHtml($row[0]) ?></option>
                         <?php } ?>

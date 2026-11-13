@@ -58,30 +58,39 @@ function incomeOnlineSql($reference = 'payment_reference') {
  * income_reference, income_account_id, account_name, account_archived_at
  * and income_online. Select from it as a derived table.
  */
-function incomeUnionSql() {
-    return "SELECT 'payment' AS income_type, payment_id AS income_id, payment_date AS income_date, payment_created_at AS income_created_at,
-            payment_invoice_id AS income_invoice_id, invoice_prefix, invoice_number, invoice_status, invoice_scope AS income_description,
-            COALESCE(invoice_category_id, 0) AS income_category_id, category_name, category_color, category_icon,
-            COALESCE(invoice_client_id, 0) AS income_client_id, client_name, payment_amount AS income_amount, payment_currency_code AS income_currency_code,
-            payment_method AS income_method, payment_reference AS income_reference, payment_account_id AS income_account_id, account_name, account_archived_at,
-            IF(" . incomeOnlineSql() . ", 1, 0) AS income_online
-        FROM payments
-        LEFT JOIN invoices ON invoice_id = payment_invoice_id
+function incomeUnionSql($names = true) {
+    // Without $names - for counts and totals with no search - the clients, accounts and
+    // categories joins are left out and their names come back NULL: the ids, which the filters
+    // and the pills go by, are on the payment, its invoice and the revenue. One join a line
+    // fewer is most of what counting the lines takes.
+    $payment_names = $names ? "
         LEFT JOIN clients ON client_id = invoice_client_id
         LEFT JOIN accounts ON account_id = payment_account_id
-        LEFT JOIN categories ON category_id = invoice_category_id
+        LEFT JOIN categories ON category_id = invoice_category_id" : '';
+    $revenue_names = $names ? "
+        LEFT JOIN clients ON client_id = revenue_client_id
+        LEFT JOIN accounts ON account_id = revenue_account_id
+        LEFT JOIN categories ON category_id = revenue_category_id" : '';
+    $category = $names ? 'category_name, category_color, category_icon' : 'NULL AS category_name, NULL AS category_color, NULL AS category_icon';
+    $client = $names ? 'client_name' : 'NULL AS client_name';
+    $account = $names ? 'account_name, account_archived_at' : 'NULL AS account_name, NULL AS account_archived_at';
+    return "SELECT 'payment' AS income_type, payment_id AS income_id, payment_date AS income_date, payment_created_at AS income_created_at,
+            payment_invoice_id AS income_invoice_id, invoice_prefix, invoice_number, invoice_status, invoice_scope AS income_description,
+            COALESCE(invoice_category_id, 0) AS income_category_id, $category,
+            COALESCE(invoice_client_id, 0) AS income_client_id, $client, payment_amount AS income_amount, payment_currency_code AS income_currency_code,
+            payment_method AS income_method, payment_reference AS income_reference, payment_account_id AS income_account_id, $account,
+            IF(" . incomeOnlineSql() . ", 1, 0) AS income_online
+        FROM payments
+        LEFT JOIN invoices ON invoice_id = payment_invoice_id $payment_names
         WHERE payment_archived_at IS NULL " . clientScopeSql('COALESCE(invoice_client_id, 0)') . "
         UNION ALL
         SELECT 'revenue', revenue_id, revenue_date, revenue_created_at,
             0, NULL, NULL, NULL, revenue_description,
-            revenue_category_id, category_name, category_color, category_icon,
-            revenue_client_id, client_name, revenue_amount, revenue_currency_code,
-            revenue_payment_method, revenue_reference, revenue_account_id, account_name, account_archived_at,
+            revenue_category_id, $category,
+            revenue_client_id, $client, revenue_amount, revenue_currency_code,
+            revenue_payment_method, revenue_reference, revenue_account_id, $account,
             0
-        FROM revenues
-        LEFT JOIN clients ON client_id = revenue_client_id
-        LEFT JOIN accounts ON account_id = revenue_account_id
-        LEFT JOIN categories ON category_id = revenue_category_id
+        FROM revenues $revenue_names
         WHERE revenue_archived_at IS NULL AND " . incomeRevenueSql() . ' ' . clientScopeSql('revenue_client_id');
 }
 

@@ -2017,7 +2017,9 @@ CREATE TABLE `logs` (
   KEY `log_created_at` (`log_created_at`),
   KEY `log_user_id` (`log_user_id`,`log_client_id`),
   KEY `log_client_id` (`log_client_id`,`log_created_at`),
-  KEY `log_entity_id` (`log_entity_id`,`log_type`)
+  KEY `log_entity_id` (`log_entity_id`,`log_type`),
+  KEY `log_user_type` (`log_user_id`,`log_type`,`log_action`),
+  KEY `log_type` (`log_type`,`log_action`,`log_user_id`,`log_ip`,`log_created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4163,7 +4165,8 @@ CREATE TABLE `tickets` (
   KEY `ticket_resolved_at` (`ticket_resolved_at`),
   KEY `ticket_closed_at` (`ticket_closed_at`),
   KEY `ticket_created_at` (`ticket_created_at`),
-  KEY `ticket_billable` (`ticket_billable`,`ticket_invoice_id`,`ticket_status`,`ticket_client_id`,`ticket_archived_at`)
+  KEY `ticket_billable` (`ticket_billable`,`ticket_invoice_id`,`ticket_status`,`ticket_client_id`,`ticket_archived_at`),
+  KEY `ticket_invoice_id` (`ticket_invoice_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
