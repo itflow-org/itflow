@@ -23,7 +23,7 @@ if (isset($_GET['enable_cron']) || isset($_GET['disable_cron'])) {
 
     logAudit("Cron", "Edit", "$session_name " . ($enabled ? 'enabled' : 'disabled') . " the master cron switch");
 
-    flashAlert("Cron " . ($enabled ? 'enabled' : 'disabled') . ".", $enabled ? 'success' : 'error');
+    flashAlert("Cron turned " . ($enabled ? 'on' : 'off') . ".", $enabled ? 'success' : 'error');
 
     redirect();
 
@@ -130,13 +130,16 @@ if (isset($_GET['enable_cron_job']) || isset($_GET['disable_cron_job'])) {
         redirect();
     }
 
+    require_once "../includes/cron_jobs.php";
+
     $cron_job_name = escapeSql($row['cron_job_name']);
+    $cron_job_label = cronJobRegistryByName()[$row['cron_job_name']]['label'] ?? 'Cron job';
 
     mysqli_query($mysqli, "UPDATE cron_jobs SET cron_job_enabled = $enabled WHERE cron_job_id = $cron_job_id");
 
     logAudit("Cron", "Edit", "$session_name " . ($enabled ? 'enabled' : 'disabled') . " cron job $cron_job_name", 0, $cron_job_id);
 
-    flashAlert("Cron job " . ($enabled ? 'enabled' : 'disabled') . ".", $enabled ? 'success' : 'error');
+    flashAlert("$cron_job_label turned " . ($enabled ? 'on' : 'off') . ".", $enabled ? 'success' : 'error');
 
     redirect();
 

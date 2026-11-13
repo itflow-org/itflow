@@ -35,19 +35,23 @@ ob_start();
     <input type="hidden" name="cron_job_id" value="<?= $cron_job_id ?>">
     <div class="modal-body">
 
+        <?php if (!empty($job['description'])) { ?>
+            <p class="small text-body-secondary"><?= escapeHtml($job['description']) ?></p>
+        <?php } ?>
+
         <div class="mb-3">
             <div class="form-check form-switch">
                 <input type="checkbox" class="form-check-input" name="enabled" value="1" id="cronJobEnabledSwitch" <?= $cron_job_enabled == 1 ? 'checked' : '' ?>>
-                <label class="form-check-label" for="cronJobEnabledSwitch">Enabled</label>
+                <label class="form-check-label" for="cronJobEnabledSwitch">Runs on its schedule</label>
             </div>
-            <small class="text-muted">A disabled job never runs on its schedule, but Run Now still works.</small>
+            <small class="text-muted">Switched off, it only runs when someone asks it to with Run now.</small>
         </div>
 
         <div class="mb-3">
             <label>Schedule</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                <select class="form-select" name="schedule" id="cronJobSchedule">
+                <select class="form-select select2" name="schedule" id="cronJobSchedule">
                     <?php if ($cron_job_interval_safe) { ?>
                         <option value="Interval" <?= $cron_job_schedule === 'Interval' ? 'selected' : '' ?>>Every so many minutes</option>
                     <?php } ?>
@@ -55,7 +59,7 @@ ob_start();
                 </select>
             </div>
             <?php if (!$cron_job_interval_safe) { ?>
-                <small class="text-muted">This job's work repeats if it runs twice in one day, so it only runs on the daily schedule.</small>
+                <small class="text-muted">It only runs once a day - run more often, its work would be done twice.</small>
             <?php } ?>
         </div>
 
@@ -75,7 +79,7 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                 <input type="time" class="form-control" name="daily_at" value="<?= $cron_job_daily_at ?>">
             </div>
-            <small class="text-muted">Your ITFlow timezone. A run missed because the server was off happens at the next opportunity instead of waiting a day.</small>
+            <small class="text-muted">In ITFlow's time zone<?= !empty($session_timezone) ? ', ' . escapeHtml($session_timezone) : '' ?>. A run missed because the server was off happens when it's back, not a day later.</small>
         </div>
 
     </div>
