@@ -59,6 +59,15 @@ function incomeOnlineSql($reference = 'payment_reference') {
  * and income_online. Select from it as a derived table.
  */
 function incomeUnionSql($names = true) {
+    return implode("\n        UNION ALL\n", incomeLinesSql($names));
+}
+
+/*
+ * The income lines, one SELECT for payments and one for other income - [kind
+ * => SQL], each naming its columns. incomeUnionSql() is them as one UNION
+ * ALL; incomeTotals() adds up over each on its own.
+ */
+function incomeLinesSql($names = true) {
     // Without $names - for counts and totals with no search - the clients, accounts and
     // categories joins are left out and their names come back NULL: the ids, which the filters
     // and the pills go by, are on the payment, its invoice and the revenue. One join a line
@@ -74,7 +83,8 @@ function incomeUnionSql($names = true) {
     $category = $names ? 'category_name, category_color, category_icon' : 'NULL AS category_name, NULL AS category_color, NULL AS category_icon';
     $client = $names ? 'client_name' : 'NULL AS client_name';
     $account = $names ? 'account_name, account_archived_at' : 'NULL AS account_name, NULL AS account_archived_at';
-    return "SELECT 'payment' AS income_type, payment_id AS income_id, payment_date AS income_date, payment_created_at AS income_created_at,
+    return [
+        'payment' => "SELECT 'payment' AS income_type, payment_id AS income_id, payment_date AS income_date, payment_created_at AS income_created_at,
             payment_invoice_id AS income_invoice_id, invoice_prefix, invoice_number, invoice_status, invoice_scope AS income_description,
             COALESCE(invoice_category_id, 0) AS income_category_id, $category,
             COALESCE(invoice_client_id, 0) AS income_client_id, $client, payment_amount AS income_amount, payment_currency_code AS income_currency_code,
@@ -82,16 +92,42 @@ function incomeUnionSql($names = true) {
             IF(" . incomeOnlineSql() . ", 1, 0) AS income_online
         FROM payments
         LEFT JOIN invoices ON invoice_id = payment_invoice_id $payment_names
-        WHERE payment_archived_at IS NULL " . clientScopeSql('COALESCE(invoice_client_id, 0)') . "
-        UNION ALL
-        SELECT 'revenue', revenue_id, revenue_date, revenue_created_at,
-            0, NULL, NULL, NULL, revenue_description,
-            revenue_category_id, $category,
-            revenue_client_id, $client, revenue_amount, revenue_currency_code,
-            revenue_payment_method, revenue_reference, revenue_account_id, $account,
-            0
+        WHERE payment_archived_at IS NULL " . clientScopeSql('COALESCE(invoice_client_id, 0)'),
+        'revenue' => "SELECT 'revenue' AS income_type, revenue_id AS income_id, revenue_date AS income_date, revenue_created_at AS income_created_at,
+            0 AS income_invoice_id, NULL AS invoice_prefix, NULL AS invoice_number, NULL AS invoice_status, revenue_description AS income_description,
+            revenue_category_id AS income_category_id, $category,
+            revenue_client_id AS income_client_id, $client, revenue_amount AS income_amount, revenue_currency_code AS income_currency_code,
+            revenue_payment_method AS income_method, revenue_reference AS income_reference, revenue_account_id AS income_account_id, $account,
+            0 AS income_online
         FROM revenues $revenue_names
-        WHERE revenue_archived_at IS NULL AND " . incomeRevenueSql() . ' ' . clientScopeSql('revenue_client_id');
+        WHERE revenue_archived_at IS NULL AND " . incomeRevenueSql() . ' ' . clientScopeSql('revenue_client_id'),
+    ];
+}
+
+/*
+ * $columns - COUNT(*) and SUM()s, as SQL over incomeUnionSql() AS income -
+ * for the lines $where lets through, as a row in their order. Added up over
+ * payments and other income each on its own, as accountLedgerTotals() does
+ * and for the same reason: a UNION in a derived table is written out whole
+ * before it is counted. Only for columns that add up.
+ */
+function incomeTotals(array $columns, $where = '1 = 1', $names = true) {
+    global $mysqli;
+    $totals = array_fill(0, count($columns), 0);
+    $decimal = array_fill(0, count($columns), false);
+    foreach (incomeLinesSql($names) as $lines) {
+        $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $columns) . " FROM ($lines) AS income WHERE $where"));
+        foreach ($row as $i => $value) {
+            if (strpos((string) $value, '.') !== false) {
+                $decimal[$i] = true;
+            }
+            $totals[$i] += intval(round(floatval($value) * 100));
+        }
+    }
+    foreach ($totals as $i => $cents) {
+        $totals[$i] = $decimal[$i] ? number_format($cents / 100, 2, '.', '') : (string) intdiv($cents, 100);
+    }
+    return $totals;
 }
 
 /** The ways the list can be cut - ?show= (and the old ?type=Payment / Revenue). */
@@ -170,8 +206,8 @@ function incomeFiltersSql(array $src, &$summary = [], $with_show = true) {
 function incomeTotal($from, $to, $client_id = 0) {
     global $mysqli;
     $client_id = intval($client_id);
-    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(income_amount), 0) FROM (" . incomeUnionSql() . ") AS income
-        WHERE income.income_date BETWEEN '" . escapeSql($from) . "' AND '" . escapeSql($to) . "'" . ($client_id ? " AND income.income_client_id = $client_id" : '')));
+    $row = incomeTotals(['COALESCE(SUM(income.income_amount), 0)'], "income.income_date BETWEEN '" . escapeSql($from) . "' AND '" . escapeSql($to) . "'"
+        . ($client_id ? " AND income.income_client_id = $client_id" : ''), false);
     return round(floatval($row[0]), 2);
 }
 

@@ -159,8 +159,7 @@ function reconcileLines(array $row, &$later = 0) {
         $line['ticked'] = intval($line['ticked']) === 1;
         $lines[] = $line;
     }
-    $later = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM (" . accountLedgerSql($row['reconciliation_account_id'], false) . ") AS ledger
-        WHERE ledger.txn_reconciliation_id IS NULL AND ledger.txn_date > '$date'"))[0]);
+    $later = intval(accountLedgerTotals($row['reconciliation_account_id'], ['COUNT(*)'], "ledger.txn_reconciliation_id IS NULL AND ledger.txn_date > '$date'")[0]);
     return $lines;
 }
 

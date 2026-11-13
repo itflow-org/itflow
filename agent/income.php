@@ -68,8 +68,8 @@ $count_sql = [];
 foreach ($shows as $key => $s) {
     $count_sql[] = $key === '' ? 'COUNT(*)' : "COALESCE(SUM({$s['where']}), 0)";
 }
-$row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . ", COALESCE(SUM(CASE WHEN 1 $show_query THEN income.income_amount END), 0)
-    FROM (" . incomeUnionSql(trim((string) ($_GET['q'] ?? '')) !== '') . ") AS income WHERE $where"));
+$count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query THEN income.income_amount END), 0)";
+$row = incomeTotals($count_sql, $where, trim((string) ($_GET['q'] ?? '')) !== '');
 $counts = [];
 foreach (array_keys($shows) as $i => $key) {
     $counts[$key] = intval($row[$i]);

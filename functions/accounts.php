@@ -342,6 +342,75 @@ function accountLedgerKinds() {
     ];
 }
 
+/*
+ * The ledger's lines, one SELECT for each table they come from - payments,
+ * revenues (and the transfers into an account) and expenses (and the
+ * transfers out, and reimbursements) - [kind => SQL], each naming its
+ * columns. accountLedgerSql() is them as one UNION ALL;
+ * accountLedgerTotals() adds up over each on its own.
+ */
+function accountLedgerLinesSql($account_id = 0) {
+    $account_id = intval($account_id);
+    $on = function ($column) use ($account_id) {
+        return $account_id ? "$column = $account_id" : "$column > 0";
+    };
+    return [
+        'payment' => "        SELECT 'payment' AS txn_kind, payment_id AS txn_id, 0 AS txn_transfer_id, payment_account_id AS txn_account_id,
+            payment_date AS txn_date, payment_created_at AS txn_created_at, payment_amount AS txn_amount,
+            CONCAT(COALESCE(invoice_prefix, ''), COALESCE(invoice_number, '')) AS txn_what, invoice_scope AS txn_description,
+            COALESCE(invoice_category_id, 0) AS txn_category_id, COALESCE(invoice_client_id, 0) AS txn_client_id, 0 AS txn_other_account_id, '' AS txn_other_name,
+            payment_method AS txn_method, payment_reference AS txn_reference, payment_invoice_id AS txn_invoice_id, payment_currency_code AS txn_currency,
+            IF(payment_import_key IS NULL, 0, 1) AS txn_imported, 1 AS txn_order,
+            CONCAT('payment-', payment_id) AS txn_line, payment_reconciliation_id AS txn_reconciliation_id
+        FROM payments LEFT JOIN invoices ON invoice_id = payment_invoice_id
+        WHERE payment_archived_at IS NULL AND " . $on('payment_account_id') . "",
+        'revenue' => "        SELECT IF(transfer_id IS NULL, 'revenue', 'transfer_in') AS txn_kind, revenue_id AS txn_id, COALESCE(transfer_id, 0) AS txn_transfer_id, revenue_account_id AS txn_account_id,
+            revenue_date AS txn_date, revenue_created_at AS txn_created_at, revenue_amount AS txn_amount,
+            IF(transfer_id IS NULL, '', from_account.account_name) AS txn_what, IF(transfer_id IS NULL, revenue_description, transfer_notes) AS txn_description,
+            revenue_category_id AS txn_category_id, revenue_client_id AS txn_client_id, COALESCE(from_expense.expense_account_id, 0) AS txn_other_account_id, COALESCE(from_account.account_name, '') AS txn_other_name,
+            IF(transfer_id IS NULL, revenue_payment_method, transfer_method) AS txn_method, revenue_reference AS txn_reference, 0 AS txn_invoice_id, revenue_currency_code AS txn_currency,
+            IF(revenue_import_key IS NULL, 0, 1) AS txn_imported, IF(transfer_id IS NULL, 2, 3) AS txn_order,
+            CONCAT('revenue-', revenue_id) AS txn_line, revenue_reconciliation_id AS txn_reconciliation_id
+        FROM revenues
+        LEFT JOIN transfers ON transfer_revenue_id = revenue_id
+        LEFT JOIN expenses AS from_expense ON from_expense.expense_id = transfer_expense_id
+        LEFT JOIN accounts AS from_account ON from_account.account_id = from_expense.expense_account_id
+        WHERE revenue_archived_at IS NULL AND " . $on('revenue_account_id') . "",
+        'expense' => "        SELECT CASE WHEN transfer_id IS NOT NULL THEN 'transfer_out' WHEN reimbursement_id IS NOT NULL THEN 'reimbursement' ELSE 'expense' END AS txn_kind,
+            COALESCE(reimbursement_id, expenses.expense_id) AS txn_id, COALESCE(transfer_id, 0) AS txn_transfer_id, expenses.expense_account_id AS txn_account_id,
+            expenses.expense_date AS txn_date, expenses.expense_created_at AS txn_created_at, -expenses.expense_amount AS txn_amount,
+            CASE WHEN transfer_id IS NOT NULL THEN to_account.account_name WHEN reimbursement_id IS NOT NULL THEN payee.user_name ELSE COALESCE(vendor_name, '') END AS txn_what,
+            IF(transfer_id IS NULL, expenses.expense_description, transfer_notes) AS txn_description,
+            expenses.expense_category_id AS txn_category_id, expenses.expense_client_id AS txn_client_id, COALESCE(to_revenue.revenue_account_id, 0) AS txn_other_account_id, COALESCE(to_account.account_name, payee.user_name, '') AS txn_other_name,
+            IF(transfer_id IS NULL, expenses.expense_payment_method, transfer_method) AS txn_method, expenses.expense_reference AS txn_reference, 0 AS txn_invoice_id, expenses.expense_currency_code AS txn_currency,
+            IF(expenses.expense_import_key IS NULL, 0, 1) AS txn_imported, CASE WHEN transfer_id IS NOT NULL THEN 4 WHEN reimbursement_id IS NOT NULL THEN 6 ELSE 5 END AS txn_order,
+            CONCAT('expense-', expenses.expense_id) AS txn_line, expenses.expense_reconciliation_id AS txn_reconciliation_id
+        FROM expenses
+        LEFT JOIN vendors ON vendor_id = expenses.expense_vendor_id
+        LEFT JOIN transfers ON transfer_expense_id = expenses.expense_id
+        LEFT JOIN revenues AS to_revenue ON to_revenue.revenue_id = transfer_revenue_id
+        LEFT JOIN accounts AS to_account ON to_account.account_id = to_revenue.revenue_account_id
+        LEFT JOIN reimbursements ON reimbursement_expense_id = expenses.expense_id
+        LEFT JOIN users AS payee ON payee.user_id = reimbursement_user_id
+        WHERE expenses.expense_archived_at IS NULL AND " . $on('expenses.expense_account_id'),
+    ];
+}
+
+/** $lines (SQL for ledger lines) with each line's account, category, client and clearing - accountLedgerSql()'s columns. */
+function accountLedgerWrapSql($lines, $with_balance = false) {
+    return "SELECT ledger_lines.*, accounts.account_name, accounts.account_type, accounts.account_currency_code, category_name, category_color, category_icon, client_name,
+            ledger_lines.txn_other_name AS other_account_name, other_account.account_type AS other_account_type,
+            cleared.reconciliation_id AS txn_cleared_id, cleared.reconciliation_statement_date AS txn_cleared_date, cleared.reconciliation_opening AS txn_cleared_opening,
+            " . ($with_balance ? "accounts.opening_balance + SUM(ledger_lines.txn_amount) OVER (PARTITION BY ledger_lines.txn_account_id ORDER BY ledger_lines.txn_date ASC, ledger_lines.txn_created_at ASC,
+                ledger_lines.txn_order ASC, ledger_lines.txn_id ASC)" : "NULL") . " AS txn_balance
+        FROM ($lines) AS ledger_lines
+        STRAIGHT_JOIN accounts ON accounts.account_id = ledger_lines.txn_account_id
+        LEFT JOIN accounts AS other_account ON ledger_lines.txn_kind IN ('transfer_in', 'transfer_out') AND other_account.account_id = ledger_lines.txn_other_account_id
+        LEFT JOIN account_reconciliations AS cleared ON cleared.reconciliation_id = ledger_lines.txn_reconciliation_id AND cleared.reconciliation_finished_at IS NOT NULL
+        LEFT JOIN categories ON category_id = ledger_lines.txn_category_id
+        LEFT JOIN clients ON client_id = ledger_lines.txn_client_id";
+}
+
 /**
  * Every line on one account (or every account, for 0) as one row set - a row
  * each with txn_kind (accountLedgerKinds()), txn_id (the payment, revenue,
@@ -370,62 +439,106 @@ function accountLedgerKinds() {
  * two to three times slower.
  */
 function accountLedgerSql($account_id = 0, $with_balance = true) {
+    return accountLedgerWrapSql(implode("\n        UNION ALL\n", accountLedgerLinesSql($account_id)), $with_balance);
+}
+
+/*
+ * $columns - COUNT(*) and SUM()s, as SQL over accountLedgerSql() AS ledger -
+ * for the lines that $where lets through, as a row in their order, as
+ * mysqli_fetch_row() gives it.
+ *
+ * Added up table by table: a UNION in a derived table is written out whole -
+ * every line, every column - before the first line is counted, and that was
+ * most of what the counts and totals over an account's history took. One
+ * table's lines on their own are a plain join the database counts as it
+ * reads (a third of the time, on a test install with 100,000 lines). Only
+ * for columns that add up - a count or a sum.
+ */
+function accountLedgerTotals($account_id, array $columns, $where = '1 = 1') {
+    global $mysqli;
+    $totals = array_fill(0, count($columns), 0);
+    $decimal = array_fill(0, count($columns), false);
+    foreach (accountLedgerLinesSql($account_id) as $lines) {
+        $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $columns) . " FROM (" . accountLedgerWrapSql($lines) . ") AS ledger WHERE $where"));
+        foreach ($row as $i => $value) {
+            // In cents, so the three add up exactly
+            if (strpos((string) $value, '.') !== false) {
+                $decimal[$i] = true;
+            }
+            $totals[$i] += intval(round(floatval($value) * 100));
+        }
+    }
+    foreach ($totals as $i => $cents) {
+        $totals[$i] = $decimal[$i] ? number_format($cents / 100, 2, '.', '') : (string) intdiv($cents, 100);
+    }
+    return $totals;
+}
+
+/*
+ * The balance after each of $rows (lines of one account, from
+ * accountLedgerSql() without the balance) - set on each as txn_balance, as
+ * accountLedgerSql($account_id, true) gives it.
+ *
+ * That is a running total over the account's whole history, which the
+ * database works out for every line before the page can be picked from them.
+ * Here it comes from the account's balance now (accountBalanceSql() - the
+ * opening balance and every line, the same lines the ledger has) less the
+ * lines after each row; or, with $newest_first false, from the opening
+ * balance and the lines up to it. Only the lines between the page and the
+ * newest (or oldest) are read, by date - for the first page, a handful.
+ * Lines don't tie in the ledger's order (date, time made, kind, id), so
+ * after a line means the same here as in the running total. Added up in
+ * cents, so a long run of them can't drift.
+ */
+function accountLedgerBalances($account_id, array $rows, $newest_first = true) {
+    global $mysqli;
     $account_id = intval($account_id);
-    $on = function ($column) use ($account_id) {
-        return $account_id ? "$column = $account_id" : "$column > 0";
+    if (!$rows || !$account_id) {
+        return $rows;
+    }
+    $cents = function ($amount) {
+        return intval(round(floatval($amount) * 100));
     };
-    $rows = "
-        SELECT 'payment' AS txn_kind, payment_id AS txn_id, 0 AS txn_transfer_id, payment_account_id AS txn_account_id,
-            payment_date AS txn_date, payment_created_at AS txn_created_at, payment_amount AS txn_amount,
-            CONCAT(COALESCE(invoice_prefix, ''), COALESCE(invoice_number, '')) AS txn_what, invoice_scope AS txn_description,
-            COALESCE(invoice_category_id, 0) AS txn_category_id, COALESCE(invoice_client_id, 0) AS txn_client_id, 0 AS txn_other_account_id, '' AS txn_other_name,
-            payment_method AS txn_method, payment_reference AS txn_reference, payment_invoice_id AS txn_invoice_id, payment_currency_code AS txn_currency,
-            IF(payment_import_key IS NULL, 0, 1) AS txn_imported, 1 AS txn_order,
-            CONCAT('payment-', payment_id) AS txn_line, payment_reconciliation_id AS txn_reconciliation_id
-        FROM payments LEFT JOIN invoices ON invoice_id = payment_invoice_id
-        WHERE payment_archived_at IS NULL AND " . $on('payment_account_id') . "
-        UNION ALL
-        SELECT IF(transfer_id IS NULL, 'revenue', 'transfer_in'), revenue_id, COALESCE(transfer_id, 0), revenue_account_id,
-            revenue_date, revenue_created_at, revenue_amount,
-            IF(transfer_id IS NULL, '', from_account.account_name), IF(transfer_id IS NULL, revenue_description, transfer_notes),
-            revenue_category_id, revenue_client_id, COALESCE(from_expense.expense_account_id, 0), COALESCE(from_account.account_name, ''),
-            IF(transfer_id IS NULL, revenue_payment_method, transfer_method), revenue_reference, 0, revenue_currency_code,
-            IF(revenue_import_key IS NULL, 0, 1), IF(transfer_id IS NULL, 2, 3),
-            CONCAT('revenue-', revenue_id), revenue_reconciliation_id
-        FROM revenues
-        LEFT JOIN transfers ON transfer_revenue_id = revenue_id
-        LEFT JOIN expenses AS from_expense ON from_expense.expense_id = transfer_expense_id
-        LEFT JOIN accounts AS from_account ON from_account.account_id = from_expense.expense_account_id
-        WHERE revenue_archived_at IS NULL AND " . $on('revenue_account_id') . "
-        UNION ALL
-        SELECT CASE WHEN transfer_id IS NOT NULL THEN 'transfer_out' WHEN reimbursement_id IS NOT NULL THEN 'reimbursement' ELSE 'expense' END,
-            COALESCE(reimbursement_id, expenses.expense_id), COALESCE(transfer_id, 0), expenses.expense_account_id,
-            expenses.expense_date, expenses.expense_created_at, -expenses.expense_amount,
-            CASE WHEN transfer_id IS NOT NULL THEN to_account.account_name WHEN reimbursement_id IS NOT NULL THEN payee.user_name ELSE COALESCE(vendor_name, '') END,
-            IF(transfer_id IS NULL, expenses.expense_description, transfer_notes),
-            expenses.expense_category_id, expenses.expense_client_id, COALESCE(to_revenue.revenue_account_id, 0), COALESCE(to_account.account_name, payee.user_name, ''),
-            IF(transfer_id IS NULL, expenses.expense_payment_method, transfer_method), expenses.expense_reference, 0, expenses.expense_currency_code,
-            IF(expenses.expense_import_key IS NULL, 0, 1), CASE WHEN transfer_id IS NOT NULL THEN 4 WHEN reimbursement_id IS NOT NULL THEN 6 ELSE 5 END,
-            CONCAT('expense-', expenses.expense_id), expenses.expense_reconciliation_id
-        FROM expenses
-        LEFT JOIN vendors ON vendor_id = expenses.expense_vendor_id
-        LEFT JOIN transfers ON transfer_expense_id = expenses.expense_id
-        LEFT JOIN revenues AS to_revenue ON to_revenue.revenue_id = transfer_revenue_id
-        LEFT JOIN accounts AS to_account ON to_account.account_id = to_revenue.revenue_account_id
-        LEFT JOIN reimbursements ON reimbursement_expense_id = expenses.expense_id
-        LEFT JOIN users AS payee ON payee.user_id = reimbursement_user_id
-        WHERE expenses.expense_archived_at IS NULL AND " . $on('expenses.expense_account_id');
-    return "SELECT ledger_lines.*, accounts.account_name, accounts.account_type, accounts.account_currency_code, category_name, category_color, category_icon, client_name,
-            ledger_lines.txn_other_name AS other_account_name, other_account.account_type AS other_account_type,
-            cleared.reconciliation_id AS txn_cleared_id, cleared.reconciliation_statement_date AS txn_cleared_date, cleared.reconciliation_opening AS txn_cleared_opening,
-            " . ($with_balance ? "accounts.opening_balance + SUM(ledger_lines.txn_amount) OVER (PARTITION BY ledger_lines.txn_account_id ORDER BY ledger_lines.txn_date ASC, ledger_lines.txn_created_at ASC,
-                ledger_lines.txn_order ASC, ledger_lines.txn_id ASC)" : "NULL") . " AS txn_balance
-        FROM ($rows) AS ledger_lines
-        STRAIGHT_JOIN accounts ON accounts.account_id = ledger_lines.txn_account_id
-        LEFT JOIN accounts AS other_account ON ledger_lines.txn_kind IN ('transfer_in', 'transfer_out') AND other_account.account_id = ledger_lines.txn_other_account_id
-        LEFT JOIN account_reconciliations AS cleared ON cleared.reconciliation_id = ledger_lines.txn_reconciliation_id AND cleared.reconciliation_finished_at IS NOT NULL
-        LEFT JOIN categories ON category_id = ledger_lines.txn_category_id
-        LEFT JOIN clients ON client_id = ledger_lines.txn_client_id";
+    $dates = array_column($rows, 'txn_date');
+    $edge = $newest_first ? min($dates) : max($dates);
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $edge)) {
+        return $rows;
+    }
+    if ($newest_first) {
+        $running = $cents(mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . accountBalanceSql($account_id)))[0] ?? 0);
+        $range = "ledger.txn_date >= '$edge'";
+        $order = 'DESC';
+    } else {
+        $running = $cents(mysqli_fetch_row(mysqli_query($mysqli, "SELECT opening_balance FROM accounts WHERE account_id = $account_id"))[0] ?? 0);
+        $range = "ledger.txn_date <= '$edge'";
+        $order = 'ASC';
+    }
+    $wanted = array_flip(array_column($rows, 'txn_line'));
+    $balances = [];
+    $sql = mysqli_query($mysqli, "SELECT ledger.txn_line, ledger.txn_amount FROM (" . accountLedgerSql($account_id, false) . ") AS ledger
+        WHERE $range ORDER BY ledger.txn_date $order, ledger.txn_created_at $order, ledger.txn_order $order, ledger.txn_id $order");
+    while ($line = mysqli_fetch_row($sql)) {
+        if ($newest_first) {
+            // A line's balance is what is left once everything after it is taken off
+            if (isset($wanted[$line[0]])) {
+                $balances[$line[0]] = $running;
+            }
+            $running -= $cents($line[1]);
+        } else {
+            $running += $cents($line[1]);
+            if (isset($wanted[$line[0]])) {
+                $balances[$line[0]] = $running;
+            }
+        }
+        if (count($balances) === count($wanted)) {
+            break;
+        }
+    }
+    foreach ($rows as &$row) {
+        $row['txn_balance'] = isset($balances[$row['txn_line']]) ? number_format($balances[$row['txn_line']] / 100, 2, '.', '') : null;
+    }
+    unset($row);
+    return $rows;
 }
 
 /**
