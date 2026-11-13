@@ -257,7 +257,7 @@ $pill_url = function ($view) use ($on_days) {
                             <?php } ?>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="/agent/reports/sla_summary.php">
-                                <i class="fas fa-fw fa-chart-line text-secondary me-2"></i>SLA Summary report
+                                <i class="fas fa-fw fa-chart-line text-secondary me-2"></i>SLA Performance report
                             </a>
                             <a class="dropdown-item" href="/agent/reports/sla_by_client.php">
                                 <i class="fas fa-fw fa-users text-secondary me-2"></i>SLA by Client report
@@ -363,13 +363,16 @@ $pill_url = function ($view) use ($on_days) {
                             $used = $used_text($sla);
                             $default_priorities = $default_for[$sla_id] ?? [];
                             $edit_url = "modals/sla/sla_edit.php?id=$sla_id";
-                            // What archiving it changes, for the confirmation - the part that differs from one SLA to the next first
+                            // What archiving it changes, for the confirmation - the part that differs from one SLA to the next first.
+                            // As getTicketSlaId() has it: a default that is archived gives nothing, and a contract's falls back to the default.
+                            $contracts_giving = intval($sla_used[$sla_id]['contracts'] ?? 0);
+                            $default_priorities_text = implode(' and ', array_filter([implode(', ', array_slice($default_priorities, 0, -1)), end($default_priorities) ?: '']));
                             $gives = array_filter([
-                                $default_priorities ? 'it is the default for ' . implode(', ', $default_priorities) . ' tickets' : '',
-                                !empty($sla_used[$sla_id]['contracts']) ? number_format($sla_used[$sla_id]['contracts']) . ' contract' . ($sla_used[$sla_id]['contracts'] === 1 ? ' gives' : 's give') . ' it' : '',
+                                $default_priorities ? "It is the default for $default_priorities_text tickets, which get no SLA from then on." : '',
+                                $contracts_giving ? number_format($contracts_giving) . ' contract' . ($contracts_giving === 1 ? ' gives' : 's give') . ' it - new tickets under ' . ($contracts_giving === 1 ? 'it' : 'them') . ' get the default for their priority instead.' : '',
                             ]);
                             $open_tickets = intval($sla['n_tickets']);
-                            $archive_text = ($gives ? ucfirst(implode(' and ', $gives)) . ' - those tickets get no SLA from then on. ' : 'New tickets no longer get it. ')
+                            $archive_text = ($gives ? implode(' ', $gives) : 'New tickets no longer get it.') . ' '
                                 . ($open_tickets ? 'The ' . number_format($open_tickets) . ' open ticket' . ($open_tickets === 1 ? ' on it keeps its' : 's on it keep their') . ' targets.' : 'Tickets that have it keep their targets.'); ?>
                             <tr data-sla-id="<?= $sla_id ?>">
                                 <td class="ps-3">
@@ -488,7 +491,7 @@ $pill_url = function ($view) use ($on_days) {
                     <p class="col-md-6 mb-0"><i class="fas fa-fw fa-stopwatch me-1"></i><strong>SLAs are optional.</strong> A new ticket gets the SLA its client's contract gives its priority, else the default for the priority. With neither, it has none and nothing about it changes.</p>
                     <p class="col-md-6 mb-0"><i class="fas fa-fw fa-business-time me-1"></i><strong>Targets are business time.</strong> <?= $day_minutes > 0 ? 'Four hours given an hour before the day ends runs out three hours into the next business day - and 24 hours is ' . escapeHtml(formatSlaMinutes(1440, true)) . '.' : 'With no business days picked the clocks run around the clock, so a target is plain time.' ?></p>
                     <p class="col-md-6 mb-0"><i class="fas fa-fw fa-pause-circle me-1"></i><strong>Two clocks.</strong> Response runs until the first reply. Resolution runs until the ticket is resolved, and stops while it is in a status that pauses it, like On Hold - set in <a href="ticket_statuses.php">Ticket Statuses</a>.</p>
-                    <p class="col-md-6 mb-0"><i class="fas fa-fw fa-chart-line me-1"></i><strong>How you're doing.</strong> The <a href="/agent/reports/sla_summary.php">SLA Summary</a> and <a href="/agent/reports/sla_by_client.php">SLA by Client</a> reports show how often targets were met.</p>
+                    <p class="col-md-6 mb-0"><i class="fas fa-fw fa-chart-line me-1"></i><strong>How you're doing.</strong> The <a href="/agent/reports/sla_summary.php">SLA Performance</a> and <a href="/agent/reports/sla_by_client.php">SLA by Client</a> reports show how often targets were met.</p>
                 </div>
             </div>
         </div>
