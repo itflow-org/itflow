@@ -8,6 +8,10 @@
  * user it was made for, so that user's role decides what ITFlow can see. /clients/ lists its
  * clients, /agents/?client= a client's devices. Its dashboard - where a device opens, and
  * Take Control - is at the rmm. address beside it.
+ *
+ * Its alerts: PATCH /alerts/ with resolvedFilter false lists the open ones its dashboard shows
+ * (a check's or agent's dashboard alert setting decides which those are), and GET /alerts/<id>/
+ * says whether one has cleared. The key's role needs to be able to list alerts.
  */
 
 /** What Tactical RMM is, as rmmProviderKinds() describes a kind. */
@@ -37,7 +41,7 @@ function rmmTacticalKind(): array
             ],
         ],
         'hints' => [
-            'auth' => 'check the key, and that its user\'s role can see clients and agents.',
+            'auth' => 'check the key, and that its user\'s role can see clients and agents - and list alerts, if alerts open tickets.',
             'not_found' => 'is that Tactical\'s API address, usually api. and your domain?',
             'not_json' => 'is that the dashboard\'s address rather than the API\'s?',
         ],
@@ -46,6 +50,9 @@ function rmmTacticalKind(): array
         'devices' => 'rmmTacticalDevices',
         'dashboard' => 'rmmTacticalDashboard',
         'device_urls' => 'rmmTacticalDeviceUrls',
+        'alerts' => 'rmmTacticalAlerts',
+        'alert' => 'rmmTacticalAlert',
+        'alerts_help' => 'These are the alerts Tactical\'s dashboard shows - a check\'s or agent\'s Dashboard alert setting, or its alert template, decides which those are. The API key\'s user needs to be able to list alerts.',
     ];
 }
 
@@ -135,6 +142,60 @@ function rmmTacticalDevice(array $agent): array
             'cpu' => rmmTacticalCpuText($agent['cpu_model'] ?? []),
             'storage' => rmmTacticalStorageText($agent['physical_disks'] ?? []),
         ],
+    ];
+}
+
+/** Tactical's open alerts - the ones its dashboard shows - each as an alert (functions/rmm.php, Alerts). */
+function rmmTacticalAlerts(array $provider): array
+{
+    $answer = rmmTacticalRequest($provider, 'PATCH', '/alerts/', [], ['resolvedFilter' => false], 60);
+    if (!$answer['ok']) {
+        return ['ok' => false, 'alerts' => [], 'error' => $answer['error']];
+    }
+    $alerts = [];
+    foreach ($answer['json'] as $alert) {
+        if (is_array($alert) && isset($alert['id'])) {
+            $alerts[] = rmmTacticalAlertShape($alert);
+        }
+    }
+    return ['ok' => true, 'alerts' => $alerts, 'error' => ''];
+}
+
+/** One of Tactical's alerts by its id - null when Tactical no longer has it. */
+function rmmTacticalAlert(array $provider, string $remote_id): array
+{
+    $answer = rmmTacticalRequest($provider, 'GET', '/alerts/' . rawurlencode($remote_id) . '/');
+    if (!$answer['ok']) {
+        return $answer['code'] === 404 ? ['ok' => true, 'alert' => null, 'error' => ''] : ['ok' => false, 'alert' => null, 'error' => $answer['error']];
+    }
+    return ['ok' => true, 'alert' => rmmTacticalAlertShape($answer['json']), 'error' => ''];
+}
+
+/** One of Tactical's alerts as an alert. What it is about: its check or task, the agent not checking in, or its message. */
+function rmmTacticalAlertShape(array $alert): array
+{
+    $type = preg_replace('/[^a-z]/', '', strtolower((string) ($alert['alert_type'] ?? '')));
+    $message = rmmText($alert['message'] ?? '', 2000);
+    if ($type === 'check' && !empty($alert['assigned_check'])) {
+        $about = 'check:' . intval($alert['assigned_check']);
+    } elseif ($type === 'task' && !empty($alert['assigned_task'])) {
+        $about = 'task:' . intval($alert['assigned_task']);
+    } elseif ($type === 'availability') {
+        $about = 'availability';
+    } else {
+        $about = $type . ':' . md5($message);
+    }
+    $cleared = !empty($alert['resolved']);
+    return [
+        'remote_id' => (string) ($alert['id'] ?? ''),
+        'device_remote_id' => (string) ($alert['agent_id'] ?? ''),
+        'type' => $type,
+        'about' => $about,
+        'severity' => strtolower((string) ($alert['severity'] ?? '')),
+        'message' => $message,
+        'raised_at' => rmmTime($alert['alert_time'] ?? null),
+        'snoozed' => !empty($alert['snoozed']),
+        'cleared_at' => $cleared ? (rmmTime($alert['resolved_on'] ?? null) ?? date('Y-m-d H:i:s')) : null,
     ];
 }
 

@@ -48,6 +48,10 @@
  *                      each device as rmmDeviceSave() takes it
  *   dashboard        - fn(provider): its web address, '' when it has none
  *   device_urls      - fn(provider, device's id there): key of links => address
+ *   alerts, alert    - optional, for alerts opening tickets: fn(provider): ['ok', 'alerts' =>
+ *                      the open ones, 'error'], and fn(provider, alert's id there): ['ok',
+ *                      'alert' => it, or null when the RMM no longer has it, 'error'] - each
+ *                      alert as described under Alerts below
  */
 
 /** The RMMs ITFlow can bring devices in from - kind => what it is. */
@@ -901,6 +905,401 @@ function rmmSyncAll(int $max_seconds = 120): array
 }
 
 /*
+ * ------------------------------------------------------------------ Alerts
+ *
+ * A provider with alerts turned on (rmm_provider_alert_level) is looked at every minute
+ * (cron/rmm_alerts.php). An alert at or above its level, on a device ITFlow has, opens a ticket
+ * on the device's client and asset - or, when the same thing on the same device already has a
+ * ticket that isn't closed, goes on that one, reopening it if it was resolved. When the RMM no
+ * longer lists an alert as open it is asked about that one: once it is cleared, or gone, its
+ * ticket gets a note and is resolved - unless someone has written on it, it is in a status
+ * someone moved it to, or another of its alerts is still open.
+ *
+ * The first look takes the alerts already open as known, without tickets - turning alerts on
+ * doesn't open one for everything that has been alerting for weeks - and so does an alert
+ * raised before its device came into ITFlow.
+ *
+ * An alert, as a kind's alerts and alert functions give it:
+ *   remote_id         - its id in the RMM (letters, digits, _ . : -)
+ *   device_remote_id  - its device's id there, as rmm_devices.rmm_device_remote_id has it
+ *   type              - availability, check, task...
+ *   about             - what on the device it is about, so a repeat finds its ticket - check:12
+ *   severity          - error, warning or info
+ *   message           - what it says, as rmmText() keeps it
+ *   raised_at         - from rmmTime()
+ *   snoozed           - true while it is snoozed there: no ticket until it isn't
+ *   cleared_at        - from rmmTime() once it is cleared, else null
+ */
+
+/** Which alerts open tickets - level => what it is called. */
+function rmmAlertLevels(): array
+{
+    return ['' => 'Off', 'error' => 'Errors', 'warning' => 'Errors and warnings', 'info' => 'Every alert'];
+}
+
+/** Whether an alert of $severity is one $level opens a ticket for. */
+function rmmAlertSeverityPasses(string $severity, string $level): bool
+{
+    $rank = ['info' => 1, 'warning' => 2, 'error' => 3];
+    return isset($rank[$severity], $rank[$level]) && $rank[$severity] >= $rank[$level];
+}
+
+/** The priority an alert's ticket gets. */
+function rmmAlertPriority(string $severity): string
+{
+    return ['error' => 'High', 'warning' => 'Medium', 'info' => 'Low'][$severity] ?? 'Medium';
+}
+
+/** Whether the alerts table is there - it arrives with the 3.6.8 database update. */
+function rmmAlertsReady(): bool
+{
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        try {
+            mysqli_query($mysqli, "SELECT 1 FROM rmm_alerts LIMIT 1");
+            $ready = true;
+        } catch (Throwable $e) {
+            $ready = false;
+        }
+    }
+    return $ready;
+}
+
+/** Whether a provider's alerts open tickets - on, its kind able to, a level set. */
+function rmmAlertsOn(?array $provider): bool
+{
+    $kind = $provider ? rmmKind($provider) : null;
+    $level = (string) ($provider['rmm_provider_alert_level'] ?? '');
+    return $kind && isset($kind['alerts'], $kind['alert']) && rmmProviderUsable($provider) && $level !== '' && isset(rmmAlertLevels()[$level]) && rmmAlertsReady();
+}
+
+/** One alert's row by its id in the RMM - raw, or null. */
+function rmmAlertRow(int $provider_id, string $remote_id): ?array
+{
+    global $mysqli;
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM rmm_alerts WHERE rmm_alert_provider_id = $provider_id AND rmm_alert_remote_id = '" . escapeSql($remote_id) . "' LIMIT 1"));
+    return $row ?: null;
+}
+
+/** Keep an alert ITFlow has seen, on $ticket_id (0: none). */
+function rmmAlertInsert(int $provider_id, array $device, array $alert, int $ticket_id): void
+{
+    global $mysqli;
+    $raised = $alert['raised_at'] ? "'" . escapeSql($alert['raised_at']) . "'" : 'NULL';
+    mysqli_query($mysqli, "INSERT IGNORE INTO rmm_alerts SET rmm_alert_provider_id = $provider_id, rmm_alert_remote_id = '" . escapeSql($alert['remote_id']) . "',
+        rmm_alert_device_id = " . intval($device['rmm_device_id']) . ", rmm_alert_asset_id = " . intval($device['rmm_device_asset_id']) . ",
+        rmm_alert_client_id = " . intval($device['rmm_device_client_id']) . ", rmm_alert_about = '" . escapeSql(mb_substr((string) $alert['about'], 0, 150)) . "',
+        rmm_alert_type = '" . escapeSql(mb_substr((string) $alert['type'], 0, 20)) . "', rmm_alert_severity = '" . escapeSql(mb_substr((string) $alert['severity'], 0, 20)) . "',
+        rmm_alert_message = '" . escapeSql((string) $alert['message']) . "', rmm_alert_raised_at = $raised, rmm_alert_ticket_id = $ticket_id");
+}
+
+/** An internal note on a ticket, written by ITFlow - $text is plain. */
+function rmmTicketNote(int $ticket_id, string $text): void
+{
+    global $mysqli;
+    // HTML, escaped as itself - escapeSql() would take the tags out
+    $html = mysqli_real_escape_string($mysqli, '<p>' . nl2br(escapeHtml($text)) . '</p>');
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$html', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $ticket_id");
+}
+
+/** Whether someone has written on a ticket - a reply or note that isn't ITFlow's own. */
+function rmmTicketWorked(int $ticket_id): bool
+{
+    global $mysqli;
+    return (bool) mysqli_fetch_row(mysqli_query($mysqli, "SELECT 1 FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_by > 0 AND ticket_reply_archived_at IS NULL LIMIT 1"));
+}
+
+/** What a ticket for an alert says - HTML. */
+function rmmAlertDetailsHtml(array $provider, array $device, array $alert): string
+{
+    $name = rmmProviderName($provider);
+    $severities = ['error' => 'Error', 'warning' => 'Warning', 'info' => 'Informational'];
+    $types = ['availability' => 'Not checking in', 'check' => 'Check', 'task' => 'Task', 'custom' => 'Custom'];
+    $facts = [
+        'Severity' => $severities[$alert['severity']] ?? ucfirst((string) $alert['severity']),
+        'Kind' => $types[$alert['type']] ?? ucfirst((string) $alert['type']),
+        'Raised' => $alert['raised_at'] ? date('M j, Y g:i A', strtotime($alert['raised_at'])) : '',
+        'Device' => trim($device['rmm_device_hostname'] . ($device['rmm_device_site'] ? ' (' . $device['rmm_device_site'] . ')' : '')),
+    ];
+    $html = '<p><strong>' . escapeHtml($alert['message'] !== '' ? $alert['message'] : 'An alert') . '</strong></p><p>';
+    foreach (array_filter($facts, 'strlen') as $label => $value) {
+        $html .= escapeHtml($label) . ': ' . escapeHtml($value) . '<br>';
+    }
+    $html .= 'From: ' . escapeHtml($name) . '</p>';
+    $urls = rmmDeviceUrls(array_merge($provider, $device));
+    if (isset($urls['open'])) {
+        $html .= '<p><a href="' . escapeHtml($urls['open']) . '">' . escapeHtml(rmmKind($provider)['links']['open'] ?? "Open in $name") . '</a></p>';
+    }
+    return $html;
+}
+
+/** A ticket for an alert on a device - its id. */
+function rmmAlertTicketOpen(array $provider, array $device, array $alert): int
+{
+    global $mysqli, $session_name;
+
+    $settings = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_ticket_prefix, config_ticket_default_billable FROM settings WHERE company_id = 1"));
+    mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = LAST_INSERT_ID(config_ticket_next_number), config_ticket_next_number = config_ticket_next_number + 1 WHERE company_id = 1");
+    $ticket_number = intval(mysqli_insert_id($mysqli));
+
+    $client_id = intval($device['rmm_device_client_id']);
+    // Its asset, when it is still the client's
+    $asset_id = intval($device['rmm_device_asset_id']);
+    if ($asset_id && intval(getFieldById('assets', $asset_id, 'asset_client_id')) !== $client_id) {
+        $asset_id = 0;
+    }
+    $subject = mb_strimwidth($alert['message'] !== '' ? $alert['message'] : 'Alert on ' . $device['rmm_device_hostname'], 0, 200, '...');
+    $prefix = escapeSql((string) $settings['config_ticket_prefix']);
+    $billable = intval($settings['config_ticket_default_billable']) ? 1 : 0;
+    $category = function_exists('ticketCategoryId') ? ticketCategoryId($provider['rmm_provider_alert_category_id'] ?? 0) : 0;
+    $priority = escapeSql(rmmAlertPriority((string) $alert['severity']));
+    $details = mysqli_real_escape_string($mysqli, rmmAlertDetailsHtml($provider, $device, $alert));
+
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$prefix', ticket_number = $ticket_number, ticket_source = 'RMM', ticket_category = $category,
+        ticket_subject = '" . escapeSql($subject) . "', ticket_details = '$details', ticket_priority = '$priority', ticket_status = " . TICKET_STATUS_NEW . ",
+        ticket_billable = $billable, ticket_created_by = 0, ticket_contact_id = 0, ticket_asset_id = $asset_id, ticket_url_key = '" . randomString(32) . "', ticket_client_id = $client_id");
+    $ticket_id = intval(mysqli_insert_id($mysqli));
+    applyTicketSla($ticket_id);
+
+    $reference = $settings['config_ticket_prefix'] . $ticket_number;
+    $host = (string) $device['rmm_device_hostname'];
+    logAudit('Ticket', 'Create', "$session_name opened ticket " . escapeSql("$reference for an alert on $host - $subject"), $client_id, $ticket_id);
+    logTicketHistory($ticket_id, "Opened by $session_name for an alert on " . escapeSql($host));
+    ticketMailNewTicketAddress($ticket_id, 'rmm');
+    triggerCustomAction('ticket_create', $ticket_id);
+    return $ticket_id;
+}
+
+/**
+ * A new alert on a device - on the ticket the same thing on it already has, if that isn't
+ * closed (reopened if it was resolved), or a new one. Which it was goes into $counts.
+ */
+function rmmAlertTicket(array $provider, array $device, array $alert, array &$counts): void
+{
+    global $mysqli;
+    $provider_id = intval($provider['rmm_provider_id']);
+    $name = rmmProviderName($provider);
+    $existing = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT rmm_alert_ticket_id FROM rmm_alerts
+        JOIN tickets ON ticket_id = rmm_alert_ticket_id
+        WHERE rmm_alert_provider_id = $provider_id AND rmm_alert_device_id = " . intval($device['rmm_device_id']) . "
+        AND rmm_alert_about = '" . escapeSql(mb_substr((string) $alert['about'], 0, 150)) . "' AND rmm_alert_ticket_id > 0
+        AND ticket_status <> " . TICKET_STATUS_CLOSED . " AND ticket_archived_at IS NULL
+        ORDER BY rmm_alert_id DESC LIMIT 1"));
+
+    if ($existing) {
+        $ticket_id = intval($existing['rmm_alert_ticket_id']);
+        rmmAlertInsert($provider_id, $device, $alert, $ticket_id);
+        rmmTicketNote($ticket_id, "$name: alerting again - " . ($alert['message'] !== '' ? $alert['message'] : 'the same alert'));
+        $ticket = ticketRow($ticket_id);
+        if ($ticket && intval($ticket['ticket_status']) === TICKET_STATUS_RESOLVED) {
+            ticketReopen($ticket, TICKET_STATUS_OPEN, ' - the alert came back');
+        } else {
+            logTicketHistory($ticket_id, escapeSql("$name: alerting again"));
+        }
+        $counts['again']++;
+        return;
+    }
+
+    $ticket_id = rmmAlertTicketOpen($provider, $device, $alert);
+    rmmAlertInsert($provider_id, $device, $alert, $ticket_id);
+    $counts['opened']++;
+}
+
+/**
+ * An alert of a ticket that has cleared - $alert as the RMM has it now, null when it no longer
+ * has it. The ticket gets a note, and is resolved when nothing else keeps it open.
+ */
+function rmmAlertCleared(array $provider, array $row, ?array $alert, array &$counts): void
+{
+    global $mysqli;
+    $name = rmmProviderName($provider);
+    $cleared_at = $alert && $alert['cleared_at'] ? "'" . escapeSql($alert['cleared_at']) . "'" : 'NOW()';
+    mysqli_query($mysqli, "UPDATE rmm_alerts SET rmm_alert_cleared_at = $cleared_at WHERE rmm_alert_id = " . intval($row['rmm_alert_id']));
+    $counts['cleared']++;
+
+    $ticket_id = intval($row['rmm_alert_ticket_id']);
+    $ticket = $ticket_id ? ticketRow($ticket_id) : null;
+    if (!$ticket || intval($ticket['ticket_status']) === TICKET_STATUS_CLOSED || $ticket['ticket_archived_at'] !== null) {
+        return;
+    }
+    $what = trim((string) $row['rmm_alert_message']);
+    rmmTicketNote($ticket_id, "$name: " . ($alert ? 'the alert cleared' : 'it no longer has the alert') . ($what !== '' ? " - $what" : ''));
+
+    $still = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM rmm_alerts WHERE rmm_alert_ticket_id = $ticket_id AND rmm_alert_cleared_at IS NULL"))[0]);
+    $status = intval($ticket['ticket_status']);
+    $left = $still ? "$still more still open" : (!in_array($status, [TICKET_STATUS_NEW, TICKET_STATUS_OPEN], true) ? 'left ' . getTicketStatusName($status)
+        : (rmmTicketWorked($ticket_id) ? 'left open, as someone has written on it' : ''));
+    if ($left !== '') {
+        logTicketHistory($ticket_id, escapeSql("$name: the alert cleared - $left"));
+        return;
+    }
+    ticketResolve($ticket, ' - the alert cleared');
+    $counts['resolved']++;
+}
+
+/**
+ * Look at one provider's alerts - new ones open tickets, cleared ones resolve them. One at a
+ * time per provider. Returns ['ok', 'note', 'counts'] - note is what to show a person.
+ */
+function rmmAlertsPoll(array $provider, int $max_seconds = 50): array
+{
+    global $mysqli, $session_name, $session_user_id, $session_ip, $session_user_agent;
+
+    $counts = ['opened' => 0, 'again' => 0, 'known' => 0, 'cleared' => 0, 'resolved' => 0];
+    $name = rmmProviderName($provider);
+    if (!rmmAlertsOn($provider)) {
+        return ['ok' => false, 'note' => "$name's alerts don't open tickets.", 'counts' => $counts];
+    }
+    $provider_id = intval($provider['rmm_provider_id']);
+    $kind = rmmKind($provider);
+    $level = (string) $provider['rmm_provider_alert_level'];
+
+    $lock = "itflow_rmm_alerts_$provider_id";
+    if (intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT GET_LOCK('$lock', 0)"))[0] ?? 0) !== 1) {
+        return ['ok' => true, 'note' => 'Still looking from the last run', 'counts' => $counts];
+    }
+
+    // Tickets, notes and the audit log say the provider did it
+    $signed_in_name = $session_name ?? null;
+    $session_name = escapeSql($name);
+    $session_user_id = intval($session_user_id ?? 0);
+    $session_ip = $session_ip ?? '';
+    $session_user_agent = $session_user_agent ?? 'ITFlow cron';
+
+    $clock = microtime(true);
+    $first = $provider['rmm_provider_alerts_since'] === null;
+    $errors = [];
+
+    try {
+        $answer = call_user_func($kind['alerts'], $provider);
+        if (!$answer['ok']) {
+            throw new RuntimeException($answer['error']);
+        }
+
+        $open = [];
+        foreach ($answer['alerts'] as $alert) {
+            if (!is_array($alert) || !preg_match('/^[A-Za-z0-9_.:-]{1,100}$/', (string) ($alert['remote_id'] ?? ''))) {
+                continue;
+            }
+            $open[] = (string) $alert['remote_id'];
+            if (!rmmAlertSeverityPasses((string) $alert['severity'], $level) || rmmAlertRow($provider_id, (string) $alert['remote_id'])) {
+                continue;
+            }
+            // On a device ITFlow has, of a client that is still linked and not archived
+            $device = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT rmm_devices.* FROM rmm_devices
+                JOIN rmm_clients ON rmm_clients.rmm_client_id = rmm_device_rmm_client_id AND rmm_client_client_id = rmm_device_client_id
+                JOIN clients ON client_id = rmm_device_client_id AND client_archived_at IS NULL
+                WHERE rmm_device_provider_id = $provider_id AND rmm_device_remote_id = '" . escapeSql((string) $alert['device_remote_id']) . "'
+                AND rmm_device_removed_at IS NULL AND rmm_device_client_id > 0 LIMIT 1"));
+            if (!$device) {
+                continue;
+            }
+            // Open at the first look, or raised before its device came into ITFlow (its client linked since) - known, with no ticket.
+            // Anything else it hasn't seen is new: the first look took in all that was open, so no clocks are compared but this one
+            $raised = $alert['raised_at'] ? strtotime($alert['raised_at']) : time();
+            if ($first || $raised < strtotime((string) $device['rmm_device_created_at'])) {
+                rmmAlertInsert($provider_id, $device, $alert, 0);
+                $counts['known']++;
+                continue;
+            }
+            if (!empty($alert['snoozed'])) {
+                continue;
+            }
+            rmmAlertTicket($provider, $device, $alert, $counts);
+        }
+        if ($first) {
+            mysqli_query($mysqli, "UPDATE rmm_providers SET rmm_provider_alerts_since = NOW() WHERE rmm_provider_id = $provider_id");
+        }
+
+        // The ones still open here that it no longer lists as open - asked about one by one, a few each run
+        $in_list = $open ? "'" . implode("', '", array_map('escapeSql', $open)) . "'" : "''";
+        $sql = mysqli_query($mysqli, "SELECT * FROM rmm_alerts WHERE rmm_alert_provider_id = $provider_id AND rmm_alert_cleared_at IS NULL
+            AND rmm_alert_remote_id NOT IN ($in_list) ORDER BY rmm_alert_id ASC LIMIT 25");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            if (microtime(true) - $clock > $max_seconds) {
+                break;
+            }
+            $one = call_user_func($kind['alert'], $provider, (string) $row['rmm_alert_remote_id']);
+            if (!$one['ok']) {
+                $errors[] = $one['error'];
+                break;
+            }
+            if ($one['alert'] === null || $one['alert']['cleared_at'] !== null) {
+                rmmAlertCleared($provider, $row, $one['alert'], $counts);
+            }
+        }
+
+        $done = [];
+        foreach (['opened' => 'ticket opened', 'again' => 'added to its ticket', 'cleared' => 'cleared', 'resolved' => 'ticket resolved'] as $key => $words) {
+            if ($counts[$key]) {
+                $done[] = $counts[$key] . ' ' . ($counts[$key] === 1 ? $words : str_replace(['ticket opened', 'ticket resolved'], ['tickets opened', 'tickets resolved'], $words));
+            }
+        }
+        $note = $first ? number_format($counts['known']) . ' open alert' . ($counts['known'] === 1 ? '' : 's') . ' taken as known - new ones open tickets from now'
+            : ($done ? implode(', ', $done) : 'Nothing new');
+        if ($errors) {
+            throw new RuntimeException(reset($errors));
+        }
+        $ok = true;
+    } catch (Throwable $e) {
+        $ok = false;
+        $note = $e->getMessage();
+    }
+
+    // What went wrong is logged once, when it starts going wrong - not every minute it stays so
+    $note_before = (string) ($provider['rmm_provider_alerts_note'] ?? '');
+    if (!$ok && $note !== $note_before) {
+        logApp('RMM', 'warning', "$name: alerts - $note");
+    }
+    $note_sql = $ok ? 'NULL' : "'" . escapeSql(mb_substr($note, 0, 500)) . "'";
+    mysqli_query($mysqli, "UPDATE rmm_providers SET rmm_provider_alerts_at = NOW(), rmm_provider_alerts_note = $note_sql WHERE rmm_provider_id = $provider_id");
+
+    mysqli_query($mysqli, "SELECT RELEASE_LOCK('$lock')");
+    $session_name = $signed_in_name ?? $session_name;
+
+    return ['ok' => $ok, 'note' => $note, 'counts' => $counts];
+}
+
+/** Look at the alerts of every provider whose alerts open tickets - for the RMM Alerts job. [provider name => rmmAlertsPoll()'s answer]. */
+function rmmAlertsPollAll(int $max_seconds = 50): array
+{
+    $results = [];
+    $clock = microtime(true);
+    foreach (rmmProviders(true) as $provider) {
+        if (!rmmAlertsOn($provider)) {
+            continue;
+        }
+        $left = $max_seconds - (int) (microtime(true) - $clock);
+        if ($left < 5) {
+            break;
+        }
+        $results[rmmProviderName($provider)] = rmmAlertsPoll($provider, $left);
+    }
+    return $results;
+}
+
+/** The alerts still open on some devices that have tickets - rmm_device_id => rows with the ticket's reference and status. */
+function rmmOpenAlertsForDevices(array $device_ids): array
+{
+    global $mysqli;
+    $device_ids = array_values(array_filter(array_map('intval', $device_ids)));
+    if (!$device_ids || !rmmAlertsReady()) {
+        return [];
+    }
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT rmm_alert_device_id, rmm_alert_severity, rmm_alert_message, rmm_alert_raised_at, ticket_id, ticket_prefix, ticket_number, ticket_client_id
+        FROM rmm_alerts JOIN tickets ON ticket_id = rmm_alert_ticket_id
+        WHERE rmm_alert_device_id IN (" . implode(', ', $device_ids) . ") AND rmm_alert_cleared_at IS NULL AND rmm_alert_ticket_id > 0
+        ORDER BY rmm_alert_raised_at DESC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[intval($row['rmm_alert_device_id'])][] = $row;
+    }
+    return $rows;
+}
+
+/*
  * ------------------------------------------------------------------ Showing it
  */
 
@@ -1118,6 +1517,20 @@ function rmmProviderCheck(array $in, ?array $before): array
             $after[$column] = $typed !== '' ? $typed : $had;
         }
     }
+
+    // Alerts opening tickets - kept as they were when the window didn't send them (ticketing off)
+    if (rmmAlertsReady()) {
+        $level = (string) ($in['alert_level'] ?? ($before['rmm_provider_alert_level'] ?? ''));
+        if (!isset(rmmAlertLevels()[$level]) || ($level !== '' && !isset($kind['alerts'], $kind['alert']))) {
+            $errors['alert_level'] = 'Pick which alerts open tickets.';
+            $level = '';
+        }
+        $after['rmm_provider_alert_level'] = $level;
+        $after['rmm_provider_alert_category_id'] = ticketCategoryId($in['alert_category_id'] ?? ($before['rmm_provider_alert_category_id'] ?? 0));
+        // Turned on, at another level, or the provider back on - the alerts open then are taken as known, as at first
+        $after['rmm_provider_alerts_restart'] = $level !== '' && ($level !== (string) ($before['rmm_provider_alert_level'] ?? '')
+            || ($before && !intval($before['rmm_provider_active']) && $after['rmm_provider_active']));
+    }
     return [$after, $errors];
 }
 
@@ -1136,6 +1549,13 @@ function rmmProviderWrite(array $after, int $provider_id = 0): int
         $set[] = "$column = '" . escapeSql($after[$column]) . "'";
     }
     $set[] = 'rmm_provider_active = ' . intval($after['rmm_provider_active']);
+    if (array_key_exists('rmm_provider_alert_level', $after)) {
+        $set[] = "rmm_provider_alert_level = '" . escapeSql($after['rmm_provider_alert_level']) . "'";
+        $set[] = 'rmm_provider_alert_category_id = ' . intval($after['rmm_provider_alert_category_id']);
+        if (!empty($after['rmm_provider_alerts_restart'])) {
+            $set[] = 'rmm_provider_alerts_since = NULL, rmm_provider_alerts_note = NULL';
+        }
+    }
     if ($provider_id) {
         mysqli_query($mysqli, "UPDATE rmm_providers SET " . implode(', ', $set) . " WHERE rmm_provider_id = $provider_id");
         return $provider_id;
@@ -1167,6 +1587,13 @@ function rmmProviderChangeLines(array $before, array $after): array
     }
     if (intval($before['rmm_provider_active']) !== intval($after['rmm_provider_active'])) {
         $lines[] = intval($after['rmm_provider_active']) ? 'turned on' : 'turned off';
+    }
+    if (array_key_exists('rmm_provider_alert_level', $after) && (string) ($before['rmm_provider_alert_level'] ?? '') !== $after['rmm_provider_alert_level']) {
+        $lines[] = $after['rmm_provider_alert_level'] === '' ? 'alerts no longer open tickets' : 'alerts open tickets: ' . mb_strtolower(rmmAlertLevels()[$after['rmm_provider_alert_level']]);
+    }
+    if (array_key_exists('rmm_provider_alert_category_id', $after) && intval($before['rmm_provider_alert_category_id'] ?? 0) !== intval($after['rmm_provider_alert_category_id'])) {
+        $category = intval($after['rmm_provider_alert_category_id']) ? (string) getFieldById('categories', intval($after['rmm_provider_alert_category_id']), 'category_name') : '';
+        $lines[] = $category === '' ? 'alert tickets not categorized' : "alert tickets in $category";
     }
     return $lines;
 }

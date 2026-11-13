@@ -130,6 +130,8 @@ if (mysqli_num_rows($sql) == 0) {
     $rmm_links = $rmm_device ? (rmmKind($rmm_device)['links'] ?? []) : [];
     $rmm_first = $rmm_urls ? (isset($rmm_urls['control']) ? 'control' : (string) array_key_first($rmm_urls)) : '';
     $rmm_icons = ['open' => 'fa-external-link-alt', 'control' => 'fa-desktop', 'background' => 'fa-terminal'];
+    // Its alerts that are open, with their tickets
+    $rmm_open_alerts = rmmOpenAlertsForDevices(array_column($rmm_devices, 'rmm_device_id'));
 
     // The rack it sits in, if any
     $asset_rack = rackPositionForAsset($asset_id);
@@ -462,13 +464,24 @@ if (mysqli_num_rows($sql) == 0) {
                                     <dd class="small"><?= escapeHtml($rmm_each['rmm_device_agent_version']) ?><?= $rmm_each['rmm_device_role'] !== '' ? ' &middot; ' . escapeHtml($rmm_each['rmm_device_role']) : '' ?></dd>
                                 <?php } ?>
                             </dl>
+                            <?php $rmm_alerts = $rmm_open_alerts[intval($rmm_each['rmm_device_id'])] ?? []; ?>
+                            <?php if ($rmm_alerts) { ?>
+                                <ul class="list-unstyled small mt-3 mb-0" data-rmm-alerts="<?= count($rmm_alerts) ?>">
+                                    <?php foreach ($rmm_alerts as $rmm_alert) { ?>
+                                        <li class="text-<?= ['error' => 'danger', 'warning' => 'warning'][$rmm_alert['rmm_alert_severity']] ?? 'secondary' ?>-emphasis">
+                                            <i class="fas fa-fw fa-bell me-1"></i><a class="fw-semibold" href="<?= escapeHtml(ticketUrl($rmm_alert['ticket_id'], $rmm_alert['ticket_client_id'])) ?>"><?= escapeHtml($rmm_alert['ticket_prefix'] . $rmm_alert['ticket_number']) ?></a>
+                                            <?= escapeHtml(mb_strimwidth((string) $rmm_alert['rmm_alert_message'], 0, 120, '...')) ?>
+                                        </li>
+                                    <?php } ?>
+                                </ul>
+                            <?php } ?>
                             <?php if ($rmm_attention) { ?>
-                                <ul class="list-unstyled small mt-3 mb-0" data-rmm-attention>
+                                <ul class="list-unstyled small mt-<?= $rmm_alerts ? '2' : '3' ?> mb-0" data-rmm-attention>
                                     <?php foreach ($rmm_attention as $item) { ?>
                                         <li class="text-<?= $item['tone'] ?>-emphasis"><i class="fas fa-fw <?= $item['icon'] ?> me-1"></i><?= escapeHtml($item['text']) ?></li>
                                     <?php } ?>
                                 </ul>
-                            <?php } elseif (intval($rmm_each['rmm_device_checks_total'])) { ?>
+                            <?php } elseif (intval($rmm_each['rmm_device_checks_total']) && !$rmm_alerts) { ?>
                                 <div class="small text-success-emphasis mt-3"><i class="fas fa-fw fa-check-circle me-1"></i>All <?= intval($rmm_each['rmm_device_checks_total']) ?> checks passing</div>
                             <?php } ?>
                             <?php if ($rmm_elsewhere) { ?>

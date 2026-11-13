@@ -4,7 +4,8 @@
  * Admin > RMM Providers - one provider's window: Add (no id) or Edit. Which RMM it is is
  * picked when it is added and stays; each kind brings its own fields (rmmProviderKinds() in
  * functions/rmm.php) - addresses, a key, a secret. A key or secret is never put back into the
- * page, so left empty it stays. Save asks first (check_rmm_provider, admin/post/rmm.php): what
+ * page, so left empty it stays. A kind that has alerts can have them open tickets, from the
+ * level picked, in a category. Save asks first (check_rmm_provider, admin/post/rmm.php): what
  * is wrong shows beside each field and the window stays open; once all is right it saves, and
  * tries the connection.
  */
@@ -26,10 +27,15 @@ $kinds = rmmProviderKinds();
 $kind_key = $row ? (string) $row['rmm_provider_kind'] : (string) array_key_first($kinds);
 $kind = $kinds[$kind_key];
 
-// What the window's script needs of each kind - its name, to follow the kind picked
+// What the window's script needs of each kind - its name, to follow the kind picked, and whether it has alerts
 $kinds_js = array_map(function ($info) {
-    return ['name' => $info['name']];
+    return ['name' => $info['name'], 'alerts' => isset($info['alerts'], $info['alert']), 'alertsHelp' => (string) ($info['alerts_help'] ?? '')];
 }, $kinds);
+
+// Alerts open tickets - once the 3.6.8 database update is in, with ticketing on
+$alerts_offered = rmmAlertsReady() && !empty($config_module_enable_ticketing);
+$alert_level = (string) ($row['rmm_provider_alert_level'] ?? '');
+$alert_category_id = intval($row['rmm_provider_alert_category_id'] ?? 0);
 
 // Where what is wrong with a field shows
 $error_for = function ($field) {
@@ -114,6 +120,36 @@ ob_start();
             </div>
         <?php } ?>
 
+        <?php if ($alerts_offered) { ?>
+            <div data-rmm-alerts class="<?= isset($kind['alerts'], $kind['alert']) ? '' : 'd-none' ?>">
+                <div class="mb-3">
+                    <label class="form-label" for="rmmProviderAlertLevel">Alerts open tickets</label>
+                    <div class="input-group has-validation">
+                        <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
+                        <select class="form-select select2" name="alert_level" id="rmmProviderAlertLevel" data-rmm-alert-level>
+                            <?php foreach (rmmAlertLevels() as $level_key => $level_label) { ?>
+                                <option value="<?= $level_key ?>" <?= $level_key === $alert_level ? 'selected' : '' ?>><?= escapeHtml($level_label) ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <?= $error_for('alert_level') ?>
+                    <div class="form-text">A new alert on a device of a linked client opens a ticket on its asset - High for an error, Medium for a warning, Low for the rest - and the same alert again goes on that ticket while it is open. When the alert clears, the ticket is resolved unless someone has written on it. Alerts already open when this is turned on don't open tickets.
+                        <span data-rmm-alerts-help><?= escapeHtml((string) ($kind['alerts_help'] ?? '')) ?></span></div>
+                </div>
+                <div class="mb-3 <?= $alert_level === '' ? 'd-none' : '' ?>" data-rmm-alert-more>
+                    <label class="form-label" for="rmmProviderAlertCategory">Ticket category</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                        <select class="form-select select2" name="alert_category_id" id="rmmProviderAlertCategory">
+                            <option value="0">- Not Categorized -</option>
+                            <?= categoryOptionsHtml('Ticket', $alert_category_id ?: null) ?>
+                        </select>
+                        <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
     </div>
     <div class="modal-footer">
         <button type="submit" name="<?= $row ? 'edit_rmm_provider' : 'add_rmm_provider' ?>" class="btn btn-primary text-bold" data-rmm-provider-save>
@@ -152,7 +188,21 @@ ob_start();
             block.classList.toggle('d-none', !shown);
             block.querySelectorAll('input').forEach(function (input) { input.disabled = !shown; });
         });
+        // Alerts only for a kind that has them
+        var alerts = form.querySelector('[data-rmm-alerts]');
+        if (alerts) {
+            alerts.classList.toggle('d-none', !kinds[kind].alerts);
+            alerts.querySelector('[data-rmm-alerts-help]').textContent = kinds[kind].alertsHelp;
+        }
     });
+
+    // The category goes with alerts that open tickets
+    var alertLevel = form.querySelector('[data-rmm-alert-level]');
+    if (alertLevel) {
+        alertLevel.addEventListener('change', function () {
+            form.querySelector('[data-rmm-alert-more]').classList.toggle('d-none', alertLevel.value === '');
+        });
+    }
 
     // A field's input and where what is wrong with it shows - in the kind's fields that are showing, or the name and kind
     function find(field, what) {

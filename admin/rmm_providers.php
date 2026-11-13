@@ -3,7 +3,8 @@
 /*
  * Admin > RMM Providers - the RMMs ITFlow brings devices in from (functions/rmm.php), Tactical
  * RMM the first kind. Each row says which RMM it is, how many of its clients are linked to
- * yours, how many of its devices are assets here and how its last sync went. Its clients are
+ * yours, how many of its devices are assets here, whether its alerts open tickets and how its
+ * last sync went. Its clients are
  * linked on its Clients page (rmm_clients.php). Add and Edit are one window
  * (modals/rmm/rmm_provider_edit.php); the rest are admin/post/rmm.php.
  */
@@ -42,11 +43,16 @@ $kinds_found = array_keys(array_filter($kinds, function ($kind) use ($q) {
 }));
 $kind_search = $kinds_found ? " OR rmm_provider_kind IN ('" . implode("', '", array_map('escapeSql', $kinds_found)) . "')" : '';
 
+// Alerts open tickets once the 3.6.8 database update is in - and their open ones, with tickets
+$alerts_ready = rmmAlertsReady();
+$alerts_sql = $alerts_ready ? ", (SELECT COUNT(*) FROM rmm_alerts WHERE rmm_alert_provider_id = rmm_provider_id AND rmm_alert_cleared_at IS NULL AND rmm_alert_ticket_id > 0) AS alerts_open" : '';
+
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS rmm_providers.*,
     (SELECT COUNT(*) FROM rmm_clients WHERE rmm_client_provider_id = rmm_provider_id AND rmm_client_removed_at IS NULL) AS clients_total,
     (SELECT COUNT(*) FROM rmm_clients WHERE rmm_client_provider_id = rmm_provider_id AND rmm_client_removed_at IS NULL AND rmm_client_client_id > 0) AS clients_linked,
     (SELECT COUNT(*) FROM rmm_devices WHERE rmm_device_provider_id = rmm_provider_id AND rmm_device_removed_at IS NULL AND rmm_device_asset_id > 0) AS devices_in,
     (SELECT COUNT(*) FROM rmm_devices WHERE rmm_device_provider_id = rmm_provider_id AND rmm_device_removed_at IS NULL AND rmm_device_asset_id > 0 AND rmm_device_status = 'overdue') AS devices_overdue
+    $alerts_sql
     FROM rmm_providers
     WHERE (rmm_provider_name LIKE '%$q%' OR rmm_provider_api_url LIKE '%$q%' OR rmm_provider_kind LIKE '%$q%'$kind_search)
     ORDER BY {$sortable_columns[$sort]}, rmm_provider_id ASC
@@ -102,6 +108,7 @@ $csrf = $_SESSION['csrf_token'];
                 <th class="d-none d-lg-table-cell"><?= $sort_link('rmm_provider_kind', 'Kind') ?></th>
                 <th class="d-none d-md-table-cell"><?= $sort_link('clients_linked', 'Clients') ?></th>
                 <th class="d-none d-md-table-cell"><?= $sort_link('devices_in', 'Devices') ?></th>
+                <?php if ($alerts_ready) { ?><th class="d-none d-lg-table-cell">Alerts</th><?php } ?>
                 <th class="d-none d-sm-table-cell"><?= $sort_link('rmm_provider_sync_at', 'Last sync') ?></th>
                 <th></th>
             </tr>
@@ -151,6 +158,24 @@ $csrf = $_SESSION['csrf_token'];
                         <div><?= number_format($devices) ?> asset<?= $devices === 1 ? '' : 's' ?></div>
                         <?php if ($overdue) { ?><div class="text-danger-emphasis" title="Not heard from for longer than its RMM's overdue time"><?= $overdue ?> overdue</div><?php } ?>
                     </td>
+                    <?php if ($alerts_ready) {
+                        $alert_level = (string) ($row['rmm_provider_alert_level'] ?? '');
+                        $alerts_open = intval($row['alerts_open'] ?? 0); ?>
+                        <td class="d-none d-lg-table-cell small" data-rmm-alerts="<?= escapeHtml($alert_level === '' ? 'off' : $alert_level) ?>">
+                            <?php if ($alert_level === '' || !isset($kind['alerts'])) { ?>
+                                <span class="text-body-secondary" title="Its alerts don't open tickets - Edit to turn them on">Off</span>
+                            <?php } else { ?>
+                                <div class="text-nowrap" title="These alerts open tickets"><i class="fas fa-fw fa-bell text-secondary me-1"></i><?= escapeHtml(rmmAlertLevels()[$alert_level] ?? $alert_level) ?></div>
+                                <?php if ($row['rmm_provider_alerts_note'] !== null) { ?>
+                                    <div class="text-danger-emphasis text-truncate" style="max-width: 16rem;" title="<?= escapeHtml((string) $row['rmm_provider_alerts_note']) ?>"><i class="fas fa-fw fa-exclamation-circle me-1"></i>Didn't work: <?= escapeHtml((string) $row['rmm_provider_alerts_note']) ?></div>
+                                <?php } elseif ($row['rmm_provider_alerts_since'] === null) { ?>
+                                    <div class="text-body-secondary" title="The first look takes the alerts open then as known, with no tickets">Starts in a minute</div>
+                                <?php } elseif ($alerts_open) { ?>
+                                    <div class="text-body-secondary"><?= $alerts_open ?> open, with tickets</div>
+                                <?php } ?>
+                            <?php } ?>
+                        </td>
+                    <?php } ?>
                     <td class="d-none d-sm-table-cell small" data-rmm-sync-state="<?= $row['rmm_provider_sync_at'] ? (intval($row['rmm_provider_sync_ok']) ? 'ok' : 'failed') : 'never' ?>">
                         <?php if (!$row['rmm_provider_sync_at']) { ?>
                             <span class="text-body-secondary">Not yet</span>

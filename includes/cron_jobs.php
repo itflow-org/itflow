@@ -102,6 +102,15 @@ function cronJobRegistry(): array
             'interval_minutes' => 15,
         ],
         [
+            'name' => 'rmm_alerts',
+            'label' => 'RMM Alerts',
+            'icon' => 'fa-bell',
+            'script' => 'rmm_alerts.php',
+            'description' => 'Opens a ticket for each new alert from an RMM provider whose alerts open tickets in Admin > RMM Providers, and resolves it when the alert clears.',
+            'schedule' => 'Interval',
+            'interval_minutes' => 1,
+        ],
+        [
             'name' => 'ticket_email_parser',
             'label' => 'Ticket Email Parser',
             'icon' => 'fa-inbox',

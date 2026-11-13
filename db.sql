@@ -2930,6 +2930,35 @@ CREATE TABLE `revenues` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `rmm_alerts`
+--
+
+DROP TABLE IF EXISTS `rmm_alerts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `rmm_alerts` (
+  `rmm_alert_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rmm_alert_provider_id` int(11) NOT NULL,
+  `rmm_alert_remote_id` varchar(100) NOT NULL,
+  `rmm_alert_device_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_alert_asset_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_alert_client_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_alert_about` varchar(150) NOT NULL DEFAULT '',
+  `rmm_alert_type` varchar(20) NOT NULL DEFAULT '',
+  `rmm_alert_severity` varchar(20) NOT NULL DEFAULT '',
+  `rmm_alert_message` text DEFAULT NULL,
+  `rmm_alert_raised_at` datetime DEFAULT NULL,
+  `rmm_alert_cleared_at` datetime DEFAULT NULL,
+  `rmm_alert_ticket_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_alert_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`rmm_alert_id`),
+  UNIQUE KEY `rmm_alert_remote` (`rmm_alert_provider_id`,`rmm_alert_remote_id`),
+  KEY `rmm_alert_device_id` (`rmm_alert_device_id`),
+  KEY `rmm_alert_ticket_id` (`rmm_alert_ticket_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `rmm_clients`
 --
 
@@ -3016,6 +3045,11 @@ CREATE TABLE `rmm_providers` (
   `rmm_provider_sync_at` datetime DEFAULT NULL,
   `rmm_provider_sync_ok` tinyint(1) NOT NULL DEFAULT 0,
   `rmm_provider_sync_note` varchar(500) DEFAULT NULL,
+  `rmm_provider_alert_level` varchar(20) NOT NULL DEFAULT '',
+  `rmm_provider_alert_category_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_provider_alerts_since` datetime DEFAULT NULL,
+  `rmm_provider_alerts_at` datetime DEFAULT NULL,
+  `rmm_provider_alerts_note` varchar(500) DEFAULT NULL,
   `rmm_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `rmm_provider_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`rmm_provider_id`)

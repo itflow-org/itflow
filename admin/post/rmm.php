@@ -128,14 +128,15 @@ if (isset($_GET['turn_rmm_provider_off']) || isset($_GET['turn_rmm_provider_on']
     }
     $provider_id = intval($provider['rmm_provider_id']);
     $name = rmmProviderName($provider);
-    mysqli_query($mysqli, "UPDATE rmm_providers SET rmm_provider_active = " . ($on ? 1 : 0) . " WHERE rmm_provider_id = $provider_id");
+    // Back on, the alerts open then are taken as known - not a ticket each for all that came up while it was off
+    mysqli_query($mysqli, "UPDATE rmm_providers SET rmm_provider_active = " . ($on ? 1 : 0) . ($on && intval($provider['rmm_provider_active']) === 0 && rmmAlertsReady() ? ', rmm_provider_alerts_since = NULL' : '') . " WHERE rmm_provider_id = $provider_id");
     logAudit("RMM Provider", "Edit", "$session_name turned RMM provider " . escapeSql($name) . ($on ? ' on' : ' off'), 0, $provider_id);
     flashAlert('<strong>' . escapeHtml($name) . '</strong> is ' . ($on ? 'on - the linked clients\' devices come in again with the next sync' : 'off - nothing is brought in'));
     redirect();
 
 }
 
-// Delete - the provider, its client links and what it said about each device go; the assets stay
+// Delete - the provider, its client links, what it said about each device and the alerts it raised go; the assets and tickets stay
 if (isset($_GET['delete_rmm_provider'])) {
 
     validateCSRFToken();
@@ -149,6 +150,9 @@ if (isset($_GET['delete_rmm_provider'])) {
     $name = rmmProviderName($provider);
     $devices = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM rmm_devices WHERE rmm_device_provider_id = $provider_id AND rmm_device_asset_id > 0"))[0]);
     mysqli_query($mysqli, "DELETE FROM rmm_devices WHERE rmm_device_provider_id = $provider_id");
+    if (rmmAlertsReady()) {
+        mysqli_query($mysqli, "DELETE FROM rmm_alerts WHERE rmm_alert_provider_id = $provider_id");
+    }
     mysqli_query($mysqli, "DELETE FROM rmm_clients WHERE rmm_client_provider_id = $provider_id");
     mysqli_query($mysqli, "DELETE FROM rmm_providers WHERE rmm_provider_id = $provider_id");
     logAudit("RMM Provider", "Delete", "$session_name deleted RMM provider " . escapeSql($name) . " - the $devices assets it brought in stay, no longer kept up", 0, $provider_id);
