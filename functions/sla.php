@@ -610,6 +610,48 @@ function formatSlaMinutes($minutes)
     return $text;
 }
 
+// The minutes in one business day, or 0 when no business calendar is set and
+// the clocks run around the clock - the same test addBusinessMinutes makes.
+function slaBusinessDayMinutes()
+{
+    $sla_settings = getSlaSettings();
+    $day_start = $sla_settings['business_hours_start'];
+    $day_end = $sla_settings['business_hours_end'];
+
+    if (empty($sla_settings['business_days']) || empty($day_start) || empty($day_end) || $day_start >= $day_end) {
+        return 0;
+    }
+
+    return intval((strtotime($day_end) - strtotime($day_start)) / 60);
+}
+
+// A target as the hours and minutes it was typed as - "48 hours", "1 hour 30
+// minutes", "45 minutes" - where formatSlaMinutes() says how long that is in
+// business days. Admin > SLAs shows both: 48 hours of a 9-5 day is six days.
+function formatSlaClockMinutes($minutes)
+{
+    $minutes = max(0, intval($minutes));
+    $hours = intdiv($minutes, 60);
+    $remainder = $minutes % 60;
+
+    $parts = [];
+    if ($hours > 0) {
+        $parts[] = $hours . ' hour' . ($hours == 1 ? '' : 's');
+    }
+    if ($remainder > 0 || !$parts) {
+        $parts[] = $remainder . ' minute' . ($remainder == 1 ? '' : 's');
+    }
+
+    return implode(' ', $parts);
+}
+
+// A target from the SLA window's two boxes, hours and minutes, in minutes.
+// Either can be left empty; a caller sending only minutes sends the lot.
+function slaTargetMinutes($hours, $minutes)
+{
+    return max(0, intval($hours)) * 60 + max(0, intval($minutes));
+}
+
 // Record the ticket's first response (if not already recorded) and judge the
 // response SLA against the stored due date. Replaces the previous inline
 // ticket_first_response_at updates so the SLA verdict can never drift from
