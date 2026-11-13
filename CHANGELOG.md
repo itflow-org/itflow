@@ -6,7 +6,7 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's one database change (3.6.5 to 3.6.6) in the same pass. It adds indexes to the audit log and to tickets: a few seconds on most installs, about 2 seconds for every million audit log entries on one with years of them. Nothing else is required. If clients have signed contracts with you, read the first Contracts entry under Bug Fixes: a signed copy may give shorter response times than the ones your SLAs time tickets by. From 26.11.3 or earlier, the same update also brings 26.11.4 and its database changes - see its notes below.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's one database change (3.6.5 to 3.6.6) in the same pass. It adds indexes to the audit log and to tickets: a few seconds on most installs, about 2 seconds for every million audit log entries on one with years of them. Nothing else is required. If clients have signed contracts with you, read the first Contracts entry under Bug Fixes: a signed copy may give shorter response times than the ones your SLAs time tickets by. From 26.11.6, the same update also brings 26.11.7 - its two database changes (3.6.3 to 3.6.5) are applied in the same pass, and an install whose database update stopped at `Duplicate column name 'software_template_id'` carries on from there - see its notes below. From 26.11.3 or earlier, it also brings 26.11.4 and its database changes.
 
 ### New Features & Updates
 
