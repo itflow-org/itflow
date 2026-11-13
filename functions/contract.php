@@ -342,18 +342,30 @@ function contractDefaultHints() {
     return $hints;
 }
 
-/** An SLA's targets in words - "Respond in 1 hr, resolve in 8 hrs". */
-function contractSlaTargets(array $sla) {
-    $text = 'Respond in ' . slaMinutesText($sla['sla_response_minutes']);
+/** An SLA's targets in words - "Respond in 1 business hour, resolve in 2 business days". $old_wording as slaMinutesText() has it. */
+function contractSlaTargets(array $sla, $old_wording = false) {
+    $text = 'Respond in ' . slaMinutesText($sla['sla_response_minutes'], $old_wording);
     if (intval($sla['sla_resolution_minutes'] ?? 0) > 0) {
-        $text .= ', resolve in ' . slaMinutesText($sla['sla_resolution_minutes']);
+        $text .= ', resolve in ' . slaMinutesText($sla['sla_resolution_minutes'], $old_wording);
     }
     return $text;
 }
 
-/** Minutes in words - "45 min", "4 hrs", "2 days". */
-function slaMinutesText($minutes) {
+/*
+ * A target in words, as the SLA clock counts it - "45 minutes", "4 business
+ * hours", "6 business days" (formatSlaMinutes(), with nothing rounded off).
+ *
+ * $old_wording is how it read up to 26.11.7 - "45 min", "4 hrs", "2 days" -
+ * which was plain time where the clock counts business time: 48 hours of a 9
+ * to 5 day is six business days, not two. Nothing is worded that way any
+ * more; it is kept so that a document sent or signed with those words is
+ * still known for the same document (contractDocumentIs()).
+ */
+function slaMinutesText($minutes, $old_wording = false) {
     $minutes = intval($minutes);
+    if (!$old_wording) {
+        return formatSlaMinutes($minutes, true);
+    }
     if ($minutes > 0 && $minutes % 1440 === 0 && $minutes >= 2880) {
         return ($minutes / 1440) . ' days';
     }

@@ -1608,6 +1608,14 @@ select.select2[multiple]:not(.itflow-select-native) {
     font-size: .8125rem;
     color: var(--bs-secondary-color);
 }
+/* The row for taking what was typed as it is - under the list, so it stays in view however long that is */
+.itflow-ac-foot {
+    flex: 0 0 auto;
+    padding: .25rem;
+}
+.itflow-select-list:not([hidden]) + .itflow-ac-foot {
+    border-top: 1px solid var(--bs-border-color-translucent);
+}
 .itflow-select-footer {
     display: flex;
     align-items: center;
@@ -6469,23 +6477,121 @@ a.itflow-report-stat:focus-visible {
     background-color: var(--bs-tertiary-bg);
     border-radius: var(--bs-border-radius);
 }
-.itflow-paper-add-grid {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    gap: .5rem;
+/* The add field: one box under the lines, quiet until it is used (js/billing_items.js) */
+.itflow-paper-add-field {
+    position: sticky;
+    left: .75rem;
+    max-width: calc(100cqw - 1.5rem);
 }
-.itflow-paper-add-item {
-    flex: 1 1 15rem;
+/* On a narrow screen the lines scroll sideways - the add field stays in view, as wide as what shows */
+.itflow-paper .table-responsive {
+    container-type: inline-size;
 }
-.itflow-paper-add-qty {
-    flex: 0 0 4.5rem;
+.itflow-paper-add-field > i {
+    position: absolute;
+    top: 50%;
+    left: .8rem;
+    transform: translateY(-50%);
+    color: var(--bs-secondary-color);
+    pointer-events: none;
 }
-.itflow-paper-add-price {
-    flex: 0 0 7rem;
+.itflow-paper-add-field > i.fa-spin {
+    transform: none;
+    margin-top: -.5em;
 }
-.itflow-paper-add-seat {
-    flex: 0 0 7.5rem;
+.itflow-paper-add-field .form-control {
+    padding-left: 2.25rem;
+    border-style: dashed;
+    background-color: var(--bs-body-bg);
+}
+.itflow-paper-add-field .form-control:focus {
+    border-style: solid;
+}
+/* A line changed where it sits. What can be changed is underlined in dots as
+   the mouse is over its line, and takes the pointer of a text field; the one
+   open is a field the size of what it replaces, so the line doesn't jump. */
+.itflow-line-field {
+    display: inline-block;
+    min-width: 2rem;
+    margin: -.1rem -.35rem;
+    padding: .1rem .35rem;
+    border-radius: var(--bs-border-radius-sm);
+    cursor: text;
+}
+.itflow-line-field.d-block {
+    display: block;
+}
+.itflow-paper-items tbody tr:hover .itflow-line-field,
+.itflow-paper-items tbody tr.is-active .itflow-line-field {
+    text-decoration: underline dotted var(--bs-secondary-color);
+    text-underline-offset: .25em;
+}
+.itflow-line-field:hover {
+    background-color: var(--bs-secondary-bg);
+}
+.itflow-line-field:focus-visible {
+    outline: 2px solid rgba(var(--bs-primary-rgb), .5);
+    outline-offset: 0;
+}
+.itflow-line-field.is-editing {
+    position: relative;
+    background-color: transparent;
+    text-decoration: none !important;
+}
+.itflow-line-field.is-editing.d-block {
+    padding: 0;
+}
+.itflow-line-field.is-saving {
+    opacity: .55;
+    white-space: pre-line;
+}
+.itflow-line-editor.form-control {
+    min-height: 0;
+    padding: calc(.1rem - 1px) calc(.35rem - 1px);
+    font: inherit;
+    line-height: inherit;
+    color: var(--bs-body-color);
+    text-align: inherit;
+}
+textarea.itflow-line-editor.form-control {
+    display: block;
+    resize: none;
+}
+/* A quantity or price is edited over what it replaces, which keeps its room unseen, so the columns hold still */
+.itflow-line-keep {
+    visibility: hidden;
+}
+.itflow-line-keep + .itflow-line-editor {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    min-width: 4.75rem;
+}
+.itflow-line-field[data-line-field="qty"] > .itflow-line-editor {
+    min-width: 3.5rem;
+}
+/* The tax stays as it is while its list is open under it - the picker's own field is there for the list to hang from, unseen */
+.itflow-line-field[data-line-field="tax_id"].is-editing {
+    background-color: var(--bs-secondary-bg);
+}
+.itflow-line-field[data-line-field="tax_id"] > .itflow-select {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+/* The line being worked on - picked out, and showing where its description goes when it has none */
+.itflow-paper-items tbody tr.is-active > td {
+    background-color: rgba(var(--bs-primary-rgb), .05);
+}
+.itflow-line-blank {
+    display: none;
+    font-style: italic;
+}
+.itflow-paper-items tbody tr.is-active .itflow-line-blank {
+    display: block;
 }
 /* A quote's lines billed once and each month, quarter or year - a heading over each, a block of totals each */
 .itflow-paper-items tr.itflow-paper-group > td {
@@ -6533,19 +6639,6 @@ a.itflow-report-stat:focus-visible {
         position: sticky;
         top: 4.5rem;
     }
-}
-/* A recurring invoice's add row has one more box - the item takes the top row, the numbers the one under it */
-.itflow-paper-add-grid-seats .itflow-paper-add-item {
-    flex-basis: 100%;
-}
-.itflow-paper-add-tax {
-    flex: 0 1 9rem;
-}
-.itflow-paper-add-go {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    margin-left: auto;
 }
 .itflow-paper-bottom {
     align-items: flex-start;
@@ -6776,6 +6869,15 @@ a.itflow-billing-stat:hover {
     }
     .itflow-paper::before {
         display: none;
+    }
+    /* Nothing of the editing shows on paper */
+    .itflow-line-field {
+        background-color: transparent !important;
+        outline: 0 !important;
+        text-decoration: none !important;
+    }
+    .itflow-paper-items tbody tr.is-active > td {
+        background-color: transparent;
     }
 }
 

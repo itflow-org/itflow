@@ -43,13 +43,20 @@ if (isset($_GET['delete_backup'])) {
 
     $backup_id = intval($_GET['delete_backup']);
 
-    $sql = mysqli_query($mysqli, "SELECT backup_file_name, backup_type FROM backups WHERE backup_id = $backup_id");
+    $sql = mysqli_query($mysqli, "SELECT backup_file_name, backup_type, backup_status FROM backups WHERE backup_id = $backup_id");
 
     if (mysqli_num_rows($sql) === 1) {
         $row = mysqli_fetch_assoc($sql);
         backupDeleteById($mysqli, $backup_id);
-        logAudit("Backup", "Delete", ($session_name ?? 'Unknown User') . " deleted backup " . escapeSql($row['backup_file_name']));
-        flashAlert("Backup deleted.");
+
+        // One still waiting has no file yet - taking it off the queue is all there is to it
+        if ($row['backup_status'] === 'Pending') {
+            logAudit("Backup", "Delete", ($session_name ?? 'Unknown User') . " took a queued " . backupTypeLabel($row['backup_type']) . " off the queue");
+            flashAlert(backupTypeLabel($row['backup_type']) . " taken off the queue.");
+        } else {
+            logAudit("Backup", "Delete", ($session_name ?? 'Unknown User') . " deleted backup " . escapeSql($row['backup_file_name']));
+            flashAlert($row['backup_status'] === 'Complete' ? "Backup deleted." : "Backup removed from the list.");
+        }
     } else {
         flashAlert("Backup not found.", 'error');
     }

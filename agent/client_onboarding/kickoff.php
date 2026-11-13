@@ -12,7 +12,7 @@ defined('FROM_CLIENT_ONBOARDING') || die("Direct file access is not allowed");
 
 $co_projects = [];
 $co_sql = mysqli_query($mysqli, "SELECT project_id, project_prefix, project_number, project_name, project_due, project_completed_at,
-        (SELECT COUNT(*) FROM tickets WHERE ticket_project_id = project_id) AS tickets
+        (SELECT COUNT(*) FROM tickets WHERE ticket_project_id = project_id AND ticket_project_id > 0) AS tickets
     FROM projects WHERE project_client_id = $client_id AND project_archived_at IS NULL ORDER BY project_id DESC");
 while ($co_project = mysqli_fetch_assoc($co_sql)) {
     $co_projects[] = $co_project;

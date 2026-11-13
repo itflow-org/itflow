@@ -30,19 +30,20 @@ $like = $q !== '' ? "AND (user_name LIKE '%$q%' OR user_email LIKE '%$q%' OR log
 $joins = "LEFT JOIN users ON users.user_id = log_user_id AND log_user_id > 0";
 
 // Only these sort, for the view on show
+// Each ends on the address or the person, so rows that tie keep one order from page to page
 $sortable_columns = $view === 'ips' ? [
     'log_ip' => "log_ip $order",
-    'sign_ins' => "sign_ins $order, last_seen DESC",
-    'failures' => "failures $order, last_seen DESC",
-    'accounts' => "accounts $order, last_seen DESC",
-    'first_seen' => "first_seen $order",
-    'last_seen' => "last_seen $order",
+    'sign_ins' => "sign_ins $order, last_seen DESC, log_ip",
+    'failures' => "failures $order, last_seen DESC, log_ip",
+    'accounts' => "accounts $order, last_seen DESC, log_ip",
+    'first_seen' => "first_seen $order, log_ip",
+    'last_seen' => "last_seen $order, log_ip",
 ] : [
-    'user_name' => "user_name $order",
-    'sign_ins' => "sign_ins $order, last_seen DESC",
-    'failures' => "failures $order, last_seen DESC",
-    'ips' => "ips $order, last_seen DESC",
-    'last_seen' => "last_seen $order",
+    'user_name' => "user_name $order, log_user_id",
+    'sign_ins' => "sign_ins $order, last_seen DESC, log_user_id",
+    'failures' => "failures $order, last_seen DESC, log_user_id",
+    'ips' => "ips $order, last_seen DESC, log_user_id",
+    'last_seen' => "last_seen $order, log_user_id",
 ];
 if (!isset($sortable_columns[$sort])) {
     $sort = 'last_seen';
@@ -53,7 +54,6 @@ if ($view === 'ips') {
     $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS log_ip,
             SUM(log_action = 'Success') AS sign_ins, SUM($failed) AS failures, SUM(log_action = 'Blocked') AS blocked,
             COUNT(DISTINCT NULLIF(log_user_id, 0)) AS accounts,
-            COUNT(DISTINCT IF(log_user_id = 0 AND log_action = 'Failed', log_description, NULL)) AS unknown,
             MIN(log_created_at) AS first_seen, MAX(log_created_at) AS last_seen, MAX(log_id) AS last_id
         FROM logs $joins
         WHERE $types AND log_ip <> '' $range $like
@@ -96,6 +96,15 @@ if ($view === 'ips') {
         while ($row = mysqli_fetch_assoc($sql)) {
             $last_devices[$row['log_ip']] = auditLogDevice($row['log_user_agent']);
         }
+    }
+    // The emails with no account each address tried, for the addresses on the page - here and not
+    // in the list's own query, which then reads nothing but KEY log_type (the description,
+    // where the email is, isn't in it)
+    $unknown_emails = [];
+    $sql = mysqli_query($mysqli, "SELECT log_ip, COUNT(DISTINCT log_description) FROM logs
+        WHERE log_ip IN ($ip_list) AND $types AND log_action = 'Failed' AND log_user_id = 0 $range GROUP BY log_ip");
+    while ($row = mysqli_fetch_row($sql)) {
+        $unknown_emails[$row[0]] = intval($row[1]);
     }
     $turned_away = [];
     $sql = mysqli_query($mysqli, "SELECT log_ip, COUNT(*) FROM logs WHERE log_ip IN ($ip_list) AND $types AND $failed
@@ -221,7 +230,7 @@ $audit_url = function (array $query) use ($dates_query) {
                 foreach ($rows as $row) {
                     $ip = (string) $row['log_ip'];
                     $people = $tried[$ip] ?? [];
-                    $unknown = intval($row['unknown']); ?>
+                    $unknown = $unknown_emails[$row['log_ip']] ?? 0; ?>
                     <tr data-sign-in-ip="<?= escapeHtml($ip) ?>">
                         <td class="ps-3">
                             <div class="font-monospace"><?= escapeHtml($ip) ?></div>

@@ -243,6 +243,36 @@ function getFieldById($table, $id, $field) {
 
 
 // Recursive function to display folder options - Used in folders files and documents
+/*
+ * A page of a list in newest-first date order, read from the newest dates
+ * back. $page(string $and) runs the list's query with $and added to its
+ * WHERE and returns the page's rows; $date_column is the list's date, which
+ * must be what the list sorts by first, descending; $needed is how many rows
+ * the page has - min(the page size, the list's count less the rows before
+ * the page).
+ *
+ * Tried over the last month, then the last year, then four, and only then the
+ * lot. Every row older than a cutoff sorts after every row newer than it, so
+ * when the rows from the cutoff on fill the page, the page is the same as the
+ * whole list's would be. A list over a union (Transactions, Income) has the
+ * database build and sort every line of it to give back 25; a date on the
+ * union is handed down to each table, where its date index finds the month's
+ * lines alone.
+ */
+function listNewestFirst(callable $page, $date_column, $needed) {
+    $needed = intval($needed);
+    if ($needed <= 0) {
+        return [];
+    }
+    foreach (['-1 month', '-1 year', '-4 years'] as $back) {
+        $rows = $page("AND $date_column >= '" . date('Y-m-d', strtotime($back)) . "'");
+        if (count($rows) >= $needed) {
+            return $rows;
+        }
+    }
+    return $page('');
+}
+
 function displayFolderOptions($parent_folder_id, $client_id, $indent = 0) {
     global $mysqli;
 
@@ -994,7 +1024,8 @@ function getProductsForAutocomplete($mysqli, $client_id = 0): string
         $products[] = $row;
     }
 
-    return json_encode($products) ?: '[]';
+    // Safe inside a <script> element, whatever a product's name or description holds
+    return json_encode($products, JSON_HEX_TAG | JSON_HEX_AMP) ?: '[]';
 }
 
 /*

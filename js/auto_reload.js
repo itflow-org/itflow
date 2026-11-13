@@ -8,6 +8,10 @@
  *
  * Deliberately an attribute rather than an inline <script>: inline scripts are the thing
  * standing between ITFlow and a CSP without unsafe-inline, and this would have been another.
+ *
+ * The page is never reloaded out from under somebody. While a window, a menu or a
+ * confirmation is open, a field is being typed in, or text on the page is selected to copy,
+ * the reload waits and looks again every couple of seconds.
  */
 (function () {
     'use strict';
@@ -26,9 +30,22 @@
             return;
         }
 
-        setTimeout(function () {
+        const inUse = function () {
+            const field = document.activeElement;
+            return document.querySelector('.modal.show, .dropdown-menu.show, .swal2-container') !== null
+                || (field !== null && /^(INPUT|TEXTAREA|SELECT)$/.test(field.tagName))
+                || String(window.getSelection() || '') !== '';
+        };
+
+        const reload = function () {
+            if (inUse()) {
+                setTimeout(reload, 2000);
+                return;
+            }
             window.location.reload();
-        }, seconds * 1000);
+        };
+
+        setTimeout(reload, seconds * 1000);
 
     });
 })();

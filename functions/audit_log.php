@@ -176,6 +176,9 @@ function auditLogActionPill($action) {
  * app log entries cleared, and changes to users, roles, API keys, the master
  * key, settings and backups; data out is passwords looked at, exports,
  * downloads and shared links.
+ *
+ * Each where is on log_type and log_action and nothing else -
+ * auditLogViewCounts() counts them from those two alone.
  */
 function auditLogViews() {
     $signins = "log_type IN ('Login', 'Login 2FA', 'Logout', 'Client Login')";
@@ -261,6 +264,68 @@ function auditLogFiltersSql(array $src, &$summary = []) {
 }
 
 /** The joins the filters need - who did it, and the client. */
+/*
+ * How many entries each view (auditLogViews()) holds for the rest of the
+ * filters in $src - [view => count], '' the lot - and $kinds, the types and
+ * actions in $view_for as [log_type => [log_action, ...]].
+ *
+ * Counted by type and action and then added up, where a SUM() of each view's
+ * condition over every entry was: a view's where is on log_type and
+ * log_action alone, so the counts come from KEY log_type, without reading an
+ * entry. The users and clients joins only come in for a search, which looks
+ * at their names - otherwise a LEFT JOIN on their keys counts the same.
+ */
+function auditLogViewCounts(array $src, $view_for = '', &$kinds = []) {
+    global $mysqli;
+    $views = auditLogViews();
+    $flags = [];
+    foreach ($views as $key => $definition) {
+        $flags[] = ($definition['where'] === '' ? '1' : "({$definition['where']})") . " AS `view_$key`";
+    }
+    $q = is_scalar($src['q'] ?? null) ? trim((string) $src['q']) : '';
+    $joins = $q !== '' ? auditLogJoinsSql() : '';
+    $sql = mysqli_query($mysqli, "SELECT log_type, log_action, COUNT(*) AS n, " . implode(', ', $flags) . " FROM logs $joins
+        WHERE " . auditLogFiltersSql(array_merge($src, ['view' => ''])) . "
+        GROUP BY log_type, log_action");
+    $counts = array_fill_keys(array_keys($views), 0);
+    $kinds = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        foreach (array_keys($views) as $key) {
+            if (intval($row["view_$key"])) {
+                $counts[$key] += intval($row['n']);
+                if ($key === $view_for) {
+                    $kinds[$row['log_type']][] = $row['log_action'];
+                }
+            }
+        }
+    }
+    return $counts;
+}
+
+/*
+ * $kinds from auditLogViewCounts() as SQL - the entries of those types and
+ * actions, by the index, where a view's condition or an action alone isn't
+ * something the index can find. '0' for none.
+ */
+function auditLogKindsSql(array $kinds) {
+    $or = [];
+    foreach ($kinds as $type => $actions) {
+        $or[] = "(log_type = '" . escapeSql($type) . "' AND log_action IN ('" . implode("', '", array_map('escapeSql', $actions)) . "'))";
+    }
+    return $or ? '(' . implode(' OR ', $or) . ')' : '0';
+}
+
+/*
+ * The values of $columns (log_user_id, log_client_id, log_type, or log_type,
+ * log_action) found in the log, each once - as a GROUP BY on the index that
+ * leads with them, so the database steps from one value to the next on the
+ * index and reads nothing in between. EXISTS (SELECT 1 FROM logs ...) a user
+ * or a client, and DISTINCT, both read the whole log.
+ */
+function auditLogDistinctSql($columns) {
+    return "SELECT $columns FROM logs GROUP BY $columns";
+}
+
 function auditLogJoinsSql() {
     return "LEFT JOIN users ON user_id = log_user_id AND log_user_id > 0 LEFT JOIN clients ON client_id = log_client_id AND log_client_id > 0";
 }

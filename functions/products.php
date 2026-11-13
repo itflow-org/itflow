@@ -657,11 +657,33 @@ function productHardwareInvoiceSql() {
     return "invoices.invoice_status NOT IN ('Draft', 'Cancelled') AND invoices.invoice_recurring_invoice_id = 0";
 }
 
-/** Lines with units still to add to assets - a condition on invoice_items joined to products. */
+/*
+ * How many assets each invoice line has made, in SQL - a LEFT JOIN onto
+ * invoice_items giving hardware_made.made (NULL for none). With it in the
+ * FROM, productHardwareShortSql() is the condition.
+ *
+ * Counted once, over the assets made from an invoice, and joined - not a
+ * COUNT(*) a line. A subquery a line looks its assets up by the line's
+ * invoice, and the database picks how by asset_invoice_id's statistics; on
+ * an install where few or none of the assets came from an invoice - most of
+ * them, as assets are made by hand - nearly every asset has 0 there, the
+ * statistics say a lookup finds every asset, and the database read the whole
+ * assets table once for every hardware line. That was the dashboard's
+ * Hardware not on assets: 22 seconds on a test install with 25,000 assets
+ * and two years of hardware sales. asset_invoice_id > 0 is a range the
+ * database measures on the index itself, so it reads only the assets made
+ * from an invoice, however its statistics stand.
+ */
+function productHardwareMadeJoinSql() {
+    return "LEFT JOIN (SELECT asset_invoice_id AS made_invoice_id, asset_invoice_item_id AS made_item_id, COUNT(*) AS made FROM assets
+            WHERE asset_invoice_id > 0 AND asset_invoice_item_id > 0 GROUP BY asset_invoice_id, asset_invoice_item_id) AS hardware_made
+        ON hardware_made.made_item_id = invoice_items.item_id AND hardware_made.made_invoice_id = invoice_items.item_invoice_id";
+}
+
+/** Lines with units still to add to assets - a condition on invoice_items joined to products and productHardwareMadeJoinSql(). */
 function productHardwareShortSql() {
     return productHardwareSql() . " AND invoice_items.item_quantity > 0
-        AND CEIL(ROUND(invoice_items.item_quantity, 2)) > (SELECT COUNT(*) FROM assets
-            WHERE assets.asset_invoice_id = invoice_items.item_invoice_id AND assets.asset_invoice_item_id = invoice_items.item_id)";
+        AND CEIL(ROUND(invoice_items.item_quantity, 2)) > COALESCE(hardware_made.made, 0)";
 }
 
 /**
@@ -671,15 +693,14 @@ function productHardwareShortSql() {
 function productHardwarePending($days = 90) {
     global $mysqli;
     $days = max(1, intval($days));
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COALESCE(SUM(units - made), 0) AS units, COUNT(DISTINCT invoice_id) AS invoices FROM (
-            SELECT invoice_id, CEIL(ROUND(item_quantity, 2)) AS units,
-                (SELECT COUNT(*) FROM assets WHERE asset_invoice_id = invoice_id AND asset_invoice_item_id = item_id) AS made
-            FROM invoice_items
-            JOIN invoices ON invoice_id = item_invoice_id
-            JOIN products ON product_id = item_product_id
-            WHERE " . productHardwareSql() . " AND item_quantity > 0 AND " . productHardwareInvoiceSql() . "
-                AND invoice_date BETWEEN CURDATE() - INTERVAL $days DAY AND CURDATE() " . clientScopeSql('invoice_client_id') . "
-        ) AS hardware WHERE units > made"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COALESCE(SUM(CEIL(ROUND(invoice_items.item_quantity, 2)) - COALESCE(hardware_made.made, 0)), 0) AS units,
+            COUNT(DISTINCT invoices.invoice_id) AS invoices
+        FROM invoice_items
+        JOIN invoices ON invoices.invoice_id = invoice_items.item_invoice_id
+        JOIN products ON products.product_id = invoice_items.item_product_id
+        " . productHardwareMadeJoinSql() . "
+        WHERE " . productHardwareShortSql() . " AND " . productHardwareInvoiceSql() . "
+            AND invoices.invoice_date BETWEEN CURDATE() - INTERVAL $days DAY AND CURDATE() " . clientScopeSql('invoices.invoice_client_id')));
     return ['units' => intval($row['units'] ?? 0), 'invoices' => intval($row['invoices'] ?? 0)];
 }
 

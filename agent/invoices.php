@@ -52,7 +52,7 @@ $recurring_filter_row = $recurring_filter ? billingRow('recurring', $recurring_f
 // Hardware sold on them that isn't on the client's assets yet (functions/products.php)
 $hardware_filter = !empty($_GET['hardware']);
 $hardware_query = $hardware_filter ? "AND " . productHardwareInvoiceSql() . " AND invoices.invoice_id IN (SELECT invoice_items.item_invoice_id FROM invoice_items
-    JOIN products ON products.product_id = invoice_items.item_product_id WHERE " . productHardwareShortSql() . ")" : '';
+    JOIN products ON products.product_id = invoice_items.item_product_id " . productHardwareMadeJoinSql() . " WHERE " . productHardwareShortSql() . ")" : '';
 
 // Category Filter
 $category_filter = intval($_GET['category'] ?? 0);
@@ -77,29 +77,14 @@ if (!isset($sortable_columns[$sort])) {
     $sort = 'invoice_number';
 }
 
-$paid_join = "LEFT JOIN (SELECT payment_invoice_id, SUM(payment_amount) AS paid FROM payments GROUP BY payment_invoice_id) AS invoice_payments ON payment_invoice_id = invoice_id";
+// What an invoice has been paid - looked up for the invoices that need it (the page's, and the
+// unpaid ones for the money along the top) where a LEFT JOIN to every payment grouped by invoice
+// added up all of them on every load
+$paid_sql = "(SELECT COALESCE(SUM(payment_amount), 0) FROM payments WHERE payment_invoice_id = invoices.invoice_id AND payment_invoice_id > 0)";
 $scope_query = clientScopeSql('invoice_client_id');
 $search_query = "AND (CONCAT(invoice_prefix, invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%' OR category_name LIKE '%$q%')";
 $date_query = "AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'";
 $filters = "$scope_query $client_query $recurring_query $hardware_query $category_query $date_query $search_query";
-
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS invoices.*, client_name, category_name, category_color,
-        recurring_invoice_prefix, recurring_invoice_number,
-        COALESCE(invoice_payments.paid, 0) AS paid, invoice_amount - COALESCE(invoice_payments.paid, 0) AS balance
-    FROM invoices
-    LEFT JOIN clients ON invoice_client_id = client_id
-    LEFT JOIN categories ON invoice_category_id = category_id
-    LEFT JOIN recurring_invoices ON invoice_recurring_invoice_id = recurring_invoice_id
-    $paid_join
-    WHERE 1 $filters $status_query
-    ORDER BY {$sortable_columns[$sort]} $order, invoice_id DESC LIMIT $record_from, $record_to");
-
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
-
-$invoices = [];
-while ($row = mysqli_fetch_assoc($sql)) {
-    $invoices[] = $row;
-}
 
 // How many of each, for the pills - what the filters above leave, before the pill
 $count_sql = [];
@@ -113,6 +98,23 @@ foreach (array_keys($statuses) as $i => $key) {
     $counts[$key] = intval($row[$i]);
 }
 
+// The page - its count is its pill's (SQL_CALC_FOUND_ROWS counted the same rows again)
+$num_rows = [$counts[$status]];
+$sql = mysqli_query($mysqli, "SELECT invoices.*, client_name, category_name, category_color,
+        recurring_invoice_prefix, recurring_invoice_number,
+        $paid_sql AS paid, invoice_amount - $paid_sql AS balance
+    FROM invoices
+    LEFT JOIN clients ON invoice_client_id = client_id
+    LEFT JOIN categories ON invoice_category_id = category_id
+    LEFT JOIN recurring_invoices ON invoice_recurring_invoice_id = recurring_invoice_id
+    WHERE 1 $filters $status_query
+    ORDER BY {$sortable_columns[$sort]} $order, invoice_id DESC LIMIT $record_from, $record_to");
+
+$invoices = [];
+while ($row = mysqli_fetch_assoc($sql)) {
+    $invoices[] = $row;
+}
+
 // The money along the top - everything in this scope, not narrowed by search, date or pill
 $money_scope = "$scope_query $client_query $recurring_query";
 $money = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT
@@ -122,8 +124,8 @@ $money = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT
         COALESCE(SUM(CASE WHEN $open_sql AND balance > 0 AND invoice_due < CURDATE() THEN 1 END), 0) AS overdue_count,
         COALESCE(SUM(CASE WHEN invoice_status = 'Draft' THEN invoice_amount END), 0) AS draft,
         COALESCE(SUM(CASE WHEN invoice_status = 'Draft' THEN 1 END), 0) AS draft_count
-    FROM (SELECT invoice_status, invoice_due, invoice_amount, invoice_amount - COALESCE(invoice_payments.paid, 0) AS balance
-        FROM invoices $paid_join WHERE 1 $money_scope) AS scoped"));
+    FROM (SELECT invoice_status, invoice_due, invoice_amount, invoice_amount - $paid_sql AS balance
+        FROM invoices WHERE 1 $money_scope) AS scoped"));
 $collected = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COALESCE(SUM(payment_amount), 0) AS amount, COUNT(*) AS payments FROM payments
     JOIN invoices ON payment_invoice_id = invoice_id
     WHERE payment_date >= CURDATE() - INTERVAL 30 DAY $money_scope"));

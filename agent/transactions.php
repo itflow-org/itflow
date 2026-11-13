@@ -72,15 +72,10 @@ $balance_visible = !$all && $sort === 'txn_date';
 $filter_src = array_merge($_GET, ['dtf' => $dtf, 'dtt' => $dtt, 'kind' => $kind_filter, 'show' => $show]);
 $where = accountLedgerFiltersSql($filter_src, $summary, false, $all);
 $show_query = $show !== '' ? 'AND ' . $shows[$show]['where'] : '';
-// The balance after each line only where it shows - one account, in date order
-$ledger = accountLedgerSql($account_filter, $balance_visible);
+// The lines. The balance after each, where it shows - one account, in date order - is worked out
+// for the page's lines alone, after (accountLedgerBalances())
+$ledger = accountLedgerSql($account_filter, false);
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS ledger.* FROM ($ledger) AS ledger WHERE $where $show_query ORDER BY $order_sql LIMIT $record_from, $record_to");
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
-$rows = [];
-while ($row = mysqli_fetch_assoc($sql)) {
-    $rows[] = accountLedgerVisible($row);
-}
 
 // The pills, and the money in and out of what is listed - and, on every account's
 // transfers, what was moved, what paid off cards and what payment processors paid out.
@@ -102,11 +97,28 @@ if ($transfer_cards) {
     $count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.account_type = 5 THEN -ledger.txn_amount END), 0)";
     $count_sql[] = "COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.account_type = 5 THEN 1 END), 0)";
 }
-$row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . " FROM (" . accountLedgerSql($account_filter, false) . ") AS ledger WHERE $where"));
+// Added up table by table (accountLedgerTotals()) - every column is a count or a sum
+$row = accountLedgerTotals($account_filter, $count_sql, $where);
 $counts = [];
 foreach (array_keys($shows) as $i => $key) {
     $counts[$key] = intval($row[$i]);
 }
+
+// The page. Its count is its pill's - SQL_CALC_FOUND_ROWS counted every line again. In date
+// order, newest first, it is read from the newest dates back (listNewestFirst()), and on one
+// account the balance after each of its lines is worked out from the account's balance.
+$num_rows = [$counts[$show]];
+$ledger_page = function ($and) use ($mysqli, $ledger, $where, $show_query, $order_sql, $record_from, $record_to) {
+    $sql = mysqli_query($mysqli, "SELECT ledger.* FROM ($ledger) AS ledger WHERE $where $show_query $and ORDER BY $order_sql LIMIT $record_from, $record_to");
+    return mysqli_fetch_all($sql, MYSQLI_ASSOC);
+};
+$rows = $sort === 'txn_date' && $order === 'DESC'
+    ? listNewestFirst($ledger_page, 'ledger.txn_date', min($record_to, $num_rows[0] - $record_from))
+    : $ledger_page('');
+if ($balance_visible) {
+    $rows = accountLedgerBalances($account_filter, $rows, $order === 'DESC');
+}
+$rows = array_map('accountLedgerVisible', $rows);
 $n = count($shows);
 $total_in = round(floatval($row[$n]), 2);
 $total_out = round(floatval($row[$n + 1]), 2);

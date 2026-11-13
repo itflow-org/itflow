@@ -114,7 +114,7 @@ $paper = [
 </ol>
 
 <!-- What it is, whether it is running, and when it bills next -->
-<div class="card mb-3 d-print-none">
+<div class="card mb-3 d-print-none" data-billing-live="head">
     <div class="card-body d-flex flex-wrap align-items-center gap-3">
         <?= billingTile('recurring', 'lg') ?>
 
@@ -208,7 +208,7 @@ $paper = [
     </div>
 <?php } ?>
 
-<?= taxDocWarning('recurring', $recurring_invoice_id, $client_id, $items, true, $can_edit) ?>
+<div data-billing-live="warning"><?= taxDocWarning('recurring', $recurring_invoice_id, $client_id, $items, true, $can_edit) ?></div>
 
 <div class="row g-3">
 
@@ -217,7 +217,7 @@ $paper = [
         <?php require "../includes/billing_paper.php"; ?>
     </div>
 
-    <div class="col-xl-4 d-print-none">
+    <div class="col-xl-4 d-print-none" data-billing-live="side">
 
         <div class="card mb-3">
             <div class="card-header">
@@ -417,7 +417,6 @@ $paper = [
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     itflowBillingItems({
-        products: <?= $can_edit ? getProductsForAutocomplete($mysqli, intval($recurring['client_id'])) : '[]' ?>,
         csrf: <?= json_encode($csrf) ?>,
         currency: <?= json_encode($currency) ?>,
         locale: <?= json_encode(str_replace('_', '-', (string) $session_company_locale)) ?>

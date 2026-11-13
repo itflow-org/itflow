@@ -211,7 +211,7 @@ function clientOnboardingSteps($client_id, $row = null) {
                 break;
             case 'kickoff':
                 $project = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT project_id, project_prefix, project_number, project_name,
-                        (SELECT COUNT(*) FROM tickets WHERE ticket_project_id = project_id) AS tickets
+                        (SELECT COUNT(*) FROM tickets WHERE ticket_project_id = project_id AND ticket_project_id > 0) AS tickets
                     FROM projects WHERE project_client_id = $client_id AND project_archived_at IS NULL
                     ORDER BY project_id = " . intval($row['onboarding_project_id'] ?? 0) . " DESC, project_id DESC LIMIT 1"));
                 $done = $done || $project !== null;

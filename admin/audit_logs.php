@@ -39,29 +39,30 @@ $view = isset($_GET['view']) && is_string($_GET['view']) && isset($views[$_GET['
 $filter_src = array_merge($_GET, ['dtf' => $dtf, 'dtt' => $dtt, 'view' => $view]);
 $joins = auditLogJoinsSql();
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS log_id, log_type, log_action, log_description, log_ip, log_user_agent, log_created_at, log_client_id, log_user_id, log_entity_id,
-        user_name, user_avatar, user_type, client_name
-    FROM logs $joins
-    WHERE " . auditLogFiltersSql($filter_src) . "
-    ORDER BY {$sortable_columns[$sort]}
-    LIMIT $record_from, $record_to");
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+// Each view counted for the rest of the filters (functions/audit_log.php). The list's own count
+// is its view's, where SQL_CALC_FOUND_ROWS counted every entry the filters let through before
+// the first page came back.
+$counts = auditLogViewCounts($filter_src, $view, $view_kinds);
+$num_rows = [$counts[$view]];
 
+// The page of entries. A view, or an action, as the types and actions in it - the same entries,
+// found on KEY log_type instead of by reading the log back from the newest until enough turn up.
+$kinds_sql = ($view !== '' || (is_string($_GET['action'] ?? null) && trim($_GET['action']) !== '')) ? ' AND ' . auditLogKindsSql($view_kinds) : '';
 $rows = [];
-while ($row = mysqli_fetch_assoc($sql)) {
-    $rows[] = $row;
+if ($num_rows[0] > 0) {
+    $sql = mysqli_query($mysqli, "SELECT log_id, log_type, log_action, log_description, log_ip, log_user_agent, log_created_at, log_client_id, log_user_id, log_entity_id,
+            user_name, user_avatar, user_type, client_name
+        FROM logs $joins
+        WHERE " . auditLogFiltersSql($filter_src) . $kinds_sql . "
+        ORDER BY {$sortable_columns[$sort]}
+        LIMIT $record_from, $record_to");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
 }
 $records = auditLogRecords($rows);
 $new_ips = signInNewIpIds($rows);
 $kinds = auditLogKinds();
-
-// Each view counted for the rest of the filters
-$count_sql = [];
-foreach ($views as $definition) {
-    $count_sql[] = 'COALESCE(SUM(' . ($definition['where'] === '' ? '1' : $definition['where']) . '), 0)';
-}
-$counts = array_combine(array_keys($views), array_map('intval', mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . "
-    FROM logs $joins WHERE " . auditLogFiltersSql(array_merge($filter_src, ['view' => '']))))));
 
 $client_filter = is_scalar($_GET['client'] ?? null) ? intval($_GET['client']) : 0;
 $user_filter = is_string($_GET['user'] ?? null) ? $_GET['user'] : '';
@@ -141,7 +142,7 @@ $view_empty = [
                         <option value="">- Anyone -</option>
                         <option value="system" <?= $user_filter === 'system' ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas fa-cog', 'description' => 'Cron, the API, the email parser']) ?>>ITFlow itself</option>
                         <?php
-                        $sql_filter = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar, user_type FROM users WHERE EXISTS (SELECT 1 FROM logs WHERE log_user_id = user_id) ORDER BY user_type ASC, user_name ASC");
+                        $sql_filter = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar, user_type FROM users JOIN (" . auditLogDistinctSql('log_user_id') . ") AS logged ON logged.log_user_id = user_id ORDER BY user_type ASC, user_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_filter)) {
                             $option_id = intval($row['user_id']); ?>
                             <option <?= $user_filter === (string) $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?><?= intval($row['user_type']) === 2 ? ' data-description="Portal"' : '' ?>><?= escapeHtml($row['user_name']) ?></option>
@@ -152,7 +153,7 @@ $view_empty = [
                     <select class="form-select select2" name="client" onchange="this.form.submit()" aria-label="Client">
                         <option value="">- Any client -</option>
                         <?php
-                        $sql_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE EXISTS (SELECT 1 FROM logs WHERE log_client_id = client_id) ORDER BY client_name ASC");
+                        $sql_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients JOIN (" . auditLogDistinctSql('log_client_id') . ") AS logged ON logged.log_client_id = client_id ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_filter)) {
                             $option_id = intval($row['client_id']); ?>
                             <option <?= $client_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
@@ -163,7 +164,7 @@ $view_empty = [
                     <select class="form-select select2" name="type" onchange="this.form.submit()" aria-label="Type">
                         <option value="">- Any type -</option>
                         <?php
-                        $sql_filter = mysqli_query($mysqli, "SELECT DISTINCT log_type FROM logs ORDER BY log_type ASC");
+                        $sql_filter = mysqli_query($mysqli, auditLogDistinctSql('log_type') . " ORDER BY log_type ASC");
                         while ($row = mysqli_fetch_row($sql_filter)) { ?>
                             <option <?= $type_filter === $row[0] ? 'selected' : '' ?> value="<?= escapeHtml($row[0]) ?>"<?= selectOptionData(['icon' => 'fas ' . auditLogTypeIcon($row[0])]) ?>><?= escapeHtml($row[0]) ?></option>
                         <?php } ?>
@@ -178,7 +179,7 @@ $view_empty = [
                             <select class="form-select select2" name="action" onchange="this.form.submit()" aria-label="Action">
                                 <option value="">- Any action -</option>
                                 <?php
-                                $sql_filter = mysqli_query($mysqli, "SELECT DISTINCT log_action FROM logs ORDER BY log_action ASC");
+                                $sql_filter = mysqli_query($mysqli, "SELECT DISTINCT log_action FROM (" . auditLogDistinctSql('log_type, log_action') . ") AS actions ORDER BY log_action ASC");
                                 while ($row = mysqli_fetch_row($sql_filter)) { ?>
                                     <option <?= $action_filter === $row[0] ? 'selected' : '' ?> value="<?= escapeHtml($row[0]) ?>"<?= selectOptionData(['icon' => 'fas ' . auditLogActionStyle($row[0])['icon']]) ?>><?= escapeHtml($row[0]) ?></option>
                                 <?php } ?>
