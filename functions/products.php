@@ -24,7 +24,7 @@ function productTypes() {
 
 /** How a recurring product is counted by default => label. Empty is as typed. */
 function productSeatSources() {
-    return ['' => 'As typed', 'contacts' => 'Per user', 'assets' => 'Per device'];
+    return ['' => 'As typed', 'contacts' => 'Per user', 'assets' => 'Per device', 'managed' => 'Per managed device'];
 }
 
 /** A product's default billing in words - "One time", "Monthly, per user". */

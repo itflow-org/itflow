@@ -645,7 +645,8 @@ if (isset($_POST["import_products_csv"])) {
     $taxes = $lookup("SELECT tax_id, tax_name FROM taxes WHERE tax_archived_at IS NULL");
     $vendors = $lookup("SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_archived_at IS NULL");
     $frequencies = ['' => '', 'once' => '', 'one time' => '', 'one-time' => '', 'monthly' => 'month', 'month' => 'month', 'quarterly' => 'quarter', 'quarter' => 'quarter', 'yearly' => 'year', 'year' => 'year', 'annually' => 'year', 'annual' => 'year'];
-    $seat_sources = ['' => '', 'as typed' => '', 'per user' => 'contacts', 'user' => 'contacts', 'users' => 'contacts', 'per device' => 'assets', 'device' => 'assets', 'devices' => 'assets'];
+    $seat_sources = ['' => '', 'as typed' => '', 'per user' => 'contacts', 'user' => 'contacts', 'users' => 'contacts', 'per device' => 'assets', 'device' => 'assets', 'devices' => 'assets',
+        'per managed device' => 'managed', 'managed device' => 'managed', 'managed devices' => 'managed'];
 
     $added = $updated = 0;
     $skipped = [];

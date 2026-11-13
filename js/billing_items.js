@@ -53,7 +53,7 @@ function itflowBillingBilledText(frequency, seat) {
     if (!label) {
         return '';
     }
-    var per = { contacts: 'per user', assets: 'per device' }[seat || ''];
+    var per = { contacts: 'per user', assets: 'per device', managed: 'per managed device' }[seat || ''];
     return label + (per ? ', ' + per : '');
 }
 
@@ -664,7 +664,7 @@ function itflowBillingItems(options) {
                     if (type === 'quote') {
                         line.frequency = item.frequency || '';
                     } else if (type === 'recurring') {
-                        line.seat_source = item.seat_source === 'contacts' || item.seat_source === 'assets' ? item.seat_source : '';
+                        line.seat_source = ['contacts', 'assets', 'managed'].indexOf(item.seat_source) !== -1 ? item.seat_source : '';
                     }
                     addLine(line);
                 },

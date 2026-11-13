@@ -129,6 +129,8 @@ $csrf = $_SESSION['csrf_token'];
                 $overdue = intval($row['devices_overdue']);
                 $host = (string) parse_url((string) $row['rmm_provider_api_url'], PHP_URL_HOST);
                 $dashboard = $kind ? rmmDashboardUrl($row) : '';
+                // Recurring invoice lines billing its devices count none once it is gone - say so before it goes
+                $billed_lines = recurringSeatManagedLineCount($provider_id);
                 ?>
                 <tr data-rmm-provider-id="<?= $provider_id ?>" class="<?= $on ? '' : 'text-body-secondary' ?>">
                     <td class="ps-3">
@@ -215,7 +217,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item text-danger confirm-link" href="post.php?delete_rmm_provider=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Delete <?= escapeHtml($name) ?>?" data-confirm-button="Delete"
-                                    data-confirm-text="The links between its clients and yours are forgotten, and assets no longer show what it says about them. The <?= number_format($devices) ?> asset<?= $devices === 1 ? '' : 's' ?> it brought in stay, as they are.">
+                                    data-confirm-text="The links between its clients and yours are forgotten, and assets no longer show what it says about them. The <?= number_format($devices) ?> asset<?= $devices === 1 ? '' : 's' ?> it brought in stay, as they are.<?= $billed_lines ? ' ' . $billed_lines . ' recurring invoice line' . ($billed_lines === 1 ? ' bills' : 's bill') . ' its managed devices - look at ' . ($billed_lines === 1 ? 'it' : 'them') . ' after, as its devices no longer count.' : '' ?>">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>
                             </div>

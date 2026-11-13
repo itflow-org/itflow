@@ -1787,11 +1787,11 @@ if (isset($_GET['recurring_seat_count'])) {
         echo json_encode(['error' => 'Pick what to count.']);
         exit;
     }
-    $filter = recurringSeatFilter($source, ['tag' => $_GET['seat_tag'] ?? 0, 'types' => (array) ($_GET['seat_types'] ?? []),
+    $filter = recurringSeatFilter($source, ['tag' => $_GET['seat_tag'] ?? 0, 'types' => (array) ($_GET['seat_types'] ?? []), 'rmm' => $_GET['seat_rmm'] ?? 0,
         'software_id' => $_GET['seat_software_id'] ?? 0, 'count' => $_GET['seat_count'] ?? 'used']);
     $count = recurringSeatCount(intval($recurring['client_id']), $source, $filter);
     if ($count === null) {
-        echo json_encode(['error' => "Pick one of the client's licenses."]);
+        echo json_encode(['error' => $source === 'managed' ? 'That RMM provider is gone - pick another.' : "Pick one of the client's licenses."]);
         exit;
     }
     $minimum = billingNumberInput($_GET['seat_minimum'] ?? '0');

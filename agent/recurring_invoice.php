@@ -294,7 +294,7 @@ $paper = [
                             <div class="text-end text-nowrap">
                                 <div class="fw-semibold"><?= billingQuantity($seat['item_quantity']) ?></div>
                                 <?php if ($seat['seat_count'] === null) { ?>
-                                    <div class="small text-danger-emphasis">License gone</div>
+                                    <div class="small text-danger-emphasis"><?= escapeHtml($seat['seat_gone']) ?></div>
                                 <?php } elseif ($seat['seat_drift']) { ?>
                                     <div class="small text-warning-emphasis">now <?= billingQuantity($seat['seat_quantity']) ?></div>
                                 <?php } else { ?>

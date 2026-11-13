@@ -547,7 +547,7 @@ function tagSeatLineItems(array $tag_ids) {
     $items = [];
     // The filter is JSON written by recurringSeatFilter(); read in PHP rather than with SQL's JSON functions
     $sql = mysqli_query($mysqli, "SELECT item_id, item_seat_source, item_seat_filter FROM recurring_invoice_items
-        WHERE item_seat_source IN ('contacts', 'assets') AND item_seat_filter LIKE '%\"tag\"%'");
+        WHERE item_seat_source IN ('contacts', 'assets', 'managed') AND item_seat_filter LIKE '%\"tag\"%'");
     while ($row = mysqli_fetch_assoc($sql)) {
         $filter = recurringSeatFilter($row['item_seat_source'], $row['item_seat_filter']);
         if (in_array(intval($filter['tag'] ?? 0), $tag_ids, true)) {
@@ -562,7 +562,7 @@ function tagSeatLineCounts() {
     global $mysqli;
     $counts = [];
     $sql = mysqli_query($mysqli, "SELECT item_seat_source, item_seat_filter FROM recurring_invoice_items
-        WHERE item_seat_source IN ('contacts', 'assets') AND item_seat_filter LIKE '%\"tag\"%'");
+        WHERE item_seat_source IN ('contacts', 'assets', 'managed') AND item_seat_filter LIKE '%\"tag\"%'");
     while ($row = mysqli_fetch_assoc($sql)) {
         $tag_id = intval(recurringSeatFilter($row['item_seat_source'], $row['item_seat_filter'])['tag'] ?? 0);
         if ($tag_id) {

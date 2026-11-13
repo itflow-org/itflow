@@ -103,12 +103,17 @@ ob_start();
                 $seat_filter = recurringSeatFilter($seat_source, $item['item_seat_filter'] ?? '');
                 // The line's own tag stays offered once archived, or on nothing the client has now, so saving doesn't drop it
                 $seat_tag = intval($seat_filter['tag'] ?? 0);
-                $seat_tag_key = ['contacts' => 'contact_tags', 'assets' => 'asset_tags'][$seat_source] ?? '';
+                $seat_tag_key = ['contacts' => 'contact_tags', 'assets' => 'asset_tags', 'managed' => 'managed_tags'][$seat_source] ?? '';
                 if ($seat_tag && $seat_tag_key && !isset($seat_options[$seat_tag_key][$seat_tag]) && ($seat_tag_row = tagRow($seat_tag))) {
                     $seat_options[$seat_tag_key][$seat_tag] = ['tag_id' => $seat_tag, 'tag_name' => $seat_tag_row['tag_name'] . ($seat_tag_row['tag_archived_at'] ? ' (archived)' : ''),
                         'n' => intval(recurringSeatCount($client_id, $seat_source, ['tag' => $seat_tag]))];
                 }
-                $seat_minimum = floatval($item['item_seat_minimum'] ?? 0); ?>
+                $seat_minimum = floatval($item['item_seat_minimum'] ?? 0);
+                // Managed devices - once an RMM is set up (functions/rmm.php). Which RMM is asked only with more than one, or when the line names one
+                $seat_managed = $seat_options['managed'] !== null || $seat_source === 'managed';
+                $seat_rmm = $seat_source === 'managed' ? intval($seat_filter['rmm'] ?? 0) : 0;
+                $seat_rmm_gone = $seat_rmm && !isset($seat_options['rmm_providers'][$seat_rmm]);
+                $seat_rmm_pick = count($seat_options['rmm_providers']) > 1 || $seat_rmm; ?>
                 <!-- Where the quantity comes from - counted again for each invoice -->
                 <div class="col-12">
                     <label class="form-label">Quantity from</label>
@@ -118,6 +123,9 @@ ob_start();
                             <option value="">Typed in - the same every time</option>
                             <option value="contacts" <?= $seat_source === 'contacts' ? 'selected' : '' ?>>Users - the client's contacts (<?= intval($seat_options['contacts']) ?> now)</option>
                             <option value="assets" <?= $seat_source === 'assets' ? 'selected' : '' ?>>Devices - the client's devices in use (<?= intval($seat_options['assets']) ?> now)</option>
+                            <?php if ($seat_managed) { ?>
+                                <option value="managed" <?= $seat_source === 'managed' ? 'selected' : '' ?>>Managed devices - the client's devices in your RMM (<?= intval($seat_options['managed']) ?> now)</option>
+                            <?php } ?>
                             <option value="license" <?= $seat_source === 'license' ? 'selected' : '' ?> <?= $seat_options['licenses'] || $seat_source === 'license' ? '' : 'disabled' ?>>License seats - one of the client's licenses<?= $seat_options['licenses'] ? '' : ' (they have none)' ?></option>
                         </select>
                     </div>
@@ -160,6 +168,52 @@ ob_start();
                     </div>
                     <div class="form-text">No types ticked counts every device - tick Desktop and Laptop for a per-workstation line, Server and Virtual Machine for per-server.</div>
                 </div>
+                <?php if ($seat_managed) { ?>
+                    <div class="col-12" data-seat-for="managed" hidden>
+                        <label class="form-label">Which managed devices</label>
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <?php foreach ($seat_options['managed_types'] as $asset_type => $asset_count) {
+                                $type_id = 'seatManagedType' . substr(md5($asset_type), 0, 8); ?>
+                                <input type="checkbox" class="btn-check" name="seat_types[]" value="<?= escapeHtml($asset_type) ?>" id="<?= $type_id ?>" autocomplete="off" data-seat-input
+                                    <?= $seat_source === 'managed' && in_array($asset_type, $seat_filter['types'] ?? [], true) ? 'checked' : '' ?>>
+                                <label class="btn btn-sm btn-outline-secondary" for="<?= $type_id ?>"><i class="fas fa-fw fa-<?= getAssetIcon($asset_type) ?> me-1"></i><?= escapeHtml($asset_type) ?> <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis ms-1"><?= $asset_count ?></span></label>
+                            <?php } ?>
+                            <?php if (!$seat_options['managed_types']) { ?>
+                                <span class="small text-body-secondary">None of the client's devices are in your RMM yet - link the client on its RMM provider's Clients page.</span>
+                            <?php } ?>
+                        </div>
+                        <div class="row g-2">
+                            <div class="<?= $seat_rmm_pick ? 'col-sm-6' : 'col-12' ?>">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                    <select class="form-select" name="seat_tag" data-seat-input>
+                                        <option value="0">Any tag</option>
+                                        <?php foreach ($seat_options['managed_tags'] as $tag_id => $tag) { ?>
+                                            <option value="<?= $tag_id ?>" <?= $seat_source === 'managed' && intval($seat_filter['tag'] ?? 0) === $tag_id ? 'selected' : '' ?>>Tagged <?= escapeHtml($tag['tag_name']) ?> (<?= intval($tag['n']) ?>)</option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <?php if ($seat_rmm_pick) { ?>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-laptop-medical"></i></span>
+                                        <select class="form-select" name="seat_rmm" data-seat-input>
+                                            <?php if ($seat_rmm_gone) { ?>
+                                                <option value="<?= $seat_rmm ?>" selected>The RMM provider it counted is gone - pick another</option>
+                                            <?php } ?>
+                                            <option value="0" <?= !$seat_rmm ? 'selected' : '' ?>>In any RMM (<?= intval($seat_options['managed']) ?>)</option>
+                                            <?php foreach ($seat_options['rmm_providers'] as $provider_id => $provider) { ?>
+                                                <option value="<?= $provider_id ?>" <?= $seat_rmm === $provider_id ? 'selected' : '' ?>>In <?= escapeHtml($provider['name']) ?> (<?= intval($provider['n']) ?>)</option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            <?php } ?>
+                        </div>
+                        <div class="form-text">The client's devices your RMM has - one it no longer has stops counting. No types ticked counts every one.</div>
+                    </div>
+                <?php } ?>
                 <div class="col-12" data-seat-for="license" hidden>
                     <div class="row g-3">
                         <div class="col-sm-8">

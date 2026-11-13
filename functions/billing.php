@@ -355,7 +355,7 @@ function billingItemSave($type, $doc_id, array $in, $item_id = 0, &$error = '') 
         $seat_source = (string) $in['seat_source'];
         if (isset(recurringSeatSources()[$seat_source])) {
             $seat_filter = recurringSeatFilter($seat_source, [
-                'tag' => $in['seat_tag'] ?? 0, 'types' => (array) ($in['seat_types'] ?? []),
+                'tag' => $in['seat_tag'] ?? 0, 'types' => (array) ($in['seat_types'] ?? []), 'rmm' => $in['seat_rmm'] ?? 0,
                 'software_id' => $in['seat_software_id'] ?? 0, 'count' => $in['seat_count'] ?? 'used',
             ]);
             $seat_minimum = billingNumberInput($in['seat_minimum'] ?? '0');
@@ -365,7 +365,7 @@ function billingItemSave($type, $doc_id, array $in, $item_id = 0, &$error = '') 
             }
             $seat_count = recurringSeatCount(getFieldById('recurring_invoices', $doc_id, 'recurring_invoice_client_id'), $seat_source, $seat_filter);
             if ($seat_count === null) {
-                $error = $seat_source === 'license' ? "Pick one of the client's licenses to count." : "Those can't be counted.";
+                $error = $seat_source === 'license' ? "Pick one of the client's licenses to count." : ($seat_source === 'managed' ? 'That RMM provider is gone - pick another.' : "Those can't be counted.");
                 return null;
             }
             $quantity = max(floatval($seat_count), $seat_minimum);
@@ -2039,11 +2039,12 @@ function recurringInvoiceTokens($text, array $period) {
 
 /*
  * A line on a recurring invoice can take its quantity from the client: their
- * contacts (users), their devices, or a license's seats - counted again each
- * time an invoice is made, and never less than the line's minimum.
+ * contacts (users), their devices, the devices an RMM has (managed - see
+ * functions/rmm.php), or a license's seats - counted again each time an
+ * invoice is made, and never less than the line's minimum.
  * item_seat_source says which, item_seat_filter (JSON) narrows it: a tag, the
- * device types, or the license and whether to count the seats it has or the
- * ones in use.
+ * device types, for managed devices the RMM provider (rmm - absent for any),
+ * or the license and whether to count the seats it has or the ones in use.
  */
 
 /** The places a line's quantity can come from. */
@@ -2051,6 +2052,7 @@ function recurringSeatSources() {
     return [
         'contacts' => ['label' => 'Users', 'unit' => 'user', 'icon' => 'fa-user'],
         'assets' => ['label' => 'Devices', 'unit' => 'device', 'icon' => 'fa-desktop'],
+        'managed' => ['label' => 'Managed devices', 'unit' => 'device', 'icon' => 'fa-laptop-medical'],
         'license' => ['label' => 'License seats', 'unit' => 'seat', 'icon' => 'fa-cube'],
     ];
 }
@@ -2067,10 +2069,10 @@ function recurringSeatFilter($source, $filter) {
         $filter = is_array($filter) ? $filter : [];
     }
     $clean = [];
-    if (in_array($source, ['contacts', 'assets'], true) && intval($filter['tag'] ?? 0)) {
+    if (in_array($source, ['contacts', 'assets', 'managed'], true) && intval($filter['tag'] ?? 0)) {
         $clean['tag'] = intval($filter['tag']);
     }
-    if ($source === 'assets' && !empty($filter['types']) && is_array($filter['types'])) {
+    if (in_array($source, ['assets', 'managed'], true) && !empty($filter['types']) && is_array($filter['types'])) {
         $types = array_values(array_unique(array_filter(array_map(function ($type) {
             return mb_substr(trim((string) $type), 0, 100);
         }, $filter['types']), 'strlen')));
@@ -2078,11 +2080,46 @@ function recurringSeatFilter($source, $filter) {
             $clean['types'] = $types;
         }
     }
+    if ($source === 'managed' && intval($filter['rmm'] ?? 0)) {
+        $clean['rmm'] = intval($filter['rmm']);
+    }
     if ($source === 'license') {
         $clean['software_id'] = intval($filter['software_id'] ?? 0);
         $clean['count'] = ($filter['count'] ?? '') === 'total' ? 'total' : 'used';
     }
     return $clean;
+}
+
+/** The asset ids an RMM has - one provider's, or any's (0) - as a subquery. Gone from the RMM isn't managed. */
+function recurringSeatManagedSql($provider_id = 0) {
+    $provider_id = intval($provider_id);
+    return "SELECT rmm_device_asset_id FROM rmm_devices WHERE rmm_device_asset_id > 0 AND rmm_device_removed_at IS NULL"
+        . ($provider_id ? " AND rmm_device_provider_id = $provider_id" : '');
+}
+
+/**
+ * How many recurring invoice lines count an RMM provider's devices - the ones that name it, and,
+ * when it is the only provider, the ones that count any RMM's. For warning before it is deleted.
+ */
+function recurringSeatManagedLineCount($provider_id) {
+    global $mysqli;
+    $provider_id = intval($provider_id);
+    $only = count(rmmProviders()) === 1;
+    $lines = 0;
+    $sql = mysqli_query($mysqli, "SELECT item_seat_filter FROM recurring_invoice_items JOIN recurring_invoices ON recurring_invoice_id = item_recurring_invoice_id
+        WHERE item_seat_source = 'managed' AND recurring_invoice_status = 1 AND recurring_invoice_archived_at IS NULL");
+    while ($row = mysqli_fetch_row($sql)) {
+        $rmm = intval(recurringSeatFilter('managed', $row[0])['rmm'] ?? 0);
+        if ($rmm === $provider_id || (!$rmm && $only)) {
+            $lines++;
+        }
+    }
+    return $lines;
+}
+
+/** Whether managed devices can be counted - the RMM tables are there (3.6.7). */
+function recurringSeatManagedReady() {
+    return function_exists('rmmTablesReady') && rmmTablesReady();
 }
 
 /**
@@ -2097,12 +2134,21 @@ function recurringSeatCount($client_id, $source, array $filter) {
         $tag_sql = $tag ? "AND contact_id IN (SELECT contact_id FROM contact_tags WHERE tag_id = $tag)" : '';
         return intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL $tag_sql"))[0]);
     }
-    if ($source === 'assets') {
+    if ($source === 'assets' || $source === 'managed') {
+        $managed_sql = '';
+        if ($source === 'managed') {
+            // An RMM provider that is gone can't be counted - the line keeps what it last billed
+            $provider_id = intval($filter['rmm'] ?? 0);
+            if (!recurringSeatManagedReady() || ($provider_id && !rmmProviderRow($provider_id))) {
+                return recurringSeatManagedReady() ? null : 0;
+            }
+            $managed_sql = "AND asset_id IN (" . recurringSeatManagedSql($provider_id) . ")";
+        }
         $skip = "'" . implode("', '", array_map('escapeSql', recurringSeatAssetSkipStatuses())) . "'";
         $types_sql = !empty($filter['types']) ? "AND asset_type IN ('" . implode("', '", array_map('escapeSql', $filter['types'])) . "')" : '';
         $tag_sql = $tag ? "AND asset_id IN (SELECT asset_tag_asset_id FROM asset_tags WHERE asset_tag_tag_id = $tag)" : '';
         return intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL
-            AND (asset_status IS NULL OR asset_status NOT IN ($skip)) $types_sql $tag_sql"))[0]);
+            AND (asset_status IS NULL OR asset_status NOT IN ($skip)) $types_sql $tag_sql $managed_sql"))[0]);
     }
     if ($source === 'license') {
         $software_id = intval($filter['software_id'] ?? 0);
@@ -2129,6 +2175,15 @@ function recurringSeatDescribe($source, array $filter) {
         $what = $types ? (count($types) > 1 ? implode(', ', array_slice($types, 0, -1)) . ' and ' . end($types) : $types[0]) : 'All devices';
         return $what . ($tag_name !== '' ? " tagged $tag_name" : '') . ' in use';
     }
+    if ($source === 'managed') {
+        // "Managed desktops and laptops tagged VIP in Tactical RMM" - which RMM only when the line names one
+        $types = $filter['types'] ?? [];
+        $what = $types ? 'Managed ' . (count($types) > 1 ? implode(', ', array_slice($types, 0, -1)) . ' and ' . end($types) : $types[0]) : 'All managed devices';
+        $provider_id = intval($filter['rmm'] ?? 0);
+        $provider = $provider_id && recurringSeatManagedReady() ? rmmProviderRow($provider_id) : null;
+        $where = $provider_id ? ' in ' . ($provider ? rmmProviderName($provider) : 'an RMM provider that no longer exists') : '';
+        return $what . ($tag_name !== '' ? " tagged $tag_name" : '') . $where;
+    }
     if ($source === 'license') {
         $name = (string) getFieldById('software', intval($filter['software_id'] ?? 0), 'software_name');
         return ($name !== '' ? $name : 'A license that no longer exists') . (($filter['count'] ?? 'used') === 'total' ? ' - seats bought' : ' - seats in use');
@@ -2136,10 +2191,16 @@ function recurringSeatDescribe($source, array $filter) {
     return '';
 }
 
+/** What a seat line says when what it counted is gone - its license, or its RMM provider. */
+function recurringSeatGoneText($source) {
+    return $source === 'managed' ? 'RMM provider gone' : 'License gone';
+}
+
 /**
  * What a client has to count, for choosing a seat line's source: how many
  * contacts and devices, the tags on them, their device types and their
- * licenses - each with how many.
+ * licenses - each with how many. With an RMM set up, the same for the devices
+ * it has (managed - null when there is no RMM), and how many each provider has.
  */
 function recurringSeatOptions($client_id) {
     global $mysqli;
@@ -2150,6 +2211,7 @@ function recurringSeatOptions($client_id) {
         'contacts' => recurringSeatCount($client_id, 'contacts', []),
         'assets' => recurringSeatCount($client_id, 'assets', []),
         'contact_tags' => [], 'asset_types' => [], 'asset_tags' => [], 'licenses' => [],
+        'managed' => null, 'managed_types' => [], 'managed_tags' => [], 'rmm_providers' => [],
     ];
     $sql = mysqli_query($mysqli, "SELECT tag_id, tag_name, COUNT(*) AS n FROM tags JOIN contact_tags USING (tag_id) JOIN contacts USING (contact_id)
         WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND tag_archived_at IS NULL GROUP BY tag_id ORDER BY tag_name");
@@ -2169,6 +2231,23 @@ function recurringSeatOptions($client_id) {
         WHERE software_client_id = $client_id AND software_archived_at IS NULL ORDER BY software_name");
     while ($row = mysqli_fetch_assoc($sql)) {
         $options['licenses'][intval($row['software_id'])] = $row;
+    }
+    if (recurringSeatManagedReady() && rmmProviders()) {
+        $managed = "$assets_in_use AND asset_id IN (" . recurringSeatManagedSql() . ")";
+        $options['managed'] = recurringSeatCount($client_id, 'managed', []);
+        $sql = mysqli_query($mysqli, "SELECT asset_type, COUNT(*) AS n FROM assets WHERE $managed AND asset_type <> '' GROUP BY asset_type ORDER BY asset_type");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $options['managed_types'][$row['asset_type']] = intval($row['n']);
+        }
+        $sql = mysqli_query($mysqli, "SELECT tag_id, tag_name, COUNT(*) AS n FROM tags JOIN asset_tags ON asset_tag_tag_id = tag_id JOIN assets ON asset_id = asset_tag_asset_id
+            WHERE $managed AND tag_archived_at IS NULL GROUP BY tag_id ORDER BY tag_name");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $options['managed_tags'][intval($row['tag_id'])] = $row;
+        }
+        foreach (rmmProviders() as $provider) {
+            $provider_id = intval($provider['rmm_provider_id']);
+            $options['rmm_providers'][$provider_id] = ['name' => rmmProviderName($provider), 'n' => recurringSeatCount($client_id, 'managed', ['rmm' => $provider_id])];
+        }
     }
     return $options;
 }
@@ -2194,6 +2273,7 @@ function recurringSeatLines($recurring_invoice_id, $client_id = null) {
         $row['seat_count'] = $count;
         $row['seat_quantity'] = $count === null ? null : max(floatval($count), floatval($row['item_seat_minimum']));
         $row['seat_label'] = recurringSeatDescribe($row['item_seat_source'], $filter);
+        $row['seat_gone'] = recurringSeatGoneText($row['item_seat_source']);
         $row['seat_drift'] = $count !== null && round($row['seat_quantity'] - floatval($row['item_quantity']), 2) != 0;
         $lines[intval($row['item_id'])] = $row;
     }

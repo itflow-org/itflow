@@ -137,7 +137,7 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
         </div>
     </div>
     <div class="col-12 mt-1">
-        <div class="form-text" data-product-billed-help>Picked on a quote, it fills in Billed. On a recurring invoice, per user or per device takes the quantity from the client's count.</div>
+        <div class="form-text" data-product-billed-help>Picked on a quote, it fills in Billed. On a recurring invoice, per user or per device takes the quantity from the client's count - per managed device, from the devices your RMM has.</div>
     </div>
 
     <!-- Where it comes from -->
