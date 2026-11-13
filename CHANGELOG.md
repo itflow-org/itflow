@@ -2,6 +2,24 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.11.9]
+
+### Upgrading
+
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files. There are no database changes, and nothing else is required. This release has three security fixes - see Security.
+
+### Security
+
+- Credentials: a login saved with a piece of web page code as its username or password could run that code in the browser of an agent who followed a link made for the purpose. The address ITFlow's own pages use to fetch a login's username and password answered as a web page, so a browser sent straight to it drew what the login held instead of showing it as text - and the code then acted as that agent. It took someone able to get such a login saved - an agent who can edit credentials, or a person sent an Ask for a login link, once an agent had saved what they sent back - and then an agent with access to that login opening the link while signed in. The pages that list and show logins were never affected. That answer now says it is data, which no browser draws as a page, and so do sixteen like it that carried only text ITFlow had already made safe. Releases from 26.10 to 26.11.8 are affected, and there is nothing to do after updating.
+- Invites: with a login key required, the page behind an agent's invite link went on showing the sign-in address with the key in it after the invite had been cancelled or had run out. Someone whose invite was withdrawn could still read the key from their old link. The key signs no one in by itself - it only opens the agents' sign-in page, which still asks for an email and password. A cancelled or run-out link now leads to the plain sign-in page. Releases from 26.11 to 26.11.8 are affected. If you cancelled an invite because the person should never have had it, change the login key in Admin > Settings > Security.
+- Client access: an agent limited to some clients could read a few names belonging to the others, by putting a record's number in a page's address - a project's name on the tickets list, a site's name, a ticket's subject and an invoice's number on Trips and its export window, a vendor's name in the domains export window, and a client's name on Update Prices and in the message when an AI request was turned away. Nothing else of those records showed, and nothing could be changed. These names now show only for clients the agent can open. Releases from 26.09 to 26.11.8 are affected.
+
+### Developer Updates
+
+- `agent/ajax.php`: the seventeen GET answers that printed JSON under PHP's default `text/html` now send `Content-Type: application/json` first - `get_credential_via_id`, `get_totp_token_via_id`, `get_readable_pass`, `get_active_clients`, `get_client_contacts`, `get_client_assets`, `get_client_locations`, `get_client_vendors`, `get_client_projects`, `get_internal_users`, `get_document_content`, `get_canned_response`, `ticket_query_views`, `client_duplicate_check`, `contact_email_check`, `network_ip_check` and `domain_check`. Their callers read the body as text (`itflowGet()`) or with `res.json()`, so nothing changes for them. A new JSON answer sets the header the same way: a value that is not escaped for HTML, as a login's username and password are not, must never go out as `text/html`.
+- `getFieldByIdInScope($table, $id, $field, $client_field)` (`functions/app.php`) is `getFieldById()` for a record that belongs to a client. It gives null unless `hasClientAccess()` passes for the record's client, as it does for a record that isn't there; a record with no client (0) is anyone's. Use it wherever a label is made from an id in the query string. The two labels read with their own query, on `agent/trips.php` and `agent/modals/trip/trip_export.php`, take `clientScopeSql()` instead.
+- `join.php` puts the login key in its sign-in link only while the invite is `pending` or `accepted` (`userInviteState()`).
+
 ## [26.11.8]
 
 ### Upgrading

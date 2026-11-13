@@ -26,8 +26,8 @@ $see_all = tripCanSeeAll();
 $date_from_filter = (!empty($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') ? escapeHtml($_GET['dtf']) : '';
 $date_to_filter = (!empty($_GET['dtt']) && $_GET['dtt'] !== '2099-12-31') ? escapeHtml($_GET['dtt']) : '';
 
-$location_name = $location_filter ? getFieldById('locations', $location_filter, 'location_name') : null;
-$ticket_row = $ticket_filter ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject FROM tickets WHERE ticket_id = $ticket_filter")) : null;
+$location_name = $location_filter ? getFieldByIdInScope('locations', $location_filter, 'location_name', 'location_client_id') : null;
+$ticket_row = $ticket_filter ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject FROM tickets WHERE ticket_id = $ticket_filter" . clientScopeSql('ticket_client_id'))) : null;
 
 ob_start();
 

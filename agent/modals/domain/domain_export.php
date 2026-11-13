@@ -102,7 +102,7 @@ ob_start();
 
         <?php if ($vendor_filter) { ?>
             <input type="hidden" name="vendor" value="<?= $vendor_filter ?>">
-            <p class="small text-body-secondary"><i class="fas fa-building me-1"></i>Only domains registered or hosted with <strong><?= escapeHtml(getFieldById('vendors', $vendor_filter, 'vendor_name')) ?></strong></p>
+            <p class="small text-body-secondary"><i class="fas fa-building me-1"></i>Only domains registered or hosted with <strong><?= escapeHtml(getFieldByIdInScope('vendors', $vendor_filter, 'vendor_name', 'vendor_client_id')) ?></strong></p>
         <?php } ?>
 
         <div class="mb-3">

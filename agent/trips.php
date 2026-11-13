@@ -267,13 +267,13 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
         </nav>
         <?php if ($location_filter || $ticket_filter || $expense_filter || $invoice_filter) {
             if ($location_filter) {
-                $filter_text = 'To the site ' . escapeHtml((string) getFieldById('locations', $location_filter, 'location_name'));
+                $filter_text = 'To the site ' . escapeHtml((string) getFieldByIdInScope('locations', $location_filter, 'location_name', 'location_client_id'));
             } elseif ($ticket_filter) {
-                $filter_text = 'For the ticket ' . escapeHtml((string) getFieldById('tickets', $ticket_filter, 'ticket_subject'));
+                $filter_text = 'For the ticket ' . escapeHtml((string) getFieldByIdInScope('tickets', $ticket_filter, 'ticket_subject', 'ticket_client_id'));
             } elseif ($expense_filter) {
                 $filter_text = 'Paid back for on the <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=' . $expense_filter . '">mileage expense</a>';
             } else {
-                $invoice_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT invoice_prefix, invoice_number FROM invoices WHERE invoice_id = $invoice_filter"));
+                $invoice_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT invoice_prefix, invoice_number FROM invoices WHERE invoice_id = $invoice_filter" . clientScopeSql('invoice_client_id')));
                 $filter_text = 'Billed on <a href="invoice.php?invoice_id=' . $invoice_filter . '">' . escapeHtml($invoice_row ? $invoice_row['invoice_prefix'] . $invoice_row['invoice_number'] : 'an invoice since deleted') . '</a>';
             } ?>
             <div class="small text-body-secondary mt-2">

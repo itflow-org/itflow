@@ -146,7 +146,7 @@ if ($category_filter) {
 $project_filter = intval($_GET['project'] ?? 0);
 if ($project_filter) {
     $filter_sql[] = "AND ticket_project_id = $project_filter";
-    $active_filters[] = ['label' => 'Project', 'value' => escapeHtml(getFieldById('projects', $project_filter, 'project_name')), 'drop' => ['project' => null]];
+    $active_filters[] = ['label' => 'Project', 'value' => escapeHtml(getFieldByIdInScope('projects', $project_filter, 'project_name', 'project_client_id')), 'drop' => ['project' => null]];
 }
 
 // Tags - a ticket with any of them

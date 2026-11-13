@@ -44,7 +44,7 @@ if ($filters['product_id']) {
     $narrowed[] = ['Product', getFieldById('products', $filters['product_id'], 'product_name') ?: 'a product', $clear_url(['product_id'])];
 }
 if ($filters['client_id']) {
-    $narrowed[] = ['Client', getFieldById('clients', $filters['client_id'], 'client_name') ?: 'a client', $clear_url(['client_id'])];
+    $narrowed[] = ['Client', getFieldByIdInScope('clients', $filters['client_id'], 'client_name', 'client_id') ?: 'a client', $clear_url(['client_id'])];
 }
 if ($filters['kind']) {
     $doc = $filters['doc_id'] ? billingRow($filters['kind'], $filters['doc_id']) : null;

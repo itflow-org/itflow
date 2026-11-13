@@ -241,6 +241,19 @@ function getFieldById($table, $id, $field) {
     return null; // Return null if no record was found
 }
 
+/*
+ * getFieldById() for a record that belongs to a client: null when the agent
+ * signed in can't open that client, as it is for a record that isn't there -
+ * so a filter's label, made from an id in the address, never names another
+ * client's record. $client_field is the record's own client column, where 0
+ * is no client.
+ */
+function getFieldByIdInScope($table, $id, $field, $client_field) {
+    $client_id = intval(getFieldById($table, $id, $client_field));
+
+    return $client_id && !hasClientAccess($client_id) ? null : getFieldById($table, $id, $field);
+}
+
 
 // Recursive function to display folder options - Used in folders files and documents
 /*

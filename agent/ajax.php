@@ -826,6 +826,8 @@ if (isset($_GET['ticket_add_view'])) {
  * Called upon loading a ticket, and every 2 mins thereafter
  */
 if (isset($_GET['ticket_query_views'])) {
+    header('Content-Type: application/json');
+
     $ticket_id = intval($_GET['ticket_id'] ?? 0);
     $view_ticket = ticketRow($ticket_id);
     $users = [];
@@ -954,6 +956,8 @@ if (isset($_POST['share_create'])) {
  * and filters it as you type. Names are raw; the script renders them as text.
  */
 if (isset($_GET['get_active_clients'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_client');
 
     $client_sql = mysqli_query(
@@ -1131,6 +1135,8 @@ if (isset($_GET['document_template_asks'])) {
 }
 
 if (isset($_GET['get_canned_response'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_support');
 
     // A current one this agent may use - shared, or their own
@@ -1218,6 +1224,8 @@ if (isset($_GET['canned_response_unfill'])) {
  * and agent/document.php do it.
  */
 if (isset($_GET['get_document_content'])) {
+    header('Content-Type: application/json');
+
     // Whoever can open the files list can preview its documents in the grid
     enforceUserPermission('module_client');
 
@@ -1251,6 +1259,8 @@ if (isset($_GET['get_document_content'])) {
  * Returns ordered list of active contacts for a specified client
  */
 if (isset($_GET['get_client_contacts'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_client');
 
     $client_id = intval($_GET['client_id']);
@@ -1318,6 +1328,8 @@ if (isset($_GET['ticket_also_open'])) {
  * Returns ordered list of active assets for a specified client
  */
 if (isset($_GET['get_client_assets'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_client');
 
     $client_id = intval($_GET['client_id']);
@@ -1349,6 +1361,8 @@ if (isset($_GET['get_client_assets'])) {
  * Returns locations for a specified client
  */
 if (isset($_GET['get_client_locations'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_client');
 
     $client_id = intval($_GET['client_id']);
@@ -1378,6 +1392,8 @@ if (isset($_GET['get_client_locations'])) {
  * Returns ordered list of vendors for a specified client
  */
 if (isset($_GET['get_client_vendors'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_client');
 
     $client_id = intval($_GET['client_id']);
@@ -1411,6 +1427,8 @@ if (isset($_GET['get_client_vendors'])) {
  * own, then our internal ones
  */
 if (isset($_GET['get_client_projects'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_client');
 
     $client_id = intval($_GET['client_id']);
@@ -1440,6 +1458,8 @@ if (isset($_GET['get_client_projects'])) {
  * When provided with a login ID, checks permissions and returns the 6-digit code
  */
 if (isset($_GET['get_totp_token_via_id'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_credential');
 
     $credential_id = intval($_GET['credential_id']);
@@ -1473,6 +1493,8 @@ if (isset($_GET['get_totp_token_via_id'])) {
 }
 
 if (isset($_GET['get_readable_pass'])) {
+    header('Content-Type: application/json');
+
     echo json_encode(generateReadablePassword());
 }
 
@@ -1783,6 +1805,8 @@ if (isset($_GET['recurring_seat_count'])) {
 }
 
 if (isset($_GET['client_duplicate_check'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_client', 2);
 
     $name = escapeSql($_GET['name']);
@@ -1817,6 +1841,8 @@ if (isset($_GET['client_duplicate_check'])) {
  * rules to drift. It's advisory only; the handler still checks on submit.
  */
 if (isset($_GET['network_ip_check'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_support', 2);
 
     $network_id = intval($_GET['network_id'] ?? 0);
@@ -2001,6 +2027,8 @@ if (isset($_GET['interface_ip_check'])) {
 }
 
 if (isset($_GET['contact_email_check'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_client', 2);
 
     $email = escapeSql($_GET['email']);
@@ -2169,7 +2197,7 @@ $aiTicket = function ($ticket_id, $level) use ($aiRefuse) {
         exit;
     }
     if (intval($row['ticket_client_id']) && !hasClientAccess(intval($row['ticket_client_id']))) {
-        permissionRefuse("You don't have access to " . ($row['client_name'] ?: 'that client') . "'s tickets.");
+        permissionRefuse("You don't have access to that client's tickets.");
     }
     return $row;
 };
@@ -2222,7 +2250,7 @@ $aiClient = function ($client_id, $module, $level) use ($aiRefuse) {
         exit;
     }
     if (!hasClientAccess($client_id)) {
-        permissionRefuse("You don't have access to $name.");
+        permissionRefuse("You don't have access to that client.");
     }
     return $client_id;
 };
@@ -2290,7 +2318,7 @@ if (isset($_GET['ai_billing_draft'])) {
         exit;
     }
     if (!hasClientAccess(intval($row['client_id']))) {
-        permissionRefuse("You don't have access to {$row['client_name']}.");
+        permissionRefuse("You don't have access to that client.");
     }
     if (!billingCanEditItems($type, $row)) {
         echo json_encode(['error' => billingNumber($type, $row) . " can't be changed now - " . ($type === 'quote' ? 'it has been answered or invoiced.' : 'it is paid, cancelled or non-billable.')]);
@@ -2308,6 +2336,8 @@ if (isset($_GET['ai_billing_draft'])) {
  * of one that does, and whether the client has it already.
  */
 if (isset($_GET['domain_check'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_support', 2);
 
     $input = (string) ($_GET['domain'] ?? '');
@@ -2363,6 +2393,8 @@ if (isset($_GET['domain_check'])) {
 
 // Get internal users/techs
 if (isset($_GET['get_internal_users'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_support');
 
     $sql = mysqli_query(
@@ -2429,6 +2461,8 @@ if (isset($_GET['sms_latest_code'])) {
 }
 
 if (isset($_GET['get_credential_via_id'])) {
+    header('Content-Type: application/json');
+
     enforceUserPermission('module_credential');
 
     $credential_id = intval($_GET['credential_id']);
