@@ -52,7 +52,7 @@ $recurring_filter_row = $recurring_filter ? billingRow('recurring', $recurring_f
 // Hardware sold on them that isn't on the client's assets yet (functions/products.php)
 $hardware_filter = !empty($_GET['hardware']);
 $hardware_query = $hardware_filter ? "AND " . productHardwareInvoiceSql() . " AND invoices.invoice_id IN (SELECT invoice_items.item_invoice_id FROM invoice_items
-    JOIN products ON products.product_id = invoice_items.item_product_id WHERE " . productHardwareShortSql() . ")" : '';
+    JOIN products ON products.product_id = invoice_items.item_product_id " . productHardwareMadeJoinSql() . " WHERE " . productHardwareShortSql() . ")" : '';
 
 // Category Filter
 $category_filter = intval($_GET['category'] ?? 0);
