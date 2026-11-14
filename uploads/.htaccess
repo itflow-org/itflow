@@ -1,5 +1,8 @@
 Options -ExecCGI -Indexes
-php_flag engine off
+# php_flag is mod_php's - under PHP-FPM Apache refuses it with a 500, and the rules below keep PHP out
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>
 RemoveHandler .php .phtml .phar .phps
 RemoveType .php .phtml .phar .phps
 <FilesMatch "\.(php|phtml|phar|phps|cgi|pl|sh)$">
