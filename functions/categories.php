@@ -691,6 +691,29 @@ function categoryPicker($kind, $keep = [], array $opts = []) {
     return $rows;
 }
 
+/*
+ * A name posted for a kind held by name (a rack type, an asset note type) as
+ * the picker would post it: one of the kind's current categories, in any case,
+ * or $keep (what the record has now). '' for blank, null when it is none of
+ * them - while the kind has none set up, any name is taken as it is.
+ */
+function categoryPickedName($kind, $name, $keep = '') {
+    $name = trim((string) $name);
+    if ($name === '') {
+        return '';
+    }
+    $rows = categoryPicker($kind, (string) $keep !== '' ? [$keep] : []);
+    if (!$rows) {
+        return mb_substr($name, 0, 200);
+    }
+    foreach (array_keys($rows) as $value) {
+        if (categoryNameKey($value) === categoryNameKey($name)) {
+            return (string) $value;
+        }
+    }
+    return null;
+}
+
 /* One picker <option> for a categoryPicker() row - its colour, icon and description, the value as the kind is held, and a note when archived or not set up. */
 function categoryOptionHtml(array $row, $selected = false) {
     $config = categoryKind($row['category_type'] ?? '');

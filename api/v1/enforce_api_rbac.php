@@ -145,8 +145,14 @@ $resource_module = [
     'documents'     => 'module_support',
     'domains'       => 'module_support',
     'networks'      => 'module_support',
+    'network_ips'   => 'module_support',
+    'asset_interfaces' => 'module_support',
+    'asset_notes'   => 'module_support',
+    'racks'         => 'module_support',
+    'rack_units'    => 'module_support',
     'services'      => 'module_support',
     'software'      => 'module_support',
+    'software_keys' => 'module_support',
     'tickets'       => 'module_support',
     'ticket_replies' => 'module_support',
     'technicians'   => 'module_support',
@@ -156,6 +162,7 @@ $resource_module = [
     'recurring_tickets' => 'module_support',
     'clients'       => 'module_client',
     'contacts'      => 'module_client',
+    'contact_notes' => 'module_client',
     'locations'     => 'module_client',
     'portal_invites' => 'module_client',
     'vendors'       => 'module_client',
@@ -205,6 +212,8 @@ $operation_level = [
     'approve.php'   => 2,
     'raise.php'     => 2,
     'apply_template.php' => 2,
+    'seats.php'     => 2,
+    'renew.php'     => 2,
 ];
 
 if (!isset($resource_module[$resource])) {

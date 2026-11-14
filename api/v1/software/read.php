@@ -11,9 +11,9 @@ if (isset($_GET['software_id'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_id = '$id' AND software_archived_at IS NULL AND 1=1 " . apiClientScopeSql('software_client_id') . "");
 
 } elseif (isset($_GET['software_key'])) {
-    // Specific software via key
-    $key = mysqli_real_escape_string($mysqli, $_GET['software_license']);
-    $sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_key = '$key' AND software_archived_at IS NULL AND 1=1 " . apiClientScopeSql('software_client_id') . " ORDER BY software_id LIMIT $limit OFFSET $offset");
+    // Specific software via key - its own, or one of its keys
+    $key = mysqli_real_escape_string($mysqli, (string) $_GET['software_key']);
+    $sql = mysqli_query($mysqli, "SELECT * FROM software WHERE (software_key = '$key' OR software_id IN (SELECT software_key_software_id FROM software_keys WHERE software_key = '$key')) AND software_archived_at IS NULL AND 1=1 " . apiClientScopeSql('software_client_id') . " ORDER BY software_id LIMIT $limit OFFSET $offset");
 
 } elseif (isset($_GET['software_name'])) {
     // Software by name
