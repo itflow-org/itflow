@@ -589,6 +589,17 @@ function folderOptionsHtml($client_id, $selected = 0, $exclude = 0) {
     return $html;
 }
 
+/** The kinds of file a client's Files take - by extension. Upload Files and the API's files/create both check against it. */
+function fileUploadExtensions() {
+    return [
+        'jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx',
+        'odt', 'csv', 'xls', 'xlsx', 'ods', 'pptx', 'odp', 'zip', 'tar', 'gz',
+        'msg', 'json', 'wav', 'mp3', 'ogg', 'mov', 'mp4', 'av1', 'ovpn',
+        'cfg', 'ps1', 'vsdx', 'drawio', 'pfx', 'pages', 'numbers', 'unf', 'unifi',
+        'key', 'bat', 'stk', 'swb'
+    ];
+}
+
 /** $folder_id if it is one of the client's folders (0, the top level, always is), otherwise 0. */
 function folderOwnedId($folder_id, $client_id) {
     global $mysqli;

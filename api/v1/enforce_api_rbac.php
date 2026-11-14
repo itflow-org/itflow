@@ -154,6 +154,8 @@ $resource_module = [
     'software'      => 'module_support',
     'software_keys' => 'module_support',
     'tickets'       => 'module_support',
+    'files'         => 'module_support',
+    'folders'       => 'module_support',
     'ticket_replies' => 'module_support',
     'technicians'   => 'module_support',
     'projects'      => 'module_support',
@@ -173,10 +175,16 @@ $resource_module = [
     'quote_items'   => 'module_sales',
     'recurring_invoice_items' => 'module_sales',
     'products'      => 'module_sales',
+    'contracts'     => 'module_sales',
+    'contract_hours' => 'module_sales',
     'taxes'         => 'module_sales',
     'expenses'      => 'module_financial',
     // Payments are accounting work - Financial, and api/v1/payments/ also needs Sales at Read to see the invoices (billingMoneyCan())
     'payments'      => 'module_financial',
+    'accounts'      => 'module_financial',
+    'revenues'      => 'module_financial',
+    'transfers'     => 'module_financial',
+    'recurring_expenses' => 'module_financial',
     'credentials'   => 'module_credential',
     // Each kind of tag is its record's module - api/v1/tags/ checks the kind
     // asked about (tagApiKind()), so there is no one module to check here
@@ -185,6 +193,12 @@ $resource_module = [
     'categories'    => '',
     // Roles: an admin key reads them all, any other its own user's - api/v1/roles/read.php decides
     'roles'         => '',
+    // Calendar events: one with no client is anyone's, a client's follows Clients (calendarEventCan()) - api/v1/events/ checks
+    'events'        => '',
+    // The calendars, to put events on - anyone reads them (api/v1/calendars/read.php)
+    'calendars'     => '',
+    // Trips: anyone logs and changes their own, someone else's needs Financial (tripCanEdit()) - api/v1/trips/ checks through tripSave()
+    'trips'         => '',
 ];
 
 // Operation -> required permission level (read = 1, create/update = 2, delete = 3).
@@ -195,6 +209,8 @@ $operation_level = [
     'delete.php' => 3,
     // technicians/time.php only reads
     'time.php'   => 1,
+    // files/download.php only reads
+    'download.php' => 1,
     // Changing a record's state is an edit, as on its page
     'archive.php'   => 2,
     'unarchive.php' => 2,
@@ -214,6 +230,15 @@ $operation_level = [
     'apply_template.php' => 2,
     'seats.php'     => 2,
     'renew.php'     => 2,
+    'skip.php'      => 2,
+    'record.php'    => 2,
+    'move_on.php'   => 2,
+    'activate.php'  => 2,
+    'withdraw.php'  => 2,
+    'draw.php'      => 2,
+    'put_back.php'  => 2,
+    'recurring.php' => 2,
+    'unlink.php'    => 2,
 ];
 
 if (!isset($resource_module[$resource])) {
@@ -239,7 +264,7 @@ $client_id_supplied = isset($_POST['client_id']) || isset($_GET['client_id']);
 // Everything but a read is a write - archive, unarchive, resolve and close act on one
 // client's record just as update does, so they name a client the user can reach too.
 // Listing the reads, not the writes, keeps a new kind of write from slipping past.
-$is_write = !in_array($operation_file, ['read.php', 'time.php'], true);
+$is_write = !in_array($operation_file, ['read.php', 'time.php', 'download.php'], true);
 if ($is_write && !apiUserCanAccessClient($client_id)) {
     // Writes act on a single client the caller names (client_id 0 = a global record).
     // The user must be able to access it - this also blocks a restricted user from
