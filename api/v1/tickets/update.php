@@ -23,12 +23,18 @@ if (!empty($ticket_id)) {
         $ticket_prefix = escapeSql($ticket_row['ticket_prefix']);
         $ticket_number = intval($ticket_row['ticket_number']);
 
-        $update_sql = mysqli_query($mysqli, "UPDATE tickets SET ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_asset_id = $asset WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
+        $update_sql = mysqli_query($mysqli, "UPDATE tickets SET ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_asset_id = $asset, ticket_project_id = $ticket_project_id WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
 
         if ($update_sql) {
             $update_count = mysqli_affected_rows($mysqli);
 
             logTicketHistory($ticket_id, "Edited via the API ($api_key_name)");
+
+            // On or off a project
+            if ($ticket_project_id !== intval($ticket_row['ticket_project_id'])) {
+                $project = $ticket_project_id ? projectRow($ticket_project_id) : null;
+                logTicketHistory($ticket_id, $project ? "Added to project " . escapeSql(projectReference($project) . ' - ' . $project['project_name']) . " via the API ($api_key_name)" : "Taken out of its project via the API ($api_key_name)");
+            }
             logAudit("Ticket", "Edit", "$ticket_prefix$ticket_number ticket via API ($api_key_name)", $client_id, $ticket_id);
             logAudit("API", "Success", "Edited ticket $ticket_prefix$ticket_number via API ($api_key_name)", $client_id, $ticket_id);
         }

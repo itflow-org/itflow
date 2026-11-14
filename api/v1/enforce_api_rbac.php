@@ -150,6 +150,10 @@ $resource_module = [
     'tickets'       => 'module_support',
     'ticket_replies' => 'module_support',
     'technicians'   => 'module_support',
+    'projects'      => 'module_support',
+    'tasks'         => 'module_support',
+    'task_approvals' => 'module_support',
+    'recurring_tickets' => 'module_support',
     'clients'       => 'module_client',
     'contacts'      => 'module_client',
     'locations'     => 'module_client',
@@ -164,6 +168,8 @@ $resource_module = [
     'products'      => 'module_sales',
     'taxes'         => 'module_sales',
     'expenses'      => 'module_financial',
+    // Payments are accounting work - Financial, and api/v1/payments/ also needs Sales at Read to see the invoices (billingMoneyCan())
+    'payments'      => 'module_financial',
     'credentials'   => 'module_credential',
     // Each kind of tag is its record's module - api/v1/tags/ checks the kind
     // asked about (tagApiKind()), so there is no one module to check here
@@ -195,6 +201,10 @@ $operation_level = [
     'decline.php'   => 2,
     'invoice.php'   => 2,
     'status.php'    => 2,
+    'complete.php'  => 2,
+    'approve.php'   => 2,
+    'raise.php'     => 2,
+    'apply_template.php' => 2,
 ];
 
 if (!isset($resource_module[$resource])) {

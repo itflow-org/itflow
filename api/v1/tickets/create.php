@@ -133,7 +133,7 @@ if (!empty($subject) && $client_exists) {
 
     // Insert ticket
     $url_key = randomString(32);
-    $insert_sql = mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$ticket_prefix', ticket_number = $ticket_number, ticket_source = 'API', ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = $ticket_status, ticket_billable = $billable, ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_created_by = 0, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_asset_id = $asset, ticket_url_key = '$url_key', ticket_invoice_id = $invoice_link, ticket_client_id = $client_id");
+    $insert_sql = mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$ticket_prefix', ticket_number = $ticket_number, ticket_source = 'API', ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = $ticket_status, ticket_billable = $billable, ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_created_by = 0, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_asset_id = $asset, ticket_url_key = '$url_key', ticket_invoice_id = $invoice_link, ticket_project_id = $ticket_project_id, ticket_client_id = $client_id");
 
     // Check insert & get insert ID
     if ($insert_sql) {
@@ -143,6 +143,12 @@ if (!empty($subject) && $client_exists) {
         // Raised from a template - its tags, due time and tasks, its fill-ins kept and its placeholders filled in
         if ($template) {
             ticketTemplateFinish($insert_id, $template['ticket_template_id'], true, true, $fill_in_answers, "Raised by the API ($api_key_name) from template " . $template['ticket_template_name']);
+        }
+
+        // Part of a project
+        $project = $ticket_project_id ? projectRow($ticket_project_id) : null;
+        if ($project) {
+            logTicketHistory($insert_id, "Added to project " . escapeSql(projectReference($project) . ' - ' . $project['project_name']) . " via the API ($api_key_name)");
         }
 
         // Who hears about it, as when it's raised in ITFlow - the contact too, unless it's for the team only
