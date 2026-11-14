@@ -12,6 +12,14 @@
  * Its alerts: PATCH /alerts/ with resolvedFilter false lists the open ones its dashboard shows
  * (a check's or agent's dashboard alert setting decides which those are), and GET /alerts/<id>/
  * says whether one has cleared. The key's role needs to be able to list alerts.
+ *
+ * Its device actions, each needing its own permission in the key's role: POST
+ * /agents/<id>/reboot/ (Shutdown / Reboot Agents), POST /winupdate/<id>/install/ (Manage Windows
+ * Updates - it installs what the agent's patch policy approves, and reboots after if that policy
+ * says to), PUT /agents/<id>/ with maintenance_mode (Edit Agents), and POST
+ * /agents/<id>/runscript/ (Run Script) with a script from GET /scripts/ (List Scripts). Most
+ * answer with text in JSON - "ok", or what went wrong with a 400; a script run with output
+ * "wait" answers with its output, or "timeout" when the agent didn't finish in time.
  */
 
 /** What Tactical RMM is, as rmmProviderKinds() describes a kind. */
@@ -53,11 +61,28 @@ function rmmTacticalKind(): array
         'alerts' => 'rmmTacticalAlerts',
         'alert' => 'rmmTacticalAlert',
         'alerts_help' => 'These are the alerts Tactical\'s dashboard shows - a check\'s or agent\'s Dashboard alert setting, or its alert template, decides which those are. The API key\'s user needs to be able to list alerts.',
+        'actions' => [
+            'reboot' => ['label' => 'Reboot now', 'icon' => 'fa-redo-alt', 'needs' => 'Shutdown / Reboot Agents',
+                'about' => 'It restarts straight away.'],
+            'patches' => ['label' => 'Install patches now', 'icon' => 'fa-download', 'needs' => 'Manage Windows Updates', 'platforms' => ['windows'],
+                'about' => 'Tactical installs the ones its patch policy approves, and restarts it afterwards if that policy says to.'],
+            'maintenance' => ['label' => 'Maintenance mode', 'icon' => 'fa-tools', 'needs' => 'Edit Agents',
+                'about' => 'While it is on, Tactical raises no alerts for it - so none opens a ticket.'],
+            'script' => ['label' => 'Run a script', 'icon' => 'fa-scroll', 'needs' => 'List Scripts and Run Script',
+                'about' => 'One of the scripts in Tactical\'s library, with its output back here.'],
+        ],
+        'act' => 'rmmTacticalAct',
+        'scripts' => 'rmmTacticalScripts',
+        'script' => 'rmmTacticalScript',
+        'actions_help' => 'Tactical does each as the API key\'s user, so its role needs Shutdown / Reboot Agents, Manage Windows Updates, Edit Agents (for maintenance mode), and List Scripts and Run Script - give it only the ones you want done from ITFlow.',
     ];
 }
 
-/** Ask Tactical's API. $path is Tactical's, with its trailing slash (/agents/) - it matters there. */
-function rmmTacticalRequest(array $provider, string $method, string $path, array $query = [], ?array $body = null, int $timeout = 30): array
+/**
+ * Ask Tactical's API. $path is Tactical's, with its trailing slash (/agents/) - it matters there.
+ * $text_ok for the answers that are only text.
+ */
+function rmmTacticalRequest(array $provider, string $method, string $path, array $query = [], ?array $body = null, int $timeout = 30, bool $text_ok = false): array
 {
     $base = rmmUrlClean($provider['rmm_provider_api_url'] ?? '');
     $key = trim((string) ($provider['rmm_provider_api_key'] ?? ''));
@@ -65,7 +90,7 @@ function rmmTacticalRequest(array $provider, string $method, string $path, array
         return ['ok' => false, 'code' => 0, 'json' => null, 'error' => 'Its API address and key aren\'t set.'];
     }
     $url = $base . '/' . ltrim($path, '/') . ($query ? '?' . http_build_query($query, '', '&') : '');
-    return rmmHttp($provider, $method, $url, ['X-API-KEY: ' . $key], $body, $timeout);
+    return rmmHttp($provider, $method, $url, ['X-API-KEY: ' . $key], $body, $timeout, $text_ok);
 }
 
 /** Tactical's clients - ['ok', 'clients' => [id, name, sites, devices], 'error']. */
@@ -225,6 +250,138 @@ function rmmTacticalDeviceUrls(array $provider, string $remote_id): array
         'open' => "$web/agents/$id",
         'control' => "$web/takecontrol/$id",
         'background' => "$web/remotebackground/$id",
+    ];
+}
+
+/**
+ * Do an action to one of Tactical's agents - ['ok', 'output', 'timed_out', 'error'] (functions/rmm.php,
+ * Device actions). A script waited for has its output; timed_out when it didn't finish in time.
+ */
+function rmmTacticalAct(array $provider, string $remote_id, string $action, array $options = []): array
+{
+    $id = rawurlencode($remote_id);
+    $timeout = 30;
+    if ($action === 'reboot') {
+        $answer = rmmTacticalRequest($provider, 'POST', "/agents/$id/reboot/", [], [], 30, true);
+    } elseif ($action === 'patches') {
+        $answer = rmmTacticalRequest($provider, 'POST', "/winupdate/$id/install/", [], [], 30, true);
+    } elseif ($action === 'maintenance') {
+        $answer = rmmTacticalRequest($provider, 'PUT', "/agents/$id/", [], ['maintenance_mode' => !empty($options['on'])], 30, true);
+    } elseif ($action === 'script') {
+        $timeout = max(5, min(600, intval($options['timeout'] ?? 90)));
+        $wait = !empty($options['wait']);
+        // Every key its run_script view reads, with the script's own environment variables as Tactical's Run Script window sends them
+        $answer = rmmTacticalRequest($provider, 'POST', "/agents/$id/runscript/", [], [
+            'script' => intval($options['script']['id'] ?? 0),
+            'output' => $wait ? 'wait' : 'forget',
+            'args' => array_values(array_map('strval', (array) ($options['args'] ?? []))),
+            'env_vars' => array_values(array_map('strval', (array) ($options['script']['env_vars'] ?? []))),
+            'timeout' => $timeout,
+            'run_as_user' => false,
+            'emails' => [],
+            'emailMode' => 'default',
+            'custom_field' => null,
+            'save_all_output' => false,
+        ], $timeout + 30, true);
+        if ($answer['ok'] && $wait) {
+            $output = is_string($answer['json']) ? $answer['json'] : json_encode($answer['json'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            if (trim($output) === 'timeout') {
+                return ['ok' => true, 'output' => null, 'timed_out' => true, 'error' => ''];
+            }
+            return ['ok' => true, 'output' => $output, 'timed_out' => false, 'error' => ''];
+        }
+    } else {
+        return ['ok' => false, 'output' => null, 'timed_out' => false, 'error' => rmmProviderName($provider) . ' can\'t do that.'];
+    }
+    if (!$answer['ok']) {
+        return ['ok' => false, 'output' => null, 'timed_out' => false, 'error' => rmmTacticalActError($provider, $answer, $action)];
+    }
+    return ['ok' => true, 'output' => null, 'timed_out' => false, 'error' => ''];
+}
+
+/** What went wrong with an action, in words - what the key's role needs for it, or Tactical's own reason. */
+function rmmTacticalActError(array $provider, array $answer, string $action): string
+{
+    $name = rmmProviderName($provider);
+    if ($answer['code'] === 401 || $answer['code'] === 403) {
+        $needs = rmmTacticalKind()['actions'][$action]['needs'] ?? '';
+        return "$name didn't let the API key do that" . ($needs !== '' ? " - its user's role needs $needs" : '') . '.';
+    }
+    if ($answer['code'] === 404) {
+        return "$name no longer has that " . ($action === 'script' ? 'device or script' : 'device') . '.';
+    }
+    if ($answer['code'] === 400 && is_string($answer['json']) && trim($answer['json']) !== '') {
+        $reason = rmmText($answer['json'], 300);
+        return "$name said: $reason" . (stripos($reason, 'unable to contact') !== false ? ' - is it online?' : '');
+    }
+    return $answer['error'];
+}
+
+/** Tactical's scripts that run on $platform - its favorites first, then by category and name. */
+function rmmTacticalScripts(array $provider, string $platform): array
+{
+    $answer = rmmTacticalRequest($provider, 'GET', '/scripts/');
+    if (!$answer['ok']) {
+        if ($answer['code'] === 401 || $answer['code'] === 403) {
+            $answer['error'] = rmmProviderName($provider) . ' didn\'t let the API key see its scripts - its user\'s role needs List Scripts.';
+        }
+        return ['ok' => false, 'scripts' => [], 'error' => $answer['error']];
+    }
+    $scripts = [];
+    foreach ($answer['json'] as $script) {
+        if (!is_array($script) || !isset($script['id'], $script['name']) || !empty($script['hidden'])) {
+            continue;
+        }
+        $platforms = array_map('strval', (array) ($script['supported_platforms'] ?? []));
+        if ($platforms && !in_array($platform, $platforms, true)) {
+            continue;
+        }
+        $scripts[] = rmmTacticalScriptShape($script);
+    }
+    usort($scripts, function ($a, $b) {
+        if ($a['favorite'] !== $b['favorite']) {
+            return $a['favorite'] ? -1 : 1;
+        }
+        if (($a['category'] === '') !== ($b['category'] === '')) {
+            return $a['category'] === '' ? 1 : -1;
+        }
+        return strcasecmp($a['category'], $b['category']) ?: strcasecmp($a['name'], $b['name']);
+    });
+    return ['ok' => true, 'scripts' => $scripts, 'error' => ''];
+}
+
+/** One of Tactical's scripts by its id - null when Tactical no longer has it. */
+function rmmTacticalScript(array $provider, string $script_id): array
+{
+    $answer = rmmTacticalRequest($provider, 'GET', '/scripts/' . intval($script_id) . '/');
+    if (!$answer['ok']) {
+        if ($answer['code'] === 404) {
+            return ['ok' => true, 'script' => null, 'error' => ''];
+        }
+        return ['ok' => false, 'script' => null, 'error' => rmmTacticalActError($provider, $answer, 'script')];
+    }
+    return ['ok' => true, 'script' => rmmTacticalScriptShape($answer['json']), 'error' => ''];
+}
+
+/** One of Tactical's scripts as a script (functions/rmm.php, Device actions). */
+function rmmTacticalScriptShape(array $script): array
+{
+    $list = function ($values) {
+        return array_values(array_filter(array_map(function ($value) {
+            return is_scalar($value) ? mb_substr((string) $value, 0, 500) : '';
+        }, (array) $values), 'strlen'));
+    };
+    return [
+        'id' => (string) intval($script['id'] ?? 0),
+        'name' => rmmText($script['name'] ?? '', 255) ?: 'Script ' . intval($script['id'] ?? 0),
+        'category' => rmmText($script['category'] ?? '', 100),
+        'description' => rmmText($script['description'] ?? '', 500),
+        'args' => $list($script['args'] ?? []),
+        'env_vars' => $list($script['env_vars'] ?? []),
+        'platforms' => array_map('strval', (array) ($script['supported_platforms'] ?? [])),
+        'timeout' => max(5, min(600, intval($script['default_timeout'] ?? 90) ?: 90)),
+        'favorite' => !empty($script['favorite']),
+        'hidden' => !empty($script['hidden']),
     ];
 }
 

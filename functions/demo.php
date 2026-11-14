@@ -103,6 +103,10 @@ const DEMO_MODE_LOCKS = [
             'turn_rmm_provider_on', 'link_rmm_client', 'link_rmm_suggested', 'unlink_rmm_client', 'rmm_bring_back'],
     ],
     [
+        'message' => "Devices can't be rebooted or have scripts run on them in the demo.",
+        'keys' => ['rmm_reboot', 'rmm_install_patches', 'rmm_maintenance_on', 'rmm_maintenance_off', 'rmm_run_script'],
+    ],
+    [
         'message' => "Managed instances are turned off in the demo.",
         'keys' => ['managed_checkin_now', 'managed_connect', 'managed_disconnect', 'add_managed_instance', 'delete_managed_instance', 'edit_managed_instance',
             'managed_command', 'managed_instance_mode', 'managed_instance_new_code', 'managed_support_sign_in', 'remove_managed_instance'],

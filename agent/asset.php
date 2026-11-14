@@ -422,12 +422,19 @@ if (mysqli_num_rows($sql) == 0) {
                 $rmm_each_name = rmmProviderName($rmm_each);
                 $rmm_each_kind = rmmKind($rmm_each);
                 $rmm_each_urls = $rmm_each !== $rmm_device && $rmm_state['key'] !== 'removed' ? rmmDeviceUrls($rmm_each) : [];
-                $rmm_elsewhere = intval($rmm_each['rmm_client_client_id'] ?? 0) && intval($rmm_each['rmm_client_client_id']) !== $client_id; ?>
+                $rmm_elsewhere = intval($rmm_each['rmm_client_client_id'] ?? 0) && intval($rmm_each['rmm_client_client_id']) !== $client_id;
+                // Reboot, patches, maintenance mode and scripts, when its provider has device actions on
+                $rmm_actions_menu = rmmDeviceActionsMenu($rmm_each); ?>
                 <div class="card mb-3" data-rmm-card="<?= escapeHtml($rmm_state['key']) ?>">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0"><i class="<?= escapeHtml($rmm_each_kind['icon'] ?? 'fas fa-laptop-medical') ?> fa-fw text-secondary me-2"></i><?= escapeHtml($rmm_each_name) ?></h3>
-                        <?php if (isset($rmm_each_urls['open'])) { ?>
-                            <a class="ms-auto ps-2 text-secondary" href="<?= escapeHtml($rmm_each_urls['open']) ?>" target="_blank" rel="noopener noreferrer" title="<?= escapeHtml(($rmm_each_kind['links']['open'] ?? 'Open') . " - $rmm_each_name") ?>"><i class="fas fa-fw fa-external-link-alt"></i></a>
+                        <?php if ($rmm_actions_menu || isset($rmm_each_urls['open'])) { ?>
+                            <div class="ms-auto ps-2 d-flex align-items-center gap-2 d-print-none">
+                                <?= $rmm_actions_menu ?>
+                                <?php if (isset($rmm_each_urls['open'])) { ?>
+                                    <a class="text-secondary" href="<?= escapeHtml($rmm_each_urls['open']) ?>" target="_blank" rel="noopener noreferrer" title="<?= escapeHtml(($rmm_each_kind['links']['open'] ?? 'Open') . " - $rmm_each_name") ?>"><i class="fas fa-fw fa-external-link-alt"></i></a>
+                                <?php } ?>
+                            </div>
                         <?php } ?>
                     </div>
                     <div class="card-body">

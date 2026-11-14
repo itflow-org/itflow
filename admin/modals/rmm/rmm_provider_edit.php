@@ -5,7 +5,8 @@
  * picked when it is added and stays; each kind brings its own fields (rmmProviderKinds() in
  * functions/rmm.php) - addresses, a key, a secret. A key or secret is never put back into the
  * page, so left empty it stays. A kind that has alerts can have them open tickets, from the
- * level picked, in a category. Save asks first (check_rmm_provider, admin/post/rmm.php): what
+ * level picked, in a category; one that has device actions can have them turned on, off until
+ * they are. Save asks first (check_rmm_provider, admin/post/rmm.php): what
  * is wrong shows beside each field and the window stays open; once all is right it saves, and
  * tries the connection.
  */
@@ -27,10 +28,14 @@ $kinds = rmmProviderKinds();
 $kind_key = $row ? (string) $row['rmm_provider_kind'] : (string) array_key_first($kinds);
 $kind = $kinds[$kind_key];
 
-// What the window's script needs of each kind - its name, to follow the kind picked, and whether it has alerts
+// What the window's script needs of each kind - its name, to follow the kind picked, and whether it has alerts and device actions
 $kinds_js = array_map(function ($info) {
-    return ['name' => $info['name'], 'alerts' => isset($info['alerts'], $info['alert']), 'alertsHelp' => (string) ($info['alerts_help'] ?? '')];
+    return ['name' => $info['name'], 'alerts' => isset($info['alerts'], $info['alert']), 'alertsHelp' => (string) ($info['alerts_help'] ?? ''),
+        'actions' => !empty($info['actions']), 'actionsHelp' => (string) ($info['actions_help'] ?? '')];
 }, $kinds);
+
+// Device actions - once the 3.6.9 database update is in
+$actions_offered = rmmActionsReady();
 
 // Alerts open tickets - once the 3.6.8 database update is in, with ticketing on
 $alerts_offered = rmmAlertsReady() && !empty($config_module_enable_ticketing);
@@ -150,6 +155,17 @@ ob_start();
             </div>
         <?php } ?>
 
+        <?php if ($actions_offered) { ?>
+            <div class="mb-3 <?= !empty($kind['actions']) ? '' : 'd-none' ?>" data-rmm-actions>
+                <div class="form-check form-switch">
+                    <input type="checkbox" class="form-check-input" name="actions" value="1" id="rmmProviderActions" <?= intval($row['rmm_provider_actions'] ?? 0) ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="rmmProviderActions">Device actions - reboot, install patches, maintenance mode and scripts from ITFlow</label>
+                </div>
+                <div class="form-text ps-5">Technicians who can edit assets get them on a device's card on its asset and beside it on its tickets. Each goes in the asset's history and the audit log, and on the ticket it was done from - a script's output with it.
+                    <span data-rmm-actions-help><?= escapeHtml((string) ($kind['actions_help'] ?? '')) ?></span></div>
+            </div>
+        <?php } ?>
+
     </div>
     <div class="modal-footer">
         <button type="submit" name="<?= $row ? 'edit_rmm_provider' : 'add_rmm_provider' ?>" class="btn btn-primary text-bold" data-rmm-provider-save>
@@ -193,6 +209,12 @@ ob_start();
         if (alerts) {
             alerts.classList.toggle('d-none', !kinds[kind].alerts);
             alerts.querySelector('[data-rmm-alerts-help]').textContent = kinds[kind].alertsHelp;
+        }
+        // Device actions too
+        var actions = form.querySelector('[data-rmm-actions]');
+        if (actions) {
+            actions.classList.toggle('d-none', !kinds[kind].actions);
+            actions.querySelector('[data-rmm-actions-help]').textContent = kinds[kind].actionsHelp;
         }
     });
 

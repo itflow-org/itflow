@@ -1666,14 +1666,21 @@ if (isset($_GET['ticket_id'])) {
                                 <div class="text-muted small">Nothing linked yet. Use <i class="fas fa-fw fa-plus"></i> to add an asset, vendor, project, service or watcher.</div>
                             <?php } ?>
 
-                            <?php if ($asset_id) { ?>
+                            <?php if ($asset_id) {
+                                $additional_assets = mysqli_fetch_all($sql_additional_assets, MYSQLI_ASSOC);
+                                // Reboot, patches, maintenance mode and scripts for those in an RMM with device actions on, noted on this ticket (functions/rmm.php)
+                                $ticket_rmm = $can_link ? rmmDevicesForAssets(array_merge([$asset_id], array_column($additional_assets, 'asset_id'))) : [];
+                                $ticket_rmm_menu = function ($id) use ($ticket_rmm, $ticket_id) {
+                                    return isset($ticket_rmm[$id][0]) ? rmmDeviceActionsMenu($ticket_rmm[$id][0], $ticket_id, 'btn btn-link btn-sm p-0 ms-2 text-secondary', '') : '';
+                                }; ?>
                                 <div class="ticket-link-heading">Assets</div>
-                                <div class="mt-1 text-truncate">
-                                    <a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset.php?<?= $client_url ?>&id=<?= $asset_id ?>" title="<?= $asset_name ?>">
+                                <div class="mt-1 d-flex align-items-center">
+                                    <a class="ajax-modal text-truncate flex-grow-1" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset.php?<?= $client_url ?>&id=<?= $asset_id ?>" title="<?= $asset_name ?>">
                                         <i class="fa fa-fw fa-<?= $asset_icon ?> text-secondary me-2"></i><?= $asset_name ?>
                                     </a>
+                                    <?= $ticket_rmm_menu($asset_id) ?>
                                 </div>
-                                <?php while ($additional_asset_row = mysqli_fetch_assoc($sql_additional_assets)) {
+                                <?php foreach ($additional_assets as $additional_asset_row) {
                                     $additional_asset_id = intval($additional_asset_row['asset_id']);
                                     $additional_asset_name = escapeHtml($additional_asset_row['asset_name']);
                                     $additional_asset_icon = getAssetIcon(escapeHtml($additional_asset_row['asset_type']));
@@ -1682,6 +1689,7 @@ if (isset($_GET['ticket_id'])) {
                                         <a class="ajax-modal text-truncate flex-grow-1" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset.php?<?= $client_url ?>&id=<?= $additional_asset_id ?>" title="<?= $additional_asset_name ?>">
                                             <i class="fa fa-fw fa-<?= $additional_asset_icon ?> text-secondary me-2"></i><?= $additional_asset_name ?>
                                         </a>
+                                        <?= $ticket_rmm_menu($additional_asset_id) ?>
                                         <?php if ($can_link) { ?>
                                             <a class="confirm-link ms-2" href="post.php?delete_ticket_additional_asset=<?= $additional_asset_id ?>&ticket_id=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Remove from this ticket">
                                                 <i class="fas fa-fw fa-times text-secondary"></i>

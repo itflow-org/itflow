@@ -27,6 +27,10 @@
  * A device the RMM no longer has keeps its asset, marked as gone from it. An asset deleted in
  * ITFlow isn't brought back by the next sync - its row stays, with no asset, until Bring back
  * on the Clients page lets the sync make it again.
+ *
+ * A provider with device actions on (rmm_provider_actions) lets technicians reboot a device,
+ * install its patches, turn its maintenance mode on and off and run one of the RMM's scripts on
+ * it, from its asset or a ticket it is on - see Device actions below.
  */
 
 /*
@@ -52,6 +56,19 @@
  *                      the open ones, 'error'], and fn(provider, alert's id there): ['ok',
  *                      'alert' => it, or null when the RMM no longer has it, 'error'] - each
  *                      alert as described under Alerts below
+ *   actions, act     - optional, for device actions: action => [label, icon, needs (what its
+ *                      key's user needs there to do it), platforms (only on these, when set),
+ *                      about (what it does)] of reboot, patches, maintenance and script; and
+ *                      fn(provider, device's id there, action, options): ['ok', 'output' => a
+ *                      script's when it was waited for, else null, 'timed_out' => it wasn't
+ *                      done in time, 'error'] - options are on (maintenance), and script (as
+ *                      script gives it), args, timeout and wait for a script
+ *   scripts, script  - with the script action: fn(provider, platform): ['ok', 'scripts', 'error'],
+ *                      the ones that run there; and fn(provider, script's id): ['ok', 'script'
+ *                      => it, or null when the RMM no longer has it, 'error'] - each script
+ *                      [id, name, category, description, args, env_vars, platforms, timeout
+ *                      (seconds), favorite, hidden]
+ *   actions_help     - what its key's user needs for them, for the provider window
  */
 
 /** The RMMs ITFlow can bring devices in from - kind => what it is. */
@@ -179,9 +196,10 @@ function rmmDeviceUrls(array $row): array
 
 /**
  * Ask an RMM's API - ['ok', 'code', 'json', 'error']: error is what to tell a person when it
- * didn't work, with the kind's hints. The kind's file says where and how to sign in.
+ * didn't work, with the kind's hints. The kind's file says where and how to sign in. An answer
+ * that is only text in JSON - "ok", a script's output - is one only when $text_ok.
  */
-function rmmHttp(array $provider, string $method, string $url, array $headers = [], ?array $body = null, int $timeout = 30): array
+function rmmHttp(array $provider, string $method, string $url, array $headers = [], ?array $body = null, int $timeout = 30, bool $text_ok = false): array
 {
     $name = rmmProviderName($provider);
     $hints = rmmKind($provider)['hints'] ?? [];
@@ -201,7 +219,7 @@ function rmmHttp(array $provider, string $method, string $url, array $headers = 
         CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
     ];
     if ($body !== null) {
-        $options[CURLOPT_POSTFIELDS] = json_encode($body);
+        $options[CURLOPT_POSTFIELDS] = $body === [] ? '{}' : json_encode($body);
     }
     curl_setopt_array($ch, $options);
     $raw = curl_exec($ch);
@@ -226,10 +244,10 @@ function rmmHttp(array $provider, string $method, string $url, array $headers = 
         return ['ok' => false, 'code' => $code, 'json' => $json, 'error' => "Nothing at $path on $host (HTTP 404)" . $hint('not_found')];
     }
     if ($code < 200 || $code > 299) {
-        $detail = is_array($json) ? rmmText($json['detail'] ?? $json['error'] ?? $json['message'] ?? '', 300) : '';
+        $detail = is_array($json) ? rmmText($json['detail'] ?? $json['error'] ?? $json['message'] ?? '', 300) : rmmText(is_string($json) ? $json : '', 300);
         return ['ok' => false, 'code' => $code, 'json' => $json, 'error' => "$name answered HTTP $code" . ($detail !== '' ? " - $detail" : '')];
     }
-    if (!is_array($json)) {
+    if (!is_array($json) && !($text_ok && is_string($json))) {
         return ['ok' => false, 'code' => $code, 'json' => null, 'error' => "$host answered, but not as $name's API" . $hint('not_json')];
     }
     return ['ok' => true, 'code' => $code, 'json' => $json, 'error' => ''];
@@ -997,10 +1015,16 @@ function rmmAlertInsert(int $provider_id, array $device, array $alert, int $tick
 /** An internal note on a ticket, written by ITFlow - $text is plain. */
 function rmmTicketNote(int $ticket_id, string $text): void
 {
+    rmmTicketNoteHtml($ticket_id, '<p>' . nl2br(escapeHtml($text)) . '</p>', 0);
+}
+
+/** An internal note on a ticket from HTML made safe already - by a user, or by ITFlow (0). */
+function rmmTicketNoteHtml(int $ticket_id, string $html, int $by): void
+{
     global $mysqli;
-    // HTML, escaped as itself - escapeSql() would take the tags out
-    $html = mysqli_real_escape_string($mysqli, '<p>' . nl2br(escapeHtml($text)) . '</p>');
-    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$html', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
+    // Escaped as itself - escapeSql() would take the tags out
+    $html = mysqli_real_escape_string($mysqli, $html);
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$html', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $by, ticket_reply_ticket_id = $ticket_id");
     mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $ticket_id");
 }
 
@@ -1407,6 +1431,243 @@ function rmmListLabel(): string
 }
 
 /*
+ * ------------------------------------------------------------------ Device actions
+ *
+ * A provider with device actions on (rmm_provider_actions, from the 3.6.9 database update) lets
+ * a device that is still in its RMM be rebooted, have its patches installed, have maintenance
+ * mode turned on and off, and have one of the RMM's scripts run on it - by someone who can edit
+ * assets (Modify on Support) and see its client. They are on the device's card on its asset
+ * and beside it on a ticket it is on (rmmDeviceActionsMenu()), and done by agent/post/rmm.php.
+ * The RMM does each as its key's user, so that user's role there limits them too. Each goes in
+ * the asset's history and the audit log, and on the ticket it was done from as a note by whoever
+ * did it - a script's output with it.
+ */
+
+/** Whether device actions can be turned on - the column arrives with the 3.6.9 database update. */
+function rmmActionsReady(): bool
+{
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        try {
+            mysqli_query($mysqli, "SELECT rmm_provider_actions FROM rmm_providers LIMIT 1");
+            $ready = true;
+        } catch (Throwable $e) {
+            $ready = false;
+        }
+    }
+    return $ready;
+}
+
+/** One device by its id, with its provider's columns, its RMM client and its asset's name and client - raw, or null when it or its asset is gone. */
+function rmmDeviceById(int $device_id): ?array
+{
+    global $mysqli;
+    if (!$device_id || !rmmTablesReady()) {
+        return null;
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT rmm_devices.*, rmm_providers.*, rmm_client_name, rmm_client_client_id, asset_name, asset_client_id FROM rmm_devices
+        JOIN rmm_providers ON rmm_provider_id = rmm_device_provider_id
+        JOIN assets ON asset_id = rmm_device_asset_id
+        LEFT JOIN rmm_clients ON rmm_clients.rmm_client_id = rmm_device_rmm_client_id
+        WHERE rmm_device_id = $device_id LIMIT 1"));
+    return $row ?: null;
+}
+
+/**
+ * What can be done to a device from here - action => as its kind has it. None when its provider
+ * hasn't device actions on, is off, or no longer has it; only the ones for its platform.
+ */
+function rmmDeviceActions(array $row): array
+{
+    $kind = rmmKind($row);
+    if (!$kind || empty($kind['actions']) || !isset($kind['act']) || !intval($row['rmm_provider_actions'] ?? 0) || !rmmProviderUsable($row)
+        || $row['rmm_device_removed_at'] !== null || (string) $row['rmm_device_remote_id'] === '' || !intval($row['rmm_device_asset_id'])) {
+        return [];
+    }
+    $actions = [];
+    foreach ($kind['actions'] as $action => $about) {
+        if ($action === 'script' && !isset($kind['scripts'], $kind['script'])) {
+            continue;
+        }
+        if (!empty($about['platforms']) && !in_array((string) $row['rmm_device_platform'], $about['platforms'], true)) {
+            continue;
+        }
+        $actions[$action] = $about;
+    }
+    return $actions;
+}
+
+/** A device's platform as people call it - Windows, Linux, macOS. */
+function rmmPlatformName(string $platform): string
+{
+    return ['windows' => 'Windows', 'linux' => 'Linux', 'darwin' => 'macOS'][$platform] ?? ($platform !== '' ? ucfirst($platform) : 'its system');
+}
+
+/** What a device is called when an action is spoken of - its name in the RMM, or its asset's. */
+function rmmActionHost(array $row): string
+{
+    $host = trim((string) ($row['rmm_device_hostname'] ?? ''));
+    return $host !== '' ? $host : (trim((string) ($row['asset_name'] ?? '')) ?: 'the device');
+}
+
+/**
+ * The device and ticket an action is asked for, checked - [$row, $ticket, $error]: $row as
+ * rmmDeviceById() gives it, $ticket the ticket's row or null, and $error what to say when it
+ * can't be done. Whether the person may do it is the handler's to check, with the asset's client.
+ */
+function rmmActionTarget(int $device_id, int $ticket_id, string $action): array
+{
+    global $mysqli;
+    $row = rmmDeviceById($device_id);
+    if (!$row) {
+        return [null, null, 'That device, or its asset, is no longer in ITFlow.'];
+    }
+    if (!isset(rmmDeviceActions($row)[$action])) {
+        $name = rmmProviderName($row);
+        return [$row, null, rmmActionHost($row) . " can't have that done from ITFlow now - $name may be off, have its device actions off, or no longer have it."];
+    }
+    $ticket = null;
+    if ($ticket_id) {
+        $ticket = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number FROM tickets
+            WHERE ticket_id = $ticket_id AND ticket_client_id = " . intval($row['asset_client_id']) . " AND ticket_closed_at IS NULL LIMIT 1")) ?: null;
+        if (!$ticket) {
+            return [$row, null, 'That ticket is closed, or isn\'t this client\'s - nothing was done.'];
+        }
+    }
+    return [$row, $ticket, ''];
+}
+
+/** Do an action to a device - ['ok', 'output', 'timed_out', 'error'] as its kind's act says. */
+function rmmDeviceAct(array $row, string $action, array $options = []): array
+{
+    if (!isset(rmmDeviceActions($row)[$action])) {
+        return ['ok' => false, 'output' => null, 'timed_out' => false, 'error' => rmmActionHost($row) . ' can\'t have that done from ITFlow now.'];
+    }
+    return call_user_func(rmmKind($row)['act'], $row, (string) $row['rmm_device_remote_id'], $action, $options);
+}
+
+/** The RMM's scripts that run on a device - ['ok', 'scripts', 'error'], each as its kind's scripts gives them. */
+function rmmDeviceScripts(array $row): array
+{
+    if (!isset(rmmDeviceActions($row)['script'])) {
+        return ['ok' => false, 'scripts' => [], 'error' => rmmActionHost($row) . ' can\'t have scripts run from ITFlow now.'];
+    }
+    return call_user_func(rmmKind($row)['scripts'], $row, (string) $row['rmm_device_platform']);
+}
+
+/**
+ * One of the RMM's scripts, to run on a device - ['ok', 'script', 'error']: refused when the RMM
+ * no longer has it, has hidden it, or it doesn't run on the device's platform.
+ */
+function rmmDeviceScript(array $row, string $script_id): array
+{
+    if (!isset(rmmDeviceActions($row)['script'])) {
+        return ['ok' => false, 'script' => null, 'error' => rmmActionHost($row) . ' can\'t have scripts run from ITFlow now.'];
+    }
+    $answer = call_user_func(rmmKind($row)['script'], $row, $script_id);
+    if (!$answer['ok']) {
+        return $answer;
+    }
+    $script = $answer['script'];
+    $name = rmmProviderName($row);
+    if (!$script || $script['hidden']) {
+        return ['ok' => false, 'script' => null, 'error' => "$name no longer has that script - pick another."];
+    }
+    if ($script['platforms'] && !in_array((string) $row['rmm_device_platform'], $script['platforms'], true)) {
+        return ['ok' => false, 'script' => null, 'error' => "{$script['name']} doesn't run on " . rmmPlatformName((string) $row['rmm_device_platform']) . ', so not on ' . rmmActionHost($row) . ' - pick another.'];
+    }
+    return ['ok' => true, 'script' => $script, 'error' => ''];
+}
+
+/**
+ * The tickets an action on an asset can go on as a note - its tickets that aren't closed, newest
+ * first, and $also when that is one of its client's. [ticket_id => row with prefix, number, subject].
+ */
+function rmmActionTickets(int $asset_id, int $client_id, int $also = 0): array
+{
+    global $mysqli;
+    $tickets = [];
+    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject FROM tickets
+        WHERE ticket_client_id = $client_id AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL
+        AND (ticket_asset_id = $asset_id OR ticket_id IN (SELECT ticket_id FROM ticket_assets WHERE asset_id = $asset_id) OR ticket_id = $also)
+        ORDER BY ticket_id = $also DESC, ticket_created_at DESC, ticket_id DESC LIMIT 25");
+    while ($ticket = mysqli_fetch_assoc($sql)) {
+        $tickets[intval($ticket['ticket_id'])] = $ticket;
+    }
+    return $tickets;
+}
+
+/**
+ * An action done to a device, kept - in its asset's history, the audit log and, when it was done
+ * from one, on the ticket as an internal note by whoever did it, with $html_more after (made
+ * safe already - a script's output). $what is plain, with %1$s for the device and %2$s for
+ * "through" its RMM: "rebooted %1$s %2$s".
+ */
+function rmmActionRecord(array $row, ?array $ticket, string $what, string $html_more = ''): void
+{
+    global $session_name, $session_user_id;
+    $through = 'through ' . rmmProviderName($row);
+    $asset_id = intval($row['rmm_device_asset_id']);
+    rmmAssetHistory($asset_id, stripslashes((string) $session_name), sprintf($what, 'it', $through));
+    logAudit('Asset', 'RMM', "$session_name " . escapeSql(sprintf($what, "asset {$row['asset_name']}", $through)
+        . ($ticket ? " - on ticket {$ticket['ticket_prefix']}{$ticket['ticket_number']}" : '')), intval($row['asset_client_id']), $asset_id);
+    if ($ticket) {
+        rmmTicketNoteHtml(intval($ticket['ticket_id']), '<p>' . escapeHtml(ucfirst(sprintf($what, rmmActionHost($row), $through)) . '.') . '</p>' . $html_more, intval($session_user_id));
+    }
+}
+
+/**
+ * A device's actions as a menu - '' when it has none, or the person can't do them (Modify on
+ * Support). From a ticket, $ticket_id has them go on it as notes. Reboot and patches ask first,
+ * maintenance mode goes at once, and Run a script opens its window (modals/rmm/rmm_script.php).
+ * $label '' makes the button just its icon.
+ */
+function rmmDeviceActionsMenu(array $row, int $ticket_id = 0, string $toggle = 'btn btn-sm btn-outline-secondary', string $label = 'Actions'): string
+{
+    $actions = lookupUserPermission('module_support') >= 2 ? rmmDeviceActions($row) : [];
+    if (!$actions) {
+        return '';
+    }
+    $device_id = intval($row['rmm_device_id']);
+    $name = rmmProviderName($row);
+    $host = rmmActionHost($row);
+    $items = '';
+    foreach ($actions as $action => $about) {
+        $icon = '<i class="fas fa-fw ' . escapeHtml($about['icon']) . ' text-secondary me-2"></i>';
+        $title = ' title="' . escapeHtml((string) ($about['about'] ?? '')) . '"';
+        if ($action === 'script') {
+            $items .= '<a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/rmm/rmm_script.php?id=' . $device_id . ($ticket_id ? "&amp;ticket_id=$ticket_id" : '') . '"' . $title . '>'
+                . $icon . escapeHtml($about['label']) . '<span class="text-body-secondary">...</span></a>';
+        } elseif ($action === 'maintenance') {
+            $on = !intval($row['rmm_device_maintenance']);
+            $items .= '<button type="submit" class="dropdown-item" name="rmm_maintenance_' . ($on ? 'on' : 'off') . '" value="' . $device_id . '"' . $title . '>'
+                . $icon . ($on ? 'Turn maintenance mode on' : 'Turn maintenance mode off') . '</button>';
+        } else {
+            $text = (string) ($about['about'] ?? '');
+            if ($action === 'reboot' && $row['rmm_device_status'] === 'online' && (string) $row['rmm_device_logged_user'] !== '') {
+                $text .= ' ' . $row['rmm_device_logged_user'] . ' is signed in, and loses anything not saved.';
+            }
+            $confirm = $action === 'reboot' ? ["Reboot $host now?", 'Reboot'] : ["Install $host's patches now?", 'Install'];
+            $items .= '<button type="submit" class="dropdown-item confirm-link" name="rmm_' . ($action === 'reboot' ? 'reboot' : 'install_patches') . '" value="' . $device_id . '"'
+                . ' data-confirm-title="' . escapeHtml($confirm[0]) . '" data-confirm-text="' . escapeHtml(trim($text)) . '" data-confirm-button="' . $confirm[1] . '" data-confirm-icon="warning">'
+                . $icon . escapeHtml($about['label']) . '</button>';
+        }
+    }
+    $toggle_html = $label !== ''
+        ? '<i class="fas fa-bolt me-1"></i>' . escapeHtml($label)
+        : '<i class="fas fa-fw fa-bolt"></i><span class="visually-hidden">Actions in ' . escapeHtml($name) . '</span>';
+    return '<div class="dropdown" data-rmm-actions="' . $device_id . '">'
+        . '<button type="button" class="' . escapeHtml($toggle) . ($label !== '' ? ' dropdown-toggle' : '') . '" data-bs-toggle="dropdown" aria-expanded="false" title="Do something to ' . escapeHtml($host) . ' in ' . escapeHtml($name) . '">' . $toggle_html . '</button>'
+        . '<form class="dropdown-menu dropdown-menu-end" action="post.php" method="post">'
+        . '<input type="hidden" name="csrf_token" value="' . escapeHtml((string) ($_SESSION['csrf_token'] ?? '')) . '">'
+        . ($ticket_id ? '<input type="hidden" name="ticket_id" value="' . $ticket_id . '">' : '')
+        . '<h6 class="dropdown-header">' . escapeHtml($host) . ' in ' . escapeHtml($name) . '</h6>'
+        . $items
+        . '</form></div>';
+}
+
+/*
  * ------------------------------------------------------------------ Linking clients
  */
 
@@ -1531,6 +1792,11 @@ function rmmProviderCheck(array $in, ?array $before): array
         $after['rmm_provider_alerts_restart'] = $level !== '' && ($level !== (string) ($before['rmm_provider_alert_level'] ?? '')
             || ($before && !intval($before['rmm_provider_active']) && $after['rmm_provider_active']));
     }
+
+    // Device actions - only for a kind that has them, and off until turned on
+    if (rmmActionsReady()) {
+        $after['rmm_provider_actions'] = !empty($kind['actions']) && !empty($in['actions']) ? 1 : 0;
+    }
     return [$after, $errors];
 }
 
@@ -1555,6 +1821,9 @@ function rmmProviderWrite(array $after, int $provider_id = 0): int
         if (!empty($after['rmm_provider_alerts_restart'])) {
             $set[] = 'rmm_provider_alerts_since = NULL, rmm_provider_alerts_note = NULL';
         }
+    }
+    if (array_key_exists('rmm_provider_actions', $after)) {
+        $set[] = 'rmm_provider_actions = ' . intval($after['rmm_provider_actions']);
     }
     if ($provider_id) {
         mysqli_query($mysqli, "UPDATE rmm_providers SET " . implode(', ', $set) . " WHERE rmm_provider_id = $provider_id");
@@ -1594,6 +1863,9 @@ function rmmProviderChangeLines(array $before, array $after): array
     if (array_key_exists('rmm_provider_alert_category_id', $after) && intval($before['rmm_provider_alert_category_id'] ?? 0) !== intval($after['rmm_provider_alert_category_id'])) {
         $category = intval($after['rmm_provider_alert_category_id']) ? (string) getFieldById('categories', intval($after['rmm_provider_alert_category_id']), 'category_name') : '';
         $lines[] = $category === '' ? 'alert tickets not categorized' : "alert tickets in $category";
+    }
+    if (array_key_exists('rmm_provider_actions', $after) && intval($before['rmm_provider_actions'] ?? 0) !== intval($after['rmm_provider_actions'])) {
+        $lines[] = intval($after['rmm_provider_actions']) ? 'device actions turned on' : 'device actions turned off';
     }
     return $lines;
 }
