@@ -159,6 +159,8 @@ $resource_module = [
     'recurring_invoices' => 'module_sales',
     'invoice_items' => 'module_sales',
     'quotes'        => 'module_sales',
+    'quote_items'   => 'module_sales',
+    'recurring_invoice_items' => 'module_sales',
     'products'      => 'module_sales',
     'taxes'         => 'module_sales',
     'expenses'      => 'module_financial',
@@ -180,6 +182,19 @@ $operation_level = [
     'delete.php' => 3,
     // technicians/time.php only reads
     'time.php'   => 1,
+    // Changing a record's state is an edit, as on its page
+    'archive.php'   => 2,
+    'unarchive.php' => 2,
+    'close.php'     => 2,
+    'resolve.php'   => 2,
+    'reopen.php'    => 2,
+    'send.php'      => 2,
+    'mark_sent.php' => 2,
+    'cancel.php'    => 2,
+    'accept.php'    => 2,
+    'decline.php'   => 2,
+    'invoice.php'   => 2,
+    'status.php'    => 2,
 ];
 
 if (!isset($resource_module[$resource])) {

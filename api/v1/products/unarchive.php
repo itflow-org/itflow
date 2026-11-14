@@ -1,0 +1,31 @@
+<?php
+
+require_once '../validate_api_key.php';
+require_once '../require_post_method.php';
+
+// Parse ID
+$product_id = intval($_POST['product_id'] ?? 0);
+
+// Default
+$update_count = false;
+
+if (!empty($product_id)) {
+
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT product_name FROM products WHERE product_id = $product_id AND product_archived_at IS NOT NULL LIMIT 1"));
+
+    if ($row) {
+
+        $update_sql = mysqli_query($mysqli, "UPDATE products SET product_archived_at = NULL WHERE product_id = $product_id LIMIT 1");
+
+        if ($update_sql) {
+            $update_count = mysqli_affected_rows($mysqli);
+
+            $product_name = escapeSql($row['product_name']);
+            logAudit("Product", "Restore", "$product_name unarchived via API ($api_key_name)", 0, $product_id);
+            logAudit("API", "Success", "Unarchived product $product_name via API ($api_key_name)", 0, $product_id);
+        }
+    }
+}
+
+// Output
+require_once '../update_output.php';

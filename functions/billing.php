@@ -2626,6 +2626,45 @@ function billingInvoiceIssue($invoice_id, $by) {
     return $sent_to;
 }
 
+/**
+ * A line an API call sends - {"product_id": 4, "qty": 2} or {"name": "Setup",
+ * "price": 150} - as billingItemSave() takes it, checked: a product gives the
+ * name, description and price not sent, qty is 1 when left out, and tax_id
+ * 'default' is the client's usual rate (taxDefaultFor()). Null with $error,
+ * which names the line by $label ("items[2]"), or speaks of "a line" without one.
+ */
+function billingLineFromApi($item, $client_id, &$error = '', $label = '') {
+    global $mysqli;
+    $error = '';
+    if (!is_array($item)) {
+        $error = ($label === '' ? 'A line' : $label) . " is an object - a product_id, or a name and price.";
+        return null;
+    }
+    $product = null;
+    if (!empty($item['product_id'])) {
+        $product = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT product_id, product_name, product_description, product_price FROM products
+            WHERE product_id = " . intval($item['product_id']) . " AND product_archived_at IS NULL"));
+        if (!$product) {
+            $error = ($label === '' ? 'There' : "$label: there") . " is no product " . intval($item['product_id']) . " - it may be archived.";
+            return null;
+        }
+    }
+    $tax = (string) ($item['tax_id'] ?? '0');
+    $line = [
+        'name' => trim((string) ($item['name'] ?? ($product['product_name'] ?? ''))),
+        'description' => (string) ($item['description'] ?? ($product['product_description'] ?? '')),
+        'qty' => (string) ($item['qty'] ?? '1'),
+        'price' => (string) ($item['price'] ?? ($product['product_price'] ?? '')),
+        'tax_id' => $tax === 'default' ? taxDefaultFor($client_id) : intval($tax),
+        'product_id' => intval($product['product_id'] ?? 0),
+    ];
+    if ($line['name'] === '' || $line['price'] === '' || billingNumberInput($line['qty']) === null || billingNumberInput($line['price']) === null || billingNumberInput($line['qty']) <= 0) {
+        $error = ($label === '' ? 'A line' : $label) . " needs a name, a price and a quantity above 0 - or a product_id for the name and price.";
+        return null;
+    }
+    return $line;
+}
+
 /*
  * A recurring invoice made from $in - the API's recurring_invoices/create:
  * client_id; frequency (month, quarter or year); start_date (Y-m-d, today
@@ -2665,28 +2704,9 @@ function recurringInvoiceCreate(array $in, $by) {
     // Each line as billingItemSave() takes it - checked before anything is made
     $lines = [];
     foreach ($items as $i => $item) {
-        if (!is_array($item)) {
-            return [null, "items[$i] is an object - a product_id, or a name and price."];
-        }
-        $product = null;
-        if (!empty($item['product_id'])) {
-            $product = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT product_id, product_name, product_description, product_price FROM products
-                WHERE product_id = " . intval($item['product_id']) . " AND product_archived_at IS NULL"));
-            if (!$product) {
-                return [null, "items[$i]: there is no product " . intval($item['product_id']) . " - it may be archived."];
-            }
-        }
-        $tax = (string) ($item['tax_id'] ?? '0');
-        $line = [
-            'name' => trim((string) ($item['name'] ?? ($product['product_name'] ?? ''))),
-            'description' => (string) ($item['description'] ?? ($product['product_description'] ?? '')),
-            'qty' => (string) ($item['qty'] ?? '1'),
-            'price' => (string) ($item['price'] ?? ($product['product_price'] ?? '')),
-            'tax_id' => $tax === 'default' ? taxDefaultFor($client_id) : intval($tax),
-            'product_id' => intval($product['product_id'] ?? 0),
-        ];
-        if ($line['name'] === '' || $line['price'] === '' || billingNumberInput($line['qty']) === null || billingNumberInput($line['price']) === null || billingNumberInput($line['qty']) <= 0) {
-            return [null, "items[$i] needs a name, a price and a quantity above 0 - or a product_id for the name and price."];
+        $line = billingLineFromApi($item, $client_id, $error, "items[$i]");
+        if (!$line) {
+            return [null, $error];
         }
         $lines[] = $line;
     }
