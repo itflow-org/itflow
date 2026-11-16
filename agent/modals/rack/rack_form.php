@@ -137,19 +137,9 @@ isset($mysqli) || die("Direct file access is not allowed");
         <div class="row g-3 mb-3">
             <?php foreach (['front' => ['file', 'remove_photo', $rack_photo], 'rear' => ['file_rear', 'remove_photo_rear', $rack_photo_rear]] as $photo_side => [$photo_field, $photo_remove_field, $photo_current]) { ?>
                 <div class="col-md-6">
-                    <label class="form-label"><?= ucfirst($photo_side) ?> photo</label>
-                    <?php if ($photo_current) { ?>
-                        <div class="itflow-rack-form-photo mb-2">
-                            <img src="<?= "../uploads/clients/$client_id/$photo_current" ?>" alt="<?= ucfirst($photo_side) ?> of the rack">
-                        </div>
-                    <?php } ?>
-                    <input type="file" class="form-control" name="<?= $photo_field ?>" accept="image/jpeg,image/png,image/gif,image/webp">
-                    <?php if ($photo_current) { ?>
-                        <div class="form-check mt-2">
-                            <input class="form-check-input" type="checkbox" name="<?= $photo_remove_field ?>" value="1" id="rackForm_<?= $photo_remove_field ?>">
-                            <label class="form-check-label" for="rackForm_<?= $photo_remove_field ?>">Remove this photo</label>
-                        </div>
-                    <?php } ?>
+                    <label class="form-label d-block"><?= ucfirst($photo_side) ?> photo</label>
+                    <?= pictureField($photo_field, $photo_current ? $photo_remove_field : '', $photo_current ? picturePhoto('../uploads/clients/' . intval($client_id) . '/' . html_entity_decode($photo_current), ucfirst($photo_side) . ' of the rack') : picturePhotoEmpty(),
+                        picturePhotoEmpty(), ['title' => ucfirst($photo_side) . ' photo', 'shapes' => '4:3,3:4,whole', 'box' => 'wide']) ?>
                 </div>
             <?php } ?>
         </div>

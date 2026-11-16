@@ -60,22 +60,11 @@ $value = function ($key) use ($form) {
 <!-- Who they are -->
 <div class="tab-pane fade show active" id="<?= $form_id ?>Details">
     <div class="d-flex align-items-center gap-3 mb-3">
-        <span data-user-avatar-preview><?= userAvatar($form_user_id ?: 0, $form['user_name'] ?? '', $form['user_avatar'] ?? '', 'lg') ?></span>
+        <?= pictureField('avatar', $form_has_avatar ? 'remove_avatar' : '', userAvatar($form_user_id ?: 0, $form['user_name'] ?? '', $form['user_avatar'] ?? '', 'lg'), userAvatar($form_user_id ?: 0, $form['user_name'] ?? '', '', 'lg'),
+            ['round' => true, 'title' => 'Picture', 'class' => 'itflow-contact-avatar itflow-contact-avatar-lg', 'name' => 'name']) ?>
         <div class="flex-grow-1 min-w-0">
-            <label class="form-label mb-1">Picture</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-fw fa-image"></i></span>
-                <input type="file" class="form-control" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp" data-user-avatar-input>
-            </div>
-            <div class="d-flex flex-wrap align-items-center column-gap-3 mt-1">
-                <span class="form-text mt-0">JPG, PNG, GIF or WebP, up to 5 MB. Without one, their initials.</span>
-                <?php if ($form_has_avatar) { ?>
-                    <div class="form-check small mb-0">
-                        <input class="form-check-input" type="checkbox" name="remove_avatar" value="1" id="<?= $form_id ?>RemoveAvatar" data-user-avatar-remove>
-                        <label class="form-check-label" for="<?= $form_id ?>RemoveAvatar">Remove the picture</label>
-                    </div>
-                <?php } ?>
-            </div>
+            <div class="fw-semibold">Picture</div>
+            <div class="form-text mt-0">Click it to add one or change it. Without one, their initials.</div>
         </div>
     </div>
 
@@ -258,46 +247,6 @@ $value = function ($key) use ($form) {
         return;
     }
     var form = root.closest('form');
-
-    // The picture - shown as soon as it is picked
-    var avatarInput = root.querySelector('[data-user-avatar-input]');
-    var avatarPreview = root.querySelector('[data-user-avatar-preview]');
-    var avatarOriginal = avatarPreview.innerHTML;
-    var avatarRemove = root.querySelector('[data-user-avatar-remove]');
-    avatarInput.addEventListener('change', function () {
-        var file = avatarInput.files && avatarInput.files[0];
-        if (file && /^image\//.test(file.type)) {
-            var img = document.createElement('img');
-            img.className = 'itflow-contact-avatar itflow-contact-avatar-lg';
-            img.alt = '';
-            img.src = URL.createObjectURL(file);
-            avatarPreview.replaceChildren(img);
-            if (avatarRemove) {
-                avatarRemove.checked = false;
-            }
-        } else {
-            avatarPreview.innerHTML = avatarOriginal;
-        }
-    });
-    if (avatarRemove) {
-        avatarRemove.addEventListener('change', function () {
-            avatarPreview.classList.toggle('opacity-25', avatarRemove.checked);
-            if (avatarRemove.checked) {
-                avatarInput.value = '';
-                avatarPreview.innerHTML = avatarOriginal;
-            }
-        });
-    }
-
-    // No picture - their initials, as the name is typed
-    var nameInput = root.querySelector('[data-user-name]');
-    nameInput.addEventListener('input', function () {
-        var initials = avatarPreview.querySelector('span.itflow-contact-avatar');
-        if (initials && !(avatarInput.files && avatarInput.files.length)) {
-            var words = nameInput.value.trim().split(/\s+/).filter(Boolean).slice(0, 2);
-            initials.textContent = words.map(function (w) { return w.charAt(0).toUpperCase(); }).join('') || '?';
-        }
-    });
 
     // Make up a password - words, easy to read out over the phone
     var password = root.querySelector('[data-user-password]');

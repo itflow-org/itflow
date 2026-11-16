@@ -268,19 +268,9 @@ $contact_roles = [
         <div class="col-12">
             <label class="form-label">Photo</label>
             <div class="d-flex align-items-center gap-3">
-                <?= contactAvatar($client_id, $contact_id, html_entity_decode($contact_name), $contact_photo ? html_entity_decode($contact_photo) : '', 'lg') ?>
-                <div class="flex-grow-1">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-camera fa-fw"></i></span>
-                        <input type="file" class="form-control" name="file" accept="image/jpeg,image/png,image/gif,image/webp">
-                    </div>
-                    <?php if ($contact_photo) { ?>
-                        <div class="form-check mt-2">
-                            <input class="form-check-input" type="checkbox" name="remove_photo" value="1" id="contactFormRemovePhoto">
-                            <label class="form-check-label" for="contactFormRemovePhoto">Remove this photo</label>
-                        </div>
-                    <?php } ?>
-                </div>
+                <?= pictureField('file', $contact_photo ? 'remove_photo' : '', contactAvatar($client_id, $contact_id, html_entity_decode($contact_name), $contact_photo ? html_entity_decode($contact_photo) : '', 'lg'),
+                    contactAvatar($client_id, $contact_id, html_entity_decode($contact_name), '', 'lg'), ['round' => true, 'title' => 'Photo', 'class' => 'itflow-contact-avatar itflow-contact-avatar-lg', 'name' => 'name']) ?>
+                <div class="form-text mt-0">Click it to add a photo or change it.</div>
             </div>
         </div>
     </div>

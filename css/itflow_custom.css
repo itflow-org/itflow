@@ -3902,11 +3902,6 @@ button.itflow-rack-item-body:hover {
     font-size: .7rem;
     color: #fff;
 }
-.itflow-rack-form-photo img {
-    max-width: 100%;
-    max-height: 8rem;
-    border-radius: var(--bs-border-radius);
-}
 .itflow-rack-fit:empty {
     display: none;
 }
@@ -9429,4 +9424,204 @@ a.itflow-portal-request:focus-visible {
 .itflow-rmm-dot.is-removed {
     background-color: transparent !important;
     border: 1px solid var(--bs-secondary-color);
+}
+
+/*
+ * Picture fields (pictureField(), js/picture_field.js) - the picture on a
+ * button with a camera badge, which opens the Picture window to pick and crop
+ */
+.itflow-picture-field {
+    position: relative;
+    display: inline-block;
+    flex: 0 0 auto;
+}
+.itflow-picture-button {
+    position: relative;
+    display: block;
+    padding: 0;
+    border: 0;
+    border-radius: var(--bs-border-radius-lg);
+    background: none;
+    color: inherit;
+    cursor: pointer;
+}
+.itflow-picture-field.is-round .itflow-picture-button {
+    border-radius: 50%;
+}
+.itflow-picture-button:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 3px;
+}
+.itflow-picture-preview {
+    display: block;
+    overflow: hidden;
+    border-radius: inherit;
+}
+.itflow-picture-preview > .itflow-contact-avatar {
+    display: flex;
+}
+.itflow-picture-field.is-square .itflow-picture-preview {
+    width: 7rem;
+    height: 7rem;
+}
+.itflow-picture-field.is-wide .itflow-picture-preview {
+    width: 10rem;
+    height: 7.5rem;
+}
+.itflow-picture-photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+/* No photo yet - a camera to add one */
+.itflow-picture-none {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    width: 100%;
+    height: 100%;
+    border: 2px dashed var(--bs-border-color);
+    border-radius: inherit;
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+    font-size: .8rem;
+}
+.itflow-picture-none i {
+    font-size: 1.4rem;
+}
+/* Darker on hover, with the camera to say it can be changed */
+.itflow-picture-button::after {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-color: transparent;
+    content: "";
+    transition: background-color .15s ease-in-out;
+}
+.itflow-picture-button:hover::after {
+    background-color: rgba(0, 0, 0, .18);
+}
+.itflow-picture-badge {
+    position: absolute;
+    right: -.2rem;
+    bottom: -.2rem;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background-color: var(--bs-primary);
+    box-shadow: 0 0 0 2px var(--bs-body-bg);
+    color: #fff;
+    font-size: .65rem;
+    transition: transform .15s ease-in-out;
+}
+.itflow-picture-field:has(.itflow-contact-avatar-xl) .itflow-picture-badge,
+.itflow-picture-field.is-photo .itflow-picture-badge {
+    right: -.35rem;
+    bottom: -.35rem;
+    width: 2rem;
+    height: 2rem;
+    box-shadow: 0 0 0 3px var(--bs-body-bg);
+    font-size: .8rem;
+}
+.itflow-picture-button:hover .itflow-picture-badge {
+    transform: scale(1.1);
+}
+
+/* The Picture window - drop, paste or choose */
+.itflow-picture-pick {
+    padding: 1.75rem 1rem;
+    border: 2px dashed var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s ease-in-out, background-color .15s ease-in-out;
+}
+.itflow-picture-pick:hover,
+.itflow-picture-pick:focus-visible,
+.itflow-picture-pick.is-over {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+    outline: 0;
+}
+.itflow-picture-pick-now {
+    display: inline-block;
+    overflow: hidden;
+    width: 9rem;
+    height: 6.75rem;
+    border-radius: var(--bs-border-radius-lg);
+}
+.itflow-picture-pick-now.is-round {
+    width: 6rem;
+    height: 6rem;
+    border-radius: 50%;
+}
+.itflow-picture-pick-now .itflow-contact-avatar {
+    width: 100%;
+    height: 100%;
+    font-size: 2.2rem;
+}
+
+/* ... and crop it to fit: the picture under a frame, the rest dimmed */
+.itflow-crop-stage {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-tertiary-bg);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+}
+.itflow-crop-stage.is-moving {
+    cursor: grabbing;
+}
+.itflow-crop-stage:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+.itflow-crop-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    max-width: none;
+    transform-origin: 0 0;
+    will-change: transform;
+}
+.itflow-crop-frame {
+    position: absolute;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, .9), 0 0 0 100vmax rgba(0, 0, 0, .55);
+    pointer-events: none;
+}
+.itflow-crop-frame.is-round {
+    border-radius: 50%;
+}
+/* Thirds, while it's moved */
+.itflow-crop-stage.is-moving .itflow-crop-frame {
+    background:
+        linear-gradient(rgba(255, 255, 255, .45), rgba(255, 255, 255, .45)) 33.333% 0 / 1px 100% no-repeat,
+        linear-gradient(rgba(255, 255, 255, .45), rgba(255, 255, 255, .45)) 66.667% 0 / 1px 100% no-repeat,
+        linear-gradient(rgba(255, 255, 255, .45), rgba(255, 255, 255, .45)) 0 33.333% / 100% 1px no-repeat,
+        linear-gradient(rgba(255, 255, 255, .45), rgba(255, 255, 255, .45)) 0 66.667% / 100% 1px no-repeat;
+}
+.itflow-crop-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-top: .75rem;
+}
+.itflow-crop-zoom {
+    display: flex;
+    flex: 1 1 9rem;
+    align-items: center;
+    gap: .4rem;
+    min-width: 9rem;
+    margin: 0;
+    color: var(--bs-secondary-color);
 }

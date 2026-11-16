@@ -109,20 +109,9 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
         <div class="col-12">
             <label class="form-label">Photo</label>
             <div class="d-flex align-items-center gap-3">
-                <?php if ($location_photo) { ?>
-                    <img class="itflow-asset-icon itflow-asset-icon-lg" src="<?= "../uploads/clients/$client_id/$location_photo" ?>" alt="">
-                <?php } ?>
-                <div class="flex-grow-1">
-                    <input type="file" class="form-control" name="file" accept="image/*">
-                    <?php if ($location_photo) { ?>
-                        <div class="form-check mt-1">
-                            <input class="form-check-input" type="checkbox" name="remove_photo" value="1" id="<?= $form_id ?>RemovePhoto">
-                            <label class="form-check-label small" for="<?= $form_id ?>RemovePhoto">Remove the photo</label>
-                        </div>
-                    <?php } else { ?>
-                        <div class="form-text">The front of the building - so a tech knows it when they pull up.</div>
-                    <?php } ?>
-                </div>
+                <?= pictureField('file', $location_photo ? 'remove_photo' : '', $location_photo ? picturePhoto('../uploads/clients/' . intval($client_id) . '/' . html_entity_decode($location_photo), 'Photo') : picturePhotoEmpty(), picturePhotoEmpty(),
+                    ['shapes' => 'square,4:3,whole']) ?>
+                <div class="form-text mt-0">The front of the building - so a tech knows it when they pull up. Click it to add a photo or change it.</div>
             </div>
         </div>
     </div>

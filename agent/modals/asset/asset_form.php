@@ -538,20 +538,9 @@ $asset_form_icons = [
             <textarea class="form-control" rows="7" placeholder="Configuration details, quirks, anything worth knowing" name="notes"><?= $asset_notes ?></textarea>
         </div>
         <div class="col-md-6">
-            <label class="form-label">Photo</label>
-            <?php if ($asset_photo) { ?>
-                <div class="mb-2"><img class="img-thumbnail" style="max-height: 7rem" alt="Current photo" src="<?= "../uploads/clients/$client_id/$asset_photo" ?>"></div>
-            <?php } ?>
-            <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-camera fa-fw"></i></span>
-                <input type="file" class="form-control" name="file" accept="image/jpeg,image/png,image/gif,image/webp">
-            </div>
-            <?php if ($asset_photo) { ?>
-                <div class="form-check mt-2">
-                    <input class="form-check-input" type="checkbox" name="remove_photo" value="1" id="assetFormRemovePhoto">
-                    <label class="form-check-label" for="assetFormRemovePhoto">Remove this photo</label>
-                </div>
-            <?php } ?>
+            <label class="form-label d-block">Photo</label>
+            <?= pictureField('file', $asset_photo ? 'remove_photo' : '', $asset_photo ? picturePhoto('../uploads/clients/' . intval($client_id) . '/' . html_entity_decode($asset_photo), 'Photo') : picturePhotoEmpty(), picturePhotoEmpty(),
+                ['shapes' => 'square,4:3,whole']) ?>
         </div>
     </div>
 </div>

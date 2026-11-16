@@ -89,6 +89,7 @@ try {
 ?>
 <script>window.itflowAi = <?= json_encode($itflow_ai_config) ?>;</script>
 <script src="<?= staticFileUrl('/js/app.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/picture_field.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/credentials.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/tag_picker.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/quick_pick.js') ?>"></script>
