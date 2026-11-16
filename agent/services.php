@@ -141,6 +141,11 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                 <?php } ?>
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
+                    <?php if ($can_edit && $client_url) { ?>
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=services">
+                            <i class="fa fa-fw fa-upload me-2"></i>Import
+                        </a>
+                    <?php } ?>
                     <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/service/service_export.php', ['client_id', 'client', 'show', 'importance', 'category', 'tags', 'q']) ?>">
                         <i class="fa fa-fw fa-download me-2"></i>Export
                     </a>
@@ -437,7 +442,10 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
         'views' => ['show'],
         'view' => emptyStatePill($shows, $show, '', ['unreviewed']),
         'text' => 'Start with what the client cannot work without: email, backup, their line of business app.',
-        'actions' => $can_edit ? [['label' => 'New Service', 'modal' => "modals/service/service_add.php?$client_url", 'size' => 'lg']] : [],
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New Service', 'modal' => "modals/service/service_add.php?$client_url", 'size' => 'lg']],
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=services", 'icon' => 'fa-upload', 'size' => 'lg']] : []
+        ) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>

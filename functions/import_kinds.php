@@ -4,10 +4,13 @@
  * The kinds of record the Import window brings in (functions/import.php) -
  * kind => [
  *   title, one        "Contacts", "contact"
- *   icon, module      the window's icon; the permission it needs (Modify)
- *   client            imported into the client the window is opened from
+ *   icon, module      the window's icon; the permission it needs (Modify) -
+ *                     or a callable(client_id) giving it (importModule())
+ *   client            true - imported into the client the window is opened
+ *                     from; 'optional' - into it, or your own with none
+ *   log               what the audit log calls it, when not One
  *   ready             a callable - why it can't import now, or ''
- *   about             what the window says about it, HTML
+ *   about             what the window says about it
  *   fields            key => [label, also, required, about, example, skip,
  *                     detail (an asset detail, not in the template)]
  *   legacy            the old template's fields, by position
@@ -294,6 +297,166 @@ function importKinds() {
                 return importFindBy('assets', 'asset', 'asset_name', $row['asset_name'] ?? '', "asset_client_id = $client_id");
             },
             'row' => 'importAssetRow',
+        ],
+
+        'vendors' => [
+            'title' => 'Vendors', 'one' => 'vendor', 'icon' => 'fa-building', 'client' => 'optional',
+            'module' => function ($client_id) {
+                return vendorModule($client_id);
+            },
+            'about' => 'Each row is a vendor, found by its name. Imported from a client\'s vendors they are the client\'s; from your own vendors, yours.',
+            'fields' => [
+                'name' => $f('Name', ['Vendor', 'Vendor Name', 'Company'], ['required' => true, 'example' => 'Comcast Business']),
+                'description' => $f('Description', [], ['example' => 'Internet at the main office']),
+                'phone' => $f('Support Phone', ['Phone', 'Support Line'], ['example' => '+1 800-391-3000']),
+                'extension' => $f('Extension', ['Ext']),
+                'email' => $f('Support Email', ['Email']),
+                'website' => $f('Website', ['Web', 'URL'], ['example' => 'business.comcast.com']),
+                'status_page' => $f('Status Page'),
+                'portal' => $f('Support Portal', ['Portal']),
+                'hours' => $f('Hours', ['Support Hours'], ['example' => '24/7']),
+                'sla' => $f('SLA'),
+                'account_number' => $f('Account Number', ['Account', 'Account No', 'Customer Number'], ['example' => '8495 10 123 4567890']),
+                'code' => $f('PIN / Code', ['PIN', 'Code', 'Support PIN']),
+                'contact_name' => $f('Account Manager', ['Contact', 'Contact Name', 'Rep']),
+                'contact_phone' => $f('Account Manager Phone', ['Contact Phone']),
+                'contact_email' => $f('Account Manager Email', ['Contact Email']),
+                'favorite' => $f('Favorite', ['Starred'], ['about' => $yes]),
+                'tags' => $tags,
+                'notes' => $f('Notes'),
+                'open_cases' => $f('Open Cases') + $skip,
+                'client_name' => $f('Client') + $skip,
+            ],
+            'name' => 'name',
+            'key' => ['name'],
+            'find' => function (array $row, $client_id) {
+                return importFindBy('vendors', 'vendor', 'vendor_name', $row['name'] ?? '', "vendor_client_id = $client_id");
+            },
+            'row' => 'importVendorRow',
+        ],
+
+        'domains' => [
+            'title' => 'Domains', 'one' => 'domain', 'icon' => 'fa-globe', 'module' => 'module_support', 'client' => true,
+            'about' => 'Each row is one of the client\'s domains, found by its name. A new domain\'s DNS records and registration are looked up on the domain refresher\'s next run.',
+            'fields' => [
+                'name' => $f('Domain', ['Domain Name', 'Name'], ['required' => true, 'example' => 'example.com']),
+                'description' => $f('Description'),
+                'registrar' => $f('Registrar', [], ['about' => 'One of the client\'s vendors or yours, by name', 'example' => 'Cloudflare']),
+                'webhost' => $f('Web Host', ['Website Host', 'Hosting'], ['about' => 'One of the client\'s vendors or yours, by name']),
+                'dnshost' => $f('DNS Host', ['DNS'], ['about' => 'One of the client\'s vendors or yours, by name']),
+                'mailhost' => $f('Mail Host', ['Email Host', 'Mail'], ['about' => 'One of the client\'s vendors or yours, by name']),
+                'expire' => $f('Expiration Date', ['Expires', 'Expiry', 'Expire'], ['about' => 'A date, YYYY-MM-DD - the lookup fills it in when the registry has it']),
+                'auto_renew' => $f('Auto-renew', ['Auto Renew', 'Renews'], ['about' => $yes]),
+                'favorite' => $f('Favorite', ['Starred'], ['about' => $yes]),
+                'tags' => $tags,
+                'notes' => $f('Notes'),
+                'name_servers' => $f('Name Servers') + $skip,
+                'mx' => $f('MX Records') + $skip,
+                'dmarc' => $f('DMARC') + $skip,
+                'client_name' => $f('Client') + $skip,
+            ],
+            'name' => 'name',
+            'key' => function (array $row) {
+                return domainNormalizeName($row['name'] ?? '');
+            },
+            'find' => function (array $row, $client_id) {
+                return importFindBy('domains', 'domain', 'domain_name', domainNormalizeName($row['name'] ?? ''), "domain_client_id = $client_id");
+            },
+            'row' => 'importDomainRow',
+        ],
+
+        'certificates' => [
+            'title' => 'Certificates', 'one' => 'certificate', 'icon' => 'fa-lock', 'module' => 'module_support', 'client' => true,
+            'about' => 'Each row is one of the client\'s certificates, found by its name - or its host, when it has no name. One with a host is checked on the certificate refresher\'s next run.',
+            'fields' => [
+                'name' => $f('Name', ['Certificate Name'], ['about' => 'The host, when left empty', 'example' => 'Client portal']),
+                'description' => $f('Description'),
+                'domain' => $f('Host', ['Hostname', 'Common Name', 'URL', 'Website'], ['about' => 'Where it is served, like www.example.com or portal.example.com:8443', 'example' => 'portal.example.com']),
+                'issued_by' => $f('Issuer', ['Issued By', 'CA'], ['about' => 'With no certificate pasted']),
+                'expire' => $f('Expiration Date', ['Expires', 'Expiry', 'Valid To'], ['about' => 'A date, YYYY-MM-DD - with no certificate pasted']),
+                'public_key' => $f('Certificate', ['PEM', 'Public Key'], ['about' => 'The PEM, -----BEGIN CERTIFICATE----- and all - its issuer, dates and names are read from it']),
+                'domain_id' => $f('Domain', [], ['about' => 'One of the client\'s domains, by name - the one the host is under when left empty']),
+                'favorite' => $f('Favorite', ['Starred'], ['about' => $yes]),
+                'notes' => $f('Notes'),
+                'last_check' => $f('Last Check') + $skip,
+                'issued' => $f('Issued') + $skip,
+                'names' => $f('Names Covered') + $skip,
+                'fingerprint' => $f('SHA-256 Fingerprint') + $skip,
+                'checked_at' => $f('Checked At') + $skip,
+                'client_name' => $f('Client') + $skip,
+            ],
+            'name' => ['name', 'domain'],
+            'key' => function (array $row) {
+                return mb_strtolower(importCertificateName($row));
+            },
+            'find' => function (array $row, $client_id) {
+                return importFindBy('certificates', 'certificate', 'certificate_name', importCertificateName($row), "certificate_client_id = $client_id");
+            },
+            'row' => 'importCertificateRow',
+        ],
+
+        'licenses' => [
+            'title' => 'Licenses', 'one' => 'license', 'log' => 'Software', 'icon' => 'fa-cube', 'module' => 'module_support', 'client' => true,
+            'about' => 'Each row is one of the client\'s licenses, found by its name. Assets and Contacts give it their seats, by name.',
+            'fields' => [
+                'name' => $f('Name', ['License', 'Software', 'License Name'], ['required' => true, 'example' => 'Microsoft 365 Business Premium']),
+                'version' => $f('Version'),
+                'description' => $f('Description'),
+                'type' => $f('Type', ['Software Type'], ['about' => 'A software type not yet one is added', 'example' => 'Software as a Service (SaaS)']),
+                'license_type' => $f('License Type', [], ['about' => implode(', ', array_keys(SOFTWARE_LICENSE_TYPES)) . ' - or your own', 'example' => 'Subscription']),
+                'seats' => $f('Seats', ['Seat Count', 'Quantity', 'Licenses'], ['about' => 'A whole number - no limit when left empty', 'example' => '25']),
+                'key' => $f('Key', ['License Key', 'Product Key']),
+                'keys' => $f('Individual Keys', ['Keys'], ['about' => 'Separated by commas or on lines of their own - added to the ones it has']),
+                'assets' => $f('Assets', ['Devices'], ['about' => 'The client\'s assets, by name, separated by commas - added to its seats']),
+                'contacts' => $f('Contacts', ['Users'], ['about' => 'The client\'s contacts, by name or email, separated by commas - added to its seats']),
+                'vendor' => $f('Vendor', [], ['about' => 'One of the client\'s vendors, by name']),
+                'purchase_reference' => $f('Order Ref', ['Order Reference', 'Purchase Reference', 'PO']),
+                'purchase' => $f('Purchased', ['Purchase Date'], ['about' => 'A date, YYYY-MM-DD']),
+                'expire' => $f('Expires', ['Expiry', 'Expiration Date', 'Renewal Date', 'Renews'], ['about' => 'A date, YYYY-MM-DD', 'example' => '2027-06-30']),
+                'favorite' => $f('Favorite', ['Starred'], ['about' => $yes]),
+                'tags' => $tags,
+                'notes' => $f('Notes'),
+                'seats_used' => $f('Seats Used') + $skip,
+                'client_name' => $f('Client') + $skip,
+            ],
+            'name' => 'name',
+            'key' => ['name'],
+            'find' => function (array $row, $client_id) {
+                return importFindBy('software', 'software', 'software_name', $row['name'] ?? '', "software_client_id = $client_id");
+            },
+            'row' => 'importLicenseRow',
+        ],
+
+        'services' => [
+            'title' => 'Services', 'one' => 'service', 'icon' => 'fa-stream', 'module' => 'module_support', 'client' => true,
+            'about' => 'Each row is one of the client\'s services, found by its name. Runs On, Vendors, People and Domains link it to the client\'s own, by name.',
+            'fields' => [
+                'name' => $f('Service', ['Name', 'Service Name'], ['required' => true, 'example' => 'Email']),
+                'category' => $f('Category', [], ['example' => 'Email']),
+                'importance' => $f('Importance', ['Priority'], ['about' => implode(', ', SERVICE_IMPORTANCE) . ' - Medium when left empty', 'example' => 'High']),
+                'description' => $f('Description', [], ['example' => 'Microsoft 365 mail for every user']),
+                'assets' => $f('Runs On', ['Assets'], ['about' => 'The client\'s assets, by name, separated by commas']),
+                'vendors' => $f('Vendors', ['Vendor'], ['about' => 'The client\'s vendors, by name, separated by commas']),
+                'contacts' => $f('People', ['Contacts', 'Owners'], ['about' => 'The client\'s contacts, by name or email, separated by commas']),
+                'domains' => $f('Domains', ['Domain'], ['about' => 'The client\'s domains, separated by commas']),
+                'backup' => $f('Backup and Recovery', ['Backup', 'Recovery']),
+                'favorite' => $f('Favorite', ['Starred'], ['about' => $yes]),
+                'review_interval' => $f('Review Every', ['Review Interval'], ['about' => implode(', ', array_slice(SERVICE_REVIEW_INTERVALS, 1)) . ', or a number of months', 'example' => 'Every year']),
+                'review_due' => $f('Next Review', ['Review Due'], ['about' => 'A date, YYYY-MM-DD - from Review Every when left empty']),
+                'tags' => $tags,
+                'notes' => $f('Notes'),
+                'client_name' => $f('Client') + $skip,
+                'attention' => $f('Needs Attention') + $skip,
+                'reviewed' => $f('Last Reviewed') + $skip,
+                'open_tickets' => $f('Open Tickets') + $skip,
+                'state' => $f('State') + $skip,
+            ],
+            'name' => 'name',
+            'key' => ['name'],
+            'find' => function (array $row, $client_id) {
+                return importFindBy('services', 'service', 'service_name', $row['name'] ?? '', "service_client_id = $client_id");
+            },
+            'row' => 'importServiceRow',
         ],
     ];
 
@@ -919,4 +1082,389 @@ function importAssetRow(array $row, $client_id, $existing_id, $write) {
         }
         return $notes;
     }];
+}
+
+/** A row's given cells for these fields, as a form posts them - updating, only the cells with something in them. */
+function importPostFields(array $row, array $keys, $updating, array $post = []) {
+    foreach ($keys as $key) {
+        $value = importGiven($row, $key, $updating);
+        if ($value !== null) {
+            $post[$key] = $value;
+        }
+    }
+    return $post;
+}
+
+/** Vendors - a client's, or your own - saved as the vendor form saves them (functions/vendor.php). */
+function importVendorRow(array $row, $client_id, $existing_id, $write) {
+    global $mysqli;
+    $up = $existing_id > 0;
+    $notes = [];
+    // Updating, what the file leaves out is what the vendor has
+    $post = [];
+    if ($up) {
+        $keys = ['name', 'description', 'account_number', 'code', 'contact_name', 'contact_phone_country_code', 'contact_phone', 'contact_email', 'phone_country_code',
+            'phone', 'extension', 'email', 'website', 'status_page', 'portal', 'hours', 'sla', 'notes', 'favorite', 'template_id'];
+        $current = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT vendor_" . implode(', vendor_', $keys) . " FROM vendors WHERE vendor_id = $existing_id"));
+        foreach ($keys as $key) {
+            $post[$key === 'template_id' ? 'vendor_template_id' : $key] = (string) $current["vendor_$key"];
+        }
+    }
+    $post = importPostFields($row, ['description', 'extension', 'website', 'status_page', 'portal', 'hours', 'sla', 'account_number', 'code', 'contact_name', 'notes'], $up, $post);
+    if (($row['name'] ?? '') !== '') {
+        $post['name'] = $row['name'];
+    }
+    foreach (['email' => 'Support Email', 'contact_email' => 'Account Manager Email'] as $key => $label) {
+        if (($value = importGiven($row, $key, $up)) !== null) {
+            if ($value !== '' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                $notes[] = importLeftNote($label, $value, "isn't an email address", $up);
+            } else {
+                $post[$key] = $value;
+            }
+        }
+    }
+    foreach (['phone', 'contact_phone'] as $key) {
+        if (($value = importGiven($row, $key, $up)) !== null) {
+            [$post["{$key}_country_code"], $post[$key]] = importPhone($value);
+        }
+    }
+    if (($value = importGiven($row, 'favorite', $up)) !== null) {
+        $post['favorite'] = importYes($value) ? 1 : 0;
+    }
+    $set = vendorFormSet($post);
+    if ($set === null) {
+        return ['error' => 'No Name'];
+    }
+    if ($up) {
+        $id = $existing_id;
+        mysqli_query($mysqli, "UPDATE vendors SET $set WHERE vendor_id = $id");
+    } else {
+        mysqli_query($mysqli, "INSERT INTO vendors SET $set, vendor_client_id = $client_id");
+        $id = intval(mysqli_insert_id($mysqli));
+    }
+    importTagsSet('vendor', $id, $row, 'tags');
+    return ['notes' => $notes];
+}
+
+/** Domains - checked as the domain form checks them, their changes in their history (functions/domain.php). Looked up by the refresher. */
+function importDomainRow(array $row, $client_id, $existing_id, $write) {
+    global $mysqli;
+    $up = $existing_id > 0;
+    $notes = [];
+    $post = [];
+    if ($up) {
+        $current = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT domain_name, domain_description, domain_expire, domain_auto_renew, domain_favorite, domain_notes,
+            domain_registrar, domain_dnshost, domain_webhost, domain_mailhost FROM domains WHERE domain_id = $existing_id"));
+        $post = ['name' => $current['domain_name'], 'description' => $current['domain_description'], 'expire' => (string) $current['domain_expire'],
+            'auto_renew' => $current['domain_auto_renew'], 'favorite' => $current['domain_favorite'], 'notes' => $current['domain_notes']];
+        foreach (DOMAIN_ROLES as $role => $info) {
+            $post[$role] = $current[$info['column']];
+        }
+    }
+    $post = importPostFields($row, ['description', 'notes'], $up, $post);
+    if (($row['name'] ?? '') !== '') {
+        $post['name'] = $row['name'];
+    }
+    if (($value = importGiven($row, 'expire', $up)) !== null) {
+        $date = importDate($value);
+        if ($date === null) {
+            $notes[] = importLeftNote('Expiration Date', $value, "isn't a date (YYYY-MM-DD)", $up);
+        } else {
+            $post['expire'] = $date;
+        }
+    }
+    foreach (['auto_renew', 'favorite'] as $key) {
+        if (($value = importGiven($row, $key, $up)) !== null) {
+            $post[$key] = importYes($value) ? 1 : 0;
+        }
+    }
+    foreach (['registrar' => 'Registrar', 'webhost' => 'Web Host', 'dnshost' => 'DNS Host', 'mailhost' => 'Mail Host'] as $role => $label) {
+        if (($value = importGiven($row, $role, $up)) !== null) {
+            $vendor_id = importClientRecordId('vendor', $value, $client_id, true);
+            if ($value !== '' && !$vendor_id) {
+                $notes[] = importLeftNote($label, $value, "isn't one of the client's vendors or yours", $up);
+            } else {
+                $post[$role] = $vendor_id;
+            }
+        }
+    }
+    $error = '';
+    $form = domainFormSet($post, $client_id, $existing_id, $error);
+    if ($form === null) {
+        return ['error' => $error];
+    }
+    if ($up) {
+        $id = $existing_id;
+        $before = domainHistorySnapshot($id);
+        mysqli_query($mysqli, "UPDATE domains SET {$form['set']} WHERE domain_id = $id");
+        domainWriteHistory($id, $before, domainHistorySnapshot($id));
+    } else {
+        mysqli_query($mysqli, "INSERT INTO domains SET {$form['set']}, domain_client_id = $client_id");
+        $id = intval(mysqli_insert_id($mysqli));
+    }
+    importTagsSet('domain', $id, $row, 'tags');
+    return ['notes' => $notes];
+}
+
+/** A certificate row's name - its Name, else its host as the form shows it. */
+function importCertificateName(array $row) {
+    $name = trim((string) ($row['name'] ?? ''));
+    if ($name === '' && trim((string) ($row['domain'] ?? '')) !== '') {
+        $host = certificateHost($row['domain']);
+        $name = $host ? $host['display'] : '';
+    }
+    return $name;
+}
+
+/** Certificates - checked as the certificate form checks them; one with a host is checked by the refresher (functions/certificate.php). */
+function importCertificateRow(array $row, $client_id, $existing_id, $write) {
+    global $mysqli;
+    $up = $existing_id > 0;
+    $notes = [];
+    $post = [];
+    if ($up) {
+        $current = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT certificate_name, certificate_description, certificate_domain, certificate_issued_by, certificate_expire,
+            certificate_public_key, certificate_domain_id, certificate_favorite, certificate_notes FROM certificates WHERE certificate_id = $existing_id"));
+        $post = ['name' => $current['certificate_name'], 'description' => $current['certificate_description'], 'domain' => $current['certificate_domain'],
+            'issued_by' => $current['certificate_issued_by'], 'expire' => (string) $current['certificate_expire'], 'public_key' => $current['certificate_public_key'],
+            'domain_id' => $current['certificate_domain_id'], 'favorite' => $current['certificate_favorite'], 'notes' => $current['certificate_notes']];
+    }
+    $post = importPostFields($row, ['description', 'domain', 'issued_by', 'public_key', 'notes'], $up, $post);
+    if (($row['name'] ?? '') !== '') {
+        $post['name'] = $row['name'];
+    }
+    if (!$up && importCertificateName($row) === '') {
+        return ['error' => trim((string) ($row['domain'] ?? '')) === '' ? 'No Name or Host' : "That isn't a host - something like www.example.com, or portal.example.com:8443."];
+    }
+    if (($value = importGiven($row, 'expire', $up)) !== null) {
+        $date = importDate($value);
+        if ($date === null) {
+            $notes[] = importLeftNote('Expiration Date', $value, "isn't a date (YYYY-MM-DD)", $up);
+        } else {
+            $post['expire'] = $date;
+        }
+    }
+    if (($value = importGiven($row, 'domain_id', $up)) !== null) {
+        $domain_id = importClientRecordId('domain', $value, $client_id);
+        if ($value !== '' && !$domain_id) {
+            $notes[] = importLeftNote('Domain', $value, "isn't one of the client's domains", $up);
+        } else {
+            $post['domain_id'] = $domain_id;
+        }
+    }
+    if (($value = importGiven($row, 'favorite', $up)) !== null) {
+        $post['favorite'] = importYes($value) ? 1 : 0;
+    }
+    $error = '';
+    $form = certificateFormSet($post, $client_id, $error);
+    if ($form === null) {
+        return ['error' => $error];
+    }
+    if ($up) {
+        $id = $existing_id;
+        $before = certificateHistorySnapshot($id);
+        mysqli_query($mysqli, "UPDATE certificates SET {$form['set']} WHERE certificate_id = $id");
+        certificateWriteHistory($id, $before, certificateHistorySnapshot($id));
+        // A new host, or none, is checked afresh - by the refresher, first
+        if (($form['host']['display'] ?? '') !== (string) $current['certificate_domain']) {
+            mysqli_query($mysqli, "UPDATE certificates SET certificate_check_status = NULL, certificate_checked_at = NULL WHERE certificate_id = $id");
+        }
+    } else {
+        mysqli_query($mysqli, "INSERT INTO certificates SET {$form['set']}, certificate_client_id = $client_id");
+    }
+    return ['notes' => $notes];
+}
+
+/** Licenses - saved as the license form saves them, with the seats and keys the row names added to theirs (functions/software.php). */
+function importLicenseRow(array $row, $client_id, $existing_id, $write) {
+    global $mysqli;
+    $up = $existing_id > 0;
+    $notes = [];
+    $post = [];
+    if ($up) {
+        $keys = ['name', 'version', 'description', 'type', 'license_type', 'key', 'seats', 'purchase_reference', 'purchase', 'expire', 'notes', 'favorite'];
+        $current = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT software_" . implode(', software_', $keys) . ", software_vendor_id FROM software WHERE software_id = $existing_id"));
+        foreach ($keys as $key) {
+            $post[$key] = (string) $current["software_$key"];
+        }
+        $post['vendor'] = $current['software_vendor_id'];
+    }
+    $post = importPostFields($row, ['version', 'description', 'key', 'purchase_reference', 'notes'], $up, $post);
+    if (($row['name'] ?? '') !== '') {
+        $post['name'] = $row['name'];
+    }
+    if (($value = importGiven($row, 'type', $up)) !== null) {
+        // One of the software types, in its own spelling - made when new, as an asset's status is (functions/categories.php)
+        $post['type'] = categoryEnsure('software_type', $value);
+    }
+    if (($value = importGiven($row, 'license_type', $up)) !== null) {
+        // One of the list in its own spelling, or as typed
+        $post['license_type'] = $value;
+        foreach (array_keys(SOFTWARE_LICENSE_TYPES) as $type) {
+            $post['license_type'] = strcasecmp($type, $value) === 0 ? $type : $post['license_type'];
+        }
+    }
+    if (($value = importGiven($row, 'seats', $up)) !== null) {
+        $seats = str_replace(',', '', $value);
+        if ($seats !== '' && !ctype_digit($seats)) {
+            $notes[] = "Seats $value isn't a whole number - " . ($up ? 'left as it was' : 'left with no limit');
+        } else {
+            $post['seats'] = $seats;
+        }
+    }
+    foreach (['purchase' => 'Purchased', 'expire' => 'Expires'] as $key => $label) {
+        if (($value = importGiven($row, $key, $up)) !== null) {
+            $date = importDate($value);
+            if ($date === null) {
+                $notes[] = importLeftNote($label, $value, "isn't a date (YYYY-MM-DD)", $up);
+            } else {
+                $post[$key] = $date;
+            }
+        }
+    }
+    if (($value = importGiven($row, 'vendor', $up)) !== null) {
+        $vendor_id = importClientRecordId('vendor', $value, $client_id);
+        if ($value !== '' && !$vendor_id) {
+            $notes[] = importLeftNote('Vendor', $value, "isn't one of the client's vendors", $up);
+        } else {
+            $post['vendor'] = $vendor_id;
+        }
+    }
+    if (($value = importGiven($row, 'favorite', $up)) !== null) {
+        $post['favorite'] = importYes($value) ? 1 : 0;
+    }
+    $set = softwareFormSet($post, $client_id);
+    if ($set === null) {
+        return ['error' => 'No Name'];
+    }
+    if ($up) {
+        $id = $existing_id;
+        mysqli_query($mysqli, "UPDATE software SET $set WHERE software_id = $id");
+    } else {
+        mysqli_query($mysqli, "INSERT INTO software SET $set, software_client_id = $client_id");
+        $id = intval(mysqli_insert_id($mysqli));
+    }
+
+    // Its seats - the ones it has, and the assets and contacts the row names
+    $seats = ['asset' => [], 'contact' => []];
+    foreach (['asset' => ['assets', 'Assets'], 'contact' => ['contacts', 'Contacts']] as $kind => [$key, $label]) {
+        [$seats[$kind], $missing] = importClientRecordIds($kind, $row[$key] ?? '', $client_id);
+        if ($missing) {
+            $notes[] = "$label not the client's, left off: " . implode(', ', $missing);
+        }
+    }
+    if ($seats['asset'] || $seats['contact']) {
+        foreach (['asset' => 'software_assets', 'contact' => 'software_contacts'] as $kind => $table) {
+            $sql = mysqli_query($mysqli, "SELECT {$kind}_id FROM $table WHERE software_id = $id");
+            while ($seat = mysqli_fetch_row($sql)) {
+                $seats[$kind][] = intval($seat[0]);
+            }
+        }
+        softwareSyncSeats($id, $client_id, $seats['asset'], $seats['contact']);
+    }
+    if (($row['keys'] ?? '') !== '') {
+        softwareAddKeys($id, implode("\n", preg_split('/\r\n|\r|\n|,/', $row['keys'])));
+    }
+    importTagsSet('license', $id, $row, 'tags');
+    $warning = softwareSeatWarning($id);
+    if ($warning !== '') {
+        $notes[] = 'Now over its seats, ' . preg_replace('/^.*, /', '', strip_tags($warning));
+    }
+    return ['notes' => $notes];
+}
+
+/** What a Review Every cell is, in months - one of SERVICE_REVIEW_INTERVALS, by its words or its number - or null. */
+function importServiceInterval($value) {
+    $value = mb_strtolower(trim((string) $value));
+    $words = ['' => 0, 'never' => 0, 'none' => 0, 'monthly' => 1, 'quarterly' => 3, 'yearly' => 12, 'annually' => 12, 'every 12 months' => 12, 'every 24 months' => 24];
+    if (isset($words[$value])) {
+        return $words[$value];
+    }
+    foreach (SERVICE_REVIEW_INTERVALS as $months => $label) {
+        if ($value === mb_strtolower($label) || $value === (string) $months) {
+            return $months;
+        }
+    }
+    return null;
+}
+
+/** Services - saved as the service form saves them, linked to what the row names (functions/service.php, functions/links.php). */
+function importServiceRow(array $row, $client_id, $existing_id, $write) {
+    global $mysqli;
+    $up = $existing_id > 0;
+    $notes = [];
+    $post = [];
+    $current = null;
+    if ($up) {
+        $keys = ['name', 'description', 'category', 'importance', 'backup', 'notes', 'review_interval', 'review_due'];
+        $current = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT service_" . implode(', service_', $keys) . ", service_reviewed_at FROM services WHERE service_id = $existing_id"));
+        foreach ($keys as $key) {
+            $post[$key] = (string) $current["service_$key"];
+        }
+    }
+    $post = importPostFields($row, ['description', 'category', 'backup', 'notes'], $up, $post);
+    if (($row['name'] ?? '') !== '') {
+        $post['name'] = $row['name'];
+    }
+    if (($value = importGiven($row, 'importance', $up)) !== null) {
+        $importance = '';
+        foreach (SERVICE_IMPORTANCE as $level) {
+            $importance = strcasecmp($level, $value) === 0 ? $level : $importance;
+        }
+        if ($value !== '' && $importance === '') {
+            $notes[] = "Importance $value isn't High, Medium or Low - " . ($up ? 'left as it was' : 'Medium');
+        } else {
+            $post['importance'] = $importance;
+        }
+    }
+    if (($value = importGiven($row, 'review_interval', $up)) !== null) {
+        $months = importServiceInterval($value);
+        if ($months === null) {
+            $notes[] = importLeftNote('Review Every', $value, "isn't one of the review schedules", $up);
+        } else {
+            $post['review_interval'] = $months;
+        }
+    }
+    if (($value = importGiven($row, 'review_due', $up)) !== null) {
+        // "2027-01-15 (overdue)", as the export writes one that is
+        $date = importDate(preg_replace('/\s*\(overdue\)$/i', '', $value));
+        if ($date === null) {
+            $notes[] = importLeftNote('Next Review', $value, "isn't a date (YYYY-MM-DD)", $up);
+        } else {
+            $post['review_due'] = $date;
+        }
+    }
+    $error = '';
+    $set = serviceFormSet($post, $error, $current);
+    if ($set === '') {
+        return ['error' => $error === 'A service needs a name.' ? 'No Service name' : $error];
+    }
+    if (($value = importGiven($row, 'favorite', $up)) !== null) {
+        $set .= ', service_favorite = ' . (importYes($value) ? 1 : 0);
+    }
+    if ($up) {
+        $id = $existing_id;
+        mysqli_query($mysqli, "UPDATE services SET $set WHERE service_id = $id");
+    } else {
+        mysqli_query($mysqli, "INSERT INTO services SET $set, service_client_id = $client_id");
+        $id = intval(mysqli_insert_id($mysqli));
+    }
+
+    // What it depends on - added to what it has, the client's own records only (linkAdd())
+    foreach (['assets' => ['asset', 'Runs On'], 'vendors' => ['vendor', 'Vendors'], 'contacts' => ['contact', 'People'], 'domains' => ['domain', 'Domains']] as $key => [$type, $label]) {
+        if (($row[$key] ?? '') === '') {
+            continue;
+        }
+        if (!linkCanEdit('service', $type)) {
+            $notes[] = "$label not linked - your role can't link " . LINK_ENTITIES[$type]['plural'];
+            continue;
+        }
+        [$ids, $missing] = importClientRecordIds($type, $row[$key], $client_id);
+        linkAdd('service', $id, $type, $ids);
+        if ($missing) {
+            $notes[] = "$label not the client's, left off: " . implode(', ', $missing);
+        }
+    }
+    importTagsSet('service', $id, $row, 'tags');
+    return ['notes' => $notes];
 }

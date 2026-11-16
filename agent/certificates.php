@@ -140,13 +140,20 @@ $export_extra = [
                         <i class="fas fa-plus me-2"></i>New Certificate
                     </button>
                 <?php } ?>
-                <?php if ($num_rows[0] > 0) { ?>
+                <?php if ($num_rows[0] > 0 || ($can_edit && $client_url)) { ?>
                     <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item text-dark ajax-modal" href="#"
-                            data-modal-url="<?= buildExportModalUrl('modals/certificate/certificate_export.php', ['client_id', 'client', 'expire_days', 'archived', 'q'], $export_extra) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
-                        </a>
+                        <?php if ($can_edit && $client_url) { ?>
+                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=certificates">
+                                <i class="fa fa-fw fa-upload me-2"></i>Import
+                            </a>
+                        <?php } ?>
+                        <?php if ($num_rows[0] > 0) { ?>
+                            <a class="dropdown-item text-dark ajax-modal" href="#"
+                                data-modal-url="<?= buildExportModalUrl('modals/certificate/certificate_export.php', ['client_id', 'client', 'expire_days', 'archived', 'q'], $export_extra) ?>">
+                                <i class="fa fa-fw fa-download me-2"></i>Export
+                            </a>
+                        <?php } ?>
                     </div>
                 <?php } ?>
             </div>
@@ -452,7 +459,10 @@ $export_extra = [
         'views' => ['show'],
         'view' => emptyStatePill($shows, $show, '', ['soon', 'expired', 'problems', 'unchecked']),
         'text' => 'The certificates on their websites and services, and when each expires.',
-        'actions' => $can_edit ? [['label' => 'New Certificate', 'modal' => "modals/certificate/certificate_add.php?$client_url", 'size' => 'lg']] : [],
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New Certificate', 'modal' => "modals/certificate/certificate_add.php?$client_url", 'size' => 'lg']],
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=certificates", 'icon' => 'fa-upload', 'size' => 'lg']] : []
+        ) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>

@@ -200,6 +200,11 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                         data-modal-url="modals/software/software_add_from_template.php?<?= $client_url ?>">
                         <i class="fas fa-fw fa-puzzle-piece me-2"></i>New from Template
                     </a>
+                    <?php if ($client_url) { ?>
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=licenses">
+                            <i class="fa fa-fw fa-upload me-2"></i>Import
+                        </a>
+                    <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
@@ -584,7 +589,10 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
         'views' => ['status'],
         'view' => emptyStatePill($status_filters, $status, '', ['renewing', 'expired', 'over', 'unused']),
         'text' => 'Their software and subscriptions - the seats bought, who and what uses them, and when each renews.',
-        'actions' => $can_edit ? [['label' => 'New License', 'modal' => "modals/software/software_add.php?$client_url", 'size' => 'lg']] : [],
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New License', 'modal' => "modals/software/software_add.php?$client_url", 'size' => 'lg']],
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=licenses", 'icon' => 'fa-upload', 'size' => 'lg']] : []
+        ) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>

@@ -77,7 +77,7 @@ if (isset($_POST['import_check']) || isset($_POST['import_run'])) {
 
     if ($run) {
         $client_name = $client_id ? ' for ' . escapeSql((string) getFieldById('clients', $client_id, 'client_name')) : '';
-        logAudit(ucfirst($def['one']), "Import", "$session_name imported " . strtolower($def['title']) . $client_name . " from a CSV file - {$result['added']} added, {$result['updated']} updated, {$result['skipped']} skipped, {$result['failed']} not imported", $client_id);
+        logAudit($def['log'] ?? ucfirst($def['one']), "Import", "$session_name imported " . strtolower($def['title']) . $client_name . " from a CSV file - {$result['added']} added, {$result['updated']} updated, {$result['skipped']} skipped, {$result['failed']} not imported", $client_id);
         $reply['failed_rows'] = $result['failed_rows'];
         $reply['finish'] = isset($def['finish']) ? (string) call_user_func($def['finish'], $result) : '';
     }
@@ -94,10 +94,11 @@ if (isset($_GET['import_template'])) {
         redirect();
     }
 
-    enforceUserPermission($def['module']);
-
     // Named for the client only when it's one this agent can reach - any id would otherwise say its client's name back
-    $client_id = intval($_GET['client_id'] ?? 0);
+    $client_id = !empty($def['client']) ? intval($_GET['client_id'] ?? 0) : 0;
+
+    enforceUserPermission(importModule($def, $client_id));
+
     $client_name = !empty($def['client']) && $client_id && hasClientAccess($client_id) ? (string) getFieldById('clients', $client_id, 'client_name') : '';
 
     importTemplateDownload($def, $client_name !== '' ? toAlphanumeric($client_name) . '-' : '');

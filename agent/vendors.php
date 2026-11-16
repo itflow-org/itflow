@@ -146,8 +146,13 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                             </a>
                         <?php } ?>
                     <?php } ?>
+                    <?php if ($can_edit && $view !== 'clients') { ?>
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=vendors">
+                            <i class="fa fa-fw fa-upload me-2"></i>Import
+                        </a>
+                    <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
-                        <?php if ($can_edit && $has_templates) { ?><div class="dropdown-divider"></div><?php } ?>
+                        <?php if ($can_edit && ($has_templates || $view !== 'clients')) { ?><div class="dropdown-divider"></div><?php } ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/vendor/vendor_export.php', ['client_id', 'view', 'client', 'tags', 'archived', 'q']) ?>">
                             <i class="fa fa-fw fa-download me-2"></i>Export
@@ -472,7 +477,10 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
         'views' => ['view'],
         'title' => $view === 'ours' ? 'None of our own vendors yet' : 'No vendors yet',
         'text' => $view === 'ours' ? 'The suppliers expenses are booked against.' : 'Their ISP, phone provider and software makers.',
-        'actions' => $can_edit ? [['label' => 'New Vendor', 'modal' => $add_url, 'size' => 'lg']] : [],
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New Vendor', 'modal' => $add_url, 'size' => 'lg']],
+            $view !== 'clients' ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=vendors", 'icon' => 'fa-upload', 'size' => 'lg']] : []
+        ) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>

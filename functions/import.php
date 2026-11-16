@@ -37,14 +37,20 @@ function importKind($kind) {
     return isset($kinds[$kind]) ? ['kind' => $kind] + $kinds[$kind] : null;
 }
 
-/** Why this person can't import this kind into this client - '' when they can. */
+/** The permission a kind needs, for this client - a vendor's is the client module's, or for your own the financial module's. */
+function importModule(array $def, $client_id) {
+    return $def['module'] instanceof Closure ? (string) call_user_func($def['module'], intval($client_id)) : $def['module'];
+}
+
+/** Why this person can't import this kind into this client - '' when they can. A kind whose client is optional imports your own with none. */
 function importRefusal(array $def, $client_id) {
     global $mysqli;
-    $has = lookupUserPermission($def['module']);
+    $module = importModule($def, $client_id);
+    $has = lookupUserPermission($module);
     if ($has < 2) {
-        return permissionRefusedText($def['module'], 2, $has);
+        return permissionRefusedText($module, 2, $has);
     }
-    if (!empty($def['client'])) {
+    if ($def['client'] === true || ($def['client'] === 'optional' && intval($client_id))) {
         $client_id = intval($client_id);
         if (!$client_id || !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM clients WHERE client_id = $client_id"))) {
             return 'Open the client to import its ' . strtolower($def['title']) . ' into.';
@@ -351,7 +357,7 @@ function importTagsSet($entity, $record_id, array $row, $key) {
 /**
  * One of a client's records named in a cell - its id, or 0. $kind: contact
  * (by name or email), location, vendor (with $ours one of your own vendors
- * too), network or asset; archived ones aren't taken.
+ * too), network, asset or domain; archived ones aren't taken.
  */
 function importClientRecordId($kind, $value, $client_id, $ours = false) {
     global $mysqli;
@@ -367,12 +373,27 @@ function importClientRecordId($kind, $value, $client_id, $ours = false) {
         'vendor' => "SELECT vendor_id FROM vendors WHERE vendor_client_id IN ($client_id" . ($ours ? ', 0' : '') . ") AND vendor_archived_at IS NULL AND vendor_name = '$sql' ORDER BY vendor_client_id = $client_id DESC, vendor_id LIMIT 1",
         'network' => "SELECT network_id FROM networks WHERE network_client_id = $client_id AND network_archived_at IS NULL AND network_name = '$sql' ORDER BY network_id LIMIT 1",
         'asset' => "SELECT asset_id FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL AND asset_name = '$sql' ORDER BY asset_id LIMIT 1",
+        'domain' => "SELECT domain_id FROM domains WHERE domain_client_id = $client_id AND domain_archived_at IS NULL AND domain_name = '" . escapeSql($kind === 'domain' ? domainNormalizeName($value) : '') . "' ORDER BY domain_id LIMIT 1",
     ];
     if (!isset($queries[$kind]) || (!$client_id && !$ours)) {
         return 0;
     }
     $row = mysqli_fetch_row(mysqli_query($mysqli, $queries[$kind]));
     return intval($row[0] ?? 0);
+}
+
+/** A client's records named in a cell, separated by commas - [their ids, the names not found] (importClientRecordId()). */
+function importClientRecordIds($kind, $value, $client_id) {
+    $ids = $missing = [];
+    foreach (importList($value) as $name) {
+        $id = importClientRecordId($kind, $name, $client_id);
+        if ($id) {
+            $ids[] = $id;
+        } else {
+            $missing[] = $name;
+        }
+    }
+    return [array_values(array_unique($ids)), $missing];
 }
 
 /**

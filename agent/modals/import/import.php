@@ -21,13 +21,13 @@ if (!$def) {
 }
 
 $client_id = !empty($def['client']) ? intval($_GET['client_id'] ?? 0) : 0;
-enforceUserPermission($def['module'], 2);
+enforceUserPermission(importModule($def, $client_id), 2);
 $refusal = importRefusal($def, $client_id);
 if ($refusal !== '') {
     echo json_encode(['error' => $refusal]);
     exit;
 }
-$client_name = $client_id ? (string) getFieldById('clients', $client_id, 'client_name') : '';
+$client_name = $client_id ? (string) getFieldById('clients', $client_id, 'client_name') : ($def['client'] === 'optional' ? 'Yours' : '');
 
 // The fields, as the pickers offer them - an asset's details after its fields
 $fields = [];

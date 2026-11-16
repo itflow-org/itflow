@@ -145,13 +145,20 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                         <i class="fas fa-plus me-2"></i>New Domain
                     </button>
                 <?php } ?>
-                <?php if ($num_rows[0] > 0) { ?>
+                <?php if ($num_rows[0] > 0 || ($can_edit && $client_url)) { ?>
                     <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item text-dark ajax-modal" href="#"
-                            data-modal-url="<?= buildExportModalUrl('modals/domain/domain_export.php', ['client_id', 'client', 'expire_days', 'archived', 'q', 'tags', 'vendor']) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
-                        </a>
+                        <?php if ($can_edit && $client_url) { ?>
+                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=domains">
+                                <i class="fa fa-fw fa-upload me-2"></i>Import
+                            </a>
+                        <?php } ?>
+                        <?php if ($num_rows[0] > 0) { ?>
+                            <a class="dropdown-item text-dark ajax-modal" href="#"
+                                data-modal-url="<?= buildExportModalUrl('modals/domain/domain_export.php', ['client_id', 'client', 'expire_days', 'archived', 'q', 'tags', 'vendor']) ?>">
+                                <i class="fa fa-fw fa-download me-2"></i>Export
+                            </a>
+                        <?php } ?>
                     </div>
                 <?php } ?>
             </div>
@@ -442,7 +449,10 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
         'views' => ['show'],
         'view' => emptyStatePill($shows, $show, '', ['soon', 'expired', 'noauto', 'mail']),
         'text' => 'Their domain names, where each is registered and when it expires.',
-        'actions' => $can_edit ? [['label' => 'New Domain', 'modal' => "modals/domain/domain_add.php?$client_url", 'size' => 'lg']] : [],
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New Domain', 'modal' => "modals/domain/domain_add.php?$client_url", 'size' => 'lg']],
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=domains", 'icon' => 'fa-upload', 'size' => 'lg']] : []
+        ) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>
