@@ -56,7 +56,7 @@ function settingsPages() {
         'notification' => ['group' => 'email', 'title' => 'Notifications', 'icon' => 'fa-bell', 'url' => 'settings_notification.php',
             'about' => 'Which alerts ITFlow raises, and which emails and texts clients get.'],
         'security' => ['group' => 'access', 'title' => 'Security', 'icon' => 'fa-shield-alt', 'url' => 'settings_security.php',
-            'about' => 'The sign-in page, two-step sign-in, failed sign-ins and shared links.'],
+            'about' => 'The sign-in page, two-step sign-in, failed sign-ins, API keys and shared links.'],
         'client_portal' => ['group' => 'access', 'title' => 'Client portal', 'icon' => 'fa-user-shield', 'url' => 'settings_client_portal.php', 'module' => 'portal',
             'about' => 'How your clients\' contacts sign in to the portal, and the announcements they see there.'],
         'identity' => ['group' => 'access', 'title' => 'Single sign-on', 'icon' => 'fa-fingerprint', 'url' => 'identity_providers.php', 'module' => 'portal',
@@ -262,6 +262,7 @@ function settingsFields() {
         'config_login_key_secret' => ['page' => 'security', 'section' => 'The sign-in page', 'label' => 'Login key', 'quiet' => true, 'words' => 'login key secret url address'],
         'config_login_remember_me_expire' => ['page' => 'security', 'section' => 'Two-step sign-in', 'label' => 'Remember a browser for', 'words' => '2fa mfa remember me days trusted device'],
         'config_login_alert_failures' => ['page' => 'security', 'section' => 'Failed sign-ins', 'label' => 'Tell admins', 'kind' => 'select', 'options' => 'sign_in_alerts', 'words' => 'failed login brute force lockout alert'],
+        'config_api_key_in_address' => ['page' => 'security', 'section' => 'API keys', 'label' => 'Take API keys in the address', 'words' => 'api key address url query string api_key header x-api-key access log'] + $on_off,
         'config_share_max_hours' => ['page' => 'security', 'section' => 'Shared links', 'label' => 'Longest a shared link can last', 'kind' => 'select', 'options' => 'share_max', 'words' => 'share link expiry guest'],
         'config_share_require_protection' => ['page' => 'security', 'section' => 'Shared links', 'label' => 'Shared passwords need a passphrase or code', 'words' => 'share passphrase code protect'] + $on_off,
 

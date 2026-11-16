@@ -105,6 +105,26 @@ if (isset($api_key)) {
         $api_key_decrypt_hash = $row['api_key_decrypt_hash']; // No sanitization
         $api_key_user_id = intval($row['api_key_user_id']);
 
+        // A key in the address is in the web server's access log: Admin > API Keys flags it, and
+        // once Admin > Settings > Security stops taking keys there, the call is turned away
+        if (apiKeyInAddress()) {
+            apiKeyNoteAddress($row['api_key_id']);
+            if (!apiKeyInAddressAccepted()) {
+                $url_path = escapeSql(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+                $refused_description = escapeSql("API key " . $row['api_key_name'] . " sent in the address, which ITFlow doesn't take") . " (endpoint: $url_path)";
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = '$refused_description', log_ip = '$ip', log_user_agent = '$user_agent',
+                    log_entity_id = " . intval($row['api_key_id']));
+                logForwardQueue('audit', mysqli_insert_id($mysqli));
+
+                $return_arr['success'] = "False";
+                $return_arr['message'] = "This ITFlow doesn't take API keys in the address, where web server logs keep them - send the key in the X-API-Key header.";
+
+                header(WORDING_UNAUTHORIZED);
+                echo json_encode($return_arr);
+                exit();
+            }
+        }
+
         // When it was last used, for Admin > API Keys - at most once a minute, not every call
         mysqli_query($mysqli, "UPDATE api_keys SET api_key_last_used_at = NOW() WHERE api_key_id = " . intval($row['api_key_id']) . "
             AND (api_key_last_used_at IS NULL OR api_key_last_used_at < NOW() - INTERVAL 1 MINUTE)");

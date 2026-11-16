@@ -3,7 +3,8 @@
 /*
  * Admin > Settings > Security - the sign-in page (its message, and a login
  * key agents need in its address), how long two-step sign-in remembers a
- * device, when admins hear of failed sign-ins, and shared links. Saved by
+ * device, when admins hear of failed sign-ins, whether the API takes a key in
+ * the address, and shared links. Saved by
  * edit_security_settings (admin/post/settings_security.php).
  */
 
@@ -11,6 +12,7 @@ require_once "includes/inc_all_admin.php";
 
 // Read here rather than with every page's settings, so a page still opens before the update that adds it
 $config_login_alert_failures = signInAlertLimit();
+$config_api_key_in_address = apiKeyInAddressAccepted() ? 1 : 0;
 
 $login_url = rtrim('https://' . preg_replace('#^https?://#', '', (string) $config_base_url), '/') . '/login.php?key=';
 $login_key_shown = (string) settingsValue('config_login_key_secret', $config_login_key_secret);
@@ -45,6 +47,10 @@ echo settingsPageStart('security');
             <?= settingsSectionStart('failed', 'Failed sign-ins', 'Counted over ' . SIGN_IN_WINDOW_MINUTES . ' minutes, from one address or against one account. An address is turned away after ' . SIGN_IN_LOCKOUT . ', whatever is set here.') ?>
                 <?= settingsSelect('config_login_alert_failures', intval($config_login_alert_failures), signInAlertOptions(), ['icon' => 'fa-bell',
                     'help' => 'Each admin gets a notification and an email.']) ?>
+            <?= settingsSectionEnd() ?>
+
+            <?= settingsSectionStart('api', 'API keys', 'Older scripts send their key in the address - and your web server\'s access log keeps every address it\'s sent, key and all. A key in the X-API-Key header isn\'t logged.') ?>
+                <?= settingsSwitch('config_api_key_in_address', $config_api_key_in_address, ['help' => 'Off, a key in the address is turned away. <a href="api_keys.php">API Keys</a> flags each key that still comes that way - move them to the header first.']) ?>
             <?= settingsSectionEnd() ?>
 
             <?= settingsSectionStart('shares', 'Shared links', 'When an agent shares a login, note, document or file with someone outside ITFlow.') ?>

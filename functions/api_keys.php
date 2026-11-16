@@ -34,6 +34,42 @@ function apiKeyFromRequest() {
     return '';
 }
 
+/* Did this call come with a key in its address (?api_key=)? Then the web server's access log has it. */
+function apiKeyInAddress() {
+    return is_string($_GET['api_key'] ?? null) && trim($_GET['api_key']) !== '';
+}
+
+/*
+ * Whether the API still takes a key in the address - Admin > Settings > Security. Installs
+ * that had keys when the setting came (database 3.7.0) do, so nothing using them broke; others
+ * don't. Read here rather than with every page's settings, so the API still answers before the
+ * update that adds it - taking it, as it always did.
+ */
+function apiKeyInAddressAccepted() {
+    global $mysqli;
+    static $accepted = null;
+    if ($accepted === null) {
+        try {
+            $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_api_key_in_address FROM settings WHERE company_id = 1"));
+            $accepted = !empty($row[0]);
+        } catch (Throwable $e) {
+            $accepted = true;
+        }
+    }
+    return $accepted;
+}
+
+/* Note that a key came in the address, for Admin > API Keys to flag - at most once a minute, not every call. */
+function apiKeyNoteAddress($api_key_id) {
+    global $mysqli;
+    try {
+        mysqli_query($mysqli, "UPDATE api_keys SET api_key_address_at = NOW() WHERE api_key_id = " . intval($api_key_id) . "
+            AND (api_key_address_at IS NULL OR api_key_address_at < NOW() - INTERVAL 1 MINUTE)");
+    } catch (Throwable $e) {
+        // Before the update that adds it
+    }
+}
+
 /* Has this key expired? It works until the start of its expiry date. */
 function apiKeyExpired(array $row) {
     return (string) $row['api_key_expire'] <= date('Y-m-d');

@@ -3,8 +3,8 @@
 /*
  * Admin > Settings > Security (admin/settings_security.php):
  * edit_security_settings saves the sign-in page's message and login key, how
- * long a browser is remembered, when admins hear of failed sign-ins, and
- * shared links. A login key required with none set - which would leave
+ * long a browser is remembered, when admins hear of failed sign-ins, whether
+ * the API takes a key in the address, and shared links. A login key required with none set - which would leave
  * agents no way in but the database - is refused, as is a key that couldn't
  * be typed into an address, or a time out of range. Nothing is saved then.
  * A choice not offered settles to the usual one.
@@ -17,7 +17,7 @@ if (isset($_POST['edit_security_settings'])) {
     validateCSRFToken();
 
     $before = settingsCurrent(['config_login_message', 'config_login_key_required', 'config_login_key_secret', 'config_login_remember_me_expire',
-        'config_login_alert_failures', 'config_share_max_hours', 'config_share_require_protection']);
+        'config_login_alert_failures', 'config_api_key_in_address', 'config_share_max_hours', 'config_share_require_protection']);
 
     // What was sent, and what is saved for anything that wasn't - a switch not sent is off
     $in = $_POST + array_map(function ($value) { return (string) $value; }, $before);
@@ -28,6 +28,7 @@ if (isset($_POST['edit_security_settings'])) {
         'config_login_key_secret' => trim((string) $in['config_login_key_secret']),
         'config_login_remember_me_expire' => intval($in['config_login_remember_me_expire']),
         'config_login_alert_failures' => intval($in['config_login_alert_failures']),
+        'config_api_key_in_address' => empty($_POST['config_api_key_in_address']) ? 0 : 1,
         'config_share_max_hours' => intval($in['config_share_max_hours']),
         'config_share_require_protection' => empty($_POST['config_share_require_protection']) ? 0 : 1,
     ];

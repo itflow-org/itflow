@@ -6,7 +6,8 @@
  * they see, whether the key works (it expires, and an agent who is
  * disabled, archived or has no role turns every call away), when it was
  * last used and from where, and its calls over the last 30 days - each
- * opening what it was used for (modals/api/api_key_usage.php). A revoked key
+ * opening what it was used for (modals/api/api_key_usage.php), and a key sent
+ * in a call's address, where the web server's access log keeps it. A revoked key
  * has expired, so it moves to Expired, where it can be deleted. The work is in functions/api_keys.php; the handlers are
  * admin/post/api_keys.php.
  */
@@ -34,7 +35,7 @@ if (!isset($sortable_columns[$sort])) {
 $today = date('Y-m-d');
 $search = "(api_key_name LIKE '%$q%' OR user_name LIKE '%$q%')";
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS api_key_id, api_key_name, api_key_secret, api_key_created_at, api_key_expire, api_key_user_id, api_key_last_used_at,
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS api_key_id, api_key_name, api_key_secret, api_key_created_at, api_key_expire, api_key_user_id, api_key_last_used_at, api_key_address_at,
         user_name, user_avatar, user_type, user_status, user_archived_at, user_role_id
     FROM api_keys
     LEFT JOIN users ON user_id = api_key_user_id
@@ -52,6 +53,11 @@ $roles = roleRows();
 $access = userClientAccess(array_filter(array_map('intval', array_column($keys, 'api_key_user_id'))));
 // What each is used for, the last 30 days (functions/api_keys.php)
 $usage = apiKeyUsageSummary(array_keys($keys));
+
+// Keys that still work and came in a call's address lately - what to move to the header (functions/api_keys.php)
+$address_since = date('Y-m-d H:i:s', strtotime('-30 days'));
+$address_keys = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM api_keys WHERE api_key_expire > '$today' AND api_key_address_at > '$address_since'"))[0]);
+$address_taken = apiKeyInAddressAccepted();
 
 $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(api_key_expire > '$today'), 0), COALESCE(SUM(api_key_expire <= '$today'), 0)
     FROM api_keys LEFT JOIN users ON user_id = api_key_user_id WHERE $search"));
@@ -72,6 +78,22 @@ $csrf = $_SESSION['csrf_token'];
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/api/api_key_add.php"><i class="fas fa-plus me-2"></i>New API Key</button>
         </div>
     </div>
+
+    <?php if ($address_keys) { ?>
+        <div class="alert alert-warning rounded-0 border-0 border-bottom mb-0 d-flex flex-wrap flex-md-nowrap align-items-center gap-2" data-api-keys-address="<?= $address_taken ? 'taken' : 'refused' ?>">
+            <i class="fas fa-fw fa-exclamation-triangle"></i>
+            <div class="flex-grow-1 min-w-0">
+                <strong><?= $address_keys ?> key<?= $address_keys === 1 ? ' was' : 's were' ?> sent in the address</strong> in the last 30 days, as <span class="font-monospace">?api_key=</span>, so your web server's access log has <?= $address_keys === 1 ? 'it' : 'them' ?>.
+                <?php $address_one = $address_keys === 1; ?>
+                <?= $address_taken ? 'Move ' . ($address_one ? 'it' : 'each') . ' to the X-API-Key header and give it a new key, then stop taking keys in the address.'
+                    : ($address_one ? 'It\'s' : 'They\'re') . ' turned away now - move ' . ($address_one ? 'it' : 'each') . ' to the X-API-Key header and give it a new key.' ?>
+            </div>
+            <?php if ($address_taken) { ?>
+                <a class="btn btn-sm btn-warning text-nowrap" href="settings_security.php#api">Security settings</a>
+            <?php } ?>
+        </div>
+    <?php } ?>
+
     <div class="card-header py-3">
         <form autocomplete="off">
             <?php if ($show_expired) { ?><input type="hidden" name="show" value="expired"><?php } ?>
@@ -134,6 +156,10 @@ $csrf = $_SESSION['csrf_token'];
                     $use = $usage[$api_key_id] ?? null;
                     if ($use && $use['last_ip'] !== '') {
                         $last_used .= '<div class="text-body-secondary font-monospace" title="Where the last call came from">' . escapeHtml($use['last_ip']) . '</div>';
+                    }
+                    if ($row['api_key_address_at'] && $row['api_key_address_at'] > $address_since) {
+                        $last_used .= '<div class="text-warning-emphasis" data-api-key-address title="Sent as ?api_key= - your web server\'s access log has it. Move it to the X-API-Key header and give it a new key.">'
+                            . '<i class="fas fa-exclamation-triangle me-1"></i>In the address ' . escapeHtml(timeAgo($row['api_key_address_at'])) . '</div>';
                     }
                     $usage_url = "modals/api/api_key_usage.php?id=$api_key_id";
                     ob_start(); ?>

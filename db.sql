@@ -194,6 +194,7 @@ CREATE TABLE `api_keys` (
   `api_key_expire` date NOT NULL,
   `api_key_user_id` int(11) NOT NULL DEFAULT 0,
   `api_key_last_used_at` datetime DEFAULT NULL,
+  `api_key_address_at` datetime DEFAULT NULL,
   PRIMARY KEY (`api_key_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3399,6 +3400,7 @@ CREATE TABLE `settings` (
   `config_share_max_hours` int(11) NOT NULL DEFAULT 720,
   `config_share_require_protection` tinyint(1) NOT NULL DEFAULT 0,
   `config_login_alert_failures` int(11) NOT NULL DEFAULT 10,
+  `config_api_key_in_address` tinyint(1) NOT NULL DEFAULT 0,
   `config_app_log_retention` int(11) NOT NULL DEFAULT 90,
   `config_log_forward_enabled` tinyint(1) NOT NULL DEFAULT 0,
   `config_log_forward_host` varchar(200) DEFAULT NULL,
