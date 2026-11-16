@@ -497,235 +497,116 @@ if (isset($_POST["import_clients_csv"])) {
     validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
-    $error = false;
 
-    if (!empty($_FILES["file"]["tmp_name"])) {
-        $file_name = $_FILES["file"]["tmp_name"];
-    } else {
-        flashAlert("Please select a file to upload.", 'error');
+    // Read by its headings - any order, any left out (functions/import.php)
+    [$rows, $ignored, $error] = importCsvRows('clients');
+    if ($error !== '') {
+        flashAlert(escapeHtml($error), 'error');
         redirect();
     }
 
-    //Check file is CSV
-    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
-    $allowed_file_extensions = array('csv');
-    if (in_array($file_extension,$allowed_file_extensions) === false) {
-        $error = true;
-        flashAlert("Bad file extension", 'error');
-    }
-
-    //Check file isn't empty
-    elseif ($_FILES["file"]["size"] < 1) {
-        $error = true;
-        flashAlert("Bad file size (empty?)", 'error');
-    }
-
-    //(Else)Check column count
-    $f = fopen($file_name, "r");
-    $f_columns = fgetcsv($f, 1000, ",");
-    if (!$error & count($f_columns) != 22) {
-        $error = true;
-        flashAlert("Bad column count.", 'error');
-    }
-
-    //Else, parse the file
-    if (!$error) {
-        $file = fopen($file_name, "r");
-        fgetcsv($file, 1000, ","); // Skip first line
-        $row_count = 0;
-        $duplicate_count = 0;
-        while(($column = fgetcsv($file, 1000, ",")) !== false) {
-            $duplicate_detect = 0;
-            if (isset($column[0])) {
-                $name = escapeSql($column[0]);
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT 1 FROM clients WHERE client_name = '$name'")) > 0) {
-                    $duplicate_detect = 1;
-                }
-            }
-
-            $industry = '';
-            if (isset($column[1])) {
-                $industry = escapeSql($column[1]);
-            }
-
-            $referral = '';
-            if (isset($column[2])) {
-                $referral = (string) $column[2];
-            }
-
-            $website = '';
-            if (isset($column[3])) {
-                $website = escapeSql(preg_replace("(^https?://)", "", $column[3]));
-            }
-
-            $location_name = '';
-            if (isset($column[4])) {
-                $location_name = escapeSql($column[4]);
-            }
-
-            $location_phone = '';
-            if (isset($column[5])) {
-                $location_phone = preg_replace("/[^0-9]/", '', $column[5]);
-            }
-
-            $address = '';
-            if (isset($column[6])) {
-                $address = escapeSql($column[6]);
-            }
-
-            $city = '';
-            if (isset($column[7])) {
-                $city = escapeSql($column[7]);
-            }
-
-            $state = '';
-            if (isset($column[8])) {
-                $state = escapeSql($column[8]);
-            }
-
-            $zip = '';
-            if (isset($column[9])) {
-                $zip = escapeSql($column[9]);
-            }
-
-            $country = '';
-            if (isset($column[10])) {
-                $country = escapeSql($column[10]);
-            }
-
-            $contact_name = '';
-            if (isset($column[11])) {
-                $contact_name = escapeSql($column[11]);
-            }
-
-            $title = '';
-            if (isset($column[12])) {
-                $title = escapeSql($column[12]);
-            }
-
-            $contact_phone = '';
-            if (isset($column[13])) {
-                $contact_phone = preg_replace("/[^0-9]/", '',$column[13]);
-            }
-
-            $contact_extension = '';
-            if (isset($column[14])) {
-                $contact_extension = preg_replace("/[^0-9]/", '',$column[14]);
-            }
-
-            $contact_mobile = '';
-            if (isset($column[15])) {
-                $contact_mobile = preg_replace("/[^0-9]/", '',$column[15]);
-            }
-
-            $contact_email = '';
-            if (isset($column[16])) {
-                $contact_email = escapeSql($column[16]);
-            }
-
-            // An hourly rate or payment terms other than the defaults become the client's Standard terms contract
-            $hourly_rate = null;
-            if (isset($column[17]) && trim($column[17]) !== '') {
-                $hourly_rate = floatval(str_replace([',', '$'], '', $column[17]));
-            }
-
-            $currency_code = escapeSql($session_company_currency);
-            if (isset($column[18])) {
-                $currency_code = escapeSql($column[18]);
-            }
-
-            $payment_terms = null;
-            if (isset($column[19]) && trim($column[19]) !== '' && is_numeric(trim($column[19]))) {
-                $payment_terms = max(0, min(365, intval($column[19])));
-            }
-
-            $tax_id_number = '';
-            if (isset($column[20])) {
-                $tax_id_number = escapeSql($column[20]);
-            }
-
-            $abbreviation = '';
-            if (isset($column[21])) {
-                $abbreviation = escapeSql($column[21]);
-            }
-
-            // Check if duplicate was detected
-            if ($duplicate_detect == 0) {
-                //Add
-                // A referral that isn't one yet is made one; one that is takes its own spelling
-                $referral = escapeSql(categoryEnsure('Referral', $referral));
-
-                // Create client
-                mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$industry', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_tax_id_number = '$tax_id_number', client_abbreviation = '$abbreviation'" . billingClientLegacySql());
-
-                $client_id = mysqli_insert_id($mysqli);
-
-                if (!file_exists("../uploads/clients/$client_id")) {
-                    mkdir("../uploads/clients/$client_id");
-                    file_put_contents("../uploads/clients/$client_id/index.php", "");
-                }
-
-                // Create Location
-                mysqli_query($mysqli, "INSERT INTO locations SET location_name = '$location_name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$location_phone', location_country = '$country', location_primary = 1, location_client_id = $client_id");
-
-                // Create Contact
-                mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_title = '$title', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_primary = 1, contact_important = 1, contact_client_id = $client_id");
-
-                // Its rate and terms, where they aren't the defaults (functions/contract.php)
-                if (function_exists('contractsReady') && contractsReady() && contractStandardTermsAdd($client_id, $hourly_rate, $payment_terms, [], null, 'Made by the client import from its Hourly Rate and Payment Terms.')) {
-                    $terms_count = ($terms_count ?? 0) + 1;
-                }
-
-                $row_count = $row_count + 1;
-
-            } else {
-
-                $duplicate_count = $duplicate_count + 1;
-
-            }
-
+    $row_count = $duplicate_count = $no_name_count = $terms_count = 0;
+    $notes = ['dates left empty (use YYYY-MM-DD)' => 0, 'tax rates not found' => 0, 'currencies not a 3-letter code' => 0];
+    // A phone's dial code and number - "+1 (412) 555-0100" as the exports write it (functions/import.php)
+    $phone = function ($value, $column) {
+        [$code, $number] = importPhone($value);
+        return "{$column}_country_code = '" . escapeSql($code) . "', $column = '" . escapeSql(mb_substr($number, 0, 200)) . "'";
+    };
+    foreach ($rows as $row) {
+        $in = function ($key) use ($row) {
+            return (string) ($row[$key] ?? '');
+        };
+        if ($in('client_name') === '') {
+            $no_name_count++;
+            continue;
         }
-        fclose($file);
+        $name = escapeSql(mb_substr($in('client_name'), 0, 200));
+        if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM clients WHERE client_name = '$name'")) > 0) {
+            $duplicate_count++;
+            continue;
+        }
 
-        logAudit("Client", "Import", "$session_name imported $row_count client(s) via CSV file, $duplicate_count duplicate(s) found");
+        $industry = escapeSql(mb_substr($in('client_type'), 0, 200));
+        // A referral that isn't one yet is made one; one that is takes its own spelling
+        $referral = escapeSql(categoryEnsure('Referral', $in('client_referral')));
+        $website = escapeSql(mb_substr(preg_replace("(^https?://)", "", $in('client_website')), 0, 200));
+        $lead = importYes($in('client_lead')) ? 1 : 0;
+        $abbreviation = escapeSql(mb_substr($in('client_abbreviation') !== '' ? $in('client_abbreviation') : shortenClientName($in('client_name')), 0, 6));
+        $currency = strtoupper($in('client_currency_code'));
+        if ($currency !== '' && !preg_match('/^[A-Z]{3}$/', $currency)) {
+            $notes['currencies not a 3-letter code']++;
+            $currency = '';
+        }
+        $currency = escapeSql($currency !== '' ? $currency : $session_company_currency);
+        $tax_id_number = escapeSql(mb_substr($in('client_tax_id_number'), 0, 255));
+        $client_notes = escapeSql($in('client_notes'));
 
-        flashAlert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found" . (!empty($terms_count) ? ", <strong>$terms_count</strong> with a Standard terms contract for their own rate or payment terms" : ''));
+        // Its tax rate and exemption, as the Billing tab sets them (functions/tax.php)
+        $tax_input = [];
+        if ($in('client_tax_rate') !== '') {
+            $tax_input['default_tax_id'] = importTaxId($in('client_tax_rate'));
+            $notes['tax rates not found'] += $tax_input['default_tax_id'] ? 0 : 1;
+        }
+        if (importYes($in('client_tax_exempt'))) {
+            $expires = importDate($in('client_tax_exempt_expires'));
+            $notes['dates left empty (use YYYY-MM-DD)'] += $expires === null ? 1 : 0;
+            $tax_input += ['tax_exempt' => true, 'tax_exempt_number' => $in('client_tax_exempt_number'), 'tax_exempt_expires' => (string) $expires];
+        }
 
-        redirect();
+        mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$industry', client_website = '$website', client_referral = '$referral', client_lead = $lead, client_currency_code = '$currency', client_tax_id_number = '$tax_id_number', client_abbreviation = '$abbreviation', client_notes = '$client_notes'"
+            . ($tax_input ? ', ' . taxClientSetSql($tax_input) : '') . billingClientLegacySql());
+        $client_id = mysqli_insert_id($mysqli);
 
+        if (!file_exists("../uploads/clients/$client_id")) {
+            mkdir("../uploads/clients/$client_id");
+            file_put_contents("../uploads/clients/$client_id/index.php", "");
+        }
+
+        // Its primary location and contact - when the row has them
+        if ($in('location_name') . $in('location_phone') . $in('location_address') . $in('location_city') . $in('location_state') . $in('location_zip') . $in('location_country') !== '') {
+            $location_name = escapeSql(mb_substr($in('location_name') !== '' ? $in('location_name') : 'Primary', 0, 200));
+            mysqli_query($mysqli, "INSERT INTO locations SET location_name = '$location_name', location_address = '" . escapeSql($in('location_address')) . "', location_city = '" . escapeSql($in('location_city')) . "',
+                location_state = '" . escapeSql($in('location_state')) . "', location_zip = '" . escapeSql($in('location_zip')) . "', location_country = '" . escapeSql($in('location_country')) . "',
+                " . $phone($in('location_phone'), 'location_phone') . ", location_primary = 1, location_client_id = $client_id");
+        }
+        if ($in('contact_name') . $in('contact_email') . $in('contact_phone') . $in('contact_mobile') !== '') {
+            mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '" . escapeSql($in('contact_name') !== '' ? $in('contact_name') : $in('contact_email')) . "', contact_title = '" . escapeSql($in('contact_title')) . "',
+                " . $phone($in('contact_phone'), 'contact_phone') . ", contact_extension = '" . preg_replace('/\D/', '', $in('contact_extension')) . "', " . $phone($in('contact_mobile'), 'contact_mobile') . ",
+                contact_email = '" . escapeSql($in('contact_email')) . "', contact_primary = 1, contact_important = 1, contact_client_id = $client_id");
+        }
+
+        if ($in('client_tags') !== '') {
+            tagSetForRecord('client', $client_id, importTagIds('client', $in('client_tags')));
+        }
+
+        // An hourly rate or payment terms other than the defaults become the client's Standard terms contract (functions/contract.php)
+        $hourly_rate = $in('hourly_rate') !== '' ? floatval(str_replace([',', '$'], '', $in('hourly_rate'))) : null;
+        $payment_terms = is_numeric($in('payment_terms')) ? max(0, min(365, intval($in('payment_terms')))) : null;
+        if (function_exists('contractsReady') && contractsReady() && contractStandardTermsAdd($client_id, $hourly_rate, $payment_terms, [], null, 'Made by the client import from its Hourly Rate and Payment Terms.')) {
+            $terms_count++;
+        }
+
+        $row_count++;
     }
 
-    //Check for any errors, if there are notify user and redirect
-    if ($error) {
-        redirect();
-    }
+    $left_out = importNotesText($notes + ['rows with no Client Name' => $no_name_count]);
+    logAudit("Client", "Import", "$session_name imported $row_count client(s) via CSV file, $duplicate_count duplicate(s) found" . ($left_out !== '' ? " - $left_out" : ''));
+
+    flashAlert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found"
+        . ($terms_count ? ", <strong>$terms_count</strong> with a Standard terms contract for their own rate or payment terms" : '')
+        . ($left_out !== '' ? ' - ' . escapeHtml($left_out) : '')
+        . ($ignored ? '. Columns not imported: ' . escapeHtml(implode(', ', array_slice($ignored, 0, 8)) . (count($ignored) > 8 ? ' and ' . (count($ignored) - 8) . ' more' : '')) : ''),
+        $left_out !== '' || $ignored ? 'warning' : 'success');
+
+    redirect();
+
 }
 
 if (isset($_GET['download_clients_csv_template'])) {
 
-    $delimiter = ",";
-    $enclosure = '"';
-    $escape    = '\\';   // backsla
-    $filename = "Clients-Template.csv";
+    enforceUserPermission('module_client');
 
-    //create a file pointer
-    $f = fopen('php://memory', 'w');
-
-    //set column headers
-    $fields = array('Client Name', 'Industry', 'Referral', 'Website', 'Primary Location Name', 'Location Phone', 'Location Address', 'City', 'State', 'Postal Code', 'Country', 'Primary Contact Name', 'Title', 'Contact Phone', 'Extension', 'Contact Mobile', 'Contact Email', 'Hourly Rate', 'Currency', 'Payment Terms', 'Tax ID', 'Abbreviation');
-    fputcsv($f, $fields, $delimiter, $enclosure, $escape);
-
-    //move back to beginning of file
-    fseek($f, 0);
-
-    //set headers to download file rather than displayed
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-    //output all remaining data on a file pointer
-    fpassthru($f);
-
-    exit;
+    importTemplateDownload('clients', 'Clients-Template.csv');
 
 }
 

@@ -17,15 +17,15 @@ ob_start();
     <input type="hidden" name="client_id" value="<?= $client_id ?>">
 
     <div class="modal-body">
-        <p><strong>Format csv file with headings & data:</strong><br>Name, Description, Type, Make, Model, Serial, OS, Purchase Date, Assigned To, Location, Physical Location, Notes</p>
-        <p class="small text-body-secondary mb-0">After those, any of an asset's details can follow, headed as the asset export heads them - <span class="font-monospace">Ports</span>, <span class="font-monospace">SFP Ports</span>, <span class="font-monospace">RAM (GB)</span>, <span class="font-monospace">Capacity (VA)</span> and so on. Each is kept where the row's type has it, and Ports and SFP Ports add its interfaces.</p>
+        <p><strong>A CSV file with these headings</strong>, in any order - leave out the ones you don't have. Only Name is needed, and a file exported from the assets list imports as it is:<br><?= escapeHtml(importHeadingsText('assets')) ?></p>
+        <p class="small text-body-secondary mb-0">Assigned To, Location, Vendor and Network are the client's own, by name - Assigned To by email too. Tags are separated by commas. Any of an asset's details can be added too, headed as the asset export heads them - <span class="font-monospace">Ports</span>, <span class="font-monospace">SFP Ports</span>, <span class="font-monospace">RAM (GB)</span>, <span class="font-monospace">Capacity (VA)</span> and so on. Each is kept where the row's type has it, and Ports and SFP Ports add its interfaces.</p>
         <hr>
         <div class="mb-3 my-4">
             <input type="file" class="form-control" name="file" accept=".csv" required>
         </div>
         <hr>
         <div>Download <a href="post.php?download_assets_csv_template=<?= $client_id ?>">sample csv template</a></div>
-        <small class="text-muted">Note: Purchase date must be in the format YYYY-MM-DD. Spreadsheet tools may automatically reformat dates.</small>
+        <small class="text-muted">Note: dates must be in the format YYYY-MM-DD. Spreadsheet tools may automatically reformat dates.</small>
     </div>
     <div class="modal-footer">
         <button type="submit" name="import_assets_csv" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Import</button>

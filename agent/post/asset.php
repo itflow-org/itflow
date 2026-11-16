@@ -1002,196 +1002,104 @@ if (isset($_POST["import_assets_csv"])) {
 
     enforceClientAccess();
 
-    $file_name = $_FILES["file"]["tmp_name"];
-
-    $error = false;
-
-    if (!empty($_FILES["file"]["tmp_name"])) {
-        $file_name = $_FILES["file"]["tmp_name"];
-    } else {
-        flashAlert("Please select a file to upload.", 'error');
+    // Read by its headings - any order, any left out, and any of an asset's details after (functions/import.php)
+    [$rows, $ignored, $error] = importCsvRows('assets');
+    if ($error !== '') {
+        flashAlert(escapeHtml($error), 'error');
         redirect();
     }
 
-    //Check file is CSV
-    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
-    $allowed_file_extensions = array('csv');
-    if (in_array($file_extension,$allowed_file_extensions) === false) {
-        $error = true;
-        flashAlert("Bad file extension", 'error');
-    }
-
-    //Check file isn't empty
-    elseif ($_FILES["file"]["size"] < 1) {
-        $error = true;
-        flashAlert("Bad file size (empty?)", 'error');
-    }
-
-    //(Else)Check column count (name, desc, type, make, model, serial, os, purchase date, assigned to, location, physical location, notes),
-    // then any of the details, headed as the export heads them (functions/asset_type.php)
-    $f = fopen($file_name, "r");
-    $f_columns = fgetcsv($f, 1000, ",");
-    if (!$error & (!is_array($f_columns) || count($f_columns) < 12)) {
-        $error = true;
-        flashAlert("Invalid column count.", 'error');
-    }
-    $spec_columns = [];
-    if (!$error) {
-        foreach (array_slice($f_columns, 12, null, true) as $index => $heading) {
-            $heading = strtolower(trim((string) $heading));
-            foreach (ASSET_SPECS as $spec_key => $spec) {
-                if ($heading === strtolower($spec['label']) || $heading === strtolower($spec['label'] . (isset($spec['unit']) ? ' (' . $spec['unit'] . ')' : '')) || $heading === $spec_key) {
-                    $spec_columns[$index] = $spec_key;
-                }
-            }
+    $row_count = $duplicate_count = $no_name_count = 0;
+    $notes = ['dates left empty (use YYYY-MM-DD)' => 0, 'contacts not found' => 0, 'locations not found' => 0, 'vendors not found' => 0, 'networks not found' => 0];
+    $spec_rows = [];
+    foreach ($rows as $row) {
+        $in = function ($key) use ($row) {
+            return (string) ($row[$key] ?? '');
+        };
+        if ($in('asset_name') === '') {
+            $no_name_count++;
+            continue;
         }
-    }
-
-    //Else, parse the file
-    if (!$error) {
-        $file = fopen($file_name, "r");
-        fgetcsv($file, 1000, ","); // Skip first line
-        $row_count = 0;
-        $duplicate_count = 0;
-        $spec_rows = [];
-        while(($column = fgetcsv($file, 1000, ",")) !== false) {
-
-            // Default variables (if undefined) - each row starts empty, nothing carried from the last
-            $description = $type = $make = $model = $serial = $os = $physical_location = $notes = '';
-            $contact_id = $location_id = 0;
-            $purchase_date = 'NULL';
-
-            $duplicate_detect = 0;
-
-            // Name
-            if (isset($column[0])) {
-                $name = escapeSql($column[0]);
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT 1 FROM assets WHERE asset_name = '$name' AND asset_client_id = $client_id")) > 0) {
-                    $duplicate_detect = 1;
-                }
-            }
-
-            // Desc
-            if (!empty($column[1])) {
-                $description = escapeSql($column[1]);
-            }
-
-            // Type - as the list spells it, when it is one
-            if (!empty($column[2])) {
-                $type = escapeSql(assetTypeName($column[2]) ?: $column[2]);
-            }
-
-            // Make
-            if (!empty($column[3])) {
-                $make = escapeSql($column[3]);
-            }
-
-            // Model
-            if (!empty($column[4])) {
-                $model = escapeSql($column[4]);
-            }
-
-            // Serial
-            if (!empty($column[5])) {
-                $serial = escapeSql($column[5]);
-            }
-
-            // OS
-            if (!empty($column[6])) {
-                $os = escapeSql($column[6]);
-            }
-
-            // Purchase date
-            if (!empty($column[7])) {
-                $purchase_date = escapeSql($column[7]);
-
-                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $purchase_date) ||  empty($purchase_date)) {
-                    $purchase_date = "NULL";
-                } else {
-                    $purchase_date = "'" . $purchase_date . "'";
-                }
-            }
-
-            // Assigned to (contact)
-            if (!empty($column[8])) {
-                $contact = escapeSql($column[8]);
-                if ($contact) {
-                    $sql_contact = mysqli_query($mysqli,"SELECT contact_id FROM contacts WHERE contact_name = '$contact' AND contact_client_id = $client_id");
-                    $row = mysqli_fetch_assoc($sql_contact);
-                    $contact_id = intval($row['contact_id'] ?? 0);
-                }
-            }
-
-            // Location (lookup)
-            if (!empty($column[9])) {
-                $location = escapeSql($column[9]);
-                if ($location) {
-                    $sql_location = mysqli_query($mysqli,"SELECT location_id FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
-                    $row = mysqli_fetch_assoc($sql_location);
-                    $location_id = intval($row['location_id'] ?? 0);
-                }
-            }
-
-            // Physical location (varchar)
-            if (!empty($column[10])) {
-                $physical_location = escapeSql($column[10]);
-            }
-
-            // Notes (varchar)
-            if (!empty($column[11])) {
-                $notes = escapeSql($column[11]);
-            }
-
-            // Check if duplicate was detected
-            if ($duplicate_detect == 0) {
-                //Add
-                mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_purchase_date = $purchase_date, asset_physical_location = '$physical_location', asset_notes = '$notes', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id");
-
-                $asset_id = mysqli_insert_id($mysqli);
-
-                // Add Primary Interface
-                mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_primary = 1, interface_asset_id = $asset_id");
-
-                // Its details, from the columns after the twelve - kept once every row is in, so a VM's host can come later in the file
-                $spec_input = [];
-                foreach ($spec_columns as $index => $spec_key) {
-                    $spec_input[$spec_key] = (string) ($column[$index] ?? '');
-                }
-                if ($spec_input) {
-                    $spec_rows[] = [$asset_id, $column[0], $column[2] ?? '', $spec_input];
-                }
-
-                $row_count = $row_count + 1;
-            } else {
-                $duplicate_count = $duplicate_count + 1;
-            }
+        $name = escapeSql(mb_substr($in('asset_name'), 0, 200));
+        if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM assets WHERE asset_name = '$name' AND asset_client_id = $client_id")) > 0) {
+            $duplicate_count++;
+            continue;
         }
-        fclose($file);
 
-        // The details, and the ports they count; what wasn't kept, by asset
-        $spec_problems = [];
-        foreach ($spec_rows as [$spec_asset_id, $spec_asset_name, $spec_type, $spec_input]) {
-            [, $problems] = assetSpecsFromPost($spec_asset_id, $spec_type, $spec_input, $client_id);
-            if ($problems) {
-                $spec_problems[] = $spec_asset_name . ' (' . implode('; ', $problems) . ')';
+        // Its type as the list spells it, when it is one; its status one of the statuses, made when new (functions/categories.php)
+        $type = escapeSql(assetTypeName($in('asset_type')) ?: mb_substr($in('asset_type'), 0, 200));
+        $status = escapeSql(categoryEnsure('asset_status', $in('asset_status')));
+
+        // Dates as YYYY-MM-DD - anything else is left empty, and said
+        $dates = [];
+        foreach (['asset_purchase_date', 'asset_install_date', 'asset_warranty_expire'] as $key) {
+            $date = importDate($in($key));
+            $notes['dates left empty (use YYYY-MM-DD)'] += $date === null ? 1 : 0;
+            $dates[$key] = $date ? "'$date'" : 'NULL';
+        }
+
+        // The client's own records, by name - a contact by its email too
+        $ids = [];
+        foreach (['contact' => 'contact_name', 'location' => 'location_name', 'vendor' => 'vendor_name', 'network' => 'network_name'] as $kind => $key) {
+            $ids[$kind] = importClientRecordId($kind, $in($key), $client_id);
+            if ($in($key) !== '' && !$ids[$kind]) {
+                $notes[$kind . 's not found']++;
             }
         }
 
-        logAudit("Asset", "Import", "$session_name imported $row_count asset(s) via CSV file", $client_id);
+        mysqli_query($mysqli, "INSERT INTO assets SET asset_name = '$name', asset_description = '" . escapeSql(mb_substr($in('asset_description'), 0, 255)) . "', asset_type = '$type', asset_status = '$status',
+            asset_make = '" . escapeSql(mb_substr($in('asset_make'), 0, 200)) . "', asset_model = '" . escapeSql(mb_substr($in('asset_model'), 0, 200)) . "', asset_serial = '" . escapeSql(mb_substr($in('asset_serial'), 0, 200)) . "',
+            asset_os = '" . escapeSql(mb_substr($in('asset_os'), 0, 200)) . "', asset_uri = '" . escapeSql(mb_substr($in('asset_uri'), 0, 500)) . "', asset_uri_2 = '" . escapeSql(mb_substr($in('asset_uri_2'), 0, 500)) . "',
+            asset_uri_client = '" . escapeSql(mb_substr($in('asset_uri_client'), 0, 500)) . "', asset_purchase_reference = '" . escapeSql(mb_substr($in('asset_purchase_reference'), 0, 200)) . "',
+            asset_purchase_date = {$dates['asset_purchase_date']}, asset_install_date = {$dates['asset_install_date']}, asset_warranty_expire = {$dates['asset_warranty_expire']},
+            asset_physical_location = '" . escapeSql(mb_substr($in('asset_physical_location'), 0, 200)) . "', asset_notes = '" . escapeSql($in('asset_notes')) . "',
+            asset_contact_id = {$ids['contact']}, asset_location_id = {$ids['location']}, asset_vendor_id = {$ids['vendor']}, asset_client_id = $client_id");
+        $asset_id = mysqli_insert_id($mysqli);
 
-        if ($spec_problems) {
-            flashAlert("$row_count Asset(s) added, $duplicate_count duplicate(s) detected - details not kept: " . escapeHtml(implode(', ', array_slice($spec_problems, 0, 5)) . (count($spec_problems) > 5 ? ' and ' . (count($spec_problems) - 5) . ' more' : '')), 'warning');
-        } else {
-            flashAlert("$row_count Asset(s) added, $duplicate_count duplicate(s) detected");
+        // Its primary interface, with its address, MAC and network - as the asset form makes it
+        $ip = $in('interface_ip');
+        $ip = strcasecmp($ip, 'DHCP') === 0 ? 'DHCP' : (normalizeIpAddress($ip) ?: $ip);
+        $mac = normalizeMacAddress($in('interface_mac')) ?: $in('interface_mac');
+        mysqli_query($mysqli, "INSERT INTO asset_interfaces SET interface_name = '01', interface_ip = '" . escapeSql(mb_substr($ip, 0, 200)) . "', interface_mac = '" . escapeSql(mb_substr($mac, 0, 200)) . "',
+            interface_network_id = {$ids['network']}, interface_primary = 1, interface_asset_id = $asset_id");
+
+        if ($in('asset_tags') !== '') {
+            tagSetForRecord('asset', $asset_id, importTagIds('asset', $in('asset_tags')));
         }
 
-        redirect();
+        // Its details - kept once every row is in, so a VM's host can come later in the file
+        $spec_input = [];
+        foreach ($row as $key => $value) {
+            if (strpos($key, 'spec_') === 0) {
+                $spec_input[substr($key, 5)] = $value;
+            }
+        }
+        if (array_filter($spec_input, 'strlen')) {
+            $spec_rows[] = [$asset_id, $in('asset_name'), $in('asset_type'), $spec_input];
+        }
 
+        $row_count++;
     }
-    //Check for any errors, if there are notify user and redirect
-    if ($error) {
-        redirect();
+
+    // The details, and the ports they count; what wasn't kept, by asset
+    $spec_problems = [];
+    foreach ($spec_rows as [$spec_asset_id, $spec_asset_name, $spec_type, $spec_input]) {
+        [, $problems] = assetSpecsFromPost($spec_asset_id, $spec_type, $spec_input, $client_id);
+        if ($problems) {
+            $spec_problems[] = $spec_asset_name . ' (' . implode('; ', $problems) . ')';
+        }
     }
+
+    $left_out = importNotesText($notes + ['rows with no Name' => $no_name_count]);
+    logAudit("Asset", "Import", "$session_name imported $row_count asset(s) via CSV file, $duplicate_count duplicate(s) found" . ($left_out !== '' ? " - $left_out" : ''), $client_id);
+
+    flashAlert("<strong>$row_count</strong> Asset(s) added, <strong>$duplicate_count</strong> duplicate(s) found"
+        . ($left_out !== '' ? ' - ' . escapeHtml($left_out) : '')
+        . ($spec_problems ? '. Details not kept: ' . escapeHtml(implode(', ', array_slice($spec_problems, 0, 5)) . (count($spec_problems) > 5 ? ' and ' . (count($spec_problems) - 5) . ' more' : '')) : '')
+        . ($ignored ? '. Columns not imported: ' . escapeHtml(implode(', ', array_slice($ignored, 0, 8)) . (count($ignored) > 8 ? ' and ' . (count($ignored) - 8) . ' more' : '')) : ''),
+        $left_out !== '' || $spec_problems || $ignored ? 'warning' : 'success');
+
+    redirect();
 
 }
 
@@ -1204,28 +1112,7 @@ if (isset($_GET['download_assets_csv_template'])) {
     // Named for the client only when it's one this agent can reach - any id would otherwise say its client's name back
     $client_name = $client_id && hasClientAccess($client_id) ? (string) getFieldById('clients', $client_id, 'client_name') : '';
 
-    $delimiter = ",";
-    $enclosure = '"';
-    $escape    = '\\';
-    $filename = ($client_name !== '' ? toAlphanumeric($client_name) . '-' : '') . "Assets-Template.csv";
-
-    //create a file pointer
-    $f = fopen('php://memory', 'w');
-
-    //set column headers
-    $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Purchase Date', 'Assigned To', 'Location', 'Physical Location', 'Notes');
-    fputcsv($f, $fields, $delimiter, $enclosure, $escape);
-
-    //move back to beginning of file
-    fseek($f, 0);
-
-    //set headers to download file rather than displayed
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-    //output all remaining data on a file pointer
-    fpassthru($f);
-    exit;
+    importTemplateDownload('assets', ($client_name !== '' ? toAlphanumeric($client_name) . '-' : '') . 'Assets-Template.csv');
 
 }
 
