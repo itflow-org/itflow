@@ -10,9 +10,17 @@
  *     another shape where the field has more than one
  *   - Use this picture, or Remove the one there is
  *
+ * A field with data-crop="free" - a receipt, a logo - has the whole picture
+ * with a frame over it, its corners and edges dragged in to any shape, and
+ * with data-picture-trim a Trim the edges button that pulls the frame in to
+ * what's on the picture. A field whose file input takes application/pdf takes
+ * a PDF as it is. With data-picture-submit the form is sent once the picture
+ * is used - the receipt on an expense's quick look.
+ *
  * The crop goes in the field's hidden file input (through a DataTransfer),
- * as a JPG, or a WebP for a picture that may be see-through (PNG where the
- * browser can't write WebP), no bigger than data-crop-max and without the
+ * as a JPG for a JPG, else - so see-through parts stay see-through - a WebP
+ * where the field takes WebP (PNG where the browser can't write it) or a PNG,
+ * no bigger than data-crop-max and without the
  * photo's own data - where it was taken, the camera. Remove sets the field's
  * remove input to 1. The form posts them as it always did. Opened again, the
  * window has the picture picked as it was left, to change.
@@ -302,18 +310,9 @@
     };
 
     Cropper.prototype.rotate = function () {
-        var source = this.source;
-        if (!source) {
-            return;
+        if (this.source) {
+            this.setSource(turnedQuarter(this.source));
         }
-        var turned = document.createElement('canvas');
-        turned.width = source.height;
-        turned.height = source.width;
-        var context = turned.getContext('2d');
-        context.translate(turned.width, 0);
-        context.rotate(Math.PI / 2);
-        context.drawImage(source, 0, 0);
-        this.setSource(turned);
     };
 
     // What is in the frame, the longest side no more than $max - its size, before encoding
@@ -324,11 +323,254 @@
         return [Math.max(1, Math.round(sw * k)), Math.max(1, Math.round(sh * k))];
     };
 
-    // ... as a file: a JPG for a JPG, else WebP (PNG where WebP can't be written) - { blob, width, height }
+    // ... as a file - { blob, width, height }
     Cropper.prototype.encode = function (type, max) {
-        var size = this.outputSize(max);
         var sw = this.fw / this.scale;
         var sh = this.fh / this.scale;
+        return encodeCanvas(this.source, this.cx - sw / 2, this.cy - sh / 2, sw, sh, this.outputSize(max), type);
+    };
+
+    /*
+     * The free crop - the whole picture on the stage, and a frame over it
+     * dragged by its corners and edges to any shape (data-crop="free"), or
+     * moved by its middle. Its state is the frame on the picture, in the
+     * picture's own pixels.
+     */
+    var HANDLES = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+
+    function FreeCropper(stage, frame) {
+        var self = this;
+        this.stage = stage;
+        this.frame = frame;
+        this.onchange = function () {};
+        HANDLES.forEach(function (handle) {
+            var dot = el('span', 'itflow-free-handle is-' + handle);
+            dot.setAttribute('data-handle', handle);
+            frame.appendChild(dot);
+        });
+
+        var drag = null;
+        stage.addEventListener('pointerdown', function (e) {
+            if (!self.source || (e.pointerType === 'mouse' && e.button !== 0)) {
+                return;
+            }
+            var handle = e.target.closest('[data-handle]');
+            var onFrame = e.target.closest('.itflow-free-frame');
+            if (!handle && !onFrame) {
+                return;
+            }
+            stage.setPointerCapture(e.pointerId);
+            drag = { id: e.pointerId, x: e.clientX, y: e.clientY, handle: handle ? handle.getAttribute('data-handle') : 'move', start: Object.assign({}, self.rect) };
+            stage.classList.add('is-moving');
+            e.preventDefault();
+        });
+        stage.addEventListener('pointermove', function (e) {
+            if (!drag || drag.id !== e.pointerId) {
+                return;
+            }
+            self.dragTo(drag, (e.clientX - drag.x) / self.scale, (e.clientY - drag.y) / self.scale);
+        });
+        var end = function (e) {
+            if (drag && drag.id === e.pointerId) {
+                drag = null;
+                stage.classList.remove('is-moving');
+            }
+        };
+        stage.addEventListener('pointerup', end);
+        stage.addEventListener('pointercancel', end);
+
+        frame.addEventListener('keydown', function (e) {
+            if (!self.source) {
+                return;
+            }
+            var step = (e.shiftKey ? 40 : 8) / self.scale;
+            var moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+            if (!moves[e.key]) {
+                return;
+            }
+            e.preventDefault();
+            self.dragTo({ handle: 'move', start: Object.assign({}, self.rect) }, moves[e.key][0], moves[e.key][1]);
+        });
+
+        if (window.ResizeObserver) {
+            new ResizeObserver(function () {
+                self.layout();
+            }).observe(stage);
+        }
+    }
+
+    FreeCropper.prototype.setSource = function (source, rect) {
+        if (this.source && this.source.parentNode) {
+            this.source.remove();
+        }
+        this.source = source;
+        if (!source) {
+            return;
+        }
+        source.className = 'itflow-crop-image';
+        source.setAttribute('aria-hidden', 'true');
+        source.style.width = source.width + 'px';
+        source.style.height = source.height + 'px';
+        this.stage.insertBefore(source, this.frame);
+        this.rect = rect ? Object.assign({}, rect) : { x: 0, y: 0, w: source.width, h: source.height };
+        this.layout();
+    };
+
+    FreeCropper.prototype.state = function () {
+        return Object.assign({}, this.rect);
+    };
+
+    // The picture fitted to the stage, and the frame drawn over it
+    FreeCropper.prototype.layout = function () {
+        var source = this.source;
+        var width = this.stage.clientWidth;
+        if (!source || !width) {
+            return;
+        }
+        // A receipt is tall - up to about half the screen high, to read it while cropping
+        var high = Math.max(FRAME_MAX_HEIGHT, Math.min(560, Math.round(window.innerHeight * 0.55)));
+        this.scale = Math.min((width - MARGIN * 2) / source.width, high / source.height);
+        this.ox = (width - source.width * this.scale) / 2;
+        this.oy = MARGIN;
+        this.stage.style.height = Math.round(source.height * this.scale + MARGIN * 2) + 'px';
+        source.style.transform = 'translate(' + this.ox + 'px, ' + this.oy + 'px) scale(' + this.scale + ')';
+        var r = this.rect;
+        this.frame.style.left = (this.ox + r.x * this.scale) + 'px';
+        this.frame.style.top = (this.oy + r.y * this.scale) + 'px';
+        this.frame.style.width = (r.w * this.scale) + 'px';
+        this.frame.style.height = (r.h * this.scale) + 'px';
+        this.onchange();
+    };
+
+    // A handle (or the middle) moved by (dx, dy) picture pixels from where the drag began - kept on the picture, no smaller than 24 pixels on screen
+    FreeCropper.prototype.dragTo = function (drag, dx, dy) {
+        var source = this.source;
+        var min = Math.min(24 / this.scale, source.width, source.height);
+        var s = drag.start;
+        var left = s.x, top = s.y, right = s.x + s.w, bottom = s.y + s.h;
+        if (drag.handle === 'move') {
+            dx = Math.min(source.width - right, Math.max(-left, dx));
+            dy = Math.min(source.height - bottom, Math.max(-top, dy));
+            left += dx;
+            right += dx;
+            top += dy;
+            bottom += dy;
+        } else {
+            if (drag.handle.indexOf('w') !== -1) {
+                left = Math.min(right - min, Math.max(0, left + dx));
+            }
+            if (drag.handle.indexOf('e') !== -1) {
+                right = Math.max(left + min, Math.min(source.width, right + dx));
+            }
+            if (drag.handle.indexOf('n') !== -1) {
+                top = Math.min(bottom - min, Math.max(0, top + dy));
+            }
+            if (drag.handle.indexOf('s') !== -1) {
+                bottom = Math.max(top + min, Math.min(source.height, bottom + dy));
+            }
+        }
+        this.rect = { x: left, y: top, w: right - left, h: bottom - top };
+        this.layout();
+    };
+
+    FreeCropper.prototype.fit = function () {
+        if (this.source) {
+            this.rect = { x: 0, y: 0, w: this.source.width, h: this.source.height };
+            this.layout();
+        }
+    };
+
+    FreeCropper.prototype.rotate = function () {
+        if (this.source) {
+            this.setSource(turnedQuarter(this.source));
+        }
+    };
+
+    /*
+     * Trim - the frame pulled in to what is on the picture: what isn't see-
+     * through, or for a picture with no see-through parts, what isn't the
+     * colour of its corners. False when there is nothing to trim to.
+     */
+    FreeCropper.prototype.trim = function () {
+        var source = this.source;
+        if (!source) {
+            return false;
+        }
+        var k = Math.min(1, 400 / Math.max(source.width, source.height));
+        var w = Math.max(1, Math.round(source.width * k));
+        var h = Math.max(1, Math.round(source.height * k));
+        var probe = document.createElement('canvas');
+        probe.width = w;
+        probe.height = h;
+        var context = probe.getContext('2d', { willReadFrequently: true });
+        context.drawImage(source, 0, 0, w, h);
+        var data = context.getImageData(0, 0, w, h).data;
+        var clear = false;
+        for (var i = 3; i < data.length; i += 4) {
+            if (data[i] < 250) {
+                clear = true;
+                break;
+            }
+        }
+        // The background - the four corners' average
+        var bg = [0, 0, 0];
+        [0, w - 1, (h - 1) * w, h * w - 1].forEach(function (p) {
+            for (var c = 0; c < 3; c++) {
+                bg[c] += data[p * 4 + c] / 4;
+            }
+        });
+        var minX = w, minY = h, maxX = -1, maxY = -1;
+        for (var y = 0; y < h; y++) {
+            for (var x = 0; x < w; x++) {
+                var p = (y * w + x) * 4;
+                var content = clear ? data[p + 3] > 16
+                    : Math.abs(data[p] - bg[0]) > 28 || Math.abs(data[p + 1] - bg[1]) > 28 || Math.abs(data[p + 2] - bg[2]) > 28;
+                if (content) {
+                    minX = Math.min(minX, x);
+                    maxX = Math.max(maxX, x);
+                    minY = Math.min(minY, y);
+                    maxY = Math.max(maxY, y);
+                }
+            }
+        }
+        if (maxX < 0) {
+            return false;
+        }
+        // A pixel of room round it, back in the picture's own pixels
+        var pad = 1;
+        var left = Math.max(0, (minX - pad) / k);
+        var top = Math.max(0, (minY - pad) / k);
+        var right = Math.min(source.width, (maxX + 1 + pad) / k);
+        var bottom = Math.min(source.height, (maxY + 1 + pad) / k);
+        this.rect = { x: left, y: top, w: right - left, h: bottom - top };
+        this.layout();
+        return true;
+    };
+
+    FreeCropper.prototype.outputSize = function (max) {
+        var k = Math.min(1, max / Math.max(this.rect.w, this.rect.h));
+        return [Math.max(1, Math.round(this.rect.w * k)), Math.max(1, Math.round(this.rect.h * k))];
+    };
+
+    FreeCropper.prototype.encode = function (type, max) {
+        var r = this.rect;
+        return encodeCanvas(this.source, r.x, r.y, r.w, r.h, this.outputSize(max), type);
+    };
+
+    // A picture turned a quarter clockwise
+    function turnedQuarter(source) {
+        var turned = document.createElement('canvas');
+        turned.width = source.height;
+        turned.height = source.width;
+        var context = turned.getContext('2d');
+        context.translate(turned.width, 0);
+        context.rotate(Math.PI / 2);
+        context.drawImage(source, 0, 0);
+        return turned;
+    }
+
+    // Part of a picture, drawn at a size, as a file - { blob, width, height }. A JPG gets a white background; WebP falls back to PNG
+    function encodeCanvas(source, sx, sy, sw, sh, size, type) {
         var out = document.createElement('canvas');
         out.width = size[0];
         out.height = size[1];
@@ -338,13 +580,35 @@
             context.fillStyle = '#fff';
             context.fillRect(0, 0, out.width, out.height);
         }
-        context.drawImage(this.source, this.cx - sw / 2, this.cy - sh / 2, sw, sh, 0, 0, out.width, out.height);
+        context.drawImage(source, sx, sy, sw, sh, 0, 0, out.width, out.height);
         return toBlob(out, type).then(function (blob) {
-            return blob.type === type || type === 'image/jpeg' ? blob : toBlob(out, 'image/png');
+            return blob.type === type || type !== 'image/webp' ? blob : toBlob(out, 'image/png');
         }).then(function (blob) {
             return { blob: blob, width: out.width, height: out.height };
         });
-    };
+    }
+
+    // What a field's files are called, from its accept list - "JPG, PNG, GIF or WebP", "PNG or JPG", "... or PDF"
+    function typesText(accept) {
+        var names = { 'image/jpeg': 'JPG', 'image/png': 'PNG', 'image/gif': 'GIF', 'image/webp': 'WebP', 'image/*': 'JPG, PNG, GIF, WebP', 'application/pdf': 'PDF' };
+        var parts = [];
+        accept.split(',').forEach(function (type) {
+            (names[type.trim()] || '').split(', ').forEach(function (name) {
+                if (name && parts.indexOf(name) === -1) {
+                    parts.push(name);
+                }
+            });
+        });
+        return parts.length > 1 ? parts.slice(0, -1).join(', ') + ' or ' + parts[parts.length - 1] : parts.join('');
+    }
+
+    // A file the field takes as it is - a PDF - on its button and in the window
+    function fileTile(name) {
+        var tile = el('span', 'itflow-picture-none is-file');
+        tile.appendChild(el('i', 'fas fa-file-pdf'));
+        tile.appendChild(el('span', 'text-truncate mw-100 px-2', name));
+        return tile;
+    }
 
     /*
      * The Picture window - one, set up for the field that opens it.
@@ -360,16 +624,16 @@
             '<div class="modal-dialog modal-dialog-centered">' +
                 '<div class="modal-content border-dark">' +
                     '<div class="modal-header bg-dark">' +
-                        '<h5 class="modal-title" id="itflowPictureTitle"><i class="fas fa-fw fa-camera me-2"></i><span data-title></span></h5>' +
+                        '<h5 class="modal-title" id="itflowPictureTitle"><i class="fas fa-fw fa-camera me-2" data-icon></i><span data-title></span></h5>' +
                         '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>' +
                     '</div>' +
                     '<div class="modal-body">' +
-                        '<div class="itflow-picture-pick" data-pick tabindex="0" role="button" aria-label="Choose a picture">' +
+                        '<div class="itflow-picture-pick" data-pick tabindex="0" role="button">' +
                             '<div class="itflow-picture-pick-now" data-now></div>' +
-                            '<div class="fw-semibold mt-3">Drop a picture here</div>' +
+                            '<div class="fw-semibold mt-3" data-pick-drop></div>' +
                             '<div class="small text-body-secondary mb-3">or paste one, or</div>' +
-                            '<span class="btn btn-primary"><i class="fas fa-upload me-2"></i>Choose a picture</span>' +
-                            '<div class="form-text mt-2">JPG, PNG, GIF or WebP</div>' +
+                            '<span class="btn btn-primary"><i class="fas fa-upload me-2"></i><span data-pick-choose></span></span>' +
+                            '<div class="form-text mt-2" data-pick-types></div>' +
                         '</div>' +
                         '<div data-crop-area hidden>' +
                             '<div class="itflow-crop-stage" tabindex="0" aria-label="The picture - drag or use the arrow keys to move it, scroll, pinch or use + and - to zoom">' +
@@ -390,42 +654,70 @@
                                 '<span class="ms-auto text-body-secondary text-nowrap" data-size></span>' +
                             '</div>' +
                         '</div>' +
+                        '<div data-free-area hidden>' +
+                            '<div class="itflow-crop-stage is-free">' +
+                                '<div class="itflow-crop-frame itflow-free-frame" tabindex="0" aria-label="What is kept - drag its corners and edges, or move it with the arrow keys"></div>' +
+                            '</div>' +
+                            '<div class="itflow-crop-bar">' +
+                                '<div class="btn-group btn-group-sm">' +
+                                    '<button type="button" class="btn btn-outline-secondary" data-rotate title="Turn it a quarter" aria-label="Turn it a quarter"><i class="fas fa-fw fa-redo"></i></button>' +
+                                    '<button type="button" class="btn btn-outline-secondary" data-fit title="The whole picture" aria-label="The whole picture"><i class="fas fa-fw fa-expand"></i></button>' +
+                                '</div>' +
+                                '<button type="button" class="btn btn-sm btn-outline-secondary" data-trim><i class="fas fa-crop-alt me-1"></i>Trim the edges</button>' +
+                                '<span class="ms-auto small text-body-secondary text-nowrap" data-size></span>' +
+                            '</div>' +
+                            '<div class="small text-body-secondary mt-2">Drag the corners and edges in to what you want to keep.</div>' +
+                        '</div>' +
+                        '<div class="itflow-picture-doc" data-doc-area hidden></div>' +
                         '<div class="alert alert-danger small mt-3 mb-0" data-error hidden></div>' +
-                        '<input type="file" accept="image/jpeg,image/png,image/gif,image/webp" hidden data-file>' +
+                        '<input type="file" hidden data-file>' +
                     '</div>' +
                     '<div class="modal-footer">' +
                         '<button type="button" class="btn btn-outline-danger me-auto" data-remove><i class="fas fa-trash-alt me-2"></i>Remove</button>' +
                         '<button type="button" class="btn btn-outline-secondary" data-another hidden><i class="fas fa-images me-2"></i>Choose another</button>' +
-                        '<button type="button" class="btn btn-primary text-bold" data-use disabled><i class="fas fa-check me-2"></i>Use this picture</button>' +
+                        '<button type="button" class="btn btn-primary text-bold" data-use disabled><i class="fas fa-check me-2"></i><span data-use-label>Use this picture</span></button>' +
                         '<button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>' +
                     '</div>' +
                 '</div>' +
             '</div>';
         document.body.appendChild(modal);
 
+        var crop = modal.querySelector('[data-crop-area]');
+        var free = modal.querySelector('[data-free-area]');
         var w = {
             modal: modal,
+            icon: modal.querySelector('[data-icon]'),
             title: modal.querySelector('[data-title]'),
             pick: modal.querySelector('[data-pick]'),
             now: modal.querySelector('[data-now]'),
-            area: modal.querySelector('[data-crop-area]'),
-            shapes: modal.querySelector('[data-shapes]'),
-            size: modal.querySelector('[data-size]'),
+            pickDrop: modal.querySelector('[data-pick-drop]'),
+            pickChoose: modal.querySelector('[data-pick-choose]'),
+            pickTypes: modal.querySelector('[data-pick-types]'),
+            area: crop,
+            freeArea: free,
+            docArea: modal.querySelector('[data-doc-area]'),
+            shapes: crop.querySelector('[data-shapes]'),
+            trimButton: free.querySelector('[data-trim]'),
             error: modal.querySelector('[data-error]'),
             file: modal.querySelector('[data-file]'),
             remove: modal.querySelector('[data-remove]'),
             another: modal.querySelector('[data-another]'),
             use: modal.querySelector('[data-use]'),
+            useLabel: modal.querySelector('[data-use-label]'),
             field: null,
             picked: null
         };
-        w.crop = new Cropper(modal.querySelector('.itflow-crop-stage'), modal.querySelector('.itflow-crop-frame'), modal.querySelector('input[type=range]'));
-        w.crop.onchange = function () {
-            if (w.field && w.crop.source) {
-                var size = w.crop.outputSize(w.field.max);
-                w.size.textContent = size[0] + ' × ' + size[1];
-            }
-        };
+        w.crop = new Cropper(crop.querySelector('.itflow-crop-stage'), crop.querySelector('.itflow-crop-frame'), crop.querySelector('input[type=range]'));
+        w.free = new FreeCropper(free.querySelector('.itflow-crop-stage'), free.querySelector('.itflow-crop-frame'));
+        [[w.crop, crop], [w.free, free]].forEach(function (pair) {
+            var size = pair[1].querySelector('[data-size]');
+            pair[0].onchange = function () {
+                if (w.field && pair[0].source) {
+                    var made = pair[0].outputSize(w.field.max);
+                    size.textContent = made[0] + ' × ' + made[1];
+                }
+            };
+        });
 
         var choose = function () {
             w.file.value = '';
@@ -471,7 +763,7 @@
             }
             var items = Array.prototype.slice.call(e.clipboardData.items || []);
             var item = items.filter(function (i) {
-                return i.kind === 'file' && TYPES.test(i.type);
+                return i.kind === 'file' && takes(w.field, i.type);
             })[0];
             if (item) {
                 e.preventDefault();
@@ -479,11 +771,20 @@
             }
         });
 
-        modal.querySelector('[data-rotate]').addEventListener('click', function () {
-            w.crop.rotate();
+        modal.querySelectorAll('[data-rotate]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                cropperOf(w).rotate();
+            });
         });
-        modal.querySelector('[data-fit]').addEventListener('click', function () {
-            w.crop.fit();
+        modal.querySelectorAll('[data-fit]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                cropperOf(w).fit();
+            });
+        });
+        w.trimButton.addEventListener('click', function () {
+            if (!w.free.trim()) {
+                showError(w, 'There are no edges to trim - the picture fills it.');
+            }
         });
         w.use.addEventListener('click', function () {
             use(w);
@@ -492,10 +793,21 @@
             remove(w);
         });
         modal.addEventListener('shown.bs.modal', function () {
-            w.crop.layout();
-            (w.crop.source ? w.crop.stage : w.pick).focus();
+            var cropper = cropperOf(w);
+            cropper.layout();
+            (w.picked && w.picked.kind === 'picture' ? (w.field.free ? w.free.frame : w.crop.stage) : (w.picked ? w.use : w.pick)).focus();
         });
         return w;
+    }
+
+    // The crop the field uses - the free one, or the frame of a shape
+    function cropperOf(w) {
+        return w.field && w.field.free ? w.free : w.crop;
+    }
+
+    // Does the field take a file of this type?
+    function takes(field, type) {
+        return !!field && (TYPES.test(type) && field.pictures.test(type) || (field.pdf && type === 'application/pdf'));
     }
 
     function showError(w, text) {
@@ -503,32 +815,52 @@
         w.error.hidden = !text;
     }
 
-    function showCrop(w, on) {
-        w.pick.hidden = on;
-        w.area.hidden = !on;
-        w.another.hidden = !on;
-        w.use.disabled = !on;
+    // What the window shows - the pick, the crop, or a file taken as it is
+    function show(w, what) {
+        var free = !!(w.field && w.field.free);
+        w.pick.hidden = what !== 'pick';
+        w.area.hidden = what !== 'picture' || free;
+        w.freeArea.hidden = what !== 'picture' || !free;
+        w.docArea.hidden = what !== 'file';
+        w.another.hidden = what === 'pick';
+        w.use.disabled = what === 'pick';
+        w.useLabel.textContent = what === 'file' ? 'Use this file' : 'Use this picture';
     }
 
-    // A picture picked - into the crop
+    // A file picked - a picture into the crop, a PDF as it is
     function load(w, file) {
-        if (!TYPES.test(file.type)) {
-            showError(w, 'That isn\'t a JPG, PNG, GIF or WebP picture.');
+        var field = w.field;
+        if (!takes(field, file.type)) {
+            showError(w, 'That isn\'t ' + (field.pdf ? 'a picture or a PDF' : 'a ' + w.pickTypes.textContent + ' picture') + '.');
             return;
         }
         showError(w, '');
-        var field = w.field;
+        if (file.type === 'application/pdf') {
+            w.picked = { kind: 'file', file: file, name: file.name };
+            w.docArea.replaceChildren(fileTile(file.name));
+            show(w, 'file');
+            w.use.focus();
+            return;
+        }
         readPicture(file).then(function (source) {
             if (w.field !== field) {
                 return;
             }
-            w.picked = { name: file.name, type: file.type === 'image/jpeg' ? 'image/jpeg' : 'image/webp' };
-            showCrop(w, true);
-            w.crop.setSource(source);
-            w.crop.stage.focus();
+            w.picked = { kind: 'picture', name: file.name, type: outputType(field, file.type) };
+            show(w, 'picture');
+            cropperOf(w).setSource(source);
+            (field.free ? w.free.frame : w.crop.stage).focus();
         }).catch(function () {
             showError(w, 'That picture couldn\'t be read - try saving it as a JPG or PNG.');
         });
+    }
+
+    // What a crop is saved as - a JPG stays a JPG; anything else keeps any see-through parts, as WebP where the field takes it, else PNG
+    function outputType(field, type) {
+        if (type === 'image/jpeg') {
+            return 'image/jpeg';
+        }
+        return field.pictures.test('image/webp') ? 'image/webp' : 'image/png';
     }
 
     function shapeButtons(w, field) {
@@ -553,14 +885,29 @@
     // The field's settings, read off it
     function fieldOf(node) {
         if (!node.itflowPicture) {
-            var shapes = String(node.getAttribute('data-crop') || 'square').split(',').map(function (shape) {
+            var crop = String(node.getAttribute('data-crop') || 'square').split(',').map(function (shape) {
                 return shape.trim();
-            }).filter(function (shape) {
+            });
+            var shapes = crop.filter(function (shape) {
                 return SHAPES[shape];
+            });
+            var input = node.querySelector('[data-picture-input]');
+            var accept = input.getAttribute('accept') || 'image/jpeg,image/png,image/gif,image/webp';
+            var pictures = accept.split(',').map(function (type) {
+                return type.trim();
+            }).filter(function (type) {
+                return /^image\//.test(type);
             });
             node.itflowPicture = {
                 node: node,
-                input: node.querySelector('[data-picture-input]'),
+                input: input,
+                accept: accept,
+                // The picture types it takes - image/* is any of them
+                pictures: pictures.indexOf('image/*') !== -1 ? TYPES : new RegExp('^(' + pictures.join('|').replace(/[.+]/g, '\\$&') + ')$'),
+                pdf: accept.indexOf('application/pdf') !== -1,
+                free: crop.indexOf('free') !== -1,
+                trim: node.getAttribute('data-picture-trim') === '1',
+                submit: node.getAttribute('data-picture-submit') === '1',
                 removeInput: node.querySelector('[data-picture-remove]'),
                 preview: node.querySelector('[data-picture-preview]'),
                 empty: node.querySelector('template[data-picture-empty]'),
@@ -582,47 +929,80 @@
         var w = win;
         w.field = field;
         w.title.textContent = field.title;
-        w.modal.querySelector('.modal-dialog').classList.toggle('modal-lg', !field.round && field.shapes.indexOf('whole') !== -1);
+        w.icon.className = 'fas fa-fw me-2 ' + (field.pdf ? 'fa-receipt' : field.trim ? 'fa-image' : 'fa-camera');
+        w.modal.querySelector('.modal-dialog').classList.toggle('modal-lg', !field.round && (field.free || field.shapes.indexOf('whole') !== -1));
         w.now.innerHTML = field.preview.innerHTML;
         w.now.classList.toggle('is-round', field.round);
+        w.pickDrop.textContent = field.pdf ? 'Drop a photo or a PDF here' : 'Drop a picture here';
+        w.pickChoose.textContent = field.pdf ? 'Choose a photo or PDF' : 'Choose a picture';
+        w.pickTypes.textContent = typesText(field.accept);
+        w.pick.setAttribute('aria-label', w.pickChoose.textContent);
+        w.file.setAttribute('accept', field.accept);
+        w.trimButton.hidden = !field.trim;
         w.crop.round = field.round;
         showError(w, '');
 
-        // Opened again with a picture picked - as it was left
+        // Opened again with something picked - as it was left
         var pending = field.pending;
-        w.crop.shape = pending ? pending.shape : field.shapes[0];
+        w.crop.shape = pending && pending.shape ? pending.shape : field.shapes[0];
         shapeButtons(w, field);
-        if (pending) {
-            w.picked = { name: pending.name, type: pending.type };
-            showCrop(w, true);
-            w.crop.setSource(pending.source, pending.state);
+        w.crop.setSource(null);
+        w.free.setSource(null);
+        if (pending && pending.kind === 'file') {
+            w.picked = pending;
+            w.docArea.replaceChildren(fileTile(pending.name));
+            show(w, 'file');
+        } else if (pending) {
+            w.picked = { kind: 'picture', name: pending.name, type: pending.type };
+            show(w, 'picture');
+            cropperOf(w).setSource(pending.source, pending.state);
         } else {
             w.picked = null;
-            w.crop.setSource(null);
-            showCrop(w, false);
+            show(w, 'pick');
         }
         w.remove.hidden = !(field.has || field.pending);
         bootstrap.Modal.getOrCreateInstance(w.modal).show();
     }
 
-    // Use this picture - its crop in the field's file input, and on the button
+    // The file in the field's file input, and on its button - then the form sent, for a field that saves straight away
+    function fill(w, file, previewNode) {
+        var field = w.field;
+        var transfer = new DataTransfer();
+        transfer.items.add(file);
+        field.input.files = transfer.files;
+        if (field.removeInput) {
+            field.removeInput.value = '';
+        }
+        field.preview.replaceChildren(previewNode);
+        field.node.classList.add('is-changed');
+        field.input.dispatchEvent(new Event('change', { bubbles: true }));
+        bootstrap.Modal.getOrCreateInstance(w.modal).hide();
+        if (field.submit && field.input.form) {
+            field.input.form.requestSubmit();
+        }
+    }
+
+    // Use this picture (or file)
     function use(w) {
         var field = w.field;
-        if (!field || !w.crop.source || !w.picked) {
+        var picked = w.picked;
+        if (!field || !picked) {
+            return;
+        }
+        if (picked.kind === 'file') {
+            field.pending = picked;
+            fill(w, picked.file, fileTile(picked.name));
+            return;
+        }
+        var cropper = cropperOf(w);
+        if (!cropper.source) {
             return;
         }
         w.use.disabled = true;
-        var picked = w.picked;
-        w.crop.encode(picked.type, field.max).then(function (made) {
+        cropper.encode(picked.type, field.max).then(function (made) {
             var extension = { 'image/jpeg': '.jpg', 'image/webp': '.webp', 'image/png': '.png' }[made.blob.type] || '.png';
             var name = (picked.name.replace(/\.[^.]*$/, '') || 'picture') + extension;
-            var transfer = new DataTransfer();
-            transfer.items.add(new File([made.blob], name, { type: made.blob.type, lastModified: Date.now() }));
-            field.input.files = transfer.files;
-            if (field.removeInput) {
-                field.removeInput.value = '';
-            }
-            field.pending = { source: w.crop.source, state: w.crop.state(), shape: w.crop.shape, name: picked.name, type: picked.type };
+            field.pending = { kind: 'picture', source: cropper.source, state: cropper.state(), shape: field.free ? null : w.crop.shape, name: picked.name, type: picked.type };
             if (field.url) {
                 URL.revokeObjectURL(field.url);
             }
@@ -630,14 +1010,11 @@
             var img = el('img', field.imgClass);
             img.alt = '';
             img.src = field.url;
-            field.preview.replaceChildren(img);
-            field.node.classList.add('is-changed');
-            field.input.dispatchEvent(new Event('change', { bubbles: true }));
-            bootstrap.Modal.getOrCreateInstance(w.modal).hide();
+            fill(w, new File([made.blob], name, { type: made.blob.type, lastModified: Date.now() }), img);
         }).catch(function () {
             showError(w, 'That crop couldn\'t be saved - try another picture.');
         }).finally(function () {
-            w.use.disabled = !w.crop.source;
+            w.use.disabled = !w.picked;
         });
     }
 

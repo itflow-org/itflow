@@ -75,23 +75,16 @@ echo settingsPageStart('company');
             <?= settingsSectionEnd() ?>
 
             <?= settingsSectionStart('logo', 'Logo', 'On invoices, quotes and statements, the sign-in page, the sidebar and the client portal.') ?>
-                <div class="row g-3 align-items-center">
-                    <div class="col-sm-4">
-                        <div class="itflow-settings-picture" data-settings-logo>
-                            <img id="settingsLogoPreview" alt="Your logo" <?= $logo_url !== '' ? 'src="' . escapeHtml($logo_url) . '"' : 'hidden' ?>>
-                            <?php if ($logo_url === '') { ?>
-                                <span class="small text-body-secondary" data-settings-preview-empty>No logo yet</span>
-                            <?php } ?>
-                        </div>
-                    </div>
-                    <div class="col-sm-8">
-                        <?= settingsInput('company_logo', '', ['icon' => 'fa-image', 'type' => 'file', 'label' => $logo_url !== '' ? 'Replace it' : 'Add one', 'accept' => 'image/png,image/jpeg',
-                            'data' => ['settings-preview' => 'settingsLogoPreview'], 'help' => 'A PNG or JPG, up to 5 MB. A wide one prints best.']) ?>
-                        <?php if ($logo_url !== '') { ?>
-                            <a href="post.php?remove_company_logo&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-outline-danger mt-2 confirm-link" data-settings-remove-logo><i class="fas fa-trash-alt me-2"></i>Take the logo off</a>
-                        <?php } ?>
-                    </div>
-                </div>
+                <?php
+                // Picked and cropped - trimmed of empty edges - in the Picture window (js/picture_field.js)
+                $logo_shows = $logo_url !== '' ? '<img class="itflow-picture-logo" src="' . escapeHtml($logo_url) . '" alt="Your logo">' : picturePhotoEmpty('Add your logo', 'fa-image');
+                echo settingsField('company_logo', '', pictureField('company_logo', '', $logo_shows, picturePhotoEmpty('Add your logo', 'fa-image'),
+                    ['title' => 'Logo', 'shapes' => 'free', 'box' => 'logo', 'max' => 1200, 'trim' => true, 'accept' => 'image/png,image/jpeg', 'class' => 'itflow-picture-logo', 'id' => 'settings_company_logo']),
+                    'Click it to ' . ($logo_url !== '' ? 'change it' : 'add one') . ' - a PNG or JPG. A wide one prints best, and a PNG keeps a see-through background.');
+                ?>
+                <?php if ($logo_url !== '') { ?>
+                    <a href="post.php?remove_company_logo&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-outline-danger mt-2 confirm-link" data-settings-remove-logo><i class="fas fa-trash-alt me-2"></i>Take the logo off</a>
+                <?php } ?>
             <?= settingsSectionEnd() ?>
 
             <?= settingsSectionStart('internal', 'Your own client record', 'If you keep a client record for your own company - for internal tickets, documentation, assets and credentials - point it out here. Your company name in the sidebar then links straight to it.') ?>

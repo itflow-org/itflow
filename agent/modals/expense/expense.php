@@ -104,18 +104,18 @@ ob_start();
         </div>
     <?php } elseif (!$is_transfer) { ?>
         <div class="itflow-expense-receipt-empty mb-3">
-            <i class="fas fa-receipt fa-2x opacity-50 mb-2"></i>
-            <div class="mb-2"><?= $receipt_missing ? "The receipt's file is missing from uploads/expenses/." : 'No receipt yet.' ?></div>
             <?php if ($can_edit) { ?>
-                <form action="post.php" method="post" enctype="multipart/form-data" class="d-flex flex-wrap justify-content-center gap-2" autocomplete="off">
+                <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <input type="hidden" name="expense_id" value="<?= $expense_id ?>">
-                    <div class="input-group" style="max-width: 26rem;">
-                        <span class="input-group-text"><i class="fa fa-fw fa-paperclip"></i></span>
-                        <input type="file" class="form-control" name="file" accept="image/*,application/pdf" required>
-                        <button type="submit" name="expense_receipt_save" class="btn btn-primary"><i class="fas fa-upload me-1"></i>Attach</button>
-                    </div>
+                    <input type="hidden" name="expense_receipt_save" value="1">
+                    <?= pictureField('file', '', picturePhotoEmpty('Add a receipt', 'fa-receipt'), picturePhotoEmpty('Add a receipt', 'fa-receipt'),
+                        ['title' => 'Receipt', 'shapes' => 'free', 'box' => 'tall', 'max' => 2400, 'accept' => 'image/*,application/pdf', 'submit' => true]) ?>
                 </form>
+                <div class="small mt-2"><?= $receipt_missing ? "The receipt's file is missing from uploads/expenses/ - click to add it again." : 'No receipt yet - click to add a photo or a PDF.' ?></div>
+            <?php } else { ?>
+                <i class="fas fa-receipt fa-2x opacity-50 mb-2"></i>
+                <div><?= $receipt_missing ? "The receipt's file is missing from uploads/expenses/." : 'No receipt yet.' ?></div>
             <?php } ?>
         </div>
     <?php } ?>

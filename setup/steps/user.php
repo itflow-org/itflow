@@ -71,13 +71,10 @@ $first_error = array_key_first($user_errors);
                     <div class="col-12">
                         <label class="form-label" for="setupUserAvatar">Avatar</label>
                         <div class="d-flex gap-3 align-items-center">
-                            <div class="itflow-setup-preview is-round" data-setup-preview="setupUserAvatar"><i class="fas fa-user"></i></div>
+                            <?= pictureField('file', '', userAvatar(0, $user_form['name'] ?? '', '', 'lg'), userAvatar(0, $user_form['name'] ?? '', '', 'lg'),
+                                ['round' => true, 'title' => 'Your picture', 'class' => 'itflow-contact-avatar itflow-contact-avatar-lg', 'name' => 'name', 'id' => 'setupUserAvatar']) ?>
                             <div class="flex-grow-1 min-w-0">
-                                <div class="input-group has-validation">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-image"></i></span>
-                                    <input type="file" class="form-control<?= setupFieldInvalid($user_errors, 'file') ?>" id="setupUserAvatar" name="file" accept="image/jpeg,image/png,image/gif,image/webp" data-setup-image="JPG, PNG, GIF or WebP" data-setup-image-max="<?= SETUP_IMAGE_MAX_BYTES ?>">
-                                </div>
-                                <?= setupFieldError($user_errors, 'file') ?: '<div class="form-text">Optional - JPG, PNG, GIF or WebP, up to 5 MB.</div>' ?>
+                                <?= setupFieldError($user_errors, 'file') ?: '<div class="form-text mt-0">Optional - click it to add a picture.</div>' ?>
                             </div>
                         </div>
                     </div>

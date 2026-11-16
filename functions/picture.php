@@ -18,12 +18,19 @@
  *   'round'   a person's picture - shown and cropped as a circle
  *   'title'   the window's title ('Picture', or 'Photo')
  *   'shapes'  the shapes a photo can be cropped to, the first to start with -
- *             square, 4:3, 3:4, 16:9 and whole ('square')
+ *             square, 4:3, 3:4, 16:9 and whole ('square') - or 'free', any
+ *             shape, by dragging the frame's corners and edges
  *   'max'     the longest side kept, in pixels (512 for a person, 2048)
  *   'class'   the classes of the <img> a new picture shows as - for a person
  *             the avatar's ('itflow-picture-photo' for a photo)
- *   'box'     a photo's box - 'square' or 'wide' (4:3)
+ *   'box'     a photo's box - 'square', 'wide' (4:3), 'tall' (3:4, a receipt)
+ *             or 'logo' (wide, the picture fitted in it)
  *   'name'    the form field with the person's name - their initials follow it
+ *   'accept'  the file types it takes (JPG, PNG, GIF and WebP) - with
+ *             application/pdf a PDF is taken as it is
+ *   'trim'    a Trim the edges button for a free crop - a logo
+ *   'submit'  send the form once a picture is used - a form that is only it
+ *   'id'      the button's id, for a <label for>
  */
 function pictureField($name, $remove_name, $current, $empty, array $opts = []) {
     $round = !empty($opts['round']);
@@ -37,6 +44,8 @@ function pictureField($name, $remove_name, $current, $empty, array $opts = []) {
         'data-crop-max' => (string) intval($opts['max'] ?? ($round ? 512 : 2048)),
         'data-crop-shape' => $round ? 'circle' : 'rect',
         'data-picture-name' => (string) ($opts['name'] ?? ''),
+        'data-picture-trim' => !empty($opts['trim']) ? '1' : '',
+        'data-picture-submit' => !empty($opts['submit']) ? '1' : '',
     ];
     $html = '';
     foreach ($attributes as $attribute => $value) {
@@ -44,13 +53,14 @@ function pictureField($name, $remove_name, $current, $empty, array $opts = []) {
     }
     $box = $round ? 'is-round' : 'is-photo is-' . ($opts['box'] ?? 'square');
     $label = escapeHtml("Change the $noun");
+    $id = isset($opts['id']) ? ' id="' . escapeHtml($opts['id']) . '"' : '';
     return '<div class="itflow-picture-field ' . $box . '"' . $html . '>'
-        . '<button type="button" class="itflow-picture-button" data-picture-open title="' . $label . '" aria-label="' . $label . '">'
+        . '<button type="button" class="itflow-picture-button"' . $id . ' data-picture-open title="' . $label . '" aria-label="' . $label . '">'
         . '<span class="itflow-picture-preview" data-picture-preview>' . $current . '</span>'
         . '<span class="itflow-picture-badge" aria-hidden="true"><i class="fas fa-camera"></i></span>'
         . '</button>'
         . '<template data-picture-empty>' . $empty . '</template>'
-        . '<input type="file" class="d-none" name="' . escapeHtml($name) . '" accept="image/jpeg,image/png,image/gif,image/webp" tabindex="-1" aria-hidden="true" data-picture-input>'
+        . '<input type="file" class="d-none" name="' . escapeHtml($name) . '" accept="' . escapeHtml($opts['accept'] ?? 'image/jpeg,image/png,image/gif,image/webp') . '" tabindex="-1" aria-hidden="true" data-picture-input>'
         . ($remove_name !== '' ? '<input type="hidden" name="' . escapeHtml($remove_name) . '" value="" data-picture-remove>' : '')
         . '</div>';
 }
@@ -60,7 +70,12 @@ function picturePhoto($src, $alt = '') {
     return '<img class="itflow-picture-photo" src="' . escapeHtml($src) . '" alt="' . escapeHtml($alt) . '">';
 }
 
-/** What a photo's field shows without one - a camera and $text. HTML. */
-function picturePhotoEmpty($text = 'Add a photo') {
-    return '<span class="itflow-picture-none"><i class="fas fa-camera"></i><span>' . escapeHtml($text) . '</span></span>';
+/** What a photo's field shows without one - a camera (or $icon) and $text. HTML. */
+function picturePhotoEmpty($text = 'Add a photo', $icon = 'fa-camera') {
+    return '<span class="itflow-picture-none"><i class="fas ' . escapeHtml($icon) . '"></i><span>' . escapeHtml($text) . '</span></span>';
+}
+
+/** A file a field has that isn't a picture - a PDF receipt - as it shows: its icon and $text. HTML. */
+function pictureFile($text) {
+    return '<span class="itflow-picture-none is-file"><i class="fas fa-file-pdf"></i><span class="text-truncate mw-100 px-2">' . escapeHtml($text) . '</span></span>';
 }

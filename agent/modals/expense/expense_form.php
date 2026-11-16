@@ -292,22 +292,23 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
     </div>
 
     <div class="col-12">
-        <label class="form-label">Receipt</label>
-        <?php if ($form_receipt) { ?>
-            <div class="d-flex align-items-center gap-2 mb-2 p-2 rounded border" data-expense-receipt-current>
-                <i class="fas fa-fw fa-<?= expenseReceiptKind($form_receipt) === 'pdf' ? 'file-pdf text-danger' : 'file-image text-primary' ?>"></i>
-                <a class="text-truncate flex-grow-1" href="expense_receipt.php?expense_id=<?= intval($form_row['expense_id']) ?>&amp;action=view" target="_blank"><?= escapeHtml(expenseReceiptName($form_row)) ?></a>
-                <div class="form-check form-switch mb-0 text-nowrap">
-                    <input class="form-check-input" type="checkbox" role="switch" name="receipt_remove" value="1" id="<?= $form_id ?>Remove" data-expense-receipt-remove>
-                    <label class="form-check-label small" for="<?= $form_id ?>Remove">Remove</label>
-                </div>
+        <label class="form-label d-block">Receipt</label>
+        <?php
+        // A photo of it, cropped in the Picture window, or a PDF as it is (js/picture_field.js)
+        $form_receipt_url = $form_receipt ? 'expense_receipt.php?expense_id=' . intval($form_row['expense_id']) . '&action=view' : '';
+        $form_receipt_shows = !$form_receipt ? picturePhotoEmpty('Add a receipt', 'fa-receipt')
+            : (expenseReceiptKind($form_receipt) === 'pdf' ? pictureFile('PDF') : picturePhoto($form_receipt_url, 'Receipt'));
+        ?>
+        <div class="d-flex align-items-center gap-3">
+            <?= pictureField('file', $form_receipt ? 'receipt_remove' : '', $form_receipt_shows, picturePhotoEmpty('Add a receipt', 'fa-receipt'),
+                ['title' => 'Receipt', 'shapes' => 'free', 'box' => 'tall', 'max' => 2400, 'accept' => 'image/*,application/pdf']) ?>
+            <div class="form-text mt-0">
+                <?php if ($form_receipt) { ?>
+                    <a href="<?= escapeHtml($form_receipt_url) ?>" target="_blank"><?= escapeHtml(expenseReceiptName($form_row)) ?></a><br>
+                <?php } ?>
+                Click it to <?= $form_receipt ? 'change it, or take it off' : 'add a photo or a PDF' ?> - on a phone, take the picture right there.
             </div>
-        <?php } ?>
-        <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-paperclip"></i></span>
-            <input type="file" class="form-control" name="file" accept="image/*,application/pdf" data-expense-receipt-file>
         </div>
-        <div class="form-text"><?= $form_receipt ? 'Choose a file to replace it. ' : '' ?>A photo or a PDF - on a phone, take the picture right here.</div>
     </div>
 
 </div>

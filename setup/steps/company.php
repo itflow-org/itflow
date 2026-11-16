@@ -73,17 +73,10 @@ $field = function ($name, $label, $icon, $type = 'text', $placeholder = '', $aut
                         <?= setupFieldError($company_errors, 'country') ?: '<div class="form-text">Region suggests your currency and language from it.</div>' ?>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" for="setupCompanyLogo">Logo</label>
-                        <div class="d-flex gap-3 align-items-center">
-                            <div class="flex-grow-1 min-w-0">
-                                <div class="input-group has-validation">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-image"></i></span>
-                                    <input type="file" class="form-control<?= setupFieldInvalid($company_errors, 'file') ?>" id="setupCompanyLogo" name="file" accept="image/jpeg,image/png" data-setup-image="JPG or PNG" data-setup-image-max="<?= SETUP_IMAGE_MAX_BYTES ?>">
-                                </div>
-                                <?= setupFieldError($company_errors, 'file') ?: '<div class="form-text">Optional - JPG or PNG, up to 5 MB.</div>' ?>
-                            </div>
-                            <div class="itflow-setup-preview" data-setup-preview="setupCompanyLogo"><i class="fas fa-image"></i></div>
-                        </div>
+                        <label class="form-label d-block" for="setupCompanyLogo">Logo</label>
+                        <?= pictureField('file', '', picturePhotoEmpty('Add your logo', 'fa-image'), picturePhotoEmpty('Add your logo', 'fa-image'),
+                            ['title' => 'Logo', 'shapes' => 'free', 'box' => 'logo', 'max' => 1200, 'trim' => true, 'accept' => 'image/png,image/jpeg', 'class' => 'itflow-picture-logo', 'id' => 'setupCompanyLogo']) ?>
+                        <?= setupFieldError($company_errors, 'file') ?: '<div class="form-text">Optional - click it to add a PNG or JPG.</div>' ?>
                     </div>
                     <div class="col-12">
                         <?= $field('address', 'Address', 'fa fa-fw fa-map-marker-alt', 'text', 'Street address', 'street-address') ?>

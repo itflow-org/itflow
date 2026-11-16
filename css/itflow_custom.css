@@ -8334,39 +8334,6 @@ a.itflow-portal-request:focus-visible {
 .itflow-setup-checks .list-group-item {
     background: transparent;
 }
-/* The picture picked for the avatar or logo, before it is sent */
-.itflow-setup-preview {
-    flex: 0 0 auto;
-    width: 3.5rem;
-    height: 3.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px dashed var(--bs-border-color);
-    border-radius: .5rem;
-    background: var(--bs-tertiary-bg);
-    color: var(--bs-secondary-color);
-    font-size: 1.25rem;
-    overflow: hidden;
-}
-.itflow-setup-preview.is-round {
-    border-radius: 50%;
-}
-.itflow-setup-preview.has-image {
-    border-style: solid;
-}
-.itflow-setup-preview.has-image > i {
-    display: none;
-}
-.itflow-setup-preview > img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.itflow-setup-preview:not(.is-round) > img {
-    object-fit: contain;
-    padding: .2rem;
-}
 /* Finish - what to do once signed in, numbered */
 .itflow-setup-next {
     counter-reset: itflow-setup-next;
@@ -9468,6 +9435,28 @@ a.itflow-portal-request:focus-visible {
     width: 10rem;
     height: 7.5rem;
 }
+.itflow-picture-field.is-tall .itflow-picture-preview {
+    width: 7.5rem;
+    height: 10rem;
+}
+.itflow-picture-field.is-logo .itflow-picture-preview {
+    width: 16rem;
+    max-width: 100%;
+    height: 6rem;
+    border: 1px solid var(--bs-border-color);
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-picture-field.is-logo {
+    max-width: 100%;
+}
+/* A logo fitted whole in its box, with room round it */
+.itflow-picture-logo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: .5rem;
+    object-fit: contain;
+}
 .itflow-picture-photo {
     display: block;
     width: 100%;
@@ -9491,6 +9480,21 @@ a.itflow-portal-request:focus-visible {
 }
 .itflow-picture-none i {
     font-size: 1.4rem;
+}
+/* A file that isn't a picture - a PDF receipt */
+.itflow-picture-none.is-file {
+    border-style: solid;
+    color: var(--bs-body-color);
+}
+.itflow-picture-none.is-file i {
+    color: var(--bs-danger);
+}
+.itflow-picture-doc .itflow-picture-none {
+    height: 12rem;
+    font-size: .9rem;
+}
+.itflow-picture-doc .itflow-picture-none i {
+    font-size: 3rem;
 }
 /* Darker on hover, with the camera to say it can be changed */
 .itflow-picture-button::after {
@@ -9600,6 +9604,43 @@ a.itflow-portal-request:focus-visible {
 }
 .itflow-crop-frame.is-round {
     border-radius: 50%;
+}
+/* The free crop - a frame dragged by its corners and edges, or moved by its middle */
+.itflow-crop-stage.is-free {
+    cursor: default;
+}
+.itflow-free-frame {
+    cursor: move;
+    pointer-events: auto;
+}
+.itflow-free-frame:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+.itflow-free-handle {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border: 2px solid var(--bs-primary);
+    border-radius: 3px;
+    background-color: #fff;
+    touch-action: none;
+}
+.itflow-free-handle.is-nw { top: 0; left: 0; cursor: nwse-resize; }
+.itflow-free-handle.is-n { top: 0; left: 50%; cursor: ns-resize; }
+.itflow-free-handle.is-ne { top: 0; left: 100%; cursor: nesw-resize; }
+.itflow-free-handle.is-e { top: 50%; left: 100%; cursor: ew-resize; }
+.itflow-free-handle.is-se { top: 100%; left: 100%; cursor: nwse-resize; }
+.itflow-free-handle.is-s { top: 100%; left: 50%; cursor: ns-resize; }
+.itflow-free-handle.is-sw { top: 100%; left: 0; cursor: nesw-resize; }
+.itflow-free-handle.is-w { top: 50%; left: 0; cursor: ew-resize; }
+@media (pointer: coarse) {
+    .itflow-free-handle {
+        width: 22px;
+        height: 22px;
+        margin: -11px 0 0 -11px;
+    }
 }
 /* Thirds, while it's moved */
 .itflow-crop-stage.is-moving .itflow-crop-frame {

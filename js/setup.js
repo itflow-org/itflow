@@ -7,9 +7,6 @@
  *                               right says why under it, and the first gets
  *                               the focus
  *   [data-setup-same-as=id]     has to match that field (password again)
- *   [data-setup-image=kinds]    a picture of those kinds, up to
- *                               data-setup-image-max bytes, shown in
- *                               [data-setup-preview=its id]
  *   [data-setup-browser-timezone]  starts on the browser's timezone
  *   form[data-setup-region]     shows money and a date as they will look
  *   [data-setup-reveal=id]      a switch that shows that element while on
@@ -66,44 +63,6 @@
         field.setCustomValidity(other && field.value !== '' && field.value !== other.value ? 'The two passwords are not the same.' : '');
     }
 
-    function checkImage(input) {
-        var file = input.files && input.files[0];
-        var message = '';
-        if (file) {
-            var accepted = (input.getAttribute('accept') || '').split(',').map(function (type) { return type.trim(); });
-            if (accepted.length && accepted.indexOf(file.type) === -1) {
-                message = "That isn't a " + input.dataset.setupImage + ' picture.';
-            } else if (file.size > Number(input.dataset.setupImageMax || 0)) {
-                message = 'That picture is too large - up to ' + Math.round(Number(input.dataset.setupImageMax) / 1048576) + ' MB.';
-            }
-        }
-        input.setCustomValidity(message);
-        var preview = document.querySelector('[data-setup-preview="' + input.id + '"]');
-        if (preview) {
-            if (preview.dataset.url) {
-                URL.revokeObjectURL(preview.dataset.url);
-                delete preview.dataset.url;
-            }
-            var img = preview.querySelector('img');
-            if (file && !message) {
-                if (!img) {
-                    img = document.createElement('img');
-                    img.alt = '';
-                    preview.appendChild(img);
-                }
-                preview.dataset.url = URL.createObjectURL(file);
-                img.src = preview.dataset.url;
-                preview.classList.add('has-image');
-            } else {
-                if (img) {
-                    img.remove();
-                }
-                preview.classList.remove('has-image');
-            }
-        }
-        return message;
-    }
-
     function initForm(form) {
         form.querySelectorAll('[data-setup-same-as]').forEach(function (field) {
             var other = document.getElementById(field.dataset.setupSameAs);
@@ -116,12 +75,6 @@
                         }
                     });
                 }
-            });
-        });
-
-        form.querySelectorAll('[data-setup-image]').forEach(function (input) {
-            input.addEventListener('change', function () {
-                showField(input, checkImage(input));
             });
         });
 
