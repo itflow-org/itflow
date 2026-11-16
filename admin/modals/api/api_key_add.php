@@ -66,6 +66,7 @@ ob_start();
                         <input type="text" class="form-control font-monospace" value="<?= $key ?>" readonly>
                         <button class="btn btn-outline-secondary clipboardjs" title="Copy API key" type="button" data-clipboard-text="<?= $key ?>"><i class="far fa-fw fa-copy"></i></button>
                     </div>
+                    <div class="form-text">Sent in the <code>X-API-Key</code> header of each call - not in the address, which your web server's access log keeps.</div>
                 </div>
 
                 <div class="mb-3">

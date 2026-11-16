@@ -58,18 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] !== "GET" && $_SERVER['REQUEST_METHOD'] !== "POST
     exit();
 }
 
-// Check API key is provided
-if (!isset($_GET['api_key']) && !isset($_POST['api_key'])) {
+// The API key - from the X-API-Key header, which web servers don't write to their access
+// logs, or else a JSON body's or the address's api_key (functions/api_keys.php)
+$api_key = apiKeyFromRequest();
+if ($api_key === '') {
     header(WORDING_UNAUTHORIZED);
     exit();
-}
-
-// Set API key variable
-if (isset($_GET['api_key'])) {
-    $api_key = escapeSql($_GET['api_key']);
-}
-if (isset($_POST['api_key'])) {
-    $api_key = escapeSql($_POST['api_key']);
 }
 
 // Validate API key

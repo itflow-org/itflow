@@ -19,6 +19,21 @@ function apiKeyRow($api_key_id) {
     return $row ?: null;
 }
 
+/*
+ * The key a call to the API came with - '' for none (api/v1/validate_api_key.php). The
+ * X-API-Key header first: web servers write the address of every request to their access
+ * logs, headers not, so a key sent as ?api_key= is in those logs. A JSON body's api_key, or
+ * the address's, still works for whatever was set up that way.
+ */
+function apiKeyFromRequest() {
+    foreach ([$_SERVER['HTTP_X_API_KEY'] ?? null, $_POST['api_key'] ?? null, $_GET['api_key'] ?? null] as $key) {
+        if (is_string($key) && trim($key) !== '') {
+            return trim($key);
+        }
+    }
+    return '';
+}
+
 /* Has this key expired? It works until the start of its expiry date. */
 function apiKeyExpired(array $row) {
     return (string) $row['api_key_expire'] <= date('Y-m-d');
