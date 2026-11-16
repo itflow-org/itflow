@@ -435,9 +435,9 @@ $imap_provider = $config_imap_provider ?? '';
 if ($imap_provider === null) $imap_provider = '';
 
 if ($imap_provider === '') {
-    // IMAP disabled by admin: exit cleanly
-    logApp("Cron-Email-Parser", "info", "IMAP polling skipped: provider not configured.");
-    cronJobStop();
+    // No mailbox to read isn't an error - Maintenance > Cron shows why it stopped, where an
+    // App Logs entry every minute only buried the real ones
+    cronJobStop("No mailbox is set up to read - see Admin > Settings > Mail");
 }
 
 /** ------------------------------------------------------------------
@@ -946,11 +946,9 @@ $script_end_time = microtime(true);
 $execution_time = $script_end_time - $script_start_time;
 $execution_time_formatted = number_format($execution_time, 2);
 
-$processed_info = "Processed: $processed_count email(s), Unprocessed: $unprocessed_count email(s)";
-if ($processed_count || $unprocessed_count) {
-    logApp("Cron-Email-Parser", "info", "Cron Email Parser executed in $execution_time_formatted seconds. $processed_info");
-}
-
-// DEBUG
+// What the run did, for whoever runs it by hand - not App Logs, where it was an entry a minute
+// while mail came in. Each email processed is a ticket or a reply; one that isn't is left
+// flagged and unread in the inbox, and one that failed outright was logged above
 echo "Processed Emails: $processed_count\n";
 echo "Unprocessed Emails: $unprocessed_count\n";
+echo "Took $execution_time_formatted seconds\n";

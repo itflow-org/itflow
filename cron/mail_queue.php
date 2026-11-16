@@ -79,8 +79,8 @@ $config_mail_oauth_refresh_token           = $row['config_mail_oauth_refresh_tok
 $config_mail_oauth_access_token            = $row['config_mail_oauth_access_token'] ?? '';
 $config_mail_oauth_access_token_expires_at = $row['config_mail_oauth_access_token_expires_at'] ?? '';
 
+// Switched off isn't an error - Maintenance > Cron shows why it stopped
 if ($config_enable_cron == 0) {
-    logApp("Cron-Mail-Queue", "error", "Cron Mail Queue unable to run - cron not enabled in admin settings.");
     cronJobStop("Cron: is not enabled -- Quitting..");
 }
 
@@ -92,9 +92,9 @@ if (demoModeOn()) {
     cronJobStop("Demo - no email is sent");
 }
 
+// Nothing to send through isn't an error either - an App Logs entry every minute buried the real ones
 if (empty($config_smtp_provider)) {
-    logApp("Cron-Mail-Queue", "info", "SMTP sending skipped: provider not configured.");
-    cronJobStop();
+    cronJobStop("No mail server is set up to send through - see Admin > Settings > Mail");
 }
 
 /** =======================================================================
