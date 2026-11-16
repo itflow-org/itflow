@@ -394,8 +394,8 @@ function contractFromInput(array $in, $kind = 'contract') {
             return null;
         }
         $number = function_exists('billingNumberInput') ? billingNumberInput($value) : (is_numeric($value) ? floatval($value) : null);
-        // A rate of nothing is no rate - the default applies
-        return $number === null ? false : (round($number, 2) == 0 ? null : round($number, 2));
+        // Empty is no rate of its own - the default applies - and 0 is a rate of nothing: time it covers bills at 0
+        return $number === null ? false : round($number, 2) + 0;
     };
     $hours = function ($key) use ($in) {
         $value = trim(str_replace(',', '', (string) ($in[$key] ?? '')));

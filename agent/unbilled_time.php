@@ -61,7 +61,8 @@ foreach ($clients as $c) {
     $total['value'] += $c['value'];
     $total['oldest'] = max($total['oldest'], $c['oldest']);
     $total['no_time'] += $c['no_time'];
-    $total['no_rate'] += $c['tickets'] && $c['rate'] <= 0 ? 1 : 0;
+    // No rate is none from a contract and no default - a contract's rate of 0 is one
+    $total['no_rate'] += $c['tickets'] && $c['rate'] <= 0 && $c['default_rate'] ? 1 : 0;
     $total['expenses'] += count($c['expenses'] ?? []);
     $total['expense_value'] += $c['expense_value'] ?? 0;
     $total['expense_cost'] += $c['expense_cost'] ?? 0;
@@ -116,7 +117,7 @@ $hours_text = function ($hours) {
                 <?php if ($total['extras']) { ?>
                     <?= $money($total['value']) ?> of time<?= $total['expenses'] ? ' &middot; ' . $money($total['expense_value']) . ' of expenses' : '' ?><?= $total['trips'] ? ' &middot; ' . $money($total['trip_value']) . ' of travel' : '' ?>
                 <?php } else { ?>
-                    <?= $client_view ? (!$one_rate ? "At each ticket's rate" : 'At ' . ($this_client && $this_client['rate'] > 0 ? $money($this_client['rate']) . ' an hour' . (in_array($this_client['rate_source'] ?? '', ['contract', 'after_hours'], true) ? ', ' . escapeHtml($this_client['rate_note']) : '') : 'no rate set')) : 'At each client\'s hourly rate' ?>
+                    <?= $client_view ? (!$one_rate ? "At each ticket's rate" : 'At ' . ($this_client && ($this_client['rate'] > 0 || !$this_client['default_rate']) ? $money($this_client['rate']) . ' an hour' . (in_array($this_client['rate_source'] ?? '', ['contract', 'after_hours'], true) ? ', ' . escapeHtml($this_client['rate_note']) : '') : 'no rate set')) : 'At each client\'s hourly rate' ?>
                 <?php } ?>
             </div>
         </div>
@@ -450,7 +451,7 @@ $hours_text = function ($hours) {
                                                 <span class="text-body-secondary">-</span>
                                             <?php } elseif (count($c['rates'] ?? []) > 1) { ?>
                                                 <span class="small" title="An after-hours rate, or a change of contract - each ticket bills at its own">Each its own</span>
-                                            <?php } elseif ($c['rate'] > 0) { ?>
+                                            <?php } elseif ($c['rate'] > 0 || !$c['default_rate']) { ?>
                                                 <?= $money($c['rate']) ?><?= $c['default_rate'] ? '<div class="small text-body-tertiary" title="No contract in force sets a rate - the default in Admin > Settings > Defaults">default</div>' : (in_array($c['rate_source'] ?? '', ['contract', 'after_hours'], true) ? '<div class="small text-body-tertiary" title="' . escapeHtml(ucfirst($c['rate_note'])) . '">contract</div>' : '') ?>
                                             <?php } else { ?>
                                                 <span class="small text-warning-emphasis" title="Give the client's contract an hourly rate, or set a default in Admin > Settings > Defaults">No rate</span>

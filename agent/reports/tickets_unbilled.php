@@ -51,7 +51,8 @@ $rate_html = function ($row) {
     if (count($row['rates'] ?? []) > 1) {
         return '<span class="small" title="Each ticket bills at its own rate">Varies</span>';
     }
-    if ($row['rate'] <= 0) {
+    // No rate is none from a contract and no default - a contract's rate of 0 is one
+    if ($row['rate'] <= 0 && $row['default_rate']) {
         return '<span class="text-warning-emphasis small" title="Give the client\'s contract an hourly rate, or set a default in Admin > Settings > Defaults">No rate</span>';
     }
     $source = $row['rate_source'] ?? '';
@@ -118,7 +119,7 @@ if (reportExporting()) {
 require_once "includes/inc_report_layout.php";
 
 $no_time = count(array_filter($tickets, function ($t) { return $t['billable_hours'] <= 0; }));
-$no_rate = count(array_filter($tickets, function ($t) { return $t['rate'] <= 0; }));
+$no_rate = count(array_filter($tickets, function ($t) { return $t['rate'] <= 0 && $t['default_rate']; }));
 $over_30 = array_filter($tickets, function ($t) { return $t['waiting'] > 30; });
 
 ?>

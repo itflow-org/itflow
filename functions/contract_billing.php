@@ -102,7 +102,7 @@ function contractTermsOn($client_id, $date, $what = '') {
         if (!contractInForceOn($row, $date)) {
             continue;
         }
-        if ($what === 'rate' && floatval($row['contract_rate_standard']) <= 0 && floatval($row['contract_rate_after_hours']) <= 0) {
+        if ($what === 'rate' && $row['contract_rate_standard'] === null && $row['contract_rate_after_hours'] === null) {
             continue;
         }
         if ($what === 'net' && $row['contract_net_terms'] === null) {
@@ -157,11 +157,11 @@ function contractUsualTerms(array $row, $date = null) {
             continue;
         }
         $name = (string) $other['contract_name'];
-        if (!isset($found['rate']) && floatval($other['contract_rate_standard']) > 0) {
+        if (!isset($found['rate']) && $other['contract_rate_standard'] !== null) {
             $usual['rate'] = [floatval($other['contract_rate_standard']), $name];
             $found['rate'] = true;
         }
-        if (!isset($found['after_hours']) && floatval($other['contract_rate_after_hours']) > 0) {
+        if (!isset($found['after_hours']) && $other['contract_rate_after_hours'] !== null) {
             $usual['after_hours'] = [floatval($other['contract_rate_after_hours']), $name];
             $found['after_hours'] = true;
         }
@@ -266,9 +266,9 @@ function contractTicketRate(array $ticket) {
     $in_force = array_values(array_filter(contractTermsContracts($ticket['ticket_client_id'] ?? 0), function ($row) use ($done) {
         return contractInForceOn($row, $done);
     }));
-    // A rate of nothing is no rate - the default applies
+    // An empty rate is none of its own - the default applies; 0 is a rate of nothing
     $after_rates = array_filter($in_force, function ($row) {
-        return floatval($row['contract_rate_after_hours']) > 0;
+        return $row['contract_rate_after_hours'] !== null;
     });
     if (($after_rates || $defaults['after_hours'] > 0) && contractAfterHours($ticket['ticket_created_at'] ?? '')) {
         foreach ($after_rates as $row) {
@@ -279,7 +279,7 @@ function contractTicketRate(array $ticket) {
             'note' => 'the default after-hours rate - opened outside business hours'];
     }
     foreach ($in_force as $row) {
-        if (floatval($row['contract_rate_standard']) > 0) {
+        if ($row['contract_rate_standard'] !== null) {
             return ['rate' => floatval($row['contract_rate_standard']), 'source' => 'contract', 'contract_id' => intval($row['contract_id']), 'contract_name' => $row['contract_name'],
                 'note' => contractPossessive($row['contract_name']) . " rate"];
         }
@@ -329,7 +329,7 @@ function contractNetTermsWhose($client_id, $date) {
 /*
  * A client's terms today, each with where it comes from - for the pages
  * that show them: ['rate' => contractClientRate(), 'after_hours' => [rate,
- * contract name or ''] (rate 0: none, the hourly rate applies), 'net_terms'
+ * contract name or ''] (rate null: none, the hourly rate applies), 'net_terms'
  * => [days, contract name or ''], 'slas' => [priority => [sla_id, contract
  * name or '']]].
  */
@@ -337,9 +337,9 @@ function contractClientTerms($client_id) {
     $client_id = intval($client_id);
     $today = date('Y-m-d');
     $defaults = billingDefaults();
-    $after = [$defaults['after_hours'], ''];
+    $after = [$defaults['after_hours'] > 0 ? $defaults['after_hours'] : null, ''];
     foreach (contractsInForce($client_id) as $row) {
-        if (floatval($row['contract_rate_after_hours']) > 0) {
+        if ($row['contract_rate_after_hours'] !== null) {
             $after = [floatval($row['contract_rate_after_hours']), $row['contract_name']];
             break;
         }

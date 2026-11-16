@@ -593,7 +593,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         ?>
                         <span class="small text-body-secondary">Terms</span>
                         <span class="itflow-dash-money-value"><?= $money_format($overview_rate['rate']) ?><span class="fs-6 fw-normal text-body-secondary">/hr</span></span>
-                        <span class="small text-body-tertiary"><?= $overview_net ? "Net $overview_net" : 'Due on receipt' ?><?= $overview_after > 0 ? ', ' . $money_format($overview_after) . '/hr after hours' : '' ?><?= $client_tax_id_number ? ", tax ID $client_tax_id_number" : '' ?></span>
+                        <span class="small text-body-tertiary"><?= $overview_net ? "Net $overview_net" : 'Due on receipt' ?><?= $overview_after !== null ? ', ' . $money_format($overview_after) . '/hr after hours' : '' ?><?= $client_tax_id_number ? ", tax ID $client_tax_id_number" : '' ?></span>
                         <?php if ($overview_from !== '') { ?>
                             <span class="small text-body-tertiary text-truncate" data-overview-terms-contract title="While it is in force, the contract's rates and net terms apply - the defaults for what it leaves empty"><i class="fas fa-file-contract me-1" aria-hidden="true"></i>From <?= escapeHtml($overview_from) ?></span>
                         <?php } else { ?>

@@ -297,7 +297,7 @@ if ($clients) {
         if (contractsReady()) {
             $rate_today = date('Y-m-d');
             $sql_rates = mysqli_query($mysqli, "SELECT contract_client_id AS id, contract_rate_standard AS rate, contract_name FROM contracts
-                WHERE contract_client_id IN ($page_ids) AND contract_status IN ('Active', 'Ended', 'Cancelled') AND contract_archived_at IS NULL AND contract_rate_standard > 0
+                WHERE contract_client_id IN ($page_ids) AND contract_status IN ('Active', 'Ended', 'Cancelled') AND contract_archived_at IS NULL AND contract_rate_standard IS NOT NULL
                     AND contract_start_date IS NOT NULL AND contract_start_date <= '$rate_today'
                     AND (contract_end_date IS NULL OR contract_end_date >= '$rate_today' OR (contract_status = 'Active' AND contract_auto_renew = 1))
                 ORDER BY contract_start_date DESC, contract_id DESC");

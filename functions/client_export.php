@@ -464,7 +464,7 @@ function clientExportRows($dataset, $client_id, $options) {
                     'name' => $row['client_name'], 'abbreviation' => $row['client_abbreviation'], 'industry' => $row['client_type'], 'website' => $row['client_website'],
                     'referral' => $row['client_referral'], 'lead' => clientExportYes($row['client_lead']),
                     'tags' => clientExportTags('client_tags', 'client_id', [$client_id])[$client_id] ?? '',
-                    'hourly_rate' => $terms ? sprintf('%.2f', $terms['rate']['rate']) : '', 'after_hours_rate' => $terms && $terms['after_hours'][0] > 0 ? sprintf('%.2f', $terms['after_hours'][0]) : '',
+                    'hourly_rate' => $terms ? sprintf('%.2f', $terms['rate']['rate']) : '', 'after_hours_rate' => $terms && $terms['after_hours'][0] !== null ? sprintf('%.2f', $terms['after_hours'][0]) : '',
                     'net_terms' => $terms ? $terms['net_terms'][0] : '',
                     'terms_from' => $terms ? (($terms['rate']['contract_name'] ?: ($terms['net_terms'][1] ?: $terms['after_hours'][1])) ?: 'The defaults') : '',
                     'currency' => $billing ? $row['client_currency_code'] : '', 'tax_id' => $billing ? $row['client_tax_id_number'] : '',

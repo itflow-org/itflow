@@ -308,7 +308,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     </div>
                 </div>
             </div>
-            <small class="text-secondary d-block mb-3">While the contract is in force, time bills at these rates - the after-hours one for tickets opened outside business hours - and new invoices are due on these terms. Leave one empty and the default in Admin > Settings > Defaults applies.</small>
+            <small class="text-secondary d-block mb-3">While the contract is in force, time bills at these rates - the after-hours one for tickets opened outside business hours - and new invoices are due on these terms. Leave one empty and the default in Admin > Settings > Defaults applies - a rate of 0 bills that time at nothing.</small>
 
             <label class="form-label">SLA by ticket priority</label>
             <?php foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) { ?>
