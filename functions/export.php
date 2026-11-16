@@ -163,7 +163,7 @@ function getExportColumns($export_type) {
         ],
 
         'networks' => [
-            // The first nine are the import's columns, in its order
+            // Headed as the network import heads them, so an export imports again (functions/import_kinds.php)
             'network_name'          => ['label' => 'Name', 'weight' => 2],
             'network_description'   => ['label' => 'Description', 'weight' => 3],
             'network_vlan'          => ['label' => 'VLAN'],

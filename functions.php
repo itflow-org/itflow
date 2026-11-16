@@ -52,6 +52,7 @@ require_once __DIR__ . '/functions/ai_client.php';
 require_once __DIR__ . '/functions/ai_billing.php';
 require_once __DIR__ . '/functions/export.php';
 require_once __DIR__ . '/functions/import.php';
+require_once __DIR__ . '/functions/import_kinds.php';
 require_once __DIR__ . '/functions/calendar.php';
 require_once __DIR__ . '/functions/backup.php';
 require_once __DIR__ . '/functions/search.php';

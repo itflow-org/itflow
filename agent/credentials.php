@@ -166,7 +166,7 @@ $filter_url = function ($changes) use ($client_url) {
                         </a>
                     <?php } ?>
                     <?php if ($client_url && $can_edit) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/credential/credential_import.php?<?= $client_url ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=credentials">
                             <i class="fa fa-fw fa-upload me-2"></i>Import
                         </a>
                     <?php } ?>
@@ -479,7 +479,7 @@ $filter_url = function ($changes) use ($client_url) {
         'text' => 'The logins for their systems, encrypted in the vault.',
         'actions' => $can_edit ? array_merge(
             [['label' => 'New Credential', 'modal' => "modals/credential/credential_add.php?$client_url", 'size' => 'lg']],
-            $client_url ? [['label' => 'Import', 'modal' => "modals/credential/credential_import.php?$client_url", 'icon' => 'fa-upload']] : []
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=credentials", 'icon' => 'fa-upload', 'size' => 'lg']] : []
         ) : [],
     ];
     require_once "../includes/filter_footer.php";

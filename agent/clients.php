@@ -390,7 +390,7 @@ $total_leads = intval($row['leads']);
                             </a>
                             <div class="dropdown-divider"></div>
                         <?php } ?>
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_import.php">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?kind=clients">
                             <i class="fa fa-fw fa-upload me-2"></i>Import
                         </a>
                         <a class="dropdown-item ajax-modal" href="#"
@@ -797,7 +797,7 @@ $total_leads = intval($row['leads']);
         'actions' => $can_edit ? array_merge(
             [['label' => $leads_filter ? 'New Lead' : 'New Client', 'modal' => 'modals/client/client_add.php' . ($leads_filter ? '?lead=1' : '')]],
             $leads_filter || !$can_onboard ? [] : [['label' => 'Onboard a client', 'href' => clientOnboardingUrl(), 'icon' => 'fa-route']],
-            $leads_filter ? [] : [['label' => 'Import', 'modal' => 'modals/client/client_import.php', 'icon' => 'fa-upload']]
+            $leads_filter ? [] : [['label' => 'Import', 'modal' => 'modals/import/import.php?kind=clients', 'icon' => 'fa-upload', 'size' => 'lg']]
         ) : [],
     ];
     ?>

@@ -220,7 +220,7 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                             <i class="fas fa-fw fa-tags text-secondary me-2"></i>Update Prices<?php if ($reprice['lines']) { ?><span class="badge rounded-pill text-bg-warning ms-2" title="Lines at an old price"><?= intval($reprice['lines']) ?></span><?php } ?>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/product/product_import.php">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?kind=products">
                             <i class="fas fa-fw fa-upload text-secondary me-2"></i>Import
                         </a>
                     <?php } ?>
@@ -453,7 +453,7 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                                 <div class="small mb-3">Add the services and products you sell, and pick them as lines on invoices, quotes and recurring invoices.</div>
                                 <?php if ($can_edit) { ?>
                                     <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/product/product_add.php?type=service"><i class="fas fa-plus me-2"></i>New Service</button>
-                                    <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/product/product_import.php"><i class="fas fa-upload me-2"></i>Import</button>
+                                    <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/import/import.php?kind=products"><i class="fas fa-upload me-2"></i>Import</button>
                                     <?php if ($session_is_admin ?? false) { ?>
                                         <div class="small mt-3">Or load a starter catalog from <a href="../admin/starter_content.php">Starter Content</a>.</div>
                                     <?php } ?>

@@ -117,7 +117,7 @@ $locations_counts = locationCounts(array_keys($locations));
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($client_url) { ?>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
-                        data-modal-url="modals/location/location_import.php?<?= $client_url ?>">
+                        data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=locations">
                         <i class="fa fa-fw fa-upload me-2"></i>Import
                     </a>
                     <?php } ?>
@@ -420,7 +420,7 @@ $locations_counts = locationCounts(array_keys($locations));
         'text' => 'Their offices and sites, with the address and phone of each.',
         'actions' => $can_edit ? array_merge(
             [['label' => 'New Location', 'modal' => "modals/location/location_add.php?$client_url", 'size' => 'lg']],
-            $client_url ? [['label' => 'Import', 'modal' => "modals/location/location_import.php?$client_url", 'icon' => 'fa-upload']] : []
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=locations", 'icon' => 'fa-upload', 'size' => 'lg']] : []
         ) : [],
     ];
     require_once "../includes/filter_footer.php";

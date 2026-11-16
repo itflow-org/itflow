@@ -171,7 +171,7 @@ $csrf = $_SESSION['csrf_token'];
                         </a>
                     <?php } ?>
                     <?php if ($can_edit && $client_url) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/network/network_import.php?<?= $client_url ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=networks">
                             <i class="fa fa-fw fa-upload me-2"></i>Import
                         </a>
                     <?php } ?>
@@ -456,7 +456,7 @@ $csrf = $_SESSION['csrf_token'];
         'text' => 'Start with the office LAN, the guest wireless and the internet connection.',
         'actions' => $can_edit ? array_merge(
             [['label' => 'New Network', 'modal' => "modals/network/network_add.php?{$client_url}location_id=$location_filter&type=$type_filter", 'size' => 'lg']],
-            $client_url ? [['label' => 'Import', 'modal' => "modals/network/network_import.php?$client_url", 'icon' => 'fa-upload']] : []
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=networks", 'icon' => 'fa-upload', 'size' => 'lg']] : []
         ) : [],
     ];
     require_once "../includes/filter_footer.php";

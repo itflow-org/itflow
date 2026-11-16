@@ -233,7 +233,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                 <div class="dropdown-menu">
                     <?php if ($client_url) { ?>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
-                        data-modal-url="modals/asset/asset_import.php?<?= $client_url ?>">
+                        data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=assets">
                         <i class="fa fa-fw fa-upload me-2"></i>Import
                     </a>
                     <?php } ?>
@@ -801,7 +801,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
         'text' => $type_filter ? '' : 'Their computers, servers, network gear and phones - what each is, where it is and who uses it.',
         'actions' => $can_edit ? array_merge(
             [['label' => 'New ' . ($type_filter ? rtrim($asset_type_tabs[$type_filter]['label'], 's') : 'Asset'), 'modal' => "modals/asset/asset_add.php?$client_url&type=$type_filter", 'size' => 'lg']],
-            $client_url ? [['label' => 'Import', 'modal' => "modals/asset/asset_import.php?$client_url", 'icon' => 'fa-upload']] : []
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=assets", 'icon' => 'fa-upload', 'size' => 'lg']] : []
         ) : [],
     ];
     ?>

@@ -246,7 +246,7 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
                     <?php } ?>
                     <?php if ($client_url) { ?>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
-                        data-modal-url="modals/contact/contact_import.php?<?= $client_url ?>">
+                        data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=contacts">
                         <i class="fa fa-fw fa-upload me-2"></i>Import
                     </a>
                     <div class="dropdown-divider"></div>
@@ -743,7 +743,7 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
         'text' => 'The people at the client - who to call, and who gets the invoices.',
         'actions' => $can_edit ? array_merge(
             [['label' => 'New Contact', 'modal' => "modals/contact/contact_add.php?$client_url", 'size' => 'lg']],
-            $client_url ? [['label' => 'Import', 'modal' => "modals/contact/contact_import.php?$client_url", 'icon' => 'fa-upload']] : []
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=contacts", 'icon' => 'fa-upload', 'size' => 'lg']] : []
         ) : [],
     ];
     ?>
