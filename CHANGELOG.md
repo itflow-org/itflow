@@ -55,6 +55,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 
 ### Bug Fixes
 
+- Assets: a virtual machine can have a vendor - the provider a hosted one or VPS is rented from - with its order reference and date, on the Purchase tab like other assets. Before, only one added from a vendor's page kept its vendor.
 - Hosting panels: on a server where Apache hands PHP to PHP-FPM - as HestiaCP, cPanel, Plesk and most hosting control panels set it up - your logo, the favicon, avatars and the photos on contacts, locations, assets and racks didn't load, and the server answered them with an error. They load now. The folders kept private, such as backups and receipts, stay private. Installs made with the install script, which runs PHP inside Apache, were not affected.
 
 ### Developer Updates
@@ -92,6 +93,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - `enforce_api_rbac.php` maps `accounts`, `revenues`, `transfers` and `recurring_expenses` to `module_financial`, `contracts` and `contract_hours` to `module_sales`, `files` and `folders` to `module_support`, and `events`, `calendars` and `trips` to `''` - their endpoints check `calendarEventCan()` and `tripCanEdit()` as the pages do. `skip`, `record`, `move_on`, `activate`, `withdraw`, `draw`, `put_back`, `recurring` and `unlink` are at level 2, and `download.php` reads, at level 1 and not a write.
 - `php_flag engine off` in `uploads/.htaccess`, its `backups`, `expenses`, `tmp` and `canned_responses` folders and `scripts/.htaccess` is wrapped in `<IfModule mod_php.c>`. Apache only knows `php_flag` under mod_php - with PHP-FPM through `mod_proxy_fcgi` it stops on the line and answers every request in the folder with a 500. Under FPM, PHP still can't run there: `uploads/.htaccess` denies `.php`, `.phtml`, `.phar` and the rest by name, and the other five deny everything.
 - A contract's or contract template's rate of 0 is kept: `contractFromInput()` saves an entered 0 as `0.00` and only an empty field as `NULL`. `contractTicketRate()`, `contractTermsOn()`, `contractUsualTerms()`, `contractClientTerms()` and the clients list treat a rate as set when it isn't `NULL`, rather than above 0, and `contractClientTerms()` gives `null` for no after-hours rate rather than 0. The no-rate warnings on Unbilled Time, Unbilled Tickets, Time Detail by Client and the bill-a-ticket window are for a rate of 0 from the default only (`default_rate`). Contracts saved before kept no 0 rates - 0 was saved as `NULL` - so nothing changes for them.
+- `Virtual Machine` in `ASSET_TYPES` (`functions/asset_type.php`) has the `purchase` fields - Vendor, Order / invoice reference and Purchased.
 
 ## [26.11.8]
 

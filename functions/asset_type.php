@@ -45,7 +45,8 @@ const ASSET_TYPES = [
         'fields' => ['os', 'network', 'links', 'serial', 'purchase', 'warranty'], 'specs' => ['drive_bays', 'drives', 'raw_tb', 'usable_tb', 'raid', 'ports'],
         'example' => ['name' => 'NAS-01', 'description' => 'File shares and backups', 'make' => 'Synology', 'model' => 'DS923+', 'os' => 'DSM 7.2']],
     'Virtual Machine' => ['icon' => 'fa-cloud', 'tone' => 'virtual', 'group' => 'virtual', 'os' => 'os',
-        'fields' => ['os', 'network', 'nat', 'links'], 'specs' => ['vm_host', 'vcpus', 'ram_gb', 'storage'],
+        // Purchase for a hosted one - the provider it is rented from, its order and when
+        'fields' => ['os', 'network', 'nat', 'links', 'purchase'], 'specs' => ['vm_host', 'vcpus', 'ram_gb', 'storage'],
         'example' => ['name' => 'VM-APP-01', 'description' => 'Line of business app', 'make' => 'Microsoft', 'model' => 'Hyper-V', 'os' => 'Ubuntu 24.04']],
     'Firewall/Router' => ['icon' => 'fa-fire-alt', 'tone' => 'firewall', 'group' => 'network', 'os' => 'firmware',
         'fields' => ['os', 'network', 'nat', 'links', 'serial', 'purchase', 'warranty'], 'specs' => ['ports', 'sfp_ports'],
