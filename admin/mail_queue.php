@@ -39,7 +39,7 @@ $search = "(email_id LIKE '%$q%' OR email_from LIKE '%$q%' OR email_from_name LI
     AND DATE(email_queued_at) BETWEEN '$dtf' AND '$dtt'";
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS email_id, email_status, email_attempts, email_from, email_from_name, email_recipient, email_recipient_name,
-        email_subject, email_queued_at, email_failed_at, email_sent_at, " . mailQueueErrorColumn() . ", COALESCE(email_attachments, '') <> '' AS has_attachments, COALESCE(email_cal_str, '') <> '' AS has_invite
+        email_subject, email_queued_at, email_failed_at, email_sent_at, " . mailQueueErrorColumn() . ", COALESCE(email_attachments, '') <> '' AS has_attachments, COALESCE(email_cal_str, '') <> '' AS has_invite, email_content = '' AS email_cleared
     FROM email_queue
     WHERE $search AND {$tabs[$show][2]}
     ORDER BY {$sortable_columns[$sort]}, email_id DESC

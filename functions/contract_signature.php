@@ -564,7 +564,7 @@ function contractSignatureRequestEmail(array $round, $note = '') {
         'note' => trim((string) $note),
         'summary' => array_filter(['Contract' => (string) $round['contract_name'], 'For' => (string) $round['client_name'], 'Term' => $term, 'Sent by' => (string) $by]),
         'button' => ['label' => 'Review and sign', 'url' => contractSignatureUrl($round)],
-    ], ['from' => contractEmailFrom()]);
+    ], ['from' => contractEmailFrom(), 'sensitive' => true]);
     return (bool) $sent;
 }
 

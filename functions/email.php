@@ -343,6 +343,9 @@ function emailPlainText($html, $limit = 0) {
  *   ticket_reply_id  the agent's ticket reply it carries - kept with each email
  *                (email_queue.email_ticket_reply_id), so the conversation says who
  *                it went to and whether it went (ticketReplyEmailed())
+ *   sensitive    it carries a link or code that opens something - a shared login, an
+ *                invite, a password link, a signing or approval link - so the mail queue
+ *                clears what it said once it has gone (email_queue.email_sensitive)
  * Who it was queued to, "Name (email)". Nothing is queued without mail set up.
  */
 function emailQueue(array $recipients, $subject, array $email, array $opts = []) {
@@ -380,7 +383,8 @@ function emailQueue(array $recipients, $subject, array $email, array $opts = [])
             'attachments' => $attachments,
         ] + (!empty($opts['cal_str']) ? ['cal_str' => (string) $opts['cal_str']] : [])
           + ($queued_at !== '' ? ['queued_at' => $queued_at] : [])
-          + (intval($opts['ticket_reply_id'] ?? 0) > 0 && ticketReplyEmailReady() ? ['ticket_reply_id' => intval($opts['ticket_reply_id'])] : []);
+          + (intval($opts['ticket_reply_id'] ?? 0) > 0 && ticketReplyEmailReady() ? ['ticket_reply_id' => intval($opts['ticket_reply_id'])] : [])
+          + (!empty($opts['sensitive']) ? ['sensitive' => 1] : []);
     }
     if ($data) {
         addToMailQueue($data);

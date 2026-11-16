@@ -665,7 +665,7 @@ function shareEmailLink($row, $url, $protect) {
         'summary' => $summary,
         'callout' => $callout,
         'button' => ['label' => $button, 'url' => (string) $url, 'show_url' => true],
-    ], ['from' => shareMailFrom()]);
+    ], ['from' => shareMailFrom(), 'sensitive' => true]);
 }
 
 /** The code that opens a link protected by one, to its recipient. True when it was queued. */
@@ -677,7 +677,7 @@ function shareEmailCode($row, $code) {
         'title' => "Your code is $code",
         'intro' => ['Enter it on the page that asked for it, to open the secure link ' . $company['name'] . ' sent you. It works for ' . SHARE_CODE_MINUTES . ' minutes.'],
         'callout' => 'If you did not ask for it, someone else has the link - ignore this email and let us know.',
-    ], ['from' => shareMailFrom()]);
+    ], ['from' => shareMailFrom(), 'sensitive' => true]);
 }
 
 /**

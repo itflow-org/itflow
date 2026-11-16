@@ -1683,6 +1683,7 @@ CREATE TABLE `email_queue` (
   `email_attempts` tinyint(1) NOT NULL DEFAULT 0,
   `email_sent_at` datetime DEFAULT NULL,
   `email_ticket_reply_id` int(11) DEFAULT NULL,
+  `email_sensitive` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`email_id`),
   KEY `email_status` (`email_status`,`email_queued_at`),
   KEY `email_ticket_reply_id` (`email_ticket_reply_id`)

@@ -10,8 +10,11 @@
  *   1  being sent this minute
  *   2  failed - tried again every MAIL_QUEUE_RETRY_MINUTES until it has had
  *      MAIL_QUEUE_TRIES; 99 tries means it isn't tried again (a bad address)
- *   3  sent - its body, calendar file and attachments are cleared then, as
- *      they can carry share keys and temporary passwords
+ *   3  sent - it keeps what it said, its calendar file and attachments, except
+ *      one that carried a link or code that opens something (email_sensitive:
+ *      a shared login, an invite, a password link, a signing or approval link),
+ *      cleared as it goes - and a failed or cancelled one like it a day after
+ *      it was queued (nightly, mailQueueClearSensitive())
  *   4  cancelled by an admin - never picked up again
  * email_error says why it last failed, or who cancelled it - cleared when it
  * is sent or retried. Sent, failed and cancelled email is deleted after 90
@@ -101,7 +104,8 @@ function mailQueueCan(array $row, $action) {
     $tries = intval($row['email_attempts']);
     switch ($action) {
         case 'retry':
-            return $status === 2 || $status === MAIL_QUEUE_CANCELLED;
+            // Not one whose link was cleared - there is nothing left to send
+            return ($status === 2 || $status === MAIL_QUEUE_CANCELLED) && empty($row['email_cleared']);
         case 'cancel':
             return $status === 0 || ($status === 2 && $tries < MAIL_QUEUE_TRIES);
         case 'delete':
@@ -125,7 +129,7 @@ function mailQueueAct($action, array $email_ids) {
     $tries = MAIL_QUEUE_TRIES;
     $cancelled = MAIL_QUEUE_CANCELLED;
     $where = [
-        'retry' => "email_status IN (2, $cancelled)",
+        'retry' => "email_status IN (2, $cancelled) AND email_content <> ''",
         'cancel' => "(email_status = 0 OR (email_status = 2 AND email_attempts < $tries))",
         'delete' => 'email_status <> 1',
     ][$action] ?? null;
@@ -201,7 +205,7 @@ function mailQueueHealth() {
             'url' => 'cron.php', 'action' => 'Maintenance > Cron', 'waiting' => $waiting];
     }
     return ['level' => '', 'key' => 'ok', 'title' => '', 'text' => 'Sent by the Mail Queue job each minute - it last ran ' . $ago($job['cron_job_last_run_at'] ?? null) . '. A failed email is tried '
-        . (MAIL_QUEUE_TRIES - 1) . ' more times, ' . MAIL_QUEUE_RETRY_MINUTES . ' minutes apart. Email is kept ' . MAIL_QUEUE_KEEP_DAYS . ' days; a sent one without what it said.', 'url' => '', 'action' => '', 'waiting' => 0];
+        . (MAIL_QUEUE_TRIES - 1) . ' more times, ' . MAIL_QUEUE_RETRY_MINUTES . ' minutes apart. Email is kept ' . MAIL_QUEUE_KEEP_DAYS . ' days - with what it said, apart from one with a link or code that opens something, cleared once it has gone.', 'url' => '', 'action' => '', 'waiting' => 0];
 }
 
 /* Whether email_queue has email_error yet - not until the 3.3.7 update has run. */
@@ -240,6 +244,45 @@ function mailQueueErrorSql($error) {
 /* The email_error column for a SELECT - itself, or NULL before the update. */
 function mailQueueErrorColumn() {
     return mailQueueHasError() ? 'email_error' : 'NULL AS email_error';
+}
+
+/* Is there an email_sensitive column yet? Database 3.7.1 adds it. */
+function mailQueueHasSensitive() {
+    global $mysqli;
+    static $has = null;
+    if ($has === null) {
+        $result = mysqli_query($mysqli, "SHOW COLUMNS FROM email_queue LIKE 'email_sensitive'");
+        $has = $result && mysqli_num_rows($result) > 0;
+    }
+    return $has;
+}
+
+/*
+ * What an email that has gone keeps, for the UPDATE that marks it sent (cron/mail_queue.php):
+ * everything, unless it carried a link or code that opens something - then what it said, its
+ * calendar file and attachments are cleared. Before the update that says which those are,
+ * every one is cleared, as all were.
+ */
+function mailQueueSentSql() {
+    if (!mailQueueHasSensitive()) {
+        return ", email_content = '', email_cal_str = '', email_attachments = ''";
+    }
+    return ", email_content = IF(email_sensitive = 1, '', email_content), email_cal_str = IF(email_sensitive = 1, '', email_cal_str),"
+        . " email_attachments = IF(email_sensitive = 1, '', email_attachments)";
+}
+
+/*
+ * Clear what a failed or cancelled email with a link or code said, a day after it was queued
+ * - its tries are long over, and a new one is a new link anyway (nightly). How many.
+ */
+function mailQueueClearSensitive() {
+    global $mysqli;
+    if (!mailQueueHasSensitive()) {
+        return 0;
+    }
+    mysqli_query($mysqli, "UPDATE email_queue SET email_content = '', email_cal_str = '', email_attachments = ''
+        WHERE email_sensitive = 1 AND email_status IN (2, " . MAIL_QUEUE_CANCELLED . ") AND email_content <> '' AND email_queued_at < NOW() - INTERVAL 1 DAY");
+    return mysqli_affected_rows($mysqli);
 }
 
 /*

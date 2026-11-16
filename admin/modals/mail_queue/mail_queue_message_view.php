@@ -4,7 +4,8 @@
  * Maintenance > Mail Queue - one email: where it stands, and why it last
  * failed or who cancelled it; who it is to and from; when it was queued,
  * tried, sent or given up on; its attachments and calendar file; and what it
- * says, until it is sent - that is cleared then (cron/mail_queue.php). The
+ * says - unless it carried a link or code that opens something, cleared once it
+ * has gone (functions/mail_queue.php). The
  * email is shown as it will arrive, in a sandboxed frame that runs nothing
  * and can't reach this page. Retry now, Cancel and Delete as on its row
  * (admin/post/mail_queue.php).
@@ -14,7 +15,7 @@ require_once '../../includes/modal_header.php';
 
 $email_id = intval($_GET['id'] ?? 0);
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT email_id, email_status, email_attempts, email_from, email_from_name, email_recipient, email_recipient_name,
-    email_subject, email_content, email_cal_str, email_attachments, email_queued_at, email_failed_at, email_sent_at, " . mailQueueErrorColumn() . "
+    email_subject, email_content, email_content = '' AS email_cleared, email_cal_str, email_attachments, email_queued_at, email_failed_at, email_sent_at, " . mailQueueErrorColumn() . "
     FROM email_queue WHERE email_id = $email_id LIMIT 1"));
 
 ob_start();
@@ -122,8 +123,8 @@ if (!$row) { ?>
             <div class="text-center text-body-secondary border rounded py-4 px-3" data-email-cleared>
                 <i class="fas fa-fw fa-eraser fa-lg mb-2 d-block"></i>
                 <?= $status === 3
-                    ? 'What it said was cleared when it was sent - an email can carry share links and temporary passwords, so it isn\'t kept.'
-                    : 'There is nothing in it.' ?>
+                    ? 'What it said was cleared when it was sent - it carried a link or code that opens something, such as a shared login, an invite or a password link, so it isn\'t kept.'
+                    : (in_array($status, [2, MAIL_QUEUE_CANCELLED], true) ? 'What it said was cleared a day after it was queued - it carried a link or code that opens something, so it isn\'t kept. Send a new one from where it came from.' : 'There is nothing in it.') ?>
             </div>
         <?php } else { ?>
             <!-- As it will arrive - sandboxed: nothing in it runs, and it can't reach this page; its links open on their own -->

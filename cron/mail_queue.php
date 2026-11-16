@@ -429,8 +429,8 @@ if (mysqli_num_rows($sql_queue) > 0) {
                 (string)$config_mail_oauth_access_token_expires_at
             );
 
-            // Scrub the body on delivery - it can carry share decryption keys and temporary passwords
-            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = 1, email_content = '', email_cal_str = '', email_attachments = ''" . mailQueueErrorSql(null) . " WHERE email_id = $email_id");
+            // Sent - one with a link or code that opens something is cleared now (mailQueueSentSql())
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = 1" . mailQueueSentSql() . mailQueueErrorSql(null) . " WHERE email_id = $email_id");
 
         } catch (\Throwable $e) {
             // Anything that stops this one email - not only PHPMailer's own Exception, which is what Exception names
@@ -511,8 +511,8 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
                 (string)$config_mail_oauth_access_token_expires_at
             );
 
-            // Scrub the body on delivery - it can carry share decryption keys and temporary passwords
-            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = $email_attempts, email_content = '', email_cal_str = '', email_attachments = ''" . mailQueueErrorSql(null) . " WHERE email_id = $email_id");
+            // Sent - one with a link or code that opens something is cleared now (mailQueueSentSql())
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = $email_attempts" . mailQueueSentSql() . mailQueueErrorSql(null) . " WHERE email_id = $email_id");
 
         } catch (\Throwable $e) {
             mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = $email_attempts" . mailQueueErrorSql($e->getMessage()) . " WHERE email_id = $email_id");

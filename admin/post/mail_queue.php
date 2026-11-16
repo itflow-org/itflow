@@ -5,15 +5,15 @@
  * start, cancel it or delete it - one (retry_mail, cancel_mail, delete_mail)
  * or the ones ticked (bulk_retry_emails, bulk_cancel_emails,
  * bulk_delete_emails). Each is only done where it can be (mailQueueAct(),
- * functions/mail_queue.php) - a sent email can't be retried, as what it said
- * was cleared on sending, and one going this minute is left alone - and the
+ * functions/mail_queue.php) - a sent email can't be retried, nor one whose
+ * link was cleared, and one going this minute is left alone - and the
  * message says how many it was done to, and why any weren't.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 $mail_queue_actions = [
-    'retry' => ['retry_mail', 'bulk_retry_emails', 'retried', 'Retry', ['it goes at the next run', 'they go at the next run'], 'A sent one can\'t be - what it said was cleared on sending - nor one waiting or going now.'],
+    'retry' => ['retry_mail', 'bulk_retry_emails', 'retried', 'Retry', ['it goes at the next run', 'they go at the next run'], 'A sent one can\'t be, nor one waiting or going now, nor one whose link was cleared.'],
     'cancel' => ['cancel_mail', 'bulk_cancel_emails', 'cancelled', 'Cancel', ['it won\'t be sent', 'they won\'t be sent'], 'Only one still to be sent or tried again can be.'],
     'delete' => ['delete_mail', 'bulk_delete_emails', 'deleted', 'Delete', ['', ''], 'One going this minute can\'t be.'],
 ];

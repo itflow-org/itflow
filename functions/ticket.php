@@ -1049,7 +1049,7 @@ function ticketMailTaskApproval($approval_id, $by) {
         'button' => ['label' => 'Review and approve', 'url' => "https://$config_base_url/guest/guest_approve_ticket_task.php?task_approval_id=" . intval($approval['approval_id']) . '&url_key=' . rawurlencode((string) $approval['approval_url_key'])],
         'after' => ['Want to know more first? Just reply to this email.'],
         'contact' => ticketEmailContactLine(),
-    ], ['from' => ticketEmailFrom()]));
+    ], ['from' => ticketEmailFrom(), 'sensitive' => true]));
 }
 
 /*

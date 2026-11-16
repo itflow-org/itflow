@@ -345,7 +345,7 @@ function portalMailInvite($user_id, $by = '') {
         'summary' => ['Sign in as' => (string) $row['user_email']],
         'button' => $button,
         'after' => [$after],
-    ]);
+    ], ['sensitive' => $row['user_auth_method'] === 'local']);
 }
 
 /** A Forgot password link for a portal user, good for PORTAL_RESET_LINK_MINUTES. False when it can't go. */
@@ -366,7 +366,7 @@ function portalMailPasswordReset($user_id) {
         'summary' => ['Account' => (string) $row['user_email']],
         'button' => ['label' => 'Set a new password', 'url' => portalPasswordLink($user_id, PORTAL_RESET_LINK_MINUTES)],
         'after' => ['The link works once, for the next ' . PORTAL_RESET_LINK_MINUTES . ' minutes. If you did not ask for it, ignore this email - your password stays as it is.'],
-    ]);
+    ], ['sensitive' => true]);
 }
 
 /*

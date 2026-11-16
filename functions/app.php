@@ -849,8 +849,10 @@ function addToMailQueue($data) {
 
         // The ticket reply it carries (emailQueue()'s ticket_reply_id), once the 3.4.8 update has made the column
         $ticket_reply_sql = !empty($email['ticket_reply_id']) ? ', email_ticket_reply_id = ' . intval($email['ticket_reply_id']) : '';
+        // One with a link or code that opens something, cleared once it has gone (emailQueue()'s sensitive) - once the 3.7.1 update has made the column
+        $sensitive_sql = !empty($email['sensitive']) && mailQueueHasSensitive() ? ', email_sensitive = 1' : '';
 
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body', email_queued_at = $queued_at, email_cal_str = '$cal_str', email_attachments = '$attachments'$ticket_reply_sql");
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body', email_queued_at = $queued_at, email_cal_str = '$cal_str', email_attachments = '$attachments'$ticket_reply_sql$sensitive_sql");
     }
 
     return true;

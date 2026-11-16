@@ -398,7 +398,7 @@ function userInviteMail($invite_id, $token) {
             'summary' => $summary,
             'button' => ['label' => 'Accept the invite', 'url' => userInviteUrl($row['invite_id'], $token)],
             'after' => ['The invite works for ' . USER_INVITE_LINK_DAYS . ' days. If you were not expecting it, you can ignore this email - nothing is set up unless the link is used.'],
-        ]);
+        ], ['sensitive' => true]);
     if ($sent && !emailCapturing()) {
         mysqli_query($mysqli, "UPDATE user_invites SET invite_sent_at = NOW(), invite_sent_count = invite_sent_count + 1 WHERE invite_id = " . intval($row['invite_id']));
     }
