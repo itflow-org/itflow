@@ -829,10 +829,11 @@ function addToMailQueue($data) {
                 if (empty($attachment['path']) || empty($attachment['name'])) {
                     continue;
                 }
+                // A picture in the message goes in inline, where its cid: points (emailInlineImages())
                 $attachment_manifest[] = [
                     'path' => strval($attachment['path']),
                     'name' => strval($attachment['name'])
-                ];
+                ] + (!empty($attachment['cid']) ? ['cid' => preg_replace('/[^A-Za-z0-9@._-]/', '', (string) $attachment['cid'])] : []);
             }
             if ($attachment_manifest) {
                 $attachments = mysqli_escape_string($mysqli, json_encode($attachment_manifest));

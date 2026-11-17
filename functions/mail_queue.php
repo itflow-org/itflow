@@ -25,6 +25,8 @@ const MAIL_QUEUE_TRIES = 4;
 const MAIL_QUEUE_RETRY_MINUTES = 30;
 const MAIL_QUEUE_KEEP_DAYS = 90;
 const MAIL_QUEUE_CANCELLED = 4;
+// Pictures that were in an email as data, kept once each for the queue to attach inline (emailInlineImages()) - the web can't reach uploads/tmp
+const MAIL_QUEUE_IMAGE_DIR = 'uploads/tmp/mail_images';
 
 /* The tabs of the list - key => [label, icon, SQL for what is in it]. */
 function mailQueueTabs() {
@@ -244,6 +246,67 @@ function mailQueueErrorSql($error) {
 /* The email_error column for a SELECT - itself, or NULL before the update. */
 function mailQueueErrorColumn() {
     return mailQueueHasError() ? 'email_error' : 'NULL AS email_error';
+}
+
+/*
+ * What an email's manifest (email_attachments) holds - ['files' => names of the files attached,
+ * 'images' => [cid => app-relative path] of the pictures that go in its message (emailInlineImages())].
+ */
+function mailQueueAttachments($json) {
+    $out = ['files' => [], 'images' => []];
+    foreach ((array) json_decode((string) $json, true) as $attachment) {
+        if (!is_array($attachment) || trim((string) ($attachment['name'] ?? '')) === '') {
+            continue;
+        }
+        if (!empty($attachment['cid'])) {
+            $out['images'][(string) $attachment['cid']] = (string) ($attachment['path'] ?? '');
+        } else {
+            $out['files'][] = basename((string) $attachment['name']);
+        }
+    }
+    return $out;
+}
+
+/*
+ * An email's message with its pictures back in it as data, to show in Admin > Mail Queue - the
+ * message points at them by cid:, as the mail program that gets it reads them. One gone stays a cid:.
+ */
+function mailQueueShowImages($html, $json) {
+    $dir = realpath(dirname(__DIR__) . '/' . MAIL_QUEUE_IMAGE_DIR);
+    foreach (mailQueueAttachments($json)['images'] as $cid => $path) {
+        $file = $dir ? realpath(dirname(__DIR__) . '/' . $path) : false;
+        $info = $file && strpos($file, $dir . DIRECTORY_SEPARATOR) === 0 ? @getimagesize($file) : false;
+        if ($info) {
+            $html = str_replace('cid:' . $cid, 'data:' . $info['mime'] . ';base64,' . base64_encode((string) file_get_contents($file)), $html);
+        }
+    }
+    return $html;
+}
+
+/*
+ * Delete the pictures no email in the queue points at any more - left a day first, so one saved
+ * for an email being queued this minute stays (nightly). How many went.
+ */
+function mailQueueImageCleanup() {
+    global $mysqli;
+    $dir = dirname(__DIR__) . '/' . MAIL_QUEUE_IMAGE_DIR;
+    if (!is_dir($dir)) {
+        return 0;
+    }
+    $kept = [];
+    $sql = mysqli_query($mysqli, "SELECT email_attachments FROM email_queue WHERE email_attachments LIKE '%mail\\_images%'");
+    while ($row = mysqli_fetch_row($sql)) {
+        foreach (mailQueueAttachments($row[0])['images'] as $path) {
+            $kept[basename($path)] = true;
+        }
+    }
+    $removed = 0;
+    foreach (glob("$dir/*") ?: [] as $file) {
+        if (is_file($file) && !isset($kept[basename($file)]) && filemtime($file) < time() - 86400 && @unlink($file)) {
+            $removed++;
+        }
+    }
+    return $removed;
 }
 
 /* Is there an email_sensitive column yet? Database 3.7.1 adds it. */

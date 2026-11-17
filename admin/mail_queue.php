@@ -39,7 +39,7 @@ $search = "(email_id LIKE '%$q%' OR email_from LIKE '%$q%' OR email_from_name LI
     AND DATE(email_queued_at) BETWEEN '$dtf' AND '$dtt'";
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS email_id, email_status, email_attempts, email_from, email_from_name, email_recipient, email_recipient_name,
-        email_subject, email_queued_at, email_failed_at, email_sent_at, " . mailQueueErrorColumn() . ", COALESCE(email_attachments, '') <> '' AS has_attachments, COALESCE(email_cal_str, '') <> '' AS has_invite, email_content = '' AS email_cleared
+        email_subject, email_queued_at, email_failed_at, email_sent_at, " . mailQueueErrorColumn() . ", email_attachments, COALESCE(email_cal_str, '') <> '' AS has_invite, email_content = '' AS email_cleared
     FROM email_queue
     WHERE $search AND {$tabs[$show][2]}
     ORDER BY {$sortable_columns[$sort]}, email_id DESC
@@ -182,6 +182,8 @@ $filtered_dates = isset($_GET['dtf']) && $_GET['dtf'] !== '' && $_GET['dtf'] !==
                 <?php while ($row = mysqli_fetch_assoc($sql)) {
                     $email_id = intval($row['email_id']);
                     $state = mailQueueState($row);
+                    // Files attached - not the pictures in its message
+                    $row['has_attachments'] = (bool) mailQueueAttachments($row['email_attachments'])['files'];
                     $subject = trim((string) $row['email_subject']) !== '' ? escapeHtml($row['email_subject']) : '<span class="text-body-secondary">(no subject)</span>';
                     $view = 'data-modal-size="lg" data-modal-url="modals/mail_queue/mail_queue_message_view.php?id=' . $email_id . '"';
                     $from = $person($row['email_from_name'], $row['email_from']);

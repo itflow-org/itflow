@@ -45,14 +45,10 @@ if (!$row) { ?>
         }
         return escapeHtml($name) . ' <span class="text-body-secondary">&lt;' . escapeHtml($address) . '&gt;</span>';
     };
-    $attachments = [];
-    foreach ((array) json_decode((string) $row['email_attachments'], true) as $attachment) {
-        if (is_array($attachment) && trim((string) ($attachment['name'] ?? '')) !== '') {
-            $attachments[] = basename((string) $attachment['name']);
-        }
-    }
+    // The files attached; the pictures in its message are shown in it
+    $attachments = mailQueueAttachments($row['email_attachments'])['files'];
     $has_invite = trim((string) $row['email_cal_str']) !== '';
-    $content = (string) $row['email_content'];
+    $content = mailQueueShowImages((string) $row['email_content'], $row['email_attachments']);
     $subject = trim((string) $row['email_subject']) !== '' ? escapeHtml($row['email_subject']) : '(no subject)';
 
     // How many tries, in words

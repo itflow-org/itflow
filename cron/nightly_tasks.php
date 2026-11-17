@@ -164,6 +164,7 @@ mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_dismissed_at
 
 // Clean-up mail queue - a failed or cancelled email with a link or code that opens something is cleared after a day, everything is deleted after 90
 mailQueueClearSensitive();
+mailQueueImageCleanup();
 mysqli_query($mysqli, "DELETE FROM email_queue WHERE email_queued_at < CURDATE() - INTERVAL " . MAIL_QUEUE_KEEP_DAYS . " DAY");
 
 // Clean-up the PDFs made to go with billing emails - sent or given up on by now

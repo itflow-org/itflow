@@ -336,6 +336,49 @@ function emailPlainText($html, $limit = 0) {
     return $text;
 }
 
+/*
+ * The pictures in an email's HTML as data - pasted into a ticket reply, say - taken out to files
+ * the mail queue attaches inline, each <img> pointing at its cid: instead. Gmail, among others,
+ * shows no picture carried as data, and the queue keeps each picture once rather than a copy in
+ * every email. [html, [['path', 'name', 'cid'], ...]]. A tag at a time, as a scan through a
+ * large picture's data runs out of PCRE's backtracking (emailMessageHtml()); a picture that isn't
+ * one, or can't be saved, stays as it was.
+ */
+function emailInlineImages($html) {
+    $images = [];
+    $html = (string) $html;
+    if (stripos($html, 'data:image/') === false) {
+        return [$html, []];
+    }
+    $types = [IMAGETYPE_PNG => 'png', IMAGETYPE_JPEG => 'jpg', IMAGETYPE_GIF => 'gif', IMAGETYPE_WEBP => 'webp'];
+    $out = preg_replace_callback('/<img\b[^>]*>/i', function ($tag) use (&$images, $types) {
+        if (!preg_match('/\ssrc\s*=\s*(["\'])data:image\/[a-z+.-]+;base64,([A-Za-z0-9+\/=\s]+)\1/i', $tag[0], $m)) {
+            return $tag[0];
+        }
+        $data = base64_decode(preg_replace('/\s+/', '', $m[2]), true);
+        $info = $data !== false ? @getimagesizefromstring($data) : false;
+        $ext = $info ? ($types[$info[2]] ?? '') : '';
+        if ($ext === '') {
+            return $tag[0];
+        }
+        $hash = hash('sha256', $data);
+        $path = MAIL_QUEUE_IMAGE_DIR . "/$hash.$ext";
+        $file = dirname(__DIR__) . '/' . $path;
+        if (!is_file($file)) {
+            if (!is_dir(dirname($file))) {
+                @mkdir(dirname($file), 0775, true);
+            }
+            if (@file_put_contents($file, $data) === false) {
+                return $tag[0];
+            }
+        }
+        $cid = substr($hash, 0, 32) . '@itflow';
+        $images[$cid] = ['path' => $path, 'name' => 'picture-' . substr($hash, 0, 8) . ".$ext", 'cid' => $cid];
+        return str_replace($m[0], ' src=' . $m[1] . 'cid:' . $cid . $m[1], $tag[0]);
+    }, $html);
+    return $out === null ? [$html, []] : [$out, array_values($images)];
+}
+
 /**
  * Queue an email - one per recipient, each greeted by name, each address once.
  * $recipients: [['email' => ..., 'name' => ..., 'greet' => name to greet (or
@@ -380,6 +423,8 @@ function emailQueue(array $recipients, $subject, array $email, array $opts = [])
                 'subject' => (string) $subject, 'html' => $html, 'attachments' => $attachments, 'cal_str' => (string) ($opts['cal_str'] ?? '')];
             continue;
         }
+        // Its pictures attached inline, not carried as data
+        [$html, $images] = emailInlineImages($html);
         $data[] = [
             'from' => mysqli_real_escape_string($mysqli, (string) $from['email']),
             'from_name' => mysqli_real_escape_string($mysqli, (string) $from['name']),
@@ -387,7 +432,7 @@ function emailQueue(array $recipients, $subject, array $email, array $opts = [])
             'recipient_name' => mysqli_real_escape_string($mysqli, $name !== '' ? $name : $address),
             'subject' => mysqli_real_escape_string($mysqli, (string) $subject),
             'body' => mysqli_real_escape_string($mysqli, $html),
-            'attachments' => $attachments,
+            'attachments' => array_merge($attachments, $images),
         ] + (!empty($opts['cal_str']) ? ['cal_str' => (string) $opts['cal_str']] : [])
           + ($queued_at !== '' ? ['queued_at' => $queued_at] : [])
           + (intval($opts['ticket_reply_id'] ?? 0) > 0 && ticketReplyEmailReady() ? ['ticket_reply_id' => intval($opts['ticket_reply_id'])] : [])
