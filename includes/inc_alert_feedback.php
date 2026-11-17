@@ -121,3 +121,9 @@ echo managedBannerHtml();
 
 // The demo - what it is and when it goes back to fresh data (functions/demo.php)
 echo demoModeBannerHtml();
+
+// Banners for agents - every client's, and this client's on its pages (functions/agent_banner.php).
+// A page that learns its client further down ($agent_banners_later) draws them all there.
+if (empty($agent_banners_later)) {
+    echo agentBannersHtml($client_id ?? 0);
+}

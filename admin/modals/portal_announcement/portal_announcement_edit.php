@@ -20,7 +20,7 @@ if (!$announcement) { ?>
         <input type="hidden" name="announcement_id" value="<?= $announcement_id ?>">
 
         <div class="modal-body">
-            <?php require __DIR__ . '/announcement_form.php'; ?>
+            <?php require __DIR__ . '/../../../includes/announcement_form.php'; ?>
         </div>
         <div class="modal-footer">
             <button type="submit" name="edit_portal_announcement" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>

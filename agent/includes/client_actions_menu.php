@@ -1,6 +1,6 @@
 <?php
 /*
- * The client actions menu - New Ticket, New Project, Edit, Onboarding, Export, Client Review, Archive/Restore, Delete.
+ * The client actions menu - New Ticket, New Project, Edit, Onboarding, Banners, Export, Client Review, Archive/Restore, Delete.
  * Shared by the client header (inc_client_top_head.php) and the client
  * overview, so both offer exactly the same actions behind the same
  * permissions. Include it inside a .dropdown, after its toggle button.
@@ -26,6 +26,18 @@
         <a class="dropdown-item" href="<?= clientOnboardingUrl($client_id, $client_onboarding_state === 'finished' ? 'done' : '') ?>" data-client-onboarding="<?= $client_onboarding_state ?>">
             <i class="fas fa-fw fa-route me-2"></i><?= ['none' => 'Onboard', 'open' => 'Carry on onboarding', 'finished' => 'Onboarding'][$client_onboarding_state] ?>
         </a>
+    <?php } ?>
+    <?php if (agentBannersReady() && agentBannerCanEdit($client_id)) {
+        // A banner along the top of this client's pages for agents, and the ones it has (functions/agent_banner.php) ?>
+        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/agent_banner/agent_banner_add.php?client_id=<?= $client_id ?>" data-modal-size="lg">
+            <i class="fas fa-fw fa-bullhorn me-2"></i>New Banner
+        </a>
+        <?php foreach (agentBannersForClient($client_id) as $client_banner) {
+            $client_banner_state = portalAnnouncementState($client_banner); ?>
+            <a class="dropdown-item ajax-modal small" href="#" data-modal-url="modals/agent_banner/agent_banner_edit.php?id=<?= intval($client_banner['announcement_id']) ?>&client_id=<?= $client_id ?>" data-modal-size="lg" title="Change or archive this banner">
+                <span class="itflow-announcement-dot is-<?= escapeHtml($client_banner['announcement_tone']) ?> me-2 ms-1"></span><?= escapeHtml(mb_strimwidth($client_banner['announcement_title'], 0, 40, '...')) ?><?= $client_banner_state['key'] === 'scheduled' ? ' <span class="text-body-secondary">(scheduled)</span>' : '' ?>
+            </a>
+        <?php } ?>
     <?php } ?>
     <?php if (lookupUserPermission("module_billing") >= 2) { ?>
         <?php if ($show_add_credit) { ?>

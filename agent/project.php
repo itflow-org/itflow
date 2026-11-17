@@ -20,6 +20,7 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_url = "client_id=$client_id&";
 } else {
+    $agent_banners_later = true; // drawn below, with its client's, once that is known (functions/agent_banner.php)
     require_once "includes/inc_all.php";
     $client_url = '';
 }
@@ -131,6 +132,9 @@ $project_tabs = [
 
 $new_ticket_url = "modals/ticket/ticket_add.php?" . ($project_client_id ? "client_id=$project_client_id&" : '') . "project_id=$project_id";
 $contact_archived = !empty($project['contact_archived_at']);
+
+// The banners, with the client's when it was opened without the client around it (functions/agent_banner.php)
+echo agentBannersHtml($project_client_id);
 
 ?>
 

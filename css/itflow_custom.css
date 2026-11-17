@@ -8218,6 +8218,44 @@ a.itflow-portal-request:focus-visible {
 .itflow-announcement-dot.is-warning { background-color: var(--bs-warning); }
 .itflow-announcement-dot.is-danger { background-color: var(--bs-danger); }
 
+/* Banners for agents along the top of their pages (functions/agent_banner.php) - Notice and
+   Heads up are alerts with a close button; Urgent is solid red and bigger, and stays */
+.itflow-agent-banner-title { font-weight: 600; }
+.itflow-agent-banner-for {
+    margin-left: .5rem;
+    font-size: .85em;
+    font-weight: 400;
+    opacity: .8;
+}
+.itflow-agent-banner-body {
+    font-size: .9rem;
+    overflow-wrap: anywhere;
+}
+.itflow-agent-banner-icon { margin-top: .2rem; }
+.itflow-agent-banner.is-danger {
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--bs-border-radius-lg);
+    background-color: var(--bs-danger);
+    color: #fff;
+    box-shadow: 0 .25rem .75rem rgba(var(--bs-danger-rgb), .35);
+}
+.itflow-agent-banner.is-danger .itflow-agent-banner-icon {
+    margin-top: 0;
+    font-size: 1.9rem;
+}
+.itflow-agent-banner.is-danger .itflow-agent-banner-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+.itflow-agent-banner.is-danger .itflow-agent-banner-body { font-size: 1rem; }
+.itflow-agent-banner.is-danger a {
+    color: #fff;
+    text-decoration: underline;
+}
+
 /* Printing an invoice, quote or receipt: the document and nothing round it */
 @media print {
     .itflow-portal-header,

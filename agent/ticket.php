@@ -5,6 +5,7 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_url = "client_id=$client_id&";
 } else {
+    $agent_banners_later = true; // drawn below, with its client's, once that is known (functions/agent_banner.php)
     require_once "includes/inc_all.php";
     $client_url = '';
 }
@@ -489,6 +490,9 @@ if (isset($_GET['ticket_id'])) {
         $can_change_fields = $can_edit_ticket && !$ticket_is_closed;
 
         $ticket_tags_display = tagPills('ticket', $ticket_id, tagsForRecord('ticket', $ticket_id), $client_id ? "tickets.php?client_id=$client_id&" : 'tickets.php?', $can_change_fields);
+
+        // The banners, with the client's when the ticket was opened without the client around it (functions/agent_banner.php)
+        echo agentBannersHtml($client_id);
 
         ?>
 

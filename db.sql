@@ -161,6 +161,21 @@ CREATE TABLE `ai_usage` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `announcement_dismissals`
+--
+
+DROP TABLE IF EXISTS `announcement_dismissals`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `announcement_dismissals` (
+  `announcement_dismissal_announcement_id` int(11) NOT NULL,
+  `announcement_dismissal_user_id` int(11) NOT NULL,
+  `announcement_dismissal_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`announcement_dismissal_announcement_id`,`announcement_dismissal_user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `api_key_usage`
 --
 
@@ -2291,6 +2306,7 @@ CREATE TABLE `portal_announcements` (
   `announcement_body` text DEFAULT NULL,
   `announcement_tone` varchar(20) NOT NULL DEFAULT 'info',
   `announcement_client_id` int(11) NOT NULL DEFAULT 0,
+  `announcement_audience` varchar(10) NOT NULL DEFAULT 'portal',
   `announcement_starts_at` datetime DEFAULT NULL,
   `announcement_ends_at` datetime DEFAULT NULL,
   `announcement_created_by` int(11) NOT NULL DEFAULT 0,

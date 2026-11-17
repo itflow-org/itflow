@@ -15,7 +15,7 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
-        <?php require __DIR__ . '/announcement_form.php'; ?>
+        <?php require __DIR__ . '/../../../includes/announcement_form.php'; ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_portal_announcement" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Post Announcement</button>

@@ -371,7 +371,15 @@ function portalMailPasswordReset($user_id) {
 
 /*
  * ---------- announcements ----------
+ *
+ * The client portal's (announcement_audience portal), and the banners along the top of agents'
+ * pages (agents - functions/agent_banner.php), which share their table, tones and form.
  */
+
+/** The WHERE condition, and its AND, for the portal's announcements and not the banners - none before the 3.7.2 update. */
+function portalAnnouncementsOnlySql() {
+    return agentBannersReady() ? "announcement_audience = 'portal' AND " : '';
+}
 
 /** The announcements a client's portal shows now - to everyone and to this client - newest first. */
 function portalAnnouncementsFor($client_id) {
@@ -380,7 +388,7 @@ function portalAnnouncementsFor($client_id) {
     $rows = [];
     $sql = mysqli_query($mysqli, "SELECT announcement_id, announcement_title, announcement_body, announcement_tone, announcement_starts_at, announcement_created_at
         FROM portal_announcements
-        WHERE announcement_archived_at IS NULL AND announcement_client_id IN (0, $client_id)
+        WHERE " . portalAnnouncementsOnlySql() . "announcement_archived_at IS NULL AND announcement_client_id IN (0, $client_id)
           AND (announcement_starts_at IS NULL OR announcement_starts_at <= NOW())
           AND (announcement_ends_at IS NULL OR announcement_ends_at > NOW())
         ORDER BY COALESCE(announcement_starts_at, announcement_created_at) DESC, announcement_id DESC
@@ -404,6 +412,49 @@ function portalAnnouncementBodyHtml($text) {
         return '<a href="' . $url . '" target="_blank" rel="noopener noreferrer">' . $url . '</a>' . $tail;
     }, $html);
     return nl2br($html);
+}
+
+/** An announcement's or a banner's form (includes/announcement_form.php), checked - [$fields, $error]. Raw values; the handlers escape them. */
+function announcementFromPost($what = 'An announcement') {
+    global $mysqli;
+    $title = trim(mb_substr((string) ($_POST['title'] ?? ''), 0, 200));
+    $body = trim(mb_substr((string) ($_POST['body'] ?? ''), 0, 5000));
+    $tone = isset(PORTAL_ANNOUNCEMENT_TONES[$_POST['tone'] ?? '']) ? $_POST['tone'] : 'info';
+    $client_id = intval($_POST['client_id'] ?? 0);
+    if ($client_id && !mysqli_num_rows(mysqli_query($mysqli, "SELECT client_id FROM clients WHERE client_id = $client_id"))) {
+        $client_id = 0;
+    }
+    $when = function ($value) {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+        $time = strtotime($value);
+        return $time ? date('Y-m-d H:i:s', $time) : false;
+    };
+    $starts = $when($_POST['starts_at'] ?? '');
+    $ends = $when($_POST['ends_at'] ?? '');
+    $fields = compact('title', 'body', 'tone', 'client_id', 'starts', 'ends');
+    if ($title === '') {
+        return [$fields, "$what needs a title"];
+    }
+    if ($starts === false || $ends === false) {
+        return [$fields, 'That date is not one'];
+    }
+    if ($starts && $ends && strtotime($ends) <= strtotime($starts)) {
+        return [$fields, 'It has to end after it starts'];
+    }
+    return [$fields, ''];
+}
+
+/** The SET list for an announcement's or a banner's fields. */
+function announcementSetSql(array $f) {
+    global $mysqli;
+    $body = mysqli_real_escape_string($mysqli, $f['body']);
+    return "announcement_title = '" . escapeSql($f['title']) . "', announcement_body = '$body', announcement_tone = '" . escapeSql($f['tone']) . "',
+        announcement_client_id = " . intval($f['client_id']) . ",
+        announcement_starts_at = " . ($f['starts'] ? "'" . escapeSql($f['starts']) . "'" : 'NULL') . ",
+        announcement_ends_at = " . ($f['ends'] ? "'" . escapeSql($f['ends']) . "'" : 'NULL');
 }
 
 /** Where an announcement stands - ['key' => scheduled|showing|ended|archived, 'label' => ...]. */

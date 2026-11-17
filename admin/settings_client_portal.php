@@ -16,9 +16,9 @@ $sql = mysqli_query($mysqli, "SELECT announcement_id, announcement_title, announ
     FROM portal_announcements
     LEFT JOIN clients ON client_id = announcement_client_id
     LEFT JOIN users ON user_id = announcement_created_by
-    WHERE announcement_archived_at IS " . ($show_archived ? 'NOT NULL' : 'NULL') . "
+    WHERE " . portalAnnouncementsOnlySql() . "announcement_archived_at IS " . ($show_archived ? 'NOT NULL' : 'NULL') . "
     ORDER BY COALESCE(announcement_starts_at, announcement_created_at) DESC, announcement_id DESC");
-$archived_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM portal_announcements WHERE announcement_archived_at IS NOT NULL"))[0]);
+$archived_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM portal_announcements WHERE " . portalAnnouncementsOnlySql() . "announcement_archived_at IS NOT NULL"))[0]);
 $state_badges = ['showing' => 'text-bg-success', 'scheduled' => 'text-bg-info', 'ended' => 'text-bg-secondary', 'archived' => 'text-bg-secondary'];
 
 // Signing up - on for the portal, and the clients that let people at their domains do it (functions/portal_invite.php)
@@ -80,7 +80,7 @@ $signup_clients = $signup_ready ? portalSignupClients() : [];
         </div>
     </div>
     <div class="card-header py-2 d-flex flex-wrap align-items-center gap-2">
-        <span class="text-secondary small me-auto">Shown at the top of the portal's home page - to every client, or one - between their start and end.</span>
+        <span class="text-secondary small me-auto">Shown at the top of the portal's home page - to every client, or one - between their start and end. For a banner your agents see instead, use <a href="agent_banners.php">Agent Banners</a>.</span>
         <div class="btn-group btn-group-sm">
             <a class="btn btn-outline-secondary<?= $show_archived ? '' : ' active' ?>" href="settings_client_portal.php">Current</a>
             <a class="btn btn-outline-secondary<?= $show_archived ? ' active' : '' ?>" href="settings_client_portal.php?archived=1">Archived <span class="badge text-bg-secondary ms-1"><?= $archived_count ?></span></a>

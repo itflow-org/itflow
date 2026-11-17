@@ -103,6 +103,12 @@
                         </a>
                     </li>
                 <?php } ?>
+                <li class="nav-item">
+                    <a href="/admin/agent_banners.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'agent_banners.php' ? 'active' : '') ?>">
+                        <i class="nav-icon fas fa-bullhorn"></i>
+                        <p>Agent Banners</p>
+                    </a>
+                </li>
 
                 <li class="nav-header">INTEGRATIONS</li>
                 <?php if ($config_module_enable_accounting) { ?>
