@@ -415,7 +415,7 @@ if ($getting_started) {
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0 me-auto">Cash flow</h3>
-                        <span class="small text-body-secondary"><?= escapeHtml($chart_data['cash_flow']['extended'] ? 'Last 12 months and next 3' : $period['chart_label']) ?></span>
+                        <span class="small text-body-secondary"><?= intval($chart_data['cash_flow']['year']) ?></span>
                     </div>
                     <div class="card-body">
                         <div class="itflow-dash-chart itflow-dash-chart-lg"><canvas id="dashCashFlow" aria-label="Income and expenses per month, with what is expected in the months ahead"></canvas></div>

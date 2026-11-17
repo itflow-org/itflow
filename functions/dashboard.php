@@ -13,8 +13,8 @@
  *   - period (income, expenses, profit, the donuts, miles, top clients) - for
  *     the picked period, compared with the same span before it
  *
- * The cash flow chart also looks ahead: from this month on it shows what is
- * expected in and out, worked out from unpaid invoices and the recurring
+ * The cash flow chart runs January to December, and looks ahead: from this
+ * month on it shows what is expected in and out, worked out from unpaid invoices and the recurring
  * invoices and expenses (dashboardExpectedIncome / dashboardExpectedExpenses).
  *
  * Anything tied to a client goes through clientScopeSql(), so a technician
@@ -744,21 +744,18 @@ function dashboardMonthly($sql, $months) {
 }
 
 /**
- * Income and expenses per month over the chart's 12 months, plus income for
- * the 12 before. A chart that reaches this month runs three months further,
- * and from this month on carries what is expected in and out on top of what
- * has already happened.
+ * Income and expenses per month, January to December - of the year picked,
+ * or this one for the other periods - plus income in the same months the
+ * year before. From this month on it carries what is expected in and out on
+ * top of what has already happened.
  */
 function dashboardCashFlow($period) {
-    $months = dashboardChartMonths($period);
-    $this_month = date('Y-m');
-
-    $extended = end($months) === $this_month;
-    if ($extended) {
-        for ($i = 1; $i <= 3; $i++) {
-            $months[] = substr(dashboardShiftMonths(date('Y-m-01'), $i), 0, 7);
-        }
+    $year = preg_match('/^year-(\d{4})$/', (string) $period['key'], $m) ? intval($m[1]) : intval(date('Y'));
+    $months = [];
+    for ($i = 1; $i <= 12; $i++) {
+        $months[] = sprintf('%04d-%02d', $year, $i);
     }
+    $this_month = date('Y-m');
 
     $last_year = array_map(function ($m) {
         return substr(dashboardShiftMonths("$m-01", -12), 0, 7);
@@ -805,7 +802,7 @@ function dashboardCashFlow($period) {
 
     return [
         'labels' => array_map(function ($m) {
-            return date('M y', strtotime("$m-01"));
+            return date('M', strtotime("$m-01"));
         }, $months),
         'income' => $income($from, $to, $months),
         'expenses' => $round(dashboardMonthly("SELECT DATE_FORMAT(expense_date, '%Y-%m') AS m, SUM(expense_amount) AS v FROM expenses
@@ -814,7 +811,7 @@ function dashboardCashFlow($period) {
         'expected_income' => $expected_income,
         'expected_expenses' => $expected_expenses,
         'first_future' => $first_future,
-        'extended' => $extended,
+        'year' => $year,
     ];
 }
 
