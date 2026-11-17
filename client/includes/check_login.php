@@ -96,6 +96,19 @@ if (!$portal_view_as) {
         redirect("/login.php");
     }
 
+    // The portal turned off, or the client or the contact archived, since this sign-in - it ends,
+    // as signing in again would be refused
+    $portal_open = mysqli_fetch_row(mysqli_query($mysqli, "SELECT 1 FROM contacts
+        JOIN clients ON client_id = contact_client_id
+        JOIN settings ON settings.company_id = 1 AND config_client_portal_enable = 1
+        WHERE contact_id = $session_contact_id AND contact_client_id = $session_client_id
+          AND contact_archived_at IS NULL AND client_archived_at IS NULL LIMIT 1"));
+    if (!$portal_open) {
+        session_unset();
+        session_destroy();
+        redirect("/login.php");
+    }
+
 } elseif (!hash_equals((string) $portal_view_as['agent_session_stamp'], (string) ($_SESSION['user_session_stamp'] ?? ''))) {
 
     // View as contact runs on the agent's session, so their password changing ends it too

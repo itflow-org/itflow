@@ -1295,6 +1295,9 @@ if (isset($_GET['create_stripe_checkout'])) {
         }
         $checkout_session = $stripe->checkout->sessions->create($session_params);
 
+        // Only the session made here can be saved when Stripe sends them back (stripe_save_card)
+        $_SESSION['stripe_checkout_session_id'] = $checkout_session->id;
+
         echo json_encode(['clientSecret' => $checkout_session->client_secret]);
 
     } catch (Exception $e) {
@@ -1352,8 +1355,14 @@ if (isset($_GET['stripe_save_card'])) {
         redirect("saved_payment_methods.php");
     }
 
-    // Get session ID from URL
-    $checkout_session_id = escapeSql($_GET['session_id']);
+    // The checkout session from the address must be the one this sign-in started
+    $checkout_session_id = (string) ($_GET['session_id'] ?? '');
+    $expected_session_id = (string) ($_SESSION['stripe_checkout_session_id'] ?? '');
+    unset($_SESSION['stripe_checkout_session_id']);
+    if ($checkout_session_id === '' || $expected_session_id === '' || !hash_equals($expected_session_id, $checkout_session_id)) {
+        flashAlert("This card setup has expired - please try again.", 'danger');
+        redirect("saved_payment_methods.php");
+    }
 
     try {
         require_once '../includes/stripe_init.php';
@@ -1361,6 +1370,11 @@ if (isset($_GET['stripe_save_card'])) {
 
         // Retrieve checkout session & setup intent
         $checkout_session = $stripe->checkout->sessions->retrieve($checkout_session_id, []);
+        // ... and set up for this client's own Stripe customer
+        if (!empty($checkout_session->customer) && $checkout_session->customer !== stripslashes($stripe_customer_id)) {
+            flashAlert("This card setup does not belong to your account.", 'danger');
+            redirect("saved_payment_methods.php");
+        }
         $setup_intent_id = $checkout_session->setup_intent;
         $setup_intent = $stripe->setupIntents->retrieve($setup_intent_id, []);
         $payment_method_id = escapeSql($setup_intent->payment_method);
@@ -1657,7 +1671,9 @@ if (isset($_POST['client_upload_document'])) {
     $ext_parts = explode('.', $original);
     $file_name = escapeSql($original);
     $file_extension = escapeSql(strtolower(end($ext_parts)));
-    $file_mime_type = escapeSql($_FILES['document_file']['type']);
+    // The type from the file itself, as agent uploads take it - not what the browser said
+    $detected_mime = function_exists('finfo_open') ? (string) finfo_file(finfo_open(FILEINFO_MIME_TYPE), "$client_dir/$file_reference_name") : '';
+    $file_mime_type = escapeSql($detected_mime !== '' ? $detected_mime : 'application/octet-stream');
     $file_size = intval($_FILES['document_file']['size']);
     $document_name = escapeSql($name);
     $document_description = escapeSql($description);

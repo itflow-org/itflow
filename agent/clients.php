@@ -433,9 +433,11 @@ $total_leads = intval($row['leads']);
                                     <i class="fas fa-fw fa-life-ring me-2"></i>Open Tickets
                                 </a>
                                 <?php } ?>
+                                <?php if ($can_edit) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_bulk_email.php" data-modal-size="lg" data-bulk="true">
                                     <i class="fas fa-fw fa-paper-plane me-2"></i>Send Email
                                 </a>
+                                <?php } ?>
                                 <?php if ($can_edit) { ?>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="client" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">

@@ -20,7 +20,8 @@ DEFINE("BACKUP_TYPE_MASTER_KEY", "master_key");
 
 // The deny-all guard written into upload directories that must never be served. Kept in one
 // place so the restore path and the storage-dir hardening agree on what "our guard" is.
-DEFINE("BACKUP_UPLOADS_DENY_GUARD", "Require all denied\nOptions -ExecCGI -Indexes\nphp_flag engine off\n");
+// php_flag only under mod_php - PHP-FPM hosts refuse it with a 500.
+DEFINE("BACKUP_UPLOADS_DENY_GUARD", "Require all denied\nOptions -ExecCGI -Indexes\n<IfModule mod_php.c>\n  php_flag engine off\n</IfModule>\n");
 
 /**
  * The backup types that can be produced without a logged-in user.
@@ -226,7 +227,18 @@ function backupAssertUploadsGuards(): void
     }
 
     $htaccess = $uploads . "/.htaccess";
-    $wanted = "Options -ExecCGI -Indexes\nphp_flag engine off\nRemoveHandler .php .phtml .phar .phps\nRemoveType .php .phtml .phar .phps\n<FilesMatch \"\\.(php|phtml|phar|phps|cgi|pl|sh)\$\">\n  Require all denied\n</FilesMatch>\n";
+    // The same as the uploads/.htaccess that ships - keep the two alike
+    $wanted = "Options -ExecCGI -Indexes\n"
+        . "# php_flag is mod_php's - under PHP-FPM Apache refuses it with a 500, and the rules below keep PHP out\n"
+        . "<IfModule mod_php.c>\n  php_flag engine off\n</IfModule>\n"
+        . "RemoveHandler .php .phtml .phar .phps\nRemoveType .php .phtml .phar .phps\n"
+        . "<FilesMatch \"\\.(php|phtml|phar|phps|cgi|pl|sh)\$\">\n  Require all denied\n</FilesMatch>\n"
+        . "# A file opened straight from here is never run as a page - no type guessing, and no scripts, so an\n"
+        . "# HTML, SVG or XML file someone uploaded stays inert. Pictures and PDFs show as before.\n"
+        . "<IfModule mod_headers.c>\n"
+        . "  Header always set X-Content-Type-Options \"nosniff\"\n"
+        . "  Header always set Content-Security-Policy \"script-src 'none'; object-src 'none'; base-uri 'none'\"\n"
+        . "</IfModule>\n";
 
     // Overwrite unconditionally - an archive is allowed to carry a .htaccess, it is not
     // allowed to decide what ours says.

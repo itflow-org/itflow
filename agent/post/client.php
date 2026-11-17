@@ -713,7 +713,8 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_client', 1);
+    // Emailing clients is changing things for them, not looking - Modify
+    enforceUserPermission('module_client', 2);
 
     $client_ids = array_map('intval', $_POST['client_ids']);
     $count = count($client_ids);

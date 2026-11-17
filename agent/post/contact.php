@@ -518,7 +518,8 @@ if (isset($_POST['send_bulk_mail_now'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_client');
+    // Emailing clients is changing things for them, not looking - Modify, as for clients
+    enforceUserPermission('module_client', 2);
 
     $contact_ids = array_values(array_filter(array_map('intval', (array) ($_POST['contact_ids'] ?? []))));
 
@@ -565,12 +566,13 @@ if (isset($_POST['bulk_archive_contacts'])) {
 
             enforceClientAccess();
 
-            // Archive Contact User
-            if ($contact_user_id > 0) {
-                mysqli_query($mysqli,"UPDATE users SET user_archived_at = NOW() WHERE user_id = $contact_user_id");
-            }
-
+            // A primary contact is left as it is - its portal login with it
             if($contact_primary == 0) {
+                // Archive Contact User
+                if ($contact_user_id > 0) {
+                    mysqli_query($mysqli,"UPDATE users SET user_archived_at = NOW() WHERE user_id = $contact_user_id");
+                }
+
                 mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_archived_at = NOW() WHERE contact_id = $contact_id");
 
                 // Individual Contact logging

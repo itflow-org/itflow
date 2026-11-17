@@ -1,2 +1,11 @@
 # Prevent access to .git, .github, and config.php
 RedirectMatch 401 ^/(\.git|\.github|config\.php)
+
+# Security headers on every response: no type guessing, the address of a page sent only to
+# ITFlow itself, and no framing by other sites (a login or guest page shown inside another
+# site to trick clicks). HSTS is left to your web server, which knows whether HTTPS is for good.
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "same-origin"
+  Header always set Content-Security-Policy "frame-ancestors 'self'"
+</IfModule>

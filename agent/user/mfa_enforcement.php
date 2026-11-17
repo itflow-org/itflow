@@ -4,6 +4,11 @@ require_once "../../functions.php";
 require_once "../../includes/check_login.php";
 require_once '../../libs/totp/totp.php'; //TOTP MFA Lib
 
+// Set up already - nothing to do here
+if (trim((string) $session_token) !== '') {
+    redirect("../$config_start_page");
+}
+
 // Get Company Logo
 $sql = mysqli_query($mysqli, "SELECT company_logo FROM companies");
 $row = mysqli_fetch_assoc($sql);

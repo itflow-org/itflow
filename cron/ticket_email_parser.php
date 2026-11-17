@@ -131,10 +131,11 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
             $att_saved_path = $att_dir . $att_saved_filename;
             file_put_contents($att_saved_path, $attachment['content']);
 
-            $ticket_attachment_name = escapeSql($att_name);
+            // Escaped once, and cut to the 255 characters the column holds
+            $ticket_attachment_name = escapeSql(mb_substr($att_name, 0, 255));
             $ticket_attachment_reference_name = escapeSql($att_saved_filename);
 
-            $ticket_attachment_name_esc = mysqli_real_escape_string($mysqli, $ticket_attachment_name);
+            $ticket_attachment_name_esc = $ticket_attachment_name;
             $ticket_attachment_reference_name_esc = mysqli_real_escape_string($mysqli, $ticket_attachment_reference_name);
             mysqli_query($mysqli, "INSERT INTO ticket_attachments SET ticket_attachment_name = '$ticket_attachment_name_esc', ticket_attachment_reference_name = '$ticket_attachment_reference_name_esc', ticket_attachment_ticket_id = $id");
         } else {
@@ -239,11 +240,21 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
 
             appNotify("Ticket", "Email parser: $from_email attempted to re-open ticket $config_ticket_prefix_esc$ticket_number_esc2 (ID $ticket_id) - check inbox manually to see email", "/agent/ticket.php?ticket_id=$ticket_id$client_uri", $client_id);
 
-            // They are told it didn't reach anyone, and how to raise a new one
-            ticketMailClosedReply($ticket_id, stripslashes($from_email));
+            // They are told it didn't reach anyone, and how to raise a new one - never a mail server's
+            // own bounce (the pattern new tickets use), whose answer would only bounce again
+            if (!preg_match("/daemon|postmaster|bounce|mta/i", $from_email)) {
+                ticketMailClosedReply($ticket_id, stripslashes($from_email));
+            }
             return true;
         }
 
+        // Who wrote it: the ticket's contact or another of the client's contacts - a client reply; a
+        // watcher - an internal note with the mismatch warning, as before; one of your agents (answering
+        // an email about the ticket) - their own internal note, which reopens nothing; or anyone else.
+        // Anyone can put a ticket number in a subject, so a stranger's email is kept as an internal note
+        // that doesn't reopen the ticket, and their attachments are not added.
+        $stranger = false;
+        $agent_reply = false;
         if (empty($ticket_contact_email) || $ticket_contact_email !== $from_email) {
             $from_email_esc2 = mysqli_real_escape_string($mysqli, $from_email);
             $row2 = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_email = '$from_email_esc2' AND contact_client_id = $client_id LIMIT 1"));
@@ -251,9 +262,19 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                 $ticket_reply_contact = intval($row2['contact_id']);
             } else {
                 $ticket_reply_type = 'Internal';
-                $ticket_reply_contact = '0';
-                $message = "<b>WARNING: Contact email mismatch</b><br>$message";
-                $message_esc = mysqli_real_escape_string($mysqli, $message);
+                $agent_row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT user_id FROM users WHERE user_email = '$from_email_esc2' AND user_type = 1 AND user_status = 1 AND user_archived_at IS NULL LIMIT 1"));
+                if ($agent_row) {
+                    $agent_reply = true;
+                    $ticket_reply_contact = intval($agent_row[0]); // an internal note is by an agent, as on the ticket page
+                } else {
+                    $stranger = !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id AND watcher_email = '$from_email_esc2' LIMIT 1"));
+                    $ticket_reply_contact = '0';
+                    $message = ($stranger
+                        ? "<b>WARNING: From someone who is not a contact, watcher or agent - the ticket was not reopened"
+                            . ($attachments ? ", and the email's " . count($attachments) . " attachment(s) were not added - it is in the mailbox's ITFlow folder" : '') . "</b><br>"
+                        : "<b>WARNING: Contact email mismatch</b><br>") . $message;
+                    $message_esc = mysqli_real_escape_string($mysqli, $message);
+                }
             }
         }
 
@@ -263,7 +284,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         $ticket_dir = "../uploads/tickets/" . $ticket_id . "/";
         mkdirMissing($ticket_dir);
 
-        foreach ($attachments as $attachment) {
+        foreach ($stranger ? [] : $attachments as $attachment) {
             $att_name = $attachment['name'];
             $att_extension = strtolower(pathinfo($att_name, PATHINFO_EXTENSION));
 
@@ -272,10 +293,11 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                 $att_saved_path = $ticket_dir . $att_saved_filename;
                 file_put_contents($att_saved_path, $attachment['content']);
 
-                $ticket_attachment_name = escapeSql($att_name);
+                // Escaped once, and cut to the 255 characters the column holds
+                $ticket_attachment_name = escapeSql(mb_substr($att_name, 0, 255));
                 $ticket_attachment_reference_name = escapeSql($att_saved_filename);
 
-                $ticket_attachment_name_esc = mysqli_real_escape_string($mysqli, $ticket_attachment_name);
+                $ticket_attachment_name_esc = $ticket_attachment_name;
                 $ticket_attachment_reference_name_esc = mysqli_real_escape_string($mysqli, $ticket_attachment_reference_name);
                 mysqli_query($mysqli, "INSERT INTO ticket_attachments SET ticket_attachment_name = '$ticket_attachment_name_esc', ticket_attachment_reference_name = '$ticket_attachment_reference_name_esc', ticket_attachment_reply_id = $reply_id, ticket_attachment_ticket_id = $ticket_id");
             } else {
@@ -284,9 +306,25 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
             }
         }
 
-        // The agent it is assigned to, with what they wrote
+        if ($agent_reply) {
+            logTicketHistory($ticket_id, "$from_email_esc (an agent) emailed - added as their internal note");
+            logAudit("Ticket", "Edit", "Email parser: Agent $from_email_esc added an internal note to ticket $config_ticket_prefix$ticket_number_esc ($subject)", $client_id, $ticket_id);
+            return true;
+        }
+
+        // The agent it is assigned to, with what they wrote - a stranger's as plain text
         $replied_by = intval($ticket_reply_contact) ? (string) getFieldById('contacts', intval($ticket_reply_contact), 'contact_name') : '';
-        ticketMailAssigneeReplied($ticket_id, 'email', (string) getFieldById('ticket_replies', $reply_id, 'ticket_reply'), $replied_by !== '' ? $replied_by : stripslashes($from_email));
+        $mail_reply = (string) getFieldById('ticket_replies', $reply_id, 'ticket_reply');
+        if ($stranger) {
+            $mail_reply = nl2br(escapeHtml(trim(html_entity_decode(strip_tags(preg_replace('/<br\s*\/?>/i', "\n", $mail_reply)), ENT_QUOTES, 'UTF-8'))));
+        }
+        ticketMailAssigneeReplied($ticket_id, 'email', $mail_reply, $replied_by !== '' ? $replied_by : stripslashes($from_email));
+
+        if ($stranger) {
+            logTicketHistory($ticket_id, "$from_email_esc (not a contact, watcher or agent) emailed - kept as an internal note, the ticket was not reopened");
+            logAudit("Ticket", "Edit", "Email parser: $from_email_esc (not a contact, watcher or agent) emailed ticket $config_ticket_prefix$ticket_number_esc ($subject) - kept as an internal note", $client_id, $ticket_id);
+            return true;
+        }
 
         // Back to Open - unless it is in a status of your own set to stay put when the client replies (Scheduled, say)
         $new_ticket_status = ticketStatusAfterClientReply($ticket_status);
@@ -606,7 +644,8 @@ foreach ($messages as $message) {
         $from_domain = escapeSql(end($from_domain));
 
         // Subject
-        $subject = escapeSql((string)$message->subject() ?: 'No Subject');
+        // ticket_subject holds 500 characters - a longer one failed the insert and the email was tried again every run
+        $subject = escapeSql(mb_substr((string)$message->subject() ?: 'No Subject', 0, 500));
 
         // Skip vacation/out-of-office auto-responders to prevent mail loops (RFC 3834)
         // Some* NDRs use "auto-generated" and are still handled by the NDR logic below

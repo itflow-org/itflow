@@ -136,6 +136,12 @@ if (isset($_POST['enable_mfa'])) {
 
     validateCSRFToken();
 
+    // Setting it up again over one that is on would skip the password that turning it off asks for
+    if (trim((string) $session_token) !== '') {
+        flashAlert("Multi-factor authentication is already on - turn it off first to set it up again.", 'error');
+        redirect("user_security.php");
+    }
+
     require_once "../../libs/totp/totp.php";
 
     // Grab the code from the user
