@@ -1198,10 +1198,15 @@ if (isset($_POST['add_ticket_reply'])) {
 
         // Email the client and the watchers - the reply keeps who it went to, for the conversation
         $emailed_to = 0;
+        $email_to = null;
         if ($send_email) {
+            // Only the people in its To line, when the reply box had one - kept for the ticket (functions/ticket_reply_recipients.php)
+            if (!empty($_POST['email_to_shown']) && ticketReplyRecipientsReady()) {
+                $email_to = ticketReplyRecipientsPick($ticket_id, (array) ($_POST['email_to'] ?? []));
+            }
             // The reply as saved - with the signature - read back
             $emailed_to = ticketMailReply($ticket_id, (string) getFieldById('ticket_replies', $ticket_reply_id, 'ticket_reply'), stripslashes($session_name),
-                $ticket_status === TICKET_STATUS_RESOLVED, $emailable_attachments['send'], $ticket_reply_id);
+                $ticket_status === TICKET_STATUS_RESOLVED, $emailable_attachments['send'], $ticket_reply_id, $email_to);
             // And a text saying so, to a contact who agreed to texts - when Texts to clients says each reply (functions/sms.php)
             if ($emailed_to) {
                 smsTicketReplyNotify($row);
@@ -1245,7 +1250,7 @@ if (isset($_POST['add_ticket_reply'])) {
             flashAlert("Reply added to ticket $reference_html and emailed to <strong>$emailed_to</strong> " . ($emailed_to === 1 ? 'person' : 'people'));
         } else {
             // They chose to email it - say plainly that it didn't go
-            flashAlert("Reply added to ticket $reference_html but not emailed - " . (emailReady() ? 'there\'s no contact or watcher with an email address to send it to' : 'mail isn\'t set up'), 'warning');
+            flashAlert("Reply added to ticket $reference_html but not emailed - " . (!emailReady() ? 'mail isn\'t set up' : ($email_to === [] ? 'nobody was in To' : 'there\'s no contact or watcher with an email address to send it to')), 'warning');
         }
 
     } else {
@@ -1460,6 +1465,13 @@ if (isset($_POST['change_client_ticket'])) {
     mysqli_query($mysqli, "UPDATE tickets SET ticket_client_id = $client_id, ticket_contact_id = $contact_id, ticket_asset_id = 0, ticket_location_id = 0,
         ticket_vendor_id = $vendor_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id LIMIT 1");
     mysqli_query($mysqli, "DELETE FROM ticket_assets WHERE ticket_id = $ticket_id");
+    // Nobody at the old client hears about it any more: its watchers come off - all but our own
+    // agents and the new client's contacts - and its email replies' To line starts again
+    mysqli_query($mysqli, "DELETE FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id
+        AND watcher_email NOT IN (SELECT user_email FROM users WHERE user_type = 1 AND user_archived_at IS NULL AND user_email IS NOT NULL)
+        AND watcher_email NOT IN (SELECT contact_email FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contact_email IS NOT NULL)");
+    $watchers_off = max(0, mysqli_affected_rows($mysqli));
+    ticketReplyRecipientsForget($ticket_id);
     // The driving for it goes with it - not to the old client's site
     mysqli_query($mysqli, "UPDATE trips SET trip_client_id = $client_id, trip_location_id = 0 WHERE trip_ticket_id = $ticket_id");
     applyTicketSla($ticket_id);
@@ -1467,13 +1479,15 @@ if (isset($_POST['change_client_ticket'])) {
     $old_client_name = $old_client_id ? (string) getFieldById('clients', $old_client_id, 'client_name') : 'no client';
     $new_client_name = (string) getFieldById('clients', $client_id, 'client_name');
 
-    logTicketHistory($ticket_id, "$session_name moved the ticket from " . escapeSql($old_client_name) . " to " . escapeSql($new_client_name));
+    logTicketHistory($ticket_id, "$session_name moved the ticket from " . escapeSql($old_client_name) . " to " . escapeSql($new_client_name)
+        . ($watchers_off ? " - $watchers_off watcher" . ($watchers_off === 1 ? '' : 's') . " of the old client taken off" : ''));
 
     logAudit("Ticket", "Change", "$session_name moved ticket " . escapeSql(ticketReference($row)) . " from " . escapeSql($old_client_name) . " to " . escapeSql($new_client_name), $client_id, $ticket_id);
 
     triggerCustomAction('ticket_update', $ticket_id);
 
-    flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> moved to <strong>" . escapeHtml($new_client_name) . "</strong>");
+    flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> moved to <strong>" . escapeHtml($new_client_name) . "</strong>"
+        . ($watchers_off ? " - $watchers_off watcher" . ($watchers_off === 1 ? '' : 's') . " of the old client taken off" : ''));
 
     redirect(ticketUrl($ticket_id, $client_id));
 

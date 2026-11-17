@@ -4054,6 +4054,24 @@ CREATE TABLE `ticket_history` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ticket_mail_choices`
+--
+
+DROP TABLE IF EXISTS `ticket_mail_choices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ticket_mail_choices` (
+  `mail_choice_ticket_id` int(11) NOT NULL,
+  `mail_choice_email` varchar(255) NOT NULL,
+  `mail_choice_send` tinyint(1) NOT NULL DEFAULT 0,
+  `mail_choice_by` int(11) NOT NULL DEFAULT 0,
+  `mail_choice_updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`mail_choice_ticket_id`,`mail_choice_email`),
+  CONSTRAINT `ticket_mail_choices_ibfk_1` FOREIGN KEY (`mail_choice_ticket_id`) REFERENCES `tickets` (`ticket_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `ticket_replies`
 --
 

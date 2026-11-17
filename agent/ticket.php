@@ -451,6 +451,8 @@ if (isset($_GET['ticket_id'])) {
         // An emailed reply needs an address to go to and mail set up to send it -
         // without mail configured the option used to save as public and email nobody
         $can_email_reply = !empty($contact_email) && !empty($config_smtp_provider);
+        // Who it goes to - the To line, kept for the ticket (functions/ticket_reply_recipients.php)
+        $reply_to = $can_email_reply && $can_edit_ticket && $ticket_is_open && ticketReplyRecipientsReady() ? ticketReplyRecipients($ticket_id) : [];
         // A text reply - to its contact's mobile, or the number texting on it (functions/sms.php)
         $sms_recipient = smsTicketRecipient($ticket);
 
@@ -839,7 +841,11 @@ if (isset($_GET['ticket_id'])) {
                                         <div class="ticket-reply-audience small mb-3" id="replyAudience">
                                             <div data-audience="0" hidden><i class="fas fa-fw fa-lock me-1"></i>Only your team can see this.</div>
                                             <div data-audience="1" hidden><i class="fas fa-fw fa-eye me-1"></i>The client can see this in the portal. <strong>No email is sent.</strong></div>
-                                            <?php if ($can_email_reply) { ?>
+                                            <?php if ($reply_to) { ?>
+                                                <div data-audience="2" hidden>
+                                                    <i class="fas fa-fw fa-paper-plane me-1"></i>Emails the people in To, and shows in the portal.
+                                                </div>
+                                            <?php } elseif ($can_email_reply) { ?>
                                                 <div data-audience="2" hidden>
                                                     <i class="fas fa-fw fa-paper-plane me-1"></i>Emails <strong><?= $contact_name ?></strong> &lt;<?= $contact_email ?>&gt;<?php if ($watcher_count) { ?> and <?= $watcher_count ?> watcher<?= $watcher_count == 1 ? '' : 's' ?><?php } ?>, and shows in the portal.
                                                 </div>
@@ -852,6 +858,27 @@ if (isset($_GET['ticket_id'])) {
                                                 </div>
                                             <?php } ?>
                                         </div>
+
+                                        <?php if ($reply_to) { ?>
+                                            <!--
+                                             * Who an email reply goes to: the contact, watchers and colleagues to start
+                                             * with; anyone else here, or an address typed in, can be added. Whatever is
+                                             * changed is kept for the ticket, so its next email reply starts from it.
+                                            -->
+                                            <div class="mb-3" id="replyTo" hidden>
+                                                <input type="hidden" name="email_to_shown" value="1" disabled>
+                                                <div class="input-group">
+                                                    <span class="input-group-text"><i class="fas fa-fw fa-envelope me-1"></i>To</span>
+                                                    <select class="form-select select2" name="email_to[]" id="replyToSelect" multiple data-tags="true" data-avatar="initials" data-placeholder="Type a name or an email address" aria-label="Email it to">
+                                                        <?php foreach ($reply_to as $reply_to_email => $reply_to_person) { ?>
+                                                            <option value="<?= escapeHtml($reply_to_email) ?>"<?= $reply_to_person['send'] ? ' selected' : '' ?><?= $reply_to_person['look'] ?><?= selectOptionData(['description' => TICKET_REPLY_TO_GROUPS[$reply_to_person['group']] . ($reply_to_person['name'] !== '' ? " - $reply_to_email" : ''), 'keywords' => $reply_to_email]) ?>><?= escapeHtml($reply_to_person['name'] !== '' ? $reply_to_person['name'] : $reply_to_email) ?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+                                                <div class="invalid-feedback d-block" id="replyToProblem" hidden></div>
+                                                <div class="form-text">Who's in To is kept for this ticket - its next email reply starts with the same people.</div>
+                                            </div>
+                                        <?php } ?>
 
                                         <?php
                                         /*
@@ -2101,6 +2128,40 @@ if (isset($ticket_is_open) && empty($ticket_closed_at)) { ?>
             if (replySubmitLabel) {
                 replySubmitLabel.textContent = replySubmitLabels[type] || 'Send';
             }
+            // The To line is for an email reply - and only then is it sent with the reply
+            if (replyTo) {
+                replyTo.hidden = type !== '2';
+                replyTo.querySelector('[name="email_to_shown"]').disabled = type !== '2';
+                replyToProblem.hidden = true;
+            }
+        }
+
+        // What's wrong with the To line, if anything - nobody in it, or something that isn't an email address
+        const replyTo = document.getElementById('replyTo');
+        const replyToSelect = document.getElementById('replyToSelect');
+        const replyToProblem = document.getElementById('replyToProblem');
+        function replyToCheck() {
+            if (!replyTo || replyTo.hidden) {
+                return '';
+            }
+            const picked = Array.from(replyToSelect.selectedOptions).map(option => option.value.trim());
+            const wrong = picked.filter(value => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value));
+            if (!picked.length) {
+                return 'Put someone in To - or pick Public note to post it without an email.';
+            }
+            if (wrong.length) {
+                return 'Not an email address: ' + wrong.join(', ') + ' - take it out of To, or type the whole address.';
+            }
+            return '';
+        }
+        if (replyToSelect) {
+            replyToSelect.addEventListener('change', function () {
+                if (!replyToProblem.hidden) {
+                    const problem = replyToCheck();
+                    replyToProblem.textContent = problem;
+                    replyToProblem.hidden = problem === '';
+                }
+            });
         }
 
         // Only ever opens. Switching Internal -> Public mid-draft must not throw the draft away.
@@ -2140,6 +2201,14 @@ if (isset($ticket_is_open) && empty($ticket_closed_at)) { ?>
             replyForm.addEventListener('submit', function (e) {
                 if (!replyComposer.classList.contains('show')) {
                     e.preventDefault();
+                    return;
+                }
+                const problem = replyToCheck();
+                if (problem) {
+                    e.preventDefault();
+                    replyToProblem.textContent = problem;
+                    replyToProblem.hidden = false;
+                    replyTo.scrollIntoView({ block: 'nearest' });
                 }
             });
         }

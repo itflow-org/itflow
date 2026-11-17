@@ -578,6 +578,8 @@ function ticketEmailPreview(array $email) {
  *   to_contact   false leaves the contact out
  *   to_watchers  false is the contact alone - no watchers, no colleagues
  *   to           [['email', 'name'], ...] in place of the contact - the sender of an emailed ticket
+ *   recipients   emailQueue()'s list in place of everyone - the To line's people
+ *                (ticketReplyRecipientsPick())
  *   kind         created, closed or update (the default): a contact who asked
  *                for replies only gets no created or closed email
  *                (ticketContactWantsEmail()), and the client's primary and
@@ -603,7 +605,10 @@ function ticketMailSend($ticket_id, $subject, array $email, array $opts = []) {
     $reference = ticketReference($row);
     $company_name = (string) (billingCompany()['company_name'] ?? 'us');
     $recipients = [];
-    if (isset($opts['to'])) {
+    if (isset($opts['recipients'])) {
+        $recipients = (array) $opts['recipients'];
+        $to_watchers = false;
+    } elseif (isset($opts['to'])) {
         foreach ((array) $opts['to'] as $to) {
             $recipients[] = ['email' => $to['email'], 'name' => (string) ($to['name'] ?? ''), 'footnote' => "You get this because you emailed $company_name."];
         }
@@ -716,19 +721,21 @@ function ticketMailCreated($ticket_id, $subject_prefix, $attachments = [], $to_w
 }
 
 /*
- * A public reply on a ticket, to its contact and watchers - $reply_html as
- * saved (with the signature), $by who wrote it (raw). $resolved when the
- * reply resolved it. $reply_id, the reply in ticket_replies, has who it went
- * to kept with it (ticketReplyEmailed()). How many it went to.
+ * A public reply on a ticket, to its contact and watchers - or the people in
+ * its To line, $to (ticketReplyRecipientsPick()) - $reply_html as saved (with
+ * the signature), $by who wrote it (raw). $resolved when the reply resolved
+ * it. $reply_id, the reply in ticket_replies, has who it went to kept with it
+ * (ticketReplyEmailed()). How many it went to.
  */
-function ticketMailReply($ticket_id, $reply_html, $by, $resolved = false, $attachments = [], $reply_id = 0) {
+function ticketMailReply($ticket_id, $reply_html, $by, $resolved = false, $attachments = [], $reply_id = 0, ?array $to = null) {
     $row = ticketRow($ticket_id);
     if (!$row) {
         ticketReplyEmailed($reply_id, false);
         return 0;
     }
     $sent = ticketMailSend($row['ticket_id'], ($resolved ? 'Ticket resolved' : 'Ticket update') . " - [" . ticketReference($row) . "] - " . $row['ticket_subject'] . ($resolved ? ' | (pending closure)' : ''),
-        ticketEmailContent($row, $resolved ? 'resolved' : 'reply', ['message' => (string) $reply_html, 'by' => (string) $by]), ['attachments' => $attachments, 'ticket_reply_id' => intval($reply_id)]);
+        ticketEmailContent($row, $resolved ? 'resolved' : 'reply', ['message' => (string) $reply_html, 'by' => (string) $by]),
+        ['attachments' => $attachments, 'ticket_reply_id' => intval($reply_id)] + ($to !== null ? ['recipients' => $to] : []));
     ticketReplyEmailed($reply_id, $sent > 0);
     return $sent;
 }
