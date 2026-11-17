@@ -6143,6 +6143,58 @@ a.itflow-report-stat:focus-visible {
     background-color: color-mix(in srgb, var(--itflow-accent) calc(var(--heat, 0) * 100%), var(--bs-secondary-bg));
 }
 
+/* Geography: an outline map, each place shaded by how many are there - plain
+   for none, light to the accent for the most - and a key under it */
+.itflow-geo-map {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 34rem;
+    margin: 0 auto;
+}
+.itflow-geo-map path {
+    fill: var(--bs-secondary-bg);
+    stroke: var(--bs-card-bg, var(--bs-body-bg));
+    stroke-width: .75px;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+.itflow-geo-map path.itflow-geo-on {
+    fill: color-mix(in srgb, var(--itflow-accent) calc(var(--heat, 0) * 100%), var(--bs-secondary-bg));
+}
+.itflow-geo-map a:hover path,
+.itflow-geo-map a:focus-visible path {
+    opacity: .7;
+}
+.itflow-geo-map path.itflow-geo-current {
+    fill: none;
+    stroke: var(--bs-emphasis-color);
+    stroke-width: 2px;
+    pointer-events: none;
+}
+.itflow-geo-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    margin-top: .75rem;
+}
+.itflow-geo-swatch,
+.itflow-geo-scale {
+    display: inline-block;
+    height: .7rem;
+    border-radius: 3px;
+}
+.itflow-geo-swatch {
+    width: .9rem;
+    background-color: var(--bs-secondary-bg);
+}
+.itflow-geo-scale {
+    width: 8rem;
+    background-image: linear-gradient(to right, color-mix(in srgb, var(--itflow-accent) 25%, var(--bs-secondary-bg)), var(--itflow-accent));
+}
+
 /* The Reports page: a card per report */
 .itflow-report-card {
     transition: border-color .12s ease-in-out, background-color .12s ease-in-out;
@@ -6204,6 +6256,8 @@ a.itflow-report-stat:focus-visible {
     }
     .itflow-report-stats,
     .itflow-report-heat td,
+    .itflow-geo-swatch,
+    .itflow-geo-scale,
     .itflow-report-meter,
     .itflow-report-meter > span,
     .itflow-dash-aging > span,

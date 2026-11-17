@@ -176,6 +176,10 @@ function reportCatalog() {
                     'title' => 'Documentation Coverage', 'icon' => 'fa-tasks', 'module' => 'module_support', 'feature' => ['itdoc'],
                     'description' => 'What is documented for each client, and what is missing.',
                 ],
+                'geography' => [
+                    'title' => 'Geography', 'icon' => 'fa-globe-americas', 'module' => 'module_client', 'feature' => [],
+                    'description' => 'Where your clients and their locations are, on a map - by country, then state or province and city.',
+                ],
                 'document_templates' => [
                     'title' => 'Document Templates', 'icon' => 'fa-file-alt', 'module' => 'module_support', 'feature' => ['itdoc'],
                     'description' => 'How often each document template is used, how many of the clients that should have a document from one do, and the documents due a review - by template and by client.',
@@ -2052,4 +2056,216 @@ function reportCoverageMissingHtml($client) {
             . (!empty($checks[$key]['title']) ? ' title="' . escapeHtml($checks[$key]['title']) . '"' : '') . '>' . escapeHtml($checks[$key]['label']) . '</a>';
     }
     return $html . '</span>';
+}
+
+/*
+ * ---------- geography ----------
+ *
+ * Where clients' locations are. Addresses are typed by hand, so they are read
+ * loosely: a country by its name in ITFlow's list, the map's own name for it,
+ * its two-letter code or a common short form ("USA", "UK"), and a US state or
+ * Canadian province by its name or postal abbreviation. A location with no
+ * country is counted in the company's own country, which the location form
+ * fills in by default. The maps are outlines kept in includes/maps (Natural
+ * Earth, public domain, projected ahead of time), shaded on the page - nothing
+ * is fetched from anywhere else.
+ */
+
+/** The countries with a map of their states or provinces, as country => map; includes/maps/world.json has the countries. */
+const REPORT_GEO_MAPS = ['US' => 'us', 'CA' => 'ca'];
+
+/** A map's outlines - ['width', 'height', 'regions' => [code => ['name', 'd' (its outline), 'dot' (one to mark a small place)]]] - or null. */
+function reportGeoMap($name) {
+    static $maps = [];
+    if (!array_key_exists($name, $maps)) {
+        $file = dirname(__DIR__) . '/includes/maps/' . basename($name) . '.json';
+        $maps[$name] = is_file($file) ? json_decode(file_get_contents($file), true) : null;
+    }
+    return $maps[$name];
+}
+
+/** Text as a key to group by - lower case, without full stops or doubled spaces: "U.S.A." and "usa" match. */
+function reportGeoKey($text) {
+    return mb_strtolower(trim(preg_replace(['/\./', '/\s+/'], ['', ' '], (string) $text)));
+}
+
+/** What a country's states are called - State, Province or Region. */
+function reportGeoRegionTerm($country, $plural = false) {
+    $terms = ['US' => ['State', 'States'], 'CA' => ['Province', 'Provinces']];
+    return ($terms[$country] ?? ['Region', 'Regions'])[$plural ? 1 : 0];
+}
+
+/** The countries ITFlow knows: ['codes' => typed key => code, 'names' => code => name]. */
+function reportGeoCountries() {
+    static $countries = null;
+    if ($countries !== null) {
+        return $countries;
+    }
+    $codes = $names = [];
+    foreach (settingsLocalizationArrays()['country_iso2'] as $name => $code) {
+        $code = strtoupper($code);
+        $names[$code] = $names[$code] ?? $name;
+        $codes[reportGeoKey($name)] = $code;
+    }
+    foreach (reportGeoMap('world')['regions'] ?? [] as $code => $region) {
+        if (strlen($code) === 2) {
+            $names[$code] = $names[$code] ?? $region['name'];
+            $codes[reportGeoKey($region['name'])] = $codes[reportGeoKey($region['name'])] ?? $code;
+        }
+    }
+    foreach (array_keys($names) as $code) {
+        $codes[strtolower($code)] = $codes[strtolower($code)] ?? $code;
+    }
+    $codes += ['usa' => 'US', 'united states of america' => 'US', 'america' => 'US', 'uk' => 'GB', 'great britain' => 'GB', 'britain' => 'GB',
+        'england' => 'GB', 'scotland' => 'GB', 'wales' => 'GB', 'northern ireland' => 'GB', 'can' => 'CA', 'aus' => 'AU', 'nz' => 'NZ',
+        'the netherlands' => 'NL', 'holland' => 'NL', 'deutschland' => 'DE', 'czechia' => 'CZ', 'eire' => 'IE'];
+    return $countries = ['codes' => $codes, 'names' => $names];
+}
+
+/** A country's states on its map: ['codes' => typed key => code (US-PA), 'names' => code => name] - empty without a map. */
+function reportGeoRegions($country) {
+    static $regions = [];
+    if (!isset($regions[$country])) {
+        $codes = $names = [];
+        $map = isset(REPORT_GEO_MAPS[$country]) ? reportGeoMap(REPORT_GEO_MAPS[$country]) : null;
+        foreach ($map['regions'] ?? [] as $code => $region) {
+            $names[$code] = $region['name'];
+            $codes[reportGeoKey(substr($code, strlen($country) + 1))] = $code;
+            $codes[reportGeoKey($region['name'])] = $code;
+        }
+        $regions[$country] = ['codes' => $codes, 'names' => $names];
+    }
+    return $regions[$country];
+}
+
+/**
+ * Where a location is, from its address: 'country' (a code such as US, or the
+ * text typed when it is not a country ITFlow knows), 'region' (US-PA for a US
+ * state or Canadian province, otherwise the text typed) and 'city', each with
+ * its '_name' to show. Typed text is keyed in lower case so spellings group,
+ * and a part left blank is '-', "Not set".
+ */
+function reportGeoPlace(array $row) {
+    global $session_company_country;
+
+    $typed = trim((string) ($row['location_country'] ?? ''));
+    if ($typed === '') {
+        $typed = trim((string) ($session_company_country ?? ''));
+    }
+    $countries = reportGeoCountries();
+    $key = reportGeoKey($typed);
+    $country = $key === '' ? '-' : ($countries['codes'][$key] ?? $key);
+    $place = ['country' => $country, 'country_name' => $countries['names'][$country] ?? ($typed !== '' ? $typed : 'Not set')];
+
+    $typed = trim((string) ($row['location_state'] ?? ''));
+    $regions = reportGeoRegions($country);
+    $key = reportGeoKey($typed);
+    $place['region'] = $key === '' ? '-' : ($regions['codes'][$key] ?? $key);
+    $place['region_name'] = $regions['names'][$place['region']] ?? ($typed !== '' ? $typed : 'Not set');
+
+    $typed = trim((string) ($row['location_city'] ?? ''));
+    $key = reportGeoKey($typed);
+    $place['city'] = $key === '' ? '-' : $key;
+    $place['city_name'] = $typed !== '' ? $typed : 'Not set';
+    return $place;
+}
+
+/** Active locations of the active clients this user can see - leads too when asked - each with where it is (reportGeoPlace()). */
+function reportGeoLocations($leads = false) {
+    global $mysqli;
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT location_id, location_name, location_address, location_city, location_state, location_zip, location_country, location_primary,
+            client_id, client_name, client_abbreviation
+        FROM locations
+        JOIN clients ON location_client_id = client_id
+        WHERE location_archived_at IS NULL AND client_archived_at IS NULL" . ($leads ? '' : ' AND client_lead = 0') . reportClientSql('client_id', 0) . "
+        ORDER BY client_name, location_primary DESC, location_name");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row + reportGeoPlace($row);
+    }
+    return $rows;
+}
+
+/**
+ * Locations grouped by 'country', 'region' or 'city', as rows of 'key' and
+ * 'name' (the spelling used most), 'clients' (with a location there),
+ * 'locations' and 'cities', with the country and region they are in. Most
+ * clients first, "Not set" last.
+ */
+function reportGeoGroup(array $locations, $level) {
+    $parents = ['country' => [], 'region' => ['country'], 'city' => ['country', 'region']][$level];
+    $groups = [];
+    foreach ($locations as $location) {
+        $id = '';
+        foreach ($parents as $parent) {
+            $id .= $location[$parent] . '|';
+        }
+        $id .= $location[$level];
+        if (!isset($groups[$id])) {
+            $groups[$id] = ['key' => $location[$level], 'spellings' => [], 'client_ids' => [], 'locations' => 0, 'cities' => [],
+                'country' => $location['country'], 'country_name' => $location['country_name'], 'region' => $location['region'], 'region_name' => $location['region_name']];
+        }
+        $group = &$groups[$id];
+        $spelling = $location[$level . '_name'];
+        $group['spellings'][$spelling] = ($group['spellings'][$spelling] ?? 0) + 1;
+        $group['client_ids'][$location['client_id']] = true;
+        $group['locations']++;
+        $group['cities'][$location['country'] . '|' . $location['region'] . '|' . $location['city']] = true;
+        unset($group);
+    }
+    foreach ($groups as &$group) {
+        arsort($group['spellings']);
+        $group['name'] = (string) array_key_first($group['spellings']);
+        $group['clients'] = count($group['client_ids']);
+        $group['cities'] = count($group['cities']);
+        unset($group['spellings'], $group['client_ids']);
+    }
+    unset($group);
+    $groups = array_values($groups);
+    usort($groups, function ($a, $b) {
+        return ($a['key'] === '-') <=> ($b['key'] === '-') ?: $b['clients'] <=> $a['clients'] ?: $b['locations'] <=> $a['locations'] ?: strcasecmp($a['name'], $b['name']);
+    });
+    return $groups;
+}
+
+/**
+ * An outline map shaded by how much is in each place. $values is code =>
+ * number, $titles code => what hovering says, $links code => where clicking
+ * goes; $current is outlined. A place with nothing is left plain, and one too
+ * small to see (Singapore, an island nation) gets a dot over it when it has
+ * something.
+ */
+function reportGeoMapHtml($name, array $values, array $titles, array $links, $current = '', $label = '') {
+    $map = reportGeoMap($name);
+    if (!$map) {
+        return '';
+    }
+    $max = max(1, ...array_values($values ?: [0]));
+    $shapes = $dots = $outline = '';
+    foreach ($map['regions'] as $code => $region) {
+        $n = floatval($values[$code] ?? 0);
+        $title = '<title>' . escapeHtml($titles[$code] ?? $region['name']) . '</title>';
+        // The square root keeps a place with one or two from vanishing beside one with fifty
+        $on = $n > 0 ? ' class="itflow-geo-on" style="--heat: ' . round(0.25 + 0.75 * sqrt($n / $max), 3) . '"' : '';
+        $open = isset($links[$code]) ? '<a href="' . escapeHtml($links[$code]) . '">' : '';
+        $close = $open !== '' ? '</a>' : '';
+        if ($region['d'] !== '') {
+            $shapes .= $open . '<path d="' . $region['d'] . '"' . $on . '>' . $title . '</path>' . $close;
+        }
+        if (!empty($region['dot']) && $n > 0) {
+            $dots .= $open . '<path d="' . $region['dot'] . '"' . $on . '>' . $title . '</path>' . $close;
+        }
+        if ($code === $current && $region['d'] !== '') {
+            $outline = '<path class="itflow-geo-current" d="' . $region['d'] . '"/>';
+        }
+    }
+    return '<svg class="itflow-geo-map" viewBox="0 0 ' . intval($map['width']) . ' ' . intval($map['height']) . '" role="img"'
+        . ($label !== '' ? ' aria-label="' . escapeHtml($label) . '"' : '') . '>' . $shapes . $outline . $dots . '</svg>';
+}
+
+/** The key under a map: plain for none, then light to dark from 1 to the most. */
+function reportGeoLegendHtml($max, $noun) {
+    return '<div class="itflow-geo-legend small text-body-secondary">'
+        . '<span class="itflow-geo-swatch"></span>None'
+        . '<span class="ms-3">1</span><span class="itflow-geo-scale"></span>' . reportCount($max) . ' ' . escapeHtml($noun) . '</div>';
 }
