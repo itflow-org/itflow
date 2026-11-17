@@ -897,6 +897,8 @@ function createiCalStr($datetime, $title, $description, $location, $uid = null) 
 /*
  * Its cancellation. There is no stored copy of the original to reopen - the
  * match is made by UID - and the SEQUENCE must outrank the one it was sent with.
+ * Like the booking it has no organiser or attendees, so it goes with the email
+ * as an attached file to open, not as a meeting cancellation (cron/mail_queue.php).
  */
 function createiCalStrCancel($datetime, $title, $uid) {
     global $config_timezone;

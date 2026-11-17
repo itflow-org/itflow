@@ -282,13 +282,18 @@ function sendQueueEmail(
     $mail->Subject = $subject;
     $mail->Body = $html_body;
 
-    // A calendar invitation or cancellation goes in as its own text/calendar part
+    // A meeting invitation or cancellation goes in as its own text/calendar part
     // beside the HTML - the way calendar apps send them, and the only way Outlook
-    // shows one as a meeting rather than a file. PHPMailer only builds that part
-    // when there are no file attachments or pictures in the message, so anything
-    // else (and a published event to add) travels as an attached invite.ics.
+    // shows one as a meeting rather than a file. Only a meeting does: one with an
+    // organiser and attendees (an event's invitation). Microsoft 365 turns that part
+    // into a meeting as it takes the email, and refuses one with nobody in it -
+    // "data not accepted" - so a calendar file without them (a ticket's booking and
+    // its cancellation) is attached like a published event to add. PHPMailer only
+    // builds the part when there are no file attachments or pictures in the
+    // message either, so those also travel as an attached invite.ics.
     if (!empty($ics_str)) {
-        if (preg_match('/^METHOD:(REQUEST|CANCEL)\r?$/m', $ics_str) && empty($attachments_json)) {
+        $meeting = preg_match('/^METHOD:(REQUEST|CANCEL)\r?$/m', $ics_str) && preg_match('/^ORGANIZER[;:]/m', $ics_str) && preg_match('/^ATTENDEE[;:]/m', $ics_str);
+        if ($meeting && empty($attachments_json)) {
             $mail->Ical = $ics_str;
             $mail->AltBody = $mail->html2text($html_body);
         } else {
@@ -328,7 +333,18 @@ function sendQueueEmail(
         }
     }
 
-    $mail->send();
+    try {
+        $mail->send();
+    } catch (Exception $e) {
+        // PHPMailer names the step that failed ("data not accepted"); the mail server's reply says why - keep it with the email
+        $smtp = $mail->getSMTPInstance()->getError();
+        $detail = trim(preg_replace('/\s+/', ' ', (string) ($smtp['detail'] ?? '')));
+        if ($detail !== '' && strpos($e->getMessage(), $detail) === false) {
+            $code = trim(($smtp['smtp_code'] ?? '') . ' ' . ($smtp['smtp_code_ex'] ?? ''));
+            throw new Exception($e->getMessage() . ' The mail server said: ' . ($code !== '' ? "$code " : '') . $detail, $e->getCode(), $e);
+        }
+        throw $e;
+    }
     return true;
 }
 
