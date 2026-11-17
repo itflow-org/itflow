@@ -559,14 +559,14 @@ if (isset($_GET['ticket_id'])) {
                                         $open_task_count = $task_count - $completed_task_count;
                                         ?>
                                         <!-- A disabled button gets no pointer events, so the reason sits on a wrapper that does -->
-                                        <span class="d-inline-block" tabindex="0" title="Finish the <?= $open_task_count ?> open task<?= $open_task_count == 1 ? '' : 's' ?> first">
+                                        <span class="d-inline-block" tabindex="0" title="Finish the <?= $open_task_count ?> open task<?= $open_task_count == 1 ? '' : 's' ?> first" data-ticket-resolve>
                                             <button type="button" class="btn btn-success" disabled>
                                                 <i class="fas fa-fw fa-check me-2"></i>Resolve
                                             </button>
                                         </span>
                                     <?php } else { ?>
                                         <a href="post.php?resolve_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                            class="btn btn-success confirm-link" id="ticket_close"
+                                            class="btn btn-success confirm-link" id="ticket_close" data-ticket-resolve
                                             data-confirm-title="Resolve this ticket?"
                                             data-confirm-text="<?= $resolve_confirm_text ?>"
                                             data-confirm-button="Resolve">
@@ -1555,7 +1555,7 @@ if (isset($_GET['ticket_id'])) {
                                             <?php if ($task_completed_at) { ?>
                                                 <i class="far fa-fw fa-check-square text-success" title="Completed <?= $task_completed_at ?>"></i>
                                             <?php } elseif ($can_edit_ticket && !$task_needs_approval) { ?>
-                                                <a href="post.php?complete_task=<?= $task_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Mark complete">
+                                                <a href="post.php?complete_task=<?= $task_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Mark complete" data-task-toggle>
                                                     <i class="far fa-fw fa-square text-body"></i>
                                                 </a>
                                             <?php } elseif ($task_needs_approval) { ?>
@@ -1592,7 +1592,7 @@ if (isset($_GET['ticket_id'])) {
                                                                 <i class="fas fa-fw fa-shield-alt me-2"></i>Require approval
                                                             </a>
                                                         <?php } else { ?>
-                                                            <a class="dropdown-item" href="post.php?undo_complete_task=<?= $task_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                            <a class="dropdown-item" href="post.php?undo_complete_task=<?= $task_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-task-toggle>
                                                                 <i class="fas fa-fw fa-undo me-2"></i>Mark incomplete
                                                             </a>
                                                         <?php } ?>
@@ -1921,6 +1921,94 @@ if (isset($ticket_is_open) && empty($ticket_closed_at)) { ?>
 <script src="<?= staticFileUrl('/libs/SortableJS/Sortable.min.js') ?>"></script>
 <script>
 (function () {
+    /*
+     * Checking a task off, or marking it not done, happens in the background so the
+     * page stays where it was scrolled to - a long list used to send you back to the
+     * top for every one. The link is the one the page has always had; followed with
+     * fetch it lands back on this ticket, and that page supplies the rows, the count
+     * and the Resolve button, the same as a reload would have. Only the latest
+     * click's answer is used - the server takes them one at a time, so it has the
+     * earlier ones in it too. Landing anywhere else goes there, and with no
+     * connection it is done the old way.
+     */
+    let taskToggleRun = 0;
+    document.addEventListener('click', function (e) {
+        const link = e.target.closest('a[data-task-toggle]');
+        if (!link || e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) {
+            return;
+        }
+        e.preventDefault();
+        const run = ++taskToggleRun;
+        const check = link.closest('tr') ? link.closest('tr').querySelector('.ticket-task-check') : null;
+        if (check) {
+            check.innerHTML = '<span class="spinner-border spinner-border-sm text-secondary" role="status"><span class="visually-hidden">Saving</span></span>';
+        }
+
+        let answered = false;
+        fetch(link.href, { credentials: 'same-origin' })
+            .then(function (res) {
+                answered = true;
+                return res.text().then(function (html) {
+                    return { res: res, html: html };
+                });
+            })
+            .then(function (answer) {
+                const res = answer.res;
+                if (!res.redirected) {
+                    location.reload();
+                    return;
+                }
+                if (new URL(res.url).pathname !== location.pathname) {
+                    location.assign(res.url);
+                    return;
+                }
+                if (run !== taskToggleRun) {
+                    return;
+                }
+                const fresh = new DOMParser().parseFromString(answer.html, 'text/html');
+                const rows = document.querySelector('table#tasks tbody');
+                const freshRows = fresh.querySelector('table#tasks tbody');
+                if (rows && freshRows) {
+                    // The rows inside, not the tbody itself, which reordering is attached to
+                    rows.innerHTML = freshRows.innerHTML;
+                }
+                ['.ticket-task-count', '[data-ticket-resolve]'].forEach(function (selector) {
+                    const now = document.querySelector(selector);
+                    const next = fresh.querySelector(selector);
+                    if (now && next) {
+                        now.replaceWith(document.importNode(next, true));
+                    }
+                });
+                // The note it would have shown on the reload ("Task ... completed")
+                const toast = fresh.getElementById('itflowFlashToast');
+                if (toast) {
+                    const old = document.getElementById('itflowFlashToast');
+                    if (old && old.closest('.toast-container')) {
+                        old.closest('.toast-container').remove();
+                    }
+                    const box = document.importNode(toast.closest('.toast-container') || toast, true);
+                    document.body.appendChild(box);
+                    const shown = box.querySelector('.itflow-toast') || box;
+                    shown.addEventListener('click', function () {
+                        box.remove();
+                    });
+                    shown.addEventListener('animationend', function (event) {
+                        if (event.animationName === 'itflow-toast-out') {
+                            box.remove();
+                        }
+                    });
+                }
+            })
+            .catch(function () {
+                // Not done at all - do it the old way; done but not shown - show the page as it is now
+                if (answered) {
+                    location.reload();
+                } else {
+                    location.assign(link.href);
+                }
+            });
+    });
+
     // Task reordering
     const taskTable = document.querySelector('table#tasks tbody');
     if (taskTable) {
