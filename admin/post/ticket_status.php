@@ -4,8 +4,8 @@
  * ITFlow - Admin > Ticket Statuses: add and change a status, put them in
  * order (dragged, or up and down), switch one off or on, and delete one of
  * your own - moving its tickets first. The five ITFlow has keep their names,
- * stay on, and have fixed SLA and client-reply behaviour, whatever a request
- * says. The work is in functions/ticket_status.php.
+ * stay on, have fixed SLA behaviour, and a client's reply never leaves a
+ * ticket in one, whatever a request says. The work is in functions/ticket_status.php.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");

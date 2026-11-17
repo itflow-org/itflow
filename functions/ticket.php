@@ -450,6 +450,7 @@ function ticketEmailExcerpt($html, $limit = 700) {
  *   resolved  marked resolved, pending closure - message (the agent's note, HTML, or ''), by
  *   closed    closed - asking how we did
  *   watcher   they were made a watcher - by (who added them)
+ *   assigned  an agent picked it up - message (the "ticket assigned" words, HTML), agent (who has it, or '')
  *   scheduled the work was booked - when (words), where (the site's address), or cancelled: true
  */
 function ticketEmailContent(array $row, $kind, array $opts = []) {
@@ -526,6 +527,13 @@ function ticketEmailContent(array $row, $kind, array $opts = []) {
             : "We have booked the work on ticket $reference for " . $opts['when'] . ". The calendar file with this email adds it to your calendar."];
         $email['summary'] = $summary + ($cancelled ? [] : ['When' => (string) $opts['when'], 'Where' => !empty($row['ticket_onsite']) ? (trim((string) ($opts['where'] ?? '')) !== '' ? (string) $opts['where'] : 'Onsite') : 'Remote']);
         $email['history'] = $cancelled ? [] : ticketEmailHistory($row, ['limit' => 2, 'label' => 'What it is about']);
+    } elseif ($kind === 'assigned') {
+        $agent = trim((string) ($opts['agent'] ?? ''));
+        $email['kind'] = $agent !== '' ? 'Ticket assigned' : 'Ticket update';
+        $email['title'] = $agent !== '' ? "Your ticket is with $agent" : 'Your ticket has been picked up';
+        $email['content'] = (string) ($opts['message'] ?? '');
+        $email['summary'] = $summary + ($agent !== '' ? ['Assigned to' => $agent] : []);
+        $email['history'] = ticketEmailHistory($row, ['limit' => 2, 'label' => 'What it is about', 'skip' => $email['content']]);
     } elseif ($kind === 'watcher') {
         $email['kind'] = 'Watching';
         $email['title'] = 'You were added to a ticket';

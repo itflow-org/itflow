@@ -117,6 +117,8 @@ function ticketChangeAssignee($ticket_id, $assigned_to) {
     // Update ticket & insert reply
     mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = $assigned_to, ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id");
     syncTicketSlaClock($ticket_id);
+    // New to Open, when Open counts as the first response (functions/ticket_status.php)
+    ticketStatusMovedByAgent($ticket_id, $row['ticket_status'], $ticket_status);
 
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
@@ -188,6 +190,7 @@ function ticketChangeStatus($ticket_id, $status_id) {
     syncTicketSlaClock($ticket_id);
 
     logTicketHistory($ticket_id, "$session_name set the status to $status_name");
+    ticketStatusMovedByAgent($ticket_id, $row['ticket_status'], $status_id);
 
     logAudit("Ticket", "Edit", "$session_name set the status of $ticket_prefix$ticket_number to $status_name", $client_id, $ticket_id);
 

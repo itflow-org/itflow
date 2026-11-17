@@ -3,8 +3,9 @@
 /*
  * A ticket status's fields - for ticket_status_add.php and
  * ticket_status_edit.php, which set $ticket_status (a ticketStatusRow(), or
- * null when new). A built-in status keeps its name and has fixed answers for
- * the SLA clock and a client's reply - shown, not asked. The preview of its
+ * null when new). A built-in status keeps its name and has a fixed answer for
+ * the SLA clock - shown, not asked; a client's reply moves a ticket in one
+ * back to Open or to a status picked, and Closed takes none. The preview of its
  * badge and the colour swatches are js/ticket_status_form.js. The server
  * checks it all again (ticketStatusFromInput(), ticketStatusProblem()).
  */
@@ -19,6 +20,19 @@ $s_color = $s ? ticketStatusColor($s['ticket_status_color']) : ticketStatusNextC
 $s_description = (string) ($s['ticket_status_description'] ?? '');
 $s_paused = $s ? intval($s['ticket_status_pauses_sla']) === 1 : false;
 $s_reply = $s ? (intval($s['ticket_status_client_reply'] ?? 1) === 0 ? 0 : 1) : 1;
+$s_reply_to = intval($s['ticket_status_reply_status_id'] ?? 0);
+$s_first_response = intval($s['ticket_status_first_response'] ?? 0);
+// What a client's reply can do - back to Open (in the words that fit), stay (your own), or move to another status
+$s_reply_choices = ['1' => [TICKET_STATUS_NEW => 'Open it', TICKET_STATUS_OPEN => 'It stays Open', TICKET_STATUS_RESOLVED => 'Reopen it - back to Open'][$s_id] ?? 'Move it back to Open'];
+if (!$s_builtin) {
+    $s_reply_choices['0'] = 'Leave it in this status';
+}
+foreach (ticketStatusReplyReady() ? ticketStatusReplyTargets($s_id) : [] as $target_id => $target) {
+    if ($target_id !== TICKET_STATUS_OPEN) {
+        $s_reply_choices["to-$target_id"] = 'Move it to ' . $target['ticket_status_name'];
+    }
+}
+$s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-$s_reply_to" : (string) ($s_builtin ? 1 : $s_reply);
 
 ?>
 
@@ -85,28 +99,45 @@ $s_reply = $s ? (intval($s['ticket_status_client_reply'] ?? 1) === 0 ? 0 : 1) : 
         </small>
     </div>
 
-    <div class="mb-1">
+    <div class="<?= $s_id && !ticketStatusCanBeFirstResponse($s_id) ? 'mb-1' : 'mb-3' ?>">
         <label class="form-label">When the client replies</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-reply"></i></span>
-            <?php if ($s_builtin) { ?>
+            <?php if ($s_id === TICKET_STATUS_CLOSED || ($s_builtin && !ticketStatusReplyReady())) { ?>
                 <input type="text" class="form-control" value="<?= [TICKET_STATUS_OPEN => 'It stays Open', TICKET_STATUS_RESOLVED => 'It is reopened - back to Open', TICKET_STATUS_CLOSED => 'They can\'t - they are told to raise a new ticket'][$s_id] ?? 'It moves back to Open' ?>" readonly>
             <?php } else { ?>
-                <select class="form-select" name="client_reply">
-                    <?php foreach (TICKET_STATUS_CLIENT_REPLY as $value => $reply) { ?>
-                        <option value="<?= $value ?>"<?= $value === $s_reply ? ' selected' : '' ?>><?= escapeHtml($reply['label']) ?></option>
+                <select class="form-select select2" name="client_reply">
+                    <?php foreach ($s_reply_choices as $value => $label) { ?>
+                        <option value="<?= escapeHtml($value) ?>"<?= (string) $value === $s_reply_value ? ' selected' : '' ?>><?= escapeHtml($label) ?></option>
                     <?php } ?>
                 </select>
             <?php } ?>
         </div>
         <small class="text-secondary">
-            <?php if ($s_builtin) { ?>
-                <i class="fas fa-fw fa-lock me-1"></i>Fixed for ITFlow's own statuses.
+            <?php if ($s_id === TICKET_STATUS_CLOSED) { ?>
+                <i class="fas fa-fw fa-lock me-1"></i>A closed ticket takes no replies.
             <?php } else { ?>
-                By email or in the portal. Back to Open suits a status that waits on the client; leave it for one like Scheduled, where a "thanks, see you then" shouldn't put it back in the queue. Whoever it is assigned to is told either way.
+                By email, in the portal or by text. Move it to a status such as "Client responded" to see at a glance which tickets have a new answer; back to Open suits a status that waits on the client<?= $s_builtin ? '' : '; leave it for one like Scheduled, where a "thanks, see you then" shouldn\'t put it back in the queue' ?>. Whoever it is assigned to is told either way.
             <?php } ?>
         </small>
     </div>
+
+    <?php if (ticketStatusReplyReady() && (!$s_id || ticketStatusCanBeFirstResponse($s_id))) { ?>
+        <div class="mb-1">
+            <label class="form-label">Counts as the first response</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-comment-dots"></i></span>
+                <select class="form-select" name="first_response">
+                    <?php foreach (TICKET_STATUS_FIRST_RESPONSE as $value => $first_response) { ?>
+                        <option value="<?= $value ?>"<?= $value === $s_first_response ? ' selected' : '' ?>><?= escapeHtml($first_response['label']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <small class="text-secondary">
+                An agent moving a ticket into this status before anyone has answered the client meets - or misses - the SLA's response target then: setting it by hand or in a reply, or assigning a new ticket, which moves it to Open. Once per ticket. With the email, the contact and watchers get the "ticket assigned" message from <a href="settings_ticket.php#messages">Settings &gt; Tickets</a>, kept on the ticket as a public note; if nobody could be emailed, it doesn't count.
+            </small>
+        </div>
+    <?php } ?>
 </div>
 
 <script src="<?= staticFileUrl('/js/ticket_status_form.js') ?>"></script>

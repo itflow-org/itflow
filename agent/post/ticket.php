@@ -218,6 +218,9 @@ if (isset($_POST['add_ticket'])) {
         ticketMailAssigned($assigned_to, [$ticket_id], stripslashes($session_name));
     }
 
+    // Made in a status that counts as the first response (Open once assigned, or the one picked) - functions/ticket_status.php
+    ticketStatusMovedByAgent($ticket_id, TICKET_STATUS_NEW, $ticket_status);
+
     logAudit("Ticket", "Create", "$session_name created ticket $ticket_prefix$ticket_number - $subject", $client_id, $ticket_id);
 
     // The work booked - the same emails, note and history as the ticket's Schedule window
@@ -727,6 +730,8 @@ if (isset($_POST['bulk_assign_ticket'])) {
 
         mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = $assign_to, ticket_status = $ticket_status WHERE ticket_id = $ticket_id");
         syncTicketSlaClock($ticket_id);
+        // New to Open, when Open counts as the first response (functions/ticket_status.php)
+        ticketStatusMovedByAgent($ticket_id, $row['ticket_status'], $ticket_status);
 
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$reply', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
@@ -939,6 +944,8 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
         if ($ticket_status !== $original_status && $ticket_status !== TICKET_STATUS_RESOLVED) {
             logTicketHistory($ticket_id, "$session_name set the status to " . escapeSql(getTicketStatusName($ticket_status)));
+            // A status that counts as the first response, for a ticket nobody has answered yet
+            ticketStatusMovedByAgent($ticket_id, $original_status, $ticket_status);
         }
 
         logAudit("Ticket", "Reply", "$session_name replied to ticket $reference - $subject and was a $reply_type reply", intval($row['ticket_client_id']), $ticket_id);
@@ -1248,6 +1255,9 @@ if (isset($_POST['add_ticket_reply'])) {
             cannedResponseAttachFiles((array) ($_POST['canned_response_file_ids'] ?? []), $ticket_id, null, $session_user_id)));
         flashAlert("Ticket updated");
     }
+
+    // A status that counts as the first response, for a ticket the reply didn't answer (functions/ticket_status.php)
+    ticketStatusMovedByAgent($ticket_id, $original_ticket_status, $ticket_status);
 
     // Tell the agent about anything too large for the mail queue to carry, rather
     // than letting them assume the recipient got it

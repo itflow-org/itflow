@@ -126,9 +126,15 @@ $csrf = $_SESSION['csrf_token'];
                 $clock_html = $ticket_status_id === TICKET_STATUS_CLOSED
                     ? '<span class="text-body-secondary">Stopped</span>'
                     : ($paused ? '<span class="text-warning-emphasis"><i class="fas fa-fw fa-pause-circle me-1"></i>Paused</span>' : '<span class="text-body-secondary"><i class="fas fa-fw fa-play-circle me-1"></i>Runs</span>');
+                // Moved to another status by a reply, while that one is in use (ticketStatusAfterClientReply())
+                $reply_to = intval($row['ticket_status_reply_status_id'] ?? 0);
+                $reply_to_row = $reply_to && $ticket_status_id !== TICKET_STATUS_CLOSED ? (ticketStatusReplyTargets($ticket_status_id)[$reply_to] ?? null) : null;
                 $reply_html = $ticket_status_id === TICKET_STATUS_CLOSED
                     ? '<span class="text-body-secondary" title="A closed ticket can\'t be replied to - the client is told to raise a new one">Can\'t reply</span>'
-                    : '<span class="text-body-secondary"><i class="fas fa-fw ' . $reply['icon'] . ' me-1"></i>' . ([TICKET_STATUS_NEW => 'Opens it', TICKET_STATUS_OPEN => 'Stays Open', TICKET_STATUS_RESOLVED => 'Reopens it'][$ticket_status_id] ?? $reply['short']) . '</span>';
+                    : ($reply_to_row
+                        ? '<span class="text-body-secondary"><i class="fas fa-fw fa-share me-1"></i>To ' . ticketStatusBadgeHtml($reply_to_row['ticket_status_name'], $reply_to_row['ticket_status_color']) . '</span>'
+                        : '<span class="text-body-secondary"><i class="fas fa-fw ' . $reply['icon'] . ' me-1"></i>' . ([TICKET_STATUS_NEW => 'Opens it', TICKET_STATUS_OPEN => 'Stays Open', TICKET_STATUS_RESOLVED => 'Reopens it'][$ticket_status_id] ?? $reply['short']) . '</span>');
+                $first_response = TICKET_STATUS_FIRST_RESPONSE[intval($row['ticket_status_first_response'] ?? 0)] ?? TICKET_STATUS_FIRST_RESPONSE[0];
                 ?>
                 <tr data-ticket-status-id="<?= $ticket_status_id ?>">
                     <?php if ($can_reorder) { ?>
@@ -147,6 +153,9 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php if ($about !== '') { ?>
                                     <div class="small text-body-secondary mt-1"><?= escapeHtml($about) ?></div>
                                 <?php } ?>
+                                <?php if ($first_response['short'] !== '') { ?>
+                                    <div class="small text-success-emphasis mt-1" title="An agent moving a ticket into it before anyone has answered meets the SLA's response target"><i class="fas fa-fw fa-comment-dots me-1"></i><?= escapeHtml($first_response['short']) ?></div>
+                                <?php } ?>
                                 <!-- On smaller screens the clock and replies come along under the name -->
                                 <div class="d-lg-none mt-1 small d-flex flex-wrap gap-3">
                                     <span class="d-md-none"><?= $clock_html ?></span>
@@ -163,7 +172,7 @@ $csrf = $_SESSION['csrf_token'];
                         <?php } ?>
                     </td>
                     <td class="d-none d-md-table-cell text-nowrap"><?= $clock_html . $fixed ?></td>
-                    <td class="d-none d-lg-table-cell text-nowrap"><?= $reply_html . $fixed ?></td>
+                    <td class="d-none d-lg-table-cell text-nowrap"><?= $reply_html . ($ticket_status_id === TICKET_STATUS_CLOSED ? $fixed : '') ?></td>
                     <td class="text-end">
                         <div class="dropdown dropstart">
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>

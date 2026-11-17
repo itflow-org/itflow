@@ -3363,6 +3363,7 @@ CREATE TABLE `settings` (
   `config_ticket_ai_triage` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_default_billable` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_timer_autostart` tinyint(1) NOT NULL DEFAULT 0,
+  `config_ticket_assigned_message` text DEFAULT NULL,
   `config_enable_cron` tinyint(1) NOT NULL DEFAULT 1,
   `config_recurring_auto_send_invoice` tinyint(1) NOT NULL DEFAULT 1,
   `config_enable_alert_domain_expire` tinyint(1) NOT NULL DEFAULT 1,
@@ -4109,6 +4110,8 @@ CREATE TABLE `ticket_statuses` (
   `ticket_status_active` tinyint(1) NOT NULL DEFAULT 1,
   `ticket_status_pauses_sla` tinyint(1) NOT NULL DEFAULT 0,
   `ticket_status_client_reply` tinyint(1) NOT NULL DEFAULT 1,
+  `ticket_status_reply_status_id` int(11) NOT NULL DEFAULT 0,
+  `ticket_status_first_response` tinyint(1) NOT NULL DEFAULT 0,
   `ticket_status_order` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ticket_status_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

@@ -159,6 +159,8 @@ function settingsFields() {
         'config_ticket_default_billable' => ['page' => 'ticket', 'section' => 'Time and billing', 'label' => 'New tickets are billable', 'words' => 'billable default bill'] + $on_off,
         'config_ticket_timer_autostart' => ['page' => 'ticket', 'section' => 'Time and billing', 'label' => 'Start the timer on opening a ticket', 'words' => 'timer autostart time tracking'] + $on_off,
         'config_ticket_autoclose_hours' => ['page' => 'ticket', 'section' => 'Closing', 'label' => 'Close resolved tickets after', 'words' => 'auto close autoclose resolved hours'],
+        'config_ticket_assigned_message' => ['page' => 'ticket', 'section' => 'Messages to clients', 'label' => '"Ticket assigned" message', 'kind' => 'long',
+            'words' => 'ticket assigned message email first response sla status template'],
         'config_ticket_new_ticket_notification_email' => ['page' => 'ticket', 'section' => 'New tickets', 'label' => 'Email new tickets to', 'words' => 'new ticket notification email distribution list alert'],
         'config_ticket_ai_triage' => ['page' => 'ticket', 'section' => 'New tickets', 'label' => 'Triage new tickets with AI', 'kind' => 'select', 'options' => 'ai_triage',
             'words' => 'ai artificial intelligence triage category priority automatic sort'],

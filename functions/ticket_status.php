@@ -5,16 +5,19 @@
  * Closed, rows 1-5, which the code relies on) and your own, like Waiting on
  * Vendor or Scheduled. Each has a name, a colour, what it is for, whether
  * the SLA's resolution clock runs in it, what a client's reply does to a
- * ticket in it, and a place in the order the pickers and the board show
+ * ticket in it (back to Open, stay, or move to another status - a "Client
+ * responded" one), whether an agent moving a ticket into it counts as the
+ * first response, and a place in the order the pickers and the board show
  * them in. A status can be switched off - it leaves the pickers and the
  * board - and one of your own deleted; either way the tickets in it can be
  * moved first. Admin > Ticket Statuses (admin/ticket_statuses.php) and its
  * handlers (admin/post/ticket_status.php) are built on these.
  *
  * The built-in five keep their names, stay switched on, and have fixed SLA
- * behaviour (getTicketStatusSlaLock() in functions/app.php) and a fixed
- * answer to a client's reply - back to Open. Their colour, description and
- * place in the order can change.
+ * behaviour (getTicketStatusSlaLock() in functions/app.php). A client's reply
+ * moves a ticket in one back to Open, or to another status picked for it -
+ * never leaves it, and Closed takes no replies. Their colour, description,
+ * place in the order, and - for Open and On Hold - first response can change.
  */
 
 /*
@@ -42,6 +45,21 @@ const TICKET_STATUS_CLIENT_REPLY = [
     0 => ['label' => 'Leave it in this status', 'short' => 'Stays', 'icon' => 'fa-equals'],
 ];
 
+/*
+ * Whether an agent moving a ticket into a status counts as its first response -
+ * 0 no, 1 yes, 2 yes once the client is emailed the "ticket assigned" message
+ * (ticketStatusMovedByAgent()). Not for New, Resolved or Closed.
+ */
+const TICKET_STATUS_FIRST_RESPONSE = [
+    0 => ['label' => 'No - only a reply to the client counts', 'short' => ''],
+    2 => ['label' => 'Yes - after emailing the client that it is assigned', 'short' => 'First response, emails the client'],
+    1 => ['label' => 'Yes - without an email', 'short' => 'First response'],
+];
+
+/** The built-in wording of the "ticket assigned" message - Admin > Settings > Tickets can change it (config_ticket_assigned_message). */
+const TICKET_ASSIGNED_MESSAGE = "Thank you for getting in touch. Your ticket [Ticket] - [Subject] is with [Agent], who will be in touch with you shortly.\n\n"
+    . "If you have anything to add in the meantime, just reply to this email.";
+
 /** Whether the 3.4.0 update has run - ticket_status_description and ticket_status_client_reply. */
 function ticketStatusColumnsReady() {
     static $ready = null;
@@ -51,10 +69,47 @@ function ticketStatusColumnsReady() {
     return $ready;
 }
 
-/** The columns a status row is read with - the 3.4.0 ones only once they are there. */
+/** Whether the 3.7.3 update has run - ticket_status_reply_status_id, ticket_status_first_response and config_ticket_assigned_message. */
+function ticketStatusReplyReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '3.7.3', '>=');
+    }
+    return $ready;
+}
+
+/** The columns a status row is read with - the 3.4.0 and 3.7.3 ones only once they are there. */
 function ticketStatusColumnsSql() {
     return 'ticket_status_id, ticket_status_name, ticket_status_color, ticket_status_active, ticket_status_pauses_sla, ticket_status_order'
-        . (ticketStatusColumnsReady() ? ', ticket_status_description, ticket_status_client_reply' : ", '' AS ticket_status_description, 1 AS ticket_status_client_reply");
+        . (ticketStatusColumnsReady() ? ', ticket_status_description, ticket_status_client_reply' : ", '' AS ticket_status_description, 1 AS ticket_status_client_reply")
+        . (ticketStatusReplyReady() ? ', ticket_status_reply_status_id, ticket_status_first_response' : ', 0 AS ticket_status_reply_status_id, 0 AS ticket_status_first_response');
+}
+
+/*
+ * The statuses a client's reply can move a ticket to - the active ones an
+ * agent can set (not New, Resolved or Closed), other than $except - id => row.
+ */
+function ticketStatusReplyTargets($except = 0) {
+    $targets = [];
+    foreach (ticketStatusesAll() as $id => $row) {
+        if ($id !== intval($except) && intval($row['ticket_status_active']) === 1 && !in_array($id, [TICKET_STATUS_NEW, TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED], true)) {
+            $targets[$id] = $row;
+        }
+    }
+    return $targets;
+}
+
+/** Whether a status can count as the first response - every one but New, Resolved and Closed. */
+function ticketStatusCanBeFirstResponse($ticket_status_id) {
+    $ticket_status_id = intval($ticket_status_id);
+    return $ticket_status_id > 0 && !in_array($ticket_status_id, [TICKET_STATUS_NEW, TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED], true);
 }
 
 /** One status, or null. */
@@ -174,26 +229,38 @@ function ticketStatusMoveTargets($ticket_status_id) {
 
 /*
  * A status's fields from a form - name, color, description, pauses_sla,
- * client_reply and active. A built-in keeps its name, stays on, and has its
- * fixed SLA and client-reply answers whatever was sent.
+ * client_reply ("1" back to Open, "0" stay, "to-<id>" move to that status -
+ * reply_status_id), first_response and active. A built-in keeps its name,
+ * stays on, has its fixed SLA answer, and a reply never leaves it where it is;
+ * Closed takes no replies. Sent no first_response, a status keeps what it had.
  */
 function ticketStatusFromInput(array $in, $row = null) {
     $id = $row ? intval($row['ticket_status_id']) : 0;
     $builtin = $id && ticketStatusIsBuiltIn($id);
     $name = trim(preg_replace('/\s+/u', ' ', strip_tags((string) ($in['name'] ?? ''))));
     $color = categoryColor($in['color'] ?? '');
+    $reply = (string) ($in['client_reply'] ?? '1');
+    $reply_to = preg_match('/^to-(\d+)$/', $reply, $match) ? intval($match[1]) : 0;
     $f = [
         'name' => $builtin ? (string) $row['ticket_status_name'] : mb_substr($name, 0, 200),
         'color' => $color !== '' ? $color : ($row ? ticketStatusColor($row['ticket_status_color']) : CATEGORY_COLORS[0]),
         'description' => mb_substr(trim(preg_replace('/\s+/u', ' ', strip_tags((string) ($in['description'] ?? '')))), 0, 255),
         'pauses_sla' => intval($in['pauses_sla'] ?? 0) === 1 ? 1 : 0,
-        'client_reply' => intval($in['client_reply'] ?? 1) === 0 ? 0 : 1,
+        'client_reply' => $reply === '0' ? 0 : 1,
+        'reply_status_id' => $reply_to && isset(ticketStatusReplyTargets($id)[$reply_to]) ? $reply_to : 0,
+        'first_response' => array_key_exists('first_response', $in) ? intval($in['first_response']) : intval($row['ticket_status_first_response'] ?? 0),
         'active' => array_key_exists('active', $in) ? (intval($in['active']) === 1 ? 1 : 0) : ($row ? intval($row['ticket_status_active']) : 1),
     ];
+    if (!isset(TICKET_STATUS_FIRST_RESPONSE[$f['first_response']]) || ($id && !ticketStatusCanBeFirstResponse($id))) {
+        $f['first_response'] = 0;
+    }
     if ($builtin) {
         $f['pauses_sla'] = intval(getTicketStatusSlaLock($id));
         $f['client_reply'] = 1;
         $f['active'] = 1;
+    }
+    if ($id === TICKET_STATUS_CLOSED) {
+        $f['reply_status_id'] = 0;
     }
     return $f;
 }
@@ -216,7 +283,8 @@ function ticketStatusProblem(array $f, $id = 0) {
 function ticketStatusSetSql(array $f) {
     return "ticket_status_name = '" . escapeSql($f['name']) . "', ticket_status_color = '" . escapeSql($f['color']) . "',
         ticket_status_pauses_sla = {$f['pauses_sla']}, ticket_status_active = {$f['active']}"
-        . (ticketStatusColumnsReady() ? ", ticket_status_description = " . ($f['description'] !== '' ? "'" . escapeSql($f['description']) . "'" : 'NULL') . ", ticket_status_client_reply = {$f['client_reply']}" : '');
+        . (ticketStatusColumnsReady() ? ", ticket_status_description = " . ($f['description'] !== '' ? "'" . escapeSql($f['description']) . "'" : 'NULL') . ", ticket_status_client_reply = {$f['client_reply']}" : '')
+        . (ticketStatusReplyReady() ? ", ticket_status_reply_status_id = " . intval($f['reply_status_id']) . ", ticket_status_first_response = " . intval($f['first_response']) : '');
 }
 
 /** A new status, at the end of the order - its id. */
@@ -253,8 +321,14 @@ function ticketStatusUpdate(array $row, array $f) {
         $changes[] = $f['pauses_sla'] ? 'the resolution clock now pauses' : 'the resolution clock now keeps running';
         ticketStatusSyncClocks($id);
     }
-    if (intval($row['ticket_status_client_reply'] ?? 1) !== $f['client_reply']) {
-        $changes[] = 'a client\'s reply now ' . ($f['client_reply'] ? 'moves the ticket back to Open' : 'leaves the ticket in it');
+    $reply_was = intval($row['ticket_status_reply_status_id'] ?? 0);
+    if (intval($row['ticket_status_client_reply'] ?? 1) !== $f['client_reply'] || $reply_was !== $f['reply_status_id']) {
+        $changes[] = 'a client\'s reply now ' . ($f['reply_status_id'] ? 'moves the ticket to ' . (ticketStatusesAll()[$f['reply_status_id']]['ticket_status_name'] ?? $f['reply_status_id'])
+            : ($f['client_reply'] ? 'moves the ticket back to Open' : 'leaves the ticket in it'));
+    }
+    if (intval($row['ticket_status_first_response'] ?? 0) !== $f['first_response']) {
+        $changes[] = $f['first_response'] ? 'moving a ticket into it counts as the first response' . ($f['first_response'] === 2 ? ', after emailing the client that it is assigned' : '')
+            : 'moving a ticket into it no longer counts as the first response';
     }
     if (intval($row['ticket_status_active']) !== $f['active']) {
         $changes[] = $f['active'] ? 'switched on' : 'switched off';
@@ -340,6 +414,10 @@ function ticketStatusDelete(array $row, $move_to) {
     $moved = $counts['all'] ? ticketStatusMoveTickets($id, $move_to, 'the status was deleted') : 0;
     $canned = ticketStatusCannedCount($id);
     mysqli_query($mysqli, "UPDATE canned_responses SET canned_response_ticket_status = NULL WHERE canned_response_ticket_status = $id");
+    // Statuses a client's reply moved to it go back to what their own setting says
+    if (ticketStatusReplyReady()) {
+        mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_reply_status_id = 0 WHERE ticket_status_reply_status_id = $id");
+    }
     mysqli_query($mysqli, "DELETE FROM ticket_statuses WHERE ticket_status_id = $id");
     ticketStatusesAll(true);
     return [true, $moved, $canned];
@@ -379,12 +457,18 @@ function ticketStatusReorder(array $ids) {
 }
 
 /*
- * The status a ticket goes to when its client replies - back to Open, unless
- * it is in one of your own statuses set to leave it there (Scheduled, say,
- * where a "thanks, see you Tuesday" shouldn't send it back to the queue).
+ * The status a ticket goes to when its client replies - by email, in the
+ * portal or by text: the one its status sends replies to (a "Client
+ * responded" status, say) while that is still in use; else back to Open,
+ * unless it is in one of your own statuses set to leave it there (Scheduled,
+ * say, where a "thanks, see you Tuesday" shouldn't send it back to the queue).
  */
 function ticketStatusAfterClientReply($current_status_id) {
     $current_status_id = intval($current_status_id);
+    $reply_to = intval(ticketStatusesAll()[$current_status_id]['ticket_status_reply_status_id'] ?? 0);
+    if ($reply_to && $current_status_id !== TICKET_STATUS_CLOSED && isset(ticketStatusReplyTargets($current_status_id)[$reply_to])) {
+        return $reply_to;
+    }
     if (ticketStatusIsBuiltIn($current_status_id)) {
         return TICKET_STATUS_OPEN;
     }
@@ -393,4 +477,76 @@ function ticketStatusAfterClientReply($current_status_id) {
         return $current_status_id;
     }
     return TICKET_STATUS_OPEN;
+}
+
+/*
+ * ---------- moving into a status as the first response ----------
+ */
+
+/** The "ticket assigned" message as Admin > Settings > Tickets has it - plain text with placeholders - or the built-in one. */
+function ticketAssignedMessage() {
+    global $mysqli;
+    if (!ticketStatusReplyReady()) {
+        return TICKET_ASSIGNED_MESSAGE;
+    }
+    $text = (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_ticket_assigned_message FROM settings WHERE company_id = 1"))[0] ?? '');
+    return trim($text) !== '' ? $text : TICKET_ASSIGNED_MESSAGE;
+}
+
+/*
+ * An agent moved a ticket from $from_status into $to_status - set by hand, in
+ * a reply, by assigning it, or as it was made. When $to_status counts as the
+ * first response (ticket_status_first_response) and nobody has answered the
+ * client yet, it is recorded as the first response (setTicketFirstResponse(),
+ * met or missed against the response target). When the status says so, the
+ * client is emailed the "ticket assigned" message first - kept on the ticket
+ * as a public note - and it only counts once someone got it. A client's own
+ * reply moving the ticket is not this. Whether it counted.
+ */
+function ticketStatusMovedByAgent($ticket_id, $from_status, $to_status) {
+    global $mysqli, $session_user_id, $session_name, $config_ticket_client_general_notifications;
+    $ticket_id = intval($ticket_id);
+    $to_status = intval($to_status);
+    if (!$ticket_id || intval($from_status) === $to_status || !ticketStatusReplyReady() || !ticketStatusCanBeFirstResponse($to_status)) {
+        return false;
+    }
+    $mode = intval(ticketStatusesAll()[$to_status]['ticket_status_first_response'] ?? 0);
+    if (!$mode) {
+        return false;
+    }
+    $ticket = ticketRow($ticket_id);
+    if (!$ticket || !empty($ticket['ticket_first_response_at']) || !empty($ticket['ticket_resolved_at']) || !empty($ticket['ticket_closed_at'])
+        || intval($ticket['ticket_status']) !== $to_status) {
+        return false;
+    }
+    $status_name = escapeSql((string) $ticket['ticket_status_name']);
+
+    if ($mode === 2) {
+        // The message as a public note - from whoever moved it - then to the contact and watchers
+        $agent_name = intval($ticket['ticket_assigned_to']) ? stripslashes((string) $ticket['user_name']) : '';
+        $html = cannedResponsePlaceholders(nl2br(escapeHtml(trim(ticketAssignedMessage()))), $ticket_id, $agent_name !== '' ? $agent_name : 'our team');
+        $by = intval($session_user_id ?? 0) ?: intval($ticket['ticket_assigned_to']);
+        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '" . mysqli_real_escape_string($mysqli, $html) . "', ticket_reply_type = 'Public',
+            ticket_reply_time_worked = '00:00:00', ticket_reply_by = $by, ticket_reply_ticket_id = $ticket_id");
+        $reply_id = intval(mysqli_insert_id($mysqli));
+        $sent = 0;
+        if (intval($config_ticket_client_general_notifications) === 1) {
+            $sent = ticketMailSend($ticket_id, ($agent_name !== '' ? 'Ticket assigned' : 'Ticket update') . " - [" . ticketReference($ticket) . "] - " . $ticket['ticket_subject'],
+                ticketEmailContent($ticket, 'assigned', ['message' => $html, 'agent' => $agent_name]), ['ticket_reply_id' => $reply_id]);
+        }
+        if ($sent < 1) {
+            // Nobody got it - a note saying they were told would be wrong
+            mysqli_query($mysqli, "DELETE FROM ticket_replies WHERE ticket_reply_id = $reply_id");
+            logTicketHistory($ticket_id, "Moved to $status_name, but the client could not be emailed that it is assigned - the response target is still open");
+            return false;
+        }
+        ticketReplyEmailed($reply_id, true);
+        setTicketFirstResponse($ticket_id);
+        logTicketHistory($ticket_id, "The client was told it is assigned ($sent emailed) - moving to $status_name counts as the first response");
+        return true;
+    }
+
+    setTicketFirstResponse($ticket_id);
+    logTicketHistory($ticket_id, "Moving to $status_name counts as the first response");
+    return true;
 }

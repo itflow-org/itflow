@@ -69,6 +69,18 @@ echo settingsPageStart('ticket');
                 <?php } ?>
             <?= settingsSectionEnd() ?>
 
+            <?php if (ticketStatusReplyReady()) {
+                // The statuses that send it now (Admin > Ticket Statuses)
+                $assigned_sent_by = array_column(array_filter(ticketStatusesAll(), function ($status) {
+                    return intval($status['ticket_status_first_response']) === 2 && intval($status['ticket_status_active']) === 1;
+                }), 'ticket_status_name'); ?>
+                <?= settingsSectionStart('messages', 'Messages to clients', 'Sent for you as a ticket moves along. Words in square brackets are filled in from the ticket - <code>[Ticket]</code>, <code>[Subject]</code>, <code>[Contact]</code>, <code>[First Name]</code>, <code>[Client]</code>, <code>[Agent]</code>, <code>[Ticket Link]</code>, <code>[Date]</code> and the others canned responses take. The email greets each person by name, so the message needn\'t.', 'messages') ?>
+                    <?= settingsTextarea('config_ticket_assigned_message', ticketAssignedMessage(), ['rows' => 5, 'maxlength' => 5000,
+                        'help' => 'Emailed to the contact and watchers when an agent moves a ticket nobody has answered yet into a status that counts as the first response by emailing the client - set in <a href="ticket_statuses.php">Ticket Statuses</a>. It is kept on the ticket as a public note. <code>[Agent]</code> is who it is assigned to. '
+                            . ($assigned_sent_by ? 'Sent on moving into <strong>' . escapeHtml(implode(', ', $assigned_sent_by)) . '</strong>.' : 'No status sends it yet.')]) ?>
+                <?= settingsSectionEnd() ?>
+            <?php } ?>
+
             <?= settingsSectionStart('closing', 'Closing', 'A resolved ticket waits for the client to say it isn\'t, then closes by itself, each night.') ?>
                 <?= settingsInput('config_ticket_autoclose_hours', intval($config_ticket_autoclose_hours), ['icon' => 'fa-clock', 'type' => 'number', 'min' => 24, 'max' => 8760, 'required' => true,
                     'suffix' => 'hours', 'help' => 'From when it was last changed. 72 is three days.']) ?>

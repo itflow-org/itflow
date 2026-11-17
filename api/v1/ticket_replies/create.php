@@ -113,6 +113,8 @@ if (!empty($ticket_id) && !empty($reply)) {
                 if ($reply_ticket_status !== $original_ticket_status && $reply_ticket_status != 4) {
                     $new_status_name = escapeSql(getTicketStatusName($reply_ticket_status));
                     logTicketHistory($ticket_id, "Status set to $new_status_name via the API ($api_key_name)");
+                    // A status that counts as the first response (functions/ticket_status.php)
+                    ticketStatusMovedByAgent($ticket_id, $original_ticket_status, $reply_ticket_status);
                 }
 
                 // Resolve the ticket, if it is actually moving into Resolved
