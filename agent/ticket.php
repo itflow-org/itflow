@@ -571,13 +571,26 @@ if (isset($_GET['ticket_id'])) {
                                             </button>
                                         </span>
                                     <?php } else { ?>
-                                        <a href="post.php?resolve_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                            class="btn btn-success confirm-link" id="ticket_close" data-ticket-resolve
-                                            data-confirm-title="Resolve this ticket?"
-                                            data-confirm-text="<?= $resolve_confirm_text ?>"
-                                            data-confirm-button="Resolve">
-                                            <i class="fas fa-fw fa-check me-2"></i>Resolve
-                                        </a>
+                                        <!-- Resolve, and beside it the other way to resolve: for a client who never answered. The group is
+                                             what a task ticked off swaps in (data-ticket-resolve, the script at the end) -->
+                                        <div class="btn-group" data-ticket-resolve>
+                                            <a href="post.php?resolve_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                class="btn btn-success confirm-link" id="ticket_close"
+                                                data-confirm-title="Resolve this ticket?"
+                                                data-confirm-text="<?= $resolve_confirm_text ?>"
+                                                data-confirm-button="Resolve">
+                                                <i class="fas fa-fw fa-check me-2"></i>Resolve
+                                            </a>
+                                            <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" title="More ways to resolve">
+                                                <span class="visually-hidden">More ways to resolve</span>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_resolve_no_response.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
+                                                    <i class="fas fa-fw fa-comment-slash me-2"></i>Resolve - no response...
+                                                    <div class="small text-body-secondary ms-4">Tell a client who never answered, and close without asking how we did</div>
+                                                </a>
+                                            </div>
+                                        </div>
                                     <?php } ?>
                                 <?php } ?>
 

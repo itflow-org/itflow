@@ -78,6 +78,10 @@ echo settingsPageStart('ticket');
                     <?= settingsTextarea('config_ticket_assigned_message', ticketAssignedMessage(), ['rows' => 5, 'maxlength' => 5000,
                         'help' => 'Emailed to the contact and watchers when an agent moves a ticket nobody has answered yet into a status that counts as the first response by emailing the client - set in <a href="ticket_statuses.php">Ticket Statuses</a>. It is kept on the ticket as a public note. <code>[Agent]</code> is who it is assigned to. '
                             . ($assigned_sent_by ? 'Sent on moving into <strong>' . escapeHtml(implode(', ', $assigned_sent_by)) . '</strong>.' : 'No status sends it yet.')]) ?>
+                    <?php if (ticketNoResponseReady()) { ?>
+                        <?= settingsTextarea('config_ticket_no_response_message', ticketNoResponseMessage(), ['rows' => 7, 'maxlength' => 5000,
+                            'help' => 'For a client who never answered: the arrow beside a ticket\'s Resolve button has <strong>Resolve - no response</strong>, which sends this - changed for the ticket first, if need be - in place of the usual "resolved" words, resolves it, and closes it later without asking how we did. <code>[Agent]</code> is whoever sends it.']) ?>
+                    <?php } ?>
                 <?= settingsSectionEnd() ?>
             <?php } ?>
 

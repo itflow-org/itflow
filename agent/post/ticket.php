@@ -1533,6 +1533,37 @@ if (isset($_GET['resolve_ticket'])) {
 
 }
 
+if (isset($_POST['resolve_ticket_no_response'])) {
+
+    validateCSRFToken();
+
+    // For a client who never answered - functions/ticket.php, ticketResolveNoResponse()
+    $row = ticketForRequest($_POST['ticket_id'] ?? 0, 2);
+    $ticket_id = intval($row['ticket_id']);
+
+    if (!ticketIsOpen($row)) {
+        flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> is resolved or closed already.", 'error');
+        redirect();
+    }
+    $open_tasks = ticketOpenTaskCount($ticket_id);
+    if ($open_tasks) {
+        flashAlert("Finish the <strong>$open_tasks</strong> open task" . ($open_tasks === 1 ? '' : 's') . " before resolving this ticket.", 'error');
+        redirect();
+    }
+    $message = mb_substr(trim(str_replace("\r\n", "\n", (string) ($_POST['message'] ?? ''))), 0, 5000);
+    if ($message === '') {
+        flashAlert('Write the message to the client first.', 'error');
+        redirect();
+    }
+
+    $sent = ticketResolveNoResponse($row, $message);
+
+    flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> resolved - no response" . ($sent ? ", and the message emailed to <strong>$sent</strong> " . ($sent === 1 ? 'person' : 'people') : ' - the message is on the ticket, not emailed'));
+
+    redirect();
+
+}
+
 if (isset($_GET['close_ticket'])) {
 
     validateCSRFToken();

@@ -22,7 +22,7 @@ if (isset($_POST['edit_ticket_settings'])) {
         'config_ticket_new_ticket_notification_email', 'config_ticket_timer_autostart', 'config_ticket_default_billable', 'config_ticket_autoclose_hours',
         'config_ticket_default_view', 'config_ticket_ordering', 'config_ticket_moving_columns'], aiTriageReady() ? ['config_ticket_ai_triage'] : [],
         settingsColumnExists($mysqli, 'config_ticket_sms_parse') ? ['config_ticket_sms_parse', 'config_ticket_sms_unknown_senders', 'config_ticket_sms_acknowledge'] : [],
-        ticketStatusReplyReady() ? ['config_ticket_assigned_message'] : []));
+        ticketStatusReplyReady() ? ['config_ticket_assigned_message'] : [], ticketNoResponseReady() ? ['config_ticket_no_response_message'] : []));
 
     // What was sent, and what is saved for anything that wasn't - a switch not sent is off
     $in = $_POST + array_map(function ($value) { return (string) $value; }, $before);
@@ -48,10 +48,12 @@ if (isset($_POST['edit_ticket_settings'])) {
     if ($config_module_enable_accounting) {
         $after['config_ticket_default_billable'] = empty($_POST['config_ticket_default_billable']) ? 0 : 1;
     }
-    // The "ticket assigned" message - the built-in wording sent back as it is, or nothing, is kept as none, so it follows that wording
-    if (array_key_exists('config_ticket_assigned_message', $before) && isset($_POST['config_ticket_assigned_message'])) {
-        $message = mb_substr(trim(str_replace("\r\n", "\n", (string) $_POST['config_ticket_assigned_message'])), 0, 5000);
-        $after['config_ticket_assigned_message'] = $message === '' || $message === TICKET_ASSIGNED_MESSAGE ? null : $message;
+    // The messages to clients - the built-in wording sent back as it is, or nothing, is kept as none, so it follows that wording
+    foreach (['config_ticket_assigned_message' => TICKET_ASSIGNED_MESSAGE, 'config_ticket_no_response_message' => TICKET_NO_RESPONSE_MESSAGE] as $message_setting => $built_in) {
+        if (array_key_exists($message_setting, $before) && isset($_POST[$message_setting])) {
+            $message = mb_substr(trim(str_replace("\r\n", "\n", (string) $_POST[$message_setting])), 0, 5000);
+            $after[$message_setting] = $message === '' || $message === $built_in ? null : $message;
+        }
     }
 
     if ($problem = settingsEmailProblem($after['config_ticket_new_ticket_notification_email'])) {

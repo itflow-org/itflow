@@ -447,7 +447,8 @@ function ticketEmailExcerpt($html, $limit = 700) {
  * each. $row is ticketRow(). $kind and its $opts:
  *   created   it was opened - how: agent (the default), email (the reply to an emailed one) or scheduled
  *   reply     an agent's reply - message (its HTML), by (who wrote it)
- *   resolved  marked resolved, pending closure - message (the agent's note, HTML, or ''), by
+ *   resolved  marked resolved, pending closure - message (the agent's note, HTML, or ''), by,
+ *             no_response (true: the message is the email - Resolve - no response)
  *   closed    closed - asking how we did
  *   watcher   they were made a watcher - by (who added them)
  *   assigned  an agent picked it up - message (the "ticket assigned" words, HTML), agent (who has it, or '')
@@ -507,6 +508,13 @@ function ticketEmailContent(array $row, $kind, array $opts = []) {
         // Resolved from the button or the board there is no note - the conversation says what was done
         $email['history'] = ticketEmailHistory($row, ['skip' => (string) ($opts['message'] ?? ''),
             'label' => emailPlainText($opts['message'] ?? '') !== '' ? 'Earlier on this ticket' : 'The conversation']);
+        // Resolve - no response: the agent's message is the email, in place of its usual words
+        if (!empty($opts['no_response'])) {
+            $email['intro'] = [];
+            $email['content'] = (string) ($opts['message'] ?? '');
+            unset($email['message']);
+            $email['history'] = [];
+        }
     } elseif ($kind === 'closed') {
         $email['marker'] = false;
         $email['kind'] = 'Closed';
@@ -1264,6 +1272,87 @@ function ticketResolve($row, $how = '') {
     triggerCustomAction('ticket_resolve', $ticket_id);
 }
 
+/*
+ * ---------- Resolve - no response ----------
+ * For the client who never answers after several tries: a message saying so
+ * goes on the ticket as a public note and in the resolved email, in place of
+ * its usual words, and the ticket is resolved. It closes as usual, but asks
+ * them nothing as it does (ticketMailClosed()). A reply before then reopens
+ * it as any reply does.
+ */
+
+/** The built-in wording - Admin > Settings > Tickets can change it (config_ticket_no_response_message). */
+const TICKET_NO_RESPONSE_MESSAGE = "We have tried to reach you a few times about this ticket but have not heard back, so we are marking it resolved for now.\n\n"
+    . "If you still need help, just reply to this email and we will pick it up again.\n\nThank you,\n[Agent]";
+
+/** Whether the 3.7.4 update has run - tickets.ticket_no_response_at and config_ticket_no_response_message. */
+function ticketNoResponseReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '3.7.4', '>=');
+    }
+    return $ready;
+}
+
+/** The message as Admin > Settings > Tickets has it - plain text with placeholders - or the built-in one. */
+function ticketNoResponseMessage() {
+    global $mysqli;
+    if (!ticketNoResponseReady()) {
+        return TICKET_NO_RESPONSE_MESSAGE;
+    }
+    $text = (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_ticket_no_response_message FROM settings WHERE company_id = 1"))[0] ?? '');
+    return trim($text) !== '' ? $text : TICKET_NO_RESPONSE_MESSAGE;
+}
+
+/** The message filled in for a ticket, as plain text for the agent to change - [Agent] is $agent_name, the one sending it. */
+function ticketNoResponseText($ticket_id, $agent_name) {
+    $html = cannedResponsePlaceholders(nl2br(escapeHtml(trim(ticketNoResponseMessage())), false), $ticket_id, $agent_name);
+    return html_entity_decode(strip_tags(str_replace('<br>', '', $html)), ENT_QUOTES, 'UTF-8');
+}
+
+/** Whether a ticket was resolved as "no response" - this resolution, not an earlier one it was reopened from. $row is ticketRow(). */
+function ticketIsNoResponse(array $row) {
+    return !empty($row['ticket_no_response_at']) && (string) $row['ticket_no_response_at'] === (string) ($row['ticket_resolved_at'] ?? '');
+}
+
+/*
+ * Resolve $row (ticketForRequest()) as "no response": $message - plain text,
+ * as the agent left it - as a public note, the ticket resolved
+ * (ticketResolve()), and when client notifications are on the resolved
+ * email to the contact and watchers saying it in place of its usual words.
+ * The caller has checked it may be resolved. How many were emailed.
+ */
+function ticketResolveNoResponse(array $row, $message) {
+    global $mysqli, $session_user_id, $session_name, $config_ticket_client_general_notifications;
+    $ticket_id = intval($row['ticket_id']);
+    $html = nl2br(escapeHtml(trim((string) $message)), false);
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '" . mysqli_real_escape_string($mysqli, $html) . "', ticket_reply_type = 'Public',
+        ticket_reply_time_worked = '00:00:00', ticket_reply_by = " . intval($session_user_id) . ", ticket_reply_ticket_id = $ticket_id");
+    $reply_id = intval(mysqli_insert_id($mysqli));
+
+    // Resolved first, so the email says Resolved
+    ticketResolve($row, ' - no response from the client');
+    if (ticketNoResponseReady()) {
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_no_response_at = ticket_resolved_at WHERE ticket_id = $ticket_id");
+    }
+
+    $sent = 0;
+    $ticket = ticketRow($ticket_id);
+    if ($ticket && intval($config_ticket_client_general_notifications) === 1) {
+        $sent = ticketMailSend($ticket_id, "Ticket resolved - [" . ticketReference($ticket) . "] - " . $ticket['ticket_subject'] . " | (pending closure)",
+            ticketEmailContent($ticket, 'resolved', ['message' => $html, 'by' => stripslashes((string) ($session_name ?? '')), 'no_response' => true]), ['ticket_reply_id' => $reply_id]);
+    }
+    ticketReplyEmailed($reply_id, $sent > 0);
+    return $sent;
+}
+
 /** Bring a resolved (not closed) ticket back into a working status. The caller has checked it may be. */
 function ticketReopen($row, $status_id = TICKET_STATUS_OPEN, $how = '') {
     global $mysqli, $session_name;
@@ -1278,10 +1367,10 @@ function ticketReopen($row, $status_id = TICKET_STATUS_OPEN, $how = '') {
     triggerCustomAction('ticket_update', $ticket_id);
 }
 
-/** The "your ticket is closed" email - to its contact and watchers, asking how we did. */
+/** The "your ticket is closed" email - to its contact and watchers, asking how we did. Not for one resolved as "no response". */
 function ticketMailClosed($ticket_id) {
     $row = ticketRow($ticket_id);
-    if (!$row) {
+    if (!$row || ticketIsNoResponse($row)) {
         return 0;
     }
     return ticketMailSend($row['ticket_id'], "Ticket closed - [" . ticketReference($row) . "] - " . $row['ticket_subject'] . " | (do not reply)",
