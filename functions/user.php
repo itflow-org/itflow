@@ -221,6 +221,26 @@ function userSessionStamp($password_hash) {
     return hash('sha256', 'itflow-session|' . (string) $password_hash);
 }
 
+/*
+ * The agent signed in to ITFlow in this browser - their user id, or 0. For the pages anyone with
+ * the link can open (guest/), to tell an agent looking - View as Client - from the client. Their
+ * session counts only as an agent page would take it (includes/load_user_session.php): an active
+ * agent, whose password hasn't changed since.
+ */
+function userSignedInAgent() {
+    global $mysqli;
+    if (session_status() !== PHP_SESSION_ACTIVE || empty($_SESSION['logged']) || !intval($_SESSION['user_id'] ?? 0)) {
+        return 0;
+    }
+    $user_id = intval($_SESSION['user_id']);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_password FROM users
+        WHERE user_id = $user_id AND user_type = 1 AND user_status = 1 AND user_archived_at IS NULL LIMIT 1"));
+    if (!$row || !hash_equals(userSessionStamp($row['user_password']), (string) ($_SESSION['user_session_stamp'] ?? ''))) {
+        return 0;
+    }
+    return $user_id;
+}
+
 /**
  * Keep this browser signed in when the password just changed is its own user's - a new
  * session id, and the stamp of the new hash. Every other session of theirs still ends.

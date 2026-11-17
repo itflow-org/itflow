@@ -2541,7 +2541,8 @@ function billingPdfSend(array $pdf, $download = false) {
  * portal ($who, the contact): a sent one becomes viewed, the view goes in
  * its history (where from, in plain text), and the agents hear about it
  * while it still matters - an invoice not yet paid, a quote not yet
- * answered.
+ * answered. Not when its link is opened in a browser signed in to ITFlow as
+ * an agent - View as Client (userSignedInAgent()).
  */
 function billingGuestViewed($type, array $row, $who = '') {
     global $mysqli;
@@ -2551,6 +2552,11 @@ function billingGuestViewed($type, array $row, $who = '') {
     $status = (string) $row["{$c}_status"];
     $number = billingNumber($type, $row);
     $who = trim((string) $who);
+
+    // An agent looking from its link - View as Client - isn't the client viewing it
+    if ($who === '' && userSignedInAgent()) {
+        return;
+    }
 
     if ($status === 'Sent') {
         mysqli_query($mysqli, "UPDATE {$t['table']} SET {$c}_status = 'Viewed' WHERE {$c}_id = $id AND {$c}_status = 'Sent'");
