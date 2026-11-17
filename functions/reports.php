@@ -6,7 +6,7 @@
  * What the report pages share: the catalogue (which reports there are and who
  * may open each - the side menu and the Reports home page are both drawn from
  * it), the period picker, number formatting, the strip of figures along the
- * top of a report, charts, tables and CSV export.
+ * top of a report, charts, tables and their export to CSV or PDF.
  *
  * A report page reads:
  *
@@ -14,7 +14,7 @@
  *     reportEnforce('ticket_summary');                // may open this one
  *     $period = reportPeriod('last_12');
  *     ... queries, into rows ...
- *     if (reportExporting()) {                         // ?export=csv
+ *     if (reportExporting()) {                         // ?export=csv or ?export=pdf
  *         reportCsv('Tickets', $columns, $rows);       // sends the file and stops
  *     }
  *     require_once "includes/inc_report_layout.php";
@@ -967,17 +967,24 @@ function reportTable(array $columns, array $rows, array $options = []) {
  * ---------- export ----------
  */
 
-/** Is this a request for the CSV (?export=csv)? $table names one of several tables on the page. */
+/** Is this a request for a table's file (?export=csv or pdf)? $table names one of several tables on the page. */
 function reportExporting($table = null) {
-    if (($_GET['export'] ?? '') !== 'csv') {
+    if (!in_array($_GET['export'] ?? '', ['csv', 'pdf'], true)) {
         return false;
     }
     return $table === null || ($_GET['table'] ?? '') === $table;
 }
 
-/** Send rows as a CSV file and stop. Numbers go out bare; text is guarded against formulas. */
+/**
+ * Send rows as a CSV file and stop - or as a PDF, for ?export=pdf (reportPdf()).
+ * Numbers go out bare; text is guarded against formulas.
+ */
 function reportCsv($name, array $columns, array $rows, array $totals = null) {
     global $session_name;
+
+    if (($_GET['export'] ?? '') === 'pdf') {
+        reportPdf($name, $columns, $rows, $totals);
+    }
 
     $columns = array_filter($columns, function ($column) {
         return ($column['csv'] ?? true) !== false;
@@ -1027,6 +1034,82 @@ function reportCsv($name, array $columns, array $rows, array $totals = null) {
     header('Content-Disposition: attachment; filename="' . sanitizeFilename($name . '-' . date('Y-m-d') . '.csv') . '"');
     fpassthru($out);
     fclose($out);
+    exit;
+}
+
+/**
+ * Send rows as a PDF table and stop - laid out like ITFlow's other PDF exports
+ * (finishExport()). It is for reading, so it has the columns the page shows,
+ * each cell as the page words it, then the totals. A table too long for a PDF
+ * goes back to the report with a note to export it to CSV.
+ */
+function reportPdf($name, array $columns, array $rows, array $totals = null) {
+    global $session_name;
+
+    $columns = array_filter($columns, function ($column) {
+        return ($column['screen'] ?? true) !== false;
+    });
+    $data_rows = count(array_filter($rows, function ($row) { return !isset($row['_heading']); }));
+    if ($data_rows > EXPORT_PDF_MAX_ROWS) {
+        flashAlert("That's " . number_format($data_rows) . " rows - too many for a PDF. Narrow the filters or export to CSV instead.", 'error');
+        redirect(reportUrl(['export' => null, 'table' => null]));
+    }
+
+    // Numbers and dates take less room than names and notes
+    $weights = [];
+    foreach ($columns as $key => $column) {
+        $weights[$key] = reportColumnIsNumber($column) || ($column['type'] ?? '') === 'date' ? 1
+            : (strpos($column['class'] ?? '', 'itflow-report-text') !== false ? 2.5 : 1.6);
+    }
+    $export = ['columns' => [], 'widths' => [], 'rows' => $data_rows, 'body' => '', 'missing' => [], 'format' => 'pdf',
+        'title' => $name, 'subtitle' => '', 'filename' => sanitizeFilename($name . '-' . date('Y-m-d') . '.pdf')];
+    foreach ($columns as $key => $column) {
+        $label = $column['csv_label'] ?? $column['label'];
+        if (($column['type'] ?? '') === 'hours' && stripos($label, 'hour') === false) {
+            $label .= ' (hours)';
+        }
+        $export['columns'][$key] = ['label' => $label];
+        $export['widths'][$key] = round($weights[$key] / array_sum($weights) * 100, 2);
+    }
+
+    $cell = function (array $column, $key, $row, $bold = false) use ($export) {
+        $value = isset($column['csv']) && is_callable($column['csv']) ? $column['csv']($row) : ($row[$key] ?? null);
+        $text = escapeHtml(reportCellText($column, $value));
+        return '<td width="' . $export['widths'][$key] . '%" align="' . (reportColumnIsNumber($column) ? 'right' : 'left') . '">' . ($bold ? "<b>$text</b>" : $text) . '</td>';
+    };
+    $i = 0;
+    foreach ($rows as $row) {
+        if (isset($row['_heading'])) {
+            $export['body'] .= '<tr bgcolor="#e9ecef"><td colspan="' . count($columns) . '"><b>' . escapeHtml($row['_heading']) . '</b></td></tr>';
+            continue;
+        }
+        $export['body'] .= '<tr' . (++$i % 2 === 0 ? ' bgcolor="#f4f4f4"' : '') . '>';
+        foreach ($columns as $key => $column) {
+            $export['body'] .= $cell($column, $key, $row);
+        }
+        $export['body'] .= '</tr>';
+    }
+    if ($totals) {
+        $export['body'] .= '<tr>';
+        $first = true;
+        foreach ($columns as $key => $column) {
+            // A total is its value as given - a column's csv function reads a row's fields, which the totals don't have
+            unset($column['csv']);
+            if ($first) {
+                $export['body'] .= $cell(['type' => 'text'] + $column, $key, [$key => $totals[$key] ?? 'Total'], true);
+            } elseif (array_key_exists($key, $totals)) {
+                $export['body'] .= $cell($column, $key, $totals, true);
+            } else {
+                $export['body'] .= '<td width="' . $export['widths'][$key] . '%"></td>';
+            }
+            $first = false;
+        }
+        $export['body'] .= '</tr>';
+    }
+
+    // $session_name is SQL-safe already - see reportCsv()
+    logAudit('Report', 'Export', "$session_name exported the " . escapeSql($name) . " report as a PDF");
+    finishExport($export);
     exit;
 }
 
@@ -1171,7 +1254,7 @@ function reportSegmentControl($name, $value, array $choices, $col = 'col-auto') 
  *   'agent'    the agent picked, to draw the agent picker (null: none)
  *   'controls' more filter controls, HTML, in the same form
  *   'subtitle' what shows beside the name (default: the dates)
- *   'export'   false for no CSV; or [table => label] for a choice of tables
+ *   'export'   false for no export; or [table => label] for a choice of tables, each as CSV or PDF
  *   'client_required' the client picker asks for a client rather than offering all
  *   'note'     replaces the description line
  *   'actions'  more buttons beside Export and Print, HTML
@@ -1185,14 +1268,20 @@ function reportHeader($key, array $options = []) {
     $period = $options['period'] ?? null;
     $subtitle = $options['subtitle'] ?? ($period ? $period['range'] : (isset($options['year']) ? (string) $options['year'][0] : ''));
 
+    // Export is a menu: CSV and PDF, or each of the tables under CSV and again under PDF
     $export = $options['export'] ?? true;
     $export_html = '';
-    if ($export === true) {
-        $export_html = '<a class="btn btn-outline-light" href="' . escapeHtml(reportUrl(['export' => 'csv'])) . '"><i class="fas fa-fw fa-file-csv"></i><span class="d-none d-md-inline ms-2">Export</span></a>';
-    } elseif (is_array($export) && $export) {
-        $export_html = '<div class="dropdown"><button type="button" class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-fw fa-file-csv"></i><span class="d-none d-md-inline ms-2">Export</span></button><div class="dropdown-menu dropdown-menu-end">';
-        foreach ($export as $table => $label) {
-            $export_html .= '<a class="dropdown-item" href="' . escapeHtml(reportUrl(['export' => 'csv', 'table' => $table])) . '"><i class="fas fa-fw fa-file-csv me-2"></i>' . escapeHtml($label) . '</a>';
+    if ($export === true || (is_array($export) && $export)) {
+        $export_html = '<div class="dropdown"><button type="button" class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-fw fa-download"></i><span class="d-none d-md-inline ms-2">Export</span></button><div class="dropdown-menu dropdown-menu-end">';
+        foreach (['csv' => 'CSV', 'pdf' => 'PDF'] as $format => $format_label) {
+            if ($export === true) {
+                $export_html .= '<a class="dropdown-item" href="' . escapeHtml(reportUrl(['export' => $format])) . '"><i class="fas fa-fw fa-file-' . $format . ' me-2"></i>' . $format_label . '</a>';
+                continue;
+            }
+            $export_html .= ($format === 'pdf' ? '<div class="dropdown-divider"></div>' : '') . '<h6 class="dropdown-header">' . $format_label . '</h6>';
+            foreach ($export as $table => $label) {
+                $export_html .= '<a class="dropdown-item" href="' . escapeHtml(reportUrl(['export' => $format, 'table' => $table])) . '"><i class="fas fa-fw fa-file-' . $format . ' me-2"></i>' . escapeHtml($label) . '</a>';
+            }
         }
         $export_html .= '</div></div>';
     }
