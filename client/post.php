@@ -181,10 +181,15 @@ if (isset($_POST['add_ticket_comment'])) {
         $original_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_status FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
         $original_ticket_status = intval($original_row['ticket_status'] ?? 0);
 
-        // Back to Open - unless it is in a status of your own set to stay put when the client replies (Scheduled, say)
+        // Back to Open - unless it is in a status of your own set to stay put when the client replies (Scheduled, say).
+        // A resolved ticket is reopened - its resolved time goes and the resolution clock runs again, as by email.
         $new_ticket_status = ticketStatusAfterClientReply($original_ticket_status);
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $new_ticket_status WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id LIMIT 1");
+        $reopen = $original_ticket_status === TICKET_STATUS_RESOLVED;
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $new_ticket_status" . ($reopen ? ", ticket_resolved_at = NULL" : "") . " WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id LIMIT 1");
         syncTicketSlaClock($ticket_id);
+        if ($reopen) {
+            resetTicketResolutionSla($ticket_id);
+        }
 
         // Only record the reopen when the ticket was not already open
         if ($original_ticket_status !== $new_ticket_status) {
@@ -400,6 +405,13 @@ if (isset($_GET['resolve_ticket'])) {
     // Verify the contact has access to the provided ticket ID
     if (verifyContactTicketAccess($ticket_id, "Open")) {
 
+        // Only a ticket that isn't resolved yet, with its tasks done - as its page offers
+        $resolvable = mysqli_fetch_row(mysqli_query($mysqli, "SELECT ticket_resolved_at FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
+        if (!$resolvable || $resolvable[0] !== null || ticketOpenTaskCount($ticket_id)) {
+            flashAlert("This ticket can't be resolved yet", 'error');
+            redirect("ticket.php?id=" . $ticket_id);
+        }
+
         // Resolve the ticket
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id");
         setTicketResolutionSlaMet($ticket_id);
@@ -475,6 +487,13 @@ if (isset($_GET['close_ticket'])) {
 
     // Verify the contact has access to the provided ticket ID
     if (verifyContactTicketAccess($ticket_id, "Open")) {
+
+        // Only a resolved ticket closes - as its page offers
+        $closable = mysqli_fetch_row(mysqli_query($mysqli, "SELECT ticket_resolved_at FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
+        if (!$closable || $closable[0] === null) {
+            flashAlert("Only a resolved ticket can be closed", 'error');
+            redirect("ticket.php?id=" . $ticket_id);
+        }
 
         // Fully close ticket
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id");

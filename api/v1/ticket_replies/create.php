@@ -34,6 +34,8 @@ require_once '../validate_api_key.php';
 
 require_once '../require_post_method.php';
 
+require_once '../form_input.php';
+
 // Ticket/mail settings for public reply notifications
 require_once "../../../includes/load_global_settings.php";
 
@@ -62,6 +64,18 @@ if (!empty($ticket_id) && !empty($reply)) {
         $ticket_row = null;
     }
 
+    // As on the ticket page: a closed ticket takes no replies, a reply sets only a status a reply may (not New or
+    // Closed, which ITFlow sets, nor one that doesn't exist), and resolves only once its tasks are done
+    if ($ticket_row && ($ticket_row['ticket_closed_at'] !== null || intval($ticket_row['ticket_status']) === TICKET_STATUS_CLOSED)) {
+        apiFormRefuse('That ticket is closed - it takes no replies');
+    }
+    if ($ticket_row && !empty($reply_ticket_status) && !in_array($reply_ticket_status, ticketReplyStatuses($ticket_row['ticket_status']), true)) {
+        apiFormRefuse('ticket_status must be the id of an active status a reply may set - not New or Closed');
+    }
+    if ($ticket_row && $reply_ticket_status === TICKET_STATUS_RESOLVED && intval($ticket_row['ticket_status']) !== TICKET_STATUS_RESOLVED && ticketOpenTaskCount($ticket_id)) {
+        apiFormRefuse("The ticket's tasks aren't all done - it can't be resolved yet");
+    }
+
     if ($ticket_row) {
 
         $ticket_prefix = escapeSql($ticket_row['ticket_prefix']);
@@ -86,7 +100,13 @@ if (!empty($ticket_id) && !empty($reply)) {
 
             // Optional status change alongside the reply
             if (!empty($reply_ticket_status)) {
-                mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $reply_ticket_status WHERE ticket_id = $ticket_id LIMIT 1");
+                // Out of Resolved into a working status is a reopen - the resolved time goes and the resolution clock runs again
+                $reopen = $original_ticket_status === TICKET_STATUS_RESOLVED && $reply_ticket_status !== TICKET_STATUS_RESOLVED;
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $reply_ticket_status" . ($reopen ? ", ticket_resolved_at = NULL" : "") . " WHERE ticket_id = $ticket_id LIMIT 1");
+                syncTicketSlaClock($ticket_id);
+                if ($reopen) {
+                    resetTicketResolutionSla($ticket_id);
+                }
 
                 // Only record a status change when the status actually changed -
                 // Resolved is left out because the resolve block below logs it

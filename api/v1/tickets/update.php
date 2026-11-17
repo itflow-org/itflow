@@ -30,6 +30,11 @@ if (!empty($ticket_id)) {
 
             logTicketHistory($ticket_id, "Edited via the API ($api_key_name)");
 
+            // A new priority can mean another SLA - as the priority picker on the ticket page
+            if (stripslashes($priority) !== (string) $ticket_row['ticket_priority']) {
+                applyTicketSla($ticket_id);
+            }
+
             // On or off a project
             if ($ticket_project_id !== intval($ticket_row['ticket_project_id'])) {
                 $project = $ticket_project_id ? projectRow($ticket_project_id) : null;

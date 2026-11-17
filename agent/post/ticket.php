@@ -38,6 +38,28 @@ function ticketMergeInto($child, $parent, $comment, $move_replies = false) {
     $parent_url = escapeSql(ticketUrl($parent_id, $parent['ticket_client_id']));
 
     if ($move_replies) {
+        // The replies' attachments go with them - rows and files (uploads/tickets/<ticket id>/) - or
+        // they would be left on a ticket the replies are no longer on
+        $sql_attachments = mysqli_query($mysqli, "SELECT ticket_attachment_id, ticket_attachment_reference_name FROM ticket_attachments
+            INNER JOIN ticket_replies ON ticket_reply_id = ticket_attachment_reply_id AND ticket_reply_ticket_id = $ticket_id
+            WHERE ticket_attachment_ticket_id = $ticket_id");
+        if (mysqli_num_rows($sql_attachments)) {
+            $from_dir = __DIR__ . "/../../uploads/tickets/$ticket_id/";
+            $to_dir = __DIR__ . "/../../uploads/tickets/$parent_id/";
+            mkdirMissing(__DIR__ . "/../../uploads/tickets/");
+            mkdirMissing($to_dir);
+            while ($attachment = mysqli_fetch_assoc($sql_attachments)) {
+                $attachment_id = intval($attachment['ticket_attachment_id']);
+                $from_name = basename((string) $attachment['ticket_attachment_reference_name']);
+                // Never over a file already there - it gets a new name
+                $to_name = file_exists($to_dir . $from_name) ? randomString(32) . '.' . strtolower(pathinfo($from_name, PATHINFO_EXTENSION)) : $from_name;
+                if ($from_name !== '' && is_file($from_dir . $from_name)) {
+                    rename($from_dir . $from_name, $to_dir . $to_name);
+                }
+                $to_name_sql = escapeSql($to_name);
+                mysqli_query($mysqli, "UPDATE ticket_attachments SET ticket_attachment_ticket_id = $parent_id, ticket_attachment_reference_name = '$to_name_sql' WHERE ticket_attachment_id = $attachment_id");
+            }
+        }
         mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply_ticket_id = $parent_id WHERE ticket_reply_ticket_id = $ticket_id");
         // The work goes over, and the driving for it with it
         mysqli_query($mysqli, "UPDATE trips SET trip_ticket_id = $parent_id WHERE trip_ticket_id = $ticket_id");
@@ -888,8 +910,13 @@ if (isset($_POST['bulk_ticket_reply'])) {
         // The files of the canned responses that went into it, on each ticket and in its email
         $bulk_attachments = filterEmailableAttachments(cannedResponseAttachFiles($canned_response_file_ids, $ticket_id, $bulk_reply_id, $session_user_id));
 
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $ticket_status, ticket_updated_at = NOW() WHERE ticket_id = $ticket_id");
+        // Out of Resolved into a working status is a reopen - the resolved time goes and the resolution clock runs again
+        $reopen = $original_status === TICKET_STATUS_RESOLVED && $ticket_status !== TICKET_STATUS_RESOLVED && $ticket_status !== TICKET_STATUS_CLOSED;
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $ticket_status, ticket_updated_at = NOW()" . ($reopen ? ", ticket_resolved_at = NULL" : "") . " WHERE ticket_id = $ticket_id");
         syncTicketSlaClock($ticket_id);
+        if ($reopen) {
+            resetTicketResolutionSla($ticket_id);
+        }
 
         if ($ticket_status !== $original_status && $ticket_status !== TICKET_STATUS_RESOLVED) {
             logTicketHistory($ticket_id, "$session_name set the status to " . escapeSql(getTicketStatusName($ticket_status)));
@@ -1098,9 +1125,14 @@ if (isset($_POST['add_ticket_reply'])) {
     }
     $ticket_reply = mysqli_real_escape_string($mysqli, $ticket_reply);
 
-    // Update Ticket Status & updated at (in case status didn't change)
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $ticket_status, ticket_updated_at = NOW() WHERE ticket_id = $ticket_id");
+    // Update Ticket Status & updated at (in case status didn't change). Out of Resolved into a working
+    // status is a reopen - the resolved time goes and the resolution clock runs again
+    $reopen = $original_ticket_status === TICKET_STATUS_RESOLVED && $ticket_status !== TICKET_STATUS_RESOLVED && $ticket_status !== TICKET_STATUS_CLOSED;
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $ticket_status, ticket_updated_at = NOW()" . ($reopen ? ", ticket_resolved_at = NULL" : "") . " WHERE ticket_id = $ticket_id");
     syncTicketSlaClock($ticket_id);
+    if ($reopen) {
+        resetTicketResolutionSla($ticket_id);
+    }
 
     // Resolve the ticket, if it is actually moving into Resolved - replying on an
     // already-resolved ticket must not restamp resolved_at or re-log the resolve

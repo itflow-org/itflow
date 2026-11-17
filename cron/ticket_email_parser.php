@@ -329,7 +329,12 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         // Back to Open - unless it is in a status of your own set to stay put when the client replies (Scheduled, say)
         $new_ticket_status = ticketStatusAfterClientReply($ticket_status);
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $new_ticket_status, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
-        resetTicketResolutionSla($ticket_id);
+        // A resolved ticket's resolution clock runs again - an open one keeps its alerts, so a warning isn't sent twice
+        if (intval($ticket_status) === TICKET_STATUS_RESOLVED) {
+            resetTicketResolutionSla($ticket_id);
+        } else {
+            syncTicketSlaClock($ticket_id);
+        }
 
         // Only record the reopen when the ticket was not already open
         if (intval($ticket_status) !== $new_ticket_status) {
