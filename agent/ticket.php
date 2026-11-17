@@ -22,6 +22,8 @@ require_once "../libs/htmlpurifier/HTMLPurifier.standalone.php";
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+// Classes our scripts act on (ajax-modal fetches a page and runs it) never come from stored HTML
+$purifier_config->set('Attr.ForbiddenClasses', ['ajax-modal']);
 $purifier = new HTMLPurifier($purifier_config);
 
 if (isset($_GET['ticket_id'])) {

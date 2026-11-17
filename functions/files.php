@@ -687,6 +687,8 @@ function documentHtmlPurify($html) {
         $config = HTMLPurifier_Config::createDefault();
         $config->set('Cache.DefinitionImpl', null);
         $config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+        // Classes our scripts act on (ajax-modal fetches a page and runs it) never come from stored HTML
+        $config->set('Attr.ForbiddenClasses', ['ajax-modal']);
         $purifier = new HTMLPurifier($config);
     }
     return $purifier->purify((string) $html);

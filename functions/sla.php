@@ -488,7 +488,8 @@ function applyTicketSla($ticket_id, $forced_sla_id = null)
 
     $ticket_id = intval($ticket_id);
 
-    $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_priority, ticket_created_at, ticket_first_response_at, ticket_resolved_at FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_priority, ticket_created_at, ticket_first_response_at, ticket_resolved_at,
+        ticket_response_due_at, ticket_resolution_due_at, ticket_response_sla_alert_stage, ticket_resolution_sla_alert_stage FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
     if (!$sql || !mysqli_num_rows($sql)) {
         return;
     }
@@ -536,8 +537,8 @@ function applyTicketSla($ticket_id, $forced_sla_id = null)
         $resolution_due_at_set = "'$resolution_due_at'";
     }
 
-    // Re-judge met flags for milestones already reached; alert stages reset so
-    // the SLA cron re-evaluates pending milestones against the new targets
+    // Re-judge met flags for milestones already reached; alert stages reset (unless
+    // kept below) so the SLA cron re-evaluates pending milestones against the new targets
     $response_met_set = "NULL";
     if (!empty($row['ticket_first_response_at'])) {
         $response_met_set = strtotime($row['ticket_first_response_at']) <= strtotime($response_due_at) ? 1 : 0;
@@ -548,7 +549,31 @@ function applyTicketSla($ticket_id, $forced_sla_id = null)
         $resolution_met_set = strtotime($row['ticket_resolved_at']) <= strtotime($resolution_due_at) ? 1 : 0;
     }
 
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_sla_id = $sla_id, ticket_response_due_at = '$response_due_at', ticket_resolution_due_at = $resolution_due_at_set, ticket_response_sla_met = $response_met_set, ticket_resolution_sla_met = $resolution_met_set, ticket_response_sla_alert_stage = 0, ticket_resolution_sla_alert_stage = 0 WHERE ticket_id = $ticket_id");
+    // A milestone already alerted on keeps its stage when the new target doesn't undo the alert: a breach
+    // still past due stays breached (and missed), and a warning stays sent unless the deadline moved later
+    // (a minute's leeway for one worked out again from now, on a ticket that has been paused). Resetting
+    // them to 0 made the SLA cron email every open breach again each time an SLA, the SLA settings or a
+    // closure day was saved (restampOpenSlaTickets), or a ticket's priority changed.
+    $keep_stage = function ($old_stage, $old_due, $new_due, $done) {
+        $old_stage = intval($old_stage);
+        if ($done || $new_due === null || $old_due === null || $old_stage < 1) {
+            return 0;
+        }
+        if ($old_stage === 2) {
+            return strtotime($new_due) <= time() ? 2 : 0;
+        }
+        return strtotime($new_due) <= strtotime($old_due) + 60 ? 1 : 0;
+    };
+    $response_stage = $keep_stage($row['ticket_response_sla_alert_stage'], $row['ticket_response_due_at'], $response_due_at, !empty($row['ticket_first_response_at']));
+    $resolution_stage = $keep_stage($row['ticket_resolution_sla_alert_stage'], $row['ticket_resolution_due_at'], $resolution_due_at, !empty($row['ticket_resolved_at']));
+    if ($response_stage === 2) {
+        $response_met_set = 0;
+    }
+    if ($resolution_stage === 2) {
+        $resolution_met_set = 0;
+    }
+
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_sla_id = $sla_id, ticket_response_due_at = '$response_due_at', ticket_resolution_due_at = $resolution_due_at_set, ticket_response_sla_met = $response_met_set, ticket_resolution_sla_met = $resolution_met_set, ticket_response_sla_alert_stage = $response_stage, ticket_resolution_sla_alert_stage = $resolution_stage WHERE ticket_id = $ticket_id");
 
     syncTicketSlaClock($ticket_id);
 }

@@ -133,7 +133,8 @@ function generateUserSessionKey($site_encryption_master_key) {
     if ($config_https_only) {
         setcookie("user_encryption_session_key", base64_encode($user_encryption_session_key), ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
     } else {
-        setcookie("user_encryption_session_key", base64_encode($user_encryption_session_key), 0, "/");
+        // Not secure without HTTPS, but still out of reach of page scripts
+        setcookie("user_encryption_session_key", base64_encode($user_encryption_session_key), ['path' => '/', 'httponly' => true, 'samesite' => 'Lax']);
         $_SESSION['alert_message'] = "Unencrypted connection flag set: Using non-secure cookies.";
     }
 }
