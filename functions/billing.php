@@ -2370,6 +2370,11 @@ function recurringInvoiceGenerate($recurring_invoice_id, $by = 'Cron', $early = 
     $client_id = intval($row['client_id']);
     // 0 is "On Receipt" - the contract in force's net terms, else the client's
     $terms = function_exists('contractNetTerms') ? contractNetTerms($client_id, $date) : billingDefaults()['net_terms'];
+    $due_sql = "DATE_ADD('$date', INTERVAL $terms DAY)";
+    // Made ahead by its days ahead (recurringInvoiceAheadDue()) - due by the date it bills for, not the day it was made
+    if ($date < $due && intval($row['recurring_invoice_lead_days'] ?? 0) > 0) {
+        $due_sql = "'" . escapeSql(recurringInvoiceAheadDue($row, $due)) . "'";
+    }
     $prefix = escapeSql($settings['config_invoice_prefix'] ?? '');
     $number = billingNextNumber('invoice');
     $url_key = randomString(32);
@@ -2380,7 +2385,7 @@ function recurringInvoiceGenerate($recurring_invoice_id, $by = 'Cron', $early = 
     $category_id = intval($row['recurring_invoice_category_id']);
 
     mysqli_query($mysqli, "INSERT INTO invoices SET invoice_prefix = '$prefix', invoice_number = $number, invoice_scope = '$scope', invoice_date = '$date',
-        invoice_due = DATE_ADD('$date', INTERVAL $terms DAY), invoice_discount_amount = $discount, invoice_amount = 0, invoice_currency_code = '$currency',
+        invoice_due = $due_sql, invoice_discount_amount = $discount, invoice_amount = 0, invoice_currency_code = '$currency',
         invoice_note = '$note', invoice_category_id = $category_id, invoice_status = 'Draft', invoice_url_key = '$url_key',
         invoice_recurring_invoice_id = $recurring_invoice_id, invoice_client_id = $client_id");
     $invoice_id = mysqli_insert_id($mysqli);
@@ -2435,6 +2440,25 @@ function recurringInvoiceGenerate($recurring_invoice_id, $by = 'Cron', $early = 
     triggerCustomAction('invoice_create', $invoice_id);
 
     return $invoice_id;
+}
+
+/*
+ * When an invoice a recurring invoice made ahead of its date ($run) is due -
+ * that date plus the client's terms as they stand then (terms), or the date
+ * itself (next). Y-m-d.
+ */
+function recurringInvoiceAheadDue($row, $run) {
+    $run = substr((string) $run, 0, 10);
+    if (($row['recurring_invoice_due_mode'] ?? 'terms') === 'next') {
+        return $run;
+    }
+    $terms = function_exists('contractNetTerms') ? intval(contractNetTerms(intval($row['recurring_invoice_client_id']), $run)) : intval(billingDefaults()['net_terms']);
+    return date('Y-m-d', strtotime($run . ' +' . max(0, $terms) . ' days'));
+}
+
+/** Days ahead a recurring invoice is made, as kept: up to 90, and short of one period (a month counts as 28 days). */
+function recurringInvoiceLeadDays($days, $frequency) {
+    return max(0, min(intval($days), 90, 28 * recurringInvoiceMonths($frequency) - 1));
 }
 
 /** The invoices a recurring invoice has made, newest first, with what has been paid on each. */

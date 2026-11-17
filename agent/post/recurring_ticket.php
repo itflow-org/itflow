@@ -19,7 +19,9 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
  * a SET clause - or back to the form with what is wrong. $current is the
  * recurring ticket being edited (null for a new one). 'fill_ins': the answers
  * to what its template asks for, raised with every ticket - null with no
- * template, when any it has are kept as they are.
+ * template, when any it has are kept as they are. 'ahead': the time and visit
+ * each ticket is booked for and the days ahead it is made, as SQL to add to
+ * the SET - '' before the 3.7.7 update, or from a form without them.
  */
 function recurringTicketFromPost($client_id, $current = null) {
     global $mysqli;
@@ -50,6 +52,17 @@ function recurringTicketFromPost($client_id, $current = null) {
     // Billing is the sales module's to change - without it a schedule keeps what it has
     $billable = lookupUserPermission('module_sales') >= 2 ? (intval($_POST['billable'] ?? 0) ? 1 : 0) : intval($current['recurring_ticket_billable'] ?? 0);
 
+    // Booked at a time, and made ahead (functions/ticket.php) - before the 1st of the month for month-based repeats only
+    $ahead = '';
+    if (recurringAheadReady() && isset($_POST['lead_days'])) {
+        $time = trim((string) ($_POST['schedule_time'] ?? ''));
+        $mode = ($_POST['lead_mode'] ?? '') === 'month' && recurringTicketMonthBased($frequency) ? 'month' : 'days';
+        $ahead = ", recurring_ticket_schedule_time = " . (preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $time) ? "'$time:00'" : 'NULL')
+            . ", recurring_ticket_schedule_onsite = " . (intval($_POST['schedule_onsite'] ?? 0) ? 1 : 0)
+            . ", recurring_ticket_lead_days = " . recurringTicketLeadDays($_POST['lead_days'], $frequency, $mode)
+            . ", recurring_ticket_lead_mode = '$mode'";
+    }
+
     return [
         'subject' => escapeSql(mb_substr($subject, 0, 500)),
         'details' => mysqli_real_escape_string($mysqli, (string) ($_POST['details'] ?? '')),
@@ -62,6 +75,7 @@ function recurringTicketFromPost($client_id, $current = null) {
         'category_id' => ticketCategoryId($_POST['category_id'] ?? 0),
         'template_id' => $template_id,
         'fill_ins' => $fill_ins,
+        'ahead' => $ahead,
     ];
 }
 
@@ -124,7 +138,7 @@ if (isset($_POST['add_recurring_ticket'])) {
         recurring_ticket_priority = '{$f['priority']}', recurring_ticket_frequency = '{$f['frequency']}', recurring_ticket_billable = {$f['billable']},
         recurring_ticket_start_date = '$start_date', recurring_ticket_next_run = '$start_date', recurring_ticket_assigned_to = {$f['assigned_to']},
         recurring_ticket_created_by = $session_user_id, recurring_ticket_client_id = $client_id, recurring_ticket_contact_id = {$f['contact_id']},
-        recurring_ticket_asset_id = {$f['asset_id']}, recurring_ticket_category = {$f['category_id']}, recurring_ticket_ticket_template_id = {$f['template_id']}");
+        recurring_ticket_asset_id = {$f['asset_id']}, recurring_ticket_category = {$f['category_id']}, recurring_ticket_ticket_template_id = {$f['template_id']} {$f['ahead']}");
 
     $recurring_ticket_id = mysqli_insert_id($mysqli);
 
@@ -169,7 +183,7 @@ if (isset($_POST['edit_recurring_ticket'])) {
     mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_subject = '{$f['subject']}', recurring_ticket_details = '{$f['details']}',
         recurring_ticket_priority = '{$f['priority']}', recurring_ticket_frequency = '{$f['frequency']}', recurring_ticket_billable = {$f['billable']},
         recurring_ticket_next_run = '$next_run' $anchor_sql, recurring_ticket_assigned_to = {$f['assigned_to']}, recurring_ticket_asset_id = {$f['asset_id']},
-        recurring_ticket_contact_id = {$f['contact_id']}, recurring_ticket_category = {$f['category_id']}, recurring_ticket_ticket_template_id = {$f['template_id']}
+        recurring_ticket_contact_id = {$f['contact_id']}, recurring_ticket_category = {$f['category_id']}, recurring_ticket_ticket_template_id = {$f['template_id']} {$f['ahead']}
         WHERE recurring_ticket_id = $recurring_ticket_id");
 
     // The other assets go with the asset field - an empty multi-select posts nothing

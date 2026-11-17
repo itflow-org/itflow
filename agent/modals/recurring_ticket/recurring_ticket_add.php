@@ -213,6 +213,8 @@ ob_start();
                     <div class="form-text">The nightly cron raises a ticket on this day, then again each time it comes round. Monthly ones keep to this day of the month - the last day, in a shorter month.</div>
                 </div>
 
+                <?php $ahead_row = null; require __DIR__ . '/../../includes/inc_recurring_ticket_ahead.php'; ?>
+
             </div>
 
             <div class="tab-pane fade" id="pills-add-assets">

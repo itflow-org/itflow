@@ -1907,10 +1907,109 @@ function recurringTicketRunNow($row, $by) {
     $ticket_id = recurringTicketRaise($recurring_ticket_id, $by);
     if ($ticket_id) {
         $due = (string) $row['recurring_ticket_next_run'];
+        // Booked for the day of the run it is for, at its time - when it has one
+        recurringTicketBook($ticket_id, $recurring_ticket_id, $due);
         $next_run = recurringTicketNextRun($due, $row['recurring_ticket_frequency'], $row['recurring_ticket_start_date'], max(date('Y-m-d'), substr($due, 0, 10)));
         mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
     }
     return $ticket_id;
+}
+
+/*
+ * ---------- Recurring tickets booked at a time, and made ahead ----------
+ * A recurring ticket with a time books each ticket it raises for its run day
+ * at that time, remote or onsite, as the ticket's Schedule window does - the
+ * same emails, calendar file, note and history. One made ahead is raised so
+ * many days before its run - or before the 1st of the run's month, so every
+ * run in a month is made on one day - and its next run stays the day the work
+ * is for. The nightly job picks it up then (recurringTicketDueSql()).
+ */
+
+/** Whether the 3.7.7 update has run - the time, visit and days ahead on recurring tickets and invoices. */
+function recurringAheadReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '3.7.7', '>=');
+    }
+    return $ready;
+}
+
+/** Whether a recurring ticket's repeat counts in months - only those may be made ahead of the 1st of the month. */
+function recurringTicketMonthBased($frequency) {
+    return isset(RECURRING_TICKET_FREQUENCIES[recurringTicketFrequency($frequency)]['months']);
+}
+
+/*
+ * Days ahead as kept: up to 90, and short of one step of the repeat (a month
+ * counts as 28 days), so the next run is never due before this one is made -
+ * before the 1st of the month, up to 27.
+ */
+function recurringTicketLeadDays($days, $frequency, $mode = 'days') {
+    $step = RECURRING_TICKET_FREQUENCIES[recurringTicketFrequency($frequency) ?: 'Monthly'];
+    $most = $mode === 'month' ? 27 : min(90, (isset($step['days']) ? $step['days'] : 28 * $step['months']) - 1);
+    return max(0, min(intval($days), $most));
+}
+
+/** The day a recurring ticket makes the ticket for a run on $run - Y-m-d. */
+function recurringTicketMadeOn($row, $run) {
+    $run = substr((string) $run, 0, 10);
+    $days = intval($row['recurring_ticket_lead_days'] ?? 0);
+    $from = ($row['recurring_ticket_lead_mode'] ?? '') === 'month' ? substr($run, 0, 8) . '01' : $run;
+    return $days ? date('Y-m-d', strtotime("$from -$days days")) : $run;
+}
+
+/** For the nightly job - the recurring tickets to raise: due today or missed, or with the day come to make one ahead. */
+function recurringTicketDueSql() {
+    if (!recurringAheadReady()) {
+        return "recurring_ticket_next_run <= CURDATE()";
+    }
+    return "(recurring_ticket_next_run <= CURDATE() OR (recurring_ticket_lead_days > 0 AND DATE_SUB(IF(recurring_ticket_lead_mode = 'month',
+        DATE_FORMAT(recurring_ticket_next_run, '%Y-%m-01'), recurring_ticket_next_run), INTERVAL recurring_ticket_lead_days DAY) <= CURDATE()))";
+}
+
+/*
+ * Book a ticket a recurring ticket raised for the run it is for ($run), at the
+ * recurring ticket's time - today, for a run that was missed. Nothing without
+ * a time. The nightly job has nobody signed in, so the history and note say
+ * the recurring ticket booked it.
+ */
+function recurringTicketBook($ticket_id, $recurring_ticket_id, $run) {
+    global $session_name;
+    $recurring = recurringAheadReady() ? recurringTicketRow($recurring_ticket_id) : null;
+    $ticket = $recurring && !empty($recurring['recurring_ticket_schedule_time']) ? ticketRow($ticket_id) : null;
+    if (!$ticket) {
+        return;
+    }
+    $day = max(date('Y-m-d'), substr((string) $run, 0, 10));
+    $was = $session_name ?? null;
+    if (empty($session_name)) {
+        $GLOBALS['session_name'] = 'Recurring ticket';
+    }
+    try {
+        ticketSetSchedule($ticket, $day . ' ' . substr($recurring['recurring_ticket_schedule_time'], 0, 5) . ':00', intval($recurring['recurring_ticket_schedule_onsite']));
+    } finally {
+        $GLOBALS['session_name'] = $was;
+    }
+}
+
+/** "9:00 am onsite · made 3 days ahead", for the recurring tickets list. '' with neither. */
+function recurringTicketAheadText($row) {
+    $bits = [];
+    if (!empty($row['recurring_ticket_schedule_time'])) {
+        $bits[] = date('g:i a', strtotime('2000-01-01 ' . $row['recurring_ticket_schedule_time'])) . (intval($row['recurring_ticket_schedule_onsite']) ? ' onsite' : ' remote');
+    }
+    $days = intval($row['recurring_ticket_lead_days'] ?? 0);
+    if ($days) {
+        $bits[] = 'made ' . $days . ' day' . ($days === 1 ? '' : 's') . (($row['recurring_ticket_lead_mode'] ?? '') === 'month' ? ' before the 1st' : ' ahead');
+    }
+    return implode(' · ', $bits);
 }
 
 /**

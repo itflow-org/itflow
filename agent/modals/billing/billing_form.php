@@ -11,7 +11,8 @@
  * Posts the fields the existing handlers read: client_id, scope, category,
  * and then by kind - invoice: date, due (edit), invoice_discount; quote:
  * date, expire, quote_discount; recurring: frequency, start_date (new) or
- * next_date (edit), recurring_invoice_discount, auto_send, status (edit).
+ * next_date (edit), recurring_invoice_discount, auto_send, lead_days and
+ * due_mode (after the 3.7.7 update), status (edit).
  *
  * Should not be accessed directly.
  */
@@ -190,6 +191,32 @@ $form_scope_placeholder = [
                 <div class="form-text text-warning-emphasis">Emailing the invoices recurring invoices make is off in Settings &gt; Notifications - they are made as drafts.</div>
             <?php } ?>
         </div>
+        <?php if (recurringAheadReady()) {
+            // Made ahead of its date - and when one made ahead is due (recurringInvoiceAheadDue())
+            $form_ahead_terms = $form_edit ? contractNetTerms(intval($form_row['recurring_invoice_client_id']), date('Y-m-d')) : ($form_client_id ? $form_terms : null);
+            $form_ahead_terms_label = $form_ahead_terms !== null && intval($form_ahead_terms) > 0 ? 'Net ' . intval($form_ahead_terms)
+                : 'the client\'s terms' . ($form_ahead_terms === null ? '' : ' (due on receipt)'); ?>
+            <div class="col-sm-6">
+                <label class="form-label">Make it ahead</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-minus"></i></span>
+                    <input type="number" class="form-control" name="lead_days" min="0" max="90" value="<?= intval($form_value('lead_days', '0')) ?>">
+                    <span class="input-group-text">days before</span>
+                </div>
+                <div class="form-text">0 makes it on its date. One made ahead is dated the day it is made - short of a whole period ahead.</div>
+            </div>
+            <div class="col-sm-6">
+                <label class="form-label">Due, when made ahead</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                    <select class="form-select" name="due_mode">
+                        <option value="terms" <?= $form_value('due_mode', 'terms') !== 'next' ? 'selected' : '' ?>>Its date, plus <?= escapeHtml($form_ahead_terms_label) ?></option>
+                        <option value="next" <?= $form_value('due_mode', 'terms') === 'next' ? 'selected' : '' ?>>On its date</option>
+                    </select>
+                </div>
+                <div class="form-text">Its date is the <?= $form_edit ? 'Next' : 'First' ?> invoice date - the client's terms count from there.</div>
+            </div>
+        <?php } ?>
         <?php if ($form_edit) { ?>
             <div class="col-12">
                 <div class="form-check form-switch">

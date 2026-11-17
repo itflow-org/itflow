@@ -341,6 +341,9 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                         <td class="text-nowrap">
                             <div><i class="fas fa-redo-alt text-body-secondary small me-1"></i><?= escapeHtml($row['recurring_ticket_frequency']) ?></div>
                             <div class="small text-body-secondary"><?= escapeHtml(recurringTicketCadenceText($row)) ?></div>
+                            <?php if (($ahead_text = recurringTicketAheadText($row)) !== '') { ?>
+                                <div class="small text-body-secondary"><i class="far fa-clock me-1"></i><?= escapeHtml($ahead_text) ?></div>
+                            <?php } ?>
                         </td>
                         <td class="text-nowrap">
                             <?= recurringTicketNextRunPill($row) ?>

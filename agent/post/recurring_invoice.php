@@ -93,6 +93,9 @@ if (isset($_POST['add_recurring_invoice'])) {
     $scope = escapeSql($_POST['scope']);
     $recurring_invoice_discount = round(floatval($_POST['recurring_invoice_discount'] ?? 0), 2);
     $auto_send = intval($_POST['auto_send'] ?? 1) ? 1 : 0;
+    // Made ahead of its date, and when one made ahead is due (functions/billing.php)
+    $ahead_sql = recurringAheadReady() ? ", recurring_invoice_lead_days = " . recurringInvoiceLeadDays($_POST['lead_days'] ?? 0, $frequency)
+        . ", recurring_invoice_due_mode = '" . (($_POST['due_mode'] ?? '') === 'next' ? 'next' : 'terms') . "'" : '';
 
     enforceClientAccess();
 
@@ -107,7 +110,7 @@ if (isset($_POST['add_recurring_invoice'])) {
 
     $recurring_invoice_number = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$config_recurring_invoice_prefix', recurring_invoice_number = $recurring_invoice_number, recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_next_date = '$start_date', recurring_invoice_anchor_day = DAY('$start_date'), recurring_invoice_category_id = $category, recurring_invoice_status = 1, recurring_invoice_discount_amount = $recurring_invoice_discount, recurring_invoice_amount = " . (0 - $recurring_invoice_discount) . ", recurring_invoice_auto_send = $auto_send, recurring_invoice_currency_code = '$session_company_currency', recurring_invoice_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$config_recurring_invoice_prefix', recurring_invoice_number = $recurring_invoice_number, recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_next_date = '$start_date', recurring_invoice_anchor_day = DAY('$start_date'), recurring_invoice_category_id = $category, recurring_invoice_status = 1, recurring_invoice_discount_amount = $recurring_invoice_discount, recurring_invoice_amount = " . (0 - $recurring_invoice_discount) . ", recurring_invoice_auto_send = $auto_send, recurring_invoice_currency_code = '$session_company_currency', recurring_invoice_client_id = $client_id $ahead_sql");
 
     $recurring_invoice_id = mysqli_insert_id($mysqli);
 
@@ -135,6 +138,9 @@ if (isset($_POST['edit_recurring_invoice'])) {
     $status = intval($_POST['status']);
     $recurring_invoice_discount = floatval($_POST['recurring_invoice_discount']);
     $auto_send = intval($_POST['auto_send']);
+    // Made ahead of its date, and when one made ahead is due - kept as it is by a form without them
+    $ahead_sql = recurringAheadReady() && isset($_POST['lead_days']) ? ", recurring_invoice_lead_days = " . recurringInvoiceLeadDays($_POST['lead_days'], $frequency)
+        . ", recurring_invoice_due_mode = '" . (($_POST['due_mode'] ?? '') === 'next' ? 'next' : 'terms') . "'" : '';
 
     // Get Recurring Invoice Details and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT recurring_invoice_prefix, recurring_invoice_number, recurring_invoice_client_id FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
@@ -153,7 +159,7 @@ if (isset($_POST['edit_recurring_invoice'])) {
     // so a schedule on the 31st that is on the 28th this month keeps the 31st.
     // (Set before next_date: MySQL reads a column already set in the same
     // UPDATE as its new value.)
-    mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_anchor_day = IF(recurring_invoice_next_date = '$next_date' AND recurring_invoice_anchor_day > 0, recurring_invoice_anchor_day, DAY('$next_date')), recurring_invoice_next_date = '$next_date', recurring_invoice_category_id = $category, recurring_invoice_discount_amount = $recurring_invoice_discount, recurring_invoice_auto_send = $auto_send, recurring_invoice_status = $status WHERE recurring_invoice_id = $recurring_invoice_id");
+    mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_anchor_day = IF(recurring_invoice_next_date = '$next_date' AND recurring_invoice_anchor_day > 0, recurring_invoice_anchor_day, DAY('$next_date')), recurring_invoice_next_date = '$next_date', recurring_invoice_category_id = $category, recurring_invoice_discount_amount = $recurring_invoice_discount, recurring_invoice_auto_send = $auto_send, recurring_invoice_status = $status $ahead_sql WHERE recurring_invoice_id = $recurring_invoice_id");
 
     billingRecalc('recurring', $recurring_invoice_id);
 

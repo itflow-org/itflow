@@ -210,6 +210,8 @@ ob_start();
                     </div>
                 </div>
 
+                <?php $ahead_row = $recurring; require __DIR__ . '/../../includes/inc_recurring_ticket_ahead.php'; ?>
+
                 <div class="small text-body-secondary">
                     <div class="mb-1"><?= recurringTicketNextRunPill($recurring) ?></div>
                     <?php if ($upcoming && !$paused) { ?>

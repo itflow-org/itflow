@@ -407,11 +407,12 @@ if ($tickets_pending_assignment > 0) {
 }
 
 // Recurring tickets - each one due today, or missed (a night the cron didn't
-// run), raises one ticket and moves on to its next run after today. Paused ones
-// raise nothing. recurringTicketRunNow() (functions/ticket.php) is the same code
-// the Raise now button runs.
+// run), or made so many days ahead of its run (recurringTicketDueSql()), raises
+// one ticket - booked for its run day, when it has a time - and moves on to its
+// next run. Paused ones raise nothing. recurringTicketRunNow() (functions/ticket.php)
+// is the same code the Raise now button runs.
 $sql_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_id, recurring_ticket_next_run, recurring_ticket_frequency, recurring_ticket_start_date
-    FROM recurring_tickets WHERE recurring_ticket_next_run <= CURDATE() AND recurring_ticket_paused_at IS NULL");
+    FROM recurring_tickets WHERE " . recurringTicketDueSql() . " AND recurring_ticket_paused_at IS NULL");
 
 $recurring_tickets_raised = 0;
 while ($row = mysqli_fetch_assoc($sql_recurring_tickets)) {
@@ -563,7 +564,8 @@ if ($reminder_rules['enabled']) {
 
 
 // Recurring invoices - each one due today, or missed by up to
-// RECURRING_INVOICE_GRACE_DAYS (a night or a few the cron didn't run), makes
+// RECURRING_INVOICE_GRACE_DAYS (a night or a few the cron didn't run), or
+// within the days ahead it is made (dated today, due by its due rule), makes
 // its invoice and moves on a period from the run it billed. One further
 // behind than that is left for someone to look at - the page says it is late
 // and offers Invoice Now, or moving it on without billing the missed runs.
@@ -571,12 +573,13 @@ if ($reminder_rules['enabled']) {
 // Invoice Now button runs.
 $sql_recurring_invoices = mysqli_query($mysqli, "SELECT recurring_invoice_id, recurring_invoice_next_date FROM recurring_invoices
     WHERE recurring_invoice_status = 1 AND recurring_invoice_archived_at IS NULL
-    AND recurring_invoice_next_date <= CURDATE() AND recurring_invoice_next_date >= CURDATE() - INTERVAL " . RECURRING_INVOICE_GRACE_DAYS . " DAY
+    AND recurring_invoice_next_date <= CURDATE()" . (recurringAheadReady() ? " + INTERVAL recurring_invoice_lead_days DAY" : "") . "
+    AND recurring_invoice_next_date >= CURDATE() - INTERVAL " . RECURRING_INVOICE_GRACE_DAYS . " DAY
     ORDER BY recurring_invoice_next_date ASC, recurring_invoice_id ASC");
 
 $recurring_invoices_made = 0;
 while ($row = mysqli_fetch_assoc($sql_recurring_invoices)) {
-    if (recurringInvoiceGenerate($row['recurring_invoice_id'], 'Cron', false, $row['recurring_invoice_next_date'])) {
+    if (recurringInvoiceGenerate($row['recurring_invoice_id'], 'Cron', $row['recurring_invoice_next_date'] > date('Y-m-d'), $row['recurring_invoice_next_date'])) {
         $recurring_invoices_made++;
     }
 }
