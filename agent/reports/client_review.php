@@ -318,6 +318,7 @@ $header = [
     'client' => $client_id,
     'client_required' => true,
     'export' => $t ? ['tickets' => 'Tickets in the period'] : false,
+    'pdf' => (bool) $client,
     'print_meta' => $client ? $client['client_name'] : '',
 ];
 
