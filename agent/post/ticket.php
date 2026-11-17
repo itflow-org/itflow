@@ -119,9 +119,18 @@ if (isset($_POST['add_ticket'])) {
     $priority = escapeSql(ticketPriority($_POST['priority'] ?? ''));
     $category_id = ticketCategoryId($_POST['category_id'] ?? 0);
     $assigned_to = ticketAgentId($_POST['assigned_to'] ?? 0);
-    $ticket_status = $assigned_to ? TICKET_STATUS_OPEN : TICKET_STATUS_NEW;
+    // A status picked from those an agent can set (not New, Resolved or Closed) - else New, or Open once assigned
+    $picked_status = intval($_POST['status'] ?? 0);
+    $ticket_status = isset(ticketPickableStatuses()[$picked_status]) ? $picked_status : ($assigned_to ? TICKET_STATUS_OPEN : TICKET_STATUS_NEW);
     $billable = intval($_POST['billable'] ?? 0) ? 1 : 0;
     $due = ticketDueSql($_POST['due'] ?? '');
+    // The work booked as it is made - checked before anything is saved
+    $schedule_input = trim((string) ($_POST['schedule'] ?? ''));
+    $schedule = ticketScheduleValue($schedule_input);
+    if ($schedule_input !== '' && $schedule === '') {
+        flashAlert('The schedule needs a date and a time - or leave it empty to book the work later.', 'error');
+        redirect();
+    }
     $vendor_ticket_number = escapeSql(mb_substr(trim((string) ($_POST['vendor_ticket_number'] ?? '')), 0, 255));
     $ticket_template_id = intval($_POST['ticket_template_id'] ?? 0);
 
@@ -211,7 +220,17 @@ if (isset($_POST['add_ticket'])) {
 
     logAudit("Ticket", "Create", "$session_name created ticket $ticket_prefix$ticket_number - $subject", $client_id, $ticket_id);
 
-    flashAlert("Ticket <strong>" . escapeHtml($config_ticket_prefix . $ticket_number) . "</strong> created");
+    // The work booked - the same emails, note and history as the ticket's Schedule window
+    $created_alert = "Ticket <strong>" . escapeHtml($config_ticket_prefix . $ticket_number) . "</strong> created";
+    if ($schedule !== '') {
+        $booked = ticketSetSchedule(ticketRow($ticket_id), $schedule, intval($_POST['onsite'] ?? 0) ? 1 : 0);
+        $created_alert .= " and scheduled for " . escapeHtml($booked['when_text']);
+        if ($booked['conflicts']) {
+            $created_alert .= ".<br>The same agent has other work within two hours of it: <br>" . implode(", <br>", array_map('escapeHtml', $booked['conflicts']));
+        }
+    }
+
+    flashAlert($created_alert, $schedule !== '' && $booked['conflicts'] ? 'warning' : 'success');
 
     // Tell the agent about anything too large for the mail queue to carry
     if (!empty($emailable_attachments['skipped'])) {

@@ -228,6 +228,38 @@ ob_start();
                     </div>
                 </div>
 
+                <!-- Where it starts, and the work booked - as the ticket's own status menu and Schedule window -->
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label>Status</label>
+                            <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
+                                <select class="form-select select2" name="status">
+                                    <option value="0" data-color="var(--bs-secondary-color)">- New, or Open once assigned -</option>
+                                    <?php foreach (ticketPickableStatuses() as $status_id => $status) { ?>
+                                        <option value="<?= intval($status_id) ?>" data-color="<?= escapeHtml($status['ticket_status_color']) ?>"><?= escapeHtml($status['ticket_status_name']) ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label>Schedule</label>
+                            <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                                <input type="datetime-local" class="form-control" name="schedule" min="<?= date('Y-m-d\TH:i') ?>" aria-label="Date and time of the work">
+                                <select class="form-select flex-grow-0 w-auto" name="onsite" aria-label="Visit">
+                                    <option value="0">Remote</option>
+                                    <option value="1">Onsite</option>
+                                </select>
+                            </div>
+                            <div class="form-text">Leave it empty to book the work later.</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mb-3">
                     <?= tagFormFieldHtml('ticket', [], 'Onboarding, Hardware, Escalated', 'Tags', 'data-template-field="tags"') ?>
                 </div>
