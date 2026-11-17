@@ -258,6 +258,7 @@ if (isset($_GET['ticket_id'])) {
         // Get ticket replies - with whether each of yours was emailed, and who to
         $sql_ticket_replies = mysqli_query($mysqli, "SELECT contact_name, contact_photo, ticket_reply, ticket_reply_by, ticket_reply_created_at, ticket_reply_id,
             ticket_reply_time_worked, ticket_reply_type, ticket_reply_updated_at, user_avatar, user_id, user_name,
+            " . (ticketWorkTimesReady() ? 'ticket_reply_work_start, ticket_reply_work_end,' : 'NULL AS ticket_reply_work_start, NULL AS ticket_reply_work_end,') . "
             " . (ticketReplyEmailReady() ? 'ticket_reply_emailed, ticket_reply_emailed_to' : 'NULL AS ticket_reply_emailed, NULL AS ticket_reply_emailed_to') . "
             FROM ticket_replies
             LEFT JOIN users ON ticket_reply_by = user_id
@@ -914,8 +915,38 @@ if (isset($_GET['ticket_id'])) {
                                             <input type="file" class="form-control form-control-sm" id="ticket_reply_attachments" name="attachments[]" multiple accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
                                         </div>
 
+                                        <!-- The time, and when it was worked - filled from the timer until typed (agent/js/ticket_work_times.js) -->
+                                        <div class="row g-2 align-items-end mb-3">
+                                            <div class="col-md-5 col-xl-4">
+                                                <label class="form-label small text-secondary mb-1" for="hours">Time worked</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" aria-label="Hours" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
+                                                    <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" aria-label="Minutes" min="0" max="59" pattern="[0-5]?[0-9]">
+                                                    <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" aria-label="Seconds" min="0" max="59" pattern="[0-5]?[0-9]">
+                                                    <button type="button" class="btn btn-light border" id="startStopTimer" title="Start / pause the timer"><i class="fas fa-play"></i></button>
+                                                    <button type="button" class="btn btn-light border" id="resetTimer" title="Reset the timer"><i class="fas fa-redo-alt"></i></button>
+                                                </div>
+                                            </div>
+                                            <?php if (ticketWorkTimesReady()) { ?>
+                                                <div class="col-md-7 col-xl-8" id="workTimes" data-now="<?= date('Y-m-d\TH:i:s') ?>">
+                                                    <label class="form-label small text-secondary mb-1" for="work_date">When it was worked</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                                                        <input type="date" class="form-control" id="work_date" name="work_date" max="2999-12-31" aria-label="Date worked" style="min-width: 9.5rem">
+                                                        <input type="time" class="form-control" id="work_start" name="work_start" step="60" aria-label="Start" style="min-width: 7.5rem">
+                                                        <span class="input-group-text px-2">-</span>
+                                                        <input type="time" class="form-control" id="work_end" name="work_end" step="60" aria-label="End" style="min-width: 7.5rem">
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 small">
+                                                    <span class="text-body-secondary" data-work-times-mode></span>
+                                                    <span class="text-danger ms-2" data-work-times-problem hidden></span>
+                                                </div>
+                                            <?php } ?>
+                                        </div>
+
                                         <div class="row g-2 align-items-end">
-                                            <div class="col-md-4">
+                                            <div class="col-md-5">
                                                 <label class="form-label small text-secondary mb-1" for="ticket_reply_status">Status after this</label>
                                                 <select class="form-select select2" name="status" id="ticket_reply_status" required>
                                                     <!-- Resolved stays on offer here (reply and resolve in one go) unless open tasks block it -->
@@ -930,19 +961,7 @@ if (isset($_GET['ticket_id'])) {
                                                 </select>
                                             </div>
 
-                                            <!-- Time Tracking -->
-                                            <div class="col-md-5">
-                                                <label class="form-label small text-secondary mb-1" for="hours">Time worked</label>
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" aria-label="Hours" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
-                                                    <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" aria-label="Minutes" min="0" max="59" pattern="[0-5]?[0-9]">
-                                                    <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" aria-label="Seconds" min="0" max="59" pattern="[0-5]?[0-9]">
-                                                    <button type="button" class="btn btn-light border" id="startStopTimer" title="Start / pause the timer"><i class="fas fa-play"></i></button>
-                                                    <button type="button" class="btn btn-light border" id="resetTimer" title="Reset the timer"><i class="fas fa-redo-alt"></i></button>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-3">
+                                            <div class="col-md-4 ms-auto">
                                                 <div class="d-flex gap-2">
                                                     <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-success flex-grow-1">
                                                         <i class="fas fa-fw fa-paper-plane me-2"></i><span id="replySubmitLabel">Send</span>
@@ -1082,6 +1101,9 @@ if (isset($_GET['ticket_id'])) {
                                             <?= $ticket_reply_created_at_ago ?><?php if ($ticket_reply_updated_at) { echo ' <em>(edited)</em>'; } ?>
                                             <?php if ($ticket_reply_type !== "Client" && $ticket_reply_time_worked && $ticket_reply_time_worked !== "00:00:00") { ?>
                                                 <span class="mx-1">&middot;</span><i class="far fa-fw fa-clock"></i> <?= formatDuration($ticket_reply_time_worked) ?>
+                                                <?php if (!empty($reply_row['ticket_reply_work_start']) && !empty($reply_row['ticket_reply_work_end'])) { ?>
+                                                    <span class="text-nowrap" title="When the work was done">(<?= escapeHtml(ticketWorkTimesWords($reply_row['ticket_reply_work_start'], $reply_row['ticket_reply_work_end'])) ?>)</span>
+                                                <?php } ?>
                                             <?php } ?>
                                             <?php if ($reply_emailed) { ?>
                                                 <span class="mx-1">&middot;</span><?= $reply_emailed['line'] ?>
@@ -1954,6 +1976,10 @@ if (!empty($can_edit_ticket) && !empty($ticket_is_open)) { ?>
 
     <!-- Ticket Time Tracking JS -->
     <script src="<?= staticFileUrl('/agent/js/ticket_time_tracking.js') ?>"></script>
+    <?php if (ticketWorkTimesReady()) { ?>
+        <!-- When the time was worked, kept in step with the timer -->
+        <script src="<?= staticFileUrl('/agent/js/ticket_work_times.js') ?>"></script>
+    <?php } ?>
 <?php } ?>
 
 <?php

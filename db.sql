@@ -4101,6 +4101,8 @@ CREATE TABLE `ticket_replies` (
   `ticket_reply_emailed` tinyint(1) DEFAULT NULL,
   `ticket_reply_emailed_to` text DEFAULT NULL,
   `ticket_reply_time_worked` time DEFAULT NULL,
+  `ticket_reply_work_start` datetime DEFAULT NULL,
+  `ticket_reply_work_end` datetime DEFAULT NULL,
   `ticket_reply_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ticket_reply_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `ticket_reply_archived_at` datetime DEFAULT NULL,

@@ -1131,6 +1131,93 @@ function ticketTimeWorked($input) {
     return '00:00:00';
 }
 
+/*
+ * ---------- When a note's time was worked ----------
+ * A note with time worked keeps when that work was done - its start and end
+ * (ticket_replies.ticket_reply_work_start / _end, 3.7.8), in company time. The
+ * reply box fills them from the timer - ending now, starting the time worked
+ * ago - until the agent types them, and typed times set the time worked
+ * (agent/js/ticket_work_times.js). A note without them - from before, the API,
+ * a bulk reply or email - ended when it was posted.
+ */
+
+/** Whether the 3.7.8 update has run - a note's start and end. */
+function ticketWorkTimesReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '3.7.8', '>=');
+    }
+    return $ready;
+}
+
+/** "HH:MM:SS" as seconds. */
+function ticketTimeSeconds($time) {
+    $parts = array_map('intval', explode(':', (string) $time) + [0, 0, 0]);
+    return $parts[0] * 3600 + $parts[1] * 60 + $parts[2];
+}
+
+/** Seconds as "HH:MM:SS", under a day. */
+function ticketTimeClock($seconds) {
+    $seconds = max(0, min(86399, intval($seconds)));
+    return sprintf('%02d:%02d:%02d', intdiv($seconds, 3600), intdiv($seconds % 3600, 60), $seconds % 60);
+}
+
+/*
+ * A date (Y-m-d) and a start and end (HH:MM) as ['Y-m-d H:i:s' start, end] -
+ * an end before the start runs past midnight - or null when they aren't times
+ * or are a day or more apart.
+ */
+function ticketWorkRange($date, $start, $end) {
+    $date = trim((string) $date);
+    $start = trim((string) $start);
+    $end = trim((string) $end);
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !strtotime($date) || !preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $start) || !preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $end)) {
+        return null;
+    }
+    $from = strtotime("$date $start:00");
+    $to = strtotime("$date $end:00");
+    if ($to <= $from) {
+        // The next day by the calendar - adding a day's seconds is an hour out on the nights the clocks change
+        $to = strtotime("$date $end:00 +1 day");
+    }
+    if ($to >= strtotime("$date $start:00 +1 day")) {
+        return null;
+    }
+    return [date('Y-m-d H:i:s', $from), date('Y-m-d H:i:s', $to)];
+}
+
+/*
+ * The time worked to keep with a note's start and end ($range from
+ * ticketWorkRange()): the length of the range, unless the time worked agrees
+ * with it to the minute - then the timer's seconds stay.
+ */
+function ticketWorkTimeWorked(array $range, $time_worked) {
+    $length = strtotime($range[1]) - strtotime($range[0]);
+    return abs($length - ticketTimeSeconds($time_worked)) < 60 ? (string) $time_worked : ticketTimeClock($length);
+}
+
+/** "Tue Nov 17, 9:10 - 9:40 AM" - the end's day too when it runs past midnight. */
+function ticketWorkTimesWords($start, $end) {
+    $from = strtotime((string) $start);
+    $to = strtotime((string) $end);
+    $same_day = date('Y-m-d', $from) === date('Y-m-d', $to);
+    return date('D M j, ', $from) . date($same_day && date('A', $from) === date('A', $to) ? 'g:i' : 'g:i A', $from) . ' - '
+        . ($same_day ? '' : date('D ', $to)) . date('g:i A', $to);
+}
+
+/** The start and end a note without them is shown with - ending when it was posted, as long as its time worked. */
+function ticketWorkTimesShown(array $reply) {
+    $end = strtotime((string) ($reply['ticket_reply_created_at'] ?? 'now'));
+    return [date('Y-m-d H:i:s', $end - ticketTimeSeconds($reply['ticket_reply_time_worked'] ?? '')), date('Y-m-d H:i:s', $end)];
+}
+
 /** Statuses a reply may leave the ticket in: the active ones but New and Closed (the system sets those), plus the one it has. */
 function ticketReplyStatuses($current_status) {
     global $mysqli;

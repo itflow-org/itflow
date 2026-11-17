@@ -1137,6 +1137,13 @@ if (isset($_POST['add_ticket_reply'])) {
 
     // Time tracking, inputs & combine into string
     $ticket_reply_time_worked = escapeSql(sprintf("%02d:%02d:%02d", max(0, intval($_POST['hours'] ?? 0)), max(0, min(59, intval($_POST['minutes'] ?? 0))), max(0, min(59, intval($_POST['seconds'] ?? 0)))));
+    // When it was worked - typed times set the time worked; without them it ended as it was posted (functions/ticket.php)
+    $work_sql = '';
+    if (ticketWorkTimesReady() && ticketTimeSeconds($ticket_reply_time_worked) > 0
+        && ($work = ticketWorkRange($_POST['work_date'] ?? '', $_POST['work_start'] ?? '', $_POST['work_end'] ?? ''))) {
+        $ticket_reply_time_worked = ticketWorkTimeWorked($work, $ticket_reply_time_worked);
+        $work_sql = ", ticket_reply_work_start = '{$work[0]}', ticket_reply_work_end = '{$work[1]}'";
+    }
 
     // Who sees it: internal note, public note, or public and emailed - or texted (functions/sms.php)
     $send_email = 0;
@@ -1182,7 +1189,7 @@ if (isset($_POST['add_ticket_reply'])) {
     // Process reply actions, if we have a reply to work with (e.g. we're not just editing the status)
     if ($ticket_reply !== '') {
 
-        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_time_worked = '$ticket_reply_time_worked', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_time_worked = '$ticket_reply_time_worked' $work_sql, ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
         $ticket_reply_id = mysqli_insert_id($mysqli);
 
         // Store any attached files against this reply before the email is built, so
@@ -1361,7 +1368,36 @@ if (isset($_POST['edit_ticket_reply'])) {
     $ticket_reply = mysqli_real_escape_string($mysqli, $ticket_reply_html);
     $ticket_reply_time_worked = escapeSql(ticketTimeWorked($_POST['time'] ?? ''));
 
-    mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '$ticket_reply_time_worked' WHERE ticket_reply_id = $ticket_reply_id");
+    /*
+     * When it was worked (functions/ticket.php). Changed times set the time worked; the
+     * same times with a new time worked move the start, and the end stays. A note without
+     * times keeps having none unless they are changed from what the window showed (ending
+     * when it was posted). No time worked, no times.
+     */
+    $work_sql = '';
+    if (ticketWorkTimesReady() && isset($_POST['work_date'])) {
+        $was = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_reply_created_at, ticket_reply_time_worked, ticket_reply_work_start, ticket_reply_work_end FROM ticket_replies WHERE ticket_reply_id = $ticket_reply_id"));
+        $seconds = ticketTimeSeconds($ticket_reply_time_worked);
+        $work = $seconds > 0 ? ticketWorkRange($_POST['work_date'], $_POST['work_start'] ?? '', $_POST['work_end'] ?? '') : null;
+        $minute = function (array $range) {
+            return substr($range[0], 0, 16) . substr($range[1], 0, 16);
+        };
+        if ($work && empty($was['ticket_reply_work_start']) && $minute($work) === $minute(ticketWorkTimesShown($was))) {
+            $work = null;
+        } elseif ($work && !empty($was['ticket_reply_work_start']) && $minute($work) === $minute([$was['ticket_reply_work_start'], $was['ticket_reply_work_end']])
+            && $seconds !== ticketTimeSeconds($was['ticket_reply_time_worked'])) {
+            $work[0] = date('Y-m-d H:i:s', strtotime($work[1]) - $seconds);
+        } elseif ($work) {
+            $ticket_reply_time_worked = ticketWorkTimeWorked($work, $ticket_reply_time_worked);
+        }
+        if ($work) {
+            $work_sql = ", ticket_reply_work_start = '{$work[0]}', ticket_reply_work_end = '{$work[1]}'";
+        } elseif ($seconds <= 0) {
+            $work_sql = ", ticket_reply_work_start = NULL, ticket_reply_work_end = NULL";
+        }
+    }
+
+    mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '$ticket_reply_time_worked' $work_sql WHERE ticket_reply_id = $ticket_reply_id");
 
     // Only the agents it mentions now that it didn't before are told
     $told = ticketMentionsTell($row, $ticket_reply_id, $ticket_reply_html, ticketMentionsSync($ticket_reply_id, $mentioned));
