@@ -127,6 +127,13 @@ function persistMailOauthTokens(string $access_token, string $expires_at, ?strin
     }
 
     mysqli_query($mysqli, "UPDATE settings SET config_mail_oauth_access_token = '{$access_token_esc}', config_mail_oauth_access_token_expires_at = '{$expires_at_esc}'{$refresh_sql} WHERE company_id = 1");
+
+    // This run's copy too, so the next email uses the new token rather than fetching another
+    $GLOBALS['config_mail_oauth_access_token'] = $access_token;
+    $GLOBALS['config_mail_oauth_access_token_expires_at'] = $expires_at;
+    if (!empty($refresh_token)) {
+        $GLOBALS['config_mail_oauth_refresh_token'] = $refresh_token;
+    }
 }
 
 function refreshMailOauthAccessToken(string $provider, string $oauth_client_id, string $oauth_client_secret, string $oauth_tenant_id, string $oauth_refresh_token): ?array {

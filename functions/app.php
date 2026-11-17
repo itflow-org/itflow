@@ -643,6 +643,7 @@ function checkForUpdates() {
  *                  version while work lands (develop), that version's section too
  *   local_changes  ITFlow's own files this install has changed, which updating puts back
  *                  (update_cli.php resets to the remote) - the first 50, and how many in all
+ *   commits        how many commits behind - config_update_pending_commits keeps the newest 100
  *
  * Anything that can't be read comes back empty rather than failing the check.
  */
@@ -652,7 +653,7 @@ function updateCheckDetails(int $pending_commits): array
         require_once __DIR__ . '/../includes/app_version.php';
     }
 
-    $details = ['version' => '', 'changelog' => [], 'local_changes' => [], 'local_changes_count' => 0];
+    $details = ['version' => '', 'changelog' => [], 'local_changes' => [], 'local_changes_count' => 0, 'commits' => $pending_commits];
 
     if (!shellCommandsAvailable()) {
         return $details;

@@ -121,7 +121,8 @@ $update_finished = !$update_running && $update_status === 'Completed' && !empty(
 
 // A release number to show when the branch moves by release (master), or nothing to compare
 $new_release = $latest_release !== '' && version_compare($latest_release, APP_VERSION, '>') ? $latest_release : '';
-$commit_count = count($pending_commits);
+// All of them - the stored list is the newest 100 (cron/update_check.php)
+$commit_count = max(count($pending_commits), intval($details['commits'] ?? 0));
 $has_upgrading_notes = (bool) array_filter($changelog, function ($section) {
     return preg_match('/^###\s+Upgrading/mi', $section[1]) === 1;
 });
@@ -435,8 +436,8 @@ $hero = [
                                     <span class="flex-shrink-0 text-body-secondary text-nowrap"><?= escapeHtml(timeAgo($commit_date)) ?></span>
                                 </li>
                             <?php } ?>
-                            <?php if ($commit_count > 100) { ?>
-                                <li class="small text-body-secondary">and <?= $commit_count - 100 ?> more</li>
+                            <?php if ($commit_count > min(100, count($pending_commits))) { ?>
+                                <li class="small text-body-secondary">and <?= $commit_count - min(100, count($pending_commits)) ?> more</li>
                             <?php } ?>
                         </ul>
                     </details>

@@ -548,8 +548,7 @@ $mailbox = new Mailbox([
 try {
     $mailbox->connect();
 } catch (\Throwable $e) {
-    echo "Error connecting to IMAP server: " . $e->getMessage();
-    cronJobStop('', 1);
+    cronJobStop("Error connecting to the mail server: " . $e->getMessage() . "\n", 1);
 }
 
 $inbox = $mailbox->inbox();

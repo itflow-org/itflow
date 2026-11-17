@@ -1816,7 +1816,7 @@ if (isset($_GET['client_duplicate_check'])) {
     if (strlen($name) >= 5) {
         $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
         WHERE client_archived_at IS NULL
-        AND client_name LIKE '%$name%'
+        AND client_name LIKE '%" . addcslashes($name, '%_') . "%'
         ORDER BY client_id DESC LIMIT 1"
         );
 

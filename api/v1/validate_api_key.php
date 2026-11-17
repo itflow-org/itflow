@@ -21,7 +21,9 @@ header('Content-Type: application/json');
 managedRequestGuard('api');
 
 // POST data
+// Anything that isn't a JSON object - a form post, an empty body - is no fields, answered as such rather than a 500
 $_POST = json_decode(file_get_contents('php://input'), true);
+$_POST = is_array($_POST) ? $_POST : [];
 
 // Get IP & UA
 $ip = escapeSql(getIP());
@@ -148,6 +150,10 @@ if (isset($api_key)) {
         } else {
             $offset = 0;
         }
+
+        // A limit under 1, or an offset under 0, was an SQL error
+        $limit = max(1, $limit);
+        $offset = max(0, $offset);
 
         // When the key is tied to a user, enforce that user's RBAC (module + operation + client scope)
         require __DIR__ . '/enforce_api_rbac.php';

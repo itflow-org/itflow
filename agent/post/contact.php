@@ -701,10 +701,12 @@ if (isset($_GET['anonymize_contact'])) {
     }
 
     $contact_name = escapeSql($row['contact_name']);
-    $contact_first_name = explode(" ", $contact_name)[0];
-    $contact_email = escapeSql($row['contact_email']);
-    $contact_phone = escapeSql($row['contact_phone']);
-    $info_to_redact = array($contact_name, $contact_first_name, $contact_email, $contact_phone);
+    // Redacted as stored, not SQL-escaped - a name with an apostrophe was missed - and never an empty value.
+    // Longest first, so the first name doesn't take a piece out of the email address before it goes
+    $info_to_redact = array_values(array_filter(array_map('strval', [$row['contact_name'], explode(" ", (string) $row['contact_name'])[0], $row['contact_email'], $row['contact_phone']]), 'strlen'));
+    usort($info_to_redact, function ($a, $b) {
+        return strlen($b) - strlen($a);
+    });
 
     $client_id = intval($row['contact_client_id']);
     $contact_user_id = intval($row['contact_user_id']);

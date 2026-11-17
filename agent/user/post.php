@@ -15,7 +15,7 @@ define('FROM_POST_HANDLER', true);
 // Determine which files we should load
 
 // Parse URL & get the path
-$path = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH);
+$path = parse_url($_SERVER['HTTP_REFERER'] ?? '', PHP_URL_PATH);
 
 // Get the base name (the page name)
 $module = explode(".", basename($path))[0];

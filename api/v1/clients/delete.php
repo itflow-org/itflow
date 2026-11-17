@@ -75,7 +75,7 @@ if (!empty($client_id)) {
         mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_client_id = $client_id");
 
-        removeDirectory("../../uploads/clients/$client_id");
+        removeDirectory(__DIR__ . "/../../../uploads/clients/$client_id");
 
         $delete_sql = mysqli_query($mysqli, "DELETE FROM clients WHERE client_id = $client_id");
 

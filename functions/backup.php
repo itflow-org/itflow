@@ -791,7 +791,12 @@ function backupCreate(mysqli $mysqli, string $type, string $created_by, string $
  */
 function backupCurrentDatabaseVersion(mysqli $mysqli): string
 {
-    $res = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+    // A database with no settings yet - restoring into a new install - has no version
+    try {
+        $res = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+    } catch (Throwable $e) {
+        return 'Unknown';
+    }
     if ($res && $row = mysqli_fetch_assoc($res)) {
         return $row['config_current_database_version'] ?? 'Unknown';
     }
