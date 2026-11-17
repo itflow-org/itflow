@@ -204,6 +204,15 @@ function cronJobRegistry(): array
             'daily_at' => '02:30',
         ],
         [
+            'name' => 'cron_watch',
+            'label' => 'Cron Watch',
+            'icon' => 'fa-heartbeat',
+            'script' => 'cron_watch.php',
+            'description' => 'Emails the admins when a job here fails, gets stuck or falls behind, once a day while it lasts, and when it\'s fixed - set on the Alerts card.',
+            'schedule' => 'Interval',
+            'interval_minutes' => 5,
+        ],
+        [
             'name' => 'app_update',
             'label' => 'Application Update',
             'icon' => 'fa-download',

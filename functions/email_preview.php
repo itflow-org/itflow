@@ -408,6 +408,11 @@ function emailPreviewCatalog() {
             }],
 
         // ---- Other
+        'cron_alert' => ['group' => 'Other', 'label' => 'Cron needs attention', 'to' => 'Every admin, or the addresses on Maintenance > Cron', 'when' => 'A cron job fails, gets stuck or falls behind, again a day later, and when it is fixed - the Cron Watch job',
+            'run' => function ($s) {
+                cronHealthAlert([['text' => 'Ticket SLA Monitor failed 3 minutes ago.', 'detail' => 'SQLSTATE[HY000]: General error: 2006 MySQL server has gone away']],
+                    [['text' => 'Nightly Tasks is behind - it last ran 2 days ago.', 'detail' => '']], 1, 2);
+            }],
         'bulk' => ['group' => 'Other', 'label' => 'Email to many contacts', 'to' => 'The contacts picked', 'when' => 'Email on the contacts or clients list',
             'run' => function ($s) {
                 emailBulkSend([['email' => $s['alex_email'], 'name' => $s['alex_name'], 'footnote' => 'You received this as a contact for ' . $s['client'] . ' with ' . (billingCompany()['company_name'] ?? '') . '.']],

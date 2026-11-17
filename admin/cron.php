@@ -509,6 +509,66 @@ $status_looks = [
             </ul>
         </div>
 
+        <?php if (cronHealthReady()) {
+            $alert_settings = cronHealthSettings();
+            $alert_to = (string) ($alert_settings['config_cron_alert_to'] ?? '');
+            $alert_admins = $alert_to === '' ? cronHealthRecipients('') : [];
+            $health_url = cronHealthUrl();
+            $watch_on = !empty($jobs['cron_watch']['enabled']); ?>
+        <!-- Alerts: the warning in the top bar, the Cron Watch job's emails and the health address (functions/cron_health.php) -->
+        <div class="card mb-3" data-cron-alerts>
+            <div class="card-header py-3">
+                <h3 class="card-title"><i class="fas fa-fw fa-bell me-2"></i>Alerts</h3>
+            </div>
+            <div class="card-body small">
+                <p class="text-body-secondary">
+                    When cron stops, or a job fails, gets stuck or falls behind, admins see <i class="fas fa-heartbeat text-warning" aria-hidden="true"></i> in the top bar.
+                    The Cron Watch job also emails about it - when it starts, once a day while it lasts, and when it's fixed.
+                </p>
+                <?php if (!$watch_on) { ?>
+                    <p class="text-warning-emphasis" data-cron-watch-off><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Cron Watch is off, so no alerts are emailed - turn it on in Jobs.</p>
+                <?php } elseif (!emailReady()) { ?>
+                    <p class="text-warning-emphasis" data-cron-alerts-no-mail><i class="fas fa-fw fa-exclamation-triangle me-1"></i>No mail server is set up, so no alerts are emailed - <a href="settings_mail.php">Settings &gt; Mail</a>.</p>
+                <?php } ?>
+                <form action="post.php" method="post" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" role="switch" id="cronAlertEmail" name="cron_alert_email" value="1" <?= intval($alert_settings['config_cron_alert_email'] ?? 1) === 1 ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="cronAlertEmail">Email alerts</label>
+                    </div>
+                    <label class="form-label" for="cronAlertTo">Send to</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                        <input type="text" class="form-control" id="cronAlertTo" name="cron_alert_to" maxlength="500" placeholder="Every active admin" value="<?= escapeHtml($alert_to) ?>">
+                    </div>
+                    <div class="form-text">
+                        Email addresses, with commas between. Left empty, they go to every active admin<?= $alert_admins ? ' - ' . escapeHtml(implode(', ', array_keys($alert_admins))) : '' ?>.
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <button type="submit" name="edit_cron_alerts" class="btn btn-sm btn-primary"><i class="fas fa-fw fa-check me-1"></i>Save</button>
+                        <button type="submit" name="test_cron_alert" class="btn btn-sm btn-light border"><i class="fas fa-fw fa-paper-plane me-1"></i>Send a test</button>
+                    </div>
+                </form>
+                <hr>
+                <h4 class="h6"><i class="fas fa-fw fa-satellite-dish me-2"></i>Uptime monitor</h4>
+                <p class="text-body-secondary">
+                    An email can't say cron has stopped - it's cron that sends it. Point an uptime monitor (Uptime Kuma, UptimeRobot...) at this address every 5 minutes:
+                    it answers <code>OK</code> while all is well, and an error (HTTP 503) when cron isn't running or a job is in trouble. Keep it private - it shows which jobs are failing.
+                </p>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
+                    <input type="text" class="form-control font-monospace" value="<?= escapeHtml($health_url) ?>" readonly aria-label="Health address" data-cron-health-url>
+                    <button type="button" class="btn btn-light border clipboardjs" title="Copy" data-clipboard-text="<?= escapeHtml($health_url) ?>"><i class="far fa-fw fa-copy"></i></button>
+                    <a class="btn btn-light border text-danger confirm-link" href="post.php?renew_cron_health_key=1&amp;csrf_token=<?= $csrf ?>" title="Make a new address"
+                        data-confirm-title="Make a new health address?" data-confirm-text="The old address stops working - give your uptime monitor the new one." data-confirm-button="Make a new one">
+                        <i class="fas fa-fw fa-sync-alt"></i>
+                    </a>
+                </div>
+                <div class="form-text">Or send the key in an <code>X-Health-Key</code> header to <code>/health.php</code>, which keeps it out of the web server's log.</div>
+            </div>
+        </div>
+        <?php } ?>
+
         <?php if ($cron_heard) { // not running, the card at the top has the line ?>
         <!-- The one crontab line everything on this page runs from -->
         <div class="card mb-3">

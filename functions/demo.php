@@ -79,7 +79,7 @@ const DEMO_MODE_LOCKS = [
     ],
     [
         'message' => "Cron can't be changed in the demo - it runs the nightly reset.",
-        'keys' => ['clear_cron_error', 'disable_cron', 'disable_cron_job', 'edit_cron_job', 'enable_cron', 'enable_cron_job', 'run_cron_job'],
+        'keys' => ['clear_cron_error', 'disable_cron', 'disable_cron_job', 'edit_cron_alerts', 'edit_cron_job', 'enable_cron', 'enable_cron_job', 'renew_cron_health_key', 'run_cron_job', 'test_cron_alert'],
     ],
     [
         'message' => "Card payments and payment providers are turned off in the demo.",
