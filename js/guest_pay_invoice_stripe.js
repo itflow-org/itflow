@@ -12,16 +12,22 @@ document
 let emailAddress = '';
 // Fetches a payment intent and captures the client secret
 async function initialize() {
-  const { clientSecret } = await fetch("guest_ajax.php?stripe_create_pi=true", {
+  const answer = await fetch("guest_ajax.php?stripe_create_pi=true", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       invoice_id: document.getElementById("invoice_id").value,
       url_key: document.getElementById("url_key").value
     }),
-  }).then((r) => r.json());
+  }).then((r) => r.json()).catch(() => ({}));
 
-  elements = stripe.elements({ clientSecret });
+  // No payment to take - the invoice is paid, over the online limit, or Stripe is off; say why
+  if (!answer.clientSecret) {
+    showMessage(answer.error || "Paying online is not available just now.");
+    return;
+  }
+
+  elements = stripe.elements({ clientSecret: answer.clientSecret });
 
   const paymentElementOptions = {
     layout: "tabs",
@@ -36,6 +42,7 @@ async function initialize() {
 
 async function handleSubmit(e) {
   e.preventDefault();
+  document.querySelector("#payment-message").classList.add("d-none");
   setLoading(true);
 
   const { error } = await stripe.confirmPayment({
@@ -90,16 +97,12 @@ async function checkStatus() {
 
 // ------- UI helpers -------
 
+// Stays until the next try - a declined card's reason doesn't vanish before it is read
 function showMessage(messageText) {
   const messageContainer = document.querySelector("#payment-message");
 
-  messageContainer.classList.remove("hidden");
   messageContainer.textContent = messageText;
-
-  setTimeout(function () {
-    messageContainer.classList.add("hidden");
-    messageText.textContent = "";
-  }, 4000);
+  messageContainer.classList.remove("d-none");
 }
 
 // Show a spinner on payment submission
@@ -107,11 +110,11 @@ function setLoading(isLoading) {
   if (isLoading) {
     // Disable the button and show a spinner
     document.querySelector("#submit").disabled = true;
-    document.querySelector("#spinner").classList.remove("hidden");
-    document.querySelector("#button-text").classList.add("hidden");
+    document.querySelector("#spinner").classList.remove("d-none");
+    document.querySelector("#button-text").classList.add("d-none");
   } else {
     document.querySelector("#submit").disabled = false;
-    document.querySelector("#spinner").classList.add("hidden");
-    document.querySelector("#button-text").classList.remove("hidden");
+    document.querySelector("#spinner").classList.add("d-none");
+    document.querySelector("#button-text").classList.remove("d-none");
   }
 }

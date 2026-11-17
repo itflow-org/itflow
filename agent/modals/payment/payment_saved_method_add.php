@@ -47,6 +47,7 @@ ob_start();
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
+    <input type="hidden" name="pay_token" value="<?= bin2hex(random_bytes(16)) ?>">
 
     <div class="modal-body">
         <div class="text-center p-3 mb-3 rounded bg-body-tertiary">

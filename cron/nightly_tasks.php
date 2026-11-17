@@ -617,7 +617,7 @@ $sql_recurring_payments = mysqli_query($mysqli, "
     LEFT JOIN clients ON client_id = invoice_client_id
     LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
     WHERE invoice_due = CURDATE()
-      AND (invoice_status = 'Sent' OR invoice_status = 'Viewed')
+      AND invoice_status IN ('Sent', 'Viewed', 'Partial')
 ");
 
 while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
@@ -642,6 +642,17 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
     // A card that already declined today is not retried - the day-matched selection above
     // would otherwise re-attempt the same charge on every extra run of this script
     if (cronInvoiceHistoryToday($invoice_id, 'Stripe autopay failed')) {
+        continue;
+    }
+
+    // What is still owed, read again now - a part payment is taken off rather than charged again
+    // in full, and an invoice paid since the list above was read is left alone
+    $invoice_now = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT invoice_amount, invoice_status FROM invoices WHERE invoice_id = $invoice_id"));
+    if (!$invoice_now || !in_array($invoice_now['invoice_status'], invoiceOpenStatuses(), true)) {
+        continue;
+    }
+    $invoice_amount = round(floatval($invoice_now['invoice_amount']) - invoicePaid($invoice_id), 2);
+    if ((int) round($invoice_amount * 100) <= 0) {
         continue;
     }
 
@@ -731,15 +742,13 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
 
                 if ($payment_intent->status == "succeeded" && intval($payment_intent->amount_received) === $balance_cents + $fee_cents) {
 
-                    // Update Invoice Status
-                    mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
-
-                    // The card fee goes on the invoice, so the payment - the invoice and its fee - pays it to the cent
+                    // The card fee goes on the invoice, so the payment - the balance and its fee - pays it to the cent
                     billingCardFeeAdd($invoice_id, $fee_cents / 100, $pi_date);
 
                     // Add Payment to History
                     mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $account_id, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
-                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (autopay)" . ($fee_cents > 0 ? ', with a ' . escapeSql(billingMoney($fee_cents / 100, $pi_currency)) . ' card fee' : '') . "', history_invoice_id = $invoice_id");
+                    $invoice_status = updateInvoiceStatusFromPayments($invoice_id);
+                    mysqli_query($mysqli, "INSERT INTO history SET history_status = '$invoice_status', history_description = 'Online Payment added (autopay)" . ($fee_cents > 0 ? ', with a ' . escapeSql(billingMoney($fee_cents / 100, $pi_currency)) . ' card fee' : '') . "', history_invoice_id = $invoice_id");
 
                     // The client's receipt, and the paid notification address - functions/billing_email.php
                     if (!empty($config_smtp_provider)) {
@@ -767,8 +776,8 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
         mysqli_query($mysqli, "INSERT INTO payments SET payment_date = CURDATE(), payment_amount = $invoice_amount, payment_currency_code = '$recurring_payment_currency_code', payment_account_id = $recurring_payment_account_id, payment_method = '$recurring_payment_method', payment_reference = 'Paid via AutoPay', payment_invoice_id = $invoice_id");
         $payment_id = mysqli_insert_id($mysqli);
 
-        mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
-        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Payment added via Auto Pay', history_invoice_id = $invoice_id");
+        $invoice_status = updateInvoiceStatusFromPayments($invoice_id);
+        mysqli_query($mysqli, "INSERT INTO history SET history_status = '$invoice_status', history_description = 'Payment added via Auto Pay', history_invoice_id = $invoice_id");
         logAudit("Invoice", "Payment", "Auto Payment amount of $recurring_payment_currency_code $invoice_amount added to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
     }
 }

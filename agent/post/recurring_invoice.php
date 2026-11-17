@@ -17,7 +17,7 @@ if (isset($_POST['add_invoice_recurring'])) {
     $recurring_invoice_frequency = validateRecurringFrequency($_POST['frequency']);
 
     $sql = mysqli_query($mysqli,"SELECT invoice_amount, invoice_category_id, invoice_client_id, invoice_currency_code,
-        invoice_date, invoice_note, invoice_number, invoice_prefix, invoice_scope FROM invoices WHERE invoice_id = $invoice_id");
+        invoice_date, invoice_discount_amount, invoice_note, invoice_number, invoice_prefix, invoice_scope FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
     if (!$row) {
         flashAlert('That invoice no longer exists.', 'error');
@@ -27,6 +27,8 @@ if (isset($_POST['add_invoice_recurring'])) {
     $invoice_number = intval($row['invoice_number']);
     $invoice_date = escapeSql(validateDate($row['invoice_date']));
     $invoice_amount = floatval($row['invoice_amount']);
+    // Its discount goes with it - the amount already has it taken off
+    $invoice_discount_amount = floatval($row['invoice_discount_amount']);
     $invoice_currency_code = escapeSql($row['invoice_currency_code']);
     $invoice_scope = escapeSql($row['invoice_scope']);
     $invoice_note = escapeSql($row['invoice_note']);
@@ -46,7 +48,7 @@ if (isset($_POST['add_invoice_recurring'])) {
 
     $recurring_invoice_number = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$config_recurring_invoice_prefix', recurring_invoice_number = $recurring_invoice_number, recurring_invoice_scope = '$invoice_scope', recurring_invoice_frequency = '$recurring_invoice_frequency', recurring_invoice_next_date = '" . recurringInvoiceStep($invoice_date, $recurring_invoice_frequency) . "', recurring_invoice_anchor_day = DAY('$invoice_date'), recurring_invoice_status = 1, recurring_invoice_amount = $invoice_amount, recurring_invoice_currency_code = '$invoice_currency_code', recurring_invoice_note = '$invoice_note', recurring_invoice_category_id = $category_id, recurring_invoice_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$config_recurring_invoice_prefix', recurring_invoice_number = $recurring_invoice_number, recurring_invoice_scope = '$invoice_scope', recurring_invoice_frequency = '$recurring_invoice_frequency', recurring_invoice_next_date = '" . recurringInvoiceStep($invoice_date, $recurring_invoice_frequency) . "', recurring_invoice_anchor_day = DAY('$invoice_date'), recurring_invoice_status = 1, recurring_invoice_discount_amount = $invoice_discount_amount, recurring_invoice_amount = $invoice_amount, recurring_invoice_currency_code = '$invoice_currency_code', recurring_invoice_note = '$invoice_note', recurring_invoice_category_id = $category_id, recurring_invoice_client_id = $client_id");
 
     $recurring_invoice_id = mysqli_insert_id($mysqli);
 

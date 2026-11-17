@@ -70,6 +70,13 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $amount_paid = floatval(mysqli_fetch_assoc($sql_amount_paid)['amount_paid']);
     $balance_to_pay = round($invoice_amount - $amount_paid, 2);
 
+    // As the invoice's Pay button: sent and still owed on, and under Stripe's limit (Admin > Payment Providers)
+    if (!invoiceCanPay($row, invoiceState($row, $amount_paid)) || !billingOnlinePayAllowed($invoice_amount)) {
+        echo "<br><h2>This invoice can't be paid online. Please get in touch to pay it another way.</h2>";
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
+    }
+
     // The card fee, when the client pays it - guest_ajax.php charges the same
     $fee_rates = billingCardFeeFor($client_id);
     $card_fee = billingCardFeeCents((int) round($balance_to_pay * 100), $fee_rates) / 100;
@@ -161,10 +168,10 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                         <div id="payment-element"></div>
                         <br>
                         <button type="submit" id="submit" class="btn btn-primary btn-lg w-100 text-bold" hidden="hidden">
-                            <div class="spinner hidden" id="spinner"></div>
+                            <span class="spinner-border spinner-border-sm d-none" id="spinner" role="status"></span>
                             <span id="button-text"><i class="fas fa-check me-2"></i>Pay Invoice</span>
                         </button>
-                        <div id="payment-message" class="d-none"></div>
+                        <div id="payment-message" class="alert alert-danger mt-3 mb-0 d-none" role="alert"></div>
                     </form>
                 </div>
             </div>
@@ -297,8 +304,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     logForwardQueue('audit', mysqli_insert_id($mysqli));
 
     // The client's receipt, and the paid notification address - functions/billing_email.php
-    $config_smtp_host = mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_smtp_host FROM settings WHERE company_id = 1"))[0] ?? '';
-    if (!empty($config_smtp_host)) {
+    if (billingEmailReady()) {
         billingPaymentSend($invoice_id, $pi_amount_paid, ['date' => $pi_date, 'method' => 'Card', 'reference' => "Stripe - $pi_id", 'how' => 'Online card'], true);
     }
 

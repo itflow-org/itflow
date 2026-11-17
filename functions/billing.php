@@ -1824,9 +1824,8 @@ function billingQuoteAnswer($quote_id, $accept, array $by = []) {
         logAudit("Quote", $accept ? "Accept" : "Decline", escapeSql("$name " . strtolower($word) . " quote $number in the client portal"), intval($quote['client_id']), $quote_id);
     }
 
-    // Our team hears - functions/billing_email.php
-    $settings = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_smtp_host, config_quote_notification_email FROM settings WHERE company_id = 1")) ?: [];
-    if (!empty($settings['config_smtp_host']) && !empty($settings['config_quote_notification_email'])) {
+    // Our team hears, at the quote notification address - functions/billing_email.php
+    if (billingEmailReady()) {
         billingQuoteAnsweredNotify($quote_id, $accept, $name, $note);
     }
 

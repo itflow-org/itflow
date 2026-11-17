@@ -17,7 +17,6 @@ if (isset($_POST['add_payment'])) {
     enforceBillingMoney('take');
 
     $invoice_id = intval($_POST['invoice_id']);
-    $balance = floatval($_POST['balance']);
     $date = escapeSql($_POST['date']);
     $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
@@ -30,9 +29,19 @@ if (isset($_POST['add_payment'])) {
 
     enforceClientAccess();
 
-    //Check to see if amount entered is greater than the balance of the invoice
-    if ($amount > $balance) {
-        flashAlert("Payment can not be more than the balance", 'error');
+    // The balance is worked out here, not taken from the form - a window left open, or two people
+    // paying at once, would take the invoice past what it owes. Only an invoice the Add Payment
+    // button shows for (sent and still owed on), and compared in whole cents.
+    $invoice = billingRow('invoice', $invoice_id);
+    $state = $invoice ? invoiceState($invoice, invoicePaid($invoice_id)) : null;
+    if (!$invoice || !invoiceCanPay($invoice, $state)) {
+        flashAlert("Payments can only be added to a sent invoice with something still owed on it", 'error');
+        redirect();
+    }
+
+    $amount_cents = (int) round($amount * 100);
+    if ($amount_cents <= 0 || $amount_cents > (int) round($state['balance'] * 100)) {
+        flashAlert("The payment must be more than 0 and no more than the balance of " . escapeHtml(billingMoney($state['balance'], $invoice['invoice_currency_code'])), 'error');
         redirect();
     } else {
         mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = $amount, payment_currency_code = '$currency_code', payment_account_id = $account, payment_method = '$payment_method', payment_reference = '$reference', payment_invoice_id = $invoice_id");
@@ -40,27 +49,12 @@ if (isset($_POST['add_payment'])) {
         // Get Payment ID for reference
         $payment_id = mysqli_insert_id($mysqli);
 
-        //Add up all the payments for the invoice and get the total amount paid to the invoice
-        $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payments_amount FROM payments WHERE payment_invoice_id = $invoice_id");
-        $row = mysqli_fetch_assoc($sql_total_payments_amount);
-        $total_payments_amount = floatval($row['payments_amount']);
+        $invoice_prefix = escapeSql($invoice['invoice_prefix']);
+        $invoice_number = intval($invoice['invoice_number']);
+        $invoice_currency_code = escapeSql($invoice['invoice_currency_code']);
 
-        //Get the invoice total
-        $sql = mysqli_query($mysqli,"SELECT invoice_amount, invoice_currency_code, invoice_number, invoice_prefix FROM invoices WHERE invoice_id = $invoice_id");
-        $row = mysqli_fetch_assoc($sql);
-        $invoice_amount = floatval($row['invoice_amount']);
-        $invoice_prefix = escapeSql($row['invoice_prefix']);
-        $invoice_number = intval($row['invoice_number']);
-        $invoice_currency_code = escapeSql($row['invoice_currency_code']);
-
-        //Calculate the Invoice balance
-        $invoice_balance = $invoice_amount - $total_payments_amount;
-
-        //Determine if invoice has been paid then set the status accordingly
-        $invoice_status = $invoice_balance == 0 ? "Paid" : "Partial";
-
-        //Update Invoice Status
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id");
+        // Paid or Partial, from what has now been paid - in whole cents
+        $invoice_status = updateInvoiceStatusFromPayments($invoice_id);
 
         //Add Payment to History
         mysqli_query($mysqli,"INSERT INTO history SET history_status = '$invoice_status', history_description = 'Payment added', history_invoice_id = $invoice_id");
@@ -245,6 +239,8 @@ if (isset($_POST['add_payment_stripe'])) {
 
     $invoice_id = intval($_POST['invoice_id']);
     $saved_payment_id = intval($_POST['saved_payment_id']);
+    // The window's own key - the same window sent twice is one charge at Stripe
+    $pay_token = (string) ($_POST['pay_token'] ?? '');
 
     // Get invoice details
     $sql = mysqli_query($mysqli,"SELECT client_id, client_name, contact_email, contact_extension, contact_mobile,
@@ -316,11 +312,24 @@ if (isset($_POST['add_payment_stripe'])) {
     if (!$payment_provider_client || !$saved_payment_method) {
         flashAlert("Stripe not enabled or no client card saved", 'error');
         redirect();
-    } elseif ($invoice_status !== 'Sent' && $invoice_status !== 'Viewed') {
-        flashAlert("Invalid invoice state (draft/partial/paid/not billable)", 'error');
+    } elseif (!preg_match('/^[a-f0-9]{32}$/', $pay_token)) {
+        flashAlert("That window was out of date - open Charge Saved Card again", 'error');
         redirect();
-    } elseif ($invoice_amount == 0) {
-        flashAlert("Invalid invoice amount", 'error');
+    }
+
+    // One charge for an invoice at a time: a second Charge - a double click, or someone else on the
+    // same invoice - waits for the first, then reads the invoice again and finds it paid
+    $pay_lock = "itflow_invoice_pay_$invoice_id";
+    if (intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT GET_LOCK('$pay_lock', 30)"))[0] ?? 0) !== 1) {
+        flashAlert("A payment for this invoice is already going through - check the invoice in a moment", 'error');
+        redirect();
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT invoice_amount, invoice_status FROM invoices WHERE invoice_id = $invoice_id"));
+    $invoice_status = (string) ($row['invoice_status'] ?? '');
+    $invoice_amount = round(floatval($row['invoice_amount'] ?? 0) - invoicePaid($invoice_id), 2);
+    if (($invoice_status !== 'Sent' && $invoice_status !== 'Viewed') || (int) round($invoice_amount * 100) <= 0) {
+        mysqli_query($mysqli, "SELECT RELEASE_LOCK('$pay_lock')");
+        flashAlert("This invoice is paid, or no longer waiting for a payment", 'error');
         redirect();
     }
 
@@ -355,7 +364,7 @@ if (isset($_POST['add_payment_stripe'])) {
             'confirm' => true,
             'description' => $pi_description,
             'metadata' => $pi_metadata,
-        ]);
+        ], ['idempotency_key' => "itflow-agent-$invoice_id-$pay_token"]);
 
         // Get details from PI
         $pi_id = escapeSql($payment_intent->id);
@@ -372,15 +381,14 @@ if (isset($_POST['add_payment_stripe'])) {
 
     if (isset($payment_intent) && $payment_intent->status == "succeeded" && intval($payment_intent->amount_received) === $balance_cents + $fee_cents) {
 
-        // Update Invoice Status
-        mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
-
         // The card fee goes on the invoice, so the payment - the invoice and its fee - pays it to the cent
         billingCardFeeAdd($invoice_id, $fee_cents / 100, $pi_date);
 
         // Add Payment to History
         mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $account_id, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
-        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (agent)" . ($fee_cents > 0 ? ', with a ' . escapeSql(billingMoney($fee_cents / 100, $pi_currency)) . ' card fee' : '') . "', history_invoice_id = $invoice_id");
+        $invoice_status = updateInvoiceStatusFromPayments($invoice_id);
+        mysqli_query($mysqli, "SELECT RELEASE_LOCK('$pay_lock')");
+        mysqli_query($mysqli, "INSERT INTO history SET history_status = '$invoice_status', history_description = 'Online Payment added (agent)" . ($fee_cents > 0 ? ', with a ' . escapeSql(billingMoney($fee_cents / 100, $pi_currency)) . ' card fee' : '') . "', history_invoice_id = $invoice_id");
 
         // The client's receipt, and the paid notification address - functions/billing_email.php
         if (!empty($config_smtp_provider)) {
@@ -407,6 +415,7 @@ if (isset($_POST['add_payment_stripe'])) {
         redirect();
 
     } else {
+        mysqli_query($mysqli, "SELECT RELEASE_LOCK('$pay_lock')");
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe pay failed due to payment error', history_invoice_id = $invoice_id");
 
         logAudit("Invoice", "Payment", "Failed online payment amount of invoice $invoice_prefix$invoice_number due to Stripe payment error", $client_id, $invoice_id);
@@ -427,7 +436,6 @@ if (isset($_POST['add_bulk_payment'])) {
     $date = escapeSql($_POST['date']);
     $bulk_payment_amount = floatval($_POST['amount']);
     $bulk_payment_amount_static = floatval($_POST['amount']);
-    $total_account_balance = floatval($_POST['balance']);
     $account = intval($_POST['account']);
     $currency_code = escapeSql($_POST['currency_code']);
     $payment_method = escapeSql($_POST['payment_method']);
@@ -435,12 +443,6 @@ if (isset($_POST['add_bulk_payment'])) {
     $email_receipt = intval($_POST['email_receipt']);
 
     enforceClientAccess();
-
-    // Check if bulk_payment_amount exceeds total_account_balance
-    if ($bulk_payment_amount > $total_account_balance) {
-        flashAlert("Payment exceeds Client Balance.", 'error');
-        redirect();
-    }
 
     // Get Invoices
     // Only invoices still waiting on money - not drafts, not paid, not cancelled or non-billable
@@ -450,51 +452,44 @@ if (isset($_POST['add_bulk_payment'])) {
         ORDER BY invoice_number ASC";
     $result_invoices = mysqli_query($mysqli, $sql_invoices);
 
+    // What each still owes, worked out here rather than taken from the form - in whole cents, so
+    // a payment that pays the invoices exactly leaves every one of them Paid
+    $owed = [];
+    while ($row = mysqli_fetch_assoc($result_invoices)) {
+        $owed_cents = (int) round((floatval($row['invoice_amount']) - invoicePaid($row['invoice_id'])) * 100);
+        // Nothing owed on this one - a zero-value invoice, or one paid without its status catching up
+        if ($owed_cents > 0) {
+            $owed[] = [$row, $owed_cents];
+        }
+    }
+    $bulk_payment_cents = (int) round($bulk_payment_amount * 100);
+    $total_owed_cents = array_sum(array_column($owed, 1));
+    if ($bulk_payment_cents <= 0 || $bulk_payment_cents > $total_owed_cents) {
+        flashAlert("The payment must be more than 0 and no more than the client's balance of " . escapeHtml(billingMoney($total_owed_cents / 100, stripslashes($currency_code))), 'error');
+        redirect();
+    }
+
     // Loop Through Each Invoice
     $applied_payments = [];
-    while ($row = mysqli_fetch_assoc($result_invoices)) {
+    foreach ($owed as [$row, $invoice_balance_cents]) {
         $invoice_id = intval($row['invoice_id']);
-        $invoice_prefix = escapeSql($row['invoice_prefix']);
-        $invoice_number = intval($row['invoice_number']);
-        $invoice_amount = floatval($row['invoice_amount']);
-        $invoice_url_key = escapeSql($row['invoice_url_key']);
-        $invoice_balance_query = "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id";
-        $result_amount_paid = mysqli_query($mysqli, $invoice_balance_query);
-        $row_amount_paid = mysqli_fetch_assoc($result_amount_paid);
-        $amount_paid = floatval($row_amount_paid['amount_paid']);
-        $invoice_balance = $invoice_amount - $amount_paid;
 
-        if ($bulk_payment_amount <= 0) {
+        if ($bulk_payment_cents <= 0) {
             break; // Exit the loop if no payment amount is left
         }
 
-        // Nothing owed on this one - a zero-value invoice, or one paid without its status catching up
-        if ($invoice_balance <= 0) {
-            continue;
-        }
-
-        if ($bulk_payment_amount >= $invoice_balance) {
-            $payment_amount = $invoice_balance;
-            $invoice_status = "Paid";
-        } else {
-            $payment_amount = $bulk_payment_amount;
-            $invoice_status = "Partial";
-        }
-
-        // Subtract the payment amount from the bulk payment amount
-        $bulk_payment_amount -= $payment_amount;
-
-        // Get Invoice Remain Balance
-        $remaining_invoice_balance = $invoice_balance - $payment_amount;
+        // As much of what is left as this invoice owes
+        $payment_cents = min($bulk_payment_cents, $invoice_balance_cents);
+        $payment_amount = $payment_cents / 100;
+        $bulk_payment_cents -= $payment_cents;
 
         // Add Payment
         $payment_query = "INSERT INTO payments (payment_date, payment_amount, payment_currency_code, payment_account_id, payment_method, payment_reference, payment_invoice_id) VALUES ('{$date}', {$payment_amount}, '{$currency_code}', {$account}, '{$payment_method}', '{$reference}', {$invoice_id})";
         mysqli_query($mysqli, $payment_query);
         $payment_id = mysqli_insert_id($mysqli);
 
-        // Update Invoice Status
-        $update_invoice_query = "UPDATE invoices SET invoice_status = '{$invoice_status}' WHERE invoice_id = {$invoice_id}";
-        mysqli_query($mysqli, $update_invoice_query);
+        // Paid or Partial, from what has now been paid
+        $invoice_status = updateInvoiceStatusFromPayments($invoice_id);
 
         // Add Payment to History
         $history_description = "Payment added";
