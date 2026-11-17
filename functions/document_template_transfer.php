@@ -24,15 +24,20 @@ const DOCUMENT_TEMPLATE_TRANSFER_IMAGE_MAX = 5 * 1024 * 1024;
 function documentTemplateInlineImages($document_template_id, $html, &$left_out = 0) {
     $document_template_id = intval($document_template_id);
     $dir = documentTemplateDir($document_template_id);
-    return preg_replace_callback('/(<img\b[^>]*?\bsrc=)(["\'])\/?uploads\/document_templates\/' . $document_template_id . '\/([^"\'\/]+)\2/i', function ($match) use ($dir, &$left_out) {
+    // A tag at a time - a lazy scan to its src= ran out of PCRE's backtracking past a large picture
+    // already in it as data, and the template went out empty
+    return preg_replace_callback('/<img\b[^>]*>/i', function ($tag) use ($dir, $document_template_id, &$left_out) {
+        if (!preg_match('/(\ssrc=)(["\'])\/?uploads\/document_templates\/' . $document_template_id . '\/([^"\'\/]+)\2/i', $tag[0], $match)) {
+            return $tag[0];
+        }
         $path = $dir . '/' . basename($match[3]);
         $info = is_file($path) && filesize($path) <= DOCUMENT_TEMPLATE_TRANSFER_IMAGE_MAX ? @getimagesize($path) : false;
         if (!$info || !in_array($info['mime'], ['image/png', 'image/jpeg', 'image/gif', 'image/webp'], true)) {
             $left_out++;
-            return $match[0];
+            return $tag[0];
         }
-        return $match[1] . $match[2] . 'data:' . $info['mime'] . ';base64,' . base64_encode((string) file_get_contents($path)) . $match[2];
-    }, (string) $html);
+        return str_replace($match[0], $match[1] . $match[2] . 'data:' . $info['mime'] . ';base64,' . base64_encode((string) file_get_contents($path)) . $match[2], $tag[0]);
+    }, (string) $html) ?? (string) $html;
 }
 
 /*
@@ -112,12 +117,22 @@ function documentTemplatesImportRead($contents, &$error = '') {
         if ($name === '') {
             continue;
         }
-        // An image carried as data with no alt would get one made of its data
-        $content = is_scalar($t['content'] ?? null) ? preg_replace('/<img\b(?![^>]*\balt=)(?=[^>]*\bsrc=["\']data:)/i', '<img alt=""', (string) $t['content']) : '';
+        // An image carried as data with no alt would get one made of its data - a tag at a time, as
+        // a lookahead across a large picture's data ran out of PCRE's backtracking (emailMessageHtml())
+        $content = is_scalar($t['content'] ?? null) ? (string) $t['content'] : '';
+        $content = preg_replace_callback('/<img\b([^>]*)>/i', function ($m) {
+            return preg_match('/\salt\s*=/i', $m[1]) || !preg_match('/\ssrc\s*=\s*["\']data:/i', $m[1]) ? $m[0] : '<img alt=""' . $m[1] . '>';
+        }, $content) ?? $content;
         $content = trim($content) !== '' ? documentHtmlPurify($content) : '';
         // An image still pointing at the uploads of the install it came from is no image here
         $dropped = 0;
-        $content = preg_replace('/<img\b[^>]*?\bsrc=(["\'])\/?uploads\/[^"\']*\1[^>]*>/i', '', $content, -1, $dropped);
+        $content = preg_replace_callback('/<img\b[^>]*>/i', function ($tag) use (&$dropped) {
+            if (preg_match('/\ssrc=(["\'])\/?uploads\//i', $tag[0])) {
+                $dropped++;
+                return '';
+            }
+            return $tag[0];
+        }, $content) ?? $content;
 
         $fill_ins = [];
         foreach (array_slice(is_array($t['fill_ins'] ?? null) ? $t['fill_ins'] : [], 0, 100) as $f) {

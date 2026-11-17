@@ -295,11 +295,18 @@ function emailMessageHtml($html) {
     $html = documentHtmlPurify($html);
     if (!empty($config_base_url)) {
         $base = 'https://' . $config_base_url;
-        $html = preg_replace('/\b(src|href)="\/(?!\/)/i', '$1="' . $base . '/', $html);
+        $html = preg_replace('/\b(src|href)="\/(?!\/)/i', '$1="' . $base . '/', $html) ?? $html;
     }
-    // Images no wider than the card, paragraphs closer together than a mail program's default
-    $html = preg_replace('/<img\b(?![^>]*\bstyle=)/i', '<img style="max-width:100%;height:auto;"', $html);
-    return preg_replace('/<p(?=[\s>])(?![^>]*\bstyle=)/i', '<p style="margin:0 0 10px;"', $html);
+    // Images no wider than the card, paragraphs closer together than a mail program's default - a
+    // tag at a time. A lookahead across the tag ran out of PCRE's backtracking (pcre.backtrack_limit,
+    // a million) on a pasted picture of 750 KB or more, whose data is that long, and the whole
+    // message was lost
+    return preg_replace_callback('/<(img|p)\b([^>]*)>/i', function ($m) {
+        if (preg_match('/\sstyle\s*=/i', $m[2])) {
+            return $m[0];
+        }
+        return '<' . $m[1] . ' style="' . (strtolower($m[1]) === 'img' ? 'max-width:100%;height:auto;' : 'margin:0 0 10px;') . '"' . $m[2] . '>';
+    }, $html) ?? $html;
 }
 
 /*

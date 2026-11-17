@@ -1591,7 +1591,8 @@ function clientExportHtmlPage($title, $body, $up = '') {
  * anything else is left pointing where it did.
  */
 function clientExportLocalImages($html, array $roots, $image_folder, $up, callable $add_file) {
-    return preg_replace_callback('/(<img\b[^>]*\bsrc\s*=\s*")([^"]*)(")/i', function ($m) use ($roots, $image_folder, $up, $add_file) {
+    // To the first src= - not the last, which ran out of PCRE's backtracking past a large picture's data
+    return preg_replace_callback('/(<img\b[^>]*?\bsrc\s*=\s*")([^"]*)(")/i', function ($m) use ($roots, $image_folder, $up, $add_file) {
         $src = html_entity_decode($m[2], ENT_QUOTES, 'UTF-8');
         foreach ($roots as $web => $dir) {
             $web_relative = ltrim($web, '/');
@@ -1609,7 +1610,7 @@ function clientExportLocalImages($html, array $roots, $image_folder, $up, callab
             return $m[1] . escapeHtml($up . $target) . $m[3];
         }
         return $m[0];
-    }, $html);
+    }, $html) ?? $html;
 }
 
 /**
