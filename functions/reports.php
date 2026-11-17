@@ -77,6 +77,10 @@ function reportCatalog() {
                     'title' => 'Mileage', 'icon' => 'fa-route', 'module' => 'module_financial', 'feature' => ['accounting'],
                     'description' => 'Distance driven by agent and client, with what it comes to at your mileage rate.',
                 ],
+                'tax_package' => [
+                    'title' => 'Tax Package', 'icon' => 'fa-archive', 'module' => 'module_financial', 'feature' => ['accounting'],
+                    'description' => 'Everything your accountant asks for at year end, for one tax year - the summary, every payment, expense, invoice and trip as spreadsheets, and the receipts - in one download.',
+                ],
             ],
         ],
         'billing' => [
@@ -823,6 +827,8 @@ function reportCategoryColor($color, $i) {
  * Rows are plain arrays of raw values; 'totals' (same keys) goes in the footer.
  * A row ['_heading' => 'Label'] is a quiet heading over the rows after it (left out
  * of the export) - for tables that are not sortable; '_class' adds classes to a row.
+ * 'limit' shows the first rows of a long list; the PDF has them all unless
+ * 'pdf_whole' is false.
  */
 
 function reportColumnIsNumber(array $column) {
@@ -883,9 +889,9 @@ function reportTable(array $columns, array $rows, array $options = []) {
         return ($column['screen'] ?? true) !== false;
     });
     $sortable = $options['sortable'] ?? true;
-    // A long list shows its first rows; the CSV always has them all, and the PDF as many as a PDF can hold
+    // A long list shows its first rows; the CSV always has them all, and the PDF as many as a PDF can hold - unless 'pdf_whole' is false
     $all = count($rows);
-    $limit = reportPdfRequested() ? EXPORT_PDF_MAX_ROWS : intval($options['limit'] ?? 0);
+    $limit = reportPdfRequested() && ($options['pdf_whole'] ?? true) ? EXPORT_PDF_MAX_ROWS : intval($options['limit'] ?? 0);
     if ($limit && $all > $limit) {
         $rows = array_slice($rows, 0, $limit);
     }
@@ -979,6 +985,19 @@ function reportExporting($table = null) {
 function reportCsv($name, array $columns, array $rows, array $totals = null) {
     global $session_name;
 
+    $data = reportCsvData($columns, $rows, $totals);
+
+    // $session_name is SQL-safe already - escaping it again kept the backslash ("O\'Brien")
+    logAudit('Report', 'Export', "$session_name exported the " . escapeSql($name) . " report");
+
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . sanitizeFilename($name . '-' . date('Y-m-d') . '.csv') . '"');
+    echo $data;
+    exit;
+}
+
+/** Rows as CSV text, as reportCsv() sends them - for a file of several, such as the tax package. */
+function reportCsvData(array $columns, array $rows, array $totals = null) {
     $columns = array_filter($columns, function ($column) {
         return ($column['csv'] ?? true) !== false;
     });
@@ -1018,16 +1037,10 @@ function reportCsv($name, array $columns, array $rows, array $totals = null) {
         }
         fputcsv($out, $values, ',', '"', '\\');
     }
-
-    // $session_name is SQL-safe already - escaping it again kept the backslash ("O\'Brien")
-    logAudit('Report', 'Export', "$session_name exported the " . escapeSql($name) . " report");
-
     fseek($out, 0);
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="' . sanitizeFilename($name . '-' . date('Y-m-d') . '.csv') . '"');
-    fpassthru($out);
+    $data = stream_get_contents($out);
     fclose($out);
-    exit;
+    return $data;
 }
 
 /*
@@ -1038,18 +1051,28 @@ function reportCsv($name, array $columns, array $rows, array $totals = null) {
  * (functions/report_pdf.php), so the PDF follows the page whatever the report
  * puts on it. Tables come out whole rather than their first rows. The charts
  * are drawn by the browser, which posts them as pictures (js/reports.js), with
- * the theme's accent for the map; without them the PDF has no charts.
+ * the theme's accent for the map; without them the PDF has no charts. A page
+ * that sends something with the PDF in it (the tax package's ZIP) starts this
+ * itself, with what sends it.
  */
 
-/** Is this a request for the report as a PDF? */
+/** Is this a request for the report as a PDF - or for a package with it in (?export=package)? */
 function reportPdfRequested() {
-    return ($_GET['export'] ?? '') === 'pdf';
+    return in_array($_GET['export'] ?? '', ['pdf', 'package'], true);
 }
 
-/** Hold back what the page draws, to make it a PDF as the page ends. Called by inc_report_layout.php before anything is drawn. */
-function reportPdfStart() {
+/**
+ * Hold back what the page draws, to make it a PDF as the page ends. Called by
+ * inc_report_layout.php before anything is drawn - or by the page before
+ * that, with $send(ReportPdfWriter) to send something else made with the PDF.
+ */
+function reportPdfStart(callable $send = null) {
+    if (!empty($GLOBALS['report_pdf_level'])) {
+        return;
+    }
     ob_start();
     $GLOBALS['report_pdf_level'] = ob_get_level();
+    $GLOBALS['report_pdf_send'] = $send;
     register_shutdown_function('reportPdfFinish');
 }
 
@@ -1084,6 +1107,10 @@ function reportPdfFinish() {
     $writer = new ReportPdfWriter($charts, $accent);
     if (!$writer->render($html, $session_company_name, $session_company_country)) {
         echo $html;
+        return;
+    }
+    if (!empty($GLOBALS['report_pdf_send'])) {
+        $GLOBALS['report_pdf_send']($writer);
         return;
     }
     $data = $writer->pdf->Output('', 'S');

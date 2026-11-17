@@ -493,6 +493,7 @@ class ReportPdfWriter {
         // Columns as wide as what is in them, so names get room and figures don't
         $columns = 0;
         $lengths = [];
+        $words = [];
         foreach ($groups as $part => $rows) {
             foreach ($rows as $tr) {
                 $i = 0;
@@ -504,10 +505,14 @@ class ReportPdfWriter {
                     if ($span === 1) {
                         // A heading can wrap between its words, not inside one; the rest by its length, plus room for bold
                         $text = $this->cellText($cell);
-                        $length = $part === 'head' ? max(array_map('mb_strlen', preg_split('/\s+/u', $text ?: ' '))) + 2 : min(36, mb_strlen($text) + 2);
+                        // Headings are bold, so a little wider than their letters
+                        $length = $part === 'head' ? max(array_map('mb_strlen', preg_split('/\s+/u', $text ?: ' '))) * 1.25 + 2 : min(36, mb_strlen($text) + 2);
                         // A figure shouldn't wrap
                         if ($part !== 'head' && preg_match('/^[^A-Za-z]*\d[^A-Za-z]*$/u', $text)) {
-                            $length += 2;
+                            $length = $length * 1.1 + 2;
+                        } elseif ($part !== 'head' && $text !== '') {
+                            // An address or link has no spaces to wrap at - it can wrap anywhere past 18 letters
+                            $words[$i] = max($words[$i] ?? 0, min(18, max(array_map('mb_strlen', preg_split('/\s+/u', $text)))) * 1.15 + 2);
                         }
                         $lengths[$i] = max($lengths[$i] ?? 5, $length);
                     }
@@ -519,15 +524,29 @@ class ReportPdfWriter {
         if (!$columns) {
             return;
         }
+        $size = $columns <= 5 ? 8.5 : ($columns <= 7 ? 8 : ($columns <= 9 ? 7.5 : ($columns <= 12 ? 6.8 : 6.2)));
+        // More than fits across the page: the text columns wrap (down to their longest word), the figures keep their room
+        $fits = ($this->width - $columns * 2.4) / ($size * 0.2);
         $total = 0;
         for ($i = 0; $i < $columns; $i++) {
-            $total += $lengths[$i] ?? 5;
+            $lengths[$i] = $lengths[$i] ?? 5;
+            $total += $lengths[$i];
+        }
+        $spare = 0;
+        foreach ($words as $i => $word) {
+            $spare += max(0, $lengths[$i] - $word);
+        }
+        if ($total > $fits && $spare > 0) {
+            $squeeze = min(1, ($total - $fits) / $spare);
+            foreach ($words as $i => $word) {
+                $lengths[$i] -= max(0, $lengths[$i] - $word) * $squeeze;
+            }
+            $total = array_sum($lengths);
         }
         $widths = [];
         for ($i = 0; $i < $columns; $i++) {
-            $widths[$i] = ($lengths[$i] ?? 5) / $total * 100;
+            $widths[$i] = $lengths[$i] / $total * 100;
         }
-        $size = $columns <= 5 ? 8.5 : ($columns <= 7 ? 8 : ($columns <= 9 ? 7.5 : ($columns <= 12 ? 6.8 : 6.2)));
         $previous = $this->size;
         $this->size = $size;
 
