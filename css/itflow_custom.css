@@ -2457,6 +2457,37 @@ body {
     align-items: center;
     padding: .75rem 1rem .25rem;
 }
+/* Ticket timers in the top bar (js/ticket_timers.js) - the stopwatch pulses while one runs */
+#itflowTimers.is-running > .nav-link {
+    color: var(--bs-warning);
+}
+#itflowTimers.is-running .fa-stopwatch {
+    animation: itflow-timer-pulse 1.6s ease-in-out infinite;
+}
+@keyframes itflow-timer-pulse {
+    50% { opacity: .45; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #itflowTimers.is-running .fa-stopwatch {
+        animation: none;
+    }
+}
+.itflow-timer-row {
+    padding: .6rem 1rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+.itflow-timer-row:last-child {
+    border-bottom: 0;
+}
+.itflow-timer-time {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+/* Quick ticket's list of the contact's open tickets - a long one scrolls in place */
+.itflow-also-open-list {
+    max-height: 15rem;
+    overflow-y: auto;
+}
 .itflow-notify-tabs {
     gap: 1rem;
     padding: 0 1rem;

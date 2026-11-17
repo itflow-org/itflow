@@ -37,6 +37,35 @@
             </li>
         <?php } ?>
 
+        <?php if (quickTicketCan()) { ?>
+            <!-- Quick ticket - the client, the contact and the issue, for a call or a walk-up (functions/quick_ticket.php).
+                 On a client's page it starts on that client. -->
+            <li class="nav-item">
+                <a class="nav-link ajax-modal" href="#" data-modal-url="/agent/modals/ticket/ticket_quick.php<?= intval($_GET['client_id'] ?? 0) ? '?client_id=' . intval($_GET['client_id']) : '' ?>"
+                    role="button" title="Quick ticket" aria-label="Quick ticket">
+                    <i class="fas fa-plus-circle" aria-hidden="true"></i>
+                </a>
+            </li>
+        <?php } ?>
+
+        <?php if (!empty($config_module_enable_ticketing)) { ?>
+            <!-- Ticket timers - the ones running or paused in this browser, so one isn't lost on a ticket
+                 you left. js/ticket_timers.js shows it once it finds one. -->
+            <li class="nav-item dropdown" id="itflowTimers" hidden>
+                <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Ticket timers" aria-label="Ticket timers">
+                    <i class="fas fa-stopwatch" aria-hidden="true"></i>
+                    <span class="badge rounded-pill navbar-badge" data-timers-badge></span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end p-0 itflow-notify-panel itflow-timers-panel" data-bs-theme="<?= $user_config_theme_dark ? 'dark' : 'light' ?>">
+                    <div class="itflow-notify-head pb-2 border-bottom">
+                        <span class="fw-semibold"><i class="fas fa-stopwatch me-2" aria-hidden="true"></i>Ticket timers</span>
+                        <small class="text-body-secondary ms-auto">In this browser</small>
+                    </div>
+                    <div class="itflow-notify-list" data-timers-list></div>
+                </div>
+            </li>
+        <?php } ?>
+
         <!-- Notifications - js/notifications.js fills the panel when the bell is
              opened and keeps the badge current. Without the script the bell is a
              plain link to the full page. The panel follows the page theme, not

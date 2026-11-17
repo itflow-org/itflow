@@ -115,7 +115,9 @@ if (isset($_POST['add_ticket'])) {
         redirect();
     }
     $subject = escapeSql(mb_substr($subject_input, 0, 500));
-    $details = mysqli_real_escape_string($mysqli, (string) ($_POST['details'] ?? ''));
+    // Raised with Quick ticket, from the top bar (functions/quick_ticket.php) - its details typed as plain text
+    $quick_ticket = !empty($_POST['quick_ticket']) && quickTicketCan();
+    $details = mysqli_real_escape_string($mysqli, $quick_ticket ? quickTicketDetailsHtml($_POST['details'] ?? '') : (string) ($_POST['details'] ?? ''));
     $priority = escapeSql(ticketPriority($_POST['priority'] ?? ''));
     $category_id = ticketCategoryId($_POST['category_id'] ?? 0);
     $assigned_to = ticketAgentId($_POST['assigned_to'] ?? 0);
@@ -203,10 +205,15 @@ if (isset($_POST['add_ticket'])) {
         }
     }
 
-    // E-mail the client and the watchers
+    // E-mail the client and the watchers - a quick ticket's contact only when its setting says so
     if (intval($config_ticket_client_general_notifications) === 1) {
-        ticketMailCreated($ticket_id, 'Ticket Created', $emailable_attachments['send']);
+        if (!$quick_ticket || quickTicketSettings()['email_client']) {
+            ticketMailCreated($ticket_id, 'Ticket Created', $emailable_attachments['send']);
+        }
         ticketMailColleaguesNew($ticket_id);
+    }
+    if ($quick_ticket) {
+        quickTicketAfterCreate($ticket_id, $_POST['quick_ticket_timer'] ?? '');
     }
 
     // Custom action/notif handler

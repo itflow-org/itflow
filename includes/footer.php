@@ -98,6 +98,7 @@ try {
 <script src="<?= staticFileUrl('/js/date_filter.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/global_search.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/notifications.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/ticket_timers.js') ?>"></script>
 <?php if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
 <script src="<?= staticFileUrl('/js/settings.js') ?>"></script>
 <?php } ?>

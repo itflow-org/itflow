@@ -156,6 +156,20 @@ function settingsFields() {
         'config_ticket_sms_parse' => ['page' => 'ticket', 'section' => 'Text to ticket', 'label' => 'Turn texts into tickets', 'words' => 'text sms message mobile phone skyetel to ticket'] + $on_off,
         'config_ticket_sms_unknown_senders' => ['page' => 'ticket', 'section' => 'Text to ticket', 'label' => 'From unknown numbers too', 'words' => 'text sms unknown numbers anyone'] + $on_off,
         'config_ticket_sms_acknowledge' => ['page' => 'ticket', 'section' => 'Text to ticket', 'label' => 'Text back the ticket number', 'words' => 'text sms acknowledge reply confirm number'] + $on_off,
+        'config_quick_ticket_on' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Show the Quick ticket button', 'words' => 'quick ticket top bar plus call walk-up button'] + $on_off,
+        'config_quick_ticket_assign' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Quick ticket goes to', 'kind' => 'select', 'options' => 'quick_ticket_assign',
+            'words' => 'quick ticket assign agent technician'],
+        'config_quick_ticket_status' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Quick ticket starts in', 'kind' => 'select', 'options' => 'quick_ticket_status',
+            'words' => 'quick ticket status'],
+        'config_quick_ticket_priority' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Quick ticket priority', 'words' => 'quick ticket priority'],
+        'config_quick_ticket_category' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Quick ticket category', 'kind' => 'category', 'words' => 'quick ticket category'],
+        'config_quick_ticket_billable' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Quick ticket billing', 'kind' => 'select', 'options' => 'quick_ticket_billable',
+            'words' => 'quick ticket billable bill'],
+        'config_quick_ticket_timer' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Start a quick ticket\'s timer', 'kind' => 'select', 'options' => 'quick_ticket_timer',
+            'words' => 'quick ticket timer time tracking call'],
+        'config_quick_ticket_primary' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Start on the client\'s primary contact', 'words' => 'quick ticket primary contact'] + $on_off,
+        'config_quick_ticket_open_tickets' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Show the contact\'s open tickets', 'words' => 'quick ticket open tickets duplicate'] + $on_off,
+        'config_quick_ticket_email_client' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Email the contact that it was opened', 'words' => 'quick ticket email contact created'] + $on_off,
         'config_ticket_default_billable' => ['page' => 'ticket', 'section' => 'Time and billing', 'label' => 'New tickets are billable', 'words' => 'billable default bill'] + $on_off,
         'config_ticket_timer_autostart' => ['page' => 'ticket', 'section' => 'Time and billing', 'label' => 'Start the timer on opening a ticket', 'words' => 'timer autostart time tracking'] + $on_off,
         'config_ticket_autoclose_hours' => ['page' => 'ticket', 'section' => 'Closing', 'label' => 'Close resolved tickets after', 'words' => 'auto close autoclose resolved hours'],
@@ -662,6 +676,14 @@ function settingsLogValue($name, $value) {
             $options = settingsMailEncryption();
         } elseif ($options === 'ai_triage') {
             $options = [0 => 'off', 1 => 'suggest', 2 => 'fill in'];
+        } elseif ($options === 'quick_ticket_assign') {
+            $options = quickTicketAssignChoices();
+        } elseif ($options === 'quick_ticket_status') {
+            $options = quickTicketStatusChoices();
+        } elseif ($options === 'quick_ticket_billable') {
+            $options = QUICK_TICKET_BILLABLE;
+        } elseif ($options === 'quick_ticket_timer') {
+            $options = QUICK_TICKET_TIMER;
         } elseif (is_string($options)) {
             $options = settingsLocalizationArrays()[$options] ?? [];
         }

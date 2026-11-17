@@ -1950,6 +1950,7 @@ if (!empty($can_edit_ticket) && !empty($ticket_is_open)) { ?>
     <script type="text/javascript">
         var ticketAutoStart = <?= json_encode($config_ticket_timer_autostart) ?>;
     </script>
+    <?= quickTicketTimerScript($ticket_id) // Raised with Quick ticket - its timer runs from when the window said (functions/quick_ticket.php) ?>
 
     <!-- Ticket Time Tracking JS -->
     <script src="<?= staticFileUrl('/agent/js/ticket_time_tracking.js') ?>"></script>

@@ -69,6 +69,31 @@ echo settingsPageStart('ticket');
                 <?php } ?>
             <?= settingsSectionEnd() ?>
 
+            <?php if (quickTicketReady()) {
+                $quick = quickTicketSettings(); ?>
+                <?= settingsSectionStart('quick', 'Quick tickets', 'The <i class="fas fa-plus-circle"></i> in the top bar - the client, the contact and the issue, for a call or a walk-up. It shows the contact\'s tickets still open first, so the same problem isn\'t raised twice. These are what a quick ticket starts with.', 'quick') ?>
+                    <?= settingsSwitch('config_quick_ticket_on', $quick['on'] ? 1 : 0, ['help' => 'For everyone who can make tickets.']) ?>
+                    <div data-settings-depends-on="config_quick_ticket_on">
+                        <?= settingsSelect('config_quick_ticket_assign', $quick['assign'], quickTicketAssignChoices(), ['icon' => 'fa-user-check', 'search' => true,
+                            'help' => 'The window has an "Assign it to ..." switch, to change it for one ticket.']) ?>
+                        <?= settingsSelect('config_quick_ticket_status', $quick['status'], quickTicketStatusChoices(), ['icon' => 'fa-info-circle']) ?>
+                        <?= settingsSelect('config_quick_ticket_priority', $quick['priority'], ['Low' => 'Low', 'Medium' => 'Medium', 'High' => 'High', 'Urgent' => 'Urgent'], ['icon' => 'fa-thermometer-half',
+                            'help' => 'The window can change it for one ticket. Its SLA follows the priority, as any ticket\'s does.']) ?>
+                        <?= settingsSelect('config_quick_ticket_category', $quick['category'], [], ['icon' => 'fa-layer-group', 'search' => true,
+                            'options_html' => '<option value="0"' . ($quick['category'] ? '' : ' selected') . '>- Not Categorized -</option>' . categoryOptionsHtml('Ticket', $quick['category'] ?: null)]) ?>
+                        <?php if ($config_module_enable_accounting) { ?>
+                            <?= settingsSelect('config_quick_ticket_billable', $quick['billable'], QUICK_TICKET_BILLABLE, ['icon' => 'fa-dollar-sign']) ?>
+                        <?php } ?>
+                        <?= settingsSelect('config_quick_ticket_timer', $quick['timer'], QUICK_TICKET_TIMER, ['icon' => 'fa-stopwatch',
+                            'help' => 'It runs on the ticket page, as a ticket\'s timer does, until the time goes on a reply.']) ?>
+                        <?= settingsSwitch('config_quick_ticket_primary', $quick['primary'] ? 1 : 0, ['help' => 'Off, the contact starts empty, to be picked.']) ?>
+                        <?= settingsSwitch('config_quick_ticket_open_tickets', $quick['open_tickets'] ? 1 : 0, ['help' => 'Not resolved or closed - with Work on this one, to go to one instead.']) ?>
+                        <?= settingsSwitch('config_quick_ticket_email_client', $quick['email_client'] ? 1 : 0, ['help' => 'The "ticket created" email, as New Ticket sends it.'
+                            . (intval($config_ticket_client_general_notifications) === 1 ? '' : ' Emails to clients are off in <a href="settings_notification.php">Notifications</a>, so none goes either way.')]) ?>
+                    </div>
+                <?= settingsSectionEnd() ?>
+            <?php } ?>
+
             <?php if (ticketStatusReplyReady()) {
                 // The statuses that send it now (Admin > Ticket Statuses)
                 $assigned_sent_by = array_column(array_filter(ticketStatusesAll(), function ($status) {

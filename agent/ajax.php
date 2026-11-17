@@ -1269,7 +1269,7 @@ if (isset($_GET['get_client_contacts'])) {
 
     $contact_sql = mysqli_query(
         $mysqli,
-        "SELECT contact_id, contact_name, contact_title, contact_email, contact_photo, contact_primary, contact_important, contact_technical, contact_location_id FROM contacts
+        "SELECT contact_id, contact_name, contact_title, contact_email, contact_phone, contact_mobile, contact_photo, contact_primary, contact_important, contact_technical, contact_location_id FROM contacts
         LEFT JOIN clients on contact_client_id = client_id
         WHERE contacts.contact_archived_at IS NULL AND contact_client_id = $client_id
         " . clientScopeSql('contact_client_id') . "
@@ -1293,7 +1293,9 @@ if (isset($_GET['get_client_contacts'])) {
 
 /*
  * New Ticket - the other open tickets for the contact or asset picked, so a
- * second ticket for the same problem shows up before it is raised.
+ * second ticket for the same problem shows up before it is raised. With work
+ * (Quick ticket - agent/js/ticket_quick.js), who has each and when it last
+ * moved, a Work on this one button on each, and a line when there are none.
  */
 if (isset($_GET['ticket_also_open'])) {
     enforceUserPermission('module_support', 2);
@@ -1307,20 +1309,65 @@ if (isset($_GET['ticket_also_open'])) {
     }
     $also_contact_id = ticketClientOwnedId('contact', $_GET['contact_id'] ?? 0, $client_id);
     $also_asset_id = ticketClientOwnedId('asset', $_GET['asset_id'] ?? 0, $client_id);
-    $rows = ticketAlsoOpen($also_contact_id, $also_asset_id, 0, 5);
+    $also_work = !empty($_GET['work']);
+    $rows = ticketAlsoOpen($also_contact_id, $also_asset_id, 0, $also_work ? 10 : 5);
 
     $html = '';
     if ($rows) {
         $html = '<div class="alert alert-warning small py-2 mb-3"><div class="fw-semibold mb-1"><i class="fas fa-layer-group me-1"></i>Already open for '
-            . ($also_contact_id && $also_asset_id ? 'this contact or asset' : ($also_contact_id ? 'this contact' : 'this asset')) . '</div>';
+            . ($also_contact_id && $also_asset_id ? 'this contact or asset' : ($also_contact_id ? 'this contact' : 'this asset')) . ($also_work ? ' (' . count($rows) . ')' : '') . '</div>'
+            . ($also_work ? '<div class="itflow-also-open-list">' : '');
         foreach ($rows as $row) {
-            $html .= '<div class="d-flex align-items-center gap-2 text-truncate">' . ticketLink($row)
-                . ' <span class="ms-auto flex-shrink-0">' . ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail') . '</span></div>';
+            if ($also_work) {
+                // From the top bar on any page, admin's too - so the agent's address in full
+                $also_url = '/agent/' . ticketUrl(intval($row['ticket_id']), $client_id);
+                $also_who = !intval($row['ticket_assigned_to']) ? 'Nobody has it' : (intval($row['ticket_assigned_to']) === intval($session_user_id) ? 'Yours' : (string) $row['user_name']);
+                $html .= '<div class="d-flex align-items-center gap-2 py-1 border-top border-warning-subtle" data-also-open="' . intval($row['ticket_id']) . '">'
+                    . '<div class="min-w-0 me-auto"><div class="text-truncate"><a class="font-monospace text-nowrap" href="' . escapeHtml($also_url) . '">' . escapeHtml(ticketReference($row)) . '</a> '
+                    . '<a class="text-body" href="' . escapeHtml($also_url) . '">' . escapeHtml($row['ticket_subject']) . '</a></div>'
+                    . '<div class="text-body-secondary text-truncate">' . escapeHtml($also_who) . ' · ' . escapeHtml(timeAgo($row['ticket_updated_at'] ?: $row['ticket_created_at'])) . '</div></div>'
+                    . '<span class="flex-shrink-0">' . ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail') . '</span>'
+                    . '<button type="button" class="btn btn-sm btn-outline-dark flex-shrink-0" data-ticket-work="' . intval($row['ticket_id']) . '" data-url="' . escapeHtml($also_url) . '">Work on this one</button></div>';
+            } else {
+                $html .= '<div class="d-flex align-items-center gap-2 text-truncate">' . ticketLink($row)
+                    . ' <span class="ms-auto flex-shrink-0">' . ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail') . '</span></div>';
+            }
         }
-        $html .= '<div class="text-body-secondary mt-1">Add to one of these instead, if it is the same problem.</div></div>';
+        $html .= ($also_work ? '</div>' : '') . '<div class="text-body-secondary mt-1">Add to one of these instead, if it is the same problem.</div></div>';
+    } elseif ($also_work && $also_contact_id) {
+        $html = '<div class="small text-body-secondary mb-3"><i class="fas fa-fw fa-check-circle text-success me-1"></i>No open tickets for this contact.</div>';
     }
 
     echo json_encode(['html' => $html]);
+    exit;
+}
+
+/*
+ * The tickets behind the timers in this browser (js/ticket_timers.js) - each
+ * one's number, subject, client and whether it is still open. Only tickets
+ * the agent can open come back.
+ */
+if (isset($_GET['ticket_timer_tickets'])) {
+    header('Content-Type: application/json');
+
+    $ids = array_slice(array_values(array_unique(array_filter(array_map('intval', explode(',', (string) ($_GET['ids'] ?? '')))))), 0, 100);
+    $timer_tickets = [];
+    if ($ids && lookupUserPermission('module_support') >= 1) {
+        $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_client_id, ticket_resolved_at, ticket_closed_at, ticket_archived_at, client_name
+            FROM tickets LEFT JOIN clients ON client_id = ticket_client_id
+            WHERE ticket_id IN (" . implode(',', $ids) . ") " . clientScopeSql('ticket_client_id'));
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $timer_tickets[intval($row['ticket_id'])] = [
+                'reference' => ticketReference($row),
+                'subject' => html_entity_decode((string) $row['ticket_subject'], ENT_QUOTES, 'UTF-8'),
+                'client' => html_entity_decode((string) $row['client_name'], ENT_QUOTES, 'UTF-8'),
+                'client_id' => intval($row['ticket_client_id']),
+                'open' => ticketIsOpen($row) && empty($row['ticket_archived_at']),
+                'state' => !empty($row['ticket_closed_at']) ? 'Closed' : (!empty($row['ticket_resolved_at']) ? 'Resolved' : (!empty($row['ticket_archived_at']) ? 'Archived' : '')),
+            ];
+        }
+    }
+    echo json_encode((object) $timer_tickets);
     exit;
 }
 
