@@ -11,6 +11,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// The calendar switched off (Admin > Settings > Modules)
+if (!moduleOn('calendar')) {
+    exit(json_encode(['error' => moduleOffText('calendar')]));
+}
+
 $event = calendarEventForModal($_GET['id'] ?? 0);
 $event_id = intval($event['event_id']);
 $repeats = calendarEventRepeats($event);

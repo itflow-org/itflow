@@ -74,7 +74,7 @@ function reportCatalog() {
                     'description' => 'Tax on sales by part of each rate, invoiced or paid, with taxable, exempt and non-taxable sales and the tax paid on purchases, by month or quarter.',
                 ],
                 'mileage' => [
-                    'title' => 'Mileage', 'icon' => 'fa-route', 'module' => 'module_financial', 'feature' => ['accounting'],
+                    'title' => 'Mileage', 'icon' => 'fa-route', 'module' => 'module_financial', 'feature' => ['accounting', 'trips'],
                     'description' => 'Distance driven by agent and client, with what it comes to at your mileage rate.',
                 ],
                 'tax_package' => [
@@ -235,13 +235,7 @@ function reportPermission($module) {
 
 /** Is that part of ITFlow turned on - accounting, ticketing or itdoc? */
 function reportFeatureOn($feature) {
-    global $config_module_enable_accounting, $config_module_enable_ticketing, $config_module_enable_itdoc;
-    $on = [
-        'accounting' => intval($config_module_enable_accounting) === 1,
-        'ticketing' => intval($config_module_enable_ticketing) === 1,
-        'itdoc' => intval($config_module_enable_itdoc) === 1,
-    ];
-    return !empty($on[$feature]);
+    return in_array($feature, ['accounting', 'ticketing', 'itdoc', 'trips', 'bookkeeping', 'calendar', 'dispatch', 'purchasing'], true) && moduleOn($feature);
 }
 
 /** May this user open this report? */

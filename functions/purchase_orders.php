@@ -65,12 +65,11 @@ function poReady() {
     return $ready;
 }
 
-/** The signed-in agent's Procurement level - 0 none (or invoicing off, or before 3.9.3), 1 view, 2 edit, 3 full. */
+/** The signed-in agent's Procurement level - 0 none (or Purchasing or invoicing off, or before 3.9.3), 1 view, 2 edit, 3 full. */
 function poLevel() {
-    global $config_module_enable_accounting;
     static $level = null;
     if ($level === null) {
-        $level = poReady() && intval($config_module_enable_accounting ?? 0) === 1 ? intval(lookupUserPermission('module_procurement')) : 0;
+        $level = poReady() && moduleOn('purchasing') ? intval(lookupUserPermission('module_procurement')) : 0;
     }
     return $level;
 }
@@ -194,14 +193,13 @@ function poAccessible($po_id) {
     return true;
 }
 
-/** Why nobody can use Purchasing yet - the database update, or invoicing off - or '' when it is on. */
+/** Why nobody can use Purchasing yet - the database update, or it or invoicing switched off - or '' when it is on. */
 function poOffReason() {
-    global $config_module_enable_accounting;
     if (!poReady()) {
         return 'Purchasing needs the database update - ask an admin to run it from Maintenance > Update.';
     }
-    if (intval($config_module_enable_accounting ?? 0) !== 1) {
-        return "Purchasing isn't on - it comes with invoicing, in Admin > Settings > Modules.";
+    if (!moduleOn('purchasing')) {
+        return moduleOffText('purchasing');
     }
     return '';
 }

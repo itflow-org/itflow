@@ -8,6 +8,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Trips switched off (Admin > Settings > Modules)
+if (!moduleOn('trips')) {
+    exit(json_encode(['error' => moduleOffText('trips')]));
+}
+
 enforceUserPermission('module_sales', 2);
 enforceUserPermission('module_financial', 2);
 

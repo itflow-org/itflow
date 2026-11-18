@@ -80,12 +80,14 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a href="/agent/calendar.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-calendar-alt"></i>
-                        <p>Calendar</p>
-                    </a>
-                </li>
+                <?php if (moduleOn('calendar')) { ?>
+                    <li class="nav-item">
+                        <a href="/agent/calendar.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-calendar-alt"></i>
+                            <p>Calendar</p>
+                        </a>
+                    </li>
+                <?php } ?>
 
                 <?php if (lookupUserPermission("module_support") >= 1) { ?>
                     <?php if ($config_module_enable_ticketing == 1) { ?>
@@ -101,12 +103,14 @@
                                 </p>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="/agent/dispatch.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "dispatch.php") { echo "active"; } ?>">
-                                <i class="nav-icon fas fa-people-arrows"></i>
-                                <p>Dispatch</p>
-                            </a>
-                        </li>
+                        <?php if (moduleOn('dispatch')) { ?>
+                            <li class="nav-item">
+                                <a href="/agent/dispatch.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "dispatch.php") { echo "active"; } ?>">
+                                    <i class="nav-icon fas fa-people-arrows"></i>
+                                    <p>Dispatch</p>
+                                </a>
+                            </li>
+                        <?php } ?>
                         <?php if (smsProvider()) { ?>
                             <li class="nav-item">
                                 <a href="/agent/texts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "texts.php") { echo "active"; } ?>">
@@ -262,14 +266,17 @@
                             </a>
                         </li>
                     <?php } ?>
-                    <?php // Everyone logs their driving - without Financial access, their own trips ?>
-                    <li class="nav-item">
-                        <a href="/agent/trips.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-route"></i>
-                            <p>Trips</p>
-                        </a>
-                    </li>
-                    <?php if (lookupUserPermission("module_financial") >= 1) { ?>
+                    <?php // Everyone logs their driving - without Financial access, their own trips
+                    if (moduleOn('trips')) { ?>
+                        <li class="nav-item">
+                            <a href="/agent/trips.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-route"></i>
+                                <p>Trips</p>
+                            </a>
+                        </li>
+                    <?php } ?>
+                    <?php // Accounts and Transactions - with Bookkeeping on (Admin > Settings > Modules)
+                    if (lookupUserPermission("module_financial") >= 1 && moduleOn('bookkeeping')) { ?>
                         <li class="nav-item">
                             <a href="/agent/accounts.php" class="nav-link <?php if (in_array(basename($_SERVER["PHP_SELF"]), ["accounts.php", "reconcile.php"], true)) { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-piggy-bank"></i>

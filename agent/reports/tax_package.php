@@ -324,6 +324,10 @@ $vendor_columns = [
  * ---------- mileage ----------
  */
 
+// Mileage with Trips on, the accounts with Bookkeeping (Admin > Settings > Modules)
+$show_mileage = moduleOn('trips');
+$show_accounts = moduleOn('bookkeeping');
+
 $rate = isset($_GET['rate']) ? round(max(0, floatval(str_replace(',', '.', (string) $_GET['rate']))), 4) : tripRules()['rate'];
 $unit = ucfirst(tripUnit());
 $unit_one = tripUnitOne();
@@ -390,10 +394,15 @@ $tables = [
     'Accounts' => [$account_columns, $accounts, null],
     'Unpaid at year end' => [$unpaid_columns, $unpaid, ['invoice' => 'Total', 'owed' => $unpaid_total]],
 ];
+if (!$show_accounts) {
+    unset($tables['Accounts']);
+}
 if ($show_1099) {
     $tables['Vendors for 1099s'] = [$vendor_columns, $vendors, null];
 }
-$tables['Mileage by agent'] = [$mileage_columns, $mileage, $mileage_totals];
+if ($show_mileage) {
+    $tables['Mileage by agent'] = [$mileage_columns, $mileage, $mileage_totals];
+}
 $tables['Expenses with no receipt'] = [$missing_columns, $missing, ['expense_date' => 'Total', 'expense_amount' => $missing_total]];
 $table_keys = ['Profit and loss' => 'pl', 'Sales tax' => 'tax', 'Accounts' => 'accounts', 'Unpaid at year end' => 'unpaid', 'Vendors for 1099s' => 'vendors',
     'Mileage by agent' => 'mileage', 'Expenses with no receipt' => 'missing'];
@@ -483,11 +492,11 @@ function taxPackageSend($writer, array $tables, $from, $to, $rate, $label, $pack
         $row['category_name'] = $row['category_name'] ?? 'No category';
         $rows[] = $row;
     }
-    $zip->addFromString($root . 'Income.csv', reportCsvData([
+    $zip->addFromString($root . 'Income.csv', reportCsvData(array_diff_key([
         'date' => ['label' => 'Date', 'type' => 'date'], 'kind' => ['label' => 'Type'], 'invoice' => ['label' => 'Invoice'], 'client' => ['label' => 'Client'],
         'category_name' => ['label' => 'Category'], 'description' => ['label' => 'Description'], 'method' => ['label' => 'Method'], 'reference' => ['label' => 'Reference'],
         'account_name' => ['label' => 'Account'], 'amount' => ['label' => 'Amount', 'type' => 'money'], 'currency' => ['label' => 'Currency'],
-    ], $rows, ['date' => 'Total', 'amount' => array_sum(array_column($rows, 'amount'))]));
+    ], $show_accounts ? [] : ['account_name' => 1]), $rows, ['date' => 'Total', 'amount' => array_sum(array_column($rows, 'amount'))]));
 
     // Every expense - what Profit & Loss counts as spending - with its receipt beside it
     $rows = [];
@@ -524,13 +533,13 @@ function taxPackageSend($writer, array $tables, $from, $to, $rate, $label, $pack
         }
         $rows[] = $row;
     }
-    $zip->addFromString($root . 'Expenses.csv', reportCsvData([
+    $zip->addFromString($root . 'Expenses.csv', reportCsvData(array_diff_key([
         'expense_date' => ['label' => 'Date', 'type' => 'date'], 'vendor' => ['label' => 'Vendor'], 'category_name' => ['label' => 'Category'],
         'expense_description' => ['label' => 'Description'], 'expense_reference' => ['label' => 'Reference'], 'expense_payment_method' => ['label' => 'Method'],
         'account_name' => ['label' => 'Account'], 'expense_amount' => ['label' => 'Amount', 'type' => 'money'],
         'expense_tax_amount' => ['label' => 'Tax in it', 'type' => 'money'], 'tax_name' => ['label' => 'Tax'], 'expense_currency_code' => ['label' => 'Currency'],
         'client' => ['label' => 'For client'], 'receipt' => ['label' => 'Receipt'],
-    ], $rows, ['expense_date' => 'Total', 'expense_amount' => array_sum(array_column($rows, 'expense_amount')), 'expense_tax_amount' => array_sum(array_column($rows, 'expense_tax_amount'))]));
+    ], $show_accounts ? [] : ['account_name' => 1]), $rows, ['expense_date' => 'Total', 'expense_amount' => array_sum(array_column($rows, 'expense_amount')), 'expense_tax_amount' => array_sum(array_column($rows, 'expense_tax_amount'))]));
 
     // Every invoice sent in the year, with what was still owed on it at the end
     $rows = [];
@@ -562,28 +571,30 @@ function taxPackageSend($writer, array $tables, $from, $to, $rate, $label, $pack
     ], $rows, ['invoice' => 'Total', 'subtotal' => $sum('subtotal'), 'invoice_discount_amount' => $sum('invoice_discount_amount'), 'tax' => $sum('tax'),
         'invoice_amount' => $sum('invoice_amount'), 'paid' => $sum('paid'), 'owed' => $sum('owed')]));
 
-    // Every trip
-    $rows = [];
-    $sql = mysqli_query($mysqli, "SELECT trip_date, user_name, trip_client_id, client_name, trip_purpose, trip_source, trip_destination, trip_miles, round_trip, trip_own_vehicle
-        FROM trips
-        LEFT JOIN users ON user_id = trip_user_id
-        LEFT JOIN clients ON client_id = trip_client_id
-        WHERE trip_archived_at IS NULL AND trip_date BETWEEN '$from' AND '$to'
-        ORDER BY trip_date, trip_id");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $row['client'] = taxPackageClient($row['trip_client_id'], $row['client_name']);
-        $row['value'] = $rate ? floatval($row['trip_miles']) * $rate : null;
-        $rows[] = $row;
+    // Every trip - with Trips on
+    if ($show_mileage) {
+        $rows = [];
+        $sql = mysqli_query($mysqli, "SELECT trip_date, user_name, trip_client_id, client_name, trip_purpose, trip_source, trip_destination, trip_miles, round_trip, trip_own_vehicle
+            FROM trips
+            LEFT JOIN users ON user_id = trip_user_id
+            LEFT JOIN clients ON client_id = trip_client_id
+            WHERE trip_archived_at IS NULL AND trip_date BETWEEN '$from' AND '$to'
+            ORDER BY trip_date, trip_id");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $row['client'] = taxPackageClient($row['trip_client_id'], $row['client_name']);
+            $row['value'] = $rate ? floatval($row['trip_miles']) * $rate : null;
+            $rows[] = $row;
+        }
+        $unit = ucfirst(tripUnit());
+        $zip->addFromString($root . 'Trips.csv', reportCsvData([
+            'trip_date' => ['label' => 'Date', 'type' => 'date'], 'user_name' => ['label' => 'Agent'], 'client' => ['label' => 'Client'],
+            'trip_purpose' => ['label' => 'Purpose'], 'trip_source' => ['label' => 'From'], 'trip_destination' => ['label' => 'To'],
+            'trip_miles' => ['label' => $unit, 'type' => 'decimal'],
+            'round_trip' => ['label' => 'Round trip', 'csv' => function ($row) { return intval($row['round_trip']) ? 'Yes' : 'No'; }],
+            'trip_own_vehicle' => ['label' => 'Own vehicle', 'csv' => function ($row) { return intval($row['trip_own_vehicle']) ? 'Yes' : 'No'; }],
+            'value' => ['label' => $rate ? 'At ' . tripRateText($rate) : 'Amount', 'type' => 'money'],
+        ], $rows, ['trip_date' => 'Total', 'trip_miles' => $sum('trip_miles'), 'value' => $rate ? $sum('value') : null]));
     }
-    $unit = ucfirst(tripUnit());
-    $zip->addFromString($root . 'Trips.csv', reportCsvData([
-        'trip_date' => ['label' => 'Date', 'type' => 'date'], 'user_name' => ['label' => 'Agent'], 'client' => ['label' => 'Client'],
-        'trip_purpose' => ['label' => 'Purpose'], 'trip_source' => ['label' => 'From'], 'trip_destination' => ['label' => 'To'],
-        'trip_miles' => ['label' => $unit, 'type' => 'decimal'],
-        'round_trip' => ['label' => 'Round trip', 'csv' => function ($row) { return intval($row['round_trip']) ? 'Yes' : 'No'; }],
-        'trip_own_vehicle' => ['label' => 'Own vehicle', 'csv' => function ($row) { return intval($row['trip_own_vehicle']) ? 'Yes' : 'No'; }],
-        'value' => ['label' => $rate ? 'At ' . tripRateText($rate) : 'Amount', 'type' => 'money'],
-    ], $rows, ['trip_date' => 'Total', 'trip_miles' => $sum('trip_miles'), 'value' => $rate ? $sum('value') : null]));
 
     if (!$zip->close()) {
         flashAlert('The package could not be made - the server could not write to uploads/tmp.', 'error');
@@ -624,10 +635,10 @@ $controls = reportSelectControl('year', $year, $years, 'fa-calendar-alt')
     . reportSelectControl('start', $start_month, array_combine(range(1, 12), array_map(function ($m) {
         return 'Year starts in ' . date('F', mktime(0, 0, 0, $m, 1));
     }, range(1, 12))), 'fa-calendar-day')
-    . '<div class="col-sm-6 col-lg-auto"><div class="input-group">'
+    . (!$show_mileage ? '' : '<div class="col-sm-6 col-lg-auto"><div class="input-group">'
     . '<span class="input-group-text"><i class="fas fa-fw fa-route"></i></span>'
     . '<input type="text" inputmode="decimal" class="form-control" style="width: 9rem" name="rate" value="' . ($rate ? escapeHtml(rtrim(rtrim(number_format($rate, 4, '.', ''), '0'), '.')) : '') . '" placeholder="Rate a ' . $unit_one . '" aria-label="Mileage rate a ' . $unit_one . '" data-report-autosubmit title="The mileage rate a ' . $unit_one . ' - your tax deduction rate, say - press Enter">'
-    . '</div></div>';
+    . '</div></div>');
 if ($show_1099) {
     $controls .= '<div class="col-sm-6 col-lg-auto"><div class="input-group">'
         . '<span class="input-group-text">1099 at</span>'
@@ -677,12 +688,14 @@ if ($show_1099) {
         <?php } ?>
     </div>
 
+    <?php if ($show_accounts) { ?>
     <?= reportSectionOpen('Accounts', 'From the first day of the year to the last') ?>
         <?= reportTable($account_columns, $accounts, ['sortable' => false, 'empty' => 'No accounts.']) ?>
         <div class="card-footer small text-body-secondary">
             Money in and out include transfers between your accounts - it is each account's own money. Check each balance at the end against the bank's statement;
             an account reconciled to a date before the end of the year still has lines to check.
         </div>
+    <?php } ?>
     </div>
 
     <?= reportSectionOpen($ended ? 'Unpaid at the end of the year' : 'Unpaid now', $unpaid ? reportCount(count($unpaid)) . ' ' . (count($unpaid) === 1 ? 'invoice' : 'invoices') . ', ' . reportMoney($unpaid_total) : '') ?>
@@ -704,12 +717,14 @@ if ($show_1099) {
         </div>
     <?php } ?>
 
+    <?php if ($show_mileage) { ?>
     <?= reportSectionOpen('Mileage', $mileage ? reportCount($mileage_totals['trips']) . ' trips, ' . escapeHtml(tripMilesText($mileage_totals['miles'])) : '') ?>
         <?= reportTable($mileage_columns, $mileage, ['totals' => $mileage_totals, 'empty' => reportEmpty('No trips were logged in this year.', 'fa-route', 'secondary')]) ?>
         <div class="card-footer small text-body-secondary">
             <?= $unit ?> as entered on each trip - the whole trip, both ways for a round trip. Trips in their own vehicle are the ones an agent may be paid back for, or a
             sole trader may deduct. The rate starts at the mileage rate in Settings; put your tax deduction rate above to see what the trips come to. Every trip is in Trips.csv.
         </div>
+    <?php } ?>
     </div>
 
     <?= reportSectionOpen('Expenses with no receipt', $missing ? reportCount($missing_count) . ' of ' . reportCount($expense_count) . ', ' . reportMoney($missing_total) : '') ?>
@@ -733,7 +748,7 @@ if ($show_1099) {
                     <tr><td class="fw-semibold text-nowrap">Income.csv</td><td><?= reportCount($counts['income']) ?> invoice payments and other income - date, client, invoice, category, method, account and amount</td></tr>
                     <tr><td class="fw-semibold text-nowrap">Expenses.csv</td><td><?= reportCount($counts['expenses']) ?> expenses - date, vendor, category, method, account, amount, the tax in it and its receipt</td></tr>
                     <tr><td class="fw-semibold text-nowrap">Invoices.csv</td><td><?= reportCount($counts['invoices']) ?> invoices sent - subtotal, discount, tax and total, and what was paid and owed at year end</td></tr>
-                    <tr><td class="fw-semibold text-nowrap">Trips.csv</td><td><?= reportCount($counts['trips']) ?> trips - who, where, why and how far</td></tr>
+                    <?php if ($show_mileage) { ?><tr><td class="fw-semibold text-nowrap">Trips.csv</td><td><?= reportCount($counts['trips']) ?> trips - who, where, why and how far</td></tr><?php } ?>
                     <tr><td class="fw-semibold text-nowrap">Receipts</td><td><?= reportCount($receipt_count) ?> receipts, named by date, vendor and amount</td></tr>
                 </tbody>
             </table>

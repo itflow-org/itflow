@@ -83,6 +83,9 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
         <?php } ?>
     </div>
 
+    <?php if (!moduleOn('bookkeeping')) { // Bookkeeping off - the account it is in, or the default ?>
+        <input type="hidden" name="account" value="<?= $form_edit && $form_account ? $form_account : bookkeepingAccount('payment') ?>">
+    <?php } else { ?>
     <div class="col-md-7">
         <label class="form-label">Paid into <strong class="text-danger">*</strong></label>
         <div class="input-group">
@@ -99,6 +102,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
             <?php } ?>
         </div>
     </div>
+    <?php } ?>
 
     <div class="col-md-5">
         <label class="form-label">Date <strong class="text-danger">*</strong></label>

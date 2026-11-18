@@ -25,6 +25,11 @@ if (isset($_GET['client_id'])) {
     $page_client_id = 0;
 }
 
+if (!moduleOn('calendar')) {
+    flashAlert(moduleOffText('calendar'), 'error');
+    redirect('/agent/dashboard.php');
+}
+
 $calendars = calendarList();
 $sources = calendarSources();
 $can_manage = calendarCanManage();

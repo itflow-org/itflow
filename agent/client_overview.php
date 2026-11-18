@@ -317,7 +317,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0 me-auto">Coming up <span class="small text-body-secondary fw-normal ms-1">14 days</span></h3>
-                        <a class="small" href="calendar.php?client_id=<?= $client_id ?>">Calendar</a>
+                        <?php if (moduleOn('calendar')) { ?><a class="small" href="calendar.php?client_id=<?= $client_id ?>">Calendar</a><?php } ?>
                     </div>
                     <div class="itflow-dash-schedule">
                         <?php

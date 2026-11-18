@@ -762,7 +762,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                                 <div><?= escapeHtml(truncate((string) $expense['expense_description'], 90)) ?: '<span class="text-body-secondary">-</span>' ?></div>
                                                 <div class="small text-body-secondary"><?= escapeHtml(implode(' · ', array_filter([$expense['category_name'], $expense['expense_reference']]))) ?></div>
                                             </td>
-                                            <td class="text-nowrap small"><?= intval($expense['expense_paid_by']) ? '<i class="fas fa-hand-holding-usd text-body-secondary me-1" title="Paid personally"></i>' . escapeHtml($expense['paid_by_name'] ?: 'An agent') : escapeHtml($expense['account_name']) ?></td>
+                                            <td class="text-nowrap small"><?= intval($expense['expense_paid_by']) ? '<i class="fas fa-hand-holding-usd text-body-secondary me-1" title="Paid personally"></i>' . escapeHtml($expense['paid_by_name'] ?: 'An agent') : (moduleOn('bookkeeping') ? escapeHtml($expense['account_name']) : 'The business') ?></td>
                                             <td class="text-end text-nowrap font-monospace"><?= numfmt_format_currency($currency_format, floatval($expense['expense_amount']), $expense['expense_currency_code']) ?></td>
                                         </tr>
                                     <?php } ?>

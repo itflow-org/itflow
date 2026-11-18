@@ -19,6 +19,14 @@
 
 require_once '../validate_api_key.php';
 require_once '../require_get_method.php';
+require_once "../../../includes/load_global_settings.php";
+
+// Calendar switched off (Admin > Settings > Modules)
+if (!moduleOn('calendar')) {
+    http_response_code(403);
+    echo json_encode(['success' => 'False', 'message' => moduleOffText('calendar')]);
+    exit();
+}
 
 $where = 'event_archived_at IS NULL' . calendarEventScopeSql();
 if (isset($_GET['event_id'])) {

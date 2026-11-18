@@ -9,6 +9,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Trips switched off (Admin > Settings > Modules)
+if (!moduleOn('trips')) {
+    exit(json_encode(['error' => moduleOffText('trips')]));
+}
+
 $form_row = null;
 $form_mode = 'new';
 $form_client_id = intval($_GET['client_id'] ?? 0);

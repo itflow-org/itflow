@@ -161,7 +161,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                 <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit) { ?>
-                        <a class="dropdown-item" href="income_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Deposits</a>
+                        <?php if (moduleOn('bookkeeping')) { ?><a class="dropdown-item" href="income_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Deposits</a><?php } ?>
                     <?php } ?>
                     <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/income/income_export.php', ['client_id', 'client', 'category', 'account', 'method', 'show', 'type', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
@@ -235,6 +235,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
             </div>
             <div class="collapse <?= $more_filters ? 'show' : '' ?>" id="incomeMoreFilters">
                 <div class="row g-2 mt-0">
+                    <?php if (moduleOn('bookkeeping')) { // the account filter and Paid into - with Bookkeeping on ?>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
@@ -246,6 +247,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                             </select>
                         </div>
                     </div>
+                    <?php } ?>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
@@ -292,7 +294,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                 <?php if (!$client_page) { ?>
                     <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
                 <?php } ?>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=account_name&order=<?= $disp ?>">Paid into <?php if ($sort == 'account_name') { echo $order_icon; } ?></a></th>
+                <?php if (moduleOn('bookkeeping')) { ?><th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=account_name&order=<?= $disp ?>">Paid into <?php if ($sort == 'account_name') { echo $order_icon; } ?></a></th><?php } ?>
                 <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=income_amount&order=<?= $disp ?>">Amount <?php if ($sort == 'income_amount') { echo $order_icon; } ?></a></th>
                 <th></th>
             </tr>
@@ -352,10 +354,12 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                             <?php } ?>
                         </td>
                     <?php } ?>
+                    <?php if (moduleOn('bookkeeping')) { ?>
                     <td>
                         <div class="text-truncate" style="max-width: 10rem;"><?= escapeHtml($row['account_name'] ?: '-') ?></div>
                         <?php if ($row['account_archived_at']) { ?><div class="small text-body-secondary">Archived</div><?php } ?>
                     </td>
+                    <?php } ?>
                     <td class="text-end itflow-money text-nowrap">
                         <span class="fw-semibold <?= $row_amount < 0 ? 'text-danger-emphasis' : '' ?>"><?= $money($row_amount, $row_currency) ?></span>
                     </td>
@@ -403,7 +407,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
             <?php if ($num_rows[0]) { ?>
                 <tfoot>
                 <tr class="table-light">
-                    <td colspan="<?= ($can_bulk ? 5 : 4) + ($client_page ? 0 : 1) ?>" class="text-body-secondary small">
+                    <td colspan="<?= ($can_bulk ? 5 : 4) + ($client_page ? 0 : 1) - (moduleOn('bookkeeping') ? 0 : 1) ?>" class="text-body-secondary small">
                         <?php $listed = intval($num_rows[0]); ?>
                         <?= $listed ?> <?= $show === 'payments' || $show === 'online' ? ($listed === 1 ? 'payment' : 'payments') : ($show === 'other' ? 'other income' : ($listed === 1 ? 'payment or other income' : 'payments and other income')) ?><?= $listed > count($rows) ? ' - the total is for all of them, not just this page' : '' ?>
                     </td>
@@ -423,10 +427,10 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
         'view' => emptyStatePill($shows, $show, '', ['uncategorised']),
         'match_title' => 'No income matches',
         'text' => "A payment is added on its invoice. Money in that isn't for an invoice is New Income here.",
-        'actions' => $can_edit ? [
+        'actions' => $can_edit ? array_values(array_filter([
             ['label' => 'New Income', 'modal' => $add_url, 'size' => 'lg'],
-            ['label' => 'Import Deposits', 'href' => 'income_import.php', 'icon' => 'fa-file-import'],
-        ] : [],
+            moduleOn('bookkeeping') ? ['label' => 'Import Deposits', 'href' => 'income_import.php', 'icon' => 'fa-file-import'] : null,
+        ])) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>

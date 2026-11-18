@@ -195,6 +195,9 @@ while ($row = mysqli_fetch_assoc($sql)) {
         </div>
     </div>
 
+    <?php if (!moduleOn('bookkeeping')) { // Bookkeeping off - the account it is in, or the default ?>
+        <input type="hidden" name="account" value="<?= $form_edit && isset($form_accounts[$form_account]) ? $form_account : bookkeepingAccount('expense') ?>" data-expense-account>
+    <?php } else { ?>
     <div class="col-md-7">
         <label class="form-label">Paid from <strong class="text-danger">*</strong></label>
         <div class="input-group">
@@ -208,6 +211,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
             </select>
         </div>
     </div>
+    <?php } ?>
 
     <div class="col-md-5">
         <label class="form-label">Paid by</label>

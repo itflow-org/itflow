@@ -22,6 +22,13 @@ require_once '../require_post_method.php';
 require_once "../../../includes/load_global_settings.php";
 require_once "../../../includes/load_company_settings.php";
 
+// Calendar switched off (Admin > Settings > Modules)
+if (!moduleOn('calendar')) {
+    http_response_code(403);
+    echo json_encode(['success' => 'False', 'message' => moduleOffText('calendar')]);
+    exit();
+}
+
 $update_count = false;
 
 // It can move to another client - which has to be reachable too

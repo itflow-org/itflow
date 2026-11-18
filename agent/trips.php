@@ -36,6 +36,11 @@ if (isset($_GET['client_id'])) {
     $client_id = 0;
 }
 
+if (!moduleOn('trips')) {
+    flashAlert(moduleOffText('trips'), 'error');
+    redirect('/agent/dashboard.php');
+}
+
 $can_manage = tripCanManage();
 $sees_all = tripCanSeeAll();
 

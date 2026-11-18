@@ -140,6 +140,9 @@ ob_start();
 
         <h6 class="fw-semibold mt-4 mb-2">Payments</h6>
 
+        <?php if (!moduleOn('bookkeeping')) { // Bookkeeping off - into the account it's set to, or the default ?>
+            <input type="hidden" name="account" value="<?= $account_id ?: bookkeepingAccount('payment') ?>">
+        <?php } else { ?>
         <div class="mb-3">
             <label class="form-label" for="paymentProviderAccount">Payments go into <strong class="text-danger">*</strong></label>
             <div class="input-group has-validation">
@@ -154,6 +157,7 @@ ob_start();
             <?= $error_for('account') ?>
             <div class="form-text">An account of its own, named for it, makes its payouts easy to match.</div>
         </div>
+        <?php } ?>
 
         <div class="mb-3">
             <label class="form-label" for="paymentProviderThreshold">Card limit</label>

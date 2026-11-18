@@ -105,7 +105,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
     }
 
     // The driving out to it - functions/trips.php, so an agent without Financial access sees their own
-    $show_trips = !empty($config_module_enable_accounting);
+    $show_trips = moduleOn('trips');
     $trips = $show_trips ? tripsFor('trip_location_id', $location_id, 25) : [];
     [$trip_count, $trip_miles] = $show_trips ? tripTotalsFor('trip_location_id', $location_id) : [0, 0.0];
 
@@ -193,9 +193,11 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                                 </a>
                             <?php } ?>
                             <?php if ($can_edit) { ?>
+                                <?php if (moduleOn('calendar')) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/calendar/calendar_event_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>&lock_client=1&title=Onsite+visit">
                                     <i class="far fa-fw fa-calendar-plus text-secondary me-2"></i>Visit here
                                 </a>
+                                <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
                                     <i class="fa fa-fw fa-user text-secondary me-2"></i>Contact
                                 </a>
@@ -218,7 +220,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                                     <i class="fa fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
                                 </a>
                             <?php } ?>
-                            <?php if (!empty($config_module_enable_accounting)) { ?>
+                            <?php if (moduleOn('trips')) { ?>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
                                     <i class="fa fa-fw fa-route text-secondary me-2"></i>Trip here

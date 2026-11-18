@@ -80,6 +80,19 @@ function accountBalance($account_id, $to_date = null) {
     return round(floatval($row[0] ?? 0), 2);
 }
 
+/*
+ * The account money goes into ('payment') or comes out of ('expense') while
+ * Bookkeeping is switched off (Admin > Settings > Modules) and nobody picks
+ * one - the default for it in Admin > Settings > Defaults, else the first open
+ * account. 0 when there is none.
+ */
+function bookkeepingAccount($kind) {
+    global $mysqli, $config_default_payment_account, $config_default_expense_account;
+    $default = intval($kind === 'expense' ? $config_default_expense_account : $config_default_payment_account);
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT account_id FROM accounts WHERE account_archived_at IS NULL ORDER BY account_id = $default DESC, account_id ASC LIMIT 1"));
+    return intval($row[0] ?? 0);
+}
+
 /**
  * The accounts with what they hold - id => row with balance, month_in and
  * month_out (this month, transfers included - it is that account's money),

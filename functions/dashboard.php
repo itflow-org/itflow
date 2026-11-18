@@ -502,7 +502,7 @@ function dashboardSchedule($days = 7, $limit = 30) {
         JOIN calendars ON event_calendar_id = calendar_id AND calendar_archived_at IS NULL
         LEFT JOIN clients ON event_client_id = client_id AND event_client_id > 0
         LEFT JOIN locations ON location_id = event_location_id AND event_location_id > 0
-        WHERE event_archived_at IS NULL AND event_start <= '$to'
+        WHERE event_archived_at IS NULL AND event_start <= '$to'" . (moduleOn('calendar') ? '' : ' AND 0') . "
         AND ((event_repeat IS NOT NULL AND event_repeat != '') OR event_start >= '$from' OR event_end >= '$from')
         AND (event_created_by = $user_id
             OR EXISTS (SELECT 1 FROM calendar_event_attendees a WHERE a.attendee_event_id = event_id AND a.attendee_user_id = $user_id)
@@ -707,8 +707,8 @@ function dashboardMoneyCards($access, $period) {
         $cards[] = ['label' => 'Expenses', 'value' => $expenses, 'change' => dashboardChange($expenses, $expenses_prev), 'good' => 'down',
             'url' => '/agent/expenses.php?canned_date=custom&dtf=' . $period['start'] . '&dtt=' . $period['end']];
         $cards[] = ['label' => 'Profit', 'value' => $income - $expenses, 'change' => dashboardChange($income - $expenses, $income_prev - $expenses_prev), 'good' => 'up',
-            // Profit & Loss for those who may open reports, the period's money in and out for anyone else
-            'url' => reportCanOpen('profit_loss') ? '/agent/reports/profit_loss.php' : '/agent/transactions.php?canned_date=custom&dtf=' . $period['start'] . '&dtt=' . $period['end']];
+            // Profit & Loss for those who may open reports, else the period's money in and out - its income without Bookkeeping
+            'url' => reportCanOpen('profit_loss') ? '/agent/reports/profit_loss.php' : '/agent/' . (moduleOn('bookkeeping') ? 'transactions' : 'income') . '.php?canned_date=custom&dtf=' . $period['start'] . '&dtt=' . $period['end']];
     }
 
     if ($access['sales']) {

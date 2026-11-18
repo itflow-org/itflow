@@ -10,6 +10,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// The calendar switched off (Admin > Settings > Modules)
+if (!moduleOn('calendar')) {
+    exit(json_encode(['error' => moduleOffText('calendar')]));
+}
+
 $form_client_id = intval($_GET['client_id'] ?? 0);
 // Opened from a contact or a site with no client in the link - theirs
 if (!$form_client_id && intval($_GET['contact_id'] ?? 0)) {

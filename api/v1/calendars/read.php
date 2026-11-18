@@ -12,6 +12,14 @@
 
 require_once '../validate_api_key.php';
 require_once '../require_get_method.php';
+require_once "../../../includes/load_global_settings.php";
+
+// Calendar switched off (Admin > Settings > Modules)
+if (!moduleOn('calendar')) {
+    http_response_code(403);
+    echo json_encode(['success' => 'False', 'message' => moduleOffText('calendar')]);
+    exit();
+}
 
 $where = isset($_GET['calendar_id']) ? 'calendar_id = ' . intval($_GET['calendar_id']) : (!empty($_GET['archived']) ? '1 = 1' : 'calendar_archived_at IS NULL');
 

@@ -10,6 +10,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// The calendar switched off (Admin > Settings > Modules)
+if (!moduleOn('calendar')) {
+    exit(json_encode(['error' => moduleOffText('calendar')]));
+}
+
 $feed = calendarUserFeed($session_user_id);
 $values = $feed ?: ['feed_scope' => 'mine', 'feed_tickets' => 1, 'feed_events' => 1, 'feed_projects' => 1, 'feed_busy_only' => 0];
 $urls = $feed ? calendarFeedUrls($feed['feed_key']) : null;

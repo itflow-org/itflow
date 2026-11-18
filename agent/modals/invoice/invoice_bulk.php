@@ -137,6 +137,9 @@ ob_start();
                         <input type="text" class="form-control" name="reference" placeholder="Check number, transaction ID" maxlength="200">
                     </div>
                 </div>
+                <?php if (!moduleOn('bookkeeping')) { // Bookkeeping off - into the default account ?>
+                    <input type="hidden" name="account" value="<?= bookkeepingAccount('payment') ?>">
+                <?php } else { ?>
                 <div class="col-sm-6">
                     <label class="form-label">Into account <strong class="text-danger">*</strong></label>
                     <div class="input-group">
@@ -150,6 +153,7 @@ ob_start();
                         </select>
                     </div>
                 </div>
+                <?php } ?>
                 <?php if (!empty($config_smtp_provider)) { ?>
                     <div class="col-12">
                         <div class="form-check form-switch">

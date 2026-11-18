@@ -15,6 +15,13 @@
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
+// The calendar switched off (Admin > Settings > Modules) - none of these until it's back on
+if (!moduleOn('calendar') && (array_intersect(['add_calendar', 'edit_calendar', 'share_calendar', 'add_event', 'edit_event', 'assign_event', 'send_event_invites', 'calendar_feed_save'], array_keys($_POST))
+    || array_intersect(['delete_calendar', 'regenerate_calendar_feed', 'unshare_calendar', 'skip_event_occurrence', 'delete_event', 'export_event_ics', 'calendar_feed_regenerate', 'calendar_feed_stop'], array_keys($_GET)))) {
+    flashAlert(moduleOffText('calendar'), 'error');
+    redirect();
+}
+
 /** A colour from the picker - #rrggbb - or a default. */
 function calendarPostedColor($color) {
     $color = trim((string) $color);

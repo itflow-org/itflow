@@ -9,6 +9,13 @@
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
+// Bookkeeping switched off (Admin > Settings > Modules) - none of these until it's back on
+if (!moduleOn('bookkeeping') && (array_intersect(['add_account', 'edit_account'], array_keys($_POST))
+    || array_intersect(['archive_account', 'restore_account', 'delete_account'], array_keys($_GET)))) {
+    flashAlert(moduleOffText('bookkeeping'), 'error');
+    redirect();
+}
+
 /** The account form's fields as accountSave() takes them. */
 function accountPostInput() {
     return [

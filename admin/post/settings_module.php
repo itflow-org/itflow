@@ -15,11 +15,15 @@ if (isset($_POST['edit_module_settings'])) {
 
     validateCSRFToken();
 
-    $before = settingsCurrent(['config_module_enable_itdoc', 'config_module_enable_ticketing', 'config_module_enable_accounting', 'config_client_portal_enable',
-        'config_whitelabel_enabled', 'config_whitelabel_key']);
+    $modules = ['config_module_enable_itdoc', 'config_module_enable_ticketing', 'config_module_enable_accounting', 'config_client_portal_enable'];
+    if (isset($config_module_enable_calendar)) {
+        // Database 3.9.4's five
+        array_push($modules, 'config_module_enable_dispatch', 'config_module_enable_bookkeeping', 'config_module_enable_purchasing', 'config_module_enable_trips', 'config_module_enable_calendar');
+    }
+    $before = settingsCurrent(array_merge($modules, ['config_whitelabel_enabled', 'config_whitelabel_key']));
 
     $after = [];
-    foreach (['config_module_enable_itdoc', 'config_module_enable_ticketing', 'config_module_enable_accounting', 'config_client_portal_enable'] as $module) {
+    foreach ($modules as $module) {
         $after[$module] = empty($_POST[$module]) ? 0 : 1;
     }
 

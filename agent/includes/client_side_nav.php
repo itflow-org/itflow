@@ -67,12 +67,12 @@
         $client_nav_quiet = [];
         $client_nav_docs = $config_module_enable_itdoc == 1 && lookupUserPermission("module_support") >= 1; // as the menu below shows them
         foreach (array_filter([
-            'Calendar' => [$num_calendar_events + intval($num_calendar_bookings ?? 0), ['calendar.php']],
+            'Calendar' => moduleOn('calendar') ? [$num_calendar_events + intval($num_calendar_bookings ?? 0), ['calendar.php']] : null,
             'Racks' => $client_nav_docs ? [$num_racks, ['racks.php', 'rack.php']] : null,
             'Certificates' => $client_nav_docs ? [$num_certificates, ['certificates.php']] : null,
             'Shared Links' => $client_nav_docs ? [$num_shares ?? 0, ['shares.php']] : null,
             'Services' => $client_nav_docs ? [$num_services, ['services.php']] : null,
-            'Trips' => $config_module_enable_accounting == 1 ? [$num_trips, ['trips.php']] : null,
+            'Trips' => moduleOn('trips') ? [$num_trips, ['trips.php']] : null,
         ]) as $client_nav_label => [$client_nav_count, $client_nav_pages]) {
             if (intval($client_nav_count) <= 0 && !in_array($client_nav_page, $client_nav_pages, true)) {
                 $client_nav_quiet[] = $client_nav_label;
@@ -137,18 +137,20 @@
                     </a>
                 </li>
 
-                <li class="nav-item"<?= $client_nav_quiet_attr('Calendar') ?>>
-                    <a href="/agent/calendar.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-calendar-alt"></i>
-                        <p>
-                            Calendar
-                            <?php
-                            if ($num_calendar_events > 0) { ?>
-                                <span class="right badge text-light"><?= $num_calendar_events ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
+                <?php if (moduleOn('calendar')) { ?>
+                    <li class="nav-item"<?= $client_nav_quiet_attr('Calendar') ?>>
+                        <a href="/agent/calendar.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-calendar-alt"></i>
+                            <p>
+                                Calendar
+                                <?php
+                                if ($num_calendar_events > 0) { ?>
+                                    <span class="right badge text-light"><?= $num_calendar_events ?></span>
+                                <?php } ?>
+                            </p>
+                        </a>
+                    </li>
+                <?php } ?>
 
                 <li class="nav-item">
                     <a href="/agent/audit_log.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "audit_log.php") { echo "active"; } ?>">
@@ -435,18 +437,20 @@
                         </li>
                     <?php } ?>
 
-                    <li class="nav-item"<?= $client_nav_quiet_attr('Trips') ?>>
-                        <a href="/agent/trips.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-route"></i>
-                            <p>
-                                Trips
-                                <?php
-                                if ($num_trips > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_trips ?></span>
-                                <?php } ?>
-                            </p>
-                        </a>
-                    </li>
+                    <?php if (moduleOn('trips')) { ?>
+                        <li class="nav-item"<?= $client_nav_quiet_attr('Trips') ?>>
+                            <a href="/agent/trips.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-route"></i>
+                                <p>
+                                    Trips
+                                    <?php
+                                    if ($num_trips > 0) { ?>
+                                        <span class="right badge text-light"><?= $num_trips ?></span>
+                                    <?php } ?>
+                                </p>
+                            </a>
+                        </li>
+                    <?php } ?>
 
                 <?php } ?>
 

@@ -175,10 +175,16 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
             <select class="form-select select2" name="account" required data-expense-account <?= $form_reimbursed || $form_lock ? 'disabled' : '' ?>>
+                <?php if (!moduleOn('bookkeeping')) {
+                    // Bookkeeping off - the business (the account it's in, or the default) or an agent personally
+                    $form_business_account = $form_edit && !$form_paid_by && isset($form_accounts[$form_account]) ? $form_account : bookkeepingAccount('expense'); ?>
+                    <option value="<?= $form_business_account ?>" <?= !$form_paid_by ? 'selected' : '' ?> data-icon="fas fa-building" data-description="Paid by the business">The business</option>
+                <?php } else { ?>
                 <option value="">- Which account -</option>
                 <?php foreach ($form_accounts as $account_id => $account) { ?>
                     <option value="<?= $account_id ?>" <?= !$form_paid_by && $form_account === $account_id ? 'selected' : '' ?> data-icon="fas fa-piggy-bank"
                         data-description="<?= escapeHtml(billingMoney($account['balance'], $account['account_currency_code'])) ?><?= $account['account_archived_at'] ? ' - archived' : '' ?>"><?= escapeHtml($account['account_name']) ?></option>
+                <?php } ?>
                 <?php } ?>
                 <?php if (!$form_refund) { ?>
                     <option value="personal" <?= $form_paid_by ? 'selected' : '' ?> data-icon="fas fa-hand-holding-usd" data-description="An agent paid it - to pay them back">Paid personally</option>

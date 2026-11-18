@@ -488,7 +488,7 @@ if (isset($_GET['ticket_id'])) {
         $show_invoice_button = $can_edit_ticket && $config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id) && !$ticket_prepaid_full && lookupUserPermission("module_sales") >= 2;
 
         // Trips - the driving done for it: anyone working it can log theirs (functions/trips.php)
-        $show_trips = $config_module_enable_accounting && $client_id > 0;
+        $show_trips = moduleOn('trips') && $client_id > 0;
         $ticket_trips = $show_trips ? tripsFor('trip_ticket_id', $ticket_id, 5) : [];
         [$ticket_trip_count, $ticket_trip_miles] = $show_trips ? tripTotalsFor('trip_ticket_id', $ticket_id) : [0, 0.0];
 

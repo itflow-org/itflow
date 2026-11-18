@@ -150,7 +150,7 @@ $csrf = $_SESSION['csrf_token'];
                 $records_url = '/agent/transactions.php?' . http_build_query(['method' => $row['payment_method_name']]);
                 $edit_url = "modals/payment_method/payment_method_edit.php?id=$payment_method_id";
                 $use_html = '<span class="text-body-secondary text-nowrap" title="' . escapeHtml($use_info['about']) . '"><i class="fas fa-fw ' . $use_info['icon'] . ' me-1"></i>' . escapeHtml($use_info['short']) . '</span>';
-                $used_html = $used['total'] ? '<a href="' . escapeHtml($records_url) . '" class="text-reset" title="See them in Transactions">' . escapeHtml($used_text) . '</a>' : '<span class="text-body-tertiary">Not used yet</span>';
+                $used_html = $used['total'] ? (moduleOn('bookkeeping') ? '<a href="' . escapeHtml($records_url) . '" class="text-reset" title="See them in Transactions">' . escapeHtml($used_text) . '</a>' : escapeHtml($used_text)) : '<span class="text-body-tertiary">Not used yet</span>';
                 ?>
                 <tr data-payment-method-id="<?= $payment_method_id ?>">
                     <td class="ps-3">

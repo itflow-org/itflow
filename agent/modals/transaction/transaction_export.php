@@ -8,6 +8,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Bookkeeping switched off (Admin > Settings > Modules)
+if (!moduleOn('bookkeeping')) {
+    exit(json_encode(['error' => moduleOffText('bookkeeping')]));
+}
+
 enforceUserPermission('module_financial');
 
 $account_filter = intval($_GET['account'] ?? 0);

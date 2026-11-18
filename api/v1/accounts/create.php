@@ -18,6 +18,14 @@
 
 require_once '../validate_api_key.php';
 require_once '../require_post_method.php';
+require_once "../../../includes/load_global_settings.php";
+
+// Bookkeeping switched off (Admin > Settings > Modules)
+if (!moduleOn('bookkeeping')) {
+    http_response_code(403);
+    echo json_encode(['success' => 'False', 'message' => moduleOffText('bookkeeping')]);
+    exit();
+}
 require_once 'account_map.php';
 
 $insert_id = false;

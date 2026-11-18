@@ -12,6 +12,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Trips switched off (Admin > Settings > Modules)
+if (!moduleOn('trips')) {
+    exit(json_encode(['error' => moduleOffText('trips')]));
+}
+
 $row = tripRow(intval($_GET['id'] ?? 0));
 if (!$row) {
     echo json_encode(['error' => 'That trip no longer exists, or is not one you can see.']);

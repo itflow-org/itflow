@@ -160,7 +160,7 @@ ob_start();
             <?php } else { ?>
                 <div class="itflow-glance-item" title="Paid from">
                     <i class="fas fa-fw fa-piggy-bank"></i>
-                    <span><?= escapeHtml($row['account_name'] ?: 'No account') ?><?= $row['expense_payment_method'] ? ' <span class="text-body-secondary">&middot; ' . escapeHtml($row['expense_payment_method']) . '</span>' : '' ?></span>
+                    <span><?= moduleOn('bookkeeping') ? escapeHtml($row['account_name'] ?: 'No account') : 'The business' ?><?= $row['expense_payment_method'] ? ' <span class="text-body-secondary">&middot; ' . escapeHtml($row['expense_payment_method']) . '</span>' : '' ?></span>
                 </div>
             <?php } ?>
             <?php if ($row['expense_reference']) { ?>

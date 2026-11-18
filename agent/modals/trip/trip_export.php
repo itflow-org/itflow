@@ -8,6 +8,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Trips switched off (Admin > Settings > Modules)
+if (!moduleOn('trips')) {
+    exit(json_encode(['error' => moduleOffText('trips')]));
+}
+
 $client_id = intval($_GET['client_id'] ?? 0);
 if ($client_id) {
     enforceClientAccess();

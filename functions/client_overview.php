@@ -405,7 +405,7 @@ function clientOverviewUpcoming($client_id, $access, $days = 14) {
         FROM calendar_events
         JOIN calendars ON calendar_id = event_calendar_id AND calendar_archived_at IS NULL
         LEFT JOIN locations ON location_id = event_location_id AND event_location_id > 0
-        WHERE event_client_id = $client_id AND event_archived_at IS NULL AND event_start <= '$to'
+        WHERE event_client_id = $client_id AND event_archived_at IS NULL AND event_start <= '$to'" . (moduleOn('calendar') ? '' : ' AND 0') . "
         AND ((event_repeat IS NOT NULL AND event_repeat != '') OR event_start >= '$from' OR event_end >= '$from')");
     while ($row = mysqli_fetch_assoc($sql)) {
         foreach (expandRecurringEvent($row, $from, $to) as $occurrence) {

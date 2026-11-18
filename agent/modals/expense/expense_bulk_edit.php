@@ -22,6 +22,9 @@ $fields = [
     'method' => ['label' => 'Payment Method', 'icon' => 'fa-credit-card'],
     'billable' => ['label' => 'Billable', 'icon' => 'fa-file-invoice-dollar'],
 ];
+if (!moduleOn('bookkeeping')) {
+    unset($fields['account']); // Bookkeeping off (Admin > Settings > Modules)
+}
 if (!isset($fields[$field])) {
     echo json_encode(['error' => 'Pick what to set from the Bulk Action menu.']);
     exit;

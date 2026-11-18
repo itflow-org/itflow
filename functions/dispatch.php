@@ -27,12 +27,12 @@ const DISPATCH_LENGTHS = [15, 30, 45, 60, 90, 120, 180, 240, 360, 480];
 
 /** May the signed-in agent see Dispatch? */
 function dispatchCan() {
-    return lookupUserPermission('module_support') >= 1;
+    return moduleOn('dispatch') && lookupUserPermission('module_support') >= 1;
 }
 
 /** May they book, move and assign there? */
 function dispatchCanEdit() {
-    return calendarCanScheduleTickets();
+    return moduleOn('dispatch') && calendarCanScheduleTickets();
 }
 
 /** The agents who can be dispatched to - active, and able to work tickets (Support at Modify, or an admin): user_id => [id, name, color]. */

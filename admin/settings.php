@@ -25,10 +25,15 @@ $days = function ($n) {
 // How each page is set now - a line or two, and whether it is switched off
 $start_pages = settingsStartPages();
 $modules_on = array_keys(array_filter([
-    'IT documentation' => $config_module_enable_itdoc,
-    'Ticketing' => $config_module_enable_ticketing,
-    'Invoicing' => $config_module_enable_accounting,
-    'Client portal' => $config_client_portal_enable,
+    'IT documentation' => moduleOn('itdoc'),
+    'Ticketing' => moduleOn('ticketing'),
+    'Dispatch' => isset($config_module_enable_dispatch) && moduleOn('dispatch'),
+    'Invoicing' => moduleOn('accounting'),
+    'Bookkeeping' => isset($config_module_enable_bookkeeping) && moduleOn('bookkeeping'),
+    'Purchasing' => isset($config_module_enable_purchasing) && moduleOn('purchasing'),
+    'Trips' => isset($config_module_enable_trips) && moduleOn('trips'),
+    'Calendar' => isset($config_module_enable_calendar) && moduleOn('calendar'),
+    'Client portal' => moduleOn('portal'),
 ]));
 $where = array_filter([$company['company_city'] ?? '', $company['company_country'] ?? '']);
 $summaries = [
@@ -41,6 +46,7 @@ $summaries = [
     'ticket' => 'Next ' . escapeHtml($config_ticket_prefix . $config_ticket_next_number) . ' · email to ticket ' . $on_off($config_ticket_email_parse),
     'project' => 'Next ' . escapeHtml($config_project_prefix . $config_project_next_number),
     'quote' => 'Next ' . escapeHtml($config_quote_prefix . $config_quote_next_number),
+    'purchase_order' => poReady() ? 'Next ' . escapeHtml(poSettings()['prefix'] . poSettings()['next']) . ' · approval ' . $on_off(poSettings()['approval']) : 'Needs the database update',
     'invoice' => 'Next ' . escapeHtml($config_invoice_prefix . $config_invoice_next_number) . ' · reminders ' . $on_off($config_send_invoice_reminders) . ' · late fees ' . $on_off($config_invoice_late_fee_enable)
         . ' · cards ' . $on_off(billingStripeProvider()),
     'mail' => 'Sending ' . ($config_smtp_provider ? 'on' : '<span class="text-danger-emphasis">off</span>') . ' · receiving ' . $on_off($config_imap_provider)

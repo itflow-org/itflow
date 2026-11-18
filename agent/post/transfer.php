@@ -10,6 +10,13 @@
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
+// Bookkeeping switched off (Admin > Settings > Modules) - none of these until it's back on
+if (!moduleOn('bookkeeping') && (array_intersect(['add_transfer', 'edit_transfer'], array_keys($_POST))
+    || array_intersect(['delete_transfer'], array_keys($_GET)))) {
+    flashAlert(moduleOffText('bookkeeping'), 'error');
+    redirect();
+}
+
 /** The transfer form's fields as transferSave() takes them. */
 function transferPostInput() {
     return [

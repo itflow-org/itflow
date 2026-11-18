@@ -12,6 +12,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Trips switched off (Admin > Settings > Modules)
+if (!moduleOn('trips')) {
+    exit(json_encode(['error' => moduleOffText('trips')]));
+}
+
 enforceUserPermission('module_financial', 2);
 
 $user_id = intval($_GET['user_id'] ?? 0);
@@ -88,6 +93,9 @@ ob_start();
                         <label class="form-check-label" for="tripClaimPayNow">Pay it back now</label>
                     </div>
                 </div>
+                <?php if (!moduleOn('bookkeeping')) { // Bookkeeping off - out of the default account ?>
+                    <input type="hidden" name="account" value="<?= bookkeepingAccount('expense') ?>">
+                <?php } else { ?>
                 <div class="col-md-7" data-claim-pay hidden>
                     <label class="form-label">Paid back from <strong class="text-danger">*</strong></label>
                     <div class="input-group">
@@ -101,6 +109,7 @@ ob_start();
                         </select>
                     </div>
                 </div>
+                <?php } ?>
                 <div class="col-md-5" data-claim-pay hidden>
                     <label class="form-label">How</label>
                     <div class="input-group">

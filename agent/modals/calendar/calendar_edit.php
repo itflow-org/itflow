@@ -6,6 +6,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// The calendar switched off (Admin > Settings > Modules)
+if (!moduleOn('calendar')) {
+    exit(json_encode(['error' => moduleOffText('calendar')]));
+}
+
 if (!calendarCanManage()) {
     echo json_encode(['error' => 'Only an admin can change a calendar.']);
     exit;

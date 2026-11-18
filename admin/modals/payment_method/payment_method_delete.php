@@ -37,7 +37,7 @@ if (!$payment_method) { ?>
         <?php if ($usage['total']) { ?>
             <div class="alert alert-warning small py-2">
                 <i class="fas fa-fw fa-exchange-alt me-1"></i>Used on <strong><?= escapeHtml(paymentMethodUsageText($usage)) ?></strong>.
-                <a href="/agent/transactions.php?<?= escapeHtml(http_build_query(['method' => $payment_method['payment_method_name']])) ?>" target="_blank">See them</a>
+                <?php if (moduleOn('bookkeeping')) { ?><a href="/agent/transactions.php?<?= escapeHtml(http_build_query(['method' => $payment_method['payment_method_name']])) ?>" target="_blank">See them</a><?php } ?>
             </div>
             <div class="mb-3">
                 <label class="form-label">Change them to <strong class="text-danger">*</strong></label>

@@ -10,6 +10,13 @@
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
+// Bookkeeping switched off (Admin > Settings > Modules) - none of these until it's back on
+if (!moduleOn('bookkeeping') && (array_intersect(['reconcile_start', 'reconcile_update', 'reconcile_finish'], array_keys($_POST))
+    || array_intersect(['reconcile_discard', 'reconcile_undo', 'reconcile_correct_opening'], array_keys($_GET)))) {
+    flashAlert(moduleOffText('bookkeeping'), 'error');
+    redirect();
+}
+
 /** The statement fields as reconcileStart() and reconcileUpdate() take them. */
 function reconcilePostInput() {
     return [

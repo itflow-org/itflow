@@ -42,6 +42,11 @@ if (!isset($_GET['key']) || !is_string($_GET['key']) || strlen($_GET['key']) < 1
     feedNotFound();
 }
 
+// The calendar switched off (Admin > Settings > Modules) - no feeds
+if (!moduleOn('calendar')) {
+    feedNotFound();
+}
+
 $feed_key = escapeSql($_GET['key']);
 
 // How much to publish. Repeating events are always included, since their first

@@ -142,7 +142,7 @@ $csrf = $_SESSION['csrf_token'];
                         <?php if ($row['account_name'] === null) { ?>
                             <span class="text-danger-emphasis"><i class="fas fa-fw fa-exclamation-triangle me-1"></i>No account - pick one in Edit</span>
                         <?php } else { ?>
-                            <a class="text-reset" href="/agent/accounts.php"><?= escapeHtml($row['account_name']) ?></a>
+                            <?php if (moduleOn('bookkeeping')) { ?><a class="text-reset" href="/agent/accounts.php"><?= escapeHtml($row['account_name']) ?></a><?php } else { ?><?= escapeHtml($row['account_name']) ?><?php } ?>
                             <?php if ($row['account_archived_at']) { ?><div class="text-danger-emphasis"><i class="fas fa-fw fa-archive me-1"></i>Archived - pick another in Edit</div><?php } ?>
                         <?php } ?>
                     </td>

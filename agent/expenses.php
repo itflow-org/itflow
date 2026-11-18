@@ -159,7 +159,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit) { ?>
-                        <a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement</a>
+                        <?php if (moduleOn('bookkeeping')) { ?><a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement</a><?php } ?>
                         <div class="dropdown-divider"></div>
                     <?php } ?>
                     <a class="dropdown-item ajax-modal" href="#"
@@ -237,7 +237,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=category" data-bulk="true"><i class="fas fa-fw fa-list text-secondary me-2"></i>Set Category</a>
-                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=account" data-bulk="true"><i class="fas fa-fw fa-piggy-bank text-secondary me-2"></i>Set Account</a>
+                                    <?php if (moduleOn('bookkeeping')) { ?><a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=account" data-bulk="true"><i class="fas fa-fw fa-piggy-bank text-secondary me-2"></i>Set Account</a><?php } ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=method" data-bulk="true"><i class="fas fa-fw fa-credit-card text-secondary me-2"></i>Set Payment Method</a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=client" data-bulk="true"><i class="fas fa-fw fa-user text-secondary me-2"></i>Set Client</a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=billable" data-bulk="true"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Set Billable</a>
@@ -254,6 +254,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
             </div>
             <div class="collapse <?= $more_filters ? 'show' : '' ?>" id="expenseMoreFilters">
                 <div class="row g-2 mt-0">
+                    <?php if (moduleOn('bookkeeping')) { // the account filter - with Bookkeeping on ?>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
@@ -268,6 +269,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                             </select>
                         </div>
                     </div>
+                    <?php } ?>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
@@ -397,7 +399,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                                 <div class="small text-warning-emphasis">To reimburse</div>
                             <?php } ?>
                         <?php } else { ?>
-                            <?= escapeHtml($row['account_name'] ?: '-') ?>
+                            <?= moduleOn('bookkeeping') ? escapeHtml($row['account_name'] ?: '-') : 'The business' ?>
                             <?php if ($row['expense_payment_method']) { ?><div class="small text-body-secondary"><?= escapeHtml($row['expense_payment_method']) ?></div><?php } ?>
                         <?php } ?>
                     </td>
@@ -456,10 +458,10 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
         'views' => ['show'],
         'view' => emptyStatePill($shows, $show, '', ['no_receipt', 'to_bill', 'to_reimburse']),
         'text' => 'What the business spends - enter them as they come, or bring in a bank or card statement.',
-        'actions' => $can_edit ? [
+        'actions' => $can_edit ? array_values(array_filter([
             ['label' => 'New Expense', 'modal' => 'modals/expense/expense_add.php' . ($vendor_filter ? "?vendor_id=$vendor_filter" : ''), 'size' => 'lg'],
             ['label' => 'Import Statement', 'href' => 'expense_import.php', 'icon' => 'fa-file-import'],
-        ] : [],
+        ], function ($action) { return moduleOn('bookkeeping') || ($action['href'] ?? '') !== 'expense_import.php'; })) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>

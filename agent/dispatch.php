@@ -16,9 +16,9 @@
 require_once "includes/inc_all.php";
 
 enforceUserPermission('module_support');
-if (intval($config_module_enable_ticketing) !== 1) {
-    flashAlert('Ticketing is switched off (Admin > Settings > Modules).', 'error');
-    redirect('/agent/calendar.php');
+if (!moduleOn('dispatch')) {
+    flashAlert(moduleOffText('dispatch'), 'error');
+    redirect('/agent/dashboard.php');
 }
 
 $agents = dispatchAgents();

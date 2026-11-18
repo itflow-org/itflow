@@ -2558,6 +2558,18 @@ if (isset($_GET['get_credential_via_id'])) {
 }
 
 /*
+ * The calendar page's own calls - none while the calendar is switched off
+ * (Admin > Settings > Modules). calendar_day stays: the ticket booking window
+ * shows the agent's day with it.
+ */
+if (!moduleOn('calendar') && (array_intersect(['calendar_items', 'calendar_unscheduled', 'calendar_left_behind'], array_keys($_GET))
+    || array_intersect(['calendar_move', 'calendar_state'], array_keys($_POST)))) {
+    http_response_code(403);
+    header('Content-Type: application/json');
+    exit(json_encode(['error' => moduleOffText('calendar')]));
+}
+
+/*
  * The calendar page's items between two days: the events on the calendars
  * shown, and what the built-in sources shown have dated (calendarSources()),
  * for one client or every client this agent can reach, everyone's or one

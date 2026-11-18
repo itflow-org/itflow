@@ -4,6 +4,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Trips switched off (Admin > Settings > Modules)
+if (!moduleOn('trips')) {
+    exit(json_encode(['error' => moduleOffText('trips')]));
+}
+
 enforceUserPermission('module_financial', 3);
 
 $trip_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_GET['trip_ids'] ?? [])))));

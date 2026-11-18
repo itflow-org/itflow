@@ -30,6 +30,10 @@ $order = "DESC";
 require_once "includes/inc_all.php";
 
 enforceUserPermission('module_financial');
+if (!moduleOn('bookkeeping')) {
+    flashAlert(moduleOffText('bookkeeping'), 'error');
+    redirect('/agent/dashboard.php');
+}
 
 $can_edit = lookupUserPermission('module_financial') >= 2;
 $open_accounts = accountsList(false);

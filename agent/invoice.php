@@ -360,7 +360,7 @@ echo agentBannersHtml($client_id);
                             <div class="flex-grow-1 min-w-0">
                                 <div class="fw-semibold itflow-money"><?= escapeHtml(billingMoney($payment['payment_amount'], $payment['payment_currency_code'])) ?></div>
                                 <div class="small text-body-secondary text-truncate">
-                                    <?= escapeHtml(implode(' · ', array_filter([$payment['payment_date'], $payment['payment_method'], $payment['payment_reference'], $payment['account_name']]))) ?>
+                                    <?= escapeHtml(implode(' · ', array_filter([$payment['payment_date'], $payment['payment_method'], $payment['payment_reference'], moduleOn('bookkeeping') ? $payment['account_name'] : '']))) ?>
                                 </div>
                             </div>
                             <?php if ($can_edit_payments || $can_delete_payments) { ?>

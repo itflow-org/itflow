@@ -24,6 +24,10 @@
 require_once "includes/inc_all.php";
 
 enforceUserPermission('module_financial', 2);
+if (!moduleOn('bookkeeping')) {
+    flashAlert(moduleOffText('bookkeeping'), 'error');
+    redirect('/agent/expenses.php');
+}
 
 $import = $_SESSION['expense_import'] ?? null;
 $step = (string) ($_GET['step'] ?? '');

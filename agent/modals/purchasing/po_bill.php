@@ -67,6 +67,9 @@ ob_start();
                     </select>
                 </div>
             </div>
+            <?php if (!moduleOn('bookkeeping')) { // Bookkeeping off - out of the default account ?>
+                <input type="hidden" name="account" value="<?= bookkeepingAccount('expense') ?>">
+            <?php } else { ?>
             <div class="col-sm-6">
                 <label class="form-label">Paid from <strong class="text-danger">*</strong></label>
                 <div class="input-group">
@@ -79,6 +82,7 @@ ob_start();
                     </select>
                 </div>
             </div>
+            <?php } ?>
             <div class="col-sm-6">
                 <label class="form-label">Paid by</label>
                 <div class="input-group">

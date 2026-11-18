@@ -94,6 +94,9 @@ ob_start();
                     </select>
                 </div>
             </div>
+            <?php if (!moduleOn('bookkeeping')) { // Bookkeeping off - any account ?>
+                <input type="hidden" name="account" value="">
+            <?php } else { ?>
             <div class="col-md-6">
                 <label class="form-label">Paid into</label>
                 <div class="input-group">
@@ -106,6 +109,7 @@ ob_start();
                     </select>
                 </div>
             </div>
+            <?php } ?>
             <div class="col-md-6">
                 <label class="form-label">Paid by</label>
                 <div class="input-group">

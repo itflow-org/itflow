@@ -89,7 +89,7 @@ ob_start();
             <div class="border rounded p-2 small" id="scheduleAgentDay" data-user="<?= $schedule_tech ?>" data-ticket="<?= $ticket_id ?>" data-name="<?= escapeHtml((string) $row['user_name']) ?>" hidden>
                 <div class="d-flex align-items-center mb-1">
                     <span class="fw-semibold"><i class="far fa-calendar-alt fa-fw text-secondary me-1"></i><span class="js-day-title"></span></span>
-                    <a class="ms-auto js-day-open" href="calendar.php">Calendar</a>
+                    <a class="ms-auto js-day-open" href="calendar.php"<?= moduleOn('calendar') ? '' : ' hidden' ?>>Calendar</a>
                 </div>
                 <div class="js-day-items"></div>
             </div>

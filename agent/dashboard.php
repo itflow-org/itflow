@@ -41,9 +41,12 @@ if ($access['tickets']) {
 if ($access['financial']) {
     $chart_data['cash_flow'] = dashboardCashFlow($period);
     $chart_data['breakdowns'] = dashboardBreakdowns($period);
-    $chart_data['trips'] = dashboardTrips($period);
+    if (moduleOn('trips')) {
+        $chart_data['trips'] = dashboardTrips($period);
+    }
     $chart_data['currency'] = $session_company_currency;
-    $accounts = dashboardAccountBalances();
+    // The accounts card - with Bookkeeping on (Admin > Settings > Modules)
+    $accounts = moduleOn('bookkeeping') ? dashboardAccountBalances() : null;
     $latest_income = dashboardLatestIncome(5);
     $latest_expenses = dashboardLatestExpenses(5);
 }
@@ -216,7 +219,7 @@ if ($getting_started) {
             <div class="card h-100 mb-0">
                 <div class="card-header d-flex align-items-center">
                     <h3 class="card-title mb-0 me-auto">Your schedule</h3>
-                    <a class="small" href="/agent/calendar.php">Open calendar</a>
+                    <?php if (moduleOn('calendar')) { ?><a class="small" href="/agent/calendar.php">Open calendar</a><?php } elseif (moduleOn('dispatch')) { ?><a class="small" href="/agent/dispatch.php">Open Dispatch</a><?php } ?>
                 </div>
                 <?php if ($schedule['items']) { ?>
                     <div class="itflow-dash-schedule" tabindex="0" aria-label="Your schedule for the next 7 days">
@@ -247,7 +250,7 @@ if ($getting_started) {
                         <?php } ?>
                     </div>
                     <?php if ($schedule['total'] > count($schedule['items'])) { ?>
-                        <a class="card-footer small text-decoration-none py-2" href="/agent/calendar.php"><?= $schedule['total'] - count($schedule['items']) ?> more this week</a>
+                        <?php if (moduleOn('calendar')) { ?><a class="card-footer small text-decoration-none py-2" href="/agent/calendar.php"><?= $schedule['total'] - count($schedule['items']) ?> more this week</a><?php } else { ?><div class="card-footer small text-body-secondary py-2"><?= $schedule['total'] - count($schedule['items']) ?> more this week</div><?php } ?>
                     <?php } ?>
                 <?php } else { ?>
                     <div class="card-body text-center text-body-secondary py-5">
@@ -411,7 +414,7 @@ if ($getting_started) {
     <?php if ($access['financial']) { ?>
 
         <div class="row g-3 mb-3">
-            <div class="col-xl-8">
+            <div class="<?= $accounts === null ? 'col-12' : 'col-xl-8' ?>">
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0 me-auto">Cash flow</h3>
@@ -427,6 +430,7 @@ if ($getting_started) {
                     </div>
                 </div>
             </div>
+            <?php if ($accounts !== null) { ?>
             <div class="col-xl-4">
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
@@ -452,6 +456,7 @@ if ($getting_started) {
                     <?php } ?>
                 </div>
             </div>
+            <?php } ?>
         </div>
 
     <?php } ?>
@@ -583,7 +588,7 @@ if ($getting_started) {
         </div>
 
         <div class="row g-3 mb-4">
-            <div class="col-lg-4">
+            <div class="col-lg">
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0 me-auto">Latest income</h3>
@@ -607,7 +612,7 @@ if ($getting_started) {
                     <?php } ?>
                 </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg">
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0 me-auto">Latest expenses</h3>
@@ -630,7 +635,8 @@ if ($getting_started) {
                     <?php } ?>
                 </div>
             </div>
-            <div class="col-lg-4">
+            <?php if (isset($chart_data['trips'])) { ?>
+            <div class="col-lg">
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0 me-auto">Trips</h3>
@@ -641,6 +647,7 @@ if ($getting_started) {
                     </div>
                 </div>
             </div>
+            <?php } ?>
         </div>
 
     <?php } ?>

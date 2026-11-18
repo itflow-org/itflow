@@ -9444,6 +9444,10 @@ a.itflow-portal-request:focus-visible {
     padding-top: .75rem;
     border-top: 1px solid var(--bs-border-color-translucent);
 }
+/* One that comes with the module above it - set in under it */
+.itflow-settings-module-part {
+    padding-left: 2.5rem;
+}
 /* A short list of what is what - Telemetry's report */
 .itflow-settings-list {
     display: grid;

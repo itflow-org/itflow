@@ -17,6 +17,14 @@
 
 require_once '../validate_api_key.php';
 require_once '../require_get_method.php';
+require_once "../../../includes/load_global_settings.php";
+
+// Trips switched off (Admin > Settings > Modules)
+if (!moduleOn('trips')) {
+    http_response_code(403);
+    echo json_encode(['success' => 'False', 'message' => moduleOffText('trips')]);
+    exit();
+}
 
 $where = 'trips.trip_archived_at IS NULL' . tripScopeSql();
 if (isset($_GET['trip_id'])) {

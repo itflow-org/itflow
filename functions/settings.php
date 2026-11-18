@@ -51,7 +51,7 @@ function settingsPages() {
             'about' => 'How quotes are numbered, what goes at the foot of them, and who hears when one is answered.'],
         'invoice' => ['group' => 'work', 'title' => 'Invoices and billing', 'icon' => 'fa-file-invoice', 'url' => 'settings_invoice.php', 'module' => 'accounting',
             'about' => 'Invoice numbering, late fees, reminders and statements, and how time, expenses and trips are billed.'],
-        'purchase_order' => ['group' => 'work', 'title' => 'Purchase orders', 'icon' => 'fa-file-signature', 'url' => 'settings_purchase_order.php', 'module' => 'accounting',
+        'purchase_order' => ['group' => 'work', 'title' => 'Purchase orders', 'icon' => 'fa-file-signature', 'url' => 'settings_purchase_order.php', 'module' => 'purchasing',
             'about' => 'How purchase orders are numbered, and whether one needs approving before it is ordered.'],
         'mail' => ['group' => 'email', 'title' => 'Mail', 'icon' => 'fa-envelope', 'url' => 'settings_mail.php',
             'about' => 'The mailboxes ITFlow sends from and reads tickets from, the names emails come from, and tests.'],
@@ -64,7 +64,7 @@ function settingsPages() {
         'identity' => ['group' => 'access', 'title' => 'Single sign-on', 'icon' => 'fa-fingerprint', 'url' => 'identity_providers.php', 'module' => 'portal',
             'about' => 'Contacts signing in to the client portal with their Microsoft 365 account.'],
         'module' => ['group' => 'system', 'title' => 'Modules', 'icon' => 'fa-cube', 'url' => 'settings_module.php',
-            'about' => 'The parts of ITFlow in use - IT documentation, ticketing, invoicing and the client portal - and white-labelling.'],
+            'about' => 'The parts of ITFlow in use - IT documentation, ticketing, invoicing, the calendar and the client portal, and the parts that come with them - and white-labelling.'],
         'logs' => ['group' => 'system', 'title' => 'Logs', 'icon' => 'fa-scroll', 'url' => 'settings_logs.php',
             'about' => 'How long the audit log and app logs are kept, and sending them on to a syslog server or SIEM.'],
         'telemetry' => ['group' => 'system', 'title' => 'Telemetry', 'icon' => 'fa-satellite-dish', 'url' => 'settings_telemetry.php',
@@ -74,16 +74,46 @@ function settingsPages() {
 
 /* Whether a page's module is in use - a page for one that is off is hidden from the menu, and shown faded on the overview. */
 function settingsPageAvailable(array $page) {
-    global $config_module_enable_ticketing, $config_module_enable_accounting, $config_client_portal_enable;
-    switch ($page['module'] ?? '') {
-        case 'ticketing':
-            return !empty($config_module_enable_ticketing);
-        case 'accounting':
-            return !empty($config_module_enable_accounting);
+    return empty($page['module']) || moduleOn($page['module']);
+}
+
+/*
+ * Whether a part of ITFlow is in use (Admin > Settings > Modules) - itdoc,
+ * ticketing, accounting, portal, and purchasing, bookkeeping, dispatch, trips
+ * and calendar. Purchasing, bookkeeping and trips come with invoicing and
+ * dispatch with ticketing, so each is off while that is. Before the database
+ * update that adds a switch, what it switches is on, as it was.
+ */
+function moduleOn($module) {
+    $on = function ($column) {
+        return intval($GLOBALS[$column] ?? 1) === 1;
+    };
+    switch ($module) {
         case 'portal':
-            return !empty($config_client_portal_enable);
+            return $on('config_client_portal_enable');
+        case 'dispatch':
+            return $on('config_module_enable_ticketing') && $on('config_module_enable_dispatch');
+        case 'purchasing':
+        case 'bookkeeping':
+        case 'trips':
+            return $on('config_module_enable_accounting') && $on("config_module_enable_$module");
     }
-    return true;
+    return $on("config_module_enable_$module");
+}
+
+/*
+ * What a page, window or API call says when its module is off - or, for one
+ * that comes with another, when that one is off.
+ */
+function moduleOffText($module) {
+    $names = ['dispatch' => 'Dispatch is', 'bookkeeping' => 'Bookkeeping is', 'trips' => 'Trips are', 'calendar' => 'The calendar is', 'purchasing' => 'Purchasing is'];
+    $comes_with = ['dispatch' => 'ticketing', 'bookkeeping' => 'accounting', 'trips' => 'accounting', 'purchasing' => 'accounting'];
+    $parent = $comes_with[$module] ?? '';
+    if ($parent && !moduleOn($parent)) {
+        return preg_replace('/ (is|are)$/', '', $names[$module]) . ' come' . ($module === 'trips' ? '' : 's') . ' with ' . ($parent === 'ticketing' ? 'ticketing' : 'invoicing')
+            . ', which is switched off - an admin switches it on in Admin > Settings > Modules.';
+    }
+    return ($names[$module] ?? 'That is') . ' switched off - an admin switches ' . ($module === 'trips' ? 'them' : 'it') . ' on in Admin > Settings > Modules.';
 }
 
 /*
@@ -387,6 +417,11 @@ function settingsFields() {
         'config_module_enable_itdoc' => ['page' => 'module', 'section' => 'Modules', 'label' => 'IT documentation', 'words' => 'module itdoc documentation assets credentials'] + $on_off,
         'config_module_enable_ticketing' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Ticketing', 'words' => 'module tickets support'] + $on_off,
         'config_module_enable_accounting' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Invoicing and accounting', 'words' => 'module accounting invoices billing financial'] + $on_off,
+        'config_module_enable_dispatch' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Dispatch', 'words' => 'module dispatch board schedule technicians'] + $on_off,
+        'config_module_enable_bookkeeping' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Bookkeeping', 'words' => 'module bookkeeping accounts transactions transfers reconcile statements'] + $on_off,
+        'config_module_enable_purchasing' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Purchasing', 'words' => 'module purchasing purchase orders procurement receiving'] + $on_off,
+        'config_module_enable_trips' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Trips', 'words' => 'module trips mileage driving'] + $on_off,
+        'config_module_enable_calendar' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Calendar', 'words' => 'module calendar events feed'] + $on_off,
         'config_client_portal_enable' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Client portal', 'words' => 'module portal clients'] + $on_off,
         'config_whitelabel_key' => ['page' => 'module', 'section' => 'White-label', 'label' => 'White-label key', 'kind' => 'secret', 'words' => 'whitelabel white label powered by banner'],
         'config_whitelabel_enabled' => ['page' => 'module', 'section' => 'White-label', 'label' => 'White-label', 'search' => false] + $on_off,
@@ -1066,8 +1101,12 @@ function settingsNumberingFields($kind, $prefix, $number) {
 
 /* The pages ITFlow can open on, as page => name - any other page of /agent/ can be typed. */
 function settingsStartPages() {
-    return ['dashboard.php' => 'Dashboard', 'clients.php' => 'Clients', 'tickets.php' => 'Tickets', 'calendar.php' => 'Calendar', 'projects.php' => 'Projects',
+    $pages = ['dashboard.php' => 'Dashboard', 'clients.php' => 'Clients', 'tickets.php' => 'Tickets', 'calendar.php' => 'Calendar', 'projects.php' => 'Projects',
         'invoices.php' => 'Invoices', 'quotes.php' => 'Quotes', 'assets.php' => 'Assets'];
+    if (!moduleOn('calendar')) {
+        unset($pages['calendar.php']);
+    }
+    return $pages;
 }
 
 /*

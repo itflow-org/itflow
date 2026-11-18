@@ -142,6 +142,13 @@ $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
 $config_module_enable_ticketing = intval($row['config_module_enable_ticketing']);
 $config_module_enable_accounting = intval($row['config_module_enable_accounting']);
 $config_client_portal_enable = intval($row['config_client_portal_enable']);
+// Purchasing, Bookkeeping, Dispatch, Trips and Calendar - read once database 3.9.4 adds them; moduleOn() takes one not there yet as on
+if (version_compare((string) ($row['config_current_database_version'] ?? '0'), '3.9.4', '>=')) {
+    foreach (mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_module_enable_purchasing, config_module_enable_bookkeeping, config_module_enable_dispatch,
+        config_module_enable_trips, config_module_enable_calendar FROM settings WHERE company_id = 1")) ?: [] as $module_column => $module_on) {
+        $$module_column = intval($module_on);
+    }
+}
 $config_client_portal_require_mfa = intval($row['config_client_portal_require_mfa']);
 
 // The client record that represents this MSP's own company, or 0 for none

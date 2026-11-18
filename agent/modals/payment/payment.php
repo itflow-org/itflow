@@ -132,10 +132,12 @@ ob_start();
             <?= reconcileGlanceHtml($cleared) ?>
         </div>
         <div class="col-sm-6">
+            <?php if (moduleOn('bookkeeping')) { ?>
             <div class="itflow-glance-item" title="Paid into">
                 <i class="fas fa-fw fa-piggy-bank"></i>
                 <span class="text-truncate"><?= escapeHtml($row['account_name'] ?: 'No account') ?><?= $row['account_archived_at'] ? ' <span class="text-body-secondary">(archived)</span>' : '' ?></span>
             </div>
+            <?php } ?>
             <div class="itflow-glance-item" title="Paid by">
                 <i class="fas fa-fw fa-credit-card"></i>
                 <span><?= escapeHtml($row['payment_method'] ?: '-') ?></span>

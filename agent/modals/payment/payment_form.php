@@ -74,6 +74,9 @@ $pay_lock = $pay['lock'] ?? null;
             <input type="text" class="form-control" name="reference" placeholder="Check number, transaction ID" maxlength="200" value="<?= escapeHtml($pay['reference'] ?? '') ?>">
         </div>
     </div>
+    <?php if (!moduleOn('bookkeeping')) { // Bookkeeping off - into the account it is in, or the default ?>
+        <input type="hidden" name="account" value="<?= isset($pay['account_id']) ? $pay_account_id : bookkeepingAccount('payment') ?>">
+    <?php } else { ?>
     <div class="col-12">
         <label class="form-label">Into account <strong class="text-danger">*</strong></label>
         <div class="input-group">
@@ -90,6 +93,7 @@ $pay_lock = $pay['lock'] ?? null;
             <?php } ?>
         </div>
     </div>
+    <?php } ?>
     <?php if (!empty($pay['email']) && !empty($config_smtp_provider)) { ?>
         <div class="col-12">
             <div class="form-check form-switch">
