@@ -690,6 +690,8 @@ function calendarSourceItems($key, $from, $to, array $opts = []) {
                     'detail' => implode(' · ', array_filter([$left_behind ? 'Left behind' : '', $agent === '' ? 'Unassigned' : '', $row['ticket_status_name']]))],
             ] + $base;
         }
+        // The agents helping, at the lead's time or their own (functions/ticket_helpers.php)
+        $items = array_merge($items, ticketHelperCalendarItems($from, $to, $client_id, $user_id, $can_move));
     } elseif ($key === 'projects') {
         $sql = mysqli_query($mysqli, "SELECT project_id, project_prefix, project_number, project_name, project_start, project_due, project_client_id, client_name
             FROM projects LEFT JOIN clients ON client_id = project_client_id
@@ -1368,6 +1370,8 @@ function calendarUserFeedItems(array $feed, $from, $to) {
                 'busy' => $busy,
             ];
         }
+        // And the tickets they are helping on (functions/ticket_helpers.php)
+        $items = array_merge($items, ticketHelperFeedItems($feed, $from, $to));
     }
 
     if (!empty($feed['feed_events'])) {

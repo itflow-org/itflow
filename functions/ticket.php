@@ -877,6 +877,8 @@ function ticketMailAgent($user_id) {
  *   mentioned an internal note mentions them - by (who), message (the note, HTML), reply_id (the note, to open)
  *   sla       an SLA alert - track: response or resolution, breached: true once missed, due (when)
  *   scheduled the work was booked - when, where, or cancelled: true (handed_over: true, it went to someone else)
+ *   helper    helping on it (functions/ticket_helpers.php) - when and where they are booked, lead (the lead's
+ *             name), or cancelled: true, or added: true (on it, not booked - by, who added them)
  *   paid      the invoice it waits on was paid - invoice (its number), amount, reopened (On Hold to Open)
  */
 function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
@@ -933,6 +935,24 @@ function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
             $email['summary'] += ['When' => (string) $opts['when'], 'Where' => !empty($row['ticket_onsite']) ? (trim((string) ($opts['where'] ?? '')) !== '' ? (string) $opts['where'] : 'Onsite') : 'Remote'];
             $email['history'] = ticketEmailHistory($row, ['limit' => 2, 'label' => 'What it is about']);
         }
+    } elseif ($kind === 'helper') {
+        $lead = trim((string) ($opts['lead'] ?? ''));
+        $lead_line = $lead !== '' ? " $lead is the lead agent." : '';
+        if (!empty($opts['cancelled'])) {
+            $email['kind'] = 'Visit cancelled';
+            $email['tone'] = 'secondary';
+            $email['intro'] = ["Your time helping on $reference is cancelled - the calendar file with this email takes it out of your calendar."];
+        } elseif (!empty($opts['added'])) {
+            $email['kind'] = 'Helping';
+            $email['intro'] = [($by !== '' ? $by : 'Someone') . " added you to help on $reference.$lead_line It isn't booked on your calendar."];
+            $email['message'] = ['html' => (string) $row['ticket_details'], 'label' => 'Details'];
+            $email['history'] = ticketEmailHistory($row, ['request' => false, 'label' => 'Replies so far']);
+        } else {
+            $email['kind'] = 'Work booked';
+            $email['intro'] = ["You're booked to help on $reference for " . $opts['when'] . " - the calendar file with this email adds it to your calendar.$lead_line"];
+            $email['summary'] += ['When' => (string) $opts['when'], 'Where' => !empty($row['ticket_onsite']) ? (trim((string) ($opts['where'] ?? '')) !== '' ? (string) $opts['where'] : 'Onsite') : 'Remote'];
+            $email['history'] = ticketEmailHistory($row, ['limit' => 2, 'label' => 'What it is about']);
+        }
     } elseif ($kind === 'sla') {
         $track = ($opts['track'] ?? 'response') === 'resolution' ? 'resolution' : 'response';
         $due = !empty($opts['due']) ? date('D j M, g:i A', strtotime($opts['due'])) : '';
@@ -970,7 +990,7 @@ function ticketMailNewTicketAddress($ticket_id, $how) {
         $subject, ticketAgentEmailContent($row, 'new', ['how' => $how]));
 }
 
-/** Tell the agent a ticket is assigned to that the client replied - $how portal or email, $reply its HTML, $by who. */
+/** Tell the agent a ticket is assigned to that the client replied - and the agents helping on it - $how portal or email, $reply its HTML, $by who. */
 function ticketMailAssigneeReplied($ticket_id, $how, $reply, $by) {
     global $config_app_name;
     $row = ticketRow($ticket_id);
@@ -980,7 +1000,8 @@ function ticketMailAssigneeReplied($ticket_id, $how, $reply, $by) {
     }
     return ticketMailAgents([$agent + ['footnote' => 'You get this as the agent ' . ticketReference($row) . ' is assigned to.']],
         ($config_app_name ?: 'ITFlow') . " - Ticket updated - [" . ticketReference($row) . "] " . $row['ticket_subject'],
-        ticketAgentEmailContent($row, 'replied', ['how' => $how, 'message' => (string) $reply, 'by' => (string) $by]));
+        ticketAgentEmailContent($row, 'replied', ['how' => $how, 'message' => (string) $reply, 'by' => (string) $by]))
+        + ticketHelpersMailReplied($row, $agent, $how, $reply, $by);
 }
 
 /*
@@ -2377,7 +2398,8 @@ function ticketScheduleOverlapSql($from, $to) {
 
 /*
  * An agent's other open work that overlaps $start - $end, as plain text lines:
- * their booked tickets, and the timed calendar events they are on. A ticket for
+ * their booked tickets, the timed calendar events they are on, and their
+ * bookings helping on other tickets. A ticket for
  * a client the agent booking it can't see is only said to be there.
  */
 function ticketScheduleConflicts($user_id, $start, $end, $ticket_id = 0) {
@@ -2406,7 +2428,8 @@ function ticketScheduleConflicts($user_id, $start, $end, $ticket_id = 0) {
             }
         }
     }
-    return $conflicts;
+    // Tickets they are helping on (functions/ticket_helpers.php)
+    return array_merge($conflicts, ticketHelperConflicts($user_id, $start, $end, $ticket_id));
 }
 
 /*
@@ -2426,8 +2449,9 @@ function ticketScheduleIcs(array $row, $schedule, $end = null) {
 /**
  * Book the work on a ticket for $schedule ('Y-m-d H:i:s') to $end (the usual
  * length when none), onsite or remote: the agent, the contact and the watchers
- * are emailed with the calendar file, and it is noted on the ticket. Returns
- * ['when_text' => ..., 'conflicts' => the same agent's other work at that
+ * are emailed with the calendar file, and it is noted on the ticket. Helpers
+ * who follow the lead are sent the new time. Returns ['when_text' => ...,
+ * 'conflicts' => the same agent's - and those helpers' - other work at that
  * time, as plain text (ticketScheduleConflicts())].
  */
 function ticketSetSchedule(array $row, $schedule, $onsite, $end = null) {
@@ -2448,6 +2472,9 @@ function ticketSetSchedule(array $row, $schedule, $onsite, $end = null) {
     $cal_str = ticketScheduleIcs($mail_row, $schedule, $end);
     $when_text = ticketScheduleWhenText($schedule, $end);
     ticketMailSchedule($mail_row, $cal_str, false, $when_text);
+
+    // The agents helping at the same time move with it, and are sent the new time (functions/ticket_helpers.php)
+    $conflicts = array_merge($conflicts, ticketHelpersLeadMoved($ticket_id));
 
     // Note it on the ticket
     $note = escapeSql("Ticket scheduled for $when_text " . ($onsite ? '(onsite).' : '(remote).'));
@@ -2479,6 +2506,7 @@ function ticketCancelSchedule(array $row) {
     $cal_subject = intval($mail_row['ticket_number']) . ": " . $mail_row['client_name'] . " - " . $mail_row['ticket_subject'];
     $cal_str = createiCalStrCancel($old_schedule, $cal_subject, getTicketCalendarUid($ticket_id));
     ticketMailSchedule($mail_row, $cal_str, true, '');
+    ticketHelpersLeadCancelled($ticket_id, $old_schedule);
 
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket schedule cancelled.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = " . intval($session_user_id) . ", ticket_reply_ticket_id = $ticket_id");
 

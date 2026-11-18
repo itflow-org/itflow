@@ -2630,6 +2630,41 @@ if (isset($_POST['calendar_move'])) {
         exit;
     }
 
+    // An agent helping on a ticket - moved or stretched, it is a time of their own (functions/ticket_helpers.php)
+    if (($_POST['kind'] ?? '') === 'helper') {
+
+        if (!calendarCanScheduleTickets()) {
+            $fail('Your role cannot schedule tickets.', 403);
+        }
+        $row = ticketRow($_POST['id'] ?? 0);
+        if (!$row || !empty($row['ticket_archived_at'])) {
+            $fail('That ticket no longer exists.', 404);
+        }
+        if (intval($row['ticket_client_id']) && !hasClientAccess($row['ticket_client_id'])) {
+            $fail('You do not have access to that client.', 403);
+        }
+        if (!ticketIsOpen($row)) {
+            $fail('Ticket ' . ticketReference($row) . ' is resolved or closed - reopen it to schedule work.');
+        }
+        $helper = ticketHelpers($row['ticket_id'])[intval($_POST['user_id'] ?? 0)] ?? null;
+        if (!$helper) {
+            $fail('That agent is no longer on the ticket.', 404);
+        }
+        if (!empty($_POST['all_day'])) {
+            $start = substr($start, 0, 10) . ' ' . ($helper['start'] !== '' ? date('H:i:s', strtotime($helper['start'])) : '09:00:00');
+        }
+        $end = !empty($_POST['all_day']) ? '' : ticketScheduleValue($_POST['end'] ?? '');
+        if ($end === '' || $end <= $start || strtotime($end) - strtotime($start) > 86400) {
+            $end = date('Y-m-d H:i:s', strtotime($start) + ($helper['start'] !== '' ? ticketScheduleMinutes($helper['start'], $helper['end']) : CALENDAR_TICKET_MINUTES) * 60);
+        }
+        [$ok, $message, $conflicts] = ticketHelperSave($row, $helper['user_id'], 'own', $start, $end);
+        if (!$ok) {
+            $fail($message);
+        }
+        echo json_encode(['ok' => true, 'message' => $helper['user_name'] . ' booked on ' . ticketReference($row) . ' for ' . ticketScheduleWhenText($start, $end), 'conflicts' => $conflicts]);
+        exit;
+    }
+
     $event = calendarEventRow($_POST['id'] ?? 0);
     if (!$event) {
         $fail('That event no longer exists.', 404);
@@ -2788,7 +2823,8 @@ if (isset($_GET['calendar_day'])) {
 
     $day = [];
     foreach ($items as $item) {
-        if ($item['id'] === $skip_ticket) {
+        // The ticket being booked - the lead's booking, and the agents helping on it
+        if ($item['id'] === $skip_ticket || strpos($item['id'], 'helper-' . intval($_GET['ticket_id'] ?? 0) . '-') === 0) {
             continue;
         }
         $all_day = !empty($item['allDay']);

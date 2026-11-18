@@ -227,6 +227,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                         <?php } else { ?>
                             <?= $assignee ?>
                         <?php } ?>
+                        <?= ticketHelpersBadge($ticket_id) ?>
                     </td>
 
                     <!-- Due - its own date and its SLA -->

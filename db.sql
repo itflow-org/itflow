@@ -4060,6 +4060,28 @@ CREATE TABLE `ticket_fill_ins` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ticket_helpers`
+--
+
+DROP TABLE IF EXISTS `ticket_helpers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ticket_helpers` (
+  `ticket_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `follows_lead` tinyint(1) NOT NULL DEFAULT 1,
+  `schedule_start` datetime DEFAULT NULL,
+  `schedule_end` datetime DEFAULT NULL,
+  `added_by` int(11) NOT NULL DEFAULT 0,
+  `added_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`ticket_id`,`user_id`),
+  KEY `ticket_helpers_user` (`user_id`),
+  CONSTRAINT `ticket_helpers_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`ticket_id`) ON DELETE CASCADE,
+  CONSTRAINT `ticket_helpers_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `ticket_history`
 --
 

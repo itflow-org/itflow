@@ -200,7 +200,7 @@
     function saved(json) {
         itflowToast(json.message, 'success');
         if (json.conflicts && json.conflicts.length) {
-            itflowToast('The same agent already has work then: ' + json.conflicts.join('; '), 'warning');
+            itflowToast('Already booked then - the agent, or those helping: ' + json.conflicts.join('; '), 'warning');
         }
     }
 
@@ -380,6 +380,30 @@
                     return;
                 }
                 post({kind: 'ticket', id: props.ticket_id, start: ymdhm(start), end: end && !event.allDay ? ymdhm(end) : '', all_day: event.allDay ? 1 : 0}, function (json) {
+                    saved(json);
+                    calendar.refetchEvents();
+                }, function (error) {
+                    itflowToast(error, 'error');
+                    info.revert();
+                });
+            });
+            return;
+        }
+
+        // An agent helping on a ticket - moved or stretched, it becomes a time of their own
+        if (props.kind === 'helper') {
+            confirmDialog({
+                title: resized && end
+                    ? 'Book ' + event.title.split(' ')[0] + ' for this agent until ' + end.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}) + '?'
+                    : 'Move ' + event.title.split(' ')[0] + ' for this agent to ' + words(start, false) + '?',
+                text: props.follows_lead ? 'It becomes a time of their own - no longer moving with the lead. They are emailed the new time.' : 'They are emailed the new time.',
+                confirmButtonText: resized ? 'Change it' : 'Move it'
+            }).then(function (result) {
+                if (!result.isConfirmed) {
+                    info.revert();
+                    return;
+                }
+                post({kind: 'helper', id: props.ticket_id, user_id: props.user_id, start: ymdhm(start), end: end && !event.allDay ? ymdhm(end) : '', all_day: event.allDay ? 1 : 0}, function (json) {
                     saved(json);
                     calendar.refetchEvents();
                 }, function (error) {

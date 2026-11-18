@@ -397,7 +397,8 @@ function dashboardMyTickets($limit = 8) {
     global $mysqli, $session_user_id;
 
     $user_id = intval($session_user_id);
-    $where = "ticket_assigned_to = $user_id AND ticket_resolved_at IS NULL " . clientScopeSql('ticket_client_id');
+    // Mine - leading it, or helping (functions/ticket_helpers.php)
+    $where = ticketAssignedSql($user_id) . " AND ticket_resolved_at IS NULL " . clientScopeSql('ticket_client_id');
 
     $sql = mysqli_query($mysqli, "
         SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_priority, ticket_client_id,
@@ -462,6 +463,9 @@ function dashboardSchedule($days = 7, $limit = 30) {
             ])),
         ];
     }
+
+    // Tickets I am helping on, booked
+    $items = array_merge($items, ticketHelperDashboardItems($from, $to));
 
     // Projects I manage, starting or due - all day
     $sql = mysqli_query($mysqli, "

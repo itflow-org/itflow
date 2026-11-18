@@ -1235,6 +1235,36 @@ if (isset($_GET['ticket_id'])) {
                                 </dd>
                             </div>
 
+                            <?php
+                            // Additional agents helping the one it is assigned to (functions/ticket_helpers.php)
+                            if (ticketHelpersReady()) {
+                                $helpers = ticketHelpers($ticket_id);
+                                $can_change_helpers = $can_change_fields && lookupUserPermission('module_support') >= 2;
+                                if ($helpers || ($can_change_helpers && ticketIsOpen($ticket))) { ?>
+                                    <div class="ticket-prop">
+                                        <dt>Additional agents</dt>
+                                        <dd>
+                                            <?php foreach ($helpers as $helper_id => $helper) {
+                                                $helper_value = '<span><span class="d-inline-flex align-items-center gap-2"><span class="rounded-circle flex-shrink-0" style="width: .7rem; height: .7rem; background: ' . calendarAgentColor($helper_id) . '"></span>'
+                                                    . escapeHtml($helper['user_name']) . '</span><span class="ticket-prop-sub">' . escapeHtml(ticketHelperWhenText($helper)) . '</span></span>';
+                                                if ($can_change_helpers) { ?>
+                                                    <a href="#" class="ticket-prop-edit ajax-modal" data-modal-url="modals/ticket/ticket_helper.php?ticket_id=<?= $ticket_id ?>&user_id=<?= $helper_id ?>" title="Change <?= escapeHtml($helper['user_name']) ?>'s booking">
+                                                        <?= $helper_value ?><i class="fas fa-pen ticket-prop-edit-icon"></i>
+                                                    </a>
+                                                <?php } else { ?>
+                                                    <span class="ticket-prop-static"><?= $helper_value ?></span>
+                                                <?php }
+                                            } ?>
+                                            <?php if ($can_change_helpers && ticketIsOpen($ticket)) { ?>
+                                                <a href="#" class="ticket-prop-edit ajax-modal small" data-modal-url="modals/ticket/ticket_helper.php?ticket_id=<?= $ticket_id ?>" title="Add an agent to help">
+                                                    <span class="text-body-secondary"><i class="fas fa-user-plus me-1"></i><?= $helpers ? 'Add another' : 'Add an agent' ?></span><i class="fas fa-plus ticket-prop-edit-icon"></i>
+                                                </a>
+                                            <?php } ?>
+                                        </dd>
+                                    </div>
+                                <?php }
+                            } ?>
+
                             <?php if ($sla_in_use) {
                                 // What the SLA value says - the clock state when there is one, else the plan
                                 if ($sla_state_label) {

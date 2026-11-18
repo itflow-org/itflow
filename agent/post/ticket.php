@@ -2023,7 +2023,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
 
     $scheduled = "Ticket scheduled for " . escapeHtml($result['when_text']) . (!empty($row['user_name']) ? " with <strong>" . escapeHtml($row['user_name']) . "</strong>" : '');
     if ($result['conflicts']) {
-        flashAlert("$scheduled.<br>The same agent already has work at that time: <br>" . implode(", <br>", array_map('escapeHtml', $result['conflicts'])), 'warning');
+        flashAlert("$scheduled.<br>Already booked at that time - the agent, or those helping: <br>" . implode(", <br>", array_map('escapeHtml', $result['conflicts'])), 'warning');
     } else {
         flashAlert($scheduled);
     }

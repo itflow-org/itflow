@@ -107,7 +107,8 @@ if ($assigned_filter === 'unassigned') {
     $filter_sql[] = 'AND ticket_assigned_to = 0';
 } elseif (intval($assigned_filter)) {
     $assigned_filter = intval($assigned_filter);
-    $filter_sql[] = "AND ticket_assigned_to = $assigned_filter";
+    // The lead, or helping (functions/ticket_helpers.php)
+    $filter_sql[] = "AND " . ticketAssignedSql($assigned_filter);
 } else {
     $assigned_filter = '';
 }
@@ -214,7 +215,7 @@ $base_sql = $view === 'kanban' ? 'tickets.ticket_closed_at IS NULL' : $open_sql;
 $shows = [
     'open' => ['label' => $view === 'kanban' ? 'On the board' : 'Open', 'where' => $base_sql,
         'title' => $view === 'kanban' ? 'Everything not closed yet' : 'Neither resolved nor closed'],
-    'mine' => ['label' => 'Mine', 'icon' => 'fa-user-check', 'where' => "$base_sql AND ticket_assigned_to = " . intval($session_user_id)],
+    'mine' => ['label' => 'Mine', 'icon' => 'fa-user-check', 'where' => "$base_sql AND " . ticketAssignedSql($session_user_id)],
     'unassigned' => ['label' => 'Unassigned', 'icon' => 'fa-user-slash', 'where' => "$base_sql AND ticket_assigned_to = 0", 'alarm' => 'warning'],
     'reply' => ['label' => 'Needs reply', 'icon' => 'fa-reply', 'where' => ticketNeedsReplySql(), 'alarm' => 'warning',
         'title' => 'The client spoke last, or nobody has replied yet'],
