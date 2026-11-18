@@ -1806,13 +1806,15 @@ function recurringTicketFrequency($frequency) {
  * was due fell on - except when that was a shorter month's last day standing
  * in for a later one: one that started ($anchor) on the 31st runs on the last
  * day of shorter months and back on the 31st after, rather than drifting.
- * Missed runs are stepped over, not raised one by one.
+ * Missed runs are stepped over, not raised one by one. With a weekday rule
+ * ($by_day, "3WE") month-based ones land on that weekday of the month instead.
  */
-function recurringTicketNextRun($due, $frequency, $anchor = '', $after = '') {
+function recurringTicketNextRun($due, $frequency, $anchor = '', $after = '', $by_day = '') {
     $frequency = recurringTicketFrequency($frequency) ?: 'Monthly';
     $step = RECURRING_TICKET_FREQUENCIES[$frequency];
     $after = $after !== '' ? $after : date('Y-m-d');
     $date = DateTime::createFromFormat('!Y-m-d', substr((string) $due, 0, 10)) ?: new DateTime('today');
+    $by_day = isset($step['months']) ? byDayRule($by_day) : '';
     $anchor_date = DateTime::createFromFormat('!Y-m-d', substr((string) $anchor, 0, 10));
     $anchor_day = intval($date->format('j'));
     if ($anchor_date && intval($anchor_date->format('j')) > $anchor_day && $anchor_day === intval($date->format('t'))) {
@@ -1827,6 +1829,10 @@ function recurringTicketNextRun($due, $frequency, $anchor = '', $after = '') {
             $month = intval($date->format('n')) + $step['months'];
             $year += intdiv($month - 1, 12);
             $month = ($month - 1) % 12 + 1;
+            if ($by_day !== '') {
+                $date = DateTime::createFromFormat('!Y-m-d', byDayDate($year, $month, $by_day));
+                continue;
+            }
             $days_in_month = intval(date('t', mktime(0, 0, 0, $month, 1, $year)));
             $date->setDate($year, $month, min($anchor_day, $days_in_month));
         }
@@ -1844,6 +1850,10 @@ function recurringTicketCadenceText($row) {
     $step = RECURRING_TICKET_FREQUENCIES[$frequency];
     if (isset($step['days'])) {
         return $step['days'] === 7 ? 'on ' . $next->format('l') . 's' : ($step['days'] === 14 ? 'every other ' . $next->format('l') : 'every three days');
+    }
+    $by_day = byDayText($row['recurring_ticket_by_day'] ?? '');
+    if ($by_day !== '') {
+        return 'on ' . $by_day . ($frequency === 'Annually' ? ' of ' . $next->format('F') : '');
     }
     $day = intval($next->format('j'));
     $start = DateTime::createFromFormat('!Y-m-d', substr((string) ($row['recurring_ticket_start_date'] ?? ''), 0, 10));
@@ -1997,7 +2007,7 @@ function recurringTicketRunNow($row, $by) {
         $due = (string) $row['recurring_ticket_next_run'];
         // Booked for the day of the run it is for, at its time - when it has one
         recurringTicketBook($ticket_id, $recurring_ticket_id, $due);
-        $next_run = recurringTicketNextRun($due, $row['recurring_ticket_frequency'], $row['recurring_ticket_start_date'], max(date('Y-m-d'), substr($due, 0, 10)));
+        $next_run = recurringTicketNextRun($due, $row['recurring_ticket_frequency'], $row['recurring_ticket_start_date'], max(date('Y-m-d'), substr($due, 0, 10)), $row['recurring_ticket_by_day'] ?? '');
         mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
     }
     return $ticket_id;
@@ -2032,6 +2042,20 @@ function recurringAheadReady() {
 /** Whether a recurring ticket's repeat counts in months - only those may be made ahead of the 1st of the month. */
 function recurringTicketMonthBased($frequency) {
     return isset(RECURRING_TICKET_FREQUENCIES[recurringTicketFrequency($frequency)]['months']);
+}
+
+/*
+ * The weekday it repeats on (functions/by_day.php), as SQL for recurring_ticket_by_day - NULL is the
+ * same date each time. $posted is the Repeats on choice when one was sent (null when not), kept only
+ * when $date - the first or next run - falls on it; without one the rule it had ($current) follows the
+ * run to $date. Only month-based repeats have one.
+ */
+function recurringTicketByDaySql($frequency, $date, $posted, $current = '') {
+    if (!recurringTicketMonthBased($frequency)) {
+        return 'NULL';
+    }
+    $rule = $posted !== null ? byDayForDate($posted, $date) : byDayFollow($current, $date);
+    return $rule !== '' ? "'$rule'" : 'NULL';
 }
 
 /*
@@ -2159,7 +2183,7 @@ function recurringTicketUpcoming($row, $count = 3) {
     }
     $runs[] = $date;
     while (count($runs) < $count) {
-        $date = recurringTicketNextRun($date, $row['recurring_ticket_frequency'], $row['recurring_ticket_start_date'], $date);
+        $date = recurringTicketNextRun($date, $row['recurring_ticket_frequency'], $row['recurring_ticket_start_date'], $date, $row['recurring_ticket_by_day'] ?? '');
         $runs[] = $date;
     }
     return $runs;

@@ -113,6 +113,7 @@ $form_can_email = calendarCanEmail();
                 <input type="date" class="form-control" name="repeat_until" id="eventRepeatUntil" value="<?= escapeHtml($form['event_repeat_until'] ?? '') ?>">
             </div>
         </div>
+        <?= byDayField('[name=start_date]', '[name=repeat]', ['Month', 'Year'], ['Year'], $form['event_repeat_by_day'] ?? '', 'col-md-8', 'form-label small text-body-secondary mb-1') ?>
     </div>
     <?php if (calendarSkippedDates($form)) { ?>
         <div class="small text-body-secondary mt-2"><i class="fas fa-fw fa-forward me-1"></i>Skipped: <?= escapeHtml(implode(', ', array_map(function ($date) {

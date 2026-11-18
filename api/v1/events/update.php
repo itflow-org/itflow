@@ -47,7 +47,7 @@ if ($event_row) {
     // A change a calendar that already has it needs to know about moves it on a version
     $event = calendarEventRow($event_id);
     $changed = false;
-    foreach (['event_title', 'event_start', 'event_end', 'event_all_day', 'event_location', 'event_location_id', 'event_description', 'event_repeat', 'event_repeat_interval', 'event_repeat_until'] as $field) {
+    foreach (array_merge(['event_title', 'event_start', 'event_end', 'event_all_day', 'event_location', 'event_location_id', 'event_description', 'event_repeat', 'event_repeat_interval', 'event_repeat_until'], byDayReady() ? ['event_repeat_by_day'] : []) as $field) {
         if ((string) $event_row[$field] !== (string) $event[$field]) {
             $changed = true;
         }

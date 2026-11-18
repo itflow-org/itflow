@@ -411,7 +411,7 @@ if ($tickets_pending_assignment > 0) {
 // one ticket - booked for its run day, when it has a time - and moves on to its
 // next run. Paused ones raise nothing. recurringTicketRunNow() (functions/ticket.php)
 // is the same code the Raise now button runs.
-$sql_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_id, recurring_ticket_next_run, recurring_ticket_frequency, recurring_ticket_start_date
+$sql_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_id, recurring_ticket_next_run, recurring_ticket_frequency, recurring_ticket_start_date" . (byDayReady() ? ", recurring_ticket_by_day" : "") . "
     FROM recurring_tickets WHERE " . recurringTicketDueSql() . " AND recurring_ticket_paused_at IS NULL");
 
 $recurring_tickets_raised = 0;

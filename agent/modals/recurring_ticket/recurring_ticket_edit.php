@@ -210,6 +210,8 @@ ob_start();
                     </div>
                 </div>
 
+                <?= byDayField('[name=next_date]', '[name=frequency]', ['Monthly', 'Quarterly', 'Biannually', 'Annually'], ['Annually'], $recurring['recurring_ticket_by_day'] ?? '') ?>
+
                 <?php $ahead_row = $recurring; require __DIR__ . '/../../includes/inc_recurring_ticket_ahead.php'; ?>
 
                 <div class="small text-body-secondary">

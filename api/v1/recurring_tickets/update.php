@@ -13,6 +13,8 @@
  *   recurring_ticket_id  required - The recurring ticket
  *   client_id            its client - needed when the key's user is limited to certain clients
  *   next_date            optional - Its next run, Y-m-d
+ *   repeat_on            optional - As for create, from its next run; one it has follows a moved
+ *                        next_date
  *   subject, details, priority, frequency, billable, assigned_to, contact_id, asset_id,
  *   asset_ids, category_id, ticket_template_id, fill_ins, tasks
  *                        optional - as for recurring_tickets/create.php
@@ -44,8 +46,17 @@ if ($rt_row) {
         }
     }
 
+    // The weekday it repeats on - as sent, or the one it had following its run, going with a repeat that isn't month-based
+    if (byDayReady() && (array_key_exists('repeat_on', $_POST) || isset($rt_set['recurring_ticket_frequency']) || isset($rt_set['recurring_ticket_next_run']))) {
+        $rt_set['recurring_ticket_by_day'] = $rt_by_day(
+            isset($rt_set['recurring_ticket_frequency']) ? trim($rt_set['recurring_ticket_frequency'], "'") : $rt_row['recurring_ticket_frequency'],
+            isset($rt_set['recurring_ticket_next_run']) ? trim($rt_set['recurring_ticket_next_run'], "'") : substr((string) $rt_row['recurring_ticket_next_run'], 0, 10),
+            $rt_row['recurring_ticket_by_day'] ?? ''
+        );
+    }
+
     if (!$rt_set && $rt_assets === null && $rt_tasks === null && $rt_fill_ins === null && !array_key_exists('next_date', $_POST)) {
-        $rt_refuse('Send at least one of subject, details, priority, frequency, next_date, billable, assigned_to, contact_id, asset_id, asset_ids, category_id, ticket_template_id, fill_ins or tasks.');
+        $rt_refuse('Send at least one of subject, details, priority, frequency, next_date, repeat_on, billable, assigned_to, contact_id, asset_id, asset_ids, category_id, ticket_template_id, fill_ins or tasks.');
     }
 
     $update_sql = $rt_set ? mysqli_query($mysqli, "UPDATE recurring_tickets SET " . implode(', ', array_map(function ($column, $value) {

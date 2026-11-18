@@ -400,7 +400,7 @@ function clientOverviewUpcoming($client_id, $access, $days = 14) {
         }
     }
 
-    $sql = mysqli_query($mysqli, "SELECT event_id, event_title, event_start, event_end, event_all_day, event_repeat, event_repeat_interval, event_repeat_until, event_repeat_skip,
+    $sql = mysqli_query($mysqli, "SELECT event_id, event_title, event_start, event_end, event_all_day, event_repeat, event_repeat_interval, event_repeat_until, event_repeat_skip," . (byDayReady() ? " event_repeat_by_day," : "") . "
             event_location, location_name
         FROM calendar_events
         JOIN calendars ON calendar_id = event_calendar_id AND calendar_archived_at IS NULL

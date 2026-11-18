@@ -492,7 +492,7 @@ function dashboardSchedule($days = 7, $limit = 30) {
     // Events I am on or added - and the ones nobody owns (made before events had
     // attendees, or with no agent on them), which are everyone's
     $sql = mysqli_query($mysqli, "
-        SELECT event_id, event_title, event_start, event_end, event_all_day, event_repeat, event_repeat_interval, event_repeat_until, event_repeat_skip,
+        SELECT event_id, event_title, event_start, event_end, event_all_day, event_repeat, event_repeat_interval, event_repeat_until, event_repeat_skip," . (byDayReady() ? " event_repeat_by_day," : "") . "
             event_location, client_name, calendar_color, location_name
         FROM calendar_events
         JOIN calendars ON event_calendar_id = calendar_id AND calendar_archived_at IS NULL

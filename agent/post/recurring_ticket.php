@@ -135,11 +135,14 @@ if (isset($_POST['add_recurring_ticket'])) {
 
     $f = recurringTicketFromPost($client_id);
 
+    // The weekday it repeats on - the third Wednesday - when the first run falls on it
+    $by_day_sql = byDayReady() ? ", recurring_ticket_by_day = " . recurringTicketByDaySql($f['frequency'], $start_date, $_POST['repeat_on'] ?? '') : '';
+
     mysqli_query($mysqli, "INSERT INTO recurring_tickets SET recurring_ticket_subject = '{$f['subject']}', recurring_ticket_details = '{$f['details']}',
         recurring_ticket_priority = '{$f['priority']}', recurring_ticket_frequency = '{$f['frequency']}', recurring_ticket_billable = {$f['billable']},
         recurring_ticket_start_date = '$start_date', recurring_ticket_next_run = '$start_date', recurring_ticket_assigned_to = {$f['assigned_to']},
         recurring_ticket_created_by = $session_user_id, recurring_ticket_client_id = $client_id, recurring_ticket_contact_id = {$f['contact_id']},
-        recurring_ticket_asset_id = {$f['asset_id']}, recurring_ticket_category = {$f['category_id']}, recurring_ticket_ticket_template_id = {$f['template_id']} {$f['ahead']}");
+        recurring_ticket_asset_id = {$f['asset_id']}, recurring_ticket_category = {$f['category_id']}, recurring_ticket_ticket_template_id = {$f['template_id']} {$f['ahead']} $by_day_sql");
 
     $recurring_ticket_id = mysqli_insert_id($mysqli);
 
@@ -181,10 +184,13 @@ if (isset($_POST['edit_recurring_ticket'])) {
     // A run moved by hand is the new anchor - monthly ones keep to its day of the month from here
     $anchor_sql = $next_run !== $current_next_run ? ", recurring_ticket_start_date = '$next_run'" : '';
 
+    // The weekday it repeats on, as picked - or, from a form without the field, the one it had, following a moved run
+    $by_day_sql = byDayReady() ? ", recurring_ticket_by_day = " . recurringTicketByDaySql($f['frequency'], $next_run, isset($_POST['repeat_on_field']) ? ($_POST['repeat_on'] ?? '') : null, $row['recurring_ticket_by_day'] ?? '') : '';
+
     mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_subject = '{$f['subject']}', recurring_ticket_details = '{$f['details']}',
         recurring_ticket_priority = '{$f['priority']}', recurring_ticket_frequency = '{$f['frequency']}', recurring_ticket_billable = {$f['billable']},
         recurring_ticket_next_run = '$next_run' $anchor_sql, recurring_ticket_assigned_to = {$f['assigned_to']}, recurring_ticket_asset_id = {$f['asset_id']},
-        recurring_ticket_contact_id = {$f['contact_id']}, recurring_ticket_category = {$f['category_id']}, recurring_ticket_ticket_template_id = {$f['template_id']} {$f['ahead']}
+        recurring_ticket_contact_id = {$f['contact_id']}, recurring_ticket_category = {$f['category_id']}, recurring_ticket_ticket_template_id = {$f['template_id']} {$f['ahead']} $by_day_sql
         WHERE recurring_ticket_id = $recurring_ticket_id");
 
     // The other assets go with the asset field - an empty multi-select posts nothing
@@ -264,7 +270,7 @@ if (isset($_GET['pause_recurring_ticket']) || isset($_GET['resume_recurring_tick
         // Runs it missed while paused are not raised now - it picks up from today
         $next_run = substr((string) $row['recurring_ticket_next_run'], 0, 10);
         if ($next_run < date('Y-m-d')) {
-            $next_run = recurringTicketNextRun($next_run, $row['recurring_ticket_frequency'], $row['recurring_ticket_start_date'], date('Y-m-d', strtotime('-1 day')));
+            $next_run = recurringTicketNextRun($next_run, $row['recurring_ticket_frequency'], $row['recurring_ticket_start_date'], date('Y-m-d', strtotime('-1 day')), $row['recurring_ticket_by_day'] ?? '');
         }
         mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_paused_at = NULL, recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
     }
@@ -292,7 +298,7 @@ if (isset($_POST['bulk_pause_recurring_tickets']) || isset($_POST['bulk_resume_r
         } else {
             $next_run = substr((string) $row['recurring_ticket_next_run'], 0, 10);
             if ($next_run < date('Y-m-d')) {
-                $next_run = recurringTicketNextRun($next_run, $row['recurring_ticket_frequency'], $row['recurring_ticket_start_date'], date('Y-m-d', strtotime('-1 day')));
+                $next_run = recurringTicketNextRun($next_run, $row['recurring_ticket_frequency'], $row['recurring_ticket_start_date'], date('Y-m-d', strtotime('-1 day')), $row['recurring_ticket_by_day'] ?? '');
             }
             mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_paused_at = NULL, recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
         }
@@ -455,8 +461,9 @@ if (isset($_POST['bulk_edit_recurring_ticket_next_run_date'])) {
 
     $count = 0;
     foreach (recurringTicketsForBulk(2) as $recurring_ticket_id => $row) {
-        // A run moved by hand is the new anchor for the day of the month
-        mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run', recurring_ticket_start_date = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
+        // A run moved by hand is the new anchor for the day of the month - and a weekday rule follows it
+        $by_day_sql = byDayReady() ? ", recurring_ticket_by_day = " . recurringTicketByDaySql($row['recurring_ticket_frequency'], $next_run, null, $row['recurring_ticket_by_day'] ?? '') : '';
+        mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run', recurring_ticket_start_date = '$next_run' $by_day_sql WHERE recurring_ticket_id = $recurring_ticket_id");
         logAudit("Recurring Ticket", "Edit", "$session_name moved the next run of recurring ticket " . escapeSql($row['recurring_ticket_subject']) . " from " . escapeSql($row['recurring_ticket_next_run']) . " to $next_run", intval($row['recurring_ticket_client_id']), $recurring_ticket_id);
         triggerCustomAction('recurring_ticket_update', $recurring_ticket_id);
         $count++;

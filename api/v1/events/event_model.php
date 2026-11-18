@@ -57,6 +57,13 @@ if ($location_id && (!$client_id || !assetClientOwnedId('location', $location_id
     $event_refuse("event_location_id isn't one of the client's locations.");
 }
 
+// The weekday a monthly or yearly one repeats on - one it has follows a moved start when none is sent
+$by_day_sent = array_key_exists('event_repeat_by_day', $_POST) ? trim($sent('event_repeat_by_day', '')) : null;
+if (byDayReady() && $by_day_sent !== null && $by_day_sent !== '' && (!in_array($repeat, ['Month', 'Year'], true) || byDayForDate($by_day_sent, $start_date) === '')) {
+    $options = in_array($repeat, ['Month', 'Year'], true) ? array_keys(byDayOptions($start_date)) : [];
+    $event_refuse('event_repeat_by_day is the weekday a Month or Year one repeats on, from its ' . $start_date . ' start' . ($options ? ': ' . implode(' or ', $options) : ' - none for this one') . ', or empty for the same date.');
+}
+
 $error = '';
 $event_set = calendarEventFormSet([
     'title' => $sent('event_title', $event_row['event_title'] ?? ''),
@@ -72,7 +79,8 @@ $event_set = calendarEventFormSet([
     'location' => $sent('event_location', $event_row['event_location'] ?? ''),
     'location_id' => $location_id,
     'description' => $sent('event_description', $event_row['event_description'] ?? ''),
-], $client_id, $error);
+    'repeat_on_current' => $event_row['event_repeat_by_day'] ?? '',
+] + ($by_day_sent !== null ? ['repeat_on' => $by_day_sent] : []), $client_id, $error);
 if ($event_set === '') {
     $event_refuse($error);
 }

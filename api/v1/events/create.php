@@ -22,6 +22,8 @@
  *   event_repeat            optional - Day, Week, Month or Year
  *   event_repeat_interval   optional - Every so many, 1 to 99
  *   event_repeat_until      optional - Its last day, Y-m-d
+ *   event_repeat_by_day     optional - Month and Year: the weekday it repeats on, as it starts -
+ *                           "3WE" the third Wednesday, "-1FR" the last Friday; empty for the same date
  *   attendee_user_ids, attendee_contact_ids, attendee_emails   optional - Who is on it
  *   send_invites            optional - 1 emails them the invitation
  *

@@ -30,7 +30,7 @@ if ($rt_row && isset($_POST['status'])) {
         mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_paused_at = COALESCE(recurring_ticket_paused_at, NOW()) WHERE recurring_ticket_id = $recurring_ticket_id");
     } else {
         if ($next_run < date('Y-m-d')) {
-            $next_run = recurringTicketNextRun($next_run, $rt_row['recurring_ticket_frequency'], $rt_row['recurring_ticket_start_date'], date('Y-m-d', strtotime('-1 day')));
+            $next_run = recurringTicketNextRun($next_run, $rt_row['recurring_ticket_frequency'], $rt_row['recurring_ticket_start_date'], date('Y-m-d', strtotime('-1 day')), $rt_row['recurring_ticket_by_day'] ?? '');
         }
         mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_paused_at = NULL, recurring_ticket_next_run = '" . escapeSql($next_run) . "' WHERE recurring_ticket_id = $recurring_ticket_id");
     }

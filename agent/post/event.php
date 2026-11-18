@@ -256,7 +256,7 @@ if (isset($_POST['edit_event'])) {
         enforceCalendarEvent(['event_client_id' => $client_id], 'edit');
     }
 
-    $set = calendarEventFormSet($_POST, $client_id, $error);
+    $set = calendarEventFormSet($_POST + ['repeat_on_current' => $old['event_repeat_by_day'] ?? ''], $client_id, $error);
     if ($set === '') {
         flashAlert($error, 'error');
         redirect();
@@ -267,7 +267,7 @@ if (isset($_POST['edit_event'])) {
     // A change a calendar that already has it needs to know about moves it on a version
     $event = calendarEventRow($event_id);
     $changed = false;
-    foreach (['event_title', 'event_start', 'event_end', 'event_all_day', 'event_location', 'event_location_id', 'event_description', 'event_repeat', 'event_repeat_interval', 'event_repeat_until'] as $field) {
+    foreach (array_merge(['event_title', 'event_start', 'event_end', 'event_all_day', 'event_location', 'event_location_id', 'event_description', 'event_repeat', 'event_repeat_interval', 'event_repeat_until'], byDayReady() ? ['event_repeat_by_day'] : []) as $field) {
         if ((string) $old[$field] !== (string) $event[$field]) {
             $changed = true;
         }

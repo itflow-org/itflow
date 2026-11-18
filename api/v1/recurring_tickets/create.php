@@ -16,6 +16,9 @@
  *   subject             required, unless the template has one
  *   frequency           required - Three Days, Weekly, Biweekly, Monthly, Quarterly, Biannually or Annually
  *   start_date          optional - Its first run, Y-m-d, today or later; today if left out
+ *   repeat_on           optional - Monthly to yearly ones: the weekday it repeats on, as its first
+ *                       run falls - "3WE" the third Wednesday, "-1FR" the last Friday; left out,
+ *                       the same date each time
  *   details             optional - HTML
  *   priority            optional - Low, Medium (the default), High or Urgent
  *   billable            optional - 1 or 0; needs Modify on Sales
@@ -94,6 +97,9 @@ $rt_set += [
 ];
 $rt_set['recurring_ticket_start_date'] = "'$start_date'";
 $rt_set['recurring_ticket_next_run'] = "'$start_date'";
+if (byDayReady()) {
+    $rt_set['recurring_ticket_by_day'] = $rt_by_day(trim($rt_set['recurring_ticket_frequency'], "'"), $start_date);
+}
 $rt_set['recurring_ticket_created_by'] = intval($session_user_id);
 $rt_set['recurring_ticket_client_id'] = $client_id;
 

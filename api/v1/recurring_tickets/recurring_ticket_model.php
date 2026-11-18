@@ -36,6 +36,17 @@ $rt_refuse = function ($message) use (&$return_arr) {
 $rt_text = function ($field) {
     return trim((string) (is_scalar($_POST[$field] ?? '') ? ($_POST[$field] ?? '') : ''));
 };
+// The weekday it repeats on (repeat_on, "3WE") for a run on $date, as SQL - checked like the form
+// checks it; not sent, the rule it had ($current) follows the run. Needs the 3.8.3 update.
+$rt_by_day = function ($frequency, $date, $current = '') use ($rt_refuse, $rt_text) {
+    if (array_key_exists('repeat_on', $_POST) && $rt_text('repeat_on') !== '') {
+        if (!recurringTicketMonthBased($frequency) || byDayForDate($rt_text('repeat_on'), $date) === '') {
+            $options = recurringTicketMonthBased($frequency) ? array_keys(byDayOptions($date)) : [];
+            $rt_refuse('repeat_on is the weekday a monthly to yearly one repeats on, from its ' . $date . ' run' . ($options ? ': ' . implode(' or ', $options) : ' - none for this one') . ', or empty for the same date each time.');
+        }
+    }
+    return recurringTicketByDaySql($frequency, $date, array_key_exists('repeat_on', $_POST) ? $rt_text('repeat_on') : null, $current);
+};
 
 if (array_key_exists('subject', $_POST)) {
     if ($rt_text('subject') === '') {
