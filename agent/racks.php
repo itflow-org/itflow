@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Racks - every rack a client has (or, from All Client Docs, every rack the
+ * Racks - every rack a client has (or, from Across clients, every rack the
  * agent can see), each as a card with a scale drawing of its front, how full it
  * is and what it draws. A card opens the rack (rack.php).
  */
@@ -27,7 +27,7 @@ enforceUserPermission('module_support');
 $can_edit = lookupUserPermission('module_support') >= 2;
 $can_delete = lookupUserPermission('module_support') >= 3;
 
-// Archived - from All Client Docs, an archived client's racks count as archived too
+// Archived - from Across clients, an archived client's racks count as archived too
 $archived = (isset($_GET['archived']) && $_GET['archived'] == 1) ? 1 : 0;
 if ($client_url) {
     $archive_query = $archived ? "rack_archived_at IS NOT NULL" : "rack_archived_at IS NULL";
@@ -37,7 +37,7 @@ if ($client_url) {
         : "(rack_archived_at IS NULL AND client_archived_at IS NULL)";
 }
 
-// Client filter (All Client Docs only)
+// Client filter (Across clients only)
 $client_filter = 0;
 if (!$client_url && !empty($_GET['client'])) {
     $client_filter = intval($_GET['client']);

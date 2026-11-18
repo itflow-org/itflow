@@ -2,7 +2,7 @@
 
 /*
  * Certificates - one client's, or every certificate the agent can see from
- * All Client Docs. Starred first. Each row has the host it is served on and
+ * Across clients. Starred first. Each row has the host it is served on and
  * the domain it belongs to, who issued it, when it expires (and whether it
  * renews itself), and what the last check of the host found. The pills along
  * the top count and filter the ones to act on: expiring soon, expired,

@@ -2,7 +2,7 @@
 
 /*
  * Credentials - one client's logins, or every login the agent can see from
- * All Client Docs. Starred first. Each row has what is needed to log in -
+ * Across clients. Starred first. Each row has what is needed to log in -
  * the username, the password and 2FA code on asking, where it opens - what
  * it is for (asset, contact, vendors, licenses), and how old the password is.
  * The pills along the top count and filter the ones to look at: no 2FA,

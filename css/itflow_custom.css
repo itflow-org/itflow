@@ -176,6 +176,11 @@
     display: flex;
     align-items: center;
 }
+/* The search box gives way on a narrow bar, so the icons around it - Across
+   clients, quick ticket, timers, the bell - never push the avatar off a phone */
+.app-header .navbar-search {
+    min-width: 0;
+}
 .app-header .navbar-nav .nav-link {
     display: flex;
     align-items: center;

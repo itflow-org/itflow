@@ -3,7 +3,7 @@
 /*
  * Vendors - one client's (their ISP, phone provider, software maker), ours
  * (our suppliers - what expenses are booked against), or every client's from
- * All Client Docs (?view=clients) - which is how an outage at one ISP is
+ * Across clients (?view=clients) - which is how an outage at one ISP is
  * checked against every client that uses it.
  *
  * Starred vendors come first. Each row is what a tech needs to make the call -

@@ -6,6 +6,46 @@
         <li class="nav-item">
             <a class="nav-link" data-lte-toggle="sidebar" data-enable-remember="TRUE" href="#"><i class="fas fa-bars"></i></a>
         </li>
+        <?php
+        // Across clients - the contacts, locations and documentation of every client together. Once one is open,
+        // agent/includes/client_overview_side_nav.php is the side menu, and inc_client_overview_all.php sets $nav_across_clients.
+        if (lookupUserPermission('module_client') >= 1 && lookupUserPermission('module_support') >= 1) {
+            $across_docs = intval($config_module_enable_itdoc) === 1; // as each client's menu shows them
+            $across_groups = [
+                '' => [['Contacts', 'contacts.php', 'fa-address-book', true], ['Locations', 'locations.php', 'fa-map-marker-alt', true]],
+                'Infrastructure' => [['Assets', 'assets.php', 'fa-desktop', $across_docs], ['Networks', 'networks.php', 'fa-network-wired', $across_docs], ['Racks', 'racks.php', 'fa-server', $across_docs]],
+                'Web & Security' => [['Credentials', 'credentials.php', 'fa-key', $across_docs && lookupUserPermission('module_credential') >= 1], ['Certificates', 'certificates.php', 'fa-lock', $across_docs],
+                    ['Domains', 'domains.php', 'fa-globe', $across_docs], ['Shared Links', 'shares.php', 'fa-share-alt', $across_docs]],
+                'Documentation' => [['Licenses', 'software.php', 'fa-cube', $across_docs], ['Vendors', 'vendors.php?view=clients', 'fa-building', true], ['Services', 'services.php', 'fa-stream', $across_docs]],
+            ];
+            $across_here = !empty($nav_across_clients) ? basename($_SERVER['PHP_SELF']) : ''; ?>
+            <li class="nav-item dropdown">
+                <a class="nav-link<?= $across_here ? ' active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                    title="Contacts, locations and documentation of every client together" aria-label="Across clients">
+                    <i class="fas fa-layer-group" aria-hidden="true"></i>
+                    <span class="d-none d-md-inline ms-2 dropdown-toggle">Across clients</span>
+                </a>
+                <div class="dropdown-menu" data-bs-theme="<?= !empty($user_config_theme_dark) ? 'dark' : 'light' ?>">
+                    <h6 class="dropdown-header d-md-none">Across clients</h6>
+                    <?php foreach ($across_groups as $across_group => $across_pages) {
+                        $across_pages = array_filter($across_pages, function ($page) { return $page[3]; });
+                        if (!$across_pages) {
+                            continue;
+                        }
+                        if ($across_group !== '') { ?>
+                            <h6 class="dropdown-header text-start text-uppercase small"><?= escapeHtml($across_group) ?></h6>
+                        <?php }
+                        foreach ($across_pages as [$across_label, $across_url, $across_icon]) {
+                            $across_file = strtok($across_url, '?'); // its list, or one of its records (assets.php, asset.php)
+                            $across_active = in_array($across_here, [$across_file, preg_replace('/s\.php$/', '.php', $across_file)], true); ?>
+                            <a class="dropdown-item<?= $across_active ? ' active' : '' ?>" href="/agent/<?= $across_url ?>"<?= $across_active ? ' aria-current="page"' : '' ?>>
+                                <i class="fas fa-fw <?= $across_icon ?> me-2" aria-hidden="true"></i><?= escapeHtml($across_label) ?>
+                            </a>
+                        <?php }
+                    } ?>
+                </div>
+            </li>
+        <?php } ?>
     </ul>
 
     <!-- SEARCH - js/global_search.js turns this box into the opener for the

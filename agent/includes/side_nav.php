@@ -64,13 +64,6 @@
                             </p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="/agent/contacts.php" class="nav-link">
-                            <i class="fas fa-layer-group nav-icon"></i>
-                            <p>All Client Docs</p>
-                            <i class="fas fa-angle-right nav-icon float-end"></i>
-                        </a>
-                    </li>
                 <?php } ?>
 
                 <li class="nav-item">

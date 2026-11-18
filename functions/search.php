@@ -887,7 +887,7 @@ function globalSearchPages($raw_query) {
     $pages = [
         ['Dashboard', '/agent/dashboard.php', true],
         ['Clients', '/agent/clients.php', $client],
-        ['All Client Docs', '/agent/contacts.php', $client],
+        ['Across clients', '/agent/contacts.php', $client && $support],
         ['Services', '/agent/services.php', $support],
         ['Vendors', '/agent/vendors.php', true],
         ['Calendar', '/agent/calendar.php', moduleOn('calendar')],

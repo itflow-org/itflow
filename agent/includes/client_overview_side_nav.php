@@ -42,7 +42,7 @@ $num_vendors = $row['num'];
     <div class="sidebar-brand">
         <a class="brand-link" href="clients.php">
             <i class="fas fa-arrow-left me-2"></i>
-            <span class="brand-text h6 mb-0">Back | <strong>All Client Docs</strong></span>
+            <span class="brand-text h6 mb-0">Back | <strong>Across clients</strong></span>
         </a>
     </div>
 
@@ -80,6 +80,7 @@ $num_vendors = $row['num'];
                         </a>
                     </li>
 
+                    <?php if ($config_module_enable_itdoc == 1) { // IT documentation, as each client's menu shows it ?>
                     <li class="nav-header mt-3">INFRASTRUCTURE</li>
 
                     <li class="nav-item">
@@ -169,9 +170,11 @@ $num_vendors = $row['num'];
                             <p>Shared Links</p>
                         </a>
                     </li>
+                    <?php } ?>
 
                     <li class="nav-header mt-3">DOCUMENTATION</li>
 
+                    <?php if ($config_module_enable_itdoc == 1) { ?>
                     <li class="nav-item">
                         <a href="software.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "software.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-cube"></i>
@@ -184,6 +187,7 @@ $num_vendors = $row['num'];
                             </p>
                         </a>
                     </li>
+                    <?php } ?>
 
                     <li class="nav-item">
                         <a href="vendors.php?view=clients" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php" || basename($_SERVER["PHP_SELF"]) == "vendor.php") { echo "active"; } ?>">
@@ -198,6 +202,7 @@ $num_vendors = $row['num'];
                         </a>
                     </li>
 
+                    <?php if ($config_module_enable_itdoc == 1) { ?>
                     <li class="nav-item">
                         <a href="services.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "services.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-stream"></i>
@@ -210,6 +215,7 @@ $num_vendors = $row['num'];
                             </p>
                         </a>
                     </li>
+                    <?php } ?>
 
                 <?php } ?>
 

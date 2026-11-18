@@ -2,7 +2,7 @@
 
 /*
  * Locations - one client's sites, or every location the agent can see from
- * All Client Docs. The primary location first. Each row is what a tech needs
+ * Across clients. The primary location first. Each row is what a tech needs
  * before heading out - the address (opens in maps, copies in a click), the
  * phone and hours, who to ask for - and what is on site: people, assets,
  * networks and open tickets, each opening that tab on the location's page.
