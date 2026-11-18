@@ -454,7 +454,8 @@ function getMicrosoftAccessToken(string $username): ?string {
         'client_secret' => $config_mail_oauth_client_secret,
         'refresh_token' => $config_mail_oauth_refresh_token,
         'grant_type'    => 'refresh_token',
-        // IMAP/SMTP scopes typically included at initial consent; not needed for refresh
+        // Named, as the refresh token may last have been renewed for Graph (functions/mail_graph.php)
+        'scope'         => MAIL_MICROSOFT_EXCHANGE_SCOPE,
     ]);
 
     if (!$resp['ok']) return null;
@@ -502,6 +503,7 @@ $encr = !empty($config_imap_encryption) ? $config_imap_encryption : 'notls'; // 
 $user = $config_imap_username;
 $pass = $config_imap_password;
 $auth = 'plain'; // 'oauth' for OAuth providers
+$graph_token = null; // Microsoft 365 read through Microsoft Graph (functions/mail_graph.php)
 
 if ($imap_provider === 'google_oauth') {
     $host = 'imap.gmail.com';
@@ -514,14 +516,23 @@ if ($imap_provider === 'google_oauth') {
         cronJobStop('', 1);
     }
 } elseif ($imap_provider === 'microsoft_oauth') {
-    $host = 'outlook.office365.com';
-    $port = 993;
-    $encr = 'ssl';
-    $auth = 'oauth';
-    $pass = getMicrosoftAccessToken($user);
-    if (empty($pass)) {
-        logApp("Cron-Email-Parser", "error", "Microsoft OAuth: no usable access token (check refresh token/client credentials/tenant).");
+    // Read through Microsoft Graph when the app has Mail.ReadWrite - no IMAP sign-in then
+    try {
+        $graph_token = mailGraphToken('Mail.ReadWrite');
+    } catch (\Throwable $e) {
+        logApp("Cron-Email-Parser", "error", "Microsoft Graph: " . $e->getMessage());
         cronJobStop('', 1);
+    }
+    if ($graph_token === null) {
+        $host = 'outlook.office365.com';
+        $port = 993;
+        $encr = 'ssl';
+        $auth = 'oauth';
+        $pass = getMicrosoftAccessToken($user);
+        if (empty($pass)) {
+            logApp("Cron-Email-Parser", "error", "Microsoft OAuth: no usable access token (check refresh token/client credentials/tenant).");
+            cronJobStop('', 1);
+        }
     }
 } else {
     // standard_imap (username/password)
@@ -540,7 +551,7 @@ $encryption = match (strtolower($encr)) {
     default    => '',         // 'notls' / plain tcp
 };
 
-$mailbox = new Mailbox([
+$mailbox = $graph_token !== null ? mailGraphMailbox($graph_token, (string) $user) : new Mailbox([
     'host'           => $host,
     'port'           => $port,
     'encryption'     => $encryption,

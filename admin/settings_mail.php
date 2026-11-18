@@ -290,6 +290,26 @@ if (!$config_module_enable_ticketing) {
                             </span>
                         </div>
                         <div class="itflow-settings-field" id="ms_connect_group" style="display:none;">
+                            <?php
+                            // Through Microsoft Graph, or by SMTP and IMAP - as Graph last said (functions/mail_graph.php)
+                            $graph_state = mailGraphState();
+                            $graph_send_ms = $config_smtp_provider === 'microsoft_oauth';
+                            $graph_read_ms = $config_imap_provider === 'microsoft_oauth';
+                            if ($graph_state && $oauth_connected && ($graph_send_ms || $graph_read_ms)) {
+                                $graph_all = (!$graph_send_ms || $graph_state['send']) && (!$graph_read_ms || $graph_state['read']); ?>
+                                <div class="itflow-settings-note mb-3" data-mail-graph="<?= !$graph_state['checked'] ? 'unchecked' : ($graph_all ? 'graph' : ($graph_state['send'] || $graph_state['read'] ? 'some' : 'none')) ?>">
+                                    <?php if (!$graph_state['checked']) { ?>
+                                        <i class="fas fa-fw fa-clock text-body-secondary me-1"></i>Whether the app can use Microsoft Graph is checked when ITFlow next sends or reads mail - or test the sign-in on Tests.
+                                    <?php } else { ?>
+                                        <i class="fas fa-fw <?= $graph_all ? 'fa-check-circle text-success' : 'fa-info-circle text-info' ?> me-1"></i><?= escapeHtml(mailGraphSays($graph_send_ms, $graph_read_ms, $graph_state['send'], $graph_state['read'])) ?>
+                                        <?php if (!$graph_all) {
+                                            $graph_missing = array_filter(['Mail.Send' => $graph_send_ms && !$graph_state['send'], 'Mail.ReadWrite' => $graph_read_ms && !$graph_state['read']]);
+                                            $graph_spared = array_filter(['SMTP AUTH' => isset($graph_missing['Mail.Send']), 'IMAP' => isset($graph_missing['Mail.ReadWrite'])]); ?>
+                                            Give the app Microsoft Graph's <?= implode(' and ', array_keys($graph_missing)) ?> permission<?= count($graph_missing) > 1 ? 's' : '' ?> to go through Graph instead, and the mailbox needs no <?= implode(' or ', array_keys($graph_spared)) ?> - then test the sign-in on Tests.
+                                        <?php } ?>
+                                    <?php } ?>
+                                </div>
+                            <?php } ?>
                             <label class="form-label" for="mailOauthRedirect">Redirect address</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
@@ -727,7 +747,7 @@ if (!$config_module_enable_ticketing) {
         setHtml(oauthHint, '<i class="fas fa-fw fa-info-circle me-1"></i>' + (anyMs && anyGoogle
             ? 'Sending and receiving each pick a different one - both have to use the same, as they share this app.'
             : anyMs
-                ? 'Microsoft 365: register an app in Microsoft Entra (App registrations) with the redirect address below, the IMAP.AccessAsUser.All and SMTP.Send permissions, and a client secret. Its ID, secret and tenant go here.'
+                ? 'Microsoft 365: register an app in Microsoft Entra (App registrations) with the redirect address below and a client secret, and give it Microsoft Graph\'s Mail.Send and Mail.ReadWrite permissions (with Mail.Send.Shared and Mail.ReadWrite.Shared for a shared mailbox) - or Exchange\'s SMTP.Send and IMAP.AccessAsUser.All. Its ID, secret and tenant go here.'
                 : anyGoogle
                     ? 'Google Workspace: make an OAuth client ID (a Web application) in Google Cloud. Its ID and secret go here; the refresh token needs the https://mail.google.com/ scope.'
                     : 'Used when Sending or Receiving is set to Google Workspace or Microsoft 365.'));

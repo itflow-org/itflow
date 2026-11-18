@@ -163,6 +163,7 @@ function refreshMailOauthAccessToken(string $provider, string $oauth_client_id, 
                 'client_secret' => $oauth_client_secret,
                 'refresh_token' => $oauth_refresh_token,
                 'grant_type' => 'refresh_token',
+                'scope' => MAIL_MICROSOFT_EXCHANGE_SCOPE, // the refresh token may last have been renewed for Graph (functions/mail_graph.php)
             ]);
         }
     }
@@ -269,7 +270,11 @@ function sendQueueEmail(
         $mail->SMTPSecure = $enc; // 'tls' | 'ssl'
     }
 
-    if ($provider === 'google_oauth' || $provider === 'microsoft_oauth') {
+    // Microsoft 365 sends through Microsoft Graph when the app has Mail.Send - no SMTP sign-in then
+    // (functions/mail_graph.php). Microsoft refusing Graph stops this email with its reason.
+    $graph_token = $provider === 'microsoft_oauth' ? mailGraphToken('Mail.Send') : null;
+
+    if ($graph_token === null && ($provider === 'google_oauth' || $provider === 'microsoft_oauth')) {
         // XOAUTH2
         $mail->SMTPAuth = true;
         $mail->AuthType = 'XOAUTH2';
@@ -353,6 +358,11 @@ function sendQueueEmail(
                 }
             }
         }
+    }
+
+    if ($graph_token !== null) {
+        mailGraphSend($mail, $graph_token);
+        return true;
     }
 
     try {

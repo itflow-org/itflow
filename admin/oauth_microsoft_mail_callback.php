@@ -97,6 +97,9 @@ mysqli_query($mysqli, "UPDATE settings SET
     WHERE company_id = 1
 ");
 
+// What Microsoft Graph can do is asked afresh with the new sign-in (functions/mail_graph.php)
+mailGraphForget();
+
 logAudit("Settings", "Edit", "$session_name connected Microsoft 365 for mail");
 flashAlert("Microsoft 365 connected - ITFlow can now use the mailbox");
 redirect($settings_mail_path);
