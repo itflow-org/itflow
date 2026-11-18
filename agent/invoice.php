@@ -94,6 +94,9 @@ $csrf = $_SESSION['csrf_token'];
 $recurring = intval($invoice['invoice_recurring_invoice_id'])
     ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT recurring_invoice_id, recurring_invoice_prefix, recurring_invoice_number FROM recurring_invoices WHERE recurring_invoice_id = " . intval($invoice['invoice_recurring_invoice_id'])))
     : null;
+// Paid by the recurring invoice's autopay on its due date? (functions/billing_pay.php)
+$autopay = $recurring ? invoiceAutopay($invoice) : null;
+$autopay_status = invoiceAutopayStatus($invoice, $state, $autopay);
 // Made from a quote?
 $from_quote = intval($invoice['invoice_quote_id'] ?? 0)
     ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT quote_id, quote_prefix, quote_number FROM quotes WHERE quote_id = " . intval($invoice['invoice_quote_id'])))
@@ -148,6 +151,9 @@ echo agentBannersHtml($client_id);
                 <?php if ($invoice['category_name']) { ?><span><i class="fas fa-fw fa-tag me-1"></i><?= escapeHtml($invoice['category_name']) ?></span><?php } ?>
                 <?php if ($recurring) { ?>
                     <span><i class="fas fa-fw fa-redo-alt me-1"></i>From <a class="text-reset" href="recurring_invoice.php?recurring_invoice_id=<?= intval($recurring['recurring_invoice_id']) ?>"><?= escapeHtml($recurring['recurring_invoice_prefix'] . $recurring['recurring_invoice_number']) ?></a></span>
+                <?php } ?>
+                <?php if ($autopay_status) { ?>
+                    <span class="text-<?= $autopay_status['tone'] ?>-emphasis<?= $autopay_status['tone'] === 'secondary' ? '' : ' fw-semibold' ?>" title="<?= escapeHtml($autopay_status['text']) ?>"><i class="fas fa-fw fa-wallet me-1"></i><?= escapeHtml($autopay_status['short']) ?></span>
                 <?php } ?>
                 <?php if ($from_quote) { ?>
                     <span><i class="fas fa-fw fa-comment-dollar me-1"></i>From <a class="text-reset" href="quote.php?quote_id=<?= intval($from_quote['quote_id']) ?>"><?= escapeHtml($from_quote['quote_prefix'] . $from_quote['quote_number']) ?></a></span>
@@ -313,6 +319,13 @@ echo agentBannersHtml($client_id);
                             </div>
                         <?php } ?>
                     </dd>
+                    <?php if ($autopay_status) { ?>
+                        <dt>Autopay</dt>
+                        <dd>
+                            <i class="<?= escapeHtml($autopay['icon']) ?> fa-fw text-body-secondary me-1"></i><?= escapeHtml($autopay['method']) ?>
+                            <div class="small <?= $autopay_status['tone'] === 'success' || $autopay_status['tone'] === 'secondary' ? 'text-body-secondary' : 'text-' . $autopay_status['tone'] . '-emphasis' ?>"><?= escapeHtml($autopay_status['detail']) ?></div>
+                        </dd>
+                    <?php } ?>
                     <dt>Terms</dt><dd><?php $invoice_terms = contractNetTerms(intval($invoice['client_id']), (string) $invoice['invoice_date']); echo $invoice_terms ? "$invoice_terms days" : 'Due on receipt'; ?></dd>
                     <?php if ($owed) { ?>
                         <dt>Reminders</dt>

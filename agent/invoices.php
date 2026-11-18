@@ -7,7 +7,7 @@
  * sitting in drafts, and what came in over the last 30 days - each opens
  * the invoices behind it. The pills filter by where an invoice stands. Each
  * row has what is still owed on it and, while it is owed, how long until
- * it is due or how late it is. ?status= takes Draft, Unpaid, Overdue,
+ * it is due or how late it is, and whether autopay pays it. ?status= takes Draft, Unpaid, Overdue,
  * Paid and Cancelled - the dashboard, client pages and reports link with
  * it. ?recurring_invoice_id= shows the invoices a recurring invoice made.
  */
@@ -104,7 +104,8 @@ foreach (array_keys($statuses) as $i => $key) {
 $num_rows = [$counts[$status]];
 $sql = mysqli_query($mysqli, "SELECT invoices.*, client_name, category_name, category_color,
         recurring_invoice_prefix, recurring_invoice_number,
-        $paid_sql AS paid, invoice_amount - $paid_sql AS balance
+        $paid_sql AS paid, invoice_amount - $paid_sql AS balance,
+        invoice_recurring_invoice_id > 0 AND EXISTS (SELECT 1 FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = invoice_recurring_invoice_id) AS autopay
     FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN categories ON invoice_category_id = category_id
@@ -387,6 +388,11 @@ $stat_money = function ($amount) use ($session_company_currency) {
                         <td class="text-nowrap">
                             <?= escapeHtml($row['invoice_due']) ?>
                             <?php $due_pill = invoiceDuePill($row_state); if ($due_pill) { ?><div><?= $due_pill ?></div><?php } ?>
+                            <?php $row_autopay = intval($row['autopay']) ? invoiceAutopayStatus($row, $row_state, invoiceAutopay($row)) : null;
+                            if ($row_autopay) {
+                                // Paid by its recurring invoice's autopay on the due date (functions/billing_pay.php) ?>
+                                <div><span class="badge rounded-pill bg-<?= $row_autopay['tone'] ?>-subtle text-<?= $row_autopay['tone'] ?>-emphasis fw-normal" title="<?= escapeHtml($row_autopay['text']) ?>"><i class="fas fa-wallet me-1"></i><?= escapeHtml($row_autopay['short']) ?></span></div>
+                            <?php } ?>
                         </td>
                         <td class="text-end itflow-money"><?= escapeHtml(billingMoney($row['invoice_amount'], $row_currency)) ?></td>
                         <td class="text-end itflow-money">

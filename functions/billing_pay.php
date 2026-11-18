@@ -337,6 +337,89 @@ function billingSavedCards($client_id) {
     return $rows;
 }
 
+/*
+ * The autopay on an invoice - the recurring invoice's it came from, which
+ * cron/nightly_tasks.php charges on its due date while it is sent and still
+ * owed - or null when nothing pays it by itself. ['method' => what pays it,
+ * in words: the card ("Visa •••• 4242") or the payment method it records,
+ * 'icon', 'card' => whether it is a card, 'problem' => why it won't go
+ * through, or '' (the card's payment provider is turned off, or the card
+ * runs out before the due date), 'failed' => the last time it couldn't
+ * charge this invoice, ['at', 'why'], or null, 'since' => when it was set
+ * up].
+ */
+function invoiceAutopay(array $invoice) {
+    global $mysqli;
+    $recurring_id = intval($invoice['invoice_recurring_invoice_id'] ?? 0);
+    if ($recurring_id <= 0) {
+        return null;
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT recurring_payment_method, recurring_payment_saved_payment_id, recurring_payment_created_at, saved_payment_description, payment_provider_name, payment_provider_active
+        FROM recurring_payments
+        LEFT JOIN client_saved_payment_methods ON saved_payment_id = recurring_payment_saved_payment_id
+        LEFT JOIN payment_providers ON payment_provider_id = saved_payment_provider_id
+        WHERE recurring_payment_recurring_invoice_id = $recurring_id LIMIT 1"));
+    if (!$row) {
+        return null;
+    }
+    $card = intval($row['recurring_payment_saved_payment_id']) > 0;
+    $parts = $card ? billingCardParts($row['saved_payment_description']) : null;
+    $problem = '';
+    if ($card && !intval($row['payment_provider_active'])) {
+        $problem = ($row['payment_provider_name'] ?: 'Its payment provider') . ' is turned off';
+    } elseif ($parts && $parts['exp'] !== '') {
+        // A card is good to the end of the month it runs out
+        [$month, $year] = array_map('intval', explode('/', $parts['exp']));
+        if (date('Y-m-d', mktime(0, 0, 0, $month + 1, 0, 2000 + $year)) < (string) $invoice['invoice_due']) {
+            $problem = 'the card runs out ' . $parts['exp'] . ', before it is due';
+        }
+    }
+    $failed = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT history_description, history_created_at FROM history
+        WHERE history_invoice_id = " . intval($invoice['invoice_id']) . " AND history_description LIKE 'Stripe autopay failed%' ORDER BY history_id DESC LIMIT 1"));
+    return [
+        'method' => $card ? $parts['label'] : (string) $row['recurring_payment_method'],
+        'icon' => $card ? $parts['icon'] : 'fas fa-wallet',
+        'card' => $card,
+        'problem' => $problem,
+        'failed' => $failed ? ['at' => $failed['history_created_at'], 'why' => trim(preg_replace('/^Stripe autopay failed:?\s*/i', '', $failed['history_description']))] : null,
+        'since' => (string) $row['recurring_payment_created_at'],
+    ];
+}
+
+/*
+ * Where an invoice's autopay stands (invoiceAutopay()), for its page - or
+ * null when there is none to speak of: none on it, or nothing owed.
+ * ['tone' => success, secondary, warning or danger, 'short' => a few words
+ * ("Autopay Nov 30"), 'text' => a sentence, 'detail' => the sentence without
+ * what pays it, to go under it]. Autopay charges on the due
+ * date, so one still owed after it didn't go through - unless autopay was
+ * set up after that.
+ */
+function invoiceAutopayStatus(array $invoice, array $state, $autopay) {
+    if (!$autopay || !in_array($state['state'], ['draft', 'open', 'overdue'], true)) {
+        return null;
+    }
+    $how = $autopay['card'] ? "charges {$autopay['method']}" : "records it as paid by {$autopay['method']}";
+    $done = $autopay['card'] ? 'Charged' : 'Recorded as paid';
+    $due = date('M j, Y', strtotime($invoice['invoice_due']));
+    if ($state['state'] === 'overdue') {
+        if (substr($autopay['since'], 0, 10) > (string) $invoice['invoice_due']) {
+            return null;
+        }
+        $why = $autopay['failed'] ? $autopay['failed']['why'] . ' on ' . date('M j', strtotime($autopay['failed']['at'])) : $autopay['problem'];
+        $then = ($why !== '' ? " - $why" : '') . '. Take the payment another way, or check the card.';
+        return ['tone' => 'danger', 'short' => "Autopay didn't pay it", 'text' => "Autopay didn't pay it on its due date$then", 'detail' => "Didn't pay it on its due date$then"];
+    }
+    if ($autopay['problem'] !== '') {
+        return ['tone' => 'warning', 'short' => "Autopay won't charge", 'text' => "Autopay is on, but it won't go through on $due - {$autopay['problem']}.", 'detail' => "Won't go through on $due - {$autopay['problem']}."];
+    }
+    if ($state['state'] === 'draft') {
+        return ['tone' => 'secondary', 'short' => 'Autopay once sent', 'text' => "Autopay $how on its due date, $due, once it's sent.", 'detail' => "$done on its due date, $due, once it's sent."];
+    }
+    return ['tone' => 'success', 'short' => 'Autopay ' . date('M j', strtotime($invoice['invoice_due'])), 'text' => "Autopay $how on its due date, $due - for what is still owed then.",
+        'detail' => "$done on its due date, $due - for what is still owed then."];
+}
+
 /* ------------------------------------------------------- Choosing and paying */
 
 /**
