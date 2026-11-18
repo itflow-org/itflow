@@ -474,6 +474,8 @@ if (isset($_GET['ticket_id'])) {
         // A ticket with no client is written up in your own company's documents, when there is one
         $ai_document_client_id = $client_id ?: intval($config_internal_client_id ?? 0);
         $ai_document_available = $can_edit_ticket && $ai_document_client_id > 0 && aiReady('Documentation');
+        // Write up for the Knowledge Base - with AI when it is set up for documentation, otherwise from the ticket's own words
+        $kb_write_up_available = kbCan(2);
         // What AI triage suggests that the ticket doesn't have yet
         $ai_triage = $ai_summary_available && aiTriageReady() ? aiTriageRow($ticket_id) : null;
         $ai_triage_changes = $ai_triage && $ai_triage['ai_triage_state'] === 'suggested' && $ticket_is_open ? aiTriageChanges($ai_triage, $ticket) : [];
@@ -561,7 +563,7 @@ if (isset($_GET['ticket_id'])) {
                             the rarer actions live in the menu; Invoice comes out of it once
                             the work is done, which is when it is actually wanted.
                         -->
-                        <?php if ($can_edit_ticket || $ai_summary_available || $show_trips) { ?>
+                        <?php if ($can_edit_ticket || $ai_summary_available || $show_trips || $kb_write_up_available) { ?>
                             <div class="ticket-actions d-flex flex-wrap align-items-center gap-2 d-print-none">
 
                                 <?php if ($can_edit_ticket && $ticket_is_open) { ?>
@@ -637,7 +639,12 @@ if (isset($_GET['ticket_id'])) {
                                                 <i class="fas fa-fw fa-file-medical me-2"></i>Write up as a document
                                             </a>
                                         <?php } ?>
-                                        <?php if (($ai_summary_available || $ai_document_available) && ($show_trips || $can_edit_ticket)) { ?>
+                                        <?php if ($kb_write_up_available) { ?>
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/kb/kb_article_from_ticket.php?ticket_id=<?= $ticket_id ?>" data-modal-size="xl" title="A draft article for every client, <?= aiReady('Documentation') ? 'written by AI' : 'started' ?> from the ticket">
+                                                <i class="fas fa-fw fa-book-medical me-2"></i>Write up for the Knowledge Base
+                                            </a>
+                                        <?php } ?>
+                                        <?php if (($ai_summary_available || $ai_document_available || $kb_write_up_available) && ($show_trips || $can_edit_ticket)) { ?>
                                             <div class="dropdown-divider"></div>
                                         <?php } ?>
                                         <?php if ($show_trips) { ?>
@@ -896,8 +903,18 @@ if (isset($_GET['ticket_id'])) {
                                         $canned_picker_id = 'cannedPickerReply';
                                         $canned_picker_editor = 'ticket_reply';
                                         $canned_picker_ticket_id = intval($ticket_id);
-                                        require __DIR__ . "/includes/inc_canned_response_picker.php";
                                         ?>
+                                        <!-- Canned responses, and beside them the Knowledge Base articles that might help (agent/includes/inc_kb_picker.php) -->
+                                        <div class="d-flex flex-wrap align-items-start column-gap-2">
+                                            <div class="flex-grow-1">
+                                                <?php require __DIR__ . "/includes/inc_canned_response_picker.php"; ?>
+                                            </div>
+                                            <?php
+                                            $kb_picker_editor = 'ticket_reply';
+                                            $kb_picker_ticket = $ticket;
+                                            require __DIR__ . "/includes/inc_kb_picker.php";
+                                            ?>
+                                        </div>
 
                                         <?php
                                         // @ offers the agents who can open this ticket, in an internal note (functions/ticket_mention.php)

@@ -250,6 +250,47 @@ function aiTicketDocument($ticket_id) {
         'html' => $html, 'removed' => intval($result['removed'] ?? 0)];
 }
 
+/*
+ * A ticket written up as a Knowledge Base article - ['ok' => true, 'title',
+ * 'description', 'html', 'removed'] or ['ok' => false, 'error']. Unlike a
+ * document (aiTicketDocument()), an article is for every client: what to do
+ * the next time anyone has this problem, with the client, its people and its
+ * systems left out. Passwords and keys are left out for good, as [removed].
+ * Internal notes are read - they are often where the fix is.
+ */
+function aiTicketKbArticle($ticket_id) {
+    $model = getAiModel('Documentation');
+    if (!$model) {
+        return ['ok' => false, 'error' => aiModelMissingError('Documentation')];
+    }
+    $ticket = aiTicketContext($ticket_id, true);
+    if (!$ticket) {
+        return ['ok' => false, 'error' => 'That ticket no longer exists.'];
+    }
+    // Every model is set to take them out for this, whatever its provider says - an article is kept, and shared
+    $model['ai_provider_redact'] = 1;
+    $result = callAiApi($model, [
+        ['role' => 'system', 'content' => 'You write knowledge base articles that a managed service provider shares with all of its clients, from a support ticket that was worked.'
+            . ' Write a general how-to for the next time anyone has this problem. Leave out the client and anything that says whose systems these are - company and people\'s names,'
+            . ' email addresses, phone numbers, street addresses, computer and server names, IP addresses, domains and serial numbers - and say "your computer", "the shared mailbox", "your firewall" instead.'
+            . ' No dates, no ticket numbers, no who-said-what. Use only what the ticket supports; where a step or detail should be confirmed, add [check].'
+            . ' Write the steps for whoever will follow them: the client\'s own staff when they can do it themselves, otherwise a technician.'
+            . ' Answer in HTML only, in this shape: <h1>a short title</h1><p><em>one sentence on what it helps with</em></p>'
+            . ' <h2>Symptoms</h2> (what it looks like - error messages word for word) <h2>Cause</h2> (only when the ticket says) <h2>Resolution</h2> (numbered steps in an <ol>)'
+            . ' <h2>If that doesn\'t work</h2> only when the ticket gives something for it. No introduction, no code fences, no <html> or <body>.'],
+        ['role' => 'user', 'content' => $ticket['text']],
+    ], ['feature' => 'ticket_kb_article', 'client_id' => $ticket['client_id'], 'secrets' => 'remove']);
+    if (!$result['ok']) {
+        return $result;
+    }
+    [$title, $description, $html] = aiDocumentSplit(aiCleanHtml($result['content']));
+    if (trim(strip_tags($html)) === '') {
+        return ['ok' => false, 'error' => 'The AI provider answered with nothing to keep - try again.'];
+    }
+    return ['ok' => true, 'title' => mb_substr($title !== '' ? $title : (string) $ticket['row']['ticket_subject'], 0, 200), 'description' => mb_substr($description, 0, 255),
+        'html' => $html, 'removed' => intval($result['removed'] ?? 0)];
+}
+
 /* The first JSON object in a model's answer - as an array, or null. Code fences and words around it are let be. */
 function aiJsonFromText($content) {
     $content = (string) $content;

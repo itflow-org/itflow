@@ -221,7 +221,7 @@ function portalNav() {
     }
 
     // Help - the Knowledge Base articles shared with them, once there is one
-    if (kbOn() && mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM kb_articles WHERE " . kbClientSql($session_client_id) . " LIMIT 1"))) {
+    if (kbClientHas($session_client_id)) {
         $nav['help'] = ['label' => 'Help', 'icon' => 'fa-book', 'href' => '/client/kb.php', 'pages' => ['kb.php', 'kb_article.php']];
     }
 

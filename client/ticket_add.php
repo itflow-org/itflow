@@ -192,6 +192,13 @@ $company = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_phone, compa
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                     <input type="text" class="form-control" id="ticketSubject" name="subject" placeholder="In a few words - &quot;Outlook keeps asking for my password&quot;" maxlength="500" required autofocus value="<?= escapeHtml(mb_substr(trim((string) ($_GET['subject'] ?? '')), 0, 500)) ?>">
                 </div>
+                <?php if (kbClientHas($session_client_id)) { ?>
+                    <!-- The Help articles that might answer it, as the subject is typed (js/portal.js) -->
+                    <div class="itflow-portal-kb-suggest" data-portal-kb-suggest="ticketSubject" hidden>
+                        <div class="small fw-semibold mb-1"><i class="fas fa-fw fa-book me-1"></i>These might help</div>
+                        <ul class="itflow-portal-kb-suggest-list" data-portal-kb-suggest-list></ul>
+                    </div>
+                <?php } ?>
             </div>
 
             <div class="mb-3">

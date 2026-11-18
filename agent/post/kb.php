@@ -75,6 +75,12 @@ if (isset($_POST['add_kb_article'])) {
     logAudit("Knowledge Base", "Create", "$session_name wrote " . ($fields['published'] ? '' : 'a draft of ') . "article " . escapeSql($fields['title'])
         . " - who can read it: " . escapeSql(kbAudienceText($saved, kbAudiencesFor([$kb_article_id])[$kb_article_id])), 0, $kb_article_id);
 
+    // Written up from a ticket (Write up for the Knowledge Base) - its history says so
+    $from_ticket = ticketRow($_POST['from_ticket_id'] ?? 0);
+    if ($from_ticket && (!intval($from_ticket['ticket_client_id']) || hasClientAccess(intval($from_ticket['ticket_client_id'])))) {
+        logTicketHistory(intval($from_ticket['ticket_id']), "$session_name wrote this ticket up as Knowledge Base article " . $fields['title']);
+    }
+
     flashAlert("Article <strong>" . escapeHtml($fields['title']) . "</strong> " . ($fields['published'] ? 'published' : 'saved as a draft'));
 
     redirect("kb_article.php?kb_article_id=$kb_article_id");

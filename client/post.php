@@ -20,13 +20,28 @@ if (!empty($_SESSION['portal_view_as']) && (isset($_GET['exit_view_as']) || isse
     unset($_SESSION['portal_view_as']);
     redirect($back);
 }
-if (portalViewingAs() && !isset($_GET['export_statement_pdf'])) {
+if (portalViewingAs() && !isset($_GET['export_statement_pdf']) && !isset($_GET['kb_suggest'])) {
     flashAlert("You're viewing the portal as " . escapeHtml($portal_view_as['contact_name']) . " - nothing can be changed", 'error');
     redirect();
 }
 
 // Two-step sign-in required and not set up yet: client/includes/check_login.php has
 // already turned away everything but setting it up, or signing out
+
+/*
+ * The Help articles that might answer a new ticket's subject, as it is typed
+ * on New ticket (js/portal.js) - at most three of the ones shared with their
+ * company, as JSON [{title, summary, url}]. It changes nothing, so it answers
+ * when viewing the portal as a contact too.
+ */
+if (isset($_GET['kb_suggest'])) {
+    header('Content-Type: application/json');
+    $kb_rows = kbOn() ? kbFind((string) $_GET['kb_suggest'], kbClientSql($session_client_id), 3) : [];
+    echo json_encode(array_map(function ($row) {
+        return ['title' => $row['kb_article_title'], 'summary' => kbArticleExcerpt($row, 120), 'url' => 'kb_article.php?id=' . intval($row['kb_article_id'])];
+    }, $kb_rows));
+    exit;
+}
 
 if (isset($_POST['add_ticket'])) {
 

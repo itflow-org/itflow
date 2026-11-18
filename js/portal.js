@@ -11,6 +11,7 @@
  *  - Print buttons ([data-portal-print]) - an onclick would be blocked
  *  - Pay invoices: the total and the Pay button follow the invoices ticked
  *  - Tables a page left unwrapped scroll sideways on a phone instead of the page
+ *  - New ticket: the Help articles that might answer the subject, as it is typed
  *
  * Taking a card through Stripe is js/portal_stripe.js, on those pages only.
  */
@@ -285,6 +286,68 @@
         });
         update();
     });
+
+    // ---------- Help while raising a ticket ----------
+    // As a subject is typed on New ticket, the Help articles that might answer
+    // it show under it (post.php kb_suggest) - each opens in a new tab, so the
+    // ticket being written stays where it is
+    var suggest = document.querySelector('[data-portal-kb-suggest]');
+    var subject = suggest ? document.getElementById(suggest.getAttribute('data-portal-kb-suggest')) : null;
+    if (subject) {
+        var suggestList = suggest.querySelector('[data-portal-kb-suggest-list]');
+        var suggestTimer = null;
+        // A subject filled in already - Ask us on an article, an invoice or a quote - is
+        // about that, so it waits for them to type
+        var suggestLast = subject.value.trim();
+        var suggestLook = function () {
+            var q = subject.value.trim();
+            if (q === suggestLast) {
+                return;
+            }
+            suggestLast = q;
+            if (q.length < 4) {
+                suggest.hidden = true;
+                return;
+            }
+            fetch('/client/post.php?kb_suggest=' + encodeURIComponent(q), { credentials: 'same-origin' })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (rows) {
+                    if (subject.value.trim() !== q) {
+                        return;
+                    }
+                    suggestList.replaceChildren();
+                    (rows || []).forEach(function (row) {
+                        var item = document.createElement('li');
+                        var link = document.createElement('a');
+                        link.href = row.url;
+                        link.target = '_blank';
+                        link.rel = 'noopener';
+                        var title = document.createElement('span');
+                        title.className = 'd-block fw-semibold';
+                        title.textContent = row.title;
+                        link.appendChild(title);
+                        if (row.summary) {
+                            var summary = document.createElement('span');
+                            summary.className = 'd-block small text-body-secondary';
+                            summary.textContent = row.summary;
+                            link.appendChild(summary);
+                        }
+                        item.appendChild(link);
+                        suggestList.appendChild(item);
+                    });
+                    suggest.hidden = !rows || !rows.length;
+                })
+                .catch(function () {
+                    suggest.hidden = true;
+                });
+        };
+        subject.addEventListener('input', function () {
+            clearTimeout(suggestTimer);
+            suggestTimer = setTimeout(suggestLook, 400);
+        });
+    }
 
     // ---------- Tables ----------
     document.querySelectorAll('.itflow-portal-main table.table').forEach(function (table) {

@@ -1201,6 +1201,39 @@ if (isset($_GET['get_canned_response'])) {
 }
 
 /*
+ * The Knowledge Base picker above a ticket reply (agent/js/kb_picker.js): the
+ * published articles a search finds, as the picker's rows for the ticket's
+ * client (kb_picker), and what one article says, for the reply
+ * (kb_article_reply). JSON. Reading the Knowledge Base takes Support; how the
+ * client could read an article is only worked out for a client the agent can
+ * reach.
+ */
+if (isset($_GET['kb_picker']) || isset($_GET['kb_article_reply'])) {
+    header('Content-Type: application/json');
+
+    if (!kbCan(1)) {
+        echo json_encode(['error' => kbClosedText(1)]);
+        exit;
+    }
+    $kb_ticket = ticketRow(intval($_GET['ticket_id'] ?? 0));
+    $kb_client_id = $kb_ticket && intval($kb_ticket['ticket_client_id']) && hasClientAccess(intval($kb_ticket['ticket_client_id'])) ? intval($kb_ticket['ticket_client_id']) : 0;
+
+    if (isset($_GET['kb_picker'])) {
+        $kb_rows = kbFind((string) $_GET['kb_picker'], '', 10, true);
+        echo json_encode(['html' => $kb_rows ? kbPickerRowsHtml($kb_rows, $kb_client_id) : '<div class="px-3 py-3 small text-body-secondary">No published article matches.</div>']);
+        exit;
+    }
+
+    $kb_row = kbArticleRow($_GET['kb_article_reply']);
+    if (!$kb_row || $kb_row['kb_article_archived_at']) {
+        echo json_encode(['error' => "That article isn't in the Knowledge Base any more."]);
+        exit;
+    }
+    echo json_encode(['html' => kbArticleReplyHtml($kb_row)]);
+    exit;
+}
+
+/*
  * A reply being written on a ticket, for saving as a canned response (Save
  * your reply as a canned response - agent/js/canned_response_save.js): made safe, with this
  * ticket's details in it swapped for placeholders (cannedResponseUnfill()).
@@ -2291,6 +2324,18 @@ if (isset($_GET['ai_ticket_draft'])) {
 if (isset($_GET['ai_ticket_document'])) {
     $row = $aiTicket($_POST['ticket_id'] ?? 0, 2);
     $result = aiTicketDocument(intval($row['ticket_id']));
+    echo json_encode($result['ok'] ? ['title' => $result['title'], 'description' => $result['description'], 'html' => $result['html'], 'removed' => $result['removed']] : ['error' => $result['error']]);
+    exit;
+}
+
+// The ticket written up as a Knowledge Base article, for every client - a draft to read through (agent/modals/kb/kb_article_from_ticket.php)
+if (isset($_GET['ai_ticket_kb_article'])) {
+    $row = $aiTicket($_POST['ticket_id'] ?? 0, 2);
+    if (!kbCan(2)) {
+        echo json_encode(['error' => kbClosedText(2)]);
+        exit;
+    }
+    $result = aiTicketKbArticle(intval($row['ticket_id']));
     echo json_encode($result['ok'] ? ['title' => $result['title'], 'description' => $result['description'], 'html' => $result['html'], 'removed' => $result['removed']] : ['error' => $result['error']]);
     exit;
 }

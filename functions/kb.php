@@ -23,6 +23,18 @@
  * help center (guest/kb.php) when Admin > Settings > Knowledge Base has it on.
  * Only published articles are shown outside.
  *
+ * On a ticket (kbFind(), kbReachFor()): the Knowledge Base picker above the
+ * reply suggests articles for it, to link to or put in the reply
+ * (agent/includes/inc_kb_picker.php); a ticket can be written up as a draft
+ * article (agent/modals/kb/kb_article_from_ticket.php); and a client typing a
+ * new ticket's subject in the portal is shown the articles that might help.
+ *
+ * On a ticket (kbFind(), kbReachFor()): the Knowledge Base picker above the
+ * reply suggests articles for it, to link to or put in the reply
+ * (agent/includes/inc_kb_picker.php); a ticket can be written up as a draft
+ * article (agent/modals/kb/kb_article_from_ticket.php); and a client typing a
+ * new ticket's subject in the portal is shown the articles that might help.
+ *
  * Reading takes Support (view), writing Support edit, deleting Support full.
  */
 
@@ -65,6 +77,121 @@ function kbPublicUrl($kb_article_id, $title = '') {
     global $config_base_url;
     $slug = trim(preg_replace('/[^a-z0-9]+/', '-', strtolower((string) $title)), '-');
     return "https://$config_base_url/guest/kb.php?article=" . intval($kb_article_id) . ($slug !== '' ? '-' . mb_substr($slug, 0, 80) : '');
+}
+
+/** An article's address in the client portal - the contact signs in to read it. */
+function kbPortalArticleUrl($kb_article_id) {
+    global $config_base_url;
+    return "https://$config_base_url/client/kb_article.php?id=" . intval($kb_article_id);
+}
+
+/** Has a client's portal anything under Help - an article it may read? */
+function kbClientHas($client_id) {
+    global $mysqli;
+    return kbOn() && mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM kb_articles WHERE " . kbClientSql($client_id) . " LIMIT 1")) > 0;
+}
+
+/** Which of these articles a client's portal shows - [id => true]. */
+function kbClientReadableIds(array $kb_article_ids, $client_id) {
+    global $mysqli;
+    $ids = array_values(array_filter(array_map('intval', $kb_article_ids)));
+    if (!$ids || intval($client_id) <= 0) {
+        return [];
+    }
+    $out = [];
+    $sql = mysqli_query($mysqli, "SELECT kb_article_id FROM kb_articles WHERE kb_article_id IN (" . implode(',', $ids) . ") AND " . kbClientSql($client_id));
+    while ($row = mysqli_fetch_row($sql)) {
+        $out[intval($row[0])] = true;
+    }
+    return $out;
+}
+
+/*
+ * The published articles that look like they answer some text - a ticket's
+ * subject and what was asked, or the subject a client is typing - best first,
+ * by the words they share (the FULLTEXT index on their search text). With
+ * $search it is a search box's: a title or summary with the words in it counts
+ * too, and comes first. $where narrows which may be offered - kbClientSql()
+ * for a client's contacts, '' for agents. Rows with the category's name, icon
+ * and colour, and the start of the content for an excerpt.
+ */
+function kbFind($text, $where = '', $limit = 5, $search = false) {
+    global $mysqli;
+    $text = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags(str_replace('<', ' <', (string) $text)), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+    if (mb_strlen($text) < ($search ? 2 : 3)) {
+        return [];
+    }
+    $q = escapeSql(mb_substr($text, 0, $search ? 200 : 1000));
+    $match = "MATCH(kb_article_content_raw) AGAINST ('$q')";
+    $title_like = $search ? "(kb_article_title LIKE '%$q%' OR kb_article_summary LIKE '%$q%')" : '0';
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT kb_article_id, kb_article_title, kb_article_summary, LEFT(kb_article_content, 2000) AS kb_article_content,
+            kb_article_visibility, kb_article_all_clients, category_name, category_icon, category_color, $match AS kb_score, $title_like AS kb_title_match
+        FROM kb_articles
+        LEFT JOIN categories ON category_id = kb_article_category_id
+        WHERE kb_article_archived_at IS NULL AND kb_article_published_at IS NOT NULL" . ($where !== '' ? " AND $where" : '') . "
+            AND ($match" . ($search ? " OR $title_like" : '') . ")
+        ORDER BY kb_title_match DESC, kb_score DESC, kb_article_title ASC
+        LIMIT " . intval($limit));
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+    // Suggestions leave out the ones that share only a stray word - a fifth of the best one's score
+    if (!$search && $rows) {
+        $floor = floatval($rows[0]['kb_score']) / 5;
+        $rows = array_values(array_filter($rows, function ($row) use ($floor) { return floatval($row['kb_score']) >= $floor; }));
+    }
+    return $rows;
+}
+
+/*
+ * How a ticket's client could read an article, for a reply to them -
+ * ['text', 'icon', 'url' => the link to send, or '']: the public help
+ * center's while it's on and the article is for anyone, their portal's while
+ * it shows them the article ($client_readable, from kbClientReadableIds()),
+ * otherwise no link - an article for agents only, or not shared with them.
+ */
+function kbReachFor(array $row, $client_readable) {
+    if (($row['kb_article_visibility'] ?? '') === 'public' && kbPublicOn()) {
+        return ['text' => 'Public help center', 'icon' => 'fa-globe', 'url' => kbPublicUrl($row['kb_article_id'], $row['kb_article_title'])];
+    }
+    if ($client_readable && moduleOn('portal')) {
+        return ['text' => 'In their portal', 'icon' => 'fa-users', 'url' => kbPortalArticleUrl($row['kb_article_id'])];
+    }
+    return ['text' => ($row['kb_article_visibility'] ?? 'agents') === 'agents' ? 'Agents only' : 'Not shared with them', 'icon' => 'fa-user-shield', 'url' => ''];
+}
+
+/*
+ * The rows of the Knowledge Base picker above a ticket reply
+ * (agent/includes/inc_kb_picker.php) - each article's title, a line of what it
+ * is for and how the ticket's client could read it, with Link when there is
+ * a link to send them, and Insert. HTML.
+ */
+function kbPickerRowsHtml(array $rows, $client_id) {
+    $readable = kbClientReadableIds(array_column($rows, 'kb_article_id'), $client_id);
+    $html = '';
+    foreach ($rows as $row) {
+        $id = intval($row['kb_article_id']);
+        $reach = kbReachFor($row, isset($readable[$id]));
+        $html .= '<div class="itflow-kb-pick-item" data-kb-pick-item data-kb-id="' . $id . '" data-kb-title="' . escapeHtml($row['kb_article_title']) . '" data-kb-url="' . escapeHtml($reach['url']) . '">'
+            . '<div class="itflow-kb-pick-text">'
+            . '<a class="d-block fw-semibold text-truncate text-reset" href="/agent/kb_article.php?kb_article_id=' . $id . '" target="_blank" title="Read it - opens in a new tab">' . escapeHtml($row['kb_article_title']) . '</a>'
+            . '<span class="d-block small text-body-secondary text-truncate">' . escapeHtml(kbArticleExcerpt($row, 120)) . '</span>'
+            . '<span class="d-block small text-body-secondary"><i class="fas fa-fw ' . $reach['icon'] . ' me-1"></i>' . $reach['text'] . '</span>'
+            . '</div>'
+            . '<div class="d-flex gap-1 flex-shrink-0">'
+            . ($reach['url'] !== '' ? '<button type="button" class="btn btn-sm btn-outline-secondary" data-kb-pick-link title="Put a link to it in the reply - ' . escapeHtml($reach['text']) . '"><i class="fas fa-link me-1"></i>Link</button>' : '')
+            . '<button type="button" class="btn btn-sm btn-outline-secondary" data-kb-pick-insert title="Put what it says in the reply"><i class="fas fa-file-import me-1"></i>Insert</button>'
+            . '</div></div>';
+    }
+    return $html;
+}
+
+/* An article's content for a ticket reply - purified, with its pictures' addresses made whole so they show in an email too. */
+function kbArticleReplyHtml(array $row) {
+    global $config_base_url;
+    $html = documentHtmlPurify((string) $row['kb_article_content']);
+    return preg_replace('#\b(src|href)="/?(uploads/kb/\d+/[^"]+)"#', '$1="https://' . $config_base_url . '/$2"', $html);
 }
 
 /** Who can read each article - [id => ['tags' => [tag rows], 'clients' => [client_id => name]]], in one query each. */
