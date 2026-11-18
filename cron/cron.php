@@ -191,6 +191,14 @@ function cronJobFinished($mysqli, string $job_name, string $status, ?float $dura
     }
 }
 
+// A restore is replacing the database (functions/backup_restore.php) - no job may write to tables
+// being replaced. The dispatch that runs the restore carries on; the ones that start meanwhile stop
+// here, and the first after it runs everything that came due.
+if (backupRestoreInProgress()) {
+    echo "Cron: a restore is running - nothing else runs until it's done.\n";
+    exit;
+}
+
 // Proof the crontab is firing, recorded before any job runs. Maintenance > Cron reads it to tell
 // "no job was due" apart from "nothing has run this since the server was rebuilt".
 mysqli_query($mysqli, "UPDATE settings SET config_cron_last_dispatch_at = '" . date('Y-m-d H:i:s') . "' WHERE company_id = 1");

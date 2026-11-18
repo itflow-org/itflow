@@ -114,8 +114,22 @@ if (!empty($_SESSION['backup_master_key_reveal'])) {
     unset($_SESSION['backup_master_key_reveal']);
 }
 
-// The page reloads while a backup is on its way - but never out from under a key shown once
-$reload = $state === 'working' && $master_key_reveal === '';
+// A restore - waiting for cron, being done, or how the last one went, for a week (functions/backup_restore.php)
+$restore_status = backupRestoreStatus();
+$restore_state = (string) ($restore_status['state'] ?? '');
+if ($restore_state === 'queued' && !backupRestoreRequest()) {
+    $restore_state = 'running';   // cron took the request and is about to say so
+}
+if ($restore_state === 'running' && !backupRestoreInProgress() && strtotime((string) ($restore_status['started'] ?? $restore_status['at'] ?? '')) < strtotime('-6 hours')) {
+    $restore_state = 'lost';
+}
+if (in_array($restore_state, ['done', 'failed', 'cancelled'], true) && strtotime((string) ($restore_status['at'] ?? '')) < strtotime('-7 days')) {
+    $restore_state = '';
+}
+$restore_open = intval($_GET['restore'] ?? 0);
+
+// The page reloads while a backup or a restore is on its way - but never out from under a key shown once
+$reload = ($state === 'working' || in_array($restore_state, ['queued', 'running'], true)) && $master_key_reveal === '';
 
 // A time as "3 hours ago", with the date and time behind it
 $ago = function ($datetime) {
@@ -123,13 +137,7 @@ $ago = function ($datetime) {
 };
 // Who a backup is down to, from its row
 $made_by = function ($backup) {
-    if ($backup['backup_source'] === 'Cron') {
-        return 'Scheduled';
-    }
-    if ($backup['backup_source'] === 'Adopted') {
-        return 'Found on this server';
-    }
-    return (string) $backup['backup_created_by'] !== '' ? 'By ' . $backup['backup_created_by'] : 'By hand';
+    return backupMadeBy($backup);
 };
 $schedule_text = $schedule_on ? "Every night at $schedule_time" : 'Off';
 // A type as it reads in a sentence - "a Full Backup", "a Database Only backup"
@@ -192,6 +200,38 @@ $status_looks = [
         <div class="input-group">
             <input type="text" class="form-control font-monospace" value="<?= escapeHtml($master_key_reveal) ?>" readonly aria-label="Master key">
             <button class="btn btn-dark clipboardjs" type="button" data-clipboard-text="<?= escapeHtml($master_key_reveal) ?>"><i class="far fa-fw fa-copy me-2"></i>Copy</button>
+        </div>
+    </div>
+<?php } ?>
+
+<?php if ($restore_state !== '') {
+    $restore_tone = ['queued' => 'info', 'running' => 'primary', 'done' => empty($restore_status['warnings']) ? 'success' : 'warning', 'failed' => 'danger', 'lost' => 'danger', 'cancelled' => 'secondary'][$restore_state];
+    $restore_icon = ['queued' => 'fa-hourglass-half', 'running' => 'fa-circle-notch fa-spin', 'done' => 'fa-check-circle', 'failed' => 'fa-exclamation-triangle', 'lost' => 'fa-exclamation-triangle', 'cancelled' => 'fa-ban'][$restore_state];
+    $restore_label = (string) ($restore_status['label'] ?? 'a backup'); ?>
+    <!-- A restore, and how the last one went (functions/backup_restore.php) -->
+    <div class="alert alert-<?= $restore_tone ?> d-flex gap-3 align-items-start" data-backup-restore-state="<?= $restore_state ?>"<?= $reload && in_array($restore_state, ['queued', 'running'], true) ? ' data-itflow-reload-seconds="10"' : '' ?>>
+        <i class="fas fa-fw <?= $restore_icon ?> mt-1" aria-hidden="true"></i>
+        <div class="flex-grow-1 min-w-0">
+            <?php if ($restore_state === 'queued') { ?>
+                <strong>A restore is waiting to start</strong> - the <?= escapeHtml($restore_label) ?>, asked for by <?= escapeHtml((string) ($restore_status['who'] ?? '')) ?> <?= $ago((string) ($restore_status['queued'] ?? $restore_status['at'] ?? '')) ?>.
+                <?= $cron_is_running ? 'Cron starts it within a minute.' : 'Cron isn\'t running, so it starts when cron does - and not at all once ' . BACKUP_RESTORE_WAIT_MINUTES . ' minutes have gone by.' ?>
+                <div class="mt-2">
+                    <a class="btn btn-sm btn-light border confirm-link" href="post.php?cancel_restore=1&amp;csrf_token=<?= $csrf ?>" data-confirm-title="Cancel the restore?" data-confirm-text="Nothing is changed, and nothing is restored." data-confirm-button="Cancel it"><i class="fas fa-fw fa-ban me-1"></i>Cancel the restore</a>
+                </div>
+            <?php } elseif ($restore_state === 'running') { ?>
+                <strong>Restoring</strong> the <?= escapeHtml($restore_label) ?> - started <?= $ago((string) ($restore_status['started'] ?? $restore_status['at'] ?? '')) ?> by <?= escapeHtml((string) ($restore_status['who'] ?? '')) ?>.
+                ITFlow is backed up as it is first, then replaced. Anyone working meanwhile may see errors, and you may be signed out - sign in again once it's done.
+            <?php } elseif ($restore_state === 'lost') { ?>
+                <strong>The last restore didn't say it finished.</strong> The <?= escapeHtml($restore_label) ?> was started <?= $ago((string) ($restore_status['started'] ?? $restore_status['at'] ?? '')) ?> by <?= escapeHtml((string) ($restore_status['who'] ?? '')) ?> - the Backup job may have been stopped part way.
+                Check that ITFlow works, and <a href="cron.php">Maintenance &gt; Cron</a> and <a href="app_logs.php">App Logs</a> for what happened. The <strong>Before restore</strong> backup, if it's in the list, is ITFlow as it was.
+            <?php } else { ?>
+                <strong><?= ['done' => 'Last restore', 'failed' => "The last restore didn't work", 'cancelled' => 'Last restore cancelled'][$restore_state] ?></strong>
+                <span class="text-body-secondary">(<?= escapeHtml((string) ($restore_status['who'] ?? '')) ?>, <?= $ago((string) ($restore_status['at'] ?? '')) ?>)</span> -
+                <?= escapeHtml((string) ($restore_status['message'] ?? '')) ?>
+                <?php foreach ((array) ($restore_status['warnings'] ?? []) as $restore_warning) { ?>
+                    <div class="mt-1"><i class="fas fa-fw fa-exclamation-triangle me-1"></i><?= escapeHtml((string) $restore_warning) ?></div>
+                <?php } ?>
+            <?php } ?>
         </div>
     </div>
 <?php } ?>
@@ -367,6 +407,11 @@ $status_looks = [
                                         <?php } ?>
                                         <?php if ($status === 'Complete' && (string) $backup['backup_sha256'] !== '') { ?>
                                             <button type="button" class="dropdown-item clipboardjs" data-clipboard-text="<?= escapeHtml($backup['backup_sha256']) ?>" title="To check a copy is the same file"><i class="fas fa-fw fa-fingerprint text-secondary me-2"></i>Copy its SHA-256 checksum</button>
+                                        <?php } ?>
+                                        <?php if ($status === 'Complete' && $backup['backup_type'] !== BACKUP_TYPE_MASTER_KEY) { ?>
+                                            <button type="button" class="dropdown-item ajax-modal" data-modal-url="modals/backup/backup_restore.php?backup_id=<?= $backup_id ?>" data-backup-restore-open="<?= $backup_id ?>">
+                                                <i class="fas fa-fw fa-undo text-secondary me-2"></i>Restore
+                                            </button>
                                         <?php } ?>
                                         <?php if ($status === 'Complete') { ?>
                                             <div class="dropdown-divider"></div>
@@ -587,21 +632,40 @@ $config_dev_mail_to = '<?= escapeHtml($dev_mail_to !== '' ? $dev_mail_to : 'dev@
             </div>
         </div>
 
-        <!-- Restoring - not from here -->
-        <div class="card mb-3">
+        <!-- Restoring - a backup in the list, one uploaded, or from the command line (functions/backup_restore.php) -->
+        <div class="card mb-3" id="restoring">
             <div class="card-header py-3">
                 <h3 class="card-title"><i class="fas fa-fw fa-undo me-2"></i>Restoring</h3>
             </div>
             <div class="card-body small">
-                <p class="text-body-secondary">Restoring replaces the database - and, from a Full Backup, everything uploaded - with what's in the backup. It isn't done from this page, on purpose: a running ITFlow shouldn't drop its own tables from a browser.</p>
-                <p class="fw-semibold mb-1">From the command line</p>
-                <div class="position-relative">
-                    <pre class="itflow-command bg-body-tertiary border rounded p-2 pe-5 mb-2"><code><?= escapeHtml($cli_command) ?></code></pre>
-                    <button type="button" class="btn btn-sm btn-link position-absolute top-0 end-0 clipboardjs" title="Copy" data-clipboard-text="<?= escapeHtml($cli_command) ?>"><i class="far fa-copy"></i></button>
-                </div>
-                <p class="text-body-secondary">Works for a backup of any size. Add <code>--inspect</code> to see what's in one without changing anything, and <code>--key=</code> for a backup from another server, which needs that server's key. A backup's menu copies its path.</p>
-                <p class="fw-semibold mb-1">On a new server</p>
-                <p class="text-body-secondary mb-0">The setup wizard at <code>/setup</code> offers to restore a backup before the first user exists - up to <?= escapeHtml(backupFormatBytes(backupMaxUploadBytes())) ?> here, the most PHP takes in one upload.</p>
+                <p class="text-body-secondary">Restoring replaces the database - and, from a Full Backup, everything uploaded - with what's in the backup. Pick <strong class="text-body">Restore</strong> in a backup's menu, or upload one - from another ITFlow, say. ITFlow is backed up as it is first, as <strong class="text-body">Before restore</strong>, so a restore can be undone.</p>
+                <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off" data-backup-upload data-max="<?= BACKUP_RESTORE_MAX_BYTES ?>">
+                    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                    <label class="form-label" for="backupUploadFile">Upload a backup to restore</label>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text"><i class="fas fa-fw fa-file-archive"></i></span>
+                        <input type="file" class="form-control" name="backup_file" id="backupUploadFile" accept=".zip,application/zip" required>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
+                        <input type="password" class="form-control" data-toggle="password" name="restore_key" placeholder="Its key, if from another ITFlow" autocomplete="off" aria-label="Its encryption key">
+                        <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                    </div>
+                    <div class="form-text">Up to <?= escapeHtml(backupFormatBytes(BACKUP_RESTORE_MAX_BYTES)) ?>. It joins the list as Uploaded, and its Restore window opens. A restore needs free space of about three times the backup's size.</div>
+                    <button type="submit" name="backup_upload" class="btn btn-sm btn-light border mt-2" data-backup-upload-button><i class="fas fa-fw fa-upload me-1"></i>Upload</button>
+                    <div class="mt-2" data-backup-upload-progress hidden>
+                        <div class="progress" role="progressbar" aria-label="Upload"><div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div></div>
+                        <div class="text-body-secondary mt-1" data-backup-upload-text></div>
+                    </div>
+                </form>
+                <details class="mt-3">
+                    <summary class="text-body-secondary">From the command line</summary>
+                    <div class="position-relative mt-2">
+                        <pre class="itflow-command bg-body-tertiary border rounded p-2 pe-5 mb-2"><code><?= escapeHtml($cli_command) ?></code></pre>
+                        <button type="button" class="btn btn-sm btn-link position-absolute top-0 end-0 clipboardjs" title="Copy" data-clipboard-text="<?= escapeHtml($cli_command) ?>"><i class="far fa-copy"></i></button>
+                    </div>
+                    <p class="text-body-secondary mb-0">For a backup of any size, or when cron isn't running. Add <code>--inspect</code> to see what's in one without changing anything, and <code>--key=</code> for a backup from another server, which needs that server's key. A backup's menu copies its path. On a new server, the setup wizard at <code>/setup</code> offers to restore a backup before the first user exists.</p>
+                </details>
             </div>
         </div>
 
@@ -622,7 +686,12 @@ $config_dev_mail_to = '<?= escapeHtml($dev_mail_to !== '' ? $dev_mail_to : 'dev@
 
 </div>
 
+<?php if ($restore_open) { ?>
+    <button type="button" class="d-none ajax-modal" data-modal-url="modals/backup/backup_restore.php?backup_id=<?= $restore_open ?>" data-backup-restore-autoopen></button>
+<?php } ?>
+
 <script src="<?= staticFileUrl('/js/auto_reload.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/backup_restore.js') ?>"></script>
 
 <?php
 require_once "../includes/footer.php";

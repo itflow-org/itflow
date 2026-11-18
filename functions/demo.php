@@ -75,7 +75,7 @@ const DEMO_MODE_LOCKS = [
     ],
     [
         'message' => "Backups and updates are turned off in the demo.",
-        'keys' => ['backup_master_key', 'delete_backup', 'edit_backup_settings', 'edit_dev_mode', 'queue_backup', 'check_update', 'queue_update'],
+        'keys' => ['backup_master_key', 'delete_backup', 'edit_backup_settings', 'edit_dev_mode', 'queue_backup', 'restore_backup', 'cancel_restore', 'backup_upload', 'backup_upload_start', 'backup_upload_chunk', 'backup_upload_finish', 'check_update', 'queue_update'],
     ],
     [
         'message' => "Cron can't be changed in the demo - it runs the nightly reset.",

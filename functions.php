@@ -56,6 +56,7 @@ require_once __DIR__ . '/functions/import.php';
 require_once __DIR__ . '/functions/import_kinds.php';
 require_once __DIR__ . '/functions/calendar.php';
 require_once __DIR__ . '/functions/backup.php';
+require_once __DIR__ . '/functions/backup_restore.php';
 require_once __DIR__ . '/functions/search.php';
 require_once __DIR__ . '/functions/notifications.php';
 require_once __DIR__ . '/functions/dashboard.php';
