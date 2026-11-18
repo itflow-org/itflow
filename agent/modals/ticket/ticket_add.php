@@ -15,6 +15,12 @@ enforceUserPermission('module_support', 2);
 
 $client_id = intval($_GET['client_id'] ?? 0);
 $contact_id = intval($_GET['contact_id'] ?? 0);
+// From a drag over empty time on Dispatch: that agent, booked for that time on the viewer's own
+// clock, for that long - and back to Dispatch once it is saved
+$prefill_assigned_to = isset($_GET['assigned_to']) && preg_match('/^\d+$/', (string) $_GET['assigned_to']) ? intval($_GET['assigned_to']) : intval($session_user_id);
+$prefill_schedule = preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', (string) ($_GET['schedule'] ?? '')) ? (string) $_GET['schedule'] : '';
+$prefill_schedule_minutes = $prefill_schedule !== '' ? ticketScheduleMinutesValue($_GET['schedule_minutes'] ?? 0) : CALENDAR_TICKET_MINUTES;
+$return_to = ($_GET['return_to'] ?? '') === 'dispatch' ? 'dispatch' : '';
 $project_id = intval($_GET['project_id'] ?? 0);
 $asset_id = intval($_GET['asset_id'] ?? 0);
 $location_id = intval($_GET['location_id'] ?? 0);
@@ -65,6 +71,9 @@ ob_start();
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <?php if ($return_to !== '') { ?>
+        <input type="hidden" name="return_to" value="<?= $return_to ?>">
+    <?php } ?>
     <!-- Hidden/System fields -->
     <?php if ($client_id) { ?>
         <input type="hidden" name="client_id" id="clientIdHidden" value="<?= $client_id ?>">
@@ -211,7 +220,7 @@ ob_start();
                                     while ($row = mysqli_fetch_assoc($sql)) {
                                         $user_id = intval($row['user_id']);
                                         $user_name = escapeHtml($row['user_name']); ?>
-                                        <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= $user_name ?></option>
+                                        <option <?php if ($prefill_assigned_to === $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= $user_name ?></option>
                                     <?php } ?>
                                 </select>
                             </div>
@@ -249,10 +258,10 @@ ob_start();
                             <label>Schedule</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
-                                <input type="datetime-local" class="form-control" name="schedule" min="<?= date('Y-m-d\TH:i') ?>" aria-label="Date and time of the work">
+                                <input type="datetime-local" class="form-control" name="schedule" min="<?= date('Y-m-d\TH:i') ?>" value="<?= escapeHtml($prefill_schedule) ?>" aria-label="Date and time of the work">
                                 <select class="form-select flex-grow-0 w-auto" name="schedule_minutes" aria-label="How long">
-                                    <?php foreach (ticketScheduleLengths() as $minutes => $label) { ?>
-                                        <option value="<?= intval($minutes) ?>" <?= intval($minutes) === CALENDAR_TICKET_MINUTES ? 'selected' : '' ?>><?= escapeHtml($label) ?></option>
+                                    <?php foreach (ticketScheduleLengths($prefill_schedule_minutes) as $minutes => $label) { ?>
+                                        <option value="<?= intval($minutes) ?>" <?= intval($minutes) === $prefill_schedule_minutes ? 'selected' : '' ?>><?= escapeHtml($label) ?></option>
                                     <?php } ?>
                                 </select>
                                 <select class="form-select flex-grow-0 w-auto" name="onsite" aria-label="Visit">

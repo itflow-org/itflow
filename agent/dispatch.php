@@ -123,7 +123,7 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
                     </div>
                 </div>
                 <div class="card-body p-2 itflow-dispatch-queue" data-dispatch-queue></div>
-                <div class="card-footer small text-body-secondary py-2"><?= $can_edit ? 'Drag a ticket onto an agent and a time. Drag booked work back here to take it off the schedule.' : 'Your role can look at Dispatch, not book from it.' ?></div>
+                <div class="card-footer small text-body-secondary py-2"><?= $can_edit ? 'Drag a ticket onto an agent and a time. Drag booked work back here to take it off the schedule. On Day, drag over an agent\'s empty time to raise a new ticket there.' : 'Your role can look at Dispatch, not book from it.' ?></div>
             </div>
         </div>
         <div class="col-lg-9">

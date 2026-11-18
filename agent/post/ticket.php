@@ -253,6 +253,11 @@ if (isset($_POST['add_ticket'])) {
         flashAlert("Stored on the ticket but too large to email: <strong>" . implode(', ', $skipped_names) . "</strong>", 'error');
     }
 
+    // Raised from a drag on Dispatch - back to Dispatch, on the day it was booked for
+    if (($_POST['return_to'] ?? '') === 'dispatch' && dispatchCan()) {
+        redirect('dispatch.php' . ($schedule !== '' ? '?date=' . substr(timezoneToView($schedule), 0, 10) : ''));
+    }
+
     redirect("ticket.php?client_id=$client_id&ticket_id=$ticket_id");
 
 }

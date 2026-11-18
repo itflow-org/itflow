@@ -551,6 +551,24 @@
                         openModal(props.modal);
                     }
                 },
+                // A drag over empty time: New Ticket for this agent, booked for the time dragged over -
+                // a drag, not a click; saving it comes back here on that day
+                selectable: canEdit,
+                selectMirror: true,
+                selectMinDistance: 5,
+                selectAllow: function (info) {
+                    return !info.allDay;
+                },
+                select: function (info) {
+                    cal.unselect();
+                    const params = new URLSearchParams({
+                        assigned_to: String(agentId),
+                        schedule: ymd(info.start) + 'T' + hm(info.start),
+                        schedule_minutes: String(Math.round((info.end - info.start) / 60000)),
+                        return_to: 'dispatch'
+                    });
+                    openModal('modals/ticket/ticket_add.php?' + params.toString());
+                },
                 // From the queue - a booking from another agent's column comes in by eventReceive
                 drop: function (info) {
                     if (!queueEl.contains(info.draggedEl)) {
