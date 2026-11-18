@@ -468,6 +468,16 @@
         const props = arg.event.extendedProps || {};
         const wrap = document.createElement('div');
         wrap.className = 'itflow-cal-event ' + (arg.event.allDay ? 'is-daygrid' : 'is-timegrid');
+        // Onsite work stands out - an orange strip with a car across the top, as on the calendar
+        if (props.icon === 'fa-car') {
+            wrap.classList.add('is-onsite');
+            if (!arg.event.allDay) {
+                const strip = document.createElement('div');
+                strip.className = 'itflow-cal-onsite';
+                strip.innerHTML = '<i class="fas fa-car me-1" aria-hidden="true"></i>Onsite';
+                wrap.appendChild(strip);
+            }
+        }
         if (arg.timeText && !arg.event.allDay) {
             const time = document.createElement('span');
             time.className = 'itflow-cal-time';
@@ -710,7 +720,7 @@
                         const props = item.extendedProps || {};
                         const minutes = item.allDay ? 0 : minutesBetween(item.start, item.end);
                         const movable = !!item.editable;
-                        return '<div class="itflow-dispatch-chip' + (movable ? ' is-movable' : '') + '" style="background-color: ' + esc(item.color || '#6c757d') + '" data-kind="' + esc(props.kind || '') + '"'
+                        return '<div class="itflow-dispatch-chip' + (movable ? ' is-movable' : '') + (props.icon === 'fa-car' ? ' is-onsite' : '') + '" style="background-color: ' + esc(item.color || '#6c757d') + '" data-kind="' + esc(props.kind || '') + '"'
                             + ' data-ticket="' + Number(props.ticket_id || 0) + '" data-event="' + Number(props.event_id || 0) + '" data-reference="' + esc(props.reference || '') + '"'
                             + ' data-start="' + esc(String(item.start).substring(0, 16)) + '" data-end="' + esc(String(item.end || '').substring(0, 16)) + '" data-all-day="' + (item.allDay ? 1 : 0) + '"'
                             + ' data-minutes="' + minutes + '" data-onsite="' + (props.icon === 'fa-car' ? 1 : 0) + '" data-modal="' + esc(props.modal || '') + '"'

@@ -5556,6 +5556,24 @@ img.itflow-contact-avatar {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+/* Onsite work - an orange strip with a car across the top of a booking; an orange edge on a one-line item */
+.itflow-cal-onsite {
+    margin: 0 -.15rem .1rem;
+    padding: 0 .35rem;
+    background: #ff9f1a;
+    color: #2b1700;
+    font-size: .65rem;
+    font-weight: 600;
+    line-height: 1.45;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.itflow-cal-event.is-daygrid.is-onsite {
+    box-shadow: inset 3px 0 0 #ff9f1a;
+    padding-left: .35rem;
+}
 .itflow-cal-event.is-list {
     font-size: .875rem;
 }
@@ -5842,6 +5860,9 @@ img.itflow-contact-avatar {
 }
 .itflow-dispatch-chip.is-movable {
     cursor: grab;
+}
+.itflow-dispatch-chip.is-onsite {
+    border-top: 3px solid #ff9f1a;
 }
 .itflow-dispatch-chip[data-kind="helper"] {
     background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .18) 0 4px, transparent 4px 8px);

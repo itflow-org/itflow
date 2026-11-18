@@ -287,6 +287,16 @@
             const view = arg.view.type;
             const wrap = document.createElement('div');
             wrap.className = 'itflow-cal-event ' + (view.indexOf('list') === 0 ? 'is-list' : (view.indexOf('timeGrid') === 0 && !arg.event.allDay ? 'is-timegrid' : 'is-daygrid'));
+            // Onsite work stands out - an orange strip with a car across the top of the booking, an orange edge on a one-line one
+            if (props.icon === 'fa-car' && view.indexOf('list') !== 0) {
+                wrap.classList.add('is-onsite');
+                if (view.indexOf('timeGrid') === 0 && !arg.event.allDay) {
+                    const strip = document.createElement('div');
+                    strip.className = 'itflow-cal-onsite';
+                    strip.innerHTML = '<i class="fas fa-car me-1" aria-hidden="true"></i>Onsite';
+                    wrap.appendChild(strip);
+                }
+            }
             let agentShown = false;
             if ((arg.timeText && !arg.event.allDay) || (arg.event.allDay && view.indexOf('list') === 0)) {
                 const time = document.createElement('span');
