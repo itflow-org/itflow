@@ -226,6 +226,30 @@
                     </li>
                 <?php } ?>
 
+                <?php if (poLevel() >= 1) {
+                    // Purchasing - with invoicing on, for roles with Purchasing (functions/purchase_orders.php)
+                    $po_nav_page = basename($_SERVER["PHP_SELF"]);
+                    $po_nav_links = [
+                        ['to_order.php', 'fa-cart-plus', 'To Order', $num_purchasing['to_order'], 'Waiting to go on a purchase order', 'text-light', []],
+                        ['purchase_orders.php', 'fa-file-signature', 'Purchase Orders', $num_purchasing['pending'], 'Waiting for your approval', 'text-bg-warning', ['purchase_order.php']],
+                        ['receiving.php', 'fa-truck-loading', 'Receiving', $num_purchasing['arriving'], 'Lines on ordered purchase orders still to come in', 'text-light', []],
+                    ]; ?>
+                    <li class="nav-header mt-3">PURCHASING</li>
+                    <?php foreach ($po_nav_links as [$po_nav_file, $po_nav_icon, $po_nav_label, $po_nav_count, $po_nav_title, $po_nav_badge, $po_nav_also]) { ?>
+                        <li class="nav-item">
+                            <a href="/agent/<?= $po_nav_file ?>" class="nav-link <?= $po_nav_page === $po_nav_file || in_array($po_nav_page, $po_nav_also, true) ? 'active' : '' ?>">
+                                <i class="nav-icon fas <?= $po_nav_icon ?>"></i>
+                                <p>
+                                    <?= $po_nav_label ?>
+                                    <?php if ($po_nav_count) { ?>
+                                        <span class="right badge <?= $po_nav_badge ?>" data-bs-toggle="tooltip" title="<?= $po_nav_title ?>"><?= intval($po_nav_count) ?></span>
+                                    <?php } ?>
+                                </p>
+                            </a>
+                        </li>
+                    <?php } ?>
+                <?php } ?>
+
                 <?php if ($config_module_enable_accounting == 1) { ?>
                     <li class="nav-header mt-3">FINANCE</li>
                     <?php if (lookupUserPermission("module_financial") >= 1) { ?>

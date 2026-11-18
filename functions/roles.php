@@ -24,7 +24,8 @@ const ROLE_LEVEL_TONES = [0 => 'secondary', 1 => 'primary', 2 => 'warning', 3 =>
 /*
  * The modules a role gives levels for, by module_name: label, icon, about
  * (what is in it) and levels (what each level adds - Modify and Full take in
- * the ones before). 'max' is the highest level that means anything.
+ * the ones before). 'max' is the highest level that means anything; 'full'
+ * is what Full lets a role do, for the refusal, where it isn't deleting.
  */
 function roleModuleInfo() {
     return [
@@ -51,6 +52,11 @@ function roleModuleInfo() {
         'module_reporting' => [
             'label' => 'Reports', 'icon' => 'fa-chart-line', 'about' => 'The reports - each needs read access to what it reports on too',
             'levels' => [1 => 'Open the reports'], 'max' => 1,
+        ],
+        'module_procurement' => [
+            'label' => 'Purchasing', 'icon' => 'fa-truck-loading', 'about' => 'Items to order, purchase orders to vendors and receiving - with invoicing on',
+            'levels' => [1 => 'See them', 2 => 'Add items, make and send purchase orders, add tracking and receive', 3 => 'Approve and cancel purchase orders, and undo a receipt'],
+            'full' => 'approve or cancel purchase orders, or undo a receipt',
         ],
         'module_ai' => [
             'label' => 'AI', 'icon' => 'fa-robot', 'about' => 'Rewording, summaries and drafts, by the AI providers in Admin - each needs access to what it works on too',

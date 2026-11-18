@@ -37,6 +37,9 @@ $num_unbilled_expenses = $config_module_enable_accounting == 1 && lookupUserPerm
 // ...and trips to bill
 $num_unbilled_trips = $config_module_enable_accounting == 1 && lookupUserPermission('module_sales') >= 1 && lookupUserPermission('module_financial') >= 1 ? tripUnbilledCount()['count'] : 0;
 
+// Purchasing - items waiting to be ordered, purchase orders waiting for this agent's approval, lines still to come in
+$num_purchasing = poNavCounts();
+
 // Products whose stock is at or under the reorder level, or out
 $num_products_reorder = $config_module_enable_accounting == 1 && lookupUserPermission('module_sales') >= 1 ? productReorderCount() : 0;
 

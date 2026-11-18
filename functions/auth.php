@@ -93,7 +93,9 @@ function permissionRefusedText($module, $level, $has = 0) {
     } elseif ($level === 2) {
         $why = "$who can only view $label, not change it.";
     } else {
-        $why = "$who can't delete in $label - that takes Full access.";
+        // What Full adds, for a module where it isn't deleting - roleModuleInfo()'s 'full'
+        $full = roleModuleInfo()[$module]['full'] ?? "delete in $label";
+        $why = "$who can't $full - that takes Full access.";
     }
     return "$why An admin can change what your role allows in Admin > Roles.";
 }

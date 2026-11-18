@@ -2243,6 +2243,35 @@ CREATE TABLE `offices` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `order_items`
+--
+
+DROP TABLE IF EXISTS `order_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `order_items` (
+  `order_item_id` int(11) NOT NULL AUTO_INCREMENT,
+  `order_item_name` varchar(255) NOT NULL,
+  `order_item_description` text DEFAULT NULL,
+  `order_item_quantity` decimal(15,2) NOT NULL DEFAULT 1.00,
+  `order_item_cost` decimal(15,2) DEFAULT NULL,
+  `order_item_status` varchar(20) NOT NULL DEFAULT 'waiting',
+  `order_item_source` varchar(20) NOT NULL DEFAULT 'manual',
+  `order_item_note` varchar(255) DEFAULT NULL,
+  `order_item_product_id` int(11) NOT NULL DEFAULT 0,
+  `order_item_vendor_id` int(11) NOT NULL DEFAULT 0,
+  `order_item_client_id` int(11) NOT NULL DEFAULT 0,
+  `order_item_created_by` int(11) NOT NULL DEFAULT 0,
+  `order_item_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `order_item_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`order_item_id`),
+  KEY `order_item_status` (`order_item_status`,`order_item_vendor_id`),
+  KEY `order_item_product_id` (`order_item_product_id`),
+  KEY `order_item_client_id` (`order_item_client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `payment_methods`
 --
 
@@ -2316,6 +2345,78 @@ CREATE TABLE `payments` (
   KEY `payment_import_key` (`payment_import_key`),
   KEY `payment_reconciliation_id` (`payment_reconciliation_id`),
   KEY `payment_deposit_transfer_id` (`payment_deposit_transfer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `po_items`
+--
+
+DROP TABLE IF EXISTS `po_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `po_items` (
+  `po_item_id` int(11) NOT NULL AUTO_INCREMENT,
+  `po_item_po_id` int(11) NOT NULL,
+  `po_item_order_item_id` int(11) NOT NULL DEFAULT 0,
+  `po_item_product_id` int(11) NOT NULL DEFAULT 0,
+  `po_item_client_id` int(11) NOT NULL DEFAULT 0,
+  `po_item_name` varchar(255) NOT NULL,
+  `po_item_description` text DEFAULT NULL,
+  `po_item_vendor_part` varchar(200) DEFAULT NULL,
+  `po_item_quantity` decimal(15,2) NOT NULL DEFAULT 1.00,
+  `po_item_cost` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `po_item_received` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `po_item_order` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`po_item_id`),
+  KEY `po_item_po_id` (`po_item_po_id`),
+  KEY `po_item_order_item_id` (`po_item_order_item_id`),
+  KEY `po_item_client_id` (`po_item_client_id`),
+  CONSTRAINT `po_items_po` FOREIGN KEY (`po_item_po_id`) REFERENCES `purchase_orders` (`po_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `po_receipts`
+--
+
+DROP TABLE IF EXISTS `po_receipts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `po_receipts` (
+  `po_receipt_id` int(11) NOT NULL AUTO_INCREMENT,
+  `po_receipt_po_id` int(11) NOT NULL,
+  `po_receipt_item_id` int(11) NOT NULL,
+  `po_receipt_quantity` decimal(15,2) NOT NULL,
+  `po_receipt_serials` text DEFAULT NULL,
+  `po_receipt_asset_ids` varchar(1000) DEFAULT NULL,
+  `po_receipt_stock_id` int(11) NOT NULL DEFAULT 0,
+  `po_receipt_by` int(11) NOT NULL DEFAULT 0,
+  `po_receipt_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`po_receipt_id`),
+  KEY `po_receipt_item_id` (`po_receipt_item_id`),
+  KEY `po_receipt_po_id` (`po_receipt_po_id`),
+  CONSTRAINT `po_receipts_po` FOREIGN KEY (`po_receipt_po_id`) REFERENCES `purchase_orders` (`po_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `po_tracking`
+--
+
+DROP TABLE IF EXISTS `po_tracking`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `po_tracking` (
+  `po_tracking_id` int(11) NOT NULL AUTO_INCREMENT,
+  `po_tracking_po_id` int(11) NOT NULL,
+  `po_tracking_carrier` varchar(30) NOT NULL DEFAULT '',
+  `po_tracking_number` varchar(100) NOT NULL DEFAULT '',
+  `po_tracking_eta` date DEFAULT NULL,
+  `po_tracking_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`po_tracking_id`),
+  KEY `po_tracking_po_id` (`po_tracking_po_id`),
+  CONSTRAINT `po_tracking_po` FOREIGN KEY (`po_tracking_po_id`) REFERENCES `purchase_orders` (`po_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2520,6 +2621,46 @@ CREATE TABLE `projects` (
   `project_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`project_id`),
   KEY `project_client_id` (`project_client_id`,`project_archived_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `purchase_orders`
+--
+
+DROP TABLE IF EXISTS `purchase_orders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `purchase_orders` (
+  `po_id` int(11) NOT NULL AUTO_INCREMENT,
+  `po_prefix` varchar(200) NOT NULL DEFAULT 'PO-',
+  `po_number` int(11) NOT NULL,
+  `po_status` varchar(20) NOT NULL DEFAULT 'draft',
+  `po_vendor_id` int(11) NOT NULL DEFAULT 0,
+  `po_currency_code` varchar(200) NOT NULL DEFAULT '',
+  `po_ship_to_office_id` int(11) DEFAULT NULL,
+  `po_ship_to` text DEFAULT NULL,
+  `po_note` text DEFAULT NULL,
+  `po_shipping` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `po_total` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `po_vendor_reference` varchar(200) DEFAULT NULL,
+  `po_order_date` date DEFAULT NULL,
+  `po_created_by` int(11) NOT NULL DEFAULT 0,
+  `po_submitted_at` datetime DEFAULT NULL,
+  `po_approved_by` int(11) NOT NULL DEFAULT 0,
+  `po_approved_at` datetime DEFAULT NULL,
+  `po_approval_note` varchar(255) DEFAULT NULL,
+  `po_ordered_by` int(11) NOT NULL DEFAULT 0,
+  `po_ordered_at` datetime DEFAULT NULL,
+  `po_received_at` datetime DEFAULT NULL,
+  `po_cancelled_at` datetime DEFAULT NULL,
+  `po_expense_id` int(11) NOT NULL DEFAULT 0,
+  `po_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `po_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`po_id`),
+  UNIQUE KEY `po_number` (`po_prefix`,`po_number`),
+  KEY `po_status` (`po_status`),
+  KEY `po_vendor_id` (`po_vendor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3383,6 +3524,10 @@ CREATE TABLE `settings` (
   `config_tax_discount_before` tinyint(1) NOT NULL DEFAULT 1,
   `config_recurring_invoice_prefix` varchar(200) DEFAULT NULL,
   `config_recurring_invoice_next_number` int(11) NOT NULL DEFAULT 1,
+  `config_po_prefix` varchar(200) NOT NULL DEFAULT 'PO-',
+  `config_po_next_number` int(11) NOT NULL DEFAULT 1,
+  `config_po_approval` tinyint(1) NOT NULL DEFAULT 0,
+  `config_po_approval_over` decimal(15,2) NOT NULL DEFAULT 0.00,
   `config_quote_prefix` varchar(200) DEFAULT NULL,
   `config_quote_next_number` int(11) DEFAULT NULL,
   `config_quote_footer` text DEFAULT NULL,

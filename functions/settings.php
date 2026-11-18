@@ -51,6 +51,8 @@ function settingsPages() {
             'about' => 'How quotes are numbered, what goes at the foot of them, and who hears when one is answered.'],
         'invoice' => ['group' => 'work', 'title' => 'Invoices and billing', 'icon' => 'fa-file-invoice', 'url' => 'settings_invoice.php', 'module' => 'accounting',
             'about' => 'Invoice numbering, late fees, reminders and statements, and how time, expenses and trips are billed.'],
+        'purchase_order' => ['group' => 'work', 'title' => 'Purchase orders', 'icon' => 'fa-file-signature', 'url' => 'settings_purchase_order.php', 'module' => 'accounting',
+            'about' => 'How purchase orders are numbered, and whether one needs approving before it is ordered.'],
         'mail' => ['group' => 'email', 'title' => 'Mail', 'icon' => 'fa-envelope', 'url' => 'settings_mail.php',
             'about' => 'The mailboxes ITFlow sends from and reads tickets from, the names emails come from, and tests.'],
         'notification' => ['group' => 'email', 'title' => 'Notifications', 'icon' => 'fa-bell', 'url' => 'settings_notification.php',
@@ -187,6 +189,10 @@ function settingsFields() {
         'config_ticket_moving_columns' => ['page' => 'ticket', 'section' => 'The tickets page', 'label' => 'Rearrange the board\'s columns', 'words' => 'kanban columns move'] + $on_off,
 
         // Projects
+        'config_po_prefix' => ['page' => 'purchase_order', 'section' => 'Numbering', 'label' => 'Purchase order prefix', 'words' => 'po number prefix purchasing'],
+        'config_po_next_number' => ['page' => 'purchase_order', 'section' => 'Numbering', 'label' => 'Next purchase order number', 'words' => 'po number counter purchasing'],
+        'config_po_approval' => ['page' => 'purchase_order', 'section' => 'Approval', 'label' => 'Purchase orders need approval', 'words' => 'po approve approver sign off purchasing'] + $on_off,
+        'config_po_approval_over' => ['page' => 'purchase_order', 'section' => 'Approval', 'label' => 'Approve purchase orders over', 'words' => 'po approval amount threshold limit purchasing'],
         'config_project_prefix' => ['page' => 'project', 'section' => 'Numbering', 'label' => 'Project prefix', 'words' => 'project number prj prefix'],
         'config_project_next_number' => ['page' => 'project', 'section' => 'Numbering', 'label' => 'Next project number', 'words' => 'project number counter'],
         'config_project_tickets_apart' => ['page' => 'project', 'section' => 'Project tickets', 'label' => 'Keep project tickets apart', 'kind' => 'switch', 'words' => 'project tickets sla service desk queue separate apart'],
@@ -832,6 +838,7 @@ function settingsNumbering($kind) {
         'project' => ['prefix' => 'config_project_prefix', 'number' => 'config_project_next_number', 'table' => 'projects', 'column' => 'project', 'what' => 'project'],
         'quote' => ['prefix' => 'config_quote_prefix', 'number' => 'config_quote_next_number', 'table' => 'quotes', 'column' => 'quote', 'what' => 'quote'],
         'invoice' => ['prefix' => 'config_invoice_prefix', 'number' => 'config_invoice_next_number', 'table' => 'invoices', 'column' => 'invoice', 'what' => 'invoice'],
+        'purchase_order' => ['prefix' => 'config_po_prefix', 'number' => 'config_po_next_number', 'table' => 'purchase_orders', 'column' => 'po', 'what' => 'purchase order'],
         'recurring_invoice' => ['prefix' => 'config_recurring_invoice_prefix', 'number' => 'config_recurring_invoice_next_number', 'table' => 'recurring_invoices', 'column' => 'recurring_invoice', 'what' => 'recurring invoice'],
     ];
     return $numbering[$kind];

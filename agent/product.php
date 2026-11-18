@@ -128,6 +128,12 @@ if (!$product) {
                 </div>
             </div>
 
+            <?php if (poLevel() >= 2 && $type === 'product' && !$archived_at) { ?>
+                <!-- Onto Purchasing's To Order (functions/purchase_orders.php) -->
+                <button type="button" class="btn btn-outline-primary ajax-modal d-print-none" data-modal-url="modals/purchasing/order_item.php?product_id=<?= $product_id ?>" title="Put it on To Order">
+                    <i class="fas fa-cart-plus me-2"></i><?= $needs_reorder ? 'Order More' : 'Order' ?>
+                </button>
+            <?php } ?>
             <?php if ($can_edit) { ?>
                 <div class="d-flex flex-wrap gap-2 d-print-none">
                     <?php if ($tracked && !$archived_at) { ?>

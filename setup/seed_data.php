@@ -94,6 +94,7 @@ function seedDefaultData($mysqli)
     mysqli_query($mysqli, "INSERT INTO modules SET module_name = 'module_financial', module_description = 'Access to payments, accounts, expenses and budgets'");
     mysqli_query($mysqli, "INSERT INTO modules SET module_name = 'module_reporting', module_description = 'Access to all reports'");
     mysqli_query($mysqli, "INSERT INTO modules SET module_name = 'module_ai', module_description = 'Using AI - rewording, summaries and drafts'");
+    mysqli_query($mysqli, "INSERT INTO modules SET module_name = 'module_procurement', module_description = 'Access to purchasing - items to order, purchase orders and receiving'");
 
     // Add default roles
     mysqli_query($mysqli, "INSERT INTO user_roles SET role_id = 1, role_name = 'Accountant', role_description = 'Built-in - Limited access to financial-focused modules'");
