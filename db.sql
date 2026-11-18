@@ -1926,6 +1926,72 @@ CREATE TABLE `invoices` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `kb_article_tags`
+--
+
+DROP TABLE IF EXISTS `kb_article_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `kb_article_tags` (
+  `kb_article_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`kb_article_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `kb_article_tags_ibfk_1` FOREIGN KEY (`kb_article_id`) REFERENCES `kb_articles` (`kb_article_id`) ON DELETE CASCADE,
+  CONSTRAINT `kb_article_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `kb_article_versions`
+--
+
+DROP TABLE IF EXISTS `kb_article_versions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `kb_article_versions` (
+  `kb_article_version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `kb_article_version_title` varchar(200) NOT NULL,
+  `kb_article_version_summary` varchar(255) DEFAULT NULL,
+  `kb_article_version_content` longtext NOT NULL,
+  `kb_article_version_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `kb_article_version_created_by` int(11) NOT NULL DEFAULT 0,
+  `kb_article_version_kb_article_id` int(11) NOT NULL,
+  PRIMARY KEY (`kb_article_version_id`),
+  KEY `kb_article_version_kb_article_id` (`kb_article_version_kb_article_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `kb_articles`
+--
+
+DROP TABLE IF EXISTS `kb_articles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `kb_articles` (
+  `kb_article_id` int(11) NOT NULL AUTO_INCREMENT,
+  `kb_article_title` varchar(200) NOT NULL,
+  `kb_article_summary` varchar(255) DEFAULT NULL,
+  `kb_article_content` longtext NOT NULL,
+  `kb_article_content_raw` longtext NOT NULL,
+  `kb_article_category_id` int(11) NOT NULL DEFAULT 0,
+  `kb_article_published_at` datetime DEFAULT NULL,
+  `kb_article_review_months` int(11) NOT NULL DEFAULT 0,
+  `kb_article_reviewed_at` datetime DEFAULT NULL,
+  `kb_article_reviewed_by` int(11) NOT NULL DEFAULT 0,
+  `kb_article_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `kb_article_created_by` int(11) NOT NULL DEFAULT 0,
+  `kb_article_updated_at` datetime DEFAULT NULL,
+  `kb_article_updated_by` int(11) NOT NULL DEFAULT 0,
+  `kb_article_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`kb_article_id`),
+  KEY `kb_article_category_id` (`kb_article_category_id`),
+  FULLTEXT KEY `kb_article_content_raw` (`kb_article_content_raw`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `location_documents`
 --
 
@@ -3602,6 +3668,7 @@ CREATE TABLE `settings` (
   `config_module_enable_dispatch` tinyint(1) NOT NULL DEFAULT 1,
   `config_module_enable_trips` tinyint(1) NOT NULL DEFAULT 1,
   `config_module_enable_calendar` tinyint(1) NOT NULL DEFAULT 1,
+  `config_module_enable_kb` tinyint(1) NOT NULL DEFAULT 1,
   `config_theme` varchar(200) DEFAULT 'blue',
   `config_telemetry` tinyint(1) DEFAULT 0,
   `config_timezone` varchar(200) NOT NULL DEFAULT 'America/New_York',

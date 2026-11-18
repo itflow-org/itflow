@@ -64,7 +64,7 @@ function settingsPages() {
         'identity' => ['group' => 'access', 'title' => 'Single sign-on', 'icon' => 'fa-fingerprint', 'url' => 'identity_providers.php', 'module' => 'portal',
             'about' => 'Contacts signing in to the client portal with their Microsoft 365 account.'],
         'module' => ['group' => 'system', 'title' => 'Modules', 'icon' => 'fa-cube', 'url' => 'settings_module.php',
-            'about' => 'The parts of ITFlow in use - IT documentation, ticketing, invoicing, the calendar and the client portal, and the parts that come with them - and white-labelling.'],
+            'about' => 'The parts of ITFlow in use - IT documentation, ticketing, invoicing, the calendar, the Knowledge Base and the client portal, and the parts that come with them - and white-labelling.'],
         'logs' => ['group' => 'system', 'title' => 'Logs', 'icon' => 'fa-scroll', 'url' => 'settings_logs.php',
             'about' => 'How long the audit log and app logs are kept, and sending them on to a syslog server or SIEM.'],
         'telemetry' => ['group' => 'system', 'title' => 'Telemetry', 'icon' => 'fa-satellite-dish', 'url' => 'settings_telemetry.php',
@@ -79,8 +79,8 @@ function settingsPageAvailable(array $page) {
 
 /*
  * Whether a part of ITFlow is in use (Admin > Settings > Modules) - itdoc,
- * ticketing, accounting, portal, and purchasing, bookkeeping, dispatch, trips
- * and calendar. Purchasing, bookkeeping and trips come with invoicing and
+ * ticketing, accounting, portal, and purchasing, bookkeeping, dispatch, trips,
+ * calendar and kb (the Knowledge Base). Purchasing, bookkeeping and trips come with invoicing and
  * dispatch with ticketing, so each is off while that is. Before the database
  * update that adds a switch, what it switches is on, as it was.
  */
@@ -106,7 +106,7 @@ function moduleOn($module) {
  * that comes with another, when that one is off.
  */
 function moduleOffText($module) {
-    $names = ['dispatch' => 'Dispatch is', 'bookkeeping' => 'Bookkeeping is', 'trips' => 'Trips are', 'calendar' => 'The calendar is', 'purchasing' => 'Purchasing is'];
+    $names = ['dispatch' => 'Dispatch is', 'bookkeeping' => 'Bookkeeping is', 'trips' => 'Trips are', 'calendar' => 'The calendar is', 'purchasing' => 'Purchasing is', 'kb' => 'The Knowledge Base is'];
     $comes_with = ['dispatch' => 'ticketing', 'bookkeeping' => 'accounting', 'trips' => 'accounting', 'purchasing' => 'accounting'];
     $parent = $comes_with[$module] ?? '';
     if ($parent && !moduleOn($parent)) {
@@ -422,6 +422,7 @@ function settingsFields() {
         'config_module_enable_purchasing' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Purchasing', 'words' => 'module purchasing purchase orders procurement receiving'] + $on_off,
         'config_module_enable_trips' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Trips', 'words' => 'module trips mileage driving'] + $on_off,
         'config_module_enable_calendar' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Calendar', 'words' => 'module calendar events feed'] + $on_off,
+        'config_module_enable_kb' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Knowledge Base', 'words' => 'module knowledge base kb articles how-to help'] + $on_off,
         'config_client_portal_enable' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Client portal', 'words' => 'module portal clients'] + $on_off,
         'config_whitelabel_key' => ['page' => 'module', 'section' => 'White-label', 'label' => 'White-label key', 'kind' => 'secret', 'words' => 'whitelabel white label powered by banner'],
         'config_whitelabel_enabled' => ['page' => 'module', 'section' => 'White-label', 'label' => 'White-label', 'search' => false] + $on_off,

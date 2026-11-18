@@ -129,6 +129,14 @@ function categoryKinds() {
                 $use('contact_notes', 'contact_note_type', 'contact note', 'contact notes', null, 'contact_note_archived_at', 'contact_note_updated_at'),
             ],
         ],
+        'kb' => [
+            'label' => 'Knowledge Base', 'one' => 'Knowledge Base category', 'many' => 'Knowledge Base categories', 'icon' => 'fa-book',
+            'about' => 'How Knowledge Base articles are grouped - each has one, the Knowledge Base filters by them, and an article\'s icon is its category\'s.',
+            'by' => 'id', 'ordered' => true, 'max' => 200, 'modules' => ['module_support'],
+            'uses' => [
+                $use('kb_articles', 'kb_article_category_id', 'article', 'articles', '/agent/kb.php?category={id}', 'kb_article_archived_at'),
+            ],
+        ],
         'asset_note_type' => [
             'label' => 'Asset Note Type', 'one' => 'asset note type', 'many' => 'asset note types', 'icon' => 'fa-desktop',
             'about' => 'What a note on an asset records - maintenance, a repair, an upgrade. Its icon marks the note.',

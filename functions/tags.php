@@ -2,7 +2,7 @@
 
 /*
  * Tags on clients, locations, contacts, credentials, assets, vendors, domains,
- * licenses, services, networks, documents and tickets.
+ * licenses, services, networks, documents, tickets and Knowledge Base articles.
  *
  * Every list and detail page draws a record's tags with tagPills(): coloured
  * pills that open the list filtered to that tag, then a "+" pill that opens
@@ -108,6 +108,14 @@ function tagEntity($entity) {
             'link_table' => 'ticket_tags', 'link_record' => 'ticket_id', 'link_tag' => 'tag_id',
             'table' => 'tickets', 'id' => 'ticket_id', 'client' => 'ticket_client_id', 'name' => "CONCAT(ticket_prefix, ticket_number, ' ', ticket_subject)",
             'log' => 'Ticket', 'list' => 'tickets.php'
+        ],
+        // Knowledge Base articles are no client's - 'client' is null
+        'kb_article' => [
+            'title' => 'Article', 'plural' => 'Knowledge Base articles', 'icon' => 'fa-book',
+            'type' => 13, 'label' => 'article', 'module' => 'module_support',
+            'link_table' => 'kb_article_tags', 'link_record' => 'kb_article_id', 'link_tag' => 'tag_id',
+            'table' => 'kb_articles', 'id' => 'kb_article_id', 'client' => null, 'name' => 'kb_article_title',
+            'log' => 'Knowledge Base', 'list' => 'kb.php'
         ],
     ];
 
@@ -374,7 +382,7 @@ function tagFilterOptionsHtml($entity, array $selected, $records_where = '1') {
     $selected = array_values(array_filter(array_map('intval', $selected)));
     $chosen_sql = $selected ? 'OR tag_id IN (' . implode(',', $selected) . ')' : '';
     // The record's client is there too, for a list that leaves out archived clients
-    $client_join = $config['table'] === 'clients' ? '' : "LEFT JOIN clients ON clients.client_id = {$config['table']}.{$config['client']}";
+    $client_join = $config['table'] === 'clients' || empty($config['client']) ? '' : "LEFT JOIN clients ON clients.client_id = {$config['table']}.{$config['client']}";
     $sql = mysqli_query($mysqli, "SELECT tag_id, tag_name, tag_description, tag_color, tag_icon, tag_archived_at FROM tags
         WHERE tag_type = {$config['type']} AND ((tag_archived_at IS NULL AND EXISTS (
             SELECT 1 FROM {$config['link_table']} JOIN {$config['table']} ON {$config['table']}.{$config['id']} = {$config['link_table']}.{$config['link_record']} $client_join
@@ -408,7 +416,7 @@ function tagRecordsEditable($entity, array $record_ids) {
 
     $records = [];
     $sql = mysqli_query($mysqli,
-        "SELECT {$config['id']} AS record_id, {$config['client']} AS client_id, {$config['name']} AS record_name
+        "SELECT {$config['id']} AS record_id, " . ($config['client'] ?: '0') . " AS client_id, {$config['name']} AS record_name
         FROM {$config['table']} WHERE {$config['id']} IN (" . implode(',', $record_ids) . ")"
     );
     while ($row = mysqli_fetch_assoc($sql)) {
@@ -416,7 +424,7 @@ function tagRecordsEditable($entity, array $record_ids) {
             if (!$can_ours) {
                 return false;
             }
-        } elseif (!$can_module || !hasClientAccess(intval($row['client_id']))) {
+        } elseif (!$can_module || ($config['client'] && !hasClientAccess(intval($row['client_id'])))) {
             return false;
         }
         $records[intval($row['record_id'])] = ['name' => $row['record_name'], 'client_id' => intval($row['client_id'])];
@@ -489,7 +497,7 @@ function tagPill(array $tag) {
 /* The seven kinds by tag type - type => the entity's key in tagEntity(). */
 function tagKinds() {
     return [1 => 'client', 2 => 'location', 3 => 'contact', 4 => 'credential', 5 => 'asset', 6 => 'vendor', 7 => 'domain',
-        8 => 'license', 9 => 'service', 10 => 'network', 11 => 'document', 12 => 'ticket'];
+        8 => 'license', 9 => 'service', 10 => 'network', 11 => 'document', 12 => 'ticket', 13 => 'kb_article'];
 }
 
 /* "an asset tag", "a client tag" - for messages. */

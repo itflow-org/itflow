@@ -134,6 +134,9 @@ $page_title = $row['document_name'];
                             <?php if ($config_client_portal_enable) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_edit_visibility.php?document_id=<?= $document_id ?>"><i class="fas fa-fw fa-eye<?= $document_visible ? '-slash' : '' ?> me-2"></i><?= $document_visible ? 'Hide from' : 'Show in' ?> client portal</a>
                             <?php } ?>
+                            <?php if (kbCan(2)) { ?>
+                                <a class="dropdown-item" href="post.php?copy_document_to_kb=<?= $document_id ?>&csrf_token=<?= $csrf ?>" title="A draft article from it, for every client"><i class="fas fa-fw fa-book me-2"></i>Copy to Knowledge Base</a>
+                            <?php } ?>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-danger confirm-link" href="post.php?archive_document=<?= $document_id ?>&csrf_token=<?= $csrf ?>" data-confirm-text="Archiving unlinks it from everything it is linked to."><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
                         <?php } else { ?>

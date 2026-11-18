@@ -20,6 +20,10 @@ if (isset($_POST['edit_module_settings'])) {
         // Database 3.9.4's five
         array_push($modules, 'config_module_enable_dispatch', 'config_module_enable_bookkeeping', 'config_module_enable_purchasing', 'config_module_enable_trips', 'config_module_enable_calendar');
     }
+    if (isset($config_module_enable_kb)) {
+        // Database 3.9.5's Knowledge Base
+        $modules[] = 'config_module_enable_kb';
+    }
     $before = settingsCurrent(array_merge($modules, ['config_whitelabel_enabled', 'config_whitelabel_key']));
 
     $after = [];

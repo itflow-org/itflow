@@ -149,6 +149,10 @@ if (version_compare((string) ($row['config_current_database_version'] ?? '0'), '
         $$module_column = intval($module_on);
     }
 }
+// The Knowledge Base - from database 3.9.5
+if (version_compare((string) ($row['config_current_database_version'] ?? '0'), '3.9.5', '>=')) {
+    $config_module_enable_kb = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_module_enable_kb FROM settings WHERE company_id = 1"))[0] ?? 1);
+}
 $config_client_portal_require_mfa = intval($row['config_client_portal_require_mfa']);
 
 // The client record that represents this MSP's own company, or 0 for none

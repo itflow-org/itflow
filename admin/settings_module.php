@@ -29,11 +29,15 @@ $modules = [
     'config_module_enable_purchasing' => [$config_module_enable_purchasing ?? 0, 'fa-truck-loading', 'To Order, purchase orders to your vendors, and receiving into stock or client assets.', 'config_module_enable_accounting'],
     'config_module_enable_trips' => [$config_module_enable_trips ?? 1, 'fa-route', 'Trips and mileage - logged, billed to clients and claimed back.', 'config_module_enable_accounting'],
     'config_module_enable_calendar' => [$config_module_enable_calendar ?? 1, 'fa-calendar-alt', 'The calendar, its events and the calendar feeds. Tickets are still booked, and show on Dispatch.', ''],
+    'config_module_enable_kb' => [$config_module_enable_kb ?? 1, 'fa-book', 'Knowledge Base articles - how-tos and fixes written once, for every client, with their categories, versions and reviews.', ''],
     'config_client_portal_enable' => [$config_client_portal_enable, 'fa-user-shield', 'Where your clients\' contacts sign in to raise tickets, see their invoices and pay.', ''],
 ];
-// Before database 3.9.4 adds them, only the first four are there to switch
+// Before database 3.9.4 adds them, only the first four are there to switch - and the Knowledge Base comes with 3.9.5
 if (!isset($config_module_enable_calendar)) {
     $modules = array_intersect_key($modules, array_flip(['config_module_enable_itdoc', 'config_module_enable_ticketing', 'config_module_enable_accounting', 'config_client_portal_enable']));
+}
+if (!isset($config_module_enable_kb)) {
+    unset($modules['config_module_enable_kb']);
 }
 
 echo settingsPageStart('module');

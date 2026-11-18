@@ -81,6 +81,14 @@
                         </a>
                     </li>
                 <?php } ?>
+                <?php if (kbCan(1)) { ?>
+                    <li class="nav-item">
+                        <a href="/agent/kb.php" class="nav-link <?php if (in_array(basename($_SERVER["PHP_SELF"]), ["kb.php", "kb_article.php"], true)) { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-book"></i>
+                            <p>Knowledge Base</p>
+                        </a>
+                    </li>
+                <?php } ?>
 
                 <?php if (lookupUserPermission("module_support") >= 1) { ?>
                     <?php if ($config_module_enable_ticketing == 1) { ?>

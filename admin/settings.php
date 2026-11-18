@@ -33,6 +33,7 @@ $modules_on = array_keys(array_filter([
     'Purchasing' => isset($config_module_enable_purchasing) && moduleOn('purchasing'),
     'Trips' => isset($config_module_enable_trips) && moduleOn('trips'),
     'Calendar' => isset($config_module_enable_calendar) && moduleOn('calendar'),
+    'Knowledge Base' => isset($config_module_enable_kb) && moduleOn('kb'),
     'Client portal' => moduleOn('portal'),
 ]));
 $where = array_filter([$company['company_city'] ?? '', $company['company_country'] ?? '']);

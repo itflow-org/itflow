@@ -480,6 +480,30 @@ function globalSearchGroups($terms, $deep) {
         },
     ];
 
+    // The Knowledge Base - no client's, so in no client's scope
+    $kb_deep_match = $deep ? "OR MATCH(kb_article_content_raw) AGAINST ('$eq')" : '';
+    $groups[] = [
+        'key' => 'kb_articles', 'label' => 'Knowledge Base', 'icon' => 'book', 'module' => 'module_support', 'enabled' => kbOn(),
+        'select' => 'kb_article_id, kb_article_title, kb_article_summary, kb_article_content, kb_article_published_at, category_name, category_icon, category_color',
+        'from' => 'kb_articles LEFT JOIN categories ON category_id = kb_article_category_id AND kb_article_category_id > 0',
+        'where' => "kb_article_archived_at IS NULL
+            AND (kb_article_title LIKE '%$like%' OR kb_article_summary LIKE '%$like%' $kb_deep_match
+                " . tagSearchSql('kb_article', $like, 'kb_articles.kb_article_id') . ")",
+        'scope' => null,
+        'tags' => ['kb_article', 'kb_articles.kb_article_id'],
+        'order' => "(kb_article_title LIKE '$like%') DESC, kb_article_published_at IS NULL, COALESCE(kb_article_updated_at, kb_article_created_at) DESC",
+        'list_url' => '/agent/kb.php?' . http_build_query(['q' => $q]),
+        'item' => function ($row) {
+            return [
+                'title' => $row['kb_article_title'],
+                'subtitle' => implode(' · ', array_filter([$row['kb_article_published_at'] ? '' : 'Draft', kbArticleExcerpt($row, 120)])),
+                'context' => $row['category_name'] ?? '',
+                'url' => '/agent/kb_article.php?kb_article_id=' . intval($row['kb_article_id']),
+                'tile' => ['tone' => 'document', 'icon' => categoryIcon($row['category_icon'] ?? '') ?: 'book', 'label' => 'Article'],
+            ];
+        },
+    ];
+
     $groups[] = [
         'key' => 'files', 'label' => 'Files', 'icon' => 'paperclip', 'module' => 'module_support',
         'select' => 'file_id, file_name, file_ext, file_description, file_client_id, file_folder_id, client_name, folder_name',
@@ -891,6 +915,7 @@ function globalSearchPages($raw_query) {
         ['Services', '/agent/services.php', $support],
         ['Vendors', '/agent/vendors.php', true],
         ['Calendar', '/agent/calendar.php', moduleOn('calendar')],
+        ['Knowledge Base', '/agent/kb.php', kbCan(1)],
         ['Tickets', '/agent/tickets.php', $support && $ticketing],
         ['Recurring Tickets', '/agent/recurring_tickets.php', $support && $ticketing],
         ['Projects', '/agent/projects.php', $support && $ticketing],

@@ -9,8 +9,8 @@
  * Parameters (POST, JSON):
  *   api_key      required - Your API key, of an admin user
  *   kind         required - client, location, contact, credential, asset, vendor,
- *                           domain, license, service, network, document or ticket
- *                           (or its tag type, 1 to 12)
+ *                           domain, license, service, network, document, ticket or kb_article
+ *                           (or its tag type, 1 to 13)
  *   name         required - Unique within its kind, in any case
  *   description  optional
  *   color        optional - #rrggbb, else the next colour along
