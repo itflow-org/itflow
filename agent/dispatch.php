@@ -155,6 +155,8 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
             </div>
             <div class="modal-body">
                 <div class="border rounded p-2 mb-3 small" data-dispatch-schedule-ticket></div>
+                <!-- The contact's other open tickets - a duplicate can be merged before it is booked -->
+                <div class="border rounded p-2 mb-3 small overflow-auto" style="max-height: 18rem;" data-dispatch-schedule-others hidden></div>
                 <div class="mb-3">
                     <label>Agent</label>
                     <div class="input-group">

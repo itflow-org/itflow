@@ -184,9 +184,96 @@
             scheduleForm.elements.start.value = ymd(start) + 'T' + hm(start);
             scheduleForm.elements.onsite.value = ticket.onsite ? '1' : '0';
             scheduleError.hidden = true;
+            loadOthers(ticket);
             bootstrap.Modal.getOrCreateInstance(scheduleModalEl).show();
         });
     }
+
+    // The contact's other open tickets under the ticket, each with a way to merge it with this one
+    const othersEl = scheduleModalEl.querySelector('[data-dispatch-schedule-others]');
+    function loadOthers(ticket) {
+        othersEl.hidden = true;
+        othersEl.innerHTML = '';
+        request('GET', {dispatch_contact_tickets: ticket.id}).then(function (json) {
+            if (!scheduling || scheduling.ticket.id !== ticket.id || !json.tickets || !json.tickets.length) {
+                return;
+            }
+            const n = json.tickets.length;
+            othersEl.innerHTML = '<div class="fw-semibold"><i class="fas fa-fw fa-layer-group me-1"></i>' + n + ' other open ticket' + (n === 1 ? '' : 's') + ' for ' + esc(json.contact) + '</div>'
+                + '<div class="text-body-secondary mb-1">The same problem? Merge them - one is kept, the other is closed with a note pointing to it.</div>'
+                + json.tickets.map(function (o) {
+                    return '<div class="border-top py-1" data-other="' + o.id + '"><div class="d-flex align-items-center gap-2">'
+                        + '<div class="flex-grow-1 min-w-0"><a href="' + esc(o.url) + '" target="_blank" class="text-truncate d-block">' + esc(o.reference) + ' ' + esc(o.subject) + '</a>'
+                        + '<div class="text-body-secondary text-truncate">' + esc([o.status, o.agent, o.booked ? 'booked ' + o.booked : ''].filter(Boolean).join(' · ')) + '</div></div>'
+                        + (canEdit ? '<div class="dropdown"><button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">Merge</button><div class="dropdown-menu dropdown-menu-end">'
+                            + '<button type="button" class="dropdown-item" data-merge="keep-this">Keep ' + esc(ticket.reference) + ', close ' + esc(o.reference) + '</button>'
+                            + '<button type="button" class="dropdown-item" data-merge="keep-that">Keep ' + esc(o.reference) + ', close ' + esc(ticket.reference) + '</button></div></div>' : '')
+                        + '</div></div>';
+                }).join('');
+            othersEl.hidden = false;
+        }).catch(function () {
+            // Nothing to show - the window works without it
+        });
+    }
+
+    // Merging: which way was picked, why, and whether the replies go too
+    othersEl.addEventListener('click', function (e) {
+        const pick = e.target.closest('[data-merge]');
+        if (pick && scheduling) {
+            const row = pick.closest('[data-other]');
+            const otherId = Number(row.dataset.other);
+            const otherRef = row.querySelector('a').textContent.split(' ')[0];
+            const keepThis = pick.dataset.merge === 'keep-this';
+            othersEl.querySelectorAll('[data-merge-form]').forEach(function (f) { f.remove(); });
+            const form = document.createElement('div');
+            form.className = 'bg-body-tertiary rounded p-2 mt-1';
+            form.setAttribute('data-merge-form', '');
+            form.dataset.child = String(keepThis ? otherId : scheduling.ticket.id);
+            form.dataset.parent = String(keepThis ? scheduling.ticket.id : otherId);
+            form.innerHTML = '<div class="mb-1">' + esc(keepThis ? otherRef : scheduling.ticket.reference) + ' is closed and merged into ' + esc(keepThis ? scheduling.ticket.reference : otherRef) + '.</div>'
+                + '<input type="text" class="form-control form-control-sm mb-1" maxlength="500" placeholder="Why - noted on both tickets" data-merge-reason>'
+                + '<div class="d-flex align-items-center gap-2"><div class="form-check mb-0"><input class="form-check-input" type="checkbox" id="dispatchMergeReplies" data-merge-replies>'
+                + '<label class="form-check-label" for="dispatchMergeReplies">Move its replies over too</label></div>'
+                + '<button type="button" class="btn btn-sm btn-light ms-auto" data-merge-cancel>Cancel</button>'
+                + '<button type="button" class="btn btn-sm btn-danger" data-merge-go>Merge</button></div>';
+            row.appendChild(form);
+            form.querySelector('[data-merge-reason]').focus();
+            return;
+        }
+        if (e.target.closest('[data-merge-cancel]')) {
+            e.target.closest('[data-merge-form]').remove();
+            return;
+        }
+        const go = e.target.closest('[data-merge-go]');
+        if (go && scheduling) {
+            const form = go.closest('[data-merge-form]');
+            const child = Number(form.dataset.child);
+            go.disabled = true;
+            post({
+                dispatch_merge: 1,
+                child_id: child,
+                parent_id: form.dataset.parent,
+                comment: form.querySelector('[data-merge-reason]').value,
+                move_replies: form.querySelector('[data-merge-replies]').checked ? 1 : 0
+            }).then(function (json) {
+                toast(json.message, 'success');
+                if (child === scheduling.ticket.id) {
+                    // This one is closed now - nothing left to book
+                    bootstrap.Modal.getOrCreateInstance(scheduleModalEl).hide();
+                } else {
+                    form.closest('[data-other]').remove();
+                    if (!othersEl.querySelector('[data-other]')) {
+                        othersEl.hidden = true;
+                    }
+                }
+                loadQueue();
+                refreshBoard();
+            }).catch(function (error) {
+                go.disabled = false;
+                toast(error.message, 'error');
+            });
+        }
+    });
 
     scheduleForm.addEventListener('submit', function (e) {
         e.preventDefault();

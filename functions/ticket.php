@@ -335,6 +335,70 @@ function ticketNewGuestKeys($ticket_id) {
     }
 }
 
+/**
+ * Close a merged ticket into another one - notes on both, its tags onto the
+ * other, replies moved when asked. From the ticket's Merge (agent/post/ticket.php)
+ * and Dispatch's Schedule window (dispatchMerge()). $comment SQL-safe.
+ */
+function ticketMergeInto($child, $parent, $comment, $move_replies = false) {
+    global $mysqli, $session_name, $session_user_id;
+    $ticket_id = intval($child['ticket_id']);
+    $parent_id = intval($parent['ticket_id']);
+    $child_reference = escapeSql(ticketReference($child));
+    $parent_reference = escapeSql(ticketReference($parent));
+    $child_subject = escapeSql($child['ticket_subject']);
+    $child_details = mysqli_real_escape_string($mysqli, (string) $child['ticket_details']);
+    $parent_url = escapeSql(ticketUrl($parent_id, $parent['ticket_client_id']));
+
+    if ($move_replies) {
+        // The replies' attachments go with them - rows and files (uploads/tickets/<ticket id>/) - or
+        // they would be left on a ticket the replies are no longer on
+        $sql_attachments = mysqli_query($mysqli, "SELECT ticket_attachment_id, ticket_attachment_reference_name FROM ticket_attachments
+            INNER JOIN ticket_replies ON ticket_reply_id = ticket_attachment_reply_id AND ticket_reply_ticket_id = $ticket_id
+            WHERE ticket_attachment_ticket_id = $ticket_id");
+        if (mysqli_num_rows($sql_attachments)) {
+            $from_dir = dirname(__DIR__) . "/uploads/tickets/$ticket_id/";
+            $to_dir = dirname(__DIR__) . "/uploads/tickets/$parent_id/";
+            mkdirMissing(dirname(__DIR__) . "/uploads/tickets/");
+            mkdirMissing($to_dir);
+            while ($attachment = mysqli_fetch_assoc($sql_attachments)) {
+                $attachment_id = intval($attachment['ticket_attachment_id']);
+                $from_name = basename((string) $attachment['ticket_attachment_reference_name']);
+                // Never over a file already there - it gets a new name
+                $to_name = file_exists($to_dir . $from_name) ? randomString(32) . '.' . strtolower(pathinfo($from_name, PATHINFO_EXTENSION)) : $from_name;
+                if ($from_name !== '' && is_file($from_dir . $from_name)) {
+                    rename($from_dir . $from_name, $to_dir . $to_name);
+                }
+                $to_name_sql = escapeSql($to_name);
+                mysqli_query($mysqli, "UPDATE ticket_attachments SET ticket_attachment_ticket_id = $parent_id, ticket_attachment_reference_name = '$to_name_sql' WHERE ticket_attachment_id = $attachment_id");
+            }
+        }
+        mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply_ticket_id = $parent_id WHERE ticket_reply_ticket_id = $ticket_id");
+        // The work goes over, and the driving for it with it
+        mysqli_query($mysqli, "UPDATE trips SET trip_ticket_id = $parent_id WHERE trip_ticket_id = $ticket_id");
+    }
+    if (empty($child['ticket_first_response_at'])) {
+        setTicketFirstResponse($ticket_id);
+    }
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $child_reference merged into <a href=\"$parent_url\">$parent_reference</a>. Comment: $comment', ticket_reply_time_worked = '00:00:00', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_status = " . TICKET_STATUS_CLOSED . ", ticket_resolved_at = COALESCE(ticket_resolved_at, NOW()), ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id");
+    syncTicketSlaClock($ticket_id);
+    setTicketResolutionSlaMet($ticket_id);
+
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $child_reference was merged into this ticket with comment: $comment.<br><br><b>$child_subject</b><br>$child_details', ticket_reply_time_worked = '00:00:00', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $parent_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $parent_id");
+
+    // Its tags go with it - not archived ones, which aren't put on more tickets
+    mysqli_query($mysqli, "INSERT IGNORE INTO ticket_tags (ticket_id, tag_id)
+        SELECT $parent_id, ticket_tags.tag_id FROM ticket_tags JOIN tags ON tags.tag_id = ticket_tags.tag_id
+        WHERE ticket_tags.ticket_id = $ticket_id AND tags.tag_archived_at IS NULL");
+
+    logTicketHistory($ticket_id, "$session_name merged this ticket into $parent_reference and closed it");
+    logTicketHistory($parent_id, "$session_name merged $child_reference into this ticket");
+    logAudit("Ticket", "Merge", "$session_name merged ticket $child_reference into $parent_reference", intval($child['ticket_client_id']), $ticket_id);
+    triggerCustomAction('ticket_merge', $ticket_id);
+}
+
 /** The guest ticket page's address, from a page in guest/. */
 function ticketGuestPath(array $row) {
     return 'guest_view_ticket.php?ticket_id=' . intval($row['ticket_id']) . '&url_key=' . rawurlencode((string) $row['ticket_url_key']);

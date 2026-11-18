@@ -2743,11 +2743,14 @@ if (isset($_POST['calendar_move'])) {
  *   POST dispatch_assign=1 ticket_id agent_id               give it to the agent, not booked
  *   POST dispatch_event_move=1 event_id start end all_day from to   a one-off event to another time or agent
  *   POST dispatch_state=1 view hidden weekends              what this agent had on Dispatch
+ *   GET  dispatch_contact_tickets=<ticket id>               its contact's other open tickets, for the Schedule window
+ *   POST dispatch_merge=1 child_id parent_id comment move_replies   merge a duplicate there
  * Times come and go on the viewer's clock (functions/user_timezone.php). Looking takes
  * Support at View; changing anything but your own view takes Modify.
  */
-if (isset($_GET['dispatch_queue']) || isset($_GET['dispatch_items']) || isset($_GET['dispatch_workload']) || isset($_GET['dispatch_week'])
-    || isset($_POST['dispatch_book']) || isset($_POST['dispatch_unbook']) || isset($_POST['dispatch_assign']) || isset($_POST['dispatch_event_move']) || isset($_POST['dispatch_state'])) {
+if (isset($_GET['dispatch_queue']) || isset($_GET['dispatch_items']) || isset($_GET['dispatch_workload']) || isset($_GET['dispatch_week']) || isset($_GET['dispatch_contact_tickets'])
+    || isset($_POST['dispatch_book']) || isset($_POST['dispatch_unbook']) || isset($_POST['dispatch_assign']) || isset($_POST['dispatch_event_move']) || isset($_POST['dispatch_state'])
+    || isset($_POST['dispatch_merge'])) {
 
     header('Content-Type: application/json');
     $fail = function ($message, $code = 400) {
@@ -2783,6 +2786,10 @@ if (isset($_GET['dispatch_queue']) || isset($_GET['dispatch_items']) || isset($_
         echo json_encode(dispatchWeekStats($agent_list($_GET['agents'] ?? ''), intval($_GET['first_day'] ?? 0) === 1 ? 1 : 0));
         exit;
     }
+    if (isset($_GET['dispatch_contact_tickets'])) {
+        echo json_encode(dispatchContactTickets($_GET['dispatch_contact_tickets']));
+        exit;
+    }
 
     validateCSRFToken();
     if (isset($_POST['dispatch_state'])) {
@@ -2811,6 +2818,11 @@ if (isset($_GET['dispatch_queue']) || isset($_GET['dispatch_items']) || isset($_
     }
     if (isset($_POST['dispatch_assign'])) {
         [$ok, $message] = dispatchAssign($_POST['ticket_id'] ?? 0, $_POST['agent_id'] ?? 0);
+        $ok ? print(json_encode(['ok' => true, 'message' => $message])) : $fail($message);
+        exit;
+    }
+    if (isset($_POST['dispatch_merge'])) {
+        [$ok, $message] = dispatchMerge($_POST['child_id'] ?? 0, $_POST['parent_id'] ?? 0, (string) ($_POST['comment'] ?? ''), !empty($_POST['move_replies']));
         $ok ? print(json_encode(['ok' => true, 'message' => $message])) : $fail($message);
         exit;
     }

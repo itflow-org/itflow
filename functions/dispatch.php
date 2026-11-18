@@ -303,6 +303,70 @@ function dispatchUnbook($ticket_id) {
     return [true, ticketReference($row) . ' taken off the schedule - it is back in the queue'];
 }
 
+/*
+ * The contact's other open tickets, for the Schedule window - so a duplicate is
+ * seen, and can be merged, before work is booked on it: ['contact' => name,
+ * 'tickets' => [{id, reference, subject, status, agent, booked, url}]], newest
+ * first. No contact, or a ticket out of reach, has none.
+ */
+function dispatchContactTickets($ticket_id) {
+    global $mysqli;
+    $row = ticketRow($ticket_id);
+    $contact_id = intval($row['ticket_contact_id'] ?? 0);
+    $client_id = intval($row['ticket_client_id'] ?? 0);
+    if (!$row || !$contact_id || ($client_id && !hasClientAccess($client_id))) {
+        return ['contact' => '', 'tickets' => []];
+    }
+    $sql = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_client_id, ticket_schedule, ticket_status_name, user_name
+        FROM tickets
+        LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
+        LEFT JOIN users ON user_id = ticket_assigned_to
+        WHERE ticket_contact_id = $contact_id AND ticket_client_id = $client_id AND tickets.ticket_id <> " . intval($row['ticket_id']) . "
+            AND " . TICKET_OPEN_SQL . " AND ticket_archived_at IS NULL
+        ORDER BY ticket_created_at DESC LIMIT 15");
+    $tickets = [];
+    while ($other = mysqli_fetch_assoc($sql)) {
+        $tickets[] = [
+            'id' => intval($other['ticket_id']),
+            'reference' => ticketReference($other),
+            'subject' => (string) $other['ticket_subject'],
+            'status' => (string) $other['ticket_status_name'],
+            'agent' => (string) ($other['user_name'] ?? ''),
+            'booked' => $other['ticket_schedule'] ? date('D M j', strtotime(timezoneToView($other['ticket_schedule']))) : '',
+            'url' => ticketUrl($other['ticket_id'], $other['ticket_client_id']),
+        ];
+    }
+    return ['contact' => (string) ($row['contact_name'] ?? ''), 'tickets' => $tickets];
+}
+
+/*
+ * Merge one ticket into another from the Schedule window - ticketMergeInto(),
+ * with the checks of the ticket's own Merge: both open and reachable, the same
+ * client. A booking on the one closed is taken off first, so its agent and the
+ * client are sent the cancellation. $comment as typed. [ok, message].
+ */
+function dispatchMerge($child_id, $parent_id, $comment, $move_replies) {
+    $child = ticketRow($child_id);
+    $parent = ticketRow($parent_id);
+    foreach ([$child, $parent] as $row) {
+        if (!$row || !empty($row['ticket_closed_at']) || (intval($row['ticket_client_id']) && !hasClientAccess($row['ticket_client_id']))) {
+            return [false, 'Both tickets have to be open, and ones you can reach.'];
+        }
+    }
+    if (intval($child['ticket_id']) === intval($parent['ticket_id'])) {
+        return [false, "A ticket can't be merged into itself."];
+    }
+    if (intval($child['ticket_client_id']) !== intval($parent['ticket_client_id'])) {
+        return [false, 'A ticket merges into one of the same client\'s.'];
+    }
+    if (!empty($child['ticket_schedule'])) {
+        ticketCancelSchedule($child);
+        $child = ticketRow($child['ticket_id']);
+    }
+    ticketMergeInto($child, $parent, escapeSql(mb_substr(trim((string) $comment), 0, 500)), (bool) $move_replies);
+    return [true, ticketReference($child) . ' merged into ' . ticketReference($parent) . ' and closed'];
+}
+
 /** Give a ticket to another agent without booking it - Workload. A booked one is moved on the board instead. [ok, message]. */
 function dispatchAssign($ticket_id, $agent_id) {
     $row = ticketRow($ticket_id);
