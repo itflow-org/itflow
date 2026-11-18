@@ -2,7 +2,8 @@
 
 /*
  * Admin > Settings > Notifications - the alerts ITFlow raises for your team,
- * and the emails it sends clients by itself: about their tickets, and the
+ * the emails and notices it sends agents about their tickets, and the emails
+ * it sends clients by itself: about their tickets, and the
  * invoices recurring invoices make - and the texts, to those who agreed
  * (functions/sms.php). Payment reminders and statements are set
  * with their schedule in Invoices and billing - shown here, not set. Saved by
@@ -24,6 +25,14 @@ echo settingsPageStart('notification');
             <?= settingsSectionStart('alerts', 'Alerts for your team', 'In the bell at the top of the page, for everyone who can see the client - raised by the nightly job.') ?>
                 <?= settingsSwitch('config_enable_alert_domain_expire', $config_enable_alert_domain_expire, ['help' => '45, 7 and 1 days before a domain expires - saying when one is set to auto-renew, to check it goes through.']) ?>
             <?= settingsSectionEnd() ?>
+
+            <?php if ($config_module_enable_ticketing && version_compare(CURRENT_DATABASE_VERSION, '3.9.1', '>=')) { ?>
+                <?= settingsSectionStart('team', 'Emails and notices to your team', 'What ITFlow tells your agents about their tickets by itself. The new-ticket address is set in <a href="settings_ticket.php">Tickets</a>.') ?>
+                    <?= settingsSwitch('config_notify_assigned_app', ticketTeamNotifyOn('assigned_app') ? 1 : 0, ['help' => 'In the bell, for the agent a ticket or recurring ticket is assigned to - when someone else assigns it.']) ?>
+                    <?= settingsSwitch('config_notify_assigned_email', ticketTeamNotifyOn('assigned_email') ? 1 : 0, ['help' => 'The email to that agent, with the ticket - or a list of them, when several are assigned at once.']) ?>
+                    <?= settingsSwitch('config_notify_helper_replies', ticketTeamNotifyOn('helper_replies') ? 1 : 0, ['help' => 'The agent a ticket is assigned to is always emailed the client\'s replies. This is the copy to the other agents helping on it.']) ?>
+                <?= settingsSectionEnd() ?>
+            <?php } ?>
 
             <?= settingsSectionStart('clients', 'Emails to clients', 'What ITFlow emails your clients by itself. What an agent sends - a reply, an invoice, a quote - goes whatever is set here.') ?>
                 <?php if (empty($config_smtp_provider)) { ?>

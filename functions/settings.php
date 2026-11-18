@@ -54,7 +54,7 @@ function settingsPages() {
         'mail' => ['group' => 'email', 'title' => 'Mail', 'icon' => 'fa-envelope', 'url' => 'settings_mail.php',
             'about' => 'The mailboxes ITFlow sends from and reads tickets from, the names emails come from, and tests.'],
         'notification' => ['group' => 'email', 'title' => 'Notifications', 'icon' => 'fa-bell', 'url' => 'settings_notification.php',
-            'about' => 'Which alerts ITFlow raises, and which emails and texts clients get.'],
+            'about' => 'Which alerts ITFlow raises, what it tells your agents about their tickets, and which emails and texts clients get.'],
         'security' => ['group' => 'access', 'title' => 'Security', 'icon' => 'fa-shield-alt', 'url' => 'settings_security.php',
             'about' => 'The sign-in page, two-step sign-in, failed sign-ins, API keys and shared links.'],
         'client_portal' => ['group' => 'access', 'title' => 'Client portal', 'icon' => 'fa-user-shield', 'url' => 'settings_client_portal.php', 'module' => 'portal',
@@ -272,6 +272,9 @@ function settingsFields() {
 
         // Notifications
         'config_enable_alert_domain_expire' => ['page' => 'notification', 'section' => 'Alerts for your team', 'label' => 'Domains about to expire', 'words' => 'domain expiry expiration alert'] + $on_off,
+        'config_notify_assigned_app' => ['page' => 'notification', 'section' => 'Emails and notices to your team', 'label' => 'Ticket assigned - in the bell', 'words' => 'assigned notification bell agent tech notice'] + $on_off,
+        'config_notify_assigned_email' => ['page' => 'notification', 'section' => 'Emails and notices to your team', 'label' => 'Ticket assigned - by email', 'words' => 'assigned email agent tech notification'] + $on_off,
+        'config_notify_helper_replies' => ['page' => 'notification', 'section' => 'Emails and notices to your team', 'label' => 'Client replies to agents helping', 'words' => 'helper additional agents client reply copy email'] + $on_off,
         'config_recurring_auto_send_invoice' => ['page' => 'notification', 'section' => 'Emails to clients', 'label' => 'Email the invoices recurring invoices make', 'words' => 'recurring invoice auto send email'] + $on_off,
         'config_ticket_client_general_notifications' => ['page' => 'notification', 'section' => 'Emails to clients', 'label' => 'Email clients about their tickets', 'words' => 'ticket notification client email opened closed'] + $on_off,
         'config_sms_client_tickets' => ['page' => 'notification', 'section' => 'Texts to clients', 'label' => 'Text them about their tickets', 'kind' => 'select',

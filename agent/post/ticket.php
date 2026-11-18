@@ -222,7 +222,9 @@ if (isset($_POST['add_ticket'])) {
 
     if ($assigned_to) {
         $row = ticketRow($ticket_id);
-        ticketNotifyAgent($assigned_to, $row, "Ticket " . ticketReference($row) . " - Subject: " . $row['ticket_subject'] . " has been assigned to you by $session_name");
+        if (ticketTeamNotifyOn('assigned_app')) {
+            ticketNotifyAgent($assigned_to, $row, "Ticket " . ticketReference($row) . " - Subject: " . $row['ticket_subject'] . " has been assigned to you by $session_name");
+        }
         ticketMailAssigned($assigned_to, [$ticket_id], stripslashes($session_name));
     }
 
@@ -400,7 +402,9 @@ if (isset($_POST['edit_ticket'])) {
     if (intval($row['ticket_assigned_to']) !== $assigned_to) {
         if ($assigned_to) {
             logTicketHistory($ticket_id, "$session_name assigned the ticket to " . escapeSql(getFieldById('users', $assigned_to, 'user_name')));
-            ticketNotifyAgent($assigned_to, $row, "Ticket " . ticketReference($row) . " - Subject: " . $subject_input . " has been assigned to you by $session_name");
+            if (ticketTeamNotifyOn('assigned_app')) {
+                ticketNotifyAgent($assigned_to, $row, "Ticket " . ticketReference($row) . " - Subject: " . $subject_input . " has been assigned to you by $session_name");
+            }
             ticketMailAssigned($assigned_to, [$ticket_id], stripslashes($session_name));
         } else {
             logTicketHistory($ticket_id, "$session_name unassigned the ticket");
@@ -765,7 +769,8 @@ if (isset($_POST['bulk_assign_ticket'])) {
 
     // One notification and one email for the lot
     if ($count && $assign_to && $assign_to != $session_user_id) {
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '$count ticket" . ($count === 1 ? ' has' : 's have') . " been assigned to you by $session_name', notification_action = '/agent/tickets.php?assigned=$assign_to', notification_user_id = $assign_to");
+        // In the bell unless switched off (Admin > Settings > Notifications)
+        ticketTeamNotifyOn('assigned_app') && mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '$count ticket" . ($count === 1 ? ' has' : 's have') . " been assigned to you by $session_name', notification_action = '/agent/tickets.php?assigned=$assign_to', notification_user_id = $assign_to");
 
         ticketMailAssigned($assign_to, $assigned_ids, stripslashes($session_name));
     }

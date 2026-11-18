@@ -1002,7 +1002,7 @@ function ticketTemplatePortalRaise(array $template, $client_id, $contact_id, $us
     // The agent it goes to hears about it
     if ($assigned_to) {
         $row = ticketRow($ticket_id);
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '" . escapeSql("Ticket " . ticketReference($row) . " - " . $row['ticket_subject'] . " has been assigned to you from the client portal") . "',
+        ticketTeamNotifyOn('assigned_app') && mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '" . escapeSql("Ticket " . ticketReference($row) . " - " . $row['ticket_subject'] . " has been assigned to you from the client portal") . "',
             notification_action = '" . escapeSql('/agent/' . ticketUrl($ticket_id, $client_id)) . "', notification_client_id = $client_id, notification_user_id = $assigned_to");
         ticketMailAssigned($assigned_to, [$ticket_id], $contact_name);
     }

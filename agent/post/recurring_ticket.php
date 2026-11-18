@@ -109,7 +109,7 @@ function recurringTicketNotifyAgent($user_id, array $subjects) {
     }
     $count = count($subjects);
     $what = $count === 1 ? 'Recurring ticket ' . escapeSql($subjects[0]) . ' has' : "$count recurring tickets have";
-    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Ticket', notification = '$what been assigned to you by " . escapeSql($session_name) . "', notification_action = 'recurring_tickets.php?assigned_agent=$user_id', notification_user_id = $user_id");
+    ticketTeamNotifyOn('assigned_app') && mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Ticket', notification = '$what been assigned to you by " . escapeSql($session_name) . "', notification_action = 'recurring_tickets.php?assigned_agent=$user_id', notification_user_id = $user_id");
 
     recurringTicketMailAssigned($user_id, $subjects, stripslashes($session_name));
 }

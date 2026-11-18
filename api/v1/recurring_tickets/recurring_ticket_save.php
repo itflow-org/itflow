@@ -32,7 +32,7 @@ if ($rt_fill_ins !== null) {
 // Its agent hears, not the key's own
 if ($rt_notify_agent && $rt_notify_agent !== intval($session_user_id)) {
     $by = html_entity_decode($api_key_name, ENT_QUOTES, 'UTF-8');
-    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Ticket', notification = '" . escapeSql("Recurring ticket $rt_subject has been assigned to you by the API ($by)") . "',
+    ticketTeamNotifyOn('assigned_app') && mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Ticket', notification = '" . escapeSql("Recurring ticket $rt_subject has been assigned to you by the API ($by)") . "',
         notification_action = 'recurring_tickets.php?assigned_agent=$rt_notify_agent', notification_user_id = $rt_notify_agent");
     recurringTicketMailAssigned($rt_notify_agent, [$rt_subject], "The API ($by)");
 }

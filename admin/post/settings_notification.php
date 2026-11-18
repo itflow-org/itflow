@@ -2,8 +2,8 @@
 
 /*
  * Admin > Settings > Notifications (admin/settings_notification.php):
- * edit_notification_settings saves the domain alert, and the emails and texts
- * clients get by themselves. Reminders aren't set here (they moved to Invoices and
+ * edit_notification_settings saves the domain alert, what agents are told about
+ * their tickets, and the emails and texts clients get by themselves. Reminders aren't set here (they moved to Invoices and
  * billing with their schedule), nor cron (Maintenance > Cron). A switch for a
  * module that is off isn't on the page, so is kept as it is.
  */
@@ -15,11 +15,16 @@ if (isset($_POST['edit_notification_settings'])) {
     validateCSRFToken();
 
     $sms_columns = smsColumnExists('settings', 'config_sms_client_tickets') ? ['config_sms_client_tickets', 'config_sms_client_visits', 'config_sms_visit_reminder_hours', 'config_sms_client_invoices'] : [];
-    $before = settingsCurrent(array_merge(['config_enable_alert_domain_expire', 'config_ticket_client_general_notifications', 'config_recurring_auto_send_invoice'], $sms_columns));
+    // What agents are told about their tickets - from database 3.9.1 (ticketTeamNotifyOn())
+    $team_columns = $config_module_enable_ticketing && version_compare(CURRENT_DATABASE_VERSION, '3.9.1', '>=') ? ['config_notify_assigned_app', 'config_notify_assigned_email', 'config_notify_helper_replies'] : [];
+    $before = settingsCurrent(array_merge(['config_enable_alert_domain_expire', 'config_ticket_client_general_notifications', 'config_recurring_auto_send_invoice'], $team_columns, $sms_columns));
 
     $after = ['config_enable_alert_domain_expire' => empty($_POST['config_enable_alert_domain_expire']) ? 0 : 1];
     if ($config_module_enable_ticketing) {
         $after['config_ticket_client_general_notifications'] = empty($_POST['config_ticket_client_general_notifications']) ? 0 : 1;
+    }
+    foreach ($team_columns as $column) {
+        $after[$column] = empty($_POST[$column]) ? 0 : 1;
     }
     if ($config_module_enable_accounting) {
         $after['config_recurring_auto_send_invoice'] = empty($_POST['config_recurring_auto_send_invoice']) ? 0 : 1;

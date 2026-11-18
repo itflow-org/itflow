@@ -344,7 +344,8 @@ function ticketHelperLeadInvite($ticket_id) {
  */
 function ticketHelpersMailReplied(array $row, array $lead, $how, $reply, $by) {
     global $config_app_name;
-    if (!ticketHelpersReady()) {
+    // Switched off in Admin > Settings > Notifications - the email preview still shows it
+    if (!ticketHelpersReady() || (!ticketTeamNotifyOn('helper_replies') && !emailCapturing())) {
         return 0;
     }
     $agents = ticketMentionAgents($row['ticket_client_id']);

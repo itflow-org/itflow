@@ -160,7 +160,7 @@ if (!empty($subject) && $client_exists) {
             ticketMailNewTicketAddress($insert_id, 'api');
             if ($assigned_to) {
                 $new_row = ticketRow($insert_id);
-                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '" . escapeSql("Ticket " . ticketReference($new_row) . " - " . $new_row['ticket_subject'] . " has been assigned to you by the API ($api_key_name)") . "',
+                ticketTeamNotifyOn('assigned_app') && mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '" . escapeSql("Ticket " . ticketReference($new_row) . " - " . $new_row['ticket_subject'] . " has been assigned to you by the API ($api_key_name)") . "',
                     notification_action = '" . escapeSql('/agent/' . ticketUrl($insert_id, $client_id)) . "', notification_client_id = $client_id, notification_user_id = " . intval($assigned_to));
                 ticketMailAssigned($assigned_to, [$insert_id], html_entity_decode($api_key_name, ENT_QUOTES, 'UTF-8'));
             }

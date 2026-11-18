@@ -1021,12 +1021,37 @@ function ticketMailAssigneeReplied($ticket_id, $how, $reply, $by) {
         + ticketHelpersMailReplied($row, $agent, $how, $reply, $by);
 }
 
+/**
+ * Is this email or notice to your team switched on (Admin > Settings >
+ * Notifications, Emails to your team - database 3.9.1)? $key assigned_app
+ * (the bell notice to the agent a ticket or recurring ticket is assigned to),
+ * assigned_email (the email to them) or helper_replies (the copy of a
+ * client's reply to the agents helping on a ticket). On before the update.
+ */
+function ticketTeamNotifyOn($key) {
+    global $mysqli;
+    static $settings = null;
+    if ($settings === null) {
+        $settings = [];
+        $version = defined('CURRENT_DATABASE_VERSION') ? CURRENT_DATABASE_VERSION
+            : (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1"))[0] ?? '0');
+        if (version_compare($version, '3.9.1', '>=')) {
+            $settings = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_notify_assigned_app, config_notify_assigned_email, config_notify_helper_replies FROM settings WHERE company_id = 1")) ?: [];
+        }
+    }
+    return intval($settings["config_notify_$key"] ?? 1) === 1;
+}
+
 /*
  * Tell an agent tickets are theirs now - one email for any number. Not when
  * they assigned them themselves. $ticket_ids, $by raw. How many went.
  */
 function ticketMailAssigned($user_id, array $ticket_ids, $by) {
     global $session_user_id, $config_app_name, $config_base_url;
+    // Switched off in Admin > Settings > Notifications - the email preview still shows it
+    if (!ticketTeamNotifyOn('assigned_email') && !emailCapturing()) {
+        return 0;
+    }
     $agent = intval($user_id) !== intval($session_user_id ?? 0) ? ticketMailAgent($user_id) : null;
     $rows = array_values(array_filter(array_map('ticketRow', array_unique(array_map('intval', $ticket_ids)))));
     if (!$agent || !$rows) {

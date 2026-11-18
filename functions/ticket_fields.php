@@ -130,7 +130,7 @@ function ticketChangeAssignee($ticket_id, $assigned_to) {
     if ($session_user_id != $assigned_to && $assigned_to != 0) {
 
         // App Notification
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject has been assigned to you by $session_name', notification_action = '/agent/ticket.php?ticket_id=$ticket_id$client_uri', notification_client_id = $client_id, notification_user_id = $assigned_to");
+        ticketTeamNotifyOn('assigned_app') && mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject has been assigned to you by $session_name', notification_action = '/agent/ticket.php?ticket_id=$ticket_id$client_uri', notification_client_id = $client_id, notification_user_id = $assigned_to");
 
         // Email Notification
         ticketMailAssigned($assigned_to, [$ticket_id], stripslashes($session_name));
@@ -378,7 +378,7 @@ function recurringTicketChangeAssignee($recurring_ticket_id, $assigned_to) {
     logAudit("Recurring Ticket", "Edit", "$session_name reassigned recurring ticket $subject to $agent_name", $client_id, $recurring_ticket_id);
 
     if ($assigned_to && $assigned_to != $session_user_id) {
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Ticket', notification = 'Recurring ticket $subject has been assigned to you by $session_name', notification_action = 'recurring_tickets.php?assigned=$assigned_to', notification_client_id = $client_id, notification_user_id = $assigned_to");
+        ticketTeamNotifyOn('assigned_app') && mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Ticket', notification = 'Recurring ticket $subject has been assigned to you by $session_name', notification_action = 'recurring_tickets.php?assigned=$assigned_to', notification_client_id = $client_id, notification_user_id = $assigned_to");
 
         recurringTicketMailAssigned($assigned_to, [(string) $row['recurring_ticket_subject']], stripslashes($session_name));
     }
