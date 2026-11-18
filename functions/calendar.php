@@ -1768,7 +1768,7 @@ function calendarUserStateSave($user_id, $page, array $state) {
     }
     $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT user_config_calendar_state FROM user_settings WHERE user_id = $user_id"));
     $saved = json_decode((string) ($row[0] ?? ''), true);
-    $saved = is_array($saved) ? array_intersect_key($saved, ['all' => 1, 'client' => 1]) : [];
+    $saved = is_array($saved) ? array_intersect_key($saved, ['all' => 1, 'client' => 1, 'dispatch' => 1]) : [];
     $saved[$page === 'client' ? 'client' : 'all'] = calendarCleanState($state);
     $json = mysqli_real_escape_string($mysqli, json_encode($saved));
     return (bool) mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_config_calendar_state = '$json' ON DUPLICATE KEY UPDATE user_config_calendar_state = '$json'");

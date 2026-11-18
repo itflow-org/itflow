@@ -5713,6 +5713,186 @@ img.itflow-contact-avatar {
     gap: 1rem;
 }
 
+/* --- Dispatch (agent/dispatch.php, agent/js/dispatch.js) ------------------- */
+.itflow-dispatch-cal {
+    --fc-classic-background: var(--bs-body-bg);
+    --fc-classic-foreground: var(--bs-body-color);
+    --fc-classic-muted-foreground: var(--bs-secondary-color);
+    --fc-classic-border: var(--bs-border-color);
+    --fc-classic-strong-border: var(--bs-border-color);
+    --fc-classic-primary: var(--itflow-accent, #007bff);
+    --fc-classic-event: var(--itflow-accent, #007bff);
+}
+.itflow-dispatch-dot {
+    display: inline-block;
+    width: .6rem;
+    height: .6rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+    vertical-align: baseline;
+}
+.itflow-dispatch-agents {
+    min-width: 14rem;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+/* The queue - tickets to give out, dragged onto the board */
+.itflow-dispatch-queue {
+    min-height: 8rem;
+    max-height: 26rem;
+    overflow-y: auto;
+    transition: background-color .15s;
+}
+@media (min-width: 992px) {
+    .itflow-dispatch-queue {
+        max-height: max(22rem, calc(100vh - 27rem));
+    }
+}
+.itflow-dispatch-queue.is-drop-target {
+    background: color-mix(in srgb, var(--bs-danger) 8%, transparent);
+    outline: 2px dashed var(--bs-danger);
+    outline-offset: -4px;
+}
+.itflow-dispatch-item {
+    padding: .35rem .5rem;
+    margin-bottom: .25rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background: var(--bs-body-bg);
+    cursor: pointer;
+    user-select: none;
+}
+.itflow-dispatch-item.is-movable {
+    cursor: grab;
+}
+.itflow-dispatch-item:hover {
+    background: var(--bs-tertiary-bg);
+}
+/* Day - a column per agent, in one scroller: down the day together, and sideways when more than fit */
+.itflow-dispatch-cols {
+    display: flex;
+    overflow: auto;
+    max-height: max(30rem, calc(100vh - 17rem));
+}
+.itflow-dispatch-col {
+    flex: 1 0 13rem;
+    min-width: 13rem;
+    border-left: 1px solid var(--bs-border-color);
+}
+.itflow-dispatch-col:first-child {
+    flex-basis: 16rem;
+    min-width: 16rem;
+    border-left: 0;
+}
+.itflow-dispatch-col-head {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    padding: .4rem .5rem;
+    border-bottom: 1px solid var(--bs-border-color);
+    background: var(--bs-tertiary-bg);
+}
+/* Week - a row per agent, a column per day */
+.itflow-dispatch-week {
+    table-layout: fixed;
+    min-width: 46rem;
+}
+.itflow-dispatch-week thead th {
+    background: var(--bs-tertiary-bg);
+}
+.itflow-dispatch-week-agent {
+    width: 11rem;
+    vertical-align: top;
+}
+.itflow-dispatch-cell {
+    vertical-align: top;
+    padding: 0 !important;
+}
+.itflow-dispatch-cell-list {
+    height: 6.5rem;
+    padding: .25rem;
+    overflow-y: auto;
+}
+.itflow-dispatch-cell.is-off {
+    background: var(--bs-tertiary-bg);
+}
+.itflow-dispatch-chip {
+    margin-bottom: .2rem;
+    padding: .1rem .35rem;
+    border-radius: .25rem;
+    color: #fff;
+    font-size: .75rem;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.itflow-dispatch-chip.is-movable {
+    cursor: grab;
+}
+.itflow-dispatch-chip[data-kind="helper"] {
+    background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .18) 0 4px, transparent 4px 8px);
+}
+.itflow-dispatch-chip[data-kind="holiday"] {
+    opacity: .8;
+}
+/* Workload - drop a ticket on an agent to give it to them */
+.itflow-dispatch-workload-row {
+    cursor: pointer;
+}
+.itflow-dispatch-drop {
+    min-width: 11rem;
+    padding: .15rem .25rem;
+    border-radius: var(--bs-border-radius);
+}
+.itflow-dispatch-drop > .itflow-dispatch-item {
+    display: none;
+}
+[data-dispatch-board].is-dragging .itflow-dispatch-drop {
+    outline: 2px dashed var(--bs-border-color);
+}
+[data-dispatch-board].is-dragging .itflow-dispatch-drop:hover {
+    outline-color: var(--itflow-accent, #007bff);
+    background: color-mix(in srgb, var(--itflow-accent, #007bff) 10%, transparent);
+}
+.itflow-dispatch-bar {
+    height: .4rem;
+}
+/* This week */
+.itflow-dispatch-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    gap: .75rem;
+}
+.itflow-dispatch-tile {
+    padding: .6rem .75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+}
+.itflow-dispatch-tile-label {
+    font-size: .75rem;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+.itflow-dispatch-tile-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+.itflow-dispatch-tile-sub {
+    font-size: .75rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-dispatch-chart {
+    position: relative;
+    height: 15rem;
+}
+
 /* ---------- Networks and asset interfaces ---------- */
 
 /* A tile small enough for a line of text - networkLink(), interfaceAssetRef() (a vendor's has its own, .itflow-vendor-tile-xs) */

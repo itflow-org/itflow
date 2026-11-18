@@ -2717,6 +2717,96 @@ if (isset($_POST['calendar_move'])) {
 }
 
 /*
+ * Dispatch (functions/dispatch.php, agent/js/dispatch.js) - JSON:
+ *   GET  ?dispatch_queue=unassigned|unbooked|left_behind [&client_id &priority &q]  the queue and each tab's count
+ *   GET  ?dispatch_items=1&from=Y-m-d&to=Y-m-d&agents=1,2   the board's bookings, events and holidays
+ *   GET  ?dispatch_workload=1&agents=1,2&first_day=0|1      each agent's open tickets, SLAs and booked hours
+ *   GET  ?dispatch_week=1&agents=1,2&first_day=0|1          this week's tickets in and closed, SLAs, each agent's share
+ *   POST dispatch_book=1 ticket_id agent_id start minutes onsite tell_client   give it to the agent and book it
+ *   POST dispatch_unbook=1 ticket_id                        take its booking off
+ *   POST dispatch_assign=1 ticket_id agent_id               give it to the agent, not booked
+ *   POST dispatch_event_move=1 event_id start end all_day from to   a one-off event to another time or agent
+ *   POST dispatch_state=1 view hidden weekends              what this agent had on Dispatch
+ * Times come and go on the viewer's clock (functions/user_timezone.php). Looking takes
+ * Support at View; changing anything but your own view takes Modify.
+ */
+if (isset($_GET['dispatch_queue']) || isset($_GET['dispatch_items']) || isset($_GET['dispatch_workload']) || isset($_GET['dispatch_week'])
+    || isset($_POST['dispatch_book']) || isset($_POST['dispatch_unbook']) || isset($_POST['dispatch_assign']) || isset($_POST['dispatch_event_move']) || isset($_POST['dispatch_state'])) {
+
+    header('Content-Type: application/json');
+    $fail = function ($message, $code = 400) {
+        http_response_code($code);
+        echo json_encode(['error' => $message]);
+        exit;
+    };
+    if (!dispatchCan()) {
+        $fail('Dispatch takes Support in your role.', 403);
+    }
+    $agent_list = function ($value) {
+        return array_filter(array_map('intval', explode(',', (string) $value)));
+    };
+
+    if (isset($_GET['dispatch_queue'])) {
+        echo json_encode(dispatchQueue((string) $_GET['dispatch_queue'], $_GET));
+        exit;
+    }
+    if (isset($_GET['dispatch_items'])) {
+        $from = calendarIsDate($_GET['from'] ?? '') ? $_GET['from'] : date('Y-m-d');
+        $to = calendarIsDate($_GET['to'] ?? '') ? $_GET['to'] : $from;
+        if ($to < $from || strtotime($to) - strtotime($from) > 86400 * 42) {
+            $to = $from;
+        }
+        echo json_encode(dispatchItems($from, $to, $agent_list($_GET['agents'] ?? '')));
+        exit;
+    }
+    if (isset($_GET['dispatch_workload'])) {
+        echo json_encode(dispatchWorkload($agent_list($_GET['agents'] ?? ''), intval($_GET['first_day'] ?? 0) === 1 ? 1 : 0));
+        exit;
+    }
+    if (isset($_GET['dispatch_week'])) {
+        echo json_encode(dispatchWeekStats($agent_list($_GET['agents'] ?? ''), intval($_GET['first_day'] ?? 0) === 1 ? 1 : 0));
+        exit;
+    }
+
+    validateCSRFToken();
+    if (isset($_POST['dispatch_state'])) {
+        echo json_encode(['ok' => dispatchStateSave($_POST)]);
+        exit;
+    }
+    if (!dispatchCanEdit()) {
+        $fail('Booking and moving tickets takes Support at Modify in your role - you can look, not change.', 403);
+    }
+    // Picked on the viewer's own clock - as the company's clock reads it
+    $_POST = timezoneMovePost($_POST);
+
+    if (isset($_POST['dispatch_book'])) {
+        [$ok, $message, $conflicts] = dispatchBook($_POST['ticket_id'] ?? 0, $_POST['agent_id'] ?? 0, (string) ($_POST['start'] ?? ''),
+            $_POST['minutes'] ?? CALENDAR_TICKET_MINUTES, !empty($_POST['onsite']), !empty($_POST['tell_client']));
+        if (!$ok) {
+            $fail($message);
+        }
+        echo json_encode(['ok' => true, 'message' => $message, 'conflicts' => $conflicts]);
+        exit;
+    }
+    if (isset($_POST['dispatch_unbook'])) {
+        [$ok, $message] = dispatchUnbook($_POST['ticket_id'] ?? 0);
+        $ok ? print(json_encode(['ok' => true, 'message' => $message])) : $fail($message);
+        exit;
+    }
+    if (isset($_POST['dispatch_assign'])) {
+        [$ok, $message] = dispatchAssign($_POST['ticket_id'] ?? 0, $_POST['agent_id'] ?? 0);
+        $ok ? print(json_encode(['ok' => true, 'message' => $message])) : $fail($message);
+        exit;
+    }
+    if (isset($_POST['dispatch_event_move'])) {
+        [$ok, $message] = dispatchEventMove($_POST['event_id'] ?? 0, (string) ($_POST['start'] ?? ''), (string) ($_POST['end'] ?? ''),
+            !empty($_POST['all_day']), $_POST['from'] ?? 0, $_POST['to'] ?? 0);
+        $ok ? print(json_encode(['ok' => true, 'message' => $message])) : $fail($message);
+        exit;
+    }
+}
+
+/*
  * The calendar's To schedule list: an agent's open tickets with no work booked
  * (most urgent first), to drag onto the calendar - in one client, or all.
  * user_id 0 is everyone's: the open tickets assigned to anyone.

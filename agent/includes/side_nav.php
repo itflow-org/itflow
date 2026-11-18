@@ -101,6 +101,12 @@
                                 </p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="/agent/dispatch.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "dispatch.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-people-arrows"></i>
+                                <p>Dispatch</p>
+                            </a>
+                        </li>
                         <?php if (smsProvider()) { ?>
                             <li class="nav-item">
                                 <a href="/agent/texts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "texts.php") { echo "active"; } ?>">

@@ -2248,9 +2248,10 @@ function ticketScheduleValue($input) {
  * cancellation: to the agent doing the work, and when client notifications
  * are on (Admin > Ticket) to the contact and the watchers. $row has the
  * ticket's id and, for a booking, location_address. With the booking's $start
- * and $end, the agent's email has the time on their own clock.
+ * and $end, the agent's email has the time on their own clock. $tell_client
+ * false leaves the contact and watchers out of it (Dispatch).
  */
-function ticketMailSchedule($row, $cal_str, $cancelled, $when_text, $start = null, $end = null) {
+function ticketMailSchedule($row, $cal_str, $cancelled, $when_text, $start = null, $end = null, $tell_client = true) {
     global $config_ticket_client_general_notifications;
     $ticket = ticketRow($row['ticket_id']);
     if (!$ticket || !emailReady()) {
@@ -2263,7 +2264,7 @@ function ticketMailSchedule($row, $cal_str, $cancelled, $when_text, $start = nul
         emailQueue([$agent + ['footnote' => "You get this as the agent $reference is assigned to."]], $subject,
             ticketAgentEmailContent($ticket, 'scheduled', ['when' => $start ? timezoneWhenFor($start, $end, $ticket['ticket_assigned_to']) : $when_text] + $opts), ['from' => ticketEmailFrom(), 'cal_str' => $cal_str]);
     }
-    if (intval($config_ticket_client_general_notifications) === 1) {
+    if ($tell_client && intval($config_ticket_client_general_notifications) === 1) {
         ticketMailSend($ticket['ticket_id'], $subject, ticketEmailContent($ticket, 'scheduled', $opts), ['cal_str' => $cal_str]);
     }
 }
@@ -2455,11 +2456,12 @@ function ticketScheduleIcs(array $row, $schedule, $end = null) {
  * Book the work on a ticket for $schedule ('Y-m-d H:i:s') to $end (the usual
  * length when none), onsite or remote: the agent, the contact and the watchers
  * are emailed with the calendar file, and it is noted on the ticket. Helpers
- * who follow the lead are sent the new time. Returns ['when_text' => ...,
- * 'conflicts' => the same agent's - and those helpers' - other work at that
- * time, as plain text (ticketScheduleConflicts())].
+ * who follow the lead are sent the new time. $tell_client false leaves the
+ * contact and watchers out of it. Returns ['when_text' => ..., 'conflicts' =>
+ * the same agent's - and those helpers' - other work at that time, as plain
+ * text (ticketScheduleConflicts())].
  */
-function ticketSetSchedule(array $row, $schedule, $onsite, $end = null) {
+function ticketSetSchedule(array $row, $schedule, $onsite, $end = null, $tell_client = true) {
     global $mysqli, $session_user_id, $session_name;
     $ticket_id = intval($row['ticket_id']);
     $client_id = intval($row['ticket_client_id']);
@@ -2476,7 +2478,7 @@ function ticketSetSchedule(array $row, $schedule, $onsite, $end = null) {
     $mail_row = ticketScheduleRow($ticket_id);
     $cal_str = ticketScheduleIcs($mail_row, $schedule, $end);
     $when_text = ticketScheduleWhenText($schedule, $end);
-    ticketMailSchedule($mail_row, $cal_str, false, $when_text, $schedule, $end);
+    ticketMailSchedule($mail_row, $cal_str, false, $when_text, $schedule, $end, $tell_client);
 
     // The agents helping at the same time move with it, and are sent the new time (functions/ticket_helpers.php)
     $conflicts = array_merge($conflicts, ticketHelpersLeadMoved($ticket_id));
