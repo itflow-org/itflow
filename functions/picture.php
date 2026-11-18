@@ -23,8 +23,9 @@
  *   'max'     the longest side kept, in pixels (512 for a person, 2048)
  *   'class'   the classes of the <img> a new picture shows as - for a person
  *             the avatar's ('itflow-picture-photo' for a photo)
- *   'box'     a photo's box - 'square', 'wide' (4:3), 'tall' (3:4, a receipt)
- *             or 'logo' (wide, the picture fitted in it)
+ *   'box'     a photo's box - 'square', 'wide' (4:3), 'tall' (3:4, a receipt),
+ *             'logo' (wide, the picture fitted in it) or 'product' (square,
+ *             the picture fitted in it on white)
  *   'name'    the form field with the person's name - their initials follow it
  *   'accept'  the file types it takes (JPG, PNG, GIF and WebP) - with
  *             application/pdf a PDF is taken as it is

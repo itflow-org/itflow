@@ -402,35 +402,30 @@ function quoteImageThumbHtml($relative, $size = 56) {
 }
 
 /*
- * The picture field in a form - what it is now, upload one, or paste a link to
- * pull one from, and remove it. $name is the column (item_image, product_image).
+ * The picture field in a form, as every picture in ITFlow is picked: the
+ * picture on a button that opens the Picture window (pictureField(),
+ * js/picture_field.js) - drop, paste or choose one, crop it to the product,
+ * trim the empty edges, or remove it - and beside it a link to pull one from.
+ * $name is the column (item_image, product_image); the window posts it as the
+ * file and <name>_remove, the link as <name>_url (quoteImageSave()).
  */
 function quoteImageField($name, $current, $help = '') {
     $url = quoteImageUrl((string) $current);
+    $empty = picturePhotoEmpty('Add a picture', 'fa-image');
+    $shows = $url !== '' ? '<img class="itflow-picture-logo" src="' . escapeHtml($url) . '" alt="">' : $empty;
     ob_start(); ?>
-    <div class="col-12" data-image-field>
+    <div class="col-12" data-quote-image-field>
         <label class="form-label">Picture</label>
         <div class="d-flex gap-3 align-items-start">
-            <div class="itflow-line-image-box border rounded bg-body-tertiary d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0">
-                <img alt="" src="<?= escapeHtml($url) ?>" data-image-preview<?= $url === '' ? ' hidden' : '' ?>>
-                <i class="fas fa-image fa-2x text-body-secondary" data-image-empty<?= $url !== '' ? ' hidden' : '' ?>></i>
-            </div>
+            <?= pictureField($name, $url !== '' ? $name . '_remove' : '', $shows, $empty, ['title' => 'Picture', 'shapes' => 'free', 'trim' => true,
+                'box' => 'product', 'class' => 'itflow-picture-logo', 'max' => QUOTE_IMAGE_MAX_SIDE]) ?>
             <div class="flex-grow-1 min-w-0">
-                <div class="input-group mb-2">
-                    <span class="input-group-text"><i class="fa fa-fw fa-upload"></i></span>
-                    <input type="file" class="form-control" name="<?= escapeHtml($name) ?>" accept="image/jpeg,image/png,image/gif,image/webp" data-image-file>
-                </div>
+                <div class="small text-body-secondary mb-2">Click it to add or change it - a JPG, PNG, GIF or WebP, cropped to just the product.</div>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                    <input type="url" class="form-control" name="<?= escapeHtml($name) ?>_url" maxlength="2000" placeholder="Or paste a link - a picture, or the product's web page" data-image-url>
+                    <input type="url" class="form-control" name="<?= escapeHtml($name) ?>_url" maxlength="2000" placeholder="Or paste a link - a picture, or the product's web page" data-quote-image-url>
                 </div>
                 <div class="form-text"><?= $help !== '' ? escapeHtml($help) . ' ' : '' ?>From a web page it takes the page's main picture. ITFlow keeps its own copy.</div>
-                <?php if ($url !== '') { ?>
-                    <div class="form-check mt-1">
-                        <input class="form-check-input" type="checkbox" name="<?= escapeHtml($name) ?>_remove" value="1" id="<?= escapeHtml($name) ?>Remove" data-image-remove>
-                        <label class="form-check-label" for="<?= escapeHtml($name) ?>Remove">Remove the picture</label>
-                    </div>
-                <?php } ?>
             </div>
         </div>
     </div>

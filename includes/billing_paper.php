@@ -254,7 +254,7 @@ $paper_bill_lines = array_filter([
                                 <div class="dropdown dropstart">
                                     <button class="btn btn-sm btn-link text-body-secondary" title="Line actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/billing/billing_item.php?type=<?= $paper_type ?>&doc_id=<?= $paper_id ?>&item_id=<?= $item_id ?>">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/billing/billing_item.php?type=<?= $paper_type ?>&doc_id=<?= $paper_id ?>&item_id=<?= $item_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
                                         <?php if ($paper_type === 'quote') {

@@ -6792,15 +6792,6 @@ a.itflow-report-stat:focus-visible {
     border: 1px solid var(--bs-border-color);
     border-radius: var(--bs-border-radius-sm);
 }
-.itflow-line-image-box {
-    width: 6.5rem;
-    height: 6.5rem;
-}
-.itflow-line-image-box img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-}
 @media print {
     .itflow-line-image {
         border-color: #dee2e6;
@@ -9865,6 +9856,17 @@ a.itflow-portal-request:focus-visible {
 }
 .itflow-picture-field.is-logo {
     max-width: 100%;
+}
+/* A product's picture - on a quote line or a product - fitted whole in a
+   square, on white as the quote shows it */
+.itflow-picture-field.is-product .itflow-picture-preview {
+    width: 7rem;
+    height: 7rem;
+    border: 1px solid var(--bs-border-color);
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-picture-field.is-product .itflow-picture-logo {
+    background-color: #fff;
 }
 /* A logo fitted whole in its box, with room round it */
 .itflow-picture-logo {
