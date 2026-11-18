@@ -1692,7 +1692,7 @@ function rmmClientSuggestions(int $provider_id): array
 {
     global $mysqli;
     $by_key = [];
-    $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL");
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql());
     while ($row = mysqli_fetch_assoc($sql)) {
         $by_key[rmmNameKey($row['client_name'])][] = intval($row['client_id']);
     }

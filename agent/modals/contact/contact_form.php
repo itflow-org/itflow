@@ -25,7 +25,7 @@ if ($client_id) {
     }
 } else {
     $client_options = [];
-    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $client_options[] = $row;
     }

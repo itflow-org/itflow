@@ -20,7 +20,8 @@ $doc_number = billingNumber($doc_type, $doc);
 $lines = count(billingItems('quote', intval($doc['quote_id'])));
 
 $clients = [];
-$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+// Leads are quoted too - marked, after the clients
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation, client_lead FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_lead ASC, client_name ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
     $clients[] = $row;
 }
@@ -45,7 +46,7 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                     <select class="form-select select2" name="client_id" required>
                         <?php foreach ($clients as $client_option) { ?>
-                            <option value="<?= intval($client_option['client_id']) ?>" <?= intval($client_option['client_id']) === $client_id ? 'selected' : '' ?><?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
+                            <option value="<?= intval($client_option['client_id']) ?>" <?= intval($client_option['client_id']) === $client_id ? 'selected' : '' ?><?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?><?= intval($client_option['client_lead']) ? selectOptionData(['description' => 'Lead']) : '' ?>><?= escapeHtml($client_option['client_name']) ?></option>
                         <?php } ?>
                     </select>
                 </div>

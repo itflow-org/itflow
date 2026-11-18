@@ -1194,7 +1194,7 @@ function reportClientControl($client_id, $all_label = 'All clients', $required =
     global $mysqli;
     $client_id = intval($client_id);
     $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
-        WHERE (client_archived_at IS NULL OR client_id = $client_id) " . clientScopeSql('client_id') . "
+        WHERE (client_archived_at IS NULL OR client_id = $client_id)" . clientNotLeadSql($client_id) . clientScopeSql('client_id') . "
         ORDER BY client_name ASC");
     $html = '<div class="col-sm-6 col-lg-3"><select class="form-select select2" name="client_id" data-report-autosubmit aria-label="Client">'
         . '<option value="">' . escapeHtml($required ? '- Pick a client -' : "- $all_label -") . '</option>';
@@ -2083,7 +2083,7 @@ function reportCoverage($client_id = 0) {
     $client_id = intval($client_id);
 
     $clients = [];
-    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . reportClientSql('client_id', $client_id) . " ORDER BY client_name");
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql($client_id) . reportClientSql('client_id', $client_id) . " ORDER BY client_name");
     while ($row = mysqli_fetch_assoc($sql)) {
         $clients[intval($row['client_id'])] = ['client_id' => intval($row['client_id']), 'client' => $row['client_name'], 'abbr' => $row['client_abbreviation'],
             'contacts' => 0, 'primary' => 0, 'billing' => 0, 'locations' => 0, 'primary_loc' => 0, 'assets' => 0, 'placed' => 0, 'devices' => 0, 'owned' => 0,

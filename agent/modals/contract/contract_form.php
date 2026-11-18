@@ -39,7 +39,7 @@ $c_hours = function ($value) {
 // from the contracts page) there are none here - they are fetched when one is picked (js/contract_form.js)
 $c_clients = [];
 $c_contacts = [];
-$client_where = $c_client_id ? "client_id = $c_client_id" : "client_archived_at IS NULL " . clientScopeSql('clients.client_id');
+$client_where = $c_client_id ? "client_id = $c_client_id" : "client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id');
 $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE $client_where ORDER BY client_name ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
     $c_clients[intval($row['client_id'])] = $row;

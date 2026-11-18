@@ -121,7 +121,7 @@ ob_start();
                     <select class="form-select select2" name="client">
                         <option value="">- Any client -</option>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL OR client_id = $client_filter) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL OR client_id = $client_filter)" . clientNotLeadSql($client_filter) . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $option_id = intval($row['client_id']); ?>
                             <option <?= $client_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>

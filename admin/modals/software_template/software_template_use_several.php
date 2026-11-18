@@ -59,7 +59,7 @@ if (!$template || $template['software_template_archived_at']) { ?>
                     <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                     <select class="form-select select2" name="client_ids[]" multiple required data-placeholder="- Pick clients -">
                         <?php
-                        $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                        $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql($picked) . " ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_clients)) {
                             $client_option_id = intval($row['client_id']); ?>
                             <option value="<?= $client_option_id ?>" <?= in_array($client_option_id, $picked, true) ? 'selected' : '' ?><?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?><?= isset($has_one[$client_option_id]) ? ' data-description="Already has one"' : '' ?>><?= escapeHtml($row['client_name']) ?></option>

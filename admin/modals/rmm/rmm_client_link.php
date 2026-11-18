@@ -26,7 +26,7 @@ while ($linked = mysqli_fetch_assoc($sql)) {
     $linked_to[intval($linked['rmm_client_client_id'])][] = $linked['rmm_client_name'];
 }
 
-$clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL OR client_id = $current ORDER BY client_name ASC");
+$clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL OR client_id = $current)" . clientNotLeadSql($current) . " ORDER BY client_name ASC");
 $devices = intval($row['rmm_client_devices']);
 
 ob_start();

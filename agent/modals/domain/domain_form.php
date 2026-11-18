@@ -22,7 +22,7 @@ if ($client_id) {
     $vendor_options = domainVendorChoices($client_id, array_values($domain_vendor_ids));
     $client_name_for_vendors = getFieldById('clients', $client_id, 'client_name');
 } else {
-    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $client_options[] = $row;
     }

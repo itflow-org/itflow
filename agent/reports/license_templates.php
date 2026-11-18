@@ -29,7 +29,7 @@ $made = "software.software_template_id > 0 $clients_sql";
 // The current clients this user may see (the client picked)
 $client_rows = [];
 $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL"
-    . ($client_id ? " AND client_id = $client_id" : '') . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+    . ($client_id ? " AND client_id = $client_id" : clientNotLeadSql()) . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
     $client_rows[intval($row['client_id'])] = $row;
 }

@@ -59,7 +59,7 @@ $a_local = function ($value) {
                 <select class="form-select select2" name="client_id">
                     <option value="0">Every client</option>
                     <?php
-                    $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL OR client_id = $a_client ORDER BY client_name ASC");
+                    $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE (client_archived_at IS NULL OR client_id = $a_client)" . clientNotLeadSql($a_client) . " ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_clients)) { ?>
                         <option value="<?= intval($row['client_id']) ?>"<?= intval($row['client_id']) === $a_client ? ' selected' : '' ?>><?= escapeHtml($row['client_name']) ?></option>
                     <?php } ?>

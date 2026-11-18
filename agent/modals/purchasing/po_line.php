@@ -34,7 +34,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $products[] = $row;
 }
 $clients = [];
-$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL" . ($client_id ? " OR client_id = $client_id" : '') . ")" . clientScopeSql('client_id') . " ORDER BY client_name");
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL" . ($client_id ? " OR client_id = $client_id" : '') . ")" . clientNotLeadSql($client_id) . clientScopeSql('client_id') . " ORDER BY client_name");
 while ($row = mysqli_fetch_assoc($sql)) {
     $clients[] = $row;
 }

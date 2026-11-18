@@ -109,7 +109,7 @@ $csrf = $_SESSION['csrf_token'];
                         <option value="">- For any client -</option>
                         <option value="every" <?= $client_filter === 'every' ? 'selected' : '' ?>>Every client</option>
                         <?php
-                        $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL OR client_id = " . intval($client_filter) . " ORDER BY client_name ASC");
+                        $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE (client_archived_at IS NULL OR client_id = " . intval($client_filter) . ")" . clientNotLeadSql($client_filter) . " ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_clients)) { ?>
                             <option value="<?= intval($row['client_id']) ?>" <?= (string) intval($row['client_id']) === $client_filter ? 'selected' : '' ?>><?= escapeHtml($row['client_name']) ?></option>
                         <?php } ?>

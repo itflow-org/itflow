@@ -39,7 +39,7 @@ $importance_styles = [
             <select class="form-select select2" name="client_id" required>
                 <option value="">- Pick a client -</option>
                 <?php
-                $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                 while ($row = mysqli_fetch_assoc($sql)) { ?>
                     <option value="<?= intval($row['client_id']) ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
                 <?php } ?>

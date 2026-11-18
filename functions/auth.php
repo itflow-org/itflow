@@ -159,6 +159,18 @@ function permissionBackUrl() {
     return '/agent/dashboard.php';
 }
 
+/**
+ * Leaves leads out of a list of clients to pick from. A lead is a prospect - it
+ * has its own tab on Clients and its own pages, but it shouldn't crowd every
+ * client picker and filter. $keep is the client (or clients) already picked -
+ * the record's own, or the lead whose page you're on - which stays in the list.
+ * For a query on the clients table; returns " AND (...)".
+ */
+function clientNotLeadSql($keep = 0) {
+    $keep = array_values(array_filter(array_map('intval', (array) $keep)));
+    return " AND (clients.client_lead = 0" . ($keep ? " OR clients.client_id IN (" . implode(',', $keep) . ")" : '') . ")";
+}
+
 // Client-scope SQL fragment for a list query, built from the signed-in user's allow / deny lists.
 // Admin and unrestricted users get no restriction. This is the list-level counterpart to
 // enforceClientAccess(), which gates a single record.

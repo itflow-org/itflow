@@ -113,18 +113,19 @@ function globalSearchGroups($terms, $deep) {
 
     $groups[] = [
         'key' => 'clients', 'label' => 'Clients', 'icon' => 'users', 'module' => 'module_client',
-        'select' => 'client_id, client_name, client_type, client_abbreviation',
+        'select' => 'client_id, client_name, client_type, client_abbreviation, client_lead',
         'from' => 'clients',
         'where' => "client_archived_at IS NULL
             AND (client_name LIKE '%$like%' OR client_abbreviation LIKE '%$like%' OR client_website LIKE '%$like%' " . tagSearchSql('client', $like, 'clients.client_id') . ")",
         'scope' => 'clients.client_id',
         'tags' => ['client', 'clients.client_id'],
-        'order' => "(client_name = '$eq') DESC, (client_name LIKE '$like%') DESC, client_accessed_at DESC, client_name",
+        // A lead is still found by name, but after the clients and marked
+        'order' => "(client_name = '$eq') DESC, client_lead ASC, (client_name LIKE '$like%') DESC, client_accessed_at DESC, client_name",
         'list_url' => '/agent/clients.php?' . http_build_query(['q' => $q]),
         'item' => function ($row) {
             return [
                 'title' => $row['client_name'],
-                'subtitle' => $row['client_type'],
+                'subtitle' => intval($row['client_lead']) ? trim('Lead - ' . $row['client_type'], ' -') : $row['client_type'],
                 'url' => '/agent/client_overview.php?client_id=' . intval($row['client_id']),
             ];
         },

@@ -26,7 +26,7 @@ $state = dispatchState();
 $can_edit = dispatchCanEdit();
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_config_calendar_first_day FROM user_settings WHERE user_id = $session_user_id"));
 $first_day = intval($row['user_config_calendar_first_day'] ?? 0);
-$clients = mysqli_fetch_all(mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL" . clientScopeSql('client_id') . " ORDER BY client_name"), MYSQLI_ASSOC);
+$clients = mysqli_fetch_all(mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('client_id') . " ORDER BY client_name"), MYSQLI_ASSOC);
 $tell_client = intval($config_ticket_client_general_notifications) === 1;
 
 ?>

@@ -967,7 +967,7 @@ if (isset($_POST['share_create'])) {
  * Returns sorted list of active clients
  */
 /*
- * Every active client this agent can open, most recently opened first - the
+ * Every active client this agent can open, leads aside, most recently opened first - the
  * client switcher in the client side nav (js/client_switcher.js) loads it once
  * and filters it as you type. Names are raw; the script renders them as text.
  */
@@ -979,7 +979,7 @@ if (isset($_GET['get_active_clients'])) {
     $client_sql = mysqli_query(
         $mysqli,
         "SELECT client_id, client_name, client_abbreviation FROM clients
-        WHERE client_archived_at IS NULL
+        WHERE client_archived_at IS NULL" . clientNotLeadSql() . "
         " . clientScopeSql('clients.client_id') . "
         ORDER BY client_accessed_at DESC"
     );

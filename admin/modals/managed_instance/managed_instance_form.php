@@ -114,7 +114,7 @@ if (!managerEnabled()) { ?>
                         <select class="form-select select2" name="client_id">
                             <option value="0">- None - one of your own -</option>
                             <?php
-                            $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL OR client_id = $client_id ORDER BY client_name ASC");
+                            $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL OR client_id = $client_id)" . clientNotLeadSql($client_id) . " ORDER BY client_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_clients)) { ?>
                                 <option value="<?= intval($row['client_id']) ?>" <?= intval($row['client_id']) === $client_id ? 'selected' : '' ?><?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
                             <?php } ?>

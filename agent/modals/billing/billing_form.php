@@ -40,7 +40,10 @@ $form_legacy_terms = !billingAfterHoursReady();
 
 $form_clients = [];
 if (!$form_edit && !$form_client_id) {
-    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation" . ($form_legacy_terms ? ', client_net_terms' : '') . " FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+    // Leads are quoted, so a quote can be for one - marked, after the clients; an invoice or recurring invoice is made from the lead's own page
+    $form_quote = $form_type === 'quote';
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation, client_lead" . ($form_legacy_terms ? ', client_net_terms' : '') . " FROM clients WHERE client_archived_at IS NULL"
+        . ($form_quote ? '' : clientNotLeadSql()) . clientScopeSql('clients.client_id') . " ORDER BY " . ($form_quote ? 'client_lead ASC, ' : '') . "client_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $form_clients[] = $row;
     }
@@ -65,7 +68,7 @@ $form_scope_placeholder = [
                     <?php foreach ($form_clients as $form_client) { ?>
                         <?php $form_option_terms = isset($form_contract_terms[intval($form_client['client_id'])]) ? [$form_contract_terms[intval($form_client['client_id'])][0], contractPossessive($form_contract_terms[intval($form_client['client_id'])][1])]
                             : ($form_legacy_terms && $form_client['client_net_terms'] !== null ? [intval($form_client['client_net_terms']), "the client's"] : [$form_default_terms, 'the default']); ?>
-                        <option value="<?= intval($form_client['client_id']) ?>" data-terms="<?= $form_option_terms[0] ?>" data-terms-from="<?= escapeHtml($form_option_terms[1]) ?>"<?= selectOptionClient($form_client['client_id'], $form_client['client_name'], $form_client['client_abbreviation'] ?? '') ?>><?= escapeHtml($form_client['client_name']) ?></option>
+                        <option value="<?= intval($form_client['client_id']) ?>" data-terms="<?= $form_option_terms[0] ?>" data-terms-from="<?= escapeHtml($form_option_terms[1]) ?>"<?= selectOptionClient($form_client['client_id'], $form_client['client_name'], $form_client['client_abbreviation'] ?? '') ?><?= intval($form_client['client_lead']) ? selectOptionData(['description' => 'Lead']) : '' ?>><?= escapeHtml($form_client['client_name']) ?></option>
                     <?php } ?>
                 </select>
             </div>

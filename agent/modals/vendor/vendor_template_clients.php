@@ -48,7 +48,7 @@ if (!empty($_GET['missing'])) {
 $picked = array_flip($picked);
 
 $clients = [];
-$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql(array_keys($picked)) . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
     $clients[] = $row;
 }
