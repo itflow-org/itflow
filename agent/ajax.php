@@ -12,6 +12,22 @@ require_once "../includes/check_login.php";
 require_once "../libs/totp/totp.php";
 
 /*
+ * The invoices ticked on the invoices list, kept in the session for a bulk
+ * action's window (functions/invoice_actions.php): POST invoice_bulk_set=1,2,3
+ * answers {set} - the key the window is opened with.
+ */
+if (isset($_POST['invoice_bulk_set'])) {
+    validateCSRFToken();
+    header('Content-Type: application/json');
+    if (lookupUserPermission('module_sales') < 2 && !invoiceBulkCan('pay')) {
+        http_response_code(403);
+        exit(json_encode(['error' => 'Bulk actions on invoices take Sales at Modify in your role.']));
+    }
+    echo json_encode(['set' => invoiceBulkRemember(explode(',', (string) $_POST['invoice_bulk_set']))]);
+    exit;
+}
+
+/*
  * The host in a New / Edit Certificate form, checked when asked: connect,
  * take the certificate it serves and say what it is - OK, for another name,
  * untrusted, expired, or nothing answering - with what will be saved, the

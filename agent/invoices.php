@@ -31,6 +31,8 @@ if (isset($_GET['client_id'])) {
 enforceUserPermission('module_sales');
 
 $can_edit = lookupUserPermission('module_sales') >= 2;
+// Ticking invoices for a bulk action - Mark Paid is accounting's too (functions/invoice_actions.php)
+$can_bulk = $can_edit || invoiceBulkCan('pay');
 $can_delete = lookupUserPermission('module_sales') >= 3;
 // Taking payments and sending statements are accounting's too (billingMoneyCan())
 $can_pay = billingMoneyCan('take');
@@ -267,15 +269,33 @@ $stat_money = function ($amount) use ($session_company_currency) {
                 <?php } ?>
                 <div class="<?= $client_url ? 'col-lg-3' : 'col-lg-2' ?> col-md-6">
                     <div class="d-flex justify-content-end gap-2">
-                        <?php if ($can_edit) { ?>
-                            <div class="dropdown" id="bulkActionButton" hidden>
+                        <?php if ($can_bulk) { ?>
+                            <div class="dropdown" id="bulkActionButton" data-csrf="<?= escapeHtml($_SESSION['csrf_token']) ?>" hidden>
                                 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end">
-                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/invoice/invoice_bulk_edit_category.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-tag me-2"></i>Set Category
-                                    </a>
+                                    <?php
+                                    // Mark Sent, Send by Email, Mark Paid, then Cancel and Delete - each window says which of those ticked it leaves alone
+                                    $bulk_items = function ($danger) {
+                                        foreach (invoiceBulkActions() as $bulk_key => [$bulk_label, $bulk_icon]) {
+                                            if (in_array($bulk_key, ['cancel', 'delete'], true) === $danger && invoiceBulkCan($bulk_key)) { ?>
+                                                <a class="dropdown-item<?= $danger ? ' text-danger' : '' ?>" href="#" data-invoice-bulk="<?= $bulk_key ?>">
+                                                    <i class="fas fa-fw <?= $bulk_icon ?> me-2"></i><?= escapeHtml($bulk_label) ?><span class="text-body-secondary">...</span>
+                                                </a>
+                                            <?php }
+                                        }
+                                    };
+                                    $bulk_items(false); ?>
+                                    <?php if ($can_edit) { ?>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/invoice/invoice_bulk_edit_category.php" data-bulk="true">
+                                            <i class="fas fa-fw fa-tag me-2"></i>Set Category
+                                        </a>
+                                    <?php } ?>
+                                    <?php if (invoiceBulkCan('cancel') || invoiceBulkCan('delete')) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <?php $bulk_items(true); ?>
+                                    <?php } ?>
                                 </div>
                             </div>
                         <?php } ?>
@@ -313,7 +333,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
             <table class="table table-hover align-middle mb-0 itflow-billing-table">
                 <thead class="<?= $num_rows[0] ? '' : 'd-none' ?> text-nowrap table-light">
                 <tr>
-                    <?php if ($can_edit) { ?>
+                    <?php if ($can_bulk) { ?>
                         <th class="checkbox-column border-end">
                             <div class="form-check">
                                 <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" title="Select all on this page">
@@ -344,7 +364,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                     $row_can_pay = $can_pay && invoiceCanPay($row, $row_state);
                     ?>
                     <tr>
-                        <?php if ($can_edit) { ?>
+                        <?php if ($can_bulk) { ?>
                             <td class="checkbox-column bg-light border-end">
                                 <div class="form-check">
                                     <input class="form-check-input bulk-select" type="checkbox" name="invoice_ids[]" value="<?= $invoice_id ?>" aria-label="Select <?= escapeHtml($row_number) ?>">
@@ -472,5 +492,6 @@ $stat_money = function ($amount) use ($session_company_currency) {
 <?php } ?>
 
 <script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/invoice_bulk.js') ?>"></script>
 
 <?php require_once "../includes/footer.php";

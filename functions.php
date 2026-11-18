@@ -99,6 +99,7 @@ require_once __DIR__ . '/functions/quote_pricing.php';
 require_once __DIR__ . '/functions/quote_images.php';
 require_once __DIR__ . '/functions/billing_email.php';
 require_once __DIR__ . '/functions/billing_pay.php';
+require_once __DIR__ . '/functions/invoice_actions.php';
 require_once __DIR__ . '/functions/payment_provider.php';
 require_once __DIR__ . '/functions/tax.php';
 require_once __DIR__ . '/functions/expenses.php';
