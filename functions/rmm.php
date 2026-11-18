@@ -1544,6 +1544,10 @@ function rmmDeviceAct(array $row, string $action, array $options = []): array
     if (!isset(rmmDeviceActions($row)[$action])) {
         return ['ok' => false, 'output' => null, 'timed_out' => false, 'error' => rmmActionHost($row) . ' can\'t have that done from ITFlow now.'];
     }
+    // Development mode: devices still come in, but nothing is done to one (functions/dev_mode.php)
+    if (devModeOn()) {
+        return ['ok' => false, 'output' => null, 'timed_out' => false, 'error' => 'Development mode - nothing is done to devices from this server.'];
+    }
     return call_user_func(rmmKind($row)['act'], $row, (string) $row['rmm_device_remote_id'], $action, $options);
 }
 

@@ -23,3 +23,8 @@ if (is_dir($stripe_config_dir) && is_writable($stripe_config_dir)) {
 unset($stripe_config_dir);
 
 require_once __DIR__ . '/../libs/stripe-php/init.php';
+
+// Development mode refuses every Stripe call - no card is charged, nothing is made (functions/dev_mode.php)
+if (function_exists('devModeBlockStripe')) {
+    devModeBlockStripe();
+}

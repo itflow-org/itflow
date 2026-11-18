@@ -43,6 +43,11 @@ if (!smsProvider()) {
     cronJobStop("Texting isn't set up\n");
 }
 
+// Development mode sends no texts, reminders included - they wait (functions/dev_mode.php)
+if (devModeOn()) {
+    cronJobStop("Development mode - no texts are sent\n");
+}
+
 smsTidy();
 
 // Reminders of visits and calls coming up, to contacts who agreed to texts - queued, then sent with the rest

@@ -53,6 +53,11 @@ if ($config_ticket_email_parse == 0) {
     cronJobStop("Email Parser: Feature is not enabled - check Settings > Ticketing > Email-to-ticket parsing. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
 }
 
+// Development mode doesn't read the ticket mailbox - it would take production's email (functions/dev_mode.php)
+if (devModeOn()) {
+    cronJobStop("Development mode - the ticket mailbox isn't read");
+}
+
 // Overlapping runs are prevented by cron/includes/cron_lock.php. This script used to keep a
 // lock file of its own alongside that one, which needed a five minute age heuristic to
 // recover from a killed run and could only end itself with exit() - fatal to a dispatched

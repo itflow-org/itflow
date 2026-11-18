@@ -116,6 +116,7 @@ require_once __DIR__ . '/functions/mail_queue.php';
 require_once __DIR__ . '/functions/cron_health.php';
 require_once __DIR__ . '/functions/managed.php';
 require_once __DIR__ . '/functions/demo.php';
+require_once __DIR__ . '/functions/dev_mode.php';
 
 // The connection config.php opened takes the collation the tables have, so that a string the
 // server makes (CAST(x AS CHAR), say) matches them - functions/database_collation.php

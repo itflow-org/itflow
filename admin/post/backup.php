@@ -127,3 +127,43 @@ if (isset($_POST['backup_master_key'])) {
 
     redirect("backup.php");
 }
+
+/*
+ * Development mode (functions/dev_mode.php) - written to config.php, not the database, so
+ * restoring production's backup over a test copy can't turn it off.
+ */
+if (isset($_POST['edit_dev_mode'])) {
+
+    validateCSRFToken();
+
+    $dev_on = isset($_POST['dev_mode']);
+    $dev_mail_to = trim((string) ($_POST['dev_mail_to'] ?? ''));
+
+    if ($dev_mail_to !== '' && !filter_var($dev_mail_to, FILTER_VALIDATE_EMAIL)) {
+        flashAlert("The test inbox isn't an email address.", 'error');
+        redirect("backup.php#dev-mode");
+    }
+
+    if ($dev_on && $dev_mail_to === '') {
+        flashAlert("Give a test inbox - in development mode every email goes there.", 'error');
+        redirect("backup.php#dev-mode");
+    }
+
+    $dev_was_on = devModeOn();
+    $dev_error = devModeConfigSet($dev_on, $dev_mail_to);
+
+    if ($dev_error !== '') {
+        flashAlert(escapeHtml($dev_error), 'error');
+        redirect("backup.php#dev-mode");
+    }
+
+    logAudit("Settings", "Edit", "$session_name " . ($dev_on ? ($dev_was_on ? "set development mode's test inbox to $dev_mail_to" : "turned development mode on, with email to $dev_mail_to") : ($dev_was_on ? 'turned development mode off' : 'saved development mode, off')));
+
+    if ($dev_on) {
+        flashAlert("Development mode is on - every email goes to " . escapeHtml($dev_mail_to) . ", and nothing reaches clients or other systems.", 'warning');
+    } else {
+        flashAlert($dev_was_on ? "Development mode is off - email, texts and the integrations work normally again." : "Development mode is off.");
+    }
+
+    redirect("backup.php#dev-mode");
+}

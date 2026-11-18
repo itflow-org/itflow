@@ -547,6 +547,46 @@ $status_looks = [
             </div>
         </div>
 
+        <!-- Development mode, for a test copy - kept in config.php, so a restore can't turn it off (functions/dev_mode.php) -->
+        <?php $dev_on = devModeOn(); $dev_mail_to = devModeMailTo(); ?>
+        <div class="card mb-3<?= $dev_on ? ' border-danger' : '' ?>" id="dev-mode" data-dev-mode-card="<?= $dev_on ? 'on' : 'off' ?>">
+            <div class="card-header py-3">
+                <h3 class="card-title"><i class="fas fa-fw fa-flask me-2"></i>Development mode
+                    <span class="badge <?= $dev_on ? 'text-bg-danger' : 'text-bg-secondary' ?> ms-1"><?= $dev_on ? 'On' : 'Off' ?></span>
+                </h3>
+            </div>
+            <div class="card-body small">
+                <p class="text-body-secondary">
+                    For a test copy of your ITFlow. Turn it on <strong class="text-body">before</strong> you restore production's backup onto it:
+                    every email then goes to the test inbox, and texts, the ticket mailbox, AI Triage, Stripe, RMM device actions, log forwarding and check-ins with a manager are off.
+                    It's kept in config.php, so a restore can't turn it off. Never turn it on in production.
+                </p>
+                <?php if ($dev_on && $dev_mail_to === '') { ?>
+                    <p class="text-warning-emphasis"><i class="fas fa-fw fa-exclamation-triangle me-1"></i>There's no test inbox, so no email is sent at all.</p>
+                <?php } ?>
+                <?php if (devModeConfigWritable()) { ?>
+                    <form action="post.php" method="post" autocomplete="off">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" role="switch" id="devMode" name="dev_mode" value="1" <?= $dev_on ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="devMode">Development mode</label>
+                        </div>
+                        <label class="form-label" for="devMailTo">Test inbox</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="devMailTo" name="dev_mail_to" maxlength="200" placeholder="dev@yourcompany.com" value="<?= escapeHtml($dev_mail_to) ?>">
+                        </div>
+                        <div class="form-text">Every email goes here, with who it was for at the front of its subject.</div>
+                        <button type="submit" name="edit_dev_mode" class="btn btn-sm btn-primary mt-3"><i class="fas fa-fw fa-check me-1"></i>Save</button>
+                    </form>
+                <?php } else { ?>
+                    <p class="text-body-secondary mb-1">config.php can't be written from here. To turn it <?= $dev_on ? 'off' : 'on' ?>, set these lines in it on the server:</p>
+                    <pre class="itflow-command bg-body-tertiary border rounded p-2 mb-0"><code>$config_dev_mode = <?= $dev_on ? 'false' : 'true' ?>;
+$config_dev_mail_to = '<?= escapeHtml($dev_mail_to !== '' ? $dev_mail_to : 'dev@yourcompany.com') ?>';</code></pre>
+                <?php } ?>
+            </div>
+        </div>
+
         <!-- Restoring - not from here -->
         <div class="card mb-3">
             <div class="card-header py-3">

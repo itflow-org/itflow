@@ -92,6 +92,14 @@ if (demoModeOn()) {
     cronJobStop("Demo - no email is sent");
 }
 
+// Development mode sends every email to the test inbox (sendQueueEmail()) - with none set in
+// config.php, what was queued is cancelled the same way (functions/dev_mode.php)
+if (devModeOn() && devModeMailTo() === '') {
+    mysqli_query($mysqli, "UPDATE email_queue SET email_status = " . MAIL_QUEUE_CANCELLED . ", email_failed_at = NOW()"
+        . mailQueueErrorSql("Not sent - development mode, with no test inbox in config.php") . " WHERE email_status IN (0, 2)");
+    cronJobStop("Development mode with no test inbox - no email is sent");
+}
+
 // Nothing to send through isn't an error either - an App Logs entry every minute buried the real ones
 if (empty($config_smtp_provider)) {
     cronJobStop("No mail server is set up to send through - see Admin > Settings > Mail");
@@ -213,6 +221,13 @@ function sendQueueEmail(
     string $oauth_access_token,
     string $oauth_access_token_expires_at
 ) {
+    // Development mode: to the test inbox instead, its real recipient at the front of the subject (functions/dev_mode.php)
+    if (devModeOn()) {
+        $subject = '[DEV to ' . $to_email . '] ' . $subject;
+        $to_email = devModeMailTo();
+        $to_name = '';
+    }
+
     // Google and Microsoft each expose exactly one XOAUTH2 SMTP endpoint, so the
     // stored host/port/encryption are overridden rather than used as a fallback -
     // the same thing cron/ticket_email_parser.php already does on the IMAP side.

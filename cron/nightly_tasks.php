@@ -624,6 +624,11 @@ $sql_recurring_payments = mysqli_query($mysqli, "
 ");
 
 while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
+    // Development mode charges no cards (functions/dev_mode.php)
+    if (devModeOn()) {
+        echo "Development mode - autopay doesn't charge cards\n";
+        break;
+    }
     $invoice_id = intval($row['invoice_id']);
     $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
@@ -816,9 +821,9 @@ while ($row = mysqli_fetch_assoc($sql_recurring_expenses)) {
         "/agent/recurring_expenses.php?status=late", intval($recurring['recurring_expense_client_id']));
 }
 
-// TELEMETRY
+// TELEMETRY - not from a development copy, which would be counted as production (functions/dev_mode.php)
 
-if ($config_telemetry > 0 || $config_telemetry == 2) {
+if (($config_telemetry > 0 || $config_telemetry == 2) && !devModeOn()) {
 
     $current_version = gitCurrentCommit();
 

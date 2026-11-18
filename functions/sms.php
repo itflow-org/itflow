@@ -600,6 +600,11 @@ function smsSendQueued(int $id): array
         return ['ok' => false, 'error' => "Texting isn't set up"];
     }
 
+    // Development mode sends no texts - they wait in the queue (functions/dev_mode.php)
+    if (devModeOn()) {
+        return ['ok' => false, 'error' => "Development mode - no texts are sent from this server, so it waits in the queue"];
+    }
+
     // Claimed, so the job and a request can't both send it
     mysqli_query($mysqli, "UPDATE sms_messages SET sms_message_status = 'sending', sms_message_attempts = sms_message_attempts + 1, sms_message_attempted_at = NOW()
         WHERE sms_message_id = $id AND sms_message_direction = 'out' AND sms_message_status = 'queued'");

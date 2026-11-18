@@ -32,6 +32,11 @@ if (intval($row['config_enable_cron'] ?? 0) === 0) {
     cronJobStop("Cron: is not enabled -- Quitting..");
 }
 
+// Development mode: no AI calls on production's key, and no changes to the tickets (functions/dev_mode.php)
+if (devModeOn()) {
+    cronJobStop("Development mode - AI Triage doesn't run");
+}
+
 [$triaged, $failed] = aiTriageNewTickets(5);
 if ($failed) {
     logApp('AI', 'warning', "AI triage: $failed new ticket" . ($failed === 1 ? '' : 's') . " couldn't be triaged - see AI Usage");

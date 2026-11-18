@@ -27,6 +27,17 @@
     <!-- Right navbar links -->
     <ul class="navbar-nav ms-auto">
 
+        <?php if (devModeOn()) { ?>
+            <!-- Development mode - a test copy, where nothing reaches clients or other systems (functions/dev_mode.php) -->
+            <li class="nav-item d-flex align-items-center me-2">
+                <?php if (!empty($session_is_admin)) { ?>
+                    <a href="/admin/backup.php#dev-mode" class="badge text-bg-danger text-decoration-none" title="<?= escapeHtml(devModeSummary()) ?>" data-dev-mode><i class="fas fa-flask me-1" aria-hidden="true"></i>DEVELOPMENT</a>
+                <?php } else { ?>
+                    <span class="badge text-bg-danger" title="<?= escapeHtml(devModeSummary()) ?>" data-dev-mode><i class="fas fa-flask me-1" aria-hidden="true"></i>DEVELOPMENT</span>
+                <?php } ?>
+            </li>
+        <?php } ?>
+
         <?php // Your own links (Admin > Custom Links) - an icon each, the name and what it is for on hover ?>
         <?php foreach (customLinksFor(2) as $custom_link) {
             $custom_link_title = $custom_link['custom_link_name'] . (trim((string) $custom_link['custom_link_description']) !== '' ? ' - ' . trim($custom_link['custom_link_description']) : ''); ?>
