@@ -5,7 +5,8 @@
  * every earlier version and who did what to it. Laid out like a document's
  * page: a header card with the actions, the article beside a column with its
  * category, who can read it, its review, how its readers found it, what they
- * said didn't help and its versions.
+ * said didn't help and its versions; its files under it. It can be taken as
+ * a PDF, and reviewed by AI (modals/kb/kb_article_review.php).
  *
  * Open to anyone who can read Support; changing it takes Support edit, like
  * the handlers behind it (agent/post/kb.php).
@@ -56,6 +57,11 @@ $feedback_ready = kbFeedbackReady();
 $feedback_counts = kbFeedbackCounts([$kb_article_id])[$kb_article_id];
 $feedback = kbFeedbackFor($kb_article_id);
 
+// Its files (database 3.9.8), and whether AI can review it
+$files_ready = kbFilesReady();
+$files = kbArticleFiles($kb_article_id);
+$ai_review = aiReady('Documentation');
+
 $csrf = $_SESSION['csrf_token'];
 $edit_url = "modals/kb/kb_article_edit.php?id=$kb_article_id";
 $tags_display = tagPills('kb_article', $kb_article_id, tagsForRecord('kb_article', $kb_article_id), 'kb.php?', $can_edit && !$archived);
@@ -105,7 +111,13 @@ $page_title = $row['kb_article_title'];
                     </a>
                 <?php } ?>
             <?php } ?>
+            <?php if ($ai_review) { ?>
+                <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/kb/kb_article_review.php?id=<?= $kb_article_id ?>" title="AI reads it and says what to fix or check, what is out of date, and what shouldn't be shared">
+                    <i class="fas fa-clipboard-check"></i><span class="d-none d-md-inline ms-2">Review with AI</span>
+                </button>
+            <?php } ?>
             <button type="button" class="btn btn-outline-secondary" onclick="window.print();" title="Print"><i class="fas fa-print"></i></button>
+            <a class="btn btn-outline-secondary" href="post.php?export_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>" title="Export as PDF"><i class="fas fa-file-pdf"></i><span class="d-none d-md-inline ms-2">PDF</span></a>
             <?php if ($can_edit) { ?>
                 <div class="dropdown">
                     <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown" title="More"><i class="fas fa-ellipsis-v"></i></button>
@@ -144,6 +156,49 @@ $page_title = $row['kb_article_title'];
                 <?= documentHtmlPurify($row['kb_article_content']) ?: '<p class="text-body-secondary">Nothing written yet.' . ($can_edit && !$archived ? ' <a class="ajax-modal" href="#" data-modal-size="xl" data-modal-url="' . $edit_url . '">Start writing</a>' : '') . '</p>' ?>
             </div>
         </div>
+
+        <!-- The files that go with it - downloaded by whoever can read it -->
+        <?php if ($files_ready && ($files || ($can_edit && !$archived))) { ?>
+            <div class="card mb-3 d-print-none" id="kbArticleFiles">
+                <div class="card-header">
+                    <h3 class="card-title mb-0"><i class="fas fa-fw fa-paperclip me-2 text-body-secondary"></i>Files<?= $files ? ' <span class="badge rounded-pill text-bg-secondary ms-1">' . count($files) . '</span>' : '' ?></h3>
+                    <?php if ($visibility !== 'agents') { ?>
+                        <div class="card-tools small text-body-secondary">Its readers can download them</div>
+                    <?php } ?>
+                </div>
+                <?php if ($files) { ?>
+                    <ul class="list-group list-group-flush">
+                        <?php foreach ($files as $file) {
+                            $file_id = intval($file['kb_article_file_id']);
+                            $ext = strtolower(pathinfo($file['kb_article_file_name'], PATHINFO_EXTENSION)); ?>
+                            <li class="list-group-item d-flex align-items-center gap-3">
+                                <?= fileTypeTile($ext) ?>
+                                <div class="min-w-0 flex-grow-1">
+                                    <a class="fw-semibold text-break" href="kb_file.php?file_id=<?= $file_id ?>&action=view" target="_blank" title="Open it - or download it, for a kind the browser can't show"><?= escapeHtml($file['kb_article_file_name']) ?></a>
+                                    <div class="small text-body-secondary"><?= formatBytes(intval($file['kb_article_file_size'])) ?> &middot; added <?= timeAgo($file['kb_article_file_created_at']) ?><?= $file['user_name'] !== null ? ' by ' . escapeHtml($file['user_name']) : '' ?></div>
+                                </div>
+                                <a class="btn btn-sm btn-light border" href="kb_file.php?file_id=<?= $file_id ?>" title="Download"><i class="fas fa-download"></i></a>
+                                <?php if ($can_edit) { ?>
+                                    <a class="itflow-copy text-danger confirm-link" href="post.php?delete_kb_article_file=<?= $file_id ?>&csrf_token=<?= $csrf ?>" title="Take it off"
+                                        data-confirm-title="Take <?= escapeHtml($file['kb_article_file_name']) ?> off?" data-confirm-text="It goes for good." data-confirm-button="Take it off"><i class="fas fa-trash-alt"></i></a>
+                                <?php } ?>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                <?php } ?>
+                <?php if ($can_edit && !$archived && count($files) < KB_ARTICLE_MAX_FILES) { ?>
+                    <div class="card-body<?= $files ? ' border-top' : '' ?>">
+                        <form action="post.php" method="post" enctype="multipart/form-data" class="d-flex flex-wrap gap-2 align-items-center">
+                            <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                            <input type="hidden" name="kb_article_id" value="<?= $kb_article_id ?>">
+                            <input type="file" class="form-control form-control-sm flex-grow-1 w-auto" name="files[]" multiple required aria-label="Files to add" accept="<?= escapeHtml('.' . implode(', .', fileUploadExtensions())) ?>">
+                            <button type="submit" class="btn btn-sm btn-primary" name="upload_kb_article_files"><i class="fas fa-upload me-1"></i>Add</button>
+                        </form>
+                        <?php if (!$files) { ?><div class="form-text">A script, a form, a vendor's guide - whoever can read the article can download them.</div><?php } ?>
+                    </div>
+                <?php } ?>
+            </div>
+        <?php } ?>
     </div>
 
     <div class="col-lg-4 d-print-none">

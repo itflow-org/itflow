@@ -152,10 +152,18 @@ function aiDocumentReview($document_id) {
             . ' Answer with JSON only, in this shape: {"verdict": "good" or "needs work" or "out of date", "summary": "one sentence on what the document covers, for its summary", "findings": [{"severity": "high" or "medium" or "low", "text": "what to fix or check, in one or two sentences"}]}. At most 10 findings, the most important first; none when it is good.'],
         ['role' => 'user', 'content' => 'Document: ' . $row['document_name'] . ($row['client_name'] ? "\nClient: {$row['client_name']}" : '') . "\nLast changed: " . date('F j, Y', strtotime($row['document_updated_at'] ?: 'now')) . "\n\n$text"],
     ], ['feature' => 'document_review', 'client_id' => intval($row['document_client_id'])]);
-    if (!$result['ok']) {
-        return $result;
-    }
-    $answer = aiJsonFromText($result['content']);
+    return $result['ok'] ? aiReviewAnswer($result['content'], count($secrets)) : $result;
+}
+
+/*
+ * A review's answer as Review with AI shows it - ['ok' => true, 'verdict',
+ * 'summary', 'findings' => [[severity, text]], the most important first,
+ * 'secrets' => how many passwords and keys were taken out] - or ['ok' =>
+ * false, 'error'] when the answer can't be read. For aiDocumentReview() and
+ * aiKbArticleReview().
+ */
+function aiReviewAnswer($content, $secrets) {
+    $answer = aiJsonFromText($content);
     if (!$answer) {
         return ['ok' => false, 'error' => "The AI provider's answer couldn't be read - try again."];
     }
@@ -178,6 +186,40 @@ function aiDocumentReview($document_id) {
         'verdict' => in_array($verdict, ['good', 'needs work', 'out of date'], true) ? $verdict : ($findings ? 'needs work' : 'good'),
         'summary' => mb_substr(trim(strip_tags((string) ($answer['summary'] ?? ''))), 0, 250),
         'findings' => $findings,
-        'secrets' => count($secrets),
+        'secrets' => intval($secrets),
     ];
+}
+
+/*
+ * Review a Knowledge Base article with AI - like a document's
+ * (aiDocumentReview()), and as one written once for every client: anything
+ * that names one client or its systems, in an article any client or the
+ * public can read, is a finding.
+ */
+function aiKbArticleReview($kb_article_id) {
+    $model = getAiModel('Documentation');
+    if (!$model) {
+        return ['ok' => false, 'error' => aiModelMissingError('Documentation')];
+    }
+    $row = kbArticleRow($kb_article_id);
+    if (!$row) {
+        return ['ok' => false, 'error' => 'That article no longer exists.'];
+    }
+    $text = aiHtmlToText($row['kb_article_content'], 30000);
+    if ($text === '') {
+        return ['ok' => false, 'error' => 'There is nothing in it to review yet.'];
+    }
+    [, $secrets] = aiRedact($text);
+    $readers = ['agents' => 'only the provider\'s own technicians', 'clients' => 'the provider\'s clients, in their client portal', 'public' => 'anyone, on a public help center'][$row['kb_article_visibility']] ?? 'only the provider\'s own technicians';
+
+    $model['ai_provider_redact'] = 1;
+    $result = callAiApi($model, [
+        ['role' => 'system', 'content' => 'You review a knowledge base article that a managed service provider writes once for all of its clients, as a careful senior engineer would. Today is ' . date('F j, Y') . '.'
+            . ' List what should be fixed or checked: steps that are unclear, missing or in the wrong order; anything that looks out of date (software or systems at or past end of life, old screens, menus and names); things that contradict each other; and anything risky to follow as written.'
+            . ' When it is read by clients or anyone, also list anything that names one client or its people or systems - company names, people, email addresses, phone numbers, server and computer names, IP addresses - and anything that shouldn\'t be shared outside the provider. When it is read by clients or anyone, say if it is written for a technician rather than for them.'
+            . ' Don\'t mention the placeholders like [secret-1] - they stand for passwords taken out before you saw it.'
+            . ' Answer with JSON only, in this shape: {"verdict": "good" or "needs work" or "out of date", "summary": "one sentence on what it helps with, for its summary", "findings": [{"severity": "high" or "medium" or "low", "text": "what to fix or check, in one or two sentences"}]}. At most 10 findings, the most important first; none when it is good.'],
+        ['role' => 'user', 'content' => 'Article: ' . $row['kb_article_title'] . "\nRead by: $readers\nLast changed: " . date('F j, Y', strtotime($row['kb_article_updated_at'] ?: $row['kb_article_created_at'])) . "\n\n$text"],
+    ], ['feature' => 'kb_article_review']);
+    return $result['ok'] ? aiReviewAnswer($result['content'], count($secrets)) : $result;
 }

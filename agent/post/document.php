@@ -259,10 +259,41 @@ if (isset($_GET['mark_document_reviewed'])) {
 
     logAudit("Document", "Edit", "$session_name marked document " . escapeSql($row['document_name']) . " as reviewed", $client_id, $document_id);
 
-    $review = documentReviewState(mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_created_at, document_updated_at, document_reviewed_at, document_template_review_months, document_template_archived_at
+    $review = documentReviewState(mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_created_at, document_updated_at, document_reviewed_at, document_template_review_months, document_template_archived_at,
+            " . (documentReviewOwnReady() ? 'document_review_months' : 'NULL AS document_review_months') . "
         FROM documents LEFT JOIN document_templates USING (document_template_id) WHERE document_id = $document_id")));
 
     flashAlert("Document <strong>" . escapeHtml($row['document_name']) . "</strong> marked as reviewed" . ($review ? " - next due " . date('M j, Y', strtotime($review['next'])) : ''));
+
+    redirect();
+
+}
+
+/*
+ * How often a document is reviewed, set on it - every so many months, never,
+ * or as its template says ('template'). When it was last looked at stays as
+ * it is.
+ */
+if (isset($_GET['set_document_review'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $row = documentForHandler($_GET['set_document_review']);
+    $document_id = intval($row['document_id']);
+    $months = (string) ($_GET['months'] ?? '');
+    if (!documentReviewOwnReady() || ($months !== 'template' && (!ctype_digit($months) || !isset(DOCUMENT_TEMPLATE_REVIEW_MONTHS[intval($months)])))) {
+        flashAlert('Pick how often it is reviewed.', 'error');
+        redirect();
+    }
+
+    mysqli_query($mysqli, "UPDATE documents SET document_review_months = " . ($months === 'template' ? 'NULL' : intval($months)) . ", document_updated_at = document_updated_at WHERE document_id = $document_id");
+
+    $how = $months === 'template' ? 'as its template says' : lcfirst(DOCUMENT_TEMPLATE_REVIEW_MONTHS[intval($months)]);
+    logAudit("Document", "Edit", "$session_name set document " . escapeSql($row['document_name']) . ($months === '0' ? ' not to be reviewed on a schedule' : " to be reviewed $how"), $client_id, $document_id);
+
+    flashAlert("Document <strong>" . escapeHtml($row['document_name']) . "</strong> " . ($months === '0' ? "isn't reviewed on a schedule" : "is reviewed $how"));
 
     redirect();
 

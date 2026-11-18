@@ -2394,6 +2394,21 @@ if (isset($_GET['ai_document_review'])) {
     exit;
 }
 
+// A Knowledge Base article reviewed - what to fix or check, what shouldn't be shared, a summary for it, and the passwords written in it
+if (isset($_GET['ai_kb_article_review'])) {
+    header('Content-Type: application/json');
+    if (!aiCan()) {
+        $aiRefuse();
+    }
+    if (!kbCan(1)) {
+        echo json_encode(['error' => kbClosedText(1)]);
+        exit;
+    }
+    $result = aiKbArticleReview(intval($_POST['kb_article_id'] ?? 0));
+    echo json_encode($result['ok'] ? array_diff_key($result, ['ok' => 1]) : ['error' => $result['error']]);
+    exit;
+}
+
 /*
  * Quotes and invoices (functions/ai_billing.php). Each answers JSON; the agent
  * needs Use AI, the client, and Sales to change them. Nothing is saved here.

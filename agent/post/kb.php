@@ -12,11 +12,11 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 // Closed while the Knowledge Base is off, or to a role that can't write in it (or delete, for the deletes)
 $kb_requested = array_merge(
-    array_intersect(['add_kb_article', 'edit_kb_article', 'restore_kb_article_version', 'bulk_category_kb_articles', 'bulk_publish_kb_articles',
+    array_intersect(['add_kb_article', 'edit_kb_article', 'restore_kb_article_version', 'bulk_category_kb_articles', 'bulk_publish_kb_articles', 'upload_kb_article_files', 'set_kb_article_summary',
         'bulk_draft_kb_articles', 'bulk_archive_kb_articles', 'bulk_restore_kb_articles', 'bulk_delete_kb_articles'], array_keys($_POST)),
     array_intersect(['publish_kb_article', 'draft_kb_article', 'mark_kb_article_reviewed', 'archive_kb_article', 'restore_kb_article', 'delete_kb_article',
         'copy_kb_article', 'delete_kb_article_version', 'copy_document_to_kb', 'deal_with_kb_feedback', 'deal_with_kb_article_feedback', 'dismiss_kb_search_miss',
-        'dismiss_kb_search_misses'], array_keys($_GET))
+        'dismiss_kb_search_misses', 'delete_kb_article_file'], array_keys($_GET))
 );
 if ($kb_requested) {
     validateCSRFToken();
@@ -183,7 +183,7 @@ if (isset($_GET['copy_kb_article'])) {
 
     $row = kbArticleForHandler($_GET['copy_kb_article']);
 
-    // A new draft, with copies of its images, its tags and who can read it
+    // A new draft, with copies of its images and files, its tags and who can read it
     $kb_article_id = kbArticleSave([
         'title' => mb_substr('Copy of ' . $row['kb_article_title'], 0, 200),
         'summary' => (string) $row['kb_article_summary'],
@@ -197,6 +197,7 @@ if (isset($_GET['copy_kb_article'])) {
     if (is_dir($from)) {
         copyDirectory($from, kbArticleDir($kb_article_id));
         $content = str_replace('/uploads/kb/' . intval($row['kb_article_id']) . '/', "/uploads/kb/$kb_article_id/", $content);
+        kbArticleCopyFileRows($row['kb_article_id'], $kb_article_id);
     }
     mysqli_query($mysqli, "UPDATE kb_articles SET kb_article_content = '" . mysqli_real_escape_string($mysqli, $content) . "',
         kb_article_content_raw = '" . escapeSql(kbArticleContentRaw('Copy of ' . $row['kb_article_title'], (string) $row['kb_article_summary'], $content)) . "'
@@ -395,4 +396,88 @@ if (isset($_GET['dismiss_kb_search_miss']) || isset($_GET['dismiss_kb_search_mis
     flashAlert(isset($_GET['dismiss_kb_search_miss']) ? 'Search taken off the list' : 'Not found list cleared');
 
     redirect('kb.php');
+}
+
+/* Files added to an article, from its page - the kinds Files takes, up to 20 in all. */
+if (isset($_POST['upload_kb_article_files'])) {
+
+    $row = kbArticleForHandler($_POST['kb_article_id'] ?? 0);
+    $kb_article_id = intval($row['kb_article_id']);
+
+    $saved = kbArticleSaveFiles($kb_article_id);
+    if ($saved['kept']) {
+        logAudit("Knowledge Base", "Upload", "$session_name added " . escapeSql(implode(', ', $saved['kept'])) . " to article " . escapeSql($row['kb_article_title']), 0, $kb_article_id);
+    }
+    $added = $saved['kept'] ? (count($saved['kept']) === 1 ? '<strong>' . escapeHtml($saved['kept'][0]) . '</strong> added' : count($saved['kept']) . ' files added') : '';
+    if ($saved['refused']) {
+        flashAlert(($added !== '' ? "$added. " : '') . escapeHtml(implode(', ', $saved['refused'])) . (count($saved['refused']) === 1 ? " wasn't" : " weren't") . " added - a kind Files doesn't take, too big, or more than " . KB_ARTICLE_MAX_FILES . " on the article", 'error');
+    } elseif ($added !== '') {
+        flashAlert($added);
+    }
+
+    redirect("kb_article.php?kb_article_id=$kb_article_id#kbArticleFiles");
+}
+
+/* A file taken off an article, for good. */
+if (isset($_GET['delete_kb_article_file'])) {
+
+    $file = kbArticleFileRow($_GET['delete_kb_article_file']);
+    $row = kbArticleForHandler($file['kb_article_file_kb_article_id'] ?? 0, false);
+    $kb_article_id = intval($row['kb_article_id']);
+
+    $name = kbArticleRemoveFile($kb_article_id, $_GET['delete_kb_article_file']);
+    if ($name !== null) {
+        logAudit("Knowledge Base", "Delete", "$session_name took " . escapeSql($name) . " off article " . escapeSql($row['kb_article_title']), 0, $kb_article_id);
+        flashAlert('<strong>' . escapeHtml($name) . '</strong> taken off', 'error');
+    }
+
+    redirect("kb_article.php?kb_article_id=$kb_article_id#kbArticleFiles");
+}
+
+/* The summary AI suggested in its review (modals/kb/kb_article_review.php), saved as the article's - the rest stays as it is, and no version is kept for it. */
+if (isset($_POST['set_kb_article_summary'])) {
+
+    $row = kbArticleForHandler($_POST['kb_article_id'] ?? 0);
+    $kb_article_id = intval($row['kb_article_id']);
+    $summary = mb_substr(trim(preg_replace('/\s+/u', ' ', strip_tags((string) ($_POST['summary'] ?? '')))), 0, 255);
+
+    mysqli_query($mysqli, "UPDATE kb_articles SET kb_article_summary = " . ($summary !== '' ? "'" . escapeSql($summary) . "'" : 'NULL') . ",
+        kb_article_content_raw = '" . escapeSql(kbArticleContentRaw($row['kb_article_title'], $summary, (string) $row['kb_article_content'])) . "',
+        kb_article_updated_at = NOW(), kb_article_updated_by = " . intval($session_user_id) . " WHERE kb_article_id = $kb_article_id");
+
+    logAudit("Knowledge Base", "Edit", "$session_name gave article " . escapeSql($row['kb_article_title']) . " the summary AI suggested", 0, $kb_article_id);
+    flashAlert("Article <strong>" . escapeHtml($row['kb_article_title']) . "</strong> has its new summary");
+
+    redirect("kb_article.php?kb_article_id=$kb_article_id");
+}
+
+/* The article as a PDF - its title, summary and what it says. Reading, not changing: anyone who can read the Knowledge Base. */
+if (isset($_GET['export_kb_article'])) {
+
+    validateCSRFToken();
+    $kb_closed = kbClosedText(1);
+    if ($kb_closed !== '') {
+        flashAlert(escapeHtml($kb_closed), 'error');
+        redirect();
+    }
+    $row = kbArticleForHandler($_GET['export_kb_article'], false);
+
+    logAudit("Knowledge Base", "Export", "$session_name exported article " . escapeSql($row['kb_article_title']) . " as a PDF", 0, intval($row['kb_article_id']));
+
+    require_once '../libs/TCPDF/tcpdf.php';
+
+    $pdf = new TCPDF();
+    $pdf->SetCreator(PDF_CREATOR);
+    $pdf->SetAuthor($session_name);
+    $pdf->SetTitle($row['kb_article_title']);
+    $pdf->setPrintHeader(false);
+    $pdf->AddPage();
+    $pdf->SetFont('helvetica', '', 11);
+    $summary = trim((string) $row['kb_article_summary']);
+    $pdf->writeHTML('<h1>' . escapeHtml($row['kb_article_title']) . '</h1>' . ($summary !== '' ? '<p><i>' . escapeHtml($summary) . '</i></p>' : '')
+        . documentHtmlPurify((string) $row['kb_article_content']), true, false, true, false, '');
+
+    // The PDF is the response - nothing may follow it
+    $pdf->Output(preg_replace('/[^A-Za-z0-9 ._-]/', '', $row['kb_article_title']) . '.pdf', 'I');
+    exit;
 }

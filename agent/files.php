@@ -12,7 +12,7 @@
  * Documents can be tagged; filtering by a tag shows the documents with it -
  * from every folder at the top level, like a search.
  *
- * Documents due a review (their template says how often) are marked, and the
+ * Documents due a review (they or their template say how often) are marked, and the
  * Review due tab lists them from every folder. The document templates the
  * client should have a document from, and has none, are listed across the
  * top, each a click from making one.
@@ -362,7 +362,7 @@ $preview = []; // the grid's previewer payload
                 <i class="fas fa-fw fa-paperclip me-1"></i>Uploads<?php if ($type_filter !== 'due') { ?> <span class="badge rounded-pill ms-1"><?= $type_counts['file'] ?></span><?php } ?>
             </a>
             <?php if ($due_documents || $type_filter === 'due') { ?>
-                <a class="nav-link text-nowrap <?= $type_filter === 'due' ? 'active' : '' ?>" href="<?= escapeHtml(filesUrl(['type' => 'due'])) ?>" title="Documents their template says are due a review - from every folder">
+                <a class="nav-link text-nowrap <?= $type_filter === 'due' ? 'active' : '' ?>" href="<?= escapeHtml(filesUrl(['type' => 'due'])) ?>" title="Documents due a review - from every folder">
                     <i class="fas fa-fw fa-calendar-check me-1"></i>Review due <span class="badge rounded-pill ms-1 <?= $due_documents ? 'text-bg-warning' : '' ?>"><?= count($due_documents) ?></span>
                 </a>
             <?php } ?>
@@ -527,7 +527,7 @@ $preview = []; // the grid's previewer payload
                     'text' => $can_edit ? 'Drop files here to upload them, or start a document.' : '',
                     'view' => $type_filter === 'due' ? [
                         'title' => 'Nothing due a review',
-                        'text' => 'Every document is within the review its template asks for.',
+                        'text' => 'Every document is within its review.',
                     ] : ($type_filter && !$folder_id ? [
                         'title' => $type_filter === 'document' ? 'No documents yet' : 'No uploads yet',
                         'text' => $can_edit ? ($type_filter === 'document' ? 'Write one here - a procedure, a how-to, notes on the site.' : 'Drop files here to upload them.') : '',
@@ -682,7 +682,7 @@ $preview = []; // the grid's previewer payload
                                                                 <span class="badge rounded-pill bg-info-subtle text-info-emphasis fw-normal" title="Technical contacts can read this in the client portal">Portal</span>
                                                             <?php } ?>
                                                             <?php if (isset($due_documents[$id])) { ?>
-                                                                <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal" title="Last edited or reviewed <?= escapeHtml(date('M j, Y', strtotime($due_documents[$id]['reviewed_at']))) ?> - <?= escapeHtml($due_documents[$id]['document_template_name']) ?> is reviewed <?= lcfirst(DOCUMENT_TEMPLATE_REVIEW_MONTHS[intval($due_documents[$id]['document_template_review_months'])] ?? '') ?>"><i class="fas fa-calendar-check me-1"></i>Review due</span>
+                                                                <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal" title="Last edited or reviewed <?= escapeHtml(date('M j, Y', strtotime($due_documents[$id]['reviewed_at']))) ?> - reviewed <?= lcfirst(DOCUMENT_TEMPLATE_REVIEW_MONTHS[intval($due_documents[$id]['review_months'])] ?? '') ?>"><i class="fas fa-calendar-check me-1"></i>Review due</span>
                                                             <?php } ?>
                                                         <?php } else { ?>
                                                             <a class="fw-semibold text-body stretched-link text-break ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $id ?>"><?= $name ?></a>

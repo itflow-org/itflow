@@ -61,7 +61,7 @@ function aiUseCases() {
     return [
         'General' => 'Everything without a model of its own - Reword and translate in any editor, and client briefings.',
         'Tickets' => 'Drafting replies, triage, summaries, and Reword and translate in the ticket reply editor.',
-        'Documentation' => 'Drafting and reviewing documents, writing a ticket up as a document or a Knowledge Base article, and drafting document templates.',
+        'Documentation' => 'Drafting and reviewing documents and Knowledge Base articles, writing a ticket up as either, and drafting document templates.',
         'Billing' => 'Writing quotes and invoices - their lines from your catalog, labor at the client\'s rate - and the work done on a ticket for its invoice line.',
     ];
 }
@@ -80,6 +80,7 @@ function aiFeatures() {
         'ticket_kb_article' => 'Ticket written up for the Knowledge Base',
         'document_draft' => 'Document draft',
         'document_review' => 'Document review',
+        'kb_article_review' => 'Knowledge Base article review',
         'client_briefing' => 'Client briefing',
         'billing_draft' => 'Quote or invoice written',
         'invoice_description' => 'Ticket time described for its invoice',

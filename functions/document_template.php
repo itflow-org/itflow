@@ -747,30 +747,56 @@ function documentReviewedAtSql() {
     return "GREATEST(documents.document_created_at, COALESCE(documents.document_updated_at, documents.document_created_at), COALESCE(documents.document_reviewed_at, documents.document_created_at))";
 }
 
+/** Can a document say how often it is reviewed, itself - documents.document_review_months (database 3.9.8)? */
+function documentReviewOwnReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '3.9.8', '>=');
+    }
+    return $ready;
+}
+
 /*
- * A document due a review, as SQL on documents joined to document_templates:
- * its template - a current one - says how often, and it has been longer than
- * that since it was last looked at.
+ * How many months between a document's reviews, as SQL on documents left
+ * joined to document_templates - its own when it has one (0 is never),
+ * otherwise its template's, while the template is current; 0 for none.
+ */
+function documentReviewMonthsSql() {
+    $template = "IF(document_templates.document_template_archived_at IS NULL, COALESCE(document_templates.document_template_review_months, 0), 0)";
+    return documentReviewOwnReady() ? "COALESCE(documents.document_review_months, $template)" : $template;
+}
+
+/*
+ * A document due a review, as SQL on documents left joined to
+ * document_templates: it is reviewed every so many months - its own, or its
+ * template's - and it has been longer than that since it was last looked at.
  */
 function documentReviewDueSql() {
-    return "document_templates.document_template_archived_at IS NULL AND document_templates.document_template_review_months > 0
-        AND " . documentReviewedAtSql() . " < NOW() - INTERVAL document_templates.document_template_review_months MONTH";
+    $months = documentReviewMonthsSql();
+    return "$months > 0 AND " . documentReviewedAtSql() . " < NOW() - INTERVAL $months MONTH";
 }
 
 /*
  * The current documents due a review, the longest overdue first - for one
  * template, or one client ($where: SQL on documents, document_templates and
  * clients). Each with document_id, document_name, document_client_id,
- * client_name, document_template_id, document_template_name, reviewed_at and
- * document_template_review_months.
+ * client_name, document_template_id, document_template_name (none for a
+ * document reviewed on its own), reviewed_at and review_months.
  */
 function documentsReviewDue($where) {
     global $mysqli;
     $due = [];
     $sql = mysqli_query($mysqli, "SELECT documents.document_id, document_name, document_client_id, client_name, documents.document_template_id, document_template_name,
-            " . documentReviewedAtSql() . " AS reviewed_at, document_template_review_months
+            " . documentReviewedAtSql() . " AS reviewed_at, " . documentReviewMonthsSql() . " AS review_months
         FROM documents
-        JOIN document_templates ON document_templates.document_template_id = documents.document_template_id
+        LEFT JOIN document_templates ON document_templates.document_template_id = documents.document_template_id AND documents.document_template_id > 0
         JOIN clients ON clients.client_id = documents.document_client_id AND clients.client_archived_at IS NULL
         WHERE documents.document_archived_at IS NULL AND " . documentReviewDueSql() . " AND ($where)
         ORDER BY reviewed_at ASC, documents.document_id ASC");
@@ -801,15 +827,17 @@ function documentTemplateDueCounts(array $document_template_ids) {
 
 /*
  * Where a document stands for review, from its row (document_created_at,
- * document_updated_at, document_reviewed_at, and its template's
- * document_template_review_months and document_template_archived_at) -
- * ['last' => when it was last looked at, 'reviewed' => whether that was a
- * review rather than an edit, 'next' => when it is due, 'due' => bool], or
- * null when its template doesn't ask for reviews.
+ * document_updated_at, document_reviewed_at, its own document_review_months,
+ * and its template's document_template_review_months and
+ * document_template_archived_at) - ['last' => when it was last looked at,
+ * 'reviewed' => whether that was a review rather than an edit, 'next' => when
+ * it is due, 'due' => bool, 'months', 'own' => whether the document says how
+ * often rather than its template], or null when it isn't reviewed.
  */
 function documentReviewState(array $row) {
-    $months = intval($row['document_template_review_months'] ?? 0);
-    if ($months <= 0 || !empty($row['document_template_archived_at'])) {
+    $own = isset($row['document_review_months']);
+    $months = $own ? intval($row['document_review_months']) : (empty($row['document_template_archived_at']) ? intval($row['document_template_review_months'] ?? 0) : 0);
+    if ($months <= 0) {
         return null;
     }
     $times = array_filter([$row['document_created_at'] ?? null, $row['document_updated_at'] ?? null, $row['document_reviewed_at'] ?? null]);
@@ -820,6 +848,8 @@ function documentReviewState(array $row) {
         'reviewed' => !empty($row['document_reviewed_at']) && strtotime($row['document_reviewed_at']) === $last,
         'next' => date('Y-m-d H:i:s', $next),
         'due' => $next < time(),
+        'months' => $months,
+        'own' => $own,
     ];
 }
 

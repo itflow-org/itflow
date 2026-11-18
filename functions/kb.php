@@ -830,3 +830,160 @@ function kbSearchMissCount() {
     return kbFeedbackReady() ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(DISTINCT kb_search_miss_query) FROM kb_search_misses
         WHERE kb_search_miss_last_at > NOW() - INTERVAL " . KB_SEARCH_MISS_DAYS . " DAY" . clientScopeSql('kb_search_miss_client_id')))[0]) : 0;
 }
+
+/*
+ * Files that go with an article (database 3.9.8) - a script, a form, a setup
+ * guide from a vendor. They are kept beside its pictures, under unguessable
+ * names, and sent by a page that checks the reader may read the article:
+ * agent/kb_file.php, client/kb_file.php and guest/kb_file.php (kbFileSend()).
+ */
+
+const KB_ARTICLE_MAX_FILES = 20;
+
+/** Can articles have files - kb_article_files (database 3.9.8)? */
+function kbFilesReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '3.9.8', '>=');
+    }
+    return kbOn() && $ready;
+}
+
+/** Where an article's files are kept, on disk. */
+function kbArticleFileDir($kb_article_id) {
+    return kbArticleDir($kb_article_id) . '/files/';
+}
+
+/** An article's files, by name - rows of kb_article_file_id, name, reference name, size, when and who added it. */
+function kbArticleFiles($kb_article_id) {
+    global $mysqli;
+    if (!kbFilesReady()) {
+        return [];
+    }
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT kb_article_file_id, kb_article_file_name, kb_article_file_reference_name, kb_article_file_size, kb_article_file_created_at, user_name
+        FROM kb_article_files LEFT JOIN users ON user_id = kb_article_file_created_by AND kb_article_file_created_by > 0
+        WHERE kb_article_file_kb_article_id = " . intval($kb_article_id) . " ORDER BY kb_article_file_name ASC, kb_article_file_id ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/*
+ * Keep the files uploaded for an article ($_FILES[$field]) - the kinds Files
+ * takes (fileUploadExtensions()), up to KB_ARTICLE_MAX_FILES in all.
+ * ['kept' => their names, 'refused' => the names of the ones that weren't:
+ * the wrong kind, too many, or a failed upload].
+ */
+function kbArticleSaveFiles($kb_article_id, $field = 'files') {
+    global $mysqli, $session_user_id;
+    $kb_article_id = intval($kb_article_id);
+    $out = ['kept' => [], 'refused' => []];
+    if (!kbFilesReady() || empty($_FILES[$field]['name']) || !is_array($_FILES[$field]['name'])) {
+        return $out;
+    }
+    $have = count(kbArticleFiles($kb_article_id));
+    $dir = kbArticleFileDir($kb_article_id);
+    foreach ($_FILES[$field]['name'] as $i => $name) {
+        if ((string) $name === '' && intval($_FILES[$field]['error'][$i] ?? 0) === UPLOAD_ERR_NO_FILE) {
+            continue;
+        }
+        $file = ['name' => $name, 'type' => $_FILES[$field]['type'][$i] ?? '', 'tmp_name' => $_FILES[$field]['tmp_name'][$i] ?? '',
+            'error' => $_FILES[$field]['error'][$i] ?? UPLOAD_ERR_NO_FILE, 'size' => $_FILES[$field]['size'][$i] ?? 0];
+        $reference = $have < KB_ARTICLE_MAX_FILES ? checkFileUpload($file, fileUploadExtensions()) : false;
+        if (!$reference || (!is_dir($dir) && !mkdir($dir, 0775, true)) || !move_uploaded_file($file['tmp_name'], $dir . $reference)) {
+            $out['refused'][] = (string) $name;
+            continue;
+        }
+        $name = mb_substr(str_replace(["\r", "\n", '"'], '', basename((string) $name)), 0, 255);
+        mysqli_query($mysqli, "INSERT INTO kb_article_files SET kb_article_file_kb_article_id = $kb_article_id, kb_article_file_name = '" . escapeSql($name) . "',
+            kb_article_file_reference_name = '" . escapeSql($reference) . "', kb_article_file_size = " . intval($file['size']) . ", kb_article_file_created_by = " . intval($session_user_id ?? 0));
+        $out['kept'][] = $name;
+        $have++;
+    }
+    return $out;
+}
+
+/** Take a file off an article, from its folder too. Its name, or null when it isn't one of the article's. */
+function kbArticleRemoveFile($kb_article_id, $kb_article_file_id) {
+    global $mysqli;
+    foreach (kbArticleFiles($kb_article_id) as $file) {
+        if (intval($file['kb_article_file_id']) === intval($kb_article_file_id)) {
+            @unlink(kbArticleFileDir($kb_article_id) . basename($file['kb_article_file_reference_name']));
+            mysqli_query($mysqli, "DELETE FROM kb_article_files WHERE kb_article_file_id = " . intval($file['kb_article_file_id']));
+            return $file['kb_article_file_name'];
+        }
+    }
+    return null;
+}
+
+/* An article's files on a copy of it - its folder, files and all, is copied with its pictures; this adds them to the copy. */
+function kbArticleCopyFileRows($from_id, $to_id) {
+    global $mysqli, $session_user_id;
+    foreach (kbArticleFiles($from_id) as $file) {
+        if (is_file(kbArticleFileDir($to_id) . basename($file['kb_article_file_reference_name']))) {
+            mysqli_query($mysqli, "INSERT INTO kb_article_files SET kb_article_file_kb_article_id = " . intval($to_id) . ", kb_article_file_name = '" . escapeSql($file['kb_article_file_name']) . "',
+                kb_article_file_reference_name = '" . escapeSql($file['kb_article_file_reference_name']) . "', kb_article_file_size = " . intval($file['kb_article_file_size']) . ",
+                kb_article_file_created_by = " . intval($session_user_id ?? 0));
+        }
+    }
+}
+
+/** One file of an article, with its article's id - the row of a page that sends it, or null. */
+function kbArticleFileRow($kb_article_file_id) {
+    global $mysqli;
+    return kbFilesReady() ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT kb_article_file_id, kb_article_file_name, kb_article_file_reference_name, kb_article_file_kb_article_id
+        FROM kb_article_files WHERE kb_article_file_id = " . intval($kb_article_file_id))) : null;
+}
+
+/*
+ * Send an article's file - to download, or to look at in the browser when it
+ * is a kind that is safe to show (getInlineViewableMimeTypes()). The caller
+ * has checked the reader may read the article. Ends the request.
+ */
+function kbFileSend(array $row, $inline = false) {
+    $uploads_base = realpath(dirname(__DIR__) . '/uploads');
+    $path = realpath(kbArticleFileDir($row['kb_article_file_kb_article_id']) . basename($row['kb_article_file_reference_name']));
+    if ($path === false || $uploads_base === false || strpos($path, $uploads_base . DIRECTORY_SEPARATOR) !== 0) {
+        http_response_code(404);
+        exit('File not found');
+    }
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime_type = finfo_file($finfo, $path);
+    finfo_close($finfo);
+    $disposition = $inline && in_array($mime_type, getInlineViewableMimeTypes(), true) ? 'inline' : 'attachment';
+    $name = str_replace(['"', "\r", "\n"], '', basename($row['kb_article_file_name']));
+    header("Content-Type: $mime_type");
+    header("Content-Disposition: $disposition; filename=\"$name\"");
+    header('Content-Length: ' . filesize($path));
+    header('X-Content-Type-Options: nosniff');
+    header("Content-Security-Policy: script-src 'none'; object-src 'none'; base-uri 'none'");
+    header('Cache-Control: private, max-age=3600');
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    readfile($path);
+    exit;
+}
+
+/** An article's files as a list for its readers - name, size, download. $url turns a file's id into its address. HTML. */
+function kbFilesListHtml(array $files, callable $url) {
+    $html = '<ul class="itflow-portal-list">';
+    foreach ($files as $file) {
+        $ext = strtolower(pathinfo($file['kb_article_file_name'], PATHINFO_EXTENSION));
+        $html .= '<li><a class="itflow-portal-ticket" href="' . escapeHtml($url(intval($file['kb_article_file_id']))) . '">'
+            . '<span class="itflow-portal-tile" aria-hidden="true"><i class="fas fa-fw fa-' . escapeHtml(getFileIcon($ext)) . '"></i></span>'
+            . '<span class="itflow-portal-ticket-main"><span class="itflow-portal-ticket-subject d-block text-break">' . escapeHtml($file['kb_article_file_name']) . '</span>'
+            . '<span class="itflow-portal-ticket-meta"><span>' . escapeHtml(formatBytes(intval($file['kb_article_file_size']))) . '</span></span></span>'
+            . '<i class="fas fa-download text-body-secondary" aria-hidden="true"></i></a></li>';
+    }
+    return $html . '</ul>';
+}

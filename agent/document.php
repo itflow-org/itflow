@@ -6,9 +6,10 @@
  * a header card with the actions, the content beside a column of what goes
  * with it.
  *
- * When its template says how often documents made from it are reviewed, it
- * says when it is next due - or that it is due - and can be marked as
- * reviewed; it can be linked to the template it came from after the fact.
+ * When it is reviewed every so often - set on it, or by its template - it
+ * says when it is next due, or that it is due, and can be marked as reviewed;
+ * how often is picked beside that. It can be linked to the template it came
+ * from after the fact.
  *
  * Open to anyone with access to the client, like the files list; changing it
  * takes support write access, like the handlers behind it.
@@ -20,7 +21,7 @@ $document_id = intval($_GET['document_id'] ?? 0);
 
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_archived_at, document_client_visible, document_content, document_created_at,
     document_description, document_folder_id, document_name, document_updated_at, document_reviewed_at, document_template_id, document_template_name,
-    document_template_review_months, document_template_archived_at,
+    document_template_review_months, document_template_archived_at, " . (documentReviewOwnReady() ? 'document_review_months' : 'NULL AS document_review_months') . ",
     creator.user_name AS created_by_name, updater.user_name AS updated_by_name, reviewer.user_name AS reviewed_by_name
     FROM documents
     LEFT JOIN users creator ON document_created_by = creator.user_id
@@ -46,8 +47,9 @@ $document_visible = intval($row['document_client_visible']);
 $document_updated_at = $row['document_updated_at'] ?: $row['document_created_at'];
 $document_updated_by = escapeHtml($row['updated_by_name'] ?: $row['created_by_name']);
 
-// Its review, when its template asks for one - not for an archived document
-$review = !$document_archived && $row['document_template_name'] !== null ? documentReviewState($row) : null;
+// Its review, when it has one - its own, or its template's - not for an archived document
+$review = !$document_archived ? documentReviewState($row) : null;
+$template_review_months = $row['document_template_name'] !== null && $row['document_template_archived_at'] === null ? intval($row['document_template_review_months']) : null;
 
 $folder_tree = folderTree($client_id);
 $document_folder_id = isset($folder_tree[intval($row['document_folder_id'])]) ? intval($row['document_folder_id']) : 0;
@@ -216,17 +218,39 @@ $page_title = $row['document_name'];
                         <?php } ?>
                     </span>
                 </div>
-                <?php if ($review) { ?>
-                    <div class="itflow-glance-item<?= $review['due'] ? ' text-warning-emphasis' : '' ?>" title="Review">
+                <?php if ($review || ($can_edit && !$document_archived && documentReviewOwnReady())) { ?>
+                    <div class="itflow-glance-item<?= $review && $review['due'] ? ' text-warning-emphasis' : '' ?>" title="Review">
                         <i class="fas fa-fw fa-calendar-check"></i>
                         <span class="min-w-0">
-                            <span class="d-block"><?= $review['due'] ? '<strong>Review due</strong> since ' . date('M j, Y', strtotime($review['next'])) : 'Next review ' . date('M j, Y', strtotime($review['next'])) ?></span>
-                            <span class="d-block small text-body-secondary">
-                                <?= $review['reviewed'] ? 'Reviewed' : (strtotime($review['last']) === strtotime($row['document_created_at']) ? 'Made' : 'Edited') ?> <?= timeAgo($review['last']) ?><?= $review['reviewed'] && $row['reviewed_by_name'] !== null ? ' by ' . escapeHtml($row['reviewed_by_name']) : '' ?>
-                                &middot; <?= lcfirst(DOCUMENT_TEMPLATE_REVIEW_MONTHS[intval($row['document_template_review_months'])] ?? '') ?>
-                            </span>
+                            <?php if ($review) { ?>
+                                <span class="d-block"><?= $review['due'] ? '<strong>Review due</strong> since ' . date('M j, Y', strtotime($review['next'])) : 'Next review ' . date('M j, Y', strtotime($review['next'])) ?></span>
+                                <span class="d-block small text-body-secondary">
+                                    <?= $review['reviewed'] ? 'Reviewed' : (strtotime($review['last']) === strtotime($row['document_created_at']) ? 'Made' : 'Edited') ?> <?= timeAgo($review['last']) ?><?= $review['reviewed'] && $row['reviewed_by_name'] !== null ? ' by ' . escapeHtml($row['reviewed_by_name']) : '' ?>
+                                    &middot; <?= lcfirst(DOCUMENT_TEMPLATE_REVIEW_MONTHS[$review['months']] ?? '') ?><?= $review['own'] ? '' : ', as its template says' ?>
+                                </span>
+                            <?php } else { ?>
+                                <span class="text-body-secondary">Not reviewed on a schedule</span>
+                            <?php } ?>
                             <?php if ($can_edit) { ?>
-                                <a class="btn btn-sm <?= $review['due'] ? 'btn-warning' : 'btn-light border' ?> mt-2" href="post.php?mark_document_reviewed=<?= $document_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-check me-1"></i>Mark reviewed</a>
+                                <span class="d-flex flex-wrap gap-2 mt-2">
+                                    <?php if ($review) { ?>
+                                        <a class="btn btn-sm <?= $review['due'] ? 'btn-warning' : 'btn-light border' ?>" href="post.php?mark_document_reviewed=<?= $document_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-check me-1"></i>Mark reviewed</a>
+                                    <?php } ?>
+                                    <?php if (documentReviewOwnReady()) {
+                                        // How often - its template's, or its own
+                                        $review_choices = ($template_review_months !== null ? ['template' => "As its template says - " . lcfirst(DOCUMENT_TEMPLATE_REVIEW_MONTHS[$template_review_months] ?? 'never')] : [])
+                                            + DOCUMENT_TEMPLATE_REVIEW_MONTHS;
+                                        $review_current = $row['document_review_months'] !== null ? (string) intval($row['document_review_months']) : ($template_review_months !== null ? 'template' : '0'); ?>
+                                        <span class="dropdown">
+                                            <button type="button" class="btn btn-sm btn-light border dropdown-toggle" data-bs-toggle="dropdown" title="How often it's reviewed"><i class="fas fa-redo-alt me-1"></i>How often</button>
+                                            <span class="dropdown-menu">
+                                                <?php foreach ($review_choices as $months => $label) { ?>
+                                                    <a class="dropdown-item<?= (string) $months === $review_current ? ' active' : '' ?>" href="post.php?set_document_review=<?= $document_id ?>&months=<?= $months ?>&csrf_token=<?= $csrf ?>"><?= escapeHtml($months === 0 && $template_review_months === null ? 'Never - not on a schedule' : $label) ?></a>
+                                                <?php } ?>
+                                            </span>
+                                        </span>
+                                    <?php } ?>
+                                </span>
                             <?php } ?>
                         </span>
                     </div>

@@ -9,8 +9,8 @@
  * them.
  *
  * Each visit counts as a read (kbCountView()), but not viewing the portal as a
- * contact. Under it, "Was this helpful?" (kbFeedbackHtml(), kb_feedback in
- * post.php).
+ * contact. Under it, its files (kb_file.php), then "Was this helpful?"
+ * (kbFeedbackHtml(), kb_feedback in post.php).
  */
 
 header("Content-Security-Policy: default-src 'self'");
@@ -85,6 +85,14 @@ if ($category_id) {
 <?php } else { ?>
     <section class="itflow-portal-panel mb-4">
         <?= emptyStateHtml(['title' => 'This article is empty', 'text' => '', 'icon' => 'fa-book', 'filtered' => false]) ?>
+    </section>
+<?php } ?>
+
+<?php $files = kbArticleFiles($kb_article_id);
+if ($files) { ?>
+    <section class="itflow-portal-panel mb-4">
+        <div class="itflow-portal-panel-head"><h2><i class="fas fa-paperclip me-2"></i>Files</h2></div>
+        <?= kbFilesListHtml($files, function ($id) { return "kb_file.php?file_id=$id"; }) ?>
     </section>
 <?php } ?>
 

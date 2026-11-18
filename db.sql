@@ -1588,6 +1588,7 @@ CREATE TABLE `documents` (
   `document_archived_at` datetime DEFAULT NULL,
   `document_accessed_at` datetime DEFAULT NULL,
   `document_reviewed_at` datetime DEFAULT NULL,
+  `document_review_months` int(11) DEFAULT NULL,
   `document_folder_id` int(11) NOT NULL DEFAULT 0,
   `document_created_by` int(11) NOT NULL DEFAULT 0,
   `document_updated_by` int(11) NOT NULL DEFAULT 0,
@@ -1982,6 +1983,27 @@ CREATE TABLE `kb_article_feedback` (
   KEY `kb_article_feedback_kb_article_id` (`kb_article_feedback_kb_article_id`),
   KEY `kb_article_feedback_ip` (`kb_article_feedback_ip`,`kb_article_feedback_created_at`),
   CONSTRAINT `kb_article_feedback_ibfk_1` FOREIGN KEY (`kb_article_feedback_kb_article_id`) REFERENCES `kb_articles` (`kb_article_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `kb_article_files`
+--
+
+DROP TABLE IF EXISTS `kb_article_files`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `kb_article_files` (
+  `kb_article_file_id` int(11) NOT NULL AUTO_INCREMENT,
+  `kb_article_file_name` varchar(255) NOT NULL,
+  `kb_article_file_reference_name` varchar(255) NOT NULL,
+  `kb_article_file_size` bigint(20) unsigned NOT NULL DEFAULT 0,
+  `kb_article_file_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `kb_article_file_created_by` int(11) NOT NULL DEFAULT 0,
+  `kb_article_file_kb_article_id` int(11) NOT NULL,
+  PRIMARY KEY (`kb_article_file_id`),
+  KEY `kb_article_file_kb_article_id` (`kb_article_file_kb_article_id`),
+  CONSTRAINT `kb_article_files_ibfk_1` FOREIGN KEY (`kb_article_file_kb_article_id`) REFERENCES `kb_articles` (`kb_article_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

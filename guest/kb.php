@@ -209,6 +209,14 @@ $title = $article ? $article['kb_article_title'] . ' | ' : '';
         </article>
     <?php } ?>
 
+    <?php $files = kbArticleFiles($article['kb_article_id']);
+    if ($files) { ?>
+        <section class="itflow-portal-panel mb-4">
+            <div class="itflow-portal-panel-head"><h2><i class="fas fa-paperclip me-2"></i>Files</h2></div>
+            <?= kbFilesListHtml($files, function ($id) { return "kb_file.php?file_id=$id"; }) ?>
+        </section>
+    <?php } ?>
+
     <?php if (kbFeedbackReady()) { ?>
         <?= kbFeedbackHtml($article['kb_article_id'], kbFeedbackState($article['kb_article_id']), kbPublicArticleUrl($article), $_SESSION['csrf_token']) ?>
     <?php } ?>
