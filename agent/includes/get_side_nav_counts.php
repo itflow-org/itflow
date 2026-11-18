@@ -43,6 +43,8 @@ $num_purchasing = poNavCounts();
 // Products whose stock is at or under the reorder level, or out
 $num_products_reorder = $config_module_enable_accounting == 1 && lookupUserPermission('module_sales') >= 1 ? productReorderCount() : 0;
 
+// Knowledge Base articles due for review, or said not to help by readers
+$num_kb_attention = kbCan(1) ? kbAttentionCount() : 0;
 // Open Quotes Count
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('quote_id') AS num FROM quotes WHERE (quote_status = 'Sent' OR quote_status = 'Viewed') AND quote_archived_at IS NULL " . clientScopeSql('quote_client_id') . ""));
 $num_open_quotes = $row['num'];

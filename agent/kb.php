@@ -4,10 +4,12 @@
  * The Knowledge Base - every article, for every client: how-tos, fixes and
  * policies written once. Each row has its category's icon, its title and what
  * it is for, its tags, its category, who can read it, when it last changed
- * and when it is next reviewed. The pills are the views - every article, the published ones, the
- * drafts, the ones due for review and the archived ones - counted over what
- * the search, category and tags leave. Ticked rows can be put in a category,
- * published, made drafts, archived, restored or deleted.
+ * and when it is next reviewed, and how its readers found it. The pills are the views - every
+ * article, the published ones, the drafts, the ones due for review, the ones
+ * readers said didn't help that nobody has dealt with, and the archived ones -
+ * counted over what the search, category and tags leave. Ticked rows can be
+ * put in a category, published, made drafts, archived, restored or deleted.
+ * Not found, in the header, lists what readers searched for and didn't find.
  *
  * The work is in functions/kb.php; the handlers are agent/post/kb.php.
  */
@@ -61,6 +63,13 @@ $shows = [
     'review' => ['label' => 'Review due', 'icon' => 'fa-calendar-check', 'where' => kbReviewDueSql(), 'title' => 'Published articles due for a read-through - an edit, or Mark reviewed, counts', 'alarm' => 'warning'],
     'archived' => ['label' => 'Archived', 'icon' => 'fa-archive', 'where' => 'kb_article_archived_at IS NOT NULL', 'title' => 'Kept, out of the way'],
 ];
+// Readers' feedback, from database 3.9.7 - before Archived
+$feedback_ready = kbFeedbackReady();
+if ($feedback_ready) {
+    $shows = array_slice($shows, 0, 4, true)
+        + ['attention' => ['label' => 'Needs a look', 'icon' => 'fa-thumbs-down', 'where' => kbNeedsLookSql(), 'title' => "Readers said these didn't help - and nobody has dealt with that yet", 'alarm' => 'warning']]
+        + array_slice($shows, 4, null, true);
+}
 $show = isset($shows[$_GET['show'] ?? '']) ? ($_GET['show'] ?? '') : '';
 
 // Only these sort - an unknown column would take the page down
@@ -68,14 +77,14 @@ $sortable_columns = [
     'kb_article_title' => "kb_article_title $order",
     'category_name' => "kb_article_category_id = 0 $order, category_order $order, category_name $order, kb_article_title ASC",
     'kb_article_updated' => "COALESCE(kb_article_updated_at, kb_article_created_at) $order",
-];
+] + ($feedback_ready ? ['kb_article_views' => "kb_article_views $order"] : []);
 if (!isset($sortable_columns[$sort])) {
     $sort = 'kb_article_updated';
 }
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS kb_article_id, kb_article_title, kb_article_summary, kb_article_content, kb_article_category_id,
         kb_article_published_at, kb_article_visibility, kb_article_all_clients, kb_article_review_months, kb_article_reviewed_at, kb_article_created_at,
-        kb_article_updated_at, kb_article_archived_at,
+        kb_article_updated_at, kb_article_archived_at, " . ($feedback_ready ? 'kb_article_views' : '0 AS kb_article_views') . ",
         category_name, category_description, category_color, category_icon, category_type, updater.user_name AS updated_by_name
     FROM kb_articles $joins
     WHERE $filters AND {$shows[$show]['where']}
@@ -90,6 +99,8 @@ while ($row = mysqli_fetch_assoc($sql)) {
 }
 $article_tags = tagsForRecords('kb_article', array_keys($articles));
 $audiences = kbAudiencesFor(array_keys($articles));
+$feedback_counts = kbFeedbackCounts(array_keys($articles));
+$search_misses = kbSearchMissCount();
 
 // How many of each, for the pills - over what the filters leave
 $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', array_map(function ($s) {
@@ -116,7 +127,13 @@ $csrf = $_SESSION['csrf_token'];
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-book me-2"></i>Knowledge Base</h3>
-        <div class="card-tools">
+        <div class="card-tools d-flex gap-2">
+            <?php if ($search_misses) { ?>
+                <!-- What readers searched for and didn't find (modals/kb/kb_search_misses.php) -->
+                <button type="button" class="btn btn-outline-light ajax-modal" data-modal-size="lg" data-modal-url="modals/kb/kb_search_misses.php" title="What readers searched Help and the help center for, and didn't find - in the last <?= KB_SEARCH_MISS_DAYS ?> days">
+                    <i class="fas fa-search-minus"></i><span class="d-none d-lg-inline ms-2">Not found</span><span class="badge rounded-pill text-bg-warning ms-2"><?= $search_misses ?></span>
+                </button>
+            <?php } ?>
             <div class="btn-group">
                 <?php if ($can_edit) { ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-size="xl" data-modal-url="<?= escapeHtml($add_url) ?>">
@@ -240,6 +257,7 @@ $csrf = $_SESSION['csrf_token'];
                     <th class="d-none d-lg-table-cell">Who can read it</th>
                     <th class="d-none d-md-table-cell"><?= $sort_link('kb_article_updated', 'Updated') ?></th>
                     <th class="d-none d-xl-table-cell">Review</th>
+                    <?php if ($feedback_ready) { ?><th class="d-none d-xl-table-cell"><?= $sort_link('kb_article_views', 'Readers') ?></th><?php } ?>
                     <th></th>
                 </tr>
                 </thead>
@@ -296,6 +314,11 @@ $csrf = $_SESSION['csrf_token'];
                                 <span class="text-body-secondary">-</span>
                             <?php } ?>
                         </td>
+                        <?php if ($feedback_ready) { ?>
+                            <td class="d-none d-xl-table-cell small text-nowrap">
+                                <?= $row['kb_article_visibility'] === 'agents' && !intval($row['kb_article_views']) ? '<span class="text-body-secondary">-</span>' : kbReadersHtml($row, $feedback_counts[$kb_article_id]) ?>
+                            </td>
+                        <?php } ?>
                         <td class="text-end">
                             <?php if ($can_edit) { ?>
                                 <div class="dropdown dropstart">
@@ -351,7 +374,7 @@ $csrf = $_SESSION['csrf_token'];
         'filtered' => $q !== '' || $category_filter !== '' || $tag_filter_ids || $who_filter !== '',
         'archived' => $show === 'archived',
         'views' => ['show'],
-        'view' => emptyStatePill($shows, $show, '', ['review']),
+        'view' => emptyStatePill($shows, $show, '', ['review', 'attention']),
         'text' => 'Write down the fixes and how-tos your team gives again and again - setting up email on a phone, connecting to the VPN, the printer that needs a nudge - once, for every client.',
         'actions' => $can_edit ? [['label' => 'New Article', 'modal' => $add_url, 'size' => 'xl']] : [],
     ];

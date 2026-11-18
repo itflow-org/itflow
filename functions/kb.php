@@ -29,11 +29,10 @@
  * article (agent/modals/kb/kb_article_from_ticket.php); and a client typing a
  * new ticket's subject in the portal is shown the articles that might help.
  *
- * On a ticket (kbFind(), kbReachFor()): the Knowledge Base picker above the
- * reply suggests articles for it, to link to or put in the reply
- * (agent/includes/inc_kb_picker.php); a ticket can be written up as a draft
- * article (agent/modals/kb/kb_article_from_ticket.php); and a client typing a
- * new ticket's subject in the portal is shown the articles that might help.
+ * Keeping it useful (database 3.9.7, kbFeedbackReady()): reads outside ITFlow
+ * are counted, readers say whether an article helped and what was missing,
+ * and searches that found nothing are listed - for the Needs a look view, an
+ * article's Feedback and the Not found list.
  *
  * Reading takes Support (view), writing Support edit, deleting Support full.
  */
@@ -266,7 +265,7 @@ function kbArticleRow($kb_article_id) {
     $kb_article_id = intval($kb_article_id);
     return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT kb_article_id, kb_article_title, kb_article_summary, kb_article_content, kb_article_category_id,
             kb_article_published_at, kb_article_visibility, kb_article_all_clients, kb_article_review_months, kb_article_reviewed_at, kb_article_reviewed_by,
-            kb_article_created_at, kb_article_created_by,
+            " . (kbFeedbackReady() ? 'kb_article_views' : '0 AS kb_article_views') . ", kb_article_created_at, kb_article_created_by,
             kb_article_updated_at, kb_article_updated_by, kb_article_archived_at,
             category_id, category_name, category_description, category_color, category_icon, category_type, category_archived_at,
             creator.user_name AS created_by_name, updater.user_name AS updated_by_name, reviewer.user_name AS reviewed_by_name
@@ -525,6 +524,9 @@ function kbArticleDelete($kb_article_id) {
     mysqli_query($mysqli, "DELETE FROM kb_article_tags WHERE kb_article_id = $kb_article_id");
     mysqli_query($mysqli, "DELETE FROM kb_article_client_tags WHERE kb_article_id = $kb_article_id");
     mysqli_query($mysqli, "DELETE FROM kb_article_clients WHERE kb_article_id = $kb_article_id");
+    if (kbFeedbackReady()) {
+        mysqli_query($mysqli, "DELETE FROM kb_article_feedback WHERE kb_article_feedback_kb_article_id = $kb_article_id");
+    }
     removeDirectory(kbArticleDir($kb_article_id));
     return $row['kb_article_title'];
 }
@@ -559,4 +561,272 @@ function kbArticleFromDocument($document_id) {
         kb_article_content_raw = '" . escapeSql(kbArticleContentRaw($doc['document_name'], (string) $doc['document_description'], $content)) . "'
         WHERE kb_article_id = $kb_article_id");
     return $kb_article_id;
+}
+
+/*
+ * Keeping it useful (database 3.9.7): how many times each article was read
+ * outside ITFlow, "Was this helpful?" from those readers, and what they
+ * searched for and didn't find. Readers are contacts in the client portal
+ * and anyone on the public help center; agents reading here aren't counted.
+ */
+
+const KB_SEARCH_MISS_DAYS = 90;
+
+/** Has the database the read counts, feedback and searches that found nothing (3.9.7)? */
+function kbFeedbackReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '3.9.7', '>=');
+    }
+    return kbOn() && $ready;
+}
+
+/** Count a read of an article outside ITFlow - once a visit, and not for a search engine, a link preview or a script. */
+function kbCountView($kb_article_id) {
+    global $mysqli;
+    $kb_article_id = intval($kb_article_id);
+    $agent = strtolower((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+    if (!kbFeedbackReady() || !empty($_SESSION['kb_viewed'][$kb_article_id]) || $agent === '' || preg_match('/bot|crawl|spider|slurp|preview|monitor|curl|wget|python|java\//', $agent)) {
+        return;
+    }
+    $_SESSION['kb_viewed'][$kb_article_id] = 1;
+    mysqli_query($mysqli, "UPDATE kb_articles SET kb_article_views = kb_article_views + 1 WHERE kb_article_id = $kb_article_id");
+}
+
+/*
+ * "Was this helpful?" from a reader - yes or no, from a contact in the portal
+ * ($contact_id at $client_id) or someone on the public help center. A
+ * contact has one answer an article, and a new one replaces it; on the help
+ * center it is one a visit, and at most 20 an hour from one IP address. The
+ * answer is kept in the visit's session, so what was missing can be added to
+ * it. Whether it was kept.
+ */
+function kbFeedbackSave($kb_article_id, $helpful, $source, $contact_id = 0, $client_id = 0) {
+    global $mysqli;
+    $kb_article_id = intval($kb_article_id);
+    $contact_id = intval($contact_id);
+    $client_id = intval($client_id);
+    $ip = '';
+    if ($source === 'portal' && $contact_id) {
+        mysqli_query($mysqli, "DELETE FROM kb_article_feedback WHERE kb_article_feedback_kb_article_id = $kb_article_id
+            AND kb_article_feedback_source = 'portal' AND kb_article_feedback_contact_id = $contact_id");
+    } else {
+        $source = 'public';
+        $contact_id = $client_id = 0;
+        $ip = escapeSql(mb_substr(getIP(), 0, 45));
+        $mine = intval($_SESSION['kb_feedback'][$kb_article_id] ?? 0);
+        if ($mine) {
+            // Changing their mind replaces the answer they gave
+            mysqli_query($mysqli, "DELETE FROM kb_article_feedback WHERE kb_article_feedback_id = $mine AND kb_article_feedback_kb_article_id = $kb_article_id AND kb_article_feedback_source = 'public'");
+        } elseif (intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM kb_article_feedback WHERE kb_article_feedback_ip = '$ip'
+            AND kb_article_feedback_created_at > NOW() - INTERVAL 1 HOUR"))[0]) >= 20) {
+            return false;
+        }
+    }
+    mysqli_query($mysqli, "INSERT INTO kb_article_feedback SET kb_article_feedback_kb_article_id = $kb_article_id, kb_article_feedback_helpful = " . ($helpful ? 1 : 0) . ",
+        kb_article_feedback_source = '$source', kb_article_feedback_contact_id = $contact_id, kb_article_feedback_client_id = $client_id,
+        kb_article_feedback_ip = " . ($ip !== '' ? "'$ip'" : 'NULL'));
+    $_SESSION['kb_feedback'][$kb_article_id] = intval(mysqli_insert_id($mysqli));
+    return true;
+}
+
+/** What was missing, added to the "No" this visit gave an article. Whether it was kept. */
+function kbFeedbackComment($kb_article_id, $comment) {
+    global $mysqli;
+    $kb_article_id = intval($kb_article_id);
+    $feedback_id = intval($_SESSION['kb_feedback'][$kb_article_id] ?? 0);
+    $comment = trim(mb_substr(preg_replace('/\s+/u', ' ', strip_tags((string) $comment)), 0, 500));
+    if (!$feedback_id || $comment === '') {
+        return false;
+    }
+    mysqli_query($mysqli, "UPDATE kb_article_feedback SET kb_article_feedback_comment = '" . escapeSql($comment) . "'
+        WHERE kb_article_feedback_id = $feedback_id AND kb_article_feedback_kb_article_id = $kb_article_id AND kb_article_feedback_helpful = 0");
+    return mysqli_affected_rows($mysqli) > 0;
+}
+
+/*
+ * Where a reader is with "Was this helpful?" on an article - '' (not
+ * answered), 'yes', 'no' (to say what was missing) or 'done'. A contact's
+ * answer from an earlier visit counts.
+ */
+function kbFeedbackState($kb_article_id, $contact_id = 0) {
+    global $mysqli;
+    $kb_article_id = intval($kb_article_id);
+    $feedback_id = intval($_SESSION['kb_feedback'][$kb_article_id] ?? 0);
+    $where = $feedback_id ? "kb_article_feedback_id = $feedback_id"
+        : (intval($contact_id) ? "kb_article_feedback_source = 'portal' AND kb_article_feedback_contact_id = " . intval($contact_id) : '0');
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT kb_article_feedback_id, kb_article_feedback_helpful, kb_article_feedback_comment FROM kb_article_feedback
+        WHERE kb_article_feedback_kb_article_id = $kb_article_id AND $where ORDER BY kb_article_feedback_id DESC LIMIT 1"));
+    if (!$row) {
+        return '';
+    }
+    $_SESSION['kb_feedback'][$kb_article_id] = intval($row['kb_article_feedback_id']);
+    return intval($row['kb_article_feedback_helpful']) ? 'yes' : ($row['kb_article_feedback_comment'] !== null ? 'done' : 'no');
+}
+
+/*
+ * "Was this helpful?" under an article in the portal or on the public help
+ * center, for where the reader is with it (kbFeedbackState()). Its forms
+ * post to $action with kb_feedback (the answer) or kb_feedback_comment (what
+ * was missing). $ask_url, when there is one, offers a ticket instead. HTML.
+ */
+function kbFeedbackHtml($kb_article_id, $state, $action, $csrf_token, $ask_url = '') {
+    $kb_article_id = intval($kb_article_id);
+    $hidden = '<input type="hidden" name="csrf_token" value="' . escapeHtml($csrf_token) . '">';
+    $html = '<div class="itflow-portal-panel itflow-portal-panel-body itflow-kb-feedback d-print-none mb-4" id="kb-feedback">';
+    if ($state === 'yes') {
+        $html .= '<i class="fas fa-check-circle text-success me-2"></i>Thanks - glad it helped.';
+    } elseif ($state === 'done') {
+        $html .= '<i class="fas fa-check-circle text-success me-2"></i>Thanks - we\'ll use that to make it better.';
+    } elseif ($state === 'no') {
+        $html .= '<form method="post" action="' . escapeHtml($action) . '">' . $hidden
+            . '<label class="form-label fw-semibold" for="kbFeedbackComment">Sorry it didn\'t help. What were you looking for?</label>'
+            . '<textarea class="form-control" id="kbFeedbackComment" name="comment" rows="2" maxlength="500" required placeholder="What was missing, or what didn\'t work"></textarea>'
+            . '<div class="d-flex flex-wrap align-items-center gap-3 mt-2"><button type="submit" class="btn btn-sm btn-primary" name="kb_feedback_comment" value="' . $kb_article_id . '"><i class="fas fa-paper-plane me-1"></i>Send</button>'
+            . ($ask_url !== '' ? '<a href="' . escapeHtml($ask_url) . '">Or ask us in a ticket</a>' : '') . '</div></form>';
+    } else {
+        $html .= '<form method="post" action="' . escapeHtml($action) . '" class="d-flex flex-wrap align-items-center gap-2">' . $hidden
+            . '<input type="hidden" name="kb_feedback" value="' . $kb_article_id . '">'
+            . '<span class="fw-semibold me-2">Was this helpful?</span>'
+            . '<button type="submit" class="btn btn-sm btn-outline-success" name="helpful" value="1"><i class="fas fa-thumbs-up me-1"></i>Yes</button>'
+            . '<button type="submit" class="btn btn-sm btn-outline-secondary" name="helpful" value="0"><i class="fas fa-thumbs-down me-1"></i>No</button></form>';
+    }
+    return $html . '</div>';
+}
+
+/** The readers' answers on each article - [id => ['yes', 'no', 'open' => the noes nobody has dealt with]]. */
+function kbFeedbackCounts(array $kb_article_ids) {
+    global $mysqli;
+    $ids = array_values(array_filter(array_map('intval', $kb_article_ids)));
+    $out = array_fill_keys($ids, ['yes' => 0, 'no' => 0, 'open' => 0]);
+    if (!$ids || !kbFeedbackReady()) {
+        return $out;
+    }
+    $sql = mysqli_query($mysqli, "SELECT kb_article_feedback_kb_article_id AS id, SUM(kb_article_feedback_helpful = 1) AS yes, SUM(kb_article_feedback_helpful = 0) AS no,
+            SUM(kb_article_feedback_helpful = 0 AND kb_article_feedback_dealt_at IS NULL) AS open
+        FROM kb_article_feedback WHERE kb_article_feedback_kb_article_id IN (" . implode(',', $ids) . ") GROUP BY kb_article_feedback_kb_article_id");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $out[intval($row['id'])] = ['yes' => intval($row['yes']), 'no' => intval($row['no']), 'open' => intval($row['open'])];
+    }
+    return $out;
+}
+
+/** The articles a reader said didn't help, that nobody has dealt with yet - a WHERE on kb_articles. */
+function kbNeedsLookSql() {
+    return "(kb_articles.kb_article_archived_at IS NULL AND EXISTS (SELECT 1 FROM kb_article_feedback f WHERE f.kb_article_feedback_kb_article_id = kb_articles.kb_article_id
+        AND f.kb_article_feedback_helpful = 0 AND f.kb_article_feedback_dealt_at IS NULL))";
+}
+
+/** How many articles want an agent - due for review, or said not to help - for the main menu. */
+function kbAttentionCount() {
+    global $mysqli;
+    if (!kbOn()) {
+        return 0;
+    }
+    return intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM kb_articles WHERE " . kbReviewDueSql() . (kbFeedbackReady() ? " OR " . kbNeedsLookSql() : '')))[0]);
+}
+
+/** How an article does with its readers, for the list - its reads, the share who said it helped, and the noes to look at. HTML. */
+function kbReadersHtml(array $row, array $counts) {
+    $views = intval($row['kb_article_views'] ?? 0);
+    $answers = $counts['yes'] + $counts['no'];
+    $html = '<span title="Times read in the client portal and the public help center">' . number_format($views) . ' read' . ($views === 1 ? '' : 's') . '</span>';
+    if ($answers) {
+        $html .= '<div class="text-body-secondary" title="' . $counts['yes'] . ' said it helped, ' . $counts['no'] . ' said it didn\'t"><i class="fas fa-fw fa-thumbs-up me-1"></i>'
+            . round(100 * $counts['yes'] / $answers) . '% of ' . $answers . '</div>';
+    }
+    if ($counts['open']) {
+        $html .= '<div class="text-warning-emphasis fw-semibold">' . $counts['open'] . ' to look at</div>';
+    }
+    return $html;
+}
+
+/*
+ * What readers said didn't help on an article, for its page - the ones nobody
+ * has dealt with first, then the newest - with the contact's and client's
+ * names. A client the agent can't reach isn't named.
+ */
+function kbFeedbackFor($kb_article_id, $limit = 20) {
+    global $mysqli;
+    if (!kbFeedbackReady()) {
+        return [];
+    }
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT kb_article_feedback_id, kb_article_feedback_helpful, kb_article_feedback_comment, kb_article_feedback_source, kb_article_feedback_contact_id,
+            kb_article_feedback_client_id, kb_article_feedback_created_at, kb_article_feedback_dealt_at, contact_name, client_name, user_name AS dealt_by_name
+        FROM kb_article_feedback
+        LEFT JOIN contacts ON contact_id = kb_article_feedback_contact_id AND kb_article_feedback_contact_id > 0
+        LEFT JOIN clients ON client_id = kb_article_feedback_client_id AND kb_article_feedback_client_id > 0
+        LEFT JOIN users ON user_id = kb_article_feedback_dealt_by AND kb_article_feedback_dealt_by > 0
+        WHERE kb_article_feedback_kb_article_id = " . intval($kb_article_id) . " AND kb_article_feedback_helpful = 0
+        ORDER BY kb_article_feedback_dealt_at IS NULL DESC, kb_article_feedback_id DESC
+        LIMIT " . intval($limit));
+    while ($row = mysqli_fetch_assoc($sql)) {
+        if (intval($row['kb_article_feedback_client_id']) && !hasClientAccess(intval($row['kb_article_feedback_client_id']))) {
+            $row['contact_name'] = $row['client_name'] = null;
+        }
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/*
+ * A search of Help or the public help center that found nothing - counted by
+ * its words, where and for which client. A search repeated on a visit counts
+ * once, and a visit counts at most 20, so a script can't fill the list.
+ */
+function kbSearchMissSave($q, $source, $client_id = 0) {
+    global $mysqli;
+    $q = mb_strtolower(trim(preg_replace('/\s+/u', ' ', (string) $q)));
+    $source = $source === 'portal' ? 'portal' : 'public';
+    $key = md5("$source|$q");
+    if (!kbFeedbackReady() || mb_strlen($q) < 2 || mb_strlen($q) > 100 || isset($_SESSION['kb_misses'][$key]) || count($_SESSION['kb_misses'] ?? []) >= 20) {
+        return;
+    }
+    $_SESSION['kb_misses'][$key] = 1;
+    mysqli_query($mysqli, "INSERT INTO kb_search_misses SET kb_search_miss_query = '" . escapeSql($q) . "', kb_search_miss_source = '$source', kb_search_miss_client_id = " . intval($client_id) . "
+        ON DUPLICATE KEY UPDATE kb_search_miss_searches = kb_search_miss_searches + 1, kb_search_miss_last_at = NOW()");
+}
+
+/*
+ * The searches that found nothing in the last 90 days, of the clients the
+ * agent can reach - by their words, the most searched first: [query =>
+ * ['searches', 'last_at', 'places' => [['source', 'client_id', 'client_name']]]].
+ */
+function kbSearchMisses($limit = 100) {
+    global $mysqli;
+    if (!kbFeedbackReady()) {
+        return [];
+    }
+    $out = [];
+    $sql = mysqli_query($mysqli, "SELECT kb_search_miss_query, kb_search_miss_source, kb_search_miss_client_id, kb_search_miss_searches, kb_search_miss_last_at, client_name
+        FROM kb_search_misses
+        LEFT JOIN clients ON client_id = kb_search_miss_client_id AND kb_search_miss_client_id > 0
+        WHERE kb_search_miss_last_at > NOW() - INTERVAL " . KB_SEARCH_MISS_DAYS . " DAY" . clientScopeSql('kb_search_miss_client_id') . "
+        ORDER BY kb_search_miss_source = 'public' DESC, client_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $query = (string) $row['kb_search_miss_query'];
+        $out[$query] = $out[$query] ?? ['searches' => 0, 'last_at' => '', 'places' => []];
+        $out[$query]['searches'] += intval($row['kb_search_miss_searches']);
+        $out[$query]['last_at'] = max($out[$query]['last_at'], (string) $row['kb_search_miss_last_at']);
+        $out[$query]['places'][] = ['source' => $row['kb_search_miss_source'], 'client_id' => intval($row['kb_search_miss_client_id']), 'client_name' => $row['client_name']];
+    }
+    uasort($out, function ($a, $b) {
+        return [$b['searches'], $b['last_at']] <=> [$a['searches'], $a['last_at']];
+    });
+    return array_slice($out, 0, intval($limit), true);
+}
+
+/** How many different searches found nothing in the last 90 days, of the clients the agent can reach. */
+function kbSearchMissCount() {
+    global $mysqli;
+    return kbFeedbackReady() ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(DISTINCT kb_search_miss_query) FROM kb_search_misses
+        WHERE kb_search_miss_last_at > NOW() - INTERVAL " . KB_SEARCH_MISS_DAYS . " DAY" . clientScopeSql('kb_search_miss_client_id')))[0]) : 0;
 }

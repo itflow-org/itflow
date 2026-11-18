@@ -15,7 +15,8 @@ $kb_requested = array_merge(
     array_intersect(['add_kb_article', 'edit_kb_article', 'restore_kb_article_version', 'bulk_category_kb_articles', 'bulk_publish_kb_articles',
         'bulk_draft_kb_articles', 'bulk_archive_kb_articles', 'bulk_restore_kb_articles', 'bulk_delete_kb_articles'], array_keys($_POST)),
     array_intersect(['publish_kb_article', 'draft_kb_article', 'mark_kb_article_reviewed', 'archive_kb_article', 'restore_kb_article', 'delete_kb_article',
-        'copy_kb_article', 'delete_kb_article_version', 'copy_document_to_kb'], array_keys($_GET))
+        'copy_kb_article', 'delete_kb_article_version', 'copy_document_to_kb', 'deal_with_kb_feedback', 'deal_with_kb_article_feedback', 'dismiss_kb_search_miss',
+        'dismiss_kb_search_misses'], array_keys($_GET))
 );
 if ($kb_requested) {
     validateCSRFToken();
@@ -342,4 +343,56 @@ if (isset($_GET['copy_document_to_kb'])) {
     flashAlert("<strong>" . escapeHtml($document['document_name']) . "</strong> is in the Knowledge Base as a draft - take out anything that's only about this client before you publish it");
 
     redirect("kb_article.php?kb_article_id=$kb_article_id");
+}
+
+/*
+ * What readers said didn't help, dealt with - one answer (deal_with_kb_feedback)
+ * or all of an article's (deal_with_kb_article_feedback). It stays on the
+ * article, marked with who dealt with it, and leaves the Needs a look view.
+ */
+if (isset($_GET['deal_with_kb_feedback']) || isset($_GET['deal_with_kb_article_feedback'])) {
+
+    if (!kbFeedbackReady()) {
+        flashAlert('The Knowledge Base needs the database update - ask an admin to run it from Maintenance > Update.', 'error');
+        redirect();
+    }
+    if (isset($_GET['deal_with_kb_feedback'])) {
+        $feedback_id = intval($_GET['deal_with_kb_feedback']);
+        $kb_article_id = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT kb_article_feedback_kb_article_id FROM kb_article_feedback WHERE kb_article_feedback_id = $feedback_id"))[0] ?? 0);
+        $where = "kb_article_feedback_id = $feedback_id";
+    } else {
+        $kb_article_id = intval($_GET['deal_with_kb_article_feedback']);
+        $where = "kb_article_feedback_kb_article_id = $kb_article_id";
+    }
+    $row = kbArticleForHandler($kb_article_id, false);
+
+    mysqli_query($mysqli, "UPDATE kb_article_feedback SET kb_article_feedback_dealt_at = NOW(), kb_article_feedback_dealt_by = $session_user_id
+        WHERE $where AND kb_article_feedback_helpful = 0 AND kb_article_feedback_dealt_at IS NULL");
+    $dealt = mysqli_affected_rows($mysqli);
+
+    if ($dealt > 0) {
+        logAudit("Knowledge Base", "Edit", "$session_name dealt with $dealt reader" . ($dealt === 1 ? "'s" : "s'") . " feedback on article " . escapeSql($row['kb_article_title']), 0, $kb_article_id);
+    }
+    flashAlert($dealt === 1 ? 'Feedback dealt with' : ($dealt ? "$dealt answers dealt with" : 'Nothing left to deal with'));
+
+    redirect("kb_article.php?kb_article_id=$kb_article_id#kbArticleFeedback");
+}
+
+/*
+ * Searches that found nothing, taken off the Not found list - one search,
+ * wherever it was made (dismiss_kb_search_miss, its words) or all the agent
+ * can see (dismiss_kb_search_misses). Searched again, one comes back.
+ */
+if (isset($_GET['dismiss_kb_search_miss']) || isset($_GET['dismiss_kb_search_misses'])) {
+
+    if (kbFeedbackReady()) {
+        $one = isset($_GET['dismiss_kb_search_miss']) ? mb_substr((string) $_GET['dismiss_kb_search_miss'], 0, 100) : null;
+        mysqli_query($mysqli, "DELETE FROM kb_search_misses WHERE " . ($one !== null ? "kb_search_miss_query = '" . escapeSql($one) . "'" : '1') . clientScopeSql('kb_search_miss_client_id'));
+        if (mysqli_affected_rows($mysqli) > 0) {
+            logAudit("Knowledge Base", "Delete", "$session_name took " . ($one !== null ? 'the search "' . escapeSql($one) . '"' : 'every search') . " off the Not found list", 0, 0);
+        }
+    }
+    flashAlert(isset($_GET['dismiss_kb_search_miss']) ? 'Search taken off the list' : 'Not found list cleared');
+
+    redirect('kb.php');
 }

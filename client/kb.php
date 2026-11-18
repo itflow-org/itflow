@@ -40,6 +40,11 @@ if ($q !== '') {
     $where .= " AND (kb_article_title LIKE '%$q_sql%' OR kb_article_summary LIKE '%$q_sql%' OR MATCH(kb_article_content_raw) AGAINST ('$q_sql'))";
 }
 $total = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM kb_articles WHERE $where"))[0]);
+
+// A search of all of Help that found nothing goes on the Knowledge Base's Not found list
+if ($q !== '' && !$total && $category === null && !portalViewingAs()) {
+    kbSearchMissSave($q, 'portal', $session_client_id);
+}
 $pages = max(1, (int) ceil($total / $per_page));
 $page = min(max(1, intval($_GET['page'] ?? 1)), $pages);
 $offset = ($page - 1) * $per_page;

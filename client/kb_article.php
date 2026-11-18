@@ -7,6 +7,10 @@
  * SCOPING: any contact who can sign in; the article must be one kbClientSql()
  * lets $session_client_id read - published, not archived, and shared with
  * them.
+ *
+ * Each visit counts as a read (kbCountView()), but not viewing the portal as a
+ * contact. Under it, "Was this helpful?" (kbFeedbackHtml(), kb_feedback in
+ * post.php).
  */
 
 header("Content-Security-Policy: default-src 'self'");
@@ -36,6 +40,10 @@ if (!$article) { ?>
     <?php
     require_once "includes/footer.php";
     exit;
+}
+
+if (!portalViewingAs()) {
+    kbCountView($kb_article_id);
 }
 
 $content = documentHtmlPurify($article['kb_article_content']);
@@ -78,6 +86,10 @@ if ($category_id) {
     <section class="itflow-portal-panel mb-4">
         <?= emptyStateHtml(['title' => 'This article is empty', 'text' => '', 'icon' => 'fa-book', 'filtered' => false]) ?>
     </section>
+<?php } ?>
+
+<?php if (kbFeedbackReady()) { ?>
+    <?= kbFeedbackHtml($kb_article_id, kbFeedbackState($kb_article_id, $session_contact_id), 'post.php', $_SESSION['csrf_token'], portalAskUrl('Question about ' . $article['kb_article_title'])) ?>
 <?php } ?>
 
 <?php if ($related) { ?>

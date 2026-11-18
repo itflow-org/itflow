@@ -4,7 +4,8 @@
  * A Knowledge Base article - read it, edit it, publish it, print it, see
  * every earlier version and who did what to it. Laid out like a document's
  * page: a header card with the actions, the article beside a column with its
- * category, its review and its versions.
+ * category, who can read it, its review, how its readers found it, what they
+ * said didn't help and its versions.
  *
  * Open to anyone who can read Support; changing it takes Support edit, like
  * the handlers behind it (agent/post/kb.php).
@@ -49,6 +50,11 @@ $sql_versions = mysqli_query($mysqli, "SELECT kb_article_version_id, kb_article_
 while ($version = mysqli_fetch_assoc($sql_versions)) {
     $versions[] = $version;
 }
+
+// How readers outside ITFlow found it - its reads, their answers, and what they said didn't help (database 3.9.7)
+$feedback_ready = kbFeedbackReady();
+$feedback_counts = kbFeedbackCounts([$kb_article_id])[$kb_article_id];
+$feedback = kbFeedbackFor($kb_article_id);
 
 $csrf = $_SESSION['csrf_token'];
 $edit_url = "modals/kb/kb_article_edit.php?id=$kb_article_id";
@@ -230,8 +236,68 @@ $page_title = $row['kb_article_title'];
                         <?php } ?>
                     </span>
                 </div>
+                <?php if ($feedback_ready && $visibility !== 'agents') {
+                    $views = intval($row['kb_article_views']);
+                    $answers = $feedback_counts['yes'] + $feedback_counts['no']; ?>
+                    <div class="itflow-glance-item" title="Readers - in the client portal and the public help center">
+                        <i class="fas fa-fw fa-chart-bar"></i>
+                        <span class="min-w-0">
+                            <span class="d-block">Read <?= number_format($views) ?> time<?= $views === 1 ? '' : 's' ?></span>
+                            <span class="d-block small text-body-secondary">
+                                <?php if ($answers) { ?>
+                                    <?= $feedback_counts['yes'] ?> said it helped, <?= $feedback_counts['no'] ?> said it didn't &middot; <?= round(100 * $feedback_counts['yes'] / $answers) ?>%
+                                <?php } else { ?>
+                                    Nobody has said whether it helped yet
+                                <?php } ?>
+                            </span>
+                        </span>
+                    </div>
+                <?php } ?>
             </div>
         </div>
+
+        <!-- What readers said didn't help -->
+        <?php if ($feedback) { ?>
+            <div class="card mb-3" id="kbArticleFeedback">
+                <div class="card-header">
+                    <h3 class="card-title mb-0"><i class="fas fa-fw fa-thumbs-down me-2 text-body-secondary"></i>Feedback
+                        <?php if ($feedback_counts['open']) { ?><span class="badge rounded-pill text-bg-warning ms-1" title="Not dealt with yet"><?= $feedback_counts['open'] ?></span><?php } ?>
+                    </h3>
+                    <?php if ($can_edit && $feedback_counts['open'] > 1) { ?>
+                        <div class="card-tools">
+                            <a class="btn btn-tool" href="post.php?deal_with_kb_article_feedback=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>" title="Mark them all dealt with"><i class="fas fa-check-double"></i></a>
+                        </div>
+                    <?php } ?>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <?php foreach ($feedback as $answer) {
+                        $open = $answer['kb_article_feedback_dealt_at'] === null;
+                        $comment = trim((string) $answer['kb_article_feedback_comment']);
+                        $answer_client_id = intval($answer['kb_article_feedback_client_id']);
+                        if ($answer['kb_article_feedback_source'] === 'public') {
+                            $who = 'Someone on the public help center';
+                        } elseif ($answer['contact_name'] !== null) {
+                            $who = '<a href="contact.php?client_id=' . $answer_client_id . '&amp;contact_id=' . intval($answer['kb_article_feedback_contact_id']) . '">' . escapeHtml($answer['contact_name']) . '</a>'
+                                . ($answer['client_name'] !== null ? ' &middot; <a class="text-reset" href="client_overview.php?client_id=' . $answer_client_id . '">' . escapeHtml($answer['client_name']) . '</a>' : '');
+                        } else {
+                            $who = $answer['client_name'] !== null ? escapeHtml($answer['client_name']) : 'A contact at a client';
+                        } ?>
+                        <li class="list-group-item d-flex align-items-start gap-2<?= $open ? '' : ' text-body-secondary' ?>">
+                            <div class="min-w-0 flex-grow-1">
+                                <div class="small<?= $comment === '' ? ' fst-italic' : '' ?>"><?= $comment !== '' ? nl2br(escapeHtml($comment)) : "Said it didn't help" ?></div>
+                                <div class="small text-body-secondary">
+                                    <?= $who ?> &middot; <span title="<?= escapeHtml($answer['kb_article_feedback_created_at']) ?>"><?= timeAgo($answer['kb_article_feedback_created_at']) ?></span>
+                                    <?php if (!$open) { ?>&middot; dealt with<?= $answer['dealt_by_name'] !== null ? ' by ' . escapeHtml($answer['dealt_by_name']) : '' ?><?php } ?>
+                                </div>
+                            </div>
+                            <?php if ($open && $can_edit) { ?>
+                                <a class="btn btn-sm btn-light border flex-shrink-0" href="post.php?deal_with_kb_feedback=<?= intval($answer['kb_article_feedback_id']) ?>&csrf_token=<?= $csrf ?>" title="You've seen to it - it leaves Needs a look"><i class="fas fa-check me-1"></i>Dealt with</a>
+                            <?php } ?>
+                        </li>
+                    <?php } ?>
+                </ul>
+            </div>
+        <?php } ?>
 
         <!-- Every earlier version -->
         <div class="card mb-3" id="kbArticleVersions">

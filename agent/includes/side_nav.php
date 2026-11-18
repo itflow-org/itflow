@@ -85,7 +85,12 @@
                     <li class="nav-item">
                         <a href="/agent/kb.php" class="nav-link <?php if (in_array(basename($_SERVER["PHP_SELF"]), ["kb.php", "kb_article.php"], true)) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-book"></i>
-                            <p>Knowledge Base</p>
+                            <p>
+                                Knowledge Base
+                                <?php if (!empty($num_kb_attention)) { ?>
+                                    <span class="right badge text-bg-warning" data-bs-toggle="tooltip" title="Due for review, or readers said they didn't help"><?= intval($num_kb_attention) ?></span>
+                                <?php } ?>
+                            </p>
                         </a>
                     </li>
                 <?php } ?>

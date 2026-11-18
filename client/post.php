@@ -43,6 +43,28 @@ if (isset($_GET['kb_suggest'])) {
     exit;
 }
 
+/*
+ * "Was this helpful?" under a Help article (kbFeedbackHtml()) - the answer
+ * (kb_feedback, with helpful), then for a no what was missing
+ * (kb_feedback_comment). Only for an article shared with their company. Back
+ * to the article.
+ */
+if (isset($_POST['kb_feedback']) || isset($_POST['kb_feedback_comment'])) {
+
+    validateCSRFToken();
+
+    $kb_article_id = intval($_POST['kb_feedback'] ?? $_POST['kb_feedback_comment']);
+    if (!kbFeedbackReady() || !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM kb_articles WHERE kb_article_id = $kb_article_id AND " . kbClientSql($session_client_id)))) {
+        redirect('kb.php');
+    }
+    if (isset($_POST['kb_feedback'])) {
+        kbFeedbackSave($kb_article_id, intval($_POST['helpful'] ?? 0) === 1, 'portal', $session_contact_id, $session_client_id);
+    } else {
+        kbFeedbackComment($kb_article_id, $_POST['comment'] ?? '');
+    }
+    redirect("kb_article.php?id=$kb_article_id#kb-feedback");
+}
+
 if (isset($_POST['add_ticket'])) {
 
     validateCSRFToken();

@@ -2,7 +2,8 @@
 
 /*
  * New Article in the Knowledge Base - the fields are kb_article_form.php.
- * ?category starts it in a category. Starts reviewed every year, published.
+ * ?category starts it in a category, and ?title with a title - Write an
+ * article on the Not found list. Starts reviewed every year, published.
  */
 
 require_once '../../../includes/modal_header.php';
@@ -14,6 +15,7 @@ if ($kb_closed !== '') {
 
 $kb_form_mode = 'add';
 $kb_form = [
+    'kb_article_title' => mb_substr(trim((string) ($_GET['title'] ?? '')), 0, 200),
     'kb_article_category_id' => intval($_GET['category'] ?? 0),
     'kb_article_review_months' => 12,
     'kb_article_published_at' => date('Y-m-d H:i:s'),

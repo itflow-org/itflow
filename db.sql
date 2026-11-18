@@ -1960,6 +1960,32 @@ CREATE TABLE `kb_article_clients` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `kb_article_feedback`
+--
+
+DROP TABLE IF EXISTS `kb_article_feedback`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `kb_article_feedback` (
+  `kb_article_feedback_id` int(11) NOT NULL AUTO_INCREMENT,
+  `kb_article_feedback_helpful` tinyint(1) NOT NULL,
+  `kb_article_feedback_comment` varchar(500) DEFAULT NULL,
+  `kb_article_feedback_source` varchar(10) NOT NULL,
+  `kb_article_feedback_contact_id` int(11) NOT NULL DEFAULT 0,
+  `kb_article_feedback_client_id` int(11) NOT NULL DEFAULT 0,
+  `kb_article_feedback_ip` varchar(45) DEFAULT NULL,
+  `kb_article_feedback_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `kb_article_feedback_dealt_at` datetime DEFAULT NULL,
+  `kb_article_feedback_dealt_by` int(11) NOT NULL DEFAULT 0,
+  `kb_article_feedback_kb_article_id` int(11) NOT NULL,
+  PRIMARY KEY (`kb_article_feedback_id`),
+  KEY `kb_article_feedback_kb_article_id` (`kb_article_feedback_kb_article_id`),
+  KEY `kb_article_feedback_ip` (`kb_article_feedback_ip`,`kb_article_feedback_created_at`),
+  CONSTRAINT `kb_article_feedback_ibfk_1` FOREIGN KEY (`kb_article_feedback_kb_article_id`) REFERENCES `kb_articles` (`kb_article_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `kb_article_tags`
 --
 
@@ -2016,6 +2042,7 @@ CREATE TABLE `kb_articles` (
   `kb_article_review_months` int(11) NOT NULL DEFAULT 0,
   `kb_article_reviewed_at` datetime DEFAULT NULL,
   `kb_article_reviewed_by` int(11) NOT NULL DEFAULT 0,
+  `kb_article_views` int(11) NOT NULL DEFAULT 0,
   `kb_article_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `kb_article_created_by` int(11) NOT NULL DEFAULT 0,
   `kb_article_updated_at` datetime DEFAULT NULL,
@@ -2024,6 +2051,27 @@ CREATE TABLE `kb_articles` (
   PRIMARY KEY (`kb_article_id`),
   KEY `kb_article_category_id` (`kb_article_category_id`),
   FULLTEXT KEY `kb_article_content_raw` (`kb_article_content_raw`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `kb_search_misses`
+--
+
+DROP TABLE IF EXISTS `kb_search_misses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `kb_search_misses` (
+  `kb_search_miss_id` int(11) NOT NULL AUTO_INCREMENT,
+  `kb_search_miss_query` varchar(100) NOT NULL,
+  `kb_search_miss_source` varchar(10) NOT NULL,
+  `kb_search_miss_client_id` int(11) NOT NULL DEFAULT 0,
+  `kb_search_miss_searches` int(11) NOT NULL DEFAULT 1,
+  `kb_search_miss_first_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `kb_search_miss_last_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`kb_search_miss_id`),
+  UNIQUE KEY `kb_search_miss_query` (`kb_search_miss_query`,`kb_search_miss_source`,`kb_search_miss_client_id`),
+  KEY `kb_search_miss_last_at` (`kb_search_miss_last_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

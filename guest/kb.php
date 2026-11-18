@@ -9,11 +9,17 @@
  * Laid out like the client portal, with your logo, so it looks like yours.
  * An article's own tables and colours are inline styles, already through
  * HTMLPurifier (documentHtmlPurify()), so styles are let in; scripts are not.
+ *
+ * Each visit counts as a read (kbCountView()), "Was this helpful?" goes under
+ * an article (kbFeedbackHtml(), posted back here), and a search that finds
+ * nothing goes on the Knowledge Base's Not found list. A session keeps a
+ * visit's reads, answer and form token.
  */
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/load_global_settings.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/session_init.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_set_timezone.php';
 
 header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'");
@@ -32,6 +38,25 @@ $per_page = 25;
 $q = trim((string) ($_GET['q'] ?? ''));
 $q_sql = escapeSql($q);
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = randomString(32);
+}
+
+// "Was this helpful?" under an article - the answer, then for a no what was missing. Back to the article.
+if ($open && $_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['kb_feedback']) || isset($_POST['kb_feedback_comment']))) {
+    $kb_article_id = intval($_POST['kb_feedback'] ?? $_POST['kb_feedback_comment']);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT kb_article_id, kb_article_title FROM kb_articles WHERE kb_article_id = $kb_article_id AND $visible LIMIT 1"));
+    if ($row && kbFeedbackReady() && hash_equals($_SESSION['csrf_token'], (string) ($_POST['csrf_token'] ?? ''))) {
+        if (isset($_POST['kb_feedback'])) {
+            kbFeedbackSave($kb_article_id, intval($_POST['helpful'] ?? 0) === 1, 'public');
+        } else {
+            kbFeedbackComment($kb_article_id, $_POST['comment'] ?? '');
+        }
+    }
+    header('Location: ' . ($row ? kbPublicArticleUrl($row) . '#kb-feedback' : 'kb.php'));
+    exit;
+}
+
 $article = null;
 $categories = [];
 $category = null;
@@ -49,7 +74,10 @@ if ($open && isset($_GET['article'])) {
         WHERE kb_article_id = $kb_article_id AND $visible LIMIT 1"));
     if (!$article) {
         http_response_code(404);
-    } elseif (intval($article['kb_article_category_id'])) {
+    } else {
+        kbCountView($kb_article_id);
+    }
+    if ($article && intval($article['kb_article_category_id'])) {
         $sql = mysqli_query($mysqli, "SELECT kb_article_id, kb_article_title FROM kb_articles
             WHERE $visible AND kb_article_category_id = " . intval($article['kb_article_category_id']) . " AND kb_article_id != $kb_article_id
             ORDER BY COALESCE(kb_article_updated_at, kb_article_created_at) DESC LIMIT 5");
@@ -76,6 +104,9 @@ if ($open && isset($_GET['article'])) {
         $where .= " AND (kb_article_title LIKE '%$q_sql%' OR kb_article_summary LIKE '%$q_sql%' OR MATCH(kb_article_content_raw) AGAINST ('$q_sql'))";
     }
     $total = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM kb_articles WHERE $where"))[0]);
+    if ($q !== '' && !$total && $category === null) {
+        kbSearchMissSave($q, 'public');
+    }
     $pages = max(1, (int) ceil($total / $per_page));
     $page = min(max(1, intval($_GET['page'] ?? 1)), $pages);
     $offset = ($page - 1) * $per_page;
@@ -176,6 +207,10 @@ $title = $article ? $article['kb_article_title'] . ' | ' : '';
         <article class="itflow-portal-panel itflow-portal-panel-body itflow-portal-document prettyContent mb-4">
             <?= $content ?>
         </article>
+    <?php } ?>
+
+    <?php if (kbFeedbackReady()) { ?>
+        <?= kbFeedbackHtml($article['kb_article_id'], kbFeedbackState($article['kb_article_id']), kbPublicArticleUrl($article), $_SESSION['csrf_token']) ?>
     <?php } ?>
 
     <?php if ($related) { ?>
