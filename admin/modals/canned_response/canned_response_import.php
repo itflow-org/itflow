@@ -20,7 +20,7 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
-        <p class="small text-secondary">A file exported from Admin > Canned Responses in this or another ITFlow. They come in shared, offered to everyone. The ticket categories they are offered on are matched by name, and made when they aren't here; a status after the reply is matched by name too.</p>
+        <p class="small text-secondary">A file exported from Admin > Templates > Canned Responses in this or another ITFlow. They come in shared, offered to everyone. The ticket categories they are offered on are matched by name, and made when they aren't here; a status after the reply is matched by name too.</p>
 
         <div class="mb-3">
             <label class="form-label">File <strong class="text-danger">*</strong></label>

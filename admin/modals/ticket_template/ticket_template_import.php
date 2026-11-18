@@ -20,7 +20,7 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
-        <p class="small text-secondary">A file exported from Admin > Ticket Templates in this or another ITFlow. Categories and tags they use are matched by name, and made when they aren't here. A request form comes in turned off - turn it on in the template's Client portal tab.</p>
+        <p class="small text-secondary">A file exported from Admin > Templates > Tickets in this or another ITFlow. Categories and tags they use are matched by name, and made when they aren't here. A request form comes in turned off - turn it on in the template's Client portal tab.</p>
 
         <div class="mb-3">
             <label class="form-label">File <strong class="text-danger">*</strong></label>

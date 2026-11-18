@@ -56,7 +56,7 @@ ob_start();
                 Its rates, net terms and SLAs are the client's while it is in force, ahead of a contract in force now for what it sets.
             </p>
         <?php } else { ?>
-            <p class="text-secondary mb-0">There are no contract templates to start one from - make one in Admin &gt; Contract Templates.</p>
+            <p class="text-secondary mb-0">There are no contract templates to start one from - make one in Admin &gt; Templates &gt; Contracts.</p>
         <?php } ?>
 
     </div>

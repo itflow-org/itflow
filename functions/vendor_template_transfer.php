@@ -93,7 +93,7 @@ function vendorTemplateFileValue($field, $value, $max) {
 function vendorTemplatesImportRead($contents, &$error = '') {
     $data = is_array($contents) ? $contents : json_decode((string) $contents, true);
     if (!is_array($data) || ($data['format'] ?? '') !== VENDOR_TEMPLATE_FILE_FORMAT || !isset($data['templates']) || !is_array($data['templates'])) {
-        $error = "That isn't a vendor templates file - export one from Admin > Vendor Templates.";
+        $error = "That isn't a vendor templates file - export one from Admin > Templates > Vendors.";
         return null;
     }
     if (intval($data['version'] ?? 0) > VENDOR_TEMPLATE_FILE_VERSION) {

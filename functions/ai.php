@@ -402,14 +402,14 @@ function callAiApi($model, $messages, array $context = []) {
         }
         logApp('AI', 'error', $detail);
         aiUsageRecord($usage + ['ok' => false, 'error' => "HTTP $status" . (!empty($provider_error['message']) && is_scalar($provider_error['message']) ? ' - ' . $provider_error['message'] : '')]);
-        return ['ok' => false, 'error' => "The AI provider turned the request away (HTTP $status) - see Admin > App Logs."];
+        return ['ok' => false, 'error' => "The AI provider turned the request away (HTTP $status) - see Admin > Logs > App Logs."];
     }
 
     $content = $decoded['choices'][0]['message']['content'] ?? null;
     if (!is_string($content)) {
         logApp('AI', 'error', "$label - HTTP $status but the response carried no choices[0].message.content");
         aiUsageRecord($usage + ['ok' => false, 'error' => 'No answer in the response']);
-        return ['ok' => false, 'error' => 'The AI provider returned an unexpected response - see Admin > App Logs.'];
+        return ['ok' => false, 'error' => 'The AI provider returned an unexpected response - see Admin > Logs > App Logs.'];
     }
 
     aiUsageRecord($usage + ['ok' => true, 'tokens_in' => intval($decoded['usage']['prompt_tokens'] ?? 0), 'tokens_out' => intval($decoded['usage']['completion_tokens'] ?? 0)]);

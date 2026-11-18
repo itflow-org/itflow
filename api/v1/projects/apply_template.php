@@ -41,7 +41,7 @@ if ($row) {
     if (!projectIsOpen($row)) {
         $refuse = "Project $reference isn't open - " . (!empty($row['project_archived_at']) ? 'it is archived.' : 'it is completed, reopen it first.');
     } elseif (!$project_template_id || !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM project_templates WHERE project_template_id = $project_template_id AND project_template_archived_at IS NULL"))) {
-        $refuse = 'project_template_id is one of your project templates - see Admin > Project Templates.';
+        $refuse = 'project_template_id is one of your project templates - see Admin > Templates > Projects.';
     }
     if ($refuse !== '') {
         http_response_code(400);

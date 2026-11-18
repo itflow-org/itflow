@@ -164,6 +164,8 @@ $audit_url = function (array $query) use ($dates_query) {
 
 ?>
 
+<?= adminNavGroupTabsHtml('logs') ?>
+
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-sign-in-alt me-2"></i>Sign-ins</h3>

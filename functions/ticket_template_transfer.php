@@ -100,7 +100,7 @@ function ticketTemplateFileText($value, $max) {
 function ticketTemplatesImportRead($contents, &$error = '') {
     $data = is_array($contents) ? $contents : json_decode((string) $contents, true);
     if (!is_array($data) || ($data['format'] ?? '') !== TICKET_TEMPLATE_FILE_FORMAT || !isset($data['templates']) || !is_array($data['templates'])) {
-        $error = "That isn't a ticket templates file - export one from Admin > Ticket Templates.";
+        $error = "That isn't a ticket templates file - export one from Admin > Templates > Tickets.";
         return null;
     }
     if (intval($data['version'] ?? 0) > TICKET_TEMPLATE_FILE_VERSION) {

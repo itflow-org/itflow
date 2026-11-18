@@ -107,7 +107,7 @@ function cannedResponseFileText($value, $max) {
 function cannedResponsesImportRead($contents, &$error = '') {
     $data = is_array($contents) ? $contents : json_decode((string) $contents, true);
     if (!is_array($data) || ($data['format'] ?? '') !== CANNED_RESPONSE_FILE_FORMAT || !isset($data['responses']) || !is_array($data['responses'])) {
-        $error = "That isn't a canned responses file - export one from Admin > Canned Responses.";
+        $error = "That isn't a canned responses file - export one from Admin > Templates > Canned Responses.";
         return null;
     }
     if (intval($data['version'] ?? 0) > CANNED_RESPONSE_FILE_VERSION) {

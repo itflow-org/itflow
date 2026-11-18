@@ -122,7 +122,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                 <?php if ($c_new && !empty($session_is_admin)) { ?>
                     <p class="small text-secondary" data-contract-no-templates>
                         <i class="fas fa-fw fa-clone me-1"></i>No contract templates yet - a template fills in the type, term, cover and terms of a new contract.
-                        <a href="/admin/contract_templates.php">Make one in Admin &gt; Contract Templates</a>
+                        <a href="/admin/contract_templates.php">Make one in Admin &gt; Templates &gt; Contracts</a>
                     </p>
                 <?php } ?>
             <?php } ?>

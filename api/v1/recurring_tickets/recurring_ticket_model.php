@@ -120,7 +120,7 @@ if (array_key_exists('ticket_template_id', $_POST)) {
     if ($template_id) {
         $rt_template = ticketTemplateRow($template_id);
         if (!$rt_template || !empty($rt_template['ticket_template_archived_at'])) {
-            $rt_refuse("There is no ticket template $template_id - it may have been archived. See Admin > Ticket Templates.");
+            $rt_refuse("There is no ticket template $template_id - it may have been archived. See Admin > Templates > Tickets.");
         }
     }
     $rt_set['recurring_ticket_ticket_template_id'] = $template_id;

@@ -20,7 +20,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $templates[] = $row;
 }
 if (!$templates) {
-    echo json_encode(['error' => 'There are no vendor templates yet - an admin adds them under Admin > Vendor Templates.']);
+    echo json_encode(['error' => 'There are no vendor templates yet - an admin adds them under Admin > Templates > Vendors.']);
     exit;
 }
 

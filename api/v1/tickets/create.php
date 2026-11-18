@@ -50,7 +50,7 @@ $fill_in_answers = null;
 if (!empty($_POST['ticket_template_id'])) {
     $template = ticketTemplateRow($_POST['ticket_template_id']);
     if (!$template || !empty($template['ticket_template_archived_at'])) {
-        $ticket_refuse("There is no ticket template " . intval($_POST['ticket_template_id']) . " - it may have been archived. See Admin > Ticket Templates.");
+        $ticket_refuse("There is no ticket template " . intval($_POST['ticket_template_id']) . " - it may have been archived. See Admin > Templates > Tickets.");
     }
     $posted_fill_ins = $_POST['ticket_fill_ins'] ?? [];
     if (!is_array($posted_fill_ins)) {

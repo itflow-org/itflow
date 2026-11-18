@@ -59,6 +59,8 @@ $csrf = $_SESSION['csrf_token'];
 
 ?>
 
+<?= adminNavGroupTabsHtml('text') ?>
+
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-sms me-2"></i>Text Messaging</h3>

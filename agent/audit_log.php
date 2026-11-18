@@ -108,7 +108,7 @@ $view_empty = [
         <?php if ($session_is_admin) { ?>
             <div class="card-tools">
                 <a class="btn btn-outline-light" href="/admin/audit_logs.php?<?= escapeHtml(http_build_query(array_filter(['client' => $client_id, 'view' => $view, 'q' => $_GET['q'] ?? '', 'type' => $type_filter, 'entity' => $entity_filter ?: '']))) ?>" title="Every client's, with each entry's quick look and export">
-                    <i class="fas fa-fw fa-user-shield"></i><span class="d-none d-lg-inline ms-2">Admin &gt; Audit Logs</span>
+                    <i class="fas fa-fw fa-user-shield"></i><span class="d-none d-lg-inline ms-2">Admin &gt; Logs &gt; Audit Logs</span>
                 </a>
             </div>
         <?php } ?>

@@ -200,7 +200,7 @@ $csrf = $_SESSION['csrf_token'];
                                     </a>
                                     <?php if ($session_is_admin && !$row['canned_response_archived_at']) { ?>
                                         <a class="dropdown-item confirm-link" href="/admin/post.php?share_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>"
-                                            data-confirm-title="Share <?= $name ?> with everyone?" data-confirm-text="It moves to the shared ones in Admin > Canned Responses, and every agent is offered it." data-confirm-button="Share">
+                                            data-confirm-title="Share <?= $name ?> with everyone?" data-confirm-text="It moves to the shared ones in Admin > Templates > Canned Responses, and every agent is offered it." data-confirm-button="Share">
                                             <i class="fas fa-fw fa-users text-secondary me-2"></i>Share with everyone
                                         </a>
                                     <?php } ?>
@@ -243,7 +243,7 @@ $csrf = $_SESSION['csrf_token'];
         'view' => $yours ? [] : [
             'title' => 'No shared canned responses',
             'icon' => 'fa-users',
-            'text' => 'An admin makes them in Admin > Canned Responses.',
+            'text' => 'An admin makes them in Admin > Templates > Canned Responses.',
             'actions' => [],
         ],
     ];

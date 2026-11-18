@@ -50,7 +50,7 @@ if ($client_ok) {
     }
     $project_template_id = intval($_POST['project_template_id'] ?? 0);
     if ($project_template_id && !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM project_templates WHERE project_template_id = $project_template_id AND project_template_archived_at IS NULL"))) {
-        $refuse = "There is no project template $project_template_id - it may be archived. See Admin > Project Templates.";
+        $refuse = "There is no project template $project_template_id - it may be archived. See Admin > Templates > Projects.";
     }
     if ($refuse !== '') {
         http_response_code(400);

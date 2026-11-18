@@ -58,7 +58,7 @@ foreach ($co_templates as $co_template_id => $co_template) {
 
 <?php if (!$co_templates) { ?>
     <div class="alert alert-info small mb-0" data-co-no-templates>
-        <i class="fas fa-info-circle me-1"></i>There are no contract templates yet. Make one in <a href="/admin/contract_templates.php">Admin &gt; Contract Templates</a>, or write the contract on the client's <a href="/agent/contracts.php?client_id=<?= $client_id ?>">Contracts</a> and come back - this step then ticks itself off.
+        <i class="fas fa-info-circle me-1"></i>There are no contract templates yet. Make one in <a href="/admin/contract_templates.php">Admin &gt; Templates &gt; Contracts</a>, or write the contract on the client's <a href="/agent/contracts.php?client_id=<?= $client_id ?>">Contracts</a> and come back - this step then ticks itself off.
     </div>
 <?php } else { ?>
     <form action="post.php" method="post" autocomplete="off" data-gs-form data-co-form="agreement">

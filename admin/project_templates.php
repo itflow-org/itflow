@@ -50,6 +50,8 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
 
 ?>
 
+<?= adminNavGroupTabsHtml('templates') ?>
+
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-cubes me-2"></i>Project Templates</h3>

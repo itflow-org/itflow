@@ -86,6 +86,81 @@ function settingsPageAvailable(array $page) {
     return true;
 }
 
+/*
+ * Admin pages that share one side menu entry, with tabs across their tops
+ * (pageTabsHtml()), by group: the entry's label and icon, and each page there
+ * is - its file, icon, label, the files of its records (they keep the entry
+ * lit) and a count for its badge (count, title, tone).
+ */
+function adminNavGroups() {
+    global $config_module_enable_ticketing, $config_module_enable_accounting, $config_module_enable_itdoc;
+    static $groups = null; // the side menu and the page's tabs both ask
+    if ($groups !== null) {
+        return $groups;
+    }
+    $ticketing = !empty($config_module_enable_ticketing);
+    $accounting = !empty($config_module_enable_accounting);
+    $itdoc = !empty($config_module_enable_itdoc);
+    return $groups = [
+        'logs' => ['label' => 'Logs', 'icon' => 'fa-history', 'pages' => [
+            ['file' => 'audit_logs.php', 'icon' => 'fa-history', 'label' => 'Audit Logs'],
+            ['file' => 'sign_ins.php', 'icon' => 'fa-sign-in-alt', 'label' => 'Sign-ins'],
+            ['file' => 'app_logs.php', 'icon' => 'fa-clipboard-list', 'label' => 'App Logs'],
+        ]],
+        'templates' => ['label' => 'Templates', 'icon' => 'fa-copy', 'pages' => array_values(array_filter([
+            $ticketing ? ['file' => 'ticket_templates.php', 'icon' => 'fa-life-ring', 'label' => 'Tickets', 'also' => ['ticket_template.php']] : null,
+            $ticketing ? ['file' => 'project_templates.php', 'icon' => 'fa-project-diagram', 'label' => 'Projects', 'also' => ['project_template.php']] : null,
+            $ticketing ? ['file' => 'canned_responses.php', 'icon' => 'fa-comment-dots', 'label' => 'Canned Responses'] : null,
+            $accounting ? ['file' => 'contract_templates.php', 'icon' => 'fa-file-contract', 'label' => 'Contracts'] : null,
+            $itdoc ? ['file' => 'vendor_templates.php', 'icon' => 'fa-building', 'label' => 'Vendors', 'also' => ['vendor_template.php']] : null,
+            $itdoc ? ['file' => 'software_templates.php', 'icon' => 'fa-box-open', 'label' => 'Licenses', 'also' => ['software_template.php']] : null,
+            $itdoc ? ['file' => 'document_templates.php', 'icon' => 'fa-file-alt', 'label' => 'Documents', 'also' => ['document_template.php']] : null,
+        ]))],
+        'text' => ['label' => 'Text Messaging', 'icon' => 'fa-sms', 'pages' => array_values(array_filter([
+            ['file' => 'text_messaging.php', 'icon' => 'fa-sms', 'label' => 'Setup'],
+            smsProvider() ? ['file' => 'text_messages.php', 'icon' => 'fa-comment-dots', 'label' => 'Messages', 'count' => smsFailedRecently(), 'title' => 'Failed to send in the last week', 'tone' => 'text-bg-danger'] : null,
+        ]))],
+    ];
+}
+
+/* A group's side menu entry - to its first page, lit on any of them, with its pages' counts as one badge. '' when none of its pages is there. HTML. */
+function adminNavGroupItemHtml($key) {
+    $group = adminNavGroups()[$key] ?? null;
+    if (!$group || !$group['pages']) {
+        return '';
+    }
+    $here = basename($_SERVER['PHP_SELF'] ?? '');
+    $active = false;
+    $count = 0;
+    $titles = [];
+    $tone = 'text-light';
+    foreach ($group['pages'] as $page) {
+        $active = $active || $here === $page['file'] || in_array($here, $page['also'] ?? [], true);
+        if (!empty($page['count'])) {
+            $count += intval($page['count']);
+            $titles[] = $page['title'] ?? '';
+            $tone = $page['tone'] ?? $tone;
+        }
+    }
+    return '<li class="nav-item"><a href="/admin/' . escapeHtml($group['pages'][0]['file']) . '" class="nav-link' . ($active ? ' active' : '') . '">'
+        . '<i class="nav-icon fas ' . escapeHtml($group['icon']) . '"></i><p>' . escapeHtml($group['label'])
+        . ($count ? ' <span class="right badge ' . escapeHtml($tone) . '" data-bs-toggle="tooltip" title="' . escapeHtml(implode(' - ', array_filter($titles))) . '">' . $count . '</span>' : '')
+        . '</p></a></li>';
+}
+
+/* The tabs atop a group's pages, the one open lit - nothing when the group has just one page. HTML. */
+function adminNavGroupTabsHtml($key) {
+    $group = adminNavGroups()[$key] ?? null;
+    if (!$group || count($group['pages']) < 2) {
+        return '';
+    }
+    $here = basename($_SERVER['PHP_SELF'] ?? '');
+    return pageTabsHtml(array_map(function ($page) use ($here) {
+        return ['url' => $page['file'], 'icon' => $page['icon'], 'label' => $page['label'], 'active' => $here === $page['file'],
+            'count' => $page['count'] ?? 0, 'title' => $page['title'] ?? '', 'tone' => $page['tone'] ?? ''];
+    }, $group['pages']));
+}
+
 /* The theme colours there are - each has its .theme-<name> block in css/itflow_custom.css. */
 function settingsThemes() {
     return ['lightblue' => 'Light blue', 'blue' => 'Blue', 'navy' => 'Navy', 'indigo' => 'Indigo', 'purple' => 'Purple', 'fuchsia' => 'Fuchsia', 'pink' => 'Pink',

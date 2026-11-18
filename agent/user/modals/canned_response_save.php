@@ -53,7 +53,7 @@ ob_start();
         <?php if ($session_is_admin) { ?>
             <div class="form-check mt-3">
                 <input class="form-check-input" type="checkbox" name="share" value="1" id="cannedSaveShare">
-                <label class="form-check-label" for="cannedSaveShare">Share with everyone <span class="small text-body-secondary">- every agent is offered it; it is kept in Admin > Canned Responses</span></label>
+                <label class="form-check-label" for="cannedSaveShare">Share with everyone <span class="small text-body-secondary">- every agent is offered it; it is kept in Admin > Templates > Canned Responses</span></label>
             </div>
         <?php } ?>
     </div>

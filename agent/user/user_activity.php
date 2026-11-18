@@ -97,8 +97,8 @@ $view_empty = [
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-history me-2"></i>Your activity</h3>
         <?php if ($session_is_admin) { ?>
             <div class="card-tools">
-                <a class="btn btn-outline-light" href="/admin/audit_logs.php?user=<?= intval($session_user_id) ?>" title="The same in Admin > Audit Logs, with each entry's quick look and export">
-                    <i class="fas fa-fw fa-user-shield"></i><span class="d-none d-lg-inline ms-2">Admin &gt; Audit Logs</span>
+                <a class="btn btn-outline-light" href="/admin/audit_logs.php?user=<?= intval($session_user_id) ?>" title="The same in Admin > Logs > Audit Logs, with each entry's quick look and export">
+                    <i class="fas fa-fw fa-user-shield"></i><span class="d-none d-lg-inline ms-2">Admin &gt; Logs &gt; Audit Logs</span>
                 </a>
             </div>
         <?php } ?>

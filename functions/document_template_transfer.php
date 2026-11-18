@@ -99,7 +99,7 @@ function documentTemplateFileText($value, $max) {
 function documentTemplatesImportRead($contents, &$error = '') {
     $data = is_array($contents) ? $contents : json_decode((string) $contents, true);
     if (!is_array($data) || ($data['format'] ?? '') !== DOCUMENT_TEMPLATE_FILE_FORMAT || !isset($data['templates']) || !is_array($data['templates'])) {
-        $error = "That isn't a document templates file - export one from Admin > Document Templates.";
+        $error = "That isn't a document templates file - export one from Admin > Templates > Documents.";
         return null;
     }
     if (intval($data['version'] ?? 0) > DOCUMENT_TEMPLATE_FILE_VERSION) {

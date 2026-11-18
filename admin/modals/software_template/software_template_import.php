@@ -20,7 +20,7 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
-        <p class="small text-secondary">A file exported from Admin > License Templates in this or another ITFlow. Each comes in with what a license made from it starts with. Its vendor is the vendor template here of that name, or one added from the file; what it is sold as, the product here of that name. A new one is required of no one until you say who should have it on its page.</p>
+        <p class="small text-secondary">A file exported from Admin > Templates > Licenses in this or another ITFlow. Each comes in with what a license made from it starts with. Its vendor is the vendor template here of that name, or one added from the file; what it is sold as, the product here of that name. A new one is required of no one until you say who should have it on its page.</p>
 
         <div class="mb-3">
             <label class="form-label">File <strong class="text-danger">*</strong></label>

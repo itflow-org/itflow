@@ -85,6 +85,8 @@ $filters_url = function ($modal) use ($dtf, $dtt, $view, $category_filter) {
 
 ?>
 
+<?= adminNavGroupTabsHtml('logs') ?>
+
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-clipboard-list me-2"></i>App Logs</h3>

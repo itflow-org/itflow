@@ -97,7 +97,7 @@ $co_ticked = function ($name, $id, $should) use ($settings_kept) {
                         <?php if ($co_has) { ?>
                             <span class="badge rounded-pill bg-success-subtle text-success-emphasis fw-normal">They have it</span>
                         <?php } else { ?>
-                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis fw-normal" title="Admin &gt; Vendor Templates says clients like this should have it">Should have</span>
+                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis fw-normal" title="Admin &gt; Templates &gt; Vendors says clients like this should have it">Should have</span>
                         <?php } ?>
                     </label>
                 <?php } ?>
@@ -119,7 +119,7 @@ $co_ticked = function ($name, $id, $should) use ($settings_kept) {
             <div class="mb-4"></div>
         <?php } ?>
     <?php } else { ?>
-        <p class="small text-body-secondary mb-4">No vendor templates yet - the ISPs, software makers and suppliers your clients use, set up once in Admin &gt; Vendor Templates. Add the client's own on its Vendors.</p>
+        <p class="small text-body-secondary mb-4">No vendor templates yet - the ISPs, software makers and suppliers your clients use, set up once in Admin &gt; Templates &gt; Vendors. Add the client's own on its Vendors.</p>
     <?php } ?>
 
     <?php if ($co_support) { ?>
@@ -142,7 +142,7 @@ $co_ticked = function ($name, $id, $should) use ($settings_kept) {
                             <?php if ($co_has) { ?>
                                 <span class="badge rounded-pill bg-success-subtle text-success-emphasis fw-normal">They have it</span>
                             <?php } else { ?>
-                                <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis fw-normal" title="Admin &gt; License Templates says clients like this should have it">Should have</span>
+                                <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis fw-normal" title="Admin &gt; Templates &gt; Licenses says clients like this should have it">Should have</span>
                             <?php } ?>
                         </label>
                     <?php } ?>
@@ -163,7 +163,7 @@ $co_ticked = function ($name, $id, $should) use ($settings_kept) {
             <?php } ?>
             <p class="small text-body-secondary mb-4">Each with the template's seats, renewal and vendor - the vendor added for them too, when they haven't got it. Put devices and users on them from the license afterwards.</p>
         <?php } else { ?>
-            <p class="small text-body-secondary mb-4">No license templates yet - Microsoft 365, antivirus and the rest, set up once in Admin &gt; License Templates. Add the client's own on its Licenses.</p>
+            <p class="small text-body-secondary mb-4">No license templates yet - Microsoft 365, antivirus and the rest, set up once in Admin &gt; Templates &gt; Licenses. Add the client's own on its Licenses.</p>
         <?php } ?>
     <?php } ?>
 
