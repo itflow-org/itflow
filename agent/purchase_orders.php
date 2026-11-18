@@ -104,6 +104,8 @@ $csrf = $_SESSION['csrf_token'];
 
 ?>
 
+<?= poTabsHtml('purchase_orders.php') ?>
+
 <div class="row g-3 mb-3">
     <div class="col-sm-6 col-xl-3">
         <a class="itflow-billing-stat" href="to_order.php">

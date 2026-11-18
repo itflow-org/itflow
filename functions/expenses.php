@@ -571,6 +571,16 @@ function recurringExpenseRunningSql() {
     return "recurring_expense_status = 1 AND recurring_expense_archived_at IS NULL AND recurring_expense_vendor_id > 0";
 }
 
+/** The tabs atop Expenses and Recurring, which share one side menu entry - $active is 'expenses' or 'recurring'. HTML. */
+function expenseTabsHtml($active) {
+    global $mysqli;
+    $running = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM recurring_expenses WHERE " . recurringExpenseRunningSql()))[0]);
+    return pageTabsHtml([
+        ['url' => 'expenses.php', 'icon' => 'fa-shopping-cart', 'label' => 'Expenses', 'active' => $active === 'expenses'],
+        ['url' => 'recurring_expenses.php', 'icon' => 'fa-redo-alt', 'label' => 'Recurring', 'active' => $active === 'recurring', 'count' => $running, 'title' => 'Running'],
+    ]);
+}
+
 /** What the running recurring expenses come to a month, company-wide. */
 function recurringExpenseMonthlyTotal() {
     global $mysqli;

@@ -60,6 +60,32 @@
         </div>
         <script src="<?= staticFileUrl('/js/client_switcher.js') ?>" defer></script>
 
+        <?php
+        // Pages few clients use hide while this client has nothing there - unless it's the page open - and More, at the end,
+        // shows them (js/app.js). Only when that tucks away two or more: More for one page would take as much room as the page.
+        $client_nav_page = basename($_SERVER['PHP_SELF']);
+        $client_nav_quiet = [];
+        $client_nav_docs = $config_module_enable_itdoc == 1 && lookupUserPermission("module_support") >= 1; // as the menu below shows them
+        foreach (array_filter([
+            'Calendar' => [$num_calendar_events + intval($num_calendar_bookings ?? 0), ['calendar.php']],
+            'Racks' => $client_nav_docs ? [$num_racks, ['racks.php', 'rack.php']] : null,
+            'Certificates' => $client_nav_docs ? [$num_certificates, ['certificates.php']] : null,
+            'Shared Links' => $client_nav_docs ? [$num_shares ?? 0, ['shares.php']] : null,
+            'Services' => $client_nav_docs ? [$num_services, ['services.php']] : null,
+            'Trips' => $config_module_enable_accounting == 1 ? [$num_trips, ['trips.php']] : null,
+        ]) as $client_nav_label => [$client_nav_count, $client_nav_pages]) {
+            if (intval($client_nav_count) <= 0 && !in_array($client_nav_page, $client_nav_pages, true)) {
+                $client_nav_quiet[] = $client_nav_label;
+            }
+        }
+        if (count($client_nav_quiet) < 2) {
+            $client_nav_quiet = [];
+        }
+        $client_nav_quiet_attr = function ($label) use ($client_nav_quiet) {
+            return in_array($label, $client_nav_quiet, true) ? ' data-nav-quiet hidden' : '';
+        };
+        ?>
+
         <!-- Sidebar Menu -->
         <nav>
 
@@ -111,7 +137,7 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
+                <li class="nav-item"<?= $client_nav_quiet_attr('Calendar') ?>>
                     <a href="/agent/calendar.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-calendar-alt"></i>
                         <p>
@@ -207,7 +233,7 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
+                        <li class="nav-item"<?= $client_nav_quiet_attr('Racks') ?>>
                             <a href="/agent/racks.php?client_id=<?= $client_id ?>" class="nav-link <?php if (in_array(basename($_SERVER["PHP_SELF"]), ["racks.php", "rack.php"])) { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-server"></i>
                                 <p>
@@ -237,7 +263,7 @@
                             </li>
                         <?php } ?>
 
-                        <li class="nav-item">
+                        <li class="nav-item"<?= $client_nav_quiet_attr('Certificates') ?>>
                             <a href="/agent/certificates.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "certificates.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-lock"></i>
                                 <p>
@@ -263,7 +289,7 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
+                        <li class="nav-item"<?= $client_nav_quiet_attr('Shared Links') ?>>
                             <a href="/agent/shares.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "shares.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-share-alt"></i>
                                 <p>
@@ -290,7 +316,7 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
+                        <li class="nav-item"<?= $client_nav_quiet_attr('Services') ?>>
                             <a href="/agent/services.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "services.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-stream"></i>
                                 <p>
@@ -409,7 +435,7 @@
                         </li>
                     <?php } ?>
 
-                    <li class="nav-item">
+                    <li class="nav-item"<?= $client_nav_quiet_attr('Trips') ?>>
                         <a href="/agent/trips.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-route"></i>
                             <p>
@@ -422,6 +448,15 @@
                         </a>
                     </li>
 
+                <?php } ?>
+
+                <?php if ($client_nav_quiet) { ?>
+                    <li class="nav-item mt-2">
+                        <a href="#" class="nav-link" data-nav-more title="None for this client yet: <?= escapeHtml(implode(', ', $client_nav_quiet)) ?>">
+                            <i class="nav-icon fas fa-ellipsis-h"></i>
+                            <p>More <span class="right badge text-light"><?= count($client_nav_quiet) ?></span></p>
+                        </a>
+                    </li>
                 <?php } ?>
 
             </ul>

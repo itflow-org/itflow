@@ -1401,3 +1401,16 @@ function itflowWatchNetworkIp(networkId, ipId) {
 
 }
 
+
+// The client side nav's More - shows the pages this client has nothing on yet (agent/includes/client_side_nav.php)
+document.addEventListener('click', function (event) {
+    var more = event.target.closest('[data-nav-more]');
+    if (!more) {
+        return;
+    }
+    event.preventDefault();
+    document.querySelectorAll('[data-nav-quiet]').forEach(function (item) {
+        item.hidden = false;
+    });
+    more.closest('li').hidden = true;
+});

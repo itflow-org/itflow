@@ -30,6 +30,8 @@ $line_count = array_sum(array_map('count', $by_po));
 
 ?>
 
+<?= poTabsHtml('receiving.php') ?>
+
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-truck-loading me-2"></i>Receiving</h3>

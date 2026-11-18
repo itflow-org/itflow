@@ -76,6 +76,8 @@ $drafts = poReady() ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUN
 
 ?>
 
+<?= poTabsHtml('to_order.php') ?>
+
 <?php if ($low_stock) { ?>
     <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2" data-low-stock="<?= count($low_stock) ?>">
         <i class="fas fa-fw fa-boxes"></i>

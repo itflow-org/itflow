@@ -100,6 +100,8 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
 
 ?>
 
+<?= expenseTabsHtml('recurring') ?>
+
 <!-- What is committed -->
 <div class="row g-3 mb-3">
     <div class="col-sm-6 col-xl-3">

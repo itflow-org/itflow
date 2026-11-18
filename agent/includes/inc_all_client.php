@@ -272,6 +272,9 @@ if (isset($_GET['client_id'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(event_id) AS num FROM calendar_events WHERE event_client_id = $client_id AND event_archived_at IS NULL
             AND (COALESCE(event_end, event_start) >= CURDATE() OR (event_repeat <> '' AND (event_repeat_until IS NULL OR event_repeat_until >= CURDATE())))"));
         $num_calendar_events = intval($row['num']);
+        // ...and work booked ahead for them, which their calendar shows too - only asked for when no event is (the side nav hides an empty Calendar)
+        $num_calendar_bookings = $num_calendar_events ? 0 : intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM tickets WHERE ticket_client_id = $client_id
+            AND ticket_schedule >= CURDATE() AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL"))[0]);
 
         // The trips this agent may see - all of them with Financial access, else their own
         [$num_trips] = tripTotalsFor('trip_client_id', $client_id);

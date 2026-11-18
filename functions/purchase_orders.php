@@ -1529,6 +1529,17 @@ function poEmail(array $po, $to, $message, &$error = '') {
 
 /* ------------------------------------------------------------- The side menu */
 
+/** The tabs atop To Order, Purchase Orders and Receiving, which share the Purchasing side menu entry - $active is the page's file. HTML. */
+function poTabsHtml($active) {
+    global $num_purchasing;
+    $counts = is_array($num_purchasing ?? null) ? $num_purchasing : poNavCounts();
+    return pageTabsHtml([
+        ['url' => 'to_order.php', 'icon' => 'fa-cart-plus', 'label' => 'To Order', 'active' => $active === 'to_order.php', 'count' => $counts['to_order'], 'title' => 'Waiting to go on a purchase order'],
+        ['url' => 'purchase_orders.php', 'icon' => 'fa-file-signature', 'label' => 'Purchase Orders', 'active' => $active === 'purchase_orders.php', 'count' => $counts['pending'], 'title' => 'Waiting for your approval', 'tone' => 'text-bg-warning'],
+        ['url' => 'receiving.php', 'icon' => 'fa-truck-loading', 'label' => 'Receiving', 'active' => $active === 'receiving.php', 'count' => $counts['arriving'], 'title' => 'Lines on ordered purchase orders still to come in'],
+    ]);
+}
+
 /** What the PURCHASING menu counts - to_order, pending (waiting for this agent's approval), arriving (lines still to come in). */
 function poNavCounts() {
     global $mysqli, $session_user_id, $session_is_admin;

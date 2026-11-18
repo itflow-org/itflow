@@ -577,6 +577,24 @@ function emptyStateClearUrl(array $views = []) {
 }
 
 /**
+ * Tabs across the top of pages that share one side menu entry - Expenses and
+ * Recurring, or Purchasing's three. Each tab: url, icon, label, active, and
+ * optionally count (shown when above 0), title (the count's tooltip) and
+ * tone (a badge class, for a count that needs someone). HTML.
+ */
+function pageTabsHtml(array $tabs) {
+    $html = '<nav class="nav nav-pills itflow-asset-tabs mb-3 flex-nowrap overflow-auto" aria-label="Pages here">';
+    foreach ($tabs as $tab) {
+        $count = intval($tab['count'] ?? 0);
+        $html .= '<a class="nav-link text-nowrap' . (!empty($tab['active']) ? ' active" aria-current="page' : '') . '" href="' . escapeHtml($tab['url']) . '">'
+            . '<i class="fas fa-fw ' . escapeHtml($tab['icon']) . ' me-1"></i>' . escapeHtml($tab['label'])
+            . ($count > 0 ? ' <span class="badge rounded-pill ms-1 ' . escapeHtml($tab['tone'] ?? '') . '"' . (!empty($tab['title']) ? ' title="' . escapeHtml($tab['title']) . '"' : '') . '>' . $count . '</span>' : '')
+            . '</a>';
+    }
+    return $html . '</nav>';
+}
+
+/**
  * The empty state of the pill picked ($key, from a page's $pills - label,
  * icon, title, alarm): "Nothing in Overdue" with the pill's own line under
  * it - with a tick for a pill that flags trouble (alarm, or one of $good),

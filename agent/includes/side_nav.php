@@ -146,8 +146,10 @@
                     <?php } ?>
                 <?php } ?>
 
-                <?php if ($config_module_enable_accounting == 1 && lookupUserPermission("module_sales") >= 1) { ?>
+                <?php if ($config_module_enable_accounting == 1 && (lookupUserPermission("module_sales") >= 1 || poLevel() >= 1)) { ?>
                     <li class="nav-header mt-3">BILLING</li>
+                <?php } ?>
+                <?php if ($config_module_enable_accounting == 1 && lookupUserPermission("module_sales") >= 1) { ?>
                     <li class="nav-item">
                         <a href="/agent/quotes.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-comment-dollar"></i>
@@ -225,29 +227,22 @@
                         </a>
                     </li>
                 <?php } ?>
-
                 <?php if (poLevel() >= 1) {
-                    // Purchasing - with invoicing on, for roles with Purchasing (functions/purchase_orders.php)
-                    $po_nav_page = basename($_SERVER["PHP_SELF"]);
-                    $po_nav_links = [
-                        ['to_order.php', 'fa-cart-plus', 'To Order', $num_purchasing['to_order'], 'Waiting to go on a purchase order', 'text-light', []],
-                        ['purchase_orders.php', 'fa-file-signature', 'Purchase Orders', $num_purchasing['pending'], 'Waiting for your approval', 'text-bg-warning', ['purchase_order.php']],
-                        ['receiving.php', 'fa-truck-loading', 'Receiving', $num_purchasing['arriving'], 'Lines on ordered purchase orders still to come in', 'text-light', []],
-                    ]; ?>
-                    <li class="nav-header mt-3">PURCHASING</li>
-                    <?php foreach ($po_nav_links as [$po_nav_file, $po_nav_icon, $po_nav_label, $po_nav_count, $po_nav_title, $po_nav_badge, $po_nav_also]) { ?>
-                        <li class="nav-item">
-                            <a href="/agent/<?= $po_nav_file ?>" class="nav-link <?= $po_nav_page === $po_nav_file || in_array($po_nav_page, $po_nav_also, true) ? 'active' : '' ?>">
-                                <i class="nav-icon fas <?= $po_nav_icon ?>"></i>
-                                <p>
-                                    <?= $po_nav_label ?>
-                                    <?php if ($po_nav_count) { ?>
-                                        <span class="right badge <?= $po_nav_badge ?>" data-bs-toggle="tooltip" title="<?= $po_nav_title ?>"><?= intval($po_nav_count) ?></span>
-                                    <?php } ?>
-                                </p>
-                            </a>
-                        </li>
-                    <?php } ?>
+                    // Purchasing - one entry; To Order, Purchase Orders and Receiving are tabs across its pages (poTabsHtml()).
+                    // Its badge is what waits for this agent's approval, otherwise what is waiting to be ordered. ?>
+                    <li class="nav-item">
+                        <a href="/agent/to_order.php" class="nav-link <?= in_array(basename($_SERVER["PHP_SELF"]), ['to_order.php', 'purchase_orders.php', 'purchase_order.php', 'receiving.php'], true) ? 'active' : '' ?>">
+                            <i class="nav-icon fas fa-truck-loading"></i>
+                            <p>
+                                Purchasing
+                                <?php if ($num_purchasing['pending']) { ?>
+                                    <span class="right badge text-bg-warning" data-bs-toggle="tooltip" title="Purchase orders waiting for your approval"><?= intval($num_purchasing['pending']) ?></span>
+                                <?php } elseif ($num_purchasing['to_order']) { ?>
+                                    <span class="right badge text-light" data-bs-toggle="tooltip" title="Waiting to go on a purchase order"><?= intval($num_purchasing['to_order']) ?></span>
+                                <?php } ?>
+                            </p>
+                        </a>
+                    </li>
                 <?php } ?>
 
                 <?php if ($config_module_enable_accounting == 1) { ?>
@@ -259,21 +254,11 @@
                                 <p>Income</p>
                             </a>
                         </li>
+                        <?php // Recurring expenses are a tab of Expenses ?>
                         <li class="nav-item">
-                            <a href="/agent/expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "expenses.php") { echo "active"; } ?>">
+                            <a href="/agent/expenses.php" class="nav-link <?php if (in_array(basename($_SERVER["PHP_SELF"]), ["expenses.php", "recurring_expenses.php", "expense_import.php"], true)) { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-shopping-cart"></i>
                                 <p>Expenses</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/agent/recurring_expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_expenses.php") { echo "active"; } ?>">
-                                <i class="nav-icon fas fa-redo-alt"></i>
-                                <p>
-                                    Recurring Expenses
-                                    <?php if ($num_recurring_expenses) { ?>
-                                        <span class="right badge text-light" data-bs-toggle="tooltip" title="Recurring Expenses"><?= $num_recurring_expenses ?></span>
-                                    <?php } ?>
-                                </p>
                             </a>
                         </li>
                     <?php } ?>
@@ -291,16 +276,11 @@
                                 <p>Accounts</p>
                             </a>
                         </li>
+                        <?php // Transfers are a tab of Transactions ?>
                         <li class="nav-item">
-                            <a href="/agent/transactions.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "transactions.php" && ($_GET['show'] ?? '') !== 'transfers') { echo "active"; } ?>">
+                            <a href="/agent/transactions.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "transactions.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-list-alt"></i>
                                 <p>Transactions</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/agent/transactions.php?show=transfers" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "transactions.php" && ($_GET['show'] ?? '') === 'transfers') { echo "active"; } ?>">
-                                <i class="nav-icon fas fa-exchange-alt"></i>
-                                <p>Transfers</p>
                             </a>
                         </li>
                     <?php } ?>

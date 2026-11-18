@@ -47,6 +47,3 @@ $num_products_reorder = $config_module_enable_accounting == 1 && lookupUserPermi
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('quote_id') AS num FROM quotes WHERE (quote_status = 'Sent' OR quote_status = 'Viewed') AND quote_archived_at IS NULL " . clientScopeSql('quote_client_id') . ""));
 $num_open_quotes = $row['num'];
 
-// Recurring Expenses Count
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_expense_id') AS num FROM recurring_expenses WHERE recurring_expense_archived_at IS NULL"));
-$num_recurring_expenses = $row['num'];

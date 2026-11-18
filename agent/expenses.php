@@ -107,6 +107,8 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
 
 ?>
 
+<?= expenseTabsHtml('expenses') ?>
+
 <!-- The spending -->
 <div class="row g-3 mb-3">
     <div class="col-sm-6 col-xl-3">
