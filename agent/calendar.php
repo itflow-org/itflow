@@ -65,7 +65,8 @@ foreach ($sources as $key => $source) {
     data-mobile="<?= !empty($session_mobile) ? 1 : 0 ?>"
     data-initial-date="<?= calendarIsDate($_GET['date'] ?? '') ? escapeHtml($_GET['date']) : '' ?>"
     data-sources="<?= escapeHtml(json_encode($page_sources)) ?>"
-    data-saved-state="<?= escapeHtml(json_encode($saved_state ?: new stdClass())) ?>">
+    data-saved-state="<?= escapeHtml(json_encode($saved_state ?: new stdClass())) ?>"
+    data-zone="<?= timezoneShifted() ? escapeHtml(timezoneView()) : '' ?>">
 
     <div class="col-lg-auto itflow-cal-side order-2 order-lg-1 d-print-none">
 
@@ -169,6 +170,10 @@ foreach ($sources as $key => $source) {
     <div class="col-lg order-1 order-lg-2 min-w-0">
         <div class="card">
             <div class="card-body p-2 p-md-3">
+                <?php if (timezoneShifted()) { ?>
+                    <!-- Away from the company's time zone: the times are on your own clock (functions/user_timezone.php) -->
+                    <div class="mb-2"><?= timezoneNote() ?></div>
+                <?php } ?>
                 <div id="calendar"></div>
             </div>
         </div>

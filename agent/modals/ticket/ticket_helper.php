@@ -81,7 +81,7 @@ ob_start();
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="helper_mode" value="lead" id="helperModeLead" <?= $mode === 'lead' ? 'checked' : '' ?>>
                     <label class="form-check-label" for="helperModeLead">Same time as the lead
-                        <span class="d-block small text-body-secondary"><?= $lead_when !== '' ? escapeHtml($lead_when) . ' - moves with it' : 'The lead isn\'t booked yet - this follows once they are' ?></span>
+                        <span class="d-block small text-body-secondary"><?= $lead_when !== '' ? escapeHtml(timezoneWhenFor($row['ticket_schedule'], $row['ticket_schedule_end'] ?? null, $session_user_id)) . ' - moves with it' : 'The lead isn\'t booked yet - this follows once they are' ?></span>
                     </label>
                 </div>
                 <div class="form-check mt-1">
@@ -100,7 +100,7 @@ ob_start();
                         <label>Date and time</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
-                            <input type="datetime-local" class="form-control" name="scheduled_date_time" id="scheduleDateTime" value="<?= $own_start ? date('Y-m-d\TH:i', strtotime($own_start)) : '' ?>">
+                            <input type="datetime-local" class="form-control" name="scheduled_date_time" id="scheduleDateTime" value="<?= $own_start ? date('Y-m-d\TH:i', strtotime(timezoneToView($own_start))) : '' ?>">
                         </div>
                     </div>
                     <div class="col-sm-5">
@@ -115,6 +115,8 @@ ob_start();
                         </div>
                     </div>
                 </div>
+
+                <?= timezoneFormHint() ?>
 
                 <!-- What else they have that day (agent/js/ticket_schedule_modal.js) -->
                 <div class="border rounded p-2 small mb-3" id="scheduleAgentDay" data-user="<?= $day_user ?>" data-ticket="<?= $ticket_id ?>" data-name="<?= escapeHtml($day_name) ?>" hidden>

@@ -2566,13 +2566,16 @@ if (isset($_GET['calendar_items'])) {
     }
     $opts = ['client_id' => $client_id, 'user_id' => intval($_GET['user_id'] ?? 0)];
 
+    // The days asked for are on the viewer's clock, and so are the times sent back (functions/user_timezone.php)
+    [$from, $to] = [timezoneFromView($from), timezoneFromView($to)];
+
     $calendar_ids = array_filter(array_map('intval', explode(',', (string) ($_GET['calendars'] ?? ''))));
     $items = calendarEventItems($calendar_ids, $from, $to, $opts);
     foreach (array_filter(explode(',', (string) ($_GET['sources'] ?? ''))) as $key) {
         $items = array_merge($items, calendarSourceItems($key, $from, $to, $opts));
     }
 
-    echo json_encode($items);
+    echo json_encode(timezoneItems($items));
     exit;
 }
 
@@ -2593,6 +2596,9 @@ if (isset($_POST['calendar_move'])) {
         echo json_encode(['error' => $message]);
         exit;
     };
+
+    // Dropped on the viewer's clock - as the company's clock reads it (functions/user_timezone.php)
+    $_POST = timezoneMovePost($_POST);
 
     $start = ticketScheduleValue($_POST['start'] ?? '');
     if ($start === '') {
@@ -2626,7 +2632,7 @@ if (isset($_POST['calendar_move'])) {
         $onsite = isset($_POST['onsite']) ? intval($_POST['onsite']) : intval($row['ticket_onsite']);
         $result = ticketSetSchedule($row, $start, $onsite, $end);
 
-        echo json_encode(['ok' => true, 'message' => ticketReference($row) . ' scheduled for ' . $result['when_text'], 'conflicts' => $result['conflicts']]);
+        echo json_encode(['ok' => true, 'message' => ticketReference($row) . ' scheduled for ' . timezoneWhenFor($start, $end, $session_user_id), 'conflicts' => $result['conflicts']]);
         exit;
     }
 
@@ -2661,7 +2667,7 @@ if (isset($_POST['calendar_move'])) {
         if (!$ok) {
             $fail($message);
         }
-        echo json_encode(['ok' => true, 'message' => $helper['user_name'] . ' booked on ' . ticketReference($row) . ' for ' . ticketScheduleWhenText($start, $end), 'conflicts' => $conflicts]);
+        echo json_encode(['ok' => true, 'message' => $helper['user_name'] . ' booked on ' . ticketReference($row) . ' for ' . timezoneWhenFor($start, $end, $session_user_id), 'conflicts' => $conflicts]);
         exit;
     }
 
@@ -2706,7 +2712,7 @@ if (isset($_POST['calendar_move'])) {
 
     logAudit("Calendar Event", "Edit", "$session_name moved the event " . escapeSql($event['event_title']) . " to " . escapeSql(calendarWhenText($event)), intval($event['event_client_id']), $event_id);
 
-    echo json_encode(['ok' => true, 'message' => $event['event_title'] . ' moved to ' . calendarWhenText($event) . ($sent ? " - the update was emailed to $sent " . ($sent === 1 ? 'person' : 'people') : '')]);
+    echo json_encode(['ok' => true, 'message' => $event['event_title'] . ' moved to ' . timezoneEventWhenText($event, $event['event_start'], $event['event_end']) . ($sent ? " - the update was emailed to $sent " . ($sent === 1 ? 'person' : 'people') : '')]);
     exit;
 }
 
@@ -2813,13 +2819,14 @@ if (isset($_GET['calendar_day'])) {
         exit;
     }
 
-    $from = "$date 00:00:00";
-    $to = "$date 23:59:59";
+    // The viewer's day, and its times on their clock (functions/user_timezone.php)
+    $from = timezoneFromView("$date 00:00:00");
+    $to = timezoneFromView("$date 23:59:59");
     $opts = ['user_id' => $user_id];
-    $items = array_merge(
+    $items = timezoneItems(array_merge(
         calendarSourceItems('tickets', $from, $to, $opts),
         calendarEventItems(array_keys(calendarList()), $from, $to, $opts)
-    );
+    ));
 
     $day = [];
     foreach ($items as $item) {

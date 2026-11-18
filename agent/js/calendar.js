@@ -32,6 +32,16 @@
     const agentSelect = document.getElementById('calendarAgent');
     const unscheduledList = document.getElementById('calendarUnscheduled');
     const leftBehindList = document.getElementById('calendarLeftBehind');
+    // Away from the company's time zone: "now" on the agent's own clock - the server sends their times moved into it
+    const zone = root.dataset.zone || '';
+    function zoneNow() {
+        const parts = {};
+        new Intl.DateTimeFormat('en-CA', {timeZone: zone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'})
+            .formatToParts(new Date()).forEach(function (part) {
+                parts[part.type] = part.value;
+            });
+        return parts.year + '-' + parts.month + '-' + parts.day + 'T' + parts.hour + ':' + parts.minute + ':' + parts.second;
+    }
 
     // ---------- what this browser remembers ----------
 
@@ -228,6 +238,7 @@
         eventOrder: 'allDay,start,-duration,title',
         // Bookings at the same time sit side by side, never on top of each other
         slotEventOverlap: false,
+        now: zone ? zoneNow : undefined,
         views: {
             // Side by side past three, the rest go behind "+N more"
             timeGrid: {eventMaxStack: 3},

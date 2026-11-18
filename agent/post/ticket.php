@@ -128,7 +128,8 @@ if (isset($_POST['add_ticket'])) {
     $due = ticketDueSql($_POST['due'] ?? '');
     // The work booked as it is made - checked before anything is saved
     $schedule_input = trim((string) ($_POST['schedule'] ?? ''));
-    $schedule = ticketScheduleValue($schedule_input);
+    // Typed on the agent's own clock - kept in the company's (functions/user_timezone.php)
+    $schedule = ticketScheduleValue(timezoneFromView(str_replace('T', ' ', $schedule_input)));
     if ($schedule_input !== '' && $schedule === '') {
         flashAlert('The schedule needs a date and a time - or leave it empty to book the work later.', 'error');
         redirect();
@@ -1990,7 +1991,8 @@ if (isset($_POST['edit_ticket_schedule'])) {
     validateCSRFToken();
 
     $row = ticketForRequest($_POST['ticket_id'] ?? 0, 2);
-    $schedule = ticketScheduleValue($_POST['scheduled_date_time'] ?? '');
+    // Typed on the agent's own clock - kept in the company's (functions/user_timezone.php)
+    $schedule = ticketScheduleValue(timezoneFromView(str_replace('T', ' ', trim((string) ($_POST['scheduled_date_time'] ?? '')))));
 
     if ($schedule === '') {
         flashAlert('Pick the date and time for the work.', 'error');
@@ -2021,7 +2023,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
 
     $result = ticketSetSchedule($row, $schedule, intval($_POST['onsite'] ?? 0) ? 1 : 0, $schedule_end);
 
-    $scheduled = "Ticket scheduled for " . escapeHtml($result['when_text']) . (!empty($row['user_name']) ? " with <strong>" . escapeHtml($row['user_name']) . "</strong>" : '');
+    $scheduled = "Ticket scheduled for " . escapeHtml(timezoneWhenFor($schedule, $schedule_end, $session_user_id)) . (!empty($row['user_name']) ? " with <strong>" . escapeHtml($row['user_name']) . "</strong>" : '');
     if ($result['conflicts']) {
         flashAlert("$scheduled.<br>Already booked at that time - the agent, or those helping: <br>" . implode(", <br>", array_map('escapeHtml', $result['conflicts'])), 'warning');
     } else {

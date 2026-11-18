@@ -10,7 +10,8 @@ $ticket_id = intval($row['ticket_id']);
 
 $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
-$ticket_scheduled_for = escapeHtml($row['ticket_schedule']);
+// On the agent's own clock (functions/user_timezone.php) - edit_ticket_schedule moves it back
+$ticket_scheduled_for = escapeHtml(timezoneToView((string) $row['ticket_schedule']));
 $ticket_onsite = intval($row['ticket_onsite']);
 $client_name = escapeHtml($row['client_name']);
 $client_id = intval($row['ticket_client_id']);
@@ -39,8 +40,9 @@ ob_start();
             <label>Date and time</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
-                <input type="datetime-local" class="form-control" name="scheduled_date_time" id="scheduleDateTime" placeholder="Scheduled Date & Time" min="<?= date('Y-m-d\TH:i') ?>" <?php if ($ticket_scheduled_for) { echo "value='$ticket_scheduled_for'"; } ?>>
+                <input type="datetime-local" class="form-control" name="scheduled_date_time" id="scheduleDateTime" placeholder="Scheduled Date & Time" min="<?= substr(timezoneNow(), 0, 16) ?>" <?php if ($ticket_scheduled_for) { echo "value='$ticket_scheduled_for'"; } ?>>
             </div>
+            <?= timezoneFormHint() ?>
         </div>
 
         <div class="row g-2 mb-3">

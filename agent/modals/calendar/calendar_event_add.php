@@ -41,6 +41,10 @@ if ($all_day) {
 } elseif ($end === '' || $end <= $start) {
     $end = date('Y-m-d H:i:s', strtotime($start) + 3600);
 }
+// Picked on the viewer's own clock - kept in the company's (functions/user_timezone.php)
+if (!$all_day && ($_GET['start'] ?? '') !== '') {
+    [$start, $end] = [timezoneFromView($start), timezoneFromView($end)];
+}
 
 $form = [
     'event_title' => (string) ($_GET['title'] ?? ''),

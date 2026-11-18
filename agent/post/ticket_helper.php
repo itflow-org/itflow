@@ -21,7 +21,8 @@ if (isset($_POST['save_ticket_helper'])) {
     $mode = (string) ($_POST['helper_mode'] ?? 'lead');
     $start = $end = '';
     if ($mode === 'own') {
-        $start = ticketScheduleValue($_POST['scheduled_date_time'] ?? '');
+        // Typed on the agent's own clock - kept in the company's (functions/user_timezone.php)
+        $start = ticketScheduleValue(timezoneFromView(str_replace('T', ' ', trim((string) ($_POST['scheduled_date_time'] ?? '')))));
         $end = $start !== '' ? date('Y-m-d H:i:s', strtotime($start) + ticketScheduleMinutesValue($_POST['schedule_minutes'] ?? 0) * 60) : '';
     }
 

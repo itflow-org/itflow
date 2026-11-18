@@ -220,7 +220,8 @@ if (isset($_POST['add_event'])) {
         enforceCalendarEvent(['event_client_id' => $client_id], 'edit');
     }
 
-    $set = calendarEventFormSet($_POST, $client_id, $error);
+    // Typed on the agent's own clock - kept in the company's (functions/user_timezone.php)
+    $set = calendarEventFormSet(timezoneEventPost($_POST), $client_id, $error);
     if ($set === '') {
         flashAlert($error, 'error');
         redirect();
@@ -257,7 +258,7 @@ if (isset($_POST['edit_event'])) {
         enforceCalendarEvent(['event_client_id' => $client_id], 'edit');
     }
 
-    $set = calendarEventFormSet($_POST + ['repeat_on_current' => $old['event_repeat_by_day'] ?? ''], $client_id, $error);
+    $set = calendarEventFormSet(timezoneEventPost($_POST) + ['repeat_on_current' => $old['event_repeat_by_day'] ?? ''], $client_id, $error);
     if ($set === '') {
         flashAlert($error, 'error');
         redirect();

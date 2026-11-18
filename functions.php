@@ -71,6 +71,7 @@ require_once __DIR__ . '/functions/ticket_fields.php';
 require_once __DIR__ . '/functions/by_day.php';
 require_once __DIR__ . '/functions/ticket.php';
 require_once __DIR__ . '/functions/ticket_helpers.php';
+require_once __DIR__ . '/functions/user_timezone.php';
 require_once __DIR__ . '/functions/ticket_status.php';
 require_once __DIR__ . '/functions/ticket_template.php';
 require_once __DIR__ . '/functions/ticket_template_transfer.php';

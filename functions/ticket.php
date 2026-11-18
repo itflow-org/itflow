@@ -2247,9 +2247,10 @@ function ticketScheduleValue($input) {
  * The scheduled-work emails, each with the calendar file - the invite, or its
  * cancellation: to the agent doing the work, and when client notifications
  * are on (Admin > Ticket) to the contact and the watchers. $row has the
- * ticket's id and, for a booking, location_address.
+ * ticket's id and, for a booking, location_address. With the booking's $start
+ * and $end, the agent's email has the time on their own clock.
  */
-function ticketMailSchedule($row, $cal_str, $cancelled, $when_text) {
+function ticketMailSchedule($row, $cal_str, $cancelled, $when_text, $start = null, $end = null) {
     global $config_ticket_client_general_notifications;
     $ticket = ticketRow($row['ticket_id']);
     if (!$ticket || !emailReady()) {
@@ -2260,7 +2261,7 @@ function ticketMailSchedule($row, $cal_str, $cancelled, $when_text) {
     $subject = ($cancelled ? 'Ticket Schedule Cancelled' : 'Ticket Scheduled') . " - [$reference] - " . $ticket['ticket_subject'];
     if ($agent = ticketMailAgent($ticket['ticket_assigned_to'])) {
         emailQueue([$agent + ['footnote' => "You get this as the agent $reference is assigned to."]], $subject,
-            ticketAgentEmailContent($ticket, 'scheduled', $opts), ['from' => ticketEmailFrom(), 'cal_str' => $cal_str]);
+            ticketAgentEmailContent($ticket, 'scheduled', ['when' => $start ? timezoneWhenFor($start, $end, $ticket['ticket_assigned_to']) : $when_text] + $opts), ['from' => ticketEmailFrom(), 'cal_str' => $cal_str]);
     }
     if (intval($config_ticket_client_general_notifications) === 1) {
         ticketMailSend($ticket['ticket_id'], $subject, ticketEmailContent($ticket, 'scheduled', $opts), ['cal_str' => $cal_str]);
@@ -2375,12 +2376,16 @@ function ticketScheduleWhenText($start, $end = null) {
     return date('l, F j, Y, g:ia', $from) . ' - ' . (date('Y-m-d', $from) === date('Y-m-d', $to) ? date('g:ia', $to) : date('l, F j, Y, g:ia', $to));
 }
 
-/** "Oct 20, 2026 · 1:00 PM - 3:00 PM", for the ticket page. */
+/** "Oct 20, 2026 · 1:00 PM - 3:00 PM", for the ticket page - on the viewer's own clock, with its zone, when they work away from the company's. */
 function ticketScheduleShortText($start, $end = null) {
     $end = ticketScheduleEnd($start, $end);
+    $zone = '';
+    if (timezoneShifted()) {
+        [$start, $end, $zone] = [timezoneToView($start), timezoneToView($end), ' ' . timezoneAbbr(timezoneView())];
+    }
     $from = strtotime($start);
     $to = strtotime($end);
-    return date('M j, Y · g:i A', $from) . ' - ' . (date('Y-m-d', $from) === date('Y-m-d', $to) ? date('g:i A', $to) : date('M j, g:i A', $to));
+    return date('M j, Y · g:i A', $from) . ' - ' . (date('Y-m-d', $from) === date('Y-m-d', $to) ? date('g:i A', $to) : date('M j, g:i A', $to)) . $zone;
 }
 
 /*
@@ -2471,7 +2476,7 @@ function ticketSetSchedule(array $row, $schedule, $onsite, $end = null) {
     $mail_row = ticketScheduleRow($ticket_id);
     $cal_str = ticketScheduleIcs($mail_row, $schedule, $end);
     $when_text = ticketScheduleWhenText($schedule, $end);
-    ticketMailSchedule($mail_row, $cal_str, false, $when_text);
+    ticketMailSchedule($mail_row, $cal_str, false, $when_text, $schedule, $end);
 
     // The agents helping at the same time move with it, and are sent the new time (functions/ticket_helpers.php)
     $conflicts = array_merge($conflicts, ticketHelpersLeadMoved($ticket_id));

@@ -73,7 +73,7 @@ ob_start();
     <dl class="itflow-asset-dl mb-0">
         <dt>When</dt>
         <dd>
-            <div class="fw-semibold"><?= escapeHtml(calendarWhenText($event, $start, $end)) ?></div>
+            <div class="fw-semibold"><?= escapeHtml(timezoneEventWhenText($event, $start, $end)) ?></div>
             <?php if ($repeats) { ?>
                 <div class="small text-body-secondary"><i class="fas fa-redo fa-fw me-1"></i><?= escapeHtml(calendarRepeatText($event)) ?>, from <?= date('M j, Y', strtotime($event['event_start'])) ?></div>
                 <?php if (calendarSkippedDates($event)) { ?>

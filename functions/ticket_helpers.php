@@ -295,7 +295,8 @@ function ticketHelperMail($ticket_id, $user_id, $start, $end, $kind) {
     $opts = ['lead' => (string) ($ticket['user_name'] ?? ''), 'by' => stripslashes((string) $session_name)];
     $cal_str = '';
     if ($kind === 'booked') {
-        $opts['when'] = ticketScheduleWhenText($start, $end);
+        // On their own clock (functions/user_timezone.php)
+        $opts['when'] = timezoneWhenFor($start, $end, $user_id);
         $opts['where'] = (string) ($mail_row['location_address'] ?? '');
         $subject = "Ticket Scheduled - [$reference] - " . $ticket['ticket_subject'];
         $cal_str = createiCalStr($start, $title, mb_substr(strip_tags((string) $ticket['ticket_details']), 0, 100) . ' - ' . ticketAgentUrl($ticket),
@@ -332,7 +333,7 @@ function ticketHelperLeadInvite($ticket_id) {
     $mail_row = ticketScheduleRow($ticket['ticket_id']);
     $end = ticketScheduleEnd($ticket['ticket_schedule'], $ticket['ticket_schedule_end'] ?? null);
     emailQueue([$agent + ['footnote' => "You get this as the agent $reference is assigned to."]], $subject,
-        ticketAgentEmailContent($ticket, 'scheduled', ['when' => ticketScheduleWhenText($ticket['ticket_schedule'], $end), 'where' => (string) ($mail_row['location_address'] ?? '')]),
+        ticketAgentEmailContent($ticket, 'scheduled', ['when' => timezoneWhenFor($ticket['ticket_schedule'], $end, $ticket['ticket_assigned_to']), 'where' => (string) ($mail_row['location_address'] ?? '')]),
         ['from' => ticketEmailFrom(), 'cal_str' => ticketScheduleIcs($mail_row, $ticket['ticket_schedule'], $end)]);
 }
 
