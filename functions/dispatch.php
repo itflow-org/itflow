@@ -136,7 +136,8 @@ function dispatchWorkingDay() {
  */
 function dispatchQueue($tab, array $filters = []) {
     global $mysqli;
-    $where = TICKET_OPEN_SQL . " AND ticket_archived_at IS NULL" . clientScopeSql('ticket_client_id');
+    // A project's tickets are left to the project while they are kept apart (functions/project_tickets.php)
+    $where = TICKET_OPEN_SQL . " AND ticket_archived_at IS NULL" . clientScopeSql('ticket_client_id') . projectTicketsServiceSql('tickets.ticket_project_id');
     $client_id = intval($filters['client_id'] ?? 0);
     if ($client_id && hasClientAccess($client_id)) {
         $where .= " AND ticket_client_id = $client_id";

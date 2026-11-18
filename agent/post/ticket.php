@@ -366,6 +366,8 @@ if (isset($_POST['edit_ticket'])) {
     }
 
     mysqli_query($mysqli, "UPDATE tickets SET $set WHERE ticket_id = $ticket_id");
+    // Out of a project, its SLA counts from now (functions/project_tickets.php)
+    projectTicketLeft($ticket_id, $row['ticket_project_id']);
     applyTicketSla($ticket_id);
     if ($ticket_status !== intval($row['ticket_status'])) {
         syncTicketSlaClock($ticket_id);
@@ -497,6 +499,8 @@ if (isset($_POST['edit_ticket_project'])) {
     $reference = escapeSql(ticketReference($row));
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
+    // Its SLA goes, or comes back counted from now, while project tickets are kept apart (functions/project_tickets.php)
+    projectTicketMoved($ticket_id, $row['ticket_project_id']);
 
     if ($project_id) {
         logTicketHistory($ticket_id, "$session_name added the ticket to project " . escapeSql($project_name));
@@ -1009,6 +1013,7 @@ if (isset($_POST['bulk_add_ticket_project'])) {
             continue;
         }
         mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
+        projectTicketMoved($ticket_id, $row['ticket_project_id']);
         logTicketHistory($ticket_id, $project_id ? "$session_name added the ticket to project " . escapeSql($project_name) : "$session_name took the ticket out of its project");
         logAudit("Ticket", "Edit", "$session_name " . ($project_id ? "added ticket " . escapeSql(ticketReference($row)) . " to project " . escapeSql($project_name) : "took ticket " . escapeSql(ticketReference($row)) . " out of its project"), intval($row['ticket_client_id']), $ticket_id);
         $count++;

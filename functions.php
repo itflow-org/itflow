@@ -73,6 +73,7 @@ require_once __DIR__ . '/functions/ticket.php';
 require_once __DIR__ . '/functions/ticket_helpers.php';
 require_once __DIR__ . '/functions/user_timezone.php';
 require_once __DIR__ . '/functions/dispatch.php';
+require_once __DIR__ . '/functions/project_tickets.php';
 require_once __DIR__ . '/functions/ticket_status.php';
 require_once __DIR__ . '/functions/ticket_template.php';
 require_once __DIR__ . '/functions/ticket_template_transfer.php';

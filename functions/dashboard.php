@@ -249,7 +249,7 @@ function dashboardAttention($access) {
             'url' => '/agent/tickets.php?sla=breached',
         ];
         $items[] = [
-            'count' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE ticket_resolved_at IS NULL AND ticket_assigned_to = 0 $ticket_scope"),
+            'count' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE ticket_resolved_at IS NULL AND ticket_assigned_to = 0 $ticket_scope" . projectTicketsServiceSql()),
             'label' => 'Unassigned tickets', 'icon' => 'user-slash', 'tone' => 'warning',
             'url' => '/agent/tickets.php?assigned=unassigned',
         ];
@@ -619,7 +619,7 @@ function dashboardTeamWorkload($limit = 8) {
 
     return [
         'techs' => $techs,
-        'unassigned' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE ticket_resolved_at IS NULL AND ticket_assigned_to = 0 $scope"),
+        'unassigned' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE ticket_resolved_at IS NULL AND ticket_assigned_to = 0 $scope" . projectTicketsServiceSql()),
     ];
 }
 

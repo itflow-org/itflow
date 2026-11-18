@@ -692,6 +692,8 @@ function calendarSourceItems($key, $from, $to, array $opts = []) {
         }
         // The agents helping, at the lead's time or their own (functions/ticket_helpers.php)
         $items = array_merge($items, ticketHelperCalendarItems($from, $to, $client_id, $user_id, $can_move));
+        // A project's tickets in the project colour, while they are kept apart (functions/project_tickets.php)
+        $items = projectTicketsCalendarItems($items);
     } elseif ($key === 'projects') {
         $sql = mysqli_query($mysqli, "SELECT project_id, project_prefix, project_number, project_name, project_start, project_due, project_client_id, client_name
             FROM projects LEFT JOIN clients ON client_id = project_client_id

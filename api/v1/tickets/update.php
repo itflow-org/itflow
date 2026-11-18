@@ -37,6 +37,8 @@ if (!empty($ticket_id)) {
 
             // On or off a project
             if ($ticket_project_id !== intval($ticket_row['ticket_project_id'])) {
+                // Its SLA goes, or comes back counted from now, while project tickets are kept apart (functions/project_tickets.php)
+                projectTicketMoved($ticket_id, $ticket_row['ticket_project_id']);
                 $project = $ticket_project_id ? projectRow($ticket_project_id) : null;
                 logTicketHistory($ticket_id, $project ? "Added to project " . escapeSql(projectReference($project) . ' - ' . $project['project_name']) . " via the API ($api_key_name)" : "Taken out of its project via the API ($api_key_name)");
             }

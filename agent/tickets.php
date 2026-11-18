@@ -238,6 +238,9 @@ if ($view === 'list') {
     $shows['all'] = ['label' => 'All', 'where' => '1 = 1'];
 }
 
+// Project tickets kept apart - off the usual views, with a Projects view of their own (functions/project_tickets.php)
+$shows = projectTicketsShows($shows, $base_sql, $project_filter);
+
 // A status or billing filter asked for on its own looks at every ticket - unbilled work is nearly all done already
 $show = $_GET['show'] ?? '';
 if (!isset($shows[$show])) {

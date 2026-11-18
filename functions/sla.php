@@ -488,15 +488,17 @@ function applyTicketSla($ticket_id, $forced_sla_id = null)
 
     $ticket_id = intval($ticket_id);
 
-    $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_priority, ticket_created_at, ticket_first_response_at, ticket_resolved_at,
-        ticket_response_due_at, ticket_resolution_due_at, ticket_response_sla_alert_stage, ticket_resolution_sla_alert_stage FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_priority, ticket_created_at, ticket_first_response_at, ticket_resolved_at, ticket_closed_at,
+        ticket_response_due_at, ticket_resolution_due_at, ticket_response_sla_alert_stage, ticket_resolution_sla_alert_stage, ticket_project_id, ticket_sla_id"
+        . (projectTicketsReady() ? ', ticket_sla_from' : ', NULL AS ticket_sla_from') . " FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
     if (!$sql || !mysqli_num_rows($sql)) {
         return;
     }
     $row = mysqli_fetch_assoc($sql);
 
     if (is_null($forced_sla_id)) {
-        $sla_id = getTicketSlaId($row['ticket_client_id'], $row['ticket_priority']);
+        // A project's ticket has no SLA while project tickets are kept apart - its project's dates count (functions/project_tickets.php)
+        $sla_id = projectTicketsSlaOff($row) ? 0 : getTicketSlaId($row['ticket_client_id'], $row['ticket_priority']);
     } else {
         $sla_id = intval($forced_sla_id);
     }
@@ -514,7 +516,8 @@ function applyTicketSla($ticket_id, $forced_sla_id = null)
     }
     $sla = mysqli_fetch_assoc($sla_sql);
 
-    $created_at = $row['ticket_created_at'];
+    // Counted from when it was made - or from when it left a project (functions/project_tickets.php)
+    $created_at = !empty($row['ticket_sla_from']) && $row['ticket_sla_from'] > $row['ticket_created_at'] ? $row['ticket_sla_from'] : $row['ticket_created_at'];
 
     $response_due_at = addBusinessMinutes($created_at, $sla['sla_response_minutes']);
 

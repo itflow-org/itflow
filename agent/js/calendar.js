@@ -300,6 +300,13 @@
                     const agent = document.createElement('span');
                     agent.className = 'itflow-cal-agent';
                     agent.textContent = props.agent_name;
+                    // A project's booking is in the project colour - a dot in the agent's beside their name (functions/project_tickets.php)
+                    if (props.agent_color) {
+                        const dot = document.createElement('span');
+                        dot.className = 'itflow-cal-agent-dot';
+                        dot.style.backgroundColor = props.agent_color;
+                        agent.prepend(dot);
+                    }
                     when.append(time, agent);
                     wrap.appendChild(when);
                     agentShown = true;

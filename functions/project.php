@@ -569,6 +569,7 @@ function projectAddTicket($project, $ticket) {
         return '';
     }
     mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = " . intval($project['project_id']) . ", ticket_updated_at = ticket_updated_at WHERE ticket_id = $ticket_id");
+    projectTicketMoved($ticket_id, $ticket['ticket_project_id']);
     logTicketHistory($ticket_id, "$session_name added the ticket to project " . escapeSql(projectReference($project) . ' - ' . $project['project_name']));
     return '';
 }
@@ -578,6 +579,7 @@ function projectRemoveTicket($ticket) {
     global $mysqli, $session_name;
     $ticket_id = intval($ticket['ticket_id']);
     mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = 0, ticket_updated_at = ticket_updated_at WHERE ticket_id = $ticket_id");
+    projectTicketMoved($ticket_id, $ticket['ticket_project_id'] ?? 0);
     logTicketHistory($ticket_id, "$session_name took the ticket out of its project");
 }
 
@@ -628,7 +630,16 @@ function projectDelete($row) {
     while ($ticket = mysqli_fetch_row($sql)) {
         logTicketHistory(intval($ticket[0]), "$session_name deleted project $name, which the ticket was part of");
     }
+    $left = [];
+    $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_project_id = $project_id");
+    while ($ticket = mysqli_fetch_row($sql)) {
+        $left[] = intval($ticket[0]);
+    }
     mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = 0, ticket_updated_at = ticket_updated_at WHERE ticket_project_id = $project_id");
+    // Out of the project - their SLA back, counted from now, while project tickets are kept apart (functions/project_tickets.php)
+    foreach ($left as $ticket_id) {
+        projectTicketMoved($ticket_id, $project_id);
+    }
     mysqli_query($mysqli, "DELETE FROM projects WHERE project_id = $project_id");
     logAudit("Project", "Delete", "$session_name deleted project $name", intval($row['project_client_id']), $project_id);
 }

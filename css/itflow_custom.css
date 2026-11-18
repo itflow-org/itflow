@@ -5637,6 +5637,16 @@ img.itflow-contact-avatar {
 .itflow-cal-event.is-list .itflow-cal-when {
     display: inline-flex;
 }
+/* A project's booking, in the project colour - its agent's colour as a dot (functions/project_tickets.php) */
+.itflow-cal-agent-dot {
+    display: inline-block;
+    width: .55rem;
+    height: .55rem;
+    margin-right: .25rem;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, .85);
+    vertical-align: baseline;
+}
 /* Booked on a day gone by and still open */
 #itflowCalendar .itflow-cal-left-behind {
     outline: 2px dashed var(--bs-danger);

@@ -188,6 +188,8 @@ function settingsFields() {
         // Projects
         'config_project_prefix' => ['page' => 'project', 'section' => 'Numbering', 'label' => 'Project prefix', 'words' => 'project number prj prefix'],
         'config_project_next_number' => ['page' => 'project', 'section' => 'Numbering', 'label' => 'Next project number', 'words' => 'project number counter'],
+        'config_project_tickets_apart' => ['page' => 'project', 'section' => 'Project tickets', 'label' => 'Keep project tickets apart', 'kind' => 'switch', 'words' => 'project tickets sla service desk queue separate apart'],
+        'config_project_ticket_color' => ['page' => 'project', 'section' => 'Project tickets', 'label' => 'Project tickets\' calendar color', 'words' => 'project ticket colour color calendar dispatch'],
 
         // Quotes
         'config_quote_prefix' => ['page' => 'quote', 'section' => 'Numbering', 'label' => 'Quote prefix', 'words' => 'quote number quo prefix estimate'],
