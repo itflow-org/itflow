@@ -117,6 +117,7 @@ function settingsFields() {
         'company_phone' => ['page' => 'company', 'section' => 'Contact', 'label' => 'Phone', 'words' => 'telephone number call'],
         'company_email' => ['page' => 'company', 'section' => 'Contact', 'label' => 'Email', 'words' => 'email address contact'],
         'company_website' => ['page' => 'company', 'section' => 'Contact', 'label' => 'Website', 'words' => 'web site url domain'],
+        'offices' => ['page' => 'company', 'section' => 'Offices', 'label' => 'Offices', 'words' => 'office branch location site other offices second office where agents work'],
         'company_logo' => ['page' => 'company', 'section' => 'Logo', 'label' => 'Logo', 'kind' => 'file', 'words' => 'logo image picture branding invoice'],
         'config_internal_client_id' => ['page' => 'company', 'section' => 'Your own client record', 'label' => 'Your company\'s client record', 'kind' => 'client',
             'words' => 'internal client own company msp internal tickets'],

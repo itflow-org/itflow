@@ -35,7 +35,7 @@ $form_location = $form_row ? intval($form_row['trip_location_id']) : intval($for
 $form_ticket = $form_row ? intval($form_row['trip_ticket_id']) : intval($form_ticket_id ?? 0);
 $form_driver = $form_row && $form_edit ? intval($form_row['trip_user_id']) : intval($session_user_id);
 $form_date = $form_row && ($form_edit || $form_return) ? (string) $form_row['trip_date'] : date('Y-m-d');
-$form_source = $form_row ? (string) $form_row['trip_source'] : (tripLastStart() ?: tripOfficeAddress());
+$form_source = $form_row ? (string) $form_row['trip_source'] : (officeTripStart($form_driver) ?: tripLastStart() ?: tripOfficeAddress());
 $form_destination = $form_row ? (string) $form_row['trip_destination'] : '';
 $form_round = $form_row ? intval($form_row['round_trip']) === 1 : true;
 $form_miles = $form_row ? tripOneWay($form_row) : null;
@@ -80,6 +80,8 @@ $form_sites = tripClientSites(0, $form_location);
 $form_tickets = tripClientTickets(0, $form_ticket);
 $form_routes = tripKnownRoutes();
 $form_places = tripStartPlaces();
+// On a new trip, From follows the driver to their office (functions/offices.php) - nothing with no other office
+$form_starts = $form_mode === 'new' ? officeTripStarts(array_keys($form_drivers)) : [];
 $unit = tripUnit();
 
 ?>
@@ -286,6 +288,9 @@ $unit = tripUnit();
     var purpose = root.querySelector('[data-trip-purpose]');
     var autoTo = '';
     var autoMiles = false;
+    var starts = <?= json_encode((object) $form_starts) ?>;
+    var offices = <?= json_encode($form_starts ? officeTripPlaces() : []) ?>;
+    var autoFrom = true;
 
     function number(value) {
         var n = Number(String(value || '').replace(/[\s,]/g, ''));
@@ -433,6 +438,22 @@ $unit = tripUnit();
         autoBill = false;
         update();
     });
+    // A new trip starts from the driver's office - another driver moves From to theirs, unless it was typed
+    if (driver && offices.length) {
+        from.addEventListener('input', function (e) {
+            if (e.isTrusted) {
+                autoFrom = false;
+            }
+        });
+        driver.addEventListener('change', function () {
+            var next = starts[driver.value] || '';
+            var now = from.value.trim();
+            if (next !== '' && next !== now && (autoFrom || now === '' || offices.indexOf(now) >= 0)) {
+                from.value = next;
+                routeChanged();
+            }
+        });
+    }
     // Their own vehicle, or not, as the driver's last trip was
     if (driver && own) {
         driver.addEventListener('change', function () {

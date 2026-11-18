@@ -62,7 +62,7 @@ if (isset($_POST['add_user'])) {
     if ($how === 'invite') {
 
         $saved = userInviteSave(['name' => $name, 'email' => $email, 'role_id' => $role_id, 'force_mfa' => $force_mfa,
-            'access' => intval($role['role_is_admin']) ? [] : ($_POST['client_permission'] ?? [])], $_FILES['avatar'] ?? null);
+            'access' => intval($role['role_is_admin']) ? [] : ($_POST['client_permission'] ?? []), 'office_id' => $_POST['office_id'] ?? 0], $_FILES['avatar'] ?? null);
         $invite_id = $saved['invite_id'];
         $mail = userInviteMailReady();
         $send_error = '';
@@ -121,6 +121,7 @@ if (isset($_POST['add_user'])) {
     }
 
     $service_change = serviceAccountSave($user_id, $_POST);
+    officeUserSave($user_id, $_POST);
 
     logAudit("User", "Create", "$session_name created user " . escapeSql($name) . ($service_change !== '' ? ' as an API / service account' : ''), 0, $user_id);
 
@@ -240,6 +241,10 @@ if (isset($_POST['edit_user'])) {
     $service_change = serviceAccountSave($user_id, $_POST);
     if ($service_change !== '') {
         $changes[] = $service_change;
+    }
+    $office_change = officeUserSave($user_id, $_POST);
+    if ($office_change !== '') {
+        $changes[] = $office_change;
     }
 
     logAudit("User", "Edit", "$session_name edited user " . escapeSql($name) . ($changes ? ' - ' . escapeSql(implode(', ', $changes)) : ''), 0, $user_id);

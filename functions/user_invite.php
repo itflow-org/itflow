@@ -274,8 +274,9 @@ function userInviteAvatar(array $row, $size = '') {
 
 /**
  * Keep an invite for someone, from New User or Get started - $in name and
- * email (checked already), role_id, force_mfa and access (the Client access
- * radios: client_id => allow / deny / ''). One already waiting for the
+ * email (checked already), role_id, force_mfa, access (the Client access
+ * radios: client_id => allow / deny / '') and office_id (functions/offices.php,
+ * 0 or left out for the main office). One already waiting for the
  * address is changed to this, and keeps its picture unless $avatar has a new
  * one. ['invite_id', 'again' => true when one was waiting, 'avatar_error'].
  */
@@ -287,6 +288,7 @@ function userInviteSave(array $in, $avatar = null) {
     $role_id = intval($in['role_id']);
     $force_mfa = !empty($in['force_mfa']) ? 1 : 0;
     $by = intval($session_user_id);
+    $office_sql = officesReady() ? ', invite_office_id = ' . officeIdFrom($in['office_id'] ?? 0) : '';
 
     // The rules for clients that exist
     $rules = ['allow' => [], 'deny' => []];
@@ -308,10 +310,10 @@ function userInviteSave(array $in, $avatar = null) {
     if ($open) {
         $invite_id = intval($open['invite_id']);
         mysqli_query($mysqli, "UPDATE user_invites SET invite_name = '$name_sql', invite_email = '$email_sql', invite_role_id = $role_id, invite_force_mfa = $force_mfa,
-            invite_client_access = $access_sql, invite_created_by = $by WHERE invite_id = $invite_id");
+            invite_client_access = $access_sql, invite_created_by = $by$office_sql WHERE invite_id = $invite_id");
     } else {
         mysqli_query($mysqli, "INSERT INTO user_invites SET invite_name = '$name_sql', invite_email = '$email_sql', invite_role_id = $role_id, invite_force_mfa = $force_mfa,
-            invite_client_access = $access_sql, invite_expires_at = NOW(), invite_created_by = $by");
+            invite_client_access = $access_sql, invite_expires_at = NOW(), invite_created_by = $by$office_sql");
         $invite_id = intval(mysqli_insert_id($mysqli));
     }
 
@@ -493,6 +495,9 @@ function userInviteAccept(array $invite, $token, array $in, &$error = '') {
         user_auth_method = 'local', user_type = 1, user_status = 1, user_role_id = $role_id");
     $user_id = intval(mysqli_insert_id($mysqli));
     mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_config_force_mfa = " . (intval($invite['invite_force_mfa']) ? 1 : 0));
+    if (intval($invite['invite_office_id'] ?? 0)) {
+        officeSetUser($user_id, $invite['invite_office_id']); // the main office when theirs was removed since
+    }
     if (!intval($invite['role_is_admin'])) {
         $access = userInviteClientAccess($invite);
         userSetClientAccess($user_id, array_fill_keys(array_keys($access['allow']), 'allow') + array_fill_keys(array_keys($access['deny']), 'deny'));

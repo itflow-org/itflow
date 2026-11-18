@@ -5,7 +5,9 @@
  * quotes and emails: its name and tax ID, address, phone (with its country
  * code, following the country picked), email, website and logo, and the
  * client record that stands for it. Saved by edit_company; the logo is taken
- * off by remove_company_logo (admin/post/settings_company.php).
+ * off by remove_company_logo (admin/post/settings_company.php). Its Offices
+ * section lists the other places you work from (functions/offices.php), each
+ * changed in its own window.
  */
 
 require_once "includes/inc_all_admin.php";
@@ -73,6 +75,8 @@ echo settingsPageStart('company');
                 <?= settingsInput('company_website', $company['company_website'], ['icon' => 'fa-globe', 'maxlength' => 200, 'placeholder' => 'company.com', 'autocomplete' => 'url',
                     'help' => 'Kept without its https://.']) ?>
             <?= settingsSectionEnd() ?>
+
+            <?= officesSection() ?>
 
             <?= settingsSectionStart('logo', 'Logo', 'On invoices, quotes and statements, the sign-in page, the sidebar and the client portal.') ?>
                 <?php

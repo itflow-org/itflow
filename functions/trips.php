@@ -317,14 +317,10 @@ function tripKnownRoutes($limit = 400) {
     return $routes;
 }
 
-/** Where this agent has started from lately, most used first - for the From box to offer, with the office first. */
+/** Where this agent has started from lately, most used first - for the From box to offer, with every office first. */
 function tripStartPlaces($limit = 6) {
     global $mysqli, $session_user_id;
-    $places = [];
-    $office = tripOfficeAddress();
-    if ($office !== '') {
-        $places[] = $office;
-    }
+    $places = officeTripPlaces(); // the company's address, and every other office's (functions/offices.php)
     $sql = mysqli_query($mysqli, "SELECT trip_source, COUNT(*) AS n FROM trips WHERE trip_user_id = " . intval($session_user_id) . " AND trip_archived_at IS NULL
         GROUP BY trip_source ORDER BY n DESC LIMIT " . intval($limit));
     while ($row = mysqli_fetch_row($sql)) {

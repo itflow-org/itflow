@@ -2218,6 +2218,31 @@ CREATE TABLE `notifications` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `offices`
+--
+
+DROP TABLE IF EXISTS `offices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `offices` (
+  `office_id` int(11) NOT NULL AUTO_INCREMENT,
+  `office_name` varchar(100) NOT NULL,
+  `office_address` varchar(200) NOT NULL DEFAULT '',
+  `office_city` varchar(200) NOT NULL DEFAULT '',
+  `office_state` varchar(200) NOT NULL DEFAULT '',
+  `office_zip` varchar(200) NOT NULL DEFAULT '',
+  `office_country` varchar(200) NOT NULL DEFAULT '',
+  `office_phone_country_code` varchar(10) NOT NULL DEFAULT '',
+  `office_phone` varchar(200) NOT NULL DEFAULT '',
+  `office_email` varchar(200) NOT NULL DEFAULT '',
+  `office_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `office_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `office_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`office_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `payment_methods`
 --
 
@@ -4532,6 +4557,7 @@ CREATE TABLE `user_invites` (
   `invite_email` varchar(200) NOT NULL,
   `invite_name` varchar(200) NOT NULL,
   `invite_role_id` int(11) NOT NULL DEFAULT 0,
+  `invite_office_id` int(11) NOT NULL DEFAULT 0,
   `invite_force_mfa` tinyint(1) NOT NULL DEFAULT 0,
   `invite_client_access` text DEFAULT NULL,
   `invite_avatar` varchar(200) DEFAULT NULL,
@@ -4636,6 +4662,7 @@ CREATE TABLE `users` (
   `user_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `user_archived_at` datetime DEFAULT NULL,
   `user_role_id` int(11) DEFAULT 0,
+  `user_office_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

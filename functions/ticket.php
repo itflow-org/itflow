@@ -325,7 +325,7 @@ function ticketGuestPath(array $row) {
     return 'guest_view_ticket.php?ticket_id=' . intval($row['ticket_id']) . '&url_key=' . rawurlencode((string) $row['ticket_url_key']);
 }
 
-/** The foot's contact line on a ticket email - the company's phone and the support address. */
+/** The foot's contact line on a ticket email - the company's phone and the support address. Another office's is officeTicketFoot(). */
 function ticketEmailContactLine() {
     $company = billingCompany();
     return implode('  ·  ', array_filter([$company['phone_display'] ?? '', ticketEmailFrom()['email'], $company['company_website'] ?? '']));
@@ -467,6 +467,7 @@ function ticketEmailContent(array $row, $kind, array $opts = []) {
         'preview' => "$reference - $subject",
         'tone' => 'primary',
         'contact' => ticketEmailContactLine(),
+        'office' => officeTicketFoot($row),
         'button' => ['label' => 'View the ticket', 'url' => $url],
     ];
 
@@ -701,6 +702,7 @@ function ticketMailColleaguesNew($ticket_id) {
             'summary' => ['Ticket' => $reference, 'Subject' => (string) $ticket['ticket_subject'], 'Priority' => (string) $ticket['ticket_priority'], 'Raised by' => $raised_by === 'We' ? 'Us' : $raised_by],
             'button' => ['label' => $colleague['portal'] ? 'View it in the portal' : 'View the ticket', 'url' => $url],
             'contact' => ticketEmailContactLine(),
+            'office' => officeTicketFoot($ticket),
         ], ['from' => ticketEmailFrom()]));
     }
     return $sent;
@@ -1094,6 +1096,7 @@ function ticketMailTaskApproval($approval_id, $by) {
         'button' => ['label' => 'Review and approve', 'url' => "https://$config_base_url/guest/guest_approve_ticket_task.php?task_approval_id=" . intval($approval['approval_id']) . '&url_key=' . rawurlencode((string) $approval['approval_url_key'])],
         'after' => ['Want to know more first? Just reply to this email.'],
         'contact' => ticketEmailContactLine(),
+        'office' => officeTicketFoot($row),
     ], ['from' => ticketEmailFrom(), 'sensitive' => true]));
 }
 
@@ -1113,6 +1116,7 @@ function ticketMailClosedReply($ticket_id, $from_email) {
         'intro' => ["You replied to ticket " . ticketReference($closed) . " - \"" . $closed['ticket_subject'] . "\" - which is closed, so your reply won't reach us.", "To raise a new ticket, send a new email to $support."],
         'button' => ['label' => 'Email us', 'url' => "mailto:$support"],
         'contact' => ticketEmailContactLine(),
+        'office' => officeTicketFoot($closed),
     ], ['from' => ticketEmailFrom()]));
 }
 

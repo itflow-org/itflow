@@ -5,7 +5,7 @@
  * user_edit.php, which set $form (the user, raw - or the defaults for a new
  * one) and $is_new. Posts what admin/post/users.php add_user / edit_user read.
  *
- * Tabs: Details (picture, name, email, role), Sign in (password, MFA) and
+ * Tabs: Details (picture, name, email, role, office), Sign in (password, MFA) and
  * Client access - which clients a role without admin is limited to or kept
  * from. An admin sees every client, so for an admin role that tab just says
  * so (any rules are kept, in case the role changes back).
@@ -109,6 +109,7 @@ $value = function ($key) use ($form) {
             } ?>
             <div class="form-text">What they can see and change. <a href="roles.php" target="_blank">Roles <i class="fas fa-external-link-alt small"></i></a></div>
         </div>
+        <?= officeUserField($form_user_id ? officeIdForUser($form_user_id) : 0) ?>
         <?php if (!$is_new) { ?>
             <?= calendarAgentColorField($form_user_id, 'col-12') ?>
         <?php } ?>

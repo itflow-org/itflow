@@ -47,6 +47,8 @@ const EMAIL_REPLY_MARKER = '##- Please type your reply above this line -##';
  *            each item ['by', 'org', 'action', 'when', 'text' => plain text, 'client' => true for
  *            the client's side] or ['gap' => how many are left out here] (ticketEmailHistory())
  *   contact  the foot's contact line, in place of the company's phone, email and website
+ *   office   ['address', 'contact'] - the foot of another office (officeTicketFoot()), in place
+ *            of the company's address and contact line; null for the company's own
  *   footnote a line under the card - why they got it
  */
 function emailHtml(array $email) {
@@ -171,12 +173,13 @@ function emailHtml(array $email) {
             . $items . '</div>';
     }
 
-    $contact = array_key_exists('contact', $email)
+    $office = is_array($email['office'] ?? null) ? $email['office'] : null;
+    $contact = $office ? (string) ($office['contact'] ?? '') : (array_key_exists('contact', $email)
         ? (string) $email['contact']
-        : implode('  ·  ', array_filter([$company['phone_display'] ?? '', $company['company_email'] ?? '', $company['company_website'] ?? '']));
+        : implode('  ·  ', array_filter([$company['phone_display'] ?? '', $company['company_email'] ?? '', $company['company_website'] ?? ''])));
     $foot = array_filter([
         $company_name,
-        formatAddress($company['company_address'] ?? '', $company['company_city'] ?? '', $company['company_state'] ?? '', $company['company_zip'] ?? '', $company['company_country'] ?? '', ', '),
+        $office ? (string) ($office['address'] ?? '') : formatAddress($company['company_address'] ?? '', $company['company_city'] ?? '', $company['company_state'] ?? '', $company['company_zip'] ?? '', $company['company_country'] ?? '', ', '),
         $contact,
     ]);
 

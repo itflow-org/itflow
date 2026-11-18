@@ -15,8 +15,8 @@ $sent = function ($field, $current) {
 
 $trip_in = [
     'date' => $sent('trip_date', $trip_row['trip_date'] ?? date('Y-m-d')),
-    // From the office, unless it says otherwise
-    'source' => $sent('trip_source', $trip_row['trip_source'] ?? tripOfficeAddress()),
+    // From the driver's office, unless it says otherwise
+    'source' => $sent('trip_source', $trip_row['trip_source'] ?? (officeTripStart($sent('trip_user_id', $session_user_id)) ?: tripOfficeAddress())),
     'destination' => $sent('trip_destination', $trip_row['trip_destination'] ?? ''),
     'purpose' => $sent('trip_purpose', $trip_row['trip_purpose'] ?? ''),
     // The distance one way - a round trip is twice it
