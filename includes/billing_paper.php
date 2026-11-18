@@ -14,7 +14,7 @@
  *   edit       the lines can be changed here (agent pages): drag handles,
  *              a menu on each line, the add field, and a line's name,
  *              description, quantity, price and tax changed where they sit
- *              (js/billing_items.js)
+ *              (js/billing_items.js); a quote line's cost under it
  *   notes_edit the notes save in place (agent pages)
  *   taxes      billingTaxes(), the rates a line's tax is picked from
  *   logo_url   the company logo, relative to the page
@@ -232,6 +232,9 @@ $paper_bill_lines = array_filter([
                                         <span class="badge rounded-pill text-bg-warning fw-normal" title="The next invoice bills the new count">Now <?= billingQuantity($seat['seat_quantity']) ?></span>
                                     <?php } ?>
                                 </div>
+                            <?php } ?>
+                            <?php if ($paper_edit && $paper_type === 'quote') { // its cost and pricing - agents only, never printed (functions/quote_pricing.php) ?>
+                                <?= quotePricingLineHtml($item, $paper_currency) ?>
                             <?php } ?>
                         </td>
                         <?php // A counted quantity isn't typed - the Edit Line window has what it counts ?>

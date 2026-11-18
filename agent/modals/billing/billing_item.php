@@ -8,7 +8,9 @@
  * A line from a product keeps its link to the product; on an invoice,
  * changing the quantity of a stocked product moves the stock with it. On a
  * recurring invoice, the quantity can come from the client instead - their
- * users, devices or a license's seats, counted again for each invoice.
+ * users, devices or a license's seats, counted again for each invoice. On a
+ * quote, what the line costs you and how its price comes from that - a
+ * markup, a margin or a set price (functions/quote_pricing.php).
  */
 
 require_once '../../../includes/modal_header.php';
@@ -254,6 +256,9 @@ ob_start();
                     <div class="small" data-seat-preview></div>
                 </div>
             <?php } ?>
+            <?php if ($type === 'quote') { // what it costs you and how its price comes from that (functions/quote_pricing.php) ?>
+                <?= quotePricingFields($item, $currency) ?>
+            <?php } ?>
             <div class="col-sm-4">
                 <label class="form-label">Quantity <strong class="text-danger">*</strong></label>
                 <div class="input-group">
@@ -302,6 +307,9 @@ ob_start();
     }
     if (typeof itflowBillingSeatForm === 'function') {
         itflowBillingSeatForm(form, <?= intval($doc_id) ?>);
+    }
+    if (typeof itflowBillingPricingForm === 'function') {
+        itflowBillingPricingForm(form, { currency: <?= json_encode($currency) ?>, locale: <?= json_encode(str_replace('_', '-', (string) $session_company_locale)) ?> });
     }
 })();
 </script>

@@ -2,7 +2,8 @@
 
 /*
  * Admin > Settings > Quotes - how quotes are numbered, the footer under each
- * one, and who hears when a client accepts or declines one online. Saved by
+ * one, who hears when a client accepts or declines one online, and how a
+ * line's price comes from its cost (functions/quote_pricing.php). Saved by
  * edit_quote_settings (admin/post/settings_quote.php).
  */
 
@@ -30,6 +31,18 @@ echo settingsPageStart('quote');
                 <?= settingsInput('config_quote_notification_email', $config_quote_notification_email, ['icon' => 'fa-bell', 'type' => 'email', 'maxlength' => 200,
                     'placeholder' => 'sales@company.com', 'help' => 'A shared mailbox or list works best. Empty, nobody is emailed - the quote still shows the answer.']) ?>
             <?= settingsSectionEnd() ?>
+
+            <?php if (quotePricingReady()) {
+                $pricing = quotePricingSettings(); ?>
+                <?= settingsSectionStart('pricing', 'Pricing', 'A quote line can carry what it costs you, and its price can come from that cost - a markup or a margin. Only agents see the cost, in a line\'s Edit window and the quote\'s Margin - never the PDF, the guest link or the portal.') ?>
+                    <?= settingsSelect('config_quote_price_method', $pricing['method'], ['markup' => 'Markup - a % added to the cost', 'margin' => 'Margin - a % of the price'], ['icon' => 'fa-calculator',
+                        'help' => 'What a line is priced by when a cost is typed in. Markup 25% on a cost of 80.00 is 100.00; margin 25% on 80.00 is 106.67.']) ?>
+                    <?= settingsInput('config_quote_price_percent', quotePricePercentText($pricing['percent']), ['icon' => 'fa-percent', 'inputmode' => 'decimal', 'maxlength' => 8,
+                        'help' => 'The % a line starts with.']) ?>
+                    <?= settingsInput('config_quote_price_presets', implode(', ', array_map('quotePricePercentText', $pricing['presets'])), ['icon' => 'fa-hand-pointer', 'maxlength' => 100,
+                        'placeholder' => '15, 20, 25, 35', 'help' => 'The % buttons in a quote line\'s Edit window, to pick one in a click - up to eight, separated by commas.']) ?>
+                <?= settingsSectionEnd() ?>
+            <?php } ?>
 
             <?= settingsSaveBar('edit_quote_settings') ?>
         </div>

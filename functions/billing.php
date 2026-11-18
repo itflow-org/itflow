@@ -114,6 +114,10 @@ function billingItems($type, $id) {
         return $items;
     }
     $seat_columns = $type === 'recurring' ? ', item_seat_source, item_seat_filter, item_seat_minimum' : ($type === 'quote' ? ', item_frequency' : '');
+    // A quote line's cost and how it is priced (functions/quote_pricing.php) - agents only
+    if ($type === 'quote' && quotePricingReady()) {
+        $seat_columns .= ', item_cost, item_price_method, item_price_percent';
+    }
     $sql = mysqli_query($mysqli, "SELECT item_id, item_name, item_description, item_quantity, item_price, item_subtotal, item_tax, item_total,
             item_order, item_tax_id, item_product_id, item_created_at, tax_name, tax_percent $seat_columns
         FROM {$t['items']}
@@ -319,7 +323,8 @@ function billingCanEditItems($type, $row) {
 
 /**
  * Add a line to a document, or change one. $in: name, description, qty,
- * price, tax_id, product_id. For an invoice, a tracked product's stock goes
+ * price, tax_id, product_id; on a quote, pricing with cost, price_method and
+ * price_percent (quotePricingSetSql()). For an invoice, a tracked product's stock goes
  * down by what the line takes (and back up if the quantity drops). The
  * document's total follows. The line's id, or null with $error.
  */
@@ -407,6 +412,11 @@ function billingItemSave($type, $doc_id, array $in, $item_id = 0, &$error = '') 
         $product_id = intval($old['item_product_id']);
     } elseif ($product_id && !getFieldById('products', $product_id, 'product_name')) {
         $product_id = 0;
+    }
+
+    // A quote line's cost and how its price comes from it - as sent, or a new line from a product takes its cost (functions/quote_pricing.php)
+    if ($type === 'quote') {
+        $seat_set .= quotePricingSetSql($in, !$item_id, $product_id);
     }
 
     // Stock moves only with invoices, and only for products whose stock is tracked
@@ -1573,9 +1583,11 @@ function billingCopyLines(array $items, $to_type, $to_id, $suffix = '') {
         if ($product_id && !getFieldById('products', $product_id, 'product_id')) {
             $product_id = 0;
         }
+        // A quote line's cost and pricing go with it to another quote - an invoice is made from the price alone
+        $pricing = $to_type === 'quote' ? quotePricingCopySql($item) : '';
         mysqli_query($mysqli, "INSERT INTO {$t['items']} SET item_name = '$name', item_description = '$description', item_quantity = " . floatval($item['item_quantity']) . ",
             item_price = " . floatval($item['item_price']) . ", item_subtotal = " . floatval($item['item_subtotal']) . ", item_tax = " . floatval($item['item_tax']) . ",
-            item_total = " . floatval($item['item_total']) . ", item_order = $order, item_tax_id = " . intval($item['item_tax_id']) . ", item_product_id = $product_id, {$t['item_fk']} = $to_id");
+            item_total = " . floatval($item['item_total']) . ", item_order = $order, item_tax_id = " . intval($item['item_tax_id']) . ", item_product_id = $product_id$pricing, {$t['item_fk']} = $to_id");
         $new_item_id = intval(mysqli_insert_id($mysqli));
         // On an invoice, a tracked product comes off the shelf - check first with productStockShortfall()
         if ($to_type === 'invoice' && $product_id && floatval($item['item_quantity']) > 0 && intval(getFieldById('products', $product_id, 'product_track_stock')) === 1) {

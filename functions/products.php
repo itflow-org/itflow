@@ -1113,11 +1113,12 @@ function productRepriceApply(array $changes, &$error = '') {
 }
 
 /**
- * The margin on a document's lines that come from a product with a cost, at
- * today's cost - for the agent's eyes only. By how often each line is billed
- * for a quote ('' once, month, quarter, year), otherwise under ''. Each:
- * ['cost', 'revenue', 'margin', 'percent', 'lines']. Empty when no line has a
- * cost to go on.
+ * The margin on a document's lines that have a cost - a quote line's own cost
+ * (functions/quote_pricing.php), else the cost of the product it came from,
+ * at today's cost - for the agent's eyes only. By how often each line is
+ * billed for a quote ('' once, month, quarter, year), otherwise under ''.
+ * Each: ['cost', 'revenue', 'margin', 'percent', 'lines']. Empty when no line
+ * has a cost to go on.
  */
 function billingMargin($type, array $items) {
     global $mysqli;
@@ -1127,23 +1128,24 @@ function billingMargin($type, array $items) {
             $ids[intval($item['item_product_id'])] = true;
         }
     }
-    if (!$ids) {
-        return [];
-    }
     $costs = [];
-    $sql = mysqli_query($mysqli, "SELECT product_id, product_cost FROM products WHERE product_cost > 0 AND product_id IN (" . implode(',', array_keys($ids)) . ")");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $costs[intval($row['product_id'])] = floatval($row['product_cost']);
+    if ($ids) {
+        $sql = mysqli_query($mysqli, "SELECT product_id, product_cost FROM products WHERE product_cost > 0 AND product_id IN (" . implode(',', array_keys($ids)) . ")");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $costs[intval($row['product_id'])] = floatval($row['product_cost']);
+        }
     }
     $groups = [];
     foreach ($items as $item) {
         $id = intval($item['item_product_id'] ?? 0);
-        if (!isset($costs[$id])) {
+        // The line's own cost, when it has one - 0 is a cost too (a freebie)
+        $line_cost = isset($item['item_cost']) && $item['item_cost'] !== '' ? floatval($item['item_cost']) : ($costs[$id] ?? null);
+        if ($line_cost === null) {
             continue;
         }
         $key = $type === 'quote' ? quoteFrequency($item['item_frequency'] ?? '') : '';
         $groups[$key] = $groups[$key] ?? ['cost' => 0.0, 'revenue' => 0.0, 'lines' => 0];
-        $groups[$key]['cost'] += round(floatval($item['item_quantity']) * $costs[$id], 2);
+        $groups[$key]['cost'] += round(floatval($item['item_quantity']) * $line_cost, 2);
         $groups[$key]['revenue'] += floatval($item['item_subtotal']);
         $groups[$key]['lines']++;
     }
@@ -1173,5 +1175,8 @@ function billingMarginHtml($type, array $items, $currency, $period = '') {
         $tone = $group['margin'] < 0 ? 'text-danger-emphasis' : '';
         $parts[] = '<span class="' . $tone . '">' . escapeHtml(billingMoney($group['margin'], $currency)) . '</span>' . $percent . escapeHtml($when);
     }
-    return '<span title="On the ' . $lines . ' line' . ($lines === 1 ? '' : 's') . ' from products with a cost, at today\'s cost - only you see this">' . implode(', ', $parts) . '</span>';
+    $total = count($items);
+    $without = $total - $lines;
+    return '<span title="On the ' . $lines . ' line' . ($lines === 1 ? '' : 's') . ' with a cost' . ($type === 'quote' ? ' - its own, or its product\'s today' : ', from its product today')
+        . ($without > 0 ? '. ' . $without . ' line' . ($without === 1 ? ' has' : 's have') . ' no cost and ' . ($without === 1 ? 'is' : 'are') . ' left out' : '') . ' - only you see this">' . implode(', ', $parts) . '</span>';
 }

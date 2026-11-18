@@ -147,6 +147,110 @@ function itflowBillingLineForm(root, options) {
     }
 }
 
+/*
+ * A quote line's cost in the Edit Line window (functions/quote_pricing.php):
+ * Cost each, Price by (markup, margin or set price), the % and its buttons.
+ * A markup or margin works the Price out from the cost; typing the Price
+ * yourself makes it a set price. Under it, what the line makes each.
+ */
+function itflowBillingPricingForm(root, options) {
+    var box = root ? root.querySelector('[data-quote-pricing]') : null;
+    if (!box) {
+        return;
+    }
+    var opts = options || {};
+    var cost = box.querySelector('[data-pricing-cost]');
+    var method = box.querySelector('[data-pricing-method]');
+    var percent = box.querySelector('[data-pricing-percent]');
+    var percentWrap = box.querySelector('[data-pricing-percent-wrap]');
+    var presets = box.querySelector('[data-pricing-presets]');
+    var hint = box.querySelector('[data-pricing-hint]');
+    var price = root.querySelector('[data-line-price]');
+    if (!cost || !method || !price) {
+        return;
+    }
+    var currency = box.getAttribute('data-currency') || opts.currency;
+
+    function num(el) {
+        var n = el && el.value !== '' ? itflowBillingNumber(el.value) : NaN;
+        return isNaN(n) ? null : n;
+    }
+
+    function update(fromPrice) {
+        var how = method.value;
+        var c = num(cost);
+        var pct = num(percent);
+        var setPrice = how === 'price';
+        if (percentWrap) {
+            percentWrap.hidden = setPrice;
+        }
+        if (presets) {
+            presets.hidden = setPrice;
+            presets.querySelectorAll('[data-pricing-preset]').forEach(function (button) {
+                var on = pct !== null && Number(button.getAttribute('data-pricing-preset')) === pct;
+                button.classList.toggle('btn-secondary', on);
+                button.classList.toggle('btn-outline-secondary', !on);
+            });
+        }
+        if (!fromPrice && !setPrice && c !== null && c > 0 && pct !== null && pct >= 0) {
+            var worked = how === 'markup' ? c * (1 + pct / 100) : (pct < 100 ? c / (1 - pct / 100) : null);
+            if (worked !== null) {
+                price.value = (Math.round(worked * 100) / 100).toFixed(2);
+                price.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+        if (!hint) {
+            return;
+        }
+        var p = num(price);
+        hint.classList.remove('text-danger');
+        if (c === null) {
+            hint.textContent = setPrice ? '' : 'Type the cost to work the price out.';
+            return;
+        }
+        if (how === 'margin' && pct !== null && pct >= 100) {
+            hint.textContent = 'A margin has to be under 100%.';
+            hint.classList.add('text-danger');
+            return;
+        }
+        if (c <= 0 || p === null || p <= 0) {
+            hint.textContent = '';
+            return;
+        }
+        var profit = p - c;
+        var markup = profit / c * 100;
+        var margin = profit / p * 100;
+        hint.textContent = 'Makes ' + itflowBillingMoney(profit, currency, opts.locale) + ' each - '
+            + (how === 'margin' ? markup.toFixed(1) + '% markup' : (how === 'markup' ? margin.toFixed(1) + '% margin' : markup.toFixed(1) + '% markup, ' + margin.toFixed(1) + '% margin'));
+        hint.classList.toggle('text-danger', profit < 0);
+    }
+
+    [cost, percent].forEach(function (el) {
+        if (el) {
+            el.addEventListener('input', function () { update(false); });
+        }
+    });
+    method.addEventListener('change', function () { update(false); });
+    // Typing the price yourself makes it a set price - the hint still says what it makes
+    price.addEventListener('input', function (e) {
+        if (e.isTrusted && method.value !== 'price') {
+            method.value = 'price';
+            method.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        update(true);
+    });
+    if (presets) {
+        presets.addEventListener('click', function (e) {
+            var button = e.target.closest('[data-pricing-preset]');
+            if (button && percent) {
+                percent.value = button.getAttribute('data-pricing-preset');
+                update(false);
+            }
+        });
+    }
+    update(true);
+}
+
 function itflowBillingItems(options) {
     var opts = options || {};
     var paper = document.querySelector('.itflow-paper[data-billing-type]');
