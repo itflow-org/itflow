@@ -179,7 +179,7 @@ function portalEmptyState($message, $icon = 'fa-inbox', $type = 'secondary') {
  * icon, the pages that light it up, and an href or children.
  */
 function portalNav() {
-    global $mysqli, $config_module_enable_accounting, $config_module_enable_itdoc;
+    global $mysqli, $config_module_enable_accounting, $config_module_enable_itdoc, $session_client_id;
 
     $nav = [
         'home' => ['label' => 'Home', 'icon' => 'fa-home', 'href' => '/client/index.php', 'pages' => ['index.php']],
@@ -218,6 +218,11 @@ function portalNav() {
             $children[] = ['label' => 'Contacts', 'icon' => 'fa-address-book', 'href' => '/client/contacts.php', 'pages' => ['contacts.php', 'contact.php', 'contact_add.php', 'contact_edit.php']];
         }
         $nav['it'] = ['label' => 'Your IT', 'icon' => 'fa-laptop', 'children' => $children, 'pages' => array_merge(...array_column($children, 'pages'))];
+    }
+
+    // Help - the Knowledge Base articles shared with them, once there is one
+    if (kbOn() && mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM kb_articles WHERE " . kbClientSql($session_client_id) . " LIMIT 1"))) {
+        $nav['help'] = ['label' => 'Help', 'icon' => 'fa-book', 'href' => '/client/kb.php', 'pages' => ['kb.php', 'kb_article.php']];
     }
 
     // The links an admin set to show in the portal (Admin > Custom Links)

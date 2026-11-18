@@ -11,6 +11,9 @@
  * kb_article_category_id, kb_article_review_months, kb_article_published_at)
  * and $kb_form_mode ('add' or 'edit').
  *
+ * Who can read it - agents only, clients (all, by client tag, by name) or
+ * anyone - shows its choices as it is set (js/kb_article_form.js).
+ *
  * Should not be accessed directly.
  */
 
@@ -19,6 +22,7 @@ isset($mysqli) || die("Direct file access is not allowed");
 $kb_form_category = intval($kb_form['kb_article_category_id'] ?? 0);
 $kb_form_review = intval($kb_form['kb_article_review_months'] ?? 0);
 $kb_form_published = !empty($kb_form['kb_article_published_at']);
+$kb_form_audience = $kb_form_mode === 'edit' ? kbAudienceFields($kb_form) : ['visibility' => 'agents', 'all_clients' => false, 'client_tag_ids' => [], 'client_ids' => []];
 
 ?>
 
@@ -66,6 +70,67 @@ $kb_form_published = !empty($kb_form['kb_article_published_at']);
         </div>
     </div>
 
+    <div class="col-12" data-kb-audience>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Who can read it</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
+                    <select class="form-select select2" name="visibility">
+                        <?php foreach (KB_VISIBILITY as $visibility => [$label, $icon, $about]) { ?>
+                            <option value="<?= $visibility ?>"<?= $visibility === $kb_form_audience['visibility'] ? ' selected' : '' ?> data-icon="fas <?= $icon ?>" data-description="<?= escapeHtml($about) ?>"><?= $label ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+                <div class="form-text">Outside ITFlow, only once it's published.</div>
+            </div>
+            <div class="col-md-8 d-flex align-items-md-center" data-kb-for="clients">
+                <div class="form-check form-switch mt-md-3">
+                    <input type="hidden" name="all_clients" value="0">
+                    <input class="form-check-input" type="checkbox" role="switch" name="all_clients" value="1" id="kbArticleFormAllClients" <?= $kb_form_audience['all_clients'] ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="kbArticleFormAllClients">All clients <span class="text-body-secondary small">- in every client's portal. Off, pick them below.</span></label>
+                </div>
+            </div>
+            <div class="col-md-6" data-kb-for="clients" data-kb-pick>
+                <label class="form-label">Clients tagged</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
+                    <select class="form-select select2" name="client_tag_ids[]" multiple data-placeholder="Managed, Microsoft 365">
+                        <?= tagOptionsHtml('client', $kb_form_audience['client_tag_ids']) ?>
+                    </select>
+                </div>
+                <div class="form-text">Every client with any of these tags - and a client tagged later.</div>
+            </div>
+            <div class="col-md-6" data-kb-for="clients" data-kb-pick>
+                <label class="form-label">Clients</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
+                    <select class="form-select select2" name="client_ids[]" multiple data-placeholder="Pick clients">
+                        <?php
+                        $kb_form_picked = array_map('intval', $kb_form_audience['client_ids']);
+                        $kb_form_keep = $kb_form_picked ? ' OR clients.client_id IN (' . implode(',', $kb_form_picked) . ')' : '';
+                        $kb_form_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
+                            WHERE (client_archived_at IS NULL " . clientNotLeadSql() . clientScopeSql('clients.client_id') . ")$kb_form_keep
+                            ORDER BY client_name ASC");
+                        while ($kb_client = mysqli_fetch_assoc($kb_form_clients)) {
+                            $kb_client_id = intval($kb_client['client_id']); ?>
+                            <option value="<?= $kb_client_id ?>"<?= in_array($kb_client_id, $kb_form_picked, true) ? ' selected' : '' ?><?= selectOptionClient($kb_client['client_id'], $kb_client['client_name'], $kb_client['client_abbreviation'] ?? '') ?>><?= escapeHtml($kb_client['client_name']) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-8 d-flex align-items-md-center" data-kb-for="public">
+                <div class="form-text mt-md-3">
+                    <i class="fas fa-fw fa-globe me-1"></i>In every client's portal, and in the public help center for anyone with the link -
+                    <?= kbPublicOn() ? 'which is on.' : 'which is off. An admin switches it on in Admin > Settings > Knowledge Base.' ?>
+                </div>
+            </div>
+            <div class="col-md-8 d-flex align-items-md-center" data-kb-for="agents">
+                <div class="form-text mt-md-3"><i class="fas fa-fw fa-user-shield me-1"></i>Only your team, here in ITFlow.</div>
+            </div>
+        </div>
+    </div>
+
     <div class="col-12">
         <div class="form-check form-switch">
             <input type="hidden" name="published" value="0">
@@ -82,3 +147,5 @@ $kb_form_published = !empty($kb_form['kb_article_published_at']);
 <?php if ($kb_form_mode === 'edit') { ?>
     <div class="form-text"><i class="fas fa-history me-1"></i>Saving keeps what it says now in the article's versions, so it can be put back.</div>
 <?php } ?>
+
+<script src="<?= staticFileUrl('/js/kb_article_form.js') ?>"></script>

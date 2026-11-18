@@ -107,6 +107,12 @@ $config_login_key_secret   = $row['config_login_key_secret'];
 
 $azure_client_id = $row['config_azure_client_id'] ?? null;
 
+// The public help center link, once the database has the Knowledge Base settings (functions/kb.php)
+if (isset($row['config_module_enable_kb'], $row['config_kb_public_enable'])) {
+    $config_module_enable_kb = intval($row['config_module_enable_kb']);
+    $config_kb_public_enable = intval($row['config_kb_public_enable']);
+}
+
 $response         = null;
 $token_field      = null;
 $show_role_choice = false;
@@ -929,6 +935,13 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
                         </a>
                     </div>
                 <?php } ?>
+            <?php } ?>
+
+            <?php if (kbPublicOn()) { ?>
+                <!-- The public help center - the Knowledge Base articles anyone can read (functions/kb.php) -->
+                <div class="text-center mt-3">
+                    <a href="guest/kb.php"><i class="fas fa-book me-1"></i>Help center</a>
+                </div>
             <?php } ?>
 
         </div>

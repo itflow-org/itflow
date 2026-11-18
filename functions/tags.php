@@ -496,8 +496,14 @@ function tagPill(array $tag) {
 
 /* The seven kinds by tag type - type => the entity's key in tagEntity(). */
 function tagKinds() {
+    // Knowledge Base articles once database 3.9.5 has made their tables - asked of the database where the settings aren't loaded (the API)
+    static $kb = null;
+    if ($kb === null) {
+        global $mysqli;
+        $kb = isset($GLOBALS['config_module_enable_kb']) || mysqli_num_rows(mysqli_query($mysqli, "SHOW TABLES LIKE 'kb_article_tags'")) > 0;
+    }
     return [1 => 'client', 2 => 'location', 3 => 'contact', 4 => 'credential', 5 => 'asset', 6 => 'vendor', 7 => 'domain',
-        8 => 'license', 9 => 'service', 10 => 'network', 11 => 'document', 12 => 'ticket', 13 => 'kb_article'];
+        8 => 'license', 9 => 'service', 10 => 'network', 11 => 'document', 12 => 'ticket'] + ($kb ? [13 => 'kb_article'] : []);
 }
 
 /* "an asset tag", "a client tag" - for messages. */
@@ -698,8 +704,10 @@ function tagMerge(array $from_ids, $into_id) {
     $moved = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(DISTINCT {$config['link_record']}) FROM {$config['link_table']} WHERE {$config['link_tag']} IN ($from_list)"))[0]);
     mysqli_query($mysqli, "INSERT IGNORE INTO {$config['link_table']} ({$config['link_record']}, {$config['link_tag']})
         SELECT DISTINCT {$config['link_record']}, $into_id FROM {$config['link_table']} WHERE {$config['link_tag']} IN ($from_list)");
-    // Templates that go by these tags - a ticket template's tags, the clients a document or license template is required of - go by the one they are merged into
-    foreach (['ticket_template_tags' => 'ticket_template_id', 'document_template_required_tags' => 'document_template_id', 'software_template_required_tags' => 'software_template_id'] as $table => $column) {
+    // Templates that go by these tags - a ticket template's tags, the clients a document or license template is required of - go by the one they are
+    // merged into, and so do the Knowledge Base articles shared with the clients that have them
+    foreach (['ticket_template_tags' => 'ticket_template_id', 'document_template_required_tags' => 'document_template_id', 'software_template_required_tags' => 'software_template_id']
+        + (isset($GLOBALS['config_kb_public_enable']) ? ['kb_article_client_tags' => 'kb_article_id'] : []) as $table => $column) {
         mysqli_query($mysqli, "INSERT IGNORE INTO $table ($column, tag_id) SELECT DISTINCT $column, $into_id FROM $table WHERE tag_id IN ($from_list)");
     }
     foreach (tagSeatLineItems($from_ids) as $item_id => $filter) {

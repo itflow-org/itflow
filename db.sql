@@ -1926,6 +1926,40 @@ CREATE TABLE `invoices` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `kb_article_client_tags`
+--
+
+DROP TABLE IF EXISTS `kb_article_client_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `kb_article_client_tags` (
+  `kb_article_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`kb_article_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `kb_article_client_tags_ibfk_1` FOREIGN KEY (`kb_article_id`) REFERENCES `kb_articles` (`kb_article_id`) ON DELETE CASCADE,
+  CONSTRAINT `kb_article_client_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `kb_article_clients`
+--
+
+DROP TABLE IF EXISTS `kb_article_clients`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `kb_article_clients` (
+  `kb_article_id` int(11) NOT NULL,
+  `client_id` int(11) NOT NULL,
+  PRIMARY KEY (`kb_article_id`,`client_id`),
+  KEY `client_id` (`client_id`),
+  CONSTRAINT `kb_article_clients_ibfk_1` FOREIGN KEY (`kb_article_id`) REFERENCES `kb_articles` (`kb_article_id`) ON DELETE CASCADE,
+  CONSTRAINT `kb_article_clients_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `kb_article_tags`
 --
 
@@ -1977,6 +2011,8 @@ CREATE TABLE `kb_articles` (
   `kb_article_content_raw` longtext NOT NULL,
   `kb_article_category_id` int(11) NOT NULL DEFAULT 0,
   `kb_article_published_at` datetime DEFAULT NULL,
+  `kb_article_visibility` varchar(20) NOT NULL DEFAULT 'agents',
+  `kb_article_all_clients` tinyint(1) NOT NULL DEFAULT 0,
   `kb_article_review_months` int(11) NOT NULL DEFAULT 0,
   `kb_article_reviewed_at` datetime DEFAULT NULL,
   `kb_article_reviewed_by` int(11) NOT NULL DEFAULT 0,
@@ -3669,6 +3705,7 @@ CREATE TABLE `settings` (
   `config_module_enable_trips` tinyint(1) NOT NULL DEFAULT 1,
   `config_module_enable_calendar` tinyint(1) NOT NULL DEFAULT 1,
   `config_module_enable_kb` tinyint(1) NOT NULL DEFAULT 1,
+  `config_kb_public_enable` tinyint(1) NOT NULL DEFAULT 0,
   `config_theme` varchar(200) DEFAULT 'blue',
   `config_telemetry` tinyint(1) DEFAULT 0,
   `config_timezone` varchar(200) NOT NULL DEFAULT 'America/New_York',

@@ -33,7 +33,7 @@ $modules_on = array_keys(array_filter([
     'Purchasing' => isset($config_module_enable_purchasing) && moduleOn('purchasing'),
     'Trips' => isset($config_module_enable_trips) && moduleOn('trips'),
     'Calendar' => isset($config_module_enable_calendar) && moduleOn('calendar'),
-    'Knowledge Base' => isset($config_module_enable_kb) && moduleOn('kb'),
+    'Knowledge Base' => kbOn(),
     'Client portal' => moduleOn('portal'),
 ]));
 $where = array_filter([$company['company_city'] ?? '', $company['company_country'] ?? '']);
@@ -47,6 +47,7 @@ $summaries = [
     'ticket' => 'Next ' . escapeHtml($config_ticket_prefix . $config_ticket_next_number) . ' · email to ticket ' . $on_off($config_ticket_email_parse),
     'project' => 'Next ' . escapeHtml($config_project_prefix . $config_project_next_number),
     'quote' => 'Next ' . escapeHtml($config_quote_prefix . $config_quote_next_number),
+    'kb' => isset($config_kb_public_enable) ? 'Public help center ' . $on_off($config_kb_public_enable) : 'Needs the database update',
     'purchase_order' => poReady() ? 'Next ' . escapeHtml(poSettings()['prefix'] . poSettings()['next']) . ' · approval ' . $on_off(poSettings()['approval']) : 'Needs the database update',
     'invoice' => 'Next ' . escapeHtml($config_invoice_prefix . $config_invoice_next_number) . ' · reminders ' . $on_off($config_send_invoice_reminders) . ' · late fees ' . $on_off($config_invoice_late_fee_enable)
         . ' · cards ' . $on_off(billingStripeProvider()),

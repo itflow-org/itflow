@@ -17,14 +17,106 @@
  * version. When it says how often, it is due for review that long after it was
  * last made, edited or reviewed - an edit counts, as it does for documents.
  *
+ * Who can read it (database 3.9.6): agents only, clients - every client, the
+ * clients with some client tags, or some clients by name - in their client
+ * portal (client/kb.php), or anyone: every client's portal, and the public
+ * help center (guest/kb.php) when Admin > Settings > Knowledge Base has it on.
+ * Only published articles are shown outside.
+ *
  * Reading takes Support (view), writing Support edit, deleting Support full.
  */
 
 const KB_REVIEW_MONTHS = [0 => 'Never', 3 => 'Every 3 months', 6 => 'Every 6 months', 12 => 'Every year', 24 => 'Every 2 years'];
 
-/** Is the Knowledge Base in use - switched on, and its tables there (database 3.9.5)? */
+/* Who can read an article: its label, icon and what it means. */
+const KB_VISIBILITY = [
+    'agents' => ['Agents only', 'fa-user-shield', 'Your team, here'],
+    'clients' => ['Clients', 'fa-users', 'In the client portal - every client, or the ones you pick'],
+    'public' => ['Anyone', 'fa-globe', 'Every client\'s portal, and the public help center when it\'s on'],
+];
+
+/** Is the Knowledge Base in use - switched on, and its tables there (database 3.9.5 and 3.9.6)? */
 function kbOn() {
-    return isset($GLOBALS['config_module_enable_kb']) && moduleOn('kb');
+    return isset($GLOBALS['config_module_enable_kb'], $GLOBALS['config_kb_public_enable']) && moduleOn('kb');
+}
+
+/** Is the public help center open - the Knowledge Base on, and its switch in Admin > Settings > Knowledge Base? */
+function kbPublicOn() {
+    return kbOn() && intval($GLOBALS['config_kb_public_enable']) === 1;
+}
+
+/* The published articles a client's portal shows, as a WHERE condition on kb_articles. */
+function kbClientSql($client_id) {
+    $client_id = intval($client_id);
+    return "(kb_articles.kb_article_archived_at IS NULL AND kb_articles.kb_article_published_at IS NOT NULL
+        AND (kb_articles.kb_article_visibility = 'public' OR (kb_articles.kb_article_visibility = 'clients' AND (kb_articles.kb_article_all_clients = 1
+            OR EXISTS (SELECT 1 FROM kb_article_clients kc WHERE kc.kb_article_id = kb_articles.kb_article_id AND kc.client_id = $client_id)
+            OR EXISTS (SELECT 1 FROM kb_article_client_tags kt JOIN client_tags ct ON ct.tag_id = kt.tag_id
+                WHERE kt.kb_article_id = kb_articles.kb_article_id AND ct.client_id = $client_id)))))";
+}
+
+/* The published articles the public help center shows, as a WHERE condition on kb_articles. */
+function kbPublicSql() {
+    return "(kb_articles.kb_article_archived_at IS NULL AND kb_articles.kb_article_published_at IS NOT NULL AND kb_articles.kb_article_visibility = 'public')";
+}
+
+/** An article's address in the public help center - its id, then its title as words, for a readable link. */
+function kbPublicUrl($kb_article_id, $title = '') {
+    global $config_base_url;
+    $slug = trim(preg_replace('/[^a-z0-9]+/', '-', strtolower((string) $title)), '-');
+    return "https://$config_base_url/guest/kb.php?article=" . intval($kb_article_id) . ($slug !== '' ? '-' . mb_substr($slug, 0, 80) : '');
+}
+
+/** Who can read each article - [id => ['tags' => [tag rows], 'clients' => [client_id => name]]], in one query each. */
+function kbAudiencesFor(array $kb_article_ids) {
+    global $mysqli;
+    $ids = array_values(array_filter(array_map('intval', $kb_article_ids)));
+    $out = array_fill_keys($ids, ['tags' => [], 'clients' => []]);
+    if (!$ids) {
+        return $out;
+    }
+    $list = implode(',', $ids);
+    $sql = mysqli_query($mysqli, "SELECT kt.kb_article_id, tags.tag_id, tag_name, tag_description, tag_color, tag_icon FROM kb_article_client_tags kt
+        JOIN tags ON tags.tag_id = kt.tag_id WHERE kt.kb_article_id IN ($list) ORDER BY tag_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $out[intval($row['kb_article_id'])]['tags'][] = $row;
+    }
+    $sql = mysqli_query($mysqli, "SELECT kc.kb_article_id, clients.client_id, client_name FROM kb_article_clients kc
+        JOIN clients ON clients.client_id = kc.client_id WHERE kc.kb_article_id IN ($list) ORDER BY client_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $out[intval($row['kb_article_id'])]['clients'][intval($row['client_id'])] = $row['client_name'];
+    }
+    return $out;
+}
+
+/** Who can read an article, in a few words - "Agents only", "All clients", "2 tags, 3 clients", "Anyone". Raw. */
+function kbAudienceText(array $row, array $audience) {
+    $visibility = $row['kb_article_visibility'] ?? 'agents';
+    if ($visibility === 'public') {
+        return 'Anyone';
+    }
+    if ($visibility !== 'clients') {
+        return 'Agents only';
+    }
+    if (intval($row['kb_article_all_clients'] ?? 0) === 1) {
+        return 'All clients';
+    }
+    $parts = [];
+    if ($audience['tags']) {
+        $parts[] = count($audience['tags']) === 1 ? 'Clients tagged ' . $audience['tags'][0]['tag_name'] : count($audience['tags']) . ' client tags';
+    }
+    if ($audience['clients']) {
+        $parts[] = count($audience['clients']) === 1 ? reset($audience['clients']) : count($audience['clients']) . ' clients';
+    }
+    return $parts ? implode(', ', $parts) : 'No clients picked';
+}
+
+/** Who can read an article, as a small badge - its icon and kbAudienceText(). */
+function kbAudienceBadge(array $row, array $audience) {
+    $visibility = isset(KB_VISIBILITY[$row['kb_article_visibility'] ?? '']) ? $row['kb_article_visibility'] : 'agents';
+    $tone = ['agents' => 'bg-body-secondary text-body-secondary', 'clients' => 'bg-info-subtle text-info-emphasis', 'public' => 'bg-success-subtle text-success-emphasis'][$visibility];
+    return '<span class="badge rounded-pill fw-normal border ' . $tone . '" title="Who can read it - ' . escapeHtml(KB_VISIBILITY[$visibility][2]) . '">'
+        . '<i class="fas fa-fw ' . KB_VISIBILITY[$visibility][1] . ' me-1"></i>' . escapeHtml(kbAudienceText($row, $audience)) . '</span>';
 }
 
 /** May the signed-in agent use the Knowledge Base at this level - 1 read, 2 write, 3 delete? */
@@ -35,7 +127,7 @@ function kbCan($level = 1) {
 /** Why a page, window or handler is closed - the module off, or the agent's role - or '' when it's open. Plain text. */
 function kbClosedText($level = 1) {
     if (!kbOn()) {
-        return isset($GLOBALS['config_module_enable_kb']) ? moduleOffText('kb') : 'The Knowledge Base needs the database update - ask an admin to run it from Maintenance > Update.';
+        return isset($GLOBALS['config_module_enable_kb'], $GLOBALS['config_kb_public_enable']) ? moduleOffText('kb') : 'The Knowledge Base needs the database update - ask an admin to run it from Maintenance > Update.';
     }
     $has = intval(lookupUserPermission('module_support'));
     return $has >= intval($level) ? '' : permissionRefusedText('module_support', $level, $has);
@@ -46,7 +138,8 @@ function kbArticleRow($kb_article_id) {
     global $mysqli;
     $kb_article_id = intval($kb_article_id);
     return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT kb_article_id, kb_article_title, kb_article_summary, kb_article_content, kb_article_category_id,
-            kb_article_published_at, kb_article_review_months, kb_article_reviewed_at, kb_article_reviewed_by, kb_article_created_at, kb_article_created_by,
+            kb_article_published_at, kb_article_visibility, kb_article_all_clients, kb_article_review_months, kb_article_reviewed_at, kb_article_reviewed_by,
+            kb_article_created_at, kb_article_created_by,
             kb_article_updated_at, kb_article_updated_by, kb_article_archived_at,
             category_id, category_name, category_description, category_color, category_icon, category_type, category_archived_at,
             creator.user_name AS created_by_name, updater.user_name AS updated_by_name, reviewer.user_name AS reviewed_by_name
@@ -77,6 +170,19 @@ function kbArticleFields(array $in) {
     }
     $category_id = kbCategoryId($in['category_id'] ?? 0);
     $review_months = intval($in['review_months'] ?? 0);
+
+    // Who can read it - clients need a way to be picked
+    $visibility = isset(KB_VISIBILITY[$in['visibility'] ?? '']) ? (string) $in['visibility'] : 'agents';
+    $all_clients = $visibility === 'clients' && !empty($in['all_clients']);
+    $client_tag_ids = $client_ids = [];
+    if ($visibility === 'clients' && !$all_clients) {
+        $client_tag_ids = kbClientTagIds((array) ($in['client_tag_ids'] ?? []));
+        $client_ids = kbClientIds((array) ($in['client_ids'] ?? []), (array) ($in['keep_client_ids'] ?? []));
+        if (!$client_tag_ids && !$client_ids) {
+            return [[], 'Pick which clients can read it - all of them, the ones with some client tags, or some clients by name.'];
+        }
+    }
+
     return [[
         'title' => $title,
         'summary' => $summary,
@@ -84,7 +190,43 @@ function kbArticleFields(array $in) {
         'review_months' => isset(KB_REVIEW_MONTHS[$review_months]) ? $review_months : 0,
         'published' => !empty($in['published']),
         'content' => (string) ($in['content'] ?? ''),
+        'visibility' => $visibility,
+        'all_clients' => $all_clients,
+        'client_tag_ids' => $client_tag_ids,
+        'client_ids' => $client_ids,
     ], ''];
+}
+
+/** The client tags among these ids. */
+function kbClientTagIds(array $ids) {
+    global $mysqli;
+    $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+    $ok = [];
+    if ($ids) {
+        $sql = mysqli_query($mysqli, "SELECT tag_id FROM tags WHERE tag_type = " . tagEntity('client')['type'] . " AND tag_id IN (" . implode(',', $ids) . ")");
+        while ($row = mysqli_fetch_row($sql)) {
+            $ok[] = intval($row[0]);
+        }
+    }
+    return $ok;
+}
+
+/** The clients among these ids that the agent can reach - and any in $keep, already on the article, whether they can or not. */
+function kbClientIds(array $ids, array $keep = []) {
+    global $mysqli;
+    $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+    $keep = array_map('intval', $keep);
+    $ok = [];
+    if ($ids) {
+        $sql = mysqli_query($mysqli, "SELECT client_id FROM clients WHERE client_id IN (" . implode(',', $ids) . ")");
+        while ($row = mysqli_fetch_row($sql)) {
+            $client_id = intval($row[0]);
+            if (in_array($client_id, $keep, true) || hasClientAccess($client_id)) {
+                $ok[] = $client_id;
+            }
+        }
+    }
+    return $ok;
 }
 
 /** A Knowledge Base category's id - or 0 for none, or for one that isn't a Knowledge Base category. */
@@ -147,10 +289,38 @@ function kbArticleSave(array $f, $row = null) {
         kb_article_content_raw = '" . escapeSql(kbArticleContentRaw($f['title'], $f['summary'], $content)) . "',
         kb_article_category_id = " . intval($f['category_id']) . ",
         kb_article_review_months = " . intval($f['review_months']) . ",
-        kb_article_published_at = $published_sql
+        kb_article_published_at = $published_sql,
+        kb_article_visibility = '" . escapeSql($f['visibility'] ?? 'agents') . "',
+        kb_article_all_clients = " . (!empty($f['all_clients']) ? 1 : 0) . "
         " . ($row === null ? '' : ", kb_article_updated_at = NOW(), kb_article_updated_by = $user_id") . "
         WHERE kb_article_id = $kb_article_id");
+    kbAudienceSave($kb_article_id, $f['client_tag_ids'] ?? [], $f['client_ids'] ?? []);
     return $kb_article_id;
+}
+
+/** Who can read an article as it stands, as the fields kbArticleSave() takes - to save it again unchanged. */
+function kbAudienceFields(array $row) {
+    $audience = kbAudiencesFor([$row['kb_article_id']])[intval($row['kb_article_id'])];
+    return [
+        'visibility' => isset(KB_VISIBILITY[$row['kb_article_visibility'] ?? '']) ? $row['kb_article_visibility'] : 'agents',
+        'all_clients' => intval($row['kb_article_all_clients'] ?? 0) === 1,
+        'client_tag_ids' => array_map('intval', array_column($audience['tags'], 'tag_id')),
+        'client_ids' => array_keys($audience['clients']),
+    ];
+}
+
+/* Set the client tags and clients an article is for - replacing what it had. */
+function kbAudienceSave($kb_article_id, array $client_tag_ids, array $client_ids) {
+    global $mysqli;
+    $kb_article_id = intval($kb_article_id);
+    mysqli_query($mysqli, "DELETE FROM kb_article_client_tags WHERE kb_article_id = $kb_article_id");
+    mysqli_query($mysqli, "DELETE FROM kb_article_clients WHERE kb_article_id = $kb_article_id");
+    foreach (array_unique(array_map('intval', $client_tag_ids)) as $tag_id) {
+        mysqli_query($mysqli, "INSERT INTO kb_article_client_tags SET kb_article_id = $kb_article_id, tag_id = $tag_id");
+    }
+    foreach (array_unique(array_map('intval', $client_ids)) as $client_id) {
+        mysqli_query($mysqli, "INSERT INTO kb_article_clients SET kb_article_id = $kb_article_id, client_id = $client_id");
+    }
 }
 
 /*
@@ -226,6 +396,8 @@ function kbArticleDelete($kb_article_id) {
     mysqli_query($mysqli, "DELETE FROM kb_articles WHERE kb_article_id = $kb_article_id");
     mysqli_query($mysqli, "DELETE FROM kb_article_versions WHERE kb_article_version_kb_article_id = $kb_article_id");
     mysqli_query($mysqli, "DELETE FROM kb_article_tags WHERE kb_article_id = $kb_article_id");
+    mysqli_query($mysqli, "DELETE FROM kb_article_client_tags WHERE kb_article_id = $kb_article_id");
+    mysqli_query($mysqli, "DELETE FROM kb_article_clients WHERE kb_article_id = $kb_article_id");
     removeDirectory(kbArticleDir($kb_article_id));
     return $row['kb_article_title'];
 }

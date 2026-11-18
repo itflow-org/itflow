@@ -3,8 +3,8 @@
 /*
  * The Knowledge Base - every article, for every client: how-tos, fixes and
  * policies written once. Each row has its category's icon, its title and what
- * it is for, its tags, its category, when it last changed and when it is next
- * reviewed. The pills are the views - every article, the published ones, the
+ * it is for, its tags, its category, who can read it, when it last changed
+ * and when it is next reviewed. The pills are the views - every article, the published ones, the
  * drafts, the ones due for review and the archived ones - counted over what
  * the search, category and tags leave. Ticked rows can be put in a category,
  * published, made drafts, archived, restored or deleted.
@@ -36,6 +36,10 @@ $category_filter = (string) ($_GET['category'] ?? '');
 $category_filter = $category_filter === 'none' ? 'none' : (intval($category_filter) > 0 ? (string) intval($category_filter) : '');
 $category_query = $category_filter === '' ? '' : 'AND kb_article_category_id = ' . ($category_filter === 'none' ? 0 : intval($category_filter));
 
+// Who can read it
+$who_filter = isset(KB_VISIBILITY[$_GET['who'] ?? '']) ? (string) $_GET['who'] : '';
+$who_query = $who_filter === '' ? '' : "AND kb_article_visibility = '$who_filter'";
+
 // Tags
 $tag_filter_ids = tagFilterIds();
 $tag_query = tagFilterSql('kb_article', $tag_filter_ids, 'kb_articles.kb_article_id');
@@ -45,7 +49,7 @@ $search_query = $q !== ''
     ? "AND (kb_article_title LIKE '%$q%' OR kb_article_summary LIKE '%$q%' OR MATCH(kb_article_content_raw) AGAINST ('$q') " . tagSearchSql('kb_article', $q, 'kb_articles.kb_article_id') . ")"
     : '';
 
-$filters = "1 $search_query $category_query $tag_query";
+$filters = "1 $search_query $category_query $tag_query $who_query";
 $joins = "LEFT JOIN categories ON category_id = kb_article_category_id AND kb_article_category_id > 0
     LEFT JOIN users updater ON updater.user_id = COALESCE(NULLIF(kb_article_updated_by, 0), kb_article_created_by)";
 
@@ -70,7 +74,8 @@ if (!isset($sortable_columns[$sort])) {
 }
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS kb_article_id, kb_article_title, kb_article_summary, kb_article_content, kb_article_category_id,
-        kb_article_published_at, kb_article_review_months, kb_article_reviewed_at, kb_article_created_at, kb_article_updated_at, kb_article_archived_at,
+        kb_article_published_at, kb_article_visibility, kb_article_all_clients, kb_article_review_months, kb_article_reviewed_at, kb_article_created_at,
+        kb_article_updated_at, kb_article_archived_at,
         category_name, category_description, category_color, category_icon, category_type, updater.user_name AS updated_by_name
     FROM kb_articles $joins
     WHERE $filters AND {$shows[$show]['where']}
@@ -84,6 +89,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $articles[intval($row['kb_article_id'])] = $row;
 }
 $article_tags = tagsForRecords('kb_article', array_keys($articles));
+$audiences = kbAudiencesFor(array_keys($articles));
 
 // How many of each, for the pills - over what the filters leave
 $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', array_map(function ($s) {
@@ -136,7 +142,7 @@ $csrf = $_SESSION['csrf_token'];
         <form autocomplete="off">
             <input type="hidden" name="show" value="<?= escapeHtml($show) ?>">
             <div class="row g-2 align-items-center">
-                <div class="col-lg-5 col-md-6">
+                <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search the Knowledge Base..." title="Title, summary, the words in it and its tags">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
@@ -156,7 +162,15 @@ $csrf = $_SESSION['csrf_token'];
                         <?= tagFilterOptionsHtml('kb_article', $tag_filter_ids) ?>
                     </select>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-2 col-md-6">
+                    <select class="form-select select2" name="who" onchange="this.form.submit()" aria-label="Who can read it">
+                        <option value="">- Any audience -</option>
+                        <?php foreach (KB_VISIBILITY as $visibility => [$label, $icon]) { ?>
+                            <option value="<?= $visibility ?>"<?= $who_filter === $visibility ? ' selected' : '' ?> data-icon="fas <?= $icon ?>"><?= $label ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-6">
                     <div class="d-flex justify-content-end gap-2">
                         <?php if ($can_edit) { ?>
                             <div class="dropdown" id="bulkActionButton" hidden>
@@ -223,6 +237,7 @@ $csrf = $_SESSION['csrf_token'];
                     <?php } ?>
                     <th class="<?= $can_edit ? '' : 'ps-3' ?>"><?= $sort_link('kb_article_title', 'Article') ?></th>
                     <th class="d-none d-lg-table-cell"><?= $sort_link('category_name', 'Category') ?></th>
+                    <th class="d-none d-lg-table-cell">Who can read it</th>
                     <th class="d-none d-md-table-cell"><?= $sort_link('kb_article_updated', 'Updated') ?></th>
                     <th class="d-none d-xl-table-cell">Review</th>
                     <th></th>
@@ -261,12 +276,13 @@ $csrf = $_SESSION['csrf_token'];
                                         <div class="mt-1"><?= $tags_html ?></div>
                                     <?php } ?>
                                     <!-- On smaller screens its category and when it changed come along under it -->
-                                    <div class="d-lg-none small mt-1"><?= $row['category_name'] !== null ? categoryChip($row) : '' ?></div>
+                                    <div class="d-lg-none small mt-1 d-flex flex-wrap align-items-center gap-2"><?= $row['category_name'] !== null ? categoryChip($row) : '' ?><?= kbAudienceBadge($row, $audiences[$kb_article_id]) ?></div>
                                     <div class="d-md-none small text-body-secondary">Updated <?= timeAgo($updated_at) ?></div>
                                 </div>
                             </div>
                         </td>
                         <td class="d-none d-lg-table-cell"><?= $category_html ?></td>
+                        <td class="d-none d-lg-table-cell"><?= kbAudienceBadge($row, $audiences[$kb_article_id]) ?></td>
                         <td class="d-none d-md-table-cell small text-nowrap">
                             <span title="<?= escapeHtml($updated_at) ?>"><?= timeAgo($updated_at) ?></span>
                             <?php if ($row['updated_by_name'] !== null) { ?><div class="text-body-secondary"><?= escapeHtml($row['updated_by_name']) ?></div><?php } ?>
@@ -332,7 +348,7 @@ $csrf = $_SESSION['csrf_token'];
     $empty_state = [
         'thing' => 'articles',
         'icon' => 'fa-book',
-        'filtered' => $q !== '' || $category_filter !== '' || $tag_filter_ids,
+        'filtered' => $q !== '' || $category_filter !== '' || $tag_filter_ids || $who_filter !== '',
         'archived' => $show === 'archived',
         'views' => ['show'],
         'view' => emptyStatePill($shows, $show, '', ['review']),

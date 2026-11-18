@@ -37,6 +37,9 @@ $published = !empty($row['kb_article_published_at']);
 $updated_at = $row['kb_article_updated_at'] ?: $row['kb_article_created_at'];
 $updated_by = escapeHtml($row['updated_by_name'] ?: (string) $row['created_by_name']);
 $review = kbReviewState($row);
+$audience = kbAudiencesFor([$kb_article_id])[$kb_article_id];
+$visibility = isset(KB_VISIBILITY[$row['kb_article_visibility']]) ? $row['kb_article_visibility'] : 'agents';
+$public_url = kbPublicUrl($kb_article_id, $row['kb_article_title']);
 
 $versions = [];
 $sql_versions = mysqli_query($mysqli, "SELECT kb_article_version_id, kb_article_version_title, kb_article_version_created_at, user_name
@@ -149,6 +152,50 @@ $page_title = $row['kb_article_title'];
                             <a class="text-reset text-decoration-none" href="kb.php?category=<?= intval($row['category_id']) ?>"><?= categoryChip($row) ?></a>
                         <?php } else { ?>
                             <span class="text-body-secondary">No category</span>
+                        <?php } ?>
+                    </span>
+                </div>
+                <div class="itflow-glance-item" title="Who can read it">
+                    <i class="fas fa-fw <?= KB_VISIBILITY[$visibility][1] ?>"></i>
+                    <span class="min-w-0">
+                        <span class="d-flex align-items-center">
+                            <?= escapeHtml(kbAudienceText($row, $audience)) ?>
+                            <?php if ($can_edit && !$archived) { ?>
+                                <a class="itflow-copy ajax-modal" href="#" data-modal-size="xl" data-modal-url="<?= $edit_url ?>" title="Change who can read it"><i class="fas fa-pen"></i></a>
+                            <?php } ?>
+                        </span>
+                        <?php if ($visibility === 'clients' && !intval($row['kb_article_all_clients']) && ($audience['tags'] || $audience['clients'])) { ?>
+                            <span class="d-flex flex-wrap gap-1 mt-1">
+                                <?php foreach ($audience['tags'] as $tag) { ?>
+                                    <a class="text-decoration-none" href="clients.php?tags[]=<?= intval($tag['tag_id']) ?>" title="The clients tagged <?= escapeHtml($tag['tag_name']) ?>"><?= tagPill($tag) ?></a>
+                                <?php } ?>
+                            </span>
+                            <?php if ($audience['clients']) { ?>
+                                <span class="d-block small mt-1">
+                                    <?= implode(', ', array_map(function ($client_id, $name) {
+                                        return hasClientAccess($client_id) ? '<a href="client_overview.php?client_id=' . intval($client_id) . '">' . escapeHtml($name) . '</a>' : escapeHtml($name);
+                                    }, array_keys($audience['clients']), $audience['clients'])) ?>
+                                </span>
+                            <?php } ?>
+                        <?php } ?>
+                        <?php if ($visibility !== 'agents') { ?>
+                            <span class="d-block small text-body-secondary">
+                                <?php if (!$published || $archived) { ?>
+                                    Not shown yet - only <?= $archived ? 'restored and ' : '' ?>published articles are
+                                <?php } elseif ($visibility === 'clients') { ?>
+                                    In their client portal, under Help
+                                <?php } elseif (kbPublicOn()) { ?>
+                                    In every client's portal, and the public help center
+                                <?php } else { ?>
+                                    In every client's portal. The public help center is off<?= $session_is_admin ? ' - <a href="/admin/settings_kb.php">switch it on</a>' : '' ?>
+                                <?php } ?>
+                            </span>
+                            <?php if ($visibility === 'public' && kbPublicOn() && $published && !$archived) { ?>
+                                <span class="d-flex align-items-center small mt-1 min-w-0">
+                                    <a class="text-truncate" href="<?= escapeHtml($public_url) ?>" target="_blank" rel="noopener"><?= escapeHtml(preg_replace('#^https://#', '', $public_url)) ?></a>
+                                    <button type="button" class="itflow-copy clipboardjs" title="Copy the link" data-clipboard-text="<?= escapeHtml($public_url) ?>"><i class="far fa-copy"></i></button>
+                                </span>
+                            <?php } ?>
                         <?php } ?>
                     </span>
                 </div>

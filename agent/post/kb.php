@@ -60,7 +60,7 @@ function kbBulkArticles() {
 
 if (isset($_POST['add_kb_article'])) {
 
-    [$fields, $error] = kbArticleFields($_POST);
+    [$fields, $error] = kbArticleFields(['keep_client_ids' => []] + $_POST);
     if ($error !== '') {
         flashAlert(escapeHtml($error), 'error');
         redirect();
@@ -71,7 +71,9 @@ if (isset($_POST['add_kb_article'])) {
         tagSetForRecord('kb_article', $kb_article_id, (array) ($_POST['tags'] ?? []));
     }
 
-    logAudit("Knowledge Base", "Create", "$session_name wrote " . ($fields['published'] ? '' : 'a draft of ') . "article " . escapeSql($fields['title']), 0, $kb_article_id);
+    $saved = kbArticleRow($kb_article_id);
+    logAudit("Knowledge Base", "Create", "$session_name wrote " . ($fields['published'] ? '' : 'a draft of ') . "article " . escapeSql($fields['title'])
+        . " - who can read it: " . escapeSql(kbAudienceText($saved, kbAudiencesFor([$kb_article_id])[$kb_article_id])), 0, $kb_article_id);
 
     flashAlert("Article <strong>" . escapeHtml($fields['title']) . "</strong> " . ($fields['published'] ? 'published' : 'saved as a draft'));
 
@@ -82,8 +84,10 @@ if (isset($_POST['edit_kb_article'])) {
 
     $row = kbArticleForHandler($_POST['kb_article_id'] ?? 0);
     $kb_article_id = intval($row['kb_article_id']);
+    $audience_before = kbAudienceText($row, kbAudiencesFor([$kb_article_id])[$kb_article_id]);
 
-    [$fields, $error] = kbArticleFields($_POST);
+    // Clients already on it stay, even ones this agent can't reach
+    [$fields, $error] = kbArticleFields(['keep_client_ids' => kbAudienceFields($row)['client_ids']] + $_POST);
     if ($error !== '') {
         flashAlert(escapeHtml($error), 'error');
         redirect();
@@ -96,7 +100,10 @@ if (isset($_POST['edit_kb_article'])) {
 
     $was = !empty($row['kb_article_published_at']);
     $how = $fields['published'] === $was ? 'edited' : ($fields['published'] ? 'edited and published' : 'edited and made a draft of');
-    logAudit("Knowledge Base", "Edit", "$session_name $how article " . escapeSql($fields['title']), 0, $kb_article_id);
+    $saved = kbArticleRow($kb_article_id);
+    $audience_after = kbAudienceText($saved, kbAudiencesFor([$kb_article_id])[$kb_article_id]);
+    logAudit("Knowledge Base", "Edit", "$session_name $how article " . escapeSql($fields['title'])
+        . ($audience_after !== $audience_before ? " - who can read it: " . escapeSql("$audience_after (was $audience_before)") : ''), 0, $kb_article_id);
 
     flashAlert("Article <strong>" . escapeHtml($fields['title']) . "</strong> saved" . ($fields['published'] === $was ? '' : ($fields['published'] ? ' and published' : ' as a draft')));
 
@@ -169,7 +176,7 @@ if (isset($_GET['copy_kb_article'])) {
 
     $row = kbArticleForHandler($_GET['copy_kb_article']);
 
-    // A new draft, with copies of its images and its tags
+    // A new draft, with copies of its images, its tags and who can read it
     $kb_article_id = kbArticleSave([
         'title' => mb_substr('Copy of ' . $row['kb_article_title'], 0, 200),
         'summary' => (string) $row['kb_article_summary'],
@@ -177,7 +184,7 @@ if (isset($_GET['copy_kb_article'])) {
         'review_months' => intval($row['kb_article_review_months']),
         'published' => false,
         'content' => '',
-    ]);
+    ] + kbAudienceFields($row));
     $content = (string) $row['kb_article_content'];
     $from = kbArticleDir($row['kb_article_id']);
     if (is_dir($from)) {
@@ -216,7 +223,7 @@ if (isset($_POST['restore_kb_article_version'])) {
         'review_months' => intval($row['kb_article_review_months']),
         'published' => !empty($row['kb_article_published_at']),
         'content' => (string) $version['kb_article_version_content'],
-    ], $row);
+    ] + kbAudienceFields($row), $row);
 
     logAudit("Knowledge Base", "Edit", "$session_name put back an earlier version of article " . escapeSql($version['kb_article_version_title']), 0, $kb_article_id);
 
