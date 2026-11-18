@@ -196,6 +196,7 @@ function settingsFields() {
         'config_quote_notification_email' => ['page' => 'quote', 'section' => 'Answers', 'label' => 'Email quote answers to', 'words' => 'accepted declined notification email'],
         'config_quote_price_method' => ['page' => 'quote', 'section' => 'Pricing', 'label' => 'Price lines by', 'kind' => 'select', 'words' => 'markup margin cost price profit'],
         'config_quote_price_percent' => ['page' => 'quote', 'section' => 'Pricing', 'label' => 'Markup or margin %', 'words' => 'markup margin percent percentage cost'],
+        'config_quote_show_images' => ['page' => 'quote', 'section' => 'Pictures', 'label' => 'Show pictures on quotes', 'kind' => 'switch', 'words' => 'image picture photo product quote line'],
         'config_quote_price_presets' => ['page' => 'quote', 'section' => 'Pricing', 'label' => 'Quick picks', 'words' => 'markup margin presets buttons percent'],
 
         // Invoices and billing

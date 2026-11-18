@@ -58,7 +58,7 @@ ob_start();
     <h5 class="modal-title"><i class="fas fa-fw fa-edit me-2"></i>Edit Line <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber($type, $doc)) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-<form action="post.php" method="post" autocomplete="off" data-billing-line-form>
+<form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off" data-billing-line-form>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="billing_item_save" value="1">
     <input type="hidden" name="type" value="<?= escapeHtml($type) ?>">
@@ -258,6 +258,9 @@ ob_start();
             <?php } ?>
             <?php if ($type === 'quote') { // what it costs you and how its price comes from that (functions/quote_pricing.php) ?>
                 <?= quotePricingFields($item, $currency) ?>
+            <?php } ?>
+            <?php if ($type === 'quote' && quoteImagesShown()) { // its picture (functions/quote_images.php) ?>
+                <?= quoteImageField('item_image', $item['item_image'] ?? '', 'Shown beside the line, on the quote and its PDF.') ?>
             <?php } ?>
             <div class="col-sm-4">
                 <label class="form-label">Quantity <strong class="text-danger">*</strong></label>

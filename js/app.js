@@ -1006,6 +1006,36 @@ itflowBindOnce('itflowModalStackHidden', 'hidden.bs.modal', '.modal', function (
     }
 });
 
+/*
+ * A picture field (quoteImageField(), functions/quote_images.php) - the file
+ * picked shows in its box before it is saved, and picking one clears a link
+ * typed in and a Remove ticked.
+ */
+itflowBindOnce('itflowImageField', 'change', '[data-image-file]', function () {
+    const field = this.closest('[data-image-field]');
+    const file = this.files && this.files[0];
+    if (!field || !file || !/^image\//.test(file.type)) {
+        return;
+    }
+    const preview = field.querySelector('[data-image-preview]');
+    const empty = field.querySelector('[data-image-empty]');
+    const url = field.querySelector('[data-image-url]');
+    const remove = field.querySelector('[data-image-remove]');
+    if (preview) {
+        preview.src = URL.createObjectURL(file);
+        preview.hidden = false;
+    }
+    if (empty) {
+        empty.hidden = true;
+    }
+    if (url) {
+        url.value = '';
+    }
+    if (remove) {
+        remove.checked = false;
+    }
+});
+
 /**
  * A required field left empty on a tab that isn't showing - the Ticket tab of
  * a template while Sets up is open, a fill-in on Details while Tasks is -

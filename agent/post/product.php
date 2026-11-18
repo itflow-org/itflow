@@ -42,6 +42,13 @@ if (isset($_POST['add_product'])) {
 
     logAudit("Product", "Create", "$session_name created " . strtolower($type_label) . " $name", 0, $product_id);
 
+    // Its picture (functions/quote_images.php)
+    $image_error = quoteImageSave('products', $product_id, $_POST, $_FILES);
+    if ($image_error !== '') {
+        flashAlert("$type_label <strong>" . escapeHtml($product['product_name']) . "</strong> added, but its picture couldn't be added: " . escapeHtml($image_error), 'warning');
+        redirect();
+    }
+
     flashAlert("$type_label <strong>" . escapeHtml($product['product_name']) . "</strong> added");
 
     redirect();
@@ -74,6 +81,13 @@ if (isset($_POST['edit_product'])) {
         if ($behind['lines']) {
             $price_note .= ", and <strong>" . intval($behind['lines']) . "</strong> line" . ($behind['lines'] == 1 ? ' is' : 's are') . " on recurring invoices, drafts or quotes at an old price. Update them from its page.";
         }
+    }
+
+    // Its picture (functions/quote_images.php)
+    $image_error = quoteImageSave('products', $product_id, $_POST, $_FILES);
+    if ($image_error !== '') {
+        flashAlert("<strong>" . escapeHtml($product['product_name']) . "</strong> saved$price_note - but its picture couldn't be added: " . escapeHtml($image_error), 'warning');
+        redirect();
     }
 
     flashAlert("<strong>" . escapeHtml($product['product_name']) . "</strong> saved$price_note");

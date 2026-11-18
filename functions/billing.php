@@ -118,6 +118,10 @@ function billingItems($type, $id) {
     if ($type === 'quote' && quotePricingReady()) {
         $seat_columns .= ', item_cost, item_price_method, item_price_percent';
     }
+    // And its picture (functions/quote_images.php)
+    if ($type === 'quote' && quoteImagesReady()) {
+        $seat_columns .= ', item_image';
+    }
     $sql = mysqli_query($mysqli, "SELECT item_id, item_name, item_description, item_quantity, item_price, item_subtotal, item_tax, item_total,
             item_order, item_tax_id, item_product_id, item_created_at, tax_name, tax_percent $seat_columns
         FROM {$t['items']}
@@ -440,6 +444,10 @@ function billingItemSave($type, $doc_id, array $in, $item_id = 0, &$error = '') 
         $order = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(MAX(item_order), 0) + 1 FROM {$t['items']} WHERE {$t['item_fk']} = $doc_id"))[0]);
         mysqli_query($mysqli, "INSERT INTO {$t['items']} SET $set, item_order = $order, item_product_id = $product_id, {$t['item_fk']} = $doc_id");
         $item_id = mysqli_insert_id($mysqli);
+        // A quote line from a product gets its own copy of the product's picture (functions/quote_images.php)
+        if ($type === 'quote' && $product_id) {
+            quoteImageFromProduct($item_id, $product_id);
+        }
     }
     if ($stock_change != 0) {
         productStockMove($product_id, -$stock_change, $stock_change > 0 ? 'sold' : 'returned', [
@@ -556,6 +564,9 @@ function billingItemDelete($type, $doc_id, $item_id) {
     $item = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT item_name, item_quantity, item_product_id FROM {$t['items']} WHERE item_id = $item_id AND {$t['item_fk']} = $doc_id"));
     if (!$item) {
         return null;
+    }
+    if ($type === 'quote') {
+        quoteImagesDeleteFor("item_id = $item_id");
     }
     mysqli_query($mysqli, "DELETE FROM {$t['items']} WHERE item_id = $item_id");
     $product_id = intval($item['item_product_id']);
@@ -1584,7 +1595,7 @@ function billingCopyLines(array $items, $to_type, $to_id, $suffix = '') {
             $product_id = 0;
         }
         // A quote line's cost and pricing go with it to another quote - an invoice is made from the price alone
-        $pricing = $to_type === 'quote' ? quotePricingCopySql($item) : '';
+        $pricing = $to_type === 'quote' ? quotePricingCopySql($item) . quoteImageCopySql($item) : '';
         mysqli_query($mysqli, "INSERT INTO {$t['items']} SET item_name = '$name', item_description = '$description', item_quantity = " . floatval($item['item_quantity']) . ",
             item_price = " . floatval($item['item_price']) . ", item_subtotal = " . floatval($item['item_subtotal']) . ", item_tax = " . floatval($item['item_tax']) . ",
             item_total = " . floatval($item['item_total']) . ", item_order = $order, item_tax_id = " . intval($item['item_tax_id']) . ", item_product_id = $product_id$pricing, {$t['item_fk']} = $to_id");

@@ -28,6 +28,7 @@ if (!empty($quote_id)) {
         $delete_count = mysqli_affected_rows($mysqli);
 
         if ($delete_count > 0) {
+            quoteImagesDeleteFor("item_quote_id = $quote_id");
             mysqli_query($mysqli, "DELETE FROM quote_items WHERE item_quote_id = $quote_id");
 
             // Its history - a recurring invoice's entry for the lines it added stays theirs

@@ -44,6 +44,13 @@ echo settingsPageStart('quote');
                 <?= settingsSectionEnd() ?>
             <?php } ?>
 
+            <?php if (quoteImagesReady()) { ?>
+                <?= settingsSectionStart('pictures', 'Pictures', 'A quote line can have a picture - uploaded, pulled from a link, or taken from its product.') ?>
+                    <?= settingsSwitch('config_quote_show_images', quoteImagesShown() ? 1 : 0, ['label' => 'Show pictures on quotes',
+                        'help' => 'Beside each line on the quote, the guest link, the client portal and the PDF - and the Picture field in a line\'s Edit window. Off, they are kept but not shown.']) ?>
+                <?= settingsSectionEnd() ?>
+            <?php } ?>
+
             <?= settingsSaveBar('edit_quote_settings') ?>
         </div>
     </div>

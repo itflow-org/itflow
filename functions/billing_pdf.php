@@ -253,7 +253,9 @@ function billingPdfRender($type, array $row, $variant = 'document') {
                 $tax_label = floatval($item['item_tax']) != 0 || intval($item['item_tax_id'])
                     ? '<br><span style="font-size:6.5pt; color:' . $grey . ';">' . $e(trim(($item['tax_name'] ?? '') . ' ' . ($item['tax_percent'] !== null ? taxPercentText($item['tax_percent']) . '%' : ''))) . '</span>'
                     : '';
-                $html .= '<tr nobr="true"><td width="49%" style="' . $td . '"><b>' . $e($item['item_name']) . '</b>'
+                // A quote line's picture above its name (functions/quote_images.php)
+                $image = $type === 'quote' && quoteImagesShown() && quoteImageUrl($item['item_image'] ?? '') !== '' ? '<img src="' . $e(quoteImagePath($item['item_image'])) . '" height="40"><br>' : '';
+                $html .= '<tr nobr="true"><td width="49%" style="' . $td . '">' . $image . '<b>' . $e($item['item_name']) . '</b>'
                     . (trim((string) $item['item_description']) !== '' ? '<br><span style="font-size:7.5pt; color:' . $grey . ';">' . nl2br($e($item['item_description'])) . '</span>' : '') . '</td>
                     <td width="9%" align="right" style="' . $td . '">' . $e(billingQuantity($item['item_quantity'])) . '</td>
                     <td width="14%" align="right" style="' . $td . '">' . $money($item['item_price']) . '</td>

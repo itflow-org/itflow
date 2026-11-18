@@ -129,6 +129,13 @@ if (isset($_POST['billing_item_save'])) {
     $name = trim((string) $_POST['name']);
     logAudit(billingAuditType($type), 'Edit', escapeSql("$session_name " . ($item_id ? 'edited' : 'added') . " line $name " . ($item_id ? 'on' : 'to') . " $number"), $client_id, $doc_id);
 
+    // A quote line's picture - a new one, or taken off (functions/quote_images.php)
+    $image_error = $type === 'quote' ? quoteImageSave('quote_items', $saved, $_POST, $_FILES) : '';
+    if ($image_error !== '') {
+        flashAlert('<strong>' . escapeHtml($name) . '</strong> ' . ($item_id ? 'updated' : 'added') . ', but its picture couldn\'t be added: ' . escapeHtml($image_error), 'warning');
+        billingPostBack($type, $doc_id, "line-$saved");
+    }
+
     flashAlert('<strong>' . escapeHtml($name) . '</strong> ' . ($item_id ? 'updated' : 'added'));
 
     billingPostBack($type, $doc_id, $item_id ? "line-$saved" : 'add-line');

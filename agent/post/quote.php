@@ -105,7 +105,7 @@ if (isset($_POST['add_quote_copy'])) {
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Quote copied!', history_quote_id = $new_quote_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT item_description, item_id, item_name, item_order, item_price, item_quantity, item_subtotal,
-        item_tax, item_tax_id, item_total, item_frequency, item_product_id" . (quotePricingReady() ? ', item_cost, item_price_method, item_price_percent' : '') . " FROM quote_items WHERE item_quote_id = $quote_id");
+        item_tax, item_tax_id, item_total, item_frequency, item_product_id" . (quotePricingReady() ? ', item_cost, item_price_method, item_price_percent' : '') . (quoteImagesReady() ? ', item_image' : '') . " FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
         $item_id = intval($row['item_id']);
         $item_name = escapeSql($row['item_name']);
@@ -124,7 +124,7 @@ if (isset($_POST['add_quote_copy'])) {
         if ($item_product_id && !getFieldById('products', $item_product_id, 'product_id')) {
             $item_product_id = 0;
         }
-        $item_pricing = quotePricingCopySql($row);
+        $item_pricing = quotePricingCopySql($row) . quoteImageCopySql($row);
 
         mysqli_query($mysqli,"INSERT INTO quote_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_frequency = $item_frequency, item_product_id = $item_product_id$item_pricing, item_quote_id = $new_quote_id");
     }
@@ -247,7 +247,8 @@ if (isset($_GET['delete_quote'])) {
 
     mysqli_query($mysqli,"DELETE FROM quotes WHERE quote_id = $quote_id");
 
-    //Delete Items Associated with the Quote
+    //Delete Items Associated with the Quote - and their pictures (functions/quote_images.php)
+    quoteImagesDeleteFor("item_quote_id = $quote_id");
     $sql = mysqli_query($mysqli,"SELECT item_id FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql)) {;
         $item_id = intval($row['item_id']);

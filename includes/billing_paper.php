@@ -75,6 +75,9 @@ $paper_seat_sources = recurringSeatSources();
 // A quote with lines billed each month, quarter or year shows them apart from
 // what is billed once - the lines under a heading each, and a total each
 $paper_groups = $paper_type === 'quote' && !empty($paper_totals['recurring']) ? $paper_totals['groups'] : null;
+
+// A quote's lines show their pictures, unless Admin > Settings > Quotes says not to (functions/quote_images.php)
+$paper_images = $paper_type === 'quote' && quoteImagesShown();
 $paper_line_groups = $paper_groups ?: ['' => ['frequency' => '', 'label' => '', 'items' => $paper_items]];
 
 // Where the lines can be changed, what can be changed where it sits is wrapped
@@ -207,12 +210,15 @@ $paper_bill_lines = array_filter([
                     $item_tax_html = $item_tax_label !== ''
                         ? $paper_money($item['item_tax']) . '<div class="small text-body-secondary itflow-paper-tax-label">' . escapeHtml($item_tax_label) . '</div>'
                         : '<span class="text-body-secondary">-</span>';
-                    $item_quantity = billingQuantity($item['item_quantity']); ?>
+                    $item_quantity = billingQuantity($item['item_quantity']);
+                    // A quote line's picture, beside its name (functions/quote_images.php)
+                    $item_image = $paper_type === 'quote' && $paper_images ? quoteImageThumbHtml($item['item_image'] ?? '') : ''; ?>
                     <tr id="line-<?= $item_id ?>" data-item-id="<?= $item_id ?>" data-group="<?= $paper_frequency ?>">
                         <?php if ($paper_edit) { ?>
                             <td class="itflow-paper-handle d-print-none"><span class="drag-handle" title="Drag to reorder"><i class="fas fa-grip-vertical"></i></span></td>
                         <?php } ?>
                         <td class="itflow-paper-item">
+                            <?php if ($item_image !== '') { ?><div class="d-flex align-items-start gap-2"><?= $item_image ?><div class="flex-grow-1 min-w-0"><?php } ?>
                             <div class="fw-semibold"><?= $paper_field('name', $item['item_name'], 'name', escapeHtml($item['item_name']), 'd-block') ?></div>
                             <?php if (trim((string) $item['item_description']) !== '') { ?>
                                 <div class="small text-body-secondary"><?= $paper_field('description', $item['item_description'], 'description', nl2br(escapeHtml($item['item_description'])), 'd-block') ?></div>
@@ -236,6 +242,7 @@ $paper_bill_lines = array_filter([
                             <?php if ($paper_edit && $paper_type === 'quote') { // its cost and pricing - agents only, never printed (functions/quote_pricing.php) ?>
                                 <?= quotePricingLineHtml($item, $paper_currency) ?>
                             <?php } ?>
+                            <?php if ($item_image !== '') { ?></div></div><?php } ?>
                         </td>
                         <?php // A counted quantity isn't typed - the Edit Line window has what it counts ?>
                         <td class="text-end text-nowrap"><?= isset($paper_seats[$item_id]) ? $item_quantity : $paper_field('qty', $item_quantity, 'quantity', $item_quantity) ?></td>

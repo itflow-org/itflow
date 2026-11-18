@@ -304,8 +304,9 @@ if (isset($_GET['delete_client'])) {
     //Delete Quote and related items
     $sql = mysqli_query($mysqli, "SELECT quote_id FROM quotes WHERE quote_client_id = $client_id");
     while($row = mysqli_fetch_assoc($sql)) {
-        $quote_id = $row['quote_id'];
+        $quote_id = intval($row['quote_id']);
 
+        quoteImagesDeleteFor("item_quote_id = $quote_id");
         mysqli_query($mysqli, "DELETE FROM quote_items WHERE item_quote_id = $quote_id");
     }
     mysqli_query($mysqli, "DELETE FROM quotes WHERE quote_client_id = $client_id");

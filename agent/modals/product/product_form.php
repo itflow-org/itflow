@@ -252,6 +252,9 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
             <textarea class="form-control" name="description" rows="3" placeholder="What the client sees under the line - what it covers, per user per month, what is included"><?= escapeHtml($form_value('product_description')) ?></textarea>
         </div>
     </div>
+    <?php if (quoteImagesReady()) { // a quote line added from it takes a copy (functions/quote_images.php) ?>
+        <?= quoteImageField('product_image', $form_edit ? ($form_product['product_image'] ?? '') : '', 'A quote line added from it takes a copy.') ?>
+    <?php } ?>
     <div class="col-12">
         <label class="form-label">Notes <span class="text-body-secondary fw-normal small">for agents only</span></label>
         <div class="input-group">
