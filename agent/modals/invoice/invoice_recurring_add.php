@@ -18,7 +18,9 @@ if (!$doc) {
 $client_id = intval($doc['client_id']);
 enforceClientAccess();
 $doc_number = billingNumber($doc_type, $doc);
-$lines = count(billingItems('invoice', intval($doc['invoice_id'])));
+// Without the card fee it was paid with - that was for the payment (billingWithoutCardFees())
+[$copy_lines, $card_fees] = billingWithoutCardFees(billingItems('invoice', intval($doc['invoice_id'])));
+$lines = count($copy_lines);
 
 ob_start();
 
@@ -32,7 +34,7 @@ ob_start();
     <input type="hidden" name="invoice_id" value="<?= intval($doc['invoice_id']) ?>">
 
     <div class="modal-body">
-        <p class="text-body-secondary small">Bill <?= escapeHtml($doc['client_name']) ?> for the same <?= $lines ?> line<?= $lines === 1 ? '' : 's' ?> - <?= escapeHtml(billingMoney($doc['invoice_amount'], $doc['invoice_currency_code'])) ?> - again and again. The first one is made a period after <?= escapeHtml($doc_number) ?>'s date, <?= escapeHtml($doc['invoice_date']) ?>; change that and the lines on the recurring invoice after.</p>
+        <p class="text-body-secondary small">Bill <?= escapeHtml($doc['client_name']) ?> for the same <?= $lines ?> line<?= $lines === 1 ? '' : 's' ?> - <?= escapeHtml(billingMoney(floatval($doc['invoice_amount']) - $card_fees, $doc['invoice_currency_code'])) ?> - again and again<?= $card_fees > 0 ? ', without the card fee it was paid with' : '' ?>. The first one is made a period after <?= escapeHtml($doc_number) ?>'s date, <?= escapeHtml($doc['invoice_date']) ?>; change that and the lines on the recurring invoice after.</p>
         <label class="form-label">Billed <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>

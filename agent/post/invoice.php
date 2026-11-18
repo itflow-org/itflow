@@ -122,8 +122,10 @@ if (isset($_POST['add_invoice_copy'])) {
 
     enforceClientAccess();
 
-    // Its products that track stock come off the shelf again - there has to be enough
-    $copy_items = billingItems('invoice', $invoice_id);
+    // Its products that track stock come off the shelf again - there has to be enough.
+    // A card fee it was paid with isn't copied - that was for the payment
+    [$copy_items, $card_fees] = billingWithoutCardFees(billingItems('invoice', $invoice_id));
+    $invoice_amount = round($invoice_amount - $card_fees, 2);
     $shortfall = productStockShortfall($copy_items);
     if ($shortfall !== '') {
         flashAlert(escapeHtml($shortfall) . ' Add stock before copying it.', 'error');
@@ -157,7 +159,7 @@ if (isset($_POST['add_invoice_copy'])) {
 
     triggerCustomAction('invoice_create', $new_invoice_id);
 
-    flashAlert("Created new Invoice <strong>$config_invoice_prefix$new_invoice_number</strong> from <strong>$old_invoice_prefix$old_invoice_number</strong>");
+    flashAlert("Created new Invoice <strong>$config_invoice_prefix$new_invoice_number</strong> from <strong>$old_invoice_prefix$old_invoice_number</strong>" . ($card_fees > 0 ? ' - without its card fee' : ''));
 
     redirect("invoice.php?invoice_id=$new_invoice_id");
 

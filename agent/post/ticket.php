@@ -1515,6 +1515,10 @@ if (isset($_POST['change_client_ticket'])) {
     mysqli_query($mysqli, "UPDATE tickets SET ticket_client_id = $client_id, ticket_contact_id = $contact_id, ticket_asset_id = 0, ticket_location_id = 0,
         ticket_vendor_id = $vendor_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id LIMIT 1");
     mysqli_query($mysqli, "DELETE FROM ticket_assets WHERE ticket_id = $ticket_id");
+    // The links emailed to the old client stop working - the ticket's own and its tasks' approvals
+    if ($client_id !== $old_client_id) {
+        ticketNewGuestKeys($ticket_id);
+    }
     // Nobody at the old client hears about it any more: its watchers come off - all but our own
     // agents and the new client's contacts - and its email replies' To line starts again
     mysqli_query($mysqli, "DELETE FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id

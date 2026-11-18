@@ -78,6 +78,31 @@ function billingOnlinePayAllowed($amount) {
 /** The name of the line a card fee goes on the invoice as. */
 const BILLING_CARD_FEE_NAME = 'Card Fee';
 
+/** Is it a card fee line ITFlow put on the invoice (billingCardFeeAdd()) - not one typed in with the same name? */
+function billingCardFeeLine(array $item) {
+    return (string) ($item['item_name'] ?? '') === BILLING_CARD_FEE_NAME
+        && strpos((string) ($item['item_description'] ?? ''), 'For paying by card on ') === 0
+        && !intval($item['item_product_id'] ?? 0);
+}
+
+/**
+ * An invoice's lines without the card fees ITFlow put on - the fee was for
+ * that one payment, so Copy Invoice and Make Recurring leave it off.
+ * [the lines, what the fees came to].
+ */
+function billingWithoutCardFees(array $items) {
+    $kept = [];
+    $fees = 0.0;
+    foreach ($items as $item) {
+        if (billingCardFeeLine($item)) {
+            $fees += floatval($item['item_total']);
+        } else {
+            $kept[] = $item;
+        }
+    }
+    return [$kept, round($fees, 2)];
+}
+
 /**
  * The card fee clients pay, when Stripe is set to have them pay it (Admin >
  * Payment Providers) - ['percent', 'fixed'] as Stripe charges them, or null.

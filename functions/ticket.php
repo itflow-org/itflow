@@ -320,6 +320,21 @@ function ticketByGuestKey($ticket_id, $url_key) {
     return $row && $key !== '' && is_string($url_key) && hash_equals($key, $url_key) ? $row : null;
 }
 
+/**
+ * New guest links for a ticket, so the ones already emailed stop working - its
+ * own (ticket_url_key) and its tasks' client approvals. When it moves to
+ * another client: the old client's contacts have those links.
+ */
+function ticketNewGuestKeys($ticket_id) {
+    global $mysqli;
+    $ticket_id = intval($ticket_id);
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_url_key = '" . randomString(32) . "' WHERE ticket_id = $ticket_id");
+    $sql = mysqli_query($mysqli, "SELECT approval_id FROM task_approvals JOIN tasks ON task_id = approval_task_id WHERE task_ticket_id = $ticket_id AND approval_scope = 'client'");
+    while ($row = mysqli_fetch_row($sql)) {
+        mysqli_query($mysqli, "UPDATE task_approvals SET approval_url_key = '" . randomString(32) . "' WHERE approval_id = " . intval($row[0]));
+    }
+}
+
 /** The guest ticket page's address, from a page in guest/. */
 function ticketGuestPath(array $row) {
     return 'guest_view_ticket.php?ticket_id=' . intval($row['ticket_id']) . '&url_key=' . rawurlencode((string) $row['ticket_url_key']);

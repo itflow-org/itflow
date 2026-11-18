@@ -37,6 +37,10 @@ if (isset($_POST['add_invoice_recurring'])) {
 
     enforceClientAccess();
 
+    // A card fee it was paid with isn't billed again - that was for the payment
+    $card_fees = billingWithoutCardFees(billingItems('invoice', $invoice_id))[1];
+    $invoice_amount = round($invoice_amount - $card_fees, 2);
+
     // Atomically increment and get the new recurring_invoice number
     mysqli_query($mysqli, "
         UPDATE settings
@@ -55,8 +59,11 @@ if (isset($_POST['add_invoice_recurring'])) {
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Recurring Invoice Created from INVOICE!', history_recurring_invoice_id = $recurring_invoice_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT item_description, item_id, item_name, item_order, item_price, item_quantity, item_subtotal,
-        item_tax, item_tax_id, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id");
+        item_tax, item_tax_id, item_total, item_product_id FROM invoice_items WHERE item_invoice_id = $invoice_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
+        if (billingCardFeeLine($row)) {
+            continue;
+        }
         $item_id = intval($row['item_id']);
         $item_name = escapeSql($row['item_name']);
         $item_description = escapeSql($row['item_description']);
@@ -73,7 +80,7 @@ if (isset($_POST['add_invoice_recurring'])) {
 
     logAudit("Recurring Invoice", "Create", "$session_name created recurring Invoice from Invoice $invoice_prefix$invoice_number", $client_id, $recurring_invoice_id);
 
-    flashAlert("Created recurring Invoice from Invoice <strong>$invoice_prefix$invoice_number</strong>");
+    flashAlert("Created recurring Invoice from Invoice <strong>$invoice_prefix$invoice_number</strong>" . ($card_fees > 0 ? ' - without its card fee' : ''));
 
     redirect("recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
 

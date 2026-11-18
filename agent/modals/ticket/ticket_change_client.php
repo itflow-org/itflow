@@ -31,7 +31,7 @@ ob_start();
 
         <!-- change_client_ticket turns every reply internal - the agent should know before, not after -->
         <div class="alert alert-info small">
-            Every reply already on this ticket becomes an internal note, so the new client never sees the old conversation.
+            Every reply already on this ticket becomes an internal note, so the new client never sees the old conversation. The links to it emailed to the old client stop working.
         </div>
 
         <div class="mb-3">

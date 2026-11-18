@@ -18,7 +18,9 @@ if (!$doc) {
 $client_id = intval($doc['client_id']);
 enforceClientAccess();
 $doc_number = billingNumber($doc_type, $doc);
-$lines = count(billingItems('invoice', intval($doc['invoice_id'])));
+// Without the card fee it was paid with - that was for the payment (billingWithoutCardFees())
+[$copy_lines, $card_fees] = billingWithoutCardFees(billingItems('invoice', intval($doc['invoice_id'])));
+$lines = count($copy_lines);
 // 0 is On Receipt - a contract in force's net terms, else the default
 [$terms, $terms_from] = contractNetTermsWhose($client_id, date('Y-m-d'));
 
@@ -34,7 +36,7 @@ ob_start();
     <input type="hidden" name="invoice_id" value="<?= intval($doc['invoice_id']) ?>">
 
     <div class="modal-body">
-        <p class="text-body-secondary small">A new draft for <?= escapeHtml($doc['client_name']) ?> with the same <?= $lines ?> line<?= $lines === 1 ? '' : 's' ?>, scope, discount and notes - <?= escapeHtml(billingMoney($doc['invoice_amount'], $doc['invoice_currency_code'])) ?>.</p>
+        <p class="text-body-secondary small">A new draft for <?= escapeHtml($doc['client_name']) ?> with the same <?= $lines ?> line<?= $lines === 1 ? '' : 's' ?>, scope, discount and notes - <?= escapeHtml(billingMoney(floatval($doc['invoice_amount']) - $card_fees, $doc['invoice_currency_code'])) ?>.<?= $card_fees > 0 ? ' The card fee it was paid with is left off.' : '' ?></p>
         <label class="form-label">Invoice date <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
