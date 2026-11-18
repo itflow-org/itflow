@@ -6,7 +6,7 @@ $session_user_id = intval($_SESSION['user_id']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT role_is_admin, role_name, user_archived_at, user_avatar, user_config_force_mfa,
+    "SELECT role_is_admin, role_name, user_archived_at, user_avatar, user_config_force_mfa," . (serviceAccountsReady() ? ' user_service_account,' : '') . "
         user_config_records_per_page, user_config_theme_dark, user_email, user_name, user_role_id,
         user_password, user_status, user_token, user_type FROM users
      LEFT JOIN user_settings ON users.user_id = user_settings.user_id
@@ -51,6 +51,13 @@ if ($session_user_status !== 1) {
 
 // Check User is archived
 if ($session_user_archived_at !== null) {
+    session_unset();
+    session_destroy();
+    redirect("/login.php");
+}
+
+// An API / service account is only for API keys to act as - it doesn't sign in (functions/service_account.php)
+if (!empty($row['user_service_account'])) {
     session_unset();
     session_destroy();
     redirect("/login.php");

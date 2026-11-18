@@ -141,7 +141,7 @@ function quickTicketTimerScript($ticket_id) {
 function quickTicketAssignChoices() {
     global $mysqli;
     $choices = ['me' => 'The agent making it', 'nobody' => 'Nobody'];
-    $sql = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $choices[(string) intval($row['user_id'])] = (string) $row['user_name'];
     }

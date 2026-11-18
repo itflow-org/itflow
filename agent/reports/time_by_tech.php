@@ -24,7 +24,7 @@ $scope = reportClientSql('ticket_client_id', $client_id);
 
 // Every active agent, and anyone else with something in the period
 $agents = [];
-$sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar, user_status, user_archived_at FROM users WHERE user_type = 1 ORDER BY user_name");
+$sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar, user_status, user_archived_at FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " ORDER BY user_name");
 while ($row = mysqli_fetch_assoc($sql)) {
     $agents[intval($row['user_id'])] = ['user_id' => intval($row['user_id']), 'agent' => $row['user_name'], 'avatar' => $row['user_avatar'] ?? '',
         'active' => intval($row['user_status']) === 1 && $row['user_archived_at'] === null,

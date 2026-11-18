@@ -161,7 +161,7 @@ function signInAdmins() {
     $admins = [];
     $sql = mysqli_query($mysqli, "SELECT users.user_id, user_name, user_email FROM users
         JOIN user_roles ON role_id = user_role_id AND role_is_admin = 1
-        WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL");
+        WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL");
     while ($row = mysqli_fetch_assoc($sql)) {
         $admins[intval($row['user_id'])] = ['name' => $row['user_name'], 'email' => $row['user_email']];
     }

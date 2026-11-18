@@ -156,7 +156,7 @@ ob_start();
                 <select class="form-select select2" name="assigned">
                     <option value="">- Anyone -</option>
                     <?php
-                    $sql_assigned_filter = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+                    $sql_assigned_filter = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_archived_at IS NULL ORDER BY user_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_assigned_filter)) {
                         $filter_option_id = intval($row['user_id']);
                         $filter_option_name = escapeHtml($row['user_name']);

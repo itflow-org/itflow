@@ -70,7 +70,7 @@ function appNotify($type, $details, $action = null, $client_id = 0, $entity_id =
     $action = logSqlText($action, 250);
 
     $sql = mysqli_query($mysqli, "SELECT user_id FROM users
-        WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL
+        WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL
     ");
 
     while ($row = mysqli_fetch_assoc($sql)) {

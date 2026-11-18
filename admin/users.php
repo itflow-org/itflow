@@ -56,6 +56,15 @@ $shows = [
 if (!userInvitesReady()) {
     unset($shows['invited']);
 }
+// API / service accounts (functions/service_account.php) - a view of their own, out of the others but Archived
+if (serviceAccountsReady()) {
+    foreach (['', 'admins', 'nomfa', 'disabled'] as $view_key) {
+        $shows[$view_key]['where'] .= ' AND user_service_account = 0';
+    }
+    $shows = array_slice($shows, 0, array_search('archived', array_keys($shows), true), true)
+        + ['service' => ['label' => 'API accounts', 'icon' => 'fa-plug', 'where' => 'user_archived_at IS NULL AND user_service_account = 1', 'title' => 'Logins only for API keys to act as - left out of every agent list, and unable to sign in']]
+        + $shows;
+}
 $show = isset($shows[$_GET['show'] ?? '']) ? ($_GET['show'] ?? '') : '';
 
 // Client portal - contacts, not agents, so a list of their own: narrowed to a client, and by how they sign in
@@ -136,7 +145,7 @@ if ($show === 'portal') {
     }
 } else {
     $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS users.user_id, user_name, user_email, user_status, user_token, user_avatar, user_created_at, user_archived_at,
-            user_role_id, role_name, role_is_admin, user_config_force_mfa
+            user_role_id, role_name, role_is_admin, user_config_force_mfa" . (serviceAccountsReady() ? ', user_service_account' : '') . "
         FROM users $joins
         WHERE $filters AND {$shows[$show]['where']}
         ORDER BY {$sortable_columns[$sort]}, users.user_id ASC
@@ -361,6 +370,10 @@ $csrf = $_SESSION['csrf_token'];
 
         <nav class="nav nav-pills itflow-asset-tabs mt-2 flex-nowrap overflow-auto">
             <?php foreach ($shows as $key => $view) {
+                // API accounts only once there is one
+                if ($key === 'service' && !$view_counts['service'] && $show !== 'service') {
+                    continue;
+                }
                 if ($key === 'archived' || $key === 'portal') { ?><span class="vr mx-1 my-1"></span><?php }
                 // The search and role narrow agents, and the search, client and sign-in narrow portal users - none follow to the other side
                 $view_filters = ($key === 'portal') === ($show === 'portal') ? [] : ['q' => null, 'role' => null, 'client' => null, 'access' => null, 'sort' => null, 'order' => null]; ?>
@@ -707,6 +720,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <div class="min-w-0">
                                     <a class="ajax-modal <?= $is_active ? 'fw-semibold text-body' : 'text-body-secondary' ?>" href="#" data-modal-url="<?= $quick_url ?>"><?= $name ?></a>
                                     <?php if ($is_self) { ?><span class="badge rounded-pill bg-primary-subtle text-primary-emphasis fw-normal ms-1">You</span><?php } ?>
+                                    <?php if (!empty($row['user_service_account'])) { ?><span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1" data-user-service-account-badge title="Only for API keys to act as - left out of every agent list, and can't sign in"><i class="fas fa-plug me-1"></i>API</span><?php } ?>
                                     <?php if ($user_id === $managed_support_id) { ?><span class="badge rounded-pill bg-info-subtle text-info-emphasis fw-normal ms-1" data-managed-support-user title="<?= escapeHtml(managedManagerName()) ?> signs in as this user for support - only from there, with no password. It takes no seat."><i class="fas fa-headset me-1"></i>Support</span><?php } ?>
                                     <div class="small text-body-secondary text-truncate">
                                         <?= escapeHtml($row['user_email']) ?><button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= escapeHtml($row['user_email']) ?>"><i class="far fa-copy"></i></button>

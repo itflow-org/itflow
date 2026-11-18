@@ -160,7 +160,7 @@ function gettingStartedSteps() {
                 $status = $done ? 'Response times for ' . $slas . ' ' . ($slas === 1 ? 'priority' : 'priorities') : 'No response times yet';
                 break;
             case 'team':
-                $agents = $count("SELECT COUNT(*) FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL");
+                $agents = $count("SELECT COUNT(*) FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL");
                 $invited = userInvitesHoldingSeats();
                 $done = $agents > 1 || $invited > 0;
                 $status = ($agents === 1 ? 'Just you' : "$agents people") . ($invited ? ", $invited invited" : '');

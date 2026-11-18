@@ -141,7 +141,7 @@ function selectOptionRole($role) {
 function userActiveAdminCount($except_user_id = 0) {
     global $mysqli;
     return intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM users JOIN user_roles ON role_id = user_role_id
-        WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL AND role_is_admin = 1 AND user_id <> " . intval($except_user_id)))[0]);
+        WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL AND role_is_admin = 1 AND user_id <> " . intval($except_user_id)))[0]);
 }
 
 /** Would taking this agent out of the admins (a new role, disabled, archived) leave nobody to run the place? */

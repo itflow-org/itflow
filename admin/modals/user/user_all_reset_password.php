@@ -8,7 +8,7 @@
 
 require_once '../../includes/modal_header.php';
 
-$agent_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM users WHERE user_type = 1 AND user_archived_at IS NULL AND user_id <> " . intval($session_user_id)))[0]);
+$agent_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_archived_at IS NULL AND user_id <> " . intval($session_user_id)))[0]);
 
 ob_start();
 

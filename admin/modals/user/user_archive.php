@@ -15,7 +15,7 @@ $is_last_admin = userIsLastAdmin($user);
 // Who can take their work - active agents, not them
 $agents = [];
 $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users
-    WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL AND user_id <> $user_id ORDER BY user_name ASC");
+    WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL AND user_id <> $user_id ORDER BY user_name ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
     $agents[] = $row;
 }

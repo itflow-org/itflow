@@ -172,7 +172,7 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                     <select class="form-select select2" name="assigned_agent" onchange="this.form.submit()">
                         <option value="">- Any agent -</option>
                         <?php
-                        $sql_agents_filter = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1
+                        $sql_agents_filter = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . "
                             AND (EXISTS (SELECT 1 FROM recurring_tickets WHERE recurring_ticket_assigned_to = user_id) OR user_id = $agent_filter) ORDER BY user_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_agents_filter)) {
                             $user_id = intval($row['user_id']); ?>

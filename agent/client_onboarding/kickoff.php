@@ -31,7 +31,7 @@ while ($co_template = mysqli_fetch_assoc($co_sql)) {
     }
 }
 $co_agents = [];
-$co_sql = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+$co_sql = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
 while ($co_agent = mysqli_fetch_assoc($co_sql)) {
     $co_agents[intval($co_agent['user_id'])] = $co_agent['user_name'];
 }

@@ -2448,7 +2448,7 @@ if (isset($_GET['get_internal_users'])) {
         $mysqli,
         "SELECT user_id, user_name
          FROM users
-         WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL
+         WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL
          ORDER BY user_name"
     );
 

@@ -46,6 +46,12 @@ if (isset($_POST['add_user'])) {
     $password = (string) ($_POST['password'] ?? '');
     $how = ($_POST['sign_in'] ?? ($password !== '' ? 'password' : 'invite')) === 'invite' && userInvitesReady() ? 'invite' : 'password';
 
+    // An API / service account never signs in, so it has no one to invite (functions/service_account.php)
+    if ($how === 'invite' && !empty($_POST['service_account']) && serviceAccountsReady()) {
+        flashAlert("An API / service account isn't invited - choose Set a password now.", 'error');
+        redirect();
+    }
+
     // An invite waiting for them holds a seat already - it is this one
     $open = userInviteFor($email);
     if (agentUserLimitReached($open && userInviteState($open) === 'pending' ? intval($open['invite_id']) : 0)) {
@@ -114,7 +120,9 @@ if (isset($_POST['add_user'])) {
         $notes[] = 'the invite waiting for them is cancelled';
     }
 
-    logAudit("User", "Create", "$session_name created user " . escapeSql($name), 0, $user_id);
+    $service_change = serviceAccountSave($user_id, $_POST);
+
+    logAudit("User", "Create", "$session_name created user " . escapeSql($name) . ($service_change !== '' ? ' as an API / service account' : ''), 0, $user_id);
 
     flashAlert("User <strong>$name</strong> created - give them their password yourself" . ($notes ? ' - ' . implode('; ', $notes) : ''), $avatar_error ? 'warning' : 'success');
 
@@ -226,6 +234,11 @@ if (isset($_POST['edit_user'])) {
         if (userSaveAvatar($user_id, $_FILES['avatar'], $avatar_error)) {
             $changes[] = 'avatar updated';
         }
+    }
+
+    $service_change = serviceAccountSave($user_id, $_POST);
+    if ($service_change !== '') {
+        $changes[] = $service_change;
     }
 
     logAudit("User", "Edit", "$session_name edited user " . escapeSql($name) . ($changes ? ' - ' . escapeSql(implode(', ', $changes)) : ''), 0, $user_id);
@@ -564,7 +577,7 @@ if (isset($_POST['ir_reset_user_password'])) {
 
     // Agents only - client portal logins have their own reset, and no vault key to rewrite
     $reset = [];
-    $sql_users = mysqli_query($mysqli, "SELECT user_id, user_name, user_email FROM users WHERE user_type = 1 AND user_archived_at IS NULL AND user_id <> $session_user_id ORDER BY user_name");
+    $sql_users = mysqli_query($mysqli, "SELECT user_id, user_name, user_email FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_archived_at IS NULL AND user_id <> $session_user_id ORDER BY user_name");
     while ($row = mysqli_fetch_assoc($sql_users)) {
         $new_password = generateReadablePassword(4);
         userSetPassword($row['user_id'], $new_password);

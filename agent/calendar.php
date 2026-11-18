@@ -34,7 +34,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_config_calendar_fir
 $first_day = intval($row['user_config_calendar_first_day'] ?? 0);
 
 $agents = [];
-$sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name");
+$sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name");
 while ($row = mysqli_fetch_assoc($sql)) {
     $agents[] = $row;
 }

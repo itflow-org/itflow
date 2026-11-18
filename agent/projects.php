@@ -192,7 +192,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                         <option value="none" <?= $manager_filter === 'none' ? 'selected' : '' ?> data-icon="fas fa-user-slash">No manager</option>
                         <?php
                         $manager_filter_id = is_int($manager_filter) ? $manager_filter : 0;
-                        $sql_managers = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1
+                        $sql_managers = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . "
                             AND (EXISTS (SELECT 1 FROM projects WHERE project_manager = user_id) OR user_id = $manager_filter_id OR (user_archived_at IS NULL AND user_status = 1))
                             ORDER BY user_id = " . intval($session_user_id) . " DESC, user_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_managers)) {

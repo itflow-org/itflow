@@ -347,7 +347,7 @@ $export_extra = [
                         <option value="">- Anyone -</option>
                         <option value="unassigned" <?= $assigned_filter === 'unassigned' ? 'selected' : '' ?> data-icon="fas fa-user-slash">Unassigned</option>
                         <?php
-                        $sql_agents_filter = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_archived_at IS NULL ORDER BY user_id = " . intval($session_user_id) . " DESC, user_name ASC");
+                        $sql_agents_filter = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_archived_at IS NULL ORDER BY user_id = " . intval($session_user_id) . " DESC, user_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_agents_filter)) {
                             $filter_user_id = intval($row['user_id']); ?>
                             <option value="<?= $filter_user_id ?>" <?= $assigned_filter === $filter_user_id ? 'selected' : '' ?><?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= escapeHtml($row['user_name']) ?><?= $filter_user_id === intval($session_user_id) ? ' (me)' : '' ?></option>

@@ -35,7 +35,7 @@ $today = date('Y-m-d');
 $search = mb_strtolower(trim(stripslashes((string) ($q ?? ''))));
 $rows = [];
 $view_counts = ['' => 0, 'archived' => 0];
-$result = mysqli_query($mysqli, "SELECT user_id, user_name, user_email, user_avatar, user_archived_at FROM users WHERE user_type = 1
+$result = mysqli_query($mysqli, "SELECT user_id, user_name, user_email, user_avatar, user_archived_at FROM users WHERE user_type = 1" . serviceAccountsOutSql() . "
     AND (user_archived_at IS NULL OR user_id IN (SELECT user_cost_rate_user_id FROM user_cost_rates))");
 while ($row = mysqli_fetch_assoc($result)) {
     if ($search !== '' && mb_strpos(mb_strtolower($row['user_name'] . ' ' . $row['user_email']), $search) === false) {

@@ -282,7 +282,7 @@ function quickPickAgents($none_label = 'Unassigned') {
     global $mysqli, $session_user_id;
 
     $options = [['value' => '0', 'label' => $none_label, 'icon' => 'fas fa-user-slash', 'none' => true]];
-    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_archived_at IS NULL ORDER BY user_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $user_id = intval($row['user_id']);
         $option = ['value' => (string) $user_id, 'label' => $row['user_name'] . ($user_id == $session_user_id ? ' (me)' : '')];

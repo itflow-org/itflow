@@ -1460,7 +1460,7 @@ function expensePayers($keep_id = 0) {
     global $mysqli;
     $keep_id = intval($keep_id);
     $payers = [];
-    $sql = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE (user_type = 1 AND user_archived_at IS NULL) OR user_id = $keep_id ORDER BY user_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE (user_type = 1" . serviceAccountsOutSql() . " AND user_archived_at IS NULL) OR user_id = $keep_id ORDER BY user_name ASC");
     while ($row = mysqli_fetch_row($sql)) {
         $payers[intval($row[0])] = $row[1];
     }

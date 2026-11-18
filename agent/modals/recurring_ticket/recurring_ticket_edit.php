@@ -165,7 +165,7 @@ ob_start();
                             <option value="0">- Unassigned -</option>
                             <?php
                             $sql_agents = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users
-                                WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+                                WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_agents)) {
                                 $user_id = intval($row['user_id']); ?>
                                 <option <?= $assigned_to === $user_id ? 'selected' : '' ?> value="<?= $user_id ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= escapeHtml($row['user_name']) ?><?= $user_id === intval($session_user_id) ? ' (me)' : '' ?></option>

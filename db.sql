@@ -4582,6 +4582,7 @@ CREATE TABLE `users` (
   `user_password` varchar(200) NOT NULL,
   `user_auth_method` varchar(200) NOT NULL DEFAULT 'local',
   `user_type` tinyint(1) NOT NULL DEFAULT 1,
+  `user_service_account` tinyint(1) NOT NULL DEFAULT 0,
   `user_status` tinyint(1) NOT NULL DEFAULT 1,
   `user_token` varchar(200) DEFAULT NULL,
   `user_password_reset_token` varchar(200) DEFAULT NULL,

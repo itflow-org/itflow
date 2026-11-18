@@ -1211,7 +1211,7 @@ function reportAgentControl($user_id, $all_label = 'All agents') {
     global $mysqli;
     $user_id = intval($user_id);
     $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users
-        WHERE user_type = 1 AND ((user_archived_at IS NULL AND user_status = 1) OR user_id = $user_id)
+        WHERE user_type = 1" . serviceAccountsOutSql() . " AND ((user_archived_at IS NULL AND user_status = 1) OR user_id = $user_id)
         ORDER BY user_name ASC");
     $html = '<div class="col-sm-6 col-lg-2"><select class="form-select select2" name="agent" data-report-autosubmit aria-label="Agent">'
         . '<option value="">- ' . escapeHtml($all_label) . ' -</option>';

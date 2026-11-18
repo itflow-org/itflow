@@ -85,7 +85,7 @@ $form_manager_id = intval($form['project_manager'] ?? 0);
             <option value="0" data-icon="fas fa-user-slash">No manager</option>
             <?php
             $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users
-                WHERE user_type = 1 AND ((user_status = 1 AND user_archived_at IS NULL) OR user_id = $form_manager_id)
+                WHERE user_type = 1" . serviceAccountsOutSql() . " AND ((user_status = 1 AND user_archived_at IS NULL) OR user_id = $form_manager_id)
                 ORDER BY user_id = " . intval($session_user_id) . " DESC, user_name ASC");
             while ($row = mysqli_fetch_assoc($sql)) {
                 $user_id = intval($row['user_id']); ?>

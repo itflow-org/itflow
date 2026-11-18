@@ -407,7 +407,7 @@ function calendarSetAttendees($event_id, $client_id, array $user_ids, array $con
     $user_ids = array_values(array_unique(array_filter(array_map('intval', $user_ids))));
     if ($user_ids) {
         $valid = [];
-        $sql = mysqli_query($mysqli, "SELECT user_id FROM users WHERE user_id IN (" . implode(',', $user_ids) . ") AND user_type = 1 AND user_archived_at IS NULL");
+        $sql = mysqli_query($mysqli, "SELECT user_id FROM users WHERE user_id IN (" . implode(',', $user_ids) . ") AND user_type = 1" . serviceAccountsOutSql() . " AND user_archived_at IS NULL");
         while ($row = mysqli_fetch_row($sql)) {
             $valid[] = intval($row[0]);
         }

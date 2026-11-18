@@ -63,7 +63,7 @@ if ($c_new && !$c_contact_id && $c_client_id) {
 }
 $c_owner_id = intval($c_value('owner_id', $c_new ? ($session_user_id ?? 0) : 0));
 $c_owners = [];
-$sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND (user_archived_at IS NULL OR user_id = $c_owner_id) ORDER BY user_name ASC");
+$sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND (user_archived_at IS NULL OR user_id = $c_owner_id) ORDER BY user_name ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
     $c_owners[intval($row['user_id'])] = $row;
 }

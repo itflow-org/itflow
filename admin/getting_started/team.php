@@ -12,7 +12,7 @@
 defined('FROM_GETTING_STARTED') || die("Direct file access is not allowed");
 
 $gs_agents = mysqli_query($mysqli, "SELECT user_id, user_name, user_email, role_name, role_is_admin FROM users LEFT JOIN user_roles ON role_id = user_role_id
-    WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+    WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
 $gs_roles = userRoles();
 // Technician, when there is one - most people added are - or the first role that isn't an admin one
 $gs_role_default = '';

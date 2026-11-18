@@ -178,7 +178,7 @@ $form_can_email = calendarCanEmail();
                 <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
                 <select class="form-select select2" name="agents[]" multiple data-placeholder="Agents">
                     <?php
-                    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_archived_at IS NULL AND (user_status = 1 OR user_id IN (0" . implode('', array_map(function ($id) {
+                    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_archived_at IS NULL AND (user_status = 1 OR user_id IN (0" . implode('', array_map(function ($id) {
                         return ',' . intval($id);
                     }, $form_attendees['agents'])) . ")) ORDER BY user_name");
                     while ($row = mysqli_fetch_assoc($sql)) { ?>

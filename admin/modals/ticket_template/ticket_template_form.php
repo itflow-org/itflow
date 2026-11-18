@@ -129,7 +129,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
                 <select class="form-select select2" name="assigned_to">
                     <option value="0">- Leave as it is -</option>
                     <?php
-                    $sql_agents = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_status = 1 AND (user_archived_at IS NULL OR user_id = $assigned_to) ORDER BY user_name ASC");
+                    $sql_agents = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND (user_archived_at IS NULL OR user_id = $assigned_to) ORDER BY user_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_agents)) { ?>
                         <option value="<?= intval($row['user_id']) ?>" <?= intval($row['user_id']) === $assigned_to ? 'selected' : '' ?><?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= escapeHtml($row['user_name']) ?></option>
                     <?php } ?>

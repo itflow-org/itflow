@@ -171,6 +171,24 @@ $value = function ($key) use ($form) {
                 <?php } ?>
             </div>
         </div>
+
+        <?php if (serviceAccountsReady()) {
+            $form_service = $form_user_id && serviceAccountIs($form_user_id); ?>
+            <!-- A login only for API keys to act as (functions/service_account.php) -->
+            <div class="col-12" data-user-service-account>
+                <input type="hidden" name="service_account_present" value="1">
+                <div class="border rounded p-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" name="service_account" value="1" id="<?= $form_id ?>ServiceAccount" <?= $form_service ? 'checked' : '' ?>>
+                        <label class="form-check-label fw-semibold" for="<?= $form_id ?>ServiceAccount"><i class="fas fa-fw fa-plug text-body-secondary me-1"></i>API / service account</label>
+                        <div class="form-text mt-0">
+                            For a login that API keys act as, for an integration. It keeps its role, so its keys work, but it's left out of the calendar, every assign picker, the reports and the other agent lists, gets no notifications, and can't sign in to ITFlow.
+                            <?= $is_new ? 'Set a password for it - it isn\'t invited.' : '' ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
     </div>
 </div>
 

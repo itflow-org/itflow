@@ -67,7 +67,7 @@ ob_start();
                     <option value="">- Any manager -</option>
                     <option value="none" <?= $manager_filter === 'none' ? 'selected' : '' ?>>No manager</option>
                     <?php
-                    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND EXISTS (SELECT 1 FROM projects WHERE project_manager = user_id) ORDER BY user_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND EXISTS (SELECT 1 FROM projects WHERE project_manager = user_id) ORDER BY user_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) { ?>
                         <option value="<?= intval($row['user_id']) ?>" <?= $manager_filter === (string) intval($row['user_id']) ? 'selected' : '' ?><?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= escapeHtml($row['user_name']) ?></option>
                     <?php } ?>

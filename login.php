@@ -222,7 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
               AND user_archived_at IS NULL
               AND user_status = 1
               AND (
-                    user_type = 1
+                    (user_type = 1" . serviceAccountsOutSql('users.user_service_account') . ")
                     OR (user_type = 2 AND client_archived_at IS NULL)
                   )
         ");
