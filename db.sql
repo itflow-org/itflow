@@ -4566,6 +4566,8 @@ CREATE TABLE `user_settings` (
   `user_config_dashboard_financial_enable` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_dashboard_technical_enable` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_calendar_first_day` tinyint(1) NOT NULL DEFAULT 0,
+  `user_config_calendar_color` varchar(7) DEFAULT NULL,
+  `user_config_calendar_state` text DEFAULT NULL,
   `user_config_signature` text DEFAULT NULL,
   `user_config_theme_dark` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`user_id`)

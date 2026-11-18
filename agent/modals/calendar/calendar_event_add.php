@@ -4,7 +4,8 @@
  * New Event - from the calendar (a day or a time range picked on it fills in
  * when), inside a client, or from a client's site, contact or ticket with
  * those already filled in. GET: client_id, start / end ('Y-m-d' or
- * 'Y-m-d H:i'), all_day, calendar_id, location_id, contact_id, title.
+ * 'Y-m-d H:i'), all_day, calendar_id, location_id, contact_id, title, agent_id
+ * (the agent whose calendar it was opened from).
  */
 
 require_once '../../../includes/modal_header.php';
@@ -50,7 +51,8 @@ $form = [
     'event_location_id' => $form_client_id ? intval(assetClientOwnedId('location', $_GET['location_id'] ?? 0, $form_client_id)) : 0,
 ];
 $form_attendees = [
-    'agents' => [intval($session_user_id)],
+    // Assigned to the agent whose calendar it was added from, or the one adding it
+    'agents' => calendarEventDefaultAgents($_GET['agent_id'] ?? 0),
     'contacts' => $form_client_id && intval(assetClientOwnedId('contact', $_GET['contact_id'] ?? 0, $form_client_id)) ? [intval($_GET['contact_id'])] : [],
     'emails' => [],
 ];

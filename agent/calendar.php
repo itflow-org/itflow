@@ -7,11 +7,14 @@
  * agent can reach, or one client (opened inside it).
  *
  * Each calendar and each source can be shown or hidden, and the whole thing
- * narrowed to one agent's work. Picking a day or a time range adds an event;
- * scheduled tickets and events that do not repeat can be dragged to a new
- * time, and the agent's open unscheduled tickets dragged onto the calendar to
- * book them. Items are fetched for the range on screen (ajax.php
- * ?calendar_items) - agent/js/calendar.js. ?date=Y-m-d opens on that day.
+ * narrowed to one agent's work - what is shown is kept to the agent's account
+ * (calendarUserState()), so every device opens the same way. Picking a day or
+ * a time range adds an event; scheduled tickets and events that do not repeat
+ * can be dragged to a new time, and open unscheduled tickets - and those left
+ * behind, booked on a day gone by - dragged onto the calendar to book them.
+ * Booked work and events are drawn in their agent's colour. Items are fetched
+ * for the range on screen (ajax.php ?calendar_items) - agent/js/calendar.js.
+ * ?date=Y-m-d opens on that day.
  */
 
 if (isset($_GET['client_id'])) {
@@ -41,6 +44,9 @@ while ($row = mysqli_fetch_assoc($sql)) {
 
 $my_feed = calendarUserFeed($session_user_id);
 
+// What the page showed last, on any device
+$saved_state = calendarUserState($session_user_id, $page_client_id ? 'client' : 'all');
+
 // What the page script needs to know
 $page_sources = [];
 foreach ($sources as $key => $source) {
@@ -58,7 +64,8 @@ foreach ($sources as $key => $source) {
     data-can-add="<?= $can_add_event ? 1 : 0 ?>"
     data-mobile="<?= !empty($session_mobile) ? 1 : 0 ?>"
     data-initial-date="<?= calendarIsDate($_GET['date'] ?? '') ? escapeHtml($_GET['date']) : '' ?>"
-    data-sources="<?= escapeHtml(json_encode($page_sources)) ?>">
+    data-sources="<?= escapeHtml(json_encode($page_sources)) ?>"
+    data-saved-state="<?= escapeHtml(json_encode($saved_state ?: new stdClass())) ?>">
 
     <div class="col-lg-auto itflow-cal-side order-2 order-lg-1 d-print-none">
 
@@ -165,6 +172,20 @@ foreach ($sources as $key => $source) {
                 <div id="calendar"></div>
             </div>
         </div>
+
+        <?php if ($can_schedule) { ?>
+            <!-- Open tickets booked on a day gone by - drag one back onto the calendar -->
+            <div class="card mt-3 is-empty d-print-none" id="calendarLeftBehindCard">
+                <div class="card-header py-2 d-flex align-items-center gap-3">
+                    <span class="fw-semibold text-nowrap"><i class="fas fa-fw fa-history text-danger me-1"></i>Left behind</span>
+                    <span class="small text-body-secondary text-truncate d-none d-md-inline min-w-0" id="calendarLeftBehindHint">Open tickets booked on a day that has gone - drag one onto the calendar to book it again.</span>
+                    <span class="badge rounded-pill bg-body-secondary text-body-secondary ms-auto" id="calendarLeftBehindCount"></span>
+                </div>
+                <div class="card-body p-2">
+                    <div id="calendarLeftBehind"></div>
+                </div>
+            </div>
+        <?php } ?>
     </div>
 
 </div>

@@ -109,6 +109,9 @@ $value = function ($key) use ($form) {
             } ?>
             <div class="form-text">What they can see and change. <a href="roles.php" target="_blank">Roles <i class="fas fa-external-link-alt small"></i></a></div>
         </div>
+        <?php if (!$is_new) { ?>
+            <?= calendarAgentColorField($form_user_id, 'col-12') ?>
+        <?php } ?>
     </div>
 </div>
 

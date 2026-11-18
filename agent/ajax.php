@@ -2678,6 +2678,7 @@ if (isset($_POST['calendar_move'])) {
 /*
  * The calendar's To schedule list: an agent's open tickets with no work booked
  * (most urgent first), to drag onto the calendar - in one client, or all.
+ * user_id 0 is everyone's: the open tickets assigned to anyone.
  */
 if (isset($_GET['calendar_unscheduled'])) {
 
@@ -2687,22 +2688,23 @@ if (isset($_GET['calendar_unscheduled'])) {
         echo json_encode(['tickets' => []]);
         exit;
     }
-    $user_id = intval($_GET['user_id'] ?? 0) ?: $session_user_id;
+    $user_id = intval($_GET['user_id'] ?? $session_user_id);
     $client_id = intval($_GET['client_id'] ?? 0);
     if ($client_id && !hasClientAccess($client_id)) {
         echo json_encode(['tickets' => []]);
         exit;
     }
 
-    $sql = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_priority, ticket_onsite, ticket_client_id, client_name
+    $sql = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_priority, ticket_onsite, ticket_client_id, client_name, user_name
         FROM tickets
         LEFT JOIN clients ON client_id = ticket_client_id
+        LEFT JOIN users ON user_id = ticket_assigned_to
         WHERE ticket_schedule IS NULL AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL
-        AND ticket_assigned_to = $user_id
+        AND " . ($user_id ? "ticket_assigned_to = $user_id" : 'ticket_assigned_to > 0') . "
         " . ($client_id ? "AND ticket_client_id = $client_id" : '') . "
         " . clientScopeSql('ticket_client_id') . "
         ORDER BY FIELD(ticket_priority, 'Urgent', 'High', 'Medium', 'Low'), ticket_created_at ASC
-        LIMIT 25");
+        LIMIT " . ($user_id ? 25 : 50));
     $tickets = [];
     while ($row = mysqli_fetch_assoc($sql)) {
         $tickets[] = [
@@ -2712,10 +2714,50 @@ if (isset($_GET['calendar_unscheduled'])) {
             'client' => $row['client_name'] ?: 'Internal',
             'priority' => $row['ticket_priority'],
             'onsite' => intval($row['ticket_onsite']),
+            'agent' => (string) ($row['user_name'] ?? ''),
         ];
     }
 
     echo json_encode(['tickets' => $tickets]);
+    exit;
+}
+
+/*
+ * The calendar's Left behind list: open tickets booked on a day gone by
+ * (calendarLeftBehindTickets()) - one agent's or everyone's, in one client or all.
+ */
+if (isset($_GET['calendar_left_behind'])) {
+
+    header('Content-Type: application/json');
+
+    $client_id = intval($_GET['client_id'] ?? 0);
+    if (!calendarCanScheduleTickets() || ($client_id && !hasClientAccess($client_id))) {
+        echo json_encode(['tickets' => []]);
+        exit;
+    }
+
+    echo json_encode(['tickets' => calendarLeftBehindTickets($_GET['user_id'] ?? 0, $client_id)]);
+    exit;
+}
+
+/*
+ * What the calendar page shows - calendars, sources, whose, the view - kept to
+ * the agent's account, so every device opens the same way.
+ */
+if (isset($_POST['calendar_state'])) {
+
+    validateCSRFToken();
+
+    header('Content-Type: application/json');
+    $raw = (string) ($_POST['state'] ?? '');
+    $state = strlen($raw) <= 8192 ? json_decode($raw, true) : null;
+    if (!is_array($state)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'That is not the calendar\'s settings.']);
+        exit;
+    }
+
+    echo json_encode(['ok' => calendarUserStateSave($session_user_id, ($_POST['page'] ?? '') === 'client' ? 'client' : 'all', $state)]);
     exit;
 }
 

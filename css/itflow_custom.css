@@ -5614,6 +5614,58 @@ img.itflow-contact-avatar {
 .itflow-cal-done {
     opacity: .6;
 }
+/* Who it is for, on the time's line - the agent's first name */
+.itflow-cal-when {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: .35rem;
+    min-width: 0;
+}
+.itflow-cal-when .itflow-cal-time {
+    white-space: nowrap;
+}
+.itflow-cal-event.is-timegrid .itflow-cal-when .itflow-cal-time {
+    display: inline;
+}
+.itflow-cal-agent {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.itflow-cal-event.is-list .itflow-cal-when {
+    display: inline-flex;
+}
+/* Booked on a day gone by and still open */
+#itflowCalendar .itflow-cal-left-behind {
+    outline: 2px dashed var(--bs-danger);
+    outline-offset: -2px;
+}
+/* One row of them under the calendar - the rest scroll - and the calendar makes room */
+#calendarLeftBehind {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    gap: .5rem;
+    max-height: 3.6rem;
+    overflow-y: auto;
+}
+@media (min-width: 768px) {
+    .itflow-calendar-page:has(#calendarLeftBehindCard:not(.is-empty)) #calendar {
+        min-height: calc(100vh - 19rem);
+    }
+}
+#calendarLeftBehind > .itflow-cal-unscheduled {
+    margin: 0;
+}
+#calendarLeftBehindCard.is-empty .card-body {
+    display: none;
+}
+/* The Calendar colour field's presets */
+.itflow-cal-swatch {
+    width: 1.5rem;
+    height: 1.5rem;
+}
 /* To schedule - open tickets to drag onto the calendar */
 .itflow-cal-unscheduled {
     display: flex;

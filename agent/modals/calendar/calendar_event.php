@@ -4,7 +4,8 @@
  * Event quick look - opened from the calendar, the dashboard and a client's
  * overview. When and where (with the map and the meeting link), who is on it
  * and whether they have been sent it, and what it is for. From here: edit,
- * send the invitation, skip this one occurrence, download it, delete it.
+ * change who it is assigned to, send the invitation, skip this one
+ * occurrence, download it, delete it.
  * GET: id, occurrence (Y-m-d, for one of a repeating event's days).
  */
 
@@ -42,6 +43,13 @@ $csrf = $_SESSION['csrf_token'];
 // What the role allows with it (calendarEventCan())
 $can_edit = calendarEventCan($event, 'edit');
 $can_delete = calendarEventCan($event, 'delete');
+// Its agents are who it is assigned to; the rest are invited
+$agents = array_values(array_filter($attendees, function ($attendee) {
+    return $attendee['kind'] === 'agent';
+}));
+$others = array_values(array_filter($attendees, function ($attendee) {
+    return $attendee['kind'] !== 'agent';
+}));
 
 ob_start();
 
@@ -105,12 +113,50 @@ ob_start();
             <dd><?php if (lookupUserPermission('module_client') >= 1) { ?><a href="client_overview.php?client_id=<?= $client_id ?>"><?= escapeHtml($event['client_name']) ?></a><?php } else { ?><?= escapeHtml($event['client_name']) ?><?php } ?></dd>
         <?php } ?>
 
-        <dt>Who</dt>
+        <dt>Assigned to</dt>
         <dd class="min-w-0">
-            <?php if (!$attendees) { ?>
-                <span class="text-body-secondary">Nobody added</span>
+            <?php if ($can_edit) { ?>
+                <form action="post.php" method="post" class="d-flex flex-wrap gap-2 align-items-center mb-1">
+                    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                    <input type="hidden" name="event_id" value="<?= $event_id ?>">
+                    <div class="input-group flex-grow-1 w-auto" style="min-width: 14rem">
+                        <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
+                        <select class="form-select select2" name="agents[]" multiple data-placeholder="Nobody - pick agents">
+                            <?php foreach (calendarEventAgentChoices(array_map(function ($attendee) { return intval($attendee['attendee_user_id']); }, $agents)) as $user_id => $row) { ?>
+                                <option value="<?= $user_id ?>"<?= selectOptionUser($user_id, $row['user_name'], $row['user_avatar']) ?> <?= in_array($user_id, array_map(function ($attendee) { return intval($attendee['attendee_user_id']); }, $agents), true) ? 'selected' : '' ?>><?= escapeHtml($row['user_name']) ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <button type="submit" name="assign_event" class="btn btn-outline-primary"><i class="fas fa-user-check me-1"></i>Save</button>
+                </form>
+                <?php
+                $agents_sent = array_filter($agents, function ($attendee) {
+                    return !empty($attendee['attendee_invited_at']);
+                });
+                if ($agents_sent) { ?>
+                    <div class="small text-body-secondary"><i class="fas fa-check fa-fw text-success me-1"></i>Sent the invitation: <?= escapeHtml(implode(', ', array_column($agents_sent, 'user_name'))) ?></div>
+                <?php } ?>
+            <?php } else { ?>
+                <?php if (!$agents) { ?>
+                    <span class="text-body-secondary">Nobody</span>
+                <?php } ?>
+                <?php foreach ($agents as $attendee) { ?>
+                    <div class="d-flex flex-wrap align-items-center column-gap-2 row-gap-1 mb-1 itflow-cal-attendee">
+                        <?= formatAssignee($attendee['attendee_user_id'], $attendee['user_name'], $attendee['user_avatar']) ?>
+                        <?php if ($attendee['attendee_invited_at']) { ?>
+                            <span class="badge rounded-pill bg-success-subtle text-success-emphasis fw-normal" title="Sent <?= escapeHtml(date('M j, Y g:i A', strtotime($attendee['attendee_invited_at']))) ?>"><i class="fas fa-check me-1"></i>Invited</span>
+                        <?php } ?>
+                    </div>
+                <?php } ?>
             <?php } ?>
-            <?php foreach ($attendees as $attendee) {
+        </dd>
+
+        <dt>Invited</dt>
+        <dd class="min-w-0">
+            <?php if (!$others) { ?>
+                <span class="text-body-secondary">Nobody else</span>
+            <?php } ?>
+            <?php foreach ($others as $attendee) {
                 if ($attendee['kind'] === 'agent') {
                     $avatar = formatAssignee($attendee['attendee_user_id'], $attendee['user_name'], $attendee['user_avatar']);
                 } elseif ($attendee['kind'] === 'contact') {

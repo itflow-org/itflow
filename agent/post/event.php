@@ -9,7 +9,8 @@
  * Attendees are agents, the client's contacts and anyone by email; ticking
  * "Email the invitation" sends each of them an iCalendar invitation, and from
  * then on a change, a skipped occurrence or the deletion goes to the people
- * who have it in their calendar.
+ * who have it in their calendar. An event's agents are who it is assigned to,
+ * changed from its form or its quick look (assign_event).
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -307,6 +308,25 @@ if (isset($_POST['edit_event'])) {
     logAudit("Calendar Event", "Edit", "$session_name edited the event " . escapeSql($event['event_title']), $client_id, $event_id);
 
     flashAlert("Event <strong>" . escapeHtml($event['event_title']) . "</strong> saved" . calendarSentText($sent + $cancelled, ''));
+
+    redirect();
+
+}
+
+// Who it is assigned to, from its quick look - its contacts and others by email stay as they are
+if (isset($_POST['assign_event'])) {
+
+    validateCSRFToken();
+
+    $event = calendarEventForRequest($_POST['event_id'] ?? 0, 'edit');
+    [$added, $removed, $sent] = calendarEventSetAgents($event, (array) ($_POST['agents'] ?? []));
+    $words = calendarEventAgentsText($added, $removed);
+
+    if ($words !== '') {
+        logAudit("Calendar Event", "Edit", "$session_name " . escapeSql($words) . " - the event " . escapeSql($event['event_title']), intval($event['event_client_id']), intval($event['event_id']));
+    }
+
+    flashAlert("<strong>" . escapeHtml($event['event_title']) . "</strong> " . ($words !== '' ? escapeHtml($words) : 'unchanged') . calendarSentText($sent, ''));
 
     redirect();
 

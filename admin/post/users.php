@@ -205,6 +205,7 @@ if (isset($_POST['edit_user'])) {
     mysqli_query($mysqli, "UPDATE users SET user_name = '" . escapeSql($name) . "', user_email = '" . escapeSql($email) . "', user_role_id = " . intval($role['role_id']) . " WHERE user_id = $user_id");
     $force_mfa = !empty($_POST['force_mfa']) ? 1 : 0;
     mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_config_force_mfa = $force_mfa ON DUPLICATE KEY UPDATE user_config_force_mfa = $force_mfa");
+    calendarAgentColorSave($user_id, $_POST);
 
     // An admin sees every client - their rules are left as they were, in case the role changes back
     if (!intval($role['role_is_admin']) && isset($_POST['client_permission_shown'])) {

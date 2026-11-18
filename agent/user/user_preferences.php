@@ -2,7 +2,8 @@
 
 /*
  * Your account > Preferences - how ITFlow looks and behaves for you: light
- * or dark, the day calendars start on, and how many rows a list shows.
+ * or dark, the day calendars start on, your colour on the calendar, and how
+ * many rows a list shows.
  */
 
 require_once "includes/inc_all_user.php";
@@ -59,6 +60,8 @@ $per_page = intval($me['user_config_records_per_page']) ?: 10;
                     </div>
                     <div class="form-text">Also changed from the bottom of any list.</div>
                 </div>
+
+                <?= calendarAgentColorField($session_user_id, 'col-12', true) ?>
             </div>
         </div>
         <div class="card-footer">

@@ -8,6 +8,9 @@
  * (['agents' => ids, 'contacts' => ids, 'emails' => [...]]) and $form_invited
  * (whether anyone has been sent it already). The client's sites and contacts
  * follow the client picked (agent/js/calendar_event_modal.js).
+ *
+ * The agents on it are who it is assigned to - Assigned to, beside the title;
+ * the calendar it is kept on is picked only when there is more than one.
  */
 
 isset($mysqli) || die("Direct file access is not allowed");
@@ -23,28 +26,46 @@ if (!isset($form_calendars[$form_calendar_id])) {
     $form_calendar_id = isset($form_calendars[intval($config_default_calendar ?? 0)]) ? intval($config_default_calendar) : intval(array_key_first($form_calendars) ?? 0);
 }
 $form_can_email = calendarCanEmail();
+$form_agents = calendarEventAgentChoices($form_attendees['agents']);
 
 ?>
 
 <div class="row g-3 mb-3">
-    <div class="col-md-8">
+    <div class="<?= count($form_calendars) > 1 ? 'col-12' : 'col-md-8' ?>">
         <label class="form-label">Title <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
             <input type="text" class="form-control" name="title" maxlength="200" value="<?= escapeHtml($form['event_title'] ?? '') ?>" placeholder="Onsite visit, Maintenance window, Quarterly review..." required autofocus>
         </div>
     </div>
-    <div class="col-md-4">
-        <label class="form-label">Calendar <strong class="text-danger">*</strong></label>
+    <div class="col-md-<?= count($form_calendars) > 1 ? '8' : '4' ?>">
+        <label class="form-label">Assigned to</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
-            <select class="form-select select2" name="calendar" required>
-                <?php foreach ($form_calendars as $calendar_id => $calendar) { ?>
-                    <option value="<?= $calendar_id ?>"<?= selectOptionColor(calendarColor($calendar['calendar_color'])) ?> <?= $calendar_id === $form_calendar_id ? 'selected' : '' ?>><?= escapeHtml($calendar['calendar_name']) ?></option>
+            <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
+            <select class="form-select select2" name="agents[]" multiple data-placeholder="Pick agents">
+                <?php foreach ($form_agents as $user_id => $row) { ?>
+                    <option value="<?= $user_id ?>"<?= selectOptionUser($user_id, $row['user_name'], $row['user_avatar']) ?> <?= in_array($user_id, $form_attendees['agents'], true) ? 'selected' : '' ?>><?= escapeHtml($row['user_name']) ?></option>
                 <?php } ?>
             </select>
         </div>
+        <div class="form-text">On their calendar, in their color.</div>
     </div>
+    <?php if (count($form_calendars) > 1) { ?>
+        <div class="col-md-4">
+            <label class="form-label">Calendar <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
+                <select class="form-select select2" name="calendar" required>
+                    <?php foreach ($form_calendars as $calendar_id => $calendar) { ?>
+                        <option value="<?= $calendar_id ?>"<?= selectOptionColor(calendarColor($calendar['calendar_color'])) ?> <?= $calendar_id === $form_calendar_id ? 'selected' : '' ?>><?= escapeHtml($calendar['calendar_name']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div class="form-text">The list it is kept on.</div>
+        </div>
+    <?php } else { ?>
+        <input type="hidden" name="calendar" value="<?= $form_calendar_id ?>">
+    <?php } ?>
 </div>
 
 <div class="itflow-cal-form-when border rounded p-3 mb-3">
@@ -172,23 +193,9 @@ $form_can_email = calendarCanEmail();
 </div>
 
 <div class="mb-3">
-    <label class="form-label d-block">Who <span class="text-body-secondary small fw-normal">- agents, the client's contacts, and anyone else by email</span></label>
+    <label class="form-label d-block">Invite <span class="text-body-secondary small fw-normal">- the client's contacts, and anyone else by email</span></label>
     <div class="row g-2">
-        <div class="col-md-6">
-            <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
-                <select class="form-select select2" name="agents[]" multiple data-placeholder="Agents">
-                    <?php
-                    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_archived_at IS NULL AND (user_status = 1 OR user_id IN (0" . implode('', array_map(function ($id) {
-                        return ',' . intval($id);
-                    }, $form_attendees['agents'])) . ")) ORDER BY user_name");
-                    while ($row = mysqli_fetch_assoc($sql)) { ?>
-                        <option value="<?= intval($row['user_id']) ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar']) ?> <?= in_array(intval($row['user_id']), $form_attendees['agents'], true) ? 'selected' : '' ?>><?= escapeHtml($row['user_name']) ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-        </div>
-        <div class="col-md-6" id="eventContactsField" <?= $form_client_id ? '' : 'hidden' ?>>
+        <div class="col-12" id="eventContactsField" <?= $form_client_id ? '' : 'hidden' ?>>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-address-book"></i></span>
                 <select class="form-select select2" name="contacts[]" id="eventContactsSelect" multiple data-placeholder="Contacts">
