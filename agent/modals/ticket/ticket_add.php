@@ -250,12 +250,17 @@ ob_start();
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                                 <input type="datetime-local" class="form-control" name="schedule" min="<?= date('Y-m-d\TH:i') ?>" aria-label="Date and time of the work">
+                                <select class="form-select flex-grow-0 w-auto" name="schedule_minutes" aria-label="How long">
+                                    <?php foreach (ticketScheduleLengths() as $minutes => $label) { ?>
+                                        <option value="<?= intval($minutes) ?>" <?= intval($minutes) === CALENDAR_TICKET_MINUTES ? 'selected' : '' ?>><?= escapeHtml($label) ?></option>
+                                    <?php } ?>
+                                </select>
                                 <select class="form-select flex-grow-0 w-auto" name="onsite" aria-label="Visit">
                                     <option value="0">Remote</option>
                                     <option value="1">Onsite</option>
                                 </select>
                             </div>
-                            <div class="form-text">Leave it empty to book the work later.</div>
+                            <div class="form-text">When, how long and where. Leave it empty to book the work later.</div>
                         </div>
                     </div>
                 </div>

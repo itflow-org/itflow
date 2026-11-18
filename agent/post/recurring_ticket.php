@@ -59,6 +59,7 @@ function recurringTicketFromPost($client_id, $current = null) {
         $mode = ($_POST['lead_mode'] ?? '') === 'month' && recurringTicketMonthBased($frequency) ? 'month' : 'days';
         $ahead = ", recurring_ticket_schedule_time = " . (preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $time) ? "'$time:00'" : 'NULL')
             . ", recurring_ticket_schedule_onsite = " . (intval($_POST['schedule_onsite'] ?? 0) ? 1 : 0)
+            . (ticketScheduleEndReady() && isset($_POST['schedule_minutes']) ? ", recurring_ticket_schedule_minutes = " . ticketScheduleMinutesValue($_POST['schedule_minutes']) : '')
             . ", recurring_ticket_lead_days = " . recurringTicketLeadDays($_POST['lead_days'], $frequency, $mode)
             . ", recurring_ticket_lead_mode = '$mode'";
     }

@@ -33,7 +33,7 @@ const CALENDAR_REPEATS = [
     'Year' => ['YEARLY', 'year', 'years'],
 ];
 
-/** How long a scheduled ticket is taken to last on the calendar, in feeds and in its invitation - tickets store only the start. */
+/** How long booked work on a ticket lasts when it was booked without an end (tickets.ticket_schedule_end - ticketScheduleEnd()). */
 const CALENDAR_TICKET_MINUTES = 60;
 
 /** How far a subscription link reaches, back and forward. Repeating events are always included. */
@@ -621,13 +621,15 @@ function calendarSourceItems($key, $from, $to, array $opts = []) {
 
     if ($key === 'tickets') {
         $can_move = calendarCanScheduleTickets();
+        // Each booking at its length (ticketScheduleEnd()) - one running into the range from the day before shows too
         $sql = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_schedule, ticket_onsite, ticket_client_id,
+                " . (ticketScheduleEndReady() ? 'ticket_schedule_end' : 'NULL AS ticket_schedule_end') . ",
                 ticket_resolved_at, ticket_closed_at, ticket_assigned_to, client_name, user_name, ticket_status_name
             FROM tickets
             LEFT JOIN clients ON client_id = ticket_client_id
             LEFT JOIN users ON user_id = ticket_assigned_to
             LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
-            WHERE ticket_schedule BETWEEN '$from' AND '$to' AND ticket_archived_at IS NULL
+            WHERE " . ticketScheduleOverlapSql($from, $to) . " AND ticket_archived_at IS NULL
             " . ($client_id ? "AND ticket_client_id = $client_id" : '') . "
             " . ($user_id ? "AND ticket_assigned_to = $user_id" : '') . "
             " . clientScopeSql('ticket_client_id'));
@@ -637,10 +639,11 @@ function calendarSourceItems($key, $from, $to, array $opts = []) {
                 'id' => 'ticket-' . intval($row['ticket_id']),
                 'title' => calendarTicketTitle($row, !$client_id),
                 'start' => $row['ticket_schedule'],
-                'end' => date('Y-m-d H:i:s', strtotime($row['ticket_schedule']) + CALENDAR_TICKET_MINUTES * 60),
+                'end' => ticketScheduleEnd($row['ticket_schedule'], $row['ticket_schedule_end']),
                 'allDay' => false,
                 'editable' => $can_move && $open,
-                'durationEditable' => false,
+                // Dragging its end changes how long it takes - once bookings have an end
+                'durationEditable' => $can_move && $open && ticketScheduleEndReady(),
                 'className' => $open ? '' : 'itflow-cal-done',
                 'extendedProps' => ['kind' => 'ticket', 'ticket_id' => intval($row['ticket_id']), 'client_id' => intval($row['ticket_client_id']),
                     'icon' => intval($row['ticket_onsite']) ? 'fa-car' : 'fa-headset',
@@ -1272,6 +1275,7 @@ function calendarUserFeedItems(array $feed, $from, $to) {
 
     if (!empty($feed['feed_tickets']) && lookupUserPermission('module_support') >= 1) {
         $sql = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_schedule, ticket_onsite, ticket_client_id,
+                " . (ticketScheduleEndReady() ? 'ticket_schedule_end' : 'NULL AS ticket_schedule_end') . ",
                 ticket_created_at, ticket_updated_at, ticket_resolved_at, ticket_closed_at, client_name, user_name,
                 contact_name, contact_phone, contact_phone_country_code, contact_extension, contact_mobile, contact_mobile_country_code,
                 location_name, location_address, location_city, location_state, location_zip
@@ -1280,7 +1284,7 @@ function calendarUserFeedItems(array $feed, $from, $to) {
             LEFT JOIN users ON user_id = ticket_assigned_to
             LEFT JOIN contacts ON contact_id = ticket_contact_id AND ticket_contact_id > 0
             LEFT JOIN locations ON location_id = IF(ticket_location_id > 0, ticket_location_id, contacts.contact_location_id)
-            WHERE ticket_schedule BETWEEN '$from' AND '$to' AND ticket_archived_at IS NULL
+            WHERE " . ticketScheduleOverlapSql($from, $to) . " AND ticket_archived_at IS NULL
             " . ($everyone ? '' : "AND ticket_assigned_to = $user_id") . "
             " . clientScopeSql('ticket_client_id'));
         while ($row = mysqli_fetch_assoc($sql)) {
@@ -1291,7 +1295,7 @@ function calendarUserFeedItems(array $feed, $from, $to) {
             $items[] = [
                 'uid' => "itflow-ticket-$ticket_id@$host",
                 'start' => $row['ticket_schedule'],
-                'end' => date('Y-m-d H:i:s', strtotime($row['ticket_schedule']) + CALENDAR_TICKET_MINUTES * 60),
+                'end' => ticketScheduleEnd($row['ticket_schedule'], $row['ticket_schedule_end']),
                 'summary' => calendarTicketTitle($row) . ($everyone && $row['user_name'] ? ' (' . $row['user_name'] . ')' : '') . (ticketIsOpen($row) ? '' : ' [done]'),
                 'location' => implode(', ', array_filter([$row['location_address'], $row['location_city'], trim($row['location_state'] . ' ' . $row['location_zip'])])),
                 'description' => implode("\n", array_filter([

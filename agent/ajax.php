@@ -2618,8 +2618,13 @@ if (isset($_POST['calendar_move'])) {
         if (!empty($_POST['all_day'])) {
             $start = substr($start, 0, 10) . ' ' . ($row['ticket_schedule'] ? date('H:i:s', strtotime($row['ticket_schedule'])) : '09:00:00');
         }
+        // Its end dragged - or moved as it is, keeping its length (the usual length for one not booked yet)
+        $end = !empty($_POST['all_day']) ? '' : ticketScheduleValue($_POST['end'] ?? '');
+        if ($end === '' || $end <= $start || strtotime($end) - strtotime($start) > 86400) {
+            $end = date('Y-m-d H:i:s', strtotime($start) + ticketScheduleMinutes($row['ticket_schedule'], $row['ticket_schedule_end'] ?? null) * 60);
+        }
         $onsite = isset($_POST['onsite']) ? intval($_POST['onsite']) : intval($row['ticket_onsite']);
-        $result = ticketSetSchedule($row, $start, $onsite);
+        $result = ticketSetSchedule($row, $start, $onsite, $end);
 
         echo json_encode(['ok' => true, 'message' => ticketReference($row) . ' scheduled for ' . $result['when_text'], 'conflicts' => $result['conflicts']]);
         exit;

@@ -179,7 +179,7 @@ if (isset($_GET['ticket_calendar'])) {
         exit('Nothing is booked on this ticket.');
     }
 
-    $ics = ticketScheduleIcs(ticketScheduleRow($row['ticket_id']), $row['ticket_schedule']);
+    $ics = ticketScheduleIcs(ticketScheduleRow($row['ticket_id']), $row['ticket_schedule'], $row['ticket_schedule_end'] ?? null);
     header('Content-Type: text/calendar; charset=utf-8');
     header('Content-Disposition: attachment; filename="' . preg_replace('/[^A-Za-z0-9_-]/', '', ticketReference($row)) . '.ics"');
     header('Content-Length: ' . strlen($ics));

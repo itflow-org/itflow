@@ -233,10 +233,11 @@ if (isset($_POST['add_ticket'])) {
     // The work booked - the same emails, note and history as the ticket's Schedule window
     $created_alert = "Ticket <strong>" . escapeHtml($config_ticket_prefix . $ticket_number) . "</strong> created";
     if ($schedule !== '') {
-        $booked = ticketSetSchedule(ticketRow($ticket_id), $schedule, intval($_POST['onsite'] ?? 0) ? 1 : 0);
+        $booked = ticketSetSchedule(ticketRow($ticket_id), $schedule, intval($_POST['onsite'] ?? 0) ? 1 : 0,
+            date('Y-m-d H:i:s', strtotime($schedule) + ticketScheduleMinutesValue($_POST['schedule_minutes'] ?? 0) * 60));
         $created_alert .= " and scheduled for " . escapeHtml($booked['when_text']);
         if ($booked['conflicts']) {
-            $created_alert .= ".<br>The same agent has other work within two hours of it: <br>" . implode(", <br>", array_map('escapeHtml', $booked['conflicts']));
+            $created_alert .= ".<br>The same agent already has work at that time: <br>" . implode(", <br>", array_map('escapeHtml', $booked['conflicts']));
         }
     }
 
@@ -2000,11 +2001,31 @@ if (isset($_POST['edit_ticket_schedule'])) {
         redirect();
     }
 
-    $result = ticketSetSchedule($row, $schedule, intval($_POST['onsite'] ?? 0) ? 1 : 0);
+    // Who does it - given to them first when it's someone new, one who can open the client's tickets - and for how long
+    $schedule_tech = intval($_POST['schedule_tech'] ?? $row['ticket_assigned_to']);
+    if ($schedule_tech && $schedule_tech !== intval($row['ticket_assigned_to'])) {
+        if (!isset(ticketMentionAgents($row['ticket_client_id'])[$schedule_tech])) {
+            flashAlert('That agent can\'t open this client\'s tickets.', 'error');
+            redirect();
+        }
+        [$assigned_ok, $assigned_message] = ticketChangeAssignee($row['ticket_id'], $schedule_tech);
+        if (!$assigned_ok) {
+            flashAlert($assigned_message, 'error');
+            redirect();
+        }
+        // The agent who had the booking has it taken off their calendar
+        ticketMailScheduleAgentCancelled($row);
+        $row = ticketForRequest($row['ticket_id'], 2);
+    }
+    $schedule_end = date('Y-m-d H:i:s', strtotime($schedule) + ticketScheduleMinutesValue($_POST['schedule_minutes'] ?? 0) * 60);
 
-    flashAlert("Ticket scheduled for " . escapeHtml($result['when_text']));
+    $result = ticketSetSchedule($row, $schedule, intval($_POST['onsite'] ?? 0) ? 1 : 0, $schedule_end);
+
+    $scheduled = "Ticket scheduled for " . escapeHtml($result['when_text']) . (!empty($row['user_name']) ? " with <strong>" . escapeHtml($row['user_name']) . "</strong>" : '');
     if ($result['conflicts']) {
-        flashAlert("The same agent has other work within two hours of it: <br>" . implode(", <br>", array_map('escapeHtml', $result['conflicts'])), 'warning');
+        flashAlert("$scheduled.<br>The same agent already has work at that time: <br>" . implode(", <br>", array_map('escapeHtml', $result['conflicts'])), 'warning');
+    } else {
+        flashAlert($scheduled);
     }
 
     redirect();

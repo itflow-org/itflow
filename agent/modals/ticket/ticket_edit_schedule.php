@@ -15,6 +15,11 @@ $ticket_onsite = intval($row['ticket_onsite']);
 $client_name = escapeHtml($row['client_name']);
 $client_id = intval($row['ticket_client_id']);
 
+// Who does the work - the agents who can open this client's tickets, and whoever has it now - and for how long
+$schedule_tech = intval($row['ticket_assigned_to']);
+$schedule_agents = ticketMentionAgents($client_id);
+$schedule_minutes = ticketScheduleMinutes($row['ticket_schedule'], $row['ticket_schedule_end'] ?? null);
+
 ob_start();
 
 ?>
@@ -38,6 +43,34 @@ ob_start();
             </div>
         </div>
 
+        <div class="row g-2 mb-3">
+            <div class="col-sm-7">
+                <label>Agent</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                    <select class="form-select select2" name="schedule_tech" id="scheduleTech">
+                        <?php if (!$schedule_tech || !isset($schedule_agents[$schedule_tech])) { ?>
+                            <option value="<?= $schedule_tech ?>"><?= $schedule_tech ? escapeHtml($row['user_name']) : '- Unassigned -' ?></option>
+                        <?php } ?>
+                        <?php foreach ($schedule_agents as $agent) { ?>
+                            <option value="<?= intval($agent['id']) ?>" data-name="<?= escapeHtml($agent['name']) ?>" <?= intval($agent['id']) === $schedule_tech ? 'selected' : '' ?><?= selectOptionData($agent['avatar'] !== '' ? ['image' => $agent['avatar']] : ['initials' => $agent['initials'], 'shape' => 'circle', 'tone' => 'secondary']) ?>><?= escapeHtml($agent['name']) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <label>How long</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                    <select class="form-select select2" name="schedule_minutes" id="scheduleMinutes">
+                        <?php foreach (ticketScheduleLengths($schedule_minutes) as $minutes => $label) { ?>
+                            <option value="<?= intval($minutes) ?>" <?= intval($minutes) === $schedule_minutes ? 'selected' : '' ?>><?= escapeHtml($label) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <div class="mb-3">
             <label>Visit</label>
             <div class="input-group">
@@ -49,9 +82,9 @@ ob_start();
             </div>
         </div>
 
-        <?php if (intval($row['ticket_assigned_to'])) { ?>
-            <!-- What else the agent has that day, so it is not booked on top of something (agent/js/ticket_schedule_modal.js) -->
-            <div class="border rounded p-2 small" id="scheduleAgentDay" data-user="<?= intval($row['ticket_assigned_to']) ?>" data-ticket="<?= $ticket_id ?>" data-name="<?= escapeHtml($row['user_name']) ?>" hidden>
+        <?php if ($schedule_agents) { ?>
+            <!-- What else the chosen agent has that day, so it is not booked on top of something (agent/js/ticket_schedule_modal.js) -->
+            <div class="border rounded p-2 small" id="scheduleAgentDay" data-user="<?= $schedule_tech ?>" data-ticket="<?= $ticket_id ?>" data-name="<?= escapeHtml((string) $row['user_name']) ?>" hidden>
                 <div class="d-flex align-items-center mb-1">
                     <span class="fw-semibold"><i class="far fa-calendar-alt fa-fw text-secondary me-1"></i><span class="js-day-title"></span></span>
                     <a class="ms-auto js-day-open" href="calendar.php">Calendar</a>

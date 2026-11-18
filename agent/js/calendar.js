@@ -164,7 +164,7 @@
     function saved(json) {
         itflowToast(json.message, 'success');
         if (json.conflicts && json.conflicts.length) {
-            itflowToast('Same agent, within two hours: ' + json.conflicts.join('; '), 'warning');
+            itflowToast('The same agent already has work then: ' + json.conflicts.join('; '), 'warning');
         }
     }
 
@@ -288,7 +288,7 @@
             moved(info);
         },
         eventResize: function (info) {
-            moved(info);
+            moved(info, true);
         },
 
         // A ticket from To schedule
@@ -301,23 +301,26 @@
 
     // ---------- moving things ----------
 
-    function moved(info) {
+    function moved(info, resized) {
         const event = info.event;
         const props = event.extendedProps || {};
         const start = event.start;
         const end = event.end;
 
         if (props.kind === 'ticket') {
+            // Its end dragged (resized), or the whole booking moved
             confirmDialog({
-                title: 'Move ' + event.title.split(' ')[0] + ' to ' + words(start, false) + '?',
+                title: resized && end
+                    ? 'Book ' + event.title.split(' ')[0] + ' until ' + end.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}) + '?'
+                    : 'Move ' + event.title.split(' ')[0] + ' to ' + words(start, false) + '?',
                 text: 'The agent and the contact are emailed the new time, as when it is rescheduled on the ticket.',
-                confirmButtonText: 'Move it'
+                confirmButtonText: resized ? 'Change it' : 'Move it'
             }).then(function (result) {
                 if (!result.isConfirmed) {
                     info.revert();
                     return;
                 }
-                post({kind: 'ticket', id: props.ticket_id, start: ymdhm(start), all_day: event.allDay ? 1 : 0}, function (json) {
+                post({kind: 'ticket', id: props.ticket_id, start: ymdhm(start), end: end && !event.allDay ? ymdhm(end) : '', all_day: event.allDay ? 1 : 0}, function (json) {
                     saved(json);
                     calendar.refetchEvents();
                 }, function (error) {

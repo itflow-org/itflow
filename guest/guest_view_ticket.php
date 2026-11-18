@@ -52,7 +52,7 @@ $found = ticketByGuestKey($_GET['ticket_id'] ?? 0, $_GET['url_key'] ?? '');
 $ticket_id = $found ? intval($found['ticket_id']) : 0;
 
 $ticket = $ticket_id ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT " . portalTicketColumnsSql() . ", tickets.ticket_details, tickets.ticket_feedback, tickets.ticket_url_key,
-        tickets.ticket_client_id, tickets.ticket_assigned_to, tickets.ticket_schedule, tickets.ticket_onsite, tickets.ticket_first_response_at, tickets.ticket_response_due_at,
+        tickets.ticket_client_id, tickets.ticket_assigned_to, tickets.ticket_schedule, " . (ticketScheduleEndReady() ? 'tickets.ticket_schedule_end' : 'NULL AS ticket_schedule_end') . ", tickets.ticket_onsite, tickets.ticket_first_response_at, tickets.ticket_response_due_at,
         user_name, user_avatar, category_name, contact_name, contact_photo, asset_name, asset_type,
         location_name, location_address, location_city, location_state, location_zip
     FROM tickets
@@ -219,7 +219,7 @@ $urgent = $open && $company_phone !== '' && in_array($ticket['ticket_priority'],
                         <li class="itflow-portal-todo itflow-portal-todo-wrap">
                             <span class="itflow-portal-todo-icon is-info"><i class="fas fa-calendar-check"></i></span>
                             <span class="itflow-portal-todo-main">
-                                <div>Booked for <?= escapeHtml(date('l, F j', strtotime($ticket['ticket_schedule'])) . ' at ' . date($config_time_format, strtotime($ticket['ticket_schedule']))) ?></div>
+                                <div>Booked for <?= escapeHtml(date('l, F j', strtotime($ticket['ticket_schedule'])) . ', ' . date($config_time_format, strtotime($ticket['ticket_schedule'])) . ' - ' . date($config_time_format, strtotime(ticketScheduleEnd($ticket['ticket_schedule'], $ticket['ticket_schedule_end'])))) ?></div>
                                 <div><?= !empty($ticket['ticket_onsite']) ? 'Onsite' . ($booked_where !== '' ? ' at ' . escapeHtml($booked_where) : '') : 'Remote - we will connect to you' ?></div>
                             </span>
                             <a class="btn btn-sm btn-light border" href="guest_post.php?ticket_calendar=<?= $ticket_id ?>&amp;url_key=<?= rawurlencode($url_key) ?>"><i class="far fa-calendar-plus me-1"></i>Add to calendar</a>
