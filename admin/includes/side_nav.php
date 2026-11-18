@@ -86,6 +86,12 @@
                             <p>Payment Methods</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="/admin/labor_costs.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'labor_costs.php' ? 'active' : '') ?>">
+                            <i class="nav-icon fas fa-user-tag"></i>
+                            <p>Labor Costs</p>
+                        </a>
+                    </li>
                 <?php } ?>
                 <?php if ($config_module_enable_ticketing) { ?>
                     <li class="nav-item">

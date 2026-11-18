@@ -8,8 +8,13 @@
  * another is entered), so a flat-fee client who takes more time than they
  * pay for stands out.
  *
- * Income is cash in (invoice payments and the client's revenue); hours are
- * time logged on ticket replies in the period, billable or not.
+ * Income is cash in (invoice payments and the client's revenue), or with
+ * Invoiced what was invoiced in the period; hours are time logged on ticket
+ * replies in the period, billable or not.
+ *
+ * With labor costs set (Admin > Labor Costs, functions/labor_cost.php), each
+ * agent's hours are costed at their rate, the products sold at their cost,
+ * and profit, margin and break-even hours for flat monthly fees follow.
  */
 
 require_once "includes/inc_report.php";
@@ -92,6 +97,11 @@ while ($row = mysqli_fetch_assoc($sql)) {
     }
 }
 
+// Labor and parts, and income as invoiced when that's picked (functions/labor_cost.php)
+laborProfitAdd($clients, $client, $period, $with_tickets);
+$with_labor = laborCostReady();
+$basis = laborProfitBasis();
+
 foreach ($clients as &$row) {
     $row['net'] = $row['income'] - $row['costs'];
     $row['hours'] = $row['seconds'] / 3600;
@@ -104,6 +114,7 @@ foreach ($clients as &$row) {
     }
 }
 unset($row);
+laborProfitFinish($clients, $period);
 
 // Lowest rate first - the ones to look at - then those with no time logged
 usort($clients, function ($a, $b) {
@@ -123,6 +134,25 @@ $columns = [
     }],
     'net' => ['label' => 'Net', 'type' => 'money', 'class' => 'fw-semibold'],
 ];
+if ($with_labor) {
+    $zero = '<span class="itflow-report-zero">–</span>';
+    $columns['labor'] = ['label' => 'Labor cost', 'type' => 'money', 'title' => 'Hours on their tickets at each agent\'s cost per hour (Admin > Labor Costs)', 'html' => function ($row) use ($zero) {
+        $html = $row['labor'] > 0 ? reportMoney($row['labor']) : $zero;
+        if ($row['uncosted_seconds'] > 0) {
+            $html .= ' <i class="fas fa-exclamation-triangle text-warning" data-labor-uncosted title="' . escapeHtml(reportHours($row['uncosted_seconds']) . ' h by agents with no cost per hour') . '"></i>';
+        }
+        return $html;
+    }];
+    $columns['parts'] = ['label' => 'Parts cost', 'type' => 'money', 'title' => 'What the products on their invoices in the period cost you', 'html' => function ($row) use ($zero) {
+        return $row['parts'] > 0 ? reportMoney($row['parts']) : $zero;
+    }];
+    $columns['profit'] = ['label' => 'Profit', 'type' => 'money', 'class' => 'fw-semibold', 'title' => 'Net less labor and parts', 'html' => function ($row) {
+        return '<span class="fw-semibold ' . ($row['profit'] < 0 ? 'text-danger' : 'text-success-emphasis') . '">' . reportMoney($row['profit']) . '</span>';
+    }];
+    $columns['margin'] = ['label' => 'Margin', 'type' => 'percent', 'title' => 'Profit as a share of income', 'html' => function ($row) use ($zero) {
+        return $row['margin'] === null ? $zero : '<span class="' . ($row['margin'] < 0 ? 'text-danger fw-semibold' : '') . '">' . reportPercent($row['margin']) . '</span>';
+    }];
+}
 if ($with_tickets) {
     $columns['seconds'] = ['label' => 'Hours', 'type' => 'hours', 'title' => 'Time logged on their tickets in the period'];
     $columns['billable_share'] = ['label' => 'Billable', 'type' => 'percent', 'title' => 'Share of the hours on billable tickets', 'class' => 'text-body-secondary'];
@@ -138,6 +168,21 @@ if ($with_tickets) {
 $columns['mrr'] = ['label' => 'Recurring / month', 'type' => 'money', 'html' => function ($row) {
     return $row['mrr'] > 0 ? reportMoney($row['mrr']) : '<span class="itflow-report-zero">–</span>';
 }];
+if ($with_labor && $with_tickets) {
+    $columns['hours_month'] = ['label' => 'Hours / month', 'type' => 'decimal', 'decimals' => 1, 'title' => 'Hours on their tickets, a month on average over the period'];
+    $columns['break_even'] = ['label' => 'Break-even h / month', 'type' => 'decimal', 'decimals' => 1,
+        'title' => 'Hours a month their recurring fee pays for: the fee, less parts and direct costs a month, over the cost per hour of the agents who work for them',
+        'html' => function ($row) {
+            if ($row['break_even'] === null) {
+                return '<span class="itflow-report-zero" title="No recurring fee">–</span>';
+            }
+            $text = number_format($row['break_even'], 1);
+            if ($row['over_break_even']) {
+                return '<span class="text-danger fw-semibold">' . $text . '</span> <span class="badge rounded-pill bg-danger-subtle text-danger-emphasis border border-danger-subtle fw-normal" title="More hours a month than their fee pays for">Over</span>';
+            }
+            return '<span class="text-success-emphasis">' . $text . '</span>';
+        }];
+}
 $columns['flag'] = ['label' => '', 'sort' => false, 'csv_label' => 'Flag', 'csv' => function ($row) {
     return ['unpaid' => 'Time but no income', 'below' => 'Below target'][$row['flag']] ?? '';
 }, 'html' => function ($row) {
@@ -161,6 +206,12 @@ $overall_rate = $seconds ? ($income - $costs) / ($seconds / 3600) : null;
 $totals = ['client' => 'Total', 'income' => $income, 'costs' => $costs, 'net' => $income - $costs, 'seconds' => $seconds,
     'rate' => $overall_rate, 'tickets' => array_sum(array_column($clients, 'tickets')), 'mrr' => array_sum(array_column($clients, 'mrr')),
     'billable_share' => reportShare(array_sum(array_column($clients, 'billable_seconds')), $seconds)];
+if ($with_labor) {
+    $totals += ['labor' => array_sum(array_column($clients, 'labor')), 'parts' => array_sum(array_column($clients, 'parts')),
+        'profit' => array_sum(array_column($clients, 'profit')), 'uncosted_seconds' => array_sum(array_column($clients, 'uncosted_seconds')),
+        'hours_month' => array_sum(array_column($clients, 'hours_month')), 'break_even' => null];
+    $totals['margin'] = reportShare($totals['profit'], $income, 1);
+}
 
 if (reportExporting()) {
     reportCsv('Client Profitability ' . $period['start'] . ' to ' . $period['end'], $columns, $clients, $totals);
@@ -178,6 +229,11 @@ $target_control = '<div class="col-sm-6 col-lg-2"><div class="input-group" title
     . '<span class="input-group-text"><i class="fas fa-fw fa-bullseye"></i></span>'
     . '<input type="text" inputmode="decimal" class="form-control" name="target" value="' . ($target > 0 ? escapeHtml(number_format($target, 2, '.', '')) : '') . '" placeholder="Target per hour" aria-label="Target per hour" data-report-autosubmit>'
     . '</div></div>';
+// Income as paid - money in, as the report always counted it - or as invoiced
+if ($with_labor) {
+    $target_control .= '<div class="col-auto" data-labor-basis title="Paid: money received in the period, tax included. Invoiced: sales before tax on invoices dated in the period.">'
+        . reportSegmentControl('basis', $basis, LABOR_PROFIT_BASES, 'd-inline-block') . '</div>';
+}
 
 ?>
 
@@ -198,6 +254,30 @@ $target_control = '<div class="col-sm-6 col-lg-2"><div class="input-group" title
             'sub' => '<span class="text-body-tertiary">Below target, or time with no income</span>'],
     ]) ?>
 
+    <?php if ($with_labor) {
+        $losing = array_filter($clients, function ($row) { return $row['profit'] < 0; });
+        $over = array_filter($clients, function ($row) { return $row['over_break_even']; });
+        $uncosted = intval($totals['uncosted_seconds']); ?>
+        <div data-labor-summary>
+            <?= reportStats([
+                ['label' => 'Labor cost', 'value' => reportMoney($totals['labor']),
+                    'sub' => $uncosted > 0 ? '<span class="text-warning-emphasis">' . escapeHtml(reportHours($uncosted)) . ' h with no cost per hour</span>' : '<span class="text-body-tertiary">Hours at each agent\'s cost</span>'],
+                ['label' => 'Parts cost', 'value' => reportMoney($totals['parts']), 'sub' => '<span class="text-body-tertiary">On invoices dated in the period</span>'],
+                ['label' => 'Profit', 'value' => reportMoney($totals['profit']), 'tone' => $totals['profit'] < 0 ? 'danger' : 'success',
+                    'sub' => $totals['margin'] === null ? '' : escapeHtml(reportPercent($totals['margin'])) . ' <span class="text-body-tertiary">margin, ' . strtolower(LABOR_PROFIT_BASES[$basis]) . '</span>'],
+                ['label' => 'Losing money', 'value' => reportCount(count($losing)), 'tone' => $losing ? 'danger' : 'success', 'sub' => '<span class="text-body-tertiary">Clients with a profit below 0</span>'],
+                ['label' => 'Over break-even', 'value' => reportCount(count($over)), 'tone' => $over ? 'danger' : 'success', 'sub' => '<span class="text-body-tertiary">More hours than their fee pays for</span>'],
+            ]) ?>
+            <?php if (!laborCostRates() && laborCostDefault() === null) { ?>
+                <div class="alert alert-warning small" data-labor-no-rates><i class="fas fa-exclamation-triangle me-2"></i>No labor costs are set, so time costs nothing here.
+                    <?= !empty($session_is_admin) ? '<a href="/admin/labor_costs.php" class="alert-link">Set each agent\'s cost per hour</a>.' : 'An admin sets them in Admin > Labor Costs.' ?></div>
+            <?php } elseif ($uncosted > 0) { ?>
+                <div class="alert alert-warning small" data-labor-uncosted-note><i class="fas fa-exclamation-triangle me-2"></i><?= escapeHtml(reportHours($uncosted)) ?> h were logged by agents with no cost per hour, and there's no company default - that time costs nothing here.
+                    <?= !empty($session_is_admin) ? '<a href="/admin/labor_costs.php" class="alert-link">Labor Costs</a>' : '' ?></div>
+            <?php } ?>
+        </div>
+    <?php } ?>
+
     <?php if ($with_tickets && $chart_rows) { ?>
         <?= reportSectionOpen('Earned per hour', 'The ' . count($chart_rows) . ' clients you spent the most time on - red is below target') ?>
             <div class="card-body">
@@ -217,8 +297,12 @@ $target_control = '<div class="col-sm-6 col-lg-2"><div class="input-group" title
     <?= reportSectionOpen('By client', 'Lowest earning per hour first', 'itflow-report-long') ?>
         <?= reportTable($columns, $clients, ['empty' => 'No income or time logged for any client in this period.', 'totals' => $totals]) ?>
         <div class="card-footer small text-body-secondary">
-            Net is income (payments and revenue) less the expenses filed against the client. Per hour is net divided by the hours logged on their tickets in the same period -
+            Net is income (<?= $with_labor && $basis === 'invoiced' ? 'sales before tax, less discounts, on invoices dated in the period, and revenue' : 'payments and revenue' ?>) less the expenses filed against the client. Per hour is net divided by the hours logged on their tickets in the same period -
             a client who pays in one period for work done in another reads high or low; a longer period evens that out.
+            <?php if ($with_labor) { ?>
+                Profit is net less labor - the hours at each agent's cost per hour - and the cost of the products on invoices dated in the period.
+                Break-even h / month is how many hours a month the client's recurring fee pays for, after parts and direct costs, at the cost per hour of the agents who work for them.
+            <?php } ?>
         </div>
     </div>
 

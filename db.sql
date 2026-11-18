@@ -3311,6 +3311,7 @@ CREATE TABLE `settings` (
   `config_default_calendar` int(11) DEFAULT NULL,
   `config_default_net_terms` int(11) DEFAULT NULL,
   `config_default_hourly_rate` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `config_labor_cost_default` decimal(15,2) DEFAULT NULL,
   `config_default_after_hours_rate` decimal(15,2) DEFAULT NULL,
   `config_time_increment` int(11) NOT NULL DEFAULT 15,
   `config_time_rounding` varchar(10) NOT NULL DEFAULT 'nearest',
@@ -4459,6 +4460,25 @@ CREATE TABLE `user_client_permissions` (
   `client_id` int(11) NOT NULL,
   `permission_type` enum('allow','deny') NOT NULL DEFAULT 'allow',
   PRIMARY KEY (`user_id`,`client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_cost_rates`
+--
+
+DROP TABLE IF EXISTS `user_cost_rates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_cost_rates` (
+  `user_cost_rate_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_cost_rate_user_id` int(11) NOT NULL,
+  `user_cost_rate_from` date NOT NULL,
+  `user_cost_rate_hourly` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `user_cost_rate_created_by` int(11) NOT NULL DEFAULT 0,
+  `user_cost_rate_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`user_cost_rate_id`),
+  UNIQUE KEY `user_cost_rate_user_from` (`user_cost_rate_user_id`,`user_cost_rate_from`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
