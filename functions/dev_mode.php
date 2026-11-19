@@ -19,7 +19,6 @@
  *   - AI Triage doesn't run (cron/ai_triage.php)
  *   - Stripe refuses every call, so no card is charged and nothing is made there
  *     (includes/stripe_init.php); autopay and Payment Provider Fees don't run
- *   - RMM devices still come in, but nothing is done to one (rmmDeviceAct())
  *   - log entries aren't sent to a syslog server (functions/log_forward.php)
  *   - a managed instance doesn't talk to its manager, and a manager doesn't watch its
  *     instances (managedHttpJson(), cron/manager_checkin.php, cron/managed_instances.php)
@@ -49,7 +48,7 @@ function devModeSummary(): string
 {
     $to = devModeMailTo();
     return 'Development mode: ' . ($to !== '' ? "every email goes to $to" : 'no email is sent')
-        . '; texts, the ticket mailbox, AI Triage, Stripe, RMM device actions, log forwarding and managed check-ins are off.';
+        . '; texts, the ticket mailbox, AI Triage, Stripe, log forwarding and managed check-ins are off.';
 }
 
 /** includes/stripe_init.php: in development mode every Stripe call is refused - nothing is charged or made. */

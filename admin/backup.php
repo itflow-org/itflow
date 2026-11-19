@@ -603,7 +603,7 @@ $status_looks = [
             <div class="card-body small">
                 <p class="text-body-secondary">
                     For a test copy of your ITFlow. Turn it on <strong class="text-body">before</strong> you restore production's backup onto it:
-                    every email then goes to the test inbox, and texts, the ticket mailbox, AI Triage, Stripe, RMM device actions, log forwarding and check-ins with a manager are off.
+                    every email then goes to the test inbox, and texts, the ticket mailbox, AI Triage, Stripe, log forwarding and check-ins with a manager are off.
                     It's kept in config.php, so a restore can't turn it off. Never turn it on in production.
                 </p>
                 <?php if ($dev_on && $dev_mail_to === '') { ?>
