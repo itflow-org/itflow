@@ -123,6 +123,10 @@ if (isset($_POST['edit_your_user_preferences'])) {
 
     mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $session_user_id, user_config_calendar_first_day = $calendar_first_day, user_config_theme_dark = $dark_mode, user_config_records_per_page = $per_page
         ON DUPLICATE KEY UPDATE user_config_calendar_first_day = $calendar_first_day, user_config_theme_dark = $dark_mode, user_config_records_per_page = $per_page");
+    if (compactRowsReady()) {
+        $compact_rows = intval($_POST['compact_rows'] ?? 0) === 1 ? 1 : 0;
+        mysqli_query($mysqli, "UPDATE user_settings SET user_config_compact_rows = $compact_rows WHERE user_id = $session_user_id");
+    }
     calendarAgentColorSave($session_user_id, $_POST);
     timezoneSave($session_user_id, $_POST);
 

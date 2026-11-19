@@ -7,7 +7,7 @@ $session_user_id = intval($_SESSION['user_id']);
 $sql = mysqli_query(
     $mysqli,
     "SELECT role_is_admin, role_name, user_archived_at, user_avatar, user_config_force_mfa," . (serviceAccountsReady() ? ' user_service_account,' : '') . "
-        user_config_records_per_page, user_config_theme_dark, user_email, user_name, user_role_id,
+        user_config_records_per_page, user_config_theme_dark," . (compactRowsReady() ? ' user_config_compact_rows,' : '') . " user_email, user_name, user_role_id,
         user_password, user_status, user_token, user_type FROM users
      LEFT JOIN user_settings ON users.user_id = user_settings.user_id
      LEFT JOIN user_roles ON user_role_id = role_id
@@ -34,6 +34,7 @@ $session_is_admin = isset($row['role_is_admin']) && $row['role_is_admin'] == 1;
 $session_user_config_force_mfa = intval($row['user_config_force_mfa']);
 $user_config_records_per_page = max(1, intval($row['user_config_records_per_page']));
 $user_config_theme_dark = intval($row['user_config_theme_dark']);
+$user_config_compact_rows = intval($row['user_config_compact_rows'] ?? 0);
 
 // Check user type is agent aka 1
 if ($session_user_type !== 1) {

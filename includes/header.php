@@ -75,7 +75,7 @@ header("X-Frame-Options: DENY");
          moved to this body utility, so the migration dropped it silently. It matters
          because --bs-card-bg is --bs-body-bg - without it every card is the exact
          colour of the page and only its border separates the two. */ ?>
-<body class="layout-fixed sidebar-expand-lg app-loaded bg-body-tertiary theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>"
+<body class="layout-fixed sidebar-expand-lg app-loaded bg-body-tertiary theme-<?= escapeHtml($config_theme) ?><?= !empty($user_config_compact_rows) ? ' itflow-compact' : '' ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>"
       data-itflow-phone-country="<?= escapeHtml($country_iso2_array[$session_company_country] ?? '') ?>">
     <div class="app-wrapper text-sm">
 

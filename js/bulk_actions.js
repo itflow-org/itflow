@@ -47,10 +47,31 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Per-row checkbox handling
+    // Per-row checkbox handling. Shift-click ticks (or unticks) every box between this one and the
+    // last one clicked, as the clicked one now is.
+    let lastClicked = null;
     document.addEventListener('click', function (e) {
         const cb = e.target.closest('input[type="checkbox"].bulk-select');
         if (!cb) return;
+        if (e.shiftKey && lastClicked && lastClicked !== cb && lastClicked.isConnected && lastClicked.form === cb.form) {
+            const boxes = getBulkCheckboxes().filter(box => box.form === cb.form);
+            const from = boxes.indexOf(lastClicked);
+            const to = boxes.indexOf(cb);
+            if (from !== -1 && to !== -1) {
+                boxes.slice(Math.min(from, to), Math.max(from, to) + 1).forEach(box => {
+                    if (box.checked !== cb.checked) {
+                        box.checked = cb.checked;
+                        box.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+                // Shift-click also selects the text between the two clicks
+                const selection = window.getSelection ? window.getSelection() : null;
+                if (selection) {
+                    selection.removeAllRanges();
+                }
+            }
+        }
+        lastClicked = cb;
         updateSelectedCount();
     });
 

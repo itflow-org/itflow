@@ -56,6 +56,22 @@ function userMfaPill($token, $forced) {
     return '<span class="badge rounded-pill bg-danger-subtle text-danger-emphasis fw-normal" title="Password only"><i class="fas fa-unlock me-1"></i>No MFA</span>';
 }
 
+/** Whether the 4.0.0 update has run - user_settings.user_config_compact_rows. */
+function compactRowsReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '4.0.0', '>=');
+    }
+    return $ready;
+}
+
 /** One agent by id, with their settings and role - raw, or null. */
 function userRow($user_id) {
     global $mysqli;
@@ -65,7 +81,8 @@ function userRow($user_id) {
     }
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT users.user_id, user_name, user_email, user_auth_method, user_type, user_status, user_token, user_avatar,
             user_created_at, user_updated_at, user_archived_at, user_role_id, role_name, role_is_admin, role_archived_at,
-            user_config_force_mfa, user_config_calendar_first_day, user_config_theme_dark, user_config_records_per_page, user_config_signature
+            user_config_force_mfa, user_config_calendar_first_day, user_config_theme_dark, user_config_records_per_page, user_config_signature"
+            . (compactRowsReady() ? ', user_config_compact_rows' : '') . "
         FROM users
         LEFT JOIN user_settings ON user_settings.user_id = users.user_id
         LEFT JOIN user_roles ON role_id = user_role_id

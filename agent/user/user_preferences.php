@@ -2,8 +2,8 @@
 
 /*
  * Your account > Preferences - how ITFlow looks and behaves for you: light
- * or dark, the day calendars start on, your time zone, your colour on the
- * calendar, and how many rows a list shows.
+ * or dark, compact rows, the day calendars start on, your time zone, your
+ * colour on the calendar, and how many rows a list shows.
  */
 
 require_once "includes/inc_all_user.php";
@@ -11,6 +11,7 @@ require_once "includes/inc_all_user.php";
 $me = userRow($session_user_id);
 $calendar_first_day = intval($me['user_config_calendar_first_day']);
 $per_page = intval($me['user_config_records_per_page']) ?: 10;
+$compact_rows = intval($me['user_config_compact_rows'] ?? 0);
 
 ?>
 
@@ -36,6 +37,17 @@ $per_page = intval($me['user_config_records_per_page']) ?: 10;
                         </label>
                     </div>
                 </div>
+
+                <?php if (compactRowsReady()) { ?>
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input type="hidden" name="compact_rows" value="0">
+                            <input class="form-check-input" type="checkbox" role="switch" name="compact_rows" id="compactRows" value="1" <?= $compact_rows ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="compactRows">Compact rows</label>
+                        </div>
+                        <div class="form-text">Tighter rows on lists, so more fit on screen.</div>
+                    </div>
+                <?php } ?>
 
                 <div class="col-md-6">
                     <label class="form-label">Calendars start on</label>

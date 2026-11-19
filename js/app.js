@@ -966,6 +966,140 @@ itflowBindOnce('itflowModalStackHidden', 'hidden.bs.modal', '.modal', function (
 });
 
 /**
+ * A window with something typed in it asks before it closes on a click outside it, Escape, its X
+ * or Cancel - what was typed would be gone. Only text typed into a form that saves (method post)
+ * counts, and only if it differs from what the field held when it was first clicked into, or an
+ * editor in the window has changes. Saving, and a script closing the window after a save, never
+ * ask: the question is only put when the person asked for the window to close.
+ */
+if (!window.itflowWindowGuard) {
+    window.itflowWindowGuard = true;
+
+    const itflowGuardFields = new WeakMap(); // window -> the fields typed in
+    const itflowGuardBefore = new WeakMap(); // field -> its value when first clicked into
+    let itflowCloseAsked = null;              // the window the person last asked to close, and when
+
+    const itflowGuardTyped = function (el) {
+        return !!(el && el.matches && el.matches('input, textarea')
+            && !el.matches('[type=hidden], [type=checkbox], [type=radio], [type=search], [type=file], [type=button], [type=submit], [type=reset], [readonly], [data-no-guard]')
+            && el.form && (el.form.getAttribute('method') || '').toLowerCase() === 'post'
+            && !el.closest('.itflow-select'));
+    };
+
+    document.addEventListener('focusin', function (e) {
+        const el = e.target;
+        const modal = el.closest ? el.closest('.modal') : null;
+        if (!modal || !itflowGuardTyped(el) || itflowGuardBefore.has(el)) {
+            return;
+        }
+        itflowGuardBefore.set(el, el.value);
+        if (!itflowGuardFields.has(modal)) {
+            itflowGuardFields.set(modal, new Set());
+        }
+        itflowGuardFields.get(modal).add(el);
+    });
+
+    const itflowGuardChanged = function (modal) {
+        const fields = itflowGuardFields.get(modal);
+        if (fields) {
+            for (const el of fields) {
+                if (el.isConnected && modal.contains(el) && el.value !== itflowGuardBefore.get(el)) {
+                    return true;
+                }
+            }
+        }
+        if (window.tinymce) {
+            return tinymce.get().some(function (editor) {
+                const el = editor.getElement();
+                return el && modal.contains(el) && el.form && (el.form.getAttribute('method') || '').toLowerCase() === 'post' && editor.isDirty();
+            });
+        }
+        return false;
+    };
+
+    const itflowAskedToClose = function (modal) {
+        if (modal) {
+            itflowCloseAsked = { modal: modal, at: Date.now() };
+        }
+    };
+    // A click on the shade around the window, its X or Cancel, or Escape
+    document.addEventListener('mousedown', function (e) {
+        if (e.target.classList && e.target.classList.contains('modal')) {
+            itflowAskedToClose(e.target);
+        }
+    }, true);
+    document.addEventListener('click', function (e) {
+        const dismiss = e.target.closest ? e.target.closest('[data-bs-dismiss="modal"]') : null;
+        if (dismiss) {
+            itflowAskedToClose(dismiss.closest('.modal'));
+        }
+    }, true);
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            const open = document.querySelectorAll('.modal.show');
+            itflowAskedToClose(open[open.length - 1]);
+        }
+    }, true);
+
+    document.addEventListener('hide.bs.modal', function (e) {
+        const modal = e.target;
+        if (!modal.classList || !modal.classList.contains('modal')) {
+            return;
+        }
+        if (modal.dataset.itflowDiscard === '1') {
+            delete modal.dataset.itflowDiscard;
+            return;
+        }
+        const asked = itflowCloseAsked;
+        itflowCloseAsked = null;
+        if (!asked || asked.modal !== modal || Date.now() - asked.at > 1500) {
+            return;
+        }
+        // Escape on the question itself closes the question, not the window under it
+        if (typeof Swal !== 'undefined' && Swal.isVisible()) {
+            e.preventDefault();
+            return;
+        }
+        if (!itflowGuardChanged(modal)) {
+            return;
+        }
+        e.preventDefault();
+        const discard = function () {
+            modal.dataset.itflowDiscard = '1';
+            bootstrap.Modal.getOrCreateInstance(modal).hide();
+        };
+        if (typeof Swal === 'undefined') {
+            if (window.confirm('Discard what you typed in this window?')) {
+                discard();
+            }
+            return;
+        }
+        Swal.fire({
+            theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',
+            // Inside the window, so its focus trap leaves the question's buttons alone
+            target: modal,
+            title: 'Discard your changes?',
+            text: "What you typed in this window hasn't been saved.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Discard',
+            cancelButtonText: 'Keep editing',
+            reverseButtons: true,
+            focusCancel: true,
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'btn btn-danger mx-1',
+                cancelButton: 'btn btn-secondary mx-1'
+            }
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                discard();
+            }
+        });
+    });
+}
+
+/**
  * A required field left empty on a tab that isn't showing - the Ticket tab of
  * a template while Sets up is open, a fill-in on Details while Tasks is -
  * would stop the form going with nothing to see: the browser can't point at
