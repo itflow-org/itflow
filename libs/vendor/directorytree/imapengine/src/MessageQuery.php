@@ -8,7 +8,9 @@ use DirectoryTree\ImapEngine\Collections\ResponseCollection;
 use DirectoryTree\ImapEngine\Connection\ConnectionInterface;
 use DirectoryTree\ImapEngine\Connection\ImapQueryBuilder;
 use DirectoryTree\ImapEngine\Connection\Responses\Data\ListData;
+use DirectoryTree\ImapEngine\Connection\Responses\Data\ResponseCodeData;
 use DirectoryTree\ImapEngine\Connection\Responses\UntaggedResponse;
+use DirectoryTree\ImapEngine\Connection\Tokens\Atom;
 use DirectoryTree\ImapEngine\Connection\Tokens\Token;
 use DirectoryTree\ImapEngine\Enums\ImapFetchIdentifier;
 use DirectoryTree\ImapEngine\Enums\ImapFlag;
@@ -118,6 +120,8 @@ class MessageQuery implements MessageQueryInterface
         if ($startChunk > $totalChunks) {
             return;
         }
+
+        $messages = $this->sortMessages($messages);
 
         // Save previous state to restore later.
         $previousLimit = $this->limit;
@@ -319,7 +323,7 @@ class MessageQuery implements MessageQueryInterface
     protected function process(Collection $messages): MessageCollection
     {
         if ($messages->isNotEmpty()) {
-            return $this->populate($messages);
+            return $this->populate($this->sortMessages($messages));
         }
 
         return MessageCollection::make();
@@ -351,20 +355,28 @@ class MessageQuery implements MessageQueryInterface
     }
 
     /**
-     * Fetch a given id collection.
+     * Order message identifiers before pagination or chunking.
      */
-    protected function fetch(Collection $messages): array
+    protected function sortMessages(Collection $messages): Collection
     {
         // Only apply client-side sorting when not using server-side sorting.
         // When sortKey is set, the IMAP SORT command already returns UIDs
         // in the correct order, so we should preserve that order.
-        if (! $this->sortKey) {
-            $messages = match ($this->fetchOrder) {
-                'asc' => $messages->sort(SORT_NUMERIC),
-                'desc' => $messages->sortDesc(SORT_NUMERIC),
-            };
+        if ($this->sortKey) {
+            return $messages;
         }
 
+        return match ($this->fetchOrder) {
+            'asc' => $messages->sort(SORT_NUMERIC),
+            'desc' => $messages->sortDesc(SORT_NUMERIC),
+        };
+    }
+
+    /**
+     * Fetch a given id collection.
+     */
+    protected function fetch(Collection $messages): array
+    {
         $uids = $messages->forPage($this->page, $this->limit)->values();
 
         $fetch = [];
@@ -416,17 +428,26 @@ class MessageQuery implements MessageQueryInterface
                 ));
             }
 
-            $uid = $data->lookup('UID')->value;
+            // Index field names and BODY sections without stringifying message contents.
+            $fields = [];
 
-            $size = $data->lookup('RFC822.SIZE')?->value;
+            foreach ($data->tokens() as $index => $token) {
+                if ($token instanceof Atom || $token instanceof ResponseCodeData) {
+                    $fields[(string) $token] ??= $data->tokenAt($index + 1);
+                }
+            }
+
+            $uid = $fields['UID']->value;
+
+            $size = $fields['RFC822.SIZE']->value ?? null;
 
             return [
                 $uid => [
                     'size' => $size ? (int) $size : null,
-                    'flags' => $data->lookup('FLAGS')?->values() ?? [],
-                    'head' => $data->lookup('[HEADER]')->value ?? '',
-                    'body' => $data->lookup('[TEXT]')->value ?? '',
-                    'bodystructure' => $data->lookup('BODYSTRUCTURE'),
+                    'flags' => ($fields['FLAGS'] ?? null)?->values() ?? [],
+                    'head' => $fields['[HEADER]']->value ?? '',
+                    'body' => $fields['[TEXT]']->value ?? '',
+                    'bodystructure' => $fields['BODYSTRUCTURE'] ?? null,
                 ],
             ];
         })->all();

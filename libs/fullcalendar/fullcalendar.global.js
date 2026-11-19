@@ -1,5 +1,5 @@
 /*!
-FullCalendar (Vanilla JS) v7.1.0
+FullCalendar (Vanilla JS) v7.1.5
 Docs & License: https://fullcalendar.io
 (c) 2026 Adam Shaw
 */
@@ -38,6 +38,9 @@ var FullCalendar = (function (exports) {
   });
 
   const NativeTemporal = globalThis.Temporal;
+
+  // Low-Level
+  const expectedPositive = (entityName, num) => `Non-positive ${entityName}: ${num}`;
   const expectedFinite = (entityName, num) => `Non-finite ${entityName}: ${num}`;
   const forbiddenBigIntToNumber = (entityName) => `Cannot convert bigint to ${entityName}`;
   const invalidObject = 'Invalid object';
@@ -68,6 +71,18 @@ var FullCalendar = (function (exports) {
   }
   function toIntegerWithTrunc(arg, entityName) {
       return Math.trunc(toFiniteNumber(arg, entityName)) || 0; // ensure no -0
+  }
+  function toPositiveIntegerWithTruncation(arg, entityName) {
+      return requireNumberIsPositive(toIntegerWithTrunc(arg, entityName), entityName);
+  }
+  /*
+  Already known to be number.
+  */
+  function requireNumberIsPositive(num, entityName = 'number') {
+      if (num <= 0) {
+          throw new RangeError(expectedPositive(entityName, num));
+      }
+      return num;
   }
   /*
   min/max are inclusive
@@ -101,7 +116,7 @@ var FullCalendar = (function (exports) {
 
   const outOfBoundsDate = "Out-of-bounds date";
 
-  const invalidSubstring = substring => `Invalid substring: ${substring}`;
+  const failedParse = s => `Cannot parse: ${s}`;
 
   const constrainToRange = constrainToRange$1;
 
@@ -162,6 +177,14 @@ var FullCalendar = (function (exports) {
     return res;
   }
 
+  function zipPropsConst(propNames, propVal) {
+    const res = {};
+    for (const propName of propNames) {
+      res[propName] = propVal;
+    }
+    return res;
+  }
+
   function createPropGetters(propNames) {
     const getters = {};
     for (const propName of propNames) {
@@ -187,16 +210,8 @@ var FullCalendar = (function (exports) {
     return s[0].toUpperCase() + s.substring(1);
   }
 
-  function createRegExp(meat) {
-    return new RegExp(`^${meat}$`, "i");
-  }
-
   function parseSubsecNano(fracStr) {
     return parseInt(fracStr.padEnd(9, "0"));
-  }
-
-  function parseSign(s) {
-    return s && "+" !== s ? -1 : 1;
   }
 
   function parseInt0(s) {
@@ -348,6 +363,10 @@ var FullCalendar = (function (exports) {
     return [ Number(epochSec), Number(nano) ];
   }
 
+  function epochNanoToMilli(epochNano) {
+    return Number(divFloorBigInt(epochNano, bigNanoInMilli));
+  }
+
   function isoDateTimeToEpochNano(isoDateTime) {
     return isoDateToEpochNano(isoDateTime) + BigInt(timeFieldsToNano(isoDateTime));
   }
@@ -357,10 +376,10 @@ var FullCalendar = (function (exports) {
   }
 
   function isoDateToEpochDays(isoDate) {
-    return isoArgsToEpochDays(isoDate.year, isoDate.month, isoDate.day);
+    return isoPartsToEpochDays(isoDate.year, isoDate.month, isoDate.day);
   }
 
-  function isoArgsToEpochDays(isoYear, isoMonth = 1, isoDay = 1) {
+  function isoPartsToEpochDays(isoYear, isoMonth = 1, isoDay = 1) {
     const monthIndex = isoMonth - 1;
     return isoYear += Math.floor(monthIndex / 12), isoMonth = modFloor(monthIndex, 12), 
     Date.UTC(isoYear % 400 - 400, isoMonth, 0) / 864e5 + 146097 * (divTrunc(isoYear, 400) + 1) + isoDay;
@@ -387,14 +406,6 @@ var FullCalendar = (function (exports) {
     return [ month, 0 ];
   }
 
-  function computeIsoFieldsFromParts(year, month, day) {
-    return {
-      year: year,
-      month: month,
-      day: day
-    };
-  }
-
   function computeIsoDaysInMonth(year, month) {
     switch (month) {
      case 2:
@@ -409,41 +420,8 @@ var FullCalendar = (function (exports) {
     return 31;
   }
 
-  function computeIsoDaysInYear(year) {
-    return computeIsoInLeapYear(year) ? 366 : 365;
-  }
-
   function computeIsoInLeapYear(year) {
     return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
-  }
-
-  function computeIsoDayOfWeek(isoDateFields) {
-    return modFloor(isoArgsToEpochDays(isoDateFields.year, isoDateFields.month, isoDateFields.day) + 4, 7) || 7;
-  }
-
-  function computeIsoDayOfYear(isoDateFields) {
-    return isoArgsToEpochDays(isoDateFields.year, isoDateFields.month, isoDateFields.day) - isoArgsToEpochDays(isoDateFields.year) + 1;
-  }
-
-  function computeIsoWeekFields(isoDateFields) {
-    let yearOfWeek = isoDateFields.year;
-    let weekOfYear = Math.floor((computeIsoDayOfYear(isoDateFields) - computeIsoDayOfWeek(isoDateFields) + 10) / 7);
-    let weeksInYear = computeIsoWeeksInYear(yearOfWeek);
-    return weekOfYear < 1 ? weekOfYear = weeksInYear = computeIsoWeeksInYear(--yearOfWeek) : weekOfYear > weeksInYear && (weekOfYear = 1, 
-    weeksInYear = computeIsoWeeksInYear(++yearOfWeek)), {
-      weekOfYear: weekOfYear,
-      yearOfWeek: yearOfWeek,
-      Ie: weeksInYear
-    };
-  }
-
-  function computeIsoWeeksInYear(year) {
-    const y0DayOfWeek = computeIsoDayOfWeek({
-      year: year,
-      month: 1,
-      day: 1
-    });
-    return 4 === y0DayOfWeek || 3 === y0DayOfWeek && computeIsoInLeapYear(year) ? 53 : 52;
   }
 
   function computeGregoryEraFields({year: year}) {
@@ -475,70 +453,21 @@ var FullCalendar = (function (exports) {
   }
 
   function computeCalendarDateFields(calendar, isoDate) {
-    return calendar ? calendar.ie(isoDate) : isoDate;
+    return calendar ? calendar.de(isoDate) : isoDate;
   }
 
   function computeCalendarMonthCodeParts(calendar, year, month) {
-    return calendar ? calendar.O(year, month) : computeIsoMonthCodeParts(month);
+    return calendar ? calendar.L(year, month) : computeIsoMonthCodeParts(month);
   }
 
   function computeCalendarEraFields(calendar, isoDate) {
-    return 0 === calendar ? computeGregoryEraFields(isoDate) : calendar ? calendar.h(isoDate) : {};
-  }
-
-  function computeCalendarIsoFieldsFromParts(calendar, year, month, day) {
-    return calendar ? calendar.je(year, month, day) : computeIsoFieldsFromParts(year, month, day);
-  }
-
-  function computeCalendarMonthsInYearForYear(calendar, year) {
-    return calendar ? calendar.k(year) : 12;
-  }
-
-  function computeCalendarDaysInMonthForYearMonth(calendar, year, month) {
-    return calendar ? calendar.p(year, month) : computeIsoDaysInMonth(year, month);
+    return 0 === calendar ? computeGregoryEraFields(isoDate) : calendar && calendar.h?.(isoDate) || {};
   }
 
   function computeCalendarMonthCode(calendar, isoDate) {
     const {year: year, month: month} = computeCalendarDateFields(calendar, isoDate);
     const [monthCodeNumber, isLeapMonth] = computeCalendarMonthCodeParts(calendar, year, month);
     return formatMonthCode(monthCodeNumber, isLeapMonth);
-  }
-
-  function computeCalendarInLeapYear(calendar, isoDate) {
-    const {year: year} = computeCalendarDateFields(calendar, isoDate);
-    return calendar ? calendar.u(year) : computeIsoInLeapYear(year);
-  }
-
-  function computeCalendarMonthsInYear(calendar, isoDate) {
-    const {year: year} = computeCalendarDateFields(calendar, isoDate);
-    return computeCalendarMonthsInYearForYear(calendar, year);
-  }
-
-  function computeCalendarDaysInMonth(calendar, isoDate) {
-    const {year: year, month: month} = computeCalendarDateFields(calendar, isoDate);
-    return computeCalendarDaysInMonthForYearMonth(calendar, year, month);
-  }
-
-  function computeCalendarDaysInYear(calendar, isoDate) {
-    const {year: year} = computeCalendarDateFields(calendar, isoDate);
-    return calendar ? calendar.j(year) : computeIsoDaysInYear(year);
-  }
-
-  function computeCalendarDayOfYear(calendar, isoDate) {
-    if (!calendar) {
-      return computeIsoDayOfYear(isoDate);
-    }
-    const {year: year} = computeCalendarDateFields(calendar, isoDate);
-    const yearStartIsoDate = computeCalendarIsoFieldsFromParts(calendar, year, 1, 1);
-    return isoDateToEpochDays(isoDate) - isoDateToEpochDays(yearStartIsoDate) + 1;
-  }
-
-  function computeCalendarWeekOfYear(calendar, isoDate) {
-    return calendar === isoCalendarImpl ? computeIsoWeekFields(isoDate).weekOfYear : void 0;
-  }
-
-  function computeCalendarYearOfWeek(calendar, isoDate) {
-    return calendar === isoCalendarImpl ? computeIsoWeekFields(isoDate).yearOfWeek : void 0;
   }
 
   const requireString = /*@__PURE__*/ bindArgs(requireType, "string");
@@ -556,6 +485,19 @@ var FullCalendar = (function (exports) {
   function toString$3(arg) {
     return "symbol" == typeof arg && throwTypeError("Cannot convert Symbol to string"), 
     String(arg);
+  }
+
+  function toPrimitiveWithStringHint(arg) {
+    if (!isObjectLike(arg)) {
+      return arg;
+    }
+    const exoticToPrimitive = arg[Symbol.toPrimitive];
+    if (null != exoticToPrimitive) {
+      "function" != typeof exoticToPrimitive && throwTypeError();
+      const primitive = Reflect.apply(exoticToPrimitive, arg, [ "string" ]);
+      return isObjectLike(primitive) && throwTypeError(), primitive;
+    }
+    return Date.prototype[Symbol.toPrimitive].call(arg, "string");
   }
 
   function toStrictInteger(arg, entityName) {
@@ -591,13 +533,12 @@ var FullCalendar = (function (exports) {
   const plainDateEpochNanoMin = epochNanoMin - bigNanoInUtcDay;
 
   function checkIsoDateTimeInBounds(isoDateTime) {
-    const epochNano = isoDateToEpochNano(isoDateTime);
-    return checkIsoDateEpochNanoInBounds(epochNano), epochNano !== plainDateEpochNanoMin || timeFieldsToNano(isoDateTime) || throwRangeError(outOfBoundsDate), 
-    isoDateTime;
+    return checkIsoDateTimeEpochNanoInBounds(isoDateTimeToEpochNano(isoDateTime)), isoDateTime;
   }
 
-  function checkIsoDateEpochNanoInBounds(epochNano, allowPlainDateLowerEdge = 1) {
-    (epochNano < (allowPlainDateLowerEdge ? plainDateEpochNanoMin : epochNanoMin) || epochNano > epochNanoMax) && throwRangeError(outOfBoundsDate);
+  function checkIsoDateTimeEpochNanoInBounds(epochNano) {
+    return (epochNano <= plainDateEpochNanoMin || epochNano >= epochNanoMax + bigNanoInUtcDay) && throwRangeError(outOfBoundsDate), 
+    epochNano;
   }
 
   function checkEpochNanoInBounds(epochNano) {
@@ -607,6 +548,14 @@ var FullCalendar = (function (exports) {
 
   function isoDateTimeAndOffsetToEpochNano(isoDateTime, offsetNano) {
     return checkEpochNanoInBounds(isoDateToEpochNano(isoDateTime) + BigInt(timeFieldsToNano(isoDateTime) - offsetNano));
+  }
+
+  function roundNumberToInc(num, roundingInc, roundingMode) {
+    return roundWithMode(num / roundingInc, roundingMode) * roundingInc || 0;
+  }
+
+  function roundWithMode(num, roundingMode) {
+    return roundingModeFuncs[roundingMode](num);
   }
 
   function createEpochNanoSlots(epochNano) {
@@ -633,39 +582,22 @@ var FullCalendar = (function (exports) {
     });
   }
 
-  function getEpochMilli(slots) {
-    return epochNano = slots.epochNanoseconds, Number(divFloorBigInt(epochNano, bigNanoInMilli));
-    var epochNano;
-  }
-
-  function getEpochNano(slots) {
-    return slots.epochNanoseconds;
-  }
-
   function roundToMinute$4(offsetNano) {
     return roundNumberToInc(offsetNano, nanoInMinute, 7);
-  }
-
-  function roundNumberToInc(num, roundingInc, roundingMode) {
-    return roundWithMode(num / roundingInc, roundingMode) * roundingInc;
-  }
-
-  function roundWithMode(num, roundingMode) {
-    return roundingModeFuncs[roundingMode](num);
   }
 
   const zonedEpochSlotsToIso = /*@__PURE__*/ memoize$1(_zonedEpochSlotsToIso, WeakMap);
 
   function _zonedEpochSlotsToIso(slots) {
     const {epochNanoseconds: epochNanoseconds, timeZone: timeZone} = slots;
-    const offsetNanoseconds = timeZone.C(epochNanoseconds);
+    const offsetNanoseconds = timeZone.B(epochNanoseconds);
     return {
       ...epochNanoToIsoDateTime(epochNanoseconds + BigInt(offsetNanoseconds)),
       offsetNanoseconds: offsetNanoseconds
     };
   }
 
-  function getSingleInstantFor(timeZone, isoDateTime, disambig = 0, possibleEpochNanos = timeZone.R(isoDateTime)) {
+  function getSingleInstantFor(timeZone, isoDateTime, disambig = 0, possibleEpochNanos = timeZone.O(isoDateTime)) {
     if (1 === possibleEpochNanos.length) {
       return possibleEpochNanos[0];
     }
@@ -674,34 +606,50 @@ var FullCalendar = (function (exports) {
     }
     const zonedEpochNano = isoDateTimeToEpochNano(isoDateTime);
     const gapNano = ((timeZone, zonedEpochNano) => {
-      const startOffsetNano = timeZone.C(zonedEpochNano - bigNanoInUtcDay);
+      const startOffsetNano = timeZone.B(zonedEpochNano - bigNanoInUtcDay);
       return (gapNano => (gapNano > nanoInUtcDay && throwRangeError("Out-of-bounds TimeZone gap"), 
-      gapNano))(timeZone.C(zonedEpochNano + bigNanoInUtcDay) - startOffsetNano);
+      gapNano))(timeZone.B(zonedEpochNano + bigNanoInUtcDay) - startOffsetNano);
     })(timeZone, zonedEpochNano);
     const shiftedIsoDateTime = epochNanoToIsoDateTime(zonedEpochNano + BigInt(gapNano * (2 === disambig ? -1 : 1)));
-    return (possibleEpochNanos = timeZone.R(shiftedIsoDateTime))[2 === disambig ? 0 : possibleEpochNanos.length - 1];
+    return (possibleEpochNanos = timeZone.O(shiftedIsoDateTime))[2 === disambig ? 0 : possibleEpochNanos.length - 1];
   }
 
-  const offsetRegExp = /*@__PURE__*/ createRegExp("([+-])(\\d{2})(?::?(\\d{2})(?::?(\\d{2})(?:[.,](\\d{1,9}))?)?)?");
+  const offsetRegExp = /^([+-])([01]\d|2[0-3])(?:(:?)([0-5]\d)(?:\3([0-5]\d)(?:[.,](\d{1,9}))?)?)?$/;
+
+  function parseOffsetNano(s) {
+    const offsetNano = parseOffsetNanoMaybe(s);
+    return void 0 === offsetNano && throwRangeError(failedParse(s)), offsetNano;
+  }
 
   function parseOffsetNanoMaybe(s, onlyHourMinute) {
     const parts = offsetRegExp.exec(s);
-    if (parts && (s => (s => {
-      "T" !== s[0] && "t" !== s[0] || (s = s.slice(1));
-      const fractionIndex = s.search(/[.,]/);
-      const main = fractionIndex < 0 ? s : s.slice(0, fractionIndex);
-      const parts = main.split(":");
-      return 1 === parts.length ? /^(?:\d{2}|\d{4}|\d{6})$/i.test(main) : (2 === parts.length || 3 === parts.length) && parts.every(part => 2 === part.length && /^\d{2}$/i.test(part));
-    })(s.slice(1)))(parts[0])) {
-      return ((parts, onlyHourMinute) => {
-        const firstSubMinutePart = parts[4] || parts[5];
-        onlyHourMinute && firstSubMinutePart && throwRangeError(invalidSubstring(firstSubMinutePart));
-        const offsetNanoPos = parseInt0(parts[2]) * nanoInHour + parseInt0(parts[3]) * nanoInMinute + parseInt0(parts[4]) * nanoInSec + parseSubsecNano(parts[5] || "");
-        return offsetNano = offsetNanoPos * parseSign(parts[1]), Math.abs(offsetNano) >= nanoInUtcDay && throwRangeError("Out-of-bounds offset"), 
-        offsetNano;
-        var offsetNano;
-      })(parts, onlyHourMinute);
+    if (parts) {
+      return onlyHourMinute && parts[5] && throwRangeError(failedParse(s)), (s => s && "+" !== s ? -1 : 1)(parts[1]) * (parseInt(parts[2]) * nanoInHour + parseInt0(parts[4]) * nanoInMinute + parseInt0(parts[5]) * nanoInSec + parseSubsecNano(parts[6] || ""));
     }
+  }
+
+  const dateFieldRefiners = {
+    era: toString$3,
+    month: toPositiveIntegerWithTruncation,
+    monthCode(monthCode, fieldName) {
+      return requireString(toPrimitiveWithStringHint(monthCode), fieldName);
+    },
+    day: toPositiveIntegerWithTruncation
+  };
+
+  const timeFieldRefiners = /*@__PURE__*/ zipPropsConst(timeFieldNamesAsc, toIntegerWithTrunc);
+
+  const dateTimeFieldRefiners = /*@__PURE__*/ Object.assign({}, dateFieldRefiners, timeFieldRefiners);
+
+  ({
+    offset(offsetString) {
+      return parseOffsetNano(requireString(toPrimitiveWithStringHint(offsetString)));
+    },
+    ...dateTimeFieldRefiners
+  });
+
+  function refineEpochDisambigOptions(options) {
+    return coerceEpochDisambig(normalizeOptions(options));
   }
 
   const RawDateTimeFormat = Intl.DateTimeFormat;
@@ -717,7 +665,7 @@ var FullCalendar = (function (exports) {
   }
 
   const timeZonePeriodDaysByName = {
-    "El_Aaiun": 17,
+    "El_Aaiun": 16,
     "Tucuman": 12,
     "Tirane": 11,
     "Riga": 10,
@@ -743,7 +691,7 @@ var FullCalendar = (function (exports) {
   function formatZonedDateTimeIsoAuto(zonedDateTimeSlots) {
     const calendar = zonedDateTimeSlots.calendar;
     const timeZone = zonedDateTimeSlots.timeZone;
-    const offsetNano = timeZone.C(zonedDateTimeSlots.epochNanoseconds);
+    const offsetNano = timeZone.B(zonedDateTimeSlots.epochNanoseconds);
     return formatIsoDateTimeFields(epochNanoToIsoDateTime(zonedDateTimeSlots.epochNanoseconds + BigInt(offsetNano)), void 0) + formatOffsetNano(roundToMinute$4(offsetNano)) + formatTimeZone(timeZone.id, 0) + (calendar === isoCalendarImpl ? "" : formatCalendarId(getCalendarSlotId(calendar), 0));
   }
 
@@ -756,13 +704,13 @@ var FullCalendar = (function (exports) {
     return formatIsoDateFields(isoDateTime) + "T" + formatTimeFields(isoDateTime, subsecDigits);
   }
 
-  function formatIsoDateFields(isoDateFields) {
-    return formatIsoYearMonthFields(isoDateFields) + "-" + padNumber2(isoDateFields.day);
+  function formatIsoDateFields(isoDate) {
+    return formatIsoYearMonthFields(isoDate) + "-" + padNumber2(isoDate.day);
   }
 
-  function formatIsoYearMonthFields(isoDateFields) {
-    const {year: year} = isoDateFields;
-    return (year < 0 || year > 9999 ? getSignStr(year) + padNumber(6, Math.abs(year)) : padNumber(4, year)) + "-" + padNumber2(isoDateFields.month);
+  function formatIsoYearMonthFields(isoDate) {
+    const {year: year} = isoDate;
+    return (year < 0 || year > 9999 ? getSignStr(year) + padNumber(6, Math.abs(year)) : padNumber(4, year)) + "-" + padNumber2(isoDate.month);
   }
 
   function formatTimeFields(timeFields, subsecDigits) {
@@ -820,8 +768,8 @@ var FullCalendar = (function (exports) {
       if (void 0 !== offsetNano) {
         return {
           id: formatOffsetNano(offsetNano),
-          _: offsetNano,
-          o: offsetNano
+          Z: offsetNano,
+          m: offsetNano
         };
       }
     })(upperRawId);
@@ -841,7 +789,7 @@ var FullCalendar = (function (exports) {
       return {
         kind: "utc",
         id: normId,
-        o: normId
+        m: normId
       };
     }
     const upperNormId = normId.toUpperCase();
@@ -850,7 +798,7 @@ var FullCalendar = (function (exports) {
       kind: "named",
       id: normId,
       format: format,
-      o: format.resolvedOptions().timeZone
+      m: format.resolvedOptions().timeZone
     };
   });
 
@@ -871,24 +819,24 @@ var FullCalendar = (function (exports) {
     return queryTimeZoneRecord(record.id, record);
   }
 
-  const queryTimeZoneRecord = /*@__PURE__*/ memoize$1((normTimeZoneId, record) => "named" === record.kind ? new IntlTimeZone(normTimeZoneId, record.o, record.format) : new FixedTimeZone(normTimeZoneId, record.o, "fixed" === record.kind ? record._ : 0));
+  const queryTimeZoneRecord = /*@__PURE__*/ memoize$1((normTimeZoneId, record) => "named" === record.kind ? new IntlTimeZone(normTimeZoneId, record.m, record.format) : new FixedTimeZone(normTimeZoneId, record.m, "fixed" === record.kind ? record.Z : 0));
 
   class FixedTimeZone {
     constructor(id, compareKey, offsetNano) {
-      this.id = id, this.o = compareKey, this._ = offsetNano;
+      this.id = id, this.m = compareKey, this.Z = offsetNano;
     }
-    C() {
-      return this._;
+    B() {
+      return this.Z;
     }
-    R(isoDateTime) {
-      return [ isoDateTimeAndOffsetToEpochNano(isoDateTime, this._) ];
+    O(isoDateTime) {
+      return [ isoDateTimeAndOffsetToEpochNano(isoDateTime, this.Z) ];
     }
-    U() {}
+    C() {}
   }
 
   class IntlTimeZone {
     constructor(id, compareKey, format) {
-      this.id = id, this.o = compareKey, this.qe = ((computeOffsetSec, periodDays) => {
+      this.id = id, this.m = compareKey, this.me = ((computeOffsetSec, periodDays) => {
         const getSample = memoize$1(computeOffsetSec);
         const getSplit = memoize$1(createSplitTuple);
         const periodSec = 86400 * periodDays;
@@ -910,7 +858,7 @@ var FullCalendar = (function (exports) {
           return offsetSec;
         }
         return {
-          Ee(zonedEpochSec) {
+          Ae(zonedEpochSec) {
             const wideOffsetSec0 = getOffsetSec(zonedEpochSec - 86400);
             const wideOffsetSec1 = getOffsetSec(zonedEpochSec + 86400);
             const wideUtcEpochSec0 = zonedEpochSec - wideOffsetSec0;
@@ -921,8 +869,8 @@ var FullCalendar = (function (exports) {
             const narrowOffsetSec0 = getOffsetSec(wideUtcEpochSec0);
             return narrowOffsetSec0 === getOffsetSec(wideUtcEpochSec1) ? [ zonedEpochSec - narrowOffsetSec0 ] : wideOffsetSec0 > wideOffsetSec1 ? [ wideUtcEpochSec0, wideUtcEpochSec1 ] : [];
           },
-          De: getOffsetSec,
-          U: function getTransition(epochSec, direction) {
+          ze: getOffsetSec,
+          C: function getTransition(epochSec, direction) {
             if (direction > 0 && epochSec >= 864e10) {
               return;
             }
@@ -935,7 +883,7 @@ var FullCalendar = (function (exports) {
                 return getTransition(lookaheadEpochSec, -1);
               }
             }
-            const searchEpochSec = direction > 0 ? Math.max(epochSec, minPossibleTransitionSec) : epochSec;
+            const searchEpochSec = direction > 0 ? Math.max(epochSec, minPossibleTransitionSec) - 1 : epochSec;
             let [startEpochSec, endEpochSec] = computePeriod(searchEpochSec, periodSec);
             const inc = periodSec * direction;
             const searchLimit = direction > 0 ? Math.max(epochSec, getCurrentEpochSec()) + 94867200 : minPossibleTransitionSec;
@@ -959,7 +907,7 @@ var FullCalendar = (function (exports) {
         };
       })((format => epochSec => {
         const intlParts = formatEpochMilliToPartsRecord(format, 1e3 * epochSec);
-        return 86400 * isoArgsToEpochDays((intlParts => {
+        return 86400 * isoPartsToEpochDays((intlParts => {
           const relatedYear = intlParts.relatedYear;
           if (void 0 !== relatedYear) {
             return parseInt(relatedYear);
@@ -969,20 +917,20 @@ var FullCalendar = (function (exports) {
         })(intlParts), parseInt(intlParts.month), parseInt(intlParts.day)) + 3600 * parseInt(intlParts.hour) + 60 * parseInt(intlParts.minute) + parseInt(intlParts.second) - epochSec;
       })(format), (timeZoneId => {
         const timeZoneName = timeZoneId.split("/").pop();
-        return timeZonePeriodDaysByName[timeZoneName] || 60;
+        return timeZonePeriodDaysByName[timeZoneName] || 19;
       })(id));
     }
-    C(epochNano) {
-      return this.qe.De((epochNano => epochNanoToSecMod(epochNano)[0])(epochNano)) * nanoInSec;
+    B(epochNano) {
+      return this.me.ze((epochNano => epochNanoToSecMod(epochNano)[0])(epochNano)) * nanoInSec;
     }
-    R(isoDateTime) {
+    O(isoDateTime) {
       const zonedEpochSec = 86400 * isoDateToEpochDays(isoDateTime) + timeFieldsToSec(isoDateTime);
       const subsecNano = timeFieldsToSubsecNano(isoDateTime);
-      return this.qe.Ee(zonedEpochSec).map(epochSec => checkEpochNanoInBounds(BigInt(epochSec) * bigNanoInSec + BigInt(subsecNano)));
+      return this.me.Ae(zonedEpochSec).map(epochSec => checkEpochNanoInBounds(BigInt(epochSec) * bigNanoInSec + BigInt(subsecNano)));
     }
-    U(epochNano, direction) {
+    C(epochNano, direction) {
       const [epochSec, subsecNano] = epochNanoToSecMod(epochNano);
-      const resEpochSec = this.qe.U(epochSec + (direction > 0 || subsecNano ? 1 : 0), direction);
+      const resEpochSec = this.me.C(epochSec + (direction > 0 || subsecNano ? 1 : 0), direction);
       if (void 0 !== resEpochSec) {
         return BigInt(resEpochSec) * bigNanoInSec;
       }
@@ -1010,17 +958,70 @@ var FullCalendar = (function (exports) {
     return createZonedEpochNanoSlots(instantSlots.epochNanoseconds, timeZone, calendar);
   }
 
-  function plainDateTimeToZonedDateTime(plainDateTimeSlots, timeZone, options) {
-    const epochNano = ((timeZone, isoDateTime, options) => {
-      const epochDisambig = (options => coerceEpochDisambig(normalizeOptions(options)))(options);
-      return getSingleInstantFor(timeZone, isoDateTime, epochDisambig);
-    })(timeZone, plainDateTimeSlots, options);
-    return createZonedEpochNanoSlots(checkEpochNanoInBounds(epochNano), timeZone, plainDateTimeSlots.calendar);
+  function dateTimeToZonedDateTime(plainDateTimeSlots, timeZone, epochDisambig) {
+    return createZonedEpochNanoSlots(checkEpochNanoInBounds(getSingleInstantFor(timeZone, plainDateTimeSlots, epochDisambig)), timeZone, plainDateTimeSlots.calendar);
   }
 
   function epochMilliToInstant(epochMilli) {
     return createEpochNanoSlots(checkEpochNanoInBounds(BigInt(toStrictInteger(epochMilli)) * bigNanoInMilli));
   }
+
+  function createOptionsTransformer(shapeFieldNames, invalidShapeFieldNames, ignoredFieldNames, defaultShapeFields, dateStyleReplacementFields) {
+    const shapeFieldNameSet = new Set(shapeFieldNames);
+    const invalidShapeFieldNameSet = new Set(invalidShapeFieldNames);
+    const ignoredFieldNameSet = new Set(ignoredFieldNames);
+    return (options, allowPartialOverlap) => {
+      let dateStyle;
+      let timeStyle;
+      const granularShapeFields = {};
+      const modifierFields = {};
+      const otherFields = {};
+      let hasInvalidGranularShapeFields = 0;
+      let hasInvalidStyleFields = 0;
+      for (const name of Object.keys(options)) {
+        const value = options[name];
+        void 0 === value || ignoredFieldNameSet.has(name) || (shapeFieldNameSet.has(name) ? "dateStyle" === name ? dateStyle = value : "timeStyle" === name ? timeStyle = value : granularShapeFields[name] = value : "era" === name ? modifierFields[name] = value : invalidShapeFieldNameSet.has(name) ? "dateStyle" === name || "timeStyle" === name ? hasInvalidStyleFields = 1 : hasInvalidGranularShapeFields = 1 : otherFields[name] = value);
+      }
+      const hasDateStyle = void 0 !== dateStyle;
+      const hasTimeStyle = void 0 !== timeStyle;
+      const hasAnyStyle = hasDateStyle || hasTimeStyle;
+      const hasGranularShapeFields = Object.keys(granularShapeFields).length > 0;
+      const hasInvalids = hasInvalidGranularShapeFields || hasInvalidStyleFields;
+      const hasShapeFields = hasGranularShapeFields || hasDateStyle || hasTimeStyle;
+      const hasModifierFields = Object.keys(modifierFields).length > 0;
+      (!allowPartialOverlap && hasInvalids || allowPartialOverlap && hasInvalids && !hasShapeFields || hasAnyStyle && (hasGranularShapeFields || hasModifierFields || hasInvalidGranularShapeFields)) && throwTypeError("Invalid formatting options");
+      const transformedOptions = {};
+      return hasAnyStyle || hasShapeFields || Object.assign(transformedOptions, defaultShapeFields), 
+      Object.assign(transformedOptions, granularShapeFields, modifierFields, otherFields), 
+      hasDateStyle && (dateStyleReplacementFields ? Object.assign(transformedOptions, dateStyleReplacementFields[dateStyle]) : transformedOptions.dateStyle = dateStyle), 
+      hasTimeStyle && (transformedOptions.timeStyle = timeStyle), transformedOptions;
+    };
+  }
+
+  const dateDefaultShapeFields = {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric"
+  };
+
+  const timeDefaultShapeFields = {
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric"
+  };
+
+  const dateTimeDefaultShapeFields = /*@__PURE__*/ Object.assign({}, dateDefaultShapeFields, timeDefaultShapeFields);
+
+  const dateShapeFieldNames = [ "weekday", "year", "month", "day", "dateStyle" ];
+
+  const timeShapeFieldNames = [ "dayPeriod", "hour", "minute", "second", "fractionalSecondDigits", "timeStyle" ];
+
+  const dateTimeShapeFieldNames = /*@__PURE__*/ dateShapeFieldNames.concat(timeShapeFieldNames);
+
+  /*@__PURE__*/ createOptionsTransformer(dateTimeShapeFieldNames, [], [], {
+    ...dateTimeDefaultShapeFields,
+    timeZoneName: "short"
+  });
 
   const PlainDateTimeBranding = "PlainDateTime";
 
@@ -1029,27 +1030,20 @@ var FullCalendar = (function (exports) {
   const InstantBranding = "Instant";
 
   function defineTemporalClass(branding, cls, getSlots, ...getterMaps) {
-    Object.defineProperties(cls, createNameDescriptors(branding)), Object.defineProperties(cls.prototype, createStringTagDescriptors("Temporal." + branding));
-    for (const getterMap of getterMaps) {
-      defineSlotGetters(cls.prototype, getSlots, getterMap);
-    }
-    return cls;
-  }
-
-  function defineSlotGetters(destPrototype, getSlots, getterMap) {
-    Object.defineProperties(destPrototype, mapProps(getter => ({
+    return Object.defineProperties(cls, createNameDescriptors(branding)), Object.defineProperties(cls.prototype, createStringTagDescriptors("Temporal." + branding)), 
+    Object.defineProperties(cls.prototype, mapProps(getter => ({
       get() {
         return getter(getSlots(this));
       },
       configurable: 1
-    }), getterMap));
+    }), Object.assign({}, ...getterMaps))), cls;
   }
 
-  const attachDebugString = "noop" === noop.name ? instance => {
+  const attachDebugString = "noop" !== noop.name || globalThis.process ? noop : instance => {
     Object.defineProperty(instance, "_str_", {
       value: instance.toJSON()
     });
-  } : noop;
+  };
 
   function invalidRecordType() {
     throwTypeError(invalidCallingContext);
@@ -1080,51 +1074,6 @@ var FullCalendar = (function (exports) {
     }
   };
 
-  const yearMonthDerivedGetters = {
-    daysInMonth(slots) {
-      return computeCalendarDaysInMonth(slots.calendar, slots);
-    },
-    daysInYear(slots) {
-      return computeCalendarDaysInYear(slots.calendar, slots);
-    },
-    monthsInYear(slots) {
-      return computeCalendarMonthsInYear(slots.calendar, slots);
-    },
-    inLeapYear(slots) {
-      return computeCalendarInLeapYear(slots.calendar, slots);
-    }
-  };
-
-  const dateDerivedGetters = {
-    dayOfWeek(slots) {
-      return computeIsoDayOfWeek(slots);
-    },
-    dayOfYear(slots) {
-      return computeCalendarDayOfYear(slots.calendar, slots);
-    },
-    weekOfYear(slots) {
-      return computeCalendarWeekOfYear(slots.calendar, slots);
-    },
-    yearOfWeek(slots) {
-      return computeCalendarYearOfWeek(slots.calendar, slots);
-    },
-    daysInWeek() {
-      return 7;
-    },
-    daysInMonth(slots) {
-      return computeCalendarDaysInMonth(slots.calendar, slots);
-    },
-    daysInYear(slots) {
-      return computeCalendarDaysInYear(slots.calendar, slots);
-    },
-    monthsInYear(slots) {
-      return computeCalendarMonthsInYear(slots.calendar, slots);
-    },
-    inLeapYear(slots) {
-      return computeCalendarInLeapYear(slots.calendar, slots);
-    }
-  };
-
   function createNativeGetters(shimGetters) {
     return createPropGetters(Object.keys(shimGetters));
   }
@@ -1132,8 +1081,6 @@ var FullCalendar = (function (exports) {
   const timeGetters = /*@__PURE__*/ createNativeGetters(timeGetters$1);
 
   const dateFieldGetters = /*@__PURE__*/ createNativeGetters(dateFieldGetters$1);
-
-  createNativeGetters(yearMonthDerivedGetters), createNativeGetters(dateDerivedGetters);
 
   const PlainDateTimeRecordBranding = `${PlainDateTimeBranding}Record`;
 
@@ -1198,9 +1145,14 @@ var FullCalendar = (function (exports) {
   }
 
   function getCalendarRecordImplCreator(record) {
-    const getImpl = getCalendarSlots(record).Be;
+    const getImpl = getCalendarSlots(record).xe;
     return getImpl || throwRangeError(exoticCalendarRequired(getCalendarRecordId(record), "getExotic or getAny")), 
     getImpl;
+  }
+
+  function requireTimeZoneId(timeZoneId) {
+    return "string" == typeof timeZoneId && timeZoneId.includes("[") && throwRangeError(invalidTimeZone(timeZoneId)), 
+    timeZoneId;
   }
 
   function refineNativeCalendarArgMaybe(calendarRecord) {
@@ -1237,7 +1189,7 @@ var FullCalendar = (function (exports) {
   }
 
   function toZonedDateTime$1$1(record, timeZoneId, options) {
-    return createNativeZonedDateTimeRecord(getNativePlainDateTime(record).toZonedDateTime(timeZoneId, options));
+    return createNativeZonedDateTimeRecord(getNativePlainDateTime(record).toZonedDateTime(requireTimeZoneId(timeZoneId), options));
   }
 
   const getNativeZonedDateTime = getZonedDateTimeSlots;
@@ -1299,7 +1251,7 @@ var FullCalendar = (function (exports) {
   }
 
   function toZonedDateTimeISO$2(record, timeZoneId) {
-    return createNativeZonedDateTimeRecord(getNativeInstant(record).toZonedDateTimeISO(timeZoneId));
+    return createNativeZonedDateTimeRecord(getNativeInstant(record).toZonedDateTimeISO(requireTimeZoneId(timeZoneId)));
   }
 
   function refineShimCalendarArgMaybe(calendarRecord) {
@@ -1346,7 +1298,7 @@ var FullCalendar = (function (exports) {
   }
 
   function toZonedDateTime$1(record, timeZoneId, options) {
-    return createShimZonedDateTimeRecord(plainDateTimeToZonedDateTime(getShimPlainDateTimeSlots(record), queryTimeZone(refineTimeZoneId(timeZoneId)), options));
+    return createShimZonedDateTimeRecord(dateTimeToZonedDateTime(getShimPlainDateTimeSlots(record), queryTimeZone(refineTimeZoneId(timeZoneId)), refineEpochDisambigOptions(options)));
   }
 
   const getShimZonedDateTimeSlots = getZonedDateTimeSlots;
@@ -1359,10 +1311,10 @@ var FullCalendar = (function (exports) {
       return getShimZonedDateTimeSlots(this).timeZone.id;
     }
     get epochMilliseconds() {
-      return getEpochMilli(getShimZonedDateTimeSlots(this));
+      return epochNanoToMilli(getShimZonedDateTimeSlots(this).epochNanoseconds);
     }
     get epochNanoseconds() {
-      return getEpochNano(getShimZonedDateTimeSlots(this));
+      return getShimZonedDateTimeSlots(this).epochNanoseconds;
     }
     toJSON() {
       return formatZonedDateTimeIsoAuto(getShimZonedDateTimeSlots(this));
@@ -1393,10 +1345,10 @@ var FullCalendar = (function (exports) {
 
   const ShimInstantRecord = /*@__PURE__*/ defineTemporalClass(InstantRecordBranding, class {
     get epochMilliseconds() {
-      return getEpochMilli(getShimInstantSlots(this));
+      return epochNanoToMilli(getShimInstantSlots(this).epochNanoseconds);
     }
     get epochNanoseconds() {
-      return getEpochNano(getShimInstantSlots(this));
+      return getShimInstantSlots(this).epochNanoseconds;
     }
     toJSON() {
       return formatInstantIsoAuto(getShimInstantSlots(this));
@@ -2524,7 +2476,7 @@ var FullCalendar = (function (exports) {
       }
   }
 
-  var classNames = {"popoverZ":"fc-1U","isolate":"fc-1q","borderBoxRoot":"fc-pp","notAllowed":"fc-gm","noScrollbars":"fc-xp","noShrink":"fc-J9","calendarScreenRoot":"fc-oi","safeTiles":"fc-TV","calendarPrintRoot":"fc-OY","cursorPointer":"fc-ky","cursorResizeT":"fc-Wq","cursorResizeB":"fc-2H","cursorResizeS":"fc-lP","cursorResizeE":"fc-pu","cursorColResizer":"fc-Mo","hit":"fc-Bx","hitX":"fc-rT","hitY":"fc-1e","hitXSkinny":"fc-7U","selectNone":"fc-N6","invisible":"fc-BW","borderless":"fc-rf","borderlessX":"fc-Nq","borderlessY":"fc-zp","borderlessTop":"fc-1h","borderlessBottom":"fc-cZ","borderlessStart":"fc-G8","borderlessEnd":"fc-MA","flexRow":"fc-Dh","flexCol":"fc-vg","grow":"fc-85","liquid":"fc-91","minHeight0":"fc-Da","liquidX":"fc-1v","printTable":"fc-uR","noPadding":"fc-hF","noPaddingY":"fc-Ds","noMargin":"fc-TA","noMarginY":"fc-rt","noMarginX":"fc-wS","whiteSpaceNoWrap":"fc-mV","whiteSpacePre":"fc-zJ","overflowAnchorNone":"fc-Fk","pointerEventsNone":"fc-Ss","crop":"fc-D6","cropNowrap":"fc-5x","rel":"fc-DP","abs":"fc-P2","start0":"fc-5a","end0":"fc-lb","fill":"fc-0X","fillTop":"fc-9s","fillX":"fc-Gk","fillY":"fc-xh","fillStart":"fc-XV","sticky":"fc-XI","stickyT":"fc-7G","stickyS":"fc-Rw","tableHeaderSticky":"fc-yg","contentBox":"fc-2i","offscreen":"fc-o2","alignCenter":"fc-ih","alignStart":"fc-HJ","alignEnd":"fc-El","footerScrollbarSticky":"fc-nF","footerScrollbar":"fc-Or","breakInsideAvoid":"fc-6w","printCellContentMinHeight":"fc-9C","flowRoot":"fc-GJ","z0":"fc-d0","z1":"fc-Og","z2":"fc-BT","z3":"fc-XO","z4":"fc-e8","z5":"fc-sR","z1000":"fc-W4","z9999":"fc-eV","focusZ2":"fc-4U","internalTimelineSlot":"fc-YC","internalEvent":"fc-M0","internalEventMirror":"fc-N9","internalEventDraggable":"fc-41","internalEventSelected":"fc-vO","internalEventResizable":"fc-i0","internalEventResizer":"fc-Nc","internalEventResizerStart":"fc-hg","internalEventResizerEnd":"fc-dk","internalBgEvent":"fc-aw","internalMoreLink":"fc-kw","internalNavLink":"fc-Zy","internalPopover":"fc-ox","internalView":"fc-Q3","internalScroller":"fc-P4"};
+  var classNames = {"z0":"fc-5r","z1":"fc-de","z2":"fc-h9","z3":"fc-Ox","z4":"fc-4g","z5":"fc-zk","z1000":"fc-a0","z9999":"fc-ql","focusZ2":"fc-RJ","popoverZ":"fc-7k","isolate":"fc-tX","borderBoxRoot":"fc-Wz","notAllowed":"fc-NA","noScrollbars":"fc-vt","noShrink":"fc-YA","calendarScreenRoot":"fc-uw","safeTiles":"fc-De","calendarPrintRoot":"fc-ZA","cursorPointer":"fc-jF","cursorResizeT":"fc-TD","cursorResizeB":"fc-3Z","cursorResizeS":"fc-dx","cursorResizeE":"fc-ec","cursorColResizer":"fc-AA","hit":"fc-ai","hitX":"fc-bx","hitY":"fc-i9","hitXSkinny":"fc-hx","selectNone":"fc-fg","borderless":"fc-4z","borderlessX":"fc-ca","borderlessY":"fc-Zq","borderlessTop":"fc-Im","borderlessBottom":"fc-67","borderlessStart":"fc-MR","borderlessEnd":"fc-Y4","flexRow":"fc-lJ","flexCol":"fc-Xt","grow":"fc-0U","liquid":"fc-6W","minHeight0":"fc-jx","liquidX":"fc-p5","printTable":"fc-wU","noPadding":"fc-jj","noPaddingY":"fc-jf","noMargin":"fc-Kp","noMarginY":"fc-G5","noMarginX":"fc-Ut","whiteSpaceNoWrap":"fc-Eu","whiteSpacePre":"fc-Ex","overflowAnchorNone":"fc-FS","pointerEventsNone":"fc-A2","crop":"fc-ip","cropNowrap":"fc-i0","rel":"fc-hC","abs":"fc-My","start0":"fc-X7","end0":"fc-WB","fill":"fc-YR","fillTop":"fc-dz","fillX":"fc-Db","fillY":"fc-QB","fillStart":"fc-3q","sticky":"fc-Jx","stickyT":"fc-Gm","stickyS":"fc-HK","tableHeaderSticky":"fc-cF","contentBox":"fc-KX","offscreen":"fc-Gb","srOnly":"fc-8Z","alignCenter":"fc-Id","alignStart":"fc-PS","alignEnd":"fc-Ot","footerScrollbarSticky":"fc-Sm","footerScrollbar":"fc-Rw","breakInsideAvoid":"fc-AH","printCellContentMinHeight":"fc-Xq","flowRoot":"fc-sr","internalTimelineSlot":"fc-Lg","internalEvent":"fc-Bq","internalEventMirror":"fc-Nb","internalEventDraggable":"fc-Wg","internalEventSelected":"fc-nT","internalEventResizable":"fc-sK","internalEventResizer":"fc-LZ","internalEventResizerStart":"fc-k1","internalEventResizerEnd":"fc-CC","internalBgEvent":"fc-Wh","internalMoreLink":"fc-ju","internalNavLink":"fc-2b","internalPopover":"fc-bK","internalView":"fc-wB","internalScroller":"fc-TW"};
 
   function joinClassNames(...args) {
       return args.filter(Boolean).join(' ');
@@ -2776,6 +2728,74 @@ var FullCalendar = (function (exports) {
       };
   }
 
+  // TODO: new util arrayify?
+  // Array.prototype.slice.call(
+  function flatArray(items) {
+      const res = [];
+      for (const item of items) {
+          if (Array.isArray(item)) {
+              for (const subItem of item) {
+                  res.push(subItem);
+              }
+          }
+          else {
+              res.push(item);
+          }
+      }
+      return res;
+  }
+  function flatMapArray(inputs, mapFunc) {
+      const res = [];
+      for (let i = 0; i < inputs.length; i += 1) {
+          const output = mapFunc(inputs[i], i);
+          if (Array.isArray(output)) {
+              for (const subOutput of output) {
+                  res.push(subOutput);
+              }
+          }
+          else {
+              res.push(output);
+          }
+      }
+      return res;
+  }
+  function removeExact(array, exactItem) {
+      let removeCnt = 0;
+      let i = 0;
+      while (i < array.length) {
+          if (array[i] === exactItem) {
+              array.splice(i, 1);
+              removeCnt += 1;
+          }
+          else {
+              i += 1;
+          }
+      }
+      return removeCnt;
+  }
+  function isMaybeArraysEqual(array0, array1) {
+      if (Array.isArray(array0) && Array.isArray(array1)) {
+          return isArraysEqual(array0, array1);
+      }
+      return array0 === array1;
+  }
+  function isArraysEqual(array0, array1, itemsEqual = valuesIdentical) {
+      if (array0 === array1) {
+          return true;
+      }
+      let len = array0.length;
+      let i;
+      if (len !== array1.length) { // not array? or not same length?
+          return false;
+      }
+      for (i = 0; i < len; i += 1) {
+          if (!itemsEqual(array0[i], array1[i])) {
+              return false;
+          }
+      }
+      return true;
+  }
+
   const { hasOwnProperty } = Object.prototype;
   // Filter / Map
   // -------------------------------------------------------------------------------------------------
@@ -2857,6 +2877,27 @@ var FullCalendar = (function (exports) {
   function isPropsEqualShallow(props0, props1) {
       return isPropsEqualWithFunc(props0, props1, valuesIdentical);
   }
+  /*
+  For range inputs like { start, end }. Functions are compared by reference
+  */
+  function isMaybeDateRangeInputsEqual(range0, range1) {
+      if (typeof range0 === 'object' &&
+          typeof range1 === 'object' &&
+          range0 && range1 // both non-null objects
+      ) {
+          return isPropsEqualWithFunc(range0, range1, isDateInputsEqual);
+      }
+      return range0 === range1;
+  }
+  function isDateInputsEqual(input0, input1) {
+      if (input0 instanceof Date && input1 instanceof Date) {
+          return input0.valueOf() === input1.valueOf();
+      }
+      if (Array.isArray(input0) && Array.isArray(input1)) {
+          return isArraysEqual(input0, input1);
+      }
+      return input0 === input1;
+  }
   function isPropsEqualWithMap(props0, props1, equalityFuncMap) {
       return isPropsEqualWithFunc(props0, props1, (val0, val1, key) => {
           const equalityFunc = equalityFuncMap[key];
@@ -2928,398 +2969,1743 @@ var FullCalendar = (function (exports) {
       return Object.assign({}, props0, props1);
   }
 
-  // TODO: new util arrayify?
-  // Array.prototype.slice.call(
-  function flatArray(items) {
-      const res = [];
-      for (const item of items) {
-          if (Array.isArray(item)) {
-              for (const subItem of item) {
-                  res.push(subItem);
-              }
-          }
-          else {
-              res.push(item);
-          }
-      }
-      return res;
-  }
-  function flatMapArray(inputs, mapFunc) {
-      const res = [];
-      for (let i = 0; i < inputs.length; i += 1) {
-          const output = mapFunc(inputs[i], i);
-          if (Array.isArray(output)) {
-              for (const subOutput of output) {
-                  res.push(subOutput);
-              }
-          }
-          else {
-              res.push(output);
-          }
-      }
-      return res;
-  }
-  function removeExact(array, exactItem) {
-      let removeCnt = 0;
-      let i = 0;
-      while (i < array.length) {
-          if (array[i] === exactItem) {
-              array.splice(i, 1);
-              removeCnt += 1;
-          }
-          else {
-              i += 1;
-          }
-      }
-      return removeCnt;
-  }
-  function isMaybeArraysEqual(array0, array1) {
-      if (Array.isArray(array0) && Array.isArray(array1)) {
-          return isArraysEqual(array0, array1);
-      }
-      return array0 === array1;
-  }
-  function isArraysEqual(array0, array1, itemsEqual = valuesIdentical) {
-      if (array0 === array1) {
-          return true;
-      }
-      let len = array0.length;
-      let i;
-      if (len !== array1.length) { // not array? or not same length?
-          return false;
-      }
-      for (i = 0; i < len; i += 1) {
-          if (!itemsEqual(array0[i], array1[i])) {
-              return false;
-          }
-      }
-      return true;
-  }
-
   // base options
   // ------------
   const BASE_OPTION_REFINERS = {
+      /**
+       * What happens when the user clicks a day nav link: the name of a view to open, or a function
+       * receiving the date and native event. By default, the calendar switches to a day view, preferring
+       * one that has a toolbar button.
+       * @see https://fullcalendar.io/docs/navLinkDayClick
+       */
       navLinkDayClick: identity,
+      /**
+       * What happens when the user clicks a week nav link (a week number): the name of a view to open, or
+       * a function receiving the week's start date and native event. By default, the calendar switches to
+       * a week view, preferring one that has a toolbar button.
+       * @see https://fullcalendar.io/docs/navLinkWeekClick
+       */
       navLinkWeekClick: identity,
+      /**
+       * The exact length of a view's date range, as a Duration such as `{ days: 4 }`. Mainly used to
+       * define custom views.
+       * @see https://fullcalendar.io/docs/duration
+       */
       duration: createDuration,
+      /**
+       * Custom toolbar buttons, plus overrides for the built-in ones (`today`, `prev`, `next`, view
+       * buttons, and so on), keyed by name. Each entry can set the button's text, hint, click handler,
+       * icon, and display mode; reference the names in `headerToolbar` or `footerToolbar`.
+       * @see https://fullcalendar.io/docs/buttons
+       */
       buttons: identity,
+      /**
+       * Custom toolbar elements keyed by name, each a content injection input. Reference the names in
+       * `headerToolbar` or `footerToolbar` alongside buttons and `title`.
+       * @see https://fullcalendar.io/docs/toolbarElements
+       */
       toolbarElements: identity,
+      /**
+       * Text for the toolbar's `prev` button. Defined by the locale; only visible when the button
+       * displays text (see `buttonDisplay`).
+       */
       prevText: String,
+      /**
+       * Text for the toolbar's `next` button. Defined by the locale; only visible when the button
+       * displays text (see `buttonDisplay`).
+       */
       nextText: String,
+      /**
+       * Text for the toolbar's `prevYear` button. Defined by the locale; only visible when the button
+       * displays text (see `buttonDisplay`).
+       */
       prevYearText: String,
+      /**
+       * Text for the toolbar's `nextYear` button. Defined by the locale; only visible when the button
+       * displays text (see `buttonDisplay`).
+       */
       nextYearText: String,
+      /**
+       * Text for the toolbar's `today` button. Defined by the locale; only visible when the button
+       * displays text (see `buttonDisplay`).
+       */
       todayText: String,
+      /**
+       * Text for the word "year", used for buttons of year-long views and in navigation button hints.
+       * Defined by the locale.
+       */
       yearText: String,
+      /**
+       * Text for the word "month", used for buttons of month-long views and in navigation button hints.
+       * Defined by the locale.
+       */
       monthText: String,
+      /**
+       * Text for the word "week", used for buttons of week-long views, navigation button hints, and week
+       * numbers formatted with `week: 'long'`. Defined by the locale.
+       * @see https://fullcalendar.io/docs/weekTextLong
+       */
       weekTextLong: String,
+      /**
+       * The short label for week numbers, such as "W", used when week numbers are formatted with
+       * `week: 'short'` or `week: 'narrow'`. Defined by the locale.
+       * @see https://fullcalendar.io/docs/weekTextShort
+       */
       weekTextShort: String,
+      /**
+       * Text for the word "day", used for buttons of day-long views and in navigation button hints.
+       * Defined by the locale.
+       */
       dayText: String,
+      /**
+       * Text for the toolbar buttons of list views. If `false`, list view buttons use the text of their
+       * duration's unit, such as "Week". Defined by the locale.
+       */
       listText: identity,
+      /**
+       * The accessible label for the `today` button. A string where `$0` is replaced by the current
+       * unit's text (such as "month"), or a function receiving that text and the unit name. Defined by
+       * the locale.
+       */
       todayHint: identity,
+      /**
+       * The accessible label for the `prev` button, and for `prevYear` (with "year" as the text). A
+       * string where `$0` is replaced by the current unit's text (such as "month"), or a function
+       * receiving that text and the unit name. Defined by the locale.
+       */
       prevHint: identity,
+      /**
+       * The accessible label for the `next` button, and for `nextYear` (with "year" as the text). A
+       * string where `$0` is replaced by the current unit's text (such as "month"), or a function
+       * receiving that text and the unit name. Defined by the locale.
+       */
       nextHint: identity,
       // TODO: make type for hint input
+      /**
+       * Whether toolbar buttons show an icon, text, or both: `'auto'` (the default; an icon if the theme
+       * provides one, otherwise text), `'icon'`, `'text'`, `'icon-text'`, or `'text-icon'`. Individual
+       * buttons can override this via `buttons`.
+       * @see https://fullcalendar.io/docs/buttonDisplay
+       */
       buttonDisplay: identity,
+      /**
+       * Class names for buttons joined with commas in the toolbar setting (e.g. "prev,next"), shown as
+       * one group. A string, or a function that receives `ButtonGroupInfo` and returns one.
+       * @see https://fullcalendar.io/docs/toolbar-render-hooks
+       */
       buttonGroupClass: refineClassNameGenerator,
+      /**
+       * Class names for a single toolbar button, such as prev, next, today or a view name. A string, or a
+       * function that receives `ButtonInfo` and returns one.
+       * @see https://fullcalendar.io/docs/toolbar-render-hooks
+       */
       buttonClass: refineClassNameGenerator,
+      /**
+       * The duration assumed for all-day events that have no `end`. The event's actual `end` stays unset
+       * unless `forceEventDuration` is `true`.
+       * @see https://fullcalendar.io/docs/defaultAllDayEventDuration
+       */
       defaultAllDayEventDuration: createDuration,
+      /**
+       * The duration assumed for timed events that have no `end`. The event's actual `end` stays unset
+       * unless `forceEventDuration` is `true`.
+       * @see https://fullcalendar.io/docs/defaultTimedEventDuration
+       */
       defaultTimedEventDuration: createDuration,
+      /**
+       * How far a timed event must extend into a day before it is displayed on that day, as a Duration
+       * such as `'09:00'`. Applies to day-based layouts like DayGrid, list, and day-slotted timeline
+       * views, not TimeGrid.
+       * @see https://fullcalendar.io/docs/nextDayThreshold
+       */
       nextDayThreshold: createDuration,
+      /**
+       * The time of day the view is initially scrolled to in time-axis views, as a Duration such as
+       * `'08:00'`. Earlier times remain reachable by scrolling.
+       * @see https://fullcalendar.io/docs/scrollTime
+       */
       scrollTime: createDuration,
+      /**
+       * Whether the view scrolls back to `scrollTime` each time the date range changes.
+       * @see https://fullcalendar.io/docs/scrollTimeReset
+       */
       scrollTimeReset: Boolean,
+      /**
+       * The first time of day displayed in time-axis views, as a Duration such as `'08:00'`. Defaults to
+       * midnight.
+       * @see https://fullcalendar.io/docs/slotMinTime
+       */
       slotMinTime: createDuration,
+      /**
+       * The time of day at which time-axis views end, as an exclusive Duration such as `'18:00'`.
+       * Defaults to `'24:00'`.
+       * @see https://fullcalendar.io/docs/slotMaxTime
+       */
       slotMaxTime: createDuration,
+      /**
+       * The date format of the title in the "+more" event popover, as a date formatter.
+       * @see https://fullcalendar.io/docs/popoverFormat
+       */
       popoverFormat: createFormatter,
+      /**
+       * The length of each time slot in TimeGrid and timeline views, as a Duration such as `'00:15:00'`.
+       * @see https://fullcalendar.io/docs/slotDuration
+       */
       slotDuration: createDuration,
+      /**
+       * The time interval that dragged events and date selections snap to, as a Duration. Defaults to
+       * `slotDuration`.
+       * @see https://fullcalendar.io/docs/snapDuration
+       */
       snapDuration: createDuration,
+      /**
+       * The buttons and title displayed above the calendar. An object whose `start`, `center`, and
+       * `end` properties are strings like `'prev,next today'`. Omit or set `false` for no toolbar.
+       * @see https://fullcalendar.io/docs/headerToolbar
+       */
       headerToolbar: identity,
+      /**
+       * The buttons and title displayed below the calendar. Accepts the same values as `headerToolbar`;
+       * omit or set `false` for no footer toolbar.
+       * @see https://fullcalendar.io/docs/footerToolbar
+       */
       footerToolbar: identity,
+      /**
+       * Whether events without an `end` get one assigned, computed from `defaultTimedEventDuration` or
+       * `defaultAllDayEventDuration`.
+       * @see https://fullcalendar.io/docs/forceEventDuration
+       */
       forceEventDuration: Boolean,
       // TODO: move to timegrid
+      /**
+       * Class names for one day's vertical column of time slots, where its timed events appear. A string,
+       * or a function that receives `DayLaneInfo` and returns one.
+       * @see https://fullcalendar.io/docs/day-lane-render-hooks
+       */
       dayLaneClass: refineClassNameGenerator,
+      /**
+       * Class names for the wrapper inside a day lane that holds its timed events. A string, or a
+       * function that receives `DayLaneInfo` and returns one.
+       * @see https://fullcalendar.io/docs/day-lane-render-hooks
+       */
       dayLaneInnerClass: refineClassNameGenerator,
+      /**
+       * Called right after each `dayLane` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/day-lane-render-hooks
+       */
       dayLaneDidMount: identity,
+      /**
+       * Called right before each `dayLane` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/day-lane-render-hooks
+       */
       dayLaneWillUnmount: identity,
+      /**
+       * The view shown when the calendar first loads, such as `'dayGridMonth'` or `'timeGridWeek'`.
+       * If omitted, the default view of the first plugin that provides one is used.
+       * @see https://fullcalendar.io/docs/initialView
+       */
       initialView: String,
+      /**
+       * The width-to-height ratio of the calendar's view area, used to size the calendar when neither
+       * `height` nor `contentHeight` is set. Larger numbers make a shorter calendar.
+       * @see https://fullcalendar.io/docs/aspectRatio
+       */
       aspectRatio: Number,
+      /**
+       * Whether to include Saturday and Sunday in the calendar's views.
+       * @see https://fullcalendar.io/docs/weekends
+       */
       weekends: Boolean,
+      /**
+       * How week numbers are calculated: `'local'` (the locale's method, the default), `'ISO'`, or a
+       * function that receives a Date and returns a week number.
+       * @see https://fullcalendar.io/docs/weekNumberCalculation
+       */
       weekNumberCalculation: identity,
+      /**
+       * Whether to display week numbers: in each row of DayGrid views with more than one row, in the
+       * corner of TimeGrid views, and as a header row in timeline views with day or hour slots.
+       * @see https://fullcalendar.io/docs/weekNumbers
+       */
       weekNumbers: Boolean,
+      /**
+       * Class names for the corner cell above the time axis that shows the week number, in TimeGrid
+       * views. A string, or a function that receives `WeekNumberHeaderInfo` and returns one.
+       * @see https://fullcalendar.io/docs/week-number-header-render-hooks
+       */
       weekNumberHeaderClass: refineClassNameGenerator,
+      /**
+       * Class names for the text wrapper inside the week-number header. A string, or a function that
+       * receives `WeekNumberHeaderInfo` and returns one.
+       * @see https://fullcalendar.io/docs/week-number-header-render-hooks
+       */
       weekNumberHeaderInnerClass: refineClassNameGenerator,
+      /**
+       * Custom content for each `weekNumberHeader` part, injected inside it in place of its default
+       * content.
+       * @see https://fullcalendar.io/docs/week-number-header-render-hooks
+       */
       weekNumberHeaderContent: identity,
+      /**
+       * Called right after each `weekNumberHeader` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/week-number-header-render-hooks
+       */
       weekNumberHeaderDidMount: identity,
+      /**
+       * Called right before each `weekNumberHeader` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/week-number-header-render-hooks
+       */
       weekNumberHeaderWillUnmount: identity,
+      /**
+       * Class names for the week number shown inside the first day cell of each row, in day grids. A
+       * string, or a function that receives `InlineWeekNumberInfo` and returns one.
+       * @see https://fullcalendar.io/docs/inline-week-number-render-hooks
+       */
       inlineWeekNumberClass: refineClassNameGenerator,
+      /**
+       * Custom content for each `inlineWeekNumber` part, injected inside it in place of its default
+       * content.
+       * @see https://fullcalendar.io/docs/inline-week-number-render-hooks
+       */
       inlineWeekNumberContent: identity,
+      /**
+       * Called right after each `inlineWeekNumber` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/inline-week-number-render-hooks
+       */
       inlineWeekNumberDidMount: identity,
+      /**
+       * Called right before each `inlineWeekNumber` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/inline-week-number-render-hooks
+       */
       inlineWeekNumberWillUnmount: identity,
+      /**
+       * Whether events can be dragged and resized. Requires the interaction plugin. Use
+       * `eventStartEditable` or `eventDurationEditable` to control each separately.
+       * @see https://fullcalendar.io/docs/editable
+       */
       editable: Boolean,
       controller: identity,
+      /**
+       * Whether to display a marker at the current time in TimeGrid and timeline views. It repositions
+       * itself as time passes.
+       * @see https://fullcalendar.io/docs/nowIndicator
+       */
       nowIndicator: Boolean,
+      /**
+       * Whether the now indicator snaps to the start of the current time unit (such as the hour) instead
+       * of tracking the exact time. `'auto'` (the default) decides based on the view's slot duration.
+       */
       nowIndicatorSnap: identity,
+      /**
+       * Class names for the marker for the current time on the time axis. A string, or a function that
+       * receives `NowIndicatorHeaderInfo` and returns one.
+       * @see https://fullcalendar.io/docs/now-indicator-header-render-hooks
+       */
       nowIndicatorHeaderClass: refineClassNameGenerator,
+      /**
+       * Content rendered inside each `nowIndicatorHeader` part, which is otherwise empty.
+       * @see https://fullcalendar.io/docs/now-indicator-header-render-hooks
+       */
       nowIndicatorHeaderContent: identity,
+      /**
+       * Called right after each `nowIndicatorHeader` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/now-indicator-header-render-hooks
+       */
       nowIndicatorHeaderDidMount: identity,
+      /**
+       * Called right before each `nowIndicatorHeader` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/now-indicator-header-render-hooks
+       */
       nowIndicatorHeaderWillUnmount: identity,
+      /**
+       * Class names for the dot on the time axis beside the current-time line. A string only; functions
+       * are not accepted.
+       * @see https://fullcalendar.io/docs/now-indicator-dot-render-hooks
+       */
       nowIndicatorDotClass: refineClassName,
+      /**
+       * Class names for the line marking the current time across the slots. A string, or a function that
+       * receives `NowIndicatorLineInfo` and returns one.
+       * @see https://fullcalendar.io/docs/now-indicator-line-render-hooks
+       */
       nowIndicatorLineClass: refineClassNameGenerator,
+      /**
+       * Content rendered inside each `nowIndicatorLine` part, which is otherwise empty.
+       * @see https://fullcalendar.io/docs/now-indicator-line-render-hooks
+       */
       nowIndicatorLineContent: identity,
+      /**
+       * Called right after each `nowIndicatorLine` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/now-indicator-line-render-hooks
+       */
       nowIndicatorLineDidMount: identity,
+      /**
+       * Called right before each `nowIndicatorLine` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/now-indicator-line-render-hooks
+       */
       nowIndicatorLineWillUnmount: identity,
+      /**
+       * In month views, whether to render the dates from the previous and next months that fill out the
+       * first and last weeks. When `false`, those cells are blank and show no events.
+       * @see https://fullcalendar.io/docs/showNonCurrentDates
+       */
       showNonCurrentDates: Boolean,
+      /**
+       * Whether to fetch events only when the calendar needs dates it has not already fetched. When
+       * `false`, events are refetched whenever the view or date range changes.
+       * @see https://fullcalendar.io/docs/lazyFetching
+       */
       lazyFetching: Boolean,
+      /**
+       * The name of the query parameter that JSON feed requests use for the start of the requested range.
+       * Defaults to `'start'`.
+       * @see https://fullcalendar.io/docs/startParam
+       */
       startParam: String,
+      /**
+       * The name of the query parameter that JSON feed requests use for the exclusive end of the
+       * requested range. Defaults to `'end'`.
+       * @see https://fullcalendar.io/docs/endParam
+       */
       endParam: String,
+      /**
+       * The name of the query parameter that JSON feed requests use for the calendar's time zone. Not
+       * sent when `timeZone` is `'local'`. Defaults to `'timeZone'`.
+       * @see https://fullcalendar.io/docs/timeZoneParam
+       */
       timeZoneParam: String,
+      /**
+       * The time zone used to display and interpret dates: `'local'` (the default), `'UTC'`, or a
+       * named IANA time zone such as `'America/New_York'`.
+       * @see https://fullcalendar.io/docs/timeZone
+       */
       timeZone: String,
+      /**
+       * Locale definitions to make available to the calendar, such as imported locale files. The active
+       * one is chosen with `locale`.
+       * @see https://fullcalendar.io/docs/locale
+       */
       locales: identity,
+      /**
+       * The locale used for the calendar's text, date formats, first day of the week, and week numbering.
+       * A locale code such as `'es'` (it must be loaded via `locales` or imported globally), or a locale
+       * object.
+       * @see https://fullcalendar.io/docs/locale
+       */
       locale: identity,
+      /**
+       * How long, in milliseconds, an event takes to animate back to its original position after an
+       * unsuccessful drag.
+       * @see https://fullcalendar.io/docs/dragRevertDuration
+       */
       dragRevertDuration: Number,
+      /**
+       * Whether scroll containers automatically scroll when the pointer nears their edge while dragging
+       * an event or selecting dates.
+       * @see https://fullcalendar.io/docs/dragScroll
+       */
       dragScroll: Boolean,
+      /**
+       * Whether an event keeps roughly the same duration when dragged between the all-day section and the
+       * time slots. When `false`, its duration resets to `defaultAllDayEventDuration` or
+       * `defaultTimedEventDuration`.
+       * @see https://fullcalendar.io/docs/allDayMaintainDuration
+       */
       allDayMaintainDuration: Boolean,
+      /**
+       * Whether clicking elsewhere on the page clears the current date selection. See also
+       * `unselectCancel`.
+       * @see https://fullcalendar.io/docs/unselectAuto
+       */
       unselectAuto: Boolean,
+      /**
+       * Which external draggable elements may be dropped onto the calendar: a CSS selector, or a
+       * function that receives the draggable element and returns `true` to accept it.
+       * @see https://fullcalendar.io/docs/dropAccept
+       */
       dropAccept: identity, // TODO: type draggable
+      /**
+       * The sort order for events that occupy the same day or time: event field names (prefix with `-`
+       * for descending) as a comma-separated string or array, or a comparison function. Defaults to
+       * `'start,-duration,allDay,title'`.
+       * @see https://fullcalendar.io/docs/eventOrder
+       */
       eventOrder: parseFieldSpecs,
+      /**
+       * Whether to follow `eventOrder` strictly. By default, the order is relaxed when doing so makes the
+       * layout more compact.
+       * @see https://fullcalendar.io/docs/eventOrderStrict
+       */
       eventOrderStrict: Boolean,
+      /**
+       * Whether a multi-day event in a DayGrid view can be split around a "+more" link. When `false`, the
+       * whole event is hidden into the "+more" link if any of its days overflows.
+       * @see https://fullcalendar.io/docs/eventSlicing
+       */
       eventSlicing: Boolean, // default: true
+      /**
+       * How events are laid out in TimeGrid views when printing: `'auto'` (the default; stacked in
+       * browsers that print positioned elements poorly, such as Firefox), `'stack'`, or `'grid'`.
+       * Printing requires the premium adaptive plugin.
+       * @see https://fullcalendar.io/docs/eventPrintLayout
+       */
       eventPrintLayout: String,
+      /**
+       * On touch devices, how long in milliseconds the user must hold down before dragging an event or
+       * selecting dates. `eventLongPressDelay` and `selectLongPressDelay` override it for each case.
+       * @see https://fullcalendar.io/docs/longPressDelay
+       */
       longPressDelay: Number,
+      /**
+       * How many pixels the mouse must move before an event drag begins.
+       * @see https://fullcalendar.io/docs/eventDragMinDistance
+       */
       eventDragMinDistance: Number,
+      /**
+       * Whether the time slots of TimeGrid and resource timeline views stretch to fill the view's height
+       * when they would otherwise leave empty space.
+       * @see https://fullcalendar.io/docs/expandRows
+       */
       expandRows: Boolean,
+      /**
+       * The height of the whole calendar, including toolbars: a number of pixels, `'auto'` for the
+       * natural height with no scrolling, or any CSS value such as `'100%'`. If unset, the height is
+       * derived from `contentHeight` or `aspectRatio`.
+       * @see https://fullcalendar.io/docs/height
+       */
       height: identity,
+      /**
+       * The height of the calendar's view area, excluding toolbars: a number of pixels, a CSS value, or
+       * `'auto'` for the natural height with no scrolling. Ignored if `height` is set.
+       * @see https://fullcalendar.io/docs/contentHeight
+       */
       contentHeight: identity,
+      /**
+       * The text direction of the calendar: `'ltr'` or `'rtl'`. Defaults to the locale's direction.
+       * @see https://fullcalendar.io/docs/direction
+       */
       direction: String,
+      /**
+       * The calendar's color scheme, such as `'light'` or `'dark'`, applied to its root element,
+       * popovers, and drag mirrors as a `data-color-scheme` attribute. If unset, the scheme is inherited
+       * from an ancestor's `data-color-scheme` attribute.
+       * @see https://fullcalendar.io/docs/color-palettes
+       */
       colorScheme: String,
+      /**
+       * The date format of week number text, as a date formatter such as `{ week: 'narrow' }`. The label
+       * comes from `weekTextShort` or `weekTextLong`.
+       * @see https://fullcalendar.io/docs/weekNumberFormat
+       */
       weekNumberFormat: createFormatter,
+      /**
+       * Whether the user can resize an event from its starting edge, in addition to its ending edge.
+       * @see https://fullcalendar.io/docs/eventResizableFromStart
+       */
       eventResizableFromStart: Boolean,
+      /**
+       * Whether to display the time text of timed events. If unset, each view chooses its own default.
+       * @see https://fullcalendar.io/docs/displayEventTime
+       */
       displayEventTime: Boolean,
+      /**
+       * Whether to include the end time in an event's time text. If unset, each view chooses its own
+       * default.
+       * @see https://fullcalendar.io/docs/displayEventEnd
+       */
       displayEventEnd: Boolean,
+      /**
+       * Whether to render each event source as soon as it arrives, rather than waiting for all sources to
+       * finish fetching and rendering them together.
+       * @see https://fullcalendar.io/docs/progressiveEventRendering
+       */
       progressiveEventRendering: Boolean,
+      /**
+       * Highlights business hours and dims the rest. `true` uses Monday to Friday, 9am to 5pm; an object
+       * or array of objects with `daysOfWeek`, `startTime`, and `endTime` sets custom hours.
+       * @see https://fullcalendar.io/docs/businessHours
+       */
       businessHours: identity,
+      /**
+       * The date the calendar displays when it first loads, as anything that parses into a date, such as
+       * `'2026-02-01'`. Defaults to today.
+       * @see https://fullcalendar.io/docs/initialDate
+       */
       initialDate: identity,
+      /**
+       * The calendar's current date and time, used for "today" highlighting and the now indicator. A
+       * parsable date, or a function returning one. Defaults to the system clock.
+       * @see https://fullcalendar.io/docs/now
+       */
       now: identity,
+      /**
+       * A function that converts each raw event received from an event source into a parsable event
+       * object, or returns `false` to discard it. Not called for `addEvent`.
+       * @see https://fullcalendar.io/docs/eventDataTransform
+       */
       eventDataTransform: identity,
+      /**
+       * Whether the view's date headers stick to the top of the viewport while the page scrolls: `true`,
+       * `false`, or `'auto'` (the default; sticky when `height` or `contentHeight` is `'auto'`).
+       * @see https://fullcalendar.io/docs/tableHeaderSticky
+       */
       tableHeaderSticky: identity,
+      /**
+       * Whether a view's horizontal scrollbar sticks to the bottom of the viewport while the page
+       * scrolls: `true`, `false`, or `'auto'` (the default). It only sticks when `height` or
+       * `contentHeight` is `'auto'`, and `'auto'` turns it on in that case.
+       * @see https://fullcalendar.io/docs/footerScrollbarSticky
+       */
       footerScrollbarSticky: identity,
+      /**
+       * The `allDay` value assigned to events that do not specify one. If unset, `allDay` is guessed from
+       * the event's start and end values.
+       * @see https://fullcalendar.io/docs/defaultAllDay
+       */
       defaultAllDay: Boolean,
+      /**
+       * Called when fetching from an event source fails, with an error object. For JSON feeds, the
+       * error's `response` property holds the HTTP response.
+       * @see https://fullcalendar.io/docs/eventSourceFailure
+       */
       eventSourceFailure: identity,
+      /**
+       * Called when an event source fetch succeeds, with the raw event data and, for JSON feeds, the HTTP
+       * response. It may return a new array of event inputs to use instead.
+       * @see https://fullcalendar.io/docs/eventSourceSuccess
+       */
       eventSourceSuccess: identity,
+      /**
+       * The default rendering style for events: `'auto'`, `'block'`, `'list-item'`, `'background'`,
+       * `'inverse-background'`, or `'none'`. Event sources and individual events can override it with
+       * their `display` property.
+       * @see https://fullcalendar.io/docs/eventDisplay
+       */
       eventDisplay: String, // TODO: give more specific
+      /**
+       * Whether events can be dragged to change their start. Overrides `editable` for dragging; requires
+       * the interaction plugin.
+       * @see https://fullcalendar.io/docs/eventStartEditable
+       */
       eventStartEditable: Boolean,
+      /**
+       * Whether events can be resized to change their duration. Overrides `editable` for resizing;
+       * requires the interaction plugin.
+       * @see https://fullcalendar.io/docs/eventDurationEditable
+       */
       eventDurationEditable: Boolean,
+      /**
+       * Whether events being dragged or resized may overlap other events. `true`, `false`, or a function
+       * that receives the stationary and moving events and returns whether that overlap is allowed.
+       * @see https://fullcalendar.io/docs/eventOverlap
+       */
       eventOverlap: identity,
+      /**
+       * Limits where events can be dragged or resized: an event `groupId`, `'businessHours'`, or an
+       * object describing a time window or date range that the event must stay within.
+       * @see https://fullcalendar.io/docs/eventConstraint
+       */
       eventConstraint: identity,
+      /**
+       * A function that decides whether an event may be dragged or resized to a given location. It
+       * receives the proposed date span and the event, and returns `true` to allow it.
+       * @see https://fullcalendar.io/docs/eventAllow
+       */
       eventAllow: identity,
+      /**
+       * The color of all foreground events, as any CSS color. Event sources and individual events can
+       * override it with their `color` property.
+       * @see https://fullcalendar.io/docs/eventColor
+       */
       eventColor: String,
+      /**
+       * The color used for text and other elements drawn on top of events' color, as any CSS color. Event
+       * sources and individual events can override it with their `contrastColor` property.
+       * @see https://fullcalendar.io/docs/eventContrastColor
+       */
       eventContrastColor: String,
+      /**
+       * Called right after each `event` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/event-render-hooks
+       */
       eventDidMount: identity,
+      /**
+       * Called right before each `event` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/event-render-hooks
+       */
       eventWillUnmount: identity,
+      /**
+       * Custom content for each event, rendered as the content of its `eventInner` element in place of
+       * the default time and title.
+       * @see https://fullcalendar.io/docs/event-render-hooks
+       */
       eventContent: identity,
+      /**
+       * Class names for every foreground event, in any view. More specific options also apply:
+       * `blockEventClass` plus `rowEventClass` or `columnEventClass` for block events, or
+       * `listItemEventClass` for list-item events. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/event-render-hooks
+       */
       eventClass: refineClassNameGenerator,
+      /**
+       * Class names for the wrapper around an event's time and title. A string, or a function that
+       * receives `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/event-render-hooks
+       */
       eventInnerClass: refineClassNameGenerator,
+      /**
+       * Class names for an event's time text. A string, or a function that receives `EventTextInfo` and
+       * returns one.
+       * @see https://fullcalendar.io/docs/event-render-hooks
+       */
       eventTimeClass: refineClassNameGenerator,
+      /**
+       * Class names for an event's title text. A string, or a function that receives `EventTextInfo` and
+       * returns one.
+       * @see https://fullcalendar.io/docs/event-render-hooks
+       */
       eventTitleClass: refineClassNameGenerator,
+      /**
+       * Class names for an element before an event's content, used for decoration and as the start
+       * resize handle. Rendered only when it has class names, or content from `rowEventBeforeContent` in
+       * row events. A string, or a function that receives `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/event-render-hooks
+       */
       eventBeforeClass: refineClassNameGenerator,
+      /**
+       * Class names for an element after an event's content, used for decoration and as the end resize
+       * handle. Rendered only when it has class names, or content from `rowEventAfterContent` in row
+       * events. A string, or a function that receives `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/event-render-hooks
+       */
       eventAfterClass: refineClassNameGenerator,
       //
+      /**
+       * Class names for a bullet-point event with a colored dot: single-day timed events in DayGrid
+       * views (or any event with `display: 'list-item'`), and every event in list views. A string, or a
+       * function that receives `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/list-item-event-render-hooks
+       */
       listItemEventClass: refineClassNameGenerator,
+      /**
+       * Class names for the content wrapper of a list item event. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/list-item-event-render-hooks
+       */
       listItemEventInnerClass: refineClassNameGenerator,
+      /**
+       * Class names for the time text of a list item event. A string, or a function that receives
+       * `EventTextInfo` and returns one.
+       * @see https://fullcalendar.io/docs/list-item-event-render-hooks
+       */
       listItemEventTimeClass: refineClassNameGenerator,
+      /**
+       * Class names for the title text of a list item event. A string, or a function that receives
+       * `EventTextInfo` and returns one.
+       * @see https://fullcalendar.io/docs/list-item-event-render-hooks
+       */
       listItemEventTitleClass: refineClassNameGenerator,
+      /**
+       * Class names for the before element of a list item event. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/list-item-event-render-hooks
+       */
       listItemEventBeforeClass: refineClassNameGenerator,
+      /**
+       * Class names for the after element of a list item event. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/list-item-event-render-hooks
+       */
       listItemEventAfterClass: refineClassNameGenerator,
       //
+      /**
+       * Class names for a color-filled rectangular event: every event except list items. A string, or a
+       * function that receives `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/block-event-render-hooks
+       */
       blockEventClass: refineClassNameGenerator,
+      /**
+       * Class names for the content wrapper of a block event. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/block-event-render-hooks
+       */
       blockEventInnerClass: refineClassNameGenerator,
+      /**
+       * Class names for the time text of a block event. A string, or a function that receives
+       * `EventTextInfo` and returns one.
+       * @see https://fullcalendar.io/docs/block-event-render-hooks
+       */
       blockEventTimeClass: refineClassNameGenerator,
+      /**
+       * Class names for the title text of a block event. A string, or a function that receives
+       * `EventTextInfo` and returns one.
+       * @see https://fullcalendar.io/docs/block-event-render-hooks
+       */
       blockEventTitleClass: refineClassNameGenerator,
+      /**
+       * Class names for the before element of a block event. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/block-event-render-hooks
+       */
       blockEventBeforeClass: refineClassNameGenerator,
+      /**
+       * Class names for the after element of a block event. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/block-event-render-hooks
+       */
       blockEventAfterClass: refineClassNameGenerator,
       //
+      /**
+       * Class names for a horizontal bar event: all-day and multi-day events in day grids, all-day events
+       * in time grids, and timeline events. A string, or a function that receives `EventDisplayInfo` and
+       * returns one.
+       * @see https://fullcalendar.io/docs/row-event-render-hooks
+       */
       rowEventClass: refineClassNameGenerator,
+      /**
+       * Class names for the content wrapper of a row event. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/row-event-render-hooks
+       */
       rowEventInnerClass: refineClassNameGenerator,
+      /**
+       * Class names for the time text of a row event, when it shows one. A string, or a function that
+       * receives `EventTextInfo` and returns one.
+       * @see https://fullcalendar.io/docs/row-event-render-hooks
+       */
       rowEventTimeClass: refineClassNameGenerator,
+      /**
+       * Class names for the title text of a row event. A string, or a function that receives
+       * `EventTextInfo` and returns one.
+       * @see https://fullcalendar.io/docs/row-event-render-hooks
+       */
       rowEventTitleClass: refineClassNameGenerator,
+      /**
+       * Whether a row event's title stays in view when the event is partly scrolled out horizontally, for
+       * example in timeline views.
+       * @see https://fullcalendar.io/docs/row-event-render-hooks
+       */
       rowEventTitleSticky: Boolean,
+      /**
+       * Class names for the before element of a row event. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/row-event-render-hooks
+       */
       rowEventBeforeClass: refineClassNameGenerator,
+      /**
+       * Content rendered inside each row event's `rowEventBefore` element, which is otherwise empty.
+       * @see https://fullcalendar.io/docs/row-event-render-hooks
+       */
       rowEventBeforeContent: identity,
+      /**
+       * Class names for the after element of a row event. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/row-event-render-hooks
+       */
       rowEventAfterClass: refineClassNameGenerator,
+      /**
+       * Content rendered inside each row event's `rowEventAfter` element, which is otherwise empty.
+       * @see https://fullcalendar.io/docs/row-event-render-hooks
+       */
       rowEventAfterContent: identity,
       //
+      /**
+       * Class names for a vertical event in a day lane: timed events in time grids. A string, or a
+       * function that receives `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/column-event-render-hooks
+       */
       columnEventClass: refineClassNameGenerator,
+      /**
+       * Class names for the content wrapper of a column event. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/column-event-render-hooks
+       */
       columnEventInnerClass: refineClassNameGenerator,
+      /**
+       * Class names for the time text of a column event. A string, or a function that receives
+       * `EventTextInfo` and returns one.
+       * @see https://fullcalendar.io/docs/column-event-render-hooks
+       */
       columnEventTimeClass: refineClassNameGenerator,
+      /**
+       * Class names for the title text of a column event. A string, or a function that receives
+       * `EventTextInfo` and returns one.
+       * @see https://fullcalendar.io/docs/column-event-render-hooks
+       */
       columnEventTitleClass: refineClassNameGenerator,
+      /**
+       * Whether a column event's title stays in view when the event is partly scrolled out vertically, in
+       * TimeGrid views.
+       * @see https://fullcalendar.io/docs/column-event-render-hooks
+       */
       columnEventTitleSticky: Boolean,
+      /**
+       * Class names for the before element of a column event. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/column-event-render-hooks
+       */
       columnEventBeforeClass: refineClassNameGenerator,
+      /**
+       * Class names for the after element of a column event. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/column-event-render-hooks
+       */
       columnEventAfterClass: refineClassNameGenerator,
       //
+      /**
+       * Class names for a background event: shading behind a day or time range. A string, or a function
+       * that receives `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/background-event-render-hooks
+       */
       backgroundEventClass: refineClassNameGenerator,
+      /**
+       * Called right after each `backgroundEvent` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/background-event-render-hooks
+       */
       backgroundEventDidMount: identity,
+      /**
+       * Called right before each `backgroundEvent` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/background-event-render-hooks
+       */
       backgroundEventWillUnmount: identity,
+      /**
+       * Custom content for each `backgroundEvent` part, injected inside it in place of its default
+       * content.
+       * @see https://fullcalendar.io/docs/background-event-render-hooks
+       */
       backgroundEventContent: identity,
+      /**
+       * Class names for the wrapper inside a background event. A string, or a function that receives
+       * `EventDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/background-event-render-hooks
+       */
       backgroundEventInnerClass: refineClassNameGenerator,
+      /**
+       * Class names for a background event's title text, where shown. A string, or a function that
+       * receives `EventTextInfo` and returns one.
+       * @see https://fullcalendar.io/docs/background-event-render-hooks
+       */
       backgroundEventTitleClass: refineClassNameGenerator,
+      /**
+       * The color of all background events, as any CSS color.
+       * @see https://fullcalendar.io/docs/backgroundEventColor
+       */
       backgroundEventColor: String,
+      /**
+       * Limits where the user can select dates: an event `groupId`, `'businessHours'`, or an object
+       * describing a time window or date range that the selection must stay within.
+       * @see https://fullcalendar.io/docs/selectConstraint
+       */
       selectConstraint: identity,
+      /**
+       * Whether the user may select a range that overlaps events. `true`, `false`, or a function that
+       * receives each overlapping event and returns whether that overlap is allowed.
+       * @see https://fullcalendar.io/docs/selectOverlap
+       */
       selectOverlap: identity,
+      /**
+       * A function that decides whether a potential date selection is allowed. It receives information
+       * about the selection and returns `true` to allow it.
+       * @see https://fullcalendar.io/docs/selectAllow
+       */
       selectAllow: identity,
+      /**
+       * Whether events dragged from other calendars can be dropped onto this one. Also requires
+       * `editable` and the interaction plugin. External draggable elements can be dropped regardless of
+       * this setting; filter them with `dropAccept`.
+       * @see https://fullcalendar.io/docs/droppable
+       */
       droppable: Boolean,
+      /**
+       * A CSS selector for elements that do not clear the current date selection when clicked, despite
+       * `unselectAuto`.
+       * @see https://fullcalendar.io/docs/unselectCancel
+       */
       unselectCancel: String,
+      /**
+       * The date format of time slot labels in TimeGrid and timeline views. Timeline views also accept an
+       * array of formats, one per header row.
+       * @see https://fullcalendar.io/docs/slotHeaderFormat
+       */
       slotHeaderFormat: identity,
+      /**
+       * Class names for one time slot's long strip: across all days in a time grid, down through all
+       * resources in a timeline. A string, or a function that receives `SlotLaneInfo` and returns one.
+       * @see https://fullcalendar.io/docs/slot-lane-render-hooks
+       */
       slotLaneClass: refineClassNameGenerator,
+      /**
+       * Called right after each `slotLane` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/slot-lane-render-hooks
+       */
       slotLaneDidMount: identity,
+      /**
+       * Called right before each `slotLane` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/slot-lane-render-hooks
+       */
       slotLaneWillUnmount: identity,
+      /**
+       * Class names for one time label: on the left of a time grid, or along the top of a timeline. A
+       * string, or a function that receives `SlotHeaderInfo` and returns one.
+       * @see https://fullcalendar.io/docs/slot-header-render-hooks
+       */
       slotHeaderClass: refineClassNameGenerator,
+      /**
+       * Class names for the text wrapper inside a time label; may be a nav link in timelines. A string,
+       * or a function that receives `SlotHeaderInfo` and returns one.
+       * @see https://fullcalendar.io/docs/slot-header-render-hooks
+       */
       slotHeaderInnerClass: refineClassNameGenerator,
+      /**
+       * Custom content for each `slotHeader` part, injected inside it in place of its default content.
+       * @see https://fullcalendar.io/docs/slot-header-render-hooks
+       */
       slotHeaderContent: identity,
+      /**
+       * Called right after each `slotHeader` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/slot-header-render-hooks
+       */
       slotHeaderDidMount: identity,
+      /**
+       * Called right before each `slotHeader` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/slot-header-render-hooks
+       */
       slotHeaderWillUnmount: identity,
+      /**
+       * The horizontal alignment of slot header text in timeline views: `'start'`, `'center'`, or
+       * `'end'`, or a function of the header's `level` and `isTime` that returns one.
+       * @see https://fullcalendar.io/docs/slot-header-render-hooks
+       */
       slotHeaderAlign: identity,
+      /**
+       * In timeline views, whether the labels in the upper slot header rows (such as the dates above the
+       * times) stay in view while scrolling horizontally. A number or CSS length sets their offset from
+       * the edge.
+       * @see https://fullcalendar.io/docs/slot-header-render-hooks
+       */
       slotHeaderSticky: identity,
+      /**
+       * Class names for the row of time labels above a timeline. A string only; functions are not
+       * accepted.
+       * @see https://fullcalendar.io/docs/slot-header-row-render-hooks
+       */
       slotHeaderRowClass: refineClassName,
+      /**
+       * Class names for the line between the time labels and the slots. A string, or a function of the
+       * part's info that returns one.
+       * @see https://fullcalendar.io/docs/slot-header-divider-render-hooks
+       */
       slotHeaderDividerClass: refineClassNameGenerator,
+      /**
+       * The maximum number of events to show in a day cell, not counting the "+more" link that reveals
+       * the rest in a popover. If `true`, the limit is determined by the height of the cell (in
+       * TimeGrid's all-day section, five rows).
+       * @see https://fullcalendar.io/docs/dayMaxEvents
+       */
       dayMaxEvents: identity,
+      /**
+       * The maximum number of event rows in a day cell, including the "+more" link that reveals the rest
+       * in a popover. If `true`, the limit is determined by the height of the cell (in TimeGrid's all-day
+       * section, five rows).
+       * @see https://fullcalendar.io/docs/dayMaxEventRows
+       */
       dayMaxEventRows: identity,
+      /**
+       * A minimum width in pixels for day columns in DayGrid, TimeGrid, and vertical resource views;
+       * below it, the view scrolls horizontally. Requires the premium scrollgrid plugin.
+       * @see https://fullcalendar.io/docs/dayMinWidth
+       */
       dayMinWidth: Number,
+      /**
+       * How often time slots are labeled, as a Duration such as `'01:00'`. If unset, an interval is
+       * computed from `slotDuration`.
+       * @see https://fullcalendar.io/docs/slotHeaderInterval
+       */
       slotHeaderInterval: createDuration,
       // in core because more-popover needs it
+      /**
+       * Class names for a header cell naming one day of the week or one date, above its column. Also the
+       * date heading in the "+more" popover. A string, or a function that receives `DayHeaderInfo` and
+       * returns one.
+       * @see https://fullcalendar.io/docs/day-header-render-hooks
+       */
       dayHeaderClass: refineClassNameGenerator,
+      /**
+       * Class names for the text wrapper inside a day header; may be a nav link. A string, or a function
+       * that receives `DayHeaderInfo` and returns one.
+       * @see https://fullcalendar.io/docs/day-header-render-hooks
+       */
       dayHeaderInnerClass: refineClassNameGenerator,
+      /**
+       * Custom content for each `dayHeader` part, injected inside it in place of its default content.
+       * @see https://fullcalendar.io/docs/day-header-render-hooks
+       */
       dayHeaderContent: identity,
+      /**
+       * Called right after each `dayHeader` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/day-header-render-hooks
+       */
       dayHeaderDidMount: identity,
+      /**
+       * Called right before each `dayHeader` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/day-header-render-hooks
+       */
       dayHeaderWillUnmount: identity,
+      /**
+       * The horizontal alignment of day header text: `'start'`, `'center'`, or `'end'`, or a function of
+       * the header's `level`, `inPopover`, and `isNarrow` that returns one. Themes set their own default.
+       * @see https://fullcalendar.io/docs/day-header-render-hooks
+       */
       dayHeaderAlign: identity,
       // stickiness for cell-inner-contents laterally. experimental settings
       _dayHeaderSticky: identity,
+      /**
+       * Class names for the row of day headers above the grid. A string only; functions are not accepted.
+       * @see https://fullcalendar.io/docs/day-header-row-render-hooks
+       */
       dayHeaderRowClass: refineClassName,
+      /**
+       * Class names for the line between the day headers and the grid body. A string, or a function that
+       * receives `DayHeaderDividerInfo` and returns one.
+       * @see https://fullcalendar.io/docs/day-header-divider-render-hooks
+       */
       dayHeaderDividerClass: refineClassNameGenerator,
+      /**
+       * Class names for one horizontal row of day cells, usually a week. A string only; functions are not
+       * accepted.
+       * @see https://fullcalendar.io/docs/day-row-render-hooks
+       */
       dayRowClass: refineClassName,
+      /**
+       * Called right after each `dayCell` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/day-cell-render-hooks
+       */
       dayCellDidMount: identity,
+      /**
+       * Called right before each `dayCell` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/day-cell-render-hooks
+       */
       dayCellWillUnmount: identity,
+      /**
+       * Class names for one day's cell in a day grid, holding its date number and its events. Also the
+       * body of the "+more" popover. A string, or a function that receives `DayCellInfo` and returns one.
+       * @see https://fullcalendar.io/docs/day-cell-render-hooks
+       */
       dayCellClass: refineClassNameGenerator,
+      /**
+       * Class names for the middle of a day cell, where its events are stacked. A string, or a function
+       * that receives `DayCellInfo` and returns one.
+       * @see https://fullcalendar.io/docs/day-cell-render-hooks
+       */
       dayCellInnerClass: refineClassNameGenerator,
+      /**
+       * Custom content for each `dayCellTop` part, injected inside it in place of its default content.
+       * @see https://fullcalendar.io/docs/day-cell-render-hooks
+       */
       dayCellTopContent: identity,
+      /**
+       * Class names for the top of a day cell, where the date number appears. A string, or a function
+       * that receives `DayCellInfo` and returns one.
+       * @see https://fullcalendar.io/docs/day-cell-render-hooks
+       */
       dayCellTopClass: refineClassNameGenerator,
+      /**
+       * Class names for the date number inside a day cell's top; may be a nav link. A string, or a
+       * function that receives `DayCellInfo` and returns one.
+       * @see https://fullcalendar.io/docs/day-cell-render-hooks
+       */
       dayCellTopInnerClass: refineClassNameGenerator,
+      /**
+       * Class names for the bottom of a day cell, where the "+more" link would sit. A string, or a
+       * function that receives `DayCellInfo` and returns one.
+       * @see https://fullcalendar.io/docs/day-cell-render-hooks
+       */
       dayCellBottomClass: refineClassNameGenerator,
+      /**
+       * Whether TimeGrid views show the all-day section at the top. When `false`, all-day events are
+       * not displayed in those views.
+       * @see https://fullcalendar.io/docs/allDaySlot
+       */
       allDaySlot: Boolean,
+      /**
+       * The label for the all-day section of TimeGrid views, also used as the time text of all-day events
+       * in list views. Defined by the locale.
+       */
       allDayText: String,
+      /**
+       * Class names for the cell to the left of the all-day row, labeling it ("all-day"). A string, or a
+       * function that receives `AllDayHeaderInfo` and returns one.
+       * @see https://fullcalendar.io/docs/all-day-header-render-hooks
+       */
       allDayHeaderClass: refineClassNameGenerator,
+      /**
+       * Class names for the text wrapper inside the all-day header. A string, or a function that receives
+       * `AllDayHeaderInfo` and returns one.
+       * @see https://fullcalendar.io/docs/all-day-header-render-hooks
+       */
       allDayHeaderInnerClass: refineClassNameGenerator,
+      /**
+       * Custom content for each `allDayHeader` part, injected inside it in place of its default content.
+       * @see https://fullcalendar.io/docs/all-day-header-render-hooks
+       */
       allDayHeaderContent: identity,
+      /**
+       * Called right after each `allDayHeader` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/all-day-header-render-hooks
+       */
       allDayHeaderDidMount: identity,
+      /**
+       * Called right before each `allDayHeader` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/all-day-header-render-hooks
+       */
       allDayHeaderWillUnmount: identity,
+      /**
+       * A screen-reader label for the timed section of TimeGrid views. Defined by the locale.
+       */
       timedText: String,
+      /**
+       * The minimum width in pixels of each time slot in timeline views. If unset, a width is computed
+       * automatically.
+       * @see https://fullcalendar.io/docs/slotMinWidth
+       */
       slotMinWidth: Number,
+      /**
+       * The minimum height in pixels of each time slot in TimeGrid views. Slots are never shorter than
+       * their content requires.
+       * @see https://fullcalendar.io/docs/slotMinHeight
+       */
       slotMinHeight: Number,
+      /**
+       * Whether day names, dates, and week numbers become links that navigate to a day or week view. Use
+       * `navLinkDayClick` and `navLinkWeekClick` to customize the destination.
+       * @see https://fullcalendar.io/docs/navLinks
+       */
       navLinks: Boolean,
+      /**
+       * The date format of the time text shown on events, as a date formatter. Each view has its own
+       * default.
+       * @see https://fullcalendar.io/docs/eventTimeFormat
+       */
       eventTimeFormat: createFormatter,
+      /**
+       * How many milliseconds to wait after a change before rerendering, so that rapid successive changes
+       * are batched into one render. Off by default. Ignored by the React and Preact components, which
+       * rerender when their framework does.
+       * @see https://fullcalendar.io/docs/rerenderDelay
+       */
       rerenderDelay: Number, // TODO: move to vanilla right? nah keep here
+      /**
+       * The text after the count in "+more" links, such as "more" in "+2 more", or a function that
+       * receives the count and returns the full text. Defined by the locale.
+       */
       moreLinkText: identity, // this not enforced :( check others too
+      /**
+       * The accessible label for "+more" links. A string where `$0` is replaced by the number of hidden
+       * events, or a function that receives that number. Defined by the locale.
+       * @see https://fullcalendar.io/docs/hints
+       */
       moreLinkHint: identity,
+      /**
+       * How many pixels the mouse must move after pressing before a date selection begins. Useful for
+       * telling a selection apart from a `dateClick`.
+       * @see https://fullcalendar.io/docs/selectMinDistance
+       */
       selectMinDistance: Number,
+      /**
+       * Whether the user can select dates or time slots by clicking and dragging. Requires the
+       * interaction plugin.
+       * @see https://fullcalendar.io/docs/selectable
+       */
       selectable: Boolean,
+      /**
+       * On touch devices, how long in milliseconds the user must hold down before a date selection
+       * begins. Defaults to `longPressDelay`.
+       * @see https://fullcalendar.io/docs/selectLongPressDelay
+       */
       selectLongPressDelay: Number,
+      /**
+       * On touch devices, how long in milliseconds the user must hold down on an event before it can be
+       * dragged. Defaults to `longPressDelay`.
+       * @see https://fullcalendar.io/docs/eventLongPressDelay
+       */
       eventLongPressDelay: Number,
+      /**
+       * Whether to draw a placeholder event while the user drags to select time slots, instead of only
+       * highlighting them. Applies to TimeGrid views.
+       * @see https://fullcalendar.io/docs/selectMirror
+       */
       selectMirror: Boolean,
+      /**
+       * The maximum number of events stacked side by side in TimeGrid views, or top to bottom in timeline
+       * views, before the rest are collapsed into a "+more" link. Unlimited if unset.
+       * @see https://fullcalendar.io/docs/eventMaxStack
+       */
       eventMaxStack: Number,
+      /**
+       * The minimum height in pixels of events in TimeGrid views.
+       * @see https://fullcalendar.io/docs/eventMinHeight
+       */
       eventMinHeight: Number,
+      /**
+       * The minimum width in pixels of events in timeline views.
+       * @see https://fullcalendar.io/docs/eventMinWidth
+       */
       eventMinWidth: Number,
+      /**
+       * The height in pixels below which an event in a TimeGrid view gets its compact "short" layout.
+       * @see https://fullcalendar.io/docs/eventShortHeight
+       */
       eventShortHeight: Number,
+      /**
+       * Whether timed events in TimeGrid views may visually overlap one another. When `false`, they are
+       * placed fully side by side.
+       * @see https://fullcalendar.io/docs/slotEventOverlap
+       */
       slotEventOverlap: Boolean,
+      /**
+       * The day each week begins on, where Sunday is `0`, Monday is `1`, and so on. Defaults to the
+       * locale's first day, or Monday when `weekNumberCalculation` is `'ISO'`.
+       * @see https://fullcalendar.io/docs/firstDay
+       */
       firstDay: Number,
+      /**
+       * The number of visible days a view displays; days hidden by `weekends` or `hiddenDays` are
+       * skipped and not counted. Mainly used to define custom views.
+       * @see https://fullcalendar.io/docs/dayCount
+       */
       dayCount: Number,
+      /**
+       * The unit a custom view's start date is aligned to, such as `'week'` or `'month'`. If unset, it is
+       * derived from the view's duration; ignored when `visibleRange` is set.
+       * @see https://fullcalendar.io/docs/dateAlignment
+       */
       dateAlignment: String,
+      /**
+       * How far the calendar moves when navigating to the previous or next period, as a Duration.
+       * Defaults to the view's duration.
+       * @see https://fullcalendar.io/docs/dateIncrement
+       */
       dateIncrement: createDuration,
+      /**
+       * Days of the week to hide, as an array of numbers where Sunday is `0`, Monday is `1`, and so on.
+       * @see https://fullcalendar.io/docs/hiddenDays
+       */
       hiddenDays: identity,
+      /**
+       * Whether month views always display six weeks. If `false`, each month shows four, five, or six
+       * weeks, depending on how many it spans.
+       * @see https://fullcalendar.io/docs/fixedWeekCount
+       */
       fixedWeekCount: Boolean,
+      /**
+       * Limits which dates the user can navigate to and where events can be placed: an object with
+       * `start` and/or `end` dates, or a function that receives today's date and returns one. Dates
+       * outside the range are disabled.
+       * @see https://fullcalendar.io/docs/validRange
+       */
       validRange: identity, // `this` works?
+      /**
+       * The exact date range a view displays: an object with `start` and exclusive `end` dates, or a
+       * function that receives the calendar's current date (the one navigated to) and returns one.
+       * @see https://fullcalendar.io/docs/visibleRange
+       */
       visibleRange: identity, // `this` works?
+      /**
+       * The date format of the toolbar title, as a date formatter. Each view has its own default.
+       * @see https://fullcalendar.io/docs/titleFormat
+       */
       titleFormat: identity,
+      /**
+       * Whether events are focusable and keyboard-activatable. When unset, each event's own
+       * `interactive` property decides, falling back to whether an `eventClick` handler is defined.
+       * Events with a `url` are always interactive.
+       * @see https://fullcalendar.io/docs/eventInteractive
+       */
       eventInteractive: Boolean,
       // only used by list-view, but languages define the value, so we need it in base options
+      /**
+       * The message list views display when there are no events in the date range. Defined by the locale.
+       * @see https://fullcalendar.io/docs/no-events-render-hooks
+       */
       noEventsText: String,
+      /**
+       * The accessible label for toolbar buttons that switch views. A string where `$0` is replaced by
+       * the button text, or a function that receives the button text and view name. Defined by the
+       * locale.
+       * @see https://fullcalendar.io/docs/hints
+       */
       viewHint: identity,
+      /**
+       * The accessible label for a toolbar button group made only of view buttons. Defined by the locale.
+       */
       viewChangeHint: String, // for the tab container
+      /**
+       * The accessible label for nav links. A string where `$0` is replaced by the formatted date, or a
+       * function that receives that text and the Date. Defined by the locale.
+       * @see https://fullcalendar.io/docs/hints
+       */
       navLinkHint: identity,
+      /**
+       * The accessible label for the close button of the "+more" event popover. Defined by the locale.
+       * @see https://fullcalendar.io/docs/hints
+       */
       closeHint: String,
+      /**
+       * The accessible label for a group of events, such as each day's events in list views and the
+       * events area of timeline views. Defined by the locale.
+       */
       eventsHint: String,
+      /**
+       * The heading level of the toolbar title, applied as `aria-level` (`2` makes it act like an
+       * `<h2>`), so it fits the page's heading hierarchy.
+       * @see https://fullcalendar.io/docs/headingLevel
+       */
       headingLevel: Number,
+      /**
+       * What happens when the user clicks a "+more" link: `'popover'` (the default), `'week'`, `'day'`, a
+       * view name, or a function that receives information about the hidden events and may return one of
+       * those values.
+       * @see https://fullcalendar.io/docs/moreLinkClick
+       */
       moreLinkClick: identity,
+      /**
+       * Custom content for each `moreLink` part, injected inside it in place of its default content.
+       * @see https://fullcalendar.io/docs/more-link-render-hooks
+       */
       moreLinkContent: identity,
+      /**
+       * Called right after each `moreLink` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/more-link-render-hooks
+       */
       moreLinkDidMount: identity,
+      /**
+       * Called right before each `moreLink` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/more-link-render-hooks
+       */
       moreLinkWillUnmount: identity,
+      /**
+       * Class names for a "+N more" link, shown when a day or slot has more events than fit. A string, or
+       * a function that receives `MoreLinkInfo` and returns one.
+       * @see https://fullcalendar.io/docs/more-link-render-hooks
+       */
       moreLinkClass: refineClassNameGenerator,
+      /**
+       * Class names for the text wrapper inside a "+N more" link. A string, or a function that receives
+       * `MoreLinkInfo` and returns one.
+       * @see https://fullcalendar.io/docs/more-link-render-hooks
+       */
       moreLinkInnerClass: refineClassNameGenerator,
       //
+      /**
+       * Class names for a "+N more" link in a row layout: day cells and timeline rows. A string, or a
+       * function that receives `MoreLinkInfo` and returns one.
+       * @see https://fullcalendar.io/docs/row-more-link-render-hooks
+       */
       rowMoreLinkClass: refineClassNameGenerator,
+      /**
+       * Class names for the text wrapper inside a row "+N more" link. A string, or a function that
+       * receives `MoreLinkInfo` and returns one.
+       * @see https://fullcalendar.io/docs/row-more-link-render-hooks
+       */
       rowMoreLinkInnerClass: refineClassNameGenerator,
       //
+      /**
+       * Class names for a "+N more" link in a day lane, when too many timed events overlap. A string, or
+       * a function that receives `MoreLinkInfo` and returns one.
+       * @see https://fullcalendar.io/docs/column-more-link-render-hooks
+       */
       columnMoreLinkClass: refineClassNameGenerator,
+      /**
+       * Class names for the text wrapper inside a column "+N more" link. A string, or a function that
+       * receives `MoreLinkInfo` and returns one.
+       * @see https://fullcalendar.io/docs/column-more-link-render-hooks
+       */
       columnMoreLinkInnerClass: refineClassNameGenerator,
+      /**
+       * Class names for a date or week number that navigates to that day or week when clicked (with the
+       * `navLinks` setting). A string only; functions are not accepted.
+       * @see https://fullcalendar.io/docs/navLinkClass
+       */
       navLinkClass: refineClassName,
+      /**
+       * The date format used instead of `dayCellFormat` for the view's first date and the first day of
+       * each month, when a DayGrid view spans more than one month.
+       * @see https://fullcalendar.io/docs/monthStartFormat
+       */
       monthStartFormat: createFormatter,
+      /**
+       * The date format of the day number in each DayGrid day cell.
+       * @see https://fullcalendar.io/docs/dayCellFormat
+       */
       dayCellFormat: createFormatter,
       // for connectors
       // (can't be part of plugin system b/c must be provided at runtime)
       handleCustomRendering: identity,
       customRenderingMetaMap: identity,
+      /**
+       * Class names for the popover listing every event of a day, opened by a "+N more" link. A string
+       * only; functions are not accepted.
+       * @see https://fullcalendar.io/docs/popover-render-hooks
+       */
       popoverClass: refineClassName,
+      /**
+       * Class names for the popover's close button. A string only; functions are not accepted.
+       * @see https://fullcalendar.io/docs/popover-render-hooks
+       */
       popoverCloseClass: refineClassName,
+      /**
+       * Content rendered inside the popover's close button (the `popoverClose` part), typically an icon.
+       * Empty unless a theme provides one.
+       * @see https://fullcalendar.io/docs/popover-render-hooks
+       */
       popoverCloseContent: identity,
+      /**
+       * The column width in pixels below which day columns switch to their narrow date text and layout.
+       * @see https://fullcalendar.io/docs/dayNarrowWidth
+       */
       dayNarrowWidth: Number,
+      /**
+       * Whether to remove the borders around the calendar's outer edge.
+       * @see https://fullcalendar.io/docs/borderless
+       */
       borderless: Boolean,
+      /**
+       * Whether to remove the calendar's left and right outer borders. Themes may also indent the
+       * toolbars to align with the calendar body.
+       * @see https://fullcalendar.io/docs/borderless
+       */
       borderlessX: Boolean,
+      /**
+       * Whether to remove the calendar's top outer border.
+       * @see https://fullcalendar.io/docs/borderless
+       */
       borderlessTop: Boolean,
+      /**
+       * Whether to remove the calendar's bottom outer border.
+       * @see https://fullcalendar.io/docs/borderless
+       */
       borderlessBottom: Boolean,
+      /**
+       * Class names for an empty spacer that keeps columns aligned, e.g. under resource rows that don't
+       * fill the height. A string, or a function of the part's info that returns one.
+       * @see https://fullcalendar.io/docs/filler-render-hooks
+       */
       fillerClass: refineClassNameGenerator,
+      /**
+       * Class names for the toolbar above the view. A string, or a function that receives `ToolbarInfo`
+       * and returns one.
+       * @see https://fullcalendar.io/docs/toolbar-render-hooks
+       */
       headerToolbarClass: refineClassNameGenerator,
+      /**
+       * Class names for the toolbar below the view. A string, or a function that receives `ToolbarInfo`
+       * and returns one.
+       * @see https://fullcalendar.io/docs/toolbar-render-hooks
+       */
       footerToolbarClass: refineClassNameGenerator,
+      /**
+       * Class names for a toolbar, header or footer, holding up to three sections (start, center, end). A
+       * string, or a function that receives `ToolbarInfo` and returns one.
+       * @see https://fullcalendar.io/docs/toolbar-render-hooks
+       */
       toolbarClass: refineClassNameGenerator,
+      /**
+       * Class names for one of a toolbar's start, center and end sections. A string, or a function that
+       * receives `ToolbarSectionInfo` and returns one.
+       * @see https://fullcalendar.io/docs/toolbar-render-hooks
+       */
       toolbarSectionClass: refineClassNameGenerator,
+      /**
+       * Class names for the title text in a toolbar, usually the current date range. A string only;
+       * functions are not accepted.
+       * @see https://fullcalendar.io/docs/toolbar-render-hooks
+       */
       toolbarTitleClass: refineClassName,
+      /**
+       * Class names for the grid layout of the view, with a header and a body. Shares the view element in
+       * grid and timeline views; in multi-month views, each month has its own. A string, or a function that
+       * receives `TableDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/table-render-hooks
+       */
       tableClass: refineClassNameGenerator,
+      /**
+       * Class names for the fixed header above the grid: day names, or times in timelines. A string, or a
+       * function that receives `TableHeaderInfo` and returns one.
+       * @see https://fullcalendar.io/docs/table-render-hooks
+       */
       tableHeaderClass: refineClassNameGenerator,
+      /**
+       * Class names for the scrolling body of the grid, where cells, lanes and events appear. A string,
+       * or a function that receives `TableBodyInfo` and returns one.
+       * @see https://fullcalendar.io/docs/table-render-hooks
+       */
       tableBodyClass: refineClassNameGenerator,
+      /**
+       * Class names for shading over times or days outside business hours. A string only; functions are
+       * not accepted.
+       * @see https://fullcalendar.io/docs/business-hours-render-hooks
+       */
       nonBusinessHoursClass: refineClassName,
+      /**
+       * Class names for the shaded area showing a date range the user is selecting. A string only;
+       * functions are not accepted.
+       * @see https://fullcalendar.io/docs/highlight-render-hooks
+       */
       highlightClass: refineClassName,
       // daygrid-only
+      /**
+       * Whether to display the row of day headers at the top of DayGrid and TimeGrid views.
+       * @see https://fullcalendar.io/docs/dayHeaders
+       */
       dayHeaders: Boolean,
+      /**
+       * The date format of the day headers, as a date formatter. Each view has its own default.
+       * @see https://fullcalendar.io/docs/dayHeaderFormat
+       */
       dayHeaderFormat: createFormatter,
       // timegrid-only
+      /**
+       * Class names for the line between the all-day row and the timed slots. A string only; functions
+       * are not accepted.
+       * @see https://fullcalendar.io/docs/all-day-divider-render-hooks
+       */
       allDayDividerClass: refineClassName,
       // list-only
+      /**
+       * Class names for the container for all of a list view's day sections. A string only; functions are
+       * not accepted.
+       * @see https://fullcalendar.io/docs/list-day-render-hooks
+       */
       listDaysClass: refineClassName, // rename this?
+      /**
+       * Class names for one day's section in a list view: its heading and its events. A string, or a
+       * function that receives `ListDayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/list-day-render-hooks
+       */
       listDayClass: refineClassNameGenerator,
       //
+      /**
+       * The date format of the main text in each list view day header, or `false` to show none.
+       * @see https://fullcalendar.io/docs/listDayFormat
+       */
       listDayFormat: createFalsableFormatter, // defaults specified in list plugins
+      /**
+       * The date format of the secondary text in each list view day header, or `false` to show none.
+       * @see https://fullcalendar.io/docs/listDayAltFormat
+       */
       listDayAltFormat: createFalsableFormatter, // "
       //
+      /**
+       * Called right after each `listDayHeader` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/list-day-header-render-hooks
+       */
       listDayHeaderDidMount: identity,
+      /**
+       * Called right before each `listDayHeader` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/list-day-header-render-hooks
+       */
       listDayHeaderWillUnmount: identity,
+      /**
+       * Class names for the date heading above a list view day's events. A string, or a function that
+       * receives `ListDayHeaderInfo` and returns one.
+       * @see https://fullcalendar.io/docs/list-day-header-render-hooks
+       */
       listDayHeaderClass: refineClassNameGenerator,
+      /**
+       * Class names for one of the two halves of a list view day heading (day name and date); may be a
+       * nav link. A string, or a function that receives `ListDayHeaderInnerInfo` and returns one.
+       * @see https://fullcalendar.io/docs/list-day-header-render-hooks
+       */
       listDayHeaderInnerClass: refineClassNameGenerator,
+      /**
+       * Custom content for each text element of a list view day header (the `listDayHeaderInner` parts,
+       * one each for `listDayFormat` and `listDayAltFormat`), in place of the formatted date.
+       * @see https://fullcalendar.io/docs/list-day-header-render-hooks
+       */
       listDayHeaderContent: identity,
       //
+      /**
+       * Class names for the wrapper around one list view day's events. A string, or a function that
+       * receives `ListDayEventsInfo` and returns one.
+       * @see https://fullcalendar.io/docs/list-day-render-hooks
+       */
       listDayBodyClass: refineClassNameGenerator,
       //
+      /**
+       * Class names for the "No events to display" message in an empty list view. A string, or a function
+       * that receives `NoEventsInfo` and returns one.
+       * @see https://fullcalendar.io/docs/no-events-render-hooks
+       */
       noEventsClass: refineClassNameGenerator,
+      /**
+       * Class names for the text wrapper inside the no-events message. A string, or a function that
+       * receives `NoEventsInfo` and returns one.
+       * @see https://fullcalendar.io/docs/no-events-render-hooks
+       */
       noEventsInnerClass: refineClassNameGenerator,
+      /**
+       * Custom content for each `noEvents` part, injected inside it in place of its default content.
+       * @see https://fullcalendar.io/docs/no-events-render-hooks
+       */
       noEventsContent: identity,
+      /**
+       * Called right after each `noEvents` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/no-events-render-hooks
+       */
       noEventsDidMount: identity,
+      /**
+       * Called right before each `noEvents` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/no-events-render-hooks
+       */
       noEventsWillUnmount: identity,
       // noEventsText is defined in base options
       // multimonth-only
+      /**
+       * The maximum number of months per row in multi-month views. Fewer are shown when each month would
+       * be narrower than `singleMonthMinWidth`.
+       * @see https://fullcalendar.io/docs/multiMonthMaxColumns
+       */
       multiMonthMaxColumns: Number,
       //
+      /**
+       * The minimum width in pixels of each month in multi-month views. When months would be narrower,
+       * they wrap onto more rows.
+       * @see https://fullcalendar.io/docs/singleMonthMinWidth
+       */
       singleMonthMinWidth: Number,
+      /**
+       * The date format of the title above each month in multi-month views.
+       * @see https://fullcalendar.io/docs/singleMonthTitleFormat
+       */
       singleMonthTitleFormat: createFormatter,
+      /**
+       * Called right after each `singleMonth` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/single-month-render-hooks
+       */
       singleMonthDidMount: identity,
+      /**
+       * Called right before each `singleMonth` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/single-month-render-hooks
+       */
       singleMonthWillUnmount: identity,
+      /**
+       * Class names for one month's block in multi-month views, with its own header and grid. A string, or
+       * a function that receives `SingleMonthInfo` and returns one.
+       * @see https://fullcalendar.io/docs/single-month-render-hooks
+       */
       singleMonthClass: refineClassNameGenerator,
+      /**
+       * Class names for the month name above each month's grid ("January 2026"). A string, or a function
+       * that receives `SingleMonthHeaderInfo` and returns one.
+       * @see https://fullcalendar.io/docs/single-month-header-render-hooks
+       */
       singleMonthHeaderClass: refineClassNameGenerator,
+      /**
+       * Class names for the text wrapper inside a month header; may be a nav link. A string, or a
+       * function that receives `SingleMonthHeaderInfo` and returns one.
+       * @see https://fullcalendar.io/docs/single-month-header-render-hooks
+       */
       singleMonthHeaderInnerClass: refineClassNameGenerator,
   };
   // do NOT give a type here. need `typeof BASE_OPTION_DEFAULTS` to give real results.
@@ -3386,16 +4772,73 @@ var FullCalendar = (function (exports) {
   // calendar listeners
   // ------------------
   const CALENDAR_LISTENER_REFINERS = {
+      /**
+       * Called after the calendar's date range is first set or changes, such as on navigation or a
+       * view switch, once the new dates have rendered.
+       * @see https://fullcalendar.io/docs/datesSet
+       */
       datesSet: identity,
+      /**
+       * Called after the calendar's events are first loaded or change in any way, with an array of every
+       * event in memory (the same as `getEvents()`).
+       * @see https://fullcalendar.io/docs/eventsSet
+       */
       eventsSet: identity,
+      /**
+       * Called after an event is added to the calendar, via `addEvent` or by dropping another calendar's
+       * event. Not called for external draggable elements (see `eventReceive`). The info includes
+       * `revert` to undo the addition.
+       * @see https://fullcalendar.io/docs/eventAdd
+       */
       eventAdd: identity,
+      /**
+       * Called after an event is modified, via its setter methods or by dragging or resizing. The info
+       * includes the updated event, the previous `oldEvent`, and `revert` to undo the change.
+       * @see https://fullcalendar.io/docs/eventChange
+       */
       eventChange: identity,
+      /**
+       * Called after an event is removed from the calendar, via `remove()` or by dragging it to another
+       * calendar. The info includes `revert` to undo the removal.
+       * @see https://fullcalendar.io/docs/eventRemove
+       */
       eventRemove: identity,
+      /**
+       * Called when the user clicks an event, with the event, its element, the native `jsEvent`, and
+       * the view. Call `info.jsEvent.preventDefault()` to stop the browser from following the event's `url`.
+       * @see https://fullcalendar.io/docs/eventClick
+       */
       eventClick: identity, // TODO: resource for scheduler????
+      /**
+       * Called when the pointer moves onto an event, with the event, its element, the native `jsEvent`,
+       * and the view.
+       * @see https://fullcalendar.io/docs/eventMouseEnter
+       */
       eventMouseEnter: identity,
+      /**
+       * Called when the pointer moves off an event, with the event, its element, the native `jsEvent`,
+       * and the view.
+       * @see https://fullcalendar.io/docs/eventMouseLeave
+       */
       eventMouseLeave: identity,
+      /**
+       * Called when a date or time range is selected, by the user (requires the interaction plugin and
+       * `selectable`) or via the `select()` method. The info includes the range's `start`, exclusive
+       * `end`, `allDay`, the native `jsEvent`, and the view.
+       * @see https://fullcalendar.io/docs/select-callback
+       */
       select: identity, // resource for scheduler????
+      /**
+       * Called when the current date selection is cleared, with an object holding the native `jsEvent`
+       * (if any) and the view.
+       * @see https://fullcalendar.io/docs/unselect-callback
+       */
       unselect: identity,
+      /**
+       * Called with `true` when the calendar starts fetching events (or resources, with premium resource
+       * plugins), and with `false` when all fetching is done.
+       * @see https://fullcalendar.io/docs/loading
+       */
       loading: identity,
       // internal
       _unmount: identity,
@@ -3406,40 +4849,171 @@ var FullCalendar = (function (exports) {
       _noEventResize: identity,
       _timeScrollRequest: identity,
       // interaction-plugin-only
+      /**
+       * Called when the user clicks a date or time slot. The info includes the clicked `date`, `allDay`,
+       * the element, the native `jsEvent`, and the view. Requires the interaction plugin.
+       * @see https://fullcalendar.io/docs/dateClick
+       */
       dateClick: identity,
+      /**
+       * Called when the user starts dragging an event, with the event, the native `jsEvent`, and the
+       * view.
+       * @see https://fullcalendar.io/docs/eventDragStart
+       */
       eventDragStart: identity,
+      /**
+       * Called when the user stops dragging an event, whether or not it moved, before the event is
+       * modified and before `eventDrop`.
+       * @see https://fullcalendar.io/docs/eventDragStop
+       */
       eventDragStop: identity,
+      /**
+       * Called when the user drops an event at a different date or time. The info includes the updated
+       * event, the previous `oldEvent`, the `delta`, and `revert` to undo the move.
+       * @see https://fullcalendar.io/docs/eventDrop
+       */
       eventDrop: identity,
+      /**
+       * Called when the user starts resizing an event, with the event, the native `jsEvent`, and the
+       * view.
+       * @see https://fullcalendar.io/docs/eventResizeStart
+       */
       eventResizeStart: identity,
+      /**
+       * Called when the user stops resizing an event, whether or not it changed, before the event is
+       * modified and before `eventResize`.
+       * @see https://fullcalendar.io/docs/eventResizeStop
+       */
       eventResizeStop: identity,
+      /**
+       * Called when the user resizes an event and its duration changes. The info includes the updated
+       * event, the previous `oldEvent`, the start and end deltas, and `revert` to undo the resize.
+       * @see https://fullcalendar.io/docs/eventResize
+       */
       eventResize: identity,
+      /**
+       * Called when an external draggable element, or another calendar's event, is dropped onto the
+       * calendar. Requires the interaction plugin.
+       * @see https://fullcalendar.io/docs/drop
+       */
       drop: identity,
+      /**
+       * Called when an external draggable element with event data, or another calendar's event, is
+       * dropped onto the calendar and becomes an event. The info includes `revert` to undo it.
+       * @see https://fullcalendar.io/docs/eventReceive
+       */
       eventReceive: identity,
+      /**
+       * Called when one of this calendar's events is dropped onto another calendar, just before it is
+       * removed from this one. The info includes `revert` to restore it.
+       * @see https://fullcalendar.io/docs/eventLeave
+       */
       eventLeave: identity,
   };
   // calendar-only options (not for view-specific)
   // ---------------------------------------------
   const CALENDAR_ONLY_OPTION_REFINERS = {
+      /**
+       * Class names for the calendar's root element. A string, or a function that receives
+       * `CalendarDisplayInfo` and returns one. Same as `className`.
+       * @see https://fullcalendar.io/docs/className
+       */
       class: refineClassNameGenerator,
+      /**
+       * Class names for the calendar's root element. A string, or a function that receives
+       * `CalendarDisplayInfo` and returns one. Same as `class`.
+       * @see https://fullcalendar.io/docs/className
+       */
       className: refineClassNameGenerator,
+      /**
+       * Class names for the view element: everything between the toolbars. A string, or a function that
+       * receives `ViewDisplayInfo` and returns one.
+       * @see https://fullcalendar.io/docs/view-render-hooks
+       */
       viewClass: refineClassNameGenerator,
+      /**
+       * Called right after each `view` part's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/view-render-hooks
+       */
       viewDidMount: identity,
+      /**
+       * Called right before each `view` part's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/view-render-hooks
+       */
       viewWillUnmount: identity,
+      /**
+       * Per-view settings and custom view definitions, keyed by view name (such as `timeGridWeek`), view
+       * type (such as `timeGrid`), or duration unit (such as `week`, for every one-week view). A custom
+       * view entry sets `type` plus a duration, visible range, or day count.
+       * @see https://fullcalendar.io/docs/view-specific-options
+       */
       views: identity,
+      /**
+       * The plugins to load, such as the interaction plugin or premium view plugins.
+       * @see https://fullcalendar.io/docs/plugin-index
+       */
       plugins: identity,
+      /**
+       * Events to load when the calendar initializes, in any form `events` accepts. Unlike `events`,
+       * later changes to this value are ignored, so events can then be managed through the API.
+       * @see https://fullcalendar.io/docs/initialEvents
+       */
       initialEvents: identity,
+      /**
+       * The calendar's events: an array of event objects, a JSON feed URL, a function that supplies
+       * events, or an event source object.
+       * @see https://fullcalendar.io/docs/event-source
+       */
       events: identity,
+      /**
+       * Multiple event sources, each in any form `events` accepts: an array, a JSON feed URL, a function,
+       * or an event source object.
+       * @see https://fullcalendar.io/docs/eventSources
+       */
       eventSources: identity,
   };
   // view-specific options
   // ---------------------
   const VIEW_ONLY_OPTION_REFINERS = {
+      /**
+       * The existing view type that a custom view is based on, such as `'timeGrid'` or `'dayGrid'`. Used
+       * in a `views` entry along with a duration, visible range, or day count.
+       * @see https://fullcalendar.io/docs/custom-view-with-settings
+       */
       type: String,
+      /**
+       * A component that renders a custom view from scratch, written for the UI library of your
+       * FullCalendar package (for example React or Preact). Used in a `views` entry.
+       * @see https://fullcalendar.io/docs/custom-view-with-js
+       */
       component: identity,
+      /**
+       * In a `views` entry, class names for the view's root element. A string, or a function that
+       * receives `ViewDisplayInfo` and returns one. Same as `className`.
+       * @see https://fullcalendar.io/docs/custom-view-with-js
+       */
       class: refineClassNameGenerator,
+      /**
+       * In a `views` entry, class names for the view's root element. A string, or a function that
+       * receives `ViewDisplayInfo` and returns one. Same as `class`.
+       * @see https://fullcalendar.io/docs/custom-view-with-js
+       */
       className: refineClassNameGenerator,
+      /**
+       * In a `views` entry, renders a custom view from scratch: a content injection input, or a function
+       * that receives `ViewContentInfo` (including the view's dates and events) and returns one.
+       * @see https://fullcalendar.io/docs/custom-view-with-js
+       */
       content: identity,
+      /**
+       * In a `views` entry, called right after the view's element is added to the DOM.
+       * @see https://fullcalendar.io/docs/custom-view-with-js
+       */
       didMount: identity,
+      /**
+       * In a `views` entry, called right before the view's element is removed from the DOM.
+       * @see https://fullcalendar.io/docs/custom-view-with-js
+       */
       willUnmount: identity,
       // internal only
       buttonTextKey: String,
@@ -3457,6 +5031,10 @@ var FullCalendar = (function (exports) {
       events: isMaybeArraysEqual,
       eventSources: isMaybeArraysEqual,
       ['resources']: isMaybeArraysEqual,
+      // otherwise, an equal-but-new value, like from a React rerender, rebuilds the date profile (#7069)
+      validRange: isMaybeDateRangeInputsEqual,
+      visibleRange: isMaybeDateRangeInputsEqual,
+      hiddenDays: isMaybeArraysEqual,
   };
   // util funcs
   // ----------------------------------------------------------------------------------------------------
@@ -3478,8 +5056,14 @@ var FullCalendar = (function (exports) {
   function identity(raw) {
       return raw;
   }
+  /*
+  `false` refines to `null`, turning the formatted text off. A nullish input stays `undefined`, for the default.
+  */
   function createFalsableFormatter(input) {
-      return input === false ? null : createFormatter(input);
+      if (input === false) {
+          return null;
+      }
+      return createFormatter(input) ?? undefined;
   }
 
   /*
@@ -3509,22 +5093,22 @@ var FullCalendar = (function (exports) {
   */
   function buildRangeEdgeOutput(marker, instantMs, dateEnv, omitTime) {
       const canonicalMarker = instantMs != null ? dateEnv.timestampToMarker(instantMs) : marker;
-      const timeZoneOffset = instantMs != null
-          ? Math.round((canonicalMarker.valueOf() - instantMs) / 60000)
-          : dateEnv.offsetForMarker(marker);
       if (!omitTime && instantMs != null) {
+          // the offset of this exact instant. offsetForMarker can't tell the two copies of a repeated hour apart
+          const timeZoneOffset = Math.round((canonicalMarker.valueOf() - instantMs) / 60000);
           return {
               marker: canonicalMarker,
               date: new Date(instantMs),
               dateStr: buildIsoString(canonicalMarker, timeZoneOffset),
           };
       }
+      const date = dateEnv.toDate(marker);
+      // a nonexistent (DST-gap) wall-clock time resolves forward in `date`. the string names that same time
+      const resolvedMarker = omitTime ? marker : dateEnv.timestampToMarker(date.valueOf());
       return {
           marker: canonicalMarker,
-          date: dateEnv.toDate(marker),
-          dateStr: omitTime
-              ? dateEnv.formatIso(marker, { omitTime })
-              : buildIsoString(marker, timeZoneOffset),
+          date,
+          dateStr: dateEnv.formatIso(resolvedMarker, { omitTime }),
       };
   }
   // the exact epoch instant of a range's start: the stored instant when present, otherwise
@@ -3880,6 +5464,7 @@ var FullCalendar = (function (exports) {
           className: joinClassNames(item0.className, item1.className),
       };
   }
+  const EMPTY_EVENT_UI_BASES = { base: EMPTY_EVENT_UI, bySource: {} };
 
   const EVENT_NON_DATE_REFINERS = {
       id: String,
@@ -4541,7 +6126,7 @@ var FullCalendar = (function (exports) {
               let { eventStore } = context.getCurrentData();
               let relevantEvents = getRelevantEvents(eventStore, instance.instanceId);
               let eventConfigBase = {
-                  '': {
+                  base: {
                       display: '',
                       startEditable: true,
                       durationEditable: true,
@@ -4552,6 +6137,7 @@ var FullCalendar = (function (exports) {
                       contrastColor: '',
                       className: '',
                   },
+                  bySource: {}, // a source's editable:false mustn't block the API
               };
               relevantEvents = applyMutationToEventStore(relevantEvents, eventConfigBase, mutation, context);
               let oldEvent = new EventImpl(context, def, instance); // snapshot
@@ -4848,16 +6434,23 @@ var FullCalendar = (function (exports) {
   /*
   I wish we didn't need to deal with inheritance of all properties all together
   I wish you could resolve just eventDisplay first, then the others
+
+  Lowest to highest. A resource's UI comes in as sectionUi in resource views, below the source's, but as
+  getExtraUi in views without resources, above it. The documented order puts it above the source everywhere;
+  this keeps the existing behavior until a release that can change it.
   */
   function compileEventUi(eventDef, eventUiBases) {
-      const uis = [];
-      const fallbackBase = eventUiBases[''];
-      const defBase = eventUiBases[eventDef.defId];
-      if (fallbackBase) {
-          uis.push(fallbackBase);
+      const uis = [eventUiBases.base];
+      const sourceUi = eventUiBases.bySource[eventDef.sourceId];
+      const extraUi = eventUiBases.getExtraUi?.(eventDef);
+      if (eventUiBases.sectionUi) {
+          uis.push(eventUiBases.sectionUi);
       }
-      if (defBase) {
-          uis.push(defBase);
+      if (sourceUi) {
+          uis.push(sourceUi);
+      }
+      if (extraUi) {
+          uis.push(extraUi);
       }
       uis.push(eventDef.ui);
       return combineEventUis(uis);
@@ -5841,6 +7434,134 @@ var FullCalendar = (function (exports) {
 
   function g(n,t){for(var e in t)n[e]=t[e];return n}function E(n,t){for(var e in n)if("__source"!==e&&!(e in t))return !0;for(var r in t)if("__source"!==r&&n[r]!==t[r])return !0;return !1}function M(n,t){this.props=n,this.context=t;}(M.prototype=new C).isPureReactComponent=!0,M.prototype.shouldComponentUpdate=function(n,t){return E(this.props,n)||E(this.state,t)};var T=l$2.__b;l$2.__b=function(n){n.type&&n.type.__f&&n.ref&&(n.props.ref=n.ref,n.ref=null),T&&T(n);};var O=l$2.__e;l$2.__e=function(n,t,e,r){if(n.then)for(var u,o=t;o=o.__;)if((u=o.__c)&&u.__c)return null==t.__e&&(t.__e=e.__e,t.__k=e.__k||[]),u.__c(n,t);O(n,t,e,r);};var U=l$2.unmount;function V(n,t,e){return n&&(n.__c&&n.__c.__H&&(n.__c.__H.__.forEach(function(n){"function"==typeof n.__c&&n.__c();}),n.__c.__H=null),null!=(n=g({},n)).__c&&(n.__c.__P===e&&(n.__c.__P=t),n.__c.__e=!0,n.__c=null),n.__k=n.__k&&n.__k.map(function(n){return V(n,t,e)})),n}function W(n,t,e){return n&&e&&(n.__v=null,n.__k=n.__k&&n.__k.map(function(n){return W(n,t,e)}),n.__c&&n.__c.__P===t&&(n.__e&&e.appendChild(n.__e),n.__c.__e=!0,n.__c.__P=e)),n}function P(){this.__u=0,this.o=null,this.__b=null;}function j(n){var t=n.__&&n.__.__c;return t&&t.__a&&t.__a(n)}function B(){this.i=null,this.l=null;}l$2.unmount=function(n){var t=n.__c;t&&(t.__z=!0),t&&t.__R&&t.__R(),t&&32&n.__u&&(n.type=null),U&&U(n);},(P.prototype=new C).__c=function(n,t){var e=t.__c,r=this;null==r.o&&(r.o=[]),r.o.push(e);var u=j(r.__v),o=!1,i=function(){o||r.__z||(o=!0,e.__R=null,u?u(f):f());};e.__R=i;var l=e.__P;e.__P=null;var f=function(){if(!--r.__u){if(r.state.__a){var n=r.state.__a;r.__v.__k[0]=W(n,n.__c.__P,n.__c.__O);}var t;for(r.setState({__a:r.__b=null});t=r.o.pop();)t.__P=l,t.forceUpdate();}};r.__u++||32&t.__u||r.setState({__a:r.__b=r.__v.__k[0]}),n.then(i,i);},P.prototype.componentWillUnmount=function(){this.o=[];},P.prototype.render=function(n,e){if(this.__b){if(this.__v.__k){var r=document.createElement("div"),o=this.__v.__k[0].__c;this.__v.__k[0]=V(this.__b,r,o.__O=o.__P);}this.__b=null;}var i=e.__a&&k$1(S,null,n.fallback);return i&&(i.__u&=-33),[k$1(S,null,e.__a?null:n.children),i]};var H=function(n,t,e){if(++e[1]===e[0]&&n.l.delete(t),n.props.revealOrder&&("t"!==n.props.revealOrder[0]||!n.l.size))for(e=n.i;e;){for(;e.length>3;)e.pop()();if(e[1]<e[0])break;n.i=e=e[2];}};function Z(n){return this.getChildContext=function(){return n.context},n.children}function Y(n){var e=this,r=n.h;if(e.componentWillUnmount=function(){R(null,e.v),e.v=null,e.h=null;},e.h&&e.h!==r&&e.componentWillUnmount(),!e.v){for(var u=e.__v;null!==u&&!u.__m&&null!==u.__;)u=u.__;e.h=r,e.v={nodeType:1,parentNode:r,childNodes:[],__k:{__m:u.__m},contains:function(){return !0},namespaceURI:r.namespaceURI,insertBefore:function(n,t){this.childNodes.push(n),e.h.insertBefore(n,t);},removeChild:function(n){this.childNodes.splice(this.childNodes.indexOf(n)>>>1,1),e.h.removeChild(n);}};}R(k$1(Z,{context:e.context},n.__v),e.v);}function $(n,e){var r=k$1(Y,{__v:n,h:e});return r.containerInfo=e,r}(B.prototype=new C).__a=function(n){var t=this,e=j(t.__v),r=t.l.get(n);return r[0]++,function(u){var o=function(){t.props.revealOrder?(r.push(u),H(t,n,r)):u();};e?e(o):o();}},B.prototype.render=function(n){this.i=null,this.l=new Map;var t=F(n.children);n.revealOrder&&"b"===n.revealOrder[0]&&t.reverse();for(var e=t.length;e--;)this.l.set(t[e],this.i=[1,0,this.i]);return n.children},B.prototype.componentDidUpdate=B.prototype.componentDidMount=function(){var n=this;this.l.forEach(function(t,e){H(n,e,t);});};var q="undefined"!=typeof Symbol&&Symbol.for&&Symbol.for("react.element")||60103,G=/^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/,J=/^on(Ani|Tra|Tou|BeforeInp|Compo)/,K=/[A-Z0-9]/g,Q="undefined"!=typeof document,X=function(n){return ("undefined"!=typeof Symbol&&"symbol"==typeof Symbol()?/fil|che|rad/:/fil|che|ra/).test(n)};function nn(n,t,e){return null==t.__k&&(t.textContent=""),R(n,t),"function"==typeof e&&e(),n?n.__c:null}C.prototype.isReactComponent=!0,["componentWillMount","componentWillReceiveProps","componentWillUpdate"].forEach(function(t){Object.defineProperty(C.prototype,t,{configurable:!0,get:function(){return this["UNSAFE_"+t]},set:function(n){Object.defineProperty(this,t,{configurable:!0,writable:!0,value:n});}});});var en=l$2.event;l$2.event=function(n){return en&&(n=en(n)),n.persist=function(){},n.isPropagationStopped=function(){return this.cancelBubble},n.isDefaultPrevented=function(){return this.defaultPrevented},n.nativeEvent=n};var un={configurable:!0,get:function(){return this.class}},on=l$2.vnode;l$2.vnode=function(n){"string"==typeof n.type&&function(n){var t=n.props,e=n.type,u={},o=-1==e.indexOf("-");for(var i in t){var l=t[i];if(!("value"===i&&"defaultValue"in t&&null==l||Q&&"children"===i&&"noscript"===e||"class"===i||"className"===i)){var f=i.toLowerCase();"defaultValue"===i&&"value"in t&&null==t.value?i="value":"download"===i&&!0===l?l="":"translate"===f&&"no"===l?l=!1:"o"===f[0]&&"n"===f[1]?"ondoubleclick"===f?i="ondblclick":"onchange"!==f||"input"!==e&&"textarea"!==e||X(t.type)?"onfocus"===f?i="onfocusin":"onblur"===f?i="onfocusout":J.test(i)&&(i=f):f=i="oninput":o&&G.test(i)?i=i.replace(K,"-$&").toLowerCase():null===l&&(l=void 0),"oninput"===f&&u[i=f]&&(i="oninputCapture"),u[i]=l;}}"select"==e&&(u.multiple&&Array.isArray(u.value)&&(u.value=F(t.children).forEach(function(n){n.props.selected=-1!=u.value.indexOf(n.props.value);})),null!=u.defaultValue&&(u.value=F(t.children).forEach(function(n){n.props.selected=u.multiple?-1!=u.defaultValue.indexOf(n.props.value):u.defaultValue==n.props.value;}))),t.class&&!t.className?(u.class=t.class,Object.defineProperty(u,"className",un)):t.className&&(u.class=u.className=t.className),n.props=u;}(n),n.$$typeof=q,on&&on(n);};var ln=l$2.__r;l$2.__r=function(n){ln&&ln(n),n.__c;};var fn=l$2.diffed;l$2.diffed=function(n){fn&&fn(n);var t=n.props,e=n.__e;null!=e&&"textarea"===n.type&&"value"in t&&t.value!==e.value&&(e.value=null==t.value?"":t.value);};function hn(n){return !!n&&n.$$typeof===q}function pn(n){return !!n.__k&&(R(null,n),!0)}var bn=function(n,t){var r,u=l$2.debounceRendering;l$2.debounceRendering=function(n){r=n;};try{var o=n(t);return r&&r(),o}finally{l$2.debounceRendering=u;}};
 
+  class Emitter {
+      constructor() {
+          this.handlers = {};
+          this.thisContext = null;
+      }
+      setThisContext(thisContext) {
+          this.thisContext = thisContext;
+      }
+      setOptions(options) {
+          this.options = options;
+      }
+      on(type, handler) {
+          addToHash(this.handlers, type, handler);
+      }
+      off(type, handler) {
+          removeFromHash(this.handlers, type, handler);
+      }
+      trigger(type, ...args) {
+          let attachedHandlers = this.handlers[type] || [];
+          let optionHandler = this.options && this.options[type];
+          let handlers = [].concat(optionHandler || [], attachedHandlers);
+          for (let handler of handlers) {
+              handler.apply(this.thisContext, args);
+          }
+      }
+      hasHandlers(type) {
+          return Boolean((this.handlers[type] && this.handlers[type].length) ||
+              (this.options && this.options[type]));
+      }
+  }
+  function addToHash(hash, type, handler) {
+      (hash[type] || (hash[type] = []))
+          .push(handler);
+  }
+  function removeFromHash(hash, type, handler) {
+      if (handler) {
+          if (hash[type]) {
+              hash[type] = hash[type].filter((func) => func !== handler);
+          }
+      }
+      else {
+          delete hash[type]; // remove all handler funcs for this type
+      }
+  }
+
+  /*
+  Tracks short-lived async work that leads to rendering (animation frames, short timers,
+  ResizeObserver deliveries), so automated tests can wait for rendering to finish instead of sleeping.
+  Long timers (now-indicator, scroll-end debounce, long-press delay) and drag auto-scrolling, which
+  runs for as long as the pointer stays near an edge, are deliberately not tracked.
+  */
+  let pendingCnt = 0;
+  let activityCnt = 0;
+  /*
+  Marks async work as pending until the returned function is called (once).
+  */
+  function holdSettle() {
+      let isReleased = false;
+      pendingCnt++;
+      return () => {
+          if (!isReleased) {
+              isReleased = true;
+              pendingCnt--;
+              activityCnt++;
+          }
+      };
+  }
+  /*
+  Records that something happened that might lead to more rendering.
+  */
+  function markSettleActivity() {
+      activityCnt++;
+  }
+  function settleRequestAnimationFrame(callback) {
+      const release = holdSettle();
+      requestAnimationFrame(() => {
+          try {
+              callback();
+          }
+          finally {
+              release();
+          }
+      });
+  }
+  const pendingTimeouts = new Map();
+  function settleSetTimeout(callback, ms) {
+      const release = holdSettle();
+      const id = setTimeout(() => {
+          pendingTimeouts.delete(id);
+          try {
+              callback();
+          }
+          finally {
+              release();
+          }
+      }, ms);
+      pendingTimeouts.set(id, release);
+      return id;
+  }
+  function settleClearTimeout(id) {
+      const release = pendingTimeouts.get(id);
+      if (release) {
+          pendingTimeouts.delete(id);
+          clearTimeout(id);
+          release();
+      }
+  }
+  /*
+  Resolves once nothing tracked is pending and a whole animation frame has passed without activity.
+  ResizeObserver callbacks run after animation-frame callbacks within a frame, so activity is compared
+  between two consecutive frames rather than checked within one.
+  */
+  function whenSettled() {
+      return new Promise((resolve) => {
+          let prevActivityCnt = -1;
+          function check() {
+              if (!pendingCnt && activityCnt === prevActivityCnt) {
+                  resolve();
+              }
+              else {
+                  prevActivityCnt = activityCnt;
+                  requestAnimationFrame(check);
+              }
+          }
+          requestAnimationFrame(check);
+      });
+  }
+
   function memoize(workerFunc, resEquality, teardownFunc) {
       let currentArgs;
       let currentRes;
@@ -6169,7 +7890,8 @@ var FullCalendar = (function (exports) {
   function getScrollerSyncerClass(pluginHooks) {
       const ScrollerSyncer = pluginHooks.scrollerSyncerClass;
       if (!ScrollerSyncer) {
-          throw new RangeError('Must import @fullcalendar/scrollgrid');
+          throw new RangeError('dayMinWidth requires the scrollgrid plugin, from your scheduler package, '
+              + 'such as @fullcalendar/react-scheduler/scrollgrid');
       }
       return ScrollerSyncer;
   }
@@ -6177,9 +7899,10 @@ var FullCalendar = (function (exports) {
   class NowTimerRunner {
       constructor(handleChange) {
           this.handleChange = handleChange;
-          this.isMounted = false;
+          this.isStarted = false;
           this.handleRefresh = () => {
               let timing = this.computeTiming();
+              this.nextChangeMs = timing.nextChangeMs;
               if (timing.nowDate.valueOf() !== this.nowDate.valueOf() ||
                   timing.nowMs !== this.nowMs // marker alone can't detect fold-hour changes
               ) {
@@ -6197,9 +7920,13 @@ var FullCalendar = (function (exports) {
               }
           };
       }
+      /*
+      Computes the outputs. Called during render, so it never arms the timer or adds listeners itself:
+      a render that never mounts (a discarded Suspense render) or that runs while hidden in a React
+      <Activity> would leave them with nothing to clean them up (#8112, #8092). start() does that.
+      */
       update(input) {
-          if (!this.isMounted) {
-              this.isMounted = true;
+          if (!this.nowManager) {
               // init inputs
               this.unit = input.unit;
               this.unitValue = input.unitValue;
@@ -6211,14 +7938,7 @@ var FullCalendar = (function (exports) {
               this.nowDate = timing.nowDate;
               this.nowMs = timing.nowMs;
               this.todayRange = timing.todayRange;
-              // init listeners
-              this.setTimeout(timing.waitMs);
-              this.nowManager.addResetListener(this.handleRefresh);
-              // fired tab becomes visible after being hidden
-              // SSR check. CalendarDataManager calls top-level sync :(
-              if (typeof document !== 'undefined') {
-                  document.addEventListener('visibilitychange', this.handleVisibilityChange);
-              }
+              this.nextChangeMs = timing.nextChangeMs;
           }
           else if (input.unit !== this.unit ||
               input.unitValue !== this.unitValue ||
@@ -6238,8 +7958,11 @@ var FullCalendar = (function (exports) {
               this.nowDate = timing.nowDate;
               this.nowMs = timing.nowMs;
               this.todayRange = timing.todayRange;
-              this.clearTimeout();
-              this.setTimeout(timing.waitMs);
+              this.nextChangeMs = timing.nextChangeMs;
+              if (this.isStarted) {
+                  this.clearTimeout();
+                  this.setTimeout(timing.waitMs);
+              }
           }
           return {
               nowDate: this.nowDate,
@@ -6247,12 +7970,36 @@ var FullCalendar = (function (exports) {
               todayRange: this.todayRange,
           };
       }
-      destroy() {
-          if (this.isMounted) {
-              this.isMounted = false;
+      /*
+      Arms the timer and adds the listeners. Call on mount, after the first update(). Idempotent, and
+      callable again after stop(), for remounts (React Strict Mode, a shown <Activity>).
+      Refreshes the outputs only if their change came due while stopped, so mounting alone never
+      causes a re-render. Otherwise waits out the remainder.
+      */
+      start() {
+          if (!this.isStarted && this.nowManager) {
+              this.isStarted = true;
+              this.nowManager.addResetListener(this.handleRefresh);
+              // fired tab becomes visible after being hidden
+              // SSR check. the vanilla Calendar starts in its constructor
+              if (typeof document !== 'undefined') {
+                  document.addEventListener('visibilitychange', this.handleVisibilityChange);
+              }
+              const remainingMs = this.nextChangeMs - this.nowManager.getEpochMs();
+              if (remainingMs > 0) {
+                  this.setTimeout(remainingMs);
+              }
+              else {
+                  this.handleRefresh();
+              }
+          }
+      }
+      stop() {
+          if (this.isStarted) {
+              this.isStarted = false;
               this.clearTimeout();
               this.nowManager.removeResetListener(this.handleRefresh);
-              // SSR check. CalendarDataManager calls top-level sync :(
+              // SSR check. the vanilla Calendar starts in its constructor
               if (typeof document !== 'undefined') {
                   document.removeEventListener('visibilitychange', this.handleVisibilityChange);
               }
@@ -6291,6 +8038,7 @@ var FullCalendar = (function (exports) {
               nowMs,
               todayRange: buildDayRange(nowDate),
               waitMs,
+              nextChangeMs: unroundedNowMs + waitMs,
           };
       }
       setTimeout(waitMs = this.computeTiming().waitMs) {
@@ -6303,6 +8051,7 @@ var FullCalendar = (function (exports) {
               this.nowDate = timing.nowDate;
               this.nowMs = timing.nowMs;
               this.todayRange = timing.todayRange;
+              this.nextChangeMs = timing.nextChangeMs;
               this.handleChange();
               this.setTimeout(timing.waitMs);
           }, waitMs);
@@ -6389,7 +8138,7 @@ var FullCalendar = (function (exports) {
       // happens for watchers that die and report `null` as dimension
       if (!isHandling && !isStalling) {
           isStalling = true;
-          requestAnimationFrame(() => {
+          settleRequestAnimationFrame(() => {
               isStalling = false;
               flushAfterSize();
           });
@@ -6450,6 +8199,7 @@ var FullCalendar = (function (exports) {
   // thus doesn't need !isHandling check like checkConfigMap
   const globalResizeObserver = typeof ResizeObserver !== 'undefined' && new ResizeObserver((entries) => {
       isHandling = true;
+      markSettleActivity();
       // // debug
       // console.log('RESIZE-OBSERVER', entries.map((entry) => entry.target))
       for (let entry of entries) {
@@ -6785,7 +8535,8 @@ var FullCalendar = (function (exports) {
           let dayCnt = 0;
           let i;
           if (this.props.weekends === false) {
-              hiddenDays.push(0, 6); // 0=sunday, 6=saturday
+              // copy. mutating the user's array would make it unequal to their next equal-but-new array (#7069)
+              hiddenDays = hiddenDays.concat([0, 6]); // 0=sunday, 6=saturday
           }
           for (i = 0; i < 7; i += 1) {
               if (!(isHiddenDayHash[i] = hiddenDays.indexOf(i) !== -1)) {
@@ -7049,51 +8800,6 @@ var FullCalendar = (function (exports) {
   // global state
   const interactionSettingsStore = {};
 
-  class Emitter {
-      constructor() {
-          this.handlers = {};
-          this.thisContext = null;
-      }
-      setThisContext(thisContext) {
-          this.thisContext = thisContext;
-      }
-      setOptions(options) {
-          this.options = options;
-      }
-      on(type, handler) {
-          addToHash(this.handlers, type, handler);
-      }
-      off(type, handler) {
-          removeFromHash(this.handlers, type, handler);
-      }
-      trigger(type, ...args) {
-          let attachedHandlers = this.handlers[type] || [];
-          let optionHandler = this.options && this.options[type];
-          let handlers = [].concat(optionHandler || [], attachedHandlers);
-          for (let handler of handlers) {
-              handler.apply(this.thisContext, args);
-          }
-      }
-      hasHandlers(type) {
-          return Boolean((this.handlers[type] && this.handlers[type].length) ||
-              (this.options && this.options[type]));
-      }
-  }
-  function addToHash(hash, type, handler) {
-      (hash[type] || (hash[type] = []))
-          .push(handler);
-  }
-  function removeFromHash(hash, type, handler) {
-      if (handler) {
-          if (hash[type]) {
-              hash[type] = hash[type].filter((func) => func !== handler);
-          }
-      }
-      else {
-          delete hash[type]; // remove all handler funcs for this type
-      }
-  }
-
   // TODO: easier way to add new hooks? need to update a million things
   function refinePluginDef(input) {
       return {
@@ -7176,6 +8882,9 @@ var FullCalendar = (function (exports) {
               const { name } = unrefinedDef;
               if (!name) {
                   throw new Error('Plugin must specify a name');
+              }
+              if (unrefinedDef.majorVersionError) { // a plugin from an older major version, which can't work here
+                  throw new Error(unrefinedDef.majorVersionError);
               }
               if (!pluginsByName[name]) {
                   const def = pluginsByName[name] = refinePluginDef(unrefinedDef);
@@ -7641,6 +9350,9 @@ var FullCalendar = (function (exports) {
       get title() {
           return this.getCurrentData().viewTitle;
       }
+      get titleParts() {
+          return this.getCurrentData().viewTitleParts;
+      }
       get activeStart() {
           return this.dateEnv.toDate(this.getCurrentData().dateProfile.activeRange.start);
       }
@@ -7691,8 +9403,8 @@ var FullCalendar = (function (exports) {
       return rawDefs;
   }
 
-  // Computes what the title at the top of the calendarApi should be for this view
-  function buildTitle(dateProfile, viewOptions, dateEnv) {
+  // Computes the parts of the title at the top of the calendarApi for this view
+  function buildTitleParts(dateProfile, viewOptions, dateEnv) {
       let range;
       // for views that span a large unit of time, show the proper interval, ignoring stray days before and after
       if (/^(year|month)$/.test(dateProfile.currentRangeUnit)) {
@@ -7712,7 +9424,7 @@ var FullCalendar = (function (exports) {
               parts = dateEnv.formatRangeToParts(range.start, range.end, createFormatter(buildTitleFormat(dateProfile, viewOptions.disallowAmbigTitle, 'short')), options);
           }
       }
-      return joinDateTimeFormatParts(parts);
+      return parts;
   }
   // Generates the format string that should be used to generate the title for the current date range.
   // Attempts to compute the most appropriate format if not explicitly specified with `titleFormat`.
@@ -7828,7 +9540,8 @@ var FullCalendar = (function (exports) {
           this.buildEventUiBases = memoize(buildEventUiBases);
           this.parseContextBusinessHours = memoizeObjArg(parseContextBusinessHours);
           this.buildToolbarProps = memoize(buildToolbarProps);
-          this.buildTitle = memoize(buildTitle);
+          this.buildTitleParts = memoize(buildTitleParts);
+          this.joinTitleParts = memoize(joinDateTimeFormatParts);
           this.nowManager = new CalendarNowManager();
           this.isDrainingActionQueue = false;
           this.actionQueue = [];
@@ -7856,8 +9569,15 @@ var FullCalendar = (function (exports) {
           this.nowManager = new CalendarNowManager();
           this.nowTimer = new NowTimerRunner(this.handleNowChange);
       }
+      /*
+      Starts the timer that keeps today current. Call after the first update(), when the calendar mounts.
+      Idempotent, and callable again after destroy(), for remounts (React Strict Mode, a shown <Activity>)
+      */
+      mount() {
+          this.nowTimer.start();
+      }
       destroy() {
-          this.nowTimer.destroy();
+          this.nowTimer.stop();
       }
       /*
       Will NOT trigger onDataChange unless there were other actions in the queue
@@ -7985,9 +9705,7 @@ var FullCalendar = (function (exports) {
           // === UI computation ===
           let { eventUiSingleBase, selectionConfig } = this.buildViewUiProps(calendarContext);
           let eventUiBySource = this.buildEventUiBySource(eventSources);
-          let eventUiBases = isInit
-              ? {}
-              : this.buildEventUiBases(renderableEventStore.defs, eventUiSingleBase, eventUiBySource);
+          let eventUiBases = this.buildEventUiBases(eventUiSingleBase, eventUiBySource);
           // === Build new state ===
           let newState = {
               dynamicOptionOverrides,
@@ -8021,10 +9739,12 @@ var FullCalendar = (function (exports) {
               this.emitter.trigger('loading', false);
           }
           // === Build CalendarData ===
-          let viewTitle = this.buildTitle(dateProfile, currentViewData.options, optionsData.dateEnv);
+          let viewTitleParts = this.buildTitleParts(dateProfile, currentViewData.options, optionsData.dateEnv);
+          let viewTitle = this.joinTitleParts(viewTitleParts);
           let toolbarProps = this.buildToolbarProps(currentViewData.viewSpec, dateProfile, currentViewData.dateProfileGenerator, currentDate, nowDate, viewTitle);
           let newData = {
               viewTitle,
+              viewTitleParts,
               nowManager: this.nowManager,
               calendarApi: config.calendarApi,
               dispatch: this.dispatch,
@@ -8221,17 +9941,8 @@ var FullCalendar = (function (exports) {
   /*
   The result of this is processed by compileEventUi
   */
-  function buildEventUiBases(eventDefs, eventUiSingleBase, eventUiBySource) {
-      let eventUiBases = {
-          '': eventUiSingleBase, // fallback
-      };
-      for (let defId in eventDefs) {
-          let def = eventDefs[defId];
-          if (def.sourceId && eventUiBySource[def.sourceId]) {
-              eventUiBases[defId] = eventUiBySource[def.sourceId];
-          }
-      }
-      return eventUiBases;
+  function buildEventUiBases(eventUiSingleBase, eventUiBySource) {
+      return { base: eventUiSingleBase, bySource: eventUiBySource };
   }
   function buildViewUiProps(calendarContext) {
       const { options } = calendarContext;
@@ -8822,6 +10533,9 @@ var FullCalendar = (function (exports) {
                   isOnlyView = false;
               }
           }
+          // two or more view buttons form a tablist. a tab must be in one, so a lone view button is a
+          // toggle button instead, like a view button grouped with other buttons
+          let isTablist = isOnlyButtons && isOnlyView && widgetGroup.length > 1;
           for (let widget of widgetGroup) {
               let { name, customElement, buttonHint } = widget;
               if (name === 'title') {
@@ -8859,9 +10573,12 @@ var FullCalendar = (function (exports) {
                   children.push(u$1(ContentContainer, { tag: 'button', attrs: {
                           type: 'button',
                           disabled: isDisabled,
-                          ...((isOnlyButtons && isOnlyView)
+                          ...(isTablist
                               ? { 'role': 'tab', 'aria-selected': isSelected }
-                              : { 'aria-pressed': isSelected }),
+                              : widget.isView
+                                  ? { 'aria-pressed': isSelected }
+                                  : {} // not a toggle: prev, next, today and custom buttons
+                          ),
                           'aria-label': typeof buttonHint === 'function'
                               ? buttonHint(props.navUnit)
                               : buttonHint,
@@ -8878,8 +10595,8 @@ var FullCalendar = (function (exports) {
           }
           if (children.length > 1) {
               return k$1('div', {
-                  role: (isOnlyButtons && isOnlyView) ? 'tablist' : undefined,
-                  'aria-label': (isOnlyButtons && isOnlyView) ? options.viewChangeHint : undefined,
+                  role: isTablist ? 'tablist' : undefined,
+                  'aria-label': isTablist ? options.viewChangeHint : undefined,
                   className: joinClassNames(generateClassName(options.buttonGroupClass, { hasSelection: isOnlyView }), classNames.isolate),
               }, ...children);
           }
@@ -9109,144 +10826,9 @@ var FullCalendar = (function (exports) {
       return theClasses.map((TheClass) => new TheClass());
   }
 
-  function pointInsideRect(point, rect) {
-      return point.left >= rect.left &&
-          point.left < rect.right &&
-          point.top >= rect.top &&
-          point.top < rect.bottom;
-  }
-  // Returns a new rectangle that is the intersection of the two rectangles. If they don't intersect, returns false
-  function intersectRects(rect1, rect2) {
-      let res = {
-          left: Math.max(rect1.left, rect2.left),
-          right: Math.min(rect1.right, rect2.right),
-          top: Math.max(rect1.top, rect2.top),
-          bottom: Math.min(rect1.bottom, rect2.bottom),
-      };
-      if (res.left < res.right && res.top < res.bottom) {
-          return res;
-      }
-      return false;
-  }
-  // Returns a new point that will have been moved to reside within the given rectangle
-  function constrainPoint(point, rect) {
-      return {
-          left: Math.min(Math.max(point.left, rect.left), rect.right),
-          top: Math.min(Math.max(point.top, rect.top), rect.bottom),
-      };
-  }
-  // Returns a point that is the center of the given rectangle
-  function getRectCenter(rect) {
-      return {
-          left: (rect.left + rect.right) / 2,
-          top: (rect.top + rect.bottom) / 2,
-      };
-  }
-  // Subtracts point2's coordinates from point1's coordinates, returning a delta
-  function diffPoints(point1, point2) {
-      return {
-          left: point1.left - point2.left,
-          top: point1.top - point2.top,
-      };
-  }
-
-  function computeEdges(el, getPadding = false) {
-      let computedStyle = window.getComputedStyle(el);
-      let borderLeft = parseInt(computedStyle.borderLeftWidth, 10) || 0;
-      let borderRight = parseInt(computedStyle.borderRightWidth, 10) || 0;
-      let borderTop = parseInt(computedStyle.borderTopWidth, 10) || 0;
-      let borderBottom = parseInt(computedStyle.borderBottomWidth, 10) || 0;
-      let badScrollbarWidths = computeScrollbarWidthsForEl(el); // includes border!
-      let scrollbarLeftRight = badScrollbarWidths.y - borderLeft - borderRight;
-      let scrollbarBottom = badScrollbarWidths.x - borderTop - borderBottom;
-      let res = {
-          borderLeft,
-          borderRight,
-          borderTop,
-          borderBottom,
-          scrollbarBottom,
-          scrollbarLeft: 0,
-          scrollbarRight: 0,
-      };
-      if (computedStyle.direction === 'rtl') {
-          res.scrollbarLeft = scrollbarLeftRight;
-      }
-      else {
-          res.scrollbarRight = scrollbarLeftRight;
-      }
-      if (getPadding) {
-          res.paddingLeft = parseInt(computedStyle.paddingLeft, 10) || 0;
-          res.paddingRight = parseInt(computedStyle.paddingRight, 10) || 0;
-          res.paddingTop = parseInt(computedStyle.paddingTop, 10) || 0;
-          res.paddingBottom = parseInt(computedStyle.paddingBottom, 10) || 0;
-      }
-      return res;
-  }
-  function computeInnerRect(el, goWithinPadding = false, doFromWindowViewport) {
-      let outerRect = doFromWindowViewport ? el.getBoundingClientRect() : computeRect(el);
-      let edges = computeEdges(el, goWithinPadding);
-      let res = {
-          left: outerRect.left + edges.borderLeft + edges.scrollbarLeft,
-          right: outerRect.right - edges.borderRight - edges.scrollbarRight,
-          top: outerRect.top + edges.borderTop,
-          bottom: outerRect.bottom - edges.borderBottom - edges.scrollbarBottom,
-      };
-      if (goWithinPadding) {
-          res.left += edges.paddingLeft;
-          res.right -= edges.paddingRight;
-          res.top += edges.paddingTop;
-          res.bottom -= edges.paddingBottom;
-      }
-      return res;
-  }
-  function computeRect(el) {
-      let rect = el.getBoundingClientRect();
-      return {
-          left: rect.left + window.scrollX,
-          top: rect.top + window.scrollY,
-          right: rect.right + window.scrollX,
-          bottom: rect.bottom + window.scrollY,
-      };
-  }
-  /*
-  Returns relative to viewport origin
-  */
-  function computeClippedClientRect(el) {
-      let clippingParents = getClippingParents(el);
-      let rect = el.getBoundingClientRect();
-      for (let clippingParent of clippingParents) {
-          let intersection = intersectRects(rect, clippingParent.getBoundingClientRect());
-          if (intersection) {
-              rect = intersection;
-          }
-          else {
-              return null;
-          }
-      }
-      return rect;
-  }
-  // does not return window
-  function getClippingParents(el) {
-      let parents = [];
-      while (el instanceof HTMLElement) { // will stop when gets to document or null
-          let computedStyle = window.getComputedStyle(el);
-          if (computedStyle.position === 'fixed') {
-              break;
-          }
-          if ((/(auto|scroll)/).test(computedStyle.overflow + computedStyle.overflowY + computedStyle.overflowX)) {
-              parents.push(el);
-          }
-          el = el.parentNode;
-      }
-      return parents;
-  }
-  // WARNING: will include border
-  function computeScrollbarWidthsForEl(el) {
-      return {
-          x: el.offsetHeight - el.clientHeight,
-          y: el.offsetWidth - el.clientWidth,
-      };
-  }
+  // TODO: get rid of this in favor of options system,
+  // tho it's really easy to access this globally rather than pass thru options.
+  const config = {};
 
   function getAppendableRoot(el) {
       const root = el.getRootNode();
@@ -9305,8 +10887,12 @@ var FullCalendar = (function (exports) {
           });
           return props.children(nowDate, todayRange, nowMs);
       }
+      // the timer runs only while mounted, so Strict Mode and <Activity> remounts start it again
+      componentDidMount() {
+          this.runner.start();
+      }
       componentWillUnmount() {
-          this.runner.destroy();
+          this.runner.stop();
       }
   }
   NowTimer.contextType = ViewContextType;
@@ -9351,7 +10937,10 @@ var FullCalendar = (function (exports) {
   Assumes navLinks enabled
   Always hidden to screen readers. Do not point aria-labelledby at this. Use aria-label instead.
   */
-  function buildNavLinkAttrs(context, dateMarker, viewType = 'day', dateStr = buildDateStr(context, dateMarker, viewType), isTabbable = true) {
+  function buildNavLinkAttrs(context, dateMarker, viewType = 'day', dateStr = buildDateStr(context, dateMarker, viewType), isTabbable = true, 
+  // for column headers: the label becomes the column's name, read for every cell in the column, and
+  // screen readers already say "link". so it's just the date, without navLinkHint ("Go to $0")
+  omitHint = false) {
       const { dateEnv, options, calendarApi } = context;
       const zonedDate = dateEnv.toDate(dateMarker);
       const handleInteraction = (ev) => {
@@ -9369,7 +10958,7 @@ var FullCalendar = (function (exports) {
       };
       return {
           'role': 'link', // TODO
-          'aria-label': formatWithOrdinals(options.navLinkHint, [dateStr, zonedDate], dateStr),
+          'aria-label': omitHint ? dateStr : formatWithOrdinals(options.navLinkHint, [dateStr, zonedDate], dateStr),
           'className': joinClassNames(options.navLinkClass, classNames.cursorPointer, classNames.internalNavLink),
           ...(isTabbable
               ? createAriaClickAttrs(handleInteraction)
@@ -9455,8 +11044,9 @@ var FullCalendar = (function (exports) {
   }
 
   class DelayedRunner {
-      constructor(drainedOption) {
+      constructor(drainedOption, isSettleUntracked = false) {
           this.drainedOption = drainedOption;
+          this.isSettleUntracked = isSettleUntracked;
           this.isRunning = false;
           this.isDirty = false;
           this.pauseDepths = {};
@@ -9470,8 +11060,10 @@ var FullCalendar = (function (exports) {
                   this.tryDrain();
               }
               else {
-                  this.timeoutId = setTimeout(// NOT OPTIMAL! TODO: look at debounce
-                  this.tryDrain.bind(this), delay);
+                  const drain = this.tryDrain.bind(this);
+                  this.timeoutId = this.isSettleUntracked
+                      ? setTimeout(drain, delay) // NOT OPTIMAL! TODO: look at debounce
+                      : settleSetTimeout(drain, delay);
               }
           }
       }
@@ -9516,7 +11108,12 @@ var FullCalendar = (function (exports) {
       }
       clearTimeout() {
           if (this.timeoutId) {
-              clearTimeout(this.timeoutId);
+              if (this.isSettleUntracked) {
+                  clearTimeout(this.timeoutId);
+              }
+              else {
+                  settleClearTimeout(this.timeoutId);
+              }
               this.timeoutId = 0;
           }
       }
@@ -9527,6 +11124,8 @@ var FullCalendar = (function (exports) {
       }
   }
 
+  // ms without scroll events after which a scroll has ended. Settable for tests
+  config.scrollEndWait = 500;
   /*
   NOTE: detection is complicated (w/ touch and wheel) because ScrollerSyncer needs to know about it,
   but are we sure we can't just ignore programmatic scrollTo() calls with a flag? and determine the
@@ -9560,7 +11159,7 @@ var FullCalendar = (function (exports) {
               }
               this.startScroll();
               this.emitter.trigger('scroll', this.getIsDevice());
-              this.scrollWaiter.request(500);
+              this.scrollWaiter.request(config.scrollEndWait);
           };
           this.handleScrollWait = () => {
               this.isScrollRecent = false;
@@ -9597,8 +11196,9 @@ var FullCalendar = (function (exports) {
                   this.endScroll();
               }
           };
-          this.wheelWaiter = new DelayedRunner(this.handleWheelWait);
-          this.scrollWaiter = new DelayedRunner(this.handleScrollWait);
+          // scroll-end detection waits a long while (config.scrollEndWait), so tests don't wait on it by default
+          this.wheelWaiter = new DelayedRunner(this.handleWheelWait, /* isSettleUntracked = */ true);
+          this.scrollWaiter = new DelayedRunner(this.handleScrollWait, /* isSettleUntracked = */ true);
           el.addEventListener('scroll', this.handleScroll, { passive: true });
           el.addEventListener('wheel', this.handleWheel, { passive: true });
           el.addEventListener('mousedown', this.handleMouseDown);
@@ -9848,12 +11448,14 @@ var FullCalendar = (function (exports) {
           const isDraggable = !props.disableDragging && computeEventRangeDraggable(eventRange, context);
           const isBlock = /row|column/.test(props.display);
           const subcontentRenderProps = {
+              ...props.renderProps, // first, so built-in props take precedence
               event: eventApi,
               isNarrow: props.isNarrow || false,
               isShort: props.isShort || false,
               timeText,
           };
           const renderProps = {
+              ...props.renderProps, // first, so built-in props take precedence
               event: eventApi, // make stable. everything else atomic. FYI, eventRange unfortunately gets reconstructed a lot, but def/instance is stable
               view: context.viewApi,
               timeText: timeText,
@@ -9923,6 +11525,145 @@ var FullCalendar = (function (exports) {
       return (u$1(S, { children: [innerProps.timeText && (u$1("div", { className: innerProps.timeClass, children: innerProps.timeText })), u$1("div", { className: innerProps.titleClass, children: innerProps.event.title || u$1(S, { children: "\u00A0" }) })] }));
   }
 
+  function pointInsideRect(point, rect) {
+      return point.left >= rect.left &&
+          point.left < rect.right &&
+          point.top >= rect.top &&
+          point.top < rect.bottom;
+  }
+  // Returns a new rectangle that is the intersection of the two rectangles. If they don't intersect, returns false
+  function intersectRects(rect1, rect2) {
+      let res = {
+          left: Math.max(rect1.left, rect2.left),
+          right: Math.min(rect1.right, rect2.right),
+          top: Math.max(rect1.top, rect2.top),
+          bottom: Math.min(rect1.bottom, rect2.bottom),
+      };
+      if (res.left < res.right && res.top < res.bottom) {
+          return res;
+      }
+      return false;
+  }
+  // Returns a new point that will have been moved to reside within the given rectangle
+  function constrainPoint(point, rect) {
+      return {
+          left: Math.min(Math.max(point.left, rect.left), rect.right),
+          top: Math.min(Math.max(point.top, rect.top), rect.bottom),
+      };
+  }
+  // Returns a point that is the center of the given rectangle
+  function getRectCenter(rect) {
+      return {
+          left: (rect.left + rect.right) / 2,
+          top: (rect.top + rect.bottom) / 2,
+      };
+  }
+  // Subtracts point2's coordinates from point1's coordinates, returning a delta
+  function diffPoints(point1, point2) {
+      return {
+          left: point1.left - point2.left,
+          top: point1.top - point2.top,
+      };
+  }
+
+  function computeEdges(el, getPadding = false) {
+      let computedStyle = window.getComputedStyle(el);
+      let borderLeft = parseInt(computedStyle.borderLeftWidth, 10) || 0;
+      let borderRight = parseInt(computedStyle.borderRightWidth, 10) || 0;
+      let borderTop = parseInt(computedStyle.borderTopWidth, 10) || 0;
+      let borderBottom = parseInt(computedStyle.borderBottomWidth, 10) || 0;
+      let badScrollbarWidths = computeScrollbarWidthsForEl(el); // includes border!
+      let scrollbarLeftRight = badScrollbarWidths.y - borderLeft - borderRight;
+      let scrollbarBottom = badScrollbarWidths.x - borderTop - borderBottom;
+      let res = {
+          borderLeft,
+          borderRight,
+          borderTop,
+          borderBottom,
+          scrollbarBottom,
+          scrollbarLeft: 0,
+          scrollbarRight: 0,
+      };
+      if (computedStyle.direction === 'rtl') {
+          res.scrollbarLeft = scrollbarLeftRight;
+      }
+      else {
+          res.scrollbarRight = scrollbarLeftRight;
+      }
+      if (getPadding) {
+          res.paddingLeft = parseInt(computedStyle.paddingLeft, 10) || 0;
+          res.paddingRight = parseInt(computedStyle.paddingRight, 10) || 0;
+          res.paddingTop = parseInt(computedStyle.paddingTop, 10) || 0;
+          res.paddingBottom = parseInt(computedStyle.paddingBottom, 10) || 0;
+      }
+      return res;
+  }
+  function computeInnerRect(el, goWithinPadding = false, doFromWindowViewport) {
+      let outerRect = doFromWindowViewport ? el.getBoundingClientRect() : computeRect(el);
+      let edges = computeEdges(el, goWithinPadding);
+      let res = {
+          left: outerRect.left + edges.borderLeft + edges.scrollbarLeft,
+          right: outerRect.right - edges.borderRight - edges.scrollbarRight,
+          top: outerRect.top + edges.borderTop,
+          bottom: outerRect.bottom - edges.borderBottom - edges.scrollbarBottom,
+      };
+      if (goWithinPadding) {
+          res.left += edges.paddingLeft;
+          res.right -= edges.paddingRight;
+          res.top += edges.paddingTop;
+          res.bottom -= edges.paddingBottom;
+      }
+      return res;
+  }
+  function computeRect(el) {
+      let rect = el.getBoundingClientRect();
+      return {
+          left: rect.left + window.scrollX,
+          top: rect.top + window.scrollY,
+          right: rect.right + window.scrollX,
+          bottom: rect.bottom + window.scrollY,
+      };
+  }
+  /*
+  Returns relative to viewport origin
+  */
+  function computeClippedClientRect(el) {
+      let clippingParents = getClippingParents(el);
+      let rect = el.getBoundingClientRect();
+      for (let clippingParent of clippingParents) {
+          let intersection = intersectRects(rect, clippingParent.getBoundingClientRect());
+          if (intersection) {
+              rect = intersection;
+          }
+          else {
+              return null;
+          }
+      }
+      return rect;
+  }
+  // does not return window
+  function getClippingParents(el) {
+      let parents = [];
+      while (el instanceof HTMLElement) { // will stop when gets to document or null
+          let computedStyle = window.getComputedStyle(el);
+          if (computedStyle.position === 'fixed') {
+              break;
+          }
+          if ((/(auto|scroll)/).test(computedStyle.overflow + computedStyle.overflowY + computedStyle.overflowX)) {
+              parents.push(el);
+          }
+          el = el.parentNode;
+      }
+      return parents;
+  }
+  // WARNING: will include border
+  function computeScrollbarWidthsForEl(el) {
+      return {
+          x: el.offsetHeight - el.clientHeight,
+          y: el.offsetWidth - el.clientWidth,
+      };
+  }
+
   class Slicer {
       constructor() {
           this.sliceBusinessHours = memoize(this._sliceBusinessHours);
@@ -9965,13 +11706,13 @@ var FullCalendar = (function (exports) {
       sliceNowDate(// does not memoize
       date, dateProfile, nextDayThreshold, context, ...extraArgs) {
           return this._sliceDateSpan({ range: { start: date, end: addMs(date, 1) }, allDay: false }, // add 1 ms, protect against null range
-          dateProfile, nextDayThreshold, {}, context, ...extraArgs);
+          dateProfile, nextDayThreshold, EMPTY_EVENT_UI_BASES, context, ...extraArgs);
       }
       _sliceBusinessHours(businessHours, dateProfile, nextDayThreshold, context, ...extraArgs) {
           if (!businessHours) {
               return [];
           }
-          return this._sliceEventStore(expandRecurring(businessHours, computeActiveRange(dateProfile, Boolean(nextDayThreshold)), context), {}, dateProfile, nextDayThreshold, ...extraArgs).bg;
+          return this._sliceEventStore(expandRecurring(businessHours, computeActiveRange(dateProfile, Boolean(nextDayThreshold)), context), EMPTY_EVENT_UI_BASES, dateProfile, nextDayThreshold, ...extraArgs).bg;
       }
       _sliceEventStore(eventStore, eventUiBases, dateProfile, nextDayThreshold, ...extraArgs) {
           if (eventStore) {
@@ -10211,10 +11952,6 @@ var FullCalendar = (function (exports) {
           datesRepDistinctDays,
       };
   }
-  const dowDates = [];
-  for (let dow = 0; dow < 7; dow++) {
-      dowDates.push(addDays(new Date(259200000), dow)); // start with Sun, 04 Jan 1970 00:00:00 GMT)
-  }
   /*
   For header cells: data
   */
@@ -10249,15 +11986,17 @@ var FullCalendar = (function (exports) {
                   dateMarker,
                   renderProps,
                   attrs: {
-                      'aria-label': fullDateStr,
                       ...(dateMeta.isToday ? { 'aria-current': 'date' } : {}), // TODO: assign undefined for nonexistent
                       'data-date': formatDayString(dateMarker),
                       ...extraAttrs,
                   },
-                  // for navlink
+                  // navlink is already labeled. otherwise, a11yText read instead
                   innerAttrs: hasNavLink
-                      ? buildNavLinkAttrs(context, dateMarker, undefined, fullDateStr)
-                      : { 'aria-hidden': true }, // label already on cell
+                      ? buildNavLinkAttrs(context, dateMarker, undefined, fullDateStr, 
+                      /* isTabbable = */ true, 
+                      /* omitHint = */ true)
+                      : undefined,
+                  a11yText: hasNavLink ? undefined : fullDateStr,
                   colSpan,
                   hasNavLink,
                   className,
@@ -10278,7 +12017,6 @@ var FullCalendar = (function (exports) {
               const isMajor = isMajorMod != null && !(i % isMajorMod);
               const renderProps = {
                   ...dateMeta,
-                  date: dowDates[dow],
                   isMajor,
                   isSticky: false, // HACK. gets overridden
                   inPopover: false,
@@ -10292,14 +12030,9 @@ var FullCalendar = (function (exports) {
                   key: keyPrefix + String(dow),
                   dateMarker,
                   renderProps,
-                  attrs: {
-                      'aria-label': fullWeekDayStr,
-                      ...extraAttrs,
-                  },
+                  attrs: extraAttrs,
                   // NOT a navlink
-                  innerAttrs: {
-                      'aria-hidden': true, // label already on cell
-                  },
+                  a11yText: fullWeekDayStr,
                   colSpan,
                   className,
               };
@@ -10438,11 +12171,14 @@ var FullCalendar = (function (exports) {
           const eventUi = eventRange.ui;
           const eventApi = this.buildPublicEvent(context, eventRange.def, eventRange.instance);
           const subcontentRenderProps = {
+              ...props.renderProps, // first, so built-in props take precedence
               event: eventApi,
+              timeText: '', // never display time
               isNarrow: props.isNarrow || false,
               isShort: props.isShort || false,
           };
           const renderProps = {
+              ...props.renderProps, // first, so built-in props take precedence
               event: eventApi,
               view: context.viewApi,
               timeText: '', // never display time
@@ -10553,6 +12289,7 @@ var FullCalendar = (function (exports) {
           let textParts = dateEnv.formatToParts(startDate, options.popoverFormat);
           let text = joinDateTimeFormatParts(textParts);
           const dayHeaderRenderProps = {
+              ...props.renderProps, // first, so built-in props take precedence
               ...dateMeta,
               isMajor: false,
               isNarrow: false,
@@ -10564,21 +12301,23 @@ var FullCalendar = (function (exports) {
               textParts,
               get weekdayText() { return findWeekdayText(textParts); },
               get dayNumberText() { return findDayNumberText(textParts); },
+              get monthText() { return findMonthText(textParts); },
               view: viewApi,
-              // TODO: should know about the resource!
           };
           const dayCellRenderProps = {
+              ...props.renderProps, // first, so built-in props take precedence
               ...dateMeta,
               isMajor: false,
               isNarrow: false,
               inPopover: true,
               hasNavLink: false,
-              get weekdayText() { return findWeekdayText(textParts); },
-              get dayNumberText() { return findDayNumberText(textParts); },
-              get monthText() { return findMonthText(textParts); },
               view: viewApi,
+              // the popover's day cell has no label of its own
               text: '',
               textParts: [],
+              weekdayText: '',
+              dayNumberText: '',
+              monthText: '',
               options: { businessHours: Boolean(options.businessHours) },
           };
           const fullDateStr = formatDayString(startDate);
@@ -10605,7 +12344,8 @@ var FullCalendar = (function (exports) {
                                   }, generatorName: "dayHeaderContent", renderProps: dayHeaderRenderProps, customGenerator: options.dayHeaderContent, defaultGenerator: renderText, classNameGenerator: options.dayHeaderInnerClass, didMount: options.dayHeaderDidMount, willUnmount: options.dayHeaderWillUnmount }) }), u$1(ContentContainer, { tag: 'button', attrs: {
                                   'aria-label': options.closeHint,
                                   ...createAriaClickAttrs(this.handleClose)
-                              }, elRef: this.closeRef, className: joinClassNames(options.popoverCloseClass, classNames.flexRow, classNames.cursorPointer), renderProps: {}, customGenerator: options.popoverCloseContent, generatorName: 'popoverCloseContent' })] }), u$1("div", { className: joinClassNames(generateClassName(options.dayCellClass, dayCellRenderProps), classNames.flexCol, classNames.borderless), children: u$1("div", { className: generateClassName(options.dayCellInnerClass, dayCellRenderProps), children: props.children }) }), u$1("div", { tabIndex: 0, style: { outline: 'none' }, ref: this.focusEndRef })] }), getAppendableRoot(props.alignEl));
+                              }, elRef: this.closeRef, className: joinClassNames(options.popoverCloseClass, classNames.flexRow, classNames.cursorPointer), renderProps: {}, customGenerator: options.popoverCloseContent, generatorName: 'popoverCloseContent' })] }), u$1("div", { className: joinClassNames(generateClassName(options.dayCellClass, dayCellRenderProps), classNames.flexCol, classNames.borderless), children: u$1("div", { role: 'list' // children are list items
+                          , className: generateClassName(options.dayCellInnerClass, dayCellRenderProps), children: props.children }) }), u$1("div", { tabIndex: 0, style: { outline: 'none' }, ref: this.focusEndRef })] }), getAppendableRoot(props.alignEl));
       }
       queryHit(isRtl, positionLeft, positionTop, elWidth, elHeight) {
           let { rootEl, props } = this;
@@ -10714,7 +12454,7 @@ var FullCalendar = (function (exports) {
       render() {
           const { props, context } = this;
           const { options } = context;
-          const renderProps = buildMoreLinkRenderProps(props.num, props.isNarrow, props.isMicro, props.display, context);
+          const renderProps = buildMoreLinkRenderProps(props.num, props.isNarrow, props.isMicro, props.display, props.renderProps, context);
           return (u$1(ContentContainer, { tag: 'div', elRef: props.elRef, className: joinClassNames(generateClassName(props.display === 'row'
                   ? options.rowMoreLinkClass
                   : options.columnMoreLinkClass, renderProps), props.className, props.display === 'row'
@@ -10785,9 +12525,9 @@ var FullCalendar = (function (exports) {
           const moreCnt = props.hiddenSegs.length;
           const range = computeRange(props);
           const popoverId = baseId + 'popover-' + range.start.toISOString();
-          const renderProps = buildMoreLinkRenderProps(moreCnt, props.isNarrow, props.isMicro, props.display, context);
+          const renderProps = buildMoreLinkRenderProps(moreCnt, props.isNarrow, props.isMicro, props.display, props.renderProps, context);
           const hint = formatWithOrdinals(options.moreLinkHint, [moreCnt], renderProps.longText);
-          return (u$1(S, { children: [Boolean(moreCnt) && (u$1(MoreLinkTrigger, { num: moreCnt, display: props.display, isNarrow: props.isNarrow, isMicro: props.isMicro, elRef: this.handleLinkEl, className: props.className, style: props.style, attrs: {
+          return (u$1(S, { children: [Boolean(moreCnt) && (u$1(MoreLinkTrigger, { num: moreCnt, display: props.display, isNarrow: props.isNarrow, isMicro: props.isMicro, renderProps: props.renderProps, elRef: this.handleLinkEl, className: props.className, style: props.style, attrs: {
                           ...props.attrs,
                           ...createAriaClickAttrs(this.handleClick),
                           title: hint,
@@ -10795,19 +12535,20 @@ var FullCalendar = (function (exports) {
                           'aria-haspopup': 'dialog',
                           'aria-expanded': state.isPopoverOpen,
                           'aria-controls': state.isPopoverOpen ? popoverId : undefined,
-                      }, didMount: options.moreLinkDidMount, willUnmount: options.moreLinkWillUnmount })), state.isPopoverOpen && (u$1(MorePopover, { id: popoverId, titleId: popoverId + '-title', startDate: range.start, endDate: range.end, dateProfile: props.dateProfile, todayRange: props.todayRange, dateSpanProps: props.dateSpanProps, alignEl: props.alignElRef ? props.alignElRef.current : this.linkEl, alignParentTop: props.alignParentTop, forceTimed: props.forceTimed, onClose: this.handlePopoverClose, children: props.popoverContent() }))] }));
+                      }, didMount: options.moreLinkDidMount, willUnmount: options.moreLinkWillUnmount })), state.isPopoverOpen && (u$1(MorePopover, { id: popoverId, titleId: popoverId + '-title', startDate: range.start, endDate: range.end, dateProfile: props.dateProfile, todayRange: props.todayRange, dateSpanProps: props.dateSpanProps, renderProps: props.renderProps, alignEl: props.alignElRef ? props.alignElRef.current : this.linkEl, alignParentTop: props.alignParentTop, forceTimed: props.forceTimed, onClose: this.handlePopoverClose, children: props.popoverContent() }))] }));
       }
   }
   function renderMoreLinkText(props) {
       return props.text;
   }
-  function buildMoreLinkRenderProps(num, isNarrow, isMicro, display, context) {
+  function buildMoreLinkRenderProps(num, isNarrow, isMicro, display, extraRenderProps, context) {
       const { viewApi, options, calendarApi } = context;
       const numericText = `+${num}`; // TODO: offer hook or i18n?
       const longText = typeof options.moreLinkText === 'function' // TODO: eventually use formatWithOrdinals
           ? options.moreLinkText.call(calendarApi, num)
           : `${numericText} ${options.moreLinkText}`;
       return {
+          ...extraRenderProps, // first, so built-in props take precedence
           num,
           numericText,
           longText,
@@ -10856,15 +12597,15 @@ var FullCalendar = (function (exports) {
   class DayGridMoreLink extends BaseComponent {
       render() {
           let { props } = this;
-          return (u$1(MoreLinkContainer, { display: 'row', className: joinClassNames(props.className, DAY_GRID_CELL_CONTENT_Z_CLASS), isNarrow: props.isNarrow, isMicro: props.isMicro, dateProfile: props.dateProfile, todayRange: props.todayRange, allDayDate: props.allDayDate, segs: props.segs, hiddenSegs: props.hiddenSegs, alignElRef: props.alignElRef, alignParentTop: props.alignParentTop, dateSpanProps: props.dateSpanProps, popoverContent: () => (u$1(S, { children: props.segs.map((seg) => {
+          return (u$1(MoreLinkContainer, { display: 'row', className: joinClassNames(props.className, DAY_GRID_CELL_CONTENT_Z_CLASS), isNarrow: props.isNarrow, isMicro: props.isMicro, dateProfile: props.dateProfile, todayRange: props.todayRange, allDayDate: props.allDayDate, segs: props.segs, hiddenSegs: props.hiddenSegs, alignElRef: props.alignElRef, alignParentTop: props.alignParentTop, dateSpanProps: props.dateSpanProps, renderProps: props.renderProps, popoverContent: () => (u$1(S, { children: props.segs.map((seg) => {
                       let { eventRange } = seg;
                       let { instanceId } = eventRange.instance;
                       let isDragging = Boolean(props.eventDrag && props.eventDrag.affectedInstances[instanceId]);
                       let isResizing = Boolean(props.eventResize && props.eventResize.affectedInstances[instanceId]);
                       let isInvisible = isDragging || isResizing;
-                      return (u$1("div", { style: {
+                      return (u$1("div", { role: 'listitem', style: {
                               visibility: isInvisible ? 'hidden' : undefined,
-                          }, children: u$1(StandardEvent, { display: hasListItemDisplay(seg, eventRange) ? 'list-item' : 'row', eventRange: eventRange, isStart: seg.isStart, isEnd: seg.isEnd, isDragging: isDragging, isResizing: isResizing, isMirror: false, isSelected: instanceId === props.eventSelection, defaultTimeFormat: DEFAULT_TABLE_EVENT_TIME_FORMAT, defaultDisplayEventEnd: false, ...getEventRangeMeta(eventRange, props.todayRange) }) }, instanceId));
+                          }, children: u$1(StandardEvent, { display: hasListItemDisplay(seg, eventRange) ? 'list-item' : 'row', eventRange: eventRange, isStart: seg.isStart, isEnd: seg.isEnd, isDragging: isDragging, isResizing: isResizing, isMirror: false, isSelected: instanceId === props.eventSelection, defaultTimeFormat: DEFAULT_TABLE_EVENT_TIME_FORMAT, defaultDisplayEventEnd: false, renderProps: props.renderProps, ...getEventRangeMeta(eventRange, props.todayRange) }) }, instanceId));
                   }) })) }));
       }
   }
@@ -10946,25 +12687,34 @@ var FullCalendar = (function (exports) {
               businessHours: Boolean(options.businessHours),
           });
           if (dateMeta.isDisabled) {
-              return (u$1(CellTag, { role: 'gridcell', "aria-disabled": true, className: joinClassNames(generateClassName(options.dayCellClass, renderProps), props.className, baseClassName), style: cellStyle, children: props.fills }));
+              return (u$1(CellTag, { role: 'cell', "aria-disabled": true, className: joinClassNames(generateClassName(options.dayCellClass, renderProps), props.className, baseClassName), style: cellStyle, children: props.fills }));
           }
           const fullDateStr = buildDateStr(context, props.date);
+          // only when the day number is shown: otherwise, the column header already reads the full date
+          const hasA11yDateText = props.showDayNumber && !hasNavLink;
           return (u$1(ContentContainer, { tag: CellTag, elRef: this.rootElRef, className: joinClassNames(props.className, baseClassName), attrs: {
                   ...props.attrs,
-                  role: 'gridcell',
-                  'aria-label': fullDateStr,
+                  role: 'cell',
                   ...(renderProps.isToday ? { 'aria-current': 'date' } : {}),
                   'data-date': formatDayString(props.date),
               }, style: cellStyle, renderProps: renderProps, generatorName: "dayCellTopContent" // !!! for top
-              , customGenerator: options.dayCellTopContent /* !!! for top */, defaultGenerator: renderTopInner, classNameGenerator: options.dayCellClass, didMount: options.dayCellDidMount, willUnmount: options.dayCellWillUnmount, children: (InnerContent) => (u$1(S, { children: [props.fills, u$1("div", { className: joinClassNames(classNames.rel, // puts it above bg-fills, which are positioned on TOP of this component :|
-                          DAY_GRID_CELL_CONTENT_Z_CLASS, generateClassName(options.dayCellTopClass, renderProps)), children: props.showDayNumber && (u$1(InnerContent // the dayCellTopContent
-                          , { tag: 'div', attrs: hasNavLink
-                                  ? buildNavLinkAttrs(context, props.date, undefined, fullDateStr)
-                                  : { 'aria-hidden': true } // label already on cell
-                              , className: generateClassName(options.dayCellTopInnerClass, renderProps) })) }), u$1("div", { className: joinClassNames(!tableMode && classNames.flexCol, !tableMode && (props.fgLiquidHeight ? classNames.liquid : classNames.grow), tableMode && classNames.printCellContentMinHeight), ref: this.handleBodyEl, children: [u$1("div", { className: joinClassNames(classNames.rel, // origin for this cell's foreground event wrappers
+              , customGenerator: options.dayCellTopContent /* !!! for top */, defaultGenerator: renderTopInner, classNameGenerator: options.dayCellClass, didMount: options.dayCellDidMount, willUnmount: options.dayCellWillUnmount, children: (InnerContent) => (u$1(S, { children: [props.fills, u$1("div", { 
+                          // otherwise VoiceOver finds an empty group when there's no day number (ex: TimeGrid all-day).
+                          // children (srOnly date, day number, custom content) stay readable
+                          role: 'presentation', className: joinClassNames(classNames.rel, // puts it above bg-fills, which are positioned on TOP of this component :|
+                          DAY_GRID_CELL_CONTENT_Z_CLASS, generateClassName(options.dayCellTopClass, renderProps)), children: [hasA11yDateText && ( // a nav link is already labeled
+                              u$1("div", { className: classNames.srOnly, children: fullDateStr })), props.showDayNumber && (u$1(InnerContent // the dayCellTopContent
+                              , { tag: 'div', attrs: hasNavLink
+                                      ? buildNavLinkAttrs(context, props.date, undefined, fullDateStr)
+                                      : { 'aria-hidden': true } // screen readers read the srOnly full date above, not this day number
+                                  , className: generateClassName(options.dayCellTopInnerClass, renderProps) }))] }), u$1("div", { className: joinClassNames(!tableMode && classNames.flexCol, !tableMode && (props.fgLiquidHeight ? classNames.liquid : classNames.grow), tableMode && classNames.printCellContentMinHeight), ref: this.handleBodyEl, children: [u$1("div", { 
+                                  // without events of its own, it's still sized (space reserved for multi-day events from
+                                  // earlier days), and VoiceOver would find an empty group
+                                  role: props.fgIsList ? 'list' : 'presentation', className: joinClassNames(classNames.rel, // origin for this cell's foreground event wrappers
                                   generateClassName(options.dayCellInnerClass, renderProps)), style: { minHeight: props.fgHeight }, children: props.fg }), u$1(DayGridMoreLink, { className: classNames.rel, allDayDate: props.date, segs: props.segs, hiddenSegs: props.hiddenSegs, alignElRef: this.rootElRef, alignParentTop: props.showDayNumber
                                       ? '[role=row]'
-                                      : `.${classNames.internalView}`, dateSpanProps: props.dateSpanProps, dateProfile: props.dateProfile, eventSelection: props.eventSelection, eventDrag: props.eventDrag, eventResize: props.eventResize, todayRange: props.todayRange, isNarrow: props.isNarrow, isMicro: props.isMicro })] }), u$1("div", { className: joinClassNames(classNames.rel, // puts it above bg-fills
+                                      : `.${classNames.internalView}`, dateSpanProps: props.dateSpanProps, renderProps: props.renderProps, dateProfile: props.dateProfile, eventSelection: props.eventSelection, eventDrag: props.eventDrag, eventResize: props.eventResize, todayRange: props.todayRange, isNarrow: props.isNarrow, isMicro: props.isMicro })] }), u$1("div", { role: 'presentation' // otherwise VoiceOver finds an empty group. not aria-hidden, which would hide any content too
+                          , className: joinClassNames(classNames.rel, // puts it above bg-fills
                           DAY_GRID_CELL_CONTENT_Z_CLASS, generateClassName(options.dayCellBottomClass, renderProps)) })] })) }));
       }
       componentDidMount() {
@@ -11033,7 +12783,7 @@ var FullCalendar = (function (exports) {
       }
       render() {
           const { props } = this;
-          return (u$1("div", { className: props.className, style: props.style, ref: this.rootElRef, children: props.children }));
+          return (u$1("div", { ...props.attrs, className: props.className, style: props.style, ref: this.rootElRef, children: props.children }));
       }
       componentDidMount() {
           this._isUnmounting = false;
@@ -11208,9 +12958,11 @@ var FullCalendar = (function (exports) {
    * coverage accumulator; with a level tax, only newly covered runs reserve the
    * bottom event level for a more link, evicting any slice already there.
    */
-  function buildLevelLimitedLayout(segs, eventOrderStrict, eventSlicing, maxLevels, moreLinkLevelTax, sliceHeights) {
+  function buildLevelLimitedLayout(segs, eventOrderStrict, eventSlicing, maxLevels, 
+  /** Whether a more-link takes the final level, like an event row. */
+  moreLinkTakesLevel, sliceHeights) {
       const { segLevels, excludedSegs } = buildSegLevels(segs, eventOrderStrict, maxLevels);
-      const placement = placeExtraSlicesInLevels(convertSegLevelsToWholeSlices(segLevels), convertSegsToWholeSlices(excludedSegs), eventOrderStrict, eventSlicing, moreLinkLevelTax);
+      const placement = placeExtraSlicesInLevels(convertSegLevelsToWholeSlices(segLevels), convertSegsToWholeSlices(excludedSegs), eventOrderStrict, eventSlicing, moreLinkTakesLevel ? findFinalLevel : undefined);
       const resolution = resolveLevelCoords(placement.sliceLevels, sliceHeights);
       return {
           renderSlices: flatArray(placement.sliceLevels),
@@ -11222,7 +12974,7 @@ var FullCalendar = (function (exports) {
   }
   /**
    * Resolves the bounded whole-slice frontier, then offers excluded slices back
-   * to its occupied logical territory through slicing. Exact pixel pruning hides
+   * to its occupied logical territory, whole or sliced. Exact pixel pruning hides
    * any measured result that crosses the canvas or an existing more-link band.
    * Placement-only slices remain mounted as invisible measurement donors until
    * measured, preventing mount-measure cycles.
@@ -11246,29 +12998,49 @@ var FullCalendar = (function (exports) {
               isSettled: wholeResolution.isSettled,
           };
       }
-      // Pending frontier wholes stay out of links until measured; beyond-frontier
-      // wholes are definite logical exclusions and hide without measurement.
+      // Pending frontier wholes stay out of links until measured. Beyond-frontier
+      // wholes join the exclusions unmeasured: placement may put them back, whole
+      // or sliced, and they mount without a coordinate until measured.
       const excludedWholeSlices = wholeResolution.excludedSlices.concat(domExcludedWholeSlices);
       excludedWholeSlices.sort(compareByEventOrder);
-      // With slicing, the level tax punches link holes while preserving event
-      // remainders; otherwise measured pruning makes the smarter pixel choice.
-      const placement = placeExtraSlicesInLevels(wholeResolution.placementSliceLevels, excludedWholeSlices, eventOrderStrict, eventSlicing, 
-      /* moreLinkLevelTax = */ eventSlicing ? 1 : 0, 
-      /* requiresSlicing = */ true, 
-      /* taxDeepestOccupiedLevel = */ true);
-      const sliceResolution = resolveLevelCoords(placement.sliceLevels, sliceHeights);
       // More links always render. When one consumes the full budget or more, zero
       // is the deepest coordinate an intersecting event may reach.
       const moreLinkEventMax = Math.max(0, canvasHeight - moreLinkHeight);
+      // A link sits below the last level with an event over its span, and takes
+      // that level unless all those events already end above the link band. An
+      // event without a whole-pass coordinate counts as reaching into the band.
+      function findMoreLinkLevel(span, levels) {
+          for (let levelIndex = levels.length - 1; levelIndex >= 0; levelIndex--) {
+              const occupants = findIntersections(levels[levelIndex], span);
+              if (occupants.length) {
+                  return occupants.every(isAboveMoreLink) ? levelIndex + 1 : levelIndex;
+              }
+          }
+          return 0;
+      }
+      function isAboveMoreLink(slice) {
+          const sliceBottom = getSliceBottom(slice, wholeResolution.sliceCoords, sliceHeights);
+          return sliceBottom !== undefined &&
+              sliceBottom <= moreLinkEventMax + GEOMETRY_TOLERANCE;
+      }
+      const placement = placeExtraSlicesInLevels(wholeResolution.placementSliceLevels, excludedWholeSlices, eventOrderStrict, eventSlicing, 
+      // Without slicing, links take no levels here, since pruning decides better
+      // after placement. Events that overflow are pruned then, judged by final
+      // coordinates, rather than displaced now by whole-pass coordinates that
+      // placement goes on to change.
+      eventSlicing ? findMoreLinkLevel : undefined);
+      const sliceResolution = resolveLevelCoords(placement.sliceLevels, sliceHeights);
       // Remove exact canvas and more-link overflows from the coordinated layout.
       const pixelPrunedSlices = prunePixelLimitedSliceLevels(placement.sliceLevels, placement.hiddenSlices, sliceResolution.sliceCoords, sliceHeights, canvasHeight, moreLinkEventMax);
-      // Keep all frontier wholes and placement-added slices mounted as measurement
-      // donors; missing coordinates make rejected or pending slices invisible.
-      // Disjoint: requiresSlicing bars whole re-insertion, so every added slice is
-      // a freshly cut object, never a frontier whole.
-      const renderSlices = flatArray(domWholeSliceLevels).concat(placement.addedSlices);
-      // Frontier wholes resolve in the whole pass and every placement-added slice
-      // resolves in the placement pass, so together the two cover the render set.
+      // Mount every DOM whole, whatever its fate, plus everything in the final
+      // topology; missing coordinates make rejected or pending slices invisible.
+      // A DOM whole that placement kept or put back is in both, mounted once.
+      const renderSlices = [...new Set([
+              ...flatArray(domWholeSliceLevels),
+              ...flatArray(placement.sliceLevels),
+          ])];
+      // DOM wholes resolve in the whole pass and the final topology resolves in
+      // the placement pass, so together the two cover the render set.
       const isSettled = wholeResolution.isSettled && sliceResolution.isSettled;
       return {
           renderSlices,
@@ -11479,24 +13251,22 @@ var FullCalendar = (function (exports) {
           }
       }
   }
+  /** A link takes the final level, like an event row. */
+  function findFinalLevel(_span, levels) {
+      return levels.length - 1;
+  }
   /**
    * Fires event-ordered extras into a fixed set of logical levels. Repacking may
    * reuse gaps in the received levels but never creates additional levels.
-   * By default, a more-link tax reserves the globally final level. Pixel flows
-   * can instead reserve the deepest occupied level local to each link span and
-   * require initial extras to expose some hidden coverage before admission.
+   * With `findMoreLinkLevel`, each new stretch of more-link coverage takes the
+   * level it returns; without it, links take no level.
    *
    * PRECONDITION: `extraSlices` is sorted by event order.
    *
    * SIDE EFFECT: mutates `sliceLevels`; callers transfer ownership of its outer
    * array and level arrays to this placement operation.
    */
-  function placeExtraSlicesInLevels(sliceLevels, extraSlices, eventOrderStrict, eventSlicing, moreLinkLevelTax, 
-  /** Whether initial extras must leave hidden coverage before admission. */
-  requiresSlicing = false, 
-  /** Whether each link taxes its deepest locally occupied level. */
-  taxDeepestOccupiedLevel = false) {
-      const addedSliceSet = new Set();
+  function placeExtraSlicesInLevels(sliceLevels, extraSlices, eventOrderStrict, eventSlicing, findMoreLinkLevel) {
       // Hidden membership remains flat for whole-layout operations. More-link
       // groups duplicate that membership locally while also recording which
       // lateral territory has already fired its link tax.
@@ -11509,13 +13279,13 @@ var FullCalendar = (function (exports) {
           eventOrderStrict,
       };
       const work = [];
-      pushFire(extraSlices, requiresSlicing);
+      pushFire(extraSlices);
       // LIFO runs newly created link reservations before older unrelated extras,
       // so an extra cannot insert into space that a fresh reservation will claim.
       while (work.length) {
           const item = work.pop();
           if (item.type === 'fire') {
-              fire(item.slice, item.requiresSlicing);
+              fire(item.slice);
           }
           else {
               fireMoreLink(item.span);
@@ -11524,30 +13294,25 @@ var FullCalendar = (function (exports) {
       return {
           sliceLevels,
           hiddenSlices,
-          addedSlices: [...addedSliceSet],
       };
-      /** Tries an allowed whole insertion before scored same-level slice plans. */
-      function fire(slice, requiresSlicing) {
-          if (!requiresSlicing) {
-              const levelIndex = findInsertionLevel(slice, placementState);
-              if (levelIndex !== null) {
-                  insertLaterally(sliceLevels[levelIndex], slice);
-                  addedSliceSet.add(slice);
-                  return;
-              }
+      /** Tries a whole insertion before scored same-level slice plans. */
+      function fire(slice) {
+          const levelIndex = findInsertionLevel(slice, placementState);
+          if (levelIndex !== null) {
+              insertLaterally(sliceLevels[levelIndex], slice);
+              return;
           }
           if (!eventSlicing) {
               hide(slice);
               return;
           }
-          const plan = findBestSlicePlan(slice, placementState, requiresSlicing);
+          const plan = findBestSlicePlan(slice, placementState);
           if (!plan) {
               hide(slice);
               return;
           }
           for (const visibleSlice of plan.slices) {
               insertLaterally(sliceLevels[plan.levelIndex], visibleSlice);
-              addedSliceSet.add(visibleSlice);
           }
           for (const hiddenSlice of subtractSpansFromSlice(slice, plan.slices)) {
               hide(hiddenSlice);
@@ -11559,51 +13324,43 @@ var FullCalendar = (function (exports) {
           // Only the set difference is fresh more-link territory; it can consist of
           // several disjoint runs.
           const newMoreLinkSpans = addHiddenSliceToGroups(moreLinkGroups, slice);
-          if (moreLinkLevelTax) {
+          if (findMoreLinkLevel) {
               for (let i = newMoreLinkSpans.length - 1; i >= 0; i--) {
                   work.push({ type: 'moreLink', span: newMoreLinkSpans[i] });
               }
           }
       }
       /**
-       * Reserves one logical level over fresh accumulator coverage. The ordinary
-       * flow taxes the final level; span-local mode taxes the deepest level with
-       * an intersecting occupant, ignoring unrelated deeper territory.
+       * Reserves the link's level over fresh accumulator coverage, displacing
+       * every event over the span at that level or a higher-numbered one.
        */
       function fireMoreLink(span) {
           if (!sliceLevels.length) {
               return;
           }
-          let taxedLevelIndex = sliceLevels.length - 1;
-          let victims = findIntersections(sliceLevels[taxedLevelIndex], span);
-          if (taxDeepestOccupiedLevel) {
-              while (!victims.length && taxedLevelIndex > 0) {
-                  taxedLevelIndex--;
-                  victims = findIntersections(sliceLevels[taxedLevelIndex], span);
-              }
-          }
+          const reservedLevelIndex = findMoreLinkLevel(span, sliceLevels);
           insertLaterally(moreLinkReservations, {
               ...span,
-              levelIndex: taxedLevelIndex,
+              levelIndex: reservedLevelIndex,
           });
-          const taxedLevel = sliceLevels[taxedLevelIndex];
-          for (const victim of victims) {
-              taxedLevel.splice(taxedLevel.indexOf(victim), 1);
-              addedSliceSet.delete(victim);
-              if (eventSlicing) {
-                  hide(intersectSlice(victim, span));
-                  // The remainder has already satisfied the slicing requirement.
-                  pushFire(subtractSpansFromSlice(victim, [span]), false);
-              }
-              else {
-                  hide(victim);
+          for (let levelIndex = reservedLevelIndex; levelIndex < sliceLevels.length; levelIndex++) {
+              const level = sliceLevels[levelIndex];
+              for (const victim of findIntersections(level, span)) {
+                  level.splice(level.indexOf(victim), 1);
+                  if (eventSlicing) {
+                      hide(intersectSlice(victim, span));
+                      pushFire(subtractSpansFromSlice(victim, [span]));
+                  }
+                  else {
+                      hide(victim);
+                  }
               }
           }
       }
       /** Reversing preserves received order on the LIFO work stack. */
-      function pushFire(slices, requiresSlicing) {
+      function pushFire(slices) {
           for (let i = slices.length - 1; i >= 0; i--) {
-              work.push({ type: 'fire', slice: slices[i], requiresSlicing });
+              work.push({ type: 'fire', slice: slices[i] });
           }
       }
   }
@@ -11657,7 +13414,7 @@ var FullCalendar = (function (exports) {
    * Scores the best one-, two-, or three-run insertion offered by each level.
    * Runs from different levels are deliberately never mixed into one plan.
    */
-  function findBestSlicePlan(slice, state, requiresSlicing) {
+  function findBestSlicePlan(slice, state) {
       let selected = null;
       const sourceLength = getSpanLength(slice);
       for (let levelIndex = 0; levelIndex < state.levels.length; levelIndex++) {
@@ -11676,10 +13433,11 @@ var FullCalendar = (function (exports) {
           let visibleLength = 0;
           for (let sliceCount = 1; sliceCount <= Math.min(MAX_SLICES_PER_PLAN, runs.length); sliceCount++) {
               visibleLength += getSpanLength(runs[sliceCount - 1]);
-              // Full exposure leaves no hidden coverage, and visible length only
-              // grows with more runs, so no longer plan can satisfy slicing either.
-              if (requiresSlicing &&
-                  visibleLength >= sourceLength - GEOMETRY_TOLERANCE) {
+              // Full exposure is a whole insertion, which fire() already found
+              // impossible, and visible length only grows with more runs. A plan
+              // cutting a full-span slice would also put a second object under the
+              // whole's key.
+              if (visibleLength >= sourceLength - GEOMETRY_TOLERANCE) {
                   break;
               }
               const candidate = {
@@ -11880,9 +13638,9 @@ var FullCalendar = (function (exports) {
    * Builds an immediately renderable kernel layout for unlimited and numeric
    * DayGrid modes. Boolean-auto uses the pixel-limited adapter below.
    */
-  function buildDayGridLevelPlacements(eventOrderedSegs, maxLevels, moreLinkLevelTax, orderStrict, eventSlicing, columnCount, sliceHeights) {
+  function buildDayGridLevelPlacements(eventOrderedSegs, maxLevels, moreLinkTakesLevel, orderStrict, eventSlicing, columnCount, sliceHeights) {
       const sourceSegs = buildDayGridSegSources(eventOrderedSegs);
-      const layout = buildLevelLimitedLayout(sourceSegs, orderStrict, eventSlicing, maxLevels, moreLinkLevelTax, sliceHeights);
+      const layout = buildLevelLimitedLayout(sourceSegs, orderStrict, eventSlicing, maxLevels, moreLinkTakesLevel, sliceHeights);
       return buildDayGridPlacementLayout(sourceSegs, layout, sliceHeights, columnCount);
   }
   /** Builds the boolean-auto DayGrid route with a real pixel ceiling. */
@@ -11950,12 +13708,9 @@ var FullCalendar = (function (exports) {
           default: return Infinity;
       }
   }
-  /**
-   * Logical levels an active more link charges its column. Only `dayMaxEventRows`
-   * counts the link as one of its rows.
-   */
-  function computeDayGridMoreLinkLevelTax(mode) {
-      return mode === 'maxEventRows' ? 1 : 0;
+  /** Whether a more link takes a level. Only `dayMaxEventRows` counts it as a row. */
+  function computeDayGridMoreLinkTakesLevel(mode) {
+      return mode === 'maxEventRows';
   }
   function buildDayGridPlacementLayout(sourceSegs, layout, sliceHeights, columnCount) {
       const { hiddenSlices, renderSlices, sliceCoords, } = layout;
@@ -12003,7 +13758,7 @@ var FullCalendar = (function (exports) {
   const DEFAULT_PRINT_MAX_LEVELS = 200;
   function planPrintDomCandidates(eventOrderedSegs, eventOrderStrict, eventSlicing) {
       const { segLevels, excludedSegs } = buildSegLevels(eventOrderedSegs, eventOrderStrict, DEFAULT_PRINT_MAX_LEVELS);
-      const placement = placeExtraSlicesInLevels(convertSegLevelsToWholeSlices(segLevels), convertSegsToWholeSlices(excludedSegs), eventOrderStrict, eventSlicing, 0);
+      const placement = placeExtraSlicesInLevels(convertSegLevelsToWholeSlices(segLevels), convertSegsToWholeSlices(excludedSegs), eventOrderStrict, eventSlicing);
       return {
           sliceLevels: placement.sliceLevels,
           hiddenSlices: placement.hiddenSlices,
@@ -12118,6 +13873,8 @@ var FullCalendar = (function (exports) {
           this.buildPrintPlan = memoize(buildDayGridPrintPlan);
           this.sortEventSegs = memoize(sortEventSegs);
           this.levelCapacity = DEFAULT_LEVEL_CAPACITY;
+          // React 18 Strict Mode replays mount lifecycles without reattaching DOM refs.
+          // Keep height observation and cleanup tied to the DOM ref.
           this.handleRootEl = (rootEl) => {
               this.disconnectHeight?.();
               this.disconnectHeight = undefined;
@@ -12126,6 +13883,9 @@ var FullCalendar = (function (exports) {
                   this.disconnectHeight = watchHeight(rootEl, (contentHeight) => {
                       setRef(this.props.heightRef, contentHeight);
                   });
+              }
+              else {
+                  setRef(this.props.heightRef, null);
               }
           };
           this.handleSegPositioning = () => {
@@ -12162,7 +13922,7 @@ var FullCalendar = (function (exports) {
               const [maxMainTop, minMainHeight] = this.computeFgDims();
               const screenLayout = placementMode === 'auto'
                   ? buildDayGridPixelPlacements(fgEventSegs, options.eventOrderStrict, options.eventSlicing, cells.length, minMainHeight, props.moreLinkHeight, this.levelCapacity, this.sliceHeightRefMap.current)
-                  : buildDayGridLevelPlacements(fgEventSegs, computeDayGridDomCandidateMaxLevels(placementMode, props.dayMaxEvents, props.dayMaxEventRows, Infinity), computeDayGridMoreLinkLevelTax(placementMode), options.eventOrderStrict, options.eventSlicing, cells.length, this.sliceHeightRefMap.current);
+                  : buildDayGridLevelPlacements(fgEventSegs, computeDayGridDomCandidateMaxLevels(placementMode, props.dayMaxEvents, props.dayMaxEventRows, Infinity), computeDayGridMoreLinkTakesLevel(placementMode), options.eventOrderStrict, options.eventSlicing, cells.length, this.sliceHeightRefMap.current);
               screenColumns = screenLayout.columns;
               screenSliceCoords = screenLayout.sliceCoords;
               if (maxMainTop != null) {
@@ -12186,7 +13946,8 @@ var FullCalendar = (function (exports) {
           // Table mode gives this theme-positioned node a row-wide canvas hosted by the first cell.
           const weekNumberNode = (props.showWeekNumbers && !props.cellIsMicro) ? (u$1(ContentContainer, { tag: "div", attrs: {
                   ...(hasNavLink
-                      ? buildNavLinkAttrs(context, weekDateMarker, 'week', fullWeekStr, /* isTabbable = */ false)
+                      ? buildNavLinkAttrs(context, weekDateMarker, 'week', fullWeekStr, 
+                      /* isTabbable = */ false)
                       : {}),
                   'role': undefined, // HACK: a 'link' role can't be child of a 'row' role
                   'aria-hidden': true, // HACK: never part of a11y tree because row already has label and role not allowed
@@ -12210,19 +13971,20 @@ var FullCalendar = (function (exports) {
                       const printPopover = printPlan
                           ? buildDayGridPopoverSegs(printPlan.sourceSegs, printPlan.hiddenSlices, col)
                           : null;
+                      const screenRenderSlices = printPlan ? null : screenColumns[col].renderSlices;
                       let fg;
                       if (printPlan) {
                           fg = this.renderPrintBandSlots(printColumns[col]);
                       }
                       else {
                           fg = [
-                              ...this.renderLevelFgSegs(screenMainOffsetsByCol[col], screenColumns[col].renderSlices, screenSliceCoords),
+                              ...this.renderLevelFgSegs(screenMainOffsetsByCol[col], screenRenderSlices, screenSliceCoords),
                               ...this.renderMirrorFgSegs(col, screenMainOffsetsByCol[col], screenSliceCoords),
                           ];
                       }
                       return (u$1(DayGridCell, { dateProfile: props.dateProfile, todayRange: props.todayRange, date: cell.date, isMajor: cell.isMajor, isDisabled: cell.isDisabled, showDayNumber: props.showDayNumbers, isNarrow: props.cellIsNarrow, isMicro: props.cellIsMicro, borderStart: Boolean(col), borderBottom: props.borderBottom, tableMode: tableMode, 
                           // content
-                          fills: fillsByCol[col], segs: printPopover ? printPopover.segs : screenColumns[col].segs, hiddenSegs: printPopover ? printPopover.hiddenSegs : screenColumns[col].hiddenSegs, fgLiquidHeight: printPlan ? false : screenFgLiquidHeight, fg: fg, eventDrag: printPlan ? null : props.eventDrag, eventResize: printPlan ? null : props.eventResize, eventSelection: props.eventSelection, 
+                          fills: fillsByCol[col], segs: printPopover ? printPopover.segs : screenColumns[col].segs, hiddenSegs: printPopover ? printPopover.hiddenSegs : screenColumns[col].hiddenSegs, fgLiquidHeight: printPlan ? false : screenFgLiquidHeight, fg: fg, fgIsList: Boolean(screenRenderSlices?.length), eventDrag: printPlan ? null : props.eventDrag, eventResize: printPlan ? null : props.eventResize, eventSelection: props.eventSelection, 
                           // render hooks
                           renderProps: cell.renderProps, dateSpanProps: cell.dateSpanProps, attrs: cell.attrs, className: cell.className, 
                           // dimensions
@@ -12249,7 +14011,7 @@ var FullCalendar = (function (exports) {
               const isDragging = Boolean(props.eventDrag && props.eventDrag.affectedInstances[instanceId]);
               const isResizing = Boolean(props.eventResize && props.eventResize.affectedInstances[instanceId]);
               const isSelected = instanceId === eventSelection;
-              nodes.push(u$1(MeasuredHeightHarness, { className: joinClassNames(classNames.abs, classNames.start0, DAY_GRID_INTERACTION_Z_CLASS), style: {
+              nodes.push(u$1(MeasuredHeightHarness, { attrs: { 'aria-hidden': true }, className: joinClassNames(classNames.abs, classNames.start0, DAY_GRID_INTERACTION_Z_CLASS), style: {
                       top,
                       width: this.computeSpanWidth(seg.start, seg.end),
                   }, heightRef: null, children: this.renderEventContent(seg, eventRange, {
@@ -12278,9 +14040,12 @@ var FullCalendar = (function (exports) {
               const isResizing = Boolean(props.eventResize && props.eventResize.affectedInstances[instanceId]);
               const isInvisible = isDragging || isResizing || top == null;
               const isSelected = instanceId === eventSelection;
-              nodes.push(u$1(MeasuredHeightHarness, { className: joinClassNames(classNames.abs, classNames.start0, isSelected ? DAY_GRID_INTERACTION_Z_CLASS : DAY_GRID_EVENT_Z_CLASS), style: {
+              nodes.push(u$1(MeasuredHeightHarness, { attrs: { role: 'listitem' }, className: joinClassNames(classNames.abs, classNames.start0, isSelected ? DAY_GRID_INTERACTION_Z_CLASS : DAY_GRID_EVENT_Z_CLASS), style: {
                       visibility: isInvisible ? 'hidden' : undefined,
                       top,
+                      // HACK: a slice with no top is hidden but stays mounted so its height can be measured. Pinning its bottom
+                      // to the cell's keeps its box from hanging past the last row, which made the grid scroll (#7581)
+                      bottom: top == null ? 0 : undefined,
                       width: this.computeSpanWidth(slice.start, slice.end),
                   }, heightRef: this.sliceHeightRefMap.createRef(key), children: this.renderEventContent(slice, eventRange, {
                       isDragging,
@@ -12298,7 +14063,9 @@ var FullCalendar = (function (exports) {
       renderEventContent(range, eventRange, interaction) {
           const { props } = this;
           const isListItem = hasListItemDisplay(range, eventRange);
-          return (u$1(StandardEvent, { display: isListItem ? 'list-item' : 'row', eventRange: eventRange, isStart: range.isStart, isEnd: range.isEnd, isDragging: Boolean(interaction.isDragging), isResizing: Boolean(interaction.isResizing), isMirror: Boolean(interaction.isMirror), isSelected: Boolean(interaction.isSelected), isNarrow: props.cellIsNarrow, defaultTimeFormat: DEFAULT_TABLE_EVENT_TIME_FORMAT, defaultDisplayEventEnd: props.cells.length === 1, disableResizing: isListItem, forcedTimeText: props.cellIsMicro ? '' : undefined, ...getEventRangeMeta(eventRange, props.todayRange) }));
+          // the range's starting cell supplies extra render props
+          const cellRenderProps = props.cells[range.start]?.renderProps;
+          return (u$1(StandardEvent, { display: isListItem ? 'list-item' : 'row', eventRange: eventRange, isStart: range.isStart, isEnd: range.isEnd, isDragging: Boolean(interaction.isDragging), isResizing: Boolean(interaction.isResizing), isMirror: Boolean(interaction.isMirror), isSelected: Boolean(interaction.isSelected), isNarrow: props.cellIsNarrow, defaultTimeFormat: DEFAULT_TABLE_EVENT_TIME_FORMAT, defaultDisplayEventEnd: props.cells.length === 1, disableResizing: isListItem, forcedTimeText: props.cellIsMicro ? '' : undefined, renderProps: cellRenderProps, ...getEventRangeMeta(eventRange, props.todayRange) }));
       }
       /** Renders aligned print slots with in-flow event wrappers that can paginate with their bands. */
       renderPrintBandSlots(slots) {
@@ -12333,10 +14100,10 @@ var FullCalendar = (function (exports) {
           const { props, context } = this;
           const { todayRange } = props;
           for (const seg of segs) {
-              fillsByCol[seg.start].push(u$1("div", { className: joinClassNames(classNames.fillY, classNames.start0, zClassName), style: {
+              fillsByCol[seg.start].push(u$1("div", { "aria-hidden": true, className: joinClassNames(classNames.fillY, classNames.start0, zClassName), style: {
                       width: this.computeSpanWidth(seg.start, seg.end),
                   }, children: fillType === 'bg-event' ?
-                      u$1(BgEvent, { eventRange: seg.eventRange, isStart: seg.isStart, isEnd: seg.isEnd, isNarrow: props.cellIsNarrow, isVertical: false, ...getEventRangeMeta(seg.eventRange, todayRange) }) : (renderFill(fillType, context.options)) }, `${fillType}:${buildEventRangeKey(seg.eventRange)}:${seg.start}:${seg.end}`));
+                      u$1(BgEvent, { eventRange: seg.eventRange, isStart: seg.isStart, isEnd: seg.isEnd, isNarrow: props.cellIsNarrow, isVertical: false, renderProps: props.cells[seg.start]?.renderProps, ...getEventRangeMeta(seg.eventRange, todayRange) }) : (renderFill(fillType, context.options)) }, `${fillType}:${buildEventRangeKey(seg.eventRange)}:${seg.start}:${seg.end}`));
           }
       }
       // Sizing
@@ -12351,8 +14118,6 @@ var FullCalendar = (function (exports) {
       }
       componentWillUnmount() {
           this._isUnmounting = true;
-          this.disconnectHeight?.();
-          setRef(this.props.heightRef, null);
       }
       computeFgDims() {
           const { cells } = this.props;
@@ -12570,7 +14335,7 @@ var FullCalendar = (function (exports) {
       return rootEl.querySelectorAll('[role=row]')[row];
   }
   function getCellEl(rowEl, col) {
-      return rowEl.querySelectorAll('[role=gridcell]')[col];
+      return rowEl.querySelectorAll('[role=cell]')[col];
   }
   // Header Formatting
   // -------------------------------------------------------------------------------------------------
@@ -12678,8 +14443,7 @@ var FullCalendar = (function (exports) {
                           colWidth: props.colWidth, basis: rowBasis, moreLinkHeight: state.moreLinkHeight, 
                           // refs
                           heightRef: rowHeightRefMap.createRef(cells[0].key) }, firstCellKey + ':' + cells[0].key))) }), needsMoreLinkProbe && (u$1(MoreLinkTrigger, { num: 1, display: 'row', isNarrow: props.cellIsNarrow, isMicro: props.cellIsMicro, elRef: this.handleMoreLinkEl, className: classNames.offscreen, attrs: {
-                          'aria-hidden': true,
-                          inert: '',
+                          'aria-hidden': true, // redundant with .offscreen's visibility, but marks it as a probe
                       } }))] }));
       }
       componentDidMount() {
@@ -12687,7 +14451,6 @@ var FullCalendar = (function (exports) {
       }
       componentWillUnmount() {
           this._isUnmounting = true;
-          this.disconnectMoreLinkHeight?.();
       }
       // Hit System
       // -----------------------------------------------------------------------------------------------
@@ -12697,6 +14460,9 @@ var FullCalendar = (function (exports) {
           const { col, left, right } = computeColFromPosition(positionLeft, elWidth, props.colWidth, colCount, isRtl);
           const { row, top, bottom } = computeRowFromPosition(positionTop, props.cellRows, this.rowHeightRefMap.current);
           const cell = props.cellRows[row][col];
+          if (cell.isInert) {
+              return null;
+          }
           const cellStartDate = cell.date;
           const cellEndDate = addDays(cellStartDate, 1);
           return {
@@ -12781,17 +14547,27 @@ var FullCalendar = (function (exports) {
           /*
           A liquid cell that spans multiple columns can't use the .liquid class, which gives every
           cell an equal share regardless of colSpan. Instead, grow proportionally to the columns
-          covered. Like the body cells, use a zero basis so borders remain within the distributed
-          border-box width.
+          covered, reserving space for the internal column borders swallowed by the span.
+          Include this cell's own start border because flex-basis uses border-box sizing.
           */
           const isSpanning = isLiquid && colSpan > 1;
           const style = tableMode ? undefined : isSpanning ? {
               flexGrow: colSpan,
-              flexBasis: 0,
+              flexBasis: (colSpan - 1) * COL_BORDER_WIDTH + (props.borderStart ? COL_BORDER_WIDTH : 0),
               minWidth: 0,
           } : {
               width: totalColWidth,
           };
+          const CellTag = tableMode ? 'th' : 'div';
+          const baseClassName = joinClassNames(dataConfig.className, classNames.noMargin, classNames.noPadding, !tableMode && classNames.flexCol, classNames.borderlessTop, classNames.borderlessEnd, !props.borderStart && classNames.borderlessStart, !(tableMode && props.borderBottom) && classNames.borderlessBottom, isLiquid && !isSpanning && classNames.liquid);
+          // Structural gaps share cell geometry but never invoke the row's render hooks.
+          if (dataConfig.blank) {
+              return (u$1(CellTag, { role: 'cell' // is empty so can't be columnheader
+                  , "aria-colspan": dataConfig.colSpan, colSpan: tableMode ? colSpan : undefined, ...dataConfig.attrs, className: joinClassNames(baseClassName, generateClassName(dataConfig.blank.classNameGenerator, {
+                      ...dataConfig.renderProps,
+                      isNarrow: props.cellIsNarrow,
+                  })), style: style }));
+          }
           // HACK
           const isDisabled = dataConfig.renderProps.isDisabled;
           const finalRenderProps = renderConfig.dayHeaderFormat
@@ -12839,19 +14615,18 @@ var FullCalendar = (function (exports) {
           const alignClassName = align === 'center' ? classNames.alignCenter :
               align === 'end' ? classNames.alignEnd :
                   classNames.alignStart;
-          const CellTag = tableMode ? 'th' : 'div';
           return (u$1(ContentContainer, { tag: CellTag, attrs: {
                   role: 'columnheader',
                   'aria-colspan': dataConfig.colSpan,
                   colSpan: tableMode ? colSpan : undefined,
                   ...dataConfig.attrs,
-              }, className: joinClassNames(dataConfig.className, classNames.noMargin, classNames.noPadding, !tableMode && classNames.flexCol, classNames.borderlessTop, classNames.borderlessEnd, !props.borderStart && classNames.borderlessStart, !(tableMode && props.borderBottom) && classNames.borderlessBottom, !tableMode && alignClassName, isLiquid && !isSpanning && classNames.liquid, !isSticky && classNames.crop), style: style, renderProps: finalRenderProps, generatorName: renderConfig.generatorName, customGenerator: renderConfig.customGenerator, defaultGenerator: renderText$1, classNameGenerator: 
+              }, className: joinClassNames(baseClassName, !tableMode && alignClassName, !isSticky && classNames.crop), style: style, renderProps: finalRenderProps, generatorName: renderConfig.generatorName, customGenerator: renderConfig.customGenerator, defaultGenerator: renderText$1, classNameGenerator: 
               // don't use custom classNames if disabled
               // TODO: make DRY with DayCellContainer
-              isDisabled ? undefined : renderConfig.classNameGenerator, didMount: renderConfig.didMount, willUnmount: renderConfig.willUnmount, children: (InnerContainer) => (u$1("div", { ref: this.handleInnerEl, className: joinClassNames(classNames.flexCol, classNames.noShrink, classNames.whiteSpaceNoWrap, tableMode && alignClassName, isSticky && classNames.sticky), style: {
-                      left: edgeCoord,
-                      right: edgeCoord,
-                  }, children: u$1(InnerContainer, { tag: 'div', attrs: dataConfig.innerAttrs, className: generateClassName(renderConfig.innerClassNameGenerator, finalRenderProps) }) })) }));
+              isDisabled ? undefined : renderConfig.classNameGenerator, didMount: renderConfig.didMount, willUnmount: renderConfig.willUnmount, children: (InnerContainer) => (u$1(S, { children: [dataConfig.a11yText && (u$1("div", { className: classNames.srOnly, children: dataConfig.a11yText })), u$1("div", { "aria-hidden": dataConfig.a11yText ? true : undefined, ref: this.handleInnerEl, className: joinClassNames(classNames.flexCol, classNames.noShrink, classNames.whiteSpaceNoWrap, tableMode && alignClassName, isSticky && classNames.sticky), style: {
+                              left: edgeCoord,
+                              right: edgeCoord,
+                          }, children: u$1(InnerContainer, { tag: 'div', attrs: dataConfig.innerAttrs, className: generateClassName(renderConfig.innerClassNameGenerator, finalRenderProps) }) })] })) }));
       }
       componentDidMount() {
           this._isUnmounting = false;
@@ -12860,7 +14635,7 @@ var FullCalendar = (function (exports) {
           this._isUnmounting = true;
       }
       buildDayHeaderRenderProps(renderProps, cellIsNarrow, rowLevel, cellIsMicro, dateMarker, dayHeaderFormat, datesRepDistinctDays, dateEnv) {
-          const baseText = this.buildDayHeaderText(datesRepDistinctDays ? dateMarker : renderProps.date, dayHeaderFormat, datesRepDistinctDays, dateEnv);
+          const baseText = this.buildDayHeaderText(dateMarker, dayHeaderFormat, datesRepDistinctDays, dateEnv);
           const textData = cellIsMicro
               ? this.buildDayHeaderText(dateMarker, dayHeaderMicroFormat, false, dateEnv)
               : baseText;
@@ -12872,16 +14647,22 @@ var FullCalendar = (function (exports) {
               textParts: textData.textParts,
               weekdayText: cellIsMicro ? textData.text : baseText.weekdayText,
               dayNumberText: baseText.dayNumberText,
+              monthText: baseText.monthText,
           };
       }
   }
-  function buildDayHeaderText(date, formatter, includeDayNumber, dateEnv) {
+  /*
+  `isDated` is false for headers that name only a weekday, whose date is just the first row's day of that
+  weekday, so its day number and month don't describe the column.
+  */
+  function buildDayHeaderText(date, formatter, isDated, dateEnv) {
       const textParts = dateEnv.formatToParts(date, formatter);
       return {
           text: joinDateTimeFormatParts(textParts),
           textParts,
           weekdayText: findWeekdayText(textParts),
-          dayNumberText: includeDayNumber ? findDayNumberText(textParts) : '',
+          dayNumberText: isDated ? findDayNumberText(textParts) : '',
+          monthText: isDated ? findMonthText(textParts) : '',
       };
   }
 
@@ -13173,6 +14954,7 @@ var FullCalendar = (function (exports) {
               afterSize(this.updateScrollY);
           });
           this.scrollDate = null;
+          this.scrollY = null; // where the user scrolled to, once scrollDate is cleared
           this.updateScrollY = () => {
               if (this._isUnmounting)
                   return;
@@ -13193,6 +14975,7 @@ var FullCalendar = (function (exports) {
           this.handleScrollEnd = (isDevice) => {
               if (isDevice) {
                   this.scrollDate = null;
+                  this.scrollY = this.scrollerRef.current?.y ?? null;
               }
           };
       }
@@ -13212,7 +14995,7 @@ var FullCalendar = (function (exports) {
               rowHeightRefMap: this.rowHeightRefMap,
           };
           return (u$1(ViewContainer, { viewSpec: context.viewSpec, attrs: {
-                  role: 'grid',
+                  role: 'table',
                   'aria-rowcount': props.headerTiers.length + props.cellRows.length,
                   'aria-colcount': props.cellRows[0].length,
                   'aria-labelledby': props.labelId,
@@ -13229,11 +15012,24 @@ var FullCalendar = (function (exports) {
       componentDidMount() {
           this._isUnmounting = false;
           if (!this.props.forPrint) {
-              this.resetScroll();
+              // A React <Activity> shown again mounts the same instance again (#8112). Keep its scroll,
+              // unless the dates changed while hidden, which would have reset it
+              if (!this.scrollDateProfile ||
+                  (this.props.dateProfile !== this.scrollDateProfile && this.context.options.scrollTimeReset)) {
+                  this.resetScroll();
+              }
+              else if (this.scrollDate) {
+                  this.updateScrollY();
+              }
+              else if (this.scrollY != null) {
+                  this.scrollerRef.current?.scrollTo({ y: this.scrollY });
+              }
+              this.scrollDateProfile = this.props.dateProfile;
               this.scrollerRef.current?.addScrollEndListener(this.handleScrollEnd);
           }
       }
       componentDidUpdate(prevProps) {
+          this.scrollDateProfile = this.props.dateProfile;
           if (prevProps.forPrint && !this.props.forPrint) {
               this.scrollerRef.current?.addScrollEndListener(this.handleScrollEnd);
               this.resetScroll();
@@ -13287,7 +15083,6 @@ var FullCalendar = (function (exports) {
           this.getKeysForEventDefs = memoize(this._getKeysForEventDefs);
           this.splitDateSelection = memoize(this._splitDateSpan);
           this.splitEventStore = memoize(this._splitEventStore);
-          this.splitIndividualUi = memoize(this._splitIndividualUi);
           this.splitEventDrag = memoize(this._splitInteraction);
           this.splitEventResize = memoize(this._splitInteraction);
           this.eventUiBuilders = {}; // TODO: typescript protection
@@ -13296,12 +15091,11 @@ var FullCalendar = (function (exports) {
           let keyInfos = this.getKeyInfo(props);
           let defKeys = this.getKeysForEventDefs(props.eventStore);
           let dateSelections = this.splitDateSelection(props.dateSelection);
-          let individualUi = this.splitIndividualUi(props.eventUiBases, defKeys); // the individual *bases*
           let eventStores = this.splitEventStore(props.eventStore, defKeys);
           let eventDrags = this.splitEventDrag(props.eventDrag);
           let eventResizes = this.splitEventResize(props.eventResize);
           let splitProps = {};
-          this.eventUiBuilders = mapHash(keyInfos, (info, key) => this.eventUiBuilders[key] || memoize(buildEventUiForKey));
+          this.eventUiBuilders = mapHash(keyInfos, (info, key) => this.eventUiBuilders[key] || memoize(buildSectionEventUiBases));
           for (let key in keyInfos) {
               let keyInfo = keyInfos[key];
               let eventStore = eventStores[key] || EMPTY_EVENT_STORE;
@@ -13310,7 +15104,7 @@ var FullCalendar = (function (exports) {
                   businessHours: keyInfo.businessHours || props.businessHours,
                   dateSelection: dateSelections[key] || null,
                   eventStore,
-                  eventUiBases: buildEventUi(props.eventUiBases[''], keyInfo.ui, individualUi[key]),
+                  eventUiBases: buildEventUi(props.eventUiBases, keyInfo.ui),
                   eventDrag: eventDrags[key] || null,
                   eventResize: eventResizes[key] || null,
                   eventSelection: eventStore.instances[props.eventSelection] ? props.eventSelection : '',
@@ -13352,20 +15146,6 @@ var FullCalendar = (function (exports) {
           }
           return splitStores;
       }
-      _splitIndividualUi(eventUiBases, defKeys) {
-          let splitHashes = {};
-          for (let defId in eventUiBases) {
-              if (defId) { // not the '' key
-                  for (let key of defKeys[defId]) {
-                      if (!splitHashes[key]) {
-                          splitHashes[key] = {};
-                      }
-                      splitHashes[key][defId] = eventUiBases[defId];
-                  }
-              }
-          }
-          return splitHashes;
-      }
       _splitInteraction(interaction) {
           let splitStates = {};
           if (interaction) {
@@ -13392,21 +15172,20 @@ var FullCalendar = (function (exports) {
           return splitStates;
       }
   }
-  function buildEventUiForKey(allUi, eventUiForKey, individualUi) {
-      let baseParts = [];
-      if (allUi) {
-          baseParts.push(allUi);
+  /*
+  A section's bases are its parent's, plus the section's own UI, such as a resource's. Splitters can nest,
+  like a resource time grid's resources and its all-day and timed areas, so the section UIs combine.
+  */
+  function buildSectionEventUiBases(eventUiBases, sectionUi) {
+      if (!sectionUi) {
+          return eventUiBases;
       }
-      if (eventUiForKey) {
-          baseParts.push(eventUiForKey);
-      }
-      let stuff = {
-          '': combineEventUis(baseParts),
+      return {
+          ...eventUiBases,
+          sectionUi: eventUiBases.sectionUi
+              ? combineEventUis([eventUiBases.sectionUi, sectionUi])
+              : sectionUi,
       };
-      if (individualUi) {
-          Object.assign(stuff, individualUi);
-      }
-      return stuff;
   }
 
   class AllDaySplitter extends Splitter {
@@ -13619,8 +15398,7 @@ var FullCalendar = (function (exports) {
           return (u$1(S, { children: [u$1(DayGridRow, { ...props, moreLinkHeight: state.moreLinkHeight, 
                       /* BAD: these overwrite the props! caller might want to pass them */
                       rootElRef: this.handleRootEl, heightRef: this.heightRef }), needsMoreLinkProbe && (u$1(MoreLinkTrigger, { num: 1, display: 'row', isNarrow: props.cellIsNarrow, isMicro: props.cellIsMicro, elRef: this.handleMoreLinkEl, className: classNames.offscreen, attrs: {
-                          'aria-hidden': true,
-                          inert: '',
+                          'aria-hidden': true, // redundant with .offscreen's visibility, but marks it as a probe
                       } }))] }));
       }
       componentDidMount() {
@@ -13628,13 +15406,15 @@ var FullCalendar = (function (exports) {
       }
       componentWillUnmount() {
           this._isUnmounting = true;
-          this.disconnectMoreLinkHeight?.();
       }
       queryHit(isRtl, positionLeft, positionTop, elWidth) {
           const { props, heightRef } = this;
           const colCount = props.cells.length;
           const { col, left, right } = computeColFromPosition(positionLeft, elWidth, props.colWidth, colCount, isRtl);
           const cell = props.cells[col];
+          if (cell.isInert) {
+              return null;
+          }
           const cellStartDate = cell.date;
           const cellEndDate = addDays(cellStartDate, 1);
           return {
@@ -13677,6 +15457,27 @@ var FullCalendar = (function (exports) {
           slatHeight = slatMinHeight;
       }
       return [slatHeight, slatLiquid];
+  }
+  /*
+  The day of the column that the now-indicator is drawn within. Usually now's own day, but when slotMaxTime
+  extends past midnight, it might only be within the previous day's column (#6394).
+  Undefined if now isn't within any column.
+  */
+  function computeNowIndicatorDayDate(nowDate, nowIndicatorSegsByCol, cells) {
+      const nowDayMs = startOfDay(nowDate).valueOf();
+      let firstDayDate;
+      for (let col = 0; col < cells.length; col++) {
+          if (nowIndicatorSegsByCol[col]?.length) {
+              const { date } = cells[col];
+              if (date.valueOf() === nowDayMs) {
+                  return date;
+              }
+              if (!firstDayDate) {
+                  firstDayDate = date;
+              }
+          }
+      }
+      return firstDayDate;
   }
   /*
   A `startOfDayDate` must be given for avoiding ambiguity over how to treat midnight.
@@ -13962,10 +15763,10 @@ var FullCalendar = (function (exports) {
   class TimeGridMoreLink extends BaseComponent {
       render() {
           let { props } = this;
-          return (u$1("div", { className: joinClassNames(classNames.abs, classNames.flexCol, classNames.end0, classNames.z9999), style: {
+          return (u$1("div", { role: 'listitem', className: joinClassNames(classNames.abs, classNames.flexCol, classNames.end0, classNames.z9999), style: {
                   top: props.top,
                   height: props.height,
-              }, children: u$1(MoreLinkContainer, { className: classNames.liquid, display: 'column', allDayDate: null, segs: props.hiddenSegs, hiddenSegs: props.hiddenSegs, dateSpanProps: props.dateSpanProps, dateProfile: props.dateProfile, todayRange: props.todayRange, popoverContent: () => renderPlainFgSegs(props.hiddenSegs, props, /* isMirror = */ false), forceTimed: true, isNarrow: props.isNarrow, isMicro: props.isMicro }) }));
+              }, children: u$1(MoreLinkContainer, { className: classNames.liquid, display: 'column', allDayDate: null, segs: props.hiddenSegs, hiddenSegs: props.hiddenSegs, dateSpanProps: props.dateSpanProps, renderProps: props.renderProps, dateProfile: props.dateProfile, todayRange: props.todayRange, popoverContent: () => renderPlainFgSegs(props.hiddenSegs, props, /* isMirror = */ false), forceTimed: true, isNarrow: props.isNarrow, isMicro: props.isMicro }) }));
       }
   }
 
@@ -14025,16 +15826,18 @@ var FullCalendar = (function (exports) {
               view: context.viewApi,
           };
           if (dateMeta.isDisabled) {
-              return (u$1("div", { role: 'gridcell', "aria-disabled": true, className: joinClassNames(generateClassName(options.dayLaneClass, renderProps), baseClassName), style: baseStyle }));
+              return (u$1("div", { role: 'cell', "aria-disabled": true, className: joinClassNames(generateClassName(options.dayLaneClass, renderProps), baseClassName), style: baseStyle }));
           }
           const innerClassName = joinClassNames(generateClassName(options.dayLaneInnerClass, renderProps), !isStack && classNames.fill, classNames.z1);
           const sortedFgSegs = this.sortEventSegs(props.fgEventSegs, options.eventOrder);
           return (u$1(ContentContainer, { tag: "div", attrs: {
                   ...props.attrs,
-                  role: 'gridcell',
+                  role: 'cell',
                   ...(dateMeta.isToday ? { 'aria-current': 'date' } : {}),
                   'data-date': formatDayString(props.date),
-              }, className: baseClassName, style: baseStyle, renderProps: renderProps, generatorName: undefined, classNameGenerator: options.dayLaneClass, didMount: options.dayLaneDidMount, willUnmount: options.dayLaneWillUnmount, children: () => (u$1(S, { children: [this.renderFillSegs(props.businessHourSegs, 'non-business'), this.renderFillSegs(props.bgEventSegs, 'bg-event'), this.renderFillSegs(props.dateSelectionSegs, 'highlight'), u$1("div", { className: innerClassName, children: this.renderFgSegs(sortedFgSegs, 
+              }, className: baseClassName, style: baseStyle, renderProps: renderProps, generatorName: undefined, classNameGenerator: options.dayLaneClass, didMount: options.dayLaneDidMount, willUnmount: options.dayLaneWillUnmount, children: () => (u$1(S, { children: [this.renderFillSegs(props.businessHourSegs, 'non-business'), this.renderFillSegs(props.bgEventSegs, 'bg-event'), this.renderFillSegs(props.dateSelectionSegs, 'highlight'), u$1("div", { 
+                          // events and more-links are list items
+                          role: sortedFgSegs.length ? 'list' : undefined, className: innerClassName, children: this.renderFgSegs(sortedFgSegs, 
                           /* isMirror = */ false) }), Boolean(mirrorSegs.length) && (
                       // but only show it when there are actual mirror events, to avoid blocking clicks
                       u$1("div", { className: innerClassName, children: this.renderFgSegs(mirrorSegs, 
@@ -14075,7 +15878,7 @@ var FullCalendar = (function (exports) {
           let isDragging = Boolean(props.eventDrag && props.eventDrag.affectedInstances[instanceId]);
           let isResizing = Boolean(props.eventResize && props.eventResize.affectedInstances[instanceId]);
           let isInvisible = !isMirror && (isDragging || isResizing);
-          return (u$1("div", { 
+          return (u$1("div", { role: isMirror ? undefined : 'listitem', 
               // we would have used classNames.fill, but multi-page spanning breaks in Firefox
               // we would have used height:100%, but multi-page spanning breaks in Safari
               className: joinClassNames(classNames.abs, classNames.flexCol), style: {
@@ -14083,7 +15886,7 @@ var FullCalendar = (function (exports) {
                   top: segVertical.start,
                   height: segVertical.size,
                   ...hStyle,
-              }, children: u$1(TimeGridEvent, { eventRange: eventRange, slicedStart: seg.startDate, slicedEnd: seg.endDate, isStart: seg.isStart, isEnd: seg.isEnd, isDragging: isDragging, isResizing: isResizing, isMirror: isMirror, isSelected: isSelected, level: level, isNarrow: props.isNarrow, isShort: segVertical.isShort || false, isLiquid: true, ...getEventRangeMeta(eventRange, props.todayRange, props.nowDate, props.nowMs) }) }, instanceId));
+              }, children: u$1(TimeGridEvent, { eventRange: eventRange, slicedStart: seg.startDate, slicedEnd: seg.endDate, isStart: seg.isStart, isEnd: seg.isEnd, isDragging: isDragging, isResizing: isResizing, isMirror: isMirror, isSelected: isSelected, level: level, isNarrow: props.isNarrow, isShort: segVertical.isShort || false, isLiquid: true, renderProps: props.renderProps, ...getEventRangeMeta(eventRange, props.todayRange, props.nowDate, props.nowMs) }) }, instanceId));
       }
       /*
       A pixel floor is only meaningful against a real slat height, so it stays off
@@ -14101,9 +15904,9 @@ var FullCalendar = (function (exports) {
       has already been applied to the segs it was formed from
       */
       renderHiddenGroups(hiddenGroups) {
-          let { dateSpanProps, dateProfile, todayRange, nowDate, nowMs, eventSelection, eventDrag, eventResize, isNarrow, isMicro } = this.props;
+          let { dateSpanProps, renderProps, dateProfile, todayRange, nowDate, nowMs, eventSelection, eventDrag, eventResize, isNarrow, isMicro } = this.props;
           return (u$1(S, { children: hiddenGroups.map((hiddenGroup) => {
-                  return (u$1(TimeGridMoreLink, { hiddenSegs: hiddenGroup.segs, top: hiddenGroup.start, height: hiddenGroup.end - hiddenGroup.start, isNarrow: isNarrow, isMicro: isMicro, dateSpanProps: dateSpanProps, dateProfile: dateProfile, todayRange: todayRange, nowDate: nowDate, nowMs: nowMs, eventSelection: eventSelection, eventDrag: eventDrag, eventResize: eventResize }, hiddenGroup.key));
+                  return (u$1(TimeGridMoreLink, { hiddenSegs: hiddenGroup.segs, top: hiddenGroup.start, height: hiddenGroup.end - hiddenGroup.start, isNarrow: isNarrow, isMicro: isMicro, dateSpanProps: dateSpanProps, renderProps: renderProps, dateProfile: dateProfile, todayRange: todayRange, nowDate: nowDate, nowMs: nowMs, eventSelection: eventSelection, eventDrag: eventDrag, eventResize: eventResize }, hiddenGroup.key));
               }) }));
       }
       renderFillSegs(segs, fillType) {
@@ -14112,7 +15915,7 @@ var FullCalendar = (function (exports) {
           return (u$1(S, { children: segs.map((seg, index) => {
                   const { eventRange } = seg;
                   const segVertical = segVerticals[index] || {};
-                  return (u$1("div", { className: classNames.fillX, style: {
+                  return (u$1("div", { "aria-hidden": true, className: classNames.fillX, style: {
                           top: segVertical.start,
                           height: segVertical.size,
                           // HACK to get bg fills to overlap cell-start border
@@ -14121,7 +15924,7 @@ var FullCalendar = (function (exports) {
                           // will render on both at the same time
                           marginInlineStart: -1,
                       }, children: fillType === 'bg-event' ?
-                          u$1(BgEvent, { eventRange: eventRange, isStart: seg.isStart, isEnd: seg.isEnd, isNarrow: props.isNarrow, isShort: segVertical.isShort || false, isVertical: true, ...getEventRangeMeta(eventRange, props.todayRange, props.nowDate, props.nowMs) }) :
+                          u$1(BgEvent, { eventRange: eventRange, isStart: seg.isStart, isEnd: seg.isEnd, isNarrow: props.isNarrow, isShort: segVertical.isShort || false, isVertical: true, renderProps: props.renderProps, ...getEventRangeMeta(eventRange, props.todayRange, props.nowDate, props.nowMs) }) :
                           renderFill(fillType, context.options) }, buildEventRangeKey(eventRange)));
               }) }));
       }
@@ -14161,14 +15964,14 @@ var FullCalendar = (function (exports) {
           return computeTimeGridPrintMode(this.props.forPrint, eventPrintLayout) === 'stack';
       }
   }
-  function renderPlainFgSegs(sortedFgSegs, { todayRange, nowDate, nowMs, eventSelection, eventDrag, eventResize }, isMirror) {
+  function renderPlainFgSegs(sortedFgSegs, { todayRange, nowDate, nowMs, eventSelection, eventDrag, eventResize, renderProps }, isMirror) {
       return (u$1(S, { children: sortedFgSegs.map((seg) => {
               let { eventRange } = seg;
               let { instanceId } = eventRange.instance;
               let isDragging = Boolean(eventDrag && eventDrag.affectedInstances[instanceId]);
               let isResizing = Boolean(eventResize && eventResize.affectedInstances[instanceId]);
               let isInvisible = isDragging || isResizing;
-              return (u$1("div", { className: classNames.breakInsideAvoid, style: { visibility: isInvisible ? 'hidden' : undefined }, children: u$1(TimeGridEvent, { eventRange: eventRange, slicedStart: seg.startDate, slicedEnd: seg.endDate, isStart: seg.isStart, isEnd: seg.isEnd, isDragging: isDragging, isResizing: isResizing, isMirror: isMirror, isSelected: instanceId === eventSelection, level: 0, isShort: false, isNarrow: false, disableResizing: true, ...getEventRangeMeta(eventRange, todayRange, nowDate, nowMs) }) }, instanceId));
+              return (u$1("div", { role: isMirror ? undefined : 'listitem', className: classNames.breakInsideAvoid, style: { visibility: isInvisible ? 'hidden' : undefined }, children: u$1(TimeGridEvent, { eventRange: eventRange, slicedStart: seg.startDate, slicedEnd: seg.endDate, isStart: seg.isStart, isEnd: seg.isEnd, isDragging: isDragging, isResizing: isResizing, isMirror: isMirror, isSelected: instanceId === eventSelection, level: 0, isShort: false, isNarrow: false, disableResizing: true, renderProps: renderProps, ...getEventRangeMeta(eventRange, todayRange, nowDate, nowMs) }) }, instanceId));
           }) }));
   }
 
@@ -14205,6 +16008,9 @@ var FullCalendar = (function (exports) {
           const colCount = cells.length;
           const { col, left, right } = computeColFromPosition(positionLeft, elWidth, colWidth, colCount, isRtl);
           const cell = cells[col];
+          if (cell.isInert) {
+              return null;
+          }
           const slatIndex = Math.floor(positionTop / slatHeight);
           const slatTop = slatIndex * slatHeight;
           const partial = (positionTop - slatTop) / slatHeight; // floating point number between 0 and 1
@@ -14265,7 +16071,7 @@ var FullCalendar = (function (exports) {
           // TODO: just do this on the entire canvas within the scroller
           className: joinClassNames(classNames.fill, classNames.crop, classNames.pointerEventsNone, classNames.z2), children: u$1(NowIndicatorHeaderContainer, { className: classNames.abs, style: {
                   top: props.totalHeight != null
-                      ? props.totalHeight * computeDateTopFrac(props.nowDate, props.dateProfile)
+                      ? props.totalHeight * computeDateTopFrac(props.nowDate, props.dateProfile, props.dayDate)
                       : undefined
               }, date: props.nowDate }) }));
   }
@@ -14297,7 +16103,7 @@ var FullCalendar = (function (exports) {
           let renderProps = this.createRenderProps(props.date, props.time, !props.isLabeled, props.isNarrow, props.isFirst, headerFormat, context);
           let className = joinClassNames(props.liquidHeight && classNames.liquid, classNames.flexRow, classNames.alignStart, classNames.noMargin, classNames.noPadding, classNames.borderlessX, classNames.borderlessBottom, !props.borderTop && classNames.borderlessTop);
           if (!props.isLabeled) {
-              return (u$1("div", { className: joinClassNames(generateClassName(options.slotHeaderClass, renderProps), className), style: {
+              return (u$1("div", { className: joinClassNames(generateClassName(options.slotHeaderClass, renderProps), className), "data-time": props.isoTimeStr, style: {
                       height: props.height,
                   } }));
           }
@@ -14333,11 +16139,17 @@ var FullCalendar = (function (exports) {
       }
   }
   function createRenderProps(date, time, isMinor, isNarrow, isFirst, headerFormat, context) {
+      const textParts = context.dateEnv.formatToParts(date, headerFormat);
       return {
           // this is a time-specific slot. not day-specific, so don't do today/nowRange
           ...getDateMeta(date, context.dateEnv),
           level: 0, // axis level (for when multiple axes)
-          text: joinDateTimeFormatParts(context.dateEnv.formatToParts(date, headerFormat)),
+          text: joinDateTimeFormatParts(textParts),
+          textParts,
+          // the axis's date is a stand-in for its times, so it has no day-level text
+          weekdayText: '',
+          dayNumberText: '',
+          monthText: '',
           time: time,
           isMajor: false,
           isMinor,
@@ -14405,13 +16217,15 @@ var FullCalendar = (function (exports) {
               options: { dayMinWidth: options.dayMinWidth },
           };
           return (u$1(ContentContainer, { tag: 'div', attrs: {
-                  role: 'gridcell', // doesn't always describe other cells in row, so make generic
-                  'aria-label': fullDateStr,
+                  role: 'columnheader',
               }, className: joinClassNames(classNames.flexRow, classNames.noMargin, classNames.noPadding, props.isLiquid ? classNames.liquid : classNames.contentBox), style: {
                   width: props.width,
-              }, renderProps: weekNumberRenderProps, generatorName: "weekNumberHeaderContent", customGenerator: options.weekNumberHeaderContent, defaultGenerator: renderText$1, classNameGenerator: options.weekNumberHeaderClass, didMount: options.weekNumberHeaderDidMount, willUnmount: options.weekNumberHeaderWillUnmount, children: (InnerContent) => (u$1("div", { ref: this.innerElRef, className: joinClassNames(classNames.flexRow, classNames.noShrink, classNames.whiteSpaceNoWrap), children: u$1(InnerContent, { tag: 'div', attrs: hasNavLink
-                          ? buildNavLinkAttrs(context, range.start, 'week', fullDateStr)
-                          : { 'aria-label': fullDateStr }, className: generateClassName(options.weekNumberHeaderInnerClass, weekNumberRenderProps) }) })) }));
+              }, renderProps: weekNumberRenderProps, generatorName: "weekNumberHeaderContent", customGenerator: options.weekNumberHeaderContent, defaultGenerator: renderText$1, classNameGenerator: options.weekNumberHeaderClass, didMount: options.weekNumberHeaderDidMount, willUnmount: options.weekNumberHeaderWillUnmount, children: (InnerContent) => (u$1(S, { children: [!hasNavLink && ( // navlink is already labeled
+                      u$1("div", { className: classNames.srOnly, children: fullDateStr })), u$1("div", { "aria-hidden": hasNavLink ? undefined : true, ref: this.innerElRef, className: joinClassNames(classNames.flexRow, classNames.noShrink, classNames.whiteSpaceNoWrap), children: u$1(InnerContent, { tag: 'div', attrs: hasNavLink
+                                  ? buildNavLinkAttrs(context, range.start, 'week', fullDateStr, 
+                                  /* isTabbable = */ true, 
+                                  /* omitHint = */ true)
+                                  : undefined, className: generateClassName(options.weekNumberHeaderInnerClass, weekNumberRenderProps) }) })] })) }));
       }
       componentDidMount() {
           this._isUnmounting = false;
@@ -14436,7 +16250,7 @@ var FullCalendar = (function (exports) {
   }
 
   function TimeGridAxisEmpty(props) {
-      return (u$1("div", { role: 'gridcell' // is empty so can't be rowheader/columnheader
+      return (u$1("div", { role: 'cell' // is empty so can't be rowheader/columnheader
           , className: props.isLiquid ? classNames.liquid : classNames.contentBox, style: { width: props.width } }));
   }
 
@@ -14542,7 +16356,9 @@ var FullCalendar = (function (exports) {
       render() {
           const { props, state, context, headerLabelInnerWidthRefMap, headerLabelInnerHeightRefMap, headerMainInnerHeightRefMap, slatLabelInnerWidthRefMap, slatLabelInnerHeightRefMap, } = this;
           const { nowDate, headerTiers, forPrint } = props;
-          const nowTimeMs = nowDate.valueOf() - startOfDay(nowDate).valueOf();
+          const nowIndicatorDayDate = (!forPrint && context.options.nowIndicator)
+              ? computeNowIndicatorDayDate(nowDate, props.nowIndicatorSegsByCol, props.cells)
+              : undefined;
           const { axisWidth, totalWidth, clientWidth, clientHeight, bodyHeight, sticykBottomScrollbarWidth } = state;
           const { options } = context;
           const { borderlessX, borderlessTop, borderlessBottom } = computeViewBorderless(options);
@@ -14609,11 +16425,9 @@ var FullCalendar = (function (exports) {
                                                           colWidth: appliedColWidth }) }), Boolean(endScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderlessY, classNames.borderlessEnd), style: { minWidth: endScrollbarWidth } }))] })] }), u$1("div", { className: joinClassNames(options.allDayDividerClass, classNames.z2) })] })), u$1("div", { role: 'row', "aria-rowindex": firstBodyRowIndex + (options.allDaySlot ? 1 : 0), className: joinClassNames(classNames.flexRow, classNames.rel, // for Ruler.fillStart
                               verticalScrolling && classNames.liquid, classNames.z0), children: [u$1(Scroller, { vertical: verticalScrolling, hideScrollbars: true, className: joinClassNames(classNames.flexCol, classNames.contentBox), style: {
                                           width: axisWidth,
-                                      }, ref: this.axisScrollerRef, clientHeightRef: this.handleBodyHeight, children: !simplePrint && (u$1(S, { children: u$1("div", { role: 'rowheader', "aria-label": options.timedText, className: joinClassNames(classNames.flexCol, classNames.grow, classNames.rel), style: {
+                                      }, ref: this.axisScrollerRef, clientHeightRef: this.handleBodyHeight, children: !simplePrint && (u$1(S, { children: u$1("div", { role: 'rowheader', className: joinClassNames(classNames.flexCol, classNames.grow, classNames.rel), style: {
                                                   height: forcedBodyHeight,
-                                              }, children: [u$1("div", { "aria-hidden": true, className: joinClassNames(classNames.flexCol, (verticalScrolling && options.expandRows) && classNames.grow, absPrint && classNames.fillX), children: props.slatMetas.map((slatMeta, slatI) => (k$1(TimeGridSlatHeader, { ...slatMeta /* FYI doesn't need isoTimeStr */, key: slatMeta.key, innerWidthRef: slatLabelInnerWidthRefMap.createRef(slatMeta.key), innerHeightRef: slatLabelInnerHeightRefMap.createRef(slatMeta.key), borderTop: Boolean(slatI), isNarrow: cellIsNarrow, height: slatLiquidHeight ? undefined : slatHeight, liquidHeight: slatLiquidHeight }))) }), !forPrint && options.nowIndicator && rangeContainsMarker(props.dateProfile.currentRange, nowDate) &&
-                                                      nowTimeMs >= props.dateProfile.slotMinTime.milliseconds &&
-                                                      nowTimeMs < props.dateProfile.slotMaxTime.milliseconds && (u$1(TimeGridNowIndicatorArrow, { nowDate: nowDate, dateProfile: props.dateProfile, totalHeight: slatHeight != null ? slatHeight * slatCnt : undefined })), Boolean(rowsNotExpanding || bottomScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderlessX, classNames.borderlessBottom, rowsNotExpanding && classNames.liquid), style: {
+                                              }, children: [u$1("div", { className: classNames.srOnly, children: options.timedText }), u$1("div", { "aria-hidden": true, className: joinClassNames(classNames.flexCol, (verticalScrolling && options.expandRows) && classNames.grow, absPrint && classNames.fillX), children: props.slatMetas.map((slatMeta, slatI) => (k$1(TimeGridSlatHeader, { ...slatMeta /* FYI doesn't need isoTimeStr */, key: slatMeta.key, innerWidthRef: slatLabelInnerWidthRefMap.createRef(slatMeta.key), innerHeightRef: slatLabelInnerHeightRefMap.createRef(slatMeta.key), borderTop: Boolean(slatI), isNarrow: cellIsNarrow, height: slatLiquidHeight ? undefined : slatHeight, liquidHeight: slatLiquidHeight }))) }), nowIndicatorDayDate && (u$1(TimeGridNowIndicatorArrow, { nowDate: nowDate, dayDate: nowIndicatorDayDate, dateProfile: props.dateProfile, totalHeight: slatHeight != null ? slatHeight * slatCnt : undefined })), Boolean(rowsNotExpanding || bottomScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderlessX, classNames.borderlessBottom, rowsNotExpanding && classNames.liquid), style: {
                                                           minHeight: bottomScrollbarWidth
                                                       } }))] }) })) }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
                                           inTableHeader: false,
@@ -14716,7 +16530,7 @@ var FullCalendar = (function (exports) {
                   return;
               // Must delay the rerender because might change the width of the all-day DayGridRow events,
               // which shows a ResizeObserver loop warning
-              requestAnimationFrame(() => {
+              settleRequestAnimationFrame(() => {
                   if (this._isUnmounting)
                       return;
                   this.setState({ totalWidth });
@@ -14766,7 +16580,9 @@ var FullCalendar = (function (exports) {
       render() {
           const { props, state, context, slatLabelInnerWidthRefMap, slatLabelInnerHeightRefMap, headerLabelInnerWidthRefMap } = this;
           const { nowDate, forPrint } = props;
-          const nowTimeMs = nowDate.valueOf() - startOfDay(nowDate).valueOf();
+          const nowIndicatorDayDate = (!forPrint && context.options.nowIndicator)
+              ? computeNowIndicatorDayDate(nowDate, props.nowIndicatorSegsByCol, props.cells)
+              : undefined;
           const { axisWidth, clientWidth, totalWidth } = state;
           const { options } = context;
           const { borderlessX, borderlessTop, borderlessBottom } = computeViewBorderless(options);
@@ -14826,7 +16642,7 @@ var FullCalendar = (function (exports) {
                                       // we need to do this so that slats positioning synces with events's positioning
                                       // otherwise, get out of sync on second page
                                       height: forcedBodyHeight,
-                                  }, children: [u$1("div", { role: 'row', className: joinClassNames(classNames.flexRow, !simplePrint && classNames.fill), children: [u$1("div", { role: 'rowheader', "aria-label": options.timedText, className: classNames.contentBox, style: { width: axisWidth } }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
+                                  }, children: [u$1("div", { role: 'row', className: joinClassNames(classNames.flexRow, !simplePrint && classNames.fill), children: [u$1("div", { role: 'rowheader', className: classNames.contentBox, style: { width: axisWidth }, children: u$1("div", { className: classNames.srOnly, children: options.timedText }) }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
                                                       inTableHeader: false,
                                                       options: { dayMinWidth: options.dayMinWidth },
                                                   }) }), u$1(TimeGridCols, { dateProfile: props.dateProfile, nowDate: props.nowDate, nowMs: props.nowMs, todayRange: props.todayRange, cells: props.cells, slatCnt: slatCnt, forPrint: forPrint, isHitComboAllowed: props.isHitComboAllowed, className: classNames.liquid, 
@@ -14840,12 +16656,10 @@ var FullCalendar = (function (exports) {
                                                       }, children: [u$1("div", { 
                                                               // the pannable version of TimeGrid has axis labels all consecutive in one column
                                                               // simulate this for the non-pannable version
-                                                              className: classNames.flexCol, style: { width: axisWidth }, children: k$1(TimeGridSlatHeader, { ...slatMeta /* FYI doesn't need isoTimeStr */, key: slatMeta.key, innerWidthRef: slatLabelInnerWidthRefMap.createRef(slatMeta.key), innerHeightRef: slatLabelInnerHeightRefMap.createRef(slatMeta.key), borderTop: Boolean(slatI), isNarrow: cellIsNarrow }) }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
+                                                              className: classNames.flexCol, style: { width: axisWidth }, children: k$1(TimeGridSlatHeader, { ...slatMeta /* FYI doesn't need isoTimeStr */, key: slatMeta.key, innerWidthRef: slatLabelInnerWidthRefMap.createRef(slatMeta.key), innerHeightRef: slatLabelInnerHeightRefMap.createRef(slatMeta.key), borderTop: Boolean(slatI), isNarrow: cellIsNarrow, height: slatLiquidHeight ? undefined : slatHeight, liquidHeight: slatLiquidHeight }) }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
                                                                   inTableHeader: false,
                                                                   options: { dayMinWidth: options.dayMinWidth },
-                                                              }), style: { visibility: 'hidden' } }), k$1(TimeGridSlatLane, { ...slatMeta /* FYI doesn't need isoTimeStr */, key: slatMeta.key, borderTop: Boolean(slatI) })] }, slatMeta.key))) }), rowsNotExpanding && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderlessX, classNames.borderlessBottom, classNames.liquid) })), !forPrint && options.nowIndicator && rangeContainsMarker(props.dateProfile.currentRange, nowDate) &&
-                                                  nowTimeMs >= props.dateProfile.slotMinTime.milliseconds &&
-                                                  nowTimeMs < props.dateProfile.slotMaxTime.milliseconds && (u$1(TimeGridNowIndicatorArrow, { nowDate: nowDate, dateProfile: props.dateProfile, totalHeight: slatHeight != null ? slatHeight * slatCnt : undefined }))] }))] }) })] }), u$1(Ruler, { widthRef: this.handleTotalWidth })] }));
+                                                              }), style: { visibility: 'hidden' } }), k$1(TimeGridSlatLane, { ...slatMeta /* FYI doesn't need isoTimeStr */, key: slatMeta.key, borderTop: Boolean(slatI) })] }, slatMeta.key))) }), rowsNotExpanding && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderlessX, classNames.borderlessBottom, classNames.liquid) })), nowIndicatorDayDate && (u$1(TimeGridNowIndicatorArrow, { nowDate: nowDate, dayDate: nowIndicatorDayDate, dateProfile: props.dateProfile, totalHeight: slatHeight != null ? slatHeight * slatCnt : undefined }))] }))] }) })] }), u$1(Ruler, { widthRef: this.handleTotalWidth })] }));
       }
       // Lifecycle
       // -----------------------------------------------------------------------------------------------
@@ -14986,8 +16800,8 @@ var FullCalendar = (function (exports) {
               borderlessBottom,
           };
           return (u$1(ViewContainer, { attrs: {
-                  role: 'grid',
-                  'aria-colcount': props.cells.length,
+                  role: 'table',
+                  'aria-colcount': props.cells.length + 1,
                   'aria-labelledby': props.labelId,
                   'aria-label': props.labelStr,
               }, className: joinClassNames(props.className, generateClassName(options.tableClass, {
@@ -15008,7 +16822,16 @@ var FullCalendar = (function (exports) {
       // -----------------------------------------------------------------------------------------------
       componentDidMount() {
           this._isUnmounting = false;
-          this.resetScroll();
+          // A React <Activity> shown again mounts the same instance again (#8112). Keep its scroll, unless
+          // the dates changed while hidden, which would have reset it
+          if (!this.scrollDateProfile ||
+              (this.props.dateProfile !== this.scrollDateProfile && this.context.options.scrollTimeReset)) {
+              this.resetScroll();
+          }
+          else {
+              this.applyTimeScroll();
+          }
+          this.scrollDateProfile = this.props.dateProfile;
           this.context.emitter.on('_timeScrollRequest', this.handleTimeScrollRequest);
           const timeScroller = this.timeScrollerRef.current;
           if (timeScroller) {
@@ -15016,6 +16839,7 @@ var FullCalendar = (function (exports) {
           }
       }
       componentDidUpdate(prevProps) {
+          this.scrollDateProfile = this.props.dateProfile;
           if (prevProps.dateProfile !== this.props.dateProfile && this.context.options.scrollTimeReset) {
               this.resetScroll();
           }
@@ -15086,10 +16910,6 @@ var FullCalendar = (function (exports) {
       }
   }
 
-  // TODO: get rid of this in favor of options system,
-  // tho it's really easy to access this globally rather than pass thru options.
-  const config = {};
-
   // high-level segmenting-aware tester functions
   // ------------------------------------------------------------------------------------------------------------------------
   function isInteractionValid(interaction, dateProfile, context) {
@@ -15140,7 +16960,7 @@ var FullCalendar = (function (exports) {
       let subjectInstances = subjectEventStore.instances;
       let subjectConfigs = compileEventUis(subjectDefs, interaction.isEvent ?
           state.eventUiBases :
-          { '': currentState.selectionConfig });
+          { base: currentState.selectionConfig, bySource: {} });
       if (filterConfig) {
           subjectConfigs = mapHash(subjectConfigs, filterConfig);
       }
@@ -15296,7 +17116,7 @@ var FullCalendar = (function (exports) {
       function runWithTimeout(timeout) {
           timeoutStarted = Date.now();
           timeoutAdded = 0;
-          timeoutId = setTimeout(() => {
+          timeoutId = settleSetTimeout(() => {
               if (timeoutAdded) {
                   runWithTimeout(timeoutAdded);
               }
@@ -15316,7 +17136,7 @@ var FullCalendar = (function (exports) {
       }
       function cancel() {
           if (timeoutId) {
-              clearTimeout(timeoutId);
+              settleClearTimeout(timeoutId);
               timeoutId = undefined;
           }
       }
@@ -15384,6 +17204,7 @@ var FullCalendar = (function (exports) {
       flexibleCompare: flexibleCompare,
       getDateSpanInstantEndMs: getDateSpanInstantEndMs,
       getDateSpanInstantStartMs: getDateSpanInstantStartMs,
+      getElEventRange: getElEventRange,
       getEventRangeMeta: getEventRangeMeta,
       getRangeInstantEndMs: getRangeInstantEndMs,
       getRangeInstantStartMs: getRangeInstantStartMs,
@@ -15406,6 +17227,23 @@ var FullCalendar = (function (exports) {
       CalendarMediaRoot: CalendarMediaRoot,
       computeRootClassName: computeRootClassName,
       parseBusinessHours: parseBusinessHours,
+      DateComponent: DateComponent,
+      DelayedRunner: DelayedRunner,
+      NowTimer: NowTimer,
+      Scroller: Scroller,
+      StandardEvent: StandardEvent,
+      ViewContainer: ViewContainer,
+      buildNavLinkAttrs: buildNavLinkAttrs,
+      findDayNumberText: findDayNumberText,
+      findMonthText: findMonthText,
+      findWeekdayText: findWeekdayText,
+      getDateMeta: getDateMeta,
+      Emitter: Emitter,
+      holdSettle: holdSettle,
+      settleClearTimeout: settleClearTimeout,
+      settleRequestAnimationFrame: settleRequestAnimationFrame,
+      settleSetTimeout: settleSetTimeout,
+      whenSettled: whenSettled,
       BaseComponent: BaseComponent,
       ContentContainer: ContentContainer,
       RenderId: RenderId,
@@ -15430,6 +17268,7 @@ var FullCalendar = (function (exports) {
       mergeViewOptionsMap: mergeViewOptionsMap,
       applyStyleProp: applyStyleProp,
       computeElIsRtl: computeElIsRtl,
+      config: config,
       AllDaySplitter: AllDaySplitter,
       DayTimeColsSlicer: DayTimeColsSlicer,
       NowIndicatorDot: NowIndicatorDot,
@@ -15439,19 +17278,11 @@ var FullCalendar = (function (exports) {
       TimeGridLayout: TimeGridLayout,
       buildDayCols: buildDayCols,
       buildDayColsFromSeries: buildDayColsFromSeries,
+      computeTimeGridPrintMode: computeTimeGridPrintMode,
       organizeSegsByCol: organizeSegsByCol,
       splitInteractionByCol: splitInteractionByCol,
-      DateComponent: DateComponent,
-      DelayedRunner: DelayedRunner,
-      NowTimer: NowTimer,
-      Scroller: Scroller,
-      StandardEvent: StandardEvent,
-      ViewContainer: ViewContainer,
-      buildNavLinkAttrs: buildNavLinkAttrs,
-      getDateMeta: getDateMeta,
       requestJson: requestJson,
       unpromisify: unpromisify,
-      Emitter: Emitter,
       DateProfileGenerator: DateProfileGenerator,
       computeMajorUnit: computeMajorUnit,
       isMajorUnit: isMajorUnit,
@@ -15481,7 +17312,6 @@ var FullCalendar = (function (exports) {
       renderFill: renderFill,
       sortByAxisOrder: sortByAxisOrder,
       ElementDragging: ElementDragging,
-      config: config,
       isPropsValid: isPropsValid,
       DayGridLayout: DayGridLayout,
       FooterScrollbar: FooterScrollbar,
@@ -15794,6 +17624,8 @@ var FullCalendar = (function (exports) {
   The moving element is a clone of some other element.
   Must call start + handleMove + stop.
   */
+  // ms past the revert's duration to wait for its transition to end, before no longer holding settle
+  const REVERT_SETTLE_SLACK = 1000;
   class ElementMirror {
       constructor() {
           this.isVisible = false; // must be explicitly enabled
@@ -15804,6 +17636,7 @@ var FullCalendar = (function (exports) {
           this.parentNode = document.body; // HIGHLY SUGGESTED to set this to sidestep ShadowDOM issues
           this.zIndex = 9999;
           this.revertDuration = 0;
+          this.releaseRevertSettle = () => { };
           this.colorScheme = '';
       }
       start(sourceEl, pageX, pageY) {
@@ -15857,7 +17690,7 @@ var FullCalendar = (function (exports) {
               this.doRevertAnimation(done, this.revertDuration);
           }
           else {
-              setTimeout(done, 0);
+              settleSetTimeout(done, 0);
           }
       }
       doRevertAnimation(callback, revertDuration) {
@@ -15870,12 +17703,26 @@ var FullCalendar = (function (exports) {
               left: finalSourceElRect.left,
               top: finalSourceElRect.top,
           });
+          // Tests wait for the revert. If the transition never ends (the mirror is removed first, or CSS
+          // suppresses it), stop holding settle after a while, so one drag can't block it for good
+          const releaseSettle = holdSettle(); // safe to call more than once
+          const fallbackId = setTimeout(releaseSettle, revertDuration + REVERT_SETTLE_SLACK);
+          this.releaseRevertSettle = () => {
+              clearTimeout(fallbackId);
+              releaseSettle();
+          };
           whenTransitionDone(mirrorEl, () => {
               mirrorEl.style.transition = '';
-              callback();
+              try {
+                  callback();
+              }
+              finally {
+                  this.releaseRevertSettle();
+              }
           });
       }
       cleanup() {
+          this.releaseRevertSettle();
           if (this.mirrorEl) {
               this.mirrorEl.remove();
               this.mirrorEl = null;
@@ -16208,6 +18055,7 @@ var FullCalendar = (function (exports) {
       }
       requestAnimation(now) {
           this.msSinceRequest = now;
+          // not tracked by util/settle: it runs for as long as the pointer stays near an edge
           requestAnimationFrame(this.animate);
       }
       handleSide(edge, seconds) {
@@ -17076,7 +18924,7 @@ var FullCalendar = (function (exports) {
                           };
                           let transformed = {};
                           for (let transformer of initialContext.getCurrentData().pluginHooks.eventDropTransformers) {
-                              Object.assign(transformed, transformer(validMutation, initialContext));
+                              Object.assign(transformed, transformer(validMutation, initialContext, eventDef));
                           }
                           initialContext.emitter.trigger('eventDrop', {
                               ...eventChangeData,
@@ -17582,6 +19430,10 @@ var FullCalendar = (function (exports) {
               }
               this.displayDrag(receivingContext, interaction);
               // show mirror if no already-rendered mirror element OR if we are shutting down the mirror (?)
+              // The "mirror" here is the dragged element itself (ElementMirror), or for ThirdPartyDraggable, the
+              // third-party library's moving element (mirrorSelector). It's hidden only while the calendar
+              // renders its own mirror of the event in its place (timeGrid, timeline). Views that just highlight
+              // the drop's dates (dayGrid) leave it visible, so the user still sees what they're dragging.
               // TODO: wish we could somehow wait for dispatch to guarantee render
               dragging.setMirrorIsVisible(isFinal ||
                   !droppableEvent ||
@@ -18085,11 +19937,13 @@ var FullCalendar = (function (exports) {
               textParts,
               get weekdayText() { return findWeekdayText(textParts); },
               get dayNumberText() { return findDayNumberText(textParts); },
+              get monthText() { return findMonthText(textParts); },
               hasNavLink,
               level: props.level,
           };
           const navLinkAttrs = hasNavLink
-              ? buildNavLinkAttrs(this.context, props.dayDate, undefined, text, this.props.isTabbable)
+              ? buildNavLinkAttrs(this.context, props.dayDate, undefined, text, 
+              /* isTabbable = */ this.props.isTabbable)
               : {};
           return (u$1(ContentContainer, { tag: "div", attrs: navLinkAttrs, renderProps: renderProps, generatorName: "listDayHeaderContent", customGenerator: options.listDayHeaderContent, defaultGenerator: renderText$1, classNameGenerator: options.listDayHeaderInnerClass }));
       }
@@ -18100,8 +19954,13 @@ var FullCalendar = (function (exports) {
           let { options, viewApi, viewSpec } = this.context;
           let { dayDate, dateMeta } = this.props;
           let stickyHeaderDates = !this.props.forPrint;
-          const listDayFormat = options.listDayFormat ?? createDefaultListDayFormat(viewSpec);
-          const listDayAltFormat = options.listDayAltFormat ?? createDefaultListDaySideFormat(viewSpec);
+          // `false` is refined to `null`, which turns the heading off, so only a missing option gets the default
+          const listDayFormat = options.listDayFormat === undefined
+              ? createDefaultListDayFormat(viewSpec)
+              : options.listDayFormat;
+          const listDayAltFormat = options.listDayAltFormat === undefined
+              ? createDefaultListDaySideFormat(viewSpec)
+              : options.listDayAltFormat;
           let renderProps = {
               ...dateMeta,
               view: viewApi,
@@ -18146,9 +20005,7 @@ var FullCalendar = (function (exports) {
           let forcedTimeText = (displayEventTime !== false) && (eventRange.def.allDay || (!props.isStart && !props.isEnd))
               ? context.options.allDayText
               : undefined;
-          return (u$1(StandardEvent, { ...props, attrs: {
-                  role: 'listitem',
-              }, forcedTimeText: forcedTimeText, defaultTimeFormat: DEFAULT_TIME_FORMAT, disableDragging: true, disableResizing: true, disableZindexes // because conflicts with sticky list headers
+          return (u$1(StandardEvent, { ...props, forcedTimeText: forcedTimeText, defaultTimeFormat: DEFAULT_TIME_FORMAT, disableDragging: true, disableResizing: true, disableZindexes // because conflicts with sticky list headers
               : true, display: 'list-item' }));
       }
   }
@@ -18181,7 +20038,9 @@ var FullCalendar = (function (exports) {
                           const key = seg.eventRange.instance.instanceId;
                           const isFirst = index === 0;
                           const isLast = index === segs.length - 1;
-                          return (u$1(ListEvent, { eventRange: seg.eventRange, slicedStart: seg.slicedStart, slicedEnd: seg.slicedEnd, isStart: seg.isStart, isEnd: seg.isEnd, isFirst: isFirst, isLast: isLast, isDragging: false, isResizing: false, isMirror: false, isSelected: false, ...getEventRangeMeta(seg.eventRange, todayRange, nowDate, props.nowMs) }, key));
+                          return (
+                          // unstyled list item wraps the event, so the event's own role (link, button) is preserved
+                          u$1("div", { role: 'listitem', className: classNames.flexCol, children: u$1(ListEvent, { eventRange: seg.eventRange, slicedStart: seg.slicedStart, slicedEnd: seg.slicedEnd, isStart: seg.isStart, isEnd: seg.isEnd, isFirst: isFirst, isLast: isLast, isDragging: false, isResizing: false, isMirror: false, isSelected: false, ...getEventRangeMeta(seg.eventRange, todayRange, nowDate, props.nowMs) }) }, key));
                       }) })] }));
       }
   }
@@ -18438,7 +20297,7 @@ var FullCalendar = (function (exports) {
           const navLinkAttrs = hasNavLink
               ? buildNavLinkAttrs(context, monthStartDate, 'month', props.isoDateStr)
               : {};
-          return (u$1("div", { role: 'listitem', style: { width: props.width }, children: u$1("div", { role: 'grid', "aria-labelledby": this.titleId, "data-date": props.isoDateStr, className: joinClassNames(generateClassName(options.singleMonthClass, {
+          return (u$1("div", { role: 'listitem', style: { width: props.width }, children: u$1("div", { role: 'table', "aria-labelledby": this.titleId, "data-date": props.isoDateStr, className: joinClassNames(generateClassName(options.singleMonthClass, {
                       isFirst: props.isFirst,
                       isLast: props.isLast,
                       multiMonthColumns: props.colCount || 0,
@@ -18498,7 +20357,6 @@ var FullCalendar = (function (exports) {
           const { options } = this.context;
           this._isUnmounting = true;
           this.disconnectTitleHeight();
-          this.disconnectTableHeaderHeight?.();
           options.singleMonthWillUnmount?.({
               el: this.rootEl,
               ...this.renderProps,
@@ -18572,7 +20430,7 @@ var FullCalendar = (function (exports) {
           this.scrollerRef.current.addScrollEndListener(this.handleScrollEnd);
           // this.applyScroll() // definitely not ready yet b/c doesn't have state.innerWidth
           // workaround for off-by-a-few-pixels on first time when multiMonthMaxColumns=1, not sure why
-          setTimeout(() => {
+          settleSetTimeout(() => {
               this.applyScroll();
           }, 0);
       }
@@ -18810,7 +20668,7 @@ var FullCalendar = (function (exports) {
       return sliceEventStore(props.eventStore, props.eventUiBases, props.dateProfile.activeRange, allDay ? props.nextDayThreshold : null).fg;
   }
 
-  const version = '7.1.0';
+  const version = '7.1.5';
 
   var protectedStyles = /*#__PURE__*/Object.freeze({
   	__proto__: null,
@@ -18892,9 +20750,11 @@ var FullCalendar = (function (exports) {
               onDataChange: this.handleDataChange,
           });
           this.currentData = this.dataManager.update(optionOverrides);
+          this.dataManager.mount(); // the timer that keeps today current always started here
       }
       render() {
           let wasRendering = this.isRendering;
+          this.dataManager.mount(); // again, when rendering after destroy(). idempotent
           if (!wasRendering) {
               this.isRendering = true;
           }

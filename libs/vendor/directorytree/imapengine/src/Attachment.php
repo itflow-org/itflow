@@ -107,7 +107,7 @@ class Attachment implements Arrayable, JsonSerializable
     /**
      * Get the attachment's content disposition.
      */
-    public function contentDisposition(): string
+    public function contentDisposition(): ?string
     {
         return $this->contentDisposition;
     }

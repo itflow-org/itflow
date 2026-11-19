@@ -26,6 +26,18 @@ class Str
     }
 
     /**
+     * Make a list of IMAP flags.
+     */
+    public static function flags(array $flags): string
+    {
+        foreach ($flags as $flag) {
+            Assert::isValidFlag($flag);
+        }
+
+        return static::list($flags);
+    }
+
+    /**
      * Make one or more literals.
      */
     public static function literal(array|string $string): array|string
@@ -81,21 +93,22 @@ class Str
     public static function set(int|string|array $from, int|float|string|null $to = null): string
     {
         if (is_array($from)) {
-            return static::toSequenceSet($from);
+            foreach ($from as $value) {
+                static::set($value);
+            }
+
+            $set = static::toSequenceSet($from);
+        } else {
+            $set = (string) $from;
+
+            if (! is_null($to)) {
+                $set .= ':'.($to === INF ? '*' : $to);
+            }
         }
 
-        // At this point, $from is an integer. No upper bound provided, return $from as a string.
-        if (is_null($to)) {
-            return (string) $from;
-        }
+        Assert::isValidSequenceSet($set);
 
-        // If the upper bound is infinite, use the '*' notation.
-        if ($to == INF) {
-            return $from.':*';
-        }
-
-        // Otherwise, return a typical range string.
-        return $from.':'.$to;
+        return $set;
     }
 
     /**
