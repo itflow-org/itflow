@@ -74,6 +74,7 @@
 
 <!-- AdminLTE App -->
 <script src="<?= staticFileUrl('/libs/adminlte/js/adminlte.min.js') ?>"></script>
+<script src="<?= staticFileUrl('/libs/sweetalert2/js/sweetalert2.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/autocomplete.js') ?>"></script>
 <?php /* What the editors' Reword button needs - false when AI isn't set up or the role may not use it (aiClientConfig(), functions/ai.php) */ ?>
 <?php

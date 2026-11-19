@@ -35,8 +35,8 @@ document.addEventListener('click', function (event) {
             open.remove();
         })
         .catch(function () {
-            if (typeof itflowDialog !== 'undefined') {
-                itflowDialog({ icon: 'error', title: 'That didn\'t work', text: 'The invoices ticked could not be handed over - reload the page and try again.', confirmButtonText: 'OK', showCancelButton: false });
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ icon: 'error', title: 'That didn\'t work', text: 'The invoices ticked could not be handed over - reload the page and try again.' });
             }
         });
 });

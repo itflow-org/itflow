@@ -165,10 +165,23 @@
     }
 
     function confirmDialog(options) {
-        if (typeof itflowDialog === 'undefined') {
+        if (typeof Swal === 'undefined') {
             return Promise.resolve({isConfirmed: window.confirm(options.title), isDenied: false});
         }
-        return itflowDialog(Object.assign({icon: 'question'}, options));
+        return Swal.fire(Object.assign({
+            theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',
+            icon: 'question',
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'btn btn-primary mx-1',
+                denyButton: 'btn btn-outline-secondary mx-1',
+                cancelButton: 'btn btn-secondary mx-1',
+                input: 'itflow-cal-swal-input'
+            }
+        }, options));
     }
 
     function post(data, done, fail) {
@@ -456,6 +469,7 @@
             confirmDialog({
                 title: 'Tell the ' + props.invited + ' invited?',
                 text: event.title + ' is moving to ' + words(start, event.allDay) + '. Send the update to the ' + (props.invited === 1 ? 'person who has' : 'people who have') + ' it in their calendar?',
+                showDenyButton: true,
                 confirmButtonText: 'Move and send',
                 denyButtonText: 'Just move it'
             }).then(function (result) {

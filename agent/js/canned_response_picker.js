@@ -360,7 +360,7 @@
     document.addEventListener('submit', function (e) {
         const form = e.target;
         const picker = form.querySelector ? form.querySelector('[data-canned-picker]') : null;
-        if (!picker || !form.querySelector('input[name="canned_response_ids[]"]') || typeof itflowDialog === 'undefined') {
+        if (!picker || !form.querySelector('input[name="canned_response_ids[]"]') || typeof Swal === 'undefined') {
             return;
         }
         if (form.dataset.cannedSendAnyway === '1') {
@@ -389,17 +389,27 @@
         e.preventDefault();
         e.stopImmediatePropagation();
         const submitter = e.submitter || null;
-        itflowDialog({
+        const list = document.createElement('div');
+        list.textContent = 'Your reply still has ' + left.map(function (name) {
+            return '[' + name + ']';
+        }).join(', ') + ' in it.';
+        Swal.fire({
+            theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',
             title: 'Still to fill in',
-            text: 'Your reply still has ' + left.map(function (name) {
-                return '[' + name + ']';
-            }).join(', ') + ' in it.',
+            html: list,
             icon: 'warning',
+            showCancelButton: true,
             confirmButtonText: 'Send anyway',
             cancelButtonText: 'Fill them in',
+            reverseButtons: true,
             focusCancel: true,
             // Back to the reply box, not the Send button
-            returnFocus: false
+            returnFocus: false,
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'btn btn-primary mx-1',
+                cancelButton: 'btn btn-secondary mx-1'
+            }
         }).then(function (result) {
             if (result.isConfirmed) {
                 form.dataset.cannedSendAnyway = '1';

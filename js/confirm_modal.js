@@ -1,155 +1,5 @@
 /**
- * Dialogs - "Are you sure?" and the odd message - on a Bootstrap modal.
- *
- * itflowDialog(options) shows one and returns a Promise of
- * {isConfirmed, isDenied, isDismissed, value}. Loaded by includes/footer.php
- * (agent, admin and guest pages), client/includes/footer.php, Get started and
- * client onboarding. Options, all optional:
- *   title               heading                       (default: "Are you sure?")
- *   text                body text
- *   icon                warning|error|question|info|success
- *   confirmButtonText   (default: "Yes")
- *   cancelButtonText    (default: "Cancel")
- *   showCancelButton    false for a message with just the one button
- *   denyButtonText      a third, "no but" button - its answer is isDenied
- *   danger              a red confirm button
- *   focusCancel         start on Cancel rather than the confirm button
- *   returnFocus         false to leave focus where the caller puts it
- *   input: 'radio'      with inputOptions {value: label} and inputValue - the
- *                       one picked comes back as value
- * Escape, the backdrop and Cancel all answer isDismissed. Every piece of text
- * is set as text, never as HTML.
- *
- * Also the confirm-link dialogs below.
- */
-function itflowDialog(options) {
-    options = options || {};
-    return new Promise(function (resolve) {
-        const icons = {
-            warning: 'fas fa-exclamation-triangle text-warning',
-            error: 'far fa-times-circle text-danger',
-            question: 'far fa-question-circle text-info',
-            info: 'fas fa-info-circle text-info',
-            success: 'far fa-check-circle text-success'
-        };
-        const id = 'itflowDialog' + Date.now();
-        const modal = document.createElement('div');
-        modal.className = 'modal fade itflow-dialog';
-        modal.tabIndex = -1;
-        modal.setAttribute('aria-labelledby', id);
-        modal.innerHTML = '<div class="modal-dialog modal-dialog-centered"><div class="modal-content">'
-            + '<div class="modal-body text-center"></div><div class="modal-footer"></div></div></div>';
-        const body = modal.querySelector('.modal-body');
-        const footer = modal.querySelector('.modal-footer');
-
-        if (icons[options.icon]) {
-            const icon = document.createElement('i');
-            icon.className = 'itflow-dialog-icon ' + icons[options.icon];
-            icon.setAttribute('aria-hidden', 'true');
-            body.appendChild(icon);
-        }
-        const title = document.createElement('h5');
-        title.className = 'modal-title';
-        title.id = id;
-        title.textContent = options.title || 'Are you sure?';
-        body.appendChild(title);
-        if (options.text) {
-            const text = document.createElement('p');
-            text.className = 'itflow-dialog-text';
-            text.textContent = options.text;
-            body.appendChild(text);
-        }
-
-        const radios = [];
-        if (options.input === 'radio' && options.inputOptions) {
-            const group = document.createElement('div');
-            group.className = 'itflow-dialog-radios';
-            group.setAttribute('role', 'radiogroup');
-            Object.keys(options.inputOptions).forEach(function (value, i) {
-                const wrap = document.createElement('div');
-                wrap.className = 'form-check form-check-inline';
-                const radio = document.createElement('input');
-                radio.className = 'form-check-input';
-                radio.type = 'radio';
-                radio.name = id + 'Radio';
-                radio.id = id + 'Radio' + i;
-                radio.value = value;
-                radio.checked = String(options.inputValue) === value;
-                const label = document.createElement('label');
-                label.className = 'form-check-label';
-                label.htmlFor = radio.id;
-                label.textContent = options.inputOptions[value];
-                wrap.append(radio, label);
-                group.appendChild(wrap);
-                radios.push(radio);
-            });
-            body.appendChild(group);
-        }
-
-        let result = {isConfirmed: false, isDenied: false, isDismissed: true};
-        const instance = new bootstrap.Modal(modal);
-        const button = function (label, className, answer) {
-            const b = document.createElement('button');
-            b.type = 'button';
-            b.className = 'btn ' + className;
-            b.textContent = label;
-            b.addEventListener('click', function () {
-                if (answer) {
-                    result = answer();
-                }
-                instance.hide();
-            });
-            footer.appendChild(b);
-            return b;
-        };
-        const picked = function () {
-            const on = radios.filter(function (r) { return r.checked; })[0];
-            return on ? on.value : undefined;
-        };
-        const cancel = options.showCancelButton === false ? null : button(options.cancelButtonText || 'Cancel', 'btn-secondary', null);
-        if (options.denyButtonText) {
-            button(options.denyButtonText, 'btn-outline-secondary', function () {
-                return {isConfirmed: false, isDenied: true, isDismissed: false, value: picked()};
-            });
-        }
-        const confirm = button(options.confirmButtonText || 'Yes', options.danger ? 'btn-danger' : 'btn-primary', function () {
-            return {isConfirmed: true, isDenied: false, isDismissed: false, value: picked()};
-        });
-
-        // autofocus also tells js/app.js's modal focus handler to leave it be
-        const first = options.focusCancel && cancel ? cancel : confirm;
-        first.setAttribute('autofocus', '');
-        const previous = document.activeElement;
-        modal.addEventListener('shown.bs.modal', function () {
-            first.focus();
-        });
-        modal.addEventListener('hidden.bs.modal', function () {
-            instance.dispose();
-            modal.remove();
-            // Opened over another modal: Bootstrap takes modal-open off the
-            // page as this one closes, though the one below is still open
-            if (document.querySelector('.modal.show')) {
-                document.body.classList.add('modal-open');
-            }
-            if (options.returnFocus !== false && previous && previous.isConnected && typeof previous.focus === 'function') {
-                previous.focus({preventScroll: true});
-            }
-            resolve(result);
-        });
-
-        document.body.appendChild(modal);
-        instance.show();
-        // Its backdrop goes over any modal already open (css/itflow_custom.css
-        // puts the dialog itself above both)
-        const backdrops = document.querySelectorAll('.modal-backdrop');
-        if (backdrops.length) {
-            backdrops[backdrops.length - 1].classList.add('itflow-dialog-backdrop');
-        }
-    });
-}
-
-/**
- * Confirmation dialogs for confirm-link.
+ * Confirmation dialogs, on SweetAlert2.
  *
  * Delegated on document rather than bound to the elements present at page load,
  * so that confirm-link also works on markup injected by an ajax modal.
@@ -171,7 +21,7 @@ function itflowDialog(options) {
  */
 document.addEventListener('click', function (e) {
     const link = e.target.closest('a.confirm-link, button.confirm-link');
-    if (!link || typeof bootstrap === 'undefined') {
+    if (!link || typeof Swal === 'undefined') {
         return;
     }
     e.preventDefault();
@@ -185,13 +35,24 @@ document.addEventListener('click', function (e) {
     const destructive = ['text-danger', 'btn-danger', 'btn-outline-danger']
         .some(function (cls) { return link.classList.contains(cls); });
 
-    itflowDialog({
+    Swal.fire({
+        // SweetAlert2 has no idea about Bootstrap's mode - it keys its own dark
+        // palette off the `theme` option and defaults to 'light', so the dialog
+        // stayed white on a dark page. Read at fire time, not at load.
+        theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',
         title: link.dataset.confirmTitle || 'Are you sure?',
         text: link.dataset.confirmText || '',
         icon: link.dataset.confirmIcon || (destructive ? 'warning' : 'question'),
+        showCancelButton: true,
         confirmButtonText: link.dataset.confirmButton || 'Yes',
-        danger: destructive,
-        focusCancel: destructive
+        cancelButtonText: 'Cancel',
+        reverseButtons: true,
+        focusCancel: destructive,
+        buttonsStyling: false,
+        customClass: {
+            confirmButton: destructive ? 'btn btn-danger mx-1' : 'btn btn-primary mx-1',
+            cancelButton: 'btn btn-secondary mx-1'
+        }
     }).then(function (result) {
         if (!result.isConfirmed) {
             return;

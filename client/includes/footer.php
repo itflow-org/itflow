@@ -31,6 +31,7 @@
 
 <script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>
 
+<script src="<?= staticFileUrl('/libs/sweetalert2/js/sweetalert2.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/confirm_modal.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/autosubmit.js') ?>"></script>
 

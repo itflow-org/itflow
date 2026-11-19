@@ -32,7 +32,7 @@
 
         const inUse = function () {
             const field = document.activeElement;
-            return document.querySelector('.modal.show, .dropdown-menu.show, .itflow-busy') !== null
+            return document.querySelector('.modal.show, .dropdown-menu.show, .swal2-container') !== null
                 || (field !== null && /^(INPUT|TEXTAREA|SELECT)$/.test(field.tagName))
                 || String(window.getSelection() || '') !== '';
         };

@@ -79,6 +79,7 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
              / .bg-gradient-* families. Loads BEFORE itflow_custom.css so
              our own .bg-<colour> box colours still win. */ ?>
     <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte-colors-v3.min.css') ?>">
+    <link rel="stylesheet" href="<?= staticFileUrl('/libs/sweetalert2/css/sweetalert2.min.css') ?>">
 
     <!-- ITFlow style: the AdminLTE 3 compatibility layer, the theme colours and the
          portal's own look. Must load last so it wins. -->
