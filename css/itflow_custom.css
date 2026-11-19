@@ -5020,6 +5020,43 @@ tr:hover .itflow-files-rename,
     border-radius: var(--bs-border-radius-lg);
     overflow-wrap: anywhere;
 }
+/* A client at a glance, on hovering its name (js/client_card.js) */
+.itflow-client-card-popover {
+    --bs-popover-max-width: 20rem;
+    --bs-popover-font-size: .875rem;
+}
+.itflow-client-card-name {
+    display: block;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--bs-emphasis-color);
+    text-decoration: none;
+}
+.itflow-client-card-section {
+    margin-top: .5rem;
+    padding-top: .5rem;
+    border-top: 1px solid var(--bs-border-color-translucent);
+}
+.itflow-client-card-line {
+    display: flex;
+    align-items: baseline;
+    gap: .4rem;
+    margin-top: .2rem;
+    overflow-wrap: anywhere;
+}
+/* A contact's card as a QR code (agent/modals/contact/contact_vcard.php) - dark on white, whatever the theme, so phones read it */
+.itflow-vcard-qr {
+    width: 15rem;
+    max-width: 100%;
+    padding: .5rem;
+    background: #fff;
+    border-radius: var(--bs-border-radius);
+}
+.itflow-vcard-qr svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
 /* A long document's contents, beside it (js/document_contents.js) */
 .itflow-document-contents li {
     padding: .15rem 0;

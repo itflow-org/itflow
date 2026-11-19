@@ -147,9 +147,8 @@ $contact_roles = [
                 <span class="input-group-text"><i class="fas fa-envelope fa-fw"></i></span>
                 <input type="email" class="form-control" name="email" id="contactFormEmail" placeholder="name@example.com" maxlength="200" value="<?= $contact_email ?>">
             </div>
-            <?php if ($contact_form_mode === 'add') { ?>
-                <div class="form-text text-info" id="contactFormEmailCheck"></div>
-            <?php } ?>
+            <!-- The address already on file for someone else - as it is typed (agent/ajax.php contact_email_check) -->
+            <div class="form-text text-warning-emphasis" id="contactFormEmailCheck" data-exclude="<?= $contact_form_mode === 'edit' ? intval($contact_id) : 0 ?>"></div>
         </div>
     </div>
 
@@ -308,7 +307,7 @@ $contact_roles = [
             });
         }
 
-        // A new contact whose email is already on file somewhere
+        // An email already on file for someone else
         var emailCheck = form.querySelector('#contactFormEmailCheck');
         if (emailCheck) {
             form.querySelector('#contactFormEmail').addEventListener('change', function () {
@@ -317,7 +316,7 @@ $contact_roles = [
                     emailCheck.textContent = '';
                     return;
                 }
-                itflowGet('ajax.php', { contact_email_check: 'true', email: email }, function (data) {
+                itflowGet('ajax.php', { contact_email_check: 'true', email: email, exclude: emailCheck.dataset.exclude }, function (data) {
                     emailCheck.innerHTML = JSON.parse(data).message || '';
                 });
             });

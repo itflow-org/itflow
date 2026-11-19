@@ -110,7 +110,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
 
     <ol class="breadcrumb d-print-none">
         <li class="breadcrumb-item">
-            <a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
+            <a data-client-card="<?= $client_id ?>" href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
         </li>
         <li class="breadcrumb-item">
             <a href="software.php?client_id=<?= $client_id ?>">Licenses</a>

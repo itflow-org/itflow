@@ -423,7 +423,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                             </div>
                         </td>
                         <?php if ($view === 'clients') { ?>
-                        <td><a href="vendors.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                        <td><a data-client-card="<?= $row_client_id ?>" href="vendors.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
                         <td class="text-end">
                             <div class="dropdown dropstart">

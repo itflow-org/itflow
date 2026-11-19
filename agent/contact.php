@@ -28,7 +28,7 @@ enforceUserPermission('module_client');
 $contact_id = intval($_GET['contact_id'] ?? 0);
 
 $sql = mysqli_query($mysqli, "SELECT client_id, client_name, contact_archived_at, contact_billing, contact_client_id, contact_created_at,
-    contact_department, contact_email, contact_extension, contact_id, contact_important, contact_location_id, contact_mobile,
+    contact_department, contact_email, " . contactBounceColumns() . ", contact_extension, contact_id, contact_important, contact_location_id, contact_mobile,
     contact_mobile_country_code, contact_name, contact_notes, contact_phone, contact_phone_country_code, contact_photo, contact_pin,
     contact_primary, contact_technical, contact_title, contact_updated_at, contact_user_id,
     contact_ticket_emails, contact_company_ticket_emails, location_archived_at, location_city, location_name, location_state, user_auth_method, user_token
@@ -201,7 +201,7 @@ if (!$can_support) {
 
 <ol class="breadcrumb d-print-none">
     <li class="breadcrumb-item">
-        <a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
+        <a data-client-card="<?= $client_id ?>" href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
     </li>
     <li class="breadcrumb-item">
         <a href="contacts.php?client_id=<?= $client_id ?>">Contacts</a>
@@ -249,6 +249,10 @@ if (!$can_support) {
                     <i class="far fa-envelope me-2"></i>Email
                 </a>
             <?php } ?>
+            <!-- Into a phone's contacts by QR code, or as a .vcf (modals/contact/contact_vcard.php) -->
+            <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_vcard.php?id=<?= $contact_id ?>" title="Save to your phone">
+                <i class="fas fa-qrcode"></i>
+            </button>
             <?php if ($can_edit) { ?>
                 <div class="dropdown">
                     <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-plus me-2"></i>New</button>
@@ -379,6 +383,16 @@ if (!$can_support) {
                         <?php if ($contact_email) { ?>
                             <dt>Email</dt>
                             <dd class="d-flex align-items-center min-w-0"><a class="text-truncate" href="mailto:<?= $contact_email ?>" title="<?= $contact_email ?>"><?= $contact_email ?></a><button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= $contact_email ?>"><i class="far fa-copy"></i></button></dd>
+                            <?php if ($bounce_badge = contactBounceBadge($contact_row)) { ?>
+                                <!-- Mail to it bounced (functions/contact_bounce.php) -->
+                                <dt></dt>
+                                <dd class="d-flex flex-wrap align-items-center gap-2">
+                                    <?= $bounce_badge ?>
+                                    <?php if (lookupUserPermission('module_client') >= 2) { ?>
+                                        <a class="small" href="post.php?clear_contact_bounce=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="The address works again">Clear</a>
+                                    <?php } ?>
+                                </dd>
+                            <?php } ?>
                         <?php } ?>
                     </dl>
                 <?php } else { ?>

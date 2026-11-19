@@ -753,7 +753,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                             <?php } ?>
                         </td>
                         <?php if (!$client_url) { ?>
-                        <td><a href="assets.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                        <td><a data-client-card="<?= $client_id ?>" href="assets.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                         <?php } ?>
                         <td class="text-end">
                             <?php if ($can_edit) { ?>

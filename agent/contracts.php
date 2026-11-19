@@ -263,7 +263,7 @@ $csrf = $_SESSION['csrf_token'];
                         </div>
                     </td>
                     <?php if (!$client_url) { ?>
-                        <td><a class="text-reset" href="contracts.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                        <td><a data-client-card="<?= $row_client_id ?>" class="text-reset" href="contracts.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                     <?php } ?>
                     <td class="d-none d-md-table-cell text-nowrap small">
                         <?php if ($row['contract_start_date']) { ?>

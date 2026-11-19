@@ -332,7 +332,7 @@ $filter_url = function ($changes) {
                         </td>
                         <td class="text-nowrap"><?= shareStateBadge($row) ?></td>
                         <?php if (!$client_url) { ?>
-                        <td><a href="shares.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                        <td><a data-client-card="<?= $row_client_id ?>" href="shares.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
                         <td class="text-end">
                             <div class="dropdown dropstart">

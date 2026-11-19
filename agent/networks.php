@@ -365,7 +365,7 @@ $csrf = $_SESSION['csrf_token'];
                         </td>
 
                         <?php if (!$client_url) { ?>
-                            <td class="itflow-ticket-who-cell"><a class="d-block text-truncate text-body fw-semibold small" href="networks.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                            <td class="itflow-ticket-who-cell"><a data-client-card="<?= $row_client_id ?>" class="d-block text-truncate text-body fw-semibold small" href="networks.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
 
                         <td class="text-nowrap d-none d-md-table-cell">

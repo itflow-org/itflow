@@ -665,6 +665,9 @@ foreach ($messages as $message) {
         $from_domain = explode("@", $from_email);
         $from_domain = escapeSql(end($from_domain));
 
+        // Mail from an address that bounced before - it works again (functions/contact_bounce.php)
+        contactBounceClearEmail(stripslashes($from_email));
+
         // Subject
         // ticket_subject holds 500 characters - a longer one failed the insert and the email was tried again every run
         $subject = escapeSql(mb_substr((string)$message->subject() ?: 'No Subject', 0, 500));
@@ -917,6 +920,11 @@ foreach ($messages as $message) {
                     "",
                     0
                 );
+
+                // The contacts with that address show "Email bounced" until mail comes from it again (functions/contact_bounce.php)
+                foreach (contactBounceMark(stripslashes($failed_recipient), stripslashes("$status_code - $diagnostic_code")) as $bounced_contact_id => [$bounced_name, $bounced_client_id]) {
+                    logAudit("Contact", "Edit", "Email parser: mail to " . escapeSql($bounced_name) . " bounced - marked on the contact", $bounced_client_id, $bounced_contact_id);
+                }
 
                 // If the original subject has a ticket, add the NDR there too
                 if (preg_match("/\[" . preg_quote($config_ticket_prefix, '/') . "(\d+)\]/", $original_subject, $ticket_number_matches)) {

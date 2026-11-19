@@ -61,6 +61,12 @@
 
     <?php if (empty($client_archived_at)) { ?>
         <div class="dropdown-divider"></div>
+        <?php if (lookupUserPermission('module_client') >= 2) {
+            // Portal sign-in, shared links, recurring invoices and tickets, and the archive, in one go (modals/client/client_offboard.php) ?>
+            <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/client/client_offboard.php?client_id=<?= $client_id ?>">
+                <i class="fas fa-fw fa-sign-out-alt me-2"></i>Offboard
+            </a>
+        <?php } ?>
         <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
             <i class="fas fa-fw fa-archive me-2"></i>Archive Client
         </a>

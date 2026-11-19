@@ -19,7 +19,7 @@ enforceUserPermission('module_client');
 $contact_id = intval($_GET['id'] ?? 0);
 
 $contact_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_archived_at, contact_billing, contact_client_id, contact_department,
-    contact_email, contact_extension, contact_id, contact_important, contact_location_id, contact_mobile, contact_mobile_country_code,
+    contact_email, " . contactBounceColumns() . ", contact_extension, contact_id, contact_important, contact_location_id, contact_mobile, contact_mobile_country_code,
     contact_name, contact_notes, contact_phone, contact_phone_country_code, contact_photo, contact_pin, contact_primary, contact_technical,
     contact_title, contact_user_id, location_archived_at, location_name, user_auth_method
     FROM contacts
@@ -167,7 +167,9 @@ ob_start();
                 <?php } ?>
                 <?php if ($contact_email) { ?>
                     <a class="btn btn-sm btn-outline-primary" href="mailto:<?= $contact_email ?>"><i class="far fa-envelope me-1"></i>Email</a>
+                    <?= contactBounceBadge($contact_row) ?>
                 <?php } ?>
+                <a class="btn btn-sm btn-outline-secondary ajax-modal" href="#" data-modal-url="modals/contact/contact_vcard.php?id=<?= $contact_id ?>" title="Save to your phone"><i class="fas fa-qrcode"></i></a>
             </div>
         </div>
     <?php } ?>

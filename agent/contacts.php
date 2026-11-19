@@ -153,7 +153,7 @@ if ($invites_view) {
     }
 } else {
     $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.contact_id, contact_archived_at, contact_billing, contact_client_id,
-            contact_department, contact_email, contact_extension, contact_important, contact_location_id, contact_mobile,
+            contact_department, contact_email, " . contactBounceColumns() . ", contact_extension, contact_important, contact_location_id, contact_mobile,
             contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code, contact_photo, contact_primary,
             contact_technical, contact_title, contact_user_id, client_id, client_name, location_archived_at, location_name, user_auth_method
         FROM contacts
@@ -644,7 +644,7 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
                                 <div class="text-nowrap"><i class="fas fa-fw fa-mobile-alt text-body-secondary me-1" title="Mobile"></i><?= $contact_mobile_link ?></div>
                             <?php } ?>
                             <?php if ($contact_email) { ?>
-                                <div class="text-nowrap"><i class="far fa-fw fa-envelope text-body-secondary me-1" title="Email"></i><a class="text-reset" href="mailto:<?= $contact_email ?>"><?= $contact_email ?></a><button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= $contact_email ?>"><i class="far fa-copy"></i></button></div>
+                                <div class="text-nowrap"><i class="far fa-fw fa-envelope text-body-secondary me-1" title="Email"></i><a class="text-reset" href="mailto:<?= $contact_email ?>"><?= $contact_email ?></a><button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= $contact_email ?>"><i class="far fa-copy"></i></button> <?= contactBounceBadge($row) ?></div>
                             <?php } ?>
                             <?php if (!$contact_phone_link && !$contact_mobile_link && !$contact_email) { ?>
                                 <span class="text-body-secondary">-</span>
@@ -679,13 +679,24 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
                             </div>
                         </td>
                         <?php if (!$client_url) { ?>
-                        <td><a href="contacts.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                        <td><a data-client-card="<?= $client_id ?>" href="contacts.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                         <?php } ?>
                         <td class="text-end">
-                            <?php if ($can_edit) { ?>
                                 <div class="dropdown dropstart">
                                     <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                     <div class="dropdown-menu">
+                                        <?php if (!$contact_archived_at && $config_module_enable_ticketing && lookupUserPermission('module_support') >= 2) { ?>
+                                            <!-- A ticket for them, without opening the contact first -->
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_add.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>">
+                                                <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>New ticket
+                                            </a>
+                                        <?php } ?>
+                                        <!-- Their card, to scan into a phone or download (modals/contact/contact_vcard.php) -->
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_vcard.php?id=<?= $contact_id ?>">
+                                            <i class="fas fa-fw fa-mobile-alt text-secondary me-2"></i>Save to phone
+                                        </a>
+                                    <?php if ($can_edit) { ?>
+                                        <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
@@ -714,9 +725,9 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
                                                 </a>
                                             <?php } ?>
                                         <?php } ?>
+                                    <?php } ?>
                                     </div>
                                 </div>
-                            <?php } ?>
                         </td>
                     </tr>
 

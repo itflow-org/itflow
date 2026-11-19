@@ -348,7 +348,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                         </td>
 
                         <?php if (!$client_url) { ?>
-                            <td class="itflow-ticket-who-cell"><a class="d-block text-truncate text-body fw-semibold small" href="services.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                            <td class="itflow-ticket-who-cell"><a data-client-card="<?= $row_client_id ?>" class="d-block text-truncate text-body fw-semibold small" href="services.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
 
                         <td class="text-nowrap">

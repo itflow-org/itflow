@@ -251,7 +251,7 @@ if (mysqli_num_rows($sql) == 0) {
 
     <ol class="breadcrumb d-print-none">
         <li class="breadcrumb-item">
-            <a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
+            <a data-client-card="<?= $client_id ?>" href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
         </li>
         <li class="breadcrumb-item">
             <a href="assets.php?client_id=<?= $client_id ?>">Assets</a>

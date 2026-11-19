@@ -256,7 +256,7 @@ $stat_monthly = function ($amount) use ($stat_money) {
                         <div class="small text-body-secondary text-truncate" style="max-width: 24rem;"><?= escapeHtml(implode(' · ', array_filter([$row['quote_scope'], $row['category_name']]))) ?: '&nbsp;' ?></div>
                     </td>
                     <?php if (!$client_url) { ?>
-                        <td><a class="text-reset" href="quotes.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                        <td><a data-client-card="<?= $row_client_id ?>" class="text-reset" href="quotes.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                     <?php } ?>
                     <td class="text-nowrap"><?= escapeHtml($row['quote_date']) ?></td>
                     <td class="text-nowrap">

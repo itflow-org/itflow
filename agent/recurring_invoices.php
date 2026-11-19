@@ -251,7 +251,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                         <div class="small text-body-secondary text-truncate" style="max-width: 24rem;"><?php if ($row['contract_name'] !== null) { ?><span class="me-1" title="It starts and stops with the contract" data-recurring-contract><i class="fas fa-file-contract me-1"></i><?= escapeHtml($row['contract_name']) ?> &middot;</span><?php } ?><?= escapeHtml(implode(' · ', array_filter([$row['recurring_invoice_scope'], $row['category_name']]))) ?: '&nbsp;' ?></div>
                     </td>
                     <?php if (!$client_url) { ?>
-                        <td><a class="text-reset" href="recurring_invoices.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                        <td><a data-client-card="<?= $row_client_id ?>" class="text-reset" href="recurring_invoices.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                     <?php } ?>
                     <td class="text-end itflow-money">
                         <span class="fw-semibold"><?= escapeHtml(billingMoney($row['recurring_invoice_amount'], $row_currency)) ?></span>

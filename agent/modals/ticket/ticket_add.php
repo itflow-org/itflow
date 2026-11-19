@@ -182,6 +182,7 @@ ob_start();
                                 <select class="form-select select2" name="contact_id" id="contactSelect" data-selected="<?= $contact_id ?>">
                                     <option value="0">- No One -</option>
                                 </select>
+                                <?= quickAddButton('contact', 0, 'btn btn-secondary') ?>
                             </div>
                         </div>
                     </div>
@@ -365,6 +366,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                         <select class="form-select select2" name="location_id" id="locationSelect" data-selected="<?= $location_id ?>">
                         </select>
+                        <?= quickAddButton('location', 0, 'btn btn-secondary') ?>
                     </div>
                 </div>
 
@@ -377,6 +379,7 @@ ob_start();
                                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                                 <select class="form-select select2" name="vendor_id" id="vendorSelect" data-selected="<?= $vendor_id ?>">
                                 </select>
+                                <?= quickAddButton('vendor', 0, 'btn btn-secondary') ?>
                             </div>
                         </div>
                     </div>

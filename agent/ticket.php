@@ -530,7 +530,7 @@ if (isset($_GET['ticket_id'])) {
                             <div class="ticket-meta mb-1">
                                 <span class="badge rounded-pill text-bg-dark ticket-ref me-1"><?= $ticket_reference ?></span>
                                 <?php if ($client_id) { ?>
-                                    <a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
+                                    <a data-client-card="<?= $client_id ?>" href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
                                 <?php } else { ?>
                                     No client
                                 <?php } ?>

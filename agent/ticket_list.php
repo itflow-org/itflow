@@ -210,7 +210,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                     <td class="itflow-ticket-who-cell">
                         <?php if (!$client_url) { ?>
                             <?php if ($row_client_id) { ?>
-                                <a class="d-block text-truncate text-body fw-semibold small" href="tickets.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a>
+                                <a data-client-card="<?= $row_client_id ?>" class="d-block text-truncate text-body fw-semibold small" href="tickets.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a>
                             <?php } else { ?>
                                 <div class="small text-body-secondary"><i class="fas fa-building me-1"></i>Internal</div>
                             <?php } ?>

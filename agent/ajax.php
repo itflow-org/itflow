@@ -867,6 +867,123 @@ if (isset($_GET['ticket_query_views'])) {
 }
 
 /*
+ * A client at a glance, for the card that shows when a client's name is hovered (js/client_card.js):
+ * its type, primary contact and how to reach them, its main site's phone and address, and its open
+ * tickets. Text only - the page builds the card with textContent.
+ */
+if (isset($_GET['client_card'])) {
+    header('Content-Type: application/json');
+
+    $card_client_id = intval($_GET['client_card']);
+    if (lookupUserPermission('module_client') < 1 || !$card_client_id || !hasClientAccess($card_client_id)) {
+        echo json_encode(['ok' => false]);
+        exit;
+    }
+    $client = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name, client_type, client_website, client_archived_at FROM clients WHERE client_id = $card_client_id"));
+    if (!$client) {
+        echo json_encode(['ok' => false]);
+        exit;
+    }
+    $card = [
+        'ok' => true,
+        'name' => (string) $client['client_name'],
+        'type' => (string) $client['client_type'],
+        'archived' => $client['client_archived_at'] !== null,
+        'url' => "client_overview.php?client_id=$card_client_id",
+        'contact' => null,
+        'site' => null,
+        'open_tickets' => null,
+    ];
+    $contact = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_email, contact_phone, contact_phone_country_code, contact_extension,
+            contact_mobile, contact_mobile_country_code
+        FROM contacts WHERE contact_client_id = $card_client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_important DESC, contact_name LIMIT 1"));
+    if ($contact) {
+        $phone_number = $contact['contact_phone'] ?: $contact['contact_mobile'];
+        $phone_country = $contact['contact_phone'] ? $contact['contact_phone_country_code'] : $contact['contact_mobile_country_code'];
+        $card['contact'] = [
+            'name' => (string) $contact['contact_name'],
+            'title' => (string) $contact['contact_title'],
+            'email' => (string) $contact['contact_email'],
+            'phone' => $phone_number ? formatPhoneNumber($phone_number, $phone_country) . ($contact['contact_phone'] && $contact['contact_extension'] ? ' x' . $contact['contact_extension'] : '') : '',
+            'dial' => $phone_number ? phoneDialNumber($phone_number, $phone_country) : '',
+            'url' => "contact.php?client_id=$card_client_id&contact_id=" . intval($contact['contact_id']),
+        ];
+    }
+    $site = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT location_name, location_address, location_city, location_state, location_phone, location_phone_country_code
+        FROM locations WHERE location_client_id = $card_client_id AND location_archived_at IS NULL ORDER BY location_primary DESC, location_name LIMIT 1"));
+    if ($site) {
+        $card['site'] = [
+            'name' => (string) $site['location_name'],
+            'address' => implode(', ', array_filter([trim((string) $site['location_address']), trim((string) $site['location_city']), trim((string) $site['location_state'])])),
+            'phone' => $site['location_phone'] ? formatPhoneNumber($site['location_phone'], $site['location_phone_country_code']) : '',
+            'dial' => $site['location_phone'] ? phoneDialNumber($site['location_phone'], $site['location_phone_country_code']) : '',
+        ];
+    }
+    if ($config_module_enable_ticketing && lookupUserPermission('module_support') >= 1) {
+        $card['open_tickets'] = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(ticket_id) FROM tickets WHERE ticket_client_id = $card_client_id AND " . TICKET_OPEN_SQL))[0]);
+        $card['tickets_url'] = "tickets.php?client_id=$card_client_id";
+    }
+
+    echo json_encode($card);
+    exit;
+}
+
+/*
+ * Add a contact, location or vendor without leaving the window that needs it (js/quick_add.js -
+ * the + beside those pickers in New Ticket, Edit Ticket and the asset form). Only what the picker
+ * needs: a name, and an email and title, an address, or a phone. Answers {ok, id, label} or {error}.
+ */
+if (isset($_POST['quick_add_record'])) {
+    validateCSRFToken();
+    header('Content-Type: application/json');
+
+    $type = (string) $_POST['quick_add_record'];
+    $client_id = intval($_POST['client_id'] ?? 0);
+    $name = mb_substr(trim((string) ($_POST['name'] ?? '')), 0, 200);
+    $fail = function ($error) {
+        echo json_encode(['error' => $error]);
+        exit;
+    };
+
+    if (!in_array($type, ['contact', 'location', 'vendor'], true) || lookupUserPermission('module_client') < 2) {
+        $fail("You can't add those here.");
+    }
+    if (!$client_id || !hasClientAccess($client_id) || !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM clients WHERE client_id = $client_id"))) {
+        $fail('Pick the client first.');
+    }
+    if ($name === '') {
+        $fail('It needs a name.');
+    }
+    $name_sql = escapeSql($name);
+
+    if ($type === 'contact') {
+        $email = trim((string) ($_POST['email'] ?? ''));
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $fail("That email address doesn't look right.");
+        }
+        mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$name_sql', contact_email = '" . escapeSql(mb_substr($email, 0, 200)) . "',
+            contact_title = '" . escapeSql(mb_substr(trim((string) ($_POST['title'] ?? '')), 0, 200)) . "', contact_client_id = $client_id");
+        $id = mysqli_insert_id($mysqli);
+        logAudit("Contact", "Create", "$session_name created contact $name_sql", $client_id, $id);
+    } elseif ($type === 'location') {
+        mysqli_query($mysqli, "INSERT INTO locations SET " . locationFormSet(['name' => $name, 'address' => $_POST['address'] ?? '', 'city' => $_POST['city'] ?? ''], $client_id) . ", location_client_id = $client_id");
+        $id = mysqli_insert_id($mysqli);
+        // The client's first location is its primary one, as from Add Location
+        if (!intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM locations WHERE location_client_id = $client_id AND location_primary = 1 AND location_archived_at IS NULL"))[0])) {
+            locationMakePrimary($id, $client_id);
+        }
+        logAudit("Location", "Create", "$session_name created location $name_sql", $client_id, $id);
+    } else {
+        mysqli_query($mysqli, "INSERT INTO vendors SET " . vendorFormSet(['name' => $name, 'phone' => $_POST['phone'] ?? '']) . ", vendor_client_id = $client_id");
+        $id = mysqli_insert_id($mysqli);
+        logAudit("Vendor", "Create", "$session_name created vendor $name_sql", $client_id, $id);
+    }
+
+    echo json_encode(['ok' => true, 'id' => $id, 'label' => $name]);
+    exit;
+}
+
+/*
  * Rename a file or a document from its name on the files list (agent/js/files.js) - the name only;
  * the Rename window still changes the description. Answers {ok, name} or {error}.
  */
@@ -2086,6 +2203,44 @@ if (isset($_GET['recurring_seat_count'])) {
     exit;
 }
 
+/*
+ * An asset's serial number or MAC address already on file (the asset form, as it is typed - the
+ * same idea as contact_email_check). MACs match whatever separators they were written with.
+ * Advisory: saving doesn't refuse it - two records can be right, a replaced board say.
+ */
+if (isset($_GET['asset_duplicate_check'])) {
+    header('Content-Type: application/json');
+
+    enforceUserPermission('module_support', 1);
+
+    $field = $_GET['asset_duplicate_check'] === 'mac' ? 'mac' : 'serial';
+    $value = trim((string) ($_GET['value'] ?? ''));
+    $exclude_asset = intval($_GET['exclude'] ?? 0);
+    $message = '';
+
+    if ($field === 'serial' && mb_strlen($value) >= 4) {
+        $where = "LOWER(asset_serial) = '" . escapeSql(mb_strtolower($value)) . "'";
+    } elseif ($field === 'mac' && strlen($hex = strtoupper(preg_replace('/[^0-9A-Fa-f]/', '', $value))) === 12) {
+        $where = "asset_id IN (SELECT interface_asset_id FROM asset_interfaces WHERE interface_archived_at IS NULL
+            AND UPPER(REPLACE(REPLACE(REPLACE(interface_mac, ':', ''), '-', ''), '.', '')) = '$hex')";
+    }
+    if (isset($where)) {
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_client_id, asset_archived_at, client_name FROM assets
+            LEFT JOIN clients ON client_id = asset_client_id
+            WHERE $where AND asset_id != $exclude_asset ORDER BY asset_archived_at IS NOT NULL, asset_id DESC LIMIT 1"));
+        if ($row) {
+            $what = $field === 'mac' ? 'This MAC address' : 'This serial number';
+            $message = hasClientAccess($row['asset_client_id'])
+                ? "<i class='fas fa-fw fa-copy me-2'></i>$what is already on <a href='asset.php?client_id=" . intval($row['asset_client_id']) . "&asset_id=" . intval($row['asset_id']) . "' target='_blank'>" . escapeHtml($row['asset_name']) . "</a>"
+                    . " at " . escapeHtml($row['client_name']) . ($row['asset_archived_at'] ? ' (archived)' : '')
+                : "<i class='fas fa-fw fa-copy me-2'></i>$what is already on an asset of a client you cannot open.";
+        }
+    }
+
+    echo json_encode(['message' => $message]);
+    exit;
+}
+
 if (isset($_GET['client_duplicate_check'])) {
     header('Content-Type: application/json');
 
@@ -2320,17 +2475,21 @@ if (isset($_GET['contact_email_check'])) {
 
     if (strlen($email) >= 3) {
 
-        // 1. Duplicate check
-        $sql_contacts = mysqli_query($mysqli, "SELECT contact_email FROM contacts WHERE contact_email = '$email' LIMIT 1");
-        if (mysqli_num_rows($sql_contacts) > 0) {
-            while ($row = mysqli_fetch_assoc($sql_contacts)) {
-                $response['message'] = "<i class='fas fa-fw fa-copy me-2'></i> Potential duplicate: <i>" . escapeHtml($row['contact_email']) . "</i> already exists.";
-            }
+        // 1. Duplicate check - who has it, where the agent may see them; not the contact being edited
+        $exclude_contact = intval($_GET['exclude'] ?? 0);
+        $sql_contacts = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_client_id, contact_archived_at, client_name FROM contacts
+            LEFT JOIN clients ON client_id = contact_client_id
+            WHERE contact_email = '$email' AND contact_id != $exclude_contact ORDER BY contact_archived_at IS NOT NULL, contact_id DESC LIMIT 1");
+        if ($row = mysqli_fetch_assoc($sql_contacts)) {
+            $response['message'] = hasClientAccess($row['contact_client_id'])
+                ? "<i class='fas fa-fw fa-copy me-2'></i>Already on file: <a href='contact.php?client_id=" . intval($row['contact_client_id']) . "&contact_id=" . intval($row['contact_id']) . "' target='_blank'>" . escapeHtml($row['contact_name']) . "</a>"
+                    . " at " . escapeHtml($row['client_name']) . ($row['contact_archived_at'] ? ' (archived)' : '')
+                : "<i class='fas fa-fw fa-copy me-2'></i>Already on file for a client you cannot open.";
         }
 
-        // 2. MX record check
+        // 2. MX record check - said as well as the duplicate, not instead of it
         if (!checkdnsrr($domain, 'MX')) {
-            $response['message'] = "<i class='fas fa-fw fa-exclamation-triangle me-2'></i> E-mail domain invalid.";
+            $response['message'] = trim($response['message'] . ($response['message'] !== '' ? '<br>' : '') . "<i class='fas fa-fw fa-exclamation-triangle me-2'></i> E-mail domain invalid.");
         }
 
     }

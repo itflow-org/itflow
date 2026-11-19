@@ -389,7 +389,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                         </td>
                         <td class="itflow-domain-mail"><?= domainMailPillsHtml(array_diff_key(domainMailChecks($row), ['mx' => 1])) ?></td>
                         <?php if (!$client_url) { ?>
-                        <td><a href="domains.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                        <td><a data-client-card="<?= $row_client_id ?>" href="domains.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
                         <td class="text-end">
                             <div class="dropdown dropstart">

@@ -105,7 +105,7 @@ if (isset($_POST['edit_contact'])) {
     $send_email = intval($_POST['send_email'] ?? 0);
 
     // Get Contact Info
-    $sql = mysqli_query($mysqli,"SELECT contact_photo, contact_user_id, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+    $sql = mysqli_query($mysqli,"SELECT contact_photo, contact_user_id, contact_client_id, contact_email FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
     if (!$row) {
         flashAlert("That contact no longer exists", 'error');
@@ -154,6 +154,11 @@ if (isset($_POST['edit_contact'])) {
     }
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone_country_code = '$phone_country_code', contact_phone = '$phone', contact_extension = '$extension', contact_mobile_country_code = '$mobile_country_code', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_department = '$department', contact_location_id = $location_id, contact_user_id = $contact_user_id WHERE contact_id = $contact_id");
+
+    // A new address hasn't bounced (functions/contact_bounce.php)
+    if (strtolower(trim((string) $row['contact_email'])) !== strtolower(trim((string) stripslashes($email)))) {
+        contactBounceClear($contact_id);
+    }
 
     // Texts - whether they agreed to texts about their work (functions/sms.php)
     smsContactOptInFromForm($contact_id, $_POST, $client_id);
@@ -942,6 +947,56 @@ if (isset($_GET['resend_portal_invite']) || isset($_GET['cancel_portal_invite'])
     portalInviteCancel($invite['invite_id'], $client_id);
     logAudit("Contact", "Cancel", "$session_name cancelled the client portal invite to $email", $client_id);
     flashAlert("Cancelled the invite to <strong>" . escapeHtml($invite['invite_email']) . "</strong> - its link no longer works");
+    redirect();
+
+}
+
+// A contact's card as a .vcf, for a phone's or a computer's contacts (modals/contact/contact_vcard.php)
+if (isset($_GET['download_contact_vcard'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 1);
+
+    $contact_id = intval($_GET['download_contact_vcard']);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id"));
+    if (!$row) {
+        flashAlert('That contact no longer exists.', 'error');
+        redirect();
+    }
+    $client_id = intval($row['contact_client_id']);
+    enforceClientAccess();
+
+    $file = (filesZipName($row['contact_name'], 'Contact') ?: 'Contact') . '.vcf';
+    header('Content-Type: text/vcard; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . str_replace('"', '', $file) . '"; filename*=UTF-8\'\'' . rawurlencode($file));
+    echo contactVcard($contact_id);
+    exit;
+
+}
+
+// "Email bounced" taken off by hand - the address has been fixed at their end (functions/contact_bounce.php)
+if (isset($_GET['clear_contact_bounce'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 2);
+
+    $contact_id = intval($_GET['clear_contact_bounce']);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id"));
+    if (!$row) {
+        flashAlert('That contact no longer exists.', 'error');
+        redirect();
+    }
+    $client_id = intval($row['contact_client_id']);
+    enforceClientAccess();
+
+    contactBounceClear($contact_id);
+
+    logAudit("Contact", "Edit", "$session_name cleared the bounced email mark on contact " . escapeSql($row['contact_name']), $client_id, $contact_id);
+
+    flashAlert("<strong>" . escapeHtml($row['contact_name']) . "</strong>'s email is no longer marked as bouncing");
+
     redirect();
 
 }

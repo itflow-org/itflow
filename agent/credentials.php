@@ -413,7 +413,7 @@ $filter_url = function ($changes) use ($client_url) {
                             <?php if ($row['credential_accessed_at']) { ?><div class="small text-body-secondary mt-1" title="Password last shown or copied <?= escapeHtml($row['credential_accessed_at']) ?>">Used <?= timeAgo($row['credential_accessed_at']) ?></div><?php } ?>
                         </td>
                         <?php if (!$client_url) { ?>
-                        <td><a href="credentials.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                        <td><a data-client-card="<?= $row_client_id ?>" href="credentials.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
                         <td class="text-end">
                             <div class="dropdown dropstart">

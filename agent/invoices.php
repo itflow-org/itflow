@@ -382,7 +382,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                             </div>
                         </td>
                         <?php if (!$client_url) { ?>
-                            <td><a class="text-reset" href="invoices.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                            <td><a data-client-card="<?= $row_client_id ?>" class="text-reset" href="invoices.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
                         <td class="text-nowrap"><?= escapeHtml($row['invoice_date']) ?></td>
                         <td class="text-nowrap">

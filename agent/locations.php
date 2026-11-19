@@ -364,7 +364,7 @@ $locations_counts = locationCounts(array_keys($locations));
                             </div>
                         </td>
                         <?php if (!$client_url) { ?>
-                        <td><a href="locations.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                        <td><a data-client-card="<?= $client_id ?>" href="locations.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                         <?php } ?>
                         <td class="text-end">
                             <div class="dropdown dropstart">

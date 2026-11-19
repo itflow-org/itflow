@@ -86,6 +86,7 @@ ob_start();
                                     <option value="<?= $contact_id_select ?>" <?= $contact_id_select === $contact_id ? 'selected' : '' ?><?= selectOptionContact($row['contact_client_id'], $row['contact_name'], $row['contact_photo'] ?? '', contactOptionDescription($row), $row['contact_id']) ?>><?= escapeHtml($row['contact_name']) ?><?= $row['contact_archived_at'] ? ' (archived)' : '' ?></option>
                                 <?php } ?>
                             </select>
+                            <?= $client_id ? quickAddButton('contact', $client_id) : '' ?>
                         </div>
                         <div class="form-text"><?= escapeHtml($ticket['client_name']) ?></div>
                         <?php if (!empty($config_smtp_provider)) { ?>
@@ -240,6 +241,7 @@ ob_start();
                                     <option <?= $location_id === $location_id_select ? 'selected' : '' ?> value="<?= $location_id_select ?>" data-icon="fas fa-map-marker-alt"><?= escapeHtml($row['location_name']) ?><?= $row['location_archived_at'] ? ' (archived)' : '' ?></option>
                                 <?php } ?>
                             </select>
+                            <?= $client_id ? quickAddButton('location', $client_id) : '' ?>
                         </div>
                     </div>
 
@@ -262,6 +264,7 @@ ob_start();
                                         <option <?= $vendor_id === $vendor_id_select ? 'selected' : '' ?> value="<?= $vendor_id_select ?>"<?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= escapeHtml($row['vendor_name']) ?><?= $row['vendor_archived_at'] ? ' (archived)' : '' ?></option>
                                     <?php } ?>
                                 </select>
+                            <?= $client_id ? quickAddButton('vendor', $client_id) : '' ?>
                             </div>
                         </div>
                     </div>

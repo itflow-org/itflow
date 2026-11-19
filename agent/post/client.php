@@ -190,28 +190,103 @@ if (isset($_GET['archive_client'])) {
 
     enforceClientAccess();
 
-    // Archive client
-    mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
-
-    // Stop recurring invoices
-    $sql_recurring_invoices = mysqli_query($mysqli, "SELECT recurring_invoice_id FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id AND recurring_invoice_status = 1");
-    while ($row = mysqli_fetch_assoc($sql_recurring_invoices)) {
-        $recurring_invoice_id = intval($row['recurring_invoice_id']);
-        mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_status = 0 WHERE recurring_invoice_id = $recurring_invoice_id AND recurring_invoice_client_id = $client_id");
-        mysqli_query($mysqli,"INSERT INTO history SET history_status = 0, history_description = 'Recurring Invoice inactive as client archived', history_recurring_invoice_id = $recurring_invoice_id");
-    }
+    // Archived, its recurring invoices stopped and contract signing requests withdrawn (functions/client.php)
+    $contracts_withdrawn = clientArchiveNow($client_id);
 
     // Get Client Name
     $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
-
-    // Nothing more is signed on their contracts - a request still out, or waiting on our countersignature, is withdrawn
-    $contracts_withdrawn = contractSignatureWithdrawStale($client_id);
 
     logAudit("Client", "Archive", "$session_name archived client $client_name" . ($contracts_withdrawn ? " - $contracts_withdrawn contract signing request" . ($contracts_withdrawn === 1 ? '' : 's') . " withdrawn" : ''), $client_id, $client_id);
 
     flashAlert("Client <strong>" . stripslashes($client_name) . "</strong> archived" . ($contracts_withdrawn ? " - contract signing requests to them were withdrawn" : ''), 'error');
 
     redirect();
+
+}
+
+/*
+ * Offboard a client (agent/modals/client/client_offboard.php) - the steps ticked, together: portal
+ * sign-in off and invites cancelled, shared links ended, recurring invoices stopped, recurring
+ * tickets paused, and the client archived.
+ */
+if (isset($_POST['offboard_client'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 2);
+
+    $client_id = intval($_POST['client_id'] ?? 0);
+    enforceClientAccess();
+
+    $client = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name, client_archived_at FROM clients WHERE client_id = $client_id"));
+    if (!$client) {
+        flashAlert('That client no longer exists.', 'error');
+        redirect();
+    }
+    $client_name = escapeSql($client['client_name']);
+    $done = [];
+
+    if (!empty($_POST['portal_off'])) {
+        $off = 0;
+        $sql = mysqli_query($mysqli, "SELECT user_id FROM contacts JOIN users ON user_id = contact_user_id AND user_type = 2 WHERE contact_client_id = $client_id AND user_auth_method != ''");
+        while ($row = mysqli_fetch_row($sql)) {
+            portalUserAccessOff($row[0]);
+            $off++;
+        }
+        $cancelled = 0;
+        if (portalInvitesReady()) {
+            foreach (portalInvitesWaiting($client_id) as $invite) {
+                $cancelled += portalInviteCancel($invite['invite_id'], $client_id) ? 1 : 0;
+            }
+        }
+        if ($off || $cancelled) {
+            $done[] = "portal sign-in off for $off contact" . ($off === 1 ? '' : 's') . ($cancelled ? " and $cancelled invite" . ($cancelled === 1 ? '' : 's') . ' cancelled' : '');
+        }
+    }
+
+    if (!empty($_POST['end_shares'])) {
+        $ended = 0;
+        $sql = mysqli_query($mysqli, "SELECT item_id FROM shared_items WHERE item_client_id = $client_id AND item_ended_at IS NULL AND item_active = 1");
+        while ($row = mysqli_fetch_row($sql)) {
+            $ended += shareEnd($row[0], 'Client offboarded', $session_user_id) ? 1 : 0;
+        }
+        if ($ended) {
+            $done[] = "$ended shared link" . ($ended === 1 ? '' : 's') . ' ended';
+        }
+    }
+
+    if (!empty($_POST['stop_recurring_invoices']) && lookupUserPermission('module_billing') >= 2) {
+        $stopped = clientStopRecurringInvoices($client_id, 'Recurring Invoice inactive as client offboarded');
+        if ($stopped) {
+            $done[] = "$stopped recurring invoice" . ($stopped === 1 ? '' : 's') . ' stopped';
+        }
+    }
+
+    if (!empty($_POST['pause_recurring_tickets']) && lookupUserPermission('module_support') >= 2) {
+        mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_paused_at = NOW() WHERE recurring_ticket_client_id = $client_id AND recurring_ticket_paused_at IS NULL");
+        $paused = mysqli_affected_rows($mysqli);
+        if ($paused > 0) {
+            $done[] = "$paused recurring ticket" . ($paused === 1 ? '' : 's') . ' paused';
+        }
+    }
+
+    $archived = false;
+    if (!empty($_POST['archive']) && !$client['client_archived_at']) {
+        $withdrawn = clientArchiveNow($client_id);
+        $archived = true;
+        $done[] = 'archived' . ($withdrawn ? " - $withdrawn contract signing request" . ($withdrawn === 1 ? '' : 's') . ' withdrawn' : '');
+    }
+
+    if (!$done) {
+        flashAlert('Nothing to do - nothing was ticked that had anything to stop.', 'warning');
+        redirect();
+    }
+
+    logAudit("Client", "Offboard", "$session_name offboarded client $client_name: " . escapeSql(implode('; ', $done)), $client_id, $client_id);
+
+    flashAlert("<strong>" . escapeHtml($client['client_name']) . "</strong> offboarded - " . escapeHtml(implode(', ', $done)));
+
+    redirect($archived ? 'clients.php' : "client_overview.php?client_id=$client_id");
 
 }
 

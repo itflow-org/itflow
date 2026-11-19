@@ -109,6 +109,10 @@ try {
 if ($itflow_pulse) { ?>
 <script src="<?= staticFileUrl('/js/ticket_pulse.js') ?>" data-user="<?= intval($session_user_id) ?>"></script>
 <?php } ?>
+<?php if (!empty($session_user_id) && basename(dirname($_SERVER['REQUEST_URI'])) !== 'guest') { ?>
+<script src="<?= staticFileUrl('/js/client_card.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/quick_add.js') ?>"></script>
+<?php } ?>
 <script src="<?= staticFileUrl('/js/ticket_timers.js') ?>"></script>
 <?php if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
 <script src="<?= staticFileUrl('/js/settings.js') ?>"></script>

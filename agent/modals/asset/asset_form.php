@@ -236,8 +236,9 @@ $asset_form_icons = [
             <label class="form-label">Serial number</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
-                <input type="text" class="form-control font-monospace" name="serial" placeholder="ABC1234XYZ" maxlength="200" value="<?= $asset_serial ?>">
+                <input type="text" class="form-control font-monospace" name="serial" placeholder="ABC1234XYZ" maxlength="200" value="<?= $asset_serial ?>" data-asset-duplicate="serial">
             </div>
+            <div class="form-text text-warning-emphasis" data-asset-duplicate-note="serial"></div>
         </div>
         <div class="col-12" data-asset-field="os">
             <label class="form-label" for="assetFormOs" data-asset-os-label><?= $asset_type_raw !== '' ? assetTypeOsLabel($asset_type_raw) : 'Operating system / firmware' ?></label>
@@ -337,6 +338,7 @@ $asset_form_icons = [
                             <option value="<?= $location_option_id ?>" <?php if ($asset_location_id === $location_option_id) { echo "selected"; } ?>><?= escapeHtml($location_option['location_name']) ?><?= $location_option['location_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
                     </select>
+                    <?= $client_id ? quickAddButton('location', $client_id) : '' ?>
                 </div>
             </div>
             <div class="col-md-6">
@@ -357,6 +359,7 @@ $asset_form_icons = [
                             <option value="<?= $contact_option_id ?>" <?php if ($asset_contact_id === $contact_option_id) { echo "selected"; } ?><?= selectOptionContact($contact_option['contact_client_id'] ?? 0, $contact_option['contact_name'], $contact_option['contact_photo'] ?? '', $contact_option['contact_title'] ?? '', $contact_option['contact_id'] ?? 0) ?>><?= escapeHtml($contact_option['contact_name']) ?><?= $contact_option['contact_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
                     </select>
+                    <?= $client_id ? quickAddButton('contact', $client_id) : '' ?>
                 </div>
             </div>
         </div>
@@ -410,8 +413,9 @@ $asset_form_icons = [
             <label class="form-label">MAC address</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                <input type="text" class="form-control font-monospace" name="mac" placeholder="00:1A:2B:3C:4D:5E" maxlength="200" value="<?= $asset_mac ?>" data-inputmask="'alias': 'mac'" data-mask>
+                <input type="text" class="form-control font-monospace" name="mac" placeholder="00:1A:2B:3C:4D:5E" maxlength="200" value="<?= $asset_mac ?>" data-inputmask="'alias': 'mac'" data-mask data-asset-duplicate="mac">
             </div>
+            <div class="form-text text-warning-emphasis" data-asset-duplicate-note="mac"></div>
         </div>
         <div class="col-md-6" data-asset-field="nat">
             <label class="form-label">NAT address</label>
@@ -473,6 +477,7 @@ $asset_form_icons = [
                             <option value="<?= $vendor_option_id ?>" <?php if ($asset_vendor_id === $vendor_option_id) { echo "selected"; } ?><?= selectOptionVendor($vendor_option['vendor_name'], $vendor_option['vendor_description']) ?>><?= escapeHtml($vendor_option['vendor_name']) ?><?= $vendor_option['vendor_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
                     </select>
+                    <?= $client_id ? quickAddButton('vendor', $client_id) : '' ?>
                 </div>
             </div>
         <?php } ?>
@@ -571,6 +576,21 @@ $asset_form_icons = [
 <script>
     itflowReady(function () {
         var form = document.getElementById('assetFormOs').closest('form');
+
+        // A serial number or MAC already on another asset (agent/ajax.php asset_duplicate_check) - said, not refused
+        form.querySelectorAll('[data-asset-duplicate]').forEach(function (input) {
+            var note = form.querySelector('[data-asset-duplicate-note="' + input.dataset.assetDuplicate + '"]');
+            input.addEventListener('change', function () {
+                var value = input.value.trim();
+                if (value === '') {
+                    note.textContent = '';
+                    return;
+                }
+                itflowGet('ajax.php', { asset_duplicate_check: input.dataset.assetDuplicate, value: value, exclude: <?= intval($asset_id ?? 0) ?> }, function (data) {
+                    note.innerHTML = JSON.parse(data).message || '';
+                });
+            });
+        });
 
         // OS / firmware suggestions from what's already in use
         var osInput = form.querySelector('#assetFormOs');

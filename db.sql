@@ -1072,6 +1072,8 @@ CREATE TABLE `contacts` (
   `contact_name` varchar(200) NOT NULL,
   `contact_title` varchar(200) DEFAULT NULL,
   `contact_email` varchar(200) DEFAULT NULL,
+  `contact_email_bounced_at` datetime DEFAULT NULL,
+  `contact_email_bounce` varchar(255) DEFAULT NULL,
   `contact_phone_country_code` varchar(10) DEFAULT NULL,
   `contact_phone` varchar(200) DEFAULT NULL,
   `contact_extension` varchar(200) DEFAULT NULL,
