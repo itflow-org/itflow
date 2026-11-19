@@ -496,18 +496,9 @@ function userLoginHtml($log, $with_ip = true) {
  */
 function userMfaQrSvg($secret, $email) {
     global $config_app_name;
-    // libs/barcode/barcode.php stops the page outright without GD - then it is the secret to type in
-    if (!extension_loaded('gd')) {
-        return '';
-    }
-    require_once dirname(__DIR__) . '/libs/barcode/barcode.php';
     $issuer = (string) ($config_app_name ?: 'ITFlow');
     $uri = 'otpauth://totp/' . rawurlencode($issuer) . ':' . rawurlencode((string) $email) . '?secret=' . rawurlencode((string) $secret) . '&issuer=' . rawurlencode($issuer);
-    $generator = new barcode_generator();
-    $svg = $generator->render_svg('qr', $uri, ['w' => 200, 'h' => 200, 'p' => 0]);
-    // Shown inline in the page, not as an image - the XML prolog has to go, and it scales with its box
-    $svg = preg_replace('/^<\?xml[^>]*>\s*/', '', (string) $svg);
-    return preg_replace('/<svg /', '<svg class="itflow-mfa-qr" role="img" aria-label="QR code for your authenticator app" ', $svg, 1);
+    return qrCodeSvg($uri, 'class="itflow-mfa-qr" role="img" aria-label="QR code for your authenticator app"');
 }
 
 /** An agent's work not finished - [tickets not closed, recurring tickets] assigned to them. */

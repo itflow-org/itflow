@@ -1867,24 +1867,51 @@ select.select2[multiple]:not(.itflow-select-native) {
     --fc-classic-button-foreground: #000;
 }
 
-/* --- SweetAlert2 ----------------------------------------------------------
-   v11 keys its dark palette on [data-swal2-theme=dark], an attribute it sets
-   on its own container from the `theme` option - which defaults to "light",
-   so the confirm dialogs stayed white in dark mode. js/confirm_modal.js now
-   hands it the app's mode.
-
-   Same treatment as FullCalendar above: its dark theme is its own near-black
-   (#19191a) next to a #212529 page, so the two seed variables are repointed
-   onto the app's colours. Everything else in its dark block - text, input
-   background, validation message - derives from these two, so nothing further
-   needs restating here. */
-[data-swal2-theme=dark] {
-    --swal2-dark-theme-black: var(--bs-body-bg);
-    --swal2-dark-theme-white: var(--bs-body-color);
-
-    /* The popup is borderless by default, which reads fine as a white panel on
-       the backdrop but leaves a #212529 one with no edge against it. */
-    --swal2-border: 1px solid var(--bs-border-color);
+/* --- Dialogs (js/confirm_modal.js) ----------------------------------------
+   itflowDialog() - the "Are you sure?" dialogs - is a Bootstrap modal laid out
+   centred: icon, title, text, then the buttons. It can open over another modal
+   (a delete inside an edit window), so it and its backdrop sit above both. */
+.itflow-dialog {
+    z-index: 1065;
+}
+.modal-backdrop.itflow-dialog-backdrop {
+    z-index: 1060;
+}
+.itflow-dialog .modal-dialog {
+    max-width: 28rem;
+}
+.itflow-dialog .modal-body {
+    padding: 1.75rem 1.5rem 1rem;
+}
+.itflow-dialog-icon {
+    display: block;
+    margin-bottom: .75rem;
+    font-size: 3rem;
+}
+.itflow-dialog .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-wrap: balance;
+}
+.itflow-dialog-text {
+    margin: .5rem 0 0;
+    color: var(--bs-secondary-color);
+    text-wrap: pretty;
+}
+.itflow-dialog-radios {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.itflow-dialog .modal-footer {
+    justify-content: center;
+    gap: .5rem;
+    padding: 0 1.5rem 1.5rem;
+    border-top: 0;
+}
+.itflow-dialog .modal-footer > .btn {
+    margin: 0;
 }
 
 /* --- Close button focus ring ---------------------------------------------
@@ -5764,10 +5791,6 @@ img.itflow-contact-avatar {
 }
 .itflow-cal-help-tabs .nav-link {
     white-space: nowrap;
-}
-.swal2-radio .itflow-cal-swal-input,
-.swal2-radio {
-    gap: 1rem;
 }
 
 /* --- Dispatch (agent/dispatch.php, agent/js/dispatch.js) ------------------- */

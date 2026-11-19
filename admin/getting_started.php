@@ -83,7 +83,6 @@ define('FROM_GETTING_STARTED', true);
     <?php } ?>
     <link rel="stylesheet" href="<?= staticFileUrl('/libs/fontawesome-free/css/all.min.css') ?>">
     <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte.min.css') ?>">
-    <link rel="stylesheet" href="<?= staticFileUrl('/libs/sweetalert2/css/sweetalert2.min.css') ?>">
     <link rel="stylesheet" href="<?= staticFileUrl('/css/itflow_custom.css') ?>">
 </head>
 
@@ -191,7 +190,6 @@ define('FROM_GETTING_STARTED', true);
 
 <script src="<?= staticFileUrl('/js/itflow_select.js') ?>"></script>
 <script src="<?= staticFileUrl('/libs/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
-<script src="<?= staticFileUrl('/libs/sweetalert2/js/sweetalert2.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/confirm_modal.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/app.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/settings.js') ?>"></script>

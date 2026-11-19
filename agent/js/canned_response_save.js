@@ -96,25 +96,17 @@
                 put(wanted);
                 swapped.textContent = toggle.checked ? swappedText(state.placeholders) : 'As you wrote it, with this ticket\'s details in it.';
             };
-            if (state.lastSet === null || editor.getContent() === state.lastSet || typeof Swal === 'undefined') {
+            if (state.lastSet === null || editor.getContent() === state.lastSet || typeof itflowDialog === 'undefined') {
                 go();
                 return;
             }
-            Swal.fire({
-                theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',
+            itflowDialog({
                 title: 'Start again from your reply?',
                 text: 'What you changed here goes.',
                 icon: 'question',
-                showCancelButton: true,
                 confirmButtonText: 'Start again',
                 cancelButtonText: 'Keep my changes',
-                reverseButtons: true,
-                focusCancel: true,
-                buttonsStyling: false,
-                customClass: {
-                    confirmButton: 'btn btn-primary mx-1',
-                    cancelButton: 'btn btn-secondary mx-1'
-                }
+                focusCancel: true
             }).then(function (result) {
                 if (result.isConfirmed) {
                     go();

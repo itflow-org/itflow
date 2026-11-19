@@ -92,7 +92,7 @@
 
             // js/auto_reload.js waits while one of these is on the page, so the upload isn't cut off by a reload
             const busy = document.createElement('div');
-            busy.className = 'swal2-container';
+            busy.className = 'itflow-busy';
             busy.hidden = true;
             busy.style.setProperty('display', 'none', 'important');
             document.body.appendChild(busy);

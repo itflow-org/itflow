@@ -53,8 +53,6 @@ header("X-Frame-Options: DENY");
 
     <!-- Custom Styles -->
     <link rel="stylesheet" href="<?= staticFileUrl('/libs/flatpickr/css/flatpickr.min.css') ?>">
-    <link rel="stylesheet" href="<?= staticFileUrl('/libs/sweetalert2/css/sweetalert2.min.css') ?>">
-    <link rel="stylesheet" href="<?= staticFileUrl('/libs/DataTables/datatables.min.css') ?>">
     <link rel="stylesheet" href="<?= staticFileUrl('/libs/intl-tel-input/css/intlTelInput.min.css') ?>">
     <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte.min.css') ?>">
     <?php /* Opt-in AdminLTE 3 palette, new in v4.5.0. Supplies the

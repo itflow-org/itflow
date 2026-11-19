@@ -31,18 +31,12 @@
 
 <script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>
 
-<script src="<?= staticFileUrl('/libs/sweetalert2/js/sweetalert2.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/confirm_modal.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/autosubmit.js') ?>"></script>
 
 <?php if (!empty($portal_load_phone_inputs)) { ?>
     <script src="<?= staticFileUrl('/libs/intl-tel-input/js/intlTelInputWithUtils.min.js') ?>"></script>
     <script src="<?= staticFileUrl('/js/phone_inputs.js') ?>"></script>
-<?php } ?>
-
-<?php if (!empty($portal_load_datatables)) { ?>
-    <script src="<?= staticFileUrl('/libs/DataTables/datatables.min.js') ?>"></script>
-    <script src="<?= staticFileUrl('/js/portal_datatables.js') ?>"></script>
 <?php } ?>
 
 <script src="<?= staticFileUrl('/js/keepalive.js') ?>"></script>

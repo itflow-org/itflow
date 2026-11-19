@@ -95,7 +95,6 @@ define('FROM_CLIENT_ONBOARDING', true);
     <?php } ?>
     <link rel="stylesheet" href="<?= staticFileUrl('/libs/fontawesome-free/css/all.min.css') ?>">
     <link rel="stylesheet" href="<?= staticFileUrl('/libs/adminlte/css/adminlte.min.css') ?>">
-    <link rel="stylesheet" href="<?= staticFileUrl('/libs/sweetalert2/css/sweetalert2.min.css') ?>">
     <link rel="stylesheet" href="<?= staticFileUrl('/libs/intl-tel-input/css/intlTelInput.min.css') ?>">
     <link rel="stylesheet" href="<?= staticFileUrl('/css/itflow_custom.css') ?>">
 </head>
@@ -198,7 +197,6 @@ define('FROM_CLIENT_ONBOARDING', true);
 
 <script src="<?= staticFileUrl('/js/itflow_select.js') ?>"></script>
 <script src="<?= staticFileUrl('/libs/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
-<script src="<?= staticFileUrl('/libs/sweetalert2/js/sweetalert2.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/libs/intl-tel-input/js/intlTelInputWithUtils.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/phone_inputs.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/confirm_modal.js') ?>"></script>

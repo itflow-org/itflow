@@ -774,44 +774,11 @@ function itflowInit() {
         });
     });
 
-    // Data Input Mask
-    // IMask replaces jquery.inputmask. Only two aliases were ever used.
-    document.querySelectorAll('[data-mask]').forEach(function (el) {
-        if (el.dataset.imaskReady) {
-            return;
-        }
-        el.dataset.imaskReady = '1';
-        var spec = el.getAttribute('data-inputmask') || '';
-        if (spec.indexOf('ip') !== -1) {
-            // A pattern mask built from MaskedRange blocks will not advance past the dot
-            // until the block reaches its maxLength, so 10.0.0.1 had to be entered as
-            // 010.000.000.001. A regex mask has no per-block completeness rule - it tests
-            // the whole value on every keystroke, so partial input like "10.0." is valid on
-            // its own. Octets are still bounded to 0-255 and leading zeros are still
-            // accepted, matching what jquery.inputmask's 'ip' alias allowed.
-            //
-            // interface_ip / asset_ip are varchar(200) and hold free text as well - 'DHCP'
-            // is written there by the checkbox on these same modals. Masking a value like
-            // that would strip it to nothing the moment the modal opened, so anything not
-            // made of digits and dots is left unmasked instead.
-            if (el.value && !/^[\d.]*$/.test(el.value)) {
-                return;
-            }
-            var octet = '(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)';
-            var octet4 = octet + '?';
-            var octet3 = '(' + octet + '(\\.' + octet4 + ')?)?';
-            var octet2 = '(' + octet + '(\\.' + octet3 + ')?)?';
-            IMask(el, {
-                mask: new RegExp('^(' + octet + '(\\.' + octet2 + ')?)?$')
-            });
-        } else if (spec.indexOf('mac') !== -1) {
-            IMask(el, {
-                mask: 'HH:HH:HH:HH:HH:HH',
-                definitions: { H: /[0-9a-fA-F]/ },
-                prepare: function (s) { return s.toUpperCase(); },
-                lazy: true
-            });
-        }
+    // Data Input Mask - the IP and MAC fields on the asset form
+    // (data-inputmask="'alias': 'ip'" / 'mac', with data-mask). ITFlow's own
+    // code, itflowInputMask() further down, in place of IMask.
+    itflowStep('input-masks', function () {
+        document.querySelectorAll('[data-mask]').forEach(itflowInputMask);
     });
 
     // Password reveal. Replaces Show-Hide-Passwords-Bootstrap-4, which has no Bootstrap 5
@@ -914,14 +881,6 @@ function itflowInit() {
         document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
             bootstrap.Popover.getOrCreateInstance(el);
         });
-    });
-
-    // Data Tables - only loaded on agent and admin pages (includes/footer.php);
-    // setup and Get started load this file without it
-    itflowStep('datatables', function () {
-        if (typeof DataTable !== 'undefined') {
-            new DataTable('.dataTables');
-        }
     });
 
     // Phone inputs
@@ -1204,6 +1163,77 @@ function flashTooltip(button, message) {
  * execCommand('copy') - placed inside the trigger's own modal, worked out now
  * rather than in advance.
  */
+/**
+ * The IP and MAC address masks, for an input with data-mask and
+ * data-inputmask="'alias': 'ip'" or "'alias': 'mac'". Bound once per field -
+ * app.js re-runs on every ajax modal open.
+ *
+ * IP: each keystroke or paste is kept only if the whole value is still on its
+ * way to an IPv4 address - octets 0-255, leading zeros allowed, a partial value
+ * like "10.0." fine - otherwise the field goes back to what it was. Tested on
+ * the whole value rather than per octet, so 10.0.0.1 is typed as it reads, not
+ * as 010.000.000.001. interface_ip / asset_ip are varchar(200) and hold free
+ * text as well - 'DHCP' is written there by the checkbox on these same modals -
+ * so a field that opens with anything but digits and dots is left alone.
+ *
+ * MAC: whatever is typed or pasted is cut down to its hex digits, upper-cased
+ * and grouped in pairs - 001a2b3c4d5e, 00-1a-2b-3c-4d-5e and 001a.2b3c.4d5e
+ * all become 00:1A:2B:3C:4D:5E. A colon appears once the next pair is started.
+ * A field that opens holding something other than a MAC address (a note, say)
+ * is left alone too, rather than cut down to whatever hex digits it holds.
+ */
+function itflowInputMask(el) {
+    if (el.dataset.maskReady) {
+        return;
+    }
+    el.dataset.maskReady = '1';
+    const spec = el.getAttribute('data-inputmask') || '';
+
+    if (spec.indexOf('ip') !== -1) {
+        if (el.value && !/^[\d.]*$/.test(el.value)) {
+            return;
+        }
+        const octet = '(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)';
+        const octet3 = '(' + octet + '(\\.' + octet + '?)?)?';
+        const octet2 = '(' + octet + '(\\.' + octet3 + ')?)?';
+        const ip = new RegExp('^(' + octet + '(\\.' + octet2 + ')?)?$');
+        let good = ip.test(el.value) ? el.value : '';
+        el.addEventListener('input', function () {
+            if (ip.test(el.value)) {
+                good = el.value;
+                return;
+            }
+            const caret = Math.max(0, (el.selectionStart || 0) - (el.value.length - good.length));
+            el.value = good;
+            el.setSelectionRange(caret, caret);
+        });
+    } else if (spec.indexOf('mac') !== -1) {
+        const format = function (value) {
+            return value.replace(/[^0-9a-fA-F]/g, '').slice(0, 12).toUpperCase().replace(/(..)(?=.)/g, '$1:');
+        };
+        if (el.value && !/^[0-9a-fA-F:.\- ]*$/.test(el.value)) {
+            return;
+        }
+        el.value = format(el.value);
+        el.addEventListener('input', function () {
+            // Keep the caret after the same number of hex digits it was after
+            const before = el.value.slice(0, el.selectionStart || 0).replace(/[^0-9a-fA-F]/g, '').length;
+            const value = format(el.value);
+            if (value === el.value) {
+                return;
+            }
+            el.value = value;
+            let caret = 0;
+            for (let seen = 0; caret < value.length && seen < before; caret++) {
+                if (value[caret] !== ':') {
+                    seen++;
+                }
+            }
+            el.setSelectionRange(caret, caret);
+        });
+    }
+}
+
 function itflowCopyText(text, trigger) {
     if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
         return navigator.clipboard.writeText(text);

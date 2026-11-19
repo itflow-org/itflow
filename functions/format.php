@@ -676,3 +676,40 @@ function emptyStateHtml(array $o) {
         . ($buttons !== '' ? '<div class="itflow-empty-state-actions">' . $buttons . '</div>' : '')
         . '</div>';
 }
+
+/**
+ * A QR code of $text as inline SVG, drawn from the QR maker that comes with
+ * TCPDF (libs/TCPDF/tcpdf_barcodes_2d.php) - pure PHP, no GD. One square per
+ * module on a white ground with the standard four-module quiet zone, and a
+ * viewBox, so it scales with whatever box the CSS gives it. $attributes are
+ * added to the <svg> as they are (class, role, aria-label). '' if the text is
+ * too long for a QR code.
+ */
+function qrCodeSvg($text, $attributes = '') {
+    require_once dirname(__DIR__) . '/libs/TCPDF/tcpdf_barcodes_2d.php';
+    $code = (new TCPDF2DBarcode((string) $text, 'QRCODE,L'))->getBarcodeArray();
+    if (empty($code['bcode'])) {
+        return '';
+    }
+    $quiet = 4;
+    $size = intval($code['num_cols']) + 2 * $quiet;
+    $path = '';
+    foreach ($code['bcode'] as $y => $row) {
+        // Each run of dark modules in a row is one rectangle
+        $x = 0;
+        $cols = count($row);
+        while ($x < $cols) {
+            if (empty($row[$x])) {
+                $x++;
+                continue;
+            }
+            $start = $x;
+            while ($x < $cols && !empty($row[$x])) {
+                $x++;
+            }
+            $path .= 'M' . ($start + $quiet) . ' ' . ($y + $quiet) . 'h' . ($x - $start) . 'v1h-' . ($x - $start) . 'z';
+        }
+    }
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $size . ' ' . $size . '" shape-rendering="crispEdges"' . ($attributes !== '' ? ' ' . $attributes : '') . '>'
+        . '<rect width="' . $size . '" height="' . $size . '" fill="#fff"/><path fill="#000" d="' . $path . '"/></svg>';
+}

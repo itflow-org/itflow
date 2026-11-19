@@ -91,9 +91,6 @@ $mfa_secret = $_SESSION['mfa_token'];
     <script src="<?= staticFileUrl('/js/http.js') ?>"></script>
     <script src="<?= staticFileUrl('/libs/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
 
-    <!-- Custom js-->
-    <script src="<?= staticFileUrl('/libs/clipboardjs/clipboard.min.js') ?>"></script>
-
     <script>
 
     // Fade the alert out after 5s, then collapse it
@@ -110,8 +107,6 @@ $mfa_secret = $_SESSION['mfa_token'];
             }, 500);
         }, 5000);
     })();
-
-    // ClipboardJS
 
     // Tooltip - manual trigger only, so a copy flash can never stay stranded
     // on screen. This page is standalone and does not load js/app.js, so it
@@ -134,16 +129,43 @@ $mfa_secret = $_SESSION['mfa_token'];
         }, 1000);
     }
 
-    // Clipboard
+    // Copy buttons (the secret beside the QR code). The same as js/app.js's,
+    // cut down to the one data-clipboard-text button this page has: the
+    // clipboard API where the browser allows it (https or localhost),
+    // otherwise copying a selected textarea.
+    function copyText(text, trigger) {
+        if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text);
+        }
+        const area = document.createElement('textarea');
+        area.value = text;
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.top = '0';
+        area.style.left = '-9999px';
+        document.body.appendChild(area);
+        area.focus({ preventScroll: true });
+        area.select();
+        area.setSelectionRange(0, text.length);
+        let copied = false;
+        try {
+            copied = document.execCommand('copy');
+        } catch (err) {
+            copied = false;
+        }
+        area.remove();
+        trigger.focus({ preventScroll: true });
+        return copied ? Promise.resolve() : Promise.reject(new Error('Copy failed'));
+    }
 
-    var clipboard = new ClipboardJS('.clipboardjs');
-
-    clipboard.on('success', function(e) {
-        flashTooltip(e.trigger, 'Copied!');
-    });
-
-    clipboard.on('error', function(e) {
-        flashTooltip(e.trigger, 'Failed!');
+    document.querySelectorAll('.clipboardjs').forEach(function (button) {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            copyText(button.getAttribute('data-clipboard-text') || '', button).then(
+                function () { flashTooltip(button, 'Copied!'); },
+                function () { flashTooltip(button, 'Failed!'); }
+            );
+        });
     });
 
     // Enable Popovers

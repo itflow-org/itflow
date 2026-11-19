@@ -247,19 +247,13 @@ function portalMfaReset($user_id) {
     mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $user_id");
 }
 
-/** The QR code an authenticator app scans for a portal user - an SVG, '' without GD (then the secret is typed in). */
+/** The QR code an authenticator app scans for a portal user, as inline SVG. */
 function portalMfaQrSvg($secret, $email) {
     global $mysqli;
-    if (!extension_loaded('gd')) {
-        return '';
-    }
-    require_once dirname(__DIR__) . '/libs/barcode/barcode.php';
     $company = mysqli_fetch_row(mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1"));
     $issuer = trim((string) ($company[0] ?? '')) ?: 'Client portal';
     $uri = 'otpauth://totp/' . rawurlencode($issuer) . ':' . rawurlencode((string) $email) . '?secret=' . rawurlencode((string) $secret) . '&issuer=' . rawurlencode($issuer);
-    $svg = (new barcode_generator())->render_svg('qr', $uri, ['w' => 200, 'h' => 200, 'p' => 0]);
-    $svg = preg_replace('/^<\?xml[^>]*>\s*/', '', (string) $svg);
-    return preg_replace('/<svg /', '<svg class="itflow-mfa-qr" role="img" aria-label="QR code for your authenticator app" ', $svg, 1);
+    return qrCodeSvg($uri, 'class="itflow-mfa-qr" role="img" aria-label="QR code for your authenticator app"');
 }
 
 /*

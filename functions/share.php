@@ -202,16 +202,9 @@ function shareUrl($item_id, $secret) {
     return "https://$config_base_url/guest/share.php?id=" . intval($item_id) . "#$secret";
 }
 
-/** A QR code of the link, as inline SVG - '' without GD, which libs/barcode needs. */
+/** A QR code of the link, as inline SVG. */
 function shareQrSvg($url) {
-    if (!extension_loaded('gd')) {
-        return '';
-    }
-    require_once dirname(__DIR__) . '/libs/barcode/barcode.php';
-    $generator = new barcode_generator();
-    $svg = (string) $generator->render_svg('qr', $url, ['w' => 180, 'h' => 180, 'p' => 0]);
-    $svg = preg_replace('/^<\?xml[^>]*>\s*/', '', $svg);
-    return preg_replace('/<svg /', '<svg class="itflow-share-qr" role="img" aria-label="QR code of the link" ', $svg, 1);
+    return qrCodeSvg($url, 'class="itflow-share-qr" role="img" aria-label="QR code of the link"');
 }
 
 /** One link by id, with who made it and the client - raw, or null. */

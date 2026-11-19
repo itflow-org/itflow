@@ -66,17 +66,14 @@
 <!-- Custom js-->
 <script src="<?= staticFileUrl('/libs/chart.js/chart.umd.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/libs/flatpickr/js/flatpickr.min.js') ?>"></script>
-<script src="<?= staticFileUrl('/libs/imask/js/imask.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/libs/tinymce/tinymce.min.js') ?>" referrerpolicy="origin"></script>
 <script src="<?= staticFileUrl('/js/tinymce_defaults.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/keepalive.js') ?>"></script>
-<script src="<?= staticFileUrl('/libs/DataTables/datatables.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/libs/intl-tel-input/js/intlTelInputWithUtils.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/phone_inputs.js') ?>"></script>
 
 <!-- AdminLTE App -->
 <script src="<?= staticFileUrl('/libs/adminlte/js/adminlte.min.js') ?>"></script>
-<script src="<?= staticFileUrl('/libs/sweetalert2/js/sweetalert2.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/autocomplete.js') ?>"></script>
 <?php /* What the editors' Reword button needs - false when AI isn't set up or the role may not use it (aiClientConfig(), functions/ai.php) */ ?>
 <?php
