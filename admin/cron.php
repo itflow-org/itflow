@@ -515,15 +515,14 @@ $status_looks = [
             $alert_admins = $alert_to === '' ? cronHealthRecipients('') : [];
             $health_url = cronHealthUrl();
             $watch_on = !empty($jobs['cron_watch']['enabled']); ?>
-        <!-- Alerts: the warning in the top bar, the Cron Watch job's emails and the health address (functions/cron_health.php) -->
+        <!-- Alerts: the Cron Watch job's emails and the health address (functions/cron_health.php) -->
         <div class="card mb-3" data-cron-alerts>
             <div class="card-header py-3">
                 <h3 class="card-title"><i class="fas fa-fw fa-bell me-2"></i>Alerts</h3>
             </div>
             <div class="card-body small">
                 <p class="text-body-secondary">
-                    When cron stops, or a job fails, gets stuck or falls behind, admins see <i class="fas fa-heartbeat text-warning" aria-hidden="true"></i> in the top bar.
-                    The Cron Watch job also emails about it - when it starts, once a day while it lasts, and when it's fixed.
+                    When a job fails, gets stuck or falls behind, the Cron Watch job emails about it - when it starts, once a day while it lasts, and when it's fixed.
                 </p>
                 <?php if (!$watch_on) { ?>
                     <p class="text-warning-emphasis" data-cron-watch-off><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Cron Watch is off, so no alerts are emailed - turn it on in Jobs.</p>

@@ -2488,14 +2488,6 @@ body {
     font-variant-numeric: tabular-nums;
     font-weight: 600;
 }
-/* Cron health in the top bar (functions/cron_health.php) - a problem a row */
-.itflow-cron-row {
-    padding: .6rem 1rem;
-    border-bottom: 1px solid var(--bs-border-color);
-}
-.itflow-cron-row:last-child {
-    border-bottom: 0;
-}
 /* Quick ticket's list of the contact's open tickets - a long one scrolls in place */
 .itflow-also-open-list {
     max-height: 15rem;

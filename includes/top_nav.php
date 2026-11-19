@@ -117,34 +117,6 @@
             </li>
         <?php } ?>
 
-        <?php $cron_problems = !empty($session_is_admin) ? cronHealthProblems() : []; ?>
-        <?php if ($cron_problems) { ?>
-            <!-- Cron health - admins only, and only while something is wrong (functions/cron_health.php) -->
-            <li class="nav-item dropdown" id="itflowCronHealth">
-                <a class="nav-link" href="/admin/cron.php" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Cron needs attention"
-                    aria-label="Cron needs attention, <?= count($cron_problems) ?> problem<?= count($cron_problems) === 1 ? '' : 's' ?>">
-                    <i class="fas fa-heartbeat text-warning" aria-hidden="true"></i>
-                    <span class="badge rounded-pill text-bg-danger navbar-badge"><?= count($cron_problems) ?></span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end p-0 itflow-notify-panel" data-bs-theme="<?= $user_config_theme_dark ? 'dark' : 'light' ?>">
-                    <div class="itflow-notify-head pb-2 border-bottom">
-                        <span class="fw-semibold"><i class="fas fa-heartbeat me-2" aria-hidden="true"></i>Cron needs attention</span>
-                    </div>
-                    <div class="itflow-notify-list">
-                        <?php foreach ($cron_problems as $cron_problem) { ?>
-                            <div class="itflow-cron-row small" data-cron-problem="<?= escapeHtml($cron_problem['kind']) ?>">
-                                <i class="fas fa-fw <?= in_array($cron_problem['kind'], ['not_running', 'failed'], true) ? 'fa-times-circle text-danger' : 'fa-exclamation-circle text-warning' ?> me-1" aria-hidden="true"></i><?= escapeHtml($cron_problem['text']) ?>
-                                <?php if ($cron_problem['detail'] !== '') { ?>
-                                    <div class="text-body-secondary text-truncate" title="<?= escapeHtml($cron_problem['detail']) ?>"><?= escapeHtml($cron_problem['detail']) ?></div>
-                                <?php } ?>
-                            </div>
-                        <?php } ?>
-                    </div>
-                    <a class="dropdown-item text-center small py-2 border-top" href="/admin/cron.php">Open Maintenance &gt; Cron</a>
-                </div>
-            </li>
-        <?php } ?>
-
         <!-- Notifications - js/notifications.js fills the panel when the bell is
              opened and keeps the badge current. Without the script the bell is a
              plain link to the full page. The panel follows the page theme, not

@@ -5,8 +5,7 @@
  *
  * Is cron running, and is every job that's on keeping up? Maintenance > Cron
  * already records each job's last run, how it went and its error (cron_jobs);
- * this reads them and says so where people look:
- *   - a warning in the top bar for admins (includes/top_nav.php),
+ * this reads them and says so:
  *   - an email when a job fails, gets stuck or falls behind, again once a day
  *     while it lasts, and when it's fixed (the Cron Watch job, cron/cron_watch.php),
  *   - a health address for an uptime monitor (/health.php) - the only thing
