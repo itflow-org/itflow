@@ -185,16 +185,9 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
     $ticket_reply_type = 'Client';
     // $message contains the raw HTML body from IMAP
 
-    // 1) Remove the reply separator and everything below it (HTML-aware)
-    // This matches: <i ...>##- Please type your reply above this line -##</i> and EVERYTHING after it
-    $message = preg_replace(
-        '/<i[^>]*>##-\s*Please\s+type\s+your\s+reply\s+above\s+this\s+line\s*-##<\/i>.*$/is',
-        '',
-        $message
-    );
-    // A reply sent as plain text has the line without its <i>, often quoted ("> ") - cut there too, or the
-    // email it quotes, earlier messages and all, lands on the ticket
-    $message = preg_replace('/(?:&gt;\s*)*##-\s*Please\s+type\s+your\s+reply\s+above\s+this\s+line\s*-##.*$/is', '', $message);
+    // 1) What they wrote, without the email of ours they quote - above the reply line, or below it when
+    // that's where they wrote (emailReplyText(), functions/email.php)
+    $message = emailReplyText($message);
 
     // 2) Clean up the remaining message
 

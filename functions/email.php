@@ -340,6 +340,70 @@ function emailPlainText($html, $limit = 0) {
 }
 
 /*
+ * What someone wrote in an email reply to a ticket, without the email of ours
+ * they are answering - HTML in and out, for cron/ticket_email_parser.php.
+ * Usually that is everything above EMAIL_REPLY_MARKER. When nothing they
+ * wrote is above it - they typed below the line, or their mail program puts
+ * a reply under the email it quotes - it is what follows the quote: after the
+ * blockquote the line is in, or, in a plain text reply, the lines not quoted
+ * with ">". Words on both sides are both kept. When none of that has
+ * anything - they typed into the quote, where their words can't be told from
+ * ours, or wrote nothing - the whole email is kept, with a note saying so,
+ * rather than nothing.
+ */
+function emailReplyText($html) {
+    $html = (string) $html;
+    if (!preg_match('/(?:<i\b[^>]*>\s*)?(?:&gt;\s*)*##-\s*Please\s+type\s+your\s+reply\s+above\s+this\s+line\s*-##(?:\s*<\/i>)?/is', $html, $m, PREG_OFFSET_CAPTURE)) {
+        return $html;
+    }
+    $above = substr($html, 0, $m[0][1]);
+    $below = substr($html, $m[0][1] + strlen($m[0][0]));
+
+    // What follows the quote the line is in
+    $after = '';
+    $open = preg_match_all('/<blockquote\b/i', $above) - preg_match_all('/<\/blockquote\s*>/i', $above);
+    if ($open > 0 && preg_match_all('/<(\/?)blockquote\b[^>]*>/i', $below, $tags, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
+        foreach ($tags as $tag) {
+            $open += $tag[1][0] === '/' ? -1 : 1;
+            if ($open === 0) {
+                $after = substr($below, $tag[0][1] + strlen($tag[0][0]));
+                break;
+            }
+        }
+    } elseif (strpos($m[0][0], '&gt;') !== false) {
+        // A plain text reply quoting the line with ">" - its lines that aren't quoted
+        $lines = preg_split('/<br\s*\/?>\s*|\r\n|\n|\r/i', $below);
+        $after = implode('<br>', array_filter($lines, function ($line) {
+            return !preg_match('/^\s*(&gt;|>)/', strip_tags($line));
+        }));
+    }
+
+    $kept = array_values(array_filter([emailReplyHasText($above) ? $above : '', emailReplyHasText($after) ? $after : '']));
+    if ($kept) {
+        return implode('<br><br>', $kept);
+    }
+    return '<p><i>Nothing was written above the reply line, so here is the whole email, in case they wrote into it:</i></p>' . $above . $below;
+}
+
+/*
+ * Whether HTML from an email reply has anything someone wrote in it - not
+ * just what mail programs put around a quote: who wrote it and when ("On ...
+ * wrote:"), Outlook's From, Sent, To and Subject, "Original Message", lines
+ * quoted with ">", "Sent from my iPhone". A picture counts.
+ */
+function emailReplyHasText($html) {
+    $text = emailPlainText($html);
+    $text = preg_replace([
+        '/\bOn\b[^\n]{0,200}(?:\n[^\n]{0,200}){0,2}?\bwrote:/iu',
+        '/^\s*-+\s*Original Message\s*-+\s*$/imu',
+        '/^\s*(From|Sent|Date|To|Cc|Subject)\s*:.*$/imu',
+        '/^\s*Sent from my\b.*$/imu',
+        '/^\s*>.*$/mu',
+    ], '', $text) ?? $text;
+    return trim((string) preg_replace('/[\s\x{00A0}\x{200B}]+/u', '', $text)) !== '';
+}
+
+/*
  * The pictures in an email's HTML as data - pasted into a ticket reply, say - taken out to files
  * the mail queue attaches inline, each <img> pointing at its cid: instead. Gmail, among others,
  * shows no picture carried as data, and the queue keeps each picture once rather than a copy in
