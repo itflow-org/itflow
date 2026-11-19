@@ -57,6 +57,9 @@ if (isset($_GET['ticket_id'])) {
 
         $ticket = mysqli_fetch_assoc($sql);
 
+        // Seen - no longer in bold on this agent's tickets list (functions/ticket_read.php)
+        ticketMarkRead($ticket_id, $session_user_id);
+
         $client_id = intval($ticket['client_id']);
         $client_name = escapeHtml($ticket['client_name']);
 

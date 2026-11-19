@@ -867,6 +867,128 @@ if (isset($_GET['ticket_query_views'])) {
 }
 
 /*
+ * The last reply on a ticket, as text - shown when the Activity cell on the tickets list is
+ * hovered (agent/js/ticket_reply_peek.js). With no replies yet, what the ticket says.
+ */
+if (isset($_GET['ticket_reply_peek'])) {
+    header('Content-Type: application/json');
+
+    $ticket_id = intval($_GET['ticket_reply_peek']);
+    $peek_ticket = ticketRow($ticket_id);
+    if (lookupUserPermission('module_support') < 1 || !$peek_ticket || (intval($peek_ticket['ticket_client_id']) && !hasClientAccess($peek_ticket['ticket_client_id']))) {
+        echo json_encode(['ok' => false]);
+        exit;
+    }
+
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_reply, ticket_reply_type, ticket_reply_created_at, user_name, contact_name
+        FROM ticket_replies
+        LEFT JOIN users ON ticket_reply_type <> 'Client' AND ticket_reply_by = user_id
+        LEFT JOIN contacts ON ticket_reply_type = 'Client' AND ticket_reply_by = contact_id
+        WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL
+        ORDER BY ticket_reply_id DESC LIMIT 1"));
+    if ($row) {
+        $type = $row['ticket_reply_type'];
+        $peek = [
+            'label' => ['Client' => 'From the client', 'Public' => 'Our reply', 'Internal' => 'Internal note'][$type] ?? 'Internal note',
+            'who' => (string) ($type === 'Client' ? $row['contact_name'] : $row['user_name']),
+            'at' => $row['ticket_reply_created_at'],
+            'html' => $row['ticket_reply'],
+        ];
+    } else {
+        $peek = ['label' => 'No replies yet - the ticket says', 'who' => '', 'at' => $peek_ticket['ticket_created_at'], 'html' => $peek_ticket['ticket_details']];
+    }
+
+    echo json_encode([
+        'ok' => true,
+        'label' => $peek['label'],
+        'who' => $peek['who'],
+        'when' => timeAgo($peek['at']),
+        'at' => $peek['at'],
+        'text' => emailPlainText($peek['html'], 600),
+    ]);
+    exit;
+}
+
+/*
+ * For the browser tab's title and desktop notifications, from every agent page (js/ticket_pulse.js,
+ * once a minute per browser): how many open tickets are assigned to this agent - the Mine count.
+ * With desktop=1 also the tickets not yet closed that are assigned to them, for the page to work
+ * out which are new, and client replies on those since the reply id it last saw. With about= a
+ * few of those ids, what they are.
+ */
+if (isset($_GET['ticket_pulse'])) {
+    header('Content-Type: application/json');
+
+    if (lookupUserPermission('module_support') < 1) {
+        echo json_encode(['ok' => false]);
+        exit;
+    }
+
+    $pulse_scope = clientScopeSql('ticket_client_id');
+    $pulse_mine = ticketAssignedSql($session_user_id);
+
+    if (isset($_GET['about'])) {
+        $about = [];
+        $about_ids = array_slice(array_values(array_filter(array_map('intval', explode(',', (string) $_GET['about'])))), 0, 5);
+        if ($about_ids) {
+            $sql = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_client_id, client_name
+                FROM tickets LEFT JOIN clients ON ticket_client_id = client_id
+                WHERE tickets.ticket_id IN (" . implode(',', $about_ids) . ") AND tickets.ticket_closed_at IS NULL AND $pulse_mine $pulse_scope");
+            while ($row = mysqli_fetch_assoc($sql)) {
+                $about[] = [
+                    'id' => intval($row['ticket_id']),
+                    'ref' => ticketReference($row),
+                    'subject' => (string) $row['ticket_subject'],
+                    'client' => intval($row['ticket_client_id']) ? (string) $row['client_name'] : 'Internal',
+                    'url' => '/agent/' . ticketUrl($row['ticket_id'], $row['ticket_client_id']),
+                ];
+            }
+        }
+        echo json_encode(['ok' => true, 'about' => $about]);
+        exit;
+    }
+
+    $pulse = ['ok' => true];
+    $pulse['count'] = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(tickets.ticket_id) FROM tickets WHERE " . TICKET_OPEN_SQL . " AND $pulse_mine $pulse_scope"))[0]);
+
+    if (!empty($_GET['desktop'])) {
+        $pulse_ids = [];
+        $sql = mysqli_query($mysqli, "SELECT tickets.ticket_id FROM tickets WHERE tickets.ticket_closed_at IS NULL AND $pulse_mine $pulse_scope ORDER BY tickets.ticket_id DESC LIMIT 500");
+        while ($row = mysqli_fetch_row($sql)) {
+            $pulse_ids[] = intval($row[0]);
+        }
+        $pulse['ids'] = $pulse_ids;
+        $pulse['reply_max'] = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(MAX(ticket_reply_id), 0) FROM ticket_replies"))[0]);
+
+        $pulse['replies'] = [];
+        $since_reply = intval($_GET['since_reply'] ?? 0);
+        if ($since_reply > 0 && $pulse_ids) {
+            $sql = mysqli_query($mysqli, "SELECT ticket_reply_id, ticket_reply, tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_client_id, contact_name
+                FROM ticket_replies
+                JOIN tickets ON ticket_reply_ticket_id = tickets.ticket_id
+                LEFT JOIN contacts ON ticket_reply_by = contact_id
+                WHERE ticket_reply_id > $since_reply AND ticket_reply_type = 'Client' AND ticket_reply_archived_at IS NULL
+                    AND tickets.ticket_id IN (" . implode(',', $pulse_ids) . ")
+                ORDER BY ticket_reply_id DESC LIMIT 5");
+            while ($row = mysqli_fetch_assoc($sql)) {
+                $pulse['replies'][] = [
+                    'id' => intval($row['ticket_reply_id']),
+                    'ticket' => intval($row['ticket_id']),
+                    'ref' => ticketReference($row),
+                    'subject' => (string) $row['ticket_subject'],
+                    'who' => (string) ($row['contact_name'] ?? ''),
+                    'text' => emailPlainText($row['ticket_reply'], 140),
+                    'url' => '/agent/' . ticketUrl($row['ticket_id'], $row['ticket_client_id']),
+                ];
+            }
+        }
+    }
+
+    echo json_encode($pulse);
+    exit;
+}
+
+/*
  * Make a shared link (agent/modals/share/share_add.php, functions/share.php)
  * - a login, a document, a file, a secure note, the client's IT documentation
  * as a PDF, or a request for a login. The link comes back once, with a QR

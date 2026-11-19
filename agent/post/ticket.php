@@ -664,6 +664,21 @@ if (isset($_POST['bulk_delete_tickets'])) {
 
 }
 
+// Seen, without opening each one - only this agent's bold goes (functions/ticket_read.php)
+if (isset($_POST['bulk_mark_tickets_read'])) {
+
+    validateCSRFToken();
+
+    $ticket_ids = array_keys(ticketsForBulk(1));
+    ticketMarkRead($ticket_ids, $session_user_id);
+
+    $count = count($ticket_ids);
+    flashAlert("Marked <strong>$count</strong> ticket" . ($count === 1 ? '' : 's') . " as read");
+
+    redirect();
+
+}
+
 if (isset($_POST['bulk_assign_ticket'])) {
 
     validateCSRFToken();

@@ -262,6 +262,11 @@ $ticket_select_columns =
     user_name, user_avatar, asset_name, category_name, category_color, category_icon, project_prefix, project_number, project_name,
     " . ticketLastSpokeSql() . " AS ticket_last_spoke";
 
+// The client has written since this agent last opened it - bold on the list (functions/ticket_read.php)
+if ($view === 'list' && ticketReadsReady()) {
+    $ticket_select_columns .= ", " . ticketUnreadSql($session_user_id, ticketReadsSince($session_user_id)) . " AS ticket_unread";
+}
+
 $ticket_joins =
     "LEFT JOIN clients ON ticket_client_id = client_id
     LEFT JOIN contacts ON ticket_contact_id = contact_id
@@ -397,6 +402,11 @@ $export_extra = [
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_add_project.php" data-bulk="true">
                                         <i class="fas fa-fw fa-project-diagram me-2"></i>Add to a project
                                     </a>
+                                    <?php if ($view === 'list' && ticketReadsReady()) { ?>
+                                        <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_mark_tickets_read">
+                                            <i class="fas fa-fw fa-envelope-open me-2"></i>Mark as read
+                                        </button>
+                                    <?php } ?>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_reply.php" data-modal-size="lg" data-bulk="true">
                                         <i class="fas fa-fw fa-paper-plane me-2"></i>Reply or add a note
@@ -564,6 +574,10 @@ $export_extra = [
 <?php } ?>
 
 <script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
+<?php if ($view === 'list') { ?>
+    <script src="<?= staticFileUrl('/agent/js/tickets_live.js') ?>"></script>
+    <script src="<?= staticFileUrl('/agent/js/ticket_reply_peek.js') ?>"></script>
+<?php } ?>
 
 <?php
 require_once "../includes/footer.php";

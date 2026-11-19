@@ -2663,6 +2663,14 @@ body {
 .itflow-notify-foot:hover {
     background-color: rgba(var(--bs-emphasis-color-rgb), .05);
 }
+/* Desktop notifications on or off, under the link (js/ticket_pulse.js) */
+.itflow-notify-desktop {
+    width: 100%;
+    color: var(--bs-secondary-color);
+    background: none;
+    border: 0;
+    border-top: 1px solid var(--bs-border-color);
+}
 
 /* The full page lists the same rows inside a card */
 .itflow-notify-page .itflow-notify-item + .itflow-notify-item {
@@ -5358,6 +5366,39 @@ img.itflow-contact-avatar {
 }
 .itflow-ticket-move.is-ours {
     background-color: var(--bs-primary);
+}
+/* The client has written since you last opened it - bold, like unread mail (functions/ticket_read.php) */
+.itflow-ticket-row.is-unread .itflow-ticket-activity > span:first-child {
+    font-weight: 700;
+    color: var(--bs-emphasis-color);
+}
+/* The list keeping itself up to date (agent/js/tickets_live.js): a row just swapped in, and one that has left the view */
+@keyframes itflow-row-updated {
+    from { background-color: rgba(var(--bs-primary-rgb), .15); }
+    to { background-color: transparent; }
+}
+.itflow-ticket-row.itflow-row-updated > td {
+    animation: itflow-row-updated 2.5s ease-out;
+}
+.itflow-ticket-row.itflow-row-gone > td {
+    opacity: .45;
+}
+/* The last reply, when the Activity cell is hovered (agent/js/ticket_reply_peek.js) */
+.itflow-reply-peek {
+    --bs-popover-max-width: 26rem;
+    --bs-popover-font-size: .875rem;
+}
+.itflow-reply-peek-head {
+    margin-bottom: .35rem;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--bs-secondary-color);
+}
+.itflow-reply-peek-text {
+    max-height: 16rem;
+    overflow: hidden;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
 }
 /* Late, or close to it - an edge down the row or the card. The row keeps
    Bootstrap's own shadow under it, which is what paints hover and selection. */

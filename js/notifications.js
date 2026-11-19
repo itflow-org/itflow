@@ -299,7 +299,9 @@
                 '<button type="button" class="nav-link" role="tab" aria-selected="false" data-notify-view="all">All</button>' +
             '</div>' +
             '<div class="itflow-notify-list" role="list" aria-label="Notifications"></div>' +
-            '<a class="itflow-notify-foot" href="/agent/notifications.php">View all notifications</a>';
+            '<a class="itflow-notify-foot" href="/agent/notifications.php">View all notifications</a>' +
+            // Desktop notifications in this browser - js/ticket_pulse.js labels it and turns them on and off
+            '<button type="button" class="itflow-notify-foot itflow-notify-desktop" data-desktop-notify hidden></button>';
 
         list = panel.querySelector('.itflow-notify-list');
 

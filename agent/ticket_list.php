@@ -6,7 +6,14 @@
  * query parts this runs. Each row: the subject and what it is about, who it
  * is for, its status, priority and agent (changed in place), when it is due,
  * and who spoke last - with a dot before the subject when it is our move and
- * a red or amber edge when it is late or close to it.
+ * a red or amber edge when it is late or close to it. The subject is in bold
+ * when the client has written since this agent last opened the ticket
+ * (functions/ticket_read.php).
+ *
+ * agent/js/tickets_live.js fetches this page again every minute and swaps in
+ * the rows that changed (by data-ticket-sig), and says when tickets have come
+ * into or left the view; agent/js/ticket_reply_peek.js shows the last reply
+ * when the Activity cell is hovered.
  */
 
 isset($mysqli) || die("Direct file access is not allowed");
@@ -72,6 +79,13 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
 
 ?>
 
+<!-- Tickets that came into or left this view since it loaded (agent/js/tickets_live.js) -->
+<div class="alert alert-primary d-flex flex-wrap align-items-center gap-2 py-2 px-3 mb-0 rounded-0 border-start-0 border-end-0" data-tickets-live-bar hidden>
+    <i class="fas fa-fw fa-sync-alt"></i>
+    <span data-tickets-live-text></span>
+    <button type="button" class="btn btn-sm btn-primary ms-auto" data-tickets-live-show>Show</button>
+</div>
+
 <form id="bulkActions" action="post.php" method="post">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
@@ -127,9 +141,21 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                 $ticket_quote_id = intval($row['ticket_quote_id']);
 
                 $row_title = ['danger' => $sla['key'] === 'breached' ? 'SLA breached' : 'Past its due date', 'warning' => $sla['key'] === 'at_risk' ? 'SLA at risk' : 'Due within a day'][$attention] ?? '';
+                $unread = intval($row['ticket_unread'] ?? 0) === 1;
+
+                // What the row shows, boiled down - a change means agent/js/tickets_live.js swaps the row in
+                $last_reply = $last_replies[$ticket_id] ?? [];
+                $row_sig = substr(md5(json_encode([
+                    $row['ticket_subject'], $row['ticket_status'], $row['ticket_priority'], $row['ticket_assigned_to'], $row['ticket_contact_id'],
+                    $row['ticket_billable'], $row['ticket_invoice_id'], $row['ticket_quote_id'], $row['ticket_updated_at'], $row['ticket_resolved_at'],
+                    $row['ticket_closed_at'], $row['ticket_schedule'], $row['ticket_due_at'], $row['category_name'], $row['asset_name'],
+                    $row['ticket_response_sla_alert_stage'], $row['ticket_resolution_sla_alert_stage'], $unread,
+                    $last_reply['ticket_reply_type'] ?? '', $last_reply['ticket_reply_created_at'] ?? '',
+                    $task_counts[$ticket_id] ?? null, array_column($tickets_tags[$ticket_id] ?? [], 'tag_id'),
+                ])), 0, 12);
 
                 ?>
-                <tr class="itflow-ticket-row <?= $attention ? "is-$attention" : '' ?> <?= $is_open ? '' : 'is-done' ?>"<?= $row_title ? ' title="' . $row_title . '"' : '' ?>>
+                <tr class="itflow-ticket-row <?= $attention ? "is-$attention" : '' ?> <?= $is_open ? '' : 'is-done' ?> <?= $unread ? 'is-unread' : '' ?>"<?= $row_title ? ' title="' . $row_title . '"' : '' ?> data-ticket-id="<?= $ticket_id ?>" data-ticket-sig="<?= $row_sig ?>">
                     <?php if ($can_edit) { ?>
                         <td class="checkbox-column bg-light border-end">
                             <?php if (!$is_closed) { ?>
@@ -145,7 +171,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                         <div class="d-flex align-items-start gap-2">
                             <span class="itflow-ticket-move <?= $move === 'us' ? 'is-ours' : '' ?>" <?= $move === 'us' ? 'title="Needs a reply from us"' : 'aria-hidden="true"' ?>></span>
                             <div class="min-w-0">
-                                <a class="<?= $is_open ? 'fw-semibold text-body' : 'text-body-secondary' ?> itflow-ticket-subject" href="<?= $url ?>"><?= $subject ?></a>
+                                <a class="<?= $unread ? 'fw-bold text-body' : ($is_open ? 'text-body' : 'text-body-secondary') ?> itflow-ticket-subject" href="<?= $url ?>"<?= $unread ? ' title="The client has written since you last opened it"' : '' ?>><?php if ($unread) { ?><span class="visually-hidden">New from the client: </span><?php } ?><?= $subject ?></a>
                                 <div class="itflow-ticket-meta small text-body-secondary">
                                     <a class="font-monospace text-body-secondary" href="<?= $url ?>"><?= $reference ?></a>
                                     <span title="Opened <?= escapeHtml($row['ticket_created_at']) ?>"><?= timeAgo($row['ticket_created_at']) ?></span>
@@ -239,7 +265,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                     <?php } ?>
 
                     <!-- Who spoke last -->
-                    <td class="small itflow-ticket-activity">
+                    <td class="small itflow-ticket-activity" data-reply-peek="<?= $ticket_id ?>">
                         <?= ticketActivityHtml($last_replies[$ticket_id] ?? null, $row) ?>
                     </td>
 

@@ -2,7 +2,7 @@
 
 /*
  * ITFlow - reply drafts. The reply an agent is writing on a ticket is kept as they type
- * (agent/js/ticket_reply_draft.js posting to agent/ajax.php), one per agent per ticket, so leaving
+ * (agent/js/ticket_reply_extras.js posting to agent/ajax.php), one per agent per ticket, so leaving
  * the page, closing the browser or being signed out doesn't lose it. The ticket page puts it back
  * in the reply box. It goes when the reply is sent (add_ticket_reply), when the agent discards it,
  * and nightly once it is a month old or its ticket is closed (cron/nightly_tasks.php).

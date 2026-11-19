@@ -120,6 +120,7 @@ require_once __DIR__ . '/functions/client_onboarding.php';
 require_once __DIR__ . '/functions/ticket_mention.php';
 require_once __DIR__ . '/functions/ticket_reply_recipients.php';
 require_once __DIR__ . '/functions/ticket_reply_draft.php';
+require_once __DIR__ . '/functions/ticket_read.php';
 require_once __DIR__ . '/functions/quick_ticket.php';
 require_once __DIR__ . '/functions/getting_started.php';
 require_once __DIR__ . '/functions/settings.php';

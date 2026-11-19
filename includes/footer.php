@@ -98,6 +98,17 @@ try {
 <script src="<?= staticFileUrl('/js/sticky_table_head.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/global_search.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/notifications.js') ?>"></script>
+<?php
+// Open tickets in the tab's title, and desktop notifications - for agents who can see tickets (agent/ajax.php ?ticket_pulse)
+try {
+    $itflow_pulse = !empty($session_user_id) && !empty($config_module_enable_ticketing) && basename(dirname($_SERVER['REQUEST_URI'])) !== 'guest'
+        && lookupUserPermission('module_support') >= 1;
+} catch (Throwable $e) {
+    $itflow_pulse = false;
+}
+if ($itflow_pulse) { ?>
+<script src="<?= staticFileUrl('/js/ticket_pulse.js') ?>" data-user="<?= intval($session_user_id) ?>"></script>
+<?php } ?>
 <script src="<?= staticFileUrl('/js/ticket_timers.js') ?>"></script>
 <?php if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
 <script src="<?= staticFileUrl('/js/settings.js') ?>"></script>

@@ -168,6 +168,9 @@ if (ticketReplyDraftsReady()) {
         WHERE draft_updated_at < NOW() - INTERVAL 30 DAY OR tickets.ticket_id IS NULL OR tickets.ticket_closed_at IS NOT NULL");
 }
 
+// What each agent has seen - closed tickets drop out (functions/ticket_read.php)
+ticketReadsCleanup();
+
 // Clean-up mail queue - a failed or cancelled email with a link or code that opens something is cleared after a day, everything is deleted after 90
 mailQueueClearSensitive();
 mailQueueImageCleanup();

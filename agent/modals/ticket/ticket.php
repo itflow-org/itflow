@@ -41,6 +41,9 @@ if ($client_id) {
     enforceClientAccess();
 }
 
+// The quick look shows the latest replies - seen, as on the ticket page (functions/ticket_read.php)
+ticketMarkRead($ticket_id, $session_user_id);
+
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null);
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
