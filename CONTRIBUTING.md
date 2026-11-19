@@ -30,7 +30,7 @@ There is no `composer install` or `npm install` step. All third-party libraries 
 | `post/` (root) | **Shared** POST handlers (logout, misc). |
 | `modals/` (root) | **Shared** modals used by both agent and admin. |
 | `js/`, `css/` (root) | Shared front-end assets (portals also have their own). |
-| `libs/` | Vendored third-party libraries. Never edit these; update them wholesale. |
+| `libs/` | Vendored third-party libraries. Never edit these; update one by replacing its files with the new release's - only the files already there, as two are trimmed to what ITFlow uses: TinyMCE to the plugins and skins `js/app.js` and `js/portal.js` load, Font Awesome to its `.woff2` and `.woff` fonts. |
 | `setup/` | First-run installer. |
 | `scripts/` | Helper/utility scripts — `setup_cli.php`, `update_cli.php`, `restore_cli.php`. CLI only; the directory denies web access. |
  
