@@ -867,6 +867,44 @@ if (isset($_GET['ticket_query_views'])) {
 }
 
 /*
+ * Rename a file or a document from its name on the files list (agent/js/files.js) - the name only;
+ * the Rename window still changes the description. Answers {ok, name} or {error}.
+ */
+if (isset($_POST['files_rename'])) {
+    validateCSRFToken();
+    header('Content-Type: application/json');
+
+    if (lookupUserPermission('module_support') < 2) {
+        echo json_encode(['error' => "You can't rename files."]);
+        exit;
+    }
+    $kind = $_POST['kind'] ?? '';
+    $id = intval($_POST['id'] ?? 0);
+    $new_name = trim((string) ($_POST['name'] ?? ''));
+    $table = ['file' => 'files', 'document' => 'documents'][$kind] ?? '';
+    if ($table === '' || $new_name === '') {
+        echo json_encode(['error' => $new_name === '' ? 'It needs a name.' : 'Nothing to rename.']);
+        exit;
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT {$kind}_name AS name, {$kind}_client_id AS client_id, {$kind}_archived_at AS archived_at FROM $table WHERE {$kind}_id = $id"));
+    if (!$row || !hasClientAccess($row['client_id']) || $row['archived_at'] !== null) {
+        echo json_encode(['error' => 'That is no longer here to rename.']);
+        exit;
+    }
+    $new_name = mb_substr($new_name, 0, 200);
+    $name_sql = escapeSql($new_name);
+    if ($kind === 'file') {
+        mysqli_query($mysqli, "UPDATE files SET file_name = '$name_sql' WHERE file_id = $id");
+        logAudit("File", "Rename", "$session_name renamed file " . escapeSql($row['name']) . " to $name_sql", intval($row['client_id']), $id);
+    } else {
+        mysqli_query($mysqli, "UPDATE documents SET document_name = '$name_sql', document_updated_at = document_updated_at WHERE document_id = $id");
+        logAudit("Document", "Edit", "$session_name renamed document " . escapeSql($row['name']) . " to $name_sql", intval($row['client_id']), $id);
+    }
+    echo json_encode(['ok' => true, 'name' => $new_name]);
+    exit;
+}
+
+/*
  * The last reply on a ticket, as text - shown when the Activity cell on the tickets list is
  * hovered (agent/js/ticket_reply_peek.js). With no replies yet, what the ticket says.
  */

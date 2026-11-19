@@ -4702,6 +4702,18 @@ img.itflow-contact-avatar {
     position: relative;
     z-index: 2;
 }
+/* Rename from the list (agent/js/files.js): the pencil shows on the row's hover, the box takes the name's place */
+.itflow-files-rename {
+    opacity: 0;
+    line-height: 1;
+}
+tr:hover .itflow-files-rename,
+.itflow-files-rename:focus-visible {
+    opacity: 1;
+}
+.itflow-files-rename-box {
+    max-width: 24rem;
+}
 
 /* The grid */
 .itflow-file-card {
@@ -5007,6 +5019,75 @@ img.itflow-contact-avatar {
     border: 1px solid var(--bs-border-color);
     border-radius: var(--bs-border-radius-lg);
     overflow-wrap: anywhere;
+}
+/* A long document's contents, beside it (js/document_contents.js) */
+.itflow-document-contents li {
+    padding: .15rem 0;
+    font-size: .875rem;
+    line-height: 1.3;
+}
+.itflow-document-contents a {
+    color: var(--bs-body-color);
+    text-decoration: none;
+}
+.itflow-document-contents a:hover {
+    color: var(--bs-link-hover-color);
+}
+.itflow-document-contents-level-0 a {
+    font-weight: 600;
+}
+.itflow-document-contents-level-1 { padding-left: .9rem !important; }
+.itflow-document-contents-level-2 { padding-left: 1.8rem !important; }
+.itflow-document-contents-level-3 { padding-left: 2.7rem !important; }
+/* What an edit changed (agent/modals/document/document_changes.php, functions/text_diff.php) */
+.itflow-diff {
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    font-size: .9rem;
+    overflow-wrap: anywhere;
+}
+.itflow-diff-line {
+    display: flex;
+    gap: .5rem;
+    padding: .2rem .6rem;
+    white-space: pre-wrap;
+}
+.itflow-diff-line + .itflow-diff-line,
+.itflow-diff-fold + .itflow-diff-line,
+.itflow-diff-line + .itflow-diff-fold {
+    border-top: 1px solid var(--bs-border-color-translucent);
+}
+.itflow-diff-mark {
+    flex: 0 0 .8rem;
+    color: var(--bs-secondary-color);
+    font-family: var(--bs-font-monospace);
+}
+.itflow-diff-line.is-del {
+    background-color: rgba(var(--bs-danger-rgb), .08);
+}
+.itflow-diff-line.is-add {
+    background-color: rgba(var(--bs-success-rgb), .08);
+}
+.itflow-diff del,
+.itflow-diff-key.is-del {
+    background-color: rgba(var(--bs-danger-rgb), .22);
+    text-decoration: line-through;
+}
+.itflow-diff ins,
+.itflow-diff-key.is-add {
+    background-color: rgba(var(--bs-success-rgb), .25);
+    text-decoration: none;
+}
+.itflow-diff-key {
+    padding: 0 .3rem;
+    border-radius: .2rem;
+}
+.itflow-diff-fold {
+    padding: .2rem .6rem;
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+    background-color: var(--bs-tertiary-bg);
+    text-align: center;
 }
 .itflow-document-history .list-group-item {
     padding-top: .5rem;

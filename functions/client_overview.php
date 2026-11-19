@@ -260,7 +260,7 @@ function clientOverviewContacts($client_id, $limit = 6) {
 function clientOverviewFavorites($client_id, $access) {
     global $mysqli;
 
-    $favorites = ['assets' => [], 'licenses' => [], 'credentials' => []];
+    $favorites = ['assets' => [], 'licenses' => [], 'credentials' => [], 'documents' => []];
 
     if ($access['docs']) {
         $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, interface_ip
@@ -278,6 +278,15 @@ function clientOverviewFavorites($client_id, $access) {
             ORDER BY software_name");
         while ($row = mysqli_fetch_assoc($sql)) {
             $favorites['licenses'][] = $row;
+        }
+
+        // The documents a client's calls keep needing - the network overview, the runbook
+        $sql = mysqli_query($mysqli, "SELECT document_id, document_name, document_description
+            FROM documents
+            WHERE document_client_id = $client_id AND document_favorite = 1 AND document_archived_at IS NULL
+            ORDER BY document_name");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $favorites['documents'][] = $row;
         }
     }
 

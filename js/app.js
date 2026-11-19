@@ -581,9 +581,9 @@ function itflowInit() {
     });
 
     // Initialize TinyMCE with AI
-    itflowTinyMce.init({
+    // Documents, articles and the like - in a window, and on a page of their own below
+    const itflowDocumentEditor = {
         ...itflowTinyMceSkin(),
-        selector: '.tinymce',
         browser_spellcheck: true,
         contextmenu: false,
         resize: true,
@@ -629,6 +629,29 @@ function itflowInit() {
             });
 
             itflowAiReword(editor, false);
+        }
+    };
+    itflowTinyMce.init({ ...itflowDocumentEditor, selector: '.tinymce' });
+
+    // A document edited on its own page (agent/document_edit.php): the editor fills the window
+    // below the fields and scrolls inside itself, so the toolbar never scrolls away
+    itflowTinyMce.init({
+        ...itflowDocumentEditor,
+        selector: '.tinymce-page',
+        plugins: 'link image lists table code codesample fullscreen',
+        min_height: 420,
+        max_height: undefined,
+        resize: false,
+        setup: function (editor) {
+            itflowDocumentEditor.setup(editor);
+            function fit() {
+                const box = editor.getContainer();
+                if (box && !editor.plugins.fullscreen?.isFullscreen()) {
+                    box.style.height = Math.max(420, window.innerHeight - box.getBoundingClientRect().top - 24) + 'px';
+                }
+            }
+            editor.on('init', fit);
+            window.addEventListener('resize', fit);
         }
     });
 

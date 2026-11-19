@@ -255,7 +255,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
             </div>
         </div>
 
-        <?php if ($favorites['assets'] || $favorites['licenses'] || $favorites['credentials']) { ?>
+        <?php if ($favorites['assets'] || $favorites['licenses'] || $favorites['credentials'] || $favorites['documents']) { ?>
             <div class="col-md-6 col-xl-4">
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
@@ -263,6 +263,17 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <i class="fas fa-star text-warning" aria-hidden="true"></i>
                     </div>
                     <div class="list-group list-group-flush">
+                        <?php foreach ($favorites['documents'] as $favorite_document) { ?>
+                            <div class="list-group-item d-flex align-items-center gap-2 py-2">
+                                <i class="fas fa-fw fa-file-alt text-body-secondary" title="Document"></i>
+                                <span class="flex-grow-1 overflow-hidden">
+                                    <a class="d-block text-truncate" href="document.php?client_id=<?= $client_id ?>&document_id=<?= intval($favorite_document['document_id']) ?>"><?= escapeHtml($favorite_document['document_name']) ?></a>
+                                    <?php if ($favorite_document['document_description'] !== '' && $favorite_document['document_description'] !== null) { ?>
+                                        <span class="d-block small text-body-secondary text-truncate"><?= escapeHtml($favorite_document['document_description']) ?></span>
+                                    <?php } ?>
+                                </span>
+                            </div>
+                        <?php } ?>
                         <?php foreach ($favorites['assets'] as $asset) {
                             $asset_ip = escapeHtml($asset['interface_ip']); ?>
                             <div class="list-group-item d-flex align-items-center gap-2 py-2">

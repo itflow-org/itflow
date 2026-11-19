@@ -48,6 +48,11 @@ if (isset($_POST['upload_files'])) {
     $skipped = [];
     $names = $_FILES['file']['name'] ?? [];
 
+    // A folder from the computer - each file's path under it, its folders made as needed (functions/files.php)
+    $upload_paths = (array) ($_POST['file_paths'] ?? []);
+    $upload_folders = [];
+    $folders_made = 0;
+
     foreach ((array) $names as $index => $original_name) {
 
         $single_file = [
@@ -77,6 +82,8 @@ if (isset($_POST['upload_files'])) {
         $file_mime_type = escapeSql($detected_mime !== '' && $detected_mime !== 'application/octet-stream' ? $detected_mime : $single_file['type']);
         $file_size = intval($single_file['size']);
 
+        $file_folder_id = isset($upload_paths[$index]) ? folderForUploadPath($client_id, $folder_id, $upload_paths[$index], $upload_folders, $folders_made) : $folder_id;
+
         mysqli_query($mysqli, "INSERT INTO files SET
             file_reference_name = '$file_reference_name',
             file_name = '$file_name',
@@ -85,7 +92,7 @@ if (isset($_POST['upload_files'])) {
             file_mime_type = '$file_mime_type',
             file_size = $file_size,
             file_created_by = $session_user_id,
-            file_folder_id = $folder_id,
+            file_folder_id = $file_folder_id,
             file_client_id = $client_id");
         $file_id = mysqli_insert_id($mysqli);
 
@@ -110,6 +117,13 @@ if (isset($_POST['upload_files'])) {
         $uploaded[] = basename($original_name);
     }
 
+    // A folder goes up in parts from the upload window, which adds up what each part says
+    if (!empty($_POST['upload_json'])) {
+        header('Content-Type: application/json');
+        echo json_encode(['uploaded' => count($uploaded), 'skipped' => array_values(array_map('strval', $skipped)), 'folders' => $folders_made]);
+        exit;
+    }
+
     if ($uploaded && !$skipped) {
         flashAlert(count($uploaded) === 1 ? "Uploaded <strong>{$uploaded[0]}</strong>" : "Uploaded <strong>" . count($uploaded) . "</strong> files");
     } elseif ($uploaded) {
@@ -119,6 +133,77 @@ if (isset($_POST['upload_files'])) {
     }
 
     redirect();
+
+}
+
+/*
+ * A folder uploaded in parts from the upload window (upload_json above) - when the last part is
+ * in, it says how it went, here, so the message is on the page it reloads.
+ */
+if (isset($_POST['upload_folder_done'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $uploaded = intval($_POST['uploaded'] ?? 0);
+    $folders = intval($_POST['folders'] ?? 0);
+    $skipped = array_slice(array_map(function ($name) { return escapeHtml(mb_substr((string) $name, 0, 200)); }, (array) ($_POST['skipped'] ?? [])), 0, 50);
+    $made = $folders ? " and made <strong>$folders</strong> folder" . ($folders === 1 ? '' : 's') : '';
+
+    if ($uploaded && !$skipped) {
+        flashAlert("Uploaded <strong>$uploaded</strong> file" . ($uploaded === 1 ? '' : 's') . $made);
+    } elseif ($uploaded) {
+        flashAlert("Uploaded <strong>$uploaded</strong>$made, skipped <strong>" . count($skipped) . "</strong> (not an allowed type, empty or too big): " . implode(', ', $skipped), 'warning');
+    } else {
+        flashAlert('Nothing uploaded - not an allowed type, empty or too big' . ($skipped ? ': ' . implode(', ', $skipped) : ''), 'error');
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode(['ok' => true]);
+    exit;
+
+}
+
+/*
+ * A folder and everything under it as one zip (the folder's menu on the files list), or the files
+ * and documents ticked (Bulk Action) - functions/files.php filesZipSend(). Documents go in as
+ * .html pages; archived ones are left out.
+ */
+if (isset($_GET['download_folder_zip']) || isset($_POST['bulk_download_files'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 1);
+
+    $client_id = intval($_GET['client_id'] ?? $_POST['client_id'] ?? 0);
+    enforceClientAccess();
+
+    if (isset($_GET['download_folder_zip'])) {
+        $folder_id = folderOwnedId($_GET['download_folder_zip'], $client_id);
+        $zip_items = filesZipFolderItems($client_id, $folder_id);
+        $zip_name = $folder_id ? folderDisplayName($folder_id) : getFieldById('clients', $client_id, 'client_name') . ' files';
+        $what = $folder_id ? 'folder ' . escapeSql(folderDisplayName($folder_id)) : 'all files';
+    } else {
+        $zip_items = [];
+        foreach (['file', 'document'] as $kind) {
+            foreach ((array) ($_POST[$kind . '_ids'] ?? []) as $id) {
+                $zip_items[] = ['kind' => $kind, 'id' => intval($id), 'path' => ''];
+            }
+        }
+        $zip_name = getFieldById('clients', $client_id, 'client_name') . ' files';
+        $what = count($zip_items) . ' ticked';
+    }
+
+    $sent = filesZipSend($client_id, $zip_items, $zip_name);
+    if ($sent === false) {
+        flashAlert(class_exists('ZipArchive') ? ($zip_items ? 'Too big for one zip - over 2 GB. Download it a folder at a time.' : 'Nothing to download - there are no files or documents here.')
+            : 'Zips can\'t be made on this server - PHP\'s zip extension isn\'t installed.', 'error');
+        redirect();
+    }
+
+    logAudit("File", "Download", "$session_name downloaded $what as a zip - $sent files and documents", $client_id);
+    exit;
 
 }
 

@@ -203,6 +203,14 @@ $page_title = $row['kb_article_title'];
 
     <div class="col-lg-4 d-print-none">
 
+        <!-- Its headings, to jump to - filled by js/document_contents.js when it has a few -->
+        <div class="card mb-3 itflow-document-contents" data-document-contents hidden>
+            <div class="card-header">
+                <h3 class="card-title mb-0"><i class="fas fa-fw fa-list-ul me-2 text-body-secondary"></i>Contents</h3>
+            </div>
+            <nav class="card-body py-2" aria-label="Contents"></nav>
+        </div>
+
         <!-- Where it sits, and how it is kept up -->
         <div class="card mb-3">
             <div class="card-body">
@@ -395,6 +403,7 @@ $page_title = $row['kb_article_title'];
 </div>
 
 <script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/document_contents.js') ?>"></script>
 
 <?php
 

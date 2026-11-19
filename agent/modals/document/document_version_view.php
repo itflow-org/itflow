@@ -50,6 +50,7 @@ ob_start();
 </div>
 
 <div class="modal-footer">
+    <a class="btn btn-outline-secondary ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document/document_changes.php?document_id=<?= intval($row['document_version_document_id']) ?>&version_id=<?= $document_version_id ?>"><i class="fas fa-exchange-alt me-2"></i>What changed</a>
     <?php if ($can_delete) { ?>
         <a class="btn btn-outline-danger confirm-link me-auto" href="post.php?delete_document_version=<?= $document_version_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="This version is removed from the history for good.">
             <i class="fas fa-trash me-2"></i>Delete version

@@ -354,6 +354,68 @@ if (isset($_POST['rename_document'])) {
 
 }
 
+/*
+ * Copy a document (agent/modals/document/document_copy.php) - in the same client's files, or into
+ * another client's that the agent can reach (functions/files.php documentCopy()).
+ */
+if (isset($_POST['copy_document'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $row = documentForHandler($_POST['document_id']);
+    $document_id = intval($row['document_id']);
+    $from_client_id = $client_id;
+
+    $client_id = intval($_POST['client_id'] ?? $from_client_id);
+    enforceClientAccess();
+    if (!mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM clients WHERE client_id = $client_id AND client_archived_at IS NULL"))) {
+        flashAlert('Pick a client to copy it to.', 'error');
+        redirect();
+    }
+    // A folder of that client's, or their top level
+    $folder_id = folderOwnedId($_POST['folder_id'] ?? 0, $client_id);
+
+    $copy_name = trim((string) ($_POST['name'] ?? ''));
+    if ($copy_name === '') {
+        flashAlert('A document needs a name.', 'error');
+        redirect();
+    }
+
+    $new_id = documentCopy($document_id, $client_id, $folder_id, mb_substr($copy_name, 0, 200));
+
+    $copy_name_sql = escapeSql($copy_name);
+    $to = $client_id === $from_client_id ? '' : ' for ' . escapeSql((string) getFieldById('clients', $client_id, 'client_name'));
+    logAudit("Document", "Create", "$session_name copied document " . escapeSql($row['document_name']) . " as $copy_name_sql$to", $client_id, $new_id);
+
+    flashAlert("Copied to <strong>" . escapeHtml($copy_name) . "</strong>" . ($to ? ' for <strong>' . escapeHtml((string) getFieldById('clients', $client_id, 'client_name')) . '</strong>' : '') . " - it isn't in the client portal or linked to anything yet");
+
+    redirect("document.php?client_id=$client_id&document_id=$new_id");
+
+}
+
+/* A favorite or not - favorites show on the client's overview, with their favorite assets, licenses and logins. */
+if (isset($_GET['toggle_document_favorite'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $row = documentForHandler($_GET['toggle_document_favorite']);
+    $document_id = intval($row['document_id']);
+    $favorite = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT document_favorite FROM documents WHERE document_id = $document_id"))[0]) ? 0 : 1;
+
+    mysqli_query($mysqli, "UPDATE documents SET document_favorite = $favorite, document_updated_at = document_updated_at WHERE document_id = $document_id");
+
+    logAudit("Document", "Edit", "$session_name " . ($favorite ? 'made' : 'took') . " document " . escapeSql($row['document_name']) . ($favorite ? ' a favorite' : ' out of the favorites'), $client_id, $document_id);
+
+    flashAlert("<strong>" . escapeHtml($row['document_name']) . "</strong> " . ($favorite ? "is a favorite - it's on the client's overview" : 'is no longer a favorite'));
+
+    redirect();
+
+}
+
 if (isset($_POST['toggle_document_visibility'])) {
 
     validateCSRFToken();

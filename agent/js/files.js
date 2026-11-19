@@ -1,7 +1,7 @@
 /*
  * agent/files.php - the folder tree, the grid's previewer, dragging files,
- * documents and folders onto a folder to move them, and dropping files from
- * the computer to upload them.
+ * documents and folders onto a folder to move them, dropping files and folders
+ * from the computer to upload them, and renaming from the name on the list.
  */
 (function () {
     'use strict';
@@ -9,8 +9,16 @@
     // What is being dragged within the page - files and documents, or a folder - while it is
     var dragging = null;
 
-    /** Open the upload window at url, and hand it the dropped files once it is on screen. */
-    function uploadInto(url, files) {
+    /** The folders dropped, as entries to walk - read during the drop, while they can be - or null when it was only files. */
+    function droppedFolders(e) {
+        var entries = Array.prototype.map.call((e.dataTransfer && e.dataTransfer.items) || [], function (item) {
+            return item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+        }).filter(Boolean);
+        return entries.some(function (entry) { return entry.isDirectory; }) ? entries : null;
+    }
+
+    /** Open the upload window at url, and hand it the dropped files - or folders, which it walks - once it is on screen. */
+    function uploadInto(url, files, folders) {
         var trigger = document.createElement('a');
         trigger.className = 'ajax-modal d-none';
         trigger.href = '#';
@@ -21,7 +29,11 @@
         var tries = 0;
         (function handOver() {
             var input = document.querySelector('.modal.show [data-upload-input]');
-            if (input) {
+            if (input && folders && input.itflowWalk) {
+                Promise.all(folders.map(function (entry) { return input.itflowWalk(entry, ''); })).then(function (lists) {
+                    input.itflowTakeFolder([].concat.apply([], lists));
+                });
+            } else if (input && !folders) {
                 var transfer = new DataTransfer();
                 Array.prototype.forEach.call(files, function (file) {
                     transfer.items.add(file);
@@ -402,8 +414,9 @@
             if (!dragging) {
                 light(null);
                 spring(null);
-                if (e.dataTransfer.files.length) {
-                    uploadInto(mover.dataset.filesUpload + to, e.dataTransfer.files);
+                var folders = droppedFolders(e);
+                if (folders || e.dataTransfer.files.length) {
+                    uploadInto(mover.dataset.filesUpload + to, e.dataTransfer.files, folders);
                 }
                 return;
             }
@@ -466,8 +479,109 @@
         e.preventDefault();
         depth = 0;
         overlay.hidden = true;
-        if (e.dataTransfer.files.length) {
-            uploadInto(main.dataset.filesDrop, e.dataTransfer.files);
+        var folders = droppedFolders(e);
+        if (folders || e.dataTransfer.files.length) {
+            uploadInto(main.dataset.filesDrop, e.dataTransfer.files, folders);
         }
+    });
+})();
+
+// ---- Rename a file or document from its name on the list (agent/ajax.php files_rename) ----
+(function () {
+    'use strict';
+
+    document.addEventListener('click', function (e) {
+        var button = e.target.closest('[data-files-rename]');
+        if (!button) {
+            return;
+        }
+        e.preventDefault();
+        var cell = button.closest('td');
+        var link = cell && cell.querySelector('[data-files-name]');
+        if (!link || cell.querySelector('.itflow-files-rename-box')) {
+            return;
+        }
+        var row = cell.closest('tr');
+        var wasDraggable = row && row.draggable;
+        var box = document.createElement('input');
+        box.type = 'text';
+        box.maxLength = 200;
+        box.className = 'form-control form-control-sm itflow-above-stretch itflow-files-rename-box';
+        box.value = link.textContent;
+        box.setAttribute('aria-label', 'New name');
+        link.hidden = true;
+        button.hidden = true;
+        if (row) {
+            row.draggable = false; // so dragging in the box selects text
+        }
+        link.after(box);
+        box.focus();
+        // A file's name without its extension, ready to type over
+        var dot = button.dataset.filesRename === 'file' ? box.value.lastIndexOf('.') : -1;
+        box.setSelectionRange(0, dot > 0 ? dot : box.value.length);
+
+        var finished = false;
+        function put(back) {
+            box.remove();
+            link.hidden = false;
+            button.hidden = false;
+            if (row) {
+                row.draggable = wasDraggable;
+            }
+            if (back) {
+                button.focus();
+            }
+        }
+        function finish(save) {
+            if (finished) {
+                return;
+            }
+            finished = true;
+            var name = box.value.trim();
+            if (!save || name === '' || name === link.textContent) {
+                put(!save);
+                return;
+            }
+            box.disabled = true;
+            var body = new FormData();
+            body.append('files_rename', '1');
+            body.append('kind', button.dataset.filesRename);
+            body.append('id', button.dataset.id);
+            body.append('name', name);
+            body.append('csrf_token', button.dataset.csrf);
+            fetch('/agent/ajax.php', { method: 'POST', body: body, credentials: 'same-origin' })
+                .then(function (r) { return r.json(); })
+                .then(function (answer) {
+                    if (answer.ok) {
+                        link.textContent = answer.name;
+                        if (row && row.dataset.name !== undefined) {
+                            row.dataset.name = answer.name;
+                        }
+                    } else if (typeof itflowToast === 'function') {
+                        itflowToast(answer.error || 'Couldn’t rename it', 'danger');
+                    }
+                })
+                .catch(function () {
+                    if (typeof itflowToast === 'function') {
+                        itflowToast('Couldn’t rename it', 'danger');
+                    }
+                })
+                .finally(function () {
+                    put(false);
+                });
+        }
+        box.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Enter') {
+                ev.preventDefault();
+                finish(true);
+            } else if (ev.key === 'Escape') {
+                ev.preventDefault();
+                ev.stopPropagation();
+                finish(false);
+            }
+        });
+        box.addEventListener('blur', function () {
+            finish(true);
+        });
     });
 })();

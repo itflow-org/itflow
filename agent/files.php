@@ -135,7 +135,7 @@ while ($row = mysqli_fetch_assoc($sql_files)) {
     ];
 }
 
-$sql_documents = mysqli_query($mysqli, "SELECT document_id, document_name, document_description, document_client_visible,
+$sql_documents = mysqli_query($mysqli, "SELECT document_id, document_name, document_description, document_client_visible, document_favorite,
         document_created_at, document_updated_at, document_archived_at, document_folder_id,
         " . ($view === 1 ? 'document_content,' : '') . " COALESCE(updater.user_name, creator.user_name) AS user_name
     FROM documents
@@ -255,8 +255,11 @@ function filesItemMenu($item) {
         }
         if ($can_edit && !$archived) {
             $html .= '<div class="dropdown-divider"></div>';
-            $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-size=\"xl\" data-modal-url=\"modals/document/document_edit.php?id=$id\"><i class=\"fas fa-fw fa-edit me-2\"></i>Edit</a>";
+            $html .= "<a class=\"dropdown-item\" href=\"document_edit.php?client_id=$client_id&amp;document_id=$id\"><i class=\"fas fa-fw fa-edit me-2\"></i>Edit</a>";
             $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/document/document_rename.php?id=$id\"><i class=\"fas fa-fw fa-pen me-2\"></i>Rename</a>";
+            $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/document/document_copy.php?id=$id\"><i class=\"fas fa-fw fa-copy me-2\"></i>Copy</a>";
+            $favorite = !empty($item['row']['document_favorite']);
+            $html .= "<a class=\"dropdown-item\" href=\"post.php?toggle_document_favorite=$id&amp;csrf_token=$csrf\" title=\"Favorites show on the client's overview\"><i class=\"" . ($favorite ? 'far' : 'fas') . " fa-fw fa-star me-2\"></i>" . ($favorite ? 'Unfavorite' : 'Favorite') . "</a>";
             $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/document/document_move.php?id=$id\"><i class=\"fas fa-fw fa-folder-open me-2\"></i>Move</a>";
             $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/link/link.php?from=document&amp;id=$id\"><i class=\"fas fa-fw fa-link me-2\"></i>Link</a>";
         }
@@ -440,6 +443,9 @@ $preview = []; // the grid's previewer payload
                                     <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="document" data-tag-bulk="document_ids[]" data-csrf="<?= $_SESSION['csrf_token'] ?>" title="The documents ticked - uploads don't take tags">
                                         <i class="fas fa-fw fa-tags me-2"></i>Tags
                                     </a>
+                                    <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_download_files" title="Documents go in as web pages">
+                                        <i class="fas fa-fw fa-file-archive me-2"></i>Download as zip
+                                    </button>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_files">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
@@ -514,15 +520,20 @@ $preview = []; // the grid's previewer payload
                         <?php } ?>
                     </ol>
                 </nav>
-                <?php if ($folder_id && $can_edit) { ?>
+                <?php if (!$archived && $search === '') { ?>
                     <div class="dropdown">
                         <button type="button" class="btn btn-sm btn-light" data-bs-toggle="dropdown" title="This folder"><i class="fas fa-ellipsis-h"></i></button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/folder/folder_add.php?client_id=<?= $client_id ?>&current_folder_id=<?= $folder_id ?>"><i class="fas fa-fw fa-folder-plus me-2"></i>New folder inside</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/folder/folder_rename.php?id=<?= $folder_id ?>"><i class="fas fa-fw fa-pen me-2"></i>Rename or move</a>
-                            <?php if ($can_delete) { ?>
+                            <!-- Everything in it and the folders under it, documents as web pages (agent/post/file.php) -->
+                            <a class="dropdown-item" href="post.php?download_folder_zip=<?= $folder_id ?>&client_id=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-file-archive me-2"></i><?= $folder_id ? 'Download as zip' : 'Download everything as zip' ?></a>
+                            <?php if ($folder_id && $can_edit) { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/folder/folder_delete.php?id=<?= $folder_id ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete folder</a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/folder/folder_add.php?client_id=<?= $client_id ?>&current_folder_id=<?= $folder_id ?>"><i class="fas fa-fw fa-folder-plus me-2"></i>New folder inside</a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/folder/folder_rename.php?id=<?= $folder_id ?>"><i class="fas fa-fw fa-pen me-2"></i>Rename or move</a>
+                                <?php if ($can_delete) { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/folder/folder_delete.php?id=<?= $folder_id ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete folder</a>
+                                <?php } ?>
                             <?php } ?>
                         </div>
                     </div>
@@ -559,6 +570,7 @@ $preview = []; // the grid's previewer payload
 
                 <form id="bulkActions" action="post.php" method="post">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
 
                     <?php if ($view === 1) { ?>
 
@@ -626,7 +638,7 @@ $preview = []; // the grid's previewer payload
                                         <div class="card-body p-2 d-flex align-items-start gap-2">
                                             <div class="min-w-0 flex-grow-1">
                                                 <?php if ($item['kind'] === 'document') { ?>
-                                                    <a class="fw-semibold small d-block text-truncate text-body" href="document.php?client_id=<?= $client_id ?>&document_id=<?= $id ?>" title="<?= $name ?>"><?= $name ?></a>
+                                                    <a class="fw-semibold small d-block text-truncate text-body" href="document.php?client_id=<?= $client_id ?>&document_id=<?= $id ?>" title="<?= $name ?>"><?php if (!empty($row['document_favorite'])) { ?><i class="fas fa-star text-warning me-1" title="Favorite"></i><?php } ?><?= $name ?></a>
                                                 <?php } else { ?>
                                                     <a class="fw-semibold small d-block text-truncate text-body ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $id ?>" title="<?= $name ?>"><?= $name ?></a>
                                                 <?php } ?>
@@ -694,7 +706,8 @@ $preview = []; // the grid's previewer payload
                                                 <div class="min-w-0">
                                                     <div class="d-flex flex-wrap align-items-center column-gap-2">
                                                         <?php if ($item['kind'] === 'document') { ?>
-                                                            <a class="fw-semibold text-body stretched-link text-break" href="document.php?client_id=<?= $client_id ?>&document_id=<?= $id ?>"><?= $name ?></a>
+                                                            <a class="fw-semibold text-body stretched-link text-break" href="document.php?client_id=<?= $client_id ?>&document_id=<?= $id ?>" data-files-name><?= $name ?></a>
+                                                            <?php if (!empty($row['document_favorite'])) { ?><i class="fas fa-star text-warning small" title="Favorite - on the client's overview"></i><?php } ?>
                                                             <?php if (!empty($row['document_client_visible'])) { ?>
                                                                 <span class="badge rounded-pill bg-info-subtle text-info-emphasis fw-normal" title="Technical contacts can read this in the client portal">Portal</span>
                                                             <?php } ?>
@@ -702,7 +715,11 @@ $preview = []; // the grid's previewer payload
                                                                 <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal" title="Last edited or reviewed <?= escapeHtml(date('M j, Y', strtotime($due_documents[$id]['reviewed_at']))) ?> - reviewed <?= lcfirst(DOCUMENT_TEMPLATE_REVIEW_MONTHS[intval($due_documents[$id]['review_months'])] ?? '') ?>"><i class="fas fa-calendar-check me-1"></i>Review due</span>
                                                             <?php } ?>
                                                         <?php } else { ?>
-                                                            <a class="fw-semibold text-body stretched-link text-break ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $id ?>"><?= $name ?></a>
+                                                            <a class="fw-semibold text-body stretched-link text-break ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $id ?>" data-files-name><?= $name ?></a>
+                                                        <?php } ?>
+                                                        <?php if ($can_edit && !$item['archived']) { ?>
+                                                            <!-- Rename here - agent/js/files.js swaps the name for a box -->
+                                                            <button type="button" class="btn btn-link btn-sm p-0 text-body-secondary itflow-above-stretch itflow-files-rename" data-files-rename="<?= $item['kind'] ?>" data-id="<?= $id ?>" data-csrf="<?= $_SESSION['csrf_token'] ?>" title="Rename"><i class="fas fa-pen"></i></button>
                                                         <?php } ?>
                                                         <?php if ($share) { ?>
                                                             <span class="badge rounded-pill bg-success-subtle text-success-emphasis fw-normal" title="Shared<?= $share['item_recipient'] ? ' with ' . escapeHtml($share['item_recipient']) : '' ?> - link expires <?= timeAgo($share['item_expire_at']) ?>"><i class="fas fa-link me-1"></i>Shared</span>
