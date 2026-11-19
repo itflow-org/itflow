@@ -867,6 +867,24 @@ if (isset($_GET['ticket_query_views'])) {
 }
 
 /*
+ * Whose access a client merge changes (agent/modals/client/client_merge.php) - restricted agents
+ * who can see one of the two clients and not the other.
+ */
+if (isset($_GET['client_merge_access'])) {
+    header('Content-Type: application/json');
+    $from = intval($_GET['client_merge_access']);
+    $into = intval($_GET['into'] ?? 0);
+    $changes = [];
+    if (lookupUserPermission('module_client') >= 3 && hasClientAccess($from) && hasClientAccess($into)) {
+        foreach (clientMergeAccessChanges($from, $into) as $name => $what) {
+            $changes[] = ['name' => $name, 'what' => $what];
+        }
+    }
+    echo json_encode(['changes' => $changes]);
+    exit;
+}
+
+/*
  * A client at a glance, for the card that shows when a client's name is hovered (js/client_card.js):
  * its type, primary contact and how to reach them, its main site's phone and address, and its open
  * tickets. Text only - the page builds the card with textContent.

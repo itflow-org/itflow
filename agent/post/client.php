@@ -290,6 +290,40 @@ if (isset($_POST['offboard_client'])) {
 
 }
 
+/*
+ * Merge a duplicate client into the one to keep (agent/modals/client/client_merge.php,
+ * functions/client.php clientMerge()). Delete-level access to clients, and to both clients.
+ */
+if (isset($_POST['merge_client'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 3);
+
+    $from_id = intval($_POST['client_id'] ?? 0);
+    $into_id = intval($_POST['into_client_id'] ?? 0);
+    enforceClientAccess($from_id);
+    enforceClientAccess($into_id);
+
+    $from = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $from_id"));
+    $into = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $into_id"));
+    if (!$from || !$into || $from_id === $into_id) {
+        flashAlert('Pick another client to merge into.', 'error');
+        redirect();
+    }
+
+    $summary = clientMergeSummary($from_id);
+    $notes = clientMerge($from_id, $into_id);
+
+    $what = $summary ? implode(', ', array_map(function ($label, $n) { return "$n $label"; }, array_keys($summary), $summary)) : 'nothing but its details';
+    logAudit("Client", "Merge", "$session_name merged client " . escapeSql($from['client_name']) . " into " . escapeSql($into['client_name']) . " - " . escapeSql($what) . ($notes ? '; ' . escapeSql(implode('; ', $notes)) : ''), $into_id, $into_id);
+
+    flashAlert("<strong>" . escapeHtml($from['client_name']) . "</strong> merged into <strong>" . escapeHtml($into['client_name']) . "</strong> - " . escapeHtml($what) . " moved" . ($notes ? '. ' . escapeHtml(implode('. ', $notes)) : ''), $notes ? 'warning' : 'success');
+
+    redirect("client_overview.php?client_id=$into_id");
+
+}
+
 if (isset($_GET['restore_client'])) {
 
     validateCSRFToken();
