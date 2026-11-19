@@ -374,6 +374,15 @@ if (isset($_POST['add_payment_stripe'])) {
         $pi_livemode = $payment_intent->livemode;
 
     } catch (Exception $e) {
+        // The client's Stripe customer is gone from Stripe - forgotten with its cards, so the client adds a card again
+        if (billingStripeCustomerGone($e)) {
+            mysqli_query($mysqli, "SELECT RELEASE_LOCK('$pay_lock')");
+            billingStripeCustomerForget($client_id, $payment_provider_client);
+            mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe pay failed - the client\\'s Stripe customer is no longer in Stripe', history_invoice_id = $invoice_id");
+            logAudit("Invoice", "Payment", "Failed online payment of invoice $invoice_prefix$invoice_number - the client's Stripe customer is no longer in Stripe", $client_id, $invoice_id);
+            flashAlert("Nothing was charged - this client's Stripe customer is no longer in Stripe (deleted there, or made under other Stripe keys). Their saved cards are removed; they need to add a card again from the client portal or the invoice's pay link.", 'error');
+            redirect();
+        }
         $error = $e->getMessage();
         error_log("Stripe payment error - encountered exception during payment intent for invoice ID $invoice_id / $invoice_prefix$invoice_number: $error");
         logApp("Stripe", "error", "Exception during PI for invoice ID $invoice_id: $error");

@@ -1283,7 +1283,7 @@ if (isset($_GET['create_stripe_checkout'])) {
 
     //validateCSRFToken();
 
-    // This page is called by autopay_setup_stripe.js, returns a Checkout Session client_secret
+    // This page is called by js/portal_stripe.js, returns a Checkout Session client_secret
 
     enforceContactCan('accounting');
 
@@ -1357,6 +1357,13 @@ if (isset($_GET['create_stripe_checkout'])) {
         echo json_encode(['clientSecret' => $checkout_session->client_secret]);
 
     } catch (Exception $e) {
+        // A customer Stripe no longer has - forgotten, and the page reloads to set them up again
+        if ($stripe_customer_id && billingStripeCustomerGone($e)) {
+            billingStripeCustomerForget($session_client_id, $stripe_customer_id);
+            flashAlert("Your card details are no longer with Stripe - add your card again to save it.", 'warning');
+            echo json_encode(['error' => 'Set up again', 'reload' => true]);
+            exit;
+        }
         $error = $e->getMessage();
         error_log("Stripe error creating checkout session: $error");
         logApp("Stripe", "error", "Exception creating checkout session: $error");
@@ -1459,6 +1466,12 @@ if (isset($_GET['stripe_save_card'])) {
         ");
 
     } catch (Exception $e) {
+        // Its customer went from Stripe while the card was being entered
+        if (billingStripeCustomerGone($e)) {
+            billingStripeCustomerForget($session_client_id, $stripe_customer_id);
+            flashAlert("Your card details are no longer with Stripe - add your card again to save it.", 'warning');
+            redirect("saved_payment_methods.php");
+        }
         $error = $e->getMessage();
         error_log("Stripe error while saving payment method: $error");
         logApp("Stripe", "error", "Exception saving payment method: $error");

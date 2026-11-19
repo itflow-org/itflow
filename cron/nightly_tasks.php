@@ -740,6 +740,13 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
                     $pi_livemode = $payment_intent->livemode;
 
                 } catch (Exception $e) {
+                    // The client's Stripe customer is gone from Stripe - forgotten with its cards, so the client adds a card again
+                    if (billingStripeCustomerGone($e)) {
+                        billingStripeCustomerForget($client_id, $stripe_customer_id);
+                        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe autopay failed - the client\\'s Stripe customer is no longer in Stripe, so its card was removed', history_invoice_id = $invoice_id");
+                        logAudit("Invoice", "Payment", "Failed auto Payment of invoice $invoice_prefix$invoice_number - the client's Stripe customer is no longer in Stripe", $client_id, $invoice_id);
+                        continue;
+                    }
                     $error = $e->getMessage();
                     error_log("Stripe payment error - encountered exception during payment intent for invoice ID $invoice_id / $invoice_prefix$invoice_number: $error");
                     logApp("Stripe", "error", "Exception during PI for invoice ID $invoice_id: $error");

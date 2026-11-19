@@ -61,6 +61,56 @@ function billingStripeCustomer($client_id) {
 }
 
 /**
+ * Whether Stripe turned a call down because the customer it named isn't there -
+ * deleted in Stripe's dashboard, or made under other keys (test and live mode,
+ * and each Stripe account, keep customers of their own). Stripe answers
+ * resource_missing on the customer parameter, "No such customer: 'cus_...'".
+ */
+function billingStripeCustomerGone(\Throwable $e) {
+    return $e instanceof \Stripe\Exception\InvalidRequestException
+        && $e->getStripeCode() === 'resource_missing'
+        && ($e->getStripeParam() === 'customer' || stripos($e->getMessage(), 'No such customer') !== false);
+}
+
+/**
+ * Forget a client's Stripe customer that Stripe no longer has, so the next
+ * card payment or saved card starts by setting them up again - as a client
+ * with no customer does - rather than every one failing on it. The cards
+ * saved on it go too, as Stripe dropped them with the customer, and so does
+ * the autopay on them, each recurring invoice saying why (paymentCardRemove(),
+ * functions/payment_provider.php). Only while the client still has
+ * $customer_id, so a customer made since stays. Logged, and agents are told.
+ * True when it was forgotten here.
+ */
+function billingStripeCustomerForget($client_id, $customer_id) {
+    global $mysqli;
+    $provider = billingStripeProvider();
+    $customer_id = stripslashes((string) $customer_id);
+    if (!$provider || !preg_match('/^cus_[A-Za-z0-9]+$/', $customer_id)) {
+        return false;
+    }
+    $client_id = intval($client_id);
+    $provider_id = intval($provider['payment_provider_id']);
+    mysqli_query($mysqli, "DELETE FROM client_payment_provider WHERE client_id = $client_id AND payment_provider_id = $provider_id AND payment_provider_client = '$customer_id'");
+    if (mysqli_affected_rows($mysqli) < 1) {
+        return false;
+    }
+    $cards = 0;
+    $sql = mysqli_query($mysqli, "SELECT saved_payment_id FROM client_saved_payment_methods WHERE saved_payment_client_id = $client_id AND saved_payment_provider_id = $provider_id");
+    while ($row = mysqli_fetch_row($sql)) {
+        if (paymentCardRemove($row[0], "ITFlow - the client's Stripe customer is no longer in Stripe")) {
+            $cards++;
+        }
+    }
+    $client_name = (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id"))[0] ?? '');
+    $cards_text = $cards ? " and the $cards saved " . ($cards === 1 ? 'card' : 'cards') . ' on it' : '';
+    logApp("Stripe", "warning", "Stripe has no customer $customer_id for client $client_id - forgotten$cards_text");
+    logAudit("Stripe", "Delete", "Stripe customer $customer_id for $client_name is no longer in Stripe - ITFlow forgot it$cards_text, so card payments are set up again next time", $client_id);
+    appNotify("Stripe", "$client_name's Stripe customer is no longer in Stripe - deleted there, or made under other Stripe keys. ITFlow forgot it$cards_text; card payments and autopay need a card added again.", "/agent/recurring_invoices.php?client_id=$client_id", $client_id);
+    return true;
+}
+
+/**
  * Whether an amount can be paid by card - Stripe's threshold (Admin > Payment
  * Providers) caps what is offered at checkout; none set means no cap.
  */
@@ -572,6 +622,10 @@ function billingStripeChargeSaved(array $selection, $client_id, $saved_payment_i
             ? 'Your bank wants to confirm this payment - choose A new card and enter the card details to approve it'
             : 'Your card was declined: ' . rtrim($e->getMessage(), '.') . '. Try another card'];
     } catch (\Throwable $e) {
+        if (billingStripeCustomerGone($e)) {
+            billingStripeCustomerForget($client_id, $customer);
+            return ['ok' => false, 'error' => 'Your saved cards are no longer with Stripe - nothing was charged. Pay with a new card, and save it again if you want one on file'];
+        }
         logApp("Stripe", "error", "Saved card payment failed for client $client_id: " . $e->getMessage());
         return ['ok' => false, 'error' => 'The payment could not be made just now - nothing was charged. Try again in a moment'];
     }
@@ -609,7 +663,17 @@ function billingStripeCheckoutIntent(array $selection, $client_id, array $by = [
             // Gone or not cancellable - a new one is made below either way
         }
     }
-    return $stripe->paymentIntents->create($params);
+    try {
+        return $stripe->paymentIntents->create($params);
+    } catch (\Stripe\Exception\InvalidRequestException $e) {
+        // A customer Stripe no longer has - forgotten, and this payment goes ahead without one
+        if (!isset($params['customer']) || !billingStripeCustomerGone($e)) {
+            throw $e;
+        }
+        billingStripeCustomerForget($client_id, $params['customer']);
+        unset($params['customer']);
+        return $stripe->paymentIntents->create($params);
+    }
 }
 
 /* ------------------------------------------------------------------ Booking */

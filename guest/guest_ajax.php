@@ -105,14 +105,25 @@ if (isset($_GET['stripe_create_pi'])) {
     try {
         \Stripe\Stripe::setApiKey($stripe_secret_key);
 
-        $paymentIntent = \Stripe\PaymentIntent::create([
+        $pi_params = [
             'amount' => $balance_cents + $fee_cents, // Stripe expects cents
             'currency' => $invoice_currency_code,
             'description' => $pi_description,
             'metadata' => $pi_metadata,
             'payment_method_types' => ['card'],
             'customer' => $stripe_customer_id,
-        ]);
+        ];
+        try {
+            $paymentIntent = \Stripe\PaymentIntent::create($pi_params);
+        } catch (\Stripe\Exception\InvalidRequestException $e) {
+            // A customer Stripe no longer has - forgotten (next time they are set up again), and this payment goes ahead without one
+            if (!$stripe_customer_id || !billingStripeCustomerGone($e)) {
+                throw $e;
+            }
+            billingStripeCustomerForget($client_id, $stripe_customer_id);
+            unset($pi_params['customer']);
+            $paymentIntent = \Stripe\PaymentIntent::create($pi_params);
+        }
 
         $output = [
             'clientSecret' => $paymentIntent->client_secret,

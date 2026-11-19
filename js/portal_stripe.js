@@ -105,6 +105,12 @@
                     return fetch('/client/post.php?create_stripe_checkout', {method: 'POST', credentials: 'same-origin'})
                         .then(function (response) { return response.json(); })
                         .then(function (data) {
+                            // Their Stripe customer was gone and has been forgotten - the page
+                            // comes back with the Add a card step that sets them up again
+                            if (data.reload) {
+                                window.location.reload();
+                                return new Promise(function () {});
+                            }
                             if (!data.clientSecret) {
                                 throw new Error(data.error || 'No checkout');
                             }
