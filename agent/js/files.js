@@ -1,9 +1,43 @@
 /*
- * agent/files.php - the folder tree, the grid's previewer, and dropping files
- * onto the list to upload them.
+ * agent/files.php - the folder tree, the grid's previewer, dragging files,
+ * documents and folders onto a folder to move them, and dropping files from
+ * the computer to upload them.
  */
 (function () {
     'use strict';
+
+    // What is being dragged within the page - files and documents, or a folder - while it is
+    var dragging = null;
+
+    /** Open the upload window at url, and hand it the dropped files once it is on screen. */
+    function uploadInto(url, files) {
+        var trigger = document.createElement('a');
+        trigger.className = 'ajax-modal d-none';
+        trigger.href = '#';
+        trigger.dataset.modalUrl = url;
+        document.body.appendChild(trigger);
+        trigger.click();
+        trigger.remove();
+        var tries = 0;
+        (function handOver() {
+            var input = document.querySelector('.modal.show [data-upload-input]');
+            if (input) {
+                var transfer = new DataTransfer();
+                Array.prototype.forEach.call(files, function (file) {
+                    transfer.items.add(file);
+                });
+                input.files = transfer.files;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            } else if (++tries < 50) {
+                setTimeout(handOver, 100);
+            }
+        })();
+    }
+
+    /** Whether a drag carries files from the computer - not something dragged within the page. */
+    function carriesFiles(e) {
+        return !dragging && e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') !== -1;
+    }
 
     // ---- Folder tree: subfolders open and close in place, remembered per client ----
 
@@ -178,6 +212,223 @@
         });
     }
 
+    // ---- Drag files, documents and folders onto a folder to move them ----
+    // A row (or a card in the grid) or a folder in the tree drags onto a folder in the tree or the path above
+    // the list. Dragging a ticked one takes every ticked one. Holding it over a closed folder opens it. The
+    // move is Bulk Action's (bulk_move_files) or move_folder, and the page comes back saying what moved.
+    // Files from the computer dropped on a folder in the tree upload into it.
+
+    var mover = document.querySelector('[data-files-move]');
+    if (mover) {
+        var lit = null, springRow = null, springTimer = null, leaveTimer = null;
+
+        // A link or picture in a row would drag its address instead of the row
+        mover.querySelectorAll('[data-files-item] a, [data-files-item] img, [data-folder-drag] a').forEach(function (node) {
+            node.draggable = false;
+        });
+
+        function folderItem(id) {
+            return id && tree ? tree.querySelector('.itflow-folder[data-folder-id="' + CSS.escape(String(id)) + '"]') : null;
+        }
+
+        /** Whether what is being dragged can go into the folder target stands for. */
+        function accepts(target, e) {
+            var to = parseInt(target.dataset.folderDrop, 10) || 0;
+            if (!dragging) {
+                // Files from the computer, onto a folder in the tree
+                return !!mover.dataset.filesUpload && carriesFiles(e) && !!target.closest('.itflow-folder-tree');
+            }
+            if (dragging.type === 'items') {
+                return dragging.items.some(function (item) {
+                    return item.folder !== to;
+                });
+            }
+            // A folder - not where it is already, and never into itself or below itself
+            var into = folderItem(to);
+            return to !== dragging.parent && !(into && dragging.li.contains(into));
+        }
+
+        function light(target) {
+            if (lit === target) {
+                return;
+            }
+            if (lit) {
+                lit.classList.remove('is-drop-target');
+            }
+            lit = target;
+            if (lit) {
+                lit.classList.add('is-drop-target');
+            }
+        }
+
+        // A closed folder held over for a moment opens, to reach the folders in it
+        function spring(row) {
+            if (row === springRow) {
+                return;
+            }
+            clearTimeout(springTimer);
+            springRow = row;
+            var item = row && row.closest('.itflow-folder');
+            if (item && item.querySelector('ul') && !item.classList.contains('is-open')) {
+                springTimer = setTimeout(function () {
+                    item.classList.add('is-open');
+                }, 700);
+            }
+        }
+
+        function finish() {
+            clearTimeout(leaveTimer);
+            light(null);
+            spring(null);
+            if (dragging) {
+                dragging.sources.forEach(function (source) {
+                    source.classList.remove('is-dragging');
+                });
+            }
+            dragging = null;
+        }
+
+        function post(fields) {
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.action = 'post.php';
+            form.hidden = true;
+            fields.unshift(['csrf_token', mover.dataset.filesMove]);
+            fields.forEach(function (field) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = field[0];
+                input.value = field[1];
+                form.appendChild(input);
+            });
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        mover.addEventListener('dragstart', function (e) {
+            var item = e.target.closest('[data-files-item]');
+            var folder = !item && e.target.closest('[data-folder-drag]');
+            if (!item && !folder) {
+                return;
+            }
+            var label, icon;
+            if (item) {
+                var box = item.querySelector('.bulk-select');
+                var sources = box && box.checked
+                    ? Array.prototype.map.call(document.querySelectorAll('#bulkActions .bulk-select:checked'), function (checked) {
+                        return checked.closest('[data-files-item]');
+                    }).filter(Boolean)
+                    : [item];
+                dragging = {
+                    type: 'items',
+                    sources: sources,
+                    items: sources.map(function (source) {
+                        return { kind: source.dataset.filesItem, id: source.dataset.id, folder: parseInt(source.dataset.folderId, 10) || 0 };
+                    })
+                };
+                label = sources.length === 1 ? sources[0].dataset.name : sources.length + ' items';
+                icon = sources.length > 1 ? 'fa-copy' : (sources[0].dataset.filesItem === 'document' ? 'fa-file-alt' : 'fa-file');
+            } else {
+                var li = folder.closest('.itflow-folder');
+                var parent = li.parentElement.closest('.itflow-folder[data-folder-id]');
+                dragging = {
+                    type: 'folder',
+                    sources: [folder],
+                    id: parseInt(li.dataset.folderId, 10),
+                    parent: parent ? parseInt(parent.dataset.folderId, 10) : 0,
+                    li: li
+                };
+                label = folder.dataset.name;
+                icon = 'fa-folder';
+            }
+
+            e.dataTransfer.clearData();
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', label);
+            // What follows the pointer: the name, or how many
+            var ghost = document.createElement('div');
+            ghost.className = 'itflow-drag-ghost';
+            ghost.innerHTML = '<i class="fas fa-fw ' + icon + ' me-2"></i><span class="text-truncate"></span>';
+            ghost.lastChild.textContent = label;
+            document.body.appendChild(ghost);
+            try {
+                e.dataTransfer.setDragImage(ghost, 16, 16);
+            } catch (err) {
+                // The browser's own picture of the row then
+            }
+            setTimeout(function () {
+                ghost.remove();
+            }, 0);
+            dragging.sources.forEach(function (source) {
+                source.classList.add('is-dragging');
+            });
+        });
+
+        mover.addEventListener('dragover', function (e) {
+            if (!dragging && !carriesFiles(e)) {
+                return;
+            }
+            clearTimeout(leaveTimer);
+            var target = e.target.closest('[data-folder-drop]');
+            var ok = target && accepts(target, e);
+            light(ok ? target : null);
+            spring(e.target.closest('.itflow-folder-tree .itflow-folder-row'));
+            if (ok) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = dragging ? 'move' : 'copy';
+            }
+        });
+
+        // Left the page's folders and list - unless the next dragover says otherwise, as it does when
+        // the pointer only crossed into an icon (Chrome often gives no relatedTarget to go by)
+        mover.addEventListener('dragleave', function (e) {
+            if (e.relatedTarget && mover.contains(e.relatedTarget)) {
+                return;
+            }
+            clearTimeout(leaveTimer);
+            leaveTimer = setTimeout(function () {
+                light(null);
+                spring(null);
+            }, 100);
+        });
+
+        mover.addEventListener('drop', function (e) {
+            var target = e.target.closest('[data-folder-drop]');
+            if (!target || !accepts(target, e)) {
+                return;
+            }
+            e.preventDefault();
+            var to = parseInt(target.dataset.folderDrop, 10) || 0;
+            if (!dragging) {
+                light(null);
+                spring(null);
+                if (e.dataTransfer.files.length) {
+                    uploadInto(mover.dataset.filesUpload + to, e.dataTransfer.files);
+                }
+                return;
+            }
+            var moving = dragging;
+            finish();
+            if (moving.type === 'items') {
+                var fields = [['bulk_move_files', '1'], ['bulk_folder_id', to]];
+                moving.items.forEach(function (item) {
+                    if (item.folder !== to) {
+                        fields.push([item.kind + '_ids[]', item.id]);
+                    }
+                });
+                moving.sources.forEach(function (source) {
+                    source.classList.add('is-moved');
+                });
+                post(fields);
+            } else {
+                moving.li.classList.add('is-moved');
+                post([['move_folder', '1'], ['folder_id', moving.id], ['parent_folder', to]]);
+            }
+        });
+
+        document.addEventListener('dragend', finish);
+    }
+
     // ---- Drop files on the list to upload them into the folder on show ----
 
     var main = document.querySelector('[data-files-drop]');
@@ -186,10 +437,6 @@
         return;
     }
     var depth = 0;
-
-    function carriesFiles(e) {
-        return e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') !== -1;
-    }
 
     main.addEventListener('dragenter', function (e) {
         if (!carriesFiles(e)) {
@@ -219,31 +466,8 @@
         e.preventDefault();
         depth = 0;
         overlay.hidden = true;
-        var files = e.dataTransfer.files;
-        if (!files.length) {
-            return;
+        if (e.dataTransfer.files.length) {
+            uploadInto(main.dataset.filesDrop, e.dataTransfer.files);
         }
-        // Open the upload modal, then hand it the dropped files once it is on screen
-        var trigger = document.createElement('a');
-        trigger.className = 'ajax-modal d-none';
-        trigger.href = '#';
-        trigger.dataset.modalUrl = main.dataset.filesDrop;
-        document.body.appendChild(trigger);
-        trigger.click();
-        trigger.remove();
-        var tries = 0;
-        (function handOver() {
-            var input = document.querySelector('.modal.show [data-upload-input]');
-            if (input) {
-                var transfer = new DataTransfer();
-                Array.prototype.forEach.call(files, function (file) {
-                    transfer.items.add(file);
-                });
-                input.files = transfer.files;
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-            } else if (++tries < 50) {
-                setTimeout(handOver, 100);
-            }
-        })();
     });
 })();

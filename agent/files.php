@@ -9,6 +9,10 @@
  * details, what they are linked to); documents open their page. Files can be
  * dropped straight onto the list to upload them into the folder on show.
  *
+ * Files, documents and folders drag onto a folder in the tree or the path to
+ * move there - the ticked ones together (agent/js/files.js). Files from the
+ * computer dropped on a folder in the tree upload into it.
+ *
  * Documents can be tagged; filtering by a tag shows the documents with it -
  * from every folder at the top level, like a search.
  *
@@ -274,6 +278,15 @@ function filesItemMenu($item) {
     return $html;
 }
 
+/** What makes a file or document draggable onto a folder - nothing when it can't be moved from here. */
+function filesDragAttr($item) {
+    global $can_edit, $archived;
+    if (!$can_edit || !empty($item['archived']) || $archived) {
+        return '';
+    }
+    return ' draggable="true" data-files-item="' . $item['kind'] . '" data-id="' . $item['id'] . '" data-folder-id="' . $item['folder_id'] . '" data-name="' . escapeHtml($item['name']) . '"';
+}
+
 /** "in Folder / Sub" for a search result outside the folder on show. */
 function filesFolderNote($item) {
     global $folder_tree, $folder_id, $client_id;
@@ -304,7 +317,8 @@ function filesFolderTree($parent_id, $depth = 0) {
                 . '</div></div>';
         }
         $html .= '<li class="itflow-folder' . ($is_open ? ' is-open' : '') . '" data-folder-id="' . $id . '">'
-            . '<div class="itflow-folder-row' . ($id === $folder_id ? ' active' : '') . '" style="--itflow-folder-depth: ' . $depth . '">'
+            . '<div class="itflow-folder-row' . ($id === $folder_id ? ' active' : '') . '" style="--itflow-folder-depth: ' . $depth . '"'
+            . ($can_edit ? ' draggable="true" data-folder-drag data-folder-drop="' . $id . '" data-name="' . $name . '"' : '') . '>'
             . ($has_children ? '<button type="button" class="itflow-folder-toggle" data-folder-toggle aria-label="Show or hide subfolders"><i class="fas fa-chevron-right"></i></button>' : '<span class="itflow-folder-toggle"></span>')
             . '<a class="itflow-folder-link" href="' . escapeHtml(filesUrl(['folder_id' => $id, 'q' => ''])) . '"><i class="fas fa-fw ' . ($id === $folder_id || $is_open ? 'fa-folder-open' : 'fa-folder') . ' me-2"></i><span class="text-truncate">' . $name . '</span>'
             . ($count ? '<span class="badge rounded-pill ms-auto">' . $count . '</span>' : '') . '</a>'
@@ -449,7 +463,7 @@ $preview = []; // the grid's previewer payload
         </form>
     </div>
 
-    <div class="row g-0 itflow-files">
+    <div class="row g-0 itflow-files"<?= $can_edit ? ' data-files-move="' . $_SESSION['csrf_token'] . '"' . (!$archived ? ' data-files-upload="' . escapeHtml("modals/file/file_upload.php?client_id=$client_id&folder_id=") . '"' : '') : '' ?>>
 
         <!-- Folders - a button on a phone, a column beside the list from lg up -->
         <div class="col-lg-3 border-end itflow-files-tree">
@@ -469,7 +483,7 @@ $preview = []; // the grid's previewer payload
                 </div>
                 <ul class="list-unstyled mb-0 px-2 pb-3 itflow-folder-tree" data-client-id="<?= $client_id ?>">
                     <li class="itflow-folder is-open">
-                        <div class="itflow-folder-row<?= $folder_id === 0 ? ' active' : '' ?>" style="--itflow-folder-depth: 0">
+                        <div class="itflow-folder-row<?= $folder_id === 0 ? ' active' : '' ?>" style="--itflow-folder-depth: 0"<?= $can_edit ? ' data-folder-drop="0"' : '' ?>>
                             <span class="itflow-folder-toggle"></span>
                             <a class="itflow-folder-link" href="<?= escapeHtml(filesUrl(['folder_id' => 0, 'q' => ''])) ?>">
                                 <i class="fas fa-fw fa-home me-2"></i><span class="text-truncate">Top level</span>
@@ -479,6 +493,9 @@ $preview = []; // the grid's previewer payload
                     </li>
                     <?= filesFolderTree(0) ?>
                 </ul>
+                <?php if ($can_edit) { ?>
+                    <p class="small text-body-secondary px-3 pb-3 mb-0 d-none d-lg-block itflow-files-drag-hint"><i class="fas fa-fw fa-arrows-alt me-1"></i>Drag files, documents and folders onto a folder to move them.</p>
+                <?php } ?>
             </div>
         </div>
 
@@ -488,9 +505,9 @@ $preview = []; // the grid's previewer payload
             <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom itflow-files-path">
                 <nav aria-label="Folder" class="min-w-0 me-auto">
                     <ol class="breadcrumb mb-0 flex-nowrap text-nowrap overflow-auto">
-                        <li class="breadcrumb-item"><a href="<?= escapeHtml(filesUrl(['folder_id' => 0, 'q' => ''])) ?>"><i class="fas fa-home me-1"></i>Top level</a></li>
+                        <li class="breadcrumb-item"><a href="<?= escapeHtml(filesUrl(['folder_id' => 0, 'q' => ''])) ?>"<?= $can_edit ? ' data-folder-drop="0"' : '' ?>><i class="fas fa-home me-1"></i>Top level</a></li>
                         <?php foreach ($folder_path as $crumb) { ?>
-                            <li class="breadcrumb-item"><a href="<?= escapeHtml(filesUrl(['folder_id' => $crumb['folder_id'], 'q' => ''])) ?>"><?= escapeHtml($crumb['folder_name']) ?></a></li>
+                            <li class="breadcrumb-item"><a href="<?= escapeHtml(filesUrl(['folder_id' => $crumb['folder_id'], 'q' => ''])) ?>"<?= $can_edit ? ' data-folder-drop="' . intval($crumb['folder_id']) . '"' : '' ?>><?= escapeHtml($crumb['folder_name']) ?></a></li>
                         <?php } ?>
                         <?php if ($search !== '') { ?>
                             <li class="breadcrumb-item active">Results for "<?= escapeHtml($search) ?>"</li>
@@ -589,7 +606,7 @@ $preview = []; // the grid's previewer payload
                                 ];
                                 ?>
                                 <div class="col">
-                                    <div class="card h-100 mb-0 itflow-file-card <?= $item['kind'] === 'document' ? 'is-document' : '' ?>">
+                                    <div class="card h-100 mb-0 itflow-file-card <?= $item['kind'] === 'document' ? 'is-document' : '' ?>"<?= filesDragAttr($item) ?>>
                                         <?php if ($can_edit) { ?>
                                             <div class="form-check itflow-file-card-check">
                                                 <input class="form-check-input bulk-select" type="checkbox" name="<?= $item['kind'] ?>_ids[]" value="<?= $id ?>" aria-label="Select <?= $name ?>">
@@ -663,7 +680,7 @@ $preview = []; // the grid's previewer payload
                                     $row = $item['row'];
                                     $share = $shared[$item['kind']][$id] ?? null;
                                     ?>
-                                    <tr>
+                                    <tr<?= filesDragAttr($item) ?>>
                                         <?php if ($can_edit) { ?>
                                             <td class="checkbox-column bg-light border-end">
                                                 <div class="form-check">

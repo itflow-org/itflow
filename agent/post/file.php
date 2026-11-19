@@ -391,15 +391,15 @@ if (isset($_POST['bulk_move_files'])) {
     $document_count = 0;
 
     // Each item only moves into a folder of its own client - one of another
-    // client's folders would take it out of sight of both
+    // client's folders would take it out of sight of both. One already there is left alone.
     foreach (array_map('intval', (array) ($_POST['file_ids'] ?? [])) as $file_id) {
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_client_id, file_name FROM files WHERE file_id = $file_id"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_client_id, file_name, file_folder_id FROM files WHERE file_id = $file_id"));
         if (!$row) {
             continue;
         }
         $client_id = intval($row['file_client_id']);
         enforceClientAccess();
-        if ($target_folder && folderOwnedId($target_folder, $client_id) !== $target_folder) {
+        if (($target_folder && folderOwnedId($target_folder, $client_id) !== $target_folder) || intval($row['file_folder_id']) === $target_folder) {
             continue;
         }
         mysqli_query($mysqli, "UPDATE files SET file_folder_id = $target_folder WHERE file_id = $file_id");
@@ -408,13 +408,13 @@ if (isset($_POST['bulk_move_files'])) {
     }
 
     foreach (array_map('intval', (array) ($_POST['document_ids'] ?? [])) as $document_id) {
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_client_id, document_name FROM documents WHERE document_id = $document_id"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_client_id, document_name, document_folder_id FROM documents WHERE document_id = $document_id"));
         if (!$row) {
             continue;
         }
         $client_id = intval($row['document_client_id']);
         enforceClientAccess();
-        if ($target_folder && folderOwnedId($target_folder, $client_id) !== $target_folder) {
+        if (($target_folder && folderOwnedId($target_folder, $client_id) !== $target_folder) || intval($row['document_folder_id']) === $target_folder) {
             continue;
         }
         mysqli_query($mysqli, "UPDATE documents SET document_folder_id = $target_folder, document_updated_at = document_updated_at WHERE document_id = $document_id");

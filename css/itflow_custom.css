@@ -4781,6 +4781,40 @@ img.itflow-contact-avatar {
     font-size: .7rem;
 }
 
+/* Files, documents and folders dragged onto a folder to move them (agent/js/files.js) */
+.itflow-files .is-dragging,
+.itflow-files .is-moved {
+    opacity: .45;
+}
+.itflow-folder-row.is-drop-target {
+    background-color: var(--bs-primary-bg-subtle);
+    box-shadow: inset 0 0 0 2px var(--bs-primary);
+}
+.itflow-files-path [data-folder-drop].is-drop-target {
+    border-radius: var(--bs-border-radius-sm);
+    background-color: var(--bs-primary-bg-subtle);
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+.itflow-drag-ghost {
+    position: fixed;
+    top: -100px;
+    left: -100px;
+    z-index: 2000;
+    display: inline-flex;
+    align-items: center;
+    max-width: 18rem;
+    padding: .35rem .8rem;
+    border-radius: 50rem;
+    background-color: var(--bs-primary);
+    color: #fff;
+    font-size: .875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .2);
+    pointer-events: none;
+}
+
 /* Files dragged over the list */
 .itflow-files-dropzone {
     position: absolute;
