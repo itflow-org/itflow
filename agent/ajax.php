@@ -1234,6 +1234,32 @@ if (isset($_GET['kb_picker']) || isset($_GET['kb_article_reply'])) {
 }
 
 /*
+ * The reply an agent is writing on a ticket, kept as they type (agent/js/ticket_reply_extras.js;
+ * functions/ticket_reply_draft.php). POST ticket_id and html - empty drops it; answers whether one
+ * is kept now, and the time on the agent's clock.
+ */
+if (isset($_POST['ticket_reply_draft'])) {
+    header('Content-Type: application/json');
+
+    if (intval(lookupUserPermission('module_support')) < 2 || !hash_equals($_SESSION['csrf_token'] ?? '', (string) ($_POST['csrf_token'] ?? ''))) {
+        http_response_code(403);
+        echo json_encode(['ok' => false]);
+        exit;
+    }
+    $draft_ticket = ticketRow(intval($_POST['ticket_id'] ?? 0));
+    if (!$draft_ticket || !empty($draft_ticket['ticket_closed_at'])
+        || (intval($draft_ticket['ticket_client_id']) && !hasClientAccess($draft_ticket['ticket_client_id']))) {
+        http_response_code(404);
+        echo json_encode(['ok' => false]);
+        exit;
+    }
+    ticketReplyDraftSave($draft_ticket['ticket_id'], $session_user_id, (string) ($_POST['html'] ?? ''));
+    $kept = ticketReplyDraft($draft_ticket['ticket_id'], $session_user_id) !== null;
+    echo json_encode(['ok' => true, 'kept' => $kept, 'time' => date('g:i A', strtotime(timezoneToView(date('Y-m-d H:i:s'))))]);
+    exit;
+}
+
+/*
  * A reply being written on a ticket, for saving as a canned response (Save
  * your reply as a canned response - agent/js/canned_response_save.js): made safe, with this
  * ticket's details in it swapped for placeholders (cannedResponseUnfill()).

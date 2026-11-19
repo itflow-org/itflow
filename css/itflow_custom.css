@@ -10193,3 +10193,10 @@ input.itflow-filter-on {
     padding-top: .3rem;
     padding-bottom: .3rem;
 }
+
+/* Files dragged over a ticket's reply box (agent/js/ticket_reply_extras.js) */
+.itflow-reply-drop {
+    outline: 2px dashed var(--bs-primary);
+    outline-offset: -2px;
+    background-color: var(--bs-primary-bg-subtle);
+}

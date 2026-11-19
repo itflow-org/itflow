@@ -162,6 +162,12 @@ mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = NULL, user_p
 // Clean-up old dismissed notifications
 mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_dismissed_at < CURDATE() - INTERVAL 90 DAY");
 
+// Clean-up reply drafts (functions/ticket_reply_draft.php) - a month untouched, or on a ticket since closed
+if (ticketReplyDraftsReady()) {
+    mysqli_query($mysqli, "DELETE ticket_reply_drafts FROM ticket_reply_drafts LEFT JOIN tickets ON tickets.ticket_id = ticket_reply_drafts.ticket_id
+        WHERE draft_updated_at < NOW() - INTERVAL 30 DAY OR tickets.ticket_id IS NULL OR tickets.ticket_closed_at IS NOT NULL");
+}
+
 // Clean-up mail queue - a failed or cancelled email with a link or code that opens something is cleared after a day, everything is deleted after 90
 mailQueueClearSensitive();
 mailQueueImageCleanup();

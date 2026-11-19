@@ -9,6 +9,10 @@ require_once '../../../includes/modal_header.php';
  * in the person it is assigned to and its site. When the person or the asset
  * already has open tickets, they show under the contact - so a second ticket
  * for the same problem gets noticed before it is raised.
+ *
+ * Copy of a ticket (copy_ticket_id - its More actions > Copy as a new ticket): it starts with
+ * that ticket's subject, details, priority, category, billing, contact, asset, site, vendor and
+ * tasks, for the same client - which can be changed, and its lists follow.
  */
 
 enforceUserPermission('module_support', 2);
@@ -40,6 +44,37 @@ if ($client_id) {
     enforceClientAccess();
 }
 
+// A copy of a ticket the agent may reach
+$copy = intval($_GET['copy_ticket_id'] ?? 0) ? ticketRow($_GET['copy_ticket_id']) : null;
+if ($copy && intval($copy['ticket_client_id']) && !hasClientAccess($copy['ticket_client_id'])) {
+    $copy = null;
+}
+$copy_client_id = 0;
+$prefill_priority = 'Medium';
+$prefill_category_id = 0;
+$prefill_billable = intval($config_ticket_default_billable) === 1;
+$existing_tasks = [];
+if ($copy) {
+    $prefill_subject = (string) $copy['ticket_subject'];
+    $prefill_details_html = (string) $copy['ticket_details'];
+    $prefill_priority = (string) $copy['ticket_priority'];
+    $prefill_category_id = intval($copy['ticket_category']);
+    $prefill_billable = intval($copy['ticket_billable']) === 1;
+    if (!$client_id) {
+        $copy_client_id = intval($copy['ticket_client_id']);
+    }
+    if ($client_id === intval($copy['ticket_client_id']) || $copy_client_id) {
+        $contact_id = $contact_id ?: intval($copy['ticket_contact_id']);
+        $asset_id = $asset_id ?: intval($copy['ticket_asset_id']);
+        $location_id = $location_id ?: intval($copy['ticket_location_id']);
+        $vendor_id = $vendor_id ?: intval($copy['ticket_vendor_id']);
+    }
+    $sql_copy_tasks = mysqli_query($mysqli, "SELECT task_name, task_completion_estimate FROM tasks WHERE task_ticket_id = " . intval($copy['ticket_id']) . " ORDER BY task_order ASC, task_id ASC");
+    while ($task = mysqli_fetch_assoc($sql_copy_tasks)) {
+        $existing_tasks[] = ['name' => (string) $task['task_name'], 'estimate' => intval($task['task_completion_estimate'])];
+    }
+}
+
 // Raised about a service (its page's Report a problem) - one of this client's that is not archived
 $service = intval($_GET['service_id'] ?? 0) ? serviceRow($_GET['service_id']) : null;
 if ($service && (!$client_id || intval($service['service_client_id']) !== $client_id || $service['service_archived_at'])) {
@@ -66,7 +101,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring me-2"></i>New Ticket</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring me-2"></i>New Ticket<?php if ($copy) { ?> <small class="ms-1 opacity-75">copy of <?= escapeHtml(ticketReference($copy)) ?></small><?php } ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -132,7 +167,7 @@ ob_start();
                                         $client_id_select = intval($row['client_id']);
                                         $client_name = escapeHtml($row['client_name']); ?>
 
-                                        <option value="<?= $client_id_select ?>" <?php if ($client_id == $client_id_select) {echo "selected"; } ?><?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation']) ?>><?= $client_name ?></option>
+                                        <option value="<?= $client_id_select ?>" <?php if (($client_id ?: $copy_client_id) == $client_id_select) {echo "selected"; } ?><?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation']) ?>><?= $client_name ?></option>
 
                                     <?php } ?>
                                 </select>
@@ -177,10 +212,10 @@ ob_start();
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                                 <select class="form-select select2" name="priority" data-template-field="priority" required>
-                                    <option data-color="var(--bs-info)">Low</option>
-                                    <option selected data-color="var(--bs-warning)">Medium</option>
-                                    <option data-color="var(--bs-danger)">High</option>
-                                    <option data-color="var(--bs-emphasis-color)">Urgent</option>
+                                    <option <?= $prefill_priority === 'Low' ? 'selected' : '' ?> data-color="var(--bs-info)">Low</option>
+                                    <option <?= $prefill_priority === 'Medium' || !in_array($prefill_priority, TICKET_PRIORITIES, true) ? 'selected' : '' ?> data-color="var(--bs-warning)">Medium</option>
+                                    <option <?= $prefill_priority === 'High' ? 'selected' : '' ?> data-color="var(--bs-danger)">High</option>
+                                    <option <?= $prefill_priority === 'Urgent' ? 'selected' : '' ?> data-color="var(--bs-emphasis-color)">Urgent</option>
                                 </select>
                             </div>
                         </div>
@@ -193,7 +228,7 @@ ob_start();
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                                 <select class="form-select select2" name="category_id" data-template-field="category">
                                     <option value="0">- Not Categorized -</option>
-                                    <?= categoryOptionsHtml('Ticket') ?>
+                                    <?= categoryOptionsHtml('Ticket', $prefill_category_id ?: null) ?>
                                 </select>
                                 <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
                             </div>
@@ -281,7 +316,7 @@ ob_start();
                 <?php if ($config_module_enable_accounting) { ?>
                 <div class="mb-3">
                     <div class="form-check form-switch">
-                        <input type="checkbox" class="form-check-input" name="billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="billable" data-template-field="billable">
+                        <input type="checkbox" class="form-check-input" name="billable" <?php if ($prefill_billable) { echo "checked"; } ?> value="1" id="billable" data-template-field="billable">
                         <label class="form-check-label" for="billable">Mark Billable</label>
                     </div>
                 </div>

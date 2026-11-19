@@ -1254,6 +1254,9 @@ if (isset($_POST['add_ticket_reply'])) {
         logTicketHistory($ticket_id, "$session_name set the status to " . escapeSql(getTicketStatusName($ticket_status)));
     }
 
+    // Sent - the draft of it goes (functions/ticket_reply_draft.php)
+    ticketReplyDraftDelete($ticket_id, $session_user_id);
+
     logAudit("Ticket", "Reply", "$session_name replied to ticket $reference - $subject and was a $ticket_reply_type reply" . (!empty($texted['ok']) ? ', texted' : ''), $client_id, $ticket_id);
 
     redirect();
@@ -1403,6 +1406,164 @@ if (isset($_GET['archive_ticket_reply'])) {
     logAudit("Ticket Reply", "Archive", "$session_name archived a reply on ticket " . escapeSql(ticketReference($row)), $client_id, $ticket_reply_id);
 
     flashAlert("Ticket reply archived", 'error');
+
+    redirect();
+
+}
+
+/*
+ * A client's reply split off into a ticket of its own - for a second problem raised in a reply.
+ * The new ticket is for the same client and the person who wrote it, with what they wrote as its
+ * details and their attachments; the reply leaves this ticket (archived), which gets a note
+ * saying where it went. Client replies only: they carry no time.
+ */
+if (isset($_POST['split_ticket_reply'])) {
+
+    validateCSRFToken();
+
+    $ticket_reply_id = intval($_POST['ticket_reply_id'] ?? 0);
+    $reply = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_reply, ticket_reply_type, ticket_reply_by, ticket_reply_ticket_id, ticket_reply_created_at
+        FROM ticket_replies WHERE ticket_reply_id = $ticket_reply_id AND ticket_reply_archived_at IS NULL"));
+    if (!$reply) {
+        flashAlert('That reply no longer exists.', 'error');
+        redirect();
+    }
+    $row = ticketForRequest($reply['ticket_reply_ticket_id'], 2);
+    $ticket_id = intval($row['ticket_id']);
+    if ($reply['ticket_reply_type'] !== 'Client') {
+        flashAlert("Only a client's reply can be split off.", 'error');
+        redirect();
+    }
+    if (!empty($row['ticket_closed_at'])) {
+        flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> is closed.", 'error');
+        redirect();
+    }
+    $client_id = intval($row['ticket_client_id']);
+
+    $subject_input = trim((string) ($_POST['subject'] ?? ''));
+    if ($subject_input === '') {
+        flashAlert('The new ticket needs a subject.', 'error');
+        redirect();
+    }
+    $subject = escapeSql(mb_substr($subject_input, 0, 500));
+    $priority = escapeSql(ticketPriority($_POST['priority'] ?? $row['ticket_priority']));
+    $assigned_to = ticketAgentId($_POST['assigned_to'] ?? 0);
+    $ticket_status = $assigned_to ? TICKET_STATUS_OPEN : TICKET_STATUS_NEW;
+    $category_id = intval($row['ticket_category']);
+    $billable = intval($row['ticket_billable']) ? 1 : 0;
+    // The person who wrote it, when they are one of this client's contacts
+    $contact_id = ticketClientOwnedId('contact', $reply['ticket_reply_by'], $client_id);
+    $details = mysqli_real_escape_string($mysqli, (string) $reply['ticket_reply']);
+
+    mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = LAST_INSERT_ID(config_ticket_next_number), config_ticket_next_number = config_ticket_next_number + 1 WHERE company_id = 1");
+    $ticket_number = mysqli_insert_id($mysqli);
+    $ticket_prefix = escapeSql($config_ticket_prefix);
+    $url_key = randomString(32);
+
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Agent', ticket_category = $category_id,
+        ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $ticket_status,
+        ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_url_key = '$url_key',
+        ticket_client_id = $client_id, ticket_invoice_id = 0, ticket_project_id = 0, ticket_location_id = 0, ticket_asset_id = 0, ticket_vendor_id = 0");
+    $new_id = mysqli_insert_id($mysqli);
+    applyTicketSla($new_id);
+    $new = ticketRow($new_id);
+    $new_reference = escapeSql(ticketReference($new));
+    $old_reference = escapeSql(ticketReference($row));
+
+    // Its attachments go with it, files and all (uploads/tickets/<ticket id>/), as the new ticket's own
+    $sql_attachments = mysqli_query($mysqli, "SELECT ticket_attachment_id, ticket_attachment_reference_name FROM ticket_attachments
+        WHERE ticket_attachment_reply_id = $ticket_reply_id AND ticket_attachment_ticket_id = $ticket_id");
+    if (mysqli_num_rows($sql_attachments)) {
+        $from_dir = dirname(__DIR__, 2) . "/uploads/tickets/$ticket_id/";
+        $to_dir = dirname(__DIR__, 2) . "/uploads/tickets/$new_id/";
+        mkdirMissing(dirname(__DIR__, 2) . "/uploads/tickets/");
+        mkdirMissing($to_dir);
+        while ($attachment = mysqli_fetch_assoc($sql_attachments)) {
+            $from_name = basename((string) $attachment['ticket_attachment_reference_name']);
+            if ($from_name !== '' && is_file($from_dir . $from_name)) {
+                rename($from_dir . $from_name, $to_dir . $from_name);
+            }
+            mysqli_query($mysqli, "UPDATE ticket_attachments SET ticket_attachment_ticket_id = $new_id, ticket_attachment_reply_id = NULL
+                WHERE ticket_attachment_id = " . intval($attachment['ticket_attachment_id']));
+        }
+    }
+
+    // The reply leaves this ticket, and a note says where it went
+    mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply_archived_at = NOW() WHERE ticket_reply_id = $ticket_reply_id");
+    $new_url = escapeSql(ticketUrl($new_id, $client_id));
+    $old_url = escapeSql(ticketUrl($ticket_id, $client_id));
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'A reply from the client was split off into <a href=\"$new_url\">$new_reference</a> - $subject', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Split off from a reply on <a href=\"$old_url\">$old_reference</a>.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $new_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $ticket_id");
+    logTicketHistory($ticket_id, "$session_name split a reply off into $new_reference");
+    logTicketHistory($new_id, "$session_name made this ticket from a reply on $old_reference");
+    logAudit("Ticket", "Create", "$session_name split a reply on ticket $old_reference into ticket $new_reference - $subject", $client_id, $new_id);
+
+    // The client is told about the new ticket, as for any other
+    if (intval($config_ticket_client_general_notifications) === 1) {
+        ticketMailCreated($new_id, 'Ticket Created', []);
+    }
+    triggerCustomAction('ticket_create', $new_id);
+    if ($assigned_to) {
+        if (ticketTeamNotifyOn('assigned_app')) {
+            ticketNotifyAgent($assigned_to, $new, "Ticket " . ticketReference($new) . " - Subject: " . $new['ticket_subject'] . " has been assigned to you by $session_name");
+        }
+        ticketMailAssigned($assigned_to, [$new_id], stripslashes($session_name));
+    }
+    ticketStatusMovedByAgent($new_id, TICKET_STATUS_NEW, $ticket_status);
+
+    flashAlert("The reply is now ticket <strong>" . escapeHtml(ticketReference($new)) . "</strong>");
+
+    redirect(ticketUrl($new_id, $client_id));
+
+}
+
+/*
+ * A ticket template applied to a ticket already open - its tasks (as edited in the window), the
+ * answers to what it asks, and its tags and due time where the ticket has none. The ticket's
+ * subject, details, category and the rest stay as they are.
+ */
+if (isset($_POST['apply_ticket_template'])) {
+
+    validateCSRFToken();
+
+    $row = ticketForRequest($_POST['ticket_id'] ?? 0, 2);
+    $ticket_id = intval($row['ticket_id']);
+    if (!empty($row['ticket_closed_at'])) {
+        flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> is closed.", 'error');
+        redirect();
+    }
+    $ticket_template_id = intval($_POST['ticket_template_id'] ?? 0);
+    $template = $ticket_template_id ? ticketTemplateRow($ticket_template_id) : null;
+    if (!$template || !empty($template['ticket_template_archived_at'])) {
+        flashAlert('Pick a template to apply.', 'error');
+        redirect();
+    }
+    $answers = ticketFillInAnswers(ticketTemplateFillInsFor($ticket_template_id), $_POST['fill_ins'] ?? [], $fill_in_error);
+    if ($answers === null) {
+        flashAlert($fill_in_error, 'error');
+        redirect();
+    }
+
+    // The tasks as the window left them, after the ticket's own
+    $added = 0;
+    if (isset($_POST['tasks_submitted'])) {
+        $last = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(MAX(task_order), 0) FROM tasks WHERE task_ticket_id = $ticket_id"));
+        $offset = intval($last[0] ?? 0);
+        foreach (parseSubmittedTasks() as $task) {
+            $order = $offset + intval($task['order']) + 1;
+            mysqli_query($mysqli, "INSERT INTO tasks SET task_name = '{$task['name']}', task_order = $order, task_completion_estimate = {$task['estimate']}, task_ticket_id = $ticket_id");
+            $added++;
+        }
+    }
+
+    $template_name = escapeSql($template['ticket_template_name']);
+    ticketTemplateFinish($ticket_id, $ticket_template_id, intval($_POST['template_defaults'] ?? 0) === 1, !isset($_POST['tasks_submitted']), $answers,
+        "$session_name applied template $template_name");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $ticket_id");
+    logAudit("Ticket", "Edit", "$session_name applied template $template_name to ticket " . escapeSql(ticketReference($row)), intval($row['ticket_client_id']), $ticket_id);
+
+    flashAlert("Template <strong>" . escapeHtml($template['ticket_template_name']) . "</strong> applied" . ($added ? " - $added task" . ($added === 1 ? '' : 's') . " added" : ''));
 
     redirect();
 

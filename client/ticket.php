@@ -67,12 +67,14 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $approvals[] = $row;
 }
 
-// Attachments, by the reply they came with (0 for the ticket itself) - never an internal note's
+// Attachments, by the reply they came with (0 for the ticket itself) - never an internal note's, nor the
+// copy of an email the mail parser keeps for agents (as guest/guest_view_ticket.php)
 $attachments = [];
 $sql = mysqli_query($mysqli, "SELECT ticket_attachment_id, ticket_attachment_name, ticket_attachment_reply_id FROM ticket_attachments
     LEFT JOIN ticket_replies ON ticket_reply_id = ticket_attachment_reply_id
     WHERE ticket_attachment_ticket_id = $ticket_id
     AND (ticket_attachment_reply_id IS NULL OR (ticket_reply_type != 'Internal' AND ticket_reply_archived_at IS NULL))
+    AND ticket_attachment_name != 'Original-parsed-email.eml'
     ORDER BY ticket_attachment_id ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
     $attachments[intval($row['ticket_attachment_reply_id'])][] = $row;

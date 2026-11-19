@@ -4510,6 +4510,23 @@ CREATE TABLE `ticket_replies` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ticket_reply_drafts`
+--
+
+DROP TABLE IF EXISTS `ticket_reply_drafts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ticket_reply_drafts` (
+  `ticket_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `draft_body` longtext NOT NULL,
+  `draft_updated_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`ticket_id`,`user_id`),
+  KEY `draft_updated_at` (`draft_updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `ticket_reply_mentions`
 --
 

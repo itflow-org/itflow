@@ -179,7 +179,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     return true;
 }
 
-function addReply($from_email, $date, $subject, $ticket_number, $message, $attachments) {
+function addReply($from_email, $date, $subject, $ticket_number, $message, $attachments, $original_message_file = null) {
     global $mysqli, $config_app_name, $company_name, $company_phone, $config_ticket_prefix, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $allowed_extensions;
 
     $ticket_reply_type = 'Client';
@@ -302,6 +302,15 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                 $ticket_attachment_name_esc = mysqli_real_escape_string($mysqli, $att_name);
                 logAudit("Ticket", "Edit", "Email parser: Blocked attachment $ticket_attachment_name_esc from Client contact $from_email_esc for ticket $config_ticket_prefix$ticket_number_esc", $client_id, $ticket_id);
             }
+        }
+
+        // The email as it came, kept with the reply as a new ticket keeps it - the reply line trims what
+        // shows on the ticket, and The email as it arrived shows the rest (agent/modals/ticket/ticket_email_source.php).
+        // Not a stranger's, whose attachments aren't taken either.
+        if (!$stranger && $original_message_file && is_file("../uploads/tmp/$original_message_file")) {
+            rename("../uploads/tmp/$original_message_file", $ticket_dir . $original_message_file);
+            $original_message_file_esc = mysqli_real_escape_string($mysqli, $original_message_file);
+            mysqli_query($mysqli, "INSERT INTO ticket_attachments SET ticket_attachment_name = 'Original-parsed-email.eml', ticket_attachment_reference_name = '$original_message_file_esc', ticket_attachment_reply_id = $reply_id, ticket_attachment_ticket_id = $ticket_id");
         }
 
         if ($agent_reply) {
@@ -744,7 +753,7 @@ foreach ($messages as $message) {
         // 1. Reply to existing ticket with the number in subject
         if (preg_match("/\[" . preg_quote($config_ticket_prefix, '/') . "(\d+)\]/", $subject, $ticket_number_matches)) {
             $ticket_number = intval($ticket_number_matches[1]);
-            $email_processed = addReply($from_email, $date, $subject, $ticket_number, $message_body, $attachments);
+            $email_processed = addReply($from_email, $date, $subject, $ticket_number, $message_body, $attachments, $original_message_file);
         }
 
         // 2. Fuzzy duplicate check using a known contact/domain and similar_text subject
@@ -789,7 +798,7 @@ foreach ($messages as $message) {
 
                     if ($percent >= 95) {
                         // Treat as a reply/duplicate
-                        $email_processed = addReply($from_email, $date, $subject, $ticket_number, $message_body, $attachments);
+                        $email_processed = addReply($from_email, $date, $subject, $ticket_number, $message_body, $attachments, $original_message_file);
                         break;
                     }
                 }
