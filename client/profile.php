@@ -397,7 +397,7 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                         </li>
                     <?php } ?>
                 </ul>
-                <div class="itflow-portal-panel-body border-top small text-body-secondary py-2">Somewhere you don't recognise? Change your password and let us know.</div>
+                <div class="itflow-portal-panel-body border-top small text-body-secondary py-2">Somewhere you don't recognize? Change your password and let us know.</div>
             <?php } ?>
         </section>
 

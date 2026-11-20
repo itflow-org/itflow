@@ -106,7 +106,7 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
             </div>
         </div>
         <div class="col-12">
-            <label class="form-label">What they are</label>
+            <label class="form-label">Description</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Primary internet circuit, practice management software" maxlength="200" value="<?= $vendor_description ?>">
@@ -135,7 +135,6 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
                         <?php } ?>
                     </select>
                 </div>
-                <div class="form-text">Template changes can be pushed to every vendor based on it, from Admin &rsaquo; Vendor Templates.</div>
             </div>
         <?php } elseif ($vendor_form_mode === 'edit') { ?>
             <input type="hidden" name="vendor_template_id" value="<?= intval($vendor_template_id) ?>">
@@ -207,7 +206,7 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
             </div>
         </div>
         <div class="col-12">
-            <div class="form-text mt-0">Where they post outages, and where you sign in to open a case - link the login itself from the vendor's Logins tab.</div>
+            <div class="form-text mt-0">Where they post outages, and where you sign in to open a case.</div>
         </div>
     </div>
 </div>
@@ -230,7 +229,7 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
             </div>
         </div>
         <div class="col-12">
-            <div class="form-text mt-0">What support asks for to check it's you - shown beside the support line, with the PIN hidden until you click it.</div>
+            <div class="form-text mt-0">What support asks for to check it's you.</div>
         </div>
         <div class="col-12">
             <label class="form-label">Account manager</label>
@@ -260,7 +259,7 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
 <!-- Everything else -->
 <div class="tab-pane fade" id="<?= $form_id ?>Notes">
     <label class="form-label">Notes</label>
-    <textarea class="form-control" rows="10" name="notes" placeholder="Escalation path, who is authorised to call them, circuit IDs, contract renewal, anything the next tech should know before they ring"><?= $vendor_notes ?></textarea>
+    <textarea class="form-control" rows="10" name="notes" placeholder="Escalation path, who is authorized to call them, circuit IDs, contract renewal, anything the next tech should know before they call"><?= $vendor_notes ?></textarea>
     <div class="form-text">Shown on the vendor's page and its quick look.</div>
 </div>
 

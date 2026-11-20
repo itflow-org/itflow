@@ -718,6 +718,13 @@ a:focus {
     padding-top: .5rem;
     padding-bottom: .5rem;
 }
+/* On a phone the page numbers fit one row */
+@media (max-width: 575.98px) {
+    .itflow-filter-footer .page-link {
+        padding-left: .55rem;
+        padding-right: .55rem;
+    }
+}
 
 /* --- Primary button follows the theme -----------------------------------
    Bootstrap 5 buttons are entirely variable driven, so these set --bs-btn-*
@@ -2888,10 +2895,11 @@ body {
 
 /* Needs attention: one card split into cells, each with a severity bar on top.
    The -1px margins tuck every cell's left/top hairline under the card edge, so
-   only the lines between cells show however the row wraps. */
+   only the lines between cells show however the row wraps. A grid, so a short
+   last row keeps the tiles' width rather than stretching one across the card. */
 .itflow-dash-rail {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
     margin: -1px 0 0 -1px;
 }
 .itflow-dash-rail-item {
@@ -2929,7 +2937,7 @@ a.itflow-dash-rail-item:focus-visible {
     color: var(--bs-secondary-color);
 }
 .itflow-dash-rail-clear {
-    flex-basis: 100%;
+    grid-column: 1 / -1;
 }
 
 /* Finance: the period figures side by side, then "Right now" beside them */
@@ -3783,7 +3791,11 @@ button.itflow-client-nav-identity:focus-visible {
     min-height: 12rem;
     resize: vertical;
 }
-/* The money strip is the attention rail's layout without the coloured bar */
+/* The money strip is the attention rail's cells without the coloured bar, stretched to fill its row */
+.itflow-dash-rail.itflow-ov-stats {
+    display: flex;
+    flex-wrap: wrap;
+}
 .itflow-ov-stats .itflow-dash-rail-item {
     --itflow-dash-tone: transparent;
     flex-basis: 12rem;
@@ -5784,7 +5796,7 @@ tr:hover .itflow-files-rename,
     max-width: 20rem;
 }
 .itflow-project-list .itflow-ticket-who-cell > * {
-    max-width: 10.5rem;
+    max-width: 10rem;
 }
 @media (max-width: 1399.98px) {
     .itflow-project-main {
@@ -5792,7 +5804,7 @@ tr:hover .itflow-files-rename,
     }
 }
 .itflow-project-desc {
-    max-width: 20rem;
+    max-width: 14rem;
 }
 .itflow-project-icon {
     --itflow-asset-tone: #5a61c9;

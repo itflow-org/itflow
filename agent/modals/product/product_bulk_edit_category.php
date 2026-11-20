@@ -30,7 +30,7 @@ ob_start();
                 <select class="form-select select2" name="bulk_category_id">
                     <?= categoryOptionsHtml('Income') ?>
                 </select>
-                <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('Income') ?>
             </div>
         </div>
 

@@ -50,7 +50,7 @@ $contact_phone_value = ($vt['contact_phone'] ?? '') !== '' ? escapeHtml(formatPh
             </div>
         </div>
         <div class="col-12">
-            <label class="form-label">What they are</label>
+            <label class="form-label">Description</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Business internet and phone, servers and workstations" maxlength="200" value="<?= $value('description') ?>">

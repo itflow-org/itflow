@@ -331,7 +331,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                     <?php if ($detail !== '') { ?>
                                         <div class="small text-body-secondary text-truncate itflow-service-desc" title="<?= escapeHtml($detail) ?>"><?= escapeHtml($detail) ?></div>
                                     <?php } ?>
-                                    <?php if ($service_tags || ($can_edit && !$is_archived)) { ?>
+                                    <?php if ($service_tags) { ?>
                                         <div class="mt-1"><?= tagPills('service', $service_id, $service_tags, "services.php?$client_url", $can_edit && !$is_archived) ?></div>
                                     <?php } ?>
                                     <!-- Narrower screens drop the Depends on column - the chips come along -->

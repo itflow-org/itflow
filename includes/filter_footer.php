@@ -16,11 +16,9 @@
 require __DIR__ . '/inc_empty_state.php';
 
 $total_found_rows = $num_rows[0];
-$total_pages = ceil($total_found_rows / $user_config_records_per_page);
+$total_pages = (int) ceil($total_found_rows / $user_config_records_per_page);
 
 if ($total_found_rows > 5) {
-    $i = 0;
-
     ?>
 
 <div class="card-footer itflow-filter-footer">
@@ -67,17 +65,11 @@ if ($total_found_rows > 5) {
               Showing <strong><?= $start ?></strong> to <strong><?= $end ?></strong> of <strong><?= $total_found_rows ?></strong> records
             </p>
         </div>
-        <div class="col-12 col-sm">
-            <ul class="pagination justify-content-center justify-content-sm-end mb-0">
+        <div class="col-12 col-xl-auto">
+            <ul class="pagination justify-content-center justify-content-xl-end mb-0">
 
                 <?php
 
-                // Every 10th page is linked up to 100 pages, every 100th up to 1,000, and so on up -
-                // past 10,000 pages this had no value, and the division below ended the page
-                $pages_split = 10;
-                while ($pages_split * 10 < $total_pages) {
-                    $pages_split *= 10;
-                }
                 if ($page > 1) {
                     $prev_class = "";
                 } else {
@@ -96,23 +88,40 @@ if ($total_found_rows > 5) {
                 $next_page  = $page + 1;
 
                 if ($page > 1) {
-                    echo "<li class='page-item $prev_class'><a class='page-link' href='?$url_query_strings_page&page=$prev_page'>Prev</a></li>";
+                    echo "<li class='page-item $prev_class'><a class='page-link' href='?$url_query_strings_page&page=$prev_page' aria-label='Previous page'><span class='d-sm-none' aria-hidden='true'>&lsaquo;</span><span class='d-none d-sm-inline'>Prev</span></a></li>";
                 }
 
-                while ($i < $total_pages) {
-                    $i++;
-                    if (($i == 1) || (($page <= 3) && ($i <= 6)) || (($i >  $total_pages - 6) && ($page > $total_pages - 3)) || (is_int($i / $pages_split)) || (($page > 3) && ($i >= $page - 2) && ($i <= $page + 3)) || ($i == $total_pages)) {
-                        if ($page == $i) {
-                            $page_class = "active";
-                        } else {
-                            $page_class = "";
-                        }
-                        echo "<li class='page-item $page_class'><a class='page-link' href='?$url_query_strings_page&page=$i'>$i</a></li>";
+                // Prev and Next are arrows on a phone. The first and last pages and the ones either side of this one, with a gap
+                // between - one short row however many pages there are
+                if ($page <= 4) {
+                    $from = 1;
+                    $to = min($total_pages, 5);
+                } elseif ($page >= $total_pages - 3) {
+                    $from = max(1, $total_pages - 4);
+                    $to = $total_pages;
+                } else {
+                    $from = $page - 1;
+                    $to = $page + 1;
+                }
+                $page_numbers = range($from, $to);
+                // A gap of one page shows that page, not "..." in its place
+                if ($from > 1) {
+                    array_unshift($page_numbers, 1, $from === 3 ? 2 : ($from > 3 ? 0 : null));
+                }
+                if ($to < $total_pages) {
+                    array_push($page_numbers, $to === $total_pages - 2 ? $total_pages - 1 : ($to < $total_pages - 2 ? 0 : null), $total_pages);
+                }
+                foreach (array_filter($page_numbers, function ($n) { return $n !== null; }) as $i) {
+                    if ($i === 0) {
+                        echo "<li class='page-item disabled'><span class='page-link'>&hellip;</span></li>";
+                        continue;
                     }
+                    $page_class = $page == $i ? "active" : "";
+                    echo "<li class='page-item $page_class'><a class='page-link' href='?$url_query_strings_page&page=$i'>$i</a></li>";
                 }
 
                 if ($page <> $total_pages) {
-                    echo "<li class='page-item $next_class'><a class='page-link' href='?$url_query_strings_page&page=$next_page'>Next</a></li>";
+                    echo "<li class='page-item $next_class'><a class='page-link' href='?$url_query_strings_page&page=$next_page' aria-label='Next page'><span class='d-sm-none' aria-hidden='true'>&rsaquo;</span><span class='d-none d-sm-inline'>Next</span></a></li>";
                 }
 
                 ?>

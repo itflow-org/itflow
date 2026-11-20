@@ -25,9 +25,9 @@ echo settingsPageStart('theme');
     <div class="card itflow-settings-card">
         <div class="card-body">
 
-            <?= settingsSectionStart('colour', 'Colour', 'The top bar, links, buttons and highlights, for everyone. Pick one to see it here - Save keeps it.') ?>
+            <?= settingsSectionStart('colour', 'Color', 'The top bar, links, buttons and highlights, for everyone. Pick one to see it here - Save keeps it.') ?>
                 <?php ob_start(); ?>
-                <div class="row row-cols-2 row-cols-sm-3 row-cols-xl-4 g-2" role="radiogroup" aria-label="Theme colour">
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-xl-4 g-2" role="radiogroup" aria-label="Theme color">
                     <?php foreach ($themes as $theme => $theme_name) { ?>
                         <div class="col">
                             <input type="radio" class="btn-check" id="theme-<?= $theme ?>" name="config_theme" value="<?= $theme ?>" data-settings-theme <?= $picked === $theme ? 'checked' : '' ?>>

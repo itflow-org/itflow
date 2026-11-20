@@ -57,7 +57,7 @@ ob_start();
                     <option value="">- Pick a category -</option>
                     <?= categoryOptionsHtml('Expense') ?>
                 </select>
-                <?= categoryAddButtonHtml('Expense', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('Expense') ?>
             <?php } elseif ($field === 'account') { ?>
                 <select class="form-select select2" name="value" required>
                     <option value="">- Pick an account -</option>

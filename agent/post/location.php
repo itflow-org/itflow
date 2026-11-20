@@ -50,6 +50,7 @@ if (isset($_POST['add_location'])) {
 
     $set = locationFormSet($_POST, $client_id);
     if ($set === null) {
+        inlineSaveAnswer(['ok' => false, 'error' => 'A location needs a name.']);
         flashAlert('A location needs a name.', 'error');
         redirect();
     }
@@ -69,6 +70,8 @@ if (isset($_POST['add_location'])) {
 
     $name = trim($_POST['name']);
     logAudit("Location", "Create", "$session_name created location " . escapeSql($name), $client_id, $location_id);
+
+    inlineSaveAnswer(['ok' => true, 'value' => (string) $location_id, 'label' => $name, 'message' => "Location $name created"]);
 
     flashAlert("Location <strong>$name</strong> created");
 

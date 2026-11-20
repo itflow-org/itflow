@@ -78,7 +78,7 @@ ob_start();
                         <option value="">- No type -</option>
                         <?= categoryOptionsHtml('network_interface', isset($types['Ethernet']) ? 'Ethernet' : null) ?>
                     </select>
-                    <?= categoryAddButtonHtml('network_interface', 'btn btn-secondary') ?>
+                    <?= categoryAddButtonHtml('network_interface') ?>
                 </div>
             </div>
             <div class="col-md-7">

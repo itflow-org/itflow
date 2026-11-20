@@ -1757,11 +1757,16 @@ function ticketSlaState($row) {
         'due' => $responded ? ($row['ticket_resolution_due_at'] ?? null) : ($row['ticket_response_due_at'] ?? null),
         'what' => $responded ? 'Resolution due' : 'First response due',
     ];
-    if ($stage === 2) {
+    // Missed already - as the SLA breached view and the dashboard count it
+    if ($stage === 2 || ($row['ticket_response_sla_met'] ?? null) === '0' || ($row['ticket_resolution_sla_met'] ?? null) === '0') {
         return ['key' => 'breached'] + $state;
     }
     if (intval($row['ticket_status_pauses_sla'] ?? 0)) {
         return ['key' => 'paused'] + $state;
+    }
+    // Past its deadline is a breach whether or not cron has got round to marking it
+    if (!empty($state['due']) && strtotime($state['due']) < time()) {
+        return ['key' => 'breached'] + $state;
     }
     if ($stage === 1) {
         return ['key' => 'at_risk'] + $state;

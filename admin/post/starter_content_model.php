@@ -62,7 +62,7 @@ function starterContentPacks() {
             'description' => "Vendors most clients end up with - each with its support site, status page and the portal cases are opened in, and what their support asks for. Phone numbers, hours and SLAs differ by region and contract, and account numbers and PINs by account, so they are yours to add.",
             'update' => [
                 'button' => 'update_starter_vendor_templates',
-                'confirm' => 'Bring the %d starter vendor templates you have up to date? What they are, their support site, status page, portal and notes are replaced with this version - changes you made to those are lost, and the vendors made from them that still said what they did change with them. Their support line, hours, SLA, email, account details and who should have them stay as they are.',
+                'confirm' => 'Bring the %d starter vendor templates you have up to date? Their description, support site, status page, portal and notes are replaced with this version - changes you made to those are lost, and the vendors made from them that still said what they did change with them. Their support line, hours, SLA, email, account details and who should have them stay as they are.',
             ],
         ],
         'document_templates' => [

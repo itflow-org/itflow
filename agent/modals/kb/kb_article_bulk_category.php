@@ -37,7 +37,7 @@ ob_start();
                     <?= categoryOptionHtml($category_row) ?>
                 <?php } ?>
             </select>
-            <?= categoryAddButtonHtml('kb', 'btn btn-secondary') ?>
+            <?= categoryAddButtonHtml('kb') ?>
         </div>
     </div>
 

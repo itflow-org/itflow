@@ -182,7 +182,7 @@ ob_start();
                                 <select class="form-select select2" name="contact_id" id="contactSelect" data-selected="<?= $contact_id ?>">
                                     <option value="0">- No One -</option>
                                 </select>
-                                <?= quickAddButton('contact', 0, 'btn btn-secondary') ?>
+                                <?= quickAddButton('contact', 0) ?>
                             </div>
                         </div>
                     </div>
@@ -231,7 +231,7 @@ ob_start();
                                     <option value="0">- Not Categorized -</option>
                                     <?= categoryOptionsHtml('Ticket', $prefill_category_id ?: null) ?>
                                 </select>
-                                <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
+                                <?= categoryAddButtonHtml('Ticket') ?>
                             </div>
                         </div>
                     </div>
@@ -273,11 +273,11 @@ ob_start();
                     </div>
                 </div>
 
-                <!-- Where it starts, and the work booked - as the ticket's own status menu and Schedule window -->
+                <!-- Where it starts - as the ticket's own status menu - and its tags -->
                 <div class="row">
                     <div class="col">
                         <div class="mb-3">
-                            <label>Status</label>
+                            <label class="form-label">Status</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
                                 <select class="form-select select2" name="status">
@@ -291,27 +291,28 @@ ob_start();
                     </div>
                     <div class="col">
                         <div class="mb-3">
-                            <label>Schedule</label>
-                            <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
-                                <input type="datetime-local" class="form-control" name="schedule" min="<?= date('Y-m-d\TH:i') ?>" value="<?= escapeHtml($prefill_schedule) ?>" aria-label="Date and time of the work">
-                                <select class="form-select flex-grow-0 w-auto" name="schedule_minutes" aria-label="How long">
-                                    <?php foreach (ticketScheduleLengths($prefill_schedule_minutes) as $minutes => $label) { ?>
-                                        <option value="<?= intval($minutes) ?>" <?= intval($minutes) === $prefill_schedule_minutes ? 'selected' : '' ?>><?= escapeHtml($label) ?></option>
-                                    <?php } ?>
-                                </select>
-                                <select class="form-select flex-grow-0 w-auto" name="onsite" aria-label="Visit">
-                                    <option value="0">Remote</option>
-                                    <option value="1">Onsite</option>
-                                </select>
-                            </div>
-                            <div class="form-text">When, how long and where. Leave it empty to book the work later.</div>
+                            <?= tagFormFieldHtml('ticket', [], 'Onboarding, Hardware, Escalated', 'Tags', 'data-template-field="tags"') ?>
                         </div>
                     </div>
                 </div>
 
+                <!-- The work booked, as the ticket's own Schedule window - a row of its own, so the date has room beside how long and where -->
                 <div class="mb-3">
-                    <?= tagFormFieldHtml('ticket', [], 'Onboarding, Hardware, Escalated', 'Tags', 'data-template-field="tags"') ?>
+                    <label>Schedule</label>
+                    <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                        <input type="datetime-local" class="form-control" name="schedule" min="<?= date('Y-m-d\TH:i') ?>" value="<?= escapeHtml($prefill_schedule) ?>" aria-label="Date and time of the work">
+                        <select class="form-select flex-grow-0 w-auto" name="schedule_minutes" aria-label="How long">
+                            <?php foreach (ticketScheduleLengths($prefill_schedule_minutes) as $minutes => $label) { ?>
+                                <option value="<?= intval($minutes) ?>" <?= intval($minutes) === $prefill_schedule_minutes ? 'selected' : '' ?>><?= escapeHtml($label) ?></option>
+                            <?php } ?>
+                        </select>
+                        <select class="form-select flex-grow-0 w-auto" name="onsite" aria-label="Visit">
+                            <option value="0">Remote</option>
+                            <option value="1">Onsite</option>
+                        </select>
+                    </div>
+                    <div class="form-text">Leave it empty to book the work later.</div>
                 </div>
 
                 <?php if ($config_module_enable_accounting) { ?>
@@ -366,7 +367,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                         <select class="form-select select2" name="location_id" id="locationSelect" data-selected="<?= $location_id ?>">
                         </select>
-                        <?= quickAddButton('location', 0, 'btn btn-secondary') ?>
+                        <?= quickAddButton('location', 0) ?>
                     </div>
                 </div>
 
@@ -379,7 +380,7 @@ ob_start();
                                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                                 <select class="form-select select2" name="vendor_id" id="vendorSelect" data-selected="<?= $vendor_id ?>">
                                 </select>
-                                <?= quickAddButton('vendor', 0, 'btn btn-secondary') ?>
+                                <?= quickAddButton('vendor', 0) ?>
                             </div>
                         </div>
                     </div>

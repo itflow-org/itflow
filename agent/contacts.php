@@ -630,7 +630,7 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
                                     <?php if ($contact_role_line) { ?>
                                         <div class="small text-body-secondary text-truncate itflow-contact-role"><?= $contact_role_line ?></div>
                                     <?php } ?>
-                                    <?php if ($contact_tags || $can_edit) { ?>
+                                    <?php if ($contact_tags) { ?>
                                         <div class="mt-1 itflow-above-stretch"><?= tagPills('contact', $contact_id, $contact_tags, "contacts.php?$client_url") ?></div>
                                     <?php } ?>
                                 </div>

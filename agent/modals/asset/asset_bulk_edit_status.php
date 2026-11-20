@@ -28,7 +28,7 @@ ob_start();
                     <option value="">- Select Status -</option>
                     <?= categoryOptionsHtml('asset_status') ?>
                 </select>
-                <?= categoryAddButtonHtml('asset_status', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('asset_status') ?>
             </div>
         </div>
 

@@ -35,7 +35,7 @@ ob_start();
                 <select class="form-select select2" name="type">
                     <?= categoryOptionsHtml('contact_note_type') ?>
                 </select>
-                <?= categoryAddButtonHtml('contact_note_type', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('contact_note_type') ?>
             </div>
         </div>
 

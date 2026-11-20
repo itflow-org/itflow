@@ -362,7 +362,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                                     <?php if ($vendor_description) { ?>
                                         <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $vendor_description ?>"><?= $vendor_description ?></div>
                                     <?php } ?>
-                                    <?php if ($vendor_tags || $row_can_edit) { ?>
+                                    <?php if ($vendor_tags) { ?>
                                         <div class="mt-1 itflow-above-stretch"><?= tagPills('vendor', $vendor_id, $vendor_tags, $tag_base, $row_can_edit) ?></div>
                                     <?php } ?>
                                 </div>

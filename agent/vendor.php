@@ -466,7 +466,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                 <div class="card-header">
                     <h3 class="card-title mb-0"><i class="fas fa-fw fa-sticky-note text-secondary me-2"></i>Notes</h3>
                 </div>
-                <textarea class="form-control border-0 rounded-0 rounded-bottom itflow-vendor-notes" rows="7" placeholder="Escalation path, who is authorised to call them, circuit IDs, contract renewal - saves when you click away"
+                <textarea class="form-control border-0 rounded-0 rounded-bottom itflow-vendor-notes" rows="7" placeholder="Escalation path, who is authorized to call them, circuit IDs, contract renewal - saves when you click away"
                     data-vendor-id="<?= $vendor_id ?>" data-csrf="<?= escapeHtml($_SESSION['csrf_token']) ?>" <?= $can_edit ? '' : 'readonly' ?>><?= $vendor_notes ?></textarea>
             </div>
 

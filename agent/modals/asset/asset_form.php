@@ -195,7 +195,7 @@ $asset_form_icons = [
                     <option value="">- Status -</option>
                     <?= categoryOptionsHtml('asset_status', html_entity_decode($asset_status)) ?>
                 </select>
-                <?= categoryAddButtonHtml('asset_status', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('asset_status') ?>
             </div>
         </div>
         <div class="col-md-7">

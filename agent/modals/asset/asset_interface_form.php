@@ -69,7 +69,7 @@ $form_type = (string) ($form['interface_type'] ?? '');
                     <option value="">- No type -</option>
                     <?= categoryOptionsHtml('network_interface', $form_type) ?>
                 </select>
-                <?= categoryAddButtonHtml('network_interface', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('network_interface') ?>
             </div>
         </div>
         <div class="col-md-7">

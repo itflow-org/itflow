@@ -80,7 +80,7 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
                 <option value="">- Category -</option>
                 <?= categoryOptionsHtml('Income', $form_category_id) ?>
             </select>
-            <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
+            <?= categoryAddButtonHtml('Income') ?>
         </div>
     </div>
     <div class="col-sm-5">

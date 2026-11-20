@@ -78,7 +78,7 @@ ob_start();
                 <label class="form-label">Description</label>
                 <div class="input-group">
                     <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-align-left"></i></span>
-                    <textarea class="form-control" name="description" rows="2" placeholder="Model, size, colour - goes on the purchase order"><?= escapeHtml((string) ($item['order_item_description'] ?? '')) ?></textarea>
+                    <textarea class="form-control" name="description" rows="2" placeholder="Model, size, color - goes on the purchase order"><?= escapeHtml((string) ($item['order_item_description'] ?? '')) ?></textarea>
                 </div>
             </div>
             <div class="col-sm-5">

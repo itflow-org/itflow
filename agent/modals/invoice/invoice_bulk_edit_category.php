@@ -30,7 +30,7 @@ ob_start();
                 <option value="">- Pick a category -</option>
                 <?= categoryOptionsHtml('Income') ?>
             </select>
-            <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
+            <?= categoryAddButtonHtml('Income') ?>
         </div>
         <div class="form-text">Reports group income by it.</div>
     </div>

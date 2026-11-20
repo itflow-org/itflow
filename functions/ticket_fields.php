@@ -238,7 +238,7 @@ function ticketBillableHtml($billable, $style = 'list') {
     }
     return $billable
         ? '<span class="badge rounded-pill bg-success p-2"><i class="fas fa-fw fa-dollar-sign"></i></span>'
-        : '<span class="badge rounded-pill bg-secondary p-2"><i class="fas fa-fw fa-minus"></i></span>';
+        : '<span class="badge rounded-pill bg-body-secondary text-body-secondary p-2"><i class="fas fa-fw fa-minus"></i></span>';
 }
 
 /* A status as its badge - text that reads on its colour, and what it is for on hover (functions/ticket_status.php). */

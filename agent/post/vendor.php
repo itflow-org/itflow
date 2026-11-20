@@ -51,12 +51,14 @@ if (isset($_POST['add_vendor'])) {
     $client_id = intval($_POST['client_id'] ?? 0);
     vendorEnforce($client_id, 2);
     if ($client_id && !getFieldById('clients', $client_id, 'client_name')) {
+        inlineSaveAnswer(['ok' => false, 'error' => 'That client no longer exists.']);
         flashAlert('That client no longer exists.', 'error');
         redirect();
     }
 
     $vendor_id = vendorCreate($_POST, $client_id);
     if (!$vendor_id) {
+        inlineSaveAnswer(['ok' => false, 'error' => 'A vendor needs a name.']);
         flashAlert('A vendor needs a name.', 'error');
         redirect();
     }
@@ -66,6 +68,8 @@ if (isset($_POST['add_vendor'])) {
     $name = trim($_POST['name']);
     $template_note = intval($_POST['vendor_template_id'] ?? 0) ? ' from a template' : '';
     logAudit("Vendor", "Create", "$session_name created vendor " . escapeSql($name) . $template_note, $client_id, $vendor_id);
+
+    inlineSaveAnswer(['ok' => true, 'value' => (string) $vendor_id, 'label' => $name, 'message' => "Vendor $name created"]);
 
     flashAlert("Vendor <strong>$name</strong> created");
 

@@ -141,7 +141,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
                         <?php } ?>
                     </select>
                 </div>
-                <div class="form-text">Fills in the name, type, license type, description, seats, vendor, renewal date and notes - change anything after. The license remembers it.</div>
+                <div class="form-text">Fills in the details - change anything after.</div>
             </div>
         <?php } ?>
 
@@ -172,7 +172,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
                     <option value="">- Select Type -</option>
                     <?= categoryOptionsHtml('software_type', $software_type_raw) ?>
                 </select>
-                <?= categoryAddButtonHtml('software_type', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('software_type') ?>
             </div>
         </div>
         <?php if ($client_id) { ?>
@@ -268,7 +268,6 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
                 <button type="button" class="btn btn-outline-secondary" data-renew-term="1y" title="A year after it was bought (or today)">1 yr</button>
                 <button type="button" class="btn btn-outline-secondary" data-renew-term="3y" title="Three years after it was bought (or today)">3 yr</button>
             </div>
-            <div class="form-text">Shows on the client overview's renewals and the dashboard as it gets close.</div>
         </div>
     </div>
 </div>

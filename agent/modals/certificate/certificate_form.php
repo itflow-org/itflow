@@ -124,7 +124,7 @@ $has_pem = trim(html_entity_decode($certificate_public_key, ENT_QUOTES, 'UTF-8')
 <div class="tab-pane fade" id="<?= $form_id ?>Details">
     <label class="form-label">Certificate (PEM)</label>
     <textarea class="form-control font-monospace small" rows="9" name="public_key" spellcheck="false" placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----" data-certificate-pem><?= $certificate_public_key ?></textarea>
-    <div class="form-text mb-3">For a host ITFlow can't reach. The issuer, dates, names it covers and fingerprint are read from it - a whole chain is fine, only the first certificate is kept. Never paste the private key.</div>
+    <div class="form-text mb-3">For a host ITFlow can't reach - its details are read from it, and a whole chain is fine. Never paste the private key.</div>
 
     <fieldset data-certificate-by-hand>
         <div class="small text-body-secondary fw-semibold text-uppercase mb-2">Nothing to paste? By hand</div>

@@ -138,7 +138,7 @@ ob_start();
                         <option value="">- Category -</option>
                         <?= categoryOptionsHtml('Income') ?>
                     </select>
-                    <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
+                    <?= categoryAddButtonHtml('Income') ?>
                 </div>
             </div>
             <div class="col-12" data-ticket-invoice-new>

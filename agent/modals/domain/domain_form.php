@@ -96,7 +96,7 @@ $form_id = 'domainForm' . ($domain_form_mode === 'edit' ? $domain_id : 'New');
             <div class="col-12 d-none" data-domain-several>
                 <label class="form-label">Domain names <strong class="text-danger">*</strong></label>
                 <textarea class="form-control font-monospace" name="names" rows="8" placeholder="example.com&#10;example.net&#10;shop.example.org" disabled data-domain-names></textarea>
-                <div class="form-text">One per line - or separated by spaces or commas. Each is looked up as it is added; ones already on the client are skipped. The registrar, hosts, auto-renew and tags you set here go on all of them.</div>
+                <div class="form-text">One per line, or separated by spaces or commas. The registrar, hosts, auto-renew and tags here go on all of them.</div>
             </div>
         <?php } ?>
         <div class="col-12" data-domain-one>

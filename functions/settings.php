@@ -40,7 +40,7 @@ function settingsPages() {
         'localization' => ['group' => 'company', 'title' => 'Localization', 'icon' => 'fa-globe', 'url' => 'settings_localization.php',
             'about' => 'The language dates and numbers are written in, the currency you bill in, and your timezone.'],
         'theme' => ['group' => 'company', 'title' => 'Theme', 'icon' => 'fa-paint-brush', 'url' => 'settings_theme.php',
-            'about' => 'The colour of the top bar, links, buttons and highlights, and the icon on the browser tab.'],
+            'about' => 'The color of the top bar, links, buttons and highlights, and the icon on the browser tab.'],
         'default' => ['group' => 'work', 'title' => 'Defaults', 'icon' => 'fa-cogs', 'url' => 'settings_default.php',
             'about' => 'Where ITFlow opens, what a client is billed on without a contract, and what new payments, expenses and transfers start with.'],
         'ticket' => ['group' => 'work', 'title' => 'Tickets', 'icon' => 'fa-life-ring', 'url' => 'settings_ticket.php', 'module' => 'ticketing',
@@ -239,7 +239,7 @@ function settingsFields() {
         'config_timezone' => ['page' => 'localization', 'section' => 'Timezone', 'label' => 'Timezone', 'words' => 'time zone clock utc'],
 
         // Theme
-        'config_theme' => ['page' => 'theme', 'section' => 'Colour', 'label' => 'Theme colour', 'kind' => 'select', 'options' => 'themes',
+        'config_theme' => ['page' => 'theme', 'section' => 'Color', 'label' => 'Theme color', 'kind' => 'select', 'options' => 'themes',
             'words' => 'theme color colour accent top bar branding'],
         'favicon' => ['page' => 'theme', 'section' => 'Browser tab icon', 'label' => 'Browser tab icon', 'kind' => 'file', 'words' => 'favicon ico icon tab'],
 

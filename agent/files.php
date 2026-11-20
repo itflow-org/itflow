@@ -729,7 +729,7 @@ $preview = []; // the grid's previewer payload
                                                         <div class="small text-body-secondary text-truncate itflow-files-desc"><?= escapeHtml($item['description']) ?></div>
                                                     <?php } ?>
                                                     <?= filesFolderNote($item) ?>
-                                                    <?php if ($item['kind'] === 'document' && (!empty($documents_tags[$id]) || ($can_edit && !$item['archived']))) { ?>
+                                                    <?php if ($item['kind'] === 'document' && !empty($documents_tags[$id])) { ?>
                                                         <div class="mt-1 itflow-above-stretch"><?= tagPills('document', $id, $documents_tags[$id] ?? [], "files.php?client_id=$client_id&", $can_edit && !$item['archived']) ?></div>
                                                     <?php } ?>
                                                 </div>

@@ -82,7 +82,7 @@ ob_start();
                     <option value="">- Pick a category -</option>
                     <?= categoryOptionsHtml('Income', null, ['exclude' => ['Account Transfer']]) ?>
                 </select>
-                <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('Income') ?>
             <?php } elseif ($field === 'account') { ?>
                 <select class="form-select select2" name="value" required>
                     <option value="">- Pick the account it went into -</option>

@@ -98,7 +98,7 @@ function categoryKinds() {
         ],
         'asset_status' => [
             'label' => 'Asset Status', 'one' => 'asset status', 'many' => 'asset statuses', 'icon' => 'fa-heartbeat',
-            'about' => 'Where an asset stands - deployed, out for repair, retired. Its colour is the status badge\'s; without one the built-in statuses keep theirs.',
+            'about' => 'Where an asset stands - deployed, out for repair, retired. Its color is the status badge\'s; without one the built-in statuses keep theirs.',
             'by' => 'name', 'ordered' => true, 'max' => 200, 'modules' => ['module_support'],
             'uses' => [
                 $use('assets', 'asset_status', 'asset', 'assets', '/agent/assets.php?status={name}', 'asset_archived_at', 'asset_updated_at'),

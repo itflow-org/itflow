@@ -23,7 +23,7 @@ ob_start();
 
         <?php
         $ticket_template_field = 'bulk_ticket_template_id';
-        $ticket_template_hint = "Picking one fills in the tickets - change anything before they are made. <span class=\"font-monospace\">[Asset]</span>, <span class=\"font-monospace\">[Contact]</span> and the like are filled in for each; with <span class=\"font-monospace\">[Asset]</span> in the subject, the asset's name isn't put in front. What the template asks for is answered once, for them all.";
+        $ticket_template_hint = "<span class=\"font-monospace\">[Asset]</span>, <span class=\"font-monospace\">[Contact]</span> and the like in it are filled in for each ticket - with <span class=\"font-monospace\">[Asset]</span> in the subject, the asset's name isn't put in front too.";
         require_once '../../includes/inc_ticket_template_select.php';
         ?>
 
@@ -65,7 +65,7 @@ ob_start();
                             <option value="0">- Not Categorized -</option>
                             <?= categoryOptionsHtml('Ticket') ?>
                         </select>
-                        <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
+                        <?= categoryAddButtonHtml('Ticket') ?>
                     </div>
                 </div>
             </div>

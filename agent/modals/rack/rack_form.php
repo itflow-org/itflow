@@ -41,7 +41,7 @@ isset($mysqli) || die("Direct file access is not allowed");
                         <?php // Rack types from Admin > Categories - one the rack has that is archived or isn't a type any more stays an option, or the required select would change it on every edit ?>
                         <?= categoryOptionsHtml('rack_type', html_entity_decode($rack_type, ENT_QUOTES, 'UTF-8')) ?>
                     </select>
-                    <?= categoryAddButtonHtml('rack_type', 'btn btn-secondary') ?>
+                    <?= categoryAddButtonHtml('rack_type') ?>
                 </div>
             </div>
 

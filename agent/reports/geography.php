@@ -170,7 +170,7 @@ if ($next_label !== '') {
         'sub' => $next_named ? '<span class="text-body-tertiary">Most:</span> ' . escapeHtml($next_named[0]['name']) . ' <span class="text-body-tertiary">(' . geographyNoun($next_named[0]['clients'], 'client') . ')</span>' : ''];
 }
 $stats[] = ['label' => 'Incomplete addresses', 'value' => reportCount($gaps), 'tone' => $gaps ? 'warning' : 'success',
-    'sub' => '<span class="text-body-tertiary">' . ($gaps ? 'No city, or a country or state not recognised' : 'Every location placed') . '</span>'];
+    'sub' => '<span class="text-body-tertiary">' . ($gaps ? 'No city, or a country or state not recognized' : 'Every location placed') . '</span>'];
 
 // The map: the world by country, or this country's states - shaded by clients or locations
 $map_name = $level === 0 ? 'world' : (REPORT_GEO_MAPS[$country] ?? '');
@@ -241,7 +241,7 @@ $controls .= reportSwitchControl('leads', $leads, 'Include leads');
             </div>
             <?php if ($off_map) { ?>
                 <div class="card-footer small text-body-secondary">
-                    <?= geographyNoun($off_map, 'location') ?> could not be placed on the map - the <?= $level === 0 ? 'country' : strtolower($term) ?> is not filled in or not recognised. They are in the table below.
+                    <?= geographyNoun($off_map, 'location') ?> could not be placed on the map - the <?= $level === 0 ? 'country' : strtolower($term) ?> is not filled in or not recognized. They are in the table below.
                 </div>
             <?php } ?>
         </div>

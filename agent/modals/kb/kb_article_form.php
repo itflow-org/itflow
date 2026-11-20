@@ -52,7 +52,7 @@ $kb_form_audience = $kb_form_mode === 'edit' ? kbAudienceFields($kb_form) : ['vi
                     <?= categoryOptionHtml($category_row, intval($category_id) === $kb_form_category) ?>
                 <?php } ?>
             </select>
-            <?= categoryAddButtonHtml('kb', 'btn btn-secondary') ?>
+            <?= categoryAddButtonHtml('kb') ?>
         </div>
     </div>
     <div class="col-md-4">

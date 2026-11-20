@@ -311,7 +311,7 @@ $locations_counts = locationCounts(array_keys($locations));
                                     <?php if ($location_description) { ?>
                                         <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $location_description ?>"><?= $location_description ?></div>
                                     <?php } ?>
-                                    <?php if ($location_tags || $can_edit) { ?>
+                                    <?php if ($location_tags) { ?>
                                         <div class="mt-1 itflow-above-stretch"><?= tagPills('location', $location_id, $location_tags, "locations.php?$client_url") ?></div>
                                     <?php } ?>
                                 </div>

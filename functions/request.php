@@ -119,6 +119,21 @@ function redirect($url = null, $permanent = false) {
     }
 }
 
+/*
+ * A New Contact, New Location or New Vendor window opened by the + beside a picker in another
+ * window (quickAddButton(), js/quick_add.js) posts inline=1: answer it with the new record for the
+ * picker - ['ok' => true, 'value', 'label', 'message'] - or ['ok' => false, 'error'], in place of
+ * a message and a reload. Does nothing for an ordinary post.
+ */
+function inlineSaveAnswer(array $answer): void {
+    if (empty($_POST['inline'])) {
+        return;
+    }
+    header('Content-Type: application/json');
+    echo json_encode($answer);
+    exit;
+}
+
 //Flash Alert Function
 function flashAlert(string $message, string $type = 'success'): void {
     $_SESSION['alert_type'] = $type;

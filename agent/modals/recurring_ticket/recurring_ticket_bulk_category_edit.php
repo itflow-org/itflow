@@ -31,7 +31,7 @@ ob_start();
                     <option value="0">- Uncategorized -</option>
                     <?= categoryOptionsHtml('Ticket') ?>
                 </select>
-                <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('Ticket') ?>
             </div>
         </div>
     </div>

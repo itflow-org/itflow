@@ -312,7 +312,7 @@ function ticketStatusUpdate(array $row, array $f) {
         'name' => (string) $row['ticket_status_name'], 'color' => ticketStatusColor($row['ticket_status_color']),
         'description' => trim((string) ($row['ticket_status_description'] ?? '')),
     ];
-    foreach (['name' => 'name', 'color' => 'colour', 'description' => 'description'] as $key => $label) {
+    foreach (['name' => 'name', 'color' => 'color', 'description' => 'description'] as $key => $label) {
         if ($was[$key] !== $f[$key]) {
             $changes[] = "$label from " . ($was[$key] !== '' ? $was[$key] : 'none') . ' to ' . ($f[$key] !== '' ? $f[$key] : 'none');
         }

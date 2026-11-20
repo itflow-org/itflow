@@ -356,7 +356,7 @@ $csrf = $_SESSION['csrf_token'];
                                     </div>
                                     <!-- On a phone the other columns are off to the side - the subnet comes along -->
                                     <div class="d-md-none small font-monospace mt-1"><?= escapeHtml($row['network']) ?><?= $row['network_gateway'] ? ' · gw ' . escapeHtml($row['network_gateway']) : '' ?></div>
-                                    <?php if (!empty($networks_tags[$network_id]) || ($can_edit && !$is_archived)) { ?>
+                                    <?php if (!empty($networks_tags[$network_id])) { ?>
                                         <div class="mt-1"><?= tagPills('network', $network_id, $networks_tags[$network_id] ?? [], "networks.php?$client_url", $can_edit && !$is_archived) ?></div>
                                     <?php } ?>
                                 </div>

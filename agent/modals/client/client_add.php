@@ -60,7 +60,7 @@ ob_start();
                     <label>Shortened Name</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
-                        <input type="text" class="form-control" name="abbreviation" placeholder="Shortened name for client - Max chars 6" maxlength="6" oninput="this.value = this.value.toUpperCase()">
+                        <input type="text" class="form-control" name="abbreviation" placeholder="Up to 6 characters, such as RDG" maxlength="6" oninput="this.value = this.value.toUpperCase()">
                     </div>
                 </div>
 
@@ -68,7 +68,7 @@ ob_start();
                     <label>Industry</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-briefcase"></i></span>
-                        <input type="text" class="form-control" name="type" placeholder="Company Type" maxlength="200">
+                        <input type="text" class="form-control" name="type" placeholder="Healthcare, Legal, Construction" maxlength="200">
                     </div>
                 </div>
 
@@ -80,7 +80,7 @@ ob_start();
                             <option value="">- Select Referral -</option>
                             <?= categoryOptionsHtml('Referral') ?>
                         </select>
-                        <?= categoryAddButtonHtml('Referral', 'btn btn-secondary') ?>
+                        <?= categoryAddButtonHtml('Referral') ?>
                     </div>
                 </div>
 
@@ -297,7 +297,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_client" class="btn btn-primary text-bold" onclick="promptPrimaryContact()"><i class="fa fa-check me-2"></i>Create Client</button>
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -947,61 +947,6 @@ if (isset($_GET['client_card'])) {
 }
 
 /*
- * Add a contact, location or vendor without leaving the window that needs it (js/quick_add.js -
- * the + beside those pickers in New Ticket, Edit Ticket and the asset form). Only what the picker
- * needs: a name, and an email and title, an address, or a phone. Answers {ok, id, label} or {error}.
- */
-if (isset($_POST['quick_add_record'])) {
-    validateCSRFToken();
-    header('Content-Type: application/json');
-
-    $type = (string) $_POST['quick_add_record'];
-    $client_id = intval($_POST['client_id'] ?? 0);
-    $name = mb_substr(trim((string) ($_POST['name'] ?? '')), 0, 200);
-    $fail = function ($error) {
-        echo json_encode(['error' => $error]);
-        exit;
-    };
-
-    if (!in_array($type, ['contact', 'location', 'vendor'], true) || lookupUserPermission('module_client') < 2) {
-        $fail("You can't add those here.");
-    }
-    if (!$client_id || !hasClientAccess($client_id) || !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM clients WHERE client_id = $client_id"))) {
-        $fail('Pick the client first.');
-    }
-    if ($name === '') {
-        $fail('It needs a name.');
-    }
-    $name_sql = escapeSql($name);
-
-    if ($type === 'contact') {
-        $email = trim((string) ($_POST['email'] ?? ''));
-        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $fail("That email address doesn't look right.");
-        }
-        mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$name_sql', contact_email = '" . escapeSql(mb_substr($email, 0, 200)) . "',
-            contact_title = '" . escapeSql(mb_substr(trim((string) ($_POST['title'] ?? '')), 0, 200)) . "', contact_client_id = $client_id");
-        $id = mysqli_insert_id($mysqli);
-        logAudit("Contact", "Create", "$session_name created contact $name_sql", $client_id, $id);
-    } elseif ($type === 'location') {
-        mysqli_query($mysqli, "INSERT INTO locations SET " . locationFormSet(['name' => $name, 'address' => $_POST['address'] ?? '', 'city' => $_POST['city'] ?? ''], $client_id) . ", location_client_id = $client_id");
-        $id = mysqli_insert_id($mysqli);
-        // The client's first location is its primary one, as from Add Location
-        if (!intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM locations WHERE location_client_id = $client_id AND location_primary = 1 AND location_archived_at IS NULL"))[0])) {
-            locationMakePrimary($id, $client_id);
-        }
-        logAudit("Location", "Create", "$session_name created location $name_sql", $client_id, $id);
-    } else {
-        mysqli_query($mysqli, "INSERT INTO vendors SET " . vendorFormSet(['name' => $name, 'phone' => $_POST['phone'] ?? '']) . ", vendor_client_id = $client_id");
-        $id = mysqli_insert_id($mysqli);
-        logAudit("Vendor", "Create", "$session_name created vendor $name_sql", $client_id, $id);
-    }
-
-    echo json_encode(['ok' => true, 'id' => $id, 'label' => $name]);
-    exit;
-}
-
-/*
  * Rename a file or a document from its name on the files list (agent/js/files.js) - the name only;
  * the Rename window still changes the description. Answers {ok, name} or {error}.
  */

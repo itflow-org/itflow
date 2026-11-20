@@ -135,7 +135,7 @@ ob_start();
                                     <option value="0">- Not categorized -</option>
                                     <?= categoryOptionsHtml('Ticket', $ticket_category) ?>
                                 </select>
-                                <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
+                                <?= categoryAddButtonHtml('Ticket') ?>
                             </div>
                         </div>
                     </div>

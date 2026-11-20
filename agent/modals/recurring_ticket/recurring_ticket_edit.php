@@ -112,7 +112,7 @@ ob_start();
                 foreach (ticketFillInsStored('recurring_ticket', $recurring['recurring_ticket_id']) as $answer) {
                     $ticket_template_fill_in_values[$answer['name']] = $answer['value'];
                 }
-                $ticket_template_hint = "Picking one fills in the recurring ticket - change anything before it is saved. <span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like are filled in each time it raises a ticket, and what the template asks for is answered once here.";
+                $ticket_template_hint = "<span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like in it are filled in each time it raises a ticket.";
                 require_once '../../includes/inc_ticket_template_select.php';
                 ?>
 
@@ -151,7 +151,7 @@ ob_start();
                                     <option value="0">- Not categorized -</option>
                                     <?= categoryOptionsHtml('Ticket', $category_id) ?>
                                 </select>
-                                <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
+                                <?= categoryAddButtonHtml('Ticket') ?>
                             </div>
                         </div>
                     </div>

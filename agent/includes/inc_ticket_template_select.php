@@ -26,7 +26,7 @@
 $selected_ticket_template_id = intval($selected_ticket_template_id ?? 0);
 $ticket_template_field = $ticket_template_field ?? 'ticket_template_id';
 $ticket_template_apply_on_load = !empty($ticket_template_apply_on_load);
-$ticket_template_hint = $ticket_template_hint ?? 'Picking one fills in the ticket - change anything before it is made. <span class="font-monospace">[Client]</span>, <span class="font-monospace">[Month]</span> and the like are filled in when it is saved.';
+$ticket_template_hint = $ticket_template_hint ?? '<span class="font-monospace">[Client]</span>, <span class="font-monospace">[Month]</span> and the like in it are filled in when the ticket is saved.';
 
 $ticket_template_fill_in_values = $ticket_template_fill_in_values ?? [];
 

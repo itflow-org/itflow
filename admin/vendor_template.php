@@ -100,7 +100,7 @@ $manager = array_filter([
     trim((string) $t['vendor_template_contact_email']) !== '' ? '<i class="fas fa-fw fa-at text-secondary me-1"></i><a href="mailto:' . escapeHtml($t['vendor_template_contact_email']) . '">' . escapeHtml($t['vendor_template_contact_email']) . '</a>' : '',
 ]);
 $facts = array_filter([
-    'What they are' => escapeHtml((string) $t['vendor_template_description']),
+    'Description' => escapeHtml((string) $t['vendor_template_description']),
     'Support line' => vendorTemplatePhoneHtml($t['vendor_template_phone'], $t['vendor_template_phone_country_code'], $t['vendor_template_extension']),
     'Support hours' => escapeHtml((string) $t['vendor_template_hours']),
     'SLA' => escapeHtml((string) $t['vendor_template_sla']),

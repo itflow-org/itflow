@@ -99,7 +99,7 @@ $form_scope_placeholder = [
                 <option value="">- Category -</option>
                 <?= categoryOptionsHtml('Income', $form_category_id, ['since' => $form_edit ? $form_value('created_at') : null]) ?>
             </select>
-            <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
+            <?= categoryAddButtonHtml('Income') ?>
         </div>
     </div>
 

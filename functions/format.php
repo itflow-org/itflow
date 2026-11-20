@@ -209,9 +209,11 @@ function formatAssignee($user_id, $user_name, $user_avatar, $highlight_unassigne
     $user_id = intval($user_id);
 
     if (!$user_id) {
-        $tone = $highlight_unassigned ? 'danger' : 'secondary';
-        $colors = $highlight_unassigned ? 'text-danger-emphasis bg-danger-subtle' : 'text-body-secondary bg-body-secondary';
-        return "<span class='$pill $colors'><span class='position-relative d-inline-flex' aria-hidden='true'><i class='fas fa-circle fs-5 text-$tone'></i><i class='fas fa-user-slash position-absolute top-50 start-50 translate-middle small text-white'></i></span>" . escapeHtml($none_label) . "</span>";
+        // Amber, as the Unassigned view and the dashboard's tile are - red is kept for what is late
+        $tone = $highlight_unassigned ? 'warning' : 'secondary';
+        $colors = $highlight_unassigned ? 'text-warning-emphasis bg-warning-subtle' : 'text-body-secondary bg-body-secondary';
+        $icon = $highlight_unassigned ? 'text-dark' : 'text-white';
+        return "<span class='$pill $colors'><span class='position-relative d-inline-flex' aria-hidden='true'><i class='fas fa-circle fs-5 text-$tone'></i><i class='fas fa-user-slash position-absolute top-50 start-50 translate-middle small $icon'></i></span>" . escapeHtml($none_label) . "</span>";
     }
 
     $user_avatar = escapeHtml($user_avatar);

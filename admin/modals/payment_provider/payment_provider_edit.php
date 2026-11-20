@@ -204,7 +204,7 @@ ob_start();
                         <option value="">- Pick a category -</option>
                         <?= categoryOptionsHtml('Expense', $category_id ?: null) ?>
                     </select>
-                    <?= categoryAddButtonHtml('Expense', 'btn btn-secondary') ?>
+                    <?= categoryAddButtonHtml('Expense') ?>
                 </div>
                 <?= $error_for('expense_category') ?>
                 <div class="form-text">Processing Fee, or the like.</div>

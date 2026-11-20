@@ -17,7 +17,7 @@ if (isset($_POST['edit_theme_settings'])) {
 
     $errors = [];
     if (!isset(settingsThemes()[$theme])) {
-        $errors['config_theme'] = 'Pick one of the colours.';
+        $errors['config_theme'] = 'Pick one of the colors.';
     }
     $favicon_problem = settingsImageProblem($_FILES['favicon'] ?? null, ['ico'], ['ico'], '.ico', 1048576);
     if ($favicon_problem !== '') {

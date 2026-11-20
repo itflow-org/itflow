@@ -28,6 +28,10 @@ $vendor_template_id = 0;
 $vendor_tag_ids = [];
 $vendor_template_focus = !empty($_GET['from_template']);
 
+// Opened by the + beside a vendor picker in another window (quickAddButton()) - js/quick_add.js
+// saves it in the background and picks it there
+$inline = !empty($_GET['inline']);
+
 // Started from a template - its fields, escaped like the rest
 $template = vendorTemplateRow($_GET['template_id'] ?? 0);
 if ($template) {
@@ -47,13 +51,15 @@ ob_start();
     <h5 class="modal-title"><i class="fa fa-fw fa-building me-2"></i>New <?= $client_id || $vendor_pick_client ? '' : 'Company ' ?>Vendor</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-<form action="post.php" method="post" autocomplete="off">
+<form action="post.php" method="post" autocomplete="off"<?= $inline ? ' data-quick-add-inline' : '' ?>>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <?php if ($inline) { ?><input type="hidden" name="inline" value="1"><?php } ?>
     <?php if (!$vendor_pick_client) { ?>
         <input type="hidden" name="client_id" value="<?= $client_id ?>">
     <?php } ?>
 
     <div class="modal-body">
+        <div class="alert alert-danger small py-2" role="alert" data-quick-add-error hidden></div>
         <?php require 'vendor_form.php'; ?>
     </div>
     <div class="modal-footer">

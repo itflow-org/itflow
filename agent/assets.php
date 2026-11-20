@@ -624,7 +624,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                     <?php if ($asset_description) { ?>
                                         <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $asset_description ?>"><?= $asset_description ?></div>
                                     <?php } ?>
-                                    <?php if ($asset_tags || lookupUserPermission('module_client') >= 2) { ?>
+                                    <?php if ($asset_tags) { ?>
                                         <div class="mt-1 itflow-above-stretch"><?= tagPills('asset', $asset_id, $asset_tags, "assets.php?$client_url") ?></div>
                                     <?php } ?>
                                 </div>

@@ -163,7 +163,6 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
                         <?php } ?>
                     </select>
                 </div>
-                <div class="form-text">The device this login is for - it shows on the asset's Credentials tab.</div>
             </div>
             <div class="col-12">
                 <label class="form-label">Contact</label>

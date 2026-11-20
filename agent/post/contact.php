@@ -87,6 +87,10 @@ if (isset($_POST['add_contact'])) {
 
     triggerCustomAction('contact_create', $contact_id);
 
+    $contact_label = getFieldById('contacts', $contact_id, 'contact_name');
+    inlineSaveAnswer(['ok' => true, 'value' => (string) $contact_id, 'label' => $contact_label,
+        'message' => "Contact $contact_label created" . ($invited === false ? ' - the portal invite was not sent' : ''), 'warning' => $invited === false]);
+
     flashAlert("Contact <strong>" . stripslashes($name) . "</strong> created" . ($invited ? ' and invited to the client portal' : ($invited === false ? ' - the portal invite was not sent, as ' . (portalMailReady() ? 'their email address is not valid' : 'outgoing mail is not set up') : '')), $invited === false ? 'warning' : 'success');
 
     redirect();

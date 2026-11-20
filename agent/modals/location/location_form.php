@@ -111,7 +111,7 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
             <div class="d-flex align-items-center gap-3">
                 <?= pictureField('file', $location_photo ? 'remove_photo' : '', $location_photo ? picturePhoto('../uploads/clients/' . intval($client_id) . '/' . html_entity_decode($location_photo), 'Photo') : picturePhotoEmpty(), picturePhotoEmpty(),
                     ['shapes' => 'square,4:3,whole']) ?>
-                <div class="form-text mt-0">The front of the building - so a tech knows it when they pull up. Click it to add a photo or change it.</div>
+                <div class="form-text mt-0">The front of the building, so a tech knows it when they pull up.</div>
             </div>
         </div>
     </div>
@@ -182,7 +182,6 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
                         <?php } ?>
                     </select>
                 </div>
-                <div class="form-text">Who to ask for when you get there - shown with their number on the location.</div>
             </div>
         <?php } ?>
         <div class="col-md-8">
@@ -222,7 +221,6 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
 <div class="tab-pane fade" id="<?= $form_id ?>Access">
     <label class="form-label">Access notes</label>
     <textarea class="form-control" rows="10" name="notes" placeholder="Parking, which door to use, who holds the keys, alarm and door codes, where the comms cupboard is, anything a tech should know before they arrive"><?= $location_notes ?></textarea>
-    <div class="form-text">Shown on the location page, its quick look and on tickets for this location.</div>
 </div>
 
 </div>

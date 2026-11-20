@@ -35,6 +35,10 @@ $contact_location_id = $client_id ? assetClientOwnedId('location', $_GET['locati
 $auth_method = '';
 $contact_tag_id_array = [];
 
+// Opened by the + beside a contact picker in another window (quickAddButton()) - js/quick_add.js
+// saves it in the background and picks it there
+$inline = !empty($_GET['inline']);
+
 ob_start();
 
 ?>
@@ -44,13 +48,15 @@ ob_start();
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off"
-      data-itflow-phone-country="<?= escapeHtml($client_phone_iso2) ?>">
+      data-itflow-phone-country="<?= escapeHtml($client_phone_iso2) ?>"<?= $inline ? ' data-quick-add-inline' : '' ?>>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <?php if ($inline) { ?><input type="hidden" name="inline" value="1"><?php } ?>
     <?php if ($client_id) { ?>
         <input type="hidden" name="client_id" value="<?= $client_id ?>">
     <?php } ?>
 
     <div class="modal-body">
+        <div class="alert alert-danger small py-2" role="alert" data-quick-add-error hidden></div>
         <?php require 'contact_form.php'; ?>
     </div>
     <div class="modal-footer">

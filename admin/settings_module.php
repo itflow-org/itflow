@@ -66,7 +66,7 @@ echo settingsPageStart('module');
                     <div class="alert alert-success d-flex gap-2 py-2" data-whitelabel-state="active">
                         <i class="fas fa-check-circle mt-1"></i>
                         <div>
-                            <strong>White-labelled - thank you for supporting ITFlow.</strong>
+                            <strong>White-labeled - thank you for supporting ITFlow.</strong>
                             <div class="small"><?= escapeHtml((string) ($whitelabel['description'] ?? '')) ?> · <?= escapeHtml((string) ($whitelabel['organisation'] ?? '')) ?> · until <?= escapeHtml(date('M j, Y', $whitelabel_expires)) ?></div>
                         </div>
                     </div>

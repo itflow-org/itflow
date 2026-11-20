@@ -383,7 +383,7 @@ $filter_url = function ($changes) use ($client_url) {
                                     <?php if ($credential_description) { ?>
                                         <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $credential_description ?>"><?= $credential_description ?></div>
                                     <?php } ?>
-                                    <?php if ($credential_tags || $can_edit) { ?>
+                                    <?php if ($credential_tags) { ?>
                                         <div class="mt-1"><?= tagPills('credential', $credential_id, $credential_tags, "credentials.php?$client_url") ?></div>
                                     <?php } ?>
                                 </div>

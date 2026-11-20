@@ -46,7 +46,7 @@
                 <span class="text-body-secondary small me-auto" id="modalPosition"></span>
                 <button type="button" class="btn btn-outline-light" id="modalDetails"><i class="fas fa-fw fa-info-circle me-2"></i>Details</button>
                 <a class="btn btn-primary" id="modalDownload" href="#"><i class="fas fa-fw fa-download me-2"></i>Download</a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-fw fa-times me-2"></i>Close</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-fw fa-times me-2"></i>Close</button>
             </div>
         </div>
     </div>

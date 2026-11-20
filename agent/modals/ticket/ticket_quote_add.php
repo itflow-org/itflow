@@ -115,7 +115,7 @@ ob_start();
                                 <option value="">- Select a Category -</option>
                                 <?= categoryOptionsHtml('Income') ?>
                             </select>
-                            <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
+                            <?= categoryAddButtonHtml('Income') ?>
                         </div>
                     </div>
                 </div>

@@ -957,7 +957,15 @@ itflowBindOnce('itflowModalFocus', 'shown.bs.modal', '.modal', function () {
     if (this.querySelector('[autofocus]')) {
         return;
     }
-    this.focus();
+    const modal = this;
+    modal.focus();
+    // AdminLTE's own shown handler runs after this one and puts focus on the first
+    // button - the X - so take it back once the handlers are done
+    setTimeout(function () {
+        if (document.activeElement && document.activeElement.matches('.btn-close') && modal.contains(document.activeElement)) {
+            modal.focus();
+        }
+    }, 0);
 });
 
 /**

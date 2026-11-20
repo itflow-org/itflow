@@ -28,7 +28,7 @@ echo settingsPageStart('security');
         <div class="card-body">
 
             <?= settingsSectionStart('sign-in', 'The sign-in page', 'Agents and client contacts sign in on the same page. A login key keeps the agents\' way in out of sight - without the key in its address, the page is for client contacts only.') ?>
-                <?= settingsTextarea('config_login_message', $config_login_message, ['rows' => 3, 'maxlength' => 65000, 'placeholder' => 'Authorised users only',
+                <?= settingsTextarea('config_login_message', $config_login_message, ['rows' => 3, 'maxlength' => 65000, 'placeholder' => 'Authorized users only',
                     'help' => 'Shown above the sign-in form - plain text, each new line kept.']) ?>
                 <?= settingsSwitch('config_login_key_required', $config_login_key_required, ['help' => 'Agents sign in only from the address with the key in it.']) ?>
                 <div data-settings-depends-on="config_login_key_required">

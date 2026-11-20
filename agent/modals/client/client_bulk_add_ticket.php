@@ -24,7 +24,7 @@ ob_start();
 
         <?php
         $ticket_template_field = 'bulk_ticket_template_id';
-        $ticket_template_hint = "Picking one fills in the tickets - change anything before they are made. <span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like are filled in for each. What the template asks for is answered once, for them all.";
+        $ticket_template_hint = "<span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like in it are filled in for each ticket.";
         require_once '../../includes/inc_ticket_template_select.php';
         ?>
 
@@ -66,7 +66,7 @@ ob_start();
                             <option value="0">- Not Categorized -</option>
                             <?= categoryOptionsHtml('Ticket') ?>
                         </select>
-                        <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
+                        <?= categoryAddButtonHtml('Ticket') ?>
                     </div>
                 </div>
             </div>

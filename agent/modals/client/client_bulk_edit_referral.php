@@ -28,7 +28,7 @@ ob_start();
                     <option value="">- Select a Referral -</option>
                     <?= categoryOptionsHtml('Referral') ?>
                 </select>
-                <?= categoryAddButtonHtml('Referral', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('Referral') ?>
             </div>
         </div>
 

@@ -250,13 +250,13 @@ function dashboardAttention($access) {
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE ticket_resolved_at IS NULL AND ticket_assigned_to = 0 $ticket_scope" . projectTicketsServiceSql()),
-            'label' => 'Unassigned tickets', 'icon' => 'user-slash', 'tone' => 'warning',
+            'label' => 'Unassigned tickets', 'one' => 'Unassigned ticket', 'icon' => 'user-slash', 'tone' => 'warning',
             'url' => '/agent/tickets.php?assigned=unassigned',
         ];
         // The same rule as projects.php?show=overdue
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(project_id) FROM projects WHERE " . projectViews()['overdue']['where'] . ' ' . clientScopeSql('project_client_id')),
-            'label' => 'Overdue projects', 'icon' => 'project-diagram', 'tone' => 'danger',
+            'label' => 'Overdue projects', 'one' => 'Overdue project', 'icon' => 'project-diagram', 'tone' => 'danger',
             'url' => '/agent/projects.php?show=overdue',
         ];
     }
@@ -269,13 +269,13 @@ function dashboardAttention($access) {
             - dashboardSum("SELECT SUM(payment_amount) FROM payments JOIN invoices ON payment_invoice_id = invoice_id WHERE $overdue_where");
         $items[] = [
             'count' => $overdue_count,
-            'label' => 'Overdue invoices', 'icon' => 'file-invoice-dollar', 'tone' => 'danger',
+            'label' => 'Overdue invoices', 'one' => 'Overdue invoice', 'icon' => 'file-invoice-dollar', 'tone' => 'danger',
             'detail' => $overdue_count ? dashboardMoney($overdue_amount) . ' outstanding' : null,
             'url' => '/agent/invoices.php?status=Overdue',
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(invoice_id) FROM invoices WHERE invoice_status = 'Draft' $invoice_scope"),
-            'label' => 'Draft invoices', 'icon' => 'pen', 'tone' => 'secondary',
+            'label' => 'Draft invoices', 'one' => 'Draft invoice', 'icon' => 'pen', 'tone' => 'secondary',
             'url' => '/agent/invoices.php?status=Draft',
         ];
         // The same rule as products.php?type=reorder
@@ -288,7 +288,7 @@ function dashboardAttention($access) {
         $reprice = productRepriceCount();
         $items[] = [
             'count' => intval($reprice['lines']),
-            'label' => 'Lines at an old price', 'icon' => 'tags', 'tone' => 'warning',
+            'label' => 'Lines at an old price', 'one' => 'Line at an old price', 'icon' => 'tags', 'tone' => 'warning',
             'detail' => $reprice['monthly'] > 0 ? '+' . dashboardMoney($reprice['monthly']) . ' a month on recurring' : ($reprice['lines'] ? 'On recurring invoices, drafts and quotes' : null),
             'url' => '/agent/products_reprice.php',
         ];
@@ -314,7 +314,7 @@ function dashboardAttention($access) {
             $to_bill = expenseUnbilledCount();
             $items[] = [
                 'count' => $to_bill['count'],
-                'label' => 'Expenses to bill', 'icon' => 'shopping-cart', 'tone' => 'info',
+                'label' => 'Expenses to bill', 'one' => 'Expense to bill', 'icon' => 'shopping-cart', 'tone' => 'info',
                 'detail' => $to_bill['count'] ? dashboardMoney($to_bill['value']) . ' to bill on' : null,
                 'url' => '/agent/expenses.php?show=to_bill',
             ];
@@ -322,7 +322,7 @@ function dashboardAttention($access) {
             $owed = expenseToReimburseCount();
             $items[] = [
                 'count' => $owed['count'],
-                'label' => 'Expenses to reimburse', 'icon' => 'hand-holding-usd', 'tone' => 'warning',
+                'label' => 'Expenses to reimburse', 'one' => 'Expense to reimburse', 'icon' => 'hand-holding-usd', 'tone' => 'warning',
                 'detail' => $owed['count'] ? dashboardMoney($owed['total']) . ' owed to ' . ($owed['agents'] === 1 ? '1 agent' : $owed['agents'] . ' agents') : null,
                 'url' => '/agent/expenses.php?show=to_reimburse',
             ];
@@ -330,7 +330,7 @@ function dashboardAttention($access) {
             $trips_to_bill = tripUnbilledCount();
             $items[] = [
                 'count' => $trips_to_bill['count'],
-                'label' => 'Trips to bill', 'icon' => 'route', 'tone' => 'info',
+                'label' => 'Trips to bill', 'one' => 'Trip to bill', 'icon' => 'route', 'tone' => 'info',
                 'detail' => $trips_to_bill['count'] ? dashboardMoney($trips_to_bill['value']) . ' of travel' : null,
                 'url' => '/agent/unbilled_time.php',
             ];
@@ -350,22 +350,22 @@ function dashboardAttention($access) {
         $soon = "BETWEEN CURDATE() AND CURDATE() + INTERVAL 30 DAY";
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(domain_id) FROM domains WHERE domain_archived_at IS NULL AND domain_expire $soon " . clientScopeSql('domain_client_id')),
-            'label' => 'Domains expiring', 'icon' => 'globe', 'tone' => 'warning', 'detail' => 'Next 30 days',
+            'label' => 'Domains expiring', 'one' => 'Domain expiring', 'icon' => 'globe', 'tone' => 'warning', 'detail' => 'Next 30 days',
             'url' => '/agent/domains.php?expire_days=30&sort=domain_expire&order=ASC',
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(certificate_id) FROM certificates WHERE certificate_archived_at IS NULL AND " . certificateSoonSql() . ' ' . clientScopeSql('certificate_client_id')),
-            'label' => 'Certificates expiring', 'icon' => 'lock', 'tone' => 'warning', 'detail' => 'Next 30 days',
+            'label' => 'Certificates expiring', 'one' => 'Certificate expiring', 'icon' => 'lock', 'tone' => 'warning', 'detail' => 'Next 30 days',
             'url' => '/agent/certificates.php?show=soon&sort=certificate_expire&order=ASC',
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(software_id) FROM software WHERE software_archived_at IS NULL AND software_expire $soon " . clientScopeSql('software_client_id')),
-            'label' => 'Licenses expiring', 'icon' => 'cube', 'tone' => 'warning', 'detail' => 'Next 30 days',
+            'label' => 'Licenses expiring', 'one' => 'License expiring', 'icon' => 'cube', 'tone' => 'warning', 'detail' => 'Next 30 days',
             'url' => '/agent/software.php?status=renewing&sort=software_expire&order=ASC',
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(asset_id) FROM assets WHERE asset_archived_at IS NULL AND asset_warranty_expire $soon " . clientScopeSql('asset_client_id')),
-            'label' => 'Warranties expiring', 'icon' => 'shield-alt', 'tone' => 'warning', 'detail' => 'Next 30 days',
+            'label' => 'Warranties expiring', 'one' => 'Warranty expiring', 'icon' => 'shield-alt', 'tone' => 'warning', 'detail' => 'Next 30 days',
             'url' => '/agent/assets.php?expire_days=30&sort=asset_warranty_expire&order=ASC&show_column[]=Warranty_Expire',
         ];
         // The same rules as services.php?show=attention and ?show=review
@@ -373,19 +373,25 @@ function dashboardAttention($access) {
         $service_scope = "FROM services JOIN clients ON client_id = service_client_id WHERE client_archived_at IS NULL " . clientScopeSql('service_client_id');
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(service_id) $service_scope AND " . $service_views['attention']['where']),
-            'label' => 'Services needing attention', 'icon' => 'stream', 'tone' => 'danger', 'detail' => 'What they depend on',
+            'label' => 'Services needing attention', 'one' => 'Service needing attention', 'icon' => 'stream', 'tone' => 'danger', 'detail' => 'What they depend on',
             'url' => '/agent/services.php?show=attention',
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(service_id) $service_scope AND " . $service_views['review']['where']),
-            'label' => 'Service reviews due', 'icon' => 'clipboard-check', 'tone' => 'warning', 'detail' => 'Next ' . SERVICE_REVIEW_SOON_DAYS . ' days',
+            'label' => 'Service reviews due', 'one' => 'Service review due', 'icon' => 'clipboard-check', 'tone' => 'warning', 'detail' => 'Next ' . SERVICE_REVIEW_SOON_DAYS . ' days',
             'url' => '/agent/services.php?show=review&sort=service_review_due&order=ASC',
         ];
     }
 
-    return array_values(array_filter($items, function ($item) {
+    // "1 Draft invoice", not "1 Draft invoices"
+    return array_values(array_map(function ($item) {
+        if (intval($item['count']) === 1 && isset($item['one'])) {
+            $item['label'] = $item['one'];
+        }
+        return $item;
+    }, array_filter($items, function ($item) {
         return $item['count'] > 0;
-    }));
+    })));
 }
 
 /*

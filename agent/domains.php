@@ -371,7 +371,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                                     <?php if ($domain_description) { ?>
                                         <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $domain_description ?>"><?= $domain_description ?></div>
                                     <?php } ?>
-                                    <?php if ($domain_tags || $can_edit) { ?>
+                                    <?php if ($domain_tags) { ?>
                                         <div class="mt-1"><?= tagPills('domain', $domain_id, $domain_tags, "domains.php?$client_url", $can_edit) ?></div>
                                     <?php } ?>
                                 </div>

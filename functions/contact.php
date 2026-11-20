@@ -189,8 +189,9 @@ function contactQuickRecord($contact_id) {
 }
 
 /**
- * The + in a picker's input group that adds a contact, location or vendor there and then
- * (js/quick_add.js, agent/ajax.php quick_add_record) - '' for an agent who can't add them.
+ * The + in a picker's input group that adds a contact, location or vendor there and then - it
+ * opens the usual New Contact, New Location or New Vendor window over the form (js/quick_add.js),
+ * and what is made there is picked in the picker - '' for an agent who can't add them.
  * $client_id when the window's client is fixed; otherwise the form's client_id is used. Styled
  * like the + beside a category picker (categoryAddButtonHtml()) - $class to match it where it differs.
  */
@@ -201,5 +202,5 @@ function quickAddButton($type, $client_id = 0, $class = 'btn btn-outline-seconda
     $titles = ['contact' => 'New contact', 'location' => 'New location', 'vendor' => 'New vendor'];
     return '<button type="button" class="' . escapeHtml($class) . '" data-quick-add="' . $type . '"'
         . (intval($client_id) ? ' data-quick-add-client="' . intval($client_id) . '"' : '')
-        . ' data-csrf="' . escapeHtml($_SESSION['csrf_token'] ?? '') . '" title="' . $titles[$type] . '"><i class="fas fa-fw fa-plus"></i></button>';
+        . ' title="' . $titles[$type] . '" aria-label="' . $titles[$type] . '"><i class="fas fa-fw fa-plus"></i></button>';
 }

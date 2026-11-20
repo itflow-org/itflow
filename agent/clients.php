@@ -589,7 +589,7 @@ $total_leads = intval($row['leads']);
                                     <?php if ($client_type) { ?>
                                         <div class="small text-body-secondary"><?= $client_type ?></div>
                                     <?php } ?>
-                                    <?php if (!empty($client_tags[$client_id]) || $can_edit) { ?>
+                                    <?php if (!empty($client_tags[$client_id])) { ?>
                                         <div class="mt-1"><?= tagPills('client', $client_id, $client_tags[$client_id] ?? [], $leads_filter ? 'clients.php?leads=1&' : 'clients.php?') ?></div>
                                     <?php } ?>
                                 </div>

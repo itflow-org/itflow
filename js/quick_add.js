@@ -1,8 +1,10 @@
 /*
- * ITFlow - add a missing contact, location or vendor from the window that needs it. A + button
- * ([data-quick-add="contact|location|vendor"]) in a picker's input group asks for the few things
- * it needs, adds it (agent/ajax.php quick_add_record) and picks it - no closing the window, adding
- * it elsewhere and starting again.
+ * ITFlow - add a missing contact, location or vendor from the window that needs it. The + in a
+ * picker's input group (quickAddButton(), [data-quick-add="contact|location|vendor"]) opens the
+ * usual New Contact, New Location or New Vendor window over the form, for the client picked
+ * (&inline=1). Its Create saves in the background (inlineSaveAnswer() in the add handlers) and the
+ * new one is put in that picker, picked, leaving the form underneath as it was - as the + beside a
+ * category picker does (js/category_form.js).
  *
  * The client is the button's data-quick-add-client, or the form's client_id - the picker New Ticket
  * and the asset form change - so it follows the client picked.
@@ -17,11 +19,21 @@
     }
     window.itflowQuickAdd = true;
 
-    const FIELDS = {
-        contact: { title: 'New contact', fields: [['name', 'Name', 'text', true], ['email', 'Email', 'email'], ['title', 'Title', 'text']] },
-        location: { title: 'New location', fields: [['name', 'Name', 'text', true], ['address', 'Address', 'text'], ['city', 'City', 'text']] },
-        vendor: { title: 'New vendor', fields: [['name', 'Name', 'text', true], ['phone', 'Phone', 'tel']] }
+    const WINDOWS = {
+        contact: '/agent/modals/contact/contact_add.php',
+        location: '/agent/modals/location/location_add.php',
+        vendor: '/agent/modals/vendor/vendor_add.php'
     };
+    const SAVE_BUTTONS = { contact: 'add_contact', location: 'add_location', vendor: 'add_vendor' };
+
+    // The picker the open window was opened from
+    let target = null;
+
+    function toast(message, type) {
+        if (typeof itflowToast === 'function') {
+            itflowToast(message, type);
+        }
+    }
 
     function clientOf(button) {
         if (button.dataset.quickAddClient) {
@@ -44,81 +56,106 @@
 
     document.addEventListener('click', function (e) {
         const button = e.target.closest('[data-quick-add]');
-        const kind = button && FIELDS[button.dataset.quickAdd];
-        if (!kind || typeof Swal === 'undefined') {
+        const url = button && WINDOWS[button.dataset.quickAdd];
+        if (!url) {
             return;
         }
         e.preventDefault();
-        const select = button.closest('.input-group') && button.closest('.input-group').querySelector('select');
-        const client = clientOf(button);
+        const group = button.closest('.input-group');
+        const select = group && group.querySelector('select');
         if (!select) {
             return;
         }
+        const client = clientOf(button);
         if (!client) {
-            if (typeof itflowToast === 'function') {
-                itflowToast('Pick the client first', 'warning');
+            toast('Pick the client first', 'warning');
+            return;
+        }
+        target = { select: select, kind: button.dataset.quickAdd };
+
+        // Opened as any window is (js/ajax_modal.js) - over this one
+        const opener = document.createElement('a');
+        opener.className = 'ajax-modal d-none';
+        opener.href = '#';
+        opener.dataset.modalUrl = url + '?client_id=' + encodeURIComponent(client) + '&inline=1';
+        opener.dataset.modalSize = 'lg';
+        document.body.appendChild(opener);
+        opener.click();
+        opener.remove();
+    });
+
+    // On the document, so it runs after the form's own submit handlers (phone numbers are tidied
+    // on submit) and sends what they leave
+    document.addEventListener('submit', function (e) {
+        const form = e.target.closest('form[data-quick-add-inline]');
+        if (!form || e.defaultPrevented) {
+            return;
+        }
+        const from = target;
+        if (!from || !from.select.isConnected) {
+            // Nothing to put it in - a plain post, back to the page
+            const flag = form.querySelector('input[name="inline"]');
+            if (flag) {
+                flag.remove();
             }
             return;
         }
-        const csrf = button.dataset.csrf;
+        e.preventDefault();
 
-        // Static markup - nothing typed by anyone goes through this string
-        const html = kind.fields.map(function (field) {
-            return '<label class="form-label d-block text-start small mb-1 mt-2" for="itflowQuickAdd_' + field[0] + '">' + field[1] + (field[3] ? ' <strong class="text-danger">*</strong>' : '') + '</label>'
-                + '<input class="form-control" id="itflowQuickAdd_' + field[0] + '" type="' + field[2] + '" maxlength="200" autocomplete="off">';
-        }).join('');
+        const error = form.querySelector('[data-quick-add-error]');
+        const save = form.querySelector('button[type="submit"]');
+        if (save) {
+            save.disabled = true;
+        }
+        const data = new FormData(form);
+        data.append(SAVE_BUTTONS[from.kind], '1');
 
-        Swal.fire({
-            title: kind.title,
-            html: html,
-            target: button.closest('.modal') || 'body',
-            showCancelButton: true,
-            confirmButtonText: 'Add',
-            focusConfirm: false,
-            returnFocus: false,
-            didOpen: function () {
-                const first = document.getElementById('itflowQuickAdd_name');
-                if (first) {
-                    first.focus();
+        fetch(form.action, { method: 'POST', body: data, credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+            .then(function (res) {
+                if (!res.ok) {
+                    throw new Error('HTTP ' + res.status);
                 }
-            },
-            preConfirm: function () {
-                const body = new FormData();
-                body.append('quick_add_record', button.dataset.quickAdd);
-                body.append('client_id', client);
-                body.append('csrf_token', csrf);
-                kind.fields.forEach(function (field) {
-                    body.append(field[0], document.getElementById('itflowQuickAdd_' + field[0]).value);
+                return res.json();
+            })
+            .then(function (result) {
+                if (!result.ok) {
+                    throw new Error(result.error || "It wasn't saved");
+                }
+                target = null;
+                const picker = from.select;
+                let option = Array.prototype.find.call(picker.options, function (o) {
+                    return o.value === String(result.value);
                 });
-                if (!body.get('name').trim()) {
-                    Swal.showValidationMessage('It needs a name.');
-                    return false;
+                if (!option) {
+                    option = new Option(result.label, result.value);
+                    picker.add(option);
                 }
-                return fetch('/agent/ajax.php', { method: 'POST', body: body, credentials: 'same-origin' })
-                    .then(function (r) { return r.json(); })
-                    .then(function (answer) {
-                        if (!answer.ok) {
-                            Swal.showValidationMessage(answer.error || "Couldn't add it.");
-                            return false;
-                        }
-                        return answer;
-                    })
-                    .catch(function () {
-                        Swal.showValidationMessage("Couldn't add it.");
-                        return false;
+                if (!picker.multiple) {
+                    Array.prototype.forEach.call(picker.options, function (o) {
+                        o.selected = false;
                     });
-            }
-        }).then(function (result) {
-            if (!result.isConfirmed || !result.value) {
-                return;
-            }
-            const option = new Option(result.value.label, result.value.id, true, true);
-            select.add(option);
-            select.value = String(result.value.id);
-            select.dispatchEvent(new Event('change', { bubbles: true }));
-            if (typeof itflowToast === 'function') {
-                itflowToast(result.value.label + ' added', 'success');
-            }
-        });
+                }
+                option.selected = true;
+                picker.dispatchEvent(new Event('input', { bubbles: true }));
+                picker.dispatchEvent(new Event('change', { bubbles: true }));
+                const modal = form.closest('.modal');
+                if (modal && window.bootstrap) {
+                    bootstrap.Modal.getOrCreateInstance(modal).hide();
+                }
+                toast(result.message, result.warning ? 'warning' : 'success');
+            })
+            .catch(function (err) {
+                if (save) {
+                    save.disabled = false;
+                }
+                if (error) {
+                    // An answer that isn't JSON, or a failed request: the save page answered with something else
+                    error.textContent = err instanceof SyntaxError || err.message.indexOf('HTTP ') === 0
+                        ? "It couldn't be saved - reload the page and try again."
+                        : err.message;
+                    error.hidden = false;
+                    error.scrollIntoView({ block: 'nearest' });
+                }
+            });
     });
 })();

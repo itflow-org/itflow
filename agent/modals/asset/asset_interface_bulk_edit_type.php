@@ -31,7 +31,7 @@ ob_start();
                     <option value="">- No type -</option>
                     <?= categoryOptionsHtml('network_interface') ?>
                 </select>
-                <?= categoryAddButtonHtml('network_interface', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('network_interface') ?>
             </div>
         </div>
 
