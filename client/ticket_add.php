@@ -46,6 +46,9 @@ $priorities = [
 ];
 
 $company = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_phone, company_phone_country_code FROM companies WHERE company_id = 1"));
+
+// How soon each priority hears back, from the SLAs - in the priority list and What happens next
+$reply_times = portalReplyTimes();
 ?>
 
 <a class="itflow-portal-back" href="<?= $back[0] ?>"><i class="fas fa-chevron-left"></i><?= $back[1] ?></a>
@@ -214,7 +217,7 @@ $company = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_phone, compa
                         <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                         <select class="form-select select2" name="priority" required>
                             <?php foreach ($priorities as $priority => [$color, $hint]) { ?>
-                                <option value="<?= $priority ?>" data-color="<?= $color ?>" data-description="<?= escapeHtml($hint) ?>"<?= $priority === 'Medium' ? ' selected' : '' ?>><?= $priority ?></option>
+                                <option value="<?= $priority ?>" data-color="<?= $color ?>" data-description="<?= escapeHtml($hint . (isset($reply_times[$priority]) ? ' - a reply ' . $reply_times[$priority] : '')) ?>"<?= $priority === 'Medium' ? ' selected' : '' ?>><?= $priority ?></option>
                             <?php } ?>
                         </select>
                     </div>

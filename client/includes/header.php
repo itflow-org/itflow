@@ -151,7 +151,15 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
         </nav>
 
         <div class="ms-auto d-flex align-items-center gap-2">
-            <a class="btn btn-primary d-none d-sm-inline-flex align-items-center" href="/client/ticket_add.php"><i class="fas fa-plus me-2"></i>New ticket</a>
+            <?php /* One search across tickets, documents and Help (client/search.php) - a box on the widest screens, a button on wide ones, and in the account menu (and the phone menu) where the top bar has no room */ ?>
+            <form class="itflow-portal-search d-none d-xxl-flex" action="/client/search.php" method="get" role="search">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
+                    <input type="search" class="form-control" name="q" value="<?= $portal_page === 'search.php' ? escapeHtml(trim((string) ($_GET['q'] ?? ''))) : '' ?>" placeholder="Search" aria-label="Search tickets, documents and help" maxlength="200">
+                </div>
+            </form>
+            <a class="btn btn-outline-secondary d-none d-xl-inline-flex d-xxl-none" href="/client/search.php" title="Search" aria-label="Search"><i class="fas fa-search"></i></a>
+            <a class="btn btn-primary d-none d-sm-inline-flex align-items-center text-nowrap" href="/client/ticket_add.php"><i class="fas fa-plus me-2"></i>New ticket</a>
 
             <div class="dropdown">
                 <button type="button" class="itflow-portal-account" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Your account">
@@ -167,6 +175,7 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item<?= $portal_page === 'profile.php' ? ' active' : '' ?>" href="/client/profile.php"><i class="fas fa-fw fa-user me-2"></i>Your account</a>
                     <a class="dropdown-item<?= $portal_page === 'activity.php' ? ' active' : '' ?>" href="/client/activity.php"><i class="fas fa-fw fa-list me-2"></i>Activity</a>
+                    <a class="dropdown-item d-xl-none<?= $portal_page === 'search.php' ? ' active' : '' ?>" href="/client/search.php"><i class="fas fa-fw fa-search me-2"></i>Search</a>
                     <button type="button" class="dropdown-item" data-portal-theme-toggle>
                         <i class="fas fa-fw <?= $portal_dark ? 'fa-sun' : 'fa-moon' ?> me-2"></i><?= $portal_dark ? 'Light mode' : 'Dark mode' ?>
                     </button>
@@ -204,6 +213,12 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
+        <form class="mb-3" action="/client/search.php" method="get" role="search">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
+                <input type="search" class="form-control" name="q" placeholder="Search tickets, documents and help" aria-label="Search tickets, documents and help" maxlength="200">
+            </div>
+        </form>
         <?php foreach ($portal_nav as $item) { ?>
             <?php if (!empty($item['children'])) { ?>
                 <div class="itflow-portal-menu-heading"><?= escapeHtml($item['label']) ?></div>

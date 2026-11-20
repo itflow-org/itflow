@@ -118,6 +118,9 @@ $at = $closed ? 3 : ($resolved ? 2 : ($state['key'] === 'new' ? 0 : 1));
 $requester = (string) ($ticket['contact_name'] ?? '');
 $requester_photo = $ticket['contact_photo'] ? "/uploads/clients/$session_client_id/" . $ticket['contact_photo'] : '';
 $agent_name = (string) ($ticket['user_name'] ?? '');
+
+// When our first reply is due, from the SLA - while one is still to come
+$reply_by = portalTicketReplyBy($ticket_id);
 ?>
 
 <a class="itflow-portal-back" href="tickets.php"><i class="fas fa-chevron-left"></i>Tickets</a>
@@ -147,6 +150,12 @@ $agent_name = (string) ($ticket['user_name'] ?? '');
                     <li class="<?= $i < $at ? 'done' : ($i === $at ? 'current' : '') ?>"><?= $i === 1 && $state['key'] === 'you' ? 'Waiting on you' : ($i === 1 && $state['key'] === 'hold' ? escapeHtml($state['label']) : $step) ?></li>
                 <?php } ?>
             </ol>
+            <?php if ($reply_by) { ?>
+                <p class="itflow-portal-expect" data-reply-by>
+                    <i class="fas fa-fw fa-clock"></i>
+                    <span>We'll reply by <strong><?= portalDateTime($reply_by['by']) ?></strong> - within <?= escapeHtml($reply_by['within']) ?> of when it was raised.</span>
+                </p>
+            <?php } ?>
         </section>
 
         <?php if ($approvals) { ?>

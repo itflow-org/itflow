@@ -325,6 +325,51 @@ function portalTicketColumnsSql() {
         ticket_statuses.ticket_status_name, ticket_statuses.ticket_status_pauses_sla, " . ticketLastSpokeSql() . " AS ticket_last_spoke";
 }
 
+/*
+ * When to expect a reply - from the SLA, as the new-ticket email already
+ * promises it (ticketEmailSla()). Nothing when no SLA with a response target
+ * applies, so a company without SLAs promises nothing.
+ */
+
+/** How soon a new ticket of each priority hears back - [priority => 'within 4 business hours'], for the priorities with a response target. */
+function portalReplyTimes() {
+    global $mysqli, $session_client_id;
+    static $times = null;
+    if ($times !== null) {
+        return $times;
+    }
+    $times = [];
+    foreach (['Low', 'Medium', 'High', 'Urgent'] as $priority) {
+        $sla_id = intval(getTicketSlaId($session_client_id, $priority));
+        $minutes = $sla_id ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT sla_response_minutes FROM slas WHERE sla_id = $sla_id"))[0] ?? 0) : 0;
+        if ($minutes > 0) {
+            $times[$priority] = 'within ' . formatSlaMinutes($minutes);
+        }
+    }
+    return $times;
+}
+
+/*
+ * When this ticket's first reply is due - ['by' => the time, 'within' => '4 business hours'] -
+ * while it is open, not on hold, not yet answered and that time is still ahead. Else null: once
+ * we have replied, or the time has passed, the portal promises nothing more.
+ */
+function portalTicketReplyBy($ticket_id) {
+    global $mysqli;
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_first_response_at, ticket_response_due_at, ticket_resolved_at, ticket_closed_at,
+            ticket_status_pauses_sla, sla_response_minutes
+        FROM tickets
+        LEFT JOIN slas ON sla_id = ticket_sla_id
+        LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
+        WHERE ticket_id = " . intval($ticket_id) . " AND ticket_sla_id > 0 LIMIT 1"));
+    if (!$row || !empty($row['ticket_first_response_at']) || !empty($row['ticket_resolved_at']) || !empty($row['ticket_closed_at'])
+        || intval($row['ticket_status_pauses_sla'] ?? 0) === 1 || empty($row['ticket_response_due_at'])
+        || strtotime($row['ticket_response_due_at']) <= time() || intval($row['sla_response_minutes']) <= 0) {
+        return null;
+    }
+    return ['by' => $row['ticket_response_due_at'], 'within' => formatSlaMinutes(intval($row['sla_response_minutes']))];
+}
+
 /** Whether what the editor sent says nothing - only tags, spaces and non-breaking spaces, and no picture. */
 function portalHtmlIsEmpty($html) {
     $html = (string) $html;
