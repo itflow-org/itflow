@@ -71,13 +71,14 @@ if (!empty($_SESSION['alert_message'])) {
                 <i class="fas fa-fw <?= $alert_icon ?> fa-lg ms-3"></i>
                 <div class="toast-body"><?= $alert_safe_message ?></div>
                 <?php if ($alert_undo_token) { ?>
-                    <a class="btn btn-sm <?= $alert_dark_text ? 'btn-outline-dark' : 'btn-outline-light' ?> fw-semibold text-nowrap flex-shrink-0 me-1" data-undo
+                    <a class="btn btn-sm <?= $alert_dark_text ? 'btn-outline-dark' : 'btn-outline-light' ?> fw-semibold text-nowrap flex-shrink-0 me-3" data-undo
                        href="/agent/post.php?undo=<?= escapeHtml($alert_undo_token) ?>&amp;csrf_token=<?= escapeHtml($_SESSION['csrf_token']) ?>"><i class="fas fa-undo me-1"></i>Undo</a>
                 <?php } ?>
                 <?php /* No data-bs-dismiss - the click handler below covers the
-                         whole toast, and this button sits inside it. */ ?>
+                         whole toast, and this button sits inside it. Beside Undo
+                         it stands apart behind a line (.itflow-toast-close). */ ?>
                 <button type="button"
-                        class="btn-close <?= $alert_dark_text ? '' : 'btn-close-white' ?> me-2 m-auto"
+                        class="btn-close <?= $alert_dark_text ? '' : 'btn-close-white' ?> <?= $alert_undo_token ? 'itflow-toast-close' : 'me-2 m-auto' ?>"
                         aria-label="Close"></button>
             </div>
             <div class="itflow-toast-progress"></div>
@@ -105,6 +106,11 @@ if (!empty($_SESSION['alert_message'])) {
                         event.preventDefault();
                     }
                     undo.classList.add('disabled');
+                    return;
+                }
+                // With Undo on it, only the x closes it - a click that just
+                // misses Undo keeps the offer
+                if (el.classList.contains('itflow-toast-undo') && !event.target.closest('.btn-close')) {
                     return;
                 }
                 el.remove();

@@ -651,6 +651,23 @@ a:focus {
     animation-play-state: paused;
 }
 
+/* Undo and the x kept apart: the x in its own strip behind a line, and only
+   the x closes this one (the click handler in inc_alert_feedback.php), so a
+   click that just misses Undo doesn't lose it. The line is drawn in the x's
+   own black, so the white x's filter turns it white with it. */
+.itflow-toast.itflow-toast-undo {
+    cursor: default;
+}
+.itflow-toast-undo .itflow-toast-close {
+    align-self: stretch;
+    height: auto;
+    margin: .5rem 0;
+    padding: 0 1rem;
+    border-left: 1px solid rgba(0, 0, 0, .6);
+    border-radius: 0;
+    cursor: pointer;
+}
+
 @keyframes itflow-toast-in {
     from {
         opacity: 0;
