@@ -57,6 +57,49 @@ if (isset($_POST['load_starter_content'])) {
 
 }
 
+/*
+ * Clear out unused - a pack's items that are here and nothing uses, archived
+ * (admin/modals/starter_content/starter_clear.php ticks which). Checked again
+ * here, so one put to use since the window opened stays. Undo puts them back.
+ */
+if (isset($_POST['clear_starter_unused'])) {
+
+    validateCSRFToken();
+
+    require_once 'starter_content_model.php';
+
+    $starter_content_packs = starterContentPacks();
+    $pack = (string) $_POST['clear_starter_unused'];
+    if (!isset($starter_content_packs[$pack]) || !starterPackRecords($pack)) {
+        flashAlert("Unknown starter content pack", 'error');
+        redirect();
+    }
+
+    $only = null;
+    if (isset($_POST['picked'][$pack])) {
+        $only = array_map('strval', array_filter((array) ($_POST['items'][$pack] ?? []), 'is_string'));
+        if (!$only) {
+            flashAlert("Nothing is ticked - tick what to archive", 'info');
+            redirect();
+        }
+    }
+
+    $label = $starter_content_packs[$pack]['label'];
+    [$archived, $before] = starterClearUnused($mysqli, $pack, $only);
+    $count = count($archived);
+
+    if ($count) {
+        logAudit("Starter Content", "Archive", "$session_name archived $count unused from the starter $label pack");
+        flashAlert("Archived <strong>$count</strong> unused from " . escapeHtml($label));
+        undoOfferChanges($before, "<strong>{n}</strong> from " . escapeHtml($label) . " put back", 'module_client');
+    } else {
+        flashAlert("Nothing to archive - those are in use now, or already archived", 'info');
+    }
+
+    redirect();
+
+}
+
 if (isset($_POST['update_starter_ticket_templates'])) {
 
     // The starter ticket templates already here, brought up to this version

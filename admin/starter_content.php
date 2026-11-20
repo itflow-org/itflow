@@ -6,6 +6,7 @@
  * it is and the one thing to do at the top, the packs and the demo data under it, and at a glance
  * and how it works to the side. Pick which and Preview are includes/starter_content_pick.php, shared
  * with Get started's Starter content step; js/starter_content.js keeps the ticks and counts in step.
+ * Clear out unused, beside a pack's counts, opens modals/starter_content/starter_clear.php.
  */
 
 require_once "includes/inc_all_admin.php";
@@ -17,17 +18,20 @@ require_once "includes/starter_content_pick.php";
 
 $starter_content_packs = starterContentPacks();
 
-// Each pack's items not here yet - for Pick which, and how many Add brings
+// Each pack's items not here yet - for Pick which, and how many Add brings - and how many of
+// the ones here nothing uses, for Clear out unused
 $starter_content_items = [];
 $starter_content_status = [];
-$total_in_library = $total_missing = 0;
+$total_in_library = $total_missing = $total_unused = 0;
 foreach ($starter_content_packs as $pack => $pack_details) {
     $starter_content_items[$pack] = starterContentItems($mysqli, $pack);
     $total = starterContentTotal($pack);
     $missing = count($starter_content_items[$pack]);
-    $starter_content_status[$pack] = ['total' => $total, 'missing' => $missing, 'present' => $total - $missing];
+    $unused = $total - $missing ? count(starterContentUnused($mysqli, $pack)['items']) : 0;
+    $starter_content_status[$pack] = ['total' => $total, 'missing' => $missing, 'present' => $total - $missing, 'unused' => $unused];
     $total_in_library += $total;
     $total_missing += $missing;
+    $total_unused += $unused;
 }
 $total_present = $total_in_library - $total_missing;
 
@@ -102,6 +106,14 @@ if (!$total_missing) {
                                         <?php } else { ?>
                                             <span class="small text-body-secondary">
                                                 <span data-starter-count data-starter-more="<?= $pack_status['present'] ? 1 : 0 ?>"><?= intval($pack_status['missing']) ?> <?= $pack_status['present'] ? 'more ' : '' ?>to add</span><?php if ($pack_status['present']) { ?> · <?= intval($pack_status['present']) ?> of <?= intval($pack_status['total']) ?> here<?php } ?>
+                                            </span>
+                                        <?php } ?>
+                                        <?php if ($pack_status['unused']) { ?>
+                                            <!-- The ones here that nothing uses, archived from a window that lists them -->
+                                            <span class="small text-body-secondary">·
+                                                <button type="button" class="btn btn-link btn-sm p-0 align-baseline text-decoration-none ajax-modal" data-modal-url="/admin/modals/starter_content/starter_clear.php?pack=<?= urlencode($pack) ?>" data-modal-size="lg" data-starter-clear>
+                                                    <i class="fas fa-broom me-1"></i>Clear out <?= intval($pack_status['unused']) ?> unused
+                                                </button>
                                             </span>
                                         <?php } ?>
                                     </div>
@@ -229,6 +241,10 @@ if (!$total_missing) {
                     <span class="text-end fw-semibold"><?= $total_missing ? $total_missing : '<span class="text-success-emphasis"><i class="fas fa-check me-1"></i>None</span>' ?></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between gap-3">
+                    <span class="text-body-secondary">Here but unused</span>
+                    <span class="text-end fw-semibold"><?= $total_unused ?></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between gap-3">
                     <span class="text-body-secondary">Demo data</span>
                     <span class="text-end fw-semibold"><?= $demo_data_loaded ? "$demo_data_loaded of $demo_data_total clients" : 'Not added' ?></span>
                 </li>
@@ -244,6 +260,7 @@ if (!$total_missing) {
                     <li>Adding never changes or removes anything. A name you already have is skipped, so a pack can be added again to bring back something deleted - never a duplicate.</li>
                     <li><strong>Pick which</strong>, under a pack, lists what it would add as it will look, with a preview of each template. Untick what you don't want.</li>
                     <li><strong>Update</strong> brings templates and canned responses added from an earlier version up to this one - it replaces what they hold.</li>
+                    <li><strong>Clear out unused</strong> archives what came from a pack and nothing uses yet - anything in use stays, and Undo puts them back.</li>
                     <li>Request forms come with the ticket templates, turned off. Canned responses come in shared. Products are priced as starting points - hardware and resold licensing at zero.</li>
                 </ul>
             </div>

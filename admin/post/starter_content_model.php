@@ -359,6 +359,229 @@ function starterContentItems($mysqli, $pack) {
 }
 
 // ------------------------------
+// starterPackRecords
+// Where a pack's items land - the table, its id, name and archived columns,
+// what narrows it to the pack's kind of record, and what a library row is
+// matched on: kind and name, as Add finds them, and a product's code too, as
+// an install may well have a line of its own by that name.
+// ------------------------------
+function starterPackRecords($pack) {
+    $packs = [
+        'categories' => ['table' => 'categories', 'id' => 'category_id', 'name' => 'category_name', 'archived' => 'category_archived_at', 'kind' => 'category_type'],
+        'tags' => ['table' => 'tags', 'id' => 'tag_id', 'name' => 'tag_name', 'archived' => 'tag_archived_at', 'kind' => 'tag_type'],
+        'ticket_templates' => ['table' => 'ticket_templates', 'id' => 'ticket_template_id', 'name' => 'ticket_template_name', 'archived' => 'ticket_template_archived_at'],
+        'project_templates' => ['table' => 'project_templates', 'id' => 'project_template_id', 'name' => 'project_template_name', 'archived' => 'project_template_archived_at'],
+        'canned_responses' => ['table' => 'canned_responses', 'id' => 'canned_response_id', 'name' => 'canned_response_name', 'archived' => 'canned_response_archived_at', 'where' => 'canned_response_user_id = 0'],
+        'vendor_templates' => ['table' => 'vendor_templates', 'id' => 'vendor_template_id', 'name' => 'vendor_template_name', 'archived' => 'vendor_template_archived_at'],
+        'document_templates' => ['table' => 'document_templates', 'id' => 'document_template_id', 'name' => 'document_template_name', 'archived' => 'document_template_archived_at'],
+        'products' => ['table' => 'products', 'id' => 'product_id', 'name' => 'product_name', 'archived' => 'product_archived_at', 'kind' => 'product_code'],
+        'license_templates' => ['table' => 'software_templates', 'id' => 'software_template_id', 'name' => 'software_template_name', 'archived' => 'software_template_archived_at'],
+    ];
+    return $packs[$pack] ?? null;
+}
+
+/* A library row as starterPackHere() keys what is here - kind (a product's code)|name, lower cased. */
+function starterPackMatchKey($pack, $row) {
+    switch ($pack) {
+        case 'categories':
+            return mb_strtolower($row['type'] . '|' . $row['name']);
+        case 'tags':
+            return mb_strtolower($row[0] . '|' . $row[1]);
+        case 'products':
+            return mb_strtolower($row[2] . '|' . $row[0]);
+    }
+    return mb_strtolower(starterItemName($pack, $row));
+}
+
+// ------------------------------
+// starterPackHere
+// The records here, not archived, that a pack's rows match - key as
+// starterPackMatchKey() => record id. One kept under the name it had
+// (starterRenamed()) is the same item.
+// ------------------------------
+function starterPackHere($mysqli, $pack) {
+    $r = starterPackRecords($pack);
+    if (!$r) {
+        return [];
+    }
+    $kind = $r['kind'] ?? '';
+    $sql = mysqli_query($mysqli, "SELECT {$r['id']}, {$r['name']}" . ($kind ? ", $kind" : '') . " FROM {$r['table']}
+        WHERE {$r['archived']} IS NULL" . (isset($r['where']) ? " AND {$r['where']}" : '') . " ORDER BY {$r['id']}");
+    $here = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $key = mb_strtolower(($kind ? $row[$kind] . '|' : '') . $row[$r['name']]);
+        $here[$key] = $here[$key] ?? intval($row[$r['id']]);
+    }
+    foreach (starterRenamed($pack) as $old => $new) {
+        $type = strpos($old, '|') !== false ? substr($old, 0, strpos($old, '|') + 1) : '';
+        $new_key = mb_strtolower($type . $new);
+        if (!isset($here[$new_key]) && isset($here[$old])) {
+            $here[$new_key] = $here[$old];
+        }
+    }
+    return $here;
+}
+
+// ------------------------------
+// starterPackUsed
+// Of these record ids, the ones something uses - id => true. Used is
+// anything that points at it: a category on a ticket, invoice, expense,
+// product, budget or template, or with categories under it; a tag on any
+// record, template or seat count; a ticket template a ticket, recurring
+// ticket or project template was made from or uses, or with its request form
+// on; a project template a project was raised from (its tickets' history says
+// so); a canned response ever put in a reply; a vendor, document or license
+// template something was made from; a product on a line, an asset, an order
+// or a license template, or with stock or prices of its own.
+// ------------------------------
+function starterPackUsed($mysqli, $pack, array $ids) {
+    $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+    if (!$ids) {
+        return [];
+    }
+    $in = implode(',', $ids);
+    $used = [];
+    $queries = [];
+    switch ($pack) {
+        case 'categories':
+            // What Admin > Categories counts for each kind, and what it doesn't
+            foreach (['Expense', 'Income', 'Referral', 'Ticket'] as $kind) {
+                foreach (array_keys(categoryUsage($kind)) as $category_id) {
+                    $used[intval($category_id)] = true;
+                }
+            }
+            $queries = [
+                "SELECT ticket_template_category_id FROM ticket_templates WHERE ticket_template_category_id IN ($in)",
+                "SELECT config_quick_ticket_category FROM settings WHERE config_quick_ticket_category IN ($in)",
+                "SELECT rmm_provider_alert_category_id FROM rmm_providers WHERE rmm_provider_alert_category_id IN ($in)",
+                "SELECT ai_triage_category_id FROM ai_ticket_triage WHERE ai_triage_category_id IN ($in)",
+                "SELECT category_parent FROM categories WHERE category_parent IN ($in) AND category_archived_at IS NULL",
+            ];
+            break;
+        case 'tags':
+            // Every table that links a tag to something
+            $sql = mysqli_query($mysqli, "SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME <> 'tags' AND (COLUMN_NAME = 'tag_id' OR COLUMN_NAME LIKE '%\\_tag\\_id')");
+            while ($row = mysqli_fetch_row($sql)) {
+                $queries[] = "SELECT `{$row[1]}` FROM `{$row[0]}` WHERE `{$row[1]}` IN ($in)";
+            }
+            foreach (array_keys(tagSeatLineCounts()) as $tag_id) {
+                $used[intval($tag_id)] = true;
+            }
+            break;
+        case 'ticket_templates':
+            $queries = [
+                "SELECT ticket_template_id FROM tickets WHERE ticket_template_id IN ($in)",
+                "SELECT recurring_ticket_ticket_template_id FROM recurring_tickets WHERE recurring_ticket_ticket_template_id IN ($in)",
+                "SELECT ticket_template_id FROM project_template_ticket_templates WHERE ticket_template_id IN ($in)",
+                "SELECT ticket_template_id FROM ticket_templates WHERE ticket_template_portal = 1 AND ticket_template_id IN ($in)",
+            ];
+            break;
+        case 'project_templates':
+            // A project doesn't keep its template - the tickets it raised say which in their history
+            $names = [];
+            $sql = mysqli_query($mysqli, "SELECT project_template_id, project_template_name FROM project_templates WHERE project_template_id IN ($in)");
+            while ($row = mysqli_fetch_row($sql)) {
+                $names[intval($row[0])] = $row[1];
+            }
+            foreach ($names as $project_template_id => $name) {
+                $like = escapeSql(addcslashes("raised the ticket from project template $name", '%_'));
+                if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM ticket_history WHERE ticket_history_description LIKE '%$like' LIMIT 1"))) {
+                    $used[$project_template_id] = true;
+                }
+            }
+            break;
+        case 'canned_responses':
+            $queries = ["SELECT canned_response_use_canned_response_id FROM canned_response_uses WHERE canned_response_use_canned_response_id IN ($in)"];
+            break;
+        case 'vendor_templates':
+            $queries = [
+                "SELECT vendor_template_id FROM vendors WHERE vendor_template_id IN ($in)",
+                "SELECT software_template_vendor_template_id FROM software_templates WHERE software_template_vendor_template_id IN ($in) AND software_template_archived_at IS NULL",
+            ];
+            break;
+        case 'document_templates':
+            $queries = ["SELECT document_template_id FROM documents WHERE document_template_id IN ($in)"];
+            break;
+        case 'products':
+            $queries = [
+                "SELECT item_product_id FROM invoice_items WHERE item_product_id IN ($in)",
+                "SELECT item_product_id FROM quote_items WHERE item_product_id IN ($in)",
+                "SELECT item_product_id FROM recurring_invoice_items WHERE item_product_id IN ($in)",
+                "SELECT asset_product_id FROM assets WHERE asset_product_id IN ($in)",
+                "SELECT order_item_product_id FROM order_items WHERE order_item_product_id IN ($in)",
+                "SELECT po_item_product_id FROM po_items WHERE po_item_product_id IN ($in)",
+                "SELECT stock_product_id FROM product_stock WHERE stock_product_id IN ($in)",
+                "SELECT price_product_id FROM product_prices WHERE price_product_id IN ($in)",
+                "SELECT software_template_product_id FROM software_templates WHERE software_template_product_id IN ($in) AND software_template_archived_at IS NULL",
+            ];
+            break;
+        case 'license_templates':
+            $queries = ["SELECT software_template_id FROM software WHERE software_template_id IN ($in)"];
+            break;
+    }
+    foreach ($queries as $query) {
+        $sql = mysqli_query($mysqli, str_replace('SELECT ', 'SELECT DISTINCT ', $query));
+        while ($sql && ($row = mysqli_fetch_row($sql))) {
+            $used[intval($row[0])] = true;
+        }
+    }
+    return array_intersect_key($used, array_flip($ids));
+}
+
+// ------------------------------
+// starterContentUnused
+// A pack's items that are here and nothing uses - for Clear out unused, in
+// starterContentItems()' shape with the record's 'id' - and how many of the
+// pack that are here are in use: ['items' => [...], 'in_use' => n].
+// ------------------------------
+function starterContentUnused($mysqli, $pack) {
+    $here = starterPackHere($mysqli, $pack);
+    $found = [];
+    foreach (starterContentRows($pack) as $row) {
+        $id = $here[starterPackMatchKey($pack, $row)] ?? 0;
+        if ($id && !isset($found[$id])) {
+            $found[$id] = $row;
+        }
+    }
+    $used = starterPackUsed($mysqli, $pack, array_keys($found));
+    $items = [];
+    foreach ($found as $id => $row) {
+        if (!isset($used[$id])) {
+            $items[] = ['key' => starterItemKey($pack, $row), 'name' => starterItemName($pack, $row), 'group' => starterItemGroup($pack, $row), 'row' => $row, 'id' => $id];
+        }
+    }
+    return ['items' => $items, 'in_use' => count($found) - count($items)];
+}
+
+// ------------------------------
+// starterClearUnused
+// Archives a pack's unused items - those of $only (starterItemKey()s) when
+// given - checked again as it goes. Archived, not deleted: each comes back
+// from its own list's Archived view. Add still counts an archived one as
+// here, as it does any other, so it isn't made again beside it.
+// Returns [record ids archived, undoSnapshot() of them before].
+// ------------------------------
+function starterClearUnused($mysqli, $pack, $only = null) {
+    $r = starterPackRecords($pack);
+    if (!$r) {
+        return [[], null];
+    }
+    $ids = [];
+    foreach (starterContentUnused($mysqli, $pack)['items'] as $item) {
+        if ($only === null || in_array($item['key'], $only, true)) {
+            $ids[] = intval($item['id']);
+        }
+    }
+    if (!$ids) {
+        return [[], null];
+    }
+    $before = undoSnapshot($r['table'], $r['id'], $ids, [$r['archived']]);
+    mysqli_query($mysqli, "UPDATE {$r['table']} SET {$r['archived']} = NOW() WHERE {$r['archived']} IS NULL AND {$r['id']} IN (" . implode(',', $ids) . ")");
+    return [$ids, $before];
+}
+
+// ------------------------------
 // starterContentStatus
 // Per pack totals for the page - how many the library holds, how many are
 // already present, and how many loading would add.

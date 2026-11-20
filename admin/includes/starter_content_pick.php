@@ -211,20 +211,26 @@ function starterMinutesText($minutes) {
  * A pack's Pick which - its items not here yet, each ticked, shown as they
  * will look with what they are for, and Preview where there is more to see.
  * $form is the id of the form the ticks go with, when they sit outside it (a
- * table row's Add). $items from starterContentItems().
+ * pack's Add). $items from starterContentItems(), or starterContentUnused()'s
+ * for Clear out unused, which shows the list open ($open) and without Preview,
+ * as Preview shows the library's version rather than the one here.
  */
-function starterPickHtml($pack, array $items, $form = '') {
+function starterPickHtml($pack, array $items, $form = '', $open = false) {
     if (!$items) {
         return '';
     }
     $form_attr = $form !== '' ? ' form="' . escapeHtml($form) . '"' : '';
-    $previews = in_array($pack, starterPreviewPacks(), true);
+    $previews = !$open && in_array($pack, starterPreviewPacks(), true);
     $kind = $pack === 'tags' ? ' is-pills' : '';
     ob_start(); ?>
+    <?php if ($open) { ?>
+    <div class="itflow-starter-pick" data-starter-pick-list>
+    <?php } else { ?>
     <details class="itflow-starter-pick mt-1" data-starter-pick-list>
         <summary class="small">Pick which</summary>
+    <?php } ?>
         <input type="hidden" name="picked[<?= escapeHtml($pack) ?>]" value="1"<?= $form_attr ?>>
-        <div class="itflow-starter-pick-tools small mt-2">
+        <div class="itflow-starter-pick-tools small<?= $open ? '' : ' mt-2' ?>">
             <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-starter-all>All</button>
             <span class="text-body-secondary" aria-hidden="true">·</span>
             <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-starter-none>None</button>
@@ -255,7 +261,7 @@ function starterPickHtml($pack, array $items, $form = '') {
                 <?php } ?>
             </div>
         </div>
-    </details>
+    <?= $open ? '</div>' : '</details>' ?>
     <?php return ob_get_clean();
 }
 
