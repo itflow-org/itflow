@@ -1536,6 +1536,15 @@ if (isset($_GET['ticket_id'])) {
                                     </div>
                                 <?php } ?>
 
+                                <?php
+                                // Their PIN, to check it's them on a call - dots until the eye is clicked, as a shared screen may be watched
+                                $contact_pin_html = vendorSecretHtml($ticket['contact_pin'] ?? '');
+                                if ($contact_pin_html !== '') { ?>
+                                    <div class="mt-2" data-contact-pin>
+                                        <i class="fa fa-fw fa-key text-secondary me-2" title="PIN - to check it's them on a call"></i><span class="small text-body-secondary me-1">PIN</span><?= $contact_pin_html ?>
+                                    </div>
+                                <?php } ?>
+
                             <?php } ?>
 
                         </div>
