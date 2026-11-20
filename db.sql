@@ -4511,6 +4511,24 @@ CREATE TABLE `ticket_history` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ticket_links`
+--
+
+DROP TABLE IF EXISTS `ticket_links`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ticket_links` (
+  `ticket_id` int(11) NOT NULL,
+  `link_group` int(11) NOT NULL,
+  `linked_by` int(11) NOT NULL DEFAULT 0,
+  `linked_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`ticket_id`),
+  KEY `ticket_links_group` (`link_group`),
+  CONSTRAINT `ticket_links_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`ticket_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `ticket_mail_choices`
 --
 

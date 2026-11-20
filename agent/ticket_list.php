@@ -68,6 +68,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
 $last_replies = ticketLastReplies(array_keys($tickets));
 $tickets_tags = tagsForRecords('ticket', array_keys($tickets));
 $task_counts = ticketTaskCounts(array_keys($tickets));
+$link_counts = ticketLinkCounts(array_keys($tickets));
 
 // A Due column only when there is something to put in it
 $show_due = $sla_in_use || mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM tickets WHERE ticket_due_at IS NOT NULL AND ticket_closed_at IS NULL LIMIT 1"));
@@ -191,6 +192,9 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                                         </span>
                                     <?php } ?>
                                     <?= ticketTasksHtml($task_counts[$ticket_id] ?? null) ?>
+                                    <?php if (!empty($link_counts[$ticket_id])) { ?>
+                                        <span class="text-nowrap" title="Related to <?= $link_counts[$ticket_id] ?> other ticket<?= $link_counts[$ticket_id] === 1 ? '' : 's' ?>"><i class="fas fa-link me-1"></i><?= $link_counts[$ticket_id] ?></span>
+                                    <?php } ?>
                                 </div>
                                 <?php if (!empty($tickets_tags[$ticket_id])) { ?>
                                     <!-- Tags - the + to change them while it is open; tag an untagged one from its page or Bulk Action -->

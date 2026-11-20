@@ -393,6 +393,9 @@ function ticketMergeInto($child, $parent, $comment, $move_replies = false) {
         SELECT $parent_id, ticket_tags.tag_id FROM ticket_tags JOIN tags ON tags.tag_id = ticket_tags.tag_id
         WHERE ticket_tags.ticket_id = $ticket_id AND tags.tag_archived_at IS NULL");
 
+    // So do its related tickets (functions/ticket_link.php)
+    ticketLinkCarry($ticket_id, $parent_id);
+
     logTicketHistory($ticket_id, "$session_name merged this ticket into $parent_reference and closed it");
     logTicketHistory($parent_id, "$session_name merged $child_reference into this ticket");
     logAudit("Ticket", "Merge", "$session_name merged ticket $child_reference into $parent_reference", intval($child['ticket_client_id']), $ticket_id);

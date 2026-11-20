@@ -387,6 +387,11 @@ $export_extra = [
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_add_project.php" data-bulk="true">
                                         <i class="fas fa-fw fa-project-diagram me-2"></i>Add to a project
                                     </a>
+                                    <?php if (ticketLinksReady()) { ?>
+                                        <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_link_tickets">
+                                            <i class="fas fa-fw fa-link me-2"></i>Link together
+                                        </button>
+                                    <?php } ?>
                                     <?php if ($view === 'list' && ticketReadsReady()) { ?>
                                         <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_mark_tickets_read">
                                             <i class="fas fa-fw fa-envelope-open me-2"></i>Mark as read

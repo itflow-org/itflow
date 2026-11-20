@@ -217,6 +217,17 @@ if (isset($_GET['ticket_id'])) {
         $also_open = empty($ticket['ticket_resolved_at']) && empty($ticket['ticket_closed_at'])
             ? ticketAlsoOpen($contact_id, intval($ticket['ticket_asset_id']), $ticket_id, 6) : [];
 
+        // The tickets it is linked with - the same outage at other clients, say (functions/ticket_link.php)
+        $related = ticketRelated($ticket_id);
+        $related_hidden = ticketLinkHidden($ticket_id, count($related));
+        // This one and the open ones, for one update or resolve to them all
+        $related_open_ids = array_merge($ticket_is_closed ? [] : [$ticket_id], array_map('intval', array_column(array_filter($related, function ($other) {
+            return $other['is_open'];
+        }), 'ticket_id')));
+        $related_open_query = implode('&amp;', array_map(function ($id) {
+            return 'ticket_ids[]=' . $id;
+        }, $related_open_ids));
+
         // Reply counts, one pass - these drive the conversation filter
         $reply_counts = array('total' => 0, 'public' => 0, 'internal' => 0);
         $sql_reply_counts = mysqli_query(
@@ -668,6 +679,11 @@ if (isset($_GET['ticket_id'])) {
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_merge.php?ticket_id=<?= $ticket_id ?>">
                                                 <i class="fas fa-fw fa-clone me-2"></i>Merge into another ticket
                                             </a>
+                                            <?php if (ticketLinksReady()) { ?>
+                                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_link.php?ticket_id=<?= $ticket_id ?>">
+                                                    <i class="fas fa-fw fa-link me-2"></i>Link related tickets
+                                                </a>
+                                            <?php } ?>
                                             <a class="dropdown-item ajax-modal" href="#" id="clientChangeTicketModalLoad" data-modal-url="modals/ticket/ticket_change_client.php?ticket_id=<?= $ticket_id ?>">
                                                 <i class="fas fa-fw fa-people-carry me-2"></i>Move to another client
                                             </a>
@@ -1522,6 +1538,56 @@ if (isset($_GET['ticket_id'])) {
 
                             <?php } ?>
 
+                        </div>
+                    </div>
+                <?php } ?>
+
+                <!-- Related tickets - linked with this one, any client's (functions/ticket_link.php) -->
+                <?php if ($related || $related_hidden) { ?>
+                    <div class="card mb-3" data-related-tickets>
+                        <div class="card-header px-3 py-2">
+                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-link me-2"></i>Related <span class="badge rounded-pill text-bg-secondary ms-1"><?= count($related) + $related_hidden ?></span></h5>
+                            <?php if ($can_edit_ticket) { ?>
+                                <div class="card-tools">
+                                    <a class="btn btn-tool ajax-modal" href="#" data-modal-url="modals/ticket/ticket_link.php?ticket_id=<?= $ticket_id ?>" title="Link more tickets"><i class="fas fa-plus"></i></a>
+                                    <?php if (count($related_open_ids) > 1) { ?>
+                                        <div class="dropdown d-inline-block">
+                                            <button class="btn btn-tool" type="button" data-bs-toggle="dropdown" title="To them all"><i class="fas fa-ellipsis-v"></i></button>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_bulk_reply.php?<?= $related_open_query ?>">
+                                                    <i class="fas fa-fw fa-paper-plane me-2"></i>Reply to all <?= count($related_open_ids) ?> open
+                                                </a>
+                                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_bulk_resolve.php?<?= $related_open_query ?>">
+                                                    <i class="fas fa-fw fa-check me-2"></i>Resolve all <?= count($related_open_ids) ?> open
+                                                </a>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
+                                </div>
+                            <?php } ?>
+                        </div>
+                        <div class="list-group list-group-flush small">
+                            <?php foreach ($related as $other) {
+                                $other_id = intval($other['ticket_id']); ?>
+                                <div class="list-group-item px-3 py-2">
+                                    <div class="d-flex align-items-start gap-2">
+                                        <div class="text-truncate flex-grow-1"><?= ticketLink($other) ?></div>
+                                        <?php if ($can_edit_ticket && (!intval($other['ticket_client_id']) || hasClientAccess($other['ticket_client_id']))) { ?>
+                                            <a class="text-body-secondary" href="post.php?unlink_ticket=<?= $other_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>" title="No longer related"><i class="fas fa-times"></i></a>
+                                        <?php } ?>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 mt-1 text-body-secondary">
+                                        <?= ticketStatusHtml($other['ticket_status_name'], $other['ticket_status_color'], 'detail') ?>
+                                        <span class="text-truncate"><?= $other['client_name'] !== null ? escapeHtml($other['client_name']) : 'Internal' ?></span>
+                                        <span class="ms-auto text-nowrap"><?= $other['user_name'] !== null ? escapeHtml($other['user_name']) : 'Unassigned' ?></span>
+                                    </div>
+                                </div>
+                            <?php } ?>
+                            <?php if ($related_hidden) { ?>
+                                <div class="list-group-item px-3 py-2 text-body-secondary">
+                                    <i class="fas fa-fw fa-lock me-1"></i><?= $related_hidden ?> more for <?= $related_hidden === 1 ? 'a client' : 'clients' ?> you can't open
+                                </div>
+                            <?php } ?>
                         </div>
                     </div>
                 <?php } ?>
