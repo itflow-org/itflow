@@ -138,6 +138,45 @@ function starterExistingNames($mysqli, $table, $name_column, $key_column = null)
 }
 
 // ------------------------------
+// starterRenamed / starterExistingRenamed
+// Starter items whose name has changed - to US spelling, in 26.12 - as the key
+// starterExistingNames() gives the old name => the name now. An install that
+// loaded one under its old name has it: it isn't added again under the new
+// one, and bringing the pack up to date renames it.
+// ------------------------------
+function starterRenamed($pack) {
+    $renamed = [
+        'tags' => ['6|authorised contacts only' => 'Authorized Contacts Only'],
+        'canned_responses' => ['licence assigned' => 'License assigned'],
+    ];
+    return $renamed[$pack] ?? [];
+}
+
+function starterExistingRenamed($pack, array $existing) {
+    foreach (starterRenamed($pack) as $old => $new) {
+        if (isset($existing[$old])) {
+            $type = strpos($old, '|') !== false ? substr($old, 0, strpos($old, '|') + 1) : '';
+            $existing[$type . mb_strtolower($new)] = true;
+        }
+    }
+    return $existing;
+}
+
+// ------------------------------
+// starterCannedResponseNames
+// The shared canned responses here, by lower cased name - and the new name of
+// a starter one kept under its old one (starterRenamed()).
+// ------------------------------
+function starterCannedResponseNames($mysqli) {
+    $existing = [];
+    $sql = mysqli_query($mysqli, "SELECT canned_response_name FROM canned_responses WHERE canned_response_user_id = 0");
+    while ($row = mysqli_fetch_row($sql)) {
+        $existing[mb_strtolower($row[0])] = true;
+    }
+    return starterExistingRenamed('canned_responses', $existing);
+}
+
+// ------------------------------
 // starterCategoryId
 // ------------------------------
 function starterCategoryId($mysqli, $name, $type) {
@@ -290,17 +329,13 @@ function starterContentItems($mysqli, $pack) {
             };
             break;
         case 'tags':
-            $existing = starterExistingNames($mysqli, 'tags', 'tag_name', 'tag_type');
+            $existing = starterExistingRenamed('tags', starterExistingNames($mysqli, 'tags', 'tag_name', 'tag_type'));
             $here = function ($row) use ($existing) {
                 return isset($existing[$row[0] . '|' . mb_strtolower($row[1])]);
             };
             break;
         case 'canned_responses':
-            $existing = [];
-            $sql = mysqli_query($mysqli, "SELECT canned_response_name FROM canned_responses WHERE canned_response_user_id = 0");
-            while ($row = mysqli_fetch_row($sql)) {
-                $existing[mb_strtolower($row[0])] = true;
-            }
+            $existing = starterCannedResponseNames($mysqli);
             break;
         default:
             $tables = ['ticket_templates' => ['ticket_templates', 'ticket_template_name'], 'project_templates' => ['project_templates', 'project_template_name'],
@@ -406,7 +441,7 @@ function starterLoadCategories($mysqli, $dry_run = false, $only = null) {
 // starterLoadTags
 // ------------------------------
 function starterLoadTags($mysqli, $dry_run = false, $only = null) {
-    $existing = starterExistingNames($mysqli, 'tags', 'tag_name', 'tag_type');
+    $existing = starterExistingRenamed('tags', starterExistingNames($mysqli, 'tags', 'tag_name', 'tag_type'));
     $added = 0;
 
     foreach (starterOnly('tags', starterContentTags(), $only) as $tag) {
@@ -463,17 +498,15 @@ function starterUpdateTicketTemplates() {
 // ------------------------------
 function starterLoadCannedResponses($mysqli, $dry_run = false, $only = null) {
     $responses = cannedResponsesImportRead(['format' => CANNED_RESPONSE_FILE_FORMAT, 'version' => CANNED_RESPONSE_FILE_VERSION, 'responses' => starterOnly('canned_responses', starterContentCannedResponses(), $only)]);
+    // Ones here already, under their name or the one they had (starterRenamed()), are left alone
+    $existing = starterCannedResponseNames($mysqli);
+    $responses = array_values(array_filter($responses, function ($response) use ($existing) {
+        return !isset($existing[mb_strtolower($response['name'])]);
+    }));
     if ($dry_run) {
-        $existing = [];
-        $sql = mysqli_query($mysqli, "SELECT canned_response_name FROM canned_responses WHERE canned_response_user_id = 0");
-        while ($row = mysqli_fetch_row($sql)) {
-            $existing[mb_strtolower($row[0])] = true;
-        }
-        return count(array_filter($responses, function ($response) use ($existing) {
-            return !isset($existing[mb_strtolower($response['name'])]);
-        }));
+        return count($responses);
     }
-    return cannedResponsesImport($responses, 'skip')['added'];
+    return $responses ? cannedResponsesImport($responses, 'skip')['added'] : 0;
 }
 
 // ------------------------------
@@ -484,6 +517,17 @@ function starterLoadCannedResponses($mysqli, $dry_run = false, $only = null) {
 // Returns the import's counts (cannedResponsesImport()).
 // ------------------------------
 function starterUpdateCannedResponses() {
+    global $mysqli;
+
+    // One still under the name it had takes its new name first, so it is the one brought up to date
+    foreach (starterRenamed('canned_responses') as $old => $new) {
+        $new_sql = escapeSql(mb_strtolower($new));
+        if (!mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM canned_responses WHERE canned_response_user_id = 0 AND LOWER(canned_response_name) = '$new_sql' LIMIT 1"))) {
+            mysqli_query($mysqli, "UPDATE canned_responses SET canned_response_name = '" . escapeSql($new) . "'
+                WHERE canned_response_user_id = 0 AND LOWER(canned_response_name) = '" . escapeSql($old) . "' ORDER BY canned_response_id LIMIT 1");
+        }
+    }
+
     $responses = cannedResponsesImportRead(['format' => CANNED_RESPONSE_FILE_FORMAT, 'version' => CANNED_RESPONSE_FILE_VERSION, 'responses' => starterContentCannedResponses()]);
     return cannedResponsesImport($responses, 'replace', true);
 }
@@ -909,7 +953,7 @@ function starterContentTags() {
         [6, 'Printing', '#6c757d', 'print'],
         [6, 'Hosting', '#17a2b8', 'globe'],
         [6, 'Professional Services', '#343a40', 'briefcase'],
-        [6, 'Authorised Contacts Only', '#d81b60', 'user-lock'],
+        [6, 'Authorized Contacts Only', '#d81b60', 'user-lock'],
 
         // Domain
         [7, 'Primary', '#007bff', 'star'],
@@ -1000,7 +1044,7 @@ function starterContentTicketTemplates() {
             'name' => 'New Hire Onboarding',
             'description' => 'Standard setup for a new employee joining a client',
             'subject' => 'New hire onboarding - [Employee Name]',
-            'details' => '<p>[Employee Name] starts on [Start Date] as [Job Title], reporting to [Manager]. Mirror their access from [Copy Access From].</p><ul><li>Computer: [Needs a Computer]</li><li>Phone extension: [Needs a Phone Extension]</li><li>Licence: [Licence]</li></ul><p>Do not create anything until an authorized contact has approved the request in writing.</p>',
+            'details' => '<p>[Employee Name] starts on [Start Date] as [Job Title], reporting to [Manager]. Mirror their access from [Copy Access From].</p><ul><li>Computer: [Needs a Computer]</li><li>Phone extension: [Needs a Phone Extension]</li><li>License: [License]</li></ul><p>Do not create anything until an authorized contact has approved the request in writing.</p>',
             'category' => $category('Onboarding'),
             'priority' => 'Medium',
             'tags' => [$tag('Onboarding')],
@@ -1012,12 +1056,12 @@ function starterContentTicketTemplates() {
                 $fill_in('Copy Access From', 'text', ['help' => 'Someone whose access to files, groups and applications they should match']),
                 $fill_in('Needs a Computer', 'yesno', ['required' => true, 'help' => 'We order it, set it up and have it on their desk']),
                 $fill_in('Needs a Phone Extension', 'yesno'),
-                $fill_in('Licence', 'list', ['options' => ['Business Basic', 'Business Standard', 'Business Premium', 'Exchange Online only'], 'client' => false]),
+                $fill_in('License', 'list', ['options' => ['Business Basic', 'Business Standard', 'Business Premium', 'Exchange Online only'], 'client' => false]),
             ],
             'tasks' => [
                 $task('Confirm start date and written approval from an authorized contact', 15),
                 $task('Create the directory account and set the initial password', 15),
-                $task('Assign the [Licence] licence', 10),
+                $task('Assign the [License] license', 10),
                 $task('Create the mailbox, signature and alias', 20),
                 $task('Add to security and distribution groups, matching [Copy Access From]', 15),
                 $task('Configure file share and application permissions', 20),
@@ -1364,15 +1408,15 @@ function starterContentTicketTemplates() {
             'fill_ins' => [
                 $fill_in('Software', 'text', ['required' => true, 'help' => 'Its name, and the version if it matters']),
                 $fill_in('Who It Is For', 'text', ['help' => 'Leave it blank if it is for you']),
-                $fill_in('Already Licensed', 'yesno', ['required' => true, 'help' => 'Do you have a licence or subscription for it already?']),
+                $fill_in('Already Licensed', 'yesno', ['required' => true, 'help' => 'Do you have a license or subscription for it already?']),
                 $fill_in('What It Is For'),
             ],
             'tasks' => [
                 $task('Check it is compatible and approved for the client', 10),
-                $task('Quote and order the licence', 15, ['Already Licensed', 'No']),
+                $task('Quote and order the license', 15, ['Already Licensed', 'No']),
                 $task('Install and license [Software]', 30),
                 $task('Verify it works with the user', 10),
-                $task('Record the licence and update the asset', 10),
+                $task('Record the license and update the asset', 10),
             ],
             'portal' => ['title' => 'Install some software', 'description' => 'An application you need on your computer', 'icon' => 'cube', 'who' => 'everyone'],
         ],
@@ -1475,8 +1519,8 @@ function starterContentCannedResponses() {
         $response('Account unlocked',
             '<p>Hi [First Name],</p><p>[Account] was locked after too many wrong passwords, and I have unlocked it - you can sign in again now.</p><p>If it locks again without you mistyping, let us know straight away, as someone else may be trying to sign in as you.</p>' . $signed,
             ['Account and Access'], 'email', 'Resolved', 5),
-        $response('Licence assigned',
-            '<p>Hi [First Name],</p><p>I have assigned a [Licence] licence to [Person]. It can take up to an hour for everything to appear - signing out and back in usually speeds it up.</p>' . $signed,
+        $response('License assigned',
+            '<p>Hi [First Name],</p><p>I have assigned a [License] license to [Person]. It can take up to an hour for everything to appear - signing out and back in usually speeds it up.</p>' . $signed,
             ['Microsoft 365'], 'email', 'Resolved', 10),
 
         // Security
@@ -1551,7 +1595,7 @@ function starterContentProjectTemplates() {
         ],
         [
             'name' => 'Server Refresh',
-            'description' => 'Replace ageing server hardware and migrate roles and data across.',
+            'description' => 'Replace aging server hardware and migrate roles and data across.',
             'ticket_templates' => ['Server Deployment', 'Backup Restore Test'],
         ],
         [
@@ -2123,7 +2167,7 @@ function starterContentLicenseTemplates() {
         $template('Microsoft 365 Business Basic', 'Web and mobile Office apps, Exchange mail, Teams and OneDrive', 'Productivity Suite', 'User', '1y', 'Microsoft', 'Microsoft 365 Business Basic', $m365_notes),
         $template('Microsoft 365 Business Standard', 'Desktop Office apps, Exchange mail, Teams and OneDrive', 'Productivity Suite', 'User', '1y', 'Microsoft', 'Microsoft 365 Business Standard', $m365_notes),
         $template('Microsoft 365 Business Premium', 'Business Standard with Intune, Entra ID P1 and Defender for Business', 'Productivity Suite', 'User', '1y', 'Microsoft', 'Microsoft 365 Business Premium', array_merge($m365_notes, [
-            "Devices are enrolled in Intune - keep the enrolment, compliance and conditional access policies with the client's documentation.",
+            "Devices are enrolled in Intune - keep the enrollment, compliance and conditional access policies with the client's documentation.",
         ])),
         $template('Exchange Online (Plan 1)', 'A mailbox, without the Office apps - for staff who only need mail', 'Software as a Service (SaaS)', 'User', '1y', 'Microsoft', 'Microsoft 365 Exchange Online Plan 1', [
             'Assigned to users in the Microsoft 365 admin center, under Billing > Licenses. Shared mailboxes need no license until they pass their size limit or need an archive.',

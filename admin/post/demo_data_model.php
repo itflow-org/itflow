@@ -62,7 +62,7 @@ function demoDataOrgVendors() {
         ['Synology Direct', 'NAS hardware and Active Backup for Business licensing', '425-555-0139', 'synologydirect.example', 'Next business day replacement', 'SYN-2280'],
         ['Proxmox Server Solutions', 'Proxmox VE and Proxmox Backup Server subscriptions', '203-555-0101', 'proxmoxsubs.example', 'Enterprise repository access', 'PVE-5512'],
         ['Nextcloud Hosting Partner', 'Managed Nextcloud instances resold to clients', '203-555-0177', 'ncpartner.example', '4 hour response', 'NC-3390'],
-        ['Cascade Cloud Licensing', 'Microsoft and Google licensing through the partner programme', '877-555-0155', 'cascadelicensing.example', 'Partner support portal', 'CCL-6640'],
+        ['Cascade Cloud Licensing', 'Microsoft and Google licensing through the partner program', '877-555-0155', 'cascadelicensing.example', 'Partner support portal', 'CCL-6640'],
         ['Three Rivers Colocation', 'Rack space, power and transit for the management stack', '412-555-0128', 'threeriverscolo.example', '24/7 hands and eyes', 'TRC-1180'],
         ['Steelworks Business Bank', 'Business banking, merchant services and card settlement', '412-555-0100', 'steelworksbank.example', 'Business hours', 'SBB-0042'],
         ['Alcott and Reyes CPA', 'Bookkeeping, payroll filing and year end accounts', '412-555-0192', 'alcottreyes.example', 'Monthly close', 'ARC-2210'],
@@ -161,8 +161,8 @@ function demoDataProducts() {
         ['Open Source Stack Review', 'service', 'FOSS-REV', '850.00', 'Consulting', 'Fixed fee. Review of a self hosted stack with a written report and a costed roadmap.', '', '0.00', '', '', 0],
 
         // Corporate licensing and hardware, resold
-        ['Google Workspace Business Standard', 'service', 'LIC-GWBS', '14.00', 'Managed Services', 'Per user, per month. Licence resold and managed.', 'month:contacts', '11.20', 'Cascade Cloud Licensing', 'GWS-BSTD-FLEX', 0],
-        ['Synology Active Backup Licence', 'product', 'LIC-SYNAB', '0.00', 'Hardware Sales', 'Included with Synology hardware. Listed so it appears on the quote.', '', '0.00', 'Synology Direct', '', 0],
+        ['Google Workspace Business Standard', 'service', 'LIC-GWBS', '14.00', 'Managed Services', 'Per user, per month. License resold and managed.', 'month:contacts', '11.20', 'Cascade Cloud Licensing', 'GWS-BSTD-FLEX', 0],
+        ['Synology Active Backup License', 'product', 'LIC-SYNAB', '0.00', 'Hardware Sales', 'Included with Synology hardware. Listed so it appears on the quote.', '', '0.00', 'Synology Direct', '', 0],
         ['Netgate 6100 MAX Firewall', 'product', 'HW-NG6100', '1245.00', 'Hardware Sales', 'pfSense Plus appliance with three years of support included.', '', '935.00', 'Netgate', '6100-MAX', 0, 'Firewall/Router', 'Netgate', '6100 MAX', 36],
         ['Ubiquiti U6-Pro Access Point', 'product', 'HW-U6PRO', '245.00', 'Hardware Sales', 'Wi-Fi 6 ceiling mounted access point, PoE powered.', '', '179.00', 'Ubiquiti Store', 'U6-Pro', 1, 'Access Point', 'Ubiquiti', 'U6-Pro', 12],
         ['Ubiquiti USW-Pro-24-PoE Switch', 'product', 'HW-USW24', '785.00', 'Hardware Sales', '24 port managed PoE switch with SFP+ uplinks.', '', '599.00', 'Ubiquiti Store', 'USW-Pro-24-PoE', 0, 'Switch', 'Ubiquiti', 'USW-Pro-24-PoE', 12],
@@ -205,6 +205,47 @@ function demoProductExtras($product, $vendors) {
 }
 
 // ------------------------------
+// demoDataRenamed
+// What this library wrote before it took US spelling (26.12), so a load and a
+// removal still find what an earlier load made: catalogue lines by code => the
+// name and description they had, and errand purposes now => the purpose then.
+// ------------------------------
+function demoDataRenamed() {
+    return [
+        'products' => [
+            'LIC-GWBS' => ['Google Workspace Business Standard', 'Per user, per month. Licence resold and managed.'],
+            'LIC-SYNAB' => ['Synology Active Backup Licence', 'Included with Synology hardware. Listed so it appears on the quote.'],
+        ],
+        'errands' => ['Bank - deposit checks and cash' => 'Bank - deposit cheques and cash'],
+    ];
+}
+
+// ------------------------------
+// demoProductId
+// The install's line for one of demoDataProducts() - code, name and description
+// all have to match, as now or as they were (demoDataRenamed()). The Products
+// starter pack ships its own catalogue and an install may well sell the same
+// thing under the same code, so nothing weaker is safe at removal time. Edit
+// the description and we leave our line behind rather than risk taking theirs -
+// the harmless direction to fail in. [product_id or 0, whether it is the old one]
+// ------------------------------
+function demoProductId($mysqli, $product) {
+    $versions = [[$product[0], $product[5]]];
+    $old = demoDataRenamed()['products'][$product[2]] ?? null;
+    if ($old) {
+        $versions[] = $old;
+    }
+    foreach ($versions as $n => $version) {
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT product_id FROM products WHERE product_code = '" . escapeSql($product[2]) . "'
+            AND product_name = '" . escapeSql($version[0]) . "' AND product_description = '" . escapeSql($version[1]) . "' LIMIT 1"));
+        if (!empty($row['product_id'])) {
+            return [intval($row['product_id']), $n > 0];
+        }
+    }
+    return [0, false];
+}
+
+// ------------------------------
 // demoEnsureProducts
 // Matched on the product code, which is what makes a catalogue line ours - a
 // name on its own could easily be something the install already sells.
@@ -214,17 +255,13 @@ function demoEnsureProducts($mysqli, $currency, $vendors = []) {
     $products = [];
 
     foreach (demoDataProducts() as $product) {
-        $code = escapeSql($product[2]);
-        $name = escapeSql($product[0]);
-        $description = escapeSql($product[5]);
-        // Code, name and description all have to match. The Products starter
-        // pack ships its own catalogue and an install may well sell the same
-        // thing under the same code, so nothing weaker is safe at removal time.
-        // Edit the description and we leave our line behind rather than risk
-        // taking theirs - the harmless direction to fail in.
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT product_id FROM products WHERE product_code = '$code' AND product_name = '$name' AND product_description = '$description' LIMIT 1"));
-        if (!empty($row['product_id'])) {
-            $products[$product[0]] = intval($row['product_id']);
+        [$product_id, $was_old] = demoProductId($mysqli, $product);
+        if ($product_id) {
+            // One an earlier load made takes this version's spelling
+            if ($was_old) {
+                mysqli_query($mysqli, "UPDATE products SET product_name = '" . escapeSql($product[0]) . "', product_description = '" . escapeSql($product[5]) . "' WHERE product_id = $product_id");
+            }
+            $products[$product[0]] = $product_id;
             continue;
         }
         $products[$product[0]] = starterInsert($mysqli, 'products', [
@@ -449,8 +486,17 @@ function demoMacAddress($seed) {
 // ------------------------------
 function demoAttachTags($mysqli, $join_table, $join_column, $tag_column, $row_id, $tag_type, $tag_names) {
     foreach ($tag_names as $tag_name) {
-        $tag_name = escapeSql($tag_name);
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tag_id FROM tags WHERE tag_name = '$tag_name' AND tag_type = $tag_type LIMIT 1"));
+        // A starter tag loaded under the name it had (starterRenamed()) is the same tag
+        $names = [$tag_name];
+        foreach (starterRenamed('tags') as $old => $new) {
+            if (strpos($old, intval($tag_type) . '|') === 0 && mb_strtolower($new) === mb_strtolower($tag_name)) {
+                $names[] = substr($old, strpos($old, '|') + 1);
+            }
+        }
+        $names_sql = implode(', ', array_map(function ($name) {
+            return "'" . escapeSql($name) . "'";
+        }, $names));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tag_id FROM tags WHERE tag_name IN ($names_sql) AND tag_type = $tag_type ORDER BY tag_name = '" . escapeSql($tag_name) . "' DESC LIMIT 1"));
         $tag_id = intval($row['tag_id'] ?? 0);
         if ($tag_id) {
             mysqli_query($mysqli, "INSERT INTO $join_table SET $join_column = $row_id, $tag_column = $tag_id");
@@ -490,8 +536,8 @@ function demoVendorTags($name, $description, $notes = '', $ours = false) {
     if (!$tags) {
         $tags[] = 'Line of Business';
     }
-    if (stripos($notes, 'authorised list') !== false) {
-        $tags[] = 'Authorised Contacts Only';
+    if (stripos($notes, 'authorized list') !== false) {
+        $tags[] = 'Authorized Contacts Only';
     }
     return $tags;
 }
@@ -587,7 +633,7 @@ function demoEnsureOrgVendors($mysqli) {
             'vendor_sla' => $vendor[4],
             'vendor_code' => $vendor[5],
             'vendor_account_number' => $vendor[5],
-            'vendor_notes' => 'Organisation supplier. Purchase orders are raised against this account and reconciled at month end.',
+            'vendor_notes' => 'Organization supplier. Purchase orders are raised against this account and reconciled at month end.',
             'vendor_client_id' => 0,
             'vendor_created_at' => demoMonthDateTime(24, 2, 9, 0),
         ]);
@@ -1043,11 +1089,7 @@ function demoDataRemove($mysqli) {
     // Catalogue lines and calendars, matched the same conservative way - the
     // product code has to be ours, and a calendar only goes when it is empty
     foreach (demoDataProducts() as $product) {
-        $code = escapeSql($product[2]);
-        $name = escapeSql($product[0]);
-        $description = escapeSql($product[5]);
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT product_id FROM products WHERE product_code = '$code' AND product_name = '$name' AND product_description = '$description' LIMIT 1"));
-        $product_id = intval($row['product_id'] ?? 0);
+        $product_id = demoProductId($mysqli, $product)[0];
         if (!$product_id) {
             continue;
         }
@@ -1086,9 +1128,13 @@ function demoDataRemove($mysqli) {
     // Our own unbilled running around, matched on the exact purposes we wrote.
     // Anything else with no client against it belongs to whoever logged it.
     foreach (demoDataErrands() as $errand) {
-        $purpose = escapeSql($errand[0]);
         $destination = escapeSql($errand[1]);
-        mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = 0 AND trip_source = 'Office' AND trip_purpose = '$purpose' AND trip_destination = '$destination'");
+        // As it is written now, and as an earlier load wrote it (demoDataRenamed())
+        $purposes = array_unique([$errand[0], demoDataRenamed()['errands'][$errand[0]] ?? $errand[0]]);
+        foreach ($purposes as $purpose) {
+            $purpose = escapeSql($purpose);
+            mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = 0 AND trip_source = 'Office' AND trip_purpose = '$purpose' AND trip_destination = '$destination'");
+        }
     }
 
     // The statements reconciled on our accounts go with the demo - their lines
@@ -1403,7 +1449,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         'domain_auto_renew' => $domain_auto_renew,
         'domain_ip' => '203.0.113.' . (10 + $index),
         'domain_name_servers' => 'ns1.' . $profile['dns_host'] . "\nns2." . $profile['dns_host'],
-        'domain_raw_whois' => "Registrar: Harbour Registrar Services\nRegistered: " . demoDate(365 * (6 + $index % 9) + $index * 11) . "\nExpires: " . demoDate(-1 * (60 + ($index * 21))) . "\nStatus: client transfer prohibited\nNameservers: ns1." . $profile['dns_host'] . ', ns2.' . $profile['dns_host'],
+        'domain_raw_whois' => "Registrar: Harbor Registrar Services\nRegistered: " . demoDate(365 * (6 + $index % 9) + $index * 11) . "\nExpires: " . demoDate(-1 * (60 + ($index * 21))) . "\nStatus: client transfer prohibited\nNameservers: ns1." . $profile['dns_host'] . ', ns2.' . $profile['dns_host'],
         'domain_mail_servers' => '0 ' . $profile['mail_servers'],
         'domain_dmarc' => [0 => 'v=DMARC1; p=reject; rua=mailto:dmarc@' . $profile['domain'], 1 => 'v=DMARC1; p=none; rua=mailto:dmarc@' . $profile['domain'], 2 => ''][$index % 3],
         'domain_dkim' => $index % 4 === 3 ? '' : ($domain_m365 ? "selector1\nselector2" : 'google'),
@@ -1436,7 +1482,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
             'domain_name_servers' => 'ns1.' . $profile['dns_host'] . "\nns2." . $profile['dns_host'],
             'domain_txt' => 'v=spf1 -all',
             'domain_dmarc' => 'v=DMARC1; p=reject',
-            'domain_raw_whois' => "Registrar: Harbour Registrar Services\nRegistered: " . demoDate(365 * 3 + $index) . "\nStatus: client transfer prohibited",
+            'domain_raw_whois' => "Registrar: Harbor Registrar Services\nRegistered: " . demoDate(365 * 3 + $index) . "\nStatus: client transfer prohibited",
             'domain_notes' => 'Ask the client whether to keep it before it renews.',
             'domain_registrar' => $primary_vendor_id,
             'domain_dnshost' => intval($primary_vendor_id),
@@ -2322,7 +2368,7 @@ function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$cou
         'project_prefix' => $prefix,
         'project_number' => demoNextNumber($mysqli, 'config_project_next_number'),
         'project_name' => 'Onboarding - ' . $profile['name'],
-        'project_description' => 'Take on ' . $profile['name'] . ': document the environment, deploy monitoring and backup, capture credentials, standardise the endpoint build and hand over to the service desk.',
+        'project_description' => 'Take on ' . $profile['name'] . ': document the environment, deploy monitoring and backup, capture credentials, standardize the endpoint build and hand over to the service desk.',
         'project_start' => demoMonthDate($months, 3),
         'project_due' => demoMonthDate(max(0, $months - 1), 28),
         'project_budget_hours' => 16 + ($index % 3) * 8,
@@ -3448,7 +3494,7 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
         ['Team lunch', 96.00, 'Meals', 1, 17, 'Monongahela Property Group'],
         ['Mobile phones and data for the team', 268.00, 'Telecom and Internet', 1, 8, 'Three Rivers Colocation'],
         ['Professional body dues and subscriptions', 210.00, 'Dues and Subscriptions', 3, 20, 'Alcott and Reyes CPA'],
-        ['Van servicing and tyres', 480.00, 'Vehicle and Fuel', 6, 13, 'Ridgeline Technology Distribution'],
+        ['Van servicing and tires', 480.00, 'Vehicle and Fuel', 6, 13, 'Ridgeline Technology Distribution'],
         ['Replacement bench laptop and monitors', 1650.00, 'Equipment', 12, 16, 'Ridgeline Technology Distribution'],
         ['Subcontract cabling work', 1250.00, 'Contractor', 4, 25, 'Ridgeline Technology Distribution'],
         ['Courier and shipping', 88.00, 'Shipping and Postage', 1, 27, 'Ridgeline Technology Distribution'],
@@ -3791,7 +3837,7 @@ function demoDataBudgets() {
 // ------------------------------
 function demoDataErrands() {
     return [
-        ['Bank - deposit cheques and cash', 'Steelworks Business Bank, Pittsburgh, PA', 6.4, 2, 3],
+        ['Bank - deposit checks and cash', 'Steelworks Business Bank, Pittsburgh, PA', 6.4, 2, 3],
         ['Distributor - parts collection', 'Ridgeline Technology Distribution, Pittsburgh, PA', 14.2, 3, 1],
         ['Colocation - hands on at the rack', 'Three Rivers Colocation, Pittsburgh, PA', 11.8, 4, 4],
         ['Post office - warranty returns', 'Post Office, Pittsburgh, PA', 3.1, 2, 5],
@@ -4074,7 +4120,7 @@ function demoAssetDescription($asset_type) {
         'Firewall/Router' => 'Edge firewall - site to site VPN, DNS filtering and inter VLAN rules',
         'Switch' => 'Access layer switch - PoE for handsets and access points',
         'Access Point' => 'Ceiling mounted wireless access point',
-        'Server' => 'Virtualisation host and file storage',
+        'Server' => 'Virtualization host and file storage',
         'Virtual Machine' => 'Virtual guest',
         'Desktop' => 'Standard staff workstation',
         'Laptop' => 'Mobile staff laptop',
@@ -4258,7 +4304,7 @@ function demoTicketPool() {
             'replies' => [
                 ['Public', '<p>Machine is built to the standard image, mailbox is licensed, and group memberships match the department template. Credentials handed over on their first morning.</p>', '01:30:00'],
             ],
-            'tasks' => ['Build workstation to standard', 'Create mailbox and assign licence', 'Apply department group memberships', 'Handover on day one'],
+            'tasks' => ['Build workstation to standard', 'Create mailbox and assign license', 'Apply department group memberships', 'Handover on day one'],
         ],
         [
             'subject' => 'Suspicious invoice email reported by staff',
@@ -4320,9 +4366,9 @@ function demoTicketPool() {
             'asset_types' => ['Laptop', 'Desktop'],
             'details' => '<p>Leaving at the end of the week. Mailbox needs delegating to their manager and the laptop collecting.</p>',
             'replies' => [
-                ['Public', '<p>Account disabled at close of business, mailbox converted and delegated, licence reclaimed, and the machine wiped and returned to spare stock.</p>', '01:15:00'],
+                ['Public', '<p>Account disabled at close of business, mailbox converted and delegated, license reclaimed, and the machine wiped and returned to spare stock.</p>', '01:15:00'],
             ],
-            'tasks' => ['Disable account', 'Delegate mailbox', 'Reclaim licence', 'Collect and wipe machine'],
+            'tasks' => ['Disable account', 'Delegate mailbox', 'Reclaim license', 'Collect and wipe machine'],
         ],
         [
             'subject' => 'Phones not ringing at the front desk',
@@ -4492,7 +4538,7 @@ function demoOneOffInvoicePool() {
             ['Build and Seed', 10, 145.00, 'Build, seed the first full backup and verify a restore', 0],
         ], 'project'],
         ['Proxmox host build and migration', [
-            ['Virtualisation Host', 1, 4650.00, 'Dual socket host with NVMe storage for Proxmox VE', 1],
+            ['Virtualization Host', 1, 4650.00, 'Dual socket host with NVMe storage for Proxmox VE', 1],
             ['Migration Labor', 16, 145.00, 'Guest migration, cutover and post migration support', 0],
             ['Out of Hours Cutover', 6, 195.00, 'Cutover work outside operating hours', 0],
         ], 'project'],
@@ -4529,7 +4575,7 @@ function demoDataSpecs() {
             'recurring_ticket' => 'Monthly maintenance visit - Ravenwood Dental',
             'project' => ['Imaging server replacement', 'Replace the end of life imaging server and migrate the patient imaging database with no clinic downtime.'],
             'vendors' => [
-                ['Keystone Business Fiber', 'Primary internet circuit and failover', '412-555-0140', 'keystonefiber.example', '4 hour response', 'Circuit ID is recorded in the site runbook. Support will not talk to anyone not on the authorised list.'],
+                ['Keystone Business Fiber', 'Primary internet circuit and failover', '412-555-0140', 'keystonefiber.example', '4 hour response', 'Circuit ID is recorded in the site runbook. Support will not talk to anyone not on the authorized list.'],
                 ['Meridian Dental Systems', 'Patient records and imaging platform', '412-555-0145', 'meridiandental.example', '8x5 support', 'Vendor manages the application, we manage the box it runs on.'],
             ],
             'fleet' => ['Firewall/Router' => 1, 'Switch' => 2, 'Access Point' => 4, 'Server' => 2, 'Desktop' => 14, 'Laptop' => 3, 'Printer' => 3, 'Phone' => 8],
@@ -4557,7 +4603,7 @@ function demoDataSpecs() {
             'recurring_ticket' => 'Monthly maintenance visit - Kestrel Precision',
             'project' => ['Plant Two network rebuild', 'Replace the unmanaged switching in Plant Two, add VLAN separation for shop floor equipment and extend wireless to the yard.'],
             'vendors' => [
-                ['Lakeshore Telecom', 'Fibre circuits for both plants', '814-555-0175', 'lakeshoretelecom.example', 'Next business day', 'Two circuits, one per plant, on separate accounts. Both account numbers are in the runbook.'],
+                ['Lakeshore Telecom', 'Fiber circuits for both plants', '814-555-0175', 'lakeshoretelecom.example', 'Next business day', 'Two circuits, one per plant, on separate accounts. Both account numbers are in the runbook.'],
                 ['Foundry ERP Systems', 'Production and scheduling platform', '814-555-0178', 'foundryerp.example', '8x5 support', 'They push server side updates without warning. Ask for release notes.'],
             ],
             'fleet' => ['Firewall/Router' => 2, 'Switch' => 6, 'Access Point' => 8, 'Server' => 3, 'Virtual Machine' => 4, 'Desktop' => 22, 'Laptop' => 9, 'Printer' => 4, 'Phone' => 14, 'Camera' => 6],
@@ -4607,10 +4653,10 @@ function demoDataSpecs() {
             'tags' => ['Managed', 'Compliance', 'Cyber Insurance', 'After Hours Support', 'Multi Site', 'Key Account'],
             'notes' => 'Regulated environment. Change control paperwork is required before anything touches the core banking network.',
             'account_note' => 'Annual examination in the autumn - documentation and restore evidence must be current before then.',
-            'review_note' => 'Examiners asked for firewall rule documentation last year. Standardisation project is meant to close that off.',
+            'review_note' => 'Examiners asked for firewall rule documentation last year. Standardization project is meant to close that off.',
             'onsite_visit' => 'Branch equipment and compliance check',
             'recurring_ticket' => 'Monthly maintenance visit - Harbor Point CU',
-            'project' => ['Branch firewall standardisation', 'Bring both branches onto the same firewall platform with central logging and documented rule sets for the examination.'],
+            'project' => ['Branch firewall standardization', 'Bring both branches onto the same firewall platform with central logging and documented rule sets for the examination.'],
             'vendors' => [
                 ['Northcoast Data Services', 'Core banking platform hosting', '216-555-0122', 'northcoastdata.example', '24/7 with 1 hour response', 'Change control forms go through them 5 working days ahead.'],
                 ['Cuyahoga Business Fiber', 'Branch circuits and failover', '216-555-0125', 'cuyahogafiber.example', '4 hour response', 'Both branches, separate accounts, both with 4G failover.'],
@@ -4719,7 +4765,7 @@ function demoDataSpecs() {
             'review_note' => 'Nextcloud went in during onboarding to replace a consumer file sync account. Staff have taken to it well.',
             'onsite_visit' => 'Onboarding discovery visit',
             'recurring_ticket' => 'Monthly maintenance visit - Aurora Wellness',
-            'project' => ['Documentation and standardisation', 'Finish discovery, document the environment, standardise endpoint protection and get backups verified.'],
+            'project' => ['Documentation and standardization', 'Finish discovery, document the environment, standardize endpoint protection and get backups verified.'],
             'vendors' => [
                 ['Mountaineer Connect', 'Internet and managed wifi', '304-555-0133', 'mountaineerconnect.example', '4 hour response', 'They installed the original wireless. We have taken over the controller.'],
             ],
@@ -4824,7 +4870,7 @@ function demoDataSpecs() {
             'mail_platform' => 'Microsoft 365', 'cert_issuer' => 'DigiCert',
             'tags' => ['Managed', 'Compliance', 'Cyber Insurance', 'Key Account'],
             'notes' => 'Carrier portals drive everything. Browser and certificate problems are most of the ticket volume.',
-            'account_note' => 'They sell cyber cover themselves, so their own posture gets scrutinised. Keep the evidence current.',
+            'account_note' => 'They sell cyber cover themselves, so their own posture gets scrutinized. Keep the evidence current.',
             'review_note' => 'Passed their own carrier audit last quarter with no findings. Worth repeating the same evidence pack.',
             'onsite_visit' => 'Office equipment and carrier portal check',
             'recurring_ticket' => 'Monthly maintenance visit - Verity Insurance',
@@ -4858,7 +4904,7 @@ function demoDataSpecs() {
             'recurring_ticket' => 'Monthly maintenance visit - Ironbridge Architects',
             'project' => ['Drawing archive storage expansion', 'Expand the storage pool and restructure the drawing archive so the older projects move to slower storage without breaking links.'],
             'vendors' => [
-                ['South Side Fibre', 'Studio internet - symmetric line for large uploads', '412-555-0193', 'southsidefibre.example', '4 hour response', 'Symmetric line chosen for upload speed. Do not let anyone downgrade it.'],
+                ['South Side Fiber', 'Studio internet - symmetric line for large uploads', '412-555-0193', 'southsidefibre.example', '4 hour response', 'Symmetric line chosen for upload speed. Do not let anyone downgrade it.'],
             ],
             'fleet' => ['Firewall/Router' => 1, 'Switch' => 2, 'Access Point' => 3, 'Server' => 2, 'Virtual Machine' => 3, 'Desktop' => 12, 'Laptop' => 5, 'Printer' => 2, 'Phone' => 8],
             'people' => [
@@ -4906,14 +4952,14 @@ function demoDataSpecs() {
             'lead' => 0, 'favorite' => 0, 'tax' => '', 'tax_exempt' => ['75-0031906', '-20 days'],
             'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
             'tags' => ['Co-Managed', 'Managed', 'Non Profit', 'Seasonal', 'Compliance'],
-            'notes' => 'Runs on open source deliberately - budget goes on staff, not licences. Quiet in July, chaotic in late August.',
+            'notes' => 'Runs on open source deliberately - budget goes on staff, not licenses. Quiet in July, chaotic in late August.',
             'account_note' => 'Everything big happens in the summer break. Nothing disruptive during term time, ever.',
             'review_note' => 'Linux desktop rollout finished last summer and cut the refresh budget substantially. Same again for the labs next year.',
             'onsite_visit' => 'Classroom and lab equipment check',
             'recurring_ticket' => 'Monthly maintenance visit - Summit Ridge Charter',
             'project' => ['Computer lab refresh', 'Rebuild both computer labs on the standard Linux image over the summer break, including the imaging server and the lab management tooling.'],
             'vendors' => [
-                ['Monroeville Municipal Fibre', 'School district connection', '412-555-0136', 'monroevillefibre.example', '4 hour response', 'Filtered connection required by policy. Filtering is theirs, not ours.'],
+                ['Monroeville Municipal Fiber', 'School district connection', '412-555-0136', 'monroevillefibre.example', '4 hour response', 'Filtered connection required by policy. Filtering is theirs, not ours.'],
                 ['Cornerstone Student Records', 'Student information system', '412-555-0137', 'cornerstonesis.example', '8x5 support', 'Hosted by the vendor. We hold administrative access only.'],
             ],
             'fleet' => ['Firewall/Router' => 1, 'Switch' => 5, 'Access Point' => 10, 'Server' => 2, 'Virtual Machine' => 4, 'Desktop' => 28, 'Laptop' => 12, 'Printer' => 5, 'Tablet' => 10, 'Camera' => 6],
@@ -4984,7 +5030,7 @@ function demoDataSpecs() {
             'city' => 'New Castle', 'state' => 'PA', 'zip' => '16101', 'area' => '724', 'street' => '900 Industrial Boulevard',
             'second_site' => null,
             'age_days' => 1400, 'seats' => 24, 'servers' => 2, 'build' => 1, 'billing' => 'managed',
-            'balance' => 'past_due', 'hosting' => [['Virtual Server Hosting', 2, 55.00, 'Two hosted guests for the file server and the licence server', 0], ['Offsite Backup Storage - Self Hosted', 1500, 0.09, 'Offsite backup for the machine programs, per GB', 0]],
+            'balance' => 'past_due', 'hosting' => [['Virtual Server Hosting', 2, 55.00, 'Two hosted guests for the file server and the license server', 0], ['Offsite Backup Storage - Self Hosted', 1500, 0.09, 'Offsite backup for the machine programs, per GB', 0]],
             'lead' => 0, 'favorite' => 0, 'tax' => 'PA Sales Tax',
             'mail_platform' => 'Microsoft 365', 'cert_issuer' => 'DigiCert',
             'tags' => ['Managed', 'After Hours Support', 'Past Due', 'At Risk'],
@@ -4995,7 +5041,7 @@ function demoDataSpecs() {
             'recurring_ticket' => 'Monthly maintenance visit - Corbin Machine Works',
             'project' => null,
             'vendors' => [
-                ['Lawrence County Fibre', 'Shop internet', '724-555-0171', 'lawrencefibre.example', 'Next business day', 'Reliable line. Support desk is small but good.'],
+                ['Lawrence County Fiber', 'Shop internet', '724-555-0171', 'lawrencefibre.example', 'Next business day', 'Reliable line. Support desk is small but good.'],
                 ['Precision Controls Group', 'CNC controller support', '724-555-0172', 'precisioncontrols.example', '8x5 support', 'They will not certify anything newer. Isolation is the mitigation.'],
             ],
             'fleet' => ['Firewall/Router' => 1, 'Switch' => 4, 'Access Point' => 4, 'Server' => 2, 'Virtual Machine' => 3, 'Desktop' => 18, 'Laptop' => 4, 'Printer' => 3, 'Phone' => 10, 'Camera' => 4],
@@ -5149,7 +5195,7 @@ function demoExpandProfile($spec) {
         : ['Managed Backup', 'Image level backup of ' . max(1, $servers) . ' servers with offsite copy', 'Backup', 'High', 'Offsite replication', 'Nightly job with a monthly test restore. Evidence is filed against the client documentation.', ['Server', 'Virtual Machine'], 'Backup Console'];
 
     $services = [
-        [$mail, 'Company mail, calendars and identity for ' . $seats . ' users', 'Email', 'High', 'Third party mailbox backup', 'Tenant administered by us. Licence count is reconciled against the monthly invoice.', ['Virtual Machine'], $mail . ' Administrator'],
+        [$mail, 'Company mail, calendars and identity for ' . $seats . ' users', 'Email', 'High', 'Third party mailbox backup', 'Tenant administered by us. License count is reconciled against the monthly invoice.', ['Virtual Machine'], $mail . ' Administrator'],
         $backup_service,
         ['Edge Firewall and Site VPN', 'Perimeter filtering, DNS filtering and the site to site tunnel', 'Network', 'High', 'Nightly config export', 'Config backup is pulled nightly. Rule changes go through a ticket, never verbally.', ['Firewall/Router'], 'Firewall Administrator'],
         ['Endpoint Protection and Monitoring', 'Agent based protection and monitoring across the fleet', 'Security', 'High', 'Vendor cloud console', 'Alerts raise tickets automatically. Patch compliance is reviewed at the maintenance visit.', ['Desktop', 'Laptop', 'Server'], 'Network Controller'],
@@ -5174,7 +5220,7 @@ function demoExpandProfile($spec) {
     // Software - the last two entries say which asset types it is installed on
     // and which credential administers it
     $software = [
-        [$mail === 'Google Workspace' ? 'Google Workspace Business Standard' : 'Microsoft 365 Business Premium', 'Per user licensing resold and managed', 'Current', 'Software as a Service (SaaS)', 'Subscription', $seats, 'Licence count is reviewed monthly against staff numbers.', ['Desktop', 'Laptop'], $mail . ' Administrator'],
+        [$mail === 'Google Workspace' ? 'Google Workspace Business Standard' : 'Microsoft 365 Business Premium', 'Per user licensing resold and managed', 'Current', 'Software as a Service (SaaS)', 'Subscription', $seats, 'License count is reviewed monthly against staff numbers.', ['Desktop', 'Laptop'], $mail . ' Administrator'],
         ['Endpoint Protection', 'Managed endpoint protection agent', 'Current', 'Security Software', 'Subscription', $seats + max(1, $servers), 'Covers workstations, laptops and servers.', ['Desktop', 'Laptop', 'Server'], 'Network Controller'],
     ];
     if ($foss) {
@@ -5182,7 +5228,7 @@ function demoExpandProfile($spec) {
         $software[] = ['Nextcloud', 'Self hosted file sync and share', '30', 'Web Application', 'Open Source', $seats, 'Runs in a container on the hypervisor. Updates are applied at the maintenance visit.', ['Virtual Machine'], 'Hypervisor and Storage Administrator'];
         $software[] = ['Proxmox Backup Server', 'Backup target for the virtual guests', '3.3', 'System Software', 'Subscription', max(1, $servers), 'Community repository on site, enterprise subscription on the management stack.', ['Server'], 'Backup Console'];
     } else {
-        $software[] = ['Synology Active Backup for Business', 'Server, endpoint and mailbox backup', 'Current', 'System Software', 'Perpetual', $seats + max(1, $servers), 'Licence is included with the NAS. Agent is deployed to every endpoint.', ['Server', 'Desktop', 'Laptop'], 'Backup Console'];
+        $software[] = ['Synology Active Backup for Business', 'Server, endpoint and mailbox backup', 'Current', 'System Software', 'Perpetual', $seats + max(1, $servers), 'License is included with the NAS. Agent is deployed to every endpoint.', ['Server', 'Desktop', 'Laptop'], 'Backup Console'];
     }
     $software[] = [$spec['vendors'][count($spec['vendors']) - 1][0] . ' Platform', $spec['vendors'][count($spec['vendors']) - 1][1], 'Vendor managed', 'Web Application', 'Subscription', $seats, 'Vendor supported - we hold the administrative access only.', ['Desktop'], ''];
 
@@ -5220,7 +5266,7 @@ function demoExpandProfile($spec) {
                 . '<h2>Vendors</h2>' . implode('', array_map(function ($vendor) {
                     return '<p><strong>' . $vendor[0] . '</strong> - ' . $vendor[1] . '. Response target: ' . $vendor[4] . '.</p>';
                 }, $spec['vendors']))
-                . '<h2>Client approvals</h2><p>Spend and downtime are approved by the authorised approver on the contact list. Do not take verbal approval from anyone else for work that will be billed.</p>',
+                . '<h2>Client approvals</h2><p>Spend and downtime are approved by the authorized approver on the contact list. Do not take verbal approval from anyone else for work that will be billed.</p>',
             0,
         ],
         [
@@ -5228,7 +5274,7 @@ function demoExpandProfile($spec) {
             'Client facing - how to raise a ticket and what to expect',
             '<h2>Raising a ticket</h2><p>Email the service desk or use the portal. Include what you were doing, what happened, and the name of the machine if you know it.</p>'
                 . '<h2>What happens next</h2><p>You will get an acknowledgement with a ticket number. Urgent issues are picked up first, and anything site wide is treated as urgent by default.</p>'
-                . '<h2>Approvals</h2><p>Work that will be billed outside the agreement is quoted first and needs approval from an authorised approver before we start.</p>',
+                . '<h2>Approvals</h2><p>Work that will be billed outside the agreement is quoted first and needs approval from an authorized approver before we start.</p>',
             1,
         ],
     ];
@@ -5252,7 +5298,7 @@ function demoExpandProfile($spec) {
         }
         $agreement[] = [
             $mail === 'Google Workspace' ? 'Google Workspace Business Standard' : 'Microsoft 365 Business Premium',
-            $seats, 22.00, 'Per user licence, resold and managed', 0,
+            $seats, 22.00, 'Per user license, resold and managed', 0,
         ];
         $agreement[] = ['Cloud Backup', max(1, $servers), 65.00, 'Offsite backup with monthly test restore', 0];
     }
@@ -5323,7 +5369,7 @@ function demoExpandProfile($spec) {
         'mail_platform' => $mail,
         'mail_servers' => $mail === 'Google Workspace' ? 'aspmx.l.google.example' : $domain . '.mail.protection.example',
         'web_host' => $foss ? 'Self hosted - Nextcloud and website on the hypervisor' : 'Vendor hosted',
-        'dns_host' => 'harbourdns.example',
+        'dns_host' => 'harbordns.example',
         'cert_issuer' => $spec['cert_issuer'],
         'credentials' => $credentials,
         'services' => $services,
