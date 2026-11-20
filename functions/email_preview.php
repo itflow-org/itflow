@@ -408,6 +408,10 @@ function emailPreviewCatalog() {
             }],
 
         // ---- Other
+        'weekly_summary' => ['group' => 'Other', 'label' => 'Weekly summary', 'to' => 'Every admin, or the addresses in Admin > Settings > Notifications', 'when' => 'Early on the day picked there, when the weekly summary is on',
+            'run' => function ($s) {
+                weeklySummarySend([['email' => $s['agent_email'], 'name' => $s['agent_name']]], date('Y-m-d'));
+            }],
         'cron_alert' => ['group' => 'Other', 'label' => 'Cron needs attention', 'to' => 'Every admin, or the addresses on Maintenance > Cron', 'when' => 'A cron job fails, gets stuck or falls behind, again a day later, and when it is fixed - the Cron Watch job',
             'run' => function ($s) {
                 cronHealthAlert([['text' => 'Ticket SLA Monitor failed 3 minutes ago.', 'detail' => 'SQLSTATE[HY000]: General error: 2006 MySQL server has gone away']],

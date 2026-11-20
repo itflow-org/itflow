@@ -586,3 +586,51 @@ function userInvitesNightly() {
     }
     return $gone;
 }
+
+/*
+ * Inviting several agents at once (admin/modals/user/user_invite_bulk.php): one per
+ * line - "Name <email>", "Name, email", "Name email" or the email alone, its name
+ * then made from the part before the @ ("jane.doe" is Jane Doe). Commas,
+ * semicolons and tabs all separate, either way round. [['name', 'email', 'line'], ...], at most
+ * USER_INVITE_BULK_MAX, each email once.
+ */
+const USER_INVITE_BULK_MAX = 50;
+
+function userInviteBulkParse($text) {
+    $people = [];
+    $seen = [];
+    foreach (preg_split('/\r\n|\r|\n/', (string) $text) as $line) {
+        $line = trim($line);
+        if ($line === '') {
+            continue;
+        }
+        $name = '';
+        $email = '';
+        if (preg_match('/^(.*?)<([^<>]+)>\s*$/', $line, $m)) {
+            [$name, $email] = [trim($m[1], " \t,;\"'"), trim($m[2])];
+        } else {
+            // The word with an @ is the email - "Jane Doe jane@example.com" too - and the rest the name
+            foreach (preg_split('/[,;\t\s]+/', $line) as $word) {
+                $word = trim($word, "\"'");
+                if ($email === '' && strpos($word, '@') !== false) {
+                    $email = $word;
+                } elseif ($word !== '') {
+                    $name = trim("$name $word");
+                }
+            }
+        }
+        if ($name === '' && $email !== '' && strpos($email, '@') !== false) {
+            $name = ucwords(trim(preg_replace('/[._\-+]+/', ' ', strstr($email, '@', true))));
+        }
+        $key = strtolower($email);
+        if ($key !== '' && isset($seen[$key])) {
+            continue;
+        }
+        $seen[$key] = true;
+        $people[] = ['name' => $name, 'email' => $email, 'line' => $line];
+        if (count($people) >= USER_INVITE_BULK_MAX) {
+            break;
+        }
+    }
+    return $people;
+}

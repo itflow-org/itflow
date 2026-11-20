@@ -251,6 +251,12 @@ $csrf = $_SESSION['csrf_token'];
                 <?php } ?>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
                 <div class="dropdown-menu dropdown-menu-end">
+                    <?php if (userInvitesReady() && !$agent_user_limit_reached) { ?>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/user/user_invite_bulk.php?role=<?= $role_filter ?>">
+                            <i class="fa fa-fw fa-users text-secondary me-2"></i>Invite several
+                        </a>
+                        <div class="dropdown-divider"></div>
+                    <?php } ?>
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/user/user_export.php', ['q', 'role'], ['archived' => $show === 'archived' ? 1 : null]) ?>">
                         <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
                     </a>

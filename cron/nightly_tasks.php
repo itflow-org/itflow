@@ -575,6 +575,12 @@ if ($reminder_rules['enabled']) {
 // Reminders already sent are only kept so each goes once - forget the old ones
 calendarRemindersCleanup();
 
+// The weekly summary to the owners, on the day picked in Admin > Settings > Notifications (functions/weekly_summary.php)
+$weekly_summary_sent = weeklySummaryRun();
+if ($weekly_summary_sent) {
+    logApp("Cron", "info", "Cron emailed the weekly summary to $weekly_summary_sent " . ($weekly_summary_sent === 1 ? 'person' : 'people'));
+}
+
 // Recurring invoices paused until today run again first - so one due today bills today
 $recurring_invoices_resumed = recurringInvoiceResumePaused();
 if ($recurring_invoices_resumed) {

@@ -34,6 +34,25 @@ echo settingsPageStart('notification');
                 <?= settingsSectionEnd() ?>
             <?php } ?>
 
+            <?php if (weeklySummaryReady()) {
+                $weekly = weeklySummarySettings(); ?>
+                <?= settingsSectionStart('weekly', 'Weekly summary', 'An email on how the last week went beside the week before - tickets opened and resolved, SLAs missed, ratings, time logged, new clients, what was invoiced and paid - and what needs a look: open tickets nobody has, overdue invoices, domains and certificates running out. It goes early on the day you pick.') ?>
+                    <?php if (empty($config_smtp_provider)) { ?>
+                        <div class="alert alert-warning py-2 small" data-weekly-no-mail><i class="fas fa-exclamation-triangle me-2"></i>Mail sending is off, so it can't go. <a href="settings_mail.php?tab=sending">Set up sending</a></div>
+                    <?php } ?>
+                    <?= settingsSwitch('config_weekly_summary', $weekly['on'], ['help' => 'Sent by the nightly job in <a href="cron.php">Maintenance &gt; Cron</a>.']) ?>
+                    <div data-settings-depends-on="config_weekly_summary">
+                        <?= settingsSelect('config_weekly_summary_day', $weekly['day'], WEEKLY_SUMMARY_DAYS, ['icon' => 'fa-calendar-day']) ?>
+                        <?= settingsInput('config_weekly_summary_to', $weekly['to'], ['icon' => 'fa-envelope', 'maxlength' => 500, 'placeholder' => 'Every admin',
+                            'help' => 'Addresses, separated by commas. Empty, every admin gets it.']) ?>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                        <button type="submit" form="weeklySummaryNow" class="btn btn-sm btn-outline-secondary" <?= empty($config_smtp_provider) ? 'disabled' : '' ?> data-weekly-now><i class="fas fa-paper-plane me-2"></i>Send me one now</button>
+                        <span class="small text-body-secondary">The last seven days, to <?= escapeHtml($session_email ?? 'you') ?> - to see what it looks like.</span>
+                    </div>
+                <?= settingsSectionEnd() ?>
+            <?php } ?>
+
             <?= settingsSectionStart('clients', 'Emails to clients', 'What ITFlow emails your clients by itself. What an agent sends - a reply, an invoice, a quote - goes whatever is set here.') ?>
                 <?php if (empty($config_smtp_provider)) { ?>
                     <div class="alert alert-warning py-2 small" data-notification-no-mail><i class="fas fa-exclamation-triangle me-2"></i>Mail sending is off, so none of these go. <a href="settings_mail.php?tab=sending">Set up sending</a></div>
@@ -74,6 +93,14 @@ echo settingsPageStart('notification');
         </div>
     </div>
 </form>
+
+<?php if (weeklySummaryReady()) { ?>
+    <!-- Send me one now - its own form, so the settings above aren't saved with it -->
+    <form id="weeklySummaryNow" action="post.php" method="post" hidden>
+        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+        <input type="hidden" name="send_weekly_summary_now" value="1">
+    </form>
+<?php } ?>
 
 <?php
 require_once "../includes/footer.php";

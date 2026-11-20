@@ -131,6 +131,72 @@ if (isset($_POST['add_user'])) {
 
 }
 
+if (isset($_POST['invite_users_bulk'])) {
+
+    // Several agents invited at once, all with one role - each emailed their own link (functions/user_invite.php)
+    validateCSRFToken();
+
+    if (!userInvitesReady() || !userInviteMailReady()) {
+        flashAlert('Inviting several at once needs email set up - invite them one at a time from New User to get each link.', 'error');
+        redirect();
+    }
+    $error = '';
+    $role = userCheckRole($_POST['role'] ?? 0, 0, $error);
+    if (!$role) {
+        flashAlert($error, 'error');
+        redirect();
+    }
+    $people = userInviteBulkParse($_POST['people'] ?? '');
+    if (!$people) {
+        flashAlert('Put one person on each line - their name and email, or just the email.', 'error');
+        redirect();
+    }
+    $force_mfa = !empty($_POST['force_mfa']) ? 1 : 0;
+
+    $invited = [];
+    $skipped = [];
+    foreach ($people as $i => $person) {
+        if (!filter_var($person['email'], FILTER_VALIDATE_EMAIL)) {
+            $skipped[] = mb_substr($person['line'], 0, 100) . ' - no email address in it';
+            continue;
+        }
+        $identity = userCheckIdentity($person, 0, $error);
+        if (!$identity) {
+            $skipped[] = rtrim(strip_tags($error), '.');
+            continue;
+        }
+        [$name, $email] = $identity;
+        $open = userInviteFor($email);
+        if (agentUserLimitReached($open && userInviteState($open) === 'pending' ? intval($open['invite_id']) : 0)) {
+            $skipped[] = 'every seat is taken, so ' . (count($people) - $i) . ' more weren\'t invited';
+            break;
+        }
+        $saved = userInviteSave(['name' => $name, 'email' => $email, 'role_id' => intval($role['role_id']), 'force_mfa' => $force_mfa,
+            'access' => [], 'office_id' => $_POST['office_id'] ?? 0]);
+        $send_error = '';
+        if (!userInviteSend($saved['invite_id'], true, $send_error)) {
+            if (!$saved['again']) {
+                mysqli_query($mysqli, "DELETE FROM user_invites WHERE invite_id = " . intval($saved['invite_id']));
+            }
+            $skipped[] = rtrim(strip_tags($send_error), '.');
+            break;
+        }
+        logAudit("User", "Invite", "$session_name invited " . escapeSql("$name ($email) as {$role['role_name']}") . ($saved['again'] ? ' again' : ''));
+        $invited[] = escapeHtml($name);
+    }
+
+    $count = count($invited);
+    $message = $count
+        ? "Invited <strong>$count</strong> as <strong>" . escapeHtml($role['role_name']) . "</strong> - an email with a link to join is on the way to " . ($count === 1 ? 'them' : 'each') . ". It works for " . USER_INVITE_LINK_DAYS . " days"
+        : 'Nobody was invited';
+    if ($skipped) {
+        $message .= '. Skipped: ' . implode('; ', array_map('escapeHtml', $skipped));
+    }
+    flashAlert($message, $skipped ? ($count ? 'warning' : 'error') : 'success');
+    redirect($count ? 'users.php?show=invited' : null);
+
+}
+
 if (isset($_GET['resend_user_invite']) || isset($_GET['link_user_invite']) || isset($_GET['cancel_user_invite'])) {
 
     // An invite waiting: email it again, get its link to pass on (either makes a new link,

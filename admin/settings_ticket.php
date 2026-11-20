@@ -33,6 +33,11 @@ echo settingsPageStart('ticket');
                 <?= settingsSwitch('config_ticket_email_parse', $config_ticket_email_parse) ?>
                 <div data-settings-depends-on="config_ticket_email_parse">
                     <?= settingsSwitch('config_ticket_email_parse_unknown_senders', $config_ticket_email_parse_unknown_senders, ['help' => 'From someone who isn\'t a contact, at a domain no client has - otherwise those are left in the mailbox, flagged and unread.']) ?>
+                    <?php // What an email from someone with some subject would become, without sending one (functions/ticket_mail_try.php) ?>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/ticket_mail/ticket_mail_try.php" data-ticket-mail-try><i class="fas fa-vial me-2"></i>Try an email</button>
+                        <span class="small text-body-secondary">What an email from someone would become - a reply, a ticket, or left in the mailbox - and why. Uses the saved settings.</span>
+                    </div>
                 </div>
             <?= settingsSectionEnd() ?>
 
