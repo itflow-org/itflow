@@ -169,7 +169,6 @@ ob_start();
                     <a class="btn btn-sm btn-outline-primary" href="mailto:<?= $contact_email ?>"><i class="far fa-envelope me-1"></i>Email</a>
                     <?= contactBounceBadge($contact_row) ?>
                 <?php } ?>
-                <a class="btn btn-sm btn-outline-secondary ajax-modal" href="#" data-modal-url="modals/contact/contact_vcard.php?id=<?= $contact_id ?>" title="Save to your phone"><i class="fas fa-qrcode"></i></a>
             </div>
         </div>
     <?php } ?>

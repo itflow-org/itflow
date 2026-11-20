@@ -961,30 +961,6 @@ if (isset($_GET['resend_portal_invite']) || isset($_GET['cancel_portal_invite'])
 
 }
 
-// A contact's card as a .vcf, for a phone's or a computer's contacts (modals/contact/contact_vcard.php)
-if (isset($_GET['download_contact_vcard'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 1);
-
-    $contact_id = intval($_GET['download_contact_vcard']);
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id"));
-    if (!$row) {
-        flashAlert('That contact no longer exists.', 'error');
-        redirect();
-    }
-    $client_id = intval($row['contact_client_id']);
-    enforceClientAccess();
-
-    $file = (filesZipName($row['contact_name'], 'Contact') ?: 'Contact') . '.vcf';
-    header('Content-Type: text/vcard; charset=utf-8');
-    header('Content-Disposition: attachment; filename="' . str_replace('"', '', $file) . '"; filename*=UTF-8\'\'' . rawurlencode($file));
-    echo contactVcard($contact_id);
-    exit;
-
-}
-
 // "Email bounced" taken off by hand - the address has been fixed at their end (functions/contact_bounce.php)
 if (isset($_GET['clear_contact_bounce'])) {
 

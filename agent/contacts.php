@@ -682,21 +682,19 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
                         <td><a data-client-card="<?= $client_id ?>" href="contacts.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                         <?php } ?>
                         <td class="text-end">
+                            <?php $row_new_ticket = !$contact_archived_at && $config_module_enable_ticketing && lookupUserPermission('module_support') >= 2;
+                            if ($row_new_ticket || $can_edit) { ?>
                                 <div class="dropdown dropstart">
                                     <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                     <div class="dropdown-menu">
-                                        <?php if (!$contact_archived_at && $config_module_enable_ticketing && lookupUserPermission('module_support') >= 2) { ?>
+                                        <?php if ($row_new_ticket) { ?>
                                             <!-- A ticket for them, without opening the contact first -->
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_add.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>">
                                                 <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>New ticket
                                             </a>
                                         <?php } ?>
-                                        <!-- Their card, to scan into a phone or download (modals/contact/contact_vcard.php) -->
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_vcard.php?id=<?= $contact_id ?>">
-                                            <i class="fas fa-fw fa-mobile-alt text-secondary me-2"></i>Save to phone
-                                        </a>
                                     <?php if ($can_edit) { ?>
-                                        <div class="dropdown-divider"></div>
+                                        <?php if ($row_new_ticket) { ?><div class="dropdown-divider"></div><?php } ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
@@ -728,6 +726,7 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
                                     <?php } ?>
                                     </div>
                                 </div>
+                            <?php } ?>
                         </td>
                     </tr>
 

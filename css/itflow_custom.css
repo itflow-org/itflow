@@ -5225,19 +5225,6 @@ tr:hover .itflow-files-rename,
     margin-top: .2rem;
     overflow-wrap: anywhere;
 }
-/* A contact's card as a QR code (agent/modals/contact/contact_vcard.php) - dark on white, whatever the theme, so phones read it */
-.itflow-vcard-qr {
-    width: 15rem;
-    max-width: 100%;
-    padding: .5rem;
-    background: #fff;
-    border-radius: var(--bs-border-radius);
-}
-.itflow-vcard-qr svg {
-    display: block;
-    width: 100%;
-    height: auto;
-}
 /* A long document's contents, beside it (js/document_contents.js) */
 .itflow-document-contents li {
     padding: .15rem 0;

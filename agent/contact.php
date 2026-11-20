@@ -249,10 +249,6 @@ if (!$can_support) {
                     <i class="far fa-envelope me-2"></i>Email
                 </a>
             <?php } ?>
-            <!-- Into a phone's contacts by QR code, or as a .vcf (modals/contact/contact_vcard.php) -->
-            <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_vcard.php?id=<?= $contact_id ?>" title="Save to your phone">
-                <i class="fas fa-qrcode"></i>
-            </button>
             <?php if ($can_edit) { ?>
                 <div class="dropdown">
                     <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-plus me-2"></i>New</button>
