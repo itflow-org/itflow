@@ -302,7 +302,8 @@
                 <?php
                 // Your own links (Admin > Custom Links) go under Tools too - with its heading even when Reports isn't shown
                 $custom_links = customLinksFor(1);
-                if (lookupUserPermission("module_reporting") >= 1 || $custom_links) { ?>
+                $archived_can = archivedCan();
+                if (lookupUserPermission("module_reporting") >= 1 || $archived_can || $custom_links) { ?>
                     <li class="nav-header mt-3">TOOLS</li>
                 <?php } ?>
                 <?php if (lookupUserPermission("module_reporting") >= 1) { ?>
@@ -311,6 +312,15 @@
                             <i class="fas fa-chart-line nav-icon"></i>
                             <p>Reports</p>
                             <i class="fas fa-angle-right nav-icon float-end"></i>
+                        </a>
+                    </li>
+                <?php } ?>
+                <?php if ($archived_can) { ?>
+                    <!-- What was archived lately, every kind on one list, to restore (agent/archived.php) -->
+                    <li class="nav-item">
+                        <a href="/agent/archived.php" class="nav-link <?= basename($_SERVER["PHP_SELF"]) == "archived.php" ? "active" : "" ?>">
+                            <i class="fas fa-archive nav-icon"></i>
+                            <p>Archived</p>
                         </a>
                     </li>
                 <?php } ?>

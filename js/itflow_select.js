@@ -56,6 +56,13 @@
  *   data-avatar="initials"     initials tiles for options that have no
  *                              picture (for lists filled in by JS)
  *
+ * RECENT PICKS - a single select for a client, contact, vendor, category,
+ * location, asset, agent, project, account or product (by its name, or
+ * data-recent="<kind>" on the <select>; data-recent="false" leaves it out)
+ * lists the last five this agent picked in a field of that kind first, under
+ * Recent, while nothing is typed - when they are among its options and it is
+ * long enough to search. Kept in this browser (localStorage itflow.recent.*).
+ *
  * Above the list is what the field is for, with Cancel to close it without
  * picking - or Done, where several can be ticked. Escape and a click
  * anywhere else close it too, a click into a reply box among them (see
@@ -91,6 +98,43 @@
     var current = null;       // the picker whose panel is open
 
     /* ---------- small helpers ---------- */
+
+    var RECENT_KEEP = 5;
+    var RECENT_NAMES = {
+        client: 'client', client_id: 'client', contact: 'contact', contact_id: 'contact', vendor: 'vendor', vendor_id: 'vendor',
+        category: 'category', category_id: 'category', location: 'location', location_id: 'location', asset_id: 'asset',
+        assigned_to: 'agent', project_id: 'project', account: 'account', product_id: 'product'
+    };
+
+    /* Which recent picks a select shares - by its name, or data-recent - or '' for none. */
+    function recentKey(select) {
+        if (select.multiple || select.dataset.recent === 'false') {
+            return '';
+        }
+        return select.dataset.recent || RECENT_NAMES[(select.name || '').replace(/\[\]$/, '')] || '';
+    }
+
+    function recentRead(key) {
+        try {
+            var list = JSON.parse(window.localStorage.getItem('itflow.recent.' + key) || '[]');
+            return Array.isArray(list) ? list.map(String) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function recentRemember(key, value) {
+        if (!key || value === '' || value === '0') {
+            return;
+        }
+        try {
+            var list = recentRead(key).filter(function (v) { return v !== value; });
+            list.unshift(value);
+            window.localStorage.setItem('itflow.recent.' + key, JSON.stringify(list.slice(0, RECENT_KEEP)));
+        } catch (e) {
+            // No storage - nothing is remembered
+        }
+    }
 
     function make(tag, className, text) {
         var node = document.createElement(tag);
@@ -239,6 +283,7 @@
         this.id = 'itflow-select-' + (++counter);
         this.multiple = select.multiple;
         this.tags = select.dataset.tags === 'true';
+        this.recent = recentKey(select);
         this.label = labelText(select);
         this.isOpen = false;
         this.query = '';
@@ -689,10 +734,35 @@
         var exact = false;
         var options = select.options;
 
+        // Nothing typed in a long list - the recent picks first, under Recent, then the rest under All
+        var recent = [];
+        var first = [];
+        if (!terms.length && this.recent && options.length >= SEARCH_FROM) {
+            recentRead(this.recent).forEach(function (value) {
+                for (var r = 0; r < options.length; r++) {
+                    if (options[r].value === value) {
+                        var found = describe(options[r], select);
+                        if (!found.none && !found.disabled) {
+                            found.group = 'Recent';
+                            recent.push(found);
+                        }
+                        break;
+                    }
+                }
+            });
+        }
+
         for (var i = 0; i < options.length; i++) {
             var item = describe(options[i], select);
             if (item.value === '' && (hideEmpty || !item.label)) {
                 continue;
+            }
+            if (recent.length) {
+                if (item.none) {
+                    first.push(item);
+                    continue;
+                }
+                item.group = item.group || 'All';
             }
             if (terms.length) {
                 if (item.none) {
@@ -719,8 +789,8 @@
         }
 
         this.terms = query.toLowerCase().split(/\s+/).filter(Boolean);
-        this.view = view;
-        this.total = total;
+        this.view = first.concat(recent, view);
+        this.total = total + first.length + recent.length;
         this.creatable = this.tags && query && !exact ? query : '';
         this.drawList(keep);
     };
@@ -899,6 +969,7 @@
             this.filter(true);
             return;
         }
+        recentRemember(this.recent, row.option.value);
         if (!row.option.selected) {
             row.option.selected = true;
             this.dirty = true;
