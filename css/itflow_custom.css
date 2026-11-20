@@ -638,6 +638,19 @@ a:focus {
     animation: itflow-toast-progress 5s linear both;
 }
 
+/* With Undo on it (functions/undo.php), twice as long to reach the button */
+.itflow-toast.itflow-toast-undo {
+    animation:
+        itflow-toast-in 300ms ease-out both,
+        itflow-toast-out 1s ease-in 10s both;
+}
+.itflow-toast-undo .itflow-toast-progress {
+    animation-duration: 10s;
+}
+.itflow-toast.itflow-toast-undo:hover {
+    animation-play-state: paused;
+}
+
 @keyframes itflow-toast-in {
     from {
         opacity: 0;

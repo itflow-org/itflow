@@ -286,7 +286,7 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                                             </button>
                                         <?php } ?>
                                     <?php } else { ?>
-                                        <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_products">
+                                        <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_products">
                                             <i class="fas fa-fw fa-archive me-2"></i>Archive
                                         </button>
                                     <?php } ?>
@@ -433,8 +433,7 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                                                 </a>
                                             <?php } ?>
                                         <?php } else { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_product=<?= $product_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                                data-confirm-text="<?= escapeHtml($row['product_name']) ?> stops being offered on new lines. Lines it is already on stay.">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_product=<?= $product_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                         <?php } ?>

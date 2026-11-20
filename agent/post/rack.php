@@ -132,9 +132,11 @@ if (isset($_GET['archive_rack']) || isset($_GET['restore_rack'])) {
     enforceClientAccess();
 
     if ($is_archive) {
+        $undo = undoArchiveBefore('rack', $rack_id); // for Undo on the message
         mysqli_query($mysqli, "UPDATE racks SET rack_archived_at = NOW() WHERE rack_id = $rack_id");
         logAudit("Rack", "Archive", "$session_name archived rack $rack_name", $client_id, $rack_id);
         flashAlert("Rack <strong>$rack_name_display</strong> archived", 'error');
+        undoOfferArchive($undo);
     } else {
         mysqli_query($mysqli, "UPDATE racks SET rack_archived_at = NULL WHERE rack_id = $rack_id");
         logAudit("Rack", "Restore", "$session_name restored rack $rack_name", $client_id, $rack_id);
@@ -351,6 +353,8 @@ if (isset($_POST['move_rack_unit'])) {
     logAudit("Rack", "Edit", "$session_name moved " . escapeSql($item_name) . " to $position ($face) in rack $rack_name", $client_id, $rack_id);
 
     flashAlert("<strong>" . strip_tags($item_name) . "</strong> moved to $position" . ($face !== $row['unit_face'] ? " on the $face" : ''));
+    undoOffer("<strong>" . escapeHtml(strip_tags($item_name)) . "</strong> is back at " . rackPositionLabel($row['unit_start_number'], $row['unit_end_number']) . " on the {$row['unit_face']}",
+        [['rack', $unit_id, intval($row['unit_start_number']), intval($row['unit_end_number']), $row['unit_face'], $start, $face]], 'module_support');
 
     redirect();
 

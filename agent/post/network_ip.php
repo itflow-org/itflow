@@ -156,6 +156,7 @@ if (isset($_POST['bulk_ip_type'])) {
         redirect();
     }
 
+    $undo = undoSnapshot('network_ips', 'ip_id', $_POST['network_ip_ids'] ?? [], ['ip_type'], ''); // for Undo on the message
     $count = 0;
     foreach (networkIpsForBulk(2) as $ip_id => $row) {
         mysqli_query($mysqli, "UPDATE network_ips SET ip_type = '$type' WHERE ip_id = $ip_id");
@@ -164,6 +165,7 @@ if (isset($_POST['bulk_ip_type'])) {
     }
 
     flashAlert("Made <strong>$count</strong> address" . ($count === 1 ? '' : 'es') . " <strong>" . strtolower(NETWORK_IP_TYPES[$type][3]) . "</strong>");
+    undoOfferChanges($undo, "Type put back on <strong>{n}</strong> address{s}", 'module_support', 2, 'es', '');
 
     redirect();
 

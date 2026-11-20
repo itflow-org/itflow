@@ -281,11 +281,13 @@ if (isset($_GET['archive_vendor'])) {
     $row = vendorForRequest($_GET['archive_vendor'], 2);
     $vendor_id = intval($row['vendor_id']);
 
+    $undo = undoArchiveBefore('vendor', $vendor_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
 
     logAudit("Vendor", "Archive", "$session_name archived vendor " . escapeSql($row['vendor_name']), $client_id, $vendor_id);
 
     flashAlert("Vendor <strong>{$row['vendor_name']}</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -337,6 +339,7 @@ if (isset($_POST['bulk_archive_vendors'])) {
 
     validateCSRFToken();
 
+    $undo = undoArchiveBefore('vendor', $_POST['vendor_ids'] ?? []); // for Undo on the message
     $count = 0;
     foreach (array_unique(array_map('intval', (array) ($_POST['vendor_ids'] ?? []))) as $vendor_id) {
         $row = vendorRow($vendor_id);
@@ -351,6 +354,7 @@ if (isset($_POST['bulk_archive_vendors'])) {
     }
 
     flashAlert("Archived <strong>$count</strong> vendor" . ($count === 1 ? '' : 's'), 'error');
+    undoOfferArchive($undo);
 
     redirect();
 

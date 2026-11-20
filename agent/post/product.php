@@ -128,11 +128,13 @@ if (isset($_GET['archive_product'])) {
 
     $product_name = escapeSql(getFieldById('products', $product_id, 'product_name'));
 
+    $undo = undoArchiveBefore('product', $product_id); // for Undo on the message
     mysqli_query($mysqli,"UPDATE products SET product_archived_at = NOW() WHERE product_id = $product_id");
 
     logAudit("Product", "Archive", "$session_name archived product $product_name", 0, $product_id);
 
     flashAlert("Product <strong>" . escapeHtml(stripslashes($product_name)) . "</strong> archived - it is no longer offered on new lines", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -191,6 +193,7 @@ if (isset($_POST['bulk_edit_product_category'])) {
     $category_name = escapeSql(getFieldById('categories', $category_id, 'category_name'));
 
     // Assign category to Selected Products
+    $undo = undoSnapshot('products', 'product_id', $_POST['product_ids'] ?? [], ['product_category_id'], ''); // for Undo on the message
     if (isset($_POST['product_ids'])) {
 
         // Get Count
@@ -211,6 +214,7 @@ if (isset($_POST['bulk_edit_product_category'])) {
         logAudit("Product", "Edit", "$session_name assigned category $category_name to $count product(s)");
 
         flashAlert("Assigned category <strong>" . escapeHtml(stripslashes($category_name)) . "</strong> to <strong>$count</strong> product(s)");
+        undoOfferChanges($undo, "Category put back on <strong>{n}</strong> product{s}", 'module_sales');
     }
 
     redirect();
@@ -223,6 +227,7 @@ if (isset($_POST['bulk_archive_products'])) {
 
     enforceUserPermission('module_sales', 2);
 
+    $undo = undoArchiveBefore('product', $_POST['product_ids'] ?? []); // for Undo on the message
     if (isset($_POST['product_ids'])) {
 
         $count = count($_POST['product_ids']);
@@ -242,6 +247,7 @@ if (isset($_POST['bulk_archive_products'])) {
         logAudit("Product", "Bulk Archive", "$session_name archived $count product(s)");
 
         flashAlert("Archived <strong>$count</strong> product(s)", 'error');
+        undoOfferArchive($undo);
 
     }
 

@@ -164,9 +164,11 @@ if (isset($_GET['archive_project'])) {
 
     $row = projectForRequest($_GET['archive_project'], 2);
 
+    $undo = undoArchiveBefore('project', $row['project_id']); // for Undo on the message
     projectArchive($row);
 
     flashAlert("Project <strong>" . escapeHtml(projectReference($row) . ' - ' . $row['project_name']) . "</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -377,6 +379,7 @@ if (isset($_POST['bulk_archive_projects'])) {
     validateCSRFToken();
 
     $done = 0;
+    $undo = undoArchiveBefore('project', $_POST['project_ids'] ?? []); // for Undo on the message
     foreach (projectsForBulk(2) as $row) {
         if (!empty($row['project_archived_at'])) {
             continue;
@@ -386,6 +389,7 @@ if (isset($_POST['bulk_archive_projects'])) {
     }
 
     flashAlert("<strong>$done</strong> project" . ($done === 1 ? '' : 's') . " archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -434,6 +438,7 @@ if (isset($_POST['bulk_edit_project_manager'])) {
     $manager_name = $manager_id ? escapeSql((string) getFieldById('users', $manager_id, 'user_name')) : 'No One';
 
     $done = 0;
+    $undo = undoSnapshot('projects', 'project_id', $_POST['project_ids'] ?? [], ['project_manager'], 'project_client_id'); // for Undo on the message
     foreach (projectsForBulk(2) as $row) {
         if (!projectIsOpen($row) || intval($row['project_manager']) === $manager_id) {
             continue;
@@ -445,6 +450,7 @@ if (isset($_POST['bulk_edit_project_manager'])) {
     }
 
     flashAlert("Manager of <strong>$done</strong> project" . ($done === 1 ? '' : 's') . " set to <strong>" . escapeHtml(stripslashes($manager_name)) . "</strong>");
+    undoOfferChanges($undo, "Manager put back on <strong>{n}</strong> project{s}", 'module_support');
 
     redirect();
 
@@ -458,6 +464,7 @@ if (isset($_POST['bulk_edit_project_due'])) {
 
     $done = 0;
     $skipped = 0;
+    $undo = undoSnapshot('projects', 'project_id', $_POST['project_ids'] ?? [], ['project_due'], 'project_client_id'); // for Undo on the message
     foreach (projectsForBulk(2) as $row) {
         if (!projectIsOpen($row)) {
             continue;
@@ -474,6 +481,7 @@ if (isset($_POST['bulk_edit_project_due'])) {
 
     flashAlert("Due date of <strong>$done</strong> project" . ($done === 1 ? '' : 's') . ($due === 'NULL' ? ' cleared' : ' set to <strong>' . escapeHtml(date('M j, Y', strtotime(trim($due, "'")))) . '</strong>')
         . ($skipped ? ", <strong>$skipped</strong> skipped - they start after it" : ''));
+    undoOfferChanges($undo, "Due date put back on <strong>{n}</strong> project{s}", 'module_support');
 
     redirect();
 

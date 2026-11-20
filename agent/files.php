@@ -275,7 +275,7 @@ function filesItemMenu($item) {
                     : "<a class=\"dropdown-item text-danger confirm-link\" href=\"post.php?delete_document=$id&amp;csrf_token=$csrf\"><i class=\"fas fa-fw fa-trash me-2\"></i>Delete</a>";
             }
         } else {
-            $html .= "<a class=\"dropdown-item text-danger confirm-link\" href=\"post.php?archive_$archive_name=$id&amp;csrf_token=$csrf\"><i class=\"fas fa-fw fa-archive me-2\"></i>Archive</a>";
+            $html .= "<a class=\"dropdown-item text-danger\" href=\"post.php?archive_$archive_name=$id&amp;csrf_token=$csrf\"><i class=\"fas fa-fw fa-archive me-2\"></i>Archive</a>";
         }
     }
     return $html;
@@ -447,7 +447,7 @@ $preview = []; // the grid's previewer payload
                                         <i class="fas fa-fw fa-file-archive me-2"></i>Download as zip
                                     </button>
                                     <div class="dropdown-divider"></div>
-                                    <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_files">
+                                    <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_files">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                 <?php } else { ?>

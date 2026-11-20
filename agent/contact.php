@@ -337,7 +337,7 @@ if (!$can_support) {
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                             <?php } else { ?>
-                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <a class="dropdown-item text-danger" href="post.php?archive_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                 </a>
                                 <?php if ($can_delete) { ?>

@@ -187,8 +187,7 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                                     </a>
                                 <?php } ?>
                             <?php } else { ?>
-                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
-                                    data-confirm-text="<?= $network_name ?> moves to Archived, off the lists and pickers, until restored. The devices on it keep it.">
+                                <a class="dropdown-item text-danger" href="post.php?archive_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>">
                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                 </a>
                             <?php } ?>

@@ -171,8 +171,7 @@ if (!$product) {
                                     </a>
                                 <?php } ?>
                             <?php } else { ?>
-                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_product=<?= $product_id ?>&csrf_token=<?= $csrf ?>"
-                                    data-confirm-text="<?= escapeHtml($product['product_name']) ?> stops being offered on new lines. Lines it is already on stay.">
+                                <a class="dropdown-item text-danger" href="post.php?archive_product=<?= $product_id ?>&csrf_token=<?= $csrf ?>">
                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                 </a>
                             <?php } ?>

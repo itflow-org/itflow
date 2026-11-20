@@ -204,8 +204,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                                     <i class="fas fa-fw fa-users text-secondary me-2"></i>Seats
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                    data-confirm-text="It drops off every device and user until it is restored.">
+                                <a class="dropdown-item text-danger" href="post.php?archive_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                 </a>
                             <?php } ?>

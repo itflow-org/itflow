@@ -149,9 +149,11 @@ if (isset($_GET['archive_service'])) {
 
     $row = serviceForRequest($_GET['archive_service'], 2);
 
+    $undo = undoArchiveBefore('service', $row['service_id']); // for Undo on the message
     serviceArchive($row);
 
     flashAlert("Service <strong>" . escapeHtml($row['service_name']) . "</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -362,6 +364,7 @@ if (isset($_POST['bulk_archive_services'])) {
 
     validateCSRFToken();
 
+    $undo = undoArchiveBefore('service', $_POST['service_ids'] ?? []); // for Undo on the message
     $count = 0;
     foreach (servicesForBulk(2) as $row) {
         if (!$row['service_archived_at']) {
@@ -371,6 +374,7 @@ if (isset($_POST['bulk_archive_services'])) {
     }
 
     flashAlert("Archived <strong>$count</strong> service" . ($count === 1 ? '' : 's'), 'error');
+    undoOfferArchive($undo);
 
     redirect();
 

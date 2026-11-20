@@ -264,11 +264,13 @@ if (isset($_POST['move_file'])) {
     $folder_id = folderOwnedId($_POST['folder_id'] ?? 0, $client_id);
     $folder_name = folderDisplayName($folder_id);
 
+    $undo = undoSnapshot('files', 'file_id', [$file_id], ['file_folder_id'], 'file_client_id'); // for Undo on the message
     mysqli_query($mysqli, "UPDATE files SET file_folder_id = $folder_id WHERE file_id = $file_id");
 
     logAudit("File", "Move", "$session_name moved file $file_name to " . escapeSql($folder_name), $client_id, $file_id);
 
     flashAlert("File <strong>{$row['file_name']}</strong> moved to <strong>$folder_name</strong>");
+    undoOfferChanges($undo, "<strong>" . escapeHtml($row['file_name']) . "</strong> moved back", 'module_support');
 
     redirect();
 
@@ -291,11 +293,13 @@ if (isset($_GET['archive_file'])) {
 
     enforceClientAccess();
 
+    $undo = undoArchiveBefore('file', $file_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE files SET file_archived_at = NOW() WHERE file_id = $file_id");
 
     logAudit("File", "Archive", "$session_name archived file " . escapeSql($row['file_name']), $client_id, $file_id);
 
     flashAlert("File <strong>{$row['file_name']}</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -361,6 +365,8 @@ if (isset($_POST['bulk_archive_files'])) {
     $file_count = 0;
     $document_count = 0;
 
+    $undo = undoArchiveBefore('file', $_POST['file_ids'] ?? []); // for Undo on the message
+    $undo_documents = undoArchiveBefore('document', $_POST['document_ids'] ?? []);
     foreach (array_map('intval', (array) ($_POST['file_ids'] ?? [])) as $file_id) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_client_id, file_name FROM files WHERE file_id = $file_id AND file_archived_at IS NULL"));
         if (!$row) {
@@ -386,6 +392,7 @@ if (isset($_POST['bulk_archive_files'])) {
     }
 
     flashAlert("Archived " . filesCountPhrase($document_count, $file_count), 'error');
+    undoOfferArchive($undo, $undo_documents);
 
     redirect();
 
@@ -475,6 +482,10 @@ if (isset($_POST['bulk_move_files'])) {
     $file_count = 0;
     $document_count = 0;
 
+    // For Undo on the message - each back to the folder it came from
+    $undo = undoSnapshot('files', 'file_id', $_POST['file_ids'] ?? [], ['file_folder_id'], 'file_client_id');
+    $undo_documents = undoSnapshot('documents', 'document_id', $_POST['document_ids'] ?? [], ['document_folder_id'], 'document_client_id');
+
     // Each item only moves into a folder of its own client - one of another
     // client's folders would take it out of sight of both. One already there is left alone.
     foreach (array_map('intval', (array) ($_POST['file_ids'] ?? [])) as $file_id) {
@@ -508,6 +519,7 @@ if (isset($_POST['bulk_move_files'])) {
     }
 
     flashAlert("Moved " . filesCountPhrase($document_count, $file_count) . " to <strong>$folder_name</strong>");
+    undoOffer('<strong>{n}</strong> item{s} moved back', array_merge(undoChangedSteps($undo), undoChangedSteps($undo_documents)), 'module_support');
 
     redirect();
 

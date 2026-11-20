@@ -348,7 +348,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                                         <i class="fas fa-fw fa-tags me-2"></i>Tags
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_software">
+                                    <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_software">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                 <?php } else { ?>
@@ -556,7 +556,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                                             <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Renew
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <a class="dropdown-item text-danger" href="post.php?archive_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-archive me-2"></i>Archive
                                         </a>
                                     <?php } elseif ($can_edit) { ?>

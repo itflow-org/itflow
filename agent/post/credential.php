@@ -246,11 +246,13 @@ if (isset($_GET['archive_credential'])) {
     $row = credentialForRequest($_GET['archive_credential'], 2);
     $credential_id = intval($row['credential_id']);
 
+    $undo = undoArchiveBefore('credential', $credential_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
 
     logAudit("Credential", "Archive", "$session_name archived credential " . escapeSql($row['credential_name']), $client_id, $credential_id);
 
     flashAlert("Credential <strong>{$row['credential_name']}</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -311,6 +313,7 @@ if (isset($_POST['bulk_archive_credentials'])) {
 
     validateCSRFToken();
 
+    $undo = undoArchiveBefore('credential', $_POST['credential_ids'] ?? []); // for Undo on the message
     $count = 0;
     foreach (credentialsForBulk(2) as $credential_id => $row) {
         mysqli_query($mysqli, "UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
@@ -319,6 +322,7 @@ if (isset($_POST['bulk_archive_credentials'])) {
     }
 
     flashAlert("Archived <strong>$count</strong> credential" . ($count === 1 ? '' : 's'), 'error');
+    undoOfferArchive($undo);
 
     redirect();
 

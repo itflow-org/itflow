@@ -231,11 +231,13 @@ if (isset($_POST['move_document'])) {
     $folder_id = folderOwnedId($_POST['folder'] ?? 0, $client_id);
     $folder_name = folderDisplayName($folder_id);
 
+    $undo = undoSnapshot('documents', 'document_id', [$document_id], ['document_folder_id'], 'document_client_id'); // for Undo on the message
     mysqli_query($mysqli, "UPDATE documents SET document_folder_id = $folder_id, document_updated_at = document_updated_at WHERE document_id = $document_id");
 
     logAudit("Document", "Move", "$session_name moved document " . escapeSql($row['document_name']) . " to folder " . escapeSql($folder_name), $client_id, $document_id);
 
     flashAlert("Document <strong>{$row['document_name']}</strong> moved to <strong>$folder_name</strong>");
+    undoOfferChanges($undo, "<strong>" . escapeHtml($row['document_name']) . "</strong> moved back", 'module_support');
 
     redirect();
 
@@ -474,6 +476,7 @@ if (isset($_GET['archive_document'])) {
     $row = documentForHandler($_GET['archive_document']);
     $document_id = intval($row['document_id']);
 
+    $undo = undoArchiveBefore('document', $document_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE documents SET document_archived_at = NOW(), document_updated_at = document_updated_at WHERE document_id = $document_id");
 
     // An archived document drops its links, as it always has
@@ -482,6 +485,7 @@ if (isset($_GET['archive_document'])) {
     logAudit("Document", "Archive", "$session_name archived document " . escapeSql($row['document_name']), $client_id, $document_id);
 
     flashAlert("Document <strong>{$row['document_name']}</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 

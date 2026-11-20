@@ -445,7 +445,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                                                 <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
                                             </a>
                                         <?php } else { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="<?= $reference ?> moves to Archived. Its tickets stay as they are.">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                         <?php } ?>

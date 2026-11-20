@@ -276,7 +276,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                                         </a>
                                     <?php } ?>
                                 <?php } else { ?>
-                                    <a class="dropdown-item text-danger confirm-link" href="post.php?archive_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                    <a class="dropdown-item text-danger" href="post.php?archive_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </a>
                                 <?php } ?>

@@ -747,6 +747,7 @@ if (isset($_POST['bulk_edit_ticket_priority'])) {
     }
 
     // The same change the priority picker makes - history, SLA, audit and the custom action
+    $undo = undoSnapshot('tickets', 'ticket_id', $_POST['ticket_ids'] ?? [], ['ticket_priority'], 'ticket_client_id'); // for Undo on the message
     $count = 0;
     foreach (ticketsForBulk(2) as $ticket_id => $row) {
         [$ok] = ticketChangePriority($ticket_id, $priority);
@@ -756,6 +757,7 @@ if (isset($_POST['bulk_edit_ticket_priority'])) {
     logAudit("Ticket", "Bulk Edit", "$session_name set the priority of $count ticket(s) to $priority");
 
     flashAlert("Priority set to <strong>$priority</strong> on <strong>$count</strong> ticket" . ($count === 1 ? '' : 's'));
+    undoOfferChanges($undo, "Priority put back on <strong>{n}</strong> ticket{s}", 'module_support', 2, 's', 'ticket_priority');
 
     redirect();
 
@@ -768,6 +770,7 @@ if (isset($_POST['bulk_edit_ticket_category'])) {
     $category_id = ticketCategoryId($_POST['bulk_category'] ?? 0);
     $category_name = $category_id ? (string) getFieldById('categories', $category_id, 'category_name') : 'Not categorized';
 
+    $undo = undoSnapshot('tickets', 'ticket_id', $_POST['ticket_ids'] ?? [], ['ticket_category'], 'ticket_client_id'); // for Undo on the message
     $count = 0;
     foreach (ticketsForBulk(2) as $ticket_id => $row) {
         $previous = intval($row['ticket_category']) ? (string) getFieldById('categories', intval($row['ticket_category']), 'category_name') : 'Not categorized';
@@ -786,6 +789,7 @@ if (isset($_POST['bulk_edit_ticket_category'])) {
     logAudit("Ticket", "Bulk Edit", "$session_name set the category of $count ticket(s) to " . escapeSql($category_name));
 
     flashAlert("Category set to <strong>" . escapeHtml($category_name) . "</strong> on <strong>$count</strong> ticket" . ($count === 1 ? '' : 's'));
+    undoOfferChanges($undo, "Category put back on <strong>{n}</strong> ticket{s}", 'module_support', 2, 's', 'ticket_category');
 
     redirect();
 
@@ -970,6 +974,7 @@ if (isset($_POST['bulk_add_ticket_project'])) {
     $project_name = $project_input ? (string) getFieldById('projects', $project_input, 'project_name') : '';
 
     $count = $skipped = 0;
+    $undo = undoSnapshot('tickets', 'ticket_id', $_POST['ticket_ids'] ?? [], ['ticket_project_id'], 'ticket_client_id'); // for Undo on the message
     foreach (ticketsForBulk(2) as $ticket_id => $row) {
         // The project has to be the ticket's client's, or an internal one
         $project_id = ticketClientOwnedId('project', $project_input, $row['ticket_client_id']);
@@ -987,6 +992,7 @@ if (isset($_POST['bulk_add_ticket_project'])) {
     // The project is named once a ticket went into it - one that fits none of them may be a client this agent can't see
     flashAlert(($project_input ? "<strong>$count</strong> ticket" . ($count === 1 ? '' : 's') . " added to " . ($count ? "project <strong>" . escapeHtml($project_name) . "</strong>" : 'the project') : "<strong>$count</strong> ticket" . ($count === 1 ? '' : 's') . " taken out of their project")
         . ($skipped ? ", <strong>$skipped</strong> skipped - the project is another client's" : ''));
+    undoOfferChanges($undo, "Project put back on <strong>{n}</strong> ticket{s}", 'module_support', 2, 's', 'ticket_project');
 
     redirect();
 

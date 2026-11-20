@@ -213,11 +213,13 @@ if (isset($_GET['archive_location'])) {
         redirect();
     }
 
+    $undo = undoArchiveBefore('location', $location_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id");
 
     logAudit("Location", "Archive", "$session_name archived location " . escapeSql($row['location_name']), $client_id, $location_id);
 
     flashAlert("Location <strong>{$row['location_name']}</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -275,6 +277,7 @@ if (isset($_POST['bulk_archive_locations'])) {
 
     enforceUserPermission('module_client', 2);
 
+    $undo = undoArchiveBefore('location', $_POST['location_ids'] ?? []); // for Undo on the message
     $count = 0;
     $skipped = [];
     foreach (array_unique(array_map('intval', (array) ($_POST['location_ids'] ?? []))) as $location_id) {
@@ -294,6 +297,7 @@ if (isset($_POST['bulk_archive_locations'])) {
     }
 
     flashAlert("Archived <strong>$count</strong> location" . ($count === 1 ? '' : 's') . ($skipped ? ' - kept <strong>' . implode(', ', $skipped) . '</strong>, the primary location' : ''), 'error');
+    undoOfferArchive($undo);
 
     redirect();
 

@@ -241,8 +241,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                             </button>
                                         <?php } ?>
                                     <?php } else { ?>
-                                        <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_services"
-                                            data-confirm-text="They move to Archived, off the lists and counts, until restored.">
+                                        <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_services">
                                             <i class="fas fa-fw fa-archive me-2"></i>Archive
                                         </button>
                                     <?php } ?>
@@ -418,8 +417,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                                 </a>
                                             <?php } ?>
                                         <?php } else { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                                data-confirm-text="<?= $name ?> moves to Archived, off the lists and counts, until restored.">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                         <?php } ?>

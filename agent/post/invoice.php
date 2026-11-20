@@ -814,6 +814,7 @@ if (isset($_POST['bulk_edit_invoice_category'])) {
     $category_name = escapeSql(getFieldById('categories', $category_id, 'category_name'));
 
     // Assign Income category to Selected Invoices
+    $undo = undoSnapshot('invoices', 'invoice_id', $_POST['invoice_ids'] ?? [], ['invoice_category_id'], 'invoice_client_id'); // for Undo on the message
     if (isset($_POST['invoice_ids'])) {
 
         // Get Selected Count
@@ -841,6 +842,7 @@ if (isset($_POST['bulk_edit_invoice_category'])) {
         logAudit("Invoice", "Bulk Edit", "$session_name assigned $count invoices to category $category_name");
 
         flashAlert("Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice(s)");
+        undoOfferChanges($undo, "Income category put back on <strong>{n}</strong> invoice{s}", 'module_sales');
     }
 
     redirect();

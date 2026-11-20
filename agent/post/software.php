@@ -336,11 +336,13 @@ if (isset($_GET['archive_software'])) {
 
     // Seats stay put - an archived license drops off every device and user
     // anyway, and comes back with them if it is restored
+    $undo = undoArchiveBefore('software', $software_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE software SET software_archived_at = NOW() WHERE software_id = $software_id");
 
     logAudit("Software", "Archive", "$session_name archived license " . escapeSql($row['software_name']), $client_id, $software_id);
 
     flashAlert("License <strong>{$row['software_name']}</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -395,6 +397,7 @@ if (isset($_POST['bulk_archive_software'])) {
 
     enforceUserPermission('module_support', 2);
 
+    $undo = undoArchiveBefore('software', $_POST['software_ids'] ?? []); // for Undo on the message
     $rows = softwareBulkRows($_POST['software_ids'] ?? []);
     foreach ($rows as $software_id => $row) {
         $client_id = intval($row['software_client_id']);
@@ -403,6 +406,7 @@ if (isset($_POST['bulk_archive_software'])) {
     }
 
     flashAlert("Archived <strong>" . count($rows) . "</strong> license" . (count($rows) === 1 ? '' : 's'), 'error');
+    undoOfferArchive($undo);
 
     redirect();
 

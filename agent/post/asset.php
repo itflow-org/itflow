@@ -203,6 +203,7 @@ if (isset($_GET['archive_asset'])) {
 
     enforceClientAccess();
 
+    $undo = undoArchiveBefore('asset', $asset_id); // for Undo on the message
     mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $asset_id");
 
     // Add to History
@@ -211,6 +212,7 @@ if (isset($_GET['archive_asset'])) {
     logAudit("Asset", "Archive", "$session_name archived asset $asset_name", $client_id, $asset_id);
 
     flashAlert("Asset <strong>" . stripslashes($asset_name) . "</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -438,6 +440,7 @@ if (isset($_POST['bulk_assign_asset_location'])) {
     enforceClientAccess();
 
     // Assign Location to Selected Assets
+    $undo = undoSnapshot('assets', 'asset_id', $_POST['asset_ids'] ?? [], ['asset_location_id'], 'asset_client_id'); // for Undo on the message
     if (isset($_POST['asset_ids'])) {
 
         // Only the assets of the location's client are moved
@@ -469,6 +472,7 @@ if (isset($_POST['bulk_assign_asset_location'])) {
         logAudit("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to location $location_name", $location_client_id);
 
         flashAlert("<strong>$asset_count</strong> asset" . ($asset_count === 1 ? '' : 's') . " assigned to location <strong>" . stripslashes($location_name) . "</strong>");
+        undoOfferChanges($undo, "Location put back on <strong>{n}</strong> asset{s}", 'module_support');
     }
 
     redirect();
@@ -484,6 +488,7 @@ if (isset($_POST['bulk_assign_asset_physical_location'])) {
     $physical_location = escapeSql($_POST['physical_location']);
 
     // Assign Physical Location to Selected Assets
+    $undo = undoSnapshot('assets', 'asset_id', $_POST['asset_ids'] ?? [], ['asset_physical_location'], 'asset_client_id'); // for Undo on the message
     if (isset($_POST['asset_ids'])) {
 
         // Get Selected Assets Count
@@ -509,6 +514,7 @@ if (isset($_POST['bulk_assign_asset_physical_location'])) {
         logAudit("Asset", "Bulk Edit", "$session_name set $asset_count assets to physical location $physical_location", $client_id);
 
         flashAlert("Physical location of <strong>$asset_count</strong> asset" . ($asset_count === 1 ? '' : 's') . " set to <strong>" . stripslashes($physical_location) . "</strong>");
+        undoOfferChanges($undo, "Physical location put back on <strong>{n}</strong> asset{s}", 'module_support');
     }
 
     redirect();
@@ -635,6 +641,7 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
     enforceClientAccess();
 
     // Assign Contact to Selected Assets
+    $undo = undoSnapshot('assets', 'asset_id', $_POST['asset_ids'] ?? [], ['asset_contact_id'], 'asset_client_id'); // for Undo on the message
     if (isset($_POST['asset_ids'])) {
 
         // Only the assets of the contact's client are assigned
@@ -663,6 +670,7 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
         logAudit("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to contact $contact_name", $client_id);
 
         flashAlert("<strong>$asset_count</strong> asset" . ($asset_count === 1 ? '' : 's') . " assigned to <strong>" . stripslashes($contact_name) . "</strong>");
+        undoOfferChanges($undo, "Contact put back on <strong>{n}</strong> asset{s}", 'module_support');
     }
 
     redirect();
@@ -677,6 +685,7 @@ if (isset($_POST['bulk_edit_asset_status'])) {
 
     $status = escapeSql($_POST['bulk_status']);
 
+    $undo = undoSnapshot('assets', 'asset_id', $_POST['asset_ids'] ?? [], ['asset_status'], 'asset_client_id'); // for Undo on the message
     if (isset($_POST['asset_ids'])) {
 
         $asset_count = count($_POST['asset_ids']);
@@ -704,6 +713,7 @@ if (isset($_POST['bulk_edit_asset_status'])) {
         logAudit("Asset", "Bulk Edit", "$session_name set status to $status on $asset_count assets", $client_id);
 
         flashAlert("Status set to <strong>" . stripslashes($status) . "</strong> on <strong>$asset_count</strong> asset" . ($asset_count === 1 ? '' : 's'));
+        undoOfferChanges($undo, "Status put back on <strong>{n}</strong> asset{s}", 'module_support', 2, 's', 'asset_status');
     }
 
     redirect();
@@ -792,6 +802,7 @@ if (isset($_POST['bulk_archive_assets'])) {
 
     enforceUserPermission('module_support', 2);
 
+    $undo = undoArchiveBefore('asset', $_POST['asset_ids'] ?? []); // for Undo on the message
     if (isset($_POST['asset_ids'])) {
 
         $count = count($_POST['asset_ids']);
@@ -820,6 +831,7 @@ if (isset($_POST['bulk_archive_assets'])) {
         logAudit("Asset", "Bulk Archive", "$session_name archived $count assets", $client_id);
 
         flashAlert("Archived <strong>$count</strong> asset(s)", 'error');
+        undoOfferArchive($undo);
 
     }
 

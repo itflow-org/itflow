@@ -251,7 +251,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                                         </button>
                                     <?php } ?>
                                 <?php } else { ?>
-                                    <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_vendors">
+                                    <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_vendors">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                 <?php } ?>
@@ -453,7 +453,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                                                 </a>
                                             <?php } ?>
                                         <?php } else { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                         <?php } ?>

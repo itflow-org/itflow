@@ -187,11 +187,13 @@ if (isset($_GET['archive_certificate'])) {
     $row = certificateForRequest($_GET['archive_certificate'], 2);
     $certificate_id = intval($row['certificate_id']);
 
+    $undo = undoArchiveBefore('certificate', $certificate_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE certificates SET certificate_archived_at = NOW() WHERE certificate_id = $certificate_id");
 
     logAudit("Certificate", "Archive", "$session_name archived certificate " . escapeSql($row['certificate_name']), $client_id, $certificate_id);
 
     flashAlert("Certificate <strong>" . escapeHtml($row['certificate_name']) . "</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -288,6 +290,7 @@ if (isset($_POST['bulk_archive_certificates'])) {
 
     validateCSRFToken();
 
+    $undo = undoArchiveBefore('certificate', $_POST['certificate_ids'] ?? []); // for Undo on the message
     $count = 0;
     foreach (certificatesForBulk(2) as $certificate_id => $row) {
         mysqli_query($mysqli, "UPDATE certificates SET certificate_archived_at = NOW() WHERE certificate_id = $certificate_id");
@@ -296,6 +299,7 @@ if (isset($_POST['bulk_archive_certificates'])) {
     }
 
     flashAlert("Archived <strong>$count</strong> certificate" . ($count === 1 ? '' : 's'), 'error');
+    undoOfferArchive($undo);
 
     redirect();
 

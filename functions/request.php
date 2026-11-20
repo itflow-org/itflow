@@ -123,4 +123,6 @@ function redirect($url = null, $permanent = false) {
 function flashAlert(string $message, string $type = 'success'): void {
     $_SESSION['alert_type'] = $type;
     $_SESSION['alert_message'] = $message;
+    // A new message carries no Undo until undoOffer() gives it one (functions/undo.php)
+    unset($_SESSION['alert_undo']);
 }

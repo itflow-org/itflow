@@ -140,9 +140,11 @@ if (isset($_GET['archive_network'])) {
 
     $row = networkForRequest($_GET['archive_network'], 2);
 
+    $undo = undoArchiveBefore('network', $row['network_id']); // for Undo on the message
     networkArchive($row);
 
     flashAlert("Network <strong>" . $row['network_name'] . "</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -249,6 +251,7 @@ if (isset($_POST['bulk_archive_networks'])) {
 
     validateCSRFToken();
 
+    $undo = undoArchiveBefore('network', $_POST['network_ids'] ?? []); // for Undo on the message
     $count = 0;
     foreach (networksForBulk(2) as $row) {
         if (!$row['network_archived_at']) {
@@ -258,6 +261,7 @@ if (isset($_POST['bulk_archive_networks'])) {
     }
 
     flashAlert("Archived <strong>$count</strong> network" . ($count === 1 ? '' : 's'), 'error');
+    undoOfferArchive($undo);
 
     redirect();
 

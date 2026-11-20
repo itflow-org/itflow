@@ -132,6 +132,9 @@ if (isset($_POST['move_folder'])) {
     logAudit("Folder", "Move", "$session_name moved folder " . escapeSql($folder_name) . " into " . escapeSql($parent_name), $client_id, $folder_id);
 
     flashAlert("Folder <strong>$folder_name</strong> moved into <strong>$parent_name</strong>");
+    $parent_before = intval($tree[$folder_id]['parent_folder'] ?? 0);
+    undoOffer("Folder <strong>" . escapeHtml($folder_name) . "</strong> is back in <strong>" . escapeHtml(folderDisplayName($parent_before)) . "</strong>",
+        [['folder', $folder_id, $parent_before, $parent_folder, $client_id]], 'module_support');
 
     redirect();
 

@@ -363,6 +363,7 @@ if (isset($_POST['bulk_assign_contact_location'])) {
     enforceClientAccess();
 
     // Assign Location to Selected Contacts
+    $undo = undoSnapshot('contacts', 'contact_id', $_POST['contact_ids'] ?? [], ['contact_location_id'], 'contact_client_id'); // for Undo on the message
     if (isset($_POST['contact_ids'])) {
 
         // Only the contacts of the location's client are moved
@@ -389,6 +390,7 @@ if (isset($_POST['bulk_assign_contact_location'])) {
         logAudit("Contact", "Bulk Edit", "$session_name assigned $contact_count contacts to location $location_name", $client_id);
 
         flashAlert("<strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's') . " assigned to location <strong>" . stripslashes($location_name) . "</strong>");
+        undoOfferChanges($undo, "Location put back on <strong>{n}</strong> contact{s}", 'module_client');
     }
 
     redirect();
@@ -404,6 +406,7 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
     $phone = preg_replace("/[^0-9]/", '', $_POST['bulk_phone']);
 
     // Assign Location to Selected Contacts
+    $undo = undoSnapshot('contacts', 'contact_id', $_POST['contact_ids'] ?? [], ['contact_phone'], 'contact_client_id'); // for Undo on the message
     if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
@@ -429,6 +432,7 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
         logAudit("Contact", "Bulk Edit", "$session_name set the Phone Number $phone for $contact_count contacts", $client_id);
 
         flashAlert("Phone number set to <strong>" . formatPhoneNumber($phone) . "</strong> on <strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's'));
+        undoOfferChanges($undo, "Phone number put back on <strong>{n}</strong> contact{s}", 'module_client');
     }
 
     redirect();
@@ -444,6 +448,7 @@ if (isset($_POST['bulk_edit_contact_department'])) {
     $department = escapeSql($_POST['bulk_department']);
 
     // Assign Location to Selected Contacts
+    $undo = undoSnapshot('contacts', 'contact_id', $_POST['contact_ids'] ?? [], ['contact_department'], 'contact_client_id'); // for Undo on the message
     if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
@@ -469,6 +474,7 @@ if (isset($_POST['bulk_edit_contact_department'])) {
         logAudit("Contact", "Bulk Edit", "$session_name set the department $department for $contact_count contacts", $client_id);
 
         flashAlert("Department set to <strong>" . stripslashes($department) . "</strong> on <strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's'));
+        undoOfferChanges($undo, "Department put back on <strong>{n}</strong> contact{s}", 'module_client');
     }
 
     redirect();
@@ -486,6 +492,7 @@ if (isset($_POST['bulk_edit_contact_role'])) {
     $contact_technical = intval($_POST['bulk_contact_technical']);
 
     // Assign Location to Selected Contacts
+    $undo = undoSnapshot('contacts', 'contact_id', $_POST['contact_ids'] ?? [], ['contact_important', 'contact_billing', 'contact_technical'], 'contact_client_id'); // for Undo on the message
     if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
@@ -513,6 +520,7 @@ if (isset($_POST['bulk_edit_contact_role'])) {
         logAudit("Contact", "Bulk Edit", "$session_name edited the contact role for $contact_count contacts", $client_id);
 
         flashAlert("Roles updated on <strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's'));
+        undoOfferChanges($undo, "Roles put back on <strong>{n}</strong> contact{s}", 'module_client');
     }
 
     redirect();
@@ -552,6 +560,7 @@ if (isset($_POST['bulk_archive_contacts'])) {
 
     enforceUserPermission('module_client', 2);
 
+    $undo = undoArchiveBefore('contact', $_POST['contact_ids'] ?? []); // for Undo on the message
     if (isset($_POST['contact_ids'])) {
 
         $count = 0; // Default 0
@@ -591,6 +600,7 @@ if (isset($_POST['bulk_archive_contacts'])) {
         logAudit("Contact", "Bulk Archive", "$session_name archived $count contacts", $client_id);
 
         flashAlert("Archived $count contact(s)", 'error');
+        undoOfferArchive($undo);
 
     }
 
@@ -1022,6 +1032,7 @@ if (isset($_GET['archive_contact'])) {
 
     enforceClientAccess();
 
+    $undo = undoArchiveBefore('contact', $contact_id); // for Undo on the message
     // Archive Contact User
     if ($contact_user_id > 0) {
         mysqli_query($mysqli,"UPDATE users SET user_archived_at = NOW() WHERE user_id = $contact_user_id");
@@ -1032,6 +1043,7 @@ if (isset($_GET['archive_contact'])) {
     logAudit("Contact", "Archive", "$session_name archived contact $contact_name", $client_id, $contact_id);
 
     flashAlert("Contact <strong>" . stripslashes($contact_name) . "</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 

@@ -191,6 +191,7 @@ if (isset($_GET['archive_client'])) {
     enforceClientAccess();
 
     // Archived, its recurring invoices stopped and contract signing requests withdrawn (functions/client.php)
+    $undo = undoArchiveBefore('client', $client_id); // for Undo on the message
     $contracts_withdrawn = clientArchiveNow($client_id);
 
     // Get Client Name
@@ -199,6 +200,9 @@ if (isset($_GET['archive_client'])) {
     logAudit("Client", "Archive", "$session_name archived client $client_name" . ($contracts_withdrawn ? " - $contracts_withdrawn contract signing request" . ($contracts_withdrawn === 1 ? '' : 's') . " withdrawn" : ''), $client_id, $client_id);
 
     flashAlert("Client <strong>" . stripslashes($client_name) . "</strong> archived" . ($contracts_withdrawn ? " - contract signing requests to them were withdrawn" : ''), 'error');
+    if (!$contracts_withdrawn) {
+        undoOfferArchive($undo); // a signing request withdrawn can't be put back
+    }
 
     redirect();
 
@@ -708,6 +712,7 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
     $industry = escapeSql($_POST['bulk_industry']);
 
+    $undo = undoSnapshot('clients', 'client_id', $_POST['client_ids'] ?? [], ['client_type'], 'client_id'); // for Undo on the message
     if (isset($_POST['client_ids'])) {
 
         // Check every selected client before changing any of them
@@ -733,6 +738,7 @@ if (isset($_POST['bulk_edit_client_industry'])) {
         logAudit("Client", "Bulk Edit", "$session_name set the industry $industry for $count client(s)", $client_id);
 
         flashAlert("Industry set to <strong>" . stripslashes($industry) . "</strong> on <strong>$count</strong> client" . ($count === 1 ? '' : 's'));
+        undoOfferChanges($undo, "Industry put back on <strong>{n}</strong> client{s}", 'module_client');
     }
 
     redirect();
@@ -747,6 +753,7 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
     $referral = escapeSql($_POST['bulk_referral']);
 
+    $undo = undoSnapshot('clients', 'client_id', $_POST['client_ids'] ?? [], ['client_referral'], 'client_id'); // for Undo on the message
     if (isset($_POST['client_ids'])) {
 
         // Check every selected client before changing any of them
@@ -772,6 +779,7 @@ if (isset($_POST['bulk_edit_client_referral'])) {
         logAudit("Client", "Bulk Edit", "$session_name set the referral $referral for $count client(s)", $client_id);
 
         flashAlert("Referral set to <strong>" . stripslashes($referral) . "</strong> on <strong>$count</strong> client" . ($count === 1 ? '' : 's'));
+        undoOfferChanges($undo, "Referral put back on <strong>{n}</strong> client{s}", 'module_client');
     }
 
     redirect();
@@ -882,6 +890,7 @@ if (isset($_POST['bulk_archive_clients'])) {
 
     enforceUserPermission('module_client', 2);
 
+    $undo = undoArchiveBefore('client', $_POST['client_ids'] ?? []); // for Undo on the message
     if (isset($_POST['client_ids'])) {
 
         // Check every selected client before changing any of them
@@ -901,6 +910,7 @@ if (isset($_POST['bulk_archive_clients'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
             $contracts_withdrawn = contractSignatureWithdrawStale($client_id);
+            $undo_withdrawn = ($undo_withdrawn ?? 0) + $contracts_withdrawn;
 
             logAudit("Client", "Archive", "$session_name archived $client_name" . ($contracts_withdrawn ? " - $contracts_withdrawn contract signing request" . ($contracts_withdrawn === 1 ? '' : 's') . " withdrawn" : ''), $client_id);
 
@@ -911,6 +921,9 @@ if (isset($_POST['bulk_archive_clients'])) {
         logAudit("Client", "Bulk Archive", "$session_name archived $count clients", $client_id);
 
         flashAlert("Archived $count client(s)", 'error');
+        if (empty($undo_withdrawn)) {
+            undoOfferArchive($undo); // a signing request withdrawn can't be put back
+        }
 
     }
 

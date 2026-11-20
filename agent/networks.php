@@ -261,8 +261,7 @@ $csrf = $_SESSION['csrf_token'];
                                             </button>
                                         <?php } ?>
                                     <?php } else { ?>
-                                        <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_networks"
-                                            data-confirm-text="They move to Archived, off the lists and pickers, until restored. The devices on them keep them.">
+                                        <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_networks">
                                             <i class="fas fa-fw fa-archive me-2"></i>Archive
                                         </button>
                                     <?php } ?>
@@ -429,8 +428,7 @@ $csrf = $_SESSION['csrf_token'];
                                                 </a>
                                             <?php } ?>
                                         <?php } else { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
-                                                data-confirm-text="<?= $name ?> moves to Archived, off the lists and pickers, until restored. The devices on it keep it.">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>">
                                                 <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                         <?php } ?>
