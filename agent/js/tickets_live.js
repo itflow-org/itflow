@@ -47,7 +47,8 @@
     }
 
     function updatePills(doc) {
-        const now = document.querySelectorAll('.itflow-asset-tabs .nav-link');
+        // Not More (js/tab_fold.js) - it isn't in the fetched page
+        const now = document.querySelectorAll('.itflow-asset-tabs .nav-link:not(.itflow-tabs-more-toggle)');
         const fresh = doc.querySelectorAll('.itflow-asset-tabs .nav-link');
         if (now.length !== fresh.length) {
             return;

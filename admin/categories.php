@@ -107,7 +107,7 @@ $csrf = $_SESSION['csrf_token'];
     <div class="row g-0">
         <!-- Kinds -->
         <div class="col-md-4 col-lg-3 border-end">
-            <nav class="nav nav-pills flex-nowrap flex-md-column overflow-auto p-2 gap-1 itflow-category-kinds" aria-label="Kinds of category">
+            <nav class="nav nav-pills flex-nowrap flex-md-column overflow-auto p-2 gap-1 itflow-category-kinds itflow-tabs-foldable" aria-label="Kinds of category">
                 <?php foreach ($kinds as $kind_key => $kind_config) { ?>
                     <a class="nav-link d-flex align-items-center gap-2 text-nowrap<?= $kind_key === $kind ? ' active' : '' ?>" href="categories.php?category=<?= urlencode($kind_key) ?>" title="<?= escapeHtml($kind_config['about']) ?>"<?= $kind_key === $kind ? ' aria-current="page"' : '' ?>>
                         <i class="fas fa-fw <?= $kind_config['icon'] ?>"></i><span class="text-truncate"><?= escapeHtml($kind_config['label']) ?></span>

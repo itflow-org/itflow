@@ -145,7 +145,7 @@ if (!$config_module_enable_ticketing) {
 <div class="card itflow-settings-card">
     <div class="card-body">
 
-        <ul class="nav nav-tabs pt-3" id="mailTabs" role="tablist">
+        <ul class="nav nav-tabs pt-3 itflow-tabs-foldable" id="mailTabs" role="tablist">
             <li class="nav-item">
                 <a class="nav-link <?php if ($active_tab === 'sending') { echo 'active'; } ?>" href="?tab=sending" data-bs-target="#tab-sending">
                     <i class="fas fa-fw fa-paper-plane me-1"></i>Sending<?= renderMailStatusDot($smtp_on) ?>

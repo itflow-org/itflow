@@ -4319,28 +4319,28 @@ img.itflow-asset-icon {
     color: inherit;
 }
 
-/* Tabs that don't fit fold into More at the end of the bar (js/tab_fold.js).
-   The bar stops scrolling, so More's menu isn't cut off by it - min-width 0
-   keeps it as narrow as it was as a scroller, so it still knows it's full. */
-.nav.itflow-tabs-fold.overflow-auto {
+/* Tabs that don't fit fold into More at the end of the row (js/tab_fold.js).
+   One line, and no scrolling, so More's menu isn't cut off - min-width 0
+   keeps the row as narrow as it was as a scroller, so it still knows it's full. */
+.nav.itflow-tabs-fold {
+    flex-wrap: nowrap !important;
     overflow: visible !important;
     min-width: 0;
+}
+.itflow-tabs-fold .nav-link {
+    white-space: nowrap;
 }
 .itflow-tab-folded {
     display: none !important;
 }
+/* More is a tab like the others (.nav-link), so it takes the row's look */
 .itflow-tabs-more-toggle {
     display: flex;
     align-items: center;
-    padding: .3rem .75rem;
-    border: 0;
-    border-radius: var(--bs-nav-pills-border-radius);
     background: none;
-    color: var(--bs-secondary-color);
 }
-.itflow-tabs-more-toggle:hover,
-.itflow-tabs-more-toggle[aria-expanded="true"] {
-    color: var(--bs-nav-link-hover-color);
+.itflow-tabs-more-toggle .badge {
+    margin-right: .25rem;
 }
 .itflow-tabs-more .badge:not([class*="text-bg-"]) {
     background-color: var(--bs-secondary-bg);
