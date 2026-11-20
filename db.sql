@@ -2446,6 +2446,26 @@ CREATE TABLE `order_items` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `password_history`
+--
+
+DROP TABLE IF EXISTS `password_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `password_history` (
+  `password_history_id` int(11) NOT NULL AUTO_INCREMENT,
+  `password_history_password` varchar(500) NOT NULL,
+  `password_history_set_at` datetime DEFAULT NULL,
+  `password_history_replaced_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `password_history_user_id` int(11) NOT NULL DEFAULT 0,
+  `password_history_credential_id` int(11) NOT NULL,
+  PRIMARY KEY (`password_history_id`),
+  KEY `password_history_credential_id` (`password_history_credential_id`),
+  CONSTRAINT `password_history_credential` FOREIGN KEY (`password_history_credential_id`) REFERENCES `credentials` (`credential_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `payment_methods`
 --
 

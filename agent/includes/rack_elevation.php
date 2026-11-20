@@ -13,6 +13,9 @@
  * A CSS grid with one row per U. Items on this face are placed by grid-row;
  * a full-depth item mounted on the OTHER face shows here as a hatched ghost,
  * because it fills this face too. Every U nothing fills is an "add here" slot.
+ * When it can be edited, the items on this face drag to another position and
+ * the bay takes what is dropped on it (agent/js/rack_drag.js) - the data-rack-*
+ * attributes are what that script reads.
  *
  * Should not be accessed directly.
  */
@@ -47,7 +50,7 @@ $elevation_rail = $elevation_descending ? range(1, $elevation_rack_units) : rang
             <?php } ?>
         </div>
 
-        <div class="itflow-rack-bay">
+        <div class="itflow-rack-bay"<?php if ($elevation_can_edit) { ?> data-rack-drop data-rack-face="<?= $elevation_face ?>" data-rack-units="<?= $elevation_rack_units ?>" data-rack-descending="<?= $elevation_descending ? 1 : 0 ?>"<?php } ?>>
             <?php
             // Empty U first so the items paint over the grid lines
             foreach ($elevation_rail as $u) {
@@ -76,8 +79,14 @@ $elevation_rail = $elevation_descending ? range(1, $elevation_rack_units) : rang
                     $block_classes .= ' is-archived';
                 }
                 $block_title = $block['name'] . ' - ' . html_entity_decode($block['position']) . ($block['meta'] ? " - {$block['meta']}" : '');
+                $block_drags = $elevation_can_edit && !$block['ghost'];
+                if ($block_drags) {
+                    $block_title .= ' - drag to move it';
+                }
                 ?>
-                <div class="<?= $block_classes ?>" style="grid-row: <?= $block_row ?> / span <?= $block['height'] ?>">
+                <div class="<?= $block_classes ?>" style="grid-row: <?= $block_row ?> / span <?= $block['height'] ?>"
+                    data-rack-unit="<?= $block['id'] ?>" data-rack-start="<?= $block['start'] ?>" data-rack-end="<?= $block['end'] ?>" data-rack-name="<?= $block['name'] ?>"
+                    <?php if ($block_drags) { ?>draggable="true" data-rack-drag="unit" data-rack-id="<?= $block['id'] ?>" data-rack-height="<?= $block['height'] ?>" data-rack-full="<?= $block['full_depth'] ? 1 : 0 ?>" data-rack-from="<?= $block['face'] ?>"<?php } ?>>
 
                     <?php if ($block['ghost']) { ?>
                         <div class="itflow-rack-item-body" title="<?= $block_title ?> - mounted on the <?= $elevation_other_face ?>, full depth">
@@ -89,7 +98,7 @@ $elevation_rail = $elevation_descending ? range(1, $elevation_rack_units) : rang
                     <?php } else {
                         // An asset opens its asset page; anything else opens its editor
                         if ($block['asset_id']) {
-                            $block_open = '<a class="itflow-rack-item-body" href="asset.php?client_id=' . $client_id . '&asset_id=' . $block['asset_id'] . '" title="' . $block_title . '">';
+                            $block_open = '<a class="itflow-rack-item-body" href="asset.php?client_id=' . $client_id . '&asset_id=' . $block['asset_id'] . '" title="' . $block_title . '" draggable="false">';
                             $block_close = '</a>';
                         } elseif ($elevation_can_edit) {
                             $block_open = '<button type="button" class="itflow-rack-item-body ajax-modal" data-modal-url="modals/rack/rack_device_edit.php?id=' . $block['id'] . '" title="' . $block_title . '">';

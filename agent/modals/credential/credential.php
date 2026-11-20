@@ -4,8 +4,10 @@
  * Credential quick look - opened from the credentials list, assets,
  * contacts, vendors, licenses, the client overview and search. The login
  * (username, the password on asking, the 2FA code, where it opens), how old
- * the password is and who last looked at it, what it belongs to and is
- * linked to, the notes, the share links still open, and its history.
+ * the password is and who last looked at it, whether another of the client's
+ * logins has the same password, what it belongs to and is linked to, the
+ * notes, the share links still open, its earlier passwords (still
+ * encrypted, shown on asking) and its history.
  * Anyone who may see credentials gets this; changing one takes edit rights.
  */
 
@@ -32,6 +34,10 @@ $last_viewed = credentialLastViewed($credential_id);
 $links = credentialLinks([$credential_id])[$credential_id];
 $shares = credentialShares([$credential_id])[$credential_id];
 $history = credentialHistory($credential_id, 8);
+$earlier = credentialPasswordHistory($credential_id);
+$can_delete = credentialCan(3);
+// The client's other logins with the same password - none for an archived one
+$reused = $credential_archived ? [] : (credentialReusedPasswords("credential_client_id = $client_id")[$credential_id] ?? []);
 $tags = tagsForRecord('credential', $credential_id);
 $has_otp = trim((string) $credential['credential_otp_secret']) !== '';
 $link_types = linkTypesFor('credential');
@@ -87,6 +93,20 @@ ob_start();
         <?php } ?>
         <?php if ($tags) { ?><span><?= tagPills('credential', $credential_id, $tags, "credentials.php?client_id=$client_id&", false) ?></span><?php } ?>
     </div>
+
+    <?php if ($reused) { ?>
+        <div class="alert alert-danger small py-2 mt-3 mb-0" data-credential-reused>
+            <i class="fas fa-clone me-1"></i>Same password as
+            <?php
+            $reused_links = [];
+            foreach ($reused as $reused_id => $reused_name) {
+                $reused_links[] = '<a class="ajax-modal alert-link" href="#" data-modal-url="modals/credential/credential.php?id=' . intval($reused_id) . '">' . escapeHtml($reused_name) . '</a>';
+            }
+            echo implode(', ', $reused_links);
+            ?>
+            - if one leaks, so do the others. Give each its own.
+        </div>
+    <?php } ?>
 
     <!-- What it belongs to and is linked to -->
     <?php if ($credential['asset_id'] || $credential['contact_id'] || $links || ($can_edit && $link_types)) { ?>
@@ -156,6 +176,34 @@ ob_start();
                 </li>
             <?php } ?>
         </ul>
+    <?php } ?>
+
+    <!-- Earlier passwords, newest first: kept encrypted, shown on asking -->
+    <?php if ($earlier) { ?>
+        <details class="mt-3" data-credential-earlier>
+            <summary class="small text-body-secondary fw-semibold text-uppercase">Earlier passwords <span class="badge rounded-pill text-bg-light border fw-normal ms-1"><?= count($earlier) ?></span></summary>
+            <ul class="list-unstyled small mt-2 mb-0">
+                <?php foreach ($earlier as $old) {
+                    $old_id = intval($old['password_history_id']);
+                    $old_from = $old['password_history_set_at'] ? date('Y-m-d', strtotime($old['password_history_set_at'])) : '';
+                    $old_to = date('Y-m-d', strtotime($old['password_history_replaced_at'])); ?>
+                    <li class="d-flex flex-wrap align-items-center gap-2 py-1 border-bottom">
+                        <?= credentialPasswordHtml($credential_id, $old_id) ?>
+                        <span class="text-body-secondary flex-grow-1" title="Replaced <?= escapeHtml($old['password_history_replaced_at']) ?>">
+                            <?= $old_from ? escapeHtml($old_from) . ' to ' : 'Until ' ?><?= escapeHtml($old_to) ?><?= $old['user_name'] ? ', changed by ' . escapeHtml($old['user_name']) : '' ?>
+                        </span>
+                        <?php if ($can_edit) { ?>
+                            <a class="btn btn-sm btn-link p-0 confirm-link" href="post.php?restore_credential_password=<?= $old_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                data-confirm-text="This makes it the password again. The one it has now goes under Earlier passwords." title="Make this the password again">Put back</a>
+                        <?php } ?>
+                        <?php if ($can_delete) { ?>
+                            <a class="btn btn-sm btn-link p-0 text-danger confirm-link" href="post.php?delete_credential_password_history=<?= $old_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                data-confirm-text="This earlier password goes for good." title="Delete this earlier password"><i class="fas fa-fw fa-trash"></i></a>
+                        <?php } ?>
+                    </li>
+                <?php } ?>
+            </ul>
+        </details>
     <?php } ?>
 
     <!-- History -->

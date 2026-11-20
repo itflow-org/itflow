@@ -6,7 +6,8 @@
  * the username, the password and 2FA code on asking, where it opens - what
  * it is for (asset, contact, vendors, licenses), and how old the password is.
  * The pills along the top count and filter the ones to look at: no 2FA,
- * due for a change, shared out.
+ * due for a change, a password another of the client's logins also has,
+ * shared out.
  *
  * Passwords and codes are never in the page; js/credentials.js fetches them
  * when asked for, and agent/ajax.php logs each view.
@@ -66,6 +67,10 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
     $tag_query = '';
 }
 
+// Passwords two or more of a client's logins share - worked out over everything in scope, not just this page
+$reused = $archived ? [] : credentialReusedPasswords("1 = 1 " . clientScopeSql('credential_client_id') . " $client_query");
+$reused_where = $reused ? 'c.credential_id IN (' . implode(',', array_keys($reused)) . ')' : '1 = 0';
+
 // Which ones - the pills along the top
 $rotate_days = CREDENTIAL_ROTATE_DAYS;
 $shows = [
@@ -74,6 +79,7 @@ $shows = [
     'otp' => ['label' => 'With 2FA', 'icon' => 'fa-clock', 'where' => "c.credential_otp_secret <> ''"],
     'nootp' => ['label' => 'No 2FA', 'icon' => 'fa-unlock', 'where' => "(c.credential_otp_secret IS NULL OR c.credential_otp_secret = '')"],
     'due' => ['label' => "Not changed in $rotate_days days", 'icon' => 'fa-history', 'where' => "(c.credential_password_changed_at IS NULL OR c.credential_password_changed_at < NOW() - INTERVAL $rotate_days DAY)"],
+    'reused' => ['label' => 'Reused password', 'icon' => 'fa-clone', 'where' => $reused_where, 'title' => 'No two of these logins share a password.'],
     'shared' => ['label' => 'Shared', 'icon' => 'fa-share-alt', 'where' => "c.credential_id IN (SELECT item_related_id FROM shared_items WHERE item_type = 'Credential' AND " . shareOpenSql() . ")"],
 ];
 $show = isset($shows[$_GET['show'] ?? '']) ? ($_GET['show'] ?? '') : '';
@@ -299,7 +305,7 @@ $filter_url = function ($changes) use ($client_url) {
             <?php foreach ($shows as $key => $s) { ?>
                 <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $key])) ?>">
                     <?php if (!empty($s['icon'])) { ?><i class="fas fa-fw <?= $s['icon'] ?> me-1"></i><?php } ?><?= $s['label'] ?>
-                    <span class="badge rounded-pill ms-1 <?= $key === 'due' && $counts[$key] ? 'text-bg-warning' : '' ?>"><?= $counts[$key] ?></span>
+                    <span class="badge rounded-pill ms-1 <?= $key === 'due' && $counts[$key] ? 'text-bg-warning' : ($key === 'reused' && $counts[$key] ? 'text-bg-danger' : '') ?>"><?= $counts[$key] ?></span>
                 </a>
             <?php } ?>
         </nav>
@@ -371,6 +377,7 @@ $filter_url = function ($changes) use ($client_url) {
                                 <div class="min-w-0">
                                     <a class="fw-semibold text-body ajax-modal" href="#" data-modal-url="<?= $quick_url ?>"><?= $credential_name ?></a>
                                     <?php if ($credential_favorite) { ?><i class="fas fa-star text-warning small ms-1" title="Starred"></i><?php } ?>
+                                    <?php if (isset($reused[$credential_id])) { ?><span class="ms-1"><?= credentialReusedPill($reused[$credential_id]) ?></span><?php } ?>
                                     <?php if ($credential_shares) { ?><span class="badge rounded-pill bg-info-subtle text-info-emphasis fw-normal ms-1" title="Shared with <?= escapeHtml(implode(', ', array_filter(array_column($credential_shares, 'item_recipient'))) ?: 'a link') ?>"><i class="fas fa-share-alt me-1"></i>Shared</span><?php } ?>
                                     <?php if ($credential_archived_at) { ?><span class="badge rounded-pill text-bg-secondary fw-normal ms-1">Archived</span><?php } ?>
                                     <?php if ($credential_description) { ?>
@@ -475,7 +482,7 @@ $filter_url = function ($changes) use ($client_url) {
         'icon' => 'fa-key',
         'filtered' => $q || $tag_query,
         'views' => ['show'],
-        'view' => emptyStatePill($shows, $show, '', ['nootp', 'due']),
+        'view' => emptyStatePill($shows, $show, '', ['nootp', 'due', 'reused']),
         'text' => 'The logins for their systems, encrypted in the vault.',
         'actions' => $can_edit ? array_merge(
             [['label' => 'New Credential', 'modal' => "modals/credential/credential_add.php?$client_url", 'size' => 'lg']],

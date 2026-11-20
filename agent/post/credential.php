@@ -98,8 +98,13 @@ if (isset($_POST['edit_credential'])) {
         redirect();
     }
 
-    // Changed password - record when, for the rotation report and the age shown everywhere
-    $password_changed = trim((string) ($_POST['password'] ?? '')) !== (string) decryptCredentialEntry($row['credential_password']);
+    // Changed password - record when, for the rotation report and the age shown everywhere,
+    // and keep the one it had under Earlier passwords
+    $old_password = (string) decryptCredentialEntry($row['credential_password']);
+    $password_changed = trim((string) ($_POST['password'] ?? '')) !== $old_password;
+    if ($password_changed && $old_password !== '') {
+        credentialPasswordKeep($row);
+    }
 
     mysqli_query($mysqli, "UPDATE credentials SET $set" . ($password_changed ? ", credential_password_changed_at = NOW()" : '') . " WHERE credential_id = $credential_id");
 
@@ -140,11 +145,79 @@ if (isset($_POST['rotate_credential'])) {
         redirect();
     }
 
+    // The one it had goes under Earlier passwords
+    $old_password = (string) decryptCredentialEntry($row['credential_password']);
+    if ($old_password !== '' && $old_password !== $password) {
+        credentialPasswordKeep($row);
+    }
+
     mysqli_query($mysqli, "UPDATE credentials SET credential_password = '" . escapeSql($encrypted) . "', credential_password_changed_at = NOW() WHERE credential_id = $credential_id");
 
     logAudit("Credential", "Rotate", "$session_name changed the password on credential " . escapeSql($row['credential_name']), $client_id, $credential_id);
 
     flashAlert("Password changed on <strong>{$row['credential_name']}</strong>");
+
+    redirect();
+
+}
+
+// An earlier password made the password again - when a change broke something.
+// The one it has now goes under Earlier passwords in its place
+if (isset($_GET['restore_credential_password'])) {
+
+    validateCSRFToken();
+
+    $history = credentialPasswordHistoryRow($_GET['restore_credential_password']);
+    if (!$history) {
+        flashAlert('That earlier password is no longer kept.', 'error');
+        redirect();
+    }
+    $row = credentialForRequest($history['credential_id'], 2);
+    $credential_id = intval($row['credential_id']);
+
+    if (!empty($row['credential_archived_at'])) {
+        flashAlert('Restore the credential first.', 'error');
+        redirect();
+    }
+
+    $current = decryptCredentialEntry($row['credential_password']);
+    if ($current === false) {
+        flashAlert('Your vault session has expired - sign out and back in, then try again.', 'error');
+        redirect();
+    }
+    if ((string) $current !== '' && $current !== decryptCredentialEntry($history['password_history_password'])) {
+        credentialPasswordKeep($row);
+    }
+
+    mysqli_query($mysqli, "UPDATE credentials SET credential_password = '" . escapeSql($history['password_history_password']) . "', credential_password_changed_at = NOW() WHERE credential_id = $credential_id");
+    mysqli_query($mysqli, "DELETE FROM password_history WHERE password_history_id = " . intval($history['password_history_id']));
+
+    logAudit("Credential", "Rotate", "$session_name put back an earlier password on credential " . escapeSql($row['credential_name']), $client_id, $credential_id);
+
+    flashAlert("The earlier password is back on <strong>{$row['credential_name']}</strong>");
+
+    redirect();
+
+}
+
+// An earlier password that shouldn't be kept, gone for good
+if (isset($_GET['delete_credential_password_history'])) {
+
+    validateCSRFToken();
+
+    $history = credentialPasswordHistoryRow($_GET['delete_credential_password_history']);
+    if (!$history) {
+        flashAlert('That earlier password is no longer kept.', 'error');
+        redirect();
+    }
+    $row = credentialForRequest($history['credential_id'], 3);
+    $credential_id = intval($row['credential_id']);
+
+    mysqli_query($mysqli, "DELETE FROM password_history WHERE password_history_id = " . intval($history['password_history_id']));
+
+    logAudit("Credential", "Delete", "$session_name deleted an earlier password of credential " . escapeSql($row['credential_name']), $client_id, $credential_id);
+
+    flashAlert("Earlier password deleted from <strong>{$row['credential_name']}</strong>", 'error');
 
     redirect();
 

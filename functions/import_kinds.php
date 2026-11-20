@@ -781,9 +781,14 @@ function importCredentialRow(array $row, $client_id, $existing_id, $write) {
             }
         }
         if (isset($post['password'])) {
-            $before = mysqli_fetch_row(mysqli_query($mysqli, "SELECT credential_password FROM credentials WHERE credential_id = $id"))[0] ?? '';
-            if (decryptCredentialEntry((string) $before) !== $post['password']) {
+            $before = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT credential_id, credential_password, credential_password_changed_at FROM credentials WHERE credential_id = $id")) ?: [];
+            $before_password = (string) decryptCredentialEntry((string) ($before['credential_password'] ?? ''));
+            if ($before_password !== $post['password']) {
                 $set[] = 'credential_password_changed_at = NOW()';
+                // The one it had goes under Earlier passwords
+                if ($before_password !== '') {
+                    credentialPasswordKeep($before);
+                }
             }
         }
         foreach (['favorite', 'asset', 'contact'] as $key) {

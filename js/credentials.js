@@ -7,7 +7,8 @@
  * Nothing secret is in the page until it is asked for: the eye and the copy
  * button fetch the password from agent/ajax.php (get_credential_via_id), the
  * 2FA button fetches the current code (get_totp_token_via_id) - both check the
- * module and the client and log the view.
+ * module and the client and log the view. A box with data-credential-history
+ * is one of the credential's earlier passwords, fetched the same way.
  */
 
 (function () {
@@ -16,8 +17,12 @@
     var SHOW_FOR = 30000;
     var OTP_ROUNDS = 6;
 
-    function fetchCredential(id, done) {
-        itflowGet('/agent/ajax.php', { get_credential_via_id: 'true', credential_id: id }, function (data) {
+    function fetchCredential(box, done) {
+        var params = { get_credential_via_id: 'true', credential_id: box.dataset.credentialId };
+        if (box.dataset.credentialHistory) {
+            params.history_id = box.dataset.credentialHistory;
+        }
+        itflowGet('/agent/ajax.php', params, function (data) {
             var credential = null;
             try {
                 credential = JSON.parse(data);
@@ -56,7 +61,7 @@
             hidePassword(box);
             return;
         }
-        fetchCredential(box.dataset.credentialId, function (credential) {
+        fetchCredential(box, function (credential) {
             value.textContent = credential.password || '';
             value.hidden = false;
             box.querySelector('.itflow-credential-pw-mask').hidden = true;
@@ -78,7 +83,7 @@
         if (!box) {
             return;
         }
-        fetchCredential(box.dataset.credentialId, function (credential) {
+        fetchCredential(box, function (credential) {
             itflowCopyText(credential.password || '', button).then(
                 function () { flashTooltip(button, 'Copied!'); },
                 function () { flashTooltip(button, 'Failed!'); }

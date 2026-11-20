@@ -466,3 +466,70 @@ function assetQuickRecord($asset_id, $field) {
     }
     return $record;
 }
+
+/**
+ * An asset's details as plain text, a "Label: value" line each, for pasting
+ * into a vendor's support case or an email: what it is, its serial, OS,
+ * details, address on the network, warranty and dates, and where it is down
+ * to the rack. Only what is filled in. Raw text - escape it to put it in a page.
+ */
+function assetDetailsText($asset_id) {
+    global $mysqli;
+    $asset_id = intval($asset_id);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT asset_name, asset_type, asset_description, asset_make, asset_model, asset_serial, asset_os,
+            asset_purchase_date, asset_purchase_reference, asset_warranty_expire, asset_install_date, asset_physical_location, asset_client_id,
+            client_name, location_name, location_address, location_city, location_state, location_zip, location_country,
+            contact_name, vendor_name, interface_ip, interface_ipv6, interface_mac
+        FROM assets
+        LEFT JOIN clients ON client_id = asset_client_id
+        LEFT JOIN locations ON location_id = asset_location_id AND location_client_id = asset_client_id
+        LEFT JOIN contacts ON contact_id = asset_contact_id AND contact_client_id = asset_client_id
+        LEFT JOIN vendors ON vendor_id = asset_vendor_id
+        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
+        WHERE asset_id = $asset_id
+        LIMIT 1"));
+    if (!$row) {
+        return '';
+    }
+
+    $lines = [];
+    $add = function ($label, $value) use (&$lines) {
+        $value = trim(preg_replace('/\s+/', ' ', (string) $value));
+        if ($value !== '' && strpos($value, '0000-00-00') !== 0) {
+            $lines[] = "$label: $value";
+        }
+    };
+
+    $lines[] = trim($row['asset_name']) . (trim($row['asset_type']) !== '' ? ' (' . trim($row['asset_type']) . ')' : '');
+    $add('Description', $row['asset_description']);
+    $add('Make / model', $row['asset_make'] . ' ' . $row['asset_model']);
+    $add('Serial', $row['asset_serial']);
+    $add(assetTypeOsLabel($row['asset_type']), $row['asset_os']);
+    foreach (assetSpecRows($row['asset_type'], assetSpecs($asset_id), intval($row['asset_client_id'])) as $spec_row) {
+        $add($spec_row['label'], $spec_row['text']);
+    }
+    $add('IP', $row['interface_ip']);
+    $add('IPv6', $row['interface_ipv6']);
+    $add('MAC', $row['interface_mac']);
+    $warranty = assetWarranty($row['asset_warranty_expire']);
+    if ($warranty) {
+        $add('Warranty', ($warranty['days'] < 0 ? 'expired ' : 'until ') . $warranty['date']);
+    }
+    $add('Purchased', $row['asset_purchase_date']);
+    $add('Order ref', $row['asset_purchase_reference']);
+    $add('Installed', $row['asset_install_date']);
+    $add('Vendor', $row['vendor_name']);
+    $add('Client', $row['client_name']);
+    $add('Site', implode(', ', array_filter(array_map('trim', [
+        $row['location_name'], $row['location_address'], $row['location_city'],
+        trim($row['location_state'] . ' ' . $row['location_zip']), $row['location_country'],
+    ]))));
+    $add('In the building', $row['asset_physical_location']);
+    $rack = rackPositionForAsset($asset_id);
+    if ($rack) {
+        $add('Rack', $rack['rack_name'] . ', ' . html_entity_decode(rackPositionLabel($rack['unit_start_number'], $rack['unit_end_number'])) . ' (' . $rack['unit_face'] . ')');
+    }
+    $add('Used by', $row['contact_name']);
+
+    return implode("\n", $lines);
+}

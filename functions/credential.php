@@ -22,6 +22,9 @@ const CREDENTIAL_ROTATE_DAYS = 90;
 /** Changed within this many days is fresh; between this and a year, due; over a year, overdue. */
 const CREDENTIAL_OVERDUE_DAYS = 365;
 
+/** How many earlier passwords each credential keeps - the newest. */
+const CREDENTIAL_PASSWORD_HISTORY_KEEP = 10;
+
 /** May this agent do this with credentials? 1 is to see them (and reveal, copy and share), 2 to change them, 3 to delete them. */
 function credentialCan($level) {
     return lookupUserPermission('module_credential') >= $level;
@@ -227,12 +230,15 @@ function credentialUsernameHtml($username, $empty = '-') {
 /**
  * The password as dots, with an eye that fetches and shows it for a little
  * while and a copy button that fetches and copies it - both logged as a view
- * by agent/ajax.php. Nothing secret is in the page until asked for.
+ * by agent/ajax.php. Nothing secret is in the page until asked for. The same
+ * for an earlier password, given its password_history id.
  */
-function credentialPasswordHtml($credential_id) {
+function credentialPasswordHtml($credential_id, $history_id = 0) {
     $credential_id = intval($credential_id);
-    // Copying is the point here, so its copy button shows all the time (.itflow-copy-always)
-    return '<span class="itflow-credential-pw itflow-copy-always" data-credential-id="' . $credential_id . '">'
+    $history_id = intval($history_id);
+    // Copying is the point here, so its copy button shows all the time (.itflow-copy-always).
+    // With $history_id it is one of the credential's earlier passwords (credentialPasswordHistory())
+    return '<span class="itflow-credential-pw itflow-copy-always" data-credential-id="' . $credential_id . '"' . ($history_id ? ' data-credential-history="' . $history_id . '"' : '') . '>'
         . '<span class="itflow-credential-pw-mask" aria-hidden="true">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</span>'
         . '<span class="itflow-credential-pw-value font-monospace" hidden></span>'
         . '<button type="button" class="itflow-credential-reveal" title="Show password" aria-label="Show password" aria-pressed="false"><i class="fas fa-eye"></i></button>'
@@ -490,4 +496,141 @@ function credentialDeleteForGood($credential_id) {
     $credential_id = intval($credential_id);
     mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_type = 'Credential' AND item_related_id = $credential_id");
     mysqli_query($mysqli, "DELETE FROM credentials WHERE credential_id = $credential_id");
+}
+
+/**
+ * Is password_history there yet (database update 4.0.4)? Until it is, no
+ * earlier passwords are kept or shown.
+ */
+function credentialPasswordHistoryReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '4.0.4', '>=');
+    }
+    return $ready;
+}
+
+/**
+ * A credential's password is about to be replaced - keep the one it has as
+ * an earlier password: the encrypted value as it is stored (it stays
+ * encrypted, with the same vault key) and when it was set, with who replaced
+ * it. Only the newest CREDENTIAL_PASSWORD_HISTORY_KEEP are kept. $row is the
+ * credential as it is now (credentialRow()); call this before the update, and
+ * only when the password really changes and was not empty.
+ */
+function credentialPasswordKeep(array $row) {
+    global $mysqli;
+    $credential_id = intval($row['credential_id'] ?? 0);
+    $ciphertext = (string) ($row['credential_password'] ?? '');
+    if (!$credential_id || $ciphertext === '' || !credentialPasswordHistoryReady()) {
+        return;
+    }
+    $set_at = trim((string) ($row['credential_password_changed_at'] ?? ''));
+    $set_sql = $set_at !== '' && strpos($set_at, '0000-00-00') !== 0 ? "'" . escapeSql($set_at) . "'" : 'NULL';
+    $user_id = intval($GLOBALS['session_user_id'] ?? 0);
+
+    mysqli_query($mysqli, "INSERT INTO password_history SET password_history_password = '" . escapeSql($ciphertext) . "',
+        password_history_set_at = $set_sql, password_history_user_id = $user_id, password_history_credential_id = $credential_id");
+
+    // The oldest past the ones kept go
+    $keep = CREDENTIAL_PASSWORD_HISTORY_KEEP;
+    $oldest_kept = mysqli_fetch_row(mysqli_query($mysqli, "SELECT password_history_id FROM password_history
+        WHERE password_history_credential_id = $credential_id
+        ORDER BY password_history_id DESC LIMIT 1 OFFSET " . ($keep - 1)));
+    if ($oldest_kept) {
+        mysqli_query($mysqli, "DELETE FROM password_history WHERE password_history_credential_id = $credential_id AND password_history_id < " . intval($oldest_kept[0]));
+    }
+}
+
+/**
+ * A credential's earlier passwords, newest first: each one's id, when it was
+ * set and replaced, and who replaced it. The passwords stay encrypted - they
+ * are fetched one at a time when asked for (agent/ajax.php), like the current
+ * one. [] before the update.
+ */
+function credentialPasswordHistory($credential_id) {
+    global $mysqli;
+    $credential_id = intval($credential_id);
+    if (!$credential_id || !credentialPasswordHistoryReady()) {
+        return [];
+    }
+    $sql = mysqli_query($mysqli, "SELECT password_history_id, password_history_set_at, password_history_replaced_at, user_name
+        FROM password_history
+        LEFT JOIN users ON user_id = password_history_user_id AND password_history_user_id > 0
+        WHERE password_history_credential_id = $credential_id
+        ORDER BY password_history_id DESC");
+    $rows = [];
+    while ($sql && $row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/** One earlier password with its credential's id and client - raw, or null. */
+function credentialPasswordHistoryRow($history_id) {
+    global $mysqli;
+    $history_id = intval($history_id);
+    if (!$history_id || !credentialPasswordHistoryReady()) {
+        return null;
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT password_history.*, credential_id, credential_name, credential_client_id, credential_archived_at
+        FROM password_history
+        JOIN credentials ON credential_id = password_history_credential_id
+        WHERE password_history_id = $history_id
+        LIMIT 1"));
+    return $row ?: null;
+}
+
+/**
+ * Which credentials share their password with another of the same client's:
+ * [credential_id => [other credential_id => its name, ...]], only for the
+ * ones that do. It compares the passwords themselves, so it decrypts each one
+ * in $where with the agent's vault key - nothing is kept, logged or put in
+ * the page but which ones match. Archived credentials and empty passwords are
+ * left out. $where is SQL on credentials that the caller built: the client,
+ * the agent's client scope. [] when the vault did not open.
+ */
+function credentialReusedPasswords($where) {
+    global $mysqli;
+    $groups = [];
+    $sql = mysqli_query($mysqli, "SELECT credential_id, credential_name, credential_client_id, credential_password FROM credentials
+        WHERE credential_archived_at IS NULL AND credential_password IS NOT NULL AND credential_password <> '' AND ($where)");
+    while ($sql && $row = mysqli_fetch_assoc($sql)) {
+        $password = decryptCredentialEntry($row['credential_password']);
+        if ($password === false || $password === '') {
+            continue;
+        }
+        $groups[intval($row['credential_client_id']) . ':' . hash('sha256', $password)][intval($row['credential_id'])] = $row['credential_name'];
+    }
+    unset($password);
+    $reused = [];
+    foreach ($groups as $group) {
+        if (count($group) < 2) {
+            continue;
+        }
+        foreach ($group as $id => $name) {
+            $others = $group;
+            unset($others[$id]);
+            $reused[$id] = $others;
+        }
+    }
+    return $reused;
+}
+
+/** "Same password as Firewall admin and 2 more" - a reused-password pill for a credential, '' when it isn't. $others from credentialReusedPasswords(). */
+function credentialReusedPill(array $others) {
+    if (!$others) {
+        return '';
+    }
+    $names = array_values($others);
+    $title = 'Same password as ' . (count($names) <= 3 ? implode(', ', $names) : implode(', ', array_slice($names, 0, 3)) . ' and ' . (count($names) - 3) . ' more') . ' - change one of them';
+    return '<span class="badge rounded-pill bg-danger-subtle text-danger-emphasis border border-danger-subtle fw-normal" title="' . escapeHtml($title) . '" data-credential-reused>'
+        . '<i class="fas fa-clone me-1"></i>Reused</span>';
 }

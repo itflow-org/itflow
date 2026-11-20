@@ -9,6 +9,8 @@
  * gap a full-depth item could still go in, power against the budget), the
  * rack's details and photos, the item list for print and search, the
  * client's network gear that isn't racked anywhere yet, and its history.
+ * Items drag to another position, and the gear not racked yet drags onto
+ * the rack (agent/js/rack_drag.js, move_rack_unit in agent/post/rack.php).
  */
 
 require_once "includes/inc_all_client.php";
@@ -174,7 +176,7 @@ if (mysqli_num_rows($sql) == 0) {
                     <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-columns me-2 text-secondary"></i>Elevation</h3>
                     <span class="small text-body-secondary d-print-none">
                         <?php if ($can_edit && !$rack_archived_at) { ?>
-                            Click an empty U to add something there
+                            Click an empty U to add something there, or drag an item to move it
                         <?php } ?>
                     </span>
                 </div>
@@ -358,6 +360,37 @@ if (mysqli_num_rows($sql) == 0) {
                 </div>
             </div>
 
+            <!-- Not racked yet - near the top, to drag from -->
+            <?php if ($unracked_assets) { ?>
+                <div class="card mb-3 d-print-none">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0"><i class="fas fa-fw fa-dolly me-2 text-secondary"></i>Not racked yet</h3>
+                        <div class="small text-body-secondary mt-1">Drag one onto the rack where it goes, or use Rack it</div>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($unracked_assets as $unracked) {
+                            $unracked_id = intval($unracked['asset_id']);
+                            $unracked_style = rackItemStyle($unracked['asset_type'], '', true);
+                            $unracked_fit = rackAssetDefaults($unracked['asset_type']);
+                            ?>
+                            <div class="list-group-item d-flex align-items-center gap-2 itflow-rack-unracked" draggable="true" data-rack-drag="asset" data-rack-id="<?= $unracked_id ?>"
+                                data-rack-height="<?= $unracked_fit['height'] ?>" data-rack-full="<?= $unracked_fit['full_depth'] ?>" title="Drag onto the rack">
+                                <i class="fas fa-grip-vertical text-body-secondary small" aria-hidden="true"></i>
+                                <span class="itflow-rack-chip itflow-rack-tone-<?= $unracked_style['tone'] ?>"><i class="fas fa-fw <?= $unracked_style['icon'] ?>"></i></span>
+                                <div class="min-w-0 flex-grow-1">
+                                    <div class="text-truncate fw-semibold small"><?= escapeHtml($unracked['asset_name']) ?></div>
+                                    <div class="text-truncate small text-body-secondary"><?= escapeHtml(trim($unracked['asset_make'] . ' ' . $unracked['asset_model'])) ?: escapeHtml($unracked['asset_type']) ?></div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary ajax-modal flex-shrink-0"
+                                    data-modal-url="modals/rack/rack_device_add.php?id=<?= $rack_id ?>&asset_id=<?= $unracked_id ?>">
+                                    Rack it
+                                </button>
+                            </div>
+                        <?php } ?>
+                    </div>
+                </div>
+            <?php } ?>
+
             <div class="card mb-3">
                 <div class="card-header">
                     <h3 class="card-title mb-0"><i class="fas fa-fw fa-info-circle me-2 text-secondary"></i>Details</h3>
@@ -415,32 +448,6 @@ if (mysqli_num_rows($sql) == 0) {
                 </div>
             <?php } ?>
 
-            <?php if ($unracked_assets) { ?>
-                <div class="card mb-3 d-print-none">
-                    <div class="card-header">
-                        <h3 class="card-title mb-0"><i class="fas fa-fw fa-dolly me-2 text-secondary"></i>Not racked yet</h3>
-                    </div>
-                    <div class="list-group list-group-flush">
-                        <?php foreach ($unracked_assets as $unracked) {
-                            $unracked_id = intval($unracked['asset_id']);
-                            $unracked_style = rackItemStyle($unracked['asset_type'], '', true);
-                            ?>
-                            <div class="list-group-item d-flex align-items-center gap-2">
-                                <span class="itflow-rack-chip itflow-rack-tone-<?= $unracked_style['tone'] ?>"><i class="fas fa-fw <?= $unracked_style['icon'] ?>"></i></span>
-                                <div class="min-w-0 flex-grow-1">
-                                    <div class="text-truncate fw-semibold small"><?= escapeHtml($unracked['asset_name']) ?></div>
-                                    <div class="text-truncate small text-body-secondary"><?= escapeHtml(trim($unracked['asset_make'] . ' ' . $unracked['asset_model'])) ?: escapeHtml($unracked['asset_type']) ?></div>
-                                </div>
-                                <button type="button" class="btn btn-sm btn-outline-primary ajax-modal flex-shrink-0"
-                                    data-modal-url="modals/rack/rack_device_add.php?id=<?= $rack_id ?>&asset_id=<?= $unracked_id ?>">
-                                    Rack it
-                                </button>
-                            </div>
-                        <?php } ?>
-                    </div>
-                </div>
-            <?php } ?>
-
             <!-- History, from the audit log -->
             <div class="d-print-none">
                 <?= auditLogHistoryCard(auditLogHistory('Rack', $rack_id, 10), ['client_id' => $client_id]) ?>
@@ -449,6 +456,17 @@ if (mysqli_num_rows($sql) == 0) {
         </div>
 
     </div>
+
+    <?php if ($can_edit && !$rack_archived_at) { ?>
+        <form id="rackMoveForm" action="post.php" method="post" hidden>
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+            <input type="hidden" name="move_rack_unit" value="1">
+            <input type="hidden" name="unit_id">
+            <input type="hidden" name="unit_start">
+            <input type="hidden" name="face">
+        </form>
+        <script src="<?= staticFileUrl('/agent/js/rack_drag.js') ?>" data-rack-id="<?= $rack_id ?>"></script>
+    <?php } ?>
 
 <?php
 }

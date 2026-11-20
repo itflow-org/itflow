@@ -2963,6 +2963,24 @@ if (isset($_GET['get_credential_via_id'])) {
 
     enforceClientAccess($client_id);
 
+    // One of its earlier passwords (the credential quick look's Earlier passwords) - logged apart from views of the current one
+    $history_id = intval($_GET['history_id'] ?? 0);
+    if ($history_id) {
+        $history = credentialPasswordHistoryRow($history_id);
+        if (!$history || intval($history['credential_id']) !== $credential_id) {
+            echo json_encode(['error' => 'That earlier password is no longer kept.']);
+            exit;
+        }
+        echo json_encode(['password' => decryptCredentialEntry($history['password_history_password'])]);
+        $what = "$session_name viewed an earlier password of credential $name";
+        $recent = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(log_id) FROM logs WHERE log_type = 'Credential' AND log_action = 'View' AND log_user_id = $session_user_id AND log_entity_id = $credential_id
+            AND log_description = '" . escapeSql($what) . "' AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
+        if (!intval($recent[0])) {
+            logAudit("Credential", "View", $what, $client_id, $credential_id);
+        }
+        exit;
+    }
+
     $response = array(
         'username' => decryptCredentialEntry($sql['credential_username']),
         'password' => decryptCredentialEntry($sql['credential_password'])

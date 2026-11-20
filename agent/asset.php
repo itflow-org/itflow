@@ -324,6 +324,9 @@ if (mysqli_num_rows($sql) == 0) {
                         <i class="<?= assetLinkIcon($link_url) ?> me-2"></i><?= escapeHtml(assetLinkLabel($link_url)) ?><?= $link_label === 'Client link' ? ' (client)' : '' ?>
                     </a>
                 <?php } ?>
+                <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-text="<?= escapeHtml(assetDetailsText($asset_id)) ?>" title="Copy its make, serial, OS, address, warranty and where it is as text - for a vendor's support case or an email">
+                    <i class="far fa-clipboard me-2"></i>Copy details
+                </button>
                 <?php if ($can_edit) { ?>
                     <div class="dropdown">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-plus me-2"></i>New</button>

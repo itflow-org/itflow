@@ -3863,6 +3863,41 @@ button.itflow-rack-item-body:hover {
     cursor: default;
 }
 
+/* Dragging kit into place (agent/js/rack_drag.js): where it would go, red
+   where something is in the way, and the item being moved faded */
+.itflow-rack-item[draggable="true"] {
+    cursor: grab;
+}
+.itflow-rack-item.is-dragging,
+.itflow-rack-unracked.is-dragging {
+    opacity: .45;
+}
+.itflow-rack-unracked[draggable="true"] {
+    cursor: grab;
+}
+.itflow-rack-drop {
+    z-index: 2;
+    grid-column: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1px 2px;
+    border: 2px dashed rgba(117, 214, 157, .9);
+    border-radius: .3rem;
+    background-color: rgba(117, 214, 157, .18);
+    font-family: var(--bs-font-monospace);
+    font-size: .7rem;
+    color: #fff;
+    pointer-events: none;
+}
+.itflow-rack-drop.is-blocked {
+    border-color: rgba(240, 110, 110, .95);
+    background-color: rgba(240, 110, 110, .22);
+}
+.itflow-rack-dragging .itflow-rack-slot {
+    border-color: rgba(255, 255, 255, .12);
+}
+
 /* Tones - the faceplate colour of each kind of kit, shared by the elevation,
    the mini racks on the listing, the list chips and the legend */
 .itflow-rack-tone-server { background: linear-gradient(180deg, #3d72bb, #2c5891); }

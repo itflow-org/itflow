@@ -4,7 +4,8 @@
  * Change a credential's password - the rotation every MSP owes its clients.
  * Make one up (a passphrase, or random characters), copy it to set it on
  * the device or site, and save it: the password and the date it changed are
- * updated and the change is logged. Nothing else about the credential moves.
+ * updated and the change is logged, and the old one is kept under Earlier
+ * passwords. Nothing else about the credential moves.
  */
 
 require_once '../../../includes/modal_header.php';
@@ -55,7 +56,7 @@ ob_start();
                 <a class="dropdown-item" href="#" data-rotate-generate="32"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 32 characters</a>
             </div>
         </div>
-        <div class="form-text">Set it on the device or site first, then save it here - the old one is gone once you do.</div>
+        <div class="form-text">Set it on the device or site first, then save it here.<?= credentialPasswordHistoryReady() ? ' The old one is kept under Earlier passwords on its quick look, in case something still uses it.' : ' The old one is gone once you do.' ?></div>
     </div>
     <div class="modal-footer">
         <button type="submit" name="rotate_credential" class="btn btn-primary text-bold" <?= $vault_open ? '' : 'disabled' ?>><i class="fa fa-check me-2"></i>Save new password</button>

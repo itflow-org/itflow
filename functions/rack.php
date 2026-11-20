@@ -324,6 +324,19 @@ function rackUnitView(array $row) {
     ];
 }
 
+/**
+ * How an asset of this type usually goes in a rack, to start the Add window
+ * from: ['height' => U, 'full_depth' => 0|1]. A server, NAS or UPS takes 2U;
+ * an access point, firewall, modem or PDU is usually half depth.
+ */
+function rackAssetDefaults($asset_type) {
+    $asset_type = (string) $asset_type;
+    return [
+        'height' => in_array($asset_type, ['Server', 'NAS', 'UPS'], true) ? 2 : 1,
+        'full_depth' => in_array($asset_type, ['Access Point', 'Firewall/Router', 'Modem/ONT', 'PDU'], true) ? 0 : 1,
+    ];
+}
+
 /** Where an asset is racked: the rack and its position, or null. Raw values. */
 function rackPositionForAsset($asset_id) {
     global $mysqli;
