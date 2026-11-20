@@ -383,8 +383,8 @@ $filter_url = function ($changes) use ($client_url) {
                                     <?php if ($credential_description) { ?>
                                         <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $credential_description ?>"><?= $credential_description ?></div>
                                     <?php } ?>
-                                    <?php if ($credential_tags) { ?>
-                                        <div class="mt-1"><?= tagPills('credential', $credential_id, $credential_tags, "credentials.php?$client_url") ?></div>
+                                    <?php if ($credential_tags || $can_edit) { ?>
+                                        <div class="itflow-tags-row mt-1"><?= tagPills('credential', $credential_id, $credential_tags, "credentials.php?$client_url") ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -433,6 +433,7 @@ $filter_url = function ($changes) use ($client_url) {
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('credential', $credential_id) ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/credential/credential_rotate.php?id=<?= $credential_id ?>">
                                             <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Change password
                                         </a>

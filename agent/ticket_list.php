@@ -196,9 +196,9 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                                         <span class="text-nowrap" title="Related to <?= $link_counts[$ticket_id] ?> other ticket<?= $link_counts[$ticket_id] === 1 ? '' : 's' ?>"><i class="fas fa-link me-1"></i><?= $link_counts[$ticket_id] ?></span>
                                     <?php } ?>
                                 </div>
-                                <?php if (!empty($tickets_tags[$ticket_id])) { ?>
-                                    <!-- Tags - the + to change them while it is open; tag an untagged one from its page or Bulk Action -->
-                                    <div class="mt-1"><?= tagPills('ticket', $ticket_id, $tickets_tags[$ticket_id], "tickets.php?$client_url", $can_edit && !$is_closed) ?></div>
+                                <?php if (!empty($tickets_tags[$ticket_id]) || ($can_edit && !$is_closed)) { ?>
+                                    <!-- Tags - the + to change them while it is open; an untagged one gets its first from Tags in the row's menu -->
+                                    <div class="itflow-tags-row mt-1"><?= tagPills('ticket', $ticket_id, $tickets_tags[$ticket_id] ?? [], "tickets.php?$client_url", $can_edit && !$is_closed) ?></div>
                                 <?php } ?>
                                 <!-- On a phone the other columns are off to the side - the essentials come along -->
                                 <div class="d-md-none d-flex flex-wrap align-items-center gap-1 mt-1 small">
@@ -300,6 +300,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>">
                                         <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                     </a>
+                                    <?= tagMenuItem('ticket', $ticket_id) ?>
                                     <?php if (!$mine) { ?>
                                         <a class="dropdown-item" href="post.php?assign_ticket_to_me=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-hand-paper text-secondary me-2"></i>Assign to me

@@ -371,8 +371,8 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                                     <?php if ($domain_description) { ?>
                                         <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $domain_description ?>"><?= $domain_description ?></div>
                                     <?php } ?>
-                                    <?php if ($domain_tags) { ?>
-                                        <div class="mt-1"><?= tagPills('domain', $domain_id, $domain_tags, "domains.php?$client_url", $can_edit) ?></div>
+                                    <?php if ($domain_tags || $can_edit) { ?>
+                                        <div class="itflow-tags-row mt-1"><?= tagPills('domain', $domain_id, $domain_tags, "domains.php?$client_url", $can_edit) ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -405,6 +405,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/domain/domain_edit.php?id=<?= $domain_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('domain', $domain_id) ?>
                                         <a class="dropdown-item" href="post.php?refresh_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Look up now
                                         </a>

@@ -331,8 +331,8 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                     <?php if ($detail !== '') { ?>
                                         <div class="small text-body-secondary text-truncate itflow-service-desc" title="<?= escapeHtml($detail) ?>"><?= escapeHtml($detail) ?></div>
                                     <?php } ?>
-                                    <?php if ($service_tags) { ?>
-                                        <div class="mt-1"><?= tagPills('service', $service_id, $service_tags, "services.php?$client_url", $can_edit && !$is_archived) ?></div>
+                                    <?php if ($service_tags || ($can_edit && !$is_archived)) { ?>
+                                        <div class="itflow-tags-row mt-1"><?= tagPills('service', $service_id, $service_tags, "services.php?$client_url", $can_edit && !$is_archived) ?></div>
                                     <?php } ?>
                                     <!-- Narrower screens drop the Depends on column - the chips come along -->
                                     <?php if ($chips) { ?><div class="d-none d-md-flex d-xxl-none flex-wrap gap-1 mt-1"><?= $chips ?></div><?php } ?>
@@ -397,6 +397,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/service/service_edit.php?id=<?= $service_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('service', $service_id) ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/service/service_review.php?id=<?= $service_id ?>">
                                             <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Mark reviewed
                                         </a>

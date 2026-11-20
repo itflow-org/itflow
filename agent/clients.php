@@ -589,8 +589,8 @@ $total_leads = intval($row['leads']);
                                     <?php if ($client_type) { ?>
                                         <div class="small text-body-secondary"><?= $client_type ?></div>
                                     <?php } ?>
-                                    <?php if (!empty($client_tags[$client_id])) { ?>
-                                        <div class="mt-1"><?= tagPills('client', $client_id, $client_tags[$client_id] ?? [], $leads_filter ? 'clients.php?leads=1&' : 'clients.php?') ?></div>
+                                    <?php if (!empty($client_tags[$client_id]) || $can_edit) { ?>
+                                        <div class="itflow-tags-row mt-1"><?= tagPills('client', $client_id, $client_tags[$client_id] ?? [], $leads_filter ? 'clients.php?leads=1&' : 'clients.php?') ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -714,6 +714,7 @@ $total_leads = intval($row['leads']);
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_edit.php?id=<?= $client_id ?>">
                                             <i class="fas fa-fw fa-edit me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('client', $client_id) ?>
                                         <?php if ($can_add_ticket && !$client_archived_at) { ?>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?client_id=<?= $client_id ?>" data-modal-size="lg">
                                                 <i class="fas fa-fw fa-life-ring me-2"></i>New Ticket

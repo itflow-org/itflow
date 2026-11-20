@@ -22,8 +22,10 @@
     var composer = document.getElementById('replyComposer');
     var status = form.querySelector('[data-reply-draft-status]');
 
+    // Only once it is ready - reading an editor still starting up throws
     function editor() {
-        return window.tinymce ? tinymce.get('ticket_reply') : null;
+        var ed = window.tinymce ? tinymce.get('ticket_reply') : null;
+        return ed && ed.initialized ? ed : null;
     }
 
     function content() {

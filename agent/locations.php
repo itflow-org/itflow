@@ -311,8 +311,8 @@ $locations_counts = locationCounts(array_keys($locations));
                                     <?php if ($location_description) { ?>
                                         <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $location_description ?>"><?= $location_description ?></div>
                                     <?php } ?>
-                                    <?php if ($location_tags) { ?>
-                                        <div class="mt-1 itflow-above-stretch"><?= tagPills('location', $location_id, $location_tags, "locations.php?$client_url") ?></div>
+                                    <?php if ($location_tags || $can_edit) { ?>
+                                        <div class="itflow-tags-row mt-1 itflow-above-stretch"><?= tagPills('location', $location_id, $location_tags, "locations.php?$client_url") ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -377,6 +377,7 @@ $locations_counts = locationCounts(array_keys($locations));
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/location/location_edit.php?id=<?= $location_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('location', $location_id) ?>
                                         <?php if (!$location_primary && !$location_archived_at) { ?>
                                             <a class="dropdown-item" href="post.php?make_location_primary=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-building text-secondary me-2"></i>Make primary

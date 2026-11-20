@@ -3206,6 +3206,14 @@ a.itflow-dash-rail-item:focus-visible {
     max-width: 100%;
     vertical-align: middle;
 }
+
+/* A list row's tag line shows once the row has a tag - the + alone is no reason
+   for a line on every untagged row. Tags in the row's menu (tagMenuItem())
+   gives it its first, and the line appears as the picker redraws it. */
+.itflow-tags-row:not(:has(.itflow-tag:not(.itflow-tag-add))) {
+    display: none;
+}
+
 /*
  * A tag's colour (--itflow-tag-color, tagColor()) is its accent, not its fill:
  * a faint wash of it, a hairline of it and its icon in it, with the name in

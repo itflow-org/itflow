@@ -291,7 +291,7 @@ $csrf = $_SESSION['csrf_token'];
                                         <div class="small text-body-secondary"><?= escapeHtml($excerpt) ?></div>
                                     <?php } ?>
                                     <?php if ($tags_html) { ?>
-                                        <div class="mt-1"><?= $tags_html ?></div>
+                                        <div class="itflow-tags-row mt-1"><?= $tags_html ?></div>
                                     <?php } ?>
                                     <!-- On smaller screens its category and when it changed come along under it -->
                                     <div class="d-lg-none small mt-1 d-flex flex-wrap align-items-center gap-2"><?= $row['category_name'] !== null ? categoryChip($row) : '' ?><?= kbAudienceBadge($row, $audiences[$kb_article_id]) ?></div>
@@ -328,6 +328,7 @@ $csrf = $_SESSION['csrf_token'];
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="xl" data-modal-url="modals/kb/kb_article_edit.php?id=<?= $kb_article_id ?>">
                                                 <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                             </a>
+                                            <?= tagMenuItem('kb_article', $kb_article_id) ?>
                                             <?php if ($row['kb_article_published_at']) { ?>
                                                 <a class="dropdown-item" href="post.php?draft_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>" title="Back to a draft - not finished">
                                                     <i class="fas fa-fw fa-pencil-alt text-secondary me-2"></i>Make draft

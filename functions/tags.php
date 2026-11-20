@@ -174,7 +174,8 @@ function tagPills($entity, $record_id, array $tags, $filter = '', $can_edit = nu
         return '';
     }
 
-    $html = '<span class="itflow-tags" data-tag-entity="' . $entity . '" data-tag-record="' . $record_id . '" data-tag-filter="' . escapeHtml($filter) . '">';
+    // Drawn without a + (a card, a header) - the picker keeps it that way when it redraws
+    $html = '<span class="itflow-tags" data-tag-entity="' . $entity . '" data-tag-record="' . $record_id . '" data-tag-filter="' . escapeHtml($filter) . '"' . ($can_edit ? '' : ' data-tag-plain') . '>';
 
     foreach ($tags as $tag) {
         $tag_id = intval($tag['tag_id']);
@@ -193,6 +194,31 @@ function tagPills($entity, $record_id, array $tags, $filter = '', $can_edit = nu
     }
 
     return $html . '</span>';
+}
+
+/*
+ * An untagged record's empty spot on a card that shows tags without a + (the
+ * Files grid, the tickets board) - Tags in the card's menu fills it.
+ */
+function tagSpot($entity, $record_id, $filter = '') {
+    if (!tagEntity($entity)) {
+        return '';
+    }
+    return '<span class="itflow-tags" data-tag-entity="' . $entity . '" data-tag-record="' . intval($record_id) . '" data-tag-filter="' . escapeHtml(tagFilterBase($entity, $filter)) . '" data-tag-plain></span>';
+}
+
+/*
+ * Tags in a list row's menu - the picker the + at the end of a record's tags
+ * opens (js/tag_picker.js), hung off the row's menu button. A list shows a
+ * row's tag line only once it has a tag (.itflow-tags-row), so this is how an
+ * untagged one gets its first. The caller checks the row can be edited.
+ */
+function tagMenuItem($entity, $record_id, $icon_class = 'text-secondary ') {
+    if (!tagEntity($entity)) {
+        return '';
+    }
+    return '<button type="button" class="dropdown-item" data-tag-picker data-tag-entity="' . escapeHtml($entity) . '" data-tag-ids="' . intval($record_id) . '" data-csrf="' . escapeHtml($_SESSION['csrf_token'] ?? '') . '">'
+        . '<i class="fas fa-fw fa-tags ' . $icon_class . 'me-2"></i>Tags</button>';
 }
 
 /* A pill link base - a page of ours with a query string, or the default list. */

@@ -630,8 +630,8 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
                                     <?php if ($contact_role_line) { ?>
                                         <div class="small text-body-secondary text-truncate itflow-contact-role"><?= $contact_role_line ?></div>
                                     <?php } ?>
-                                    <?php if ($contact_tags) { ?>
-                                        <div class="mt-1 itflow-above-stretch"><?= tagPills('contact', $contact_id, $contact_tags, "contacts.php?$client_url") ?></div>
+                                    <?php if ($contact_tags || $can_edit) { ?>
+                                        <div class="itflow-tags-row mt-1 itflow-above-stretch"><?= tagPills('contact', $contact_id, $contact_tags, "contacts.php?$client_url") ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -698,6 +698,7 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('contact', $contact_id) ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_note_add.php?id=<?= $contact_id ?>">
                                             <i class="fas fa-fw fa-sticky-note text-secondary me-2"></i>Add Note
                                         </a>

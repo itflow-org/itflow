@@ -110,6 +110,7 @@ $tickets_tags = tagsForRecords('ticket', $board_ids);
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('ticket', $ticket_id) ?>
                                         <?php if (!$mine) { ?>
                                             <a class="dropdown-item" href="post.php?assign_ticket_to_me=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-hand-paper text-secondary me-2"></i>Assign to me
@@ -147,8 +148,8 @@ $tickets_tags = tagsForRecords('ticket', $board_ids);
                             </div>
                         <?php } ?>
 
-                        <?php if (!empty($tickets_tags[$ticket_id])) { ?>
-                            <div class="mt-1"><?= tagPills('ticket', $ticket_id, $tickets_tags[$ticket_id], "tickets.php?{$client_url}view=kanban&", false) ?></div>
+                        <?php if (!empty($tickets_tags[$ticket_id]) || $can_edit) { ?>
+                            <div class="itflow-tags-row mt-1"><?= !empty($tickets_tags[$ticket_id]) ? tagPills('ticket', $ticket_id, $tickets_tags[$ticket_id], "tickets.php?{$client_url}view=kanban&", false) : tagSpot('ticket', $ticket_id, "tickets.php?{$client_url}view=kanban&") ?></div>
                         <?php } ?>
 
                         <div class="d-flex align-items-center justify-content-between gap-2 mt-2">

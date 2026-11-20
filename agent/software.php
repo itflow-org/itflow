@@ -479,8 +479,8 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                                     <?php if ($software_favorite) { ?><i class="fas fa-star text-warning ms-1" title="Favorite"></i><?php } ?>
                                     <?php if ($software_archived_at) { ?><span class="badge rounded-pill text-bg-secondary fw-normal ms-1">Archived</span><?php } ?>
                                     <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $software_description ?: $software_type ?>"><?= $software_description ?: $software_type ?></div>
-                                    <?php if ($license_tags) { ?>
-                                        <div class="mt-1 itflow-above-stretch"><?= tagPills('license', $software_id, $license_tags, "software.php?$client_url", $can_tag && !$software_archived_at) ?></div>
+                                    <?php if ($license_tags || ($can_tag && !$software_archived_at)) { ?>
+                                        <div class="itflow-tags-row mt-1 itflow-above-stretch"><?= tagPills('license', $software_id, $license_tags, "software.php?$client_url", $can_tag && !$software_archived_at) ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -549,6 +549,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software_edit.php?id=<?= $software_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('license', $software_id) ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software/software_seats.php?id=<?= $software_id ?>">
                                             <i class="fas fa-fw fa-users text-secondary me-2"></i>Seats
                                         </a>

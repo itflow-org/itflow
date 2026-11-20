@@ -256,6 +256,7 @@ function filesItemMenu($item) {
         if ($can_edit && !$archived) {
             $html .= '<div class="dropdown-divider"></div>';
             $html .= "<a class=\"dropdown-item\" href=\"document_edit.php?client_id=$client_id&amp;document_id=$id\"><i class=\"fas fa-fw fa-edit me-2\"></i>Edit</a>";
+            $html .= tagMenuItem('document', $id, '');
             $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/document/document_rename.php?id=$id\"><i class=\"fas fa-fw fa-pen me-2\"></i>Rename</a>";
             $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/document/document_copy.php?id=$id\"><i class=\"fas fa-fw fa-copy me-2\"></i>Copy</a>";
             $favorite = !empty($item['row']['document_favorite']);
@@ -646,8 +647,8 @@ $preview = []; // the grid's previewer payload
                                                 <?php if ($item['kind'] === 'document' && isset($due_documents[$id])) { ?>
                                                     <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal mt-1"><i class="fas fa-calendar-check me-1"></i>Review due</span>
                                                 <?php } ?>
-                                                <?php if ($item['kind'] === 'document' && !empty($documents_tags[$id])) { ?>
-                                                    <div class="mt-1"><?= tagPills('document', $id, $documents_tags[$id], "files.php?client_id=$client_id&", false) ?></div>
+                                                <?php if ($item['kind'] === 'document' && (!empty($documents_tags[$id]) || ($can_edit && !$item['archived']))) { ?>
+                                                    <div class="itflow-tags-row mt-1"><?= !empty($documents_tags[$id]) ? tagPills('document', $id, $documents_tags[$id], "files.php?client_id=$client_id&", false) : tagSpot('document', $id, "files.php?client_id=$client_id&") ?></div>
                                                 <?php } ?>
                                             </div>
                                             <div class="dropdown">
@@ -729,8 +730,8 @@ $preview = []; // the grid's previewer payload
                                                         <div class="small text-body-secondary text-truncate itflow-files-desc"><?= escapeHtml($item['description']) ?></div>
                                                     <?php } ?>
                                                     <?= filesFolderNote($item) ?>
-                                                    <?php if ($item['kind'] === 'document' && !empty($documents_tags[$id])) { ?>
-                                                        <div class="mt-1 itflow-above-stretch"><?= tagPills('document', $id, $documents_tags[$id] ?? [], "files.php?client_id=$client_id&", $can_edit && !$item['archived']) ?></div>
+                                                    <?php if ($item['kind'] === 'document' && (!empty($documents_tags[$id]) || ($can_edit && !$item['archived']))) { ?>
+                                                        <div class="itflow-tags-row mt-1 itflow-above-stretch"><?= tagPills('document', $id, $documents_tags[$id] ?? [], "files.php?client_id=$client_id&", $can_edit && !$item['archived']) ?></div>
                                                     <?php } ?>
                                                 </div>
                                             </div>

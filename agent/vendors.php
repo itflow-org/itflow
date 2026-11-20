@@ -362,8 +362,8 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                                     <?php if ($vendor_description) { ?>
                                         <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $vendor_description ?>"><?= $vendor_description ?></div>
                                     <?php } ?>
-                                    <?php if ($vendor_tags) { ?>
-                                        <div class="mt-1 itflow-above-stretch"><?= tagPills('vendor', $vendor_id, $vendor_tags, $tag_base, $row_can_edit) ?></div>
+                                    <?php if ($vendor_tags || $row_can_edit) { ?>
+                                        <div class="itflow-tags-row mt-1 itflow-above-stretch"><?= tagPills('vendor', $vendor_id, $vendor_tags, $tag_base, $row_can_edit) ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -436,6 +436,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/vendor/vendor_edit.php?id=<?= $vendor_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('vendor', $vendor_id) ?>
                                         <?php if (!$vendor_archived_at) { ?>
                                             <a class="dropdown-item" href="post.php?<?= $vendor_favorite ? 'unfavorite_vendor' : 'favorite_vendor' ?>=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="<?= $vendor_favorite ? 'far' : 'fas' ?> fa-fw fa-star text-secondary me-2"></i><?= $vendor_favorite ? 'Unstar' : 'Star' ?>

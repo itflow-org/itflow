@@ -624,8 +624,8 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                     <?php if ($asset_description) { ?>
                                         <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $asset_description ?>"><?= $asset_description ?></div>
                                     <?php } ?>
-                                    <?php if ($asset_tags) { ?>
-                                        <div class="mt-1 itflow-above-stretch"><?= tagPills('asset', $asset_id, $asset_tags, "assets.php?$client_url") ?></div>
+                                    <?php if ($asset_tags || lookupUserPermission('module_client') >= 2) { ?>
+                                        <div class="itflow-tags-row mt-1 itflow-above-stretch"><?= tagPills('asset', $asset_id, $asset_tags, "assets.php?$client_url") ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -763,6 +763,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('asset', $asset_id) ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_copy.php?id=<?= $asset_id ?>">
                                             <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
                                         </a>
