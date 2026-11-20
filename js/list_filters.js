@@ -60,7 +60,7 @@
             });
             var onlySearch = on.length === 1 && on[0] === 'q';
             var clear = document.createElement('a');
-            clear.className = 'btn btn-outline-danger';
+            clear.className = 'btn btn-outline-secondary';
             clear.href = window.location.pathname + (keep.toString() ? '?' + keep.toString() : '');
             clear.title = onlySearch ? 'Clear the search' : 'Clear search and filters';
             clear.setAttribute('aria-label', clear.title);

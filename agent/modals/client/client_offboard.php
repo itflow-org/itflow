@@ -78,7 +78,7 @@ ob_start();
         </div>
 
         <?php if ($counts['open_tickets']) { ?>
-            <div class="small text-warning-emphasis"><i class="fas fa-life-ring me-1"></i><?= $plural($counts['open_tickets'], 'ticket is', 'tickets are') ?> still open - <a href="tickets.php?client_id=<?= $client_id ?>">resolve or close them</a> as you finish the work.</div>
+            <div class="small text-body-secondary"><i class="fas fa-exclamation-triangle text-warning me-1"></i><?= $plural($counts['open_tickets'], 'ticket is', 'tickets are') ?> still open - <a href="tickets.php?client_id=<?= $client_id ?>">resolve or close them</a> as you finish the work.</div>
         <?php } ?>
 
     </div>

@@ -414,7 +414,7 @@ $total_leads = intval($row['leads']);
                 <div class="col-sm-6 col-lg-5">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q)) ?>" placeholder="Search <?= $leads_filter ? 'leads' : 'clients' ?>, contacts, addresses, tags" autofocus>
-                        <button class="btn <?= $hidden_filter_count ? 'btn-warning' : 'btn-secondary' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter" title="Filters">
+                        <button class="btn btn-secondary<?= $hidden_filter_count ? ' itflow-filter-on' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter" title="Filters">
                             <i class="fas fa-filter"></i><?php if ($hidden_filter_count) { ?><span class="ms-1"><?= $hidden_filter_count ?></span><?php } ?>
                         </button>
                         <button class="btn btn-primary" title="Search" type="submit"><i class="fa fa-search"></i></button>
@@ -546,8 +546,8 @@ $total_leads = intval($row['leads']);
                 <?php foreach ($active_filters as $filter) {
                     $drop = is_array($filter['drop']) ? array_fill_keys($filter['drop'], null) : [$filter['drop'] => null];
                     ?>
-                    <span class="badge rounded-pill bg-light border p-2 me-1 fw-normal">
-                        <span class="text-secondary"><?= $filter['label'] ?>:</span> <?= $filter['value'] ?>
+                    <span class="badge rounded-pill bg-body-secondary text-body border p-2 me-1 fw-normal">
+                        <span class="text-body-secondary"><?= $filter['label'] ?>:</span> <?= $filter['value'] ?>
                         <a href="<?= clientsFilterUrl($drop) ?>" class="text-danger ms-1" title="Remove this filter"><i class="fas fa-times"></i></a>
                     </span>
                 <?php } ?>

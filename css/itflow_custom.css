@@ -10512,24 +10512,17 @@ a.itflow-portal-request:focus-visible {
     color: var(--bs-secondary-color);
 }
 
-/* A list's column names, kept at the top of the window once the real ones scroll off (js/sticky_table_head.js) */
-.itflow-float-head {
-    position: fixed;
-    top: 0;
-    z-index: 1020;
-    overflow: hidden;
-    background-color: var(--bs-body-bg);
-    box-shadow: 0 .25rem .5rem -.25rem rgba(0, 0, 0, .25);
-}
-.itflow-float-head > table {
-    table-layout: fixed;
-}
-
-/* A filter that is on (js/list_filters.js) - the same yellow as the extra-filters button when they are */
+/* A filter that is on (js/list_filters.js), and the More filters button while one under it is -
+   a light wash of the theme color, so a narrowed list shows without looking like a warning */
 .itflow-select:has(> select.itflow-filter-on) > .itflow-select-control,
 input.itflow-filter-on {
-    border-color: var(--bs-warning);
-    box-shadow: inset 0 0 0 1px var(--bs-warning);
+    border-color: color-mix(in srgb, var(--itflow-accent, #0d6efd) 55%, var(--bs-border-color));
+    background-color: color-mix(in srgb, var(--itflow-accent, #0d6efd) 8%, var(--bs-body-bg));
+}
+.btn.itflow-filter-on {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-bg: color-mix(in srgb, var(--itflow-accent, #0d6efd) 8%, var(--bs-body-bg));
+    --bs-btn-border-color: color-mix(in srgb, var(--itflow-accent, #0d6efd) 55%, var(--bs-border-color));
 }
 
 /* Your account > Preferences > Compact rows */

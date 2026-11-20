@@ -874,7 +874,7 @@ if (isset($_GET['ticket_id'])) {
                                     </div>
                                 <?php } ?>
                                 <!-- Files dropped on the reply box before a type is picked (agent/js/ticket_reply_extras.js) -->
-                                <div class="small text-info-emphasis mt-2" data-reply-files-note hidden></div>
+                                <div class="small text-body-secondary mt-2" data-reply-files-note hidden></div>
 
                                 <div class="collapse" id="replyComposer">
                                     <div class="pt-3">

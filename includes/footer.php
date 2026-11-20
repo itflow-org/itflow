@@ -95,7 +95,6 @@ try {
 <script src="<?= staticFileUrl('/js/confirm_modal.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/date_filter.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/list_filters.js') ?>"></script>
-<script src="<?= staticFileUrl('/js/sticky_table_head.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/global_search.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/notifications.js') ?>"></script>
 <?php

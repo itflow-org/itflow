@@ -1493,8 +1493,8 @@ function billingClientOverdue($client_id) {
 /** A draft invoice left this many days is called out - on the invoices list and in the nightly notification. */
 const INVOICE_DRAFT_STALE_DAYS = 7;
 
-/** "Draft 12 days" - for a draft invoice left more than INVOICE_DRAFT_STALE_DAYS since it was made. '' otherwise. */
-function invoiceDraftAgePill($row) {
+/** "Not sent for 12 days" - for a draft invoice left more than INVOICE_DRAFT_STALE_DAYS since it was made. '' otherwise. */
+function invoiceDraftAgeNote($row) {
     if (($row['invoice_status'] ?? '') !== 'Draft' || empty($row['invoice_created_at'])) {
         return '';
     }
@@ -1502,8 +1502,8 @@ function invoiceDraftAgePill($row) {
     if ($days <= INVOICE_DRAFT_STALE_DAYS) {
         return '';
     }
-    return '<span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal" title="Made ' . escapeHtml(date('Y-m-d', strtotime((string) $row['invoice_created_at']))) . ' and not sent yet - send it, or delete it if it isn\'t wanted">'
-        . '<i class="fas fa-hourglass-half me-1"></i>Draft ' . $days . ' days</span>';
+    return '<span class="small text-body-secondary" title="Made ' . escapeHtml(date('Y-m-d', strtotime((string) $row['invoice_created_at']))) . ' and not sent yet - send it, or delete it if it isn\'t wanted">'
+        . '<i class="fas fa-hourglass-half me-1"></i>Not sent for ' . $days . ' days</span>';
 }
 
 function quoteExpiryPill($row) {

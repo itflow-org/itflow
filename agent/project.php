@@ -565,7 +565,7 @@ echo agentBannersHtml($project_client_id);
                             <span class="text-body-secondary small">
                                 Its booked tickets, by the <?= $timeline['scale'] ?><?= timezoneShifted() ? ', on your clock' : '' ?>.
                                 <?php if ($timeline['clashes']) { ?>
-                                    <span class="text-danger-emphasis" data-timeline-clashes><i class="fas fa-exclamation-triangle me-1"></i><?= $timeline['clashes'] ?> booked at the same time as another of the same agent's.</span>
+                                    <span data-timeline-clashes><i class="fas fa-exclamation-triangle text-danger me-1"></i><?= $timeline['clashes'] ?> booked at the same time as another of the same agent's.</span>
                                 <?php } ?>
                             </span>
                         </div>
@@ -600,7 +600,7 @@ echo agentBannersHtml($project_client_id);
                                             <?php if (!empty($row['ticket_onsite'])) { ?><i class="fas fa-fw fa-car-side me-1" title="Onsite"></i><?php } ?><?= escapeHtml($row['user_name'] ?: 'Not assigned') ?> · <?= escapeHtml($when) ?>
                                         </div>
                                         <?php if ($line['clashes']) { ?>
-                                            <div class="small text-danger-emphasis text-truncate" data-timeline-clash><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Same time as <?= escapeHtml(implode(', ', $line['clashes'])) ?></div>
+                                            <div class="small text-body-secondary text-truncate" data-timeline-clash><i class="fas fa-fw fa-exclamation-triangle text-danger me-1"></i>Same time as <?= escapeHtml(implode(', ', $line['clashes'])) ?></div>
                                         <?php } ?>
                                     </div>
                                     <div class="itflow-timeline-track">

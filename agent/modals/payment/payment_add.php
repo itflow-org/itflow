@@ -83,7 +83,7 @@ ob_start();
                     <a class="ms-auto ajax-modal" href="#" data-bs-dismiss="modal" data-modal-url="modals/payment/payment_bulk_add.php?client_id=<?= $client_id ?>" title="One payment, spread over their unpaid invoices oldest first"><i class="fas fa-layer-group me-1"></i>Batch Payment</a>
                 </div>
                 <?php if ($others_older) { ?>
-                    <div class="text-warning-emphasis mb-1"><i class="fas fa-exclamation-triangle me-1"></i><?= $others_older === 1 ? 'One was' : "$others_older were" ?> due before this one.</div>
+                    <div class="mb-1"><i class="fas fa-exclamation-triangle text-warning me-1"></i><?= $others_older === 1 ? 'One was' : "$others_older were" ?> due before this one.</div>
                 <?php } ?>
                 <ul class="list-group">
                     <?php foreach (array_slice($others, 0, 5) as $other) {
@@ -91,7 +91,7 @@ ob_start();
                         <li class="list-group-item d-flex align-items-center gap-2 py-1">
                             <div class="min-w-0 flex-grow-1">
                                 <div class="text-truncate"><span class="fw-semibold"><?= escapeHtml(billingNumber('invoice', $other)) ?></span><?php if (trim((string) $other['invoice_scope']) !== '') { ?><span class="text-body-secondary" title="<?= escapeHtml($other['invoice_scope']) ?>"> - <?= escapeHtml($other['invoice_scope']) ?></span><?php } ?></div>
-                                <div class="<?= $other_days > 0 ? 'text-danger-emphasis' : 'text-body-secondary' ?>"><?= $other_days > 0 ? "$other_days day" . ($other_days === 1 ? '' : 's') . ' overdue' : 'Due ' . escapeHtml($other['invoice_due']) ?></div>
+                                <div><?= invoiceDuePill(['state' => 'open', 'days' => -$other_days]) ?></div>
                             </div>
                             <span class="itflow-money text-nowrap"><?= escapeHtml(billingMoney($other['balance'], $other['invoice_currency_code'])) ?></span>
                             <a class="btn btn-sm btn-outline-secondary ajax-modal text-nowrap" href="#" data-bs-dismiss="modal" data-modal-url="modals/payment/payment_add.php?id=<?= intval($other['invoice_id']) ?>">Pay this one</a>

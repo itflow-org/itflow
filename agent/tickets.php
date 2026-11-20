@@ -345,7 +345,7 @@ $export_extra = [
                 <div class="<?= $client_url ? 'col-lg-5' : 'col-lg-4' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search tickets..." title="Number, subject, client, contact, asset, vendor reference...">
-                        <button class="btn <?= $hidden_filter_count ? 'btn-warning' : 'btn-outline-secondary' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter" title="More filters" aria-expanded="<?= $hidden_filter_count ? 'true' : 'false' ?>">
+                        <button class="btn btn-outline-secondary<?= $hidden_filter_count ? ' itflow-filter-on' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter" title="More filters" aria-expanded="<?= $hidden_filter_count ? 'true' : 'false' ?>">
                             <i class="fas fa-sliders-h"></i><?php if ($hidden_filter_count) { ?><span class="ms-1"><?= $hidden_filter_count ?></span><?php } ?>
                         </button>
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>

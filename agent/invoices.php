@@ -178,7 +178,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
         <a class="itflow-billing-stat <?= $status === 'Draft' ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['status' => 'Draft'])) ?>">
             <div class="itflow-billing-stat-label"><i class="fas fa-pencil-ruler me-1"></i>In drafts</div>
             <div class="itflow-billing-stat-value"><?= $stat_money($money['draft']) ?></div>
-            <div class="itflow-billing-stat-note"><?= intval($money['draft_count']) ?> not sent yet<?php if ($money['draft_stale']) { ?> &middot; <span class="text-warning-emphasis"><?= intval($money['draft_stale']) ?> left over a week</span><?php } ?></div>
+            <div class="itflow-billing-stat-note"><?= intval($money['draft_count']) ?> not sent yet<?php if ($money['draft_stale']) { ?> &middot; <?= intval($money['draft_stale']) ?> left over a week<?php } ?></div>
         </a>
     </div>
     <div class="col-sm-6 col-xl-3">
@@ -414,7 +414,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                             <?php } else { ?>
                                 <?= invoiceStatusBadge($row_status) ?>
                             <?php } ?>
-                            <?php $draft_age = invoiceDraftAgePill($row); if ($draft_age) { ?><div><?= $draft_age ?></div><?php } ?>
+                            <?php $draft_age = invoiceDraftAgeNote($row); if ($draft_age) { ?><div class="mt-1"><?= $draft_age ?></div><?php } ?>
                         </td>
                         <td class="text-end">
                             <div class="dropdown dropstart">
