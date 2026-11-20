@@ -71,12 +71,18 @@ function itflowInlineNotes(textarea) {
         }
     });
 
-    // Warn rather than lose the text if the page is closed mid-edit
-    window.addEventListener('beforeunload', function (e) {
-        if (textarea.value !== lastSaved) {
-            e.preventDefault();
-            e.returnValue = '';
+    // Leaving mid-edit saves it on the way out rather than asking first
+    window.addEventListener('pagehide', function () {
+        if (textarea.value === lastSaved || !navigator.sendBeacon) {
+            return;
         }
+        const data = new FormData();
+        data.append('csrf_token', textarea.dataset.csrf);
+        data.append('note', textarea.value);
+        data.append(textarea.dataset.endpoint, 'TRUE');
+        data.append(textarea.dataset.idField, textarea.dataset.id);
+        navigator.sendBeacon('ajax.php', data);
+        lastSaved = textarea.value;
     });
 }
 

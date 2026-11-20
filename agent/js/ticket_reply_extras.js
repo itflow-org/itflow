@@ -67,7 +67,6 @@
         itflowPost('ajax.php', { ticket_reply_draft: 1, csrf_token: csrf, ticket_id: ticketId, html: html }, function (answer) {
             lastSaved = html;
             var ed = editor();
-            // Kept, so leaving the page loses nothing - no need to warn about it
             if (ed && content() === html) {
                 ed.setDirty(false);
             }
@@ -103,6 +102,12 @@
     }
 
     if (drafts) {
+        // What is typed is kept as it goes and as the page is left, so leaving doesn't ask first (js/app.js)
+        var replyBox = document.getElementById('ticket_reply');
+        if (replyBox) {
+            replyBox.dataset.draftKept = '1';
+        }
+
         var tries = 0;
         (function waitForEditor() {
             if (watchEditor()) {

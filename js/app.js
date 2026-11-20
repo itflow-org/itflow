@@ -1166,7 +1166,9 @@ itflowBindOnce('itflowCategoryAdd', 'click', '[data-category-add]', function () 
  *
  * Editors inside an open modal are skipped, as before: the modal is where that
  * work gets submitted or discarded. Editors from a closed ajax modal are removed
- * by js/ajax_modal.js, so tinymce.get() no longer returns them.
+ * by js/ajax_modal.js, so tinymce.get() no longer returns them. So is one whose
+ * text is kept as a draft (data-draft-kept - the ticket reply, agent/js/ticket_reply_extras.js),
+ * where leaving loses nothing.
  *
  * Flagged on window because modal_footer.php re-loads this file on every ajax
  * modal open.
@@ -1179,7 +1181,8 @@ if (!window.itflowEditorUnloadGuard) {
         }
         const unsaved = tinymce.get().some(function (editor) {
             const inVisibleModal = editor.getContainer()?.closest('.modal.show');
-            return !inVisibleModal && editor.isDirty();
+            const keptAsDraft = editor.getElement()?.dataset.draftKept === '1';
+            return !inVisibleModal && !keptAsDraft && editor.isDirty();
         });
         if (unsaved) {
             e.preventDefault();
