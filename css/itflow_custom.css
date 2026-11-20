@@ -2488,6 +2488,139 @@ body {
     font-variant-numeric: tabular-nums;
     font-weight: 600;
 }
+/* The tickets the time without a ticket can go to - a long list scrolls in place */
+.itflow-timer-find {
+    max-height: 12rem;
+    overflow-y: auto;
+}
+/* A project's Timeline tab (agent/project.php, projectTimeline()) - a label column, then a track
+   where each booking is a bar; the day/week lines and the now/start/due markers lie over every row */
+.itflow-timeline {
+    --itflow-timeline-label: 15rem;
+    --itflow-timeline-pad: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+@media (max-width: 575.98px) {
+    .itflow-timeline {
+        --itflow-timeline-label: 9rem;
+    }
+}
+.itflow-timeline-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--itflow-timeline-label) minmax(0, 1fr);
+    min-height: 3rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+.itflow-timeline-row:last-child {
+    border-bottom: 0;
+}
+.itflow-timeline-label {
+    min-width: 0;
+    padding: .45rem .75rem .45rem var(--itflow-timeline-pad);
+    line-height: 1.35;
+}
+.itflow-timeline-track {
+    position: relative;
+    margin-right: var(--itflow-timeline-pad);
+}
+.itflow-timeline-scale {
+    min-height: 1.75rem;
+}
+.itflow-timeline-tick {
+    position: absolute;
+    top: .35rem;
+    padding-left: .25rem;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-right: .25rem;
+    font-size: .75rem;
+    color: var(--bs-secondary-color);
+    background: var(--bs-card-bg, var(--bs-body-bg));
+    z-index: 2;
+}
+.itflow-timeline-lines {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--itflow-timeline-label);
+    right: var(--itflow-timeline-pad);
+    pointer-events: none;
+}
+.itflow-timeline-grid {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-left: 1px solid var(--bs-border-color-translucent);
+}
+.itflow-timeline-grid.is-weekend {
+    background: var(--bs-tertiary-bg);
+}
+.itflow-timeline-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-left: 2px dashed var(--bs-secondary-color);
+    z-index: 1;
+}
+.itflow-timeline-marker.is-today {
+    border-left: 2px solid var(--bs-danger);
+}
+.itflow-timeline-bar {
+    position: absolute;
+    top: 50%;
+    height: .9rem;
+    min-width: 6px;
+    transform: translateY(-50%);
+    border-radius: 4px;
+    background: var(--bs-primary);
+    z-index: 2;
+}
+.itflow-timeline-bar:hover,
+.itflow-timeline-bar:focus-visible {
+    outline: 2px solid var(--bs-body-color);
+    outline-offset: 1px;
+}
+.itflow-timeline-bar.is-late,
+.itflow-timeline-swatch.is-late {
+    background: var(--bs-warning);
+}
+.itflow-timeline-bar.is-done,
+.itflow-timeline-swatch.is-done {
+    background: var(--bs-secondary-color);
+    opacity: .55;
+}
+.itflow-timeline-bar.is-clash,
+.itflow-timeline-swatch.is-clash {
+    box-shadow: 0 0 0 2px var(--bs-body-bg), 0 0 0 4px var(--bs-danger);
+}
+.itflow-timeline-swatch {
+    display: inline-block;
+    width: .9rem;
+    height: .6rem;
+    margin-right: .35rem;
+    border-radius: 3px;
+    background: var(--bs-primary);
+    vertical-align: baseline;
+}
+.itflow-timeline-swatch.is-clash {
+    margin-left: 4px;
+    margin-right: calc(.35rem + 4px);
+}
+.itflow-timeline-swatch.is-today {
+    width: 2px;
+    height: .8rem;
+    border-radius: 0;
+    background: var(--bs-danger);
+}
+.itflow-timeline-swatch.is-dates {
+    width: 0;
+    height: .8rem;
+    border-radius: 0;
+    background: none;
+    border-left: 2px dashed var(--bs-secondary-color);
+}
 /* Quick ticket's list of the contact's open tickets - a long one scrolls in place */
 .itflow-also-open-list {
     max-height: 15rem;

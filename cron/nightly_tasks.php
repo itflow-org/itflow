@@ -572,6 +572,9 @@ if ($reminder_rules['enabled']) {
 }
 
 
+// Reminders already sent are only kept so each goes once - forget the old ones
+calendarRemindersCleanup();
+
 // Recurring invoices paused until today run again first - so one due today bills today
 $recurring_invoices_resumed = recurringInvoiceResumePaused();
 if ($recurring_invoices_resumed) {

@@ -575,6 +575,12 @@ function calendarEventFormSet($post, $client_id, &$error = '') {
         $by_day_sql = ", event_repeat_by_day = " . ($by_day !== '' ? "'$by_day'" : 'NULL');
     }
 
+    // The reminder - only from a form that showed it (functions/calendar_reminders.php)
+    if (calendarRemindersReady() && !empty($post['reminder_field'])) {
+        $reminder = calendarReminderFromInput($post['reminder'] ?? '');
+        $by_day_sql .= ", event_reminder = " . ($reminder === null ? 'NULL' : $reminder);
+    }
+
     return "event_title = '" . escapeSql(mb_substr($title, 0, 200)) . "',
         event_location = '" . escapeSql(mb_substr(trim((string) ($post['location'] ?? '')), 0, 500)) . "',
         event_description = '" . escapeSql(trim((string) ($post['description'] ?? ''))) . "',

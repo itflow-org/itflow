@@ -4,7 +4,10 @@
  * says so - and the contact's tickets still open, with Work on this one to go
  * to one instead. Make ticket sends when the new ticket's timer counts from,
  * by this browser's clock, as the ticket page's timer is this browser's
- * (agent/js/ticket_time_tracking.js). Run again each time the window opens.
+ * (agent/js/ticket_time_tracking.js). Opened from the top bar's timer that
+ * was started before there was a ticket (?call=1, js/ticket_timers.js), the
+ * new ticket's timer carries on from it - running or paused - and that timer
+ * is cleared once the ticket is made. Run again each time the window opens.
  */
 (function () {
     'use strict';
@@ -24,7 +27,29 @@
     let contactRequest = 0;
     let openRequest = 0;
 
+    // The timer started before there was a ticket - its seconds, and whether it is counting
+    const fromCall = form.dataset.call === '1';
+    function callTimer() {
+        try {
+            const start = parseInt(localStorage.getItem('call-startTime') || '0', 10);
+            const paused = parseInt(localStorage.getItem('call-pausedTime') || '0', 10);
+            return { running: !!start, seconds: paused + (start ? Math.max(0, Math.floor((Date.now() - start) / 1000)) : 0) };
+        } catch (e) {
+            return { running: false, seconds: 0 };
+        }
+    }
+    if (fromCall) {
+        const shown = form.querySelector('[data-call-time]');
+        const seconds = callTimer().seconds;
+        if (shown && seconds) {
+            shown.textContent = ' - ' + Math.floor(seconds / 3600) + ':' + String(Math.floor(seconds % 3600 / 60)).padStart(2, '0') + ' so far';
+        }
+    }
+
     function timerStart() {
+        if (fromCall) {
+            return Date.now() - callTimer().seconds * 1000;
+        }
         return timerMode === 'open' ? openedAt : Date.now();
     }
 
@@ -124,13 +149,22 @@
         if (!button) {
             return;
         }
-        if (timerMode !== 'off') {
+        if (fromCall && window.itflowTicketTimers && window.itflowTicketTimers.giveCall) {
+            // The time without a ticket goes onto this one
+            window.itflowTicketTimers.giveCall(button.dataset.ticketWork);
+        } else if (timerMode !== 'off') {
             startTimer(button.dataset.ticketWork, timerStart());
         }
         window.location.href = button.dataset.url;
     });
 
     form.addEventListener('submit', function () {
+        if (fromCall) {
+            const call = callTimer();
+            document.getElementById('quickTicketTimer').value = call.running ? String(Date.now() - call.seconds * 1000) : '';
+            document.getElementById('quickTicketPaused').value = call.running ? '' : String(call.seconds);
+            return;
+        }
         document.getElementById('quickTicketTimer').value = timerMode === 'off' ? '' : String(timerStart());
     });
 

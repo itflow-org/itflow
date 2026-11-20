@@ -20,6 +20,8 @@ if (!quickTicketCan()) {
 
 $quick = quickTicketSettings();
 $client_id = intval($_GET['client_id'] ?? 0);
+// From the top bar's timer started before there was a ticket - the new ticket's timer carries on from it
+$from_call = !empty($_GET['call']);
 if ($client_id && !hasClientAccess($client_id)) {
     $client_id = 0;
 }
@@ -34,10 +36,12 @@ ob_start();
     <h5 class="modal-title"><i class="fas fa-fw fa-plus-circle me-2"></i>Quick ticket</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-<form action="/agent/post.php" method="post" autocomplete="off" id="quickTicketForm" data-timer="<?= escapeHtml($quick['timer']) ?>" data-primary="<?= $quick['primary'] ? 1 : 0 ?>" data-open-tickets="<?= $quick['open_tickets'] ? 1 : 0 ?>">
+<form action="/agent/post.php" method="post" autocomplete="off" id="quickTicketForm" data-timer="<?= escapeHtml($quick['timer']) ?>" data-call="<?= $from_call ? 1 : 0 ?>" data-primary="<?= $quick['primary'] ? 1 : 0 ?>" data-open-tickets="<?= $quick['open_tickets'] ? 1 : 0 ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="quick_ticket" value="1">
     <input type="hidden" name="quick_ticket_timer" value="" id="quickTicketTimer">
+    <input type="hidden" name="quick_ticket_paused" value="" id="quickTicketPaused">
+    <input type="hidden" name="quick_ticket_call" value="<?= $from_call ? 1 : 0 ?>">
     <input type="hidden" name="status" value="<?= $status ?>">
     <input type="hidden" name="category_id" value="<?= intval($quick['category']) ?>">
     <input type="hidden" name="billable" value="<?= quickTicketBillable() ? 1 : 0 ?>">
@@ -109,7 +113,9 @@ ob_start();
             </div>
         </div>
 
-        <?php if ($quick['timer'] !== 'off') { ?>
+        <?php if ($from_call) { ?>
+            <div class="small text-body-secondary"><i class="fas fa-fw fa-stopwatch me-1"></i>Its timer carries on from the one you started<span data-call-time></span>.</div>
+        <?php } elseif ($quick['timer'] !== 'off') { ?>
             <div class="small text-body-secondary"><i class="fas fa-fw fa-stopwatch me-1"></i>Its timer starts <?= $quick['timer'] === 'open' ? 'from when this window opened' : 'as it is made' ?>.</div>
         <?php } ?>
 

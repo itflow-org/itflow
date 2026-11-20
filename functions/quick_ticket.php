@@ -109,11 +109,22 @@ function quickTicketDetailsHtml($text) {
  * timer counts from - kept for the ticket page's first load. $start is the
  * browser's clock in milliseconds.
  */
-function quickTicketAfterCreate($ticket_id, $start) {
+function quickTicketAfterCreate($ticket_id, $start, $paused = '', $from_call = false) {
     global $session_name;
     $ticket_id = intval($ticket_id);
     logTicketHistory($ticket_id, "$session_name raised it with Quick ticket");
     $start = (string) $start;
+    $paused = (string) $paused;
+    // From the top bar's timer started before there was a ticket - its time carries on here,
+    // running or paused, whatever the setting, and that timer is cleared (js/ticket_timers.js)
+    if ($from_call) {
+        if (preg_match('/^\d{12,14}$/', $start)) {
+            $_SESSION['quick_ticket_timer'][$ticket_id] = ['start' => $start, 'call' => true];
+        } elseif (preg_match('/^\d{1,7}$/', $paused)) {
+            $_SESSION['quick_ticket_timer'][$ticket_id] = ['paused' => $paused, 'call' => true];
+        }
+        return;
+    }
     if (quickTicketSettings()['timer'] !== 'off' && preg_match('/^\d{12,14}$/', $start)) {
         $_SESSION['quick_ticket_timer'][$ticket_id] = $start;
     }
@@ -126,14 +137,21 @@ function quickTicketAfterCreate($ticket_id, $start) {
  */
 function quickTicketTimerScript($ticket_id) {
     $ticket_id = intval($ticket_id);
-    $start = (string) ($_SESSION['quick_ticket_timer'][$ticket_id] ?? '');
-    if ($start === '') {
+    $timer = $_SESSION['quick_ticket_timer'][$ticket_id] ?? '';
+    if ($timer === '' || $timer === []) {
         return '';
     }
     unset($_SESSION['quick_ticket_timer'][$ticket_id]);
+    // A timer started before there was a ticket: running from its start, or paused at its seconds - then cleared
+    $start = is_array($timer) ? (string) ($timer['start'] ?? '') : (string) $timer;
+    $paused = is_array($timer) ? (string) ($timer['paused'] ?? '') : '';
+    $call = is_array($timer) && !empty($timer['call']);
     return '<script>(function () { try { var id = ' . json_encode((string) $ticket_id) . ';'
         . ' if (!localStorage.getItem(id + "-startTime") && !localStorage.getItem(id + "-pausedTime")) {'
-        . ' localStorage.setItem(id + "-startTime", ' . json_encode($start) . '); localStorage.setItem("ticket-timer-running-" + id, "true"); }'
+        . ($start !== ''
+            ? ' localStorage.setItem(id + "-startTime", ' . json_encode($start) . '); localStorage.setItem("ticket-timer-running-" + id, "true"); }'
+            : ' localStorage.setItem(id + "-pausedTime", ' . json_encode($paused) . '); localStorage.setItem("ticket-timer-running-" + id, "false"); }')
+        . ($call ? ' localStorage.removeItem("call-startTime"); localStorage.removeItem("call-pausedTime");' : '')
         . ' } catch (e) {} })();</script>';
 }
 

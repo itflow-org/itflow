@@ -87,6 +87,9 @@ ob_start();
                     }, calendarSkippedDates($event)))) ?></div>
                 <?php } ?>
             <?php } ?>
+            <?php if (isset($event['event_reminder']) && $event['event_reminder'] !== null) { ?>
+                <div class="small text-body-secondary" data-event-reminder><i class="fas fa-bell fa-fw me-1"></i>Reminder <?= escapeHtml(strtolower(CALENDAR_REMINDER_CHOICES[intval($event['event_reminder'])] ?? '')) ?></div>
+            <?php } ?>
         </dd>
 
         <?php if ($where !== '' || $meeting) { ?>

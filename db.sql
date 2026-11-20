@@ -587,6 +587,7 @@ CREATE TABLE `calendar_events` (
   `event_repeat_until` date DEFAULT NULL,
   `event_repeat_skip` text DEFAULT NULL,
   `event_sequence` int(11) NOT NULL DEFAULT 0,
+  `event_reminder` int(11) DEFAULT NULL,
   `event_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `event_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `event_archived_at` datetime DEFAULT NULL,
@@ -599,6 +600,24 @@ CREATE TABLE `calendar_events` (
   KEY `event_client_id` (`event_client_id`),
   KEY `event_start` (`event_start`),
   CONSTRAINT `calendar_events_ibfk_1` FOREIGN KEY (`event_calendar_id`) REFERENCES `calendars` (`calendar_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `calendar_reminders`
+--
+
+DROP TABLE IF EXISTS `calendar_reminders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `calendar_reminders` (
+  `reminder_kind` varchar(10) NOT NULL,
+  `reminder_item_id` int(11) NOT NULL,
+  `reminder_for` datetime NOT NULL,
+  `reminder_user_id` int(11) NOT NULL,
+  `reminder_sent_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`reminder_kind`,`reminder_item_id`,`reminder_for`,`reminder_user_id`),
+  KEY `reminder_sent_at` (`reminder_sent_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -5017,6 +5036,8 @@ CREATE TABLE `user_settings` (
   `user_config_signature` text DEFAULT NULL,
   `user_config_theme_dark` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_compact_rows` tinyint(1) NOT NULL DEFAULT 0,
+  `user_config_booking_reminder` int(11) DEFAULT NULL,
+  `user_config_reminder_email` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

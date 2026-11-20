@@ -72,6 +72,7 @@ $page_title = $project['project_name'];
 $ticket_scope = clientScopeSql('ticket_client_id');
 $sql = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_priority, ticket_status, ticket_source,
         ticket_assigned_to, ticket_billable, ticket_invoice_id, ticket_created_at, ticket_updated_at, ticket_resolved_at, ticket_closed_at, ticket_client_id,
+        ticket_schedule, " . (ticketScheduleEndReady() ? 'ticket_schedule_end' : 'NULL AS ticket_schedule_end') . ", ticket_onsite,
         ticket_due_at, ticket_sla_id, ticket_first_response_at, ticket_response_due_at, ticket_resolution_due_at,
         ticket_response_sla_alert_stage, ticket_resolution_sla_alert_stage, ticket_response_sla_met, ticket_resolution_sla_met,
         ticket_status_name, ticket_status_color, ticket_status_pauses_sla, client_name, user_name, user_avatar, asset_name,
@@ -114,6 +115,10 @@ if ($ticket_ids) {
     }
 }
 
+// Its booked tickets in time - weeks starting on the agent's calendar's first day
+$first_day = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT user_config_calendar_first_day FROM user_settings WHERE user_id = " . intval($session_user_id)))[0] ?? 0) === 1 ? 1 : 0;
+$timeline = projectTimeline($project, $tickets, $first_day);
+
 $activity = projectActivity($project_id, 25);
 $team = projectTeam($project_id);
 
@@ -126,6 +131,7 @@ $history = auditLogHistory('Project', $project_id);
 $project_tabs = [
     'tickets' => ['label' => 'Tickets', 'icon' => 'fa-life-ring', 'count' => count($tickets), 'badge' => $stats['open']],
     'tasks' => ['label' => 'Tasks', 'icon' => 'fa-tasks', 'count' => $stats['tasks']],
+    'timeline' => ['label' => 'Timeline', 'icon' => 'fa-stream', 'count' => count($timeline['rows'])],
     'activity' => ['label' => 'Activity', 'icon' => 'fa-comments', 'count' => count($activity)],
     'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => $history['count']],
 ];
@@ -548,6 +554,91 @@ echo agentBannersHtml($project_client_id);
                         <div class="itflow-asset-empty">
                             <i class="fas fa-tasks fa-2x mb-2 opacity-50"></i>
                             <div>No tasks on its tickets. Tasks added to a ticket, or brought in by a template, show up here.</div>
+                        </div>
+                    <?php } ?>
+                </div>
+
+                <!-- Its booked tickets in time (projectTimeline()) -->
+                <div class="tab-pane fade" id="project-pane-timeline" role="tabpanel">
+                    <?php if ($timeline['rows']) { ?>
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">
+                                Its booked tickets, by the <?= $timeline['scale'] ?><?= timezoneShifted() ? ', on your clock' : '' ?>.
+                                <?php if ($timeline['clashes']) { ?>
+                                    <span class="text-danger-emphasis" data-timeline-clashes><i class="fas fa-exclamation-triangle me-1"></i><?= $timeline['clashes'] ?> booked at the same time as another of the same agent's.</span>
+                                <?php } ?>
+                            </span>
+                        </div>
+                        <div class="itflow-timeline" data-timeline>
+                            <div class="itflow-timeline-lines" aria-hidden="true">
+                                <?php foreach ($timeline['ticks'] as $tick) { ?>
+                                    <span class="itflow-timeline-grid <?= $tick['weekend'] ? 'is-weekend' : '' ?>" style="left: <?= $tick['at'] ?>%; width: <?= $tick['room'] ?>%"></span>
+                                <?php } ?>
+                                <?php foreach ($timeline['markers'] as $marker) { ?>
+                                    <span class="itflow-timeline-marker is-<?= $marker['kind'] ?>" style="left: <?= $marker['at'] ?>%"></span>
+                                <?php } ?>
+                            </div>
+                            <div class="itflow-timeline-row itflow-timeline-scale" aria-hidden="true">
+                                <div class="itflow-timeline-label"></div>
+                                <div class="itflow-timeline-track">
+                                    <?php foreach ($timeline['ticks'] as $tick) {
+                                        if ($tick['minor']) {
+                                            continue;
+                                        } ?>
+                                        <span class="itflow-timeline-tick" style="left: <?= $tick['at'] ?>%; max-width: <?= $tick['label_room'] ?>%"><?= escapeHtml($tick['label']) ?></span>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                            <?php foreach ($timeline['rows'] as $line) {
+                                $row = $line['ticket'];
+                                $when = ticketScheduleShortText($row['ticket_schedule'], $row['ticket_schedule_end'] ?? null);
+                                $state_text = ['done' => ticketIsOpen($row) ? '' : ($row['ticket_status_name'] ?? 'Closed'), 'late' => 'Its booking has passed and it is still open', 'open' => 'Open'][$line['state']]; ?>
+                                <div class="itflow-timeline-row" data-timeline-ticket="<?= intval($row['ticket_id']) ?>">
+                                    <div class="itflow-timeline-label">
+                                        <div class="text-truncate"><?= ticketLink($row) ?></div>
+                                        <div class="small text-body-secondary text-truncate">
+                                            <?php if (!empty($row['ticket_onsite'])) { ?><i class="fas fa-fw fa-car-side me-1" title="Onsite"></i><?php } ?><?= escapeHtml($row['user_name'] ?: 'Not assigned') ?> · <?= escapeHtml($when) ?>
+                                        </div>
+                                        <?php if ($line['clashes']) { ?>
+                                            <div class="small text-danger-emphasis text-truncate" data-timeline-clash><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Same time as <?= escapeHtml(implode(', ', $line['clashes'])) ?></div>
+                                        <?php } ?>
+                                    </div>
+                                    <div class="itflow-timeline-track">
+                                        <a class="itflow-timeline-bar is-<?= $line['state'] ?> <?= $line['clashes'] ? 'is-clash' : '' ?>" href="<?= escapeHtml(ticketUrl($row['ticket_id'], $row['ticket_client_id'])) ?>"
+                                            style="left: <?= $line['left'] ?>%; width: <?= $line['width'] ?>%" title="<?= escapeHtml(ticketReference($row) . ' - ' . $when . ($state_text ? " - $state_text" : '')) ?>"
+                                            aria-label="<?= escapeHtml(ticketReference($row) . ', ' . $when) ?>"></a>
+                                    </div>
+                                </div>
+                            <?php } ?>
+                        </div>
+                        <div class="itflow-asset-pane-bar small text-body-secondary justify-content-start column-gap-3 row-gap-1 border-top border-bottom-0 itflow-timeline-key">
+                            <span><span class="itflow-timeline-swatch is-open"></span>Open</span>
+                            <span><span class="itflow-timeline-swatch is-late"></span>Booking passed, still open</span>
+                            <span><span class="itflow-timeline-swatch is-done"></span>Resolved or closed</span>
+                            <?php if ($timeline['clashes']) { ?><span><span class="itflow-timeline-swatch is-open is-clash"></span>Same agent, same time</span><?php } ?>
+                            <span><span class="itflow-timeline-swatch is-today"></span>Now</span>
+                            <?php if (!empty($project['project_start']) || !empty($project['project_due'])) { ?><span><span class="itflow-timeline-swatch is-dates"></span>Its start and due dates</span><?php } ?>
+                        </div>
+                    <?php } else { ?>
+                        <div class="itflow-asset-empty">
+                            <i class="fas fa-stream fa-2x mb-2 opacity-50"></i>
+                            <div>None of its tickets is booked yet. Book one from its Scheduled line, or drag it onto the calendar or Dispatch, and it shows here in time.</div>
+                        </div>
+                    <?php } ?>
+                    <?php if ($timeline['unbooked']) { ?>
+                        <div class="border-top">
+                            <div class="itflow-asset-pane-bar"><span class="small fw-semibold">Open and not booked <span class="badge rounded-pill text-bg-secondary ms-1"><?= count($timeline['unbooked']) ?></span></span></div>
+                            <div class="list-group list-group-flush" data-timeline-unbooked>
+                                <?php foreach ($timeline['unbooked'] as $row) { ?>
+                                    <div class="list-group-item d-flex align-items-center gap-2">
+                                        <div class="flex-grow-1 min-w-0 text-truncate"><?= ticketLink($row) ?></div>
+                                        <span class="small text-body-secondary text-nowrap"><?= escapeHtml($row['user_name'] ?: 'Not assigned') ?></span>
+                                        <?php if ($can_edit) { ?>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary text-nowrap ajax-modal" data-modal-url="modals/ticket/ticket_edit_schedule.php?ticket_id=<?= intval($row['ticket_id']) ?>"><i class="fas fa-calendar-plus me-1"></i>Book</button>
+                                        <?php } ?>
+                                    </div>
+                                <?php } ?>
+                            </div>
                         </div>
                     <?php } ?>
                 </div>

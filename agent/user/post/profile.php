@@ -129,6 +129,11 @@ if (isset($_POST['edit_your_user_preferences'])) {
     }
     calendarAgentColorSave($session_user_id, $_POST);
     timezoneSave($session_user_id, $_POST);
+    if (calendarRemindersReady() && array_key_exists('booking_reminder', $_POST)) {
+        $booking_reminder = calendarReminderFromInput($_POST['booking_reminder']);
+        $reminder_email = intval($_POST['reminder_email'] ?? 0) === 1 ? 1 : 0;
+        mysqli_query($mysqli, "UPDATE user_settings SET user_config_booking_reminder = " . ($booking_reminder === null ? 'NULL' : $booking_reminder) . ", user_config_reminder_email = $reminder_email WHERE user_id = $session_user_id");
+    }
 
     logAudit("User Account", "Edit", "$session_name updated their preferences");
 

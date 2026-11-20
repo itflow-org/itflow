@@ -1742,6 +1742,64 @@ if (isset($_GET['ticket_timer_tickets'])) {
 }
 
 /*
+ * The top bar's timers panel (js/ticket_timers.js): open tickets to put a timer
+ * started before there was a ticket on - by number, subject or client, or with
+ * nothing typed the agent's own, latest first. Only tickets the agent can open.
+ */
+if (isset($_GET['ticket_timer_search'])) {
+    header('Content-Type: application/json');
+
+    $found = [];
+    if (lookupUserPermission('module_support') >= 1) {
+        $search = trim((string) ($_GET['q'] ?? ''));
+        $where = "ticket_archived_at IS NULL AND " . TICKET_OPEN_SQL . clientScopeSql('ticket_client_id');
+        if ($search === '') {
+            $where .= " AND ticket_assigned_to = " . intval($session_user_id);
+        } else {
+            $like = escapeSql(str_replace(['%', '_'], ['\\%', '\\_'], mb_substr($search, 0, 100)));
+            $number = intval(preg_replace('/\D/', '', $search));
+            $where .= " AND (ticket_subject LIKE '%$like%' OR client_name LIKE '%$like%'" . ($number ? " OR ticket_number = $number" : '') . ")";
+        }
+        $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_client_id, client_name
+            FROM tickets LEFT JOIN clients ON client_id = ticket_client_id
+            WHERE $where
+            ORDER BY ticket_updated_at DESC, ticket_id DESC LIMIT 8");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $found[] = [
+                'id' => intval($row['ticket_id']),
+                'reference' => ticketReference($row),
+                'subject' => html_entity_decode((string) $row['ticket_subject'], ENT_QUOTES, 'UTF-8'),
+                'client' => html_entity_decode((string) $row['client_name'], ENT_QUOTES, 'UTF-8'),
+                'client_id' => intval($row['ticket_client_id']),
+            ];
+        }
+    }
+    echo json_encode($found);
+    exit;
+}
+
+/*
+ * The agent's own time logged on tickets today and this week - the week starting on the
+ * day their calendars do - for the top bar's timers panel (js/ticket_timers.js). In seconds.
+ */
+if (isset($_GET['my_time_logged'])) {
+    header('Content-Type: application/json');
+
+    $first_day = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT user_config_calendar_first_day FROM user_settings WHERE user_id = " . intval($session_user_id)))[0] ?? 0) === 1 ? 1 : 0;
+    $today = date('Y-m-d');
+    $week_start = date('Y-m-d', strtotime($today . ' -' . ((intval(date('w')) - $first_day + 7) % 7) . ' days'));
+    $day_sql = function_exists('ticketWorkTimesReady') && ticketWorkTimesReady() ? 'DATE(COALESCE(ticket_reply_work_start, ticket_reply_created_at))' : 'DATE(ticket_reply_created_at)';
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT
+            COALESCE(SUM(CASE WHEN $day_sql = '$today' THEN TIME_TO_SEC(ticket_reply_time_worked) END), 0),
+            COALESCE(SUM(TIME_TO_SEC(ticket_reply_time_worked)), 0)
+        FROM ticket_replies
+        WHERE ticket_reply_by = " . intval($session_user_id) . " AND ticket_reply_archived_at IS NULL AND ticket_reply_time_worked IS NOT NULL
+        AND ticket_reply_type != 'Client' AND ticket_reply_created_at >= '$week_start' - INTERVAL 1 DAY AND $day_sql BETWEEN '$week_start' AND '$today'"));
+    echo json_encode(['today' => intval($row[0]), 'week' => intval($row[1]), 'week_start' => $week_start]);
+    exit;
+}
+
+/*
  * Returns ordered list of active assets for a specified client
  */
 if (isset($_GET['get_client_assets'])) {

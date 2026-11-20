@@ -154,7 +154,7 @@ if (isset($_POST['add_ticket'])) {
         ticketMailColleaguesNew($ticket_id);
     }
     if ($quick_ticket) {
-        quickTicketAfterCreate($ticket_id, $_POST['quick_ticket_timer'] ?? '');
+        quickTicketAfterCreate($ticket_id, $_POST['quick_ticket_timer'] ?? '', $_POST['quick_ticket_paused'] ?? '', !empty($_POST['quick_ticket_call']));
     }
 
     // Custom action/notif handler

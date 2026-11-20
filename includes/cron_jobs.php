@@ -129,6 +129,15 @@ function cronJobRegistry(): array
             'interval_minutes' => 1,
         ],
         [
+            'name' => 'calendar_reminders',
+            'label' => 'Reminders',
+            'icon' => 'fa-bell',
+            'script' => 'calendar_reminders.php',
+            'description' => 'Reminds agents of events on the calendar and of work booked on their tickets, at the times they set - by notification, and by email for those who asked.',
+            'schedule' => 'Interval',
+            'interval_minutes' => 1,
+        ],
+        [
             'name' => 'ai_triage',
             'label' => 'AI Triage',
             'icon' => 'fa-robot',

@@ -143,6 +143,22 @@ $form_agents = calendarEventAgentChoices($form_attendees['agents']);
         </div>
         <?= byDayField('[name=start_date]', '[name=repeat]', ['Month', 'Year'], ['Year'], $form['event_repeat_by_day'] ?? '', 'col-md-8', 'form-label small text-body-secondary mb-1') ?>
     </div>
+    <?php if (calendarRemindersReady()) { ?>
+        <!-- A reminder for the agents on it - functions/calendar_reminders.php -->
+        <div class="row g-2 align-items-end mt-1">
+            <div class="col-md-6">
+                <input type="hidden" name="reminder_field" value="1">
+                <label class="form-label small text-body-secondary mb-1" for="eventReminder">Remind</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-bell"></i></span>
+                    <select class="form-select" name="reminder" id="eventReminder">
+                        <?= calendarReminderOptions(isset($form['event_reminder']) && $form['event_reminder'] !== '' && $form['event_reminder'] !== null ? intval($form['event_reminder']) : null) ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6 form-text">The agents it's assigned to - or whoever made it, when nobody is - get a notification, and an email too if they asked for that in their Preferences.</div>
+        </div>
+    <?php } ?>
     <?php if (calendarSkippedDates($form)) { ?>
         <div class="small text-body-secondary mt-2"><i class="fas fa-fw fa-forward me-1"></i>Skipped: <?= escapeHtml(implode(', ', array_map(function ($date) {
             return date('M j, Y', strtotime($date));

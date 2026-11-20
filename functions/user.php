@@ -82,7 +82,8 @@ function userRow($user_id) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT users.user_id, user_name, user_email, user_auth_method, user_type, user_status, user_token, user_avatar,
             user_created_at, user_updated_at, user_archived_at, user_role_id, role_name, role_is_admin, role_archived_at,
             user_config_force_mfa, user_config_calendar_first_day, user_config_theme_dark, user_config_records_per_page, user_config_signature"
-            . (compactRowsReady() ? ', user_config_compact_rows' : '') . "
+            . (compactRowsReady() ? ', user_config_compact_rows' : '')
+            . (function_exists('calendarRemindersReady') && calendarRemindersReady() ? ', user_config_booking_reminder, user_config_reminder_email' : '') . "
         FROM users
         LEFT JOIN user_settings ON user_settings.user_id = users.user_id
         LEFT JOIN user_roles ON role_id = user_role_id

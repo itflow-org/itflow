@@ -209,3 +209,18 @@ foreach ($sources as $key => $source) {
 <script src="<?= staticFileUrl('/libs/fullcalendar/fullcalendar.global.js') ?>"></script>
 <script src="<?= staticFileUrl('/libs/fullcalendar/themes/classic/global.js') ?>"></script>
 <script src="<?= staticFileUrl('/agent/js/calendar.js') ?>"></script>
+<?php if (intval($_GET['event'] ?? 0)) { ?>
+    <script>
+        // From a reminder - straight to the event, on its day
+        document.addEventListener('DOMContentLoaded', function () {
+            var open = document.createElement('a');
+            open.className = 'ajax-modal d-none';
+            open.href = '#';
+            open.dataset.modalUrl = 'modals/calendar/calendar_event.php?id=<?= intval($_GET['event']) ?>';
+            open.dataset.modalSize = 'lg';
+            document.body.appendChild(open);
+            open.click();
+            open.remove();
+        });
+    </script>
+<?php } ?>

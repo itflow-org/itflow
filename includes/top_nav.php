@@ -101,18 +101,20 @@
 
         <?php if (!empty($config_module_enable_ticketing)) { ?>
             <!-- Ticket timers - the ones running or paused in this browser, so one isn't lost on a ticket
-                 you left. js/ticket_timers.js shows it once it finds one. -->
-            <li class="nav-item dropdown" id="itflowTimers" hidden>
+                 you left, and one without a ticket yet for a call (js/ticket_timers.js). -->
+            <li class="nav-item dropdown" id="itflowTimers"<?= quickTicketCan() ? ' data-quick-ticket="/agent/modals/ticket/ticket_quick.php' . (intval($_GET['client_id'] ?? 0) ? '?client_id=' . intval($_GET['client_id']) : '') . '"' : '' ?>>
                 <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Ticket timers" aria-label="Ticket timers">
                     <i class="fas fa-stopwatch" aria-hidden="true"></i>
-                    <span class="badge rounded-pill navbar-badge" data-timers-badge></span>
+                    <span class="badge rounded-pill navbar-badge" data-timers-badge hidden></span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end p-0 itflow-notify-panel itflow-timers-panel" data-bs-theme="<?= $user_config_theme_dark ? 'dark' : 'light' ?>">
                     <div class="itflow-notify-head pb-2 border-bottom">
-                        <span class="fw-semibold"><i class="fas fa-stopwatch me-2" aria-hidden="true"></i>Ticket timers</span>
+                        <span class="fw-semibold"><i class="fas fa-stopwatch me-2" aria-hidden="true"></i>Timers</span>
                         <small class="text-body-secondary ms-auto">In this browser</small>
                     </div>
+                    <div class="border-bottom" data-timers-call></div>
                     <div class="itflow-notify-list" data-timers-list></div>
+                    <div class="small text-body-secondary px-3 py-2 border-top" data-timers-logged hidden></div>
                 </div>
             </li>
         <?php } ?>
