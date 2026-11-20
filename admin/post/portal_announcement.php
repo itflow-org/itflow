@@ -62,12 +62,16 @@ if (isset($_GET['archive_portal_announcement']) || isset($_GET['restore_portal_a
         redirect();
     }
 
+    $undo = $archive ? undoArchivedBefore('portal_announcements', 'announcement_id', [$announcement_id]) : null;
     mysqli_query($mysqli, "UPDATE portal_announcements SET announcement_archived_at = " . ($archive ? 'NOW()' : 'NULL') . " WHERE announcement_id = $announcement_id");
     $title = escapeSql($row['announcement_title']);
 
     logAudit("Announcement", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " the client portal announcement $title", intval($row['announcement_client_id']), $announcement_id);
 
     flashAlert("Announcement <strong>" . escapeHtml($row['announcement_title']) . "</strong> " . ($archive ? 'archived - the portal no longer shows it' : 'restored'), $archive ? 'error' : 'success');
+    if ($undo) {
+        undoOfferArchived($undo, '', $row['announcement_title']);
+    }
 
     redirect();
 

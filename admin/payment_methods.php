@@ -210,8 +210,8 @@ $csrf = $_SESSION['csrf_token'];
                                         <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
                                     </a>
                                 <?php } else { ?>
-                                    <a class="dropdown-item text-danger confirm-link" href="post.php?archive_payment_method=<?= $payment_method_id ?>&csrf_token=<?= $csrf ?>"
-                                        data-confirm-title="Archive <?= $name ?>?" data-confirm-text="It can't be picked any more<?= $is_default ? ', and stops being a default' : '' ?>. The records that used it keep it." data-confirm-button="Archive">
+                                    <a class="dropdown-item text-danger" href="post.php?archive_payment_method=<?= $payment_method_id ?>&csrf_token=<?= $csrf ?>"
+                                        title="It can't be picked any more<?= $is_default ? ', and stops being a default' : '' ?> - the records that used it keep it">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </a>
                                 <?php } ?>

@@ -72,11 +72,15 @@ if (isset($_GET['archive_document_template']) || isset($_GET['restore_document_t
     $document_template_id = intval($row['document_template_id']);
 
     // Archived, it isn't offered for new documents; the ones made from it stay
+    $undo = $archive ? undoArchivedBefore('document_templates', 'document_template_id', [$document_template_id]) : null;
     mysqli_query($mysqli, "UPDATE document_templates SET document_template_archived_at = " . ($archive ? 'NOW()' : 'NULL') . " WHERE document_template_id = $document_template_id");
 
     logAudit("Document Template", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " document template " . escapeSql($row['document_template_name']), 0, $document_template_id);
 
     flashAlert("Document template <strong>" . escapeHtml($row['document_template_name']) . "</strong> " . ($archive ? 'archived' : 'restored'), $archive ? 'error' : 'success');
+    if ($undo) {
+        undoOfferArchived($undo, '', $row['document_template_name']);
+    }
 
     redirect();
 

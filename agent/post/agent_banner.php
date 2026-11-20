@@ -72,6 +72,7 @@ if (isset($_GET['archive_agent_banner']) || isset($_GET['restore_agent_banner'])
         redirect();
     }
     $announcement_id = intval($row['announcement_id']);
+    $undo = $archive ? undoArchivedBefore('portal_announcements', 'announcement_id', [$announcement_id], 'announcement_client_id') : null;
 
     mysqli_query($mysqli, "UPDATE portal_announcements SET announcement_archived_at = " . ($archive ? 'NOW()' : 'NULL') . " WHERE announcement_id = $announcement_id");
     $title = escapeSql($row['announcement_title']);
@@ -79,6 +80,10 @@ if (isset($_GET['archive_agent_banner']) || isset($_GET['restore_agent_banner'])
     logAudit("Announcement", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " the agent banner $title", intval($row['announcement_client_id']), $announcement_id);
 
     flashAlert("Banner <strong>" . escapeHtml($row['announcement_title']) . "</strong> " . ($archive ? 'archived - nobody sees it now' : 'restored'), $archive ? 'error' : 'success');
+    if ($undo) {
+        $client_banner = intval($row['announcement_client_id']) > 0;
+        undoOfferArchived($undo, '', $row['announcement_title'], [], 's', $client_banner ? 'module_client' : 'admin', $client_banner ? 2 : 3);
+    }
 
     redirect();
 

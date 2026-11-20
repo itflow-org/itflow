@@ -86,6 +86,8 @@ if (isset($_GET['archive_sla'])) {
     validateCSRFToken();
 
     $sla_id = intval($_GET['archive_sla']);
+    $sla_name = (string) getFieldById('slas', $sla_id, 'sla_name');
+    $undo = undoArchivedBefore('slas', 'sla_id', [$sla_id]);
 
     mysqli_query($mysqli, "UPDATE slas SET sla_archived_at = NOW() WHERE sla_id = $sla_id");
 
@@ -94,7 +96,8 @@ if (isset($_GET['archive_sla'])) {
 
     logAudit("SLA", "Archive", "$session_name archived SLA ID $sla_id");
 
-    flashAlert("SLA archived");
+    flashAlert($sla_name !== '' ? "SLA <strong>" . escapeHtml($sla_name) . "</strong> archived" : "SLA archived");
+    undoOfferArchived($undo, 'SLA', $sla_name);
 
     redirect();
 

@@ -78,11 +78,13 @@ if (isset($_GET['archive_role'])) {
         redirect();
     }
 
+    $undo = undoArchivedBefore('user_roles', 'role_id', [$row['role_id']]);
     roleSetArchived($row['role_id'], true);
 
     logAudit("User Role", "Archive", "$session_name archived role " . escapeSql($row['role_name']), 0, $row['role_id']);
 
     flashAlert("Role <strong>" . escapeHtml($row['role_name']) . "</strong> archived");
+    undoOfferArchived($undo, '', $row['role_name']);
 
     redirect();
 

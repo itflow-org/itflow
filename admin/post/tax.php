@@ -81,6 +81,8 @@ if (isset($_POST['archive_tax'])) {
     }
 
     $move_to = intval($_POST['move_to'] ?? 0);
+    $undo = undoArchivedBefore('taxes', 'tax_id', [$tax_id]);
+    $default = undoSnapshot('settings', 'company_id', [1], ['config_tax_default_id']);
     $done = taxArchive($tax_id, $move_to);
     $label = taxLabel($row);
     $moved = taxMovedText($done['moved']);
@@ -91,6 +93,10 @@ if (isset($_POST['archive_tax'])) {
     flashAlert("Tax <strong>" . escapeHtml($label) . "</strong> archived"
         . ($moved !== '' ? " - $moved moved to " . escapeHtml($to) : '')
         . ($done['was_default'] ? ". There is no default rate now" : ''), 'error');
+    // What was moved to another rate isn't put back - with nothing moved, Undo is all it takes
+    if (!$done['moved']) {
+        undoOfferArchived($undo, '', $label, [$default]);
+    }
 
     redirect();
 

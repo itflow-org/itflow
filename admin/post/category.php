@@ -93,11 +93,13 @@ if (isset($_GET['archive_category'])) {
 
     $row = categoryRow(intval($_GET['archive_category']));
     if ($row && !$row['category_archived_at']) {
+        $undo = undoArchivedBefore('categories', 'category_id', [$row['category_id']]);
         categoryArchive($row['category_id']);
         $used = categoryUsageFor($row['category_id']);
         logAudit("Category", "Archive", "$session_name archived " . $category_kind_word($row) . " " . escapeSql($row['category_name']), 0, intval($row['category_id']));
         flashAlert(ucfirst($category_kind_word($row)) . " <strong>" . escapeHtml($row['category_name']) . "</strong> archived - "
             . ($used['all'] ? "it stays on the " . escapeHtml(categoryUsageText($row, $used)) . " that have it, but isn't offered for new ones" : "it isn't offered for new ones"));
+        undoOfferArchived($undo, 'categor', $row['category_name'], [], 'y|ies');
     }
 
     redirect();
@@ -244,6 +246,7 @@ if (isset($_POST['bulk_archive_categories']) || isset($_POST['bulk_restore_categ
     validateCSRFToken();
 
     $archive = isset($_POST['bulk_archive_categories']);
+    $undo = $archive ? undoArchivedBefore('categories', 'category_id', $_POST['category_ids'] ?? []) : null;
     $count = 0;
     foreach (array_unique(array_map('intval', (array) ($_POST['category_ids'] ?? []))) as $category_id) {
         $row = categoryRow($category_id);
@@ -260,6 +263,9 @@ if (isset($_POST['bulk_archive_categories']) || isset($_POST['bulk_restore_categ
     }
 
     flashAlert(($archive ? "Archived " : "Restored ") . $count . ($count === 1 ? " category" : " categories") . ($archive && $count ? " - they stay on their records, but aren't offered for new ones" : ''));
+    if ($undo) {
+        undoOfferArchived($undo, 'categor', '', [], 'y|ies');
+    }
 
     redirect();
 

@@ -224,12 +224,16 @@ if (isset($_GET['archive_software_template']) || isset($_GET['restore_software_t
     $software_template_id = intval($row['software_template_id']);
 
     // Archived, it isn't offered for new licenses; the ones made from it stay
+    $undo = $archive ? undoArchivedBefore('software_templates', 'software_template_id', [$software_template_id]) : null;
     mysqli_query($mysqli, "UPDATE software_templates SET software_template_archived_at = " . ($archive ? 'NOW()' : 'NULL') . ", software_template_updated_at = software_template_updated_at
         WHERE software_template_id = $software_template_id");
 
     logAudit("Software Template", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " license template " . escapeSql($row['software_template_name']), 0, $software_template_id);
 
     flashAlert("License template <strong>" . escapeHtml($row['software_template_name']) . "</strong> " . ($archive ? 'archived' : 'restored'), $archive ? 'error' : 'success');
+    if ($undo) {
+        undoOfferArchived($undo, '', $row['software_template_name']);
+    }
 
     redirect();
 

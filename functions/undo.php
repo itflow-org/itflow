@@ -21,15 +21,23 @@
  *   ['ticket_category', ticket id, before, after]           with the ticket's history line, as the bulk change
  *   ['ticket_project', ticket id, before, after]            the same
  *   ['asset_status', asset id, before, after]               with the asset's history line
+ *   ['also', step]                                          a step that goes with the others, not counted
  */
 
 const UNDO_SECONDS = 600;
 const UNDO_KEEP = 5;
+// Tables where putting a row back isn't an edit - its updated time stays as it was
+const UNDO_KEEP_UPDATED = [
+    'documents' => 'document_updated_at',
+    'software_templates' => 'software_template_updated_at',
+    'vendor_templates' => 'vendor_template_updated_at',
+];
 
 /*
  * Offer to undo what was just done - on the message flashAlert() set, so call it after that.
  * $done is the message once it is undone (escapeHtml() any names in it): in it {n} is how many
  * steps were put back, {s} the plural ending ($plural) when that isn't one, and {are} is or are.
+ * A $plural of 'y|ies' gives both endings ("categor{s}").
  * $module and $level are the permission the change needed. The token, or '' when there is nothing to put back.
  */
 function undoOffer(string $done, array $steps, string $module, int $level = 2, string $plural = 's'): string {
@@ -225,6 +233,43 @@ function undoOfferArchive(array ...$befores): string {
     return undoOffer($done, $steps, $module);
 }
 
+/*
+ * Archiving something that isn't on Archived - a tag, a category, a template, a role, a payment
+ * method, and the like on the admin pages: which of $ids ($id_column is the table's X_id, archived
+ * in X_archived_at) aren't archived yet, before. Hand it to undoOfferArchived() after.
+ * $client_column, for one that can be a client's, has Undo check the agent can still get to it.
+ */
+function undoArchivedBefore(string $table, string $id_column, $ids, string $client_column = ''): array {
+    $column = substr($id_column, 0, -3) . '_archived_at';
+    $snapshot = undoSnapshot($table, $id_column, $ids, [$column], $client_column);
+    $snapshot['rows'] = array_filter($snapshot['rows'], function ($row) use ($column) {
+        return $row[$column] === null;
+    });
+    return $snapshot;
+}
+
+/*
+ * After archiving: Undo for what undoArchivedBefore() saw that is archived now - "Name is back"
+ * with $name, or "3 tags are back" ($label 'tag'; 'categor' with $plural 'y|ies'). $also are
+ * snapshots of what else the archive changed (the default it stopped being), put back with it.
+ * Admins only unless $module says who else.
+ */
+function undoOfferArchived(array $snapshot, string $label, string $name = '', array $also = [], string $plural = 's', string $module = 'admin', int $level = 3): string {
+    $steps = undoChangedSteps($snapshot);
+    if (!$steps) {
+        return '';
+    }
+    foreach ($also as $more) {
+        foreach (undoChangedSteps($more) as $step) {
+            $steps[] = ['also', $step];
+        }
+    }
+    $done = $name !== '' && count($snapshot['rows']) === 1
+        ? '<strong>' . escapeHtml($name) . '</strong> is back'
+        : '<strong>{n}</strong> ' . $label . '{s} {are} back';
+    return undoOffer($done, $steps, $module, $level, $plural);
+}
+
 /** A value as SQL - NULL stays NULL. Values come from the database, never from the request. */
 function undoSqlValue($value): string {
     global $mysqli;
@@ -263,7 +308,9 @@ function undoApply(string $token): array {
     if (!$done && $missed) {
         return [false, 'Nothing was put back - it has changed since.'];
     }
-    $message = str_replace(['{n}', '{s}', '{are}'], [$done, $done === 1 ? '' : ($offer['plural'] ?? 's'), $done === 1 ? 'is' : 'are'], $offer['done']);
+    $plural = (string) ($offer['plural'] ?? 's');
+    [$one, $many] = strpos($plural, '|') !== false ? explode('|', $plural, 2) : ['', $plural];
+    $message = str_replace(['{n}', '{s}', '{are}'], [$done, $done === 1 ? $one : $many, $done === 1 ? 'is' : 'are'], $offer['done']);
     logAudit('Undo', 'Undo', "$session_name undid a change: " . html_entity_decode(strip_tags($message), ENT_QUOTES));
     return [true, 'Undone - ' . $message . ($missed ? " - $missed had changed since, and " . ($missed === 1 ? 'was left as it is' : 'were left as they are') : '')];
 }
@@ -287,11 +334,15 @@ function undoStep(array $step) {
                 $sets[] = "$column = " . undoSqlValue($value);
                 $still[] = "$column <=> " . undoSqlValue($after[$column]);
             }
-            if ($table === 'documents') {
-                $sets[] = 'document_updated_at = document_updated_at'; // a move isn't an edit
+            if (isset(UNDO_KEEP_UPDATED[$table])) {
+                $sets[] = UNDO_KEEP_UPDATED[$table] . ' = ' . UNDO_KEEP_UPDATED[$table]; // a move or a restore isn't an edit
             }
             mysqli_query($mysqli, "UPDATE $table SET " . implode(', ', $sets) . " WHERE $id_column = " . intval($id) . " AND " . implode(' AND ', $still));
             return mysqli_affected_rows($mysqli) > 0;
+
+        case 'also':
+            undoStep($step[1]);
+            return null;
 
         case 'rows':
             [, $table, $rows] = $step;
