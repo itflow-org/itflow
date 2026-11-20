@@ -334,7 +334,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
 $empty_state = [
     'thing' => 'tickets',
     'icon' => 'fa-life-ring',
-    'filtered' => $q !== '' || $active_filters || $assigned_filter !== '' || $client_filter,
+    'filtered' => (bool) $filter_sql,
     'views' => ['show', 'view'],
     'view' => $show === 'open' ? ['title' => 'No open tickets', 'text' => 'Nothing is waiting to be worked on.', 'icon' => 'fa-check'] : emptyStatePill($shows, $show),
     'text' => 'Tickets come in by email and from the client portal, or add one here.',

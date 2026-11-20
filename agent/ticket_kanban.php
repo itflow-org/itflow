@@ -175,7 +175,7 @@ $tickets_tags = tagsForRecords('ticket', $board_ids);
 
 <?php if (!$board_count && !$off_board_count) { ?>
     <div class="itflow-asset-empty pt-0">
-        <div><?= $q !== '' || $active_filters || $assigned_filter !== '' || $client_filter ? 'No tickets match.' : 'Nothing on the board here.' ?></div>
+        <div><?= $filter_sql ? 'No tickets match.' : 'Nothing on the board here.' ?></div>
     </div>
 <?php } ?>
 

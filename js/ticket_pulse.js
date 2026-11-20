@@ -2,9 +2,10 @@
  * ITFlow - your open tickets in the browser tab's title, and desktop notifications.
  *
  * Every agent page asks agent/ajax.php?ticket_pulse once a minute - one tab per browser asks, the
- * others hear the answer through localStorage - and puts the number of open tickets assigned to
- * you (the Mine count) in front of the tab's title: "(3) Ravenwood MSP - Tickets". It keeps going
- * in the background, which is the point: the count shows on the tab while you are in another one.
+ * others hear the answer through localStorage - and the tickets list puts the number of open tickets
+ * assigned to you (the Mine count) in front of its tab's title: "(3) Ravenwood MSP - Tickets". It
+ * keeps going in the background, which is the point: the count shows on that tab while you are in
+ * another one. Other pages keep their own title.
  *
  * Desktop notifications are each browser's own choice, turned on and off from the bell's panel
  * ([data-desktop-notify] - js/notifications.js draws it), which asks the browser's permission.
@@ -31,6 +32,7 @@
     const DESKTOP = 'itflow-desktop-notify-' + user;     // '1' - desktop notifications on in this browser
     const FOCUS = 'itflow-focus-at';                     // when an ITFlow tab last had the focus
     const baseTitle = document.title;
+    const countsInTitle = /\/agent\/tickets\.php$/.test(window.location.pathname);
     let timer = null;
 
     function store(key, value) {
@@ -56,6 +58,9 @@
     }
 
     function setTitle(count) {
+        if (!countsInTitle) {
+            return;
+        }
         count = Number(count) || 0;
         document.title = (count > 0 ? '(' + count + ') ' : '') + baseTitle;
     }

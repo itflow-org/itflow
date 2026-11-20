@@ -284,15 +284,6 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                 </a>
             <?php } ?>
         </nav>
-
-        <?php if ($date_filter_active) { ?>
-            <div class="d-flex flex-wrap align-items-center gap-1 mt-2">
-                <span class="badge rounded-pill bg-body-secondary text-body fw-normal border py-2 px-2">
-                    <span class="text-body-secondary">Created:</span> <?= escapeHtml("$dtf to $dtt") ?>
-                    <a href="<?= escapeHtml($filter_url(['canned_date' => null, 'dtf' => null, 'dtt' => null])) ?>" class="text-danger ms-1" title="Remove this filter"><i class="fas fa-times"></i></a>
-                </span>
-            </div>
-        <?php } ?>
     </div>
 
     <form id="bulkActions" action="post.php" method="post">

@@ -40,10 +40,6 @@ function clientsFilterUrl($overrides = [])
     return escapeHtml('?' . http_build_query($params));
 }
 
-// Chips describing what is currently filtering the list, built as each
-// filter is parsed. Each one renders with an x that drops just that filter.
-$active_filters = [];
-
 // Leads Filter
 if (isset($_GET['leads']) && $_GET['leads'] == 1) {
     $leads_filter = 1;
@@ -53,22 +49,11 @@ if (isset($_GET['leads']) && $_GET['leads'] == 1) {
     $leads_query = "AND client_lead = 0";
 }
 
-// Archived - filter_header.php has already turned ?archived into $archive_query
-if ($archived) {
-    $active_filters[] = ['label' => 'Showing', 'value' => 'Archived', 'drop' => 'archived'];
-}
-
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
     $tag_filter = implode(",", array_map('intval', $_GET['tags']));
     $tag_query = "AND clients.client_id IN (SELECT client_tags.client_id FROM client_tags WHERE client_tags.tag_id IN ($tag_filter))";
 
-    $tag_names = [];
-    $sql_tag_names = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_id IN ($tag_filter) ORDER BY tag_name");
-    while ($row = mysqli_fetch_assoc($sql_tag_names)) {
-        $tag_names[] = escapeHtml($row['tag_name']);
-    }
-    $active_filters[] = ['label' => 'Tags', 'value' => implode(', ', $tag_names), 'drop' => 'tags'];
 } else {
     $tag_filter = 0;
     $tag_query = '';
@@ -78,7 +63,6 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
 if (!empty($_GET['industry'])) {
     $industry_query = "AND clients.client_type = '" . escapeSql($_GET['industry']) . "'";
     $industry_filter = escapeHtml($_GET['industry']);
-    $active_filters[] = ['label' => 'Industry', 'value' => $industry_filter, 'drop' => 'industry'];
 } else {
     $industry_query = '';
     $industry_filter = '';
@@ -88,7 +72,6 @@ if (!empty($_GET['industry'])) {
 if (!empty($_GET['referral'])) {
     $referral_query = "AND clients.client_referral = '" . escapeSql($_GET['referral']) . "'";
     $referral_filter = escapeHtml($_GET['referral']);
-    $active_filters[] = ['label' => 'Referral', 'value' => $referral_filter, 'drop' => 'referral'];
 } else {
     $referral_query = '';
     $referral_filter = '';
@@ -101,30 +84,17 @@ if ($contract_filter !== '') {
     $contract_in_force = contractInForceSql('cf');
     if ($contract_filter === 'none') {
         $contract_query = "AND NOT EXISTS (SELECT 1 FROM contracts cf WHERE cf.contract_client_id = clients.client_id AND $contract_in_force)";
-        $contract_filter_label = 'None in force';
     } elseif ($contract_filter === 'any') {
         $contract_query = "AND EXISTS (SELECT 1 FROM contracts cf WHERE cf.contract_client_id = clients.client_id AND $contract_in_force)";
-        $contract_filter_label = 'One in force';
-    } elseif (ctype_digit($contract_filter) && ($contract_filter_template = contractTemplateRow(intval($contract_filter)))) {
+    } elseif (ctype_digit($contract_filter) && contractTemplateRow(intval($contract_filter))) {
         $contract_query = "AND EXISTS (SELECT 1 FROM contracts cf WHERE cf.contract_client_id = clients.client_id AND cf.contract_template_id = " . intval($contract_filter) . " AND $contract_in_force)";
-        $contract_filter_label = 'From ' . $contract_filter_template['contract_template_name'];
     } else {
         $contract_filter = '';
-    }
-    if ($contract_query !== '') {
-        $active_filters[] = ['label' => 'Contract', 'value' => escapeHtml($contract_filter_label), 'drop' => 'contract'];
     }
 }
 
 // Created date
 $date_filter_active = $dtf !== '1970-01-01' || $dtt !== '2099-12-31';
-if ($date_filter_active) {
-    $active_filters[] = ['label' => 'Created', 'value' => escapeHtml("$dtf to $dtt"), 'drop' => ['canned_date', 'dtf', 'dtt']];
-}
-
-if ($q !== '') {
-    $active_filters[] = ['label' => 'Search', 'value' => stripslashes(escapeHtml($q)), 'drop' => 'q'];
-}
 
 // How many of the collapsed panel's filters are set - shown on the filter button
 $hidden_filter_count = count(array_filter([$tag_query, $industry_query, $referral_query, $contract_query, $date_filter_active]));
@@ -539,21 +509,6 @@ $total_leads = intval($row['leads']);
             </div>
         </form>
 
-        <?php if ($active_filters) { ?>
-            <!-- The filters are collapsed by default, so this line is what stops an
-                 active filter from being invisible -->
-            <div class="mt-2">
-                <?php foreach ($active_filters as $filter) {
-                    $drop = is_array($filter['drop']) ? array_fill_keys($filter['drop'], null) : [$filter['drop'] => null];
-                    ?>
-                    <span class="badge rounded-pill bg-body-secondary text-body border p-2 me-1 fw-normal">
-                        <span class="text-body-secondary"><?= $filter['label'] ?>:</span> <?= $filter['value'] ?>
-                        <a href="<?= clientsFilterUrl($drop) ?>" class="text-danger ms-1" title="Remove this filter"><i class="fas fa-times"></i></a>
-                    </span>
-                <?php } ?>
-                <a href="<?= $leads_filter ? '?leads=1' : '?' ?>" class="small text-danger ms-1">Clear all</a>
-            </div>
-        <?php } ?>
     </div>
 
     <form id="bulkActions" action="post.php" method="post">

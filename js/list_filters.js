@@ -1,10 +1,10 @@
 /*
- * A list's filters that are on stand out - their field gets a coloured edge - and an x at the end
+ * A list's filters that are on stand out - their field takes a light wash of the theme color - and an x at the end
  * of the search box takes them all off at once. What is on is read from the page's address, so a
  * filter only counts once it has been applied, against the filter form above the list (a GET form
  * in a card header): its dropdowns, its search box and anything in its collapsed extra filters.
  * Hidden fields outside those - the client the list is for, the view tab - are where you are, not
- * filters, and stay, as do the columns, view and sort picked. A list that has its own "Clear all" keeps it and gets no x.
+ * filters, and stay, as do the columns, view and sort picked.
  */
 (function () {
     'use strict';
@@ -44,14 +44,15 @@
             if (!on.length) {
                 return;
             }
+            // A date range is kept in hidden fields - its box (js/date_filter.js) is what shows
+            var dateBox = form.querySelector('#dateFilter');
+            if (dateBox && (on.indexOf('canned_date') !== -1 || on.indexOf('dtf') !== -1)) {
+                dateBox.classList.add('itflow-filter-on');
+            }
 
-            var header = form.closest('.card-header') || form;
-            var hasOwnClear = Array.prototype.some.call(header.querySelectorAll('a'), function (a) {
-                return /^\s*clear all\s*$/i.test(a.textContent);
-            });
             var search = form.querySelector('input[name="q"]');
             var group = search && search.closest('.input-group');
-            if (hasOwnClear || !group) {
+            if (!group) {
                 return;
             }
             var keep = new URLSearchParams(window.location.search);

@@ -87,12 +87,9 @@ $filter_url = function ($changes) {
 $sla_in_use = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(sla_id) FROM slas WHERE sla_archived_at IS NULL"))[0] > 0;
 $show_billing = $config_module_enable_accounting && lookupUserPermission("module_sales") >= 2;
 
-/*
- * The filters. $active_filters are the ones tucked away under the Filters
- * button, shown as chips so a filter is never invisible.
- */
-$active_filters = [];
+// The filters - the ones tucked away under More filters open with the page when one is set
 $filter_sql = [];
+$hidden_filter_count = 0; // how many of those are set - on the More filters button
 
 // Client (all clients)
 $client_filter = 0;
@@ -121,45 +118,35 @@ if (isset($_GET['status']) && is_array($_GET['status'])) {
 if ($status_filter) {
     $status_ids = implode(',', $status_filter);
     $filter_sql[] = "AND ticket_status IN ($status_ids)";
-    $status_names = [];
-    $sql_status_names = mysqli_query($mysqli, "SELECT ticket_status_name FROM ticket_statuses WHERE ticket_status_id IN ($status_ids) ORDER BY ticket_status_order");
-    while ($row = mysqli_fetch_assoc($sql_status_names)) {
-        $status_names[] = escapeHtml($row['ticket_status_name']);
-    }
-    $active_filters[] = ['label' => 'Status', 'value' => implode(', ', $status_names), 'drop' => ['status' => null]];
+    $hidden_filter_count++;
 }
 
 // Priority
 $priority_filter = in_array($_GET['priority'] ?? '', TICKET_PRIORITIES, true) ? $_GET['priority'] : '';
 if ($priority_filter) {
     $filter_sql[] = "AND ticket_priority = '$priority_filter'";
-    $active_filters[] = ['label' => 'Priority', 'value' => $priority_filter, 'drop' => ['priority' => null]];
+    $hidden_filter_count++;
 }
 
 // Category
 $category_filter = intval($_GET['category'] ?? 0);
 if ($category_filter) {
     $filter_sql[] = "AND ticket_category = $category_filter";
-    $active_filters[] = ['label' => 'Category', 'value' => escapeHtml(getFieldById('categories', $category_filter, 'category_name')), 'drop' => ['category' => null]];
+    $hidden_filter_count++;
 }
 
 // Project
 $project_filter = intval($_GET['project'] ?? 0);
 if ($project_filter) {
     $filter_sql[] = "AND ticket_project_id = $project_filter";
-    $active_filters[] = ['label' => 'Project', 'value' => escapeHtml(getFieldByIdInScope('projects', $project_filter, 'project_name', 'project_client_id')), 'drop' => ['project' => null]];
+    $hidden_filter_count++;
 }
 
 // Tags - a ticket with any of them
 $tag_filter_ids = tagFilterIds();
 if ($tag_filter_ids) {
     $filter_sql[] = tagFilterSql('ticket', $tag_filter_ids, 'tickets.ticket_id');
-    $tag_filter_names = [];
-    $sql_tag_names = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_type = 12 AND tag_id IN (" . implode(',', $tag_filter_ids) . ") ORDER BY tag_name");
-    while ($row = mysqli_fetch_row($sql_tag_names)) {
-        $tag_filter_names[] = escapeHtml($row[0]);
-    }
-    $active_filters[] = ['label' => 'Tags', 'value' => implode(', ', $tag_filter_names), 'drop' => ['tags' => null]];
+    $hidden_filter_count++;
 }
 
 // SLA state - the dashboard's "SLA breached" links here
@@ -173,7 +160,7 @@ $sla_filters = [
 $sla_filter = isset($sla_filters[$_GET['sla'] ?? '']) ? $_GET['sla'] : '';
 if ($sla_filter) {
     $filter_sql[] = "AND ({$sla_filters[$sla_filter][1]})";
-    $active_filters[] = ['label' => 'SLA', 'value' => $sla_filters[$sla_filter][0], 'drop' => ['sla' => null]];
+    $hidden_filter_count++;
 }
 
 // Billing
@@ -185,7 +172,7 @@ $billing_filters = [
 $billing_filter = isset($billing_filters[$_GET['billing'] ?? '']) ? $_GET['billing'] : '';
 if ($billing_filter) {
     $filter_sql[] = "AND ({$billing_filters[$billing_filter][1]})";
-    $active_filters[] = ['label' => 'Billing', 'value' => $billing_filters[$billing_filter][0], 'drop' => ['billing' => null]];
+    $hidden_filter_count++;
 }
 
 // Created - filter_header.php resolves the canned ranges into $dtf / $dtt
@@ -193,7 +180,7 @@ $date_filter_active = (isset($_GET['canned_date']) && !in_array($_GET['canned_da
     || (!empty($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01');
 if ($date_filter_active) {
     $filter_sql[] = "AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'";
-    $active_filters[] = ['label' => 'Created', 'value' => escapeHtml("$dtf to $dtt"), 'drop' => ['canned_date' => null, 'dtf' => null, 'dtt' => null]];
+    $hidden_filter_count++;
 }
 
 // Search
@@ -290,8 +277,6 @@ foreach (array_keys($shows) as $i => $key) {
     $counts[$key] = intval($row[$i]);
 }
 
-// How many of the tucked-away filters are set - on the Filters button
-$hidden_filter_count = count($active_filters);
 
 // What the export starts from - the pill, in the export's own terms
 $export_extra = [
@@ -532,19 +517,6 @@ $export_extra = [
                 </a>
             <?php } ?>
         </nav>
-
-        <?php if ($active_filters) { ?>
-            <!-- What the tucked-away filters are set to - each with its own x -->
-            <div class="d-flex flex-wrap align-items-center gap-1 mt-2">
-                <?php foreach ($active_filters as $filter) { ?>
-                    <span class="badge rounded-pill bg-body-secondary text-body fw-normal border py-2 px-2">
-                        <span class="text-body-secondary"><?= $filter['label'] ?>:</span> <?= $filter['value'] ?>
-                        <a href="<?= escapeHtml($filter_url($filter['drop'])) ?>" class="text-danger ms-1" title="Remove this filter"><i class="fas fa-times"></i></a>
-                    </span>
-                <?php } ?>
-                <a href="<?= escapeHtml($filter_url(['status' => null, 'priority' => null, 'category' => null, 'project' => null, 'tags' => null, 'sla' => null, 'billing' => null, 'canned_date' => null, 'dtf' => null, 'dtt' => null])) ?>" class="small text-danger ms-1">Clear</a>
-            </div>
-        <?php } ?>
     </div>
 
     <?php
