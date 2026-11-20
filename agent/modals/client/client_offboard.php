@@ -21,7 +21,7 @@ if (!$client) {
 }
 
 $counts = clientOffboardCounts($client_id);
-$can_billing = lookupUserPermission('module_billing') >= 2;
+$can_billing = lookupUserPermission('module_sales') >= 2;
 $can_support = lookupUserPermission('module_support') >= 2;
 
 $plural = function ($n, $one, $many) {

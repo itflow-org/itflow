@@ -223,7 +223,7 @@ function contactVcard($contact_id) {
         return '';
     }
     $esc = function ($value) {
-        return str_replace(["\\", "\r\n", "\n", ',', ';'], ["\\\\", '\n', '\n', '\,', '\;'], trim((string) $value));
+        return str_replace(["\\", "\r\n", "\n", "\r", ',', ';'], ["\\\\", '\n', '\n', '\n', '\,', '\;'], trim((string) $value));
     };
     $name = trim((string) $row['contact_name']);
     $parts = preg_split('/\s+/u', $name);

@@ -1507,7 +1507,9 @@ if (isset($_POST['split_ticket_reply'])) {
     mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply_archived_at = NOW() WHERE ticket_reply_id = $ticket_reply_id");
     $new_url = escapeSql(ticketUrl($new_id, $client_id));
     $old_url = escapeSql(ticketUrl($ticket_id, $client_id));
-    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'A reply from the client was split off into <a href=\"$new_url\">$new_reference</a> - $subject', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+    // The subject as the ticket has it (escapeSql() takes tags out), as text in the note's HTML
+    $subject_html = escapeSql(escapeHtml(trim(strip_tags(mb_substr($subject_input, 0, 500)))));
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'A reply from the client was split off into <a href=\"$new_url\">$new_reference</a> - $subject_html', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Split off from a reply on <a href=\"$old_url\">$old_reference</a>.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $new_id");
     mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $ticket_id");
     logTicketHistory($ticket_id, "$session_name split a reply off into $new_reference");

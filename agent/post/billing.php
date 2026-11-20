@@ -373,7 +373,9 @@ if (isset($_POST['bulk_recurring_invoices'])) {
             continue;
         }
         $client_id = intval($row['client_id']);
-        enforceClientAccess();
+        if (!hasClientAccess($client_id)) {
+            continue;
+        }
         $number = billingNumber('recurring', $row);
         $paused_until_sql = recurringPauseReady() ? ', recurring_invoice_paused_until = ' . ($until !== '' ? "'" . escapeSql($until) . "'" : 'NULL') : '';
 

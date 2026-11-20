@@ -255,7 +255,7 @@ if (isset($_POST['offboard_client'])) {
         }
     }
 
-    if (!empty($_POST['stop_recurring_invoices']) && lookupUserPermission('module_billing') >= 2) {
+    if (!empty($_POST['stop_recurring_invoices']) && lookupUserPermission('module_sales') >= 2) {
         $stopped = clientStopRecurringInvoices($client_id, 'Recurring Invoice inactive as client offboarded');
         if ($stopped) {
             $done[] = "$stopped recurring invoice" . ($stopped === 1 ? '' : 's') . ' stopped';

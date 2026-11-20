@@ -39,7 +39,7 @@
             </a>
         <?php } ?>
     <?php } ?>
-    <?php if (lookupUserPermission("module_billing") >= 2) { ?>
+    <?php if (lookupUserPermission("module_sales") >= 2) { ?>
         <?php if ($show_add_credit) { ?>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addCreditModal">

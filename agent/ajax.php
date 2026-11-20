@@ -3031,8 +3031,9 @@ if (isset($_GET['get_credential_via_id'])) {
         }
         echo json_encode(['password' => decryptCredentialEntry($history['password_history_password'])]);
         $what = "$session_name viewed an earlier password of credential $name";
+        // Compared as logAudit() keeps it - $what is escaped already
         $recent = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(log_id) FROM logs WHERE log_type = 'Credential' AND log_action = 'View' AND log_user_id = $session_user_id AND log_entity_id = $credential_id
-            AND log_description = '" . escapeSql($what) . "' AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
+            AND log_description = '" . logSqlText($what, 1000) . "' AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
         if (!intval($recent[0])) {
             logAudit("Credential", "View", $what, $client_id, $credential_id);
         }
@@ -3048,8 +3049,9 @@ if (isset($_GET['get_credential_via_id'])) {
     // When it was last used - the credentials list sorts by it. Kept off the updated date, which means an edit
     mysqli_query($mysqli, "UPDATE credentials SET credential_accessed_at = NOW(), credential_updated_at = credential_updated_at WHERE credential_id = $credential_id");
 
-    // Only log if this user hasn't viewed this credential recently (mirrors TOTP dedup)
-    $check_recent_view = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS recent_view FROM logs WHERE log_type = 'Credential' AND log_action = 'View' AND log_user_id = $session_user_id AND log_entity_id = $credential_id AND log_client_id = $client_id AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
+    // Only log if this user hasn't viewed this credential recently (mirrors TOTP dedup) - a view of one of its earlier passwords isn't a view of this one
+    $check_recent_view = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS recent_view FROM logs WHERE log_type = 'Credential' AND log_action = 'View' AND log_user_id = $session_user_id AND log_entity_id = $credential_id AND log_client_id = $client_id
+        AND log_description NOT LIKE '% viewed an earlier password of credential %' AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
 
     if (intval($check_recent_view['recent_view']) == 0) {
         logAudit("Credential", "View", "$session_name viewed credential $name", $client_id, $credential_id);
