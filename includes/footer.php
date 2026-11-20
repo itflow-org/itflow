@@ -90,6 +90,7 @@ try {
 <script src="<?= staticFileUrl('/js/picture_field.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/credentials.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/tag_picker.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/tab_fold.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/quick_pick.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/ajax_modal.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/confirm_modal.js') ?>"></script>
