@@ -362,23 +362,13 @@ if (mysqli_num_rows($sql) == 0) {
                     <div class="dropdown">
                         <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/link/link.php?from=asset&id=<?= $asset_id ?>&to=software">
-                                <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
-                            </a>
+                            <?= linkPickerButton('asset', $asset_id, 'software', 'License', 'dropdown-item', 'fa fa-fw fa-cube text-secondary me-2') ?>
                             <?php if ($can_credentials_edit) { ?>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_credential.php?id=<?= $asset_id ?>">
-                                    <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
-                                </a>
+                                <?= linkPickerButton('asset', $asset_id, 'credential', 'Credential', 'dropdown-item', 'fa fa-fw fa-key text-secondary me-2') ?>
                             <?php } ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_service.php?id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-stream text-secondary me-2"></i>Service
-                            </a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_document.php?id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
-                            </a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_file.php?id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-paperclip text-secondary me-2"></i>File
-                            </a>
+                            <?= linkPickerButton('asset', $asset_id, 'service', 'Service', 'dropdown-item', 'fa fa-fw fa-stream text-secondary me-2') ?>
+                            <?= linkPickerButton('asset', $asset_id, 'document', 'Document', 'dropdown-item', 'fa fa-fw fa-file-alt text-secondary me-2') ?>
+                            <?= linkPickerButton('asset', $asset_id, 'file', 'File', 'dropdown-item', 'fa fa-fw fa-paperclip text-secondary me-2') ?>
                         </div>
                     </div>
                     <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
@@ -907,9 +897,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <span class="text-body-secondary small">Logins for this asset. Passwords and codes are fetched only when you ask for them.</span>
                             <?php if ($can_edit && $can_credentials_edit) { ?>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_credential.php?id=<?= $asset_id ?>">
-                                        <i class="fas fa-link me-2"></i>Link
-                                    </button>
+                                    <?= linkPickerButton('asset', $asset_id, 'credential', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>asset_id=<?= $asset_id ?>">
                                         <i class="fas fa-plus me-2"></i>New Credential
                                     </button>
@@ -1027,9 +1015,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <span class="text-body-secondary small">Licenses this asset holds a seat on, and the key to install.</span>
                             <?php if ($can_edit) { ?>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/link/link.php?from=asset&id=<?= $asset_id ?>&to=software">
-                                        <i class="fas fa-link me-2"></i>Link
-                                    </button>
+                                    <?= linkPickerButton('asset', $asset_id, 'software', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
                                         <i class="fas fa-plus me-2"></i>New License
                                     </button>
@@ -1049,9 +1035,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <span class="text-body-secondary small">Runbooks, configs and how-tos for this asset.</span>
                             <?php if ($can_edit) { ?>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_document.php?id=<?= $asset_id ?>">
-                                        <i class="fas fa-link me-2"></i>Link
-                                    </button>
+                                    <?= linkPickerButton('asset', $asset_id, 'document', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
                                         <i class="fas fa-plus me-2"></i>New Document
                                     </button>
@@ -1111,9 +1095,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <span class="text-body-secondary small">Configs, photos, invoices, exports.</span>
                             <?php if ($can_edit) { ?>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_file.php?id=<?= $asset_id ?>">
-                                        <i class="fas fa-link me-2"></i>Link
-                                    </button>
+                                    <?= linkPickerButton('asset', $asset_id, 'file', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
                                         <i class="fas fa-upload me-2"></i>Upload
                                     </button>
@@ -1169,9 +1151,7 @@ if (mysqli_num_rows($sql) == 0) {
                         <div class="itflow-asset-pane-bar">
                             <span class="text-body-secondary small">Services that run on it - when it is down, so are they.</span>
                             <?php if ($can_edit) { ?>
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_service.php?id=<?= $asset_id ?>">
-                                    <i class="fas fa-link me-2"></i>Link Service
-                                </button>
+                                <?= linkPickerButton('asset', $asset_id, 'service', 'Link Service', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                             <?php } ?>
                         </div>
                         <?php if ($service_count) { ?>

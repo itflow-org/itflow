@@ -215,8 +215,6 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
             unset($vendor_tabs['logins']);
         }
     }
-
-    $link_url = "modals/link/link.php?from=vendor&id=$vendor_id&to=";
     $unlink_url = function ($to, $other_id) use ($vendor_id) {
         return "post.php?unlink_item&from=vendor&id=$vendor_id&to=$to&other=" . intval($other_id) . "&csrf_token=" . $_SESSION['csrf_token'];
     };
@@ -664,9 +662,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                         <div class="itflow-asset-pane-bar">
                             <span class="text-body-secondary small">The client's services that depend on them - who gets the call when one breaks.</span>
                             <?php if ($can_link_services) { ?>
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/link/link.php?from=vendor&id=<?= $vendor_id ?>&to=service">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('vendor', $vendor_id, 'service', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                             <?php } ?>
                         </div>
                         <?php if ($services) { ?>
@@ -691,9 +687,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                 <span class="text-body-secondary small"><?= $hint ?></span>
                                 <?php if ($can_link && !$vendor_archived_at) { ?>
                                     <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $link_url . $to ?>">
-                                            <i class="fas fa-link me-2"></i>Link
-                                        </button>
+                                        <?= linkPickerButton('vendor', $vendor_id, $to, 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                         <?php if ($to === 'credential') { ?>
                                             <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
                                                 <i class="fas fa-plus me-2"></i>New Login

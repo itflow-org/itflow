@@ -923,49 +923,6 @@ if (isset($_POST['bulk_delete_assets'])) {
 
 // Licenses are linked in post/link.php (link_software_to_asset)
 
-// Right now 1 login and have many assets but not many to many
-if (isset($_POST['link_asset_to_credential'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-    // It changes the credential, so it takes credential edit rights too
-    enforceUserPermission('module_credential', 2);
-
-    $credential_id = intval($_POST['credential_id']);
-    $asset_id = intval($_POST['asset_id']);
-
-    // Get credential Name and Client ID for logging
-    $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
-    $row = mysqli_fetch_assoc($sql_credential);
-    if (!$row) {
-        flashAlert("That credential no longer exists", 'error');
-        redirect();
-    }
-    $credential_name = escapeSql($row['credential_name']);
-    $client_id = intval($row['credential_client_id']);
-
-    enforceClientAccess();
-
-    // Only to one of the same client's assets
-    if (!assetClientOwnedId('asset', $asset_id, $client_id)) {
-        flashAlert("That asset isn't one of this client's", 'error');
-        redirect();
-    }
-
-    // Get Asset Name for logging
-    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
-
-    mysqli_query($mysqli,"UPDATE credentials SET credential_asset_id = $asset_id WHERE credential_id = $credential_id");
-
-    logAudit("Credential", "Link", "$session_name linked credential $credential_name to asset $asset_name", $client_id, $credential_id);
-
-    flashAlert("Asset <strong>" . stripslashes($asset_name) . "</strong> linked with credential <strong>" . stripslashes($credential_name) . "</strong>");
-
-    redirect();
-
-}
-
 if (isset($_GET['unlink_credential_from_asset'])) {
 
     validateCSRFToken();

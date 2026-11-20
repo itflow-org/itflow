@@ -189,62 +189,6 @@ if (isset($_GET['delete_service'])) {
 
 }
 
-// Tickets raised about a service - from its page, or from the ticket
-if (isset($_POST['link_service_tickets'])) {
-
-    validateCSRFToken();
-
-    $row = serviceForRequest($_POST['service_id'] ?? 0, 2);
-
-    $added = serviceLinkTickets($row['service_id'], $client_id, (array) ($_POST['ticket_ids'] ?? []));
-    if ($added) {
-        logAudit("Service", "Link", "$session_name linked $added ticket(s) to service " . escapeSql($row['service_name']), $client_id, intval($row['service_id']));
-        flashAlert("Linked <strong>$added</strong> ticket" . ($added === 1 ? '' : 's') . " to <strong>" . escapeHtml($row['service_name']) . "</strong>");
-    } else {
-        flashAlert("Nothing new to link to <strong>" . escapeHtml($row['service_name']) . "</strong>.", 'warning');
-    }
-
-    redirect();
-
-}
-
-if (isset($_POST['link_ticket_services'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $ticket_id = intval($_POST['ticket_id'] ?? 0);
-    $ticket = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_client_id FROM tickets WHERE ticket_id = $ticket_id"));
-    if (!$ticket || !intval($ticket['ticket_client_id'])) {
-        flashAlert('That ticket no longer exists.', 'error');
-        redirect();
-    }
-    $client_id = intval($ticket['ticket_client_id']);
-    enforceClientAccess();
-
-    $names = [];
-    foreach (array_unique(array_map('intval', (array) ($_POST['service_ids'] ?? []))) as $service_id) {
-        $row = serviceRow($service_id);
-        if (!$row || intval($row['service_client_id']) !== $client_id || $row['service_archived_at']) {
-            continue;
-        }
-        if (serviceLinkTickets($service_id, $client_id, [$ticket_id])) {
-            $names[] = $row['service_name'];
-            logAudit("Service", "Link", "$session_name linked ticket " . escapeSql($ticket['ticket_prefix'] . $ticket['ticket_number']) . " to service " . escapeSql($row['service_name']), $client_id, $service_id);
-        }
-    }
-
-    if ($names) {
-        flashAlert("Ticket linked to <strong>" . escapeHtml(implode(', ', $names)) . "</strong>");
-    } else {
-        flashAlert('Nothing new to link.', 'warning');
-    }
-
-    redirect();
-
-}
-
 if (isset($_GET['unlink_service_ticket'])) {
 
     validateCSRFToken();

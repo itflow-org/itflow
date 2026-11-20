@@ -29,7 +29,6 @@
     if (window.itflowTabFold) {
         return;
     }
-    window.itflowTabFold = true;
 
     var FOLDED = 'itflow-tab-folded';
     var BARS = '.nav.itflow-asset-tabs, .itflow-asset-tabs > .nav, .nav.itflow-asset-pills, .nav.itflow-asset-form-tabs, .nav.itflow-tabs-foldable';
@@ -207,6 +206,9 @@
             }
         });
     }
+
+    // Also for content drawn again in place (a window loaded again - js/link_picker.js)
+    window.itflowTabFold = init;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);

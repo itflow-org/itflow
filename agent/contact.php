@@ -293,30 +293,18 @@ if (!$can_support) {
                 <div class="dropdown">
                     <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_asset.php?id=<?= $contact_id ?>">
-                            <i class="fa fa-fw fa-desktop text-secondary me-2"></i>Asset
-                        </a>
+                        <?= linkPickerButton('contact', $contact_id, 'asset', 'Asset', 'dropdown-item', 'fa fa-fw fa-desktop text-secondary me-2') ?>
                         <?php if ($can_credentials_edit) { ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_credential.php?id=<?= $contact_id ?>">
-                                <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
-                            </a>
+                            <?= linkPickerButton('contact', $contact_id, 'credential', 'Credential', 'dropdown-item', 'fa fa-fw fa-key text-secondary me-2') ?>
                         <?php } ?>
                         <?php if ($can_support_edit) { ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/link/link.php?from=contact&id=<?= $contact_id ?>&to=software">
-                                <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
-                            </a>
+                            <?= linkPickerButton('contact', $contact_id, 'software', 'License', 'dropdown-item', 'fa fa-fw fa-cube text-secondary me-2') ?>
                         <?php } ?>
                         <?php if ($can_support_edit) { ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_service.php?id=<?= $contact_id ?>">
-                                <i class="fa fa-fw fa-stream text-secondary me-2"></i>Service
-                            </a>
+                            <?= linkPickerButton('contact', $contact_id, 'service', 'Service', 'dropdown-item', 'fa fa-fw fa-stream text-secondary me-2') ?>
                         <?php } ?>
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_document.php?id=<?= $contact_id ?>">
-                            <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
-                        </a>
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_file.php?id=<?= $contact_id ?>">
-                            <i class="fa fa-fw fa-paperclip text-secondary me-2"></i>File
-                        </a>
+                        <?= linkPickerButton('contact', $contact_id, 'document', 'Document', 'dropdown-item', 'fa fa-fw fa-file-alt text-secondary me-2') ?>
+                        <?= linkPickerButton('contact', $contact_id, 'file', 'File', 'dropdown-item', 'fa fa-fw fa-paperclip text-secondary me-2') ?>
                     </div>
                 </div>
                 <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
@@ -513,9 +501,7 @@ if (!$can_support) {
                         <span class="text-body-secondary small">Assets assigned to <?= $contact_name ?>.</span>
                         <?php if ($can_edit) { ?>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_link_asset.php?id=<?= $contact_id ?>">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('contact', $contact_id, 'asset', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                 <?php if ($can_support_edit) { ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                                         <i class="fas fa-plus me-2"></i>New Asset
@@ -594,9 +580,7 @@ if (!$can_support) {
                         <span class="text-body-secondary small">Their logins. Passwords and codes are fetched only when you ask for them.</span>
                         <?php if ($can_edit && $can_credentials_edit) { ?>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_link_credential.php?id=<?= $contact_id ?>">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('contact', $contact_id, 'credential', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                 <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                                     <i class="fas fa-plus me-2"></i>New Credential
                                 </button>
@@ -703,9 +687,7 @@ if (!$can_support) {
                         <span class="text-body-secondary small">Licenses they hold a seat on, and the key they were given.</span>
                         <?php if ($can_support_edit) { ?>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/link/link.php?from=contact&id=<?= $contact_id ?>&to=software">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('contact', $contact_id, 'software', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                 <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>">
                                     <i class="fas fa-plus me-2"></i>New License
                                 </button>
@@ -727,9 +709,7 @@ if (!$can_support) {
                         <span class="text-body-secondary small">Documentation about or for them.</span>
                         <?php if ($can_edit) { ?>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_link_document.php?id=<?= $contact_id ?>">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('contact', $contact_id, 'document', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                 <?php if ($can_support_edit) { ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                                         <i class="fas fa-plus me-2"></i>New Document
@@ -768,9 +748,7 @@ if (!$can_support) {
                         <span class="text-body-secondary small">Files linked to them.</span>
                         <?php if ($can_edit) { ?>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_link_file.php?id=<?= $contact_id ?>">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('contact', $contact_id, 'file', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                 <?php if ($can_support_edit) { ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                                         <i class="fas fa-upload me-2"></i>Upload
@@ -806,9 +784,7 @@ if (!$can_support) {
                     <div class="itflow-asset-pane-bar">
                         <span class="text-body-secondary small">Services they own or are the contact for at the client.</span>
                         <?php if ($can_support_edit) { ?>
-                            <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_link_service.php?id=<?= $contact_id ?>">
-                                <i class="fas fa-link me-2"></i>Link Service
-                            </button>
+                            <?= linkPickerButton('contact', $contact_id, 'service', 'Link Service', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                         <?php } ?>
                     </div>
                     <?php if ($service_count) { ?>

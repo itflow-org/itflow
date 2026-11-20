@@ -680,9 +680,7 @@ if (isset($_GET['ticket_id'])) {
                                                 <i class="fas fa-fw fa-clone me-2"></i>Merge into another ticket
                                             </a>
                                             <?php if (ticketLinksReady()) { ?>
-                                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_link.php?ticket_id=<?= $ticket_id ?>">
-                                                    <i class="fas fa-fw fa-link me-2"></i>Link related tickets
-                                                </a>
+                                                <?= linkPickerButton('ticket', $ticket_id, 'ticket', 'Link related tickets', 'dropdown-item', 'fas fa-fw fa-link me-2') ?>
                                             <?php } ?>
                                             <a class="dropdown-item ajax-modal" href="#" id="clientChangeTicketModalLoad" data-modal-url="modals/ticket/ticket_change_client.php?ticket_id=<?= $ticket_id ?>">
                                                 <i class="fas fa-fw fa-people-carry me-2"></i>Move to another client
@@ -1558,7 +1556,7 @@ if (isset($_GET['ticket_id'])) {
                             <h5 class="card-title mt-1"><i class="fas fa-fw fa-link me-2"></i>Related <span class="badge rounded-pill text-bg-secondary ms-1"><?= count($related) + $related_hidden ?></span></h5>
                             <?php if ($can_edit_ticket) { ?>
                                 <div class="card-tools">
-                                    <a class="btn btn-tool ajax-modal" href="#" data-modal-url="modals/ticket/ticket_link.php?ticket_id=<?= $ticket_id ?>" title="Link more tickets"><i class="fas fa-plus"></i></a>
+                                    <?= linkPickerButton('ticket', $ticket_id, 'ticket', '', 'btn btn-tool', 'fas fa-plus', 'Link more tickets') ?>
                                     <?php if (count($related_open_ids) > 1) { ?>
                                         <div class="dropdown d-inline-block">
                                             <button class="btn btn-tool" type="button" data-bs-toggle="dropdown" title="To them all"><i class="fas fa-ellipsis-v"></i></button>
@@ -1885,9 +1883,7 @@ if (isset($_GET['ticket_id'])) {
                                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_edit_project.php?id=<?= $ticket_id ?>">
                                                     <i class="fas fa-fw fa-project-diagram me-2"></i><?= $project_id ? 'Change project' : 'Add to a project' ?>
                                                 </a>
-                                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_link_service.php?id=<?= $ticket_id ?>">
-                                                    <i class="fas fa-fw fa-stream me-2"></i>Link a service
-                                                </a>
+                                                <?= linkPickerButton('ticket', $ticket_id, 'service', 'Link a service', 'dropdown-item', 'fas fa-fw fa-stream me-2') ?>
                                                 <div class="dropdown-divider"></div>
                                             <?php } ?>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add_watcher.php?ticket_id=<?= $ticket_id ?>">

@@ -102,6 +102,8 @@ document.addEventListener('click', function (e) {
             wrapper.className = 'modal fade';
             wrapper.id = modalId;
             wrapper.tabIndex = -1;
+            // What it was opened with, so it can load again in place (js/link_picker.js)
+            wrapper.dataset.modalUrl = modalUrl;
             wrapper.innerHTML =
                 '<div class="modal-dialog modal-' + modalSize + '">' +
                     '<div class="modal-content border-dark">' +

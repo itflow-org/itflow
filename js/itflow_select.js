@@ -72,6 +72,9 @@
  * .clear(), .setValue(v). itflowSelectAll(root) enhances anything not yet
  * done; it also happens by itself for selects added to the page later, and
  * again whenever includes/modal_footer.php re-runs this file for a modal.
+ * Set .anchor to an element and the panel opens under that instead of the
+ * field - a button that is the only way in to a hidden select (the Link
+ * picker, js/link_picker.js). Closing fires itflow:close on the <select>.
  *
  * Loaded first in includes/footer.php, ahead of the heavy libraries, so the
  * swap happens before the page has finished drawing - see the note there.
@@ -676,6 +679,7 @@
             this.dirty = false;
             this.emit();
         }
+        this.select.dispatchEvent(new CustomEvent('itflow:close'));
     };
 
     Picker.prototype.emit = function () {
@@ -689,14 +693,15 @@
         if (!this.isOpen) {
             return;
         }
-        if (!this.control.isConnected) {
+        var at = this.anchor || this.control;
+        if (!at.isConnected) {
             this.close(false, false);
             return;
         }
         if (this.sheet) {
             return;
         }
-        var rect = this.control.getBoundingClientRect();
+        var rect = at.getBoundingClientRect();
         var viewWidth = document.documentElement.clientWidth;
         var viewHeight = window.innerHeight;
         var edge = 8;
@@ -705,9 +710,12 @@
             this.close(false, false);
             return;
         }
-        var width = Math.min(Math.max(rect.width, 240), viewWidth - edge * 2);
+        // Under a button it is as wide as a list of names needs, and lines up with
+        // the button's right edge where its left would run off the page
+        var width = Math.min(Math.max(rect.width, this.anchor ? 320 : 240), viewWidth - edge * 2);
+        var left = this.anchor && rect.left + width > viewWidth - edge ? rect.right - width : rect.left;
         panel.style.width = width + 'px';
-        panel.style.left = Math.min(Math.max(edge, rect.left), viewWidth - width - edge) + 'px';
+        panel.style.left = Math.min(Math.max(edge, left), viewWidth - width - edge) + 'px';
 
         this.list.style.maxHeight = '';
         var height = panel.offsetHeight;
@@ -1241,13 +1249,17 @@
     watch(HTMLOptionElement.prototype, 'selected', selectOf);
 
     // Outside click closes - and keeps what was typed into a data-tags field
+    // (Its anchor is left to its own click - the Link button closes what it opened)
+    function outside(target) {
+        return current && !current.wrap.contains(target) && !current.panel.contains(target) && !(current.anchor && current.anchor.contains(target));
+    }
     document.addEventListener('mousedown', function (e) {
-        if (current && !current.wrap.contains(e.target) && !current.panel.contains(e.target)) {
+        if (outside(e.target)) {
             current.close(true, false);
         }
     }, true);
     document.addEventListener('touchstart', function (e) {
-        if (current && !current.wrap.contains(e.target) && !current.panel.contains(e.target)) {
+        if (outside(e.target)) {
             current.close(true, false);
         }
     }, { capture: true, passive: true });

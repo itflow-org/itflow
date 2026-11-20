@@ -98,6 +98,36 @@ if (isset($_GET['certificate_check'])) {
 }
 
 /*
+ * Link picker (js/link_picker.js, functions/link_picker.php) - replaces the
+ * Link windows. GET what a record can be linked to, the linked ones ticked;
+ * POST what was ticked and unticked, as the picker closes. With flash=1 the
+ * message is kept for the page the picker reloads, as a post handler's is.
+ */
+if (isset($_GET['link_picker'])) {
+    header('Content-Type: application/json');
+    $answer = linkPickerOptions((string) ($_GET['from'] ?? ''), intval($_GET['id'] ?? 0), (string) ($_GET['to'] ?? ''));
+    if (isset($answer['error'])) {
+        http_response_code(403);
+    }
+    echo json_encode($answer);
+    exit;
+}
+
+if (isset($_POST['link_picker_save'])) {
+    validateCSRFToken();
+    header('Content-Type: application/json');
+    $answer = linkPickerSave((string) ($_POST['from'] ?? ''), intval($_POST['id'] ?? 0), (string) ($_POST['to'] ?? ''),
+        (array) ($_POST['add'] ?? []), (array) ($_POST['remove'] ?? []));
+    if (isset($answer['error'])) {
+        http_response_code(403);
+    } elseif (!empty($_POST['flash'])) {
+        flashAlert($answer['message'], $answer['type']);
+    }
+    echo json_encode($answer);
+    exit;
+}
+
+/*
  * Tag picker (js/tag_picker.js) - replaces the "Assign Tags" modals.
  *
  * GET lists the tags one record, or a bulk selection of records, can have and

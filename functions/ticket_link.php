@@ -3,8 +3,8 @@
 /*
  * ITFlow - related tickets: tickets about one thing - the same outage at several clients, a
  * problem that keeps coming back - linked so each shows the others, and one update or resolve
- * can go to them all. The Related tickets card on agent/ticket.php, its Link window
- * (agent/modals/ticket/ticket_link.php) and Link together on the tickets list's Bulk Action
+ * can go to them all. The Related tickets card on agent/ticket.php, its Link picker
+ * (functions/link_picker.php) and Link together on the tickets list's Bulk Action
  * (agent/post/ticket_link.php).
  *
  * ticket_links (database 4.0.8) puts each linked ticket in a group: every ticket in a group is
@@ -191,7 +191,7 @@ function ticketLinkCounts(array $ticket_ids) {
 }
 
 /*
- * The tickets this one could be linked to, for its Link window - any client's the agent can open,
+ * The tickets this one could be linked to, for its Link picker - any client's the agent can open,
  * not this one or those already related to it: open ones, and those closed in the last 90 days
  * (a problem back again). Open first, then newest; at most 1000.
  */

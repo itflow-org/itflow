@@ -113,7 +113,7 @@ ob_start();
         <div class="d-flex align-items-center mt-3 mb-1">
             <span class="small text-body-secondary fw-semibold text-uppercase me-auto">For</span>
             <?php if ($can_edit && $link_types) { ?>
-                <a class="small ajax-modal" href="#" data-modal-url="modals/link/link.php?from=credential&id=<?= $credential_id ?>&to=vendor"><i class="fas fa-link me-1"></i>Link a vendor, license or service</a>
+                <?= linkPickerButton('credential', $credential_id, '', 'Link a vendor, license or service', 'small', 'fas fa-link me-1') ?>
             <?php } ?>
         </div>
         <ul class="list-unstyled mb-0 itflow-links">

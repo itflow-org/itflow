@@ -244,7 +244,7 @@ function filesItemMenu($item) {
             $html .= '<div class="dropdown-divider"></div>';
             $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/file/file_rename.php?id=$id\"><i class=\"fas fa-fw fa-pen me-2\"></i>Rename</a>";
             $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/file/file_move.php?id=$id\"><i class=\"fas fa-fw fa-folder-open me-2\"></i>Move</a>";
-            $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/link/link.php?from=file&amp;id=$id\"><i class=\"fas fa-fw fa-link me-2\"></i>Link</a>";
+            $html .= linkPickerButton('file', $id, '', 'Link', 'dropdown-item', 'fas fa-fw fa-link me-2');
         }
         $archive_name = 'file';
     } else {
@@ -262,7 +262,7 @@ function filesItemMenu($item) {
             $favorite = !empty($item['row']['document_favorite']);
             $html .= "<a class=\"dropdown-item\" href=\"post.php?toggle_document_favorite=$id&amp;csrf_token=$csrf\" title=\"Favorites show on the client's overview\"><i class=\"" . ($favorite ? 'far' : 'fas') . " fa-fw fa-star me-2\"></i>" . ($favorite ? 'Unfavorite' : 'Favorite') . "</a>";
             $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/document/document_move.php?id=$id\"><i class=\"fas fa-fw fa-folder-open me-2\"></i>Move</a>";
-            $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/link/link.php?from=document&amp;id=$id\"><i class=\"fas fa-fw fa-link me-2\"></i>Link</a>";
+            $html .= linkPickerButton('document', $id, '', 'Link', 'dropdown-item', 'fas fa-fw fa-link me-2');
         }
         $archive_name = 'document';
     }

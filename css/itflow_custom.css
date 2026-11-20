@@ -4777,7 +4777,7 @@ img.itflow-contact-avatar {
 }
 
 /* Files & documents - agent/files.php, agent/document.php, the file and
-   document quick looks, the upload and link modals.
+   document quick looks, the upload modal and the Link picker.
 
    A file's type is a tinted tile like an asset's type (fileTypeTile() in
    functions/files.php): the colour family says what it is at a glance -

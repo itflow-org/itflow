@@ -13,7 +13,7 @@
  * Every link is a row in a two-column table (asset_documents, document_files,
  * contact_files...) and they all work the same way, so they are described once
  * here and linked, unlinked, listed and offered by the same few functions -
- * one link modal (agent/modals/link/link.php), one handler
+ * one Link picker (functions/link_picker.php, js/link_picker.js), one handler
  * (agent/post/link.php) and one list (linkGroupsHtml()) on the document page
  * and the file and document quick looks.
  *
@@ -429,10 +429,9 @@ function linkGroupsHtml($from, $id, $client_id, $archived = false) {
         $entity = LINK_ENTITIES[$to];
         $rows = linkedRecords($from, $id, $to);
         $can_edit = !$archived && linkCanEdit($from, $to);
-        $link_url = "modals/link/link.php?from=$from&amp;id=$id&amp;to=$to";
         if (!$rows) {
             if ($can_edit) {
-                $empty[] = "<a class=\"ajax-modal btn btn-xs btn-outline-secondary\" href=\"#\" data-modal-url=\"$link_url\"><i class=\"fas {$entity['icon']} me-1\"></i>{$entity['plural']}</a>";
+                $empty[] = linkPickerButton($from, $id, $to, $entity['plural'], 'btn btn-xs btn-outline-secondary', "fas {$entity['icon']} me-1");
             }
             continue;
         }
@@ -443,7 +442,7 @@ function linkGroupsHtml($from, $id, $client_id, $archived = false) {
                 : '';
             $items .= '<li class="itflow-link-row">' . linkRowHtml($to, $row, $client_id) . $unlink . '</li>';
         }
-        $add = $can_edit ? "<a class=\"ajax-modal ms-auto small\" href=\"#\" data-modal-url=\"$link_url\" title=\"Link {$entity['label']}\"><i class=\"fas fa-plus me-1\"></i>Link</a>" : '';
+        $add = $can_edit ? linkPickerButton($from, $id, $to, 'Link', 'ms-auto small', 'fas fa-plus me-1', "Link {$entity['label']}") : '';
         $groups .= "<div class=\"itflow-link-group\"><div class=\"itflow-link-group-head\"><i class=\"fas fa-fw {$entity['icon']} me-1\"></i>{$entity['plural']}<span class=\"badge rounded-pill ms-1\">" . count($rows) . "</span>$add</div><ul class=\"list-unstyled mb-0\">$items</ul></div>";
     }
     if ($empty) {

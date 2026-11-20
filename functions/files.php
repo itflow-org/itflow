@@ -463,7 +463,7 @@ function getFileTextExcerpt($client_id, $file_reference_name, $length = 400) {
 /*
  * Files & documents section - how a file's type is shown, and the client's
  * folder tree. Shared by agent/files.php, the document page, the file and
- * document quick looks and the upload, move and link modals.
+ * document quick looks, the upload and move modals and the Link picker.
  */
 
 /**

@@ -134,7 +134,7 @@ $page_title = $row['document_name'];
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_rename.php?id=<?= $document_id ?>"><i class="fas fa-fw fa-pen me-2"></i>Rename</a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_move.php?id=<?= $document_id ?>"><i class="fas fa-fw fa-folder-open me-2"></i>Move</a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_copy.php?id=<?= $document_id ?>" title="For this client or another"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/link/link.php?from=document&id=<?= $document_id ?>"><i class="fas fa-fw fa-link me-2"></i>Link</a>
+                            <?= linkPickerButton('document', $document_id, '', 'Link', 'dropdown-item', 'fas fa-fw fa-link me-2') ?>
                             <a class="dropdown-item" href="post.php?toggle_document_favorite=<?= $document_id ?>&csrf_token=<?= $csrf ?>" title="Favorites show on the client's overview"><i class="<?= intval($row['document_favorite']) ? 'far' : 'fas' ?> fa-fw fa-star me-2"></i><?= intval($row['document_favorite']) ? 'Unfavorite' : 'Favorite' ?></a>
                             <?php if ($config_client_portal_enable) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_edit_visibility.php?document_id=<?= $document_id ?>"><i class="fas fa-fw fa-eye<?= $document_visible ? '-slash' : '' ?> me-2"></i><?= $document_visible ? 'Hide from' : 'Show in' ?> client portal</a>
@@ -205,7 +205,7 @@ $page_title = $row['document_name'];
             <div class="card-header d-flex align-items-center">
                 <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-link me-2 text-body-secondary"></i>Linked</h3>
                 <?php if ($can_edit && !$document_archived) { ?>
-                    <a class="small ajax-modal" href="#" data-modal-url="modals/link/link.php?from=document&id=<?= $document_id ?>"><i class="fas fa-plus me-1"></i>Link</a>
+                    <?= linkPickerButton('document', $document_id, '', 'Link', 'small', 'fas fa-plus me-1') ?>
                 <?php } ?>
             </div>
             <div class="card-body">

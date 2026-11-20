@@ -39,6 +39,7 @@ require_once __DIR__ . '/functions/vendor.php';
 require_once __DIR__ . '/functions/vendor_template.php';
 require_once __DIR__ . '/functions/credential.php';
 require_once __DIR__ . '/functions/links.php';
+require_once __DIR__ . '/functions/link_picker.php';
 require_once __DIR__ . '/functions/auth.php';
 require_once __DIR__ . '/functions/logging.php';
 require_once __DIR__ . '/functions/log_forward.php';

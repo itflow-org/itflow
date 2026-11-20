@@ -165,7 +165,7 @@ ob_start();
         <div class="d-flex align-items-center mt-3 mb-1">
             <span class="small text-body-secondary fw-semibold text-uppercase me-auto">Services that use it</span>
             <?php if ($can_edit) { ?>
-                <a class="small ajax-modal" href="#" data-modal-url="modals/link/link.php?from=domain&id=<?= $domain_id ?>&to=service"><i class="fas fa-link me-1"></i>Link a service</a>
+                <?= linkPickerButton('domain', $domain_id, 'service', 'Link a service', 'small', 'fas fa-link me-1') ?>
             <?php } ?>
         </div>
         <?php if ($services) { ?>

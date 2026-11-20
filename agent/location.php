@@ -135,7 +135,6 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
     $unset_url = function ($kind, $id) use ($location_id) {
         return "post.php?unset_location_record=" . intval($id) . "&location_id=$location_id&kind=$kind&csrf_token=" . $_SESSION['csrf_token'];
     };
-    $link_url = "modals/link/link.php?from=location&id=$location_id&to=";
 
     ?>
 
@@ -241,7 +240,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                             <?php } ?>
                             <?php if ($can_support_edit) { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>document"><i class="fa fa-fw fa-link text-secondary me-2"></i>Link a document or file</a>
+                                <?= linkPickerButton('location', $location_id, '', 'Link a document or file', 'dropdown-item', 'fa fa-fw fa-link text-secondary me-2') ?>
                             <?php } ?>
                         </div>
                     </div>
@@ -585,9 +584,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                                 <span class="text-body-secondary small"><?= $hint ?></span>
                                 <?php if ($can_support_edit && !$location_archived_at) { ?>
                                     <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $link_url . $to ?>">
-                                            <i class="fas fa-link me-2"></i>Link
-                                        </button>
+                                        <?= linkPickerButton('location', $location_id, $to, 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                         <?php if ($to === 'document') { ?>
                                             <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
                                                 <i class="fas fa-plus me-2"></i>New Document

@@ -187,9 +187,7 @@ echo agentBannersHtml($project_client_id);
                 <div class="dropdown">
                     <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Add tickets</button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_link_ticket.php?project_id=<?= $project_id ?>">
-                            <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Tickets already raised
-                        </a>
+                        <?= linkPickerButton('project', $project_id, 'ticket', 'Tickets already raised', 'dropdown-item', 'fas fa-fw fa-life-ring text-secondary me-2') ?>
                         <?php if ($has_templates) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_apply_template.php?project_id=<?= $project_id ?>">
                                 <i class="fas fa-fw fa-cubes text-secondary me-2"></i>From a project template

@@ -1104,46 +1104,6 @@ if (isset($_GET['delete_contact'])) {
 
 }
 
-if (isset($_POST['link_contact_to_asset'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    $asset_id = intval($_POST['asset_id']);
-    $contact_id = intval($_POST['contact_id']);
-
-    // Get Asset Name and Client ID for logging
-    $sql_asset = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_assoc($sql_asset);
-    if (!$row) {
-        flashAlert('Pick an asset to link.', 'error');
-        redirect();
-    }
-    $asset_name = escapeSql($row['asset_name']);
-    $client_id = intval($row['asset_client_id']);
-
-    enforceClientAccess();
-
-    // Only one of the same client's people - another client's contact would show on this client's asset
-    if (!assetClientOwnedId('contact', $contact_id, $client_id)) {
-        flashAlert("That contact isn't one of this client's", 'error');
-        redirect();
-    }
-
-    // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
-
-    mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = $contact_id WHERE asset_id = $asset_id");
-
-    logAudit("Asset", "Link", "$session_name linked asset $asset_name to contact $contact_name", $client_id, $asset_id);
-
-    flashAlert("Contact <strong>" . stripslashes($contact_name) . "</strong> linked with asset <strong>" . stripslashes($asset_name) . "</strong>");
-
-    redirect();
-
-}
-
 if (isset($_GET['unlink_asset_from_contact'])) {
 
     validateCSRFToken();
@@ -1180,48 +1140,6 @@ if (isset($_GET['unlink_asset_from_contact'])) {
 }
 
 // Licenses are linked in post/link.php (link_software_to_contact)
-
-if (isset($_POST['link_contact_to_credential'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-    // It changes the credential, so it takes credential edit rights too
-    enforceUserPermission('module_credential', 2);
-
-    $credential_id = intval($_POST['credential_id']);
-    $contact_id = intval($_POST['contact_id']);
-
-    // Get credential Name and Client ID for logging
-    $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
-    $row = mysqli_fetch_assoc($sql_credential);
-    if (!$row) {
-        flashAlert("That credential no longer exists", 'error');
-        redirect();
-    }
-    $credential_name = escapeSql($row['credential_name']);
-    $client_id = intval($row['credential_client_id']);
-
-    enforceClientAccess();
-
-    // Only to one of the same client's people
-    if (!assetClientOwnedId('contact', $contact_id, $client_id)) {
-        flashAlert("That contact isn't one of this client's", 'error');
-        redirect();
-    }
-
-    // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
-
-    mysqli_query($mysqli,"UPDATE credentials SET credential_contact_id = $contact_id WHERE credential_id = $credential_id");
-
-    logAudit("Credential", "Link", "$session_name linked credential $credential_name to contact $contact_name", $client_id, $credential_id);
-
-    flashAlert("Contact <strong>" . stripslashes($contact_name) . "</strong> linked with credential <strong>" . stripslashes($credential_name) . "</strong>");
-
-    redirect();
-
-}
 
 if (isset($_GET['unlink_credential_from_contact'])) {
 
