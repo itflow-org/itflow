@@ -9413,7 +9413,9 @@ a.itflow-portal-request:focus-visible {
     cursor: pointer;
 }
 .itflow-gs-packs .list-group-item.is-here .itflow-gs-pack-icon,
-.itflow-gs-packs .list-group-item.is-here .fw-semibold {
+.itflow-gs-packs .list-group-item.is-here .fw-semibold,
+.itflow-starter-packs .list-group-item.is-here .itflow-gs-pack-icon,
+.itflow-starter-packs .list-group-item.is-here .fw-semibold {
     opacity: .6;
 }
 .itflow-gs-pack-about {
@@ -9565,10 +9567,6 @@ a.itflow-portal-request:focus-visible {
 }
 .itflow-starter-pick-group:first-child {
     margin-top: .25rem;
-}
-/* Maintenance > Starter Content - the list under its pack, in the first column */
-.itflow-starter-pack-cell {
-    min-width: 18rem;
 }
 /* Preview - the facts as a list beside their labels, then what it says as it reads */
 .itflow-starter-preview-facts {
