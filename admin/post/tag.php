@@ -82,7 +82,7 @@ if (isset($_GET['archive_tag'])) {
         $used = tagUsage($row['tag_id']);
         logAudit("Tag", "Archive", "$session_name archived " . $tag_kind_word($row) . " tag " . escapeSql($row['tag_name']), 0, intval($row['tag_id']));
         flashAlert("Tag <strong>" . escapeHtml($row['tag_name']) . "</strong> archived - "
-            . ($used ? "it stays on its " . $tag_records_text($used, $row['tag_type']) . ", but isn't offered for tagging" : "it isn't offered for tagging"));
+            . ($used ? "it stays on its " . $tag_records_text($used, $row['tag_type']) . ", but isn't offered for tagging" : "it isn't offered for tagging"), 'error');
         undoOfferArchived($undo, 'tag', $row['tag_name']);
     }
 
@@ -189,7 +189,7 @@ if (isset($_POST['bulk_archive_tags']) || isset($_POST['bulk_restore_tags'])) {
         $count++;
     }
 
-    flashAlert(($archive ? "Archived " : "Restored ") . $count . ($count === 1 ? " tag" : " tags") . ($archive && $count ? " - they stay on their records, but aren't offered for tagging" : ''));
+    flashAlert(($archive ? "Archived " : "Restored ") . $count . ($count === 1 ? " tag" : " tags") . ($archive && $count ? " - they stay on their records, but aren't offered for tagging" : ''), $archive ? 'error' : 'success');
     if ($undo) {
         undoOfferArchived($undo, 'tag');
     }

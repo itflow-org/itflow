@@ -52,10 +52,10 @@ if (isset($_GET['delete_backup'])) {
         // One still waiting has no file yet - taking it off the queue is all there is to it
         if ($row['backup_status'] === 'Pending') {
             logAudit("Backup", "Delete", ($session_name ?? 'Unknown User') . " took a queued " . backupTypeLabel($row['backup_type']) . " off the queue");
-            flashAlert(backupTypeLabel($row['backup_type']) . " taken off the queue.");
+            flashAlert(backupTypeLabel($row['backup_type']) . " taken off the queue.", 'error');
         } else {
             logAudit("Backup", "Delete", ($session_name ?? 'Unknown User') . " deleted backup " . escapeSql($row['backup_file_name']));
-            flashAlert($row['backup_status'] === 'Complete' ? "Backup deleted." : "Backup removed from the list.");
+            flashAlert($row['backup_status'] === 'Complete' ? "Backup deleted." : "Backup removed from the list.", 'error');
         }
     } else {
         flashAlert("Backup not found.", 'error');

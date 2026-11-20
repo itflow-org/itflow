@@ -76,7 +76,7 @@ if (isset($_GET['archive_custom_link']) || isset($_GET['restore_custom_link'])) 
             mysqli_query($mysqli, "UPDATE custom_links SET custom_link_archived_at = NULL, custom_link_order = " . customLinkNextOrder($row['custom_link_location']) . " WHERE custom_link_id = $custom_link_id");
         }
         logAudit("Custom Link", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " custom link " . escapeSql($row['custom_link_name']), 0, $custom_link_id);
-        flashAlert("Link <strong>" . escapeHtml($row['custom_link_name']) . "</strong> " . ($archive ? 'archived - it no longer shows in its menu' : 'restored'));
+        flashAlert("Link <strong>" . escapeHtml($row['custom_link_name']) . "</strong> " . ($archive ? 'archived - it no longer shows in its menu' : 'restored'), $archive ? 'error' : 'success');
         if ($undo) {
             undoOfferArchived($undo, '', $row['custom_link_name']);
         }

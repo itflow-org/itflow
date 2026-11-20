@@ -54,7 +54,7 @@ foreach ($mail_queue_actions as $mail_queue_action => [$one_key, $bulk_key, $don
     };
     if ($count === $asked) {
         $note = $done_note[$count === 1 ? 0 : 1];
-        flashAlert(ucfirst($done_word) . " <strong>$count</strong> " . $email_word($count) . ($note !== '' ? " - $note" : ''), $mail_queue_action === 'delete' ? 'error' : 'success');
+        flashAlert(ucfirst($done_word) . " <strong>$count</strong> " . $email_word($count) . ($note !== '' ? " - $note" : ''), $mail_queue_action === 'retry' ? 'success' : 'error');
     } elseif ($count) {
         flashAlert(ucfirst($done_word) . " <strong>$count</strong> of $asked " . $email_word($asked) . ". $why_not", 'warning');
     } else {

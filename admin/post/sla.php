@@ -96,7 +96,7 @@ if (isset($_GET['archive_sla'])) {
 
     logAudit("SLA", "Archive", "$session_name archived SLA ID $sla_id");
 
-    flashAlert($sla_name !== '' ? "SLA <strong>" . escapeHtml($sla_name) . "</strong> archived" : "SLA archived");
+    flashAlert($sla_name !== '' ? "SLA <strong>" . escapeHtml($sla_name) . "</strong> archived" : "SLA archived", 'error');
     undoOfferArchived($undo, 'SLA', $sla_name);
 
     redirect();
@@ -232,7 +232,7 @@ if (isset($_POST['delete_holiday'])) {
 
     logAudit("Settings", "Delete", "$session_name removed SLA closure day $holiday_date - $holiday_name");
 
-    flashAlert("Closure day removed" . ($restamped ? " - targets worked out again on " . $sla_open_tickets_text($restamped) : ''));
+    flashAlert("Closure day removed" . ($restamped ? " - targets worked out again on " . $sla_open_tickets_text($restamped) : ''), 'error');
 
     redirect();
 

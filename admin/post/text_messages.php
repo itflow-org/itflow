@@ -39,7 +39,7 @@ foreach (['retry' => 'retry_text', 'cancel' => 'cancel_text', 'delete' => 'delet
             redirect();
         }
         logAudit("Text Message", ['retry' => 'Edit', 'cancel' => 'Edit', 'delete' => 'Delete'][$action], "$session_name " . ['retry' => 'retried', 'cancel' => 'cancelled', 'delete' => 'deleted'][$action] . " text " . intval($_GET[$key]));
-        flashAlert(['retry' => 'Text queued again - it goes at the next run of the Text Messages job', 'cancel' => 'Text cancelled - it won\'t be sent', 'delete' => 'Text deleted'][$action], $action === 'delete' ? 'error' : 'success');
+        flashAlert(['retry' => 'Text queued again - it goes at the next run of the Text Messages job', 'cancel' => 'Text cancelled - it won\'t be sent', 'delete' => 'Text deleted'][$action], $action === 'retry' ? 'success' : 'error');
         redirect();
     }
 }

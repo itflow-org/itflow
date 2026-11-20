@@ -98,7 +98,7 @@ if (isset($_GET['archive_category'])) {
         $used = categoryUsageFor($row['category_id']);
         logAudit("Category", "Archive", "$session_name archived " . $category_kind_word($row) . " " . escapeSql($row['category_name']), 0, intval($row['category_id']));
         flashAlert(ucfirst($category_kind_word($row)) . " <strong>" . escapeHtml($row['category_name']) . "</strong> archived - "
-            . ($used['all'] ? "it stays on the " . escapeHtml(categoryUsageText($row, $used)) . " that have it, but isn't offered for new ones" : "it isn't offered for new ones"));
+            . ($used['all'] ? "it stays on the " . escapeHtml(categoryUsageText($row, $used)) . " that have it, but isn't offered for new ones" : "it isn't offered for new ones"), 'error');
         undoOfferArchived($undo, 'categor', $row['category_name'], [], 'y|ies');
     }
 
@@ -262,7 +262,7 @@ if (isset($_POST['bulk_archive_categories']) || isset($_POST['bulk_restore_categ
         $count++;
     }
 
-    flashAlert(($archive ? "Archived " : "Restored ") . $count . ($count === 1 ? " category" : " categories") . ($archive && $count ? " - they stay on their records, but aren't offered for new ones" : ''));
+    flashAlert(($archive ? "Archived " : "Restored ") . $count . ($count === 1 ? " category" : " categories") . ($archive && $count ? " - they stay on their records, but aren't offered for new ones" : ''), $archive ? 'error' : 'success');
     if ($undo) {
         undoOfferArchived($undo, 'categor', '', [], 'y|ies');
     }

@@ -69,7 +69,7 @@ if (isset($_POST['clear_app_logs'])) {
     if ($cleared > 0) {
         $what = lcfirst(appLogFiltersText($summary));
         logAudit("App Log", "Delete", "$session_name cleared $cleared app log " . ($cleared === 1 ? 'entry' : 'entries') . ($all ? ' - all of them' : ' - ' . escapeSql($what)));
-        flashAlert("Cleared $cleared app log " . ($cleared === 1 ? 'entry' : 'entries'));
+        flashAlert("Cleared $cleared app log " . ($cleared === 1 ? 'entry' : 'entries'), 'error');
     } else {
         flashAlert('There was nothing to clear.', 'error');
     }

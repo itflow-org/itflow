@@ -39,7 +39,7 @@ if (isset($_GET['remove_office'])) {
     }
 
     logAudit("Settings", "Delete", "$session_name removed the office " . escapeSql($name));
-    flashAlert("Removed the office <strong>" . escapeHtml($name) . "</strong> - those who worked there are in the main office now");
+    flashAlert("Removed the office <strong>" . escapeHtml($name) . "</strong> - those who worked there are in the main office now", 'error');
     redirect('settings_company.php#section-offices');
 
 }

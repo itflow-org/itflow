@@ -215,7 +215,7 @@ if (isset($_GET['resend_user_invite']) || isset($_GET['link_user_invite']) || is
     if ($what === 'cancel') {
         userInviteCancel($invite_id);
         logAudit("User", "Cancel", "$session_name cancelled the invite to $who");
-        flashAlert("Cancelled the invite to <strong>" . escapeHtml($invite['invite_email']) . "</strong> - its link no longer works");
+        flashAlert("Cancelled the invite to <strong>" . escapeHtml($invite['invite_email']) . "</strong> - its link no longer works", 'error');
         redirect();
     }
 

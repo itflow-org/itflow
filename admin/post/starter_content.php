@@ -90,7 +90,7 @@ if (isset($_POST['clear_starter_unused'])) {
 
     if ($count) {
         logAudit("Starter Content", "Archive", "$session_name archived $count unused from the starter $label pack");
-        flashAlert("Archived <strong>$count</strong> unused from " . escapeHtml($label));
+        flashAlert("Archived <strong>$count</strong> unused from " . escapeHtml($label), 'error');
         undoOfferChanges($before, "<strong>{n}</strong> from " . escapeHtml($label) . " put back", 'module_client');
     } else {
         flashAlert("Nothing to archive - those are in use now, or already archived", 'info');

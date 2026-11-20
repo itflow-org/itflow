@@ -261,7 +261,7 @@ if (isset($_GET['unlink_rmm_client'])) {
     $rmm_client_id = intval($rmm_client['rmm_client_id']);
     mysqli_query($mysqli, "UPDATE rmm_clients SET rmm_client_client_id = 0, rmm_client_synced_at = NULL WHERE rmm_client_id = $rmm_client_id");
     logAudit("RMM Provider", "Unlink", "$session_name unlinked " . escapeSql(rmmProviderName($rmm_client) . " client {$rmm_client['rmm_client_name']} from " . $rmm_client['client_name']), intval($rmm_client['rmm_client_client_id']), intval($rmm_client['rmm_client_provider_id']));
-    flashAlert('<strong>' . escapeHtml($rmm_client['rmm_client_name']) . '</strong> unlinked - its devices no longer come in. Their assets stay.');
+    flashAlert('<strong>' . escapeHtml($rmm_client['rmm_client_name']) . '</strong> unlinked - its devices no longer come in. Their assets stay.', 'error');
     redirect('rmm_clients.php?provider_id=' . intval($rmm_client['rmm_client_provider_id']));
 
 }
