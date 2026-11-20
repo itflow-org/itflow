@@ -300,8 +300,12 @@
             '</div>' +
             '<div class="itflow-notify-list" role="list" aria-label="Notifications"></div>' +
             '<a class="itflow-notify-foot" href="/agent/notifications.php">View all notifications</a>' +
-            // Desktop notifications in this browser - js/ticket_pulse.js labels it and turns them on and off
-            '<button type="button" class="itflow-notify-foot itflow-notify-desktop" data-desktop-notify hidden></button>';
+            // Desktop notifications in this browser - on, off or blocked, with a switch (js/ticket_pulse.js)
+            '<label class="itflow-notify-foot itflow-notify-desktop" data-desktop-notify hidden>' +
+                '<i class="fas fa-fw fa-desktop" aria-hidden="true"></i>' +
+                '<span class="itflow-notify-desktop-text"><span>Desktop notifications</span><span class="small" data-desktop-state></span></span>' +
+                '<span class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" data-desktop-switch></span>' +
+            '</label>';
 
         list = panel.querySelector('.itflow-notify-list');
 

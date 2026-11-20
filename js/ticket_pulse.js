@@ -7,8 +7,9 @@
  * keeps going in the background, which is the point: the count shows on that tab while you are in
  * another one. Other pages keep their own title.
  *
- * Desktop notifications are each browser's own choice, turned on and off from the bell's panel
- * ([data-desktop-notify] - js/notifications.js draws it), which asks the browser's permission.
+ * Desktop notifications are each browser's own choice, turned on and off with the switch at the
+ * foot of the bell's panel ([data-desktop-notify] - js/notifications.js draws it), which says
+ * whether they are on, off or blocked here, and asks the browser's permission the first time.
  * Once on, a ticket newly assigned to you and a client's reply on one of yours show as desktop
  * notifications - but only while no ITFlow tab has the focus: when you are already in ITFlow the
  * bell and the title say enough. Clicking one opens the ticket. Text only, from textContent-safe
@@ -173,18 +174,34 @@
 
     /* ---------- the switch in the bell's panel ---------- */
 
-    function label(button) {
+    // Where they stand here: on, off, or blocked by the browser - the switch shows it
+    function label(row) {
         if (!supported()) {
-            button.hidden = true;
+            row.hidden = true;
             return;
         }
-        button.hidden = false;
-        button.textContent = '';
-        const i = document.createElement('i');
-        i.className = 'fas fa-fw fa-desktop me-1';
-        i.setAttribute('aria-hidden', 'true');
-        button.append(i, desktopOn() ? 'Turn off desktop notifications'
-            : (Notification.permission === 'denied' ? 'Desktop notifications are blocked in this browser' : 'Turn on desktop notifications'));
+        const on = desktopOn();
+        const blocked = !on && Notification.permission === 'denied';
+        const box = row.querySelector('[data-desktop-switch]');
+        const state = row.querySelector('[data-desktop-state]');
+        row.hidden = false;
+        row.classList.toggle('is-on', on);
+        box.checked = on;
+        box.disabled = blocked;
+        state.textContent = on ? 'On in this browser'
+            : (blocked ? 'Blocked by this browser - allow them in its settings for this site' : 'Off in this browser');
+    }
+
+    function labelAll() {
+        document.querySelectorAll('[data-desktop-notify]').forEach(label);
+    }
+
+    function turnOn(row) {
+        store(DESKTOP, '1');
+        label(row);
+        toast('Desktop notifications are on in this browser');
+        show('Desktop notifications are on', 'Tickets assigned to you and client replies on yours show here while you are away from ITFlow.', 'itflow-desktop-on');
+        ask(true);
     }
 
     function toast(text, type) {
@@ -195,36 +212,47 @@
 
     document.addEventListener('shown.bs.dropdown', function (e) {
         const bell = e.target.closest && e.target.closest('#itflowNotify');
-        const button = bell && bell.querySelector('[data-desktop-notify]');
-        if (button) {
-            label(button);
+        const row = bell && bell.querySelector('[data-desktop-notify]');
+        if (row) {
+            label(row);
         }
     });
 
-    document.addEventListener('click', function (e) {
-        const button = e.target.closest('[data-desktop-notify]');
-        if (!button || !supported()) {
+    // Turned on or off in another tab
+    window.addEventListener('storage', function (e) {
+        if (e.key === DESKTOP) {
+            labelAll();
+        }
+    });
+
+    document.addEventListener('change', function (e) {
+        const box = e.target.closest && e.target.closest('[data-desktop-switch]');
+        const row = box && box.closest('[data-desktop-notify]');
+        if (!row || !supported()) {
             return;
         }
-        e.preventDefault();
-        if (desktopOn()) {
+        if (!box.checked) {
             store(DESKTOP, '0');
-            label(button);
+            label(row);
             toast('Desktop notifications are off in this browser');
             return;
         }
         if (Notification.permission === 'denied') {
+            label(row);
             toast('This browser blocks notifications from ITFlow - allow them in its settings for this site, then try again', 'warning');
+            return;
+        }
+        // Allowed already - no need to ask again
+        if (Notification.permission === 'granted') {
+            turnOn(row);
             return;
         }
         Notification.requestPermission().then(function (permission) {
             if (permission === 'granted') {
-                store(DESKTOP, '1');
-                toast('Desktop notifications are on in this browser');
-                show('Desktop notifications are on', 'Tickets assigned to you and client replies on yours show here while you are away from ITFlow.', 'itflow-desktop-on');
-                ask(true);
+                turnOn(row);
+            } else {
+                label(row);
             }
-            label(button);
         });
     });
 

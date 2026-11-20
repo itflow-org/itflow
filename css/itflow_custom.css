@@ -2833,13 +2833,34 @@ body {
 .itflow-notify-foot:hover {
     background-color: rgba(var(--bs-emphasis-color-rgb), .05);
 }
-/* Desktop notifications on or off, under the link (js/ticket_pulse.js) */
+/* Desktop notifications on, off or blocked here, with a switch, under the link (js/ticket_pulse.js) */
 .itflow-notify-desktop {
-    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    margin: 0;
+    text-align: left;
+    color: var(--bs-body-color);
+    cursor: pointer;
+}
+.itflow-notify-desktop > .fa-desktop {
     color: var(--bs-secondary-color);
-    background: none;
-    border: 0;
-    border-top: 1px solid var(--bs-border-color);
+}
+.itflow-notify-desktop.is-on > .fa-desktop {
+    color: var(--bs-success);
+}
+.itflow-notify-desktop-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: 1.3;
+}
+.itflow-notify-desktop-text > .small {
+    color: var(--bs-secondary-color);
+}
+.itflow-notify-desktop:has(:disabled) {
+    cursor: default;
 }
 
 /* The full page lists the same rows inside a card */
