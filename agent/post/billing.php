@@ -301,7 +301,8 @@ if (isset($_GET['recurring_invoice_set_status'])) {
     enforceClientAccess();
 
     $number = billingNumber('recurring', $row);
-    mysqli_query($mysqli, "UPDATE recurring_invoices SET recurring_invoice_status = $status WHERE recurring_invoice_id = $recurring_invoice_id");
+    // A pause with an end date ends either way - resumed now, or paused until resumed
+    mysqli_query($mysqli, "UPDATE recurring_invoices SET recurring_invoice_status = $status" . (recurringPauseReady() ? ", recurring_invoice_paused_until = NULL" : '') . " WHERE recurring_invoice_id = $recurring_invoice_id");
     billingLog('recurring', $recurring_invoice_id, $status ? 'Active' : 'Paused', ($status ? 'Resumed' : 'Paused') . " by $session_name");
     logAudit('Recurring Invoice', 'Edit', escapeSql("$session_name " . ($status ? 'resumed' : 'paused') . " recurring invoice $number"), $client_id, $recurring_invoice_id);
 
@@ -310,6 +311,108 @@ if (isset($_GET['recurring_invoice_set_status'])) {
     } else {
         flashAlert("<strong>" . escapeHtml($number) . "</strong> " . ($status ? 'resumed' : 'paused'));
     }
+
+    redirect();
+
+}
+
+/*
+ * Recurring invoices ticked on the list (or one, from its Pause button):
+ * pause - until a day, when the nightly run resumes it, or until resumed -
+ * resume, change the next date, or change how often. Each is logged on the
+ * recurring invoice. Only the ones the agent can reach are changed.
+ */
+if (isset($_POST['bulk_recurring_invoices'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    $action = (string) ($_POST['bulk_action'] ?? '');
+    if (!in_array($action, ['pause', 'resume', 'next_date', 'frequency'], true)) {
+        flashAlert('Pick what to do with them.', 'error');
+        redirect();
+    }
+
+    // What it changes to, checked once for them all
+    $until = '';
+    $next_date = '';
+    $frequency = '';
+    if ($action === 'pause') {
+        $until = trim((string) ($_POST['paused_until'] ?? ''));
+        if ($until !== '') {
+            $until_date = DateTime::createFromFormat('!Y-m-d', $until);
+            if (!$until_date || $until_date->format('Y-m-d') !== $until || $until <= date('Y-m-d')) {
+                flashAlert('Pause until a day after today, or leave the day empty to pause until resumed.', 'error');
+                redirect();
+            }
+            if (!recurringPauseReady()) {
+                $until = '';
+            }
+        }
+    } elseif ($action === 'next_date') {
+        $next_date = trim((string) ($_POST['next_date'] ?? ''));
+        $next_date_check = DateTime::createFromFormat('!Y-m-d', $next_date);
+        if (!$next_date_check || $next_date_check->format('Y-m-d') !== $next_date) {
+            flashAlert('Pick the next date.', 'error');
+            redirect();
+        }
+    } elseif ($action === 'frequency') {
+        $frequency = (string) ($_POST['frequency'] ?? '');
+        if (!isset(recurringInvoiceFrequencies()[$frequency])) {
+            flashAlert('Pick how often they run.', 'error');
+            redirect();
+        }
+    }
+
+    $done = [];
+    $by = stripslashes($session_name);
+    foreach (array_unique(array_filter(array_map('intval', (array) ($_POST['recurring_invoice_ids'] ?? [])))) as $recurring_invoice_id) {
+        $row = billingRow('recurring', $recurring_invoice_id);
+        if (!$row || !empty($row['recurring_invoice_archived_at'])) {
+            continue;
+        }
+        $client_id = intval($row['client_id']);
+        enforceClientAccess();
+        $number = billingNumber('recurring', $row);
+        $paused_until_sql = recurringPauseReady() ? ', recurring_invoice_paused_until = ' . ($until !== '' ? "'" . escapeSql($until) . "'" : 'NULL') : '';
+
+        if ($action === 'pause') {
+            mysqli_query($mysqli, "UPDATE recurring_invoices SET recurring_invoice_status = 0$paused_until_sql WHERE recurring_invoice_id = $recurring_invoice_id");
+            $what = $until !== '' ? "paused until $until" : 'paused';
+            billingLog('recurring', $recurring_invoice_id, 'Paused', ucfirst($what) . " by $by");
+        } elseif ($action === 'resume') {
+            if (intval($row['recurring_invoice_status']) === 1) {
+                continue;
+            }
+            mysqli_query($mysqli, "UPDATE recurring_invoices SET recurring_invoice_status = 1$paused_until_sql WHERE recurring_invoice_id = $recurring_invoice_id");
+            $what = 'resumed';
+            billingLog('recurring', $recurring_invoice_id, 'Active', "Resumed by $by");
+        } elseif ($action === 'next_date') {
+            if ($next_date === $row['recurring_invoice_next_date']) {
+                continue;
+            }
+            mysqli_query($mysqli, "UPDATE recurring_invoices SET recurring_invoice_next_date = '" . escapeSql($next_date) . "', recurring_invoice_anchor_day = DAY('" . escapeSql($next_date) . "') WHERE recurring_invoice_id = $recurring_invoice_id");
+            $what = "moved on to $next_date";
+            billingLog('recurring', $recurring_invoice_id, 'Rescheduled', "Next date moved from {$row['recurring_invoice_next_date']} to $next_date by $by");
+        } else {
+            if ($frequency === $row['recurring_invoice_frequency']) {
+                continue;
+            }
+            mysqli_query($mysqli, "UPDATE recurring_invoices SET recurring_invoice_frequency = '" . escapeSql($frequency) . "' WHERE recurring_invoice_id = $recurring_invoice_id");
+            $what = 'made ' . strtolower(recurringInvoiceFrequencies()[$frequency]);
+            billingLog('recurring', $recurring_invoice_id, 'Edited', "Made " . strtolower(recurringInvoiceFrequencies()[$frequency]) . " (was " . strtolower(recurringInvoiceFrequencies()[$row['recurring_invoice_frequency']] ?? $row['recurring_invoice_frequency']) . ") by $by");
+        }
+        logAudit('Recurring Invoice', 'Edit', escapeSql("$session_name $what recurring invoice $number"), $client_id, $recurring_invoice_id);
+        $done[] = $number;
+    }
+
+    if (!$done) {
+        flashAlert('Nothing to change - they are like that already.');
+        redirect();
+    }
+    $words = ['pause' => $until !== '' ? "paused until $until" : 'paused', 'resume' => 'resumed', 'next_date' => "next run on $next_date", 'frequency' => strtolower(recurringInvoiceFrequencies()[$frequency] ?? '')];
+    flashAlert((count($done) === 1 ? '<strong>' . escapeHtml($done[0]) . '</strong>' : count($done) . ' recurring invoices') . ' ' . escapeHtml($words[$action]));
 
     redirect();
 

@@ -83,16 +83,6 @@ ob_start();
 
     <div class="modal-body">
 
-        <?php if ($contact_count == 0) { ?>
-
-            <p class="text-body-secondary mb-0">
-                This client has no primary or billing contact with an email address, so there is
-                nobody to send an invoice to. Flag a contact as billing, or use Mark Sent to record
-                that the invoice went out some other way.
-            </p>
-
-        <?php } else { ?>
-
             <!-- What goes out -->
             <?php $doc_state = invoiceState($doc, invoicePaid($invoice_id));
             $can_remind = $doc_state['balance'] > 0 && in_array($doc['invoice_status'], invoiceOpenStatuses(), true);
@@ -132,6 +122,9 @@ ob_start();
 
             <label class="form-label">Send to <strong class="text-danger">*</strong></label>
 
+            <?php if ($contact_count == 0) { ?>
+            <p class="small text-body-secondary">This client has no primary or billing contact with an email address. Type the address to send it to below, flag a contact as billing, or use Mark Sent to record that the invoice went out some other way.</p>
+            <?php } else { ?>
             <div class="list-group mb-3">
 
                 <?php
@@ -168,6 +161,9 @@ ob_start();
                 ?>
 
             </div>
+            <?php } ?>
+
+            <?= billingEmailExtraField('invoiceEmailExtra' . $invoice_id) ?>
 
             <label class="form-label">Message <span class="text-body-secondary fw-normal small">in the email, above the invoice</span></label>
             <div class="input-group mb-3">
@@ -187,15 +183,11 @@ ob_start();
                 </p>
             <?php } ?>
 
-        <?php } ?>
-
     </div>
     <div class="modal-footer">
-        <?php if ($contact_count > 0) { ?>
-            <button type="submit" name="email_invoice" class="btn btn-primary text-bold">
-                <i class="fa fa-fw fa-paper-plane me-2"></i>Send
-            </button>
-        <?php } ?>
+        <button type="submit" name="email_invoice" class="btn btn-primary text-bold">
+            <i class="fa fa-fw fa-paper-plane me-2"></i>Send
+        </button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">
             <i class="fa fa-fw fa-times me-2"></i>Cancel
         </button>

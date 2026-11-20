@@ -27,7 +27,7 @@ function notificationTypeModules() {
         'module_sales' => [
             'Invoice', 'Invoice Paid', 'Invoice Viewed', 'Invoice Overdue', 'Invoice Late Charge',
             'Draft Invoices', 'Recurring Sent', 'Recurring Generated',
-            'Quote Viewed', 'Quote Accepted', 'Quote Declined', 'Quote File', 'Low Stock',
+            'Quote Viewed', 'Quote Accepted', 'Quote Declined', 'Quote File', 'Quote Expiring', 'Low Stock',
         ],
         'module_financial' => ['Expense', 'Expense Created'],
         'module_support' => [

@@ -3109,6 +3109,7 @@ CREATE TABLE `recurring_invoices` (
   `recurring_invoice_lead_days` int(11) NOT NULL DEFAULT 0,
   `recurring_invoice_due_mode` varchar(10) NOT NULL DEFAULT 'terms',
   `recurring_invoice_status` int(1) NOT NULL,
+  `recurring_invoice_paused_until` date DEFAULT NULL,
   `recurring_invoice_discount_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `recurring_invoice_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `recurring_invoice_currency_code` varchar(200) NOT NULL,

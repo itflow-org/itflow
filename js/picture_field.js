@@ -4,7 +4,8 @@
  * a button with a camera badge. Clicking it opens the Picture window, over the
  * form's own window when it is in one:
  *
- *   - drop a picture on it, paste one, or choose one
+ *   - drop a picture on it, paste one, or choose one - or, on a phone or
+ *     tablet, Take a photo, which opens the camera straight away
  *   - crop it to fit the shape it's shown in - drag it, zoom it (the wheel, a
  *     pinch, the slider, or + and -), turn it a quarter at a time, or pick
  *     another shape where the field has more than one
@@ -51,6 +52,9 @@
     var FRAME_MAX_HEIGHT = 340;
     var SOURCE_MAX = 4096;    // a bigger picture is scaled down to this first
     var ZOOM_MAX = 8;         // times the smallest zoom that fills the frame
+
+    // A touch screen with a camera to hand - a phone or tablet - gets Take a photo
+    var CAMERA = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 
     var canReplace = (function () {
         try {
@@ -632,7 +636,10 @@
                             '<div class="itflow-picture-pick-now" data-now></div>' +
                             '<div class="fw-semibold mt-3" data-pick-drop></div>' +
                             '<div class="small text-body-secondary mb-3">or paste one, or</div>' +
-                            '<span class="btn btn-primary"><i class="fas fa-upload me-2"></i><span data-pick-choose></span></span>' +
+                            '<div class="d-flex flex-wrap justify-content-center gap-2">' +
+                                '<span class="btn btn-primary"><i class="fas fa-upload me-2"></i><span data-pick-choose></span></span>' +
+                                '<button type="button" class="btn btn-outline-primary" data-camera hidden><i class="fas fa-camera me-2"></i>Take a photo</button>' +
+                            '</div>' +
                             '<div class="form-text mt-2" data-pick-types></div>' +
                         '</div>' +
                         '<div data-crop-area hidden>' +
@@ -671,6 +678,7 @@
                         '<div class="itflow-picture-doc" data-doc-area hidden></div>' +
                         '<div class="alert alert-danger small mt-3 mb-0" data-error hidden></div>' +
                         '<input type="file" hidden data-file>' +
+                        '<input type="file" hidden data-camera-file accept="image/*" capture="environment">' +
                     '</div>' +
                     '<div class="modal-footer">' +
                         '<button type="button" class="btn btn-outline-danger me-auto" data-remove><i class="fas fa-trash-alt me-2"></i>Remove</button>' +
@@ -700,6 +708,8 @@
             trimButton: free.querySelector('[data-trim]'),
             error: modal.querySelector('[data-error]'),
             file: modal.querySelector('[data-file]'),
+            camera: modal.querySelector('[data-camera]'),
+            cameraFile: modal.querySelector('[data-camera-file]'),
             remove: modal.querySelector('[data-remove]'),
             another: modal.querySelector('[data-another]'),
             use: modal.querySelector('[data-use]'),
@@ -734,6 +744,21 @@
         w.file.addEventListener('change', function () {
             if (w.file.files && w.file.files[0]) {
                 load(w, w.file.files[0]);
+            }
+        });
+
+        // A phone's or tablet's camera, straight away - the button sits on the pick area, so it keeps its clicks to itself
+        w.camera.addEventListener('click', function (e) {
+            e.stopPropagation();
+            w.cameraFile.value = '';
+            w.cameraFile.click();
+        });
+        w.camera.addEventListener('keydown', function (e) {
+            e.stopPropagation();
+        });
+        w.cameraFile.addEventListener('change', function () {
+            if (w.cameraFile.files && w.cameraFile.files[0]) {
+                load(w, w.cameraFile.files[0]);
             }
         });
 
@@ -938,6 +963,7 @@
         w.pickTypes.textContent = typesText(field.accept);
         w.pick.setAttribute('aria-label', w.pickChoose.textContent);
         w.file.setAttribute('accept', field.accept);
+        w.camera.hidden = !CAMERA;
         w.trimButton.hidden = !field.trim;
         w.crop.round = field.round;
         showError(w, '');

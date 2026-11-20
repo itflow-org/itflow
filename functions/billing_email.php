@@ -229,6 +229,46 @@ function billingEmailRecipients($client_id, ?array $contact_ids = null, $type = 
 }
 
 /**
+ * The addresses typed into a Send window's "Also send to" - for this once,
+ * not saved anywhere: the valid ones as recipients with no contact (id 0)
+ * and nobody to greet by name, at most 10, in the order typed. $bad gets
+ * what isn't an address.
+ */
+function billingEmailExtraRecipients($text, &$bad = []) {
+    $bad = [];
+    $recipients = [];
+    foreach (preg_split('/[\s,;]+/', trim((string) $text), -1, PREG_SPLIT_NO_EMPTY) as $address) {
+        if (!filter_var($address, FILTER_VALIDATE_EMAIL)) {
+            $bad[] = $address;
+            continue;
+        }
+        $recipients[strtolower($address)] = ['id' => 0, 'name' => '', 'email' => $address];
+    }
+    return array_slice(array_values($recipients), 0, 10);
+}
+
+/** The contacts picked and the addresses typed, as one list - an address once, as the contact where it is one. */
+function billingEmailMergeRecipients(array $contacts, array $extra) {
+    $all = [];
+    foreach (array_merge($contacts, $extra) as $recipient) {
+        $key = strtolower(trim($recipient['email']));
+        if (!isset($all[$key])) {
+            $all[$key] = $recipient;
+        }
+    }
+    return array_values($all);
+}
+
+/** A Send window's "Also send to" field - the extra addresses billingEmailExtraRecipients() reads. HTML. */
+function billingEmailExtraField($id) {
+    return '<label class="form-label" for="' . escapeHtml($id) . '">Also send to <span class="text-body-secondary fw-normal small">an address that isn\'t a contact, this once - their accountant, say</span></label>'
+        . '<div class="input-group mb-3">'
+        . '<span class="input-group-text"><i class="fas fa-fw fa-at"></i></span>'
+        . '<input type="email" multiple class="form-control" name="extra_emails" id="' . escapeHtml($id) . '" maxlength="500" placeholder="accounts@example.com - more than one with commas" autocomplete="off">'
+        . '</div>';
+}
+
+/**
  * Queue a billing email to each recipient, greeting each by name - nobody
  * without one - through emailQueue(), whether or not mail is set up yet, as
  * the Send windows always have. $opts: from ('invoice' or 'quote' -

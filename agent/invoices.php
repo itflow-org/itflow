@@ -7,9 +7,11 @@
  * sitting in drafts, and what came in over the last 30 days - each opens
  * the invoices behind it. The pills filter by where an invoice stands. Each
  * row has what is still owed on it and, while it is owed, how long until
- * it is due or how late it is, and whether autopay pays it. ?status= takes Draft, Unpaid, Overdue,
- * Paid and Cancelled - the dashboard, client pages and reports link with
- * it. ?recurring_invoice_id= shows the invoices a recurring invoice made.
+ * it is due or how late it is, and whether autopay pays it - and a draft
+ * left more than a week says so. ?status= takes Draft, StaleDraft (drafts
+ * left more than INVOICE_DRAFT_STALE_DAYS), Unpaid, Overdue, Paid and
+ * Cancelled - the dashboard, client pages, reports and the nightly
+ * notification link with it. ?recurring_invoice_id= shows the invoices a recurring invoice made.
  */
 
 // Default Column Sortby/Order Filter
@@ -64,6 +66,8 @@ $open_sql = "invoice_status IN ('Sent', 'Viewed', 'Partial')";
 $statuses = [
     '' => ['label' => 'All', 'where' => ''],
     'Draft' => ['label' => 'Draft', 'icon' => 'fa-pencil-ruler', 'where' => "invoice_status = 'Draft'", 'title' => 'Not sent yet - the client can\'t see them'],
+    'StaleDraft' => ['label' => 'Drafts left a week', 'icon' => 'fa-hourglass-half', 'where' => "invoice_status = 'Draft' AND invoice_created_at < NOW() - INTERVAL " . INVOICE_DRAFT_STALE_DAYS . " DAY",
+        'title' => 'Drafts made more than ' . INVOICE_DRAFT_STALE_DAYS . ' days ago and still not sent'],
     'Unpaid' => ['label' => 'Unpaid', 'icon' => 'fa-hand-holding-usd', 'where' => $open_sql, 'title' => 'Sent, and not paid in full'],
     'Overdue' => ['label' => 'Overdue', 'icon' => 'fa-exclamation-circle', 'where' => "$open_sql AND invoice_due < CURDATE()", 'title' => 'Past their due date and not paid in full'],
     'Paid' => ['label' => 'Paid', 'icon' => 'fa-check-circle', 'where' => "invoice_status = 'Paid'"],
@@ -126,8 +130,9 @@ $money = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT
         COALESCE(SUM(CASE WHEN $open_sql AND balance > 0 AND invoice_due < CURDATE() THEN balance END), 0) AS overdue,
         COALESCE(SUM(CASE WHEN $open_sql AND balance > 0 AND invoice_due < CURDATE() THEN 1 END), 0) AS overdue_count,
         COALESCE(SUM(CASE WHEN invoice_status = 'Draft' THEN invoice_amount END), 0) AS draft,
-        COALESCE(SUM(CASE WHEN invoice_status = 'Draft' THEN 1 END), 0) AS draft_count
-    FROM (SELECT invoice_status, invoice_due, invoice_amount, invoice_amount - $paid_sql AS balance
+        COALESCE(SUM(CASE WHEN invoice_status = 'Draft' THEN 1 END), 0) AS draft_count,
+        COALESCE(SUM(CASE WHEN invoice_status = 'Draft' AND invoice_created_at < NOW() - INTERVAL " . INVOICE_DRAFT_STALE_DAYS . " DAY THEN 1 END), 0) AS draft_stale
+    FROM (SELECT invoice_status, invoice_due, invoice_amount, invoice_created_at, invoice_amount - $paid_sql AS balance
         FROM invoices WHERE 1 $money_scope) AS scoped"));
 $collected = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COALESCE(SUM(payment_amount), 0) AS amount, COUNT(*) AS payments FROM payments
     JOIN invoices ON payment_invoice_id = invoice_id
@@ -173,7 +178,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
         <a class="itflow-billing-stat <?= $status === 'Draft' ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['status' => 'Draft'])) ?>">
             <div class="itflow-billing-stat-label"><i class="fas fa-pencil-ruler me-1"></i>In drafts</div>
             <div class="itflow-billing-stat-value"><?= $stat_money($money['draft']) ?></div>
-            <div class="itflow-billing-stat-note"><?= intval($money['draft_count']) ?> not sent yet</div>
+            <div class="itflow-billing-stat-note"><?= intval($money['draft_count']) ?> not sent yet<?php if ($money['draft_stale']) { ?> &middot; <span class="text-warning-emphasis"><?= intval($money['draft_stale']) ?> left over a week</span><?php } ?></div>
         </a>
     </div>
     <div class="col-sm-6 col-xl-3">
@@ -310,7 +315,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                 $alarm = $key === 'Overdue' && $counts[$key]; ?>
                 <a class="nav-link text-nowrap <?= $status === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['status' => $key])) ?>"<?= !empty($s['title']) ? ' title="' . escapeHtml($s['title']) . '"' : '' ?>>
                     <?php if (!empty($s['icon'])) { ?><i class="fas fa-fw <?= $s['icon'] ?> me-1"></i><?php } ?><?= $s['label'] ?>
-                    <span class="badge rounded-pill ms-1 <?= $alarm ? 'text-bg-danger' : '' ?>"><?= $counts[$key] ?></span>
+                    <span class="badge rounded-pill ms-1 <?= $alarm ? 'text-bg-danger' : ($key === 'StaleDraft' && $counts[$key] ? 'text-bg-warning' : '') ?>"><?= $counts[$key] ?></span>
                 </a>
             <?php } ?>
         </nav>
@@ -409,6 +414,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                             <?php } else { ?>
                                 <?= invoiceStatusBadge($row_status) ?>
                             <?php } ?>
+                            <?php $draft_age = invoiceDraftAgePill($row); if ($draft_age) { ?><div><?= $draft_age ?></div><?php } ?>
                         </td>
                         <td class="text-end">
                             <div class="dropdown dropstart">
@@ -472,7 +478,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
         'icon' => 'fa-file-invoice-dollar',
         'filtered' => $q || $category_filter || $recurring_filter || $hardware_filter || $dtf !== '1970-01-01',
         'views' => ['status'],
-        'view' => emptyStatePill($statuses, $status, '', ['Unpaid', 'Overdue']),
+        'view' => emptyStatePill($statuses, $status, '', ['Unpaid', 'Overdue', 'StaleDraft']),
         'text' => 'Bill a client by hand, or from an accepted quote or their unbilled time.',
         'actions' => $can_edit ? [['label' => 'New Invoice', 'modal' => "modals/invoice/invoice_add.php?$client_url"]] : [],
     ];

@@ -572,6 +572,12 @@ if ($reminder_rules['enabled']) {
 }
 
 
+// Recurring invoices paused until today run again first - so one due today bills today
+$recurring_invoices_resumed = recurringInvoiceResumePaused();
+if ($recurring_invoices_resumed) {
+    logApp("Cron", "info", "Cron resumed $recurring_invoices_resumed recurring invoice(s) at the end of their pause");
+}
+
 // Recurring invoices - each one due today, or missed by up to
 // RECURRING_INVOICE_GRACE_DAYS (a night or a few the cron didn't run), or
 // within the days ahead it is made (dated today, due by its due rule), makes
@@ -607,15 +613,27 @@ while ($row = mysqli_fetch_assoc($sql_invalid_recurring_invoices)) {
 }
 // End Flag any active recurring "next run" dates that are in the past
 
-// Start Notify draft invoices needing review
-$sql_invoices_pending_send = mysqli_query($mysqli,"SELECT invoice_id FROM invoices WHERE invoice_status = 'Draft'");
-$invoices_pending_send = mysqli_num_rows($sql_invoices_pending_send);
+// Start Notify draft invoices needing review - with how many have been left more than a week
+$drafts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(invoice_created_at < NOW() - INTERVAL " . INVOICE_DRAFT_STALE_DAYS . " DAY), 0) FROM invoices WHERE invoice_status = 'Draft'"));
+$invoices_pending_send = intval($drafts[0]);
+$invoices_pending_stale = intval($drafts[1]);
 
 if ($invoices_pending_send > 0) {
 
-    appNotify("Draft Invoices", "There are $invoices_pending_send draft invoices pending review", "/agent/invoices.php?&status=Draft");
+    appNotify("Draft Invoices", "There are $invoices_pending_send draft invoices pending review" . ($invoices_pending_stale ? ", $invoices_pending_stale of them left more than " . INVOICE_DRAFT_STALE_DAYS . " days" : ''),
+        $invoices_pending_stale ? "/agent/invoices.php?status=StaleDraft" : "/agent/invoices.php?&status=Draft");
 }
 // End Notify draft invoices needing review
+
+// Sent quotes running out soon with no answer - a nudge to Sales to follow each one up
+$sql_quotes_expiring = mysqli_query($mysqli, "SELECT quote_id, quote_prefix, quote_number, quote_scope, quote_expire, quote_client_id, client_name FROM quotes
+    JOIN clients ON client_id = quote_client_id
+    WHERE quote_status IN ('Sent', 'Viewed') AND quote_archived_at IS NULL AND quote_expire = CURDATE() + INTERVAL " . QUOTE_EXPIRY_NUDGE_DAYS . " DAY");
+while ($row = mysqli_fetch_assoc($sql_quotes_expiring)) {
+    $quote_label = billingNumber('quote', $row) . (trim((string) $row['quote_scope']) !== '' ? ' (' . $row['quote_scope'] . ')' : '');
+    appNotify("Quote Expiring", escapeSql("Quote $quote_label for {$row['client_name']} runs out on {$row['quote_expire']}, in " . QUOTE_EXPIRY_NUDGE_DAYS . " days, with no answer yet - a good time to follow it up"),
+        "/agent/quote.php?quote_id=" . intval($row['quote_id']), intval($row['quote_client_id']), intval($row['quote_id']));
+}
 
 
 

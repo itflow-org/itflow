@@ -418,9 +418,15 @@ if (isset($_POST['email_quote'])) {
             redirect();
         }
     } else {
-        $recipients = billingEmailRecipients($client_id, (array) ($_POST['contacts'] ?? []));
+        // The contacts ticked, and any address typed in Also send to - for this once
+        $extra = billingEmailExtraRecipients($_POST['extra_emails'] ?? '', $extra_bad);
+        if ($extra_bad) {
+            flashAlert('Not an email address: ' . escapeHtml(implode(', ', $extra_bad)), 'error');
+            redirect();
+        }
+        $recipients = billingEmailMergeRecipients(empty($_POST['contacts']) ? [] : billingEmailRecipients($client_id, (array) $_POST['contacts']), $extra);
         if (!$recipients) {
-            flashAlert(empty($_POST['contacts']) ? "Select at least one contact to send to" : "None of the selected contacts have a usable email address", 'error');
+            flashAlert(empty($_POST['contacts']) ? "Tick a contact or type an address to send it to" : "None of the selected contacts have a usable email address", 'error');
             redirect();
         }
     }

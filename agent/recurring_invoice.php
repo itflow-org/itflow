@@ -125,7 +125,7 @@ echo agentBannersHtml($client_id);
         <div class="flex-grow-1 min-w-0">
             <h1 class="h4 fw-semibold mb-1 d-flex flex-wrap align-items-center gap-2">
                 <span>Recurring Invoice <?= escapeHtml($number) ?></span>
-                <span class="fs-6"><span class="badge rounded-pill text-bg-<?= $active ? 'success' : 'secondary' ?>"><?= $active ? 'Active' : 'Paused' ?></span></span>
+                <span class="fs-6"><span class="badge rounded-pill text-bg-<?= $active ? 'success' : 'secondary' ?>"><?= $active ? 'Active' : (!empty($recurring['recurring_invoice_paused_until']) ? 'Paused until ' . escapeHtml($recurring['recurring_invoice_paused_until']) : 'Paused') ?></span></span>
                 <?php if ($active) { ?><span class="fs-6"><?= recurringInvoiceNextPill($recurring) ?></span><?php } ?>
             </h1>
             <div class="text-body-secondary small d-flex flex-wrap column-gap-3 row-gap-1">
@@ -152,10 +152,9 @@ echo agentBannersHtml($client_id);
                     <i class="fas fa-bolt me-2"></i>Invoice Now
                 </a>
                 <?php if ($active) { ?>
-                    <a class="btn btn-outline-secondary confirm-link" href="post.php?recurring_invoice_set_status=<?= $recurring_invoice_id ?>&status=0&csrf_token=<?= $csrf ?>"
-                        data-confirm-title="Pause <?= escapeHtml($number) ?>?" data-confirm-text="No invoices are made from it until it is resumed." data-confirm-button="Pause">
+                    <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/recurring_invoice/recurring_invoice_bulk.php?action=pause&amp;recurring_invoice_ids[]=<?= $recurring_invoice_id ?>">
                         <i class="fas fa-pause me-2"></i>Pause
-                    </a>
+                    </button>
                 <?php } else { ?>
                     <a class="btn btn-outline-success" href="post.php?recurring_invoice_set_status=<?= $recurring_invoice_id ?>&status=1&csrf_token=<?= $csrf ?>">
                         <i class="fas fa-play me-2"></i>Resume
@@ -176,6 +175,11 @@ echo agentBannersHtml($client_id);
                     <a class="dropdown-item" href="invoices.php?client_id=<?= $client_id ?>&recurring_invoice_id=<?= $recurring_invoice_id ?>">
                         <i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Invoices Made <span class="text-body-secondary">(<?= $generated_count ?>)</span>
                     </a>
+                    <?php if ($can_edit) { ?>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_invoice/recurring_invoice_copy.php?id=<?= $recurring_invoice_id ?>">
+                            <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy to Another Client
+                        </a>
+                    <?php } ?>
                     <?php if ($can_edit && $auto_send) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="post.php?recurring_invoice_email_notify=<?= $email_notify ? 0 : 1 ?>&recurring_invoice_id=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>">
@@ -247,7 +251,9 @@ echo agentBannersHtml($client_id);
                                 <div class="small text-body-secondary">then <?= escapeHtml(implode(', ', array_slice($upcoming, 1))) ?></div>
                             <?php } ?>
                         <?php } else { ?>
-                            <span class="text-body-secondary"><?= $for_contract && $for_contract['contract_status'] === 'Draft' ? 'Paused - it starts when ' . escapeHtml($for_contract['contract_name']) . ' is active' : 'Paused - nothing until it is resumed' ?></span>
+                            <span class="text-body-secondary"><?= $for_contract && $for_contract['contract_status'] === 'Draft' ? 'Paused - it starts when ' . escapeHtml($for_contract['contract_name']) . ' is active'
+                                : (!empty($recurring['recurring_invoice_paused_until']) ? 'Paused until ' . escapeHtml($recurring['recurring_invoice_paused_until']) . ' - then it runs again by itself, from its next date after that'
+                                : 'Paused - nothing until it is resumed') ?></span>
                         <?php } ?>
                     </dd>
                     <dt>Last</dt><dd><?= $recurring['recurring_invoice_last_sent'] ? escapeHtml($recurring['recurring_invoice_last_sent']) : '<span class="text-body-secondary">Not yet</span>' ?></dd>

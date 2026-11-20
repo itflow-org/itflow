@@ -312,7 +312,7 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
                 <?php if ($form_receipt) { ?>
                     <a href="<?= escapeHtml($form_receipt_url) ?>" target="_blank"><?= escapeHtml(expenseReceiptName($form_row)) ?></a><br>
                 <?php } ?>
-                Click it to <?= $form_receipt ? 'change it, or take it off' : 'add a photo or a PDF' ?> - on a phone, take the picture right there.
+                Click it to <?= $form_receipt ? 'change it, or take it off' : 'add a photo or a PDF' ?> - on a phone, Take a photo opens the camera.
             </div>
         </div>
     </div>

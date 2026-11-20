@@ -1458,6 +1458,54 @@ function quoteStatusBadge($row) {
 }
 
 /** "Expires in 5 days", "Expired 3 days ago" - for a quote not answered yet. */
+/** How many days before a sent quote runs out, unanswered, the nightly run nudges Sales to follow it up. */
+const QUOTE_EXPIRY_NUDGE_DAYS = 3;
+
+/**
+ * What a client owes on invoices past their due date - shown on their
+ * tickets to agents who can see billing, so work doesn't carry on unaware.
+ * ['amount', 'count', 'days' (how late the oldest is), 'currency'], or null
+ * when nothing is overdue.
+ */
+function billingClientOverdue($client_id) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    if (!$client_id) {
+        return null;
+    }
+    $overdue = ['amount' => 0.0, 'count' => 0, 'days' => 0, 'currency' => ''];
+    $sql = mysqli_query($mysqli, "SELECT invoice_due, invoice_currency_code,
+            invoice_amount - COALESCE((SELECT SUM(payment_amount) FROM payments WHERE payment_invoice_id = invoice_id), 0) AS balance
+        FROM invoices
+        WHERE invoice_client_id = $client_id AND invoice_status IN ('Sent', 'Viewed', 'Partial') AND invoice_due < CURDATE()");
+    while ($sql && $row = mysqli_fetch_assoc($sql)) {
+        if (floatval($row['balance']) <= 0) {
+            continue;
+        }
+        $overdue['amount'] += floatval($row['balance']);
+        $overdue['count']++;
+        $overdue['days'] = max($overdue['days'], intval(floor((strtotime(date('Y-m-d')) - strtotime($row['invoice_due'])) / 86400)));
+        $overdue['currency'] = $overdue['currency'] ?: (string) $row['invoice_currency_code'];
+    }
+    return $overdue['count'] ? $overdue : null;
+}
+
+/** A draft invoice left this many days is called out - on the invoices list and in the nightly notification. */
+const INVOICE_DRAFT_STALE_DAYS = 7;
+
+/** "Draft 12 days" - for a draft invoice left more than INVOICE_DRAFT_STALE_DAYS since it was made. '' otherwise. */
+function invoiceDraftAgePill($row) {
+    if (($row['invoice_status'] ?? '') !== 'Draft' || empty($row['invoice_created_at'])) {
+        return '';
+    }
+    $days = intval(floor((time() - strtotime((string) $row['invoice_created_at'])) / 86400));
+    if ($days <= INVOICE_DRAFT_STALE_DAYS) {
+        return '';
+    }
+    return '<span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal" title="Made ' . escapeHtml(date('Y-m-d', strtotime((string) $row['invoice_created_at']))) . ' and not sent yet - send it, or delete it if it isn\'t wanted">'
+        . '<i class="fas fa-hourglass-half me-1"></i>Draft ' . $days . ' days</span>';
+}
+
 function quoteExpiryPill($row) {
     if (!in_array($row['quote_status'], ['Draft', 'Sent', 'Viewed'], true) || empty($row['quote_expire'])) {
         return '';
@@ -1972,10 +2020,12 @@ function recurringInvoiceMonthlySql($amount = 'recurring_invoice_amount', $frequ
     return "(CASE $frequency WHEN 'year' THEN $amount / 12 WHEN 'quarter' THEN $amount / 3 ELSE $amount END)";
 }
 
-/** "In 5 days", "Today", "3 days late" - for an active recurring invoice's next run. */
+/** "In 5 days", "Today", "3 days late" - for an active recurring invoice's next run. "Paused", or "Paused until" the day it runs again by itself. */
 function recurringInvoiceNextPill($row) {
     if (intval($row['recurring_invoice_status']) !== 1) {
-        return '<span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal"><i class="fas fa-pause me-1"></i>Paused</span>';
+        $until = (string) ($row['recurring_invoice_paused_until'] ?? '');
+        return '<span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal"' . ($until !== '' ? ' title="It runs again by itself then - the runs in between are skipped"' : '') . '>'
+            . '<i class="fas fa-pause me-1"></i>Paused' . ($until !== '' ? ' until ' . escapeHtml($until) : '') . '</span>';
     }
     $days = intval(round((strtotime((string) $row['recurring_invoice_next_date']) - strtotime(date('Y-m-d'))) / 86400));
     if ($days < 0) {
@@ -2016,6 +2066,56 @@ function recurringInvoiceUpcoming($row, $count = 3) {
         $date = recurringInvoiceAfter($row, $date);
     }
     return $dates;
+}
+
+/** Is recurring_invoice_paused_until there yet (database update 4.0.5)? Until it is, a pause has no end date. */
+function recurringPauseReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '4.0.5', '>=');
+    }
+    return $ready;
+}
+
+/**
+ * The nightly run: recurring invoices paused until a day that has come run
+ * again - their next date moved on to the first run from today, so nothing
+ * is billed for the runs they would have made while paused. Before the run
+ * that bills, so one due today bills today. How many resumed.
+ */
+function recurringInvoiceResumePaused() {
+    global $mysqli;
+    if (!recurringPauseReady()) {
+        return 0;
+    }
+    $resumed = 0;
+    $sql = mysqli_query($mysqli, "SELECT recurring_invoice_id, recurring_invoice_prefix, recurring_invoice_number, recurring_invoice_frequency, recurring_invoice_next_date,
+            recurring_invoice_anchor_day, recurring_invoice_paused_until, recurring_invoice_client_id
+        FROM recurring_invoices
+        WHERE recurring_invoice_status = 0 AND recurring_invoice_paused_until IS NOT NULL AND recurring_invoice_paused_until <= CURDATE()
+        AND recurring_invoice_archived_at IS NULL");
+    while ($sql && $row = mysqli_fetch_assoc($sql)) {
+        $id = intval($row['recurring_invoice_id']);
+        $next = recurringInvoiceCatchUp($row);
+        mysqli_query($mysqli, "UPDATE recurring_invoices SET recurring_invoice_status = 1, recurring_invoice_paused_until = NULL, recurring_invoice_next_date = '" . escapeSql($next) . "'
+            WHERE recurring_invoice_id = $id AND recurring_invoice_status = 0");
+        if (mysqli_affected_rows($mysqli) < 1) {
+            continue;
+        }
+        $number = billingNumber('recurring', $row);
+        $moved = $next !== $row['recurring_invoice_next_date'] ? ", next runs on $next (the runs while it was paused skipped)" : ", next runs on $next";
+        billingLog('recurring', $id, 'Active', "Resumed by itself, its pause until {$row['recurring_invoice_paused_until']} over$moved");
+        logAudit('Recurring Invoice', 'Edit', escapeSql("Cron resumed recurring invoice $number, paused until {$row['recurring_invoice_paused_until']}$moved"), intval($row['recurring_invoice_client_id']), $id);
+        $resumed++;
+    }
+    return $resumed;
 }
 
 /** The first run date from a recurring invoice's next date on that hasn't passed - the missed runs skipped. */

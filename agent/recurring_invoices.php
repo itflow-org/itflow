@@ -9,7 +9,9 @@
  * days, how many are running, and how many need looking at - running, but
  * with a next date that has passed, so they won't bill until it moves on.
  * Pills: Active (the default - ?status=active), Next 7 days, Late, Paused
- * (?status=inactive, as before) and All.
+ * (?status=inactive, as before) and All. Tick some to pause them (until a
+ * day, or until resumed), resume them, or change their next date or how
+ * often they bill (bulk_recurring_invoices, agent/post/billing.php).
  */
 
 // Default Column Sortby/Order Filter
@@ -203,21 +205,56 @@ $stat_money = function ($amount) use ($session_company_currency) {
                 <?php } ?>
             </div>
         </form>
-        <nav class="nav nav-pills itflow-asset-tabs mt-2 flex-nowrap overflow-auto">
-            <?php foreach ($statuses as $key => $s) {
-                $alarm = $key === 'late' && $counts[$key]; ?>
-                <a class="nav-link text-nowrap <?= $status === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['status' => $key])) ?>"<?= !empty($s['title']) ? ' title="' . escapeHtml($s['title']) . '"' : '' ?>>
-                    <?php if (!empty($s['icon'])) { ?><i class="fas fa-fw <?= $s['icon'] ?> me-1"></i><?php } ?><?= $s['label'] ?>
-                    <span class="badge rounded-pill ms-1 <?= $alarm ? 'text-bg-danger' : '' ?>"><?= $counts[$key] ?></span>
-                </a>
+        <div class="d-flex align-items-center gap-2 mt-2">
+            <nav class="nav nav-pills itflow-asset-tabs flex-nowrap overflow-auto me-auto">
+                <?php foreach ($statuses as $key => $s) {
+                    $alarm = $key === 'late' && $counts[$key]; ?>
+                    <a class="nav-link text-nowrap <?= $status === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['status' => $key])) ?>"<?= !empty($s['title']) ? ' title="' . escapeHtml($s['title']) . '"' : '' ?>>
+                        <?php if (!empty($s['icon'])) { ?><i class="fas fa-fw <?= $s['icon'] ?> me-1"></i><?php } ?><?= $s['label'] ?>
+                        <span class="badge rounded-pill ms-1 <?= $alarm ? 'text-bg-danger' : '' ?>"><?= $counts[$key] ?></span>
+                    </a>
+                <?php } ?>
+            </nav>
+            <?php if ($can_edit) { ?>
+                <div class="dropdown flex-shrink-0" id="bulkActionButton" hidden>
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item ajax-modal" href="#" data-bulk="true" data-modal-url="modals/recurring_invoice/recurring_invoice_bulk.php?action=pause">
+                            <i class="fas fa-fw fa-pause text-secondary me-2"></i>Pause
+                        </a>
+                        <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_recurring_invoices">
+                            <i class="fas fa-fw fa-play text-secondary me-2"></i>Resume
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item ajax-modal" href="#" data-bulk="true" data-modal-url="modals/recurring_invoice/recurring_invoice_bulk.php?action=next_date">
+                            <i class="fas fa-fw fa-calendar-alt text-secondary me-2"></i>Next Date
+                        </a>
+                        <a class="dropdown-item ajax-modal" href="#" data-bulk="true" data-modal-url="modals/recurring_invoice/recurring_invoice_bulk.php?action=frequency">
+                            <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Billed
+                        </a>
+                    </div>
+                </div>
             <?php } ?>
-        </nav>
+        </div>
     </div>
+
+    <form id="bulkActions" action="post.php" method="post">
+        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+        <input type="hidden" name="bulk_action" value="resume">
 
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0 itflow-billing-table">
             <thead class="<?= $num_rows[0] ? '' : 'd-none' ?> text-nowrap table-light">
             <tr>
+                <?php if ($can_edit) { ?>
+                    <th class="checkbox-column border-end">
+                        <div class="form-check">
+                            <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" title="Select all on this page">
+                        </div>
+                    </th>
+                <?php } ?>
                 <th class="ps-3"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=recurring_invoice_number&order=<?= $disp ?>">Recurring invoice <?php if ($sort == 'recurring_invoice_number') { echo $order_icon; } ?></a></th>
                 <?php if (!$client_url) { ?>
                     <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
@@ -240,6 +277,13 @@ $stat_money = function ($amount) use ($session_company_currency) {
                 $row_frequency = recurringInvoiceFrequencies()[$row['recurring_invoice_frequency']] ?? ucfirst((string) $row['recurring_invoice_frequency']);
                 ?>
                 <tr class="<?= $row_active ? '' : 'text-body-secondary' ?>">
+                    <?php if ($can_edit) { ?>
+                        <td class="checkbox-column bg-light border-end">
+                            <div class="form-check">
+                                <input class="form-check-input bulk-select" type="checkbox" name="recurring_invoice_ids[]" value="<?= $recurring_invoice_id ?>" aria-label="Select <?= escapeHtml($row_number) ?>">
+                            </div>
+                        </td>
+                    <?php } ?>
                     <td class="ps-3 itflow-billing-number">
                         <a class="fw-semibold" href="<?= $row_url ?>"><?= escapeHtml($row_number) ?></a>
                         <?php if (intval($row['recurring_payment_id'])) { ?><i class="fas fa-wallet text-success small ms-1" title="Autopay - charged to a card on file"></i><?php } ?>
@@ -278,8 +322,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                                         </a>
                                     <?php } ?>
                                     <?php if ($row_active) { ?>
-                                        <a class="dropdown-item confirm-link" href="post.php?recurring_invoice_set_status=<?= $recurring_invoice_id ?>&status=0&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                            data-confirm-title="Pause <?= escapeHtml($row_number) ?>?" data-confirm-text="No invoices are made from it until it is resumed." data-confirm-button="Pause">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_invoice/recurring_invoice_bulk.php?action=pause&amp;recurring_invoice_ids[]=<?= $recurring_invoice_id ?>">
                                             <i class="fas fa-fw fa-pause text-secondary me-2"></i>Pause
                                         </a>
                                     <?php } else { ?>
@@ -289,6 +332,9 @@ $stat_money = function ($amount) use ($session_company_currency) {
                                     <?php } ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_invoice/recurring_invoice_edit.php?id=<?= $recurring_invoice_id ?>">
                                         <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
+                                    </a>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_invoice/recurring_invoice_copy.php?id=<?= $recurring_invoice_id ?>">
+                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy to Another Client
                                     </a>
                                 <?php } ?>
                                 <?php if ($can_delete) { ?>
@@ -306,6 +352,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
             </tbody>
         </table>
     </div>
+    </form>
     <?php
     $empty_state = [
         'thing' => 'recurring invoices',
@@ -319,5 +366,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
     require_once "../includes/filter_footer.php";
     ?>
 </div>
+
+<script src="<?= staticFileUrl('/js/bulk_actions.js') ?>"></script>
 
 <?php require_once "../includes/footer.php";

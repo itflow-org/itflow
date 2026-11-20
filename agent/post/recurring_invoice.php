@@ -131,6 +131,82 @@ if (isset($_POST['add_recurring_invoice'])) {
 
 }
 
+/*
+ * Copy a recurring invoice to another client (agent/modals/recurring_invoice/
+ * recurring_invoice_copy.php) - its lines, scope, category, discount, notes,
+ * how often and how it sends, starting on the day picked. Seat lines count
+ * the new client's; one counting a license of the first client's keeps its
+ * quantity and stops counting. Not autopay, a contract or the quote it came from.
+ */
+if (isset($_POST['copy_recurring_invoice'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    $from = billingRow('recurring', intval($_POST['recurring_invoice_id'] ?? 0));
+    if (!$from) {
+        flashAlert('That recurring invoice no longer exists.', 'error');
+        redirect();
+    }
+    $from_id = intval($from['recurring_invoice_id']);
+    $client_id = intval($from['client_id']);
+    enforceClientAccess();
+
+    $client_id = intval($_POST['client_id'] ?? 0);
+    enforceClientAccess();
+    $client_name = getFieldById('clients', $client_id, 'client_name');
+    if (!$client_id || $client_id === intval($from['client_id']) || !$client_name) {
+        flashAlert('Pick the client to copy it to.', 'error');
+        redirect();
+    }
+
+    $start = trim((string) ($_POST['start_date'] ?? ''));
+    $start_check = DateTime::createFromFormat('!Y-m-d', $start);
+    if (!$start_check || $start_check->format('Y-m-d') !== $start) {
+        flashAlert('Pick the day its first invoice is made.', 'error');
+        redirect();
+    }
+    $start_sql = escapeSql($start);
+
+    $prefix = escapeSql($config_recurring_invoice_prefix);
+    $number = billingNextNumber('recurring');
+    $frequency = escapeSql($from['recurring_invoice_frequency']);
+    $ahead_sql = recurringAheadReady() ? ", recurring_invoice_lead_days = " . intval($from['recurring_invoice_lead_days']) . ", recurring_invoice_due_mode = '" . escapeSql($from['recurring_invoice_due_mode']) . "'" : '';
+
+    mysqli_query($mysqli, "INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$prefix', recurring_invoice_number = $number,
+        recurring_invoice_scope = '" . escapeSql($from['recurring_invoice_scope']) . "', recurring_invoice_frequency = '$frequency',
+        recurring_invoice_next_date = '$start_sql', recurring_invoice_anchor_day = DAY('$start_sql'), recurring_invoice_status = 1,
+        recurring_invoice_discount_amount = " . floatval($from['recurring_invoice_discount_amount']) . ", recurring_invoice_amount = 0,
+        recurring_invoice_currency_code = '" . escapeSql($from['recurring_invoice_currency_code']) . "', recurring_invoice_note = '" . escapeSql($from['recurring_invoice_note']) . "',
+        recurring_invoice_auto_send = " . intval($from['recurring_invoice_auto_send']) . ", recurring_invoice_email_notify = " . intval($from['recurring_invoice_email_notify']) . ",
+        recurring_invoice_category_id = " . intval($from['recurring_invoice_category_id']) . ", recurring_invoice_client_id = $client_id $ahead_sql");
+    $recurring_invoice_id = intval(mysqli_insert_id($mysqli));
+
+    // The lines as they are - a license seat line keeps its quantity, as the license is the other client's
+    mysqli_query($mysqli, "INSERT INTO recurring_invoice_items (item_name, item_description, item_quantity, item_price, item_subtotal, item_tax, item_total, item_order,
+            item_tax_id, item_product_id, item_seat_source, item_seat_filter, item_seat_minimum, item_recurring_invoice_id)
+        SELECT item_name, item_description, item_quantity, item_price, item_subtotal, item_tax, item_total, item_order, item_tax_id, item_product_id,
+            IF(item_seat_source = 'license', NULL, item_seat_source), IF(item_seat_source = 'license', NULL, item_seat_filter), IF(item_seat_source = 'license', 0, item_seat_minimum),
+            $recurring_invoice_id
+        FROM recurring_invoice_items WHERE item_recurring_invoice_id = $from_id AND item_archived_at IS NULL ORDER BY item_order, item_id");
+
+    // Seat lines counted for the new client, taxes at today's rates, and the total
+    $from_number = billingNumber('recurring', $from);
+    $new_number = "$config_recurring_invoice_prefix$number";
+    billingLog('recurring', $recurring_invoice_id, 'Active', "Copied from $from_number ({$from['client_name']}) by " . stripslashes($session_name));
+    $seat_changes = recurringInvoiceRefresh($recurring_invoice_id, stripslashes($session_name));
+    billingLog('recurring', $from_id, $from['recurring_invoice_status'] ? 'Active' : 'Paused', "Copied to $client_name as $new_number by " . stripslashes($session_name));
+
+    logAudit("Recurring Invoice", "Create", escapeSql("$session_name copied recurring invoice $from_number to $client_name as $new_number"), $client_id, $recurring_invoice_id);
+
+    flashAlert("Recurring Invoice <strong>" . escapeHtml($new_number) . "</strong> made for <strong>" . escapeHtml($client_name) . "</strong>, first billing on " . escapeHtml($start)
+        . ($seat_changes ? ' - seats counted for them: ' . escapeHtml(implode('; ', $seat_changes)) : ''));
+
+    redirect("recurring_invoice.php?client_id=$client_id&recurring_invoice_id=$recurring_invoice_id");
+
+}
+
 if (isset($_POST['edit_recurring_invoice'])) {
 
     validateCSRFToken();
@@ -166,7 +242,7 @@ if (isset($_POST['edit_recurring_invoice'])) {
     // so a schedule on the 31st that is on the 28th this month keeps the 31st.
     // (Set before next_date: MySQL reads a column already set in the same
     // UPDATE as its new value.)
-    mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_anchor_day = IF(recurring_invoice_next_date = '$next_date' AND recurring_invoice_anchor_day > 0, recurring_invoice_anchor_day, DAY('$next_date')), recurring_invoice_next_date = '$next_date', recurring_invoice_category_id = $category, recurring_invoice_discount_amount = $recurring_invoice_discount, recurring_invoice_auto_send = $auto_send, recurring_invoice_status = $status $ahead_sql WHERE recurring_invoice_id = $recurring_invoice_id");
+    mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_anchor_day = IF(recurring_invoice_next_date = '$next_date' AND recurring_invoice_anchor_day > 0, recurring_invoice_anchor_day, DAY('$next_date')), recurring_invoice_next_date = '$next_date', recurring_invoice_category_id = $category, recurring_invoice_discount_amount = $recurring_invoice_discount, recurring_invoice_auto_send = $auto_send, recurring_invoice_status = $status" . (recurringPauseReady() ? ", recurring_invoice_paused_until = IF($status = 1, NULL, recurring_invoice_paused_until)" : '') . " $ahead_sql WHERE recurring_invoice_id = $recurring_invoice_id");
 
     billingRecalc('recurring', $recurring_invoice_id);
 
