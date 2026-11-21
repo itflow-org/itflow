@@ -28,7 +28,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-wallet me-2"></i><?= "$invoice_prefix$invoice_number" ?>: Apply Credit (Balance: <?= numfmt_format_currency($currency_format, $credit_balance, $session_company_currency) ?>)</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-wallet me-2"></i><?= "$invoice_prefix$invoice_number" ?>: Apply Credit (Balance: <?= billingMoney($credit_balance, $session_company_currency) ?>)</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

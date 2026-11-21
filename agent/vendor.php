@@ -733,9 +733,9 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                     <div class="tab-pane fade" id="vendor-pane-expenses" role="tabpanel">
                         <div class="itflow-asset-pane-bar">
                             <span class="text-body-secondary small d-flex flex-wrap column-gap-3">
-                                <span><strong class="text-body"><?= numfmt_format_currency($currency_format, $spend['year'], $session_company_currency) ?></strong> this year</span>
-                                <span><?= numfmt_format_currency($currency_format, $spend['last_year'], $session_company_currency) ?> last year</span>
-                                <span><?= numfmt_format_currency($currency_format, $spend['total'], $session_company_currency) ?> in all</span>
+                                <span><strong class="text-body"><?= billingMoney($spend['year'], $session_company_currency) ?></strong> this year</span>
+                                <span><?= billingMoney($spend['last_year'], $session_company_currency) ?> last year</span>
+                                <span><?= billingMoney($spend['total'], $session_company_currency) ?> in all</span>
                             </span>
                             <div class="d-flex gap-2">
                                 <a class="btn btn-sm btn-outline-secondary" href="expenses.php?vendor=<?= $vendor_id ?>"><i class="fas fa-list me-2"></i>All</a>
@@ -757,7 +757,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                                 <div class="small text-body-secondary"><?= escapeHtml(implode(' · ', array_filter([$expense['category_name'], $expense['expense_reference']]))) ?></div>
                                             </td>
                                             <td class="text-nowrap small"><?= intval($expense['expense_paid_by']) ? '<i class="fas fa-hand-holding-usd text-body-secondary me-1" title="Paid personally"></i>' . escapeHtml($expense['paid_by_name'] ?: 'An agent') : (moduleOn('bookkeeping') ? escapeHtml($expense['account_name']) : 'The business') ?></td>
-                                            <td class="text-end text-nowrap font-monospace"><?= numfmt_format_currency($currency_format, floatval($expense['expense_amount']), $expense['expense_currency_code']) ?></td>
+                                            <td class="text-end text-nowrap font-monospace"><?= billingMoney(floatval($expense['expense_amount']), $expense['expense_currency_code']) ?></td>
                                         </tr>
                                     <?php } ?>
                                     </tbody>
@@ -793,7 +793,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                                 <div><?= escapeHtml(truncate((string) $recurring_expense['recurring_expense_description'], 90)) ?: '<span class="text-body-secondary">-</span>' ?></div>
                                                 <div class="small text-body-secondary"><?= escapeHtml($recurring_expense['category_name']) ?></div>
                                             </td>
-                                            <td class="text-end text-nowrap font-monospace"><?= numfmt_format_currency($currency_format, floatval($recurring_expense['recurring_expense_amount']), $recurring_expense['recurring_expense_currency_code']) ?></td>
+                                            <td class="text-end text-nowrap font-monospace"><?= billingMoney(floatval($recurring_expense['recurring_expense_amount']), $recurring_expense['recurring_expense_currency_code']) ?></td>
                                         </tr>
                                     <?php } ?>
                                     </tbody>

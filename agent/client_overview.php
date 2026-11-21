@@ -46,7 +46,7 @@ if ($access['financial']) {
 $priority_colors = ['Urgent' => 'dark', 'High' => 'danger', 'Medium' => 'warning', 'Low' => 'info'];
 $tone_text = ['danger' => 'text-danger-emphasis', 'warning' => 'text-warning-emphasis', 'info' => 'text-info-emphasis', 'secondary' => 'text-body'];
 $money_format = function ($amount) use ($currency_format, $client_currency_code, $session_company_currency) {
-    return numfmt_format_currency($currency_format, floatval($amount), $client_currency_code ?: $session_company_currency);
+    return billingMoney(floatval($amount), $client_currency_code ?: $session_company_currency);
 };
 
 ?>

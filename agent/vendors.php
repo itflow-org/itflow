@@ -397,7 +397,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                                 <?php } ?>
                                 <?php if ($view === 'ours') { ?>
                                     <?php if ($can_financial && $counts['expense']) { ?>
-                                        <span class="w-100 small text-nowrap"><strong><?= numfmt_format_currency($currency_format, $counts['spend_year'], $session_company_currency) ?></strong> <span class="text-body-secondary">this year</span></span>
+                                        <span class="w-100 small text-nowrap"><strong><?= billingMoney($counts['spend_year'], $session_company_currency) ?></strong> <span class="text-body-secondary">this year</span></span>
                                     <?php } ?>
                                     <?php if ($can_financial && $counts['expense']) { ?>
                                         <a class="itflow-contact-chip" href="<?= $vendor_url ?>#expenses" title="<?= $counts['expense'] ?> expense<?= $counts['expense'] === 1 ? '' : 's' ?>"><i class="fas fa-receipt"></i><?= $counts['expense'] ?></a>

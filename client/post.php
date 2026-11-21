@@ -1647,14 +1647,14 @@ if (isset($_POST['set_recurring_payment'])) {
         // Get Payment ID for reference
         $recurring_payment_id = mysqli_insert_id($mysqli);
 
-        logAudit("Recurring Invoice", "Auto Payment", "$session_contact_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
+        logAudit("Recurring Invoice", "Auto Payment", "$session_contact_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . billingMoney($recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
 
         flashAlert("Automatic Payment $saved_payment_description enabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
     } else {
         // Delete
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = $recurring_invoice_id");
 
-        logAudit("Recurring Invoice", "Auto Payment", "$session_contact_name removed Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
+        logAudit("Recurring Invoice", "Auto Payment", "$session_contact_name removed Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . billingMoney($recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
 
         flashAlert("Automatic Payment Disabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
     }

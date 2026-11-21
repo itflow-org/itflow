@@ -59,7 +59,7 @@ if (isset($_POST['add_payment'])) {
         //Add Payment to History
         mysqli_query($mysqli,"INSERT INTO history SET history_status = '$invoice_status', history_description = 'Payment added', history_invoice_id = $invoice_id");
 
-        logAudit("Invoice", "Payment", "Payment amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+        logAudit("Invoice", "Payment", "Payment amount of " . billingMoney($amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
         // The client's receipt - functions/billing_email.php
         if ($email_receipt == 1) {
@@ -71,7 +71,7 @@ if (isset($_POST['add_payment'])) {
 
         triggerCustomAction('invoice_pay', $invoice_id);
 
-        flashAlert("Payment amount <strong>" . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "</strong> added");
+        flashAlert("Payment amount <strong>" . billingMoney($amount, $invoice_currency_code) . "</strong> added");
 
         redirect();
 
@@ -110,9 +110,9 @@ if (isset($_POST['edit_payment'])) {
     // A changed amount can leave the invoice paid, part paid or owing again
     updateInvoiceStatusFromPayments(intval(getFieldById('payments', $payment_id, 'payment_invoice_id')));
 
-    logAudit("Payment", "Edit", "Payment edited amount of " . numfmt_format_currency($currency_format, $amount, $session_company_currency));
+    logAudit("Payment", "Edit", "Payment edited amount of " . billingMoney($amount, $session_company_currency));
 
-    flashAlert("Payment edited to amount <strong>" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "</strong> added");
+    flashAlert("Payment edited to amount <strong>" . billingMoney($amount, $session_company_currency) . "</strong> added");
 
     redirect();
 
@@ -219,11 +219,11 @@ if (isset($_POST['apply_credit'])) {
             history_invoice_id = $invoice_id
     ");
 
-    logAudit("Invoice", "Payment", "Credit " . numfmt_format_currency($currency_format, $amount, $session_company_currency) . " applied to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    logAudit("Invoice", "Payment", "Credit " . billingMoney($amount, $session_company_currency) . " applied to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
     triggerCustomAction('invoice_pay', $invoice_id);
 
-    flashAlert("Credit amount <strong>" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "</strong> applied");
+    flashAlert("Credit amount <strong>" . billingMoney($amount, $session_company_currency) . "</strong> applied");
 
     redirect();
 
@@ -415,11 +415,11 @@ if (isset($_POST['add_payment_stripe'])) {
 
         // Notify/log
         appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
-        $fee_text = $fee_cents > 0 ? ' (with a ' . numfmt_format_currency($currency_format, $fee_cents / 100, $invoice_currency_code) . ' card fee)' : '';
-        logAudit("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "$fee_text added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
+        $fee_text = $fee_cents > 0 ? ' (with a ' . billingMoney($fee_cents / 100, $invoice_currency_code) . ' card fee)' : '';
+        logAudit("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . billingMoney($pi_amount_paid, $invoice_currency_code) . "$fee_text added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
         triggerCustomAction('invoice_pay', $invoice_id);
 
-        flashAlert("Payment amount <strong>" . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "</strong>$fee_text added");
+        flashAlert("Payment amount <strong>" . billingMoney($pi_amount_paid, $invoice_currency_code) . "</strong>$fee_text added");
 
         redirect();
 
@@ -530,7 +530,7 @@ if (isset($_POST['add_bulk_payment'])) {
         }
     }
 
-    logAudit("Invoice", "Payment", "Bulk Payment amount of " . numfmt_format_currency($currency_format, $bulk_payment_amount_static, $currency_code) . " applied to multiple invoices", $client_id);
+    logAudit("Invoice", "Payment", "Bulk Payment amount of " . billingMoney($bulk_payment_amount_static, $currency_code) . " applied to multiple invoices", $client_id);
 
     flashAlert("$alert_message Bulk Payment added");
 

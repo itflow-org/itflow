@@ -12,7 +12,7 @@ $agent = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_id, user_name, us
 $list = $agent && laborCostReady() ? array_reverse(laborCostRates()[$user_id] ?? []) : [];
 $default = laborCostDefault();
 $money = function ($amount) use ($currency_format, $session_company_currency) {
-    return escapeHtml(numfmt_format_currency($currency_format, $amount, $session_company_currency));
+    return escapeHtml(billingMoney($amount, $session_company_currency));
 };
 
 ob_start();

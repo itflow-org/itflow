@@ -164,7 +164,7 @@ ob_start();
             <?php if ($spend) { ?>
                 <div class="itflow-glance-item" title="Spent with them">
                     <i class="fas fa-fw fa-receipt"></i>
-                    <span><?= numfmt_format_currency($currency_format, $spend['year'], $session_company_currency) ?> this year<?php if ($spend['last']) { ?> <span class="text-body-secondary">&middot; last <?= escapeHtml($spend['last']) ?></span><?php } ?></span>
+                    <span><?= billingMoney($spend['year'], $session_company_currency) ?> this year<?php if ($spend['last']) { ?> <span class="text-body-secondary">&middot; last <?= escapeHtml($spend['last']) ?></span><?php } ?></span>
                 </div>
             <?php } ?>
         </div>

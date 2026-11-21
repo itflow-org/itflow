@@ -182,7 +182,7 @@ ob_start();
                             <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($client_rate, 2, '.', '') ?>" required>
                         </div>
                         <small class="form-text text-muted">
-                            <?= escapeHtml(ucfirst($client_rate_info['note'])) ?> is <strong><?= numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></strong> an hour
+                            <?= escapeHtml(ucfirst($client_rate_info['note'])) ?> is <strong><?= billingMoney($client_rate, $session_company_currency); ?></strong> an hour
                         </small>
                     </div>
                 </div>

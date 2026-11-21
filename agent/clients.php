@@ -684,20 +684,20 @@ $total_leads = intval($row['leads']);
                         <?php if ($show_billing) { ?>
                             <td class="text-end text-nowrap">
                                 <?php if ($balance > 0.004) { ?>
-                                    <a href="invoices.php?client_id=<?= $client_id ?>&status=Unpaid" class="fw-semibold text-decoration-none <?= $money['overdue'] > 0.004 ? 'text-danger-emphasis' : 'text-reset' ?>"><?= numfmt_format_currency($currency_format, $balance, $client_currency_code) ?></a>
+                                    <a href="invoices.php?client_id=<?= $client_id ?>&status=Unpaid" class="fw-semibold text-decoration-none <?= $money['overdue'] > 0.004 ? 'text-danger-emphasis' : 'text-reset' ?>"><?= billingMoney($balance, $client_currency_code) ?></a>
                                     <?php if ($money['overdue'] > 0.004) { ?>
-                                        <div class="small text-danger-emphasis"><?= numfmt_format_currency($currency_format, $money['overdue'], $client_currency_code) ?> overdue</div>
+                                        <div class="small text-danger-emphasis"><?= billingMoney($money['overdue'], $client_currency_code) ?> overdue</div>
                                     <?php } ?>
                                 <?php } else { ?>
-                                    <span class="text-body-tertiary"><?= numfmt_format_currency($currency_format, max(0, $balance), $client_currency_code) ?></span>
+                                    <span class="text-body-tertiary"><?= billingMoney(max(0, $balance), $client_currency_code) ?></span>
                                 <?php } ?>
                             </td>
                             <td class="text-end text-nowrap d-none d-lg-table-cell">
                                 <?php if ($money['recurring'] > 0.004) { ?>
-                                    <a href="recurring_invoices.php?client_id=<?= $client_id ?>" class="text-reset text-decoration-none"><?= numfmt_format_currency($currency_format, $money['recurring'], $client_currency_code) ?><span class="small text-body-secondary">/mo</span></a>
+                                    <a href="recurring_invoices.php?client_id=<?= $client_id ?>" class="text-reset text-decoration-none"><?= billingMoney($money['recurring'], $client_currency_code) ?><span class="small text-body-secondary">/mo</span></a>
                                 <?php } ?>
                                 <?php if (isset($client_rates[$client_id])) { ?>
-                                    <div class="small text-body-secondary" title="<?= escapeHtml($client_rates[$client_id][1]) ?>" data-client-rate><?= numfmt_format_currency($currency_format, $client_rates[$client_id][0], $client_currency_code) ?>/hr<?= !empty($client_rates[$client_id][2]) ? ' <span class="text-body-tertiary" data-client-rate-default>(default)</span>' : '' ?></div>
+                                    <div class="small text-body-secondary" title="<?= escapeHtml($client_rates[$client_id][1]) ?>" data-client-rate><?= billingMoney($client_rates[$client_id][0], $client_currency_code) ?>/hr<?= !empty($client_rates[$client_id][2]) ? ' <span class="text-body-tertiary" data-client-rate-default>(default)</span>' : '' ?></div>
                                 <?php } elseif ($money['recurring'] <= 0.004) { ?>
                                     <span class="text-body-tertiary">-</span>
                                 <?php } ?>

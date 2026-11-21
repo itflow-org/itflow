@@ -98,7 +98,7 @@ ob_start();
 
             <div class="alert alert-secondary">
                 <i class="fa fa-fw fa-balance-scale me-2"></i>Current outstanding balance:
-                <strong><?= numfmt_format_currency($currency_format, $outstanding_balance, $client_currency_code) ?></strong>
+                <strong><?= billingMoney($outstanding_balance, $client_currency_code) ?></strong>
             </div>
 
             <h6 class="text-bold">Statement Options</h6>

@@ -81,7 +81,7 @@ function globalSearchMoney($amount, $currency_code) {
         return number_format(floatval($amount), 2);
     }
 
-    return numfmt_format_currency($currency_format, floatval($amount), $currency_code ?: 'USD');
+    return billingMoney(floatval($amount), $currency_code ?: 'USD');
 }
 
 /** Where a client-scoped record lives: the client's own copy of a page, or the global one. */

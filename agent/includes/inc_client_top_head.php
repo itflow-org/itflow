@@ -27,7 +27,7 @@ if (empty($client_top_head_skip)) {
     $client_head_glance_tickets = $client_head_support && $num_active_tickets > 0;
     $client_head_glance_due = $client_head_billing && $balance > 0;
     $client_head_money = function ($amount) use ($currency_format, $client_currency_code, $session_company_currency) {
-        return numfmt_format_currency($currency_format, floatval($amount), $client_currency_code ?: $session_company_currency);
+        return billingMoney(floatval($amount), $client_currency_code ?: $session_company_currency);
     };
     ?>
 

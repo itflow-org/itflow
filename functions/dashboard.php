@@ -663,7 +663,7 @@ function dashboardTicketTrend() {
 
 function dashboardMoney($amount) {
     global $currency_format, $session_company_currency;
-    return numfmt_format_currency($currency_format, floatval($amount), $session_company_currency);
+    return billingMoney(floatval($amount), $session_company_currency);
 }
 
 /**

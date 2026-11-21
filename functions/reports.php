@@ -611,7 +611,7 @@ function reportClientSql($column, $client_id) {
 
 function reportMoney($amount) {
     global $currency_format, $session_company_currency;
-    return numfmt_format_currency($currency_format, floatval($amount), $session_company_currency);
+    return billingMoney(floatval($amount), $session_company_currency);
 }
 
 /** Money to the whole unit - for the wide year-of-months grids, where cents only crowd the columns. */

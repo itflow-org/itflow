@@ -86,7 +86,7 @@ $pill_url = function ($view) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $view]));
 };
 $money = function ($amount) use ($currency_format, $session_company_currency) {
-    return escapeHtml(numfmt_format_currency($currency_format, $amount, $session_company_currency));
+    return escapeHtml(billingMoney($amount, $session_company_currency));
 };
 
 ?>
