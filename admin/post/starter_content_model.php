@@ -2729,7 +2729,7 @@ function starterContentKbArticles() {
 
         $article('Setting up multi-factor authentication', 'Register the Microsoft Authenticator app so signing in needs your phone as well as your password.', 'Accounts and Passwords', ['How-To', 'Security', 'Microsoft 365', 'Mobile'],
             '<p>Multi-factor authentication (MFA) means that signing in takes your password and a tap on your phone. Even if someone gets your password, they can\'t get in without your phone.</p>'
-            . '<h5>You need</h5>' . $list(['Your phone, with the <strong>Microsoft Authenticator</strong> app installed from the App Store or Google Play', 'A computer, signed in to your work account']) 
+            . '<h5>You need</h5>' . $list(['Your phone, with the <strong>Microsoft Authenticator</strong> app installed from the App Store or Google Play', 'A computer, signed in to your work account'])
             . '<h5>Set it up</h5>' . $steps([
                 'On the computer, go to <a href="https://aka.ms/mfasetup">aka.ms/mfasetup</a> and sign in.',
                 'When asked to keep your account secure, choose <strong>Next</strong> until a QR code shows.',
