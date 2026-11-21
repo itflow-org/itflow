@@ -11,7 +11,9 @@
  *
  * Fields on the page are done on load; window.itflowOtp(input) does one added
  * later. Setting the field's value from script redraws the boxes, and the
- * is-invalid class on it turns them red until the next digit.
+ * is-invalid class on it turns them red until the next digit. One with
+ * autofocus gets the focus when its window opens, and on load where the
+ * browser skipped it (a page opened at a #section), without scrolling to it.
  */
 (function () {
     'use strict';
@@ -142,9 +144,36 @@
         new MutationObserver(render).observe(input, { attributes: true, attributeFilter: ['class'] });
 
         render();
+
+        if (input.hasAttribute('autofocus')) {
+            // Once more after load - going to a #section takes the focus away again
+            focusIfIdle(input);
+            if (document.readyState !== 'complete') {
+                window.addEventListener('load', function () {
+                    setTimeout(function () {
+                        focusIfIdle(input);
+                    });
+                }, { once: true });
+            }
+        }
+    }
+
+    // When nothing else has the focus - not taking it from a field already being typed in
+    function focusIfIdle(input) {
+        if (!document.activeElement || document.activeElement === document.body) {
+            input.focus({ preventScroll: true });
+        }
     }
 
     window.itflowOtp = init;
+
+    // A window with a code to type - straight into the first box
+    document.addEventListener('shown.bs.modal', function (e) {
+        const input = e.target.querySelector('input[data-otp][autofocus]');
+        if (input) {
+            input.focus({ preventScroll: true });
+        }
+    });
 
     function initAll() {
         document.querySelectorAll('input[data-otp]').forEach(init);
