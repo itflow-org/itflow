@@ -26,17 +26,17 @@ echo settingsPageStart('identity');
                 <div class="alert alert-warning py-2 small"><i class="fas fa-exclamation-triangle me-2"></i>The client portal is off - turn it on in <a href="settings_module.php">Modules</a>.</div>
             <?php } ?>
 
-            <?= settingsSectionStart('entra', 'Microsoft Entra', 'A contact with portal access signs in with their Microsoft 365 work account - its email has to be theirs in ITFlow. Register an app in Microsoft Entra for accounts in any organisation\'s directory, with the redirect address below, and put its ID and a secret here.') ?>
+            <?= settingsSectionStart('entra', 'Microsoft Entra', 'A contact with portal access signs in with their Microsoft 365 work account - its email has to be theirs in ITFlow. Register an app in Microsoft Entra for accounts in any organization\'s directory, with the redirect address below, and put its ID and a secret here.') ?>
                 <div class="itflow-settings-field" data-sso-state>
-                    <span class="badge <?= $config_azure_client_id ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= $config_azure_client_id ? 'Set up' : 'Not set up' ?></span>
+                    <span class="badge rounded-pill <?= $config_azure_client_id ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= $config_azure_client_id ? 'Set up' : 'Not set up' ?></span>
                     <span class="small text-body-secondary ms-1"><?= $config_azure_client_id ? 'The portal\'s sign-in page offers Sign in with Microsoft.' : 'Contacts sign in with a password.' ?></span>
                 </div>
                 <div class="itflow-settings-field" data-setting="redirect_uri">
                     <label class="form-label" for="settingsRedirectUri">Redirect address</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
                         <input type="text" class="form-control font-monospace" id="settingsRedirectUri" value="<?= escapeHtml($redirect_uri) ?>" readonly data-sso-redirect>
-                        <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-target="#settingsRedirectUri" title="Copy"><i class="fa fa-fw fa-copy"></i></button>
+                        <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-target="#settingsRedirectUri" title="Copy"><i class="far fa-fw fa-copy"></i></button>
                     </div>
                     <div class="form-text">Under Authentication in the app registration, as a Web platform.</div>
                 </div>

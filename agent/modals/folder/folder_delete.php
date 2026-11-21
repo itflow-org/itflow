@@ -47,7 +47,7 @@ ob_start();
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <input type="hidden" name="folder_id" value="<?= $folder_id ?>">
         <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Cancel</button>
-        <button type="submit" name="delete_folder" class="btn btn-danger px-4"><i class="fas fa-trash me-2"></i>Delete folder</button>
+        <button type="submit" name="delete_folder" class="btn btn-danger px-4"><i class="fas fa-trash me-2"></i>Delete Folder</button>
     </form>
 </div>
 

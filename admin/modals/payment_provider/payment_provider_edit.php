@@ -64,12 +64,12 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-credit-card me-2"></i><?= $row ? '<strong>' . escapeHtml($name) . '</strong>' : 'Add Payment Provider' ?>
+        <i class="fas fa-fw fa-credit-card me-2"></i><?= $row ? 'Edit Payment Provider <span class="fw-normal text-white-50 ms-1">' . escapeHtml($name) . '</span>' : 'New Payment Provider' ?>
         <?php if ($mode !== '') { ?>
-            <span class="badge <?= $mode === 'live' ? 'text-bg-success' : 'text-bg-warning' ?> ms-2 align-middle" data-provider-mode><?= $mode === 'live' ? 'Live' : 'Test' ?></span>
+            <span class="badge rounded-pill <?= $mode === 'live' ? 'text-bg-success' : 'text-bg-warning' ?> ms-2 align-middle" data-provider-mode><?= $mode === 'live' ? 'Live' : 'Test' ?></span>
         <?php } ?>
     </h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" novalidate data-payment-provider-form>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -85,8 +85,8 @@ ob_start();
             <div class="mb-3">
                 <label class="form-label" for="paymentProviderName">Provider <strong class="text-danger">*</strong></label>
                 <div class="input-group has-validation">
-                    <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
-                    <select class="form-select" name="provider" id="paymentProviderName">
+                    <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
+                    <select class="form-select select2" name="provider" id="paymentProviderName">
                         <?php foreach ($kinds as $kind_name => $kind_info) { ?>
                             <option value="<?= escapeHtml($kind_name) ?>" <?= $kind_name === $name ? 'selected' : '' ?> <?= isset($taken[$kind_name]) ? 'disabled' : '' ?>><?= escapeHtml($kind_name) ?><?= isset($taken[$kind_name]) ? ' - set up already' : '' ?></option>
                         <?php } ?>
@@ -107,7 +107,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="paymentProviderDescription">Description</label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" id="paymentProviderDescription" maxlength="250" placeholder="What it is for, if you like" value="<?= escapeHtml($row['payment_provider_description'] ?? '') ?>">
             </div>
             <?= $error_for('description') ?>
@@ -119,7 +119,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="paymentProviderPublicKey">Publishable key <strong class="text-danger">*</strong></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                 <input type="text" class="form-control font-monospace" name="public_key" id="paymentProviderPublicKey" maxlength="250" spellcheck="false" placeholder="<?= escapeHtml($kind['public_example']) ?>" value="<?= escapeHtml($row['payment_provider_public_key'] ?? '') ?>">
             </div>
             <?= $error_for('public_key') ?>
@@ -128,7 +128,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="paymentProviderSecretKey">Secret key <?= $row ? '' : '<strong class="text-danger">*</strong>' ?></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                 <input type="password" class="form-control font-monospace" name="private_key" id="paymentProviderSecretKey" maxlength="250" spellcheck="false" autocomplete="new-password"
                     placeholder="<?= $row && trim((string) $row['payment_provider_private_key']) !== '' ? 'Saved - type a new one to replace it' : escapeHtml($kind['secret_example']) ?>">
             </div>
@@ -140,12 +140,15 @@ ob_start();
 
         <h6 class="fw-semibold mt-4 mb-2">Payments</h6>
 
+        <?php if (!moduleOn('bookkeeping')) { // Bookkeeping off - into the account it's set to, or the default ?>
+            <input type="hidden" name="account" value="<?= $account_id ?: bookkeepingAccount('payment') ?>">
+        <?php } else { ?>
         <div class="mb-3">
             <label class="form-label" for="paymentProviderAccount">Payments go into <strong class="text-danger">*</strong></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                 <select class="form-select select2" name="account" id="paymentProviderAccount">
-                    <option value="">- Pick an account -</option>
+                    <option value="">- Select an account -</option>
                     <?php while ($account = mysqli_fetch_assoc($accounts)) { ?>
                         <option value="<?= intval($account['account_id']) ?>" <?= intval($account['account_id']) === $account_id ? 'selected' : '' ?>><?= escapeHtml($account['account_name']) ?><?= $account['account_archived_at'] ? ' (archived)' : '' ?></option>
                     <?php } ?>
@@ -154,11 +157,12 @@ ob_start();
             <?= $error_for('account') ?>
             <div class="form-text">An account of its own, named for it, makes its payouts easy to match.</div>
         </div>
+        <?php } ?>
 
         <div class="mb-3">
             <label class="form-label" for="paymentProviderThreshold">Card limit</label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-shopping-cart"></i></span>
                 <input type="text" class="form-control" name="threshold" id="paymentProviderThreshold" inputmode="decimal" maxlength="16" placeholder="No limit" value="<?= $threshold > 0 ? escapeHtml(number_format($threshold, 2, '.', '')) : '' ?>">
                 <?php if ($currency !== '') { ?><span class="input-group-text"><?= escapeHtml($currency) ?></span><?php } ?>
             </div>
@@ -180,9 +184,9 @@ ob_start();
             <div class="mb-3">
                 <label class="form-label" for="paymentProviderVendor">Paid to <strong class="text-danger">*</strong></label>
                 <div class="input-group has-validation">
-                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                     <select class="form-select select2" name="expense_vendor" id="paymentProviderVendor">
-                        <option value="">- Pick a vendor -</option>
+                        <option value="">- Select a vendor -</option>
                         <?php while ($vendor = mysqli_fetch_assoc($vendors)) { ?>
                             <option value="<?= intval($vendor['vendor_id']) ?>" <?= intval($vendor['vendor_id']) === $vendor_id ? 'selected' : '' ?>><?= escapeHtml($vendor['vendor_name']) ?><?= $vendor['vendor_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
@@ -195,12 +199,12 @@ ob_start();
             <div class="mb-3">
                 <label class="form-label" for="paymentProviderCategory">Category <strong class="text-danger">*</strong></label>
                 <div class="input-group has-validation">
-                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
                     <select class="form-select select2" name="expense_category" id="paymentProviderCategory">
-                        <option value="">- Pick a category -</option>
+                        <option value="">- Select a category -</option>
                         <?= categoryOptionsHtml('Expense', $category_id ?: null) ?>
                     </select>
-                    <?= categoryAddButtonHtml('Expense', 'btn btn-secondary') ?>
+                    <?= categoryAddButtonHtml('Expense') ?>
                 </div>
                 <?= $error_for('expense_category') ?>
                 <div class="form-text">Processing Fee, or the like.</div>
@@ -220,7 +224,7 @@ ob_start();
                 <div class="col-sm-6 mb-3">
                     <label class="form-label" for="paymentProviderCardFeePercent">Percent</label>
                     <div class="input-group has-validation">
-                        <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
                         <input type="text" class="form-control" name="card_fee_percent" id="paymentProviderCardFeePercent" inputmode="decimal" maxlength="5" placeholder="2.9" value="<?= $card_fee_percent > 0 ? escapeHtml(rtrim(rtrim(number_format($card_fee_percent, 2, '.', ''), '0'), '.')) : '' ?>">
                         <span class="input-group-text">%</span>
                     </div>
@@ -229,7 +233,7 @@ ob_start();
                 <div class="col-sm-6 mb-3">
                     <label class="form-label" for="paymentProviderCardFeeFixed">Plus</label>
                     <div class="input-group has-validation">
-                        <span class="input-group-text"><i class="fa fa-fw fa-coins"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-coins"></i></span>
                         <input type="text" class="form-control" name="card_fee_fixed" id="paymentProviderCardFeeFixed" inputmode="decimal" maxlength="6" placeholder="0.30" value="<?= $card_fee_fixed > 0 ? escapeHtml(number_format($card_fee_fixed, 2, '.', '')) : '' ?>">
                         <?php if ($currency !== '') { ?><span class="input-group-text"><?= escapeHtml($currency) ?></span><?php } ?>
                     </div>
@@ -241,10 +245,10 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="<?= $row ? 'edit_payment_provider' : 'add_payment_provider' ?>" class="btn btn-primary text-bold" data-provider-save <?= !$row && !$free_kinds ? 'disabled' : '' ?>>
-            <i class="fa fa-check me-2"></i><?= $row ? 'Save' : 'Add' ?>
+        <button type="submit" name="<?= $row ? 'edit_payment_provider' : 'add_payment_provider' ?>" class="btn btn-primary fw-bold" data-provider-save <?= !$row && !$free_kinds ? 'disabled' : '' ?>>
+            <i class="fas fa-check me-2"></i><?= $row ? 'Save' : 'Create' ?>
         </button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

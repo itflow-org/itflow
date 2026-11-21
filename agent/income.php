@@ -158,19 +158,19 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                 <?php if ($can_edit) { ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus me-2"></i>New Income</button>
                 <?php } ?>
-                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit) { ?>
-                        <a class="dropdown-item" href="income_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Deposits</a>
+                        <?php if (moduleOn('bookkeeping')) { ?><a class="dropdown-item" href="income_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Deposits</a><?php } ?>
                     <?php } ?>
                     <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/income/income_export.php', ['client_id', 'client', 'category', 'account', 'method', 'show', 'type', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
-                        <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <?php if (reportCanOpen('income_summary')) { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="reports/income_summary.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Income Summary</a>
-                        <a class="dropdown-item" href="reports/income_by_client.php<?= $client_page ? "?client_id=$client_id" : '' ?>"><i class="fa fa-fw fa-users text-secondary me-2"></i>Income by Client</a>
+                        <a class="dropdown-item" href="reports/income_summary.php"><i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Income Summary</a>
+                        <a class="dropdown-item" href="reports/income_by_client.php<?= $client_page ? "?client_id=$client_id" : '' ?>"><i class="fas fa-fw fa-users text-secondary me-2"></i>Income by Client</a>
                     <?php } ?>
                 </div>
             </div>
@@ -186,9 +186,9 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
             <div class="row g-2 align-items-center">
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search income" title="What for, invoice number, reference, amount, client, category, account">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search income..." title="What for, invoice number, reference, amount, client, category, account">
                         <button class="btn btn-outline-secondary <?= $more_filters ? 'active' : '' ?>" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#incomeMoreFilters"><i class="fas fa-filter"></i></button>
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -235,9 +235,10 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
             </div>
             <div class="collapse <?= $more_filters ? 'show' : '' ?>" id="incomeMoreFilters">
                 <div class="row g-2 mt-0">
+                    <?php if (moduleOn('bookkeeping')) { // the account filter and Paid into - with Bookkeeping on ?>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                             <select class="form-select select2" name="account" onchange="this.form.submit()" aria-label="Paid into">
                                 <option value="">- Any account -</option>
                                 <?php foreach (paymentAccounts($account_filter) as $option_id => $account) { ?>
@@ -246,9 +247,10 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                             </select>
                         </div>
                     </div>
+                    <?php } ?>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                             <select class="form-select select2" name="method" onchange="this.form.submit()" aria-label="Paid by">
                                 <option value="">- Any payment method -</option>
                                 <?php
@@ -286,14 +288,14 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                         </div>
                     </th>
                 <?php } ?>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=income_date&order=<?= $disp ?>">Date <?php if ($sort == 'income_date') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=income_type&order=<?= $disp ?>">From <?php if ($sort == 'income_type') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">Category <?php if ($sort == 'category_name') { echo $order_icon; } ?></a></th>
+                <th><?= sortLink('income_date', 'Date') ?></th>
+                <th><?= sortLink('income_type', 'From') ?></th>
+                <th><?= sortLink('category_name', 'Category') ?></th>
                 <?php if (!$client_page) { ?>
-                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
+                    <th><?= sortLink('client_name', 'Client') ?></th>
                 <?php } ?>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=account_name&order=<?= $disp ?>">Paid into <?php if ($sort == 'account_name') { echo $order_icon; } ?></a></th>
-                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=income_amount&order=<?= $disp ?>">Amount <?php if ($sort == 'income_amount') { echo $order_icon; } ?></a></th>
+                <?php if (moduleOn('bookkeeping')) { ?><th><?= sortLink('account_name', 'Paid into') ?></th><?php } ?>
+                <th class="text-end"><?= sortLink('income_amount', 'Amount') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -316,7 +318,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                             </div>
                         </td>
                     <?php } ?>
-                    <td class="text-nowrap"><a class="fw-semibold ajax-modal" href="#" <?= $row_open ?>><?= escapeHtml($row['income_date']) ?></a></td>
+                    <td class="text-nowrap"><a class="fw-semibold ajax-modal" href="#" <?= $row_open ?>><?= formatDate($row['income_date']) ?></a></td>
                     <td class="itflow-income-from">
                         <?php if ($is_payment) { ?>
                             <div class="text-truncate">
@@ -352,10 +354,12 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                             <?php } ?>
                         </td>
                     <?php } ?>
+                    <?php if (moduleOn('bookkeeping')) { ?>
                     <td>
                         <div class="text-truncate" style="max-width: 10rem;"><?= escapeHtml($row['account_name'] ?: '-') ?></div>
                         <?php if ($row['account_archived_at']) { ?><div class="small text-body-secondary">Archived</div><?php } ?>
                     </td>
+                    <?php } ?>
                     <td class="text-end itflow-money text-nowrap">
                         <span class="fw-semibold <?= $row_amount < 0 ? 'text-danger-emphasis' : '' ?>"><?= $money($row_amount, $row_currency) ?></span>
                     </td>
@@ -366,7 +370,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                                 <a class="dropdown-item ajax-modal" href="#" <?= $row_open ?>><i class="fas fa-fw fa-eye text-secondary me-2"></i>Open</a>
                                 <?php if ($is_payment) { ?>
                                     <?php if ($can_sales && $row['invoice_number'] !== null) { ?>
-                                        <a class="dropdown-item" href="invoice.php?invoice_id=<?= intval($row['income_invoice_id']) ?>"><i class="fas fa-fw fa-file-invoice text-secondary me-2"></i>Open Invoice</a>
+                                        <a class="dropdown-item" href="invoice.php?invoice_id=<?= intval($row['income_invoice_id']) ?>"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Open Invoice</a>
                                     <?php } ?>
                                     <?php if ($row['invoice_number'] !== null && ($can_edit_payments || $can_delete_payments)) { ?>
                                         <div class="dropdown-divider"></div>
@@ -375,7 +379,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/payment/payment_edit.php?id=<?= $income_id ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
                                     <?php } ?>
                                     <?php if ($can_delete_payments && $row['invoice_number'] !== null) { ?>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_payment=<?= $income_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_payment=<?= $income_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                             data-confirm-text="The payment of <?= $money($row_amount, $row_currency) ?> comes off <?= escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?>, which is owed again.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>
@@ -384,11 +388,11 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                                     <?php if ($can_edit) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/revenue/revenue_edit.php?id=<?= $income_id ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/revenue/revenue_copy.php?id=<?= $income_id ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/revenue/revenue_copy.php?id=<?= $income_id ?>"><i class="far fa-fw fa-copy text-secondary me-2"></i>Copy</a>
                                     <?php } ?>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_revenue=<?= $income_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_revenue=<?= $income_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                             data-confirm-text="<?= escapeHtml(($first_line !== '' ? $first_line : 'This income') . ' - ' . billingMoney($row_amount, $row_currency)) ?> goes for good.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>
@@ -403,7 +407,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
             <?php if ($num_rows[0]) { ?>
                 <tfoot>
                 <tr class="table-light">
-                    <td colspan="<?= ($can_bulk ? 5 : 4) + ($client_page ? 0 : 1) ?>" class="text-body-secondary small">
+                    <td colspan="<?= ($can_bulk ? 5 : 4) + ($client_page ? 0 : 1) - (moduleOn('bookkeeping') ? 0 : 1) ?>" class="text-body-secondary small">
                         <?php $listed = intval($num_rows[0]); ?>
                         <?= $listed ?> <?= $show === 'payments' || $show === 'online' ? ($listed === 1 ? 'payment' : 'payments') : ($show === 'other' ? 'other income' : ($listed === 1 ? 'payment or other income' : 'payments and other income')) ?><?= $listed > count($rows) ? ' - the total is for all of them, not just this page' : '' ?>
                     </td>
@@ -423,10 +427,10 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
         'view' => emptyStatePill($shows, $show, '', ['uncategorised']),
         'match_title' => 'No income matches',
         'text' => "A payment is added on its invoice. Money in that isn't for an invoice is New Income here.",
-        'actions' => $can_edit ? [
+        'actions' => $can_edit ? array_values(array_filter([
             ['label' => 'New Income', 'modal' => $add_url, 'size' => 'lg'],
-            ['label' => 'Import Deposits', 'href' => 'income_import.php', 'icon' => 'fa-file-import'],
-        ] : [],
+            moduleOn('bookkeeping') ? ['label' => 'Import Deposits', 'href' => 'income_import.php', 'icon' => 'fa-file-import'] : null,
+        ])) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>

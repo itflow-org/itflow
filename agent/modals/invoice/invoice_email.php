@@ -75,23 +75,13 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-paper-plane me-2"></i><?= $can_send_invoice ? 'Send Invoice' : 'Send Reminder' ?> <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber('invoice', $doc)) ?> &middot; <?= escapeHtml($doc['client_name']) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
 
     <div class="modal-body">
-
-        <?php if ($contact_count == 0) { ?>
-
-            <p class="text-body-secondary mb-0">
-                This client has no primary or billing contact with an email address, so there is
-                nobody to send an invoice to. Flag a contact as billing, or use Mark Sent to record
-                that the invoice went out some other way.
-            </p>
-
-        <?php } else { ?>
 
             <!-- What goes out -->
             <?php $doc_state = invoiceState($doc, invoicePaid($invoice_id));
@@ -126,12 +116,15 @@ ob_start();
                 </div>
                 <div class="text-end">
                     <div class="fw-semibold itflow-money"><?= escapeHtml(billingMoney($doc_state['balance'] > 0 ? $doc_state['balance'] : $doc['invoice_amount'], $doc['invoice_currency_code'])) ?></div>
-                    <div class="small text-body-secondary"><?= $doc_state['balance'] > 0 ? 'due ' . escapeHtml($doc['invoice_due']) : 'total' ?></div>
+                    <div class="small text-body-secondary"><?= $doc_state['balance'] > 0 ? 'due ' . formatDate($doc['invoice_due']) : 'total' ?></div>
                 </div>
             </div>
 
             <label class="form-label">Send to <strong class="text-danger">*</strong></label>
 
+            <?php if ($contact_count == 0) { ?>
+            <p class="small text-body-secondary">This client has no primary or billing contact with an email address. Type the address to send it to below, flag a contact as billing, or use Mark Sent to record that the invoice went out some other way.</p>
+            <?php } else { ?>
             <div class="list-group mb-3">
 
                 <?php
@@ -168,6 +161,9 @@ ob_start();
                 ?>
 
             </div>
+            <?php } ?>
+
+            <?= billingEmailExtraField('invoiceEmailExtra' . $invoice_id) ?>
 
             <label class="form-label">Message <span class="text-body-secondary fw-normal small">in the email, above the invoice</span></label>
             <div class="input-group mb-3">
@@ -182,22 +178,18 @@ ob_start();
 
             <?php if ($invoice_status !== 'Draft') { ?>
                 <p class="text-body-secondary small mb-0">
-                    <i class="fa fa-fw fa-info-circle me-1"></i>This invoice is
+                    <i class="fas fa-fw fa-info-circle me-1"></i>This invoice is
                     <strong><?= $invoice_status ?></strong>, so sending it will not change its status.
                 </p>
             <?php } ?>
 
-        <?php } ?>
-
     </div>
     <div class="modal-footer">
-        <?php if ($contact_count > 0) { ?>
-            <button type="submit" name="email_invoice" class="btn btn-primary text-bold">
-                <i class="fa fa-fw fa-paper-plane me-2"></i>Send
-            </button>
-        <?php } ?>
+        <button type="submit" name="email_invoice" class="btn btn-primary fw-bold">
+            <i class="fas fa-fw fa-paper-plane me-2"></i>Send
+        </button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-            <i class="fa fa-fw fa-times me-2"></i>Cancel
+            <i class="fas fa-fw fa-times me-2"></i>Cancel
         </button>
     </div>
 </form>

@@ -110,7 +110,7 @@ function softwareRenewal($expire, $soon_days = 30) {
     if (!$date) {
         return null;
     }
-    $days = (int) (new DateTime('today'))->diff($date)->format('%r%a');
+    $days = intval((new DateTime('today'))->diff($date)->format('%r%a'));
     $ymd = $date->format('Y-m-d');
 
     if ($days < 0) {
@@ -153,7 +153,7 @@ function softwareSeats($used, $total) {
     $text = ['over' => "$over over", 'full' => 'All in use', 'unused' => 'None in use', 'ok' => "$free free"][$state];
     return [
         'used' => $used, 'total' => $total, 'free' => $free, 'over' => $over,
-        'pct' => min(100, (int) round($used / $total * 100)),
+        'pct' => min(100, intval(round($used / $total * 100))),
         'state' => $state,
         'tone' => ['over' => 'danger', 'full' => 'warning', 'unused' => 'secondary', 'ok' => 'primary'][$state],
         'text' => $text,
@@ -356,7 +356,7 @@ function softwareHeldTable($rows, $kind, $holder_id, $can_edit) {
             $key_html = softwareKeyHtml($row['software_key']) . '<div class="small text-body-secondary">License key</div>';
         }
         $renew_html = $renewal
-            ? escapeHtml($renewal['date']) . '<div class="small text-' . ($renewal['tone'] === 'success' ? 'body-secondary' : $renewal['tone'] . '-emphasis') . '">' . escapeHtml($renewal['text']) . '</div>'
+            ? formatDate($renewal['date']) . '<div class="small text-' . ($renewal['tone'] === 'success' ? 'body-secondary' : $renewal['tone'] . '-emphasis') . '">' . escapeHtml($renewal['text']) . '</div>'
             : '<span class="text-body-secondary">-</span>';
         $unlink = $can_edit
             ? '<a href="post.php?unlink_item&amp;from=' . $kind . '&amp;id=' . $holder_id . '&amp;to=software&amp;other=' . $software_id . '&amp;csrf_token=' . escapeHtml($_SESSION['csrf_token'] ?? '') . '" class="btn btn-sm btn-light confirm-link" title="Take off this license" data-confirm-text="Frees the seat, and any key it had."><i class="fas fa-fw fa-unlink"></i></a>'

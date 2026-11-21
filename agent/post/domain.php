@@ -186,7 +186,7 @@ if (isset($_POST['edit_domain'])) {
     $name = $form['name'];
     logAudit("Domain", "Edit", "$session_name edited domain " . escapeSql($name), $client_id, $domain_id);
 
-    flashAlert("Domain <strong>$name</strong> updated");
+    flashAlert("Domain <strong>$name</strong> saved");
 
     redirect();
 
@@ -236,11 +236,13 @@ if (isset($_GET['archive_domain'])) {
     $row = domainForRequest($_GET['archive_domain'], 2);
     $domain_id = intval($row['domain_id']);
 
+    $undo = undoArchiveBefore('domain', $domain_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
 
     logAudit("Domain", "Archive", "$session_name archived domain " . escapeSql($row['domain_name']), $client_id, $domain_id);
 
     flashAlert("Domain <strong>{$row['domain_name']}</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -360,6 +362,7 @@ if (isset($_POST['bulk_archive_domains'])) {
 
     validateCSRFToken();
 
+    $undo = undoArchiveBefore('domain', $_POST['domain_ids'] ?? []); // for Undo on the message
     $count = 0;
     foreach (domainsForBulk(2) as $domain_id => $row) {
         mysqli_query($mysqli, "UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
@@ -368,6 +371,7 @@ if (isset($_POST['bulk_archive_domains'])) {
     }
 
     flashAlert("Archived <strong>$count</strong> domain" . ($count === 1 ? '' : 's'), 'error');
+    undoOfferArchive($undo);
 
     redirect();
 

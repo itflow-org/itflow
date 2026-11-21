@@ -63,10 +63,6 @@ $used_text = function (array $u) {
     return $parts;
 };
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 ?>
 
@@ -86,7 +82,7 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                         <div class="col-md-7">
                             <div class="input-group">
                                 <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search taxes..." title="Name, description or registration number">
-                                <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                             </div>
                         </div>
                     </div>
@@ -101,9 +97,9 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th class="ps-3"><?= $sort_link('tax_name', 'Tax') ?></th>
-                        <th><?= $sort_link('tax_percent', 'Rate') ?></th>
-                        <th class="d-none d-sm-table-cell"><?= $sort_link('invoice_count', 'Used on') ?></th>
+                        <th class="ps-3"><?= sortLink('tax_name', 'Tax') ?></th>
+                        <th><?= sortLink('tax_percent', 'Rate') ?></th>
+                        <th class="d-none d-sm-table-cell"><?= sortLink('invoice_count', 'Used on') ?></th>
                         <th></th>
                     </tr>
                     </thead>
@@ -158,17 +154,17 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/tax/tax_edit.php?id=<?= $tax_id ?>" data-modal-size="lg"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
                                         <?php if ($rate['tax_archived_at']) { ?>
-                                            <a class="dropdown-item" href="post.php?restore_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore</a>
+                                            <a class="dropdown-item" href="post.php?restore_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore</a>
                                         <?php } else { ?>
                                             <?php if (!$u['default']) { ?>
-                                                <a class="dropdown-item" href="post.php?default_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-star text-secondary me-2"></i>Make default</a>
+                                                <a class="dropdown-item" href="post.php?default_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-star text-secondary me-2"></i>Make Default</a>
                                             <?php } ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/tax/tax_archive.php?id=<?= $tax_id ?>"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
                                         <?php } ?>
                                         <?php if ($unused) { ?>
                                             <?php if ($rate['tax_archived_at']) { ?><div class="dropdown-divider"></div><?php } ?>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
+                                            <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                                         <?php } ?>
                                     </div>
                                 </div>
@@ -204,9 +200,9 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                     <div class="mb-3">
                         <label class="form-label">Default rate</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-star"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-star"></i></span>
                             <select class="form-select" name="default_tax_id">
-                                <option value="0">No default</option>
+                                <option value="0">- No default -</option>
                                 <?php foreach ($active_taxes as $id => $tax) { ?>
                                     <option value="<?= intval($id) ?>"<?= intval($id) === $tax_settings['default_id'] ? ' selected' : '' ?>><?= escapeHtml(taxLabel($tax)) ?></option>
                                 <?php } ?>
@@ -237,7 +233,7 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                     <small class="text-secondary d-block">Tax is worked out on what the client pays after the discount, shared across the lines. Off, tax is on the full price. Paid, cancelled and answered invoices and quotes never change; the rest follow the next time they are edited.</small>
                 </div>
                 <div class="card-footer">
-                    <button type="submit" name="edit_tax_settings" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+                    <button type="submit" name="edit_tax_settings" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
                 </div>
             </form>
         </div>

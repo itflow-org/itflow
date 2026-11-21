@@ -83,7 +83,7 @@ class ImapParser
     protected function parseUntaggedResponse(): UntaggedResponse
     {
         // Capture the initial '*' token.
-        $elements[] = clone $this->currentToken;
+        $elements[] = $this->currentToken;
 
         $this->advance();
 
@@ -111,7 +111,7 @@ class ImapParser
     protected function parseContinuationResponse(): ContinuationResponse
     {
         // Capture the initial '+' token.
-        $elements[] = clone $this->currentToken;
+        $elements[] = $this->currentToken;
 
         $this->advance();
 
@@ -139,7 +139,7 @@ class ImapParser
     protected function parseTaggedResponse(): TaggedResponse
     {
         // Capture the initial TAG token.
-        $tokens[] = clone $this->currentToken;
+        $tokens[] = $this->currentToken;
 
         $this->advance();
 
@@ -253,7 +253,7 @@ class ImapParser
         }
 
         // Otherwise, capture the current token.
-        $token = clone $this->currentToken;
+        $token = $this->currentToken;
 
         $this->advance();
 

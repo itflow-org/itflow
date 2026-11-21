@@ -135,9 +135,9 @@ if (isset($_POST['edit_client'])) {
     // Another contract, started from a template picked on the Billing tab (functions/contract.php)
     [$contract_id, $contract_name, $contract_error] = contractFromClientForm($client_id, $_POST);
     if ($contract_error !== '') {
-        flashAlert("Client <strong>" . stripslashes($name) . "</strong> updated - the contract wasn't added: " . escapeHtml($contract_error), 'warning');
+        flashAlert("Client <strong>" . stripslashes($name) . "</strong> saved - the contract wasn't added: " . escapeHtml($contract_error), 'warning');
     } else {
-        flashAlert("Client <strong>" . stripslashes($name) . "</strong> updated" . ($contract_id ? ", with new contract <strong>" . escapeHtml($contract_name) . "</strong>" : ''));
+        flashAlert("Client <strong>" . stripslashes($name) . "</strong> saved" . ($contract_id ? ", with new contract <strong>" . escapeHtml($contract_name) . "</strong>" : ''));
     }
 
     redirect();
@@ -172,7 +172,7 @@ if (isset($_POST['set_client_portal_signup'])) {
     $client_name = escapeSql($client['client_name']);
     logAudit("Client", "Edit", "$session_name " . ($on ? 'let people at ' . escapeSql(implode(', ', $domains)) . " sign up for the client portal for $client_name" : "stopped people signing up for the client portal for $client_name"), $client_id, $client_id);
     if ($on) {
-        flashAlert('People with an address at <strong>' . escapeHtml(implode(', ', $domains)) . '</strong> can sign up now' . (portalSignupOn() ? '' : ' - once signing up is turned on in Admin > Settings > Client portal'));
+        flashAlert('People with an address at <strong>' . escapeHtml(implode(', ', $domains)) . '</strong> can sign up now' . (portalSignupOn() ? '' : ' - once signing up is turned on in Admin > Settings > Client Portal'));
     } else {
         flashAlert('Signing up is off for <strong>' . escapeHtml($client['client_name']) . '</strong> - invite people instead');
     }
@@ -190,28 +190,141 @@ if (isset($_GET['archive_client'])) {
 
     enforceClientAccess();
 
-    // Archive client
-    mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
-
-    // Stop recurring invoices
-    $sql_recurring_invoices = mysqli_query($mysqli, "SELECT recurring_invoice_id FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id AND recurring_invoice_status = 1");
-    while ($row = mysqli_fetch_assoc($sql_recurring_invoices)) {
-        $recurring_invoice_id = intval($row['recurring_invoice_id']);
-        mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_status = 0 WHERE recurring_invoice_id = $recurring_invoice_id AND recurring_invoice_client_id = $client_id");
-        mysqli_query($mysqli,"INSERT INTO history SET history_status = 0, history_description = 'Recurring Invoice inactive as client archived', history_recurring_invoice_id = $recurring_invoice_id");
-    }
+    // Archived, its recurring invoices stopped and contract signing requests withdrawn (functions/client.php)
+    $undo = undoArchiveBefore('client', $client_id); // for Undo on the message
+    $contracts_withdrawn = clientArchiveNow($client_id);
 
     // Get Client Name
     $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
-    // Nothing more is signed on their contracts - a request still out, or waiting on our countersignature, is withdrawn
-    $contracts_withdrawn = contractSignatureWithdrawStale($client_id);
-
     logAudit("Client", "Archive", "$session_name archived client $client_name" . ($contracts_withdrawn ? " - $contracts_withdrawn contract signing request" . ($contracts_withdrawn === 1 ? '' : 's') . " withdrawn" : ''), $client_id, $client_id);
 
     flashAlert("Client <strong>" . stripslashes($client_name) . "</strong> archived" . ($contracts_withdrawn ? " - contract signing requests to them were withdrawn" : ''), 'error');
+    if (!$contracts_withdrawn) {
+        undoOfferArchive($undo); // a signing request withdrawn can't be put back
+    }
 
     redirect();
+
+}
+
+/*
+ * Offboard a client (agent/modals/client/client_offboard.php) - the steps ticked, together: portal
+ * sign-in off and invites cancelled, shared links ended, recurring invoices stopped, recurring
+ * tickets paused, and the client archived.
+ */
+if (isset($_POST['offboard_client'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 2);
+
+    $client_id = intval($_POST['client_id'] ?? 0);
+    enforceClientAccess();
+
+    $client = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name, client_archived_at FROM clients WHERE client_id = $client_id"));
+    if (!$client) {
+        flashAlert('That client no longer exists.', 'error');
+        redirect();
+    }
+    $client_name = escapeSql($client['client_name']);
+    $done = [];
+
+    if (!empty($_POST['portal_off'])) {
+        $off = 0;
+        $sql = mysqli_query($mysqli, "SELECT user_id FROM contacts JOIN users ON user_id = contact_user_id AND user_type = 2 WHERE contact_client_id = $client_id AND user_auth_method != ''");
+        while ($row = mysqli_fetch_row($sql)) {
+            portalUserAccessOff($row[0]);
+            $off++;
+        }
+        $cancelled = 0;
+        if (portalInvitesReady()) {
+            foreach (portalInvitesWaiting($client_id) as $invite) {
+                $cancelled += portalInviteCancel($invite['invite_id'], $client_id) ? 1 : 0;
+            }
+        }
+        if ($off || $cancelled) {
+            $done[] = "portal sign-in off for $off contact" . ($off === 1 ? '' : 's') . ($cancelled ? " and $cancelled invite" . ($cancelled === 1 ? '' : 's') . ' cancelled' : '');
+        }
+    }
+
+    if (!empty($_POST['end_shares'])) {
+        $ended = 0;
+        $sql = mysqli_query($mysqli, "SELECT item_id FROM shared_items WHERE item_client_id = $client_id AND item_ended_at IS NULL AND item_active = 1");
+        while ($row = mysqli_fetch_row($sql)) {
+            $ended += shareEnd($row[0], 'Client offboarded', $session_user_id) ? 1 : 0;
+        }
+        if ($ended) {
+            $done[] = "$ended shared link" . ($ended === 1 ? '' : 's') . ' ended';
+        }
+    }
+
+    if (!empty($_POST['stop_recurring_invoices']) && lookupUserPermission('module_sales') >= 2) {
+        $stopped = clientStopRecurringInvoices($client_id, 'Recurring Invoice inactive as client offboarded');
+        if ($stopped) {
+            $done[] = "$stopped recurring invoice" . ($stopped === 1 ? '' : 's') . ' stopped';
+        }
+    }
+
+    if (!empty($_POST['pause_recurring_tickets']) && lookupUserPermission('module_support') >= 2) {
+        mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_paused_at = NOW() WHERE recurring_ticket_client_id = $client_id AND recurring_ticket_paused_at IS NULL");
+        $paused = mysqli_affected_rows($mysqli);
+        if ($paused > 0) {
+            $done[] = "$paused recurring ticket" . ($paused === 1 ? '' : 's') . ' paused';
+        }
+    }
+
+    $archived = false;
+    if (!empty($_POST['archive']) && !$client['client_archived_at']) {
+        $withdrawn = clientArchiveNow($client_id);
+        $archived = true;
+        $done[] = 'archived' . ($withdrawn ? " - $withdrawn contract signing request" . ($withdrawn === 1 ? '' : 's') . ' withdrawn' : '');
+    }
+
+    if (!$done) {
+        flashAlert('Nothing to do - nothing was ticked that had anything to stop.', 'warning');
+        redirect();
+    }
+
+    logAudit("Client", "Offboard", "$session_name offboarded client $client_name: " . escapeSql(implode('; ', $done)), $client_id, $client_id);
+
+    flashAlert("<strong>" . escapeHtml($client['client_name']) . "</strong> offboarded - " . escapeHtml(implode(', ', $done)));
+
+    redirect($archived ? 'clients.php' : "client_overview.php?client_id=$client_id");
+
+}
+
+/*
+ * Merge a duplicate client into the one to keep (agent/modals/client/client_merge.php,
+ * functions/client.php clientMerge()). Delete-level access to clients, and to both clients.
+ */
+if (isset($_POST['merge_client'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 3);
+
+    $from_id = intval($_POST['client_id'] ?? 0);
+    $into_id = intval($_POST['into_client_id'] ?? 0);
+    enforceClientAccess($from_id);
+    enforceClientAccess($into_id);
+
+    $from = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $from_id"));
+    $into = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $into_id"));
+    if (!$from || !$into || $from_id === $into_id) {
+        flashAlert('Pick another client to merge into.', 'error');
+        redirect();
+    }
+
+    $summary = clientMergeSummary($from_id);
+    $notes = clientMerge($from_id, $into_id);
+
+    $what = $summary ? implode(', ', array_map(function ($label, $n) { return "$n $label"; }, array_keys($summary), $summary)) : 'nothing but its details';
+    logAudit("Client", "Merge", "$session_name merged client " . escapeSql($from['client_name']) . " into " . escapeSql($into['client_name']) . " - " . escapeSql($what) . ($notes ? '; ' . escapeSql(implode('; ', $notes)) : ''), $into_id, $into_id);
+
+    flashAlert("<strong>" . escapeHtml($from['client_name']) . "</strong> merged into <strong>" . escapeHtml($into['client_name']) . "</strong> - " . escapeHtml($what) . " moved" . ($notes ? '. ' . escapeHtml(implode('. ', $notes)) : ''), $notes ? 'warning' : 'success');
+
+    redirect("client_overview.php?client_id=$into_id");
 
 }
 
@@ -304,8 +417,9 @@ if (isset($_GET['delete_client'])) {
     //Delete Quote and related items
     $sql = mysqli_query($mysqli, "SELECT quote_id FROM quotes WHERE quote_client_id = $client_id");
     while($row = mysqli_fetch_assoc($sql)) {
-        $quote_id = $row['quote_id'];
+        $quote_id = intval($row['quote_id']);
 
+        quoteImagesDeleteFor("item_quote_id = $quote_id");
         mysqli_query($mysqli, "DELETE FROM quote_items WHERE item_quote_id = $quote_id");
     }
     mysqli_query($mysqli, "DELETE FROM quotes WHERE quote_client_id = $client_id");
@@ -492,243 +606,6 @@ if (isExportRequest('export_clients')) {
 
 }
 
-if (isset($_POST["import_clients_csv"])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-    $error = false;
-
-    if (!empty($_FILES["file"]["tmp_name"])) {
-        $file_name = $_FILES["file"]["tmp_name"];
-    } else {
-        flashAlert("Please select a file to upload.", 'error');
-        redirect();
-    }
-
-    //Check file is CSV
-    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
-    $allowed_file_extensions = array('csv');
-    if (in_array($file_extension,$allowed_file_extensions) === false) {
-        $error = true;
-        flashAlert("Bad file extension", 'error');
-    }
-
-    //Check file isn't empty
-    elseif ($_FILES["file"]["size"] < 1) {
-        $error = true;
-        flashAlert("Bad file size (empty?)", 'error');
-    }
-
-    //(Else)Check column count
-    $f = fopen($file_name, "r");
-    $f_columns = fgetcsv($f, 1000, ",");
-    if (!$error & count($f_columns) != 22) {
-        $error = true;
-        flashAlert("Bad column count.", 'error');
-    }
-
-    //Else, parse the file
-    if (!$error) {
-        $file = fopen($file_name, "r");
-        fgetcsv($file, 1000, ","); // Skip first line
-        $row_count = 0;
-        $duplicate_count = 0;
-        while(($column = fgetcsv($file, 1000, ",")) !== false) {
-            $duplicate_detect = 0;
-            if (isset($column[0])) {
-                $name = escapeSql($column[0]);
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT 1 FROM clients WHERE client_name = '$name'")) > 0) {
-                    $duplicate_detect = 1;
-                }
-            }
-
-            $industry = '';
-            if (isset($column[1])) {
-                $industry = escapeSql($column[1]);
-            }
-
-            $referral = '';
-            if (isset($column[2])) {
-                $referral = (string) $column[2];
-            }
-
-            $website = '';
-            if (isset($column[3])) {
-                $website = escapeSql(preg_replace("(^https?://)", "", $column[3]));
-            }
-
-            $location_name = '';
-            if (isset($column[4])) {
-                $location_name = escapeSql($column[4]);
-            }
-
-            $location_phone = '';
-            if (isset($column[5])) {
-                $location_phone = preg_replace("/[^0-9]/", '', $column[5]);
-            }
-
-            $address = '';
-            if (isset($column[6])) {
-                $address = escapeSql($column[6]);
-            }
-
-            $city = '';
-            if (isset($column[7])) {
-                $city = escapeSql($column[7]);
-            }
-
-            $state = '';
-            if (isset($column[8])) {
-                $state = escapeSql($column[8]);
-            }
-
-            $zip = '';
-            if (isset($column[9])) {
-                $zip = escapeSql($column[9]);
-            }
-
-            $country = '';
-            if (isset($column[10])) {
-                $country = escapeSql($column[10]);
-            }
-
-            $contact_name = '';
-            if (isset($column[11])) {
-                $contact_name = escapeSql($column[11]);
-            }
-
-            $title = '';
-            if (isset($column[12])) {
-                $title = escapeSql($column[12]);
-            }
-
-            $contact_phone = '';
-            if (isset($column[13])) {
-                $contact_phone = preg_replace("/[^0-9]/", '',$column[13]);
-            }
-
-            $contact_extension = '';
-            if (isset($column[14])) {
-                $contact_extension = preg_replace("/[^0-9]/", '',$column[14]);
-            }
-
-            $contact_mobile = '';
-            if (isset($column[15])) {
-                $contact_mobile = preg_replace("/[^0-9]/", '',$column[15]);
-            }
-
-            $contact_email = '';
-            if (isset($column[16])) {
-                $contact_email = escapeSql($column[16]);
-            }
-
-            // An hourly rate or payment terms other than the defaults become the client's Standard terms contract
-            $hourly_rate = null;
-            if (isset($column[17]) && trim($column[17]) !== '') {
-                $hourly_rate = floatval(str_replace([',', '$'], '', $column[17]));
-            }
-
-            $currency_code = escapeSql($session_company_currency);
-            if (isset($column[18])) {
-                $currency_code = escapeSql($column[18]);
-            }
-
-            $payment_terms = null;
-            if (isset($column[19]) && trim($column[19]) !== '' && is_numeric(trim($column[19]))) {
-                $payment_terms = max(0, min(365, intval($column[19])));
-            }
-
-            $tax_id_number = '';
-            if (isset($column[20])) {
-                $tax_id_number = escapeSql($column[20]);
-            }
-
-            $abbreviation = '';
-            if (isset($column[21])) {
-                $abbreviation = escapeSql($column[21]);
-            }
-
-            // Check if duplicate was detected
-            if ($duplicate_detect == 0) {
-                //Add
-                // A referral that isn't one yet is made one; one that is takes its own spelling
-                $referral = escapeSql(categoryEnsure('Referral', $referral));
-
-                // Create client
-                mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$industry', client_website = '$website', client_referral = '$referral', client_currency_code = '$currency_code', client_tax_id_number = '$tax_id_number', client_abbreviation = '$abbreviation'" . billingClientLegacySql());
-
-                $client_id = mysqli_insert_id($mysqli);
-
-                if (!file_exists("../uploads/clients/$client_id")) {
-                    mkdir("../uploads/clients/$client_id");
-                    file_put_contents("../uploads/clients/$client_id/index.php", "");
-                }
-
-                // Create Location
-                mysqli_query($mysqli, "INSERT INTO locations SET location_name = '$location_name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$location_phone', location_country = '$country', location_primary = 1, location_client_id = $client_id");
-
-                // Create Contact
-                mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_title = '$title', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_primary = 1, contact_important = 1, contact_client_id = $client_id");
-
-                // Its rate and terms, where they aren't the defaults (functions/contract.php)
-                if (function_exists('contractsReady') && contractsReady() && contractStandardTermsAdd($client_id, $hourly_rate, $payment_terms, [], null, 'Made by the client import from its Hourly Rate and Payment Terms.')) {
-                    $terms_count = ($terms_count ?? 0) + 1;
-                }
-
-                $row_count = $row_count + 1;
-
-            } else {
-
-                $duplicate_count = $duplicate_count + 1;
-
-            }
-
-        }
-        fclose($file);
-
-        logAudit("Client", "Import", "$session_name imported $row_count client(s) via CSV file, $duplicate_count duplicate(s) found");
-
-        flashAlert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found" . (!empty($terms_count) ? ", <strong>$terms_count</strong> with a Standard terms contract for their own rate or payment terms" : ''));
-
-        redirect();
-
-    }
-
-    //Check for any errors, if there are notify user and redirect
-    if ($error) {
-        redirect();
-    }
-}
-
-if (isset($_GET['download_clients_csv_template'])) {
-
-    $delimiter = ",";
-    $enclosure = '"';
-    $escape    = '\\';   // backsla
-    $filename = "Clients-Template.csv";
-
-    //create a file pointer
-    $f = fopen('php://memory', 'w');
-
-    //set column headers
-    $fields = array('Client Name', 'Industry', 'Referral', 'Website', 'Primary Location Name', 'Location Phone', 'Location Address', 'City', 'State', 'Postal Code', 'Country', 'Primary Contact Name', 'Title', 'Contact Phone', 'Extension', 'Contact Mobile', 'Contact Email', 'Hourly Rate', 'Currency', 'Payment Terms', 'Tax ID', 'Abbreviation');
-    fputcsv($f, $fields, $delimiter, $enclosure, $escape);
-
-    //move back to beginning of file
-    fseek($f, 0);
-
-    //set headers to download file rather than displayed
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-    //output all remaining data on a file pointer
-    fpassthru($f);
-
-    exit;
-
-}
-
 if (isset($_POST['bulk_add_client_ticket'])) {
 
     validateCSRFToken();
@@ -835,6 +712,7 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
     $industry = escapeSql($_POST['bulk_industry']);
 
+    $undo = undoSnapshot('clients', 'client_id', $_POST['client_ids'] ?? [], ['client_type'], 'client_id'); // for Undo on the message
     if (isset($_POST['client_ids'])) {
 
         // Check every selected client before changing any of them
@@ -860,6 +738,7 @@ if (isset($_POST['bulk_edit_client_industry'])) {
         logAudit("Client", "Bulk Edit", "$session_name set the industry $industry for $count client(s)", $client_id);
 
         flashAlert("Industry set to <strong>" . stripslashes($industry) . "</strong> on <strong>$count</strong> client" . ($count === 1 ? '' : 's'));
+        undoOfferChanges($undo, "Industry put back on <strong>{n}</strong> client{s}", 'module_client');
     }
 
     redirect();
@@ -874,6 +753,7 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
     $referral = escapeSql($_POST['bulk_referral']);
 
+    $undo = undoSnapshot('clients', 'client_id', $_POST['client_ids'] ?? [], ['client_referral'], 'client_id'); // for Undo on the message
     if (isset($_POST['client_ids'])) {
 
         // Check every selected client before changing any of them
@@ -899,6 +779,7 @@ if (isset($_POST['bulk_edit_client_referral'])) {
         logAudit("Client", "Bulk Edit", "$session_name set the referral $referral for $count client(s)", $client_id);
 
         flashAlert("Referral set to <strong>" . stripslashes($referral) . "</strong> on <strong>$count</strong> client" . ($count === 1 ? '' : 's'));
+        undoOfferChanges($undo, "Referral put back on <strong>{n}</strong> client{s}", 'module_client');
     }
 
     redirect();
@@ -950,7 +831,8 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_client', 1);
+    // Emailing clients is changing things for them, not looking - Modify
+    enforceUserPermission('module_client', 2);
 
     $client_ids = array_map('intval', $_POST['client_ids']);
     $count = count($client_ids);
@@ -1008,6 +890,7 @@ if (isset($_POST['bulk_archive_clients'])) {
 
     enforceUserPermission('module_client', 2);
 
+    $undo = undoArchiveBefore('client', $_POST['client_ids'] ?? []); // for Undo on the message
     if (isset($_POST['client_ids'])) {
 
         // Check every selected client before changing any of them
@@ -1027,6 +910,7 @@ if (isset($_POST['bulk_archive_clients'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
             $contracts_withdrawn = contractSignatureWithdrawStale($client_id);
+            $undo_withdrawn = ($undo_withdrawn ?? 0) + $contracts_withdrawn;
 
             logAudit("Client", "Archive", "$session_name archived $client_name" . ($contracts_withdrawn ? " - $contracts_withdrawn contract signing request" . ($contracts_withdrawn === 1 ? '' : 's') . " withdrawn" : ''), $client_id);
 
@@ -1036,7 +920,10 @@ if (isset($_POST['bulk_archive_clients'])) {
 
         logAudit("Client", "Bulk Archive", "$session_name archived $count clients", $client_id);
 
-        flashAlert("Archived $count client(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> client" . ($count === 1 ? '' : 's'), 'error');
+        if (empty($undo_withdrawn)) {
+            undoOfferArchive($undo); // a signing request withdrawn can't be put back
+        }
 
     }
 
@@ -1075,7 +962,7 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
         logAudit("Client", "Bulk Restore", "$session_name restored $count client(s)", $client_id);
 
-        flashAlert("You restored <strong>$count</strong> client(s)");
+        flashAlert("Restored <strong>$count</strong> client" . ($count === 1 ? '' : 's'));
 
     }
 

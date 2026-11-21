@@ -28,7 +28,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-magic me-2"></i>Summary of <?= escapeHtml(ticketReference($ticket)) ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-ai-summary-form data-ticket-id="<?= $ticket_id ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -42,13 +42,13 @@ ob_start();
     </div>
     <div class="modal-footer">
         <?php if ($can_note) { ?>
-            <button type="submit" name="add_ticket_ai_note" class="btn btn-primary text-bold" data-ai-summary-save disabled title="Put it on the ticket as an internal note">
-                <i class="fas fa-fw fa-sticky-note me-2"></i>Save as a note
+            <button type="submit" name="add_ticket_ai_note" class="btn btn-primary fw-bold" data-ai-summary-save disabled title="Put it on the ticket as an internal note">
+                <i class="fas fa-fw fa-sticky-note me-2"></i>Save as a Note
             </button>
         <?php } ?>
-        <button type="button" class="btn btn-light border" data-ai-summary-copy disabled><i class="fas fa-fw fa-copy me-2"></i>Copy</button>
+        <button type="button" class="btn btn-light border" data-ai-summary-copy disabled><i class="far fa-fw fa-copy me-2"></i>Copy</button>
         <button type="button" class="btn btn-light border" data-ai-summary-again disabled><i class="fas fa-fw fa-redo me-2"></i>Again</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
     </div>
 </form>
 

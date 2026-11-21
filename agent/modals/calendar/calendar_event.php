@@ -4,11 +4,17 @@
  * Event quick look - opened from the calendar, the dashboard and a client's
  * overview. When and where (with the map and the meeting link), who is on it
  * and whether they have been sent it, and what it is for. From here: edit,
- * send the invitation, skip this one occurrence, download it, delete it.
+ * change who it is assigned to, send the invitation, skip this one
+ * occurrence, download it, delete it.
  * GET: id, occurrence (Y-m-d, for one of a repeating event's days).
  */
 
 require_once '../../../includes/modal_header.php';
+
+// The calendar switched off (Admin > Settings > Modules)
+if (!moduleOn('calendar')) {
+    exit(json_encode(['error' => moduleOffText('calendar')]));
+}
 
 $event = calendarEventForModal($_GET['id'] ?? 0);
 $event_id = intval($event['event_id']);
@@ -42,6 +48,13 @@ $csrf = $_SESSION['csrf_token'];
 // What the role allows with it (calendarEventCan())
 $can_edit = calendarEventCan($event, 'edit');
 $can_delete = calendarEventCan($event, 'delete');
+// Its agents are who it is assigned to; the rest are invited
+$agents = array_values(array_filter($attendees, function ($attendee) {
+    return $attendee['kind'] === 'agent';
+}));
+$others = array_values(array_filter($attendees, function ($attendee) {
+    return $attendee['kind'] !== 'agent';
+}));
 
 ob_start();
 
@@ -65,7 +78,7 @@ ob_start();
     <dl class="itflow-asset-dl mb-0">
         <dt>When</dt>
         <dd>
-            <div class="fw-semibold"><?= escapeHtml(calendarWhenText($event, $start, $end)) ?></div>
+            <div class="fw-semibold"><?= escapeHtml(timezoneEventWhenText($event, $start, $end)) ?></div>
             <?php if ($repeats) { ?>
                 <div class="small text-body-secondary"><i class="fas fa-redo fa-fw me-1"></i><?= escapeHtml(calendarRepeatText($event)) ?>, from <?= date('M j, Y', strtotime($event['event_start'])) ?></div>
                 <?php if (calendarSkippedDates($event)) { ?>
@@ -73,6 +86,9 @@ ob_start();
                         return date('M j', strtotime($date));
                     }, calendarSkippedDates($event)))) ?></div>
                 <?php } ?>
+            <?php } ?>
+            <?php if (isset($event['event_reminder']) && $event['event_reminder'] !== null) { ?>
+                <div class="small text-body-secondary" data-event-reminder><i class="fas fa-bell fa-fw me-1"></i>Reminder <?= escapeHtml(strtolower(CALENDAR_REMINDER_CHOICES[intval($event['event_reminder'])] ?? '')) ?></div>
             <?php } ?>
         </dd>
 
@@ -105,12 +121,50 @@ ob_start();
             <dd><?php if (lookupUserPermission('module_client') >= 1) { ?><a href="client_overview.php?client_id=<?= $client_id ?>"><?= escapeHtml($event['client_name']) ?></a><?php } else { ?><?= escapeHtml($event['client_name']) ?><?php } ?></dd>
         <?php } ?>
 
-        <dt>Who</dt>
+        <dt>Assigned to</dt>
         <dd class="min-w-0">
-            <?php if (!$attendees) { ?>
-                <span class="text-body-secondary">Nobody added</span>
+            <?php if ($can_edit) { ?>
+                <form action="post.php" method="post" class="d-flex flex-wrap gap-2 align-items-center mb-1">
+                    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                    <input type="hidden" name="event_id" value="<?= $event_id ?>">
+                    <div class="input-group flex-grow-1 w-auto" style="min-width: 14rem">
+                        <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
+                        <select class="form-select select2" name="agents[]" multiple data-placeholder="- Nobody - select agents -">
+                            <?php foreach (calendarEventAgentChoices(array_map(function ($attendee) { return intval($attendee['attendee_user_id']); }, $agents)) as $user_id => $row) { ?>
+                                <option value="<?= $user_id ?>"<?= selectOptionUser($user_id, $row['user_name'], $row['user_avatar']) ?> <?= in_array($user_id, array_map(function ($attendee) { return intval($attendee['attendee_user_id']); }, $agents), true) ? 'selected' : '' ?>><?= escapeHtml($row['user_name']) ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <button type="submit" name="assign_event" class="btn btn-outline-primary"><i class="fas fa-user-check me-1"></i>Save</button>
+                </form>
+                <?php
+                $agents_sent = array_filter($agents, function ($attendee) {
+                    return !empty($attendee['attendee_invited_at']);
+                });
+                if ($agents_sent) { ?>
+                    <div class="small text-body-secondary"><i class="fas fa-check fa-fw text-success me-1"></i>Sent the invitation: <?= escapeHtml(implode(', ', array_column($agents_sent, 'user_name'))) ?></div>
+                <?php } ?>
+            <?php } else { ?>
+                <?php if (!$agents) { ?>
+                    <span class="text-body-secondary">Nobody</span>
+                <?php } ?>
+                <?php foreach ($agents as $attendee) { ?>
+                    <div class="d-flex flex-wrap align-items-center column-gap-2 row-gap-1 mb-1 itflow-cal-attendee">
+                        <?= formatAssignee($attendee['attendee_user_id'], $attendee['user_name'], $attendee['user_avatar']) ?>
+                        <?php if ($attendee['attendee_invited_at']) { ?>
+                            <span class="badge rounded-pill bg-success-subtle text-success-emphasis fw-normal" title="Sent <?= escapeHtml(date('M j, Y g:i A', strtotime($attendee['attendee_invited_at']))) ?>"><i class="fas fa-check me-1"></i>Invited</span>
+                        <?php } ?>
+                    </div>
+                <?php } ?>
             <?php } ?>
-            <?php foreach ($attendees as $attendee) {
+        </dd>
+
+        <dt>Invited</dt>
+        <dd class="min-w-0">
+            <?php if (!$others) { ?>
+                <span class="text-body-secondary">Nobody else</span>
+            <?php } ?>
+            <?php foreach ($others as $attendee) {
                 if ($attendee['kind'] === 'agent') {
                     $avatar = formatAssignee($attendee['attendee_user_id'], $attendee['user_name'], $attendee['user_avatar']);
                 } elseif ($attendee['kind'] === 'contact') {
@@ -147,14 +201,14 @@ ob_start();
 
 <div class="modal-footer">
     <div class="dropdown dropup me-auto">
-        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-ellipsis-h"></i></button>
+        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-ellipsis-v"></i></button>
         <div class="dropdown-menu">
             <a class="dropdown-item" href="post.php?export_event_ics=<?= $event_id ?>"><i class="fas fa-fw fa-download me-2"></i>Download .ics</a>
             <?php if ($repeats && $can_edit) { ?>
                 <a class="dropdown-item confirm-link" href="post.php?skip_event_occurrence=<?= $event_id ?>&date=<?= escapeHtml($occurrence) ?>&csrf_token=<?= $csrf ?>"
                     data-confirm-title="Skip <?= date('D, M j', strtotime($occurrence)) ?>?" data-confirm-button="Skip it"
                     data-confirm-text="Only this one is dropped - the rest of the series stays.<?= $invited ? ' Everyone who has the invitation is sent the update.' : '' ?>">
-                    <i class="fas fa-fw fa-forward me-2"></i>Skip this one
+                    <i class="fas fa-fw fa-forward me-2"></i>Skip This One
                 </a>
             <?php } ?>
             <?php if ($can_delete) { ?>
@@ -162,7 +216,7 @@ ob_start();
                 <a class="dropdown-item text-danger confirm-link" href="post.php?delete_event=<?= $event_id ?>&csrf_token=<?= $csrf ?>"
                     data-confirm-title="Delete <?= escapeHtml($event['event_title']) ?>?" data-confirm-button="Delete"
                     <?php if ($invited) { ?>data-confirm-text="Everyone who was sent the invitation is emailed the cancellation."<?php } ?>>
-                    <i class="fas fa-fw fa-trash-alt me-2"></i><?= $repeats ? 'Delete series' : 'Delete' ?>
+                    <i class="fas fa-fw fa-trash me-2"></i><?= $repeats ? 'Delete series' : 'Delete' ?>
                 </a>
             <?php } ?>
         </div>

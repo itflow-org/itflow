@@ -239,7 +239,7 @@ function tripDrivers($keep_id = 0) {
     global $mysqli;
     $keep_id = intval($keep_id);
     $drivers = [];
-    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE (user_type = 1 AND user_archived_at IS NULL) OR user_id = $keep_id ORDER BY user_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE (user_type = 1" . serviceAccountsOutSql() . " AND user_archived_at IS NULL) OR user_id = $keep_id ORDER BY user_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $drivers[intval($row['user_id'])] = $row;
     }
@@ -317,14 +317,10 @@ function tripKnownRoutes($limit = 400) {
     return $routes;
 }
 
-/** Where this agent has started from lately, most used first - for the From box to offer, with the office first. */
+/** Where this agent has started from lately, most used first - for the From box to offer, with every office first. */
 function tripStartPlaces($limit = 6) {
     global $mysqli, $session_user_id;
-    $places = [];
-    $office = tripOfficeAddress();
-    if ($office !== '') {
-        $places[] = $office;
-    }
+    $places = officeTripPlaces(); // the company's address, and every other office's (functions/offices.php)
     $sql = mysqli_query($mysqli, "SELECT trip_source, COUNT(*) AS n FROM trips WHERE trip_user_id = " . intval($session_user_id) . " AND trip_archived_at IS NULL
         GROUP BY trip_source ORDER BY n DESC LIMIT " . intval($limit));
     while ($row = mysqli_fetch_row($sql)) {
@@ -355,6 +351,10 @@ function tripLastStart() {
 function tripSave(array $in, $trip_id = 0, &$error = '') {
     global $mysqli, $session_user_id;
     $error = '';
+    if (!moduleOn('trips')) {
+        $error = moduleOffText('trips');
+        return 0;
+    }
     $trip_id = intval($trip_id);
     $existing = $trip_id ? tripRow($trip_id) : null;
     if ($trip_id && !$existing) {
@@ -472,6 +472,10 @@ function tripSave(array $in, $trip_id = 0, &$error = '') {
 function tripDelete($trip_id, &$error = '') {
     global $mysqli;
     $error = '';
+    if (!moduleOn('trips')) {
+        $error = moduleOffText('trips');
+        return null;
+    }
     $row = tripRow($trip_id);
     if (!$row) {
         $error = 'That trip no longer exists, or is not one you can see';
@@ -496,6 +500,9 @@ function tripDelete($trip_id, &$error = '') {
 /** The trips of a ticket, a site or a client - newest first, scoped. For the cards that list them. */
 function tripsFor($column, $id, $limit = 10) {
     global $mysqli;
+    if (!moduleOn('trips')) {
+        return [];
+    }
     if (!in_array($column, ['trip_ticket_id', 'trip_location_id', 'trip_client_id', 'trip_expense_id', 'trip_invoice_id'], true)) {
         return [];
     }
@@ -514,6 +521,9 @@ function tripsFor($column, $id, $limit = 10) {
 /** How many trips and miles a ticket, site or client has - [count, miles], scoped. */
 function tripTotalsFor($column, $id) {
     global $mysqli;
+    if (!moduleOn('trips')) {
+        return [0, 0.0];
+    }
     if (!in_array($column, ['trip_ticket_id', 'trip_location_id', 'trip_client_id', 'trip_expense_id', 'trip_invoice_id'], true)) {
         return [0, 0.0];
     }
@@ -715,6 +725,9 @@ function tripClaimSql() {
  */
 function tripsToClaim($user_id = 0, array $ids = []) {
     global $mysqli;
+    if (!moduleOn('trips')) {
+        return [];
+    }
     $user_id = intval($user_id);
     $ids = array_filter(array_map('intval', $ids));
     $rate = tripRules()['rate'];
@@ -744,6 +757,9 @@ function tripsToClaim($user_id = 0, array $ids = []) {
 /** How many trips are waiting to be paid back for, their distance and drivers, and what that comes to at the rate - for the list and the dashboard. */
 function tripToClaimCount() {
     global $mysqli;
+    if (!moduleOn('trips')) {
+        return ['count' => 0, 'miles' => 0.0, 'agents' => 0, 'value' => 0.0];
+    }
     $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(trip_miles), 0), COUNT(DISTINCT trip_user_id)
         FROM trips LEFT JOIN clients ON client_id = trips.trip_client_id WHERE " . tripClaimSql() . ' ' . tripScopeSql()));
     $miles = round(floatval($row[1]), 1);
@@ -761,6 +777,10 @@ function tripToClaimCount() {
 function tripClaim($user_id, array $trip_ids, array $opts, &$error = '') {
     global $mysqli, $session_user_id, $session_company_currency;
     $error = '';
+    if (!moduleOn('trips')) {
+        $error = moduleOffText('trips');
+        return null;
+    }
     $user_id = intval($user_id);
     $driver = $trip_ids ? (tripsToClaim($user_id, $trip_ids)[$user_id] ?? null) : null;
     if (!$user_id || !$driver) {
@@ -837,6 +857,9 @@ function tripUnbilledSql() {
  */
 function tripUnbilled($client_id = 0, array $ids = []) {
     global $mysqli;
+    if (!moduleOn('trips')) {
+        return [];
+    }
     $client_id = intval($client_id);
     $ids = array_filter(array_map('intval', $ids));
     $rows = [];
@@ -856,6 +879,9 @@ function tripUnbilled($client_id = 0, array $ids = []) {
 /** How many trips are waiting to be billed, and what they come to - every client the agent can see, or one - for the menu, the dashboard and the client's overview. */
 function tripUnbilledCount($client_id = 0) {
     global $mysqli;
+    if (!moduleOn('trips')) {
+        return ['count' => 0, 'value' => 0.0];
+    }
     $client_id = intval($client_id);
     $rules = tripRules();
     $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(ROUND({$rules['charge']} + {$rules['bill_rate']} * GREATEST(0, trip_miles - {$rules['included']}), 2)), 0)
@@ -911,7 +937,7 @@ function tripBillLine(array $trip) {
     $description = trim((string) $trip['trip_purpose']);
     $detail = implode(' - ', array_filter([
         $trip['trip_source'] . ' to ' . $trip['trip_destination'],
-        date('m/d/Y', strtotime((string) $trip['trip_date'])),
+        date('M j, Y', strtotime((string) $trip['trip_date'])),
         tripDistanceText($trip['trip_miles']) . (intval($trip['round_trip']) ? ' round trip' : ''),
         intval($trip['trip_ticket_id']) && ($trip['ticket_number'] ?? null) !== null ? ticketReference($trip) : '',
     ]));
@@ -929,6 +955,10 @@ function tripBillLine(array $trip) {
 function tripBillInvoice($client_id, array $prices, array $opts, &$error = '') {
     global $mysqli;
     $error = '';
+    if (!moduleOn('trips')) {
+        $error = moduleOffText('trips');
+        return null;
+    }
     $client_id = intval($client_id);
     $by = (string) ($opts['by'] ?? 'ITFlow');
     $trips = $prices ? tripUnbilled($client_id, array_keys($prices)) : [];
@@ -1062,6 +1092,9 @@ function tripUnbill($trip_id, &$error = '') {
 /** The trips billed on an invoice - each with what its line bills before tax. */
 function tripsOnInvoice($invoice_id) {
     global $mysqli;
+    if (!moduleOn('trips')) {
+        return [];
+    }
     $invoice_id = intval($invoice_id);
     $rows = [];
     $sql = mysqli_query($mysqli, "SELECT trips.*, driver.user_name AS driver_name, ticket_prefix, ticket_number, ticket_subject, item_subtotal

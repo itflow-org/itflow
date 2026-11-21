@@ -21,7 +21,7 @@ if (!$quote || intval($quote['client_id']) !== $session_client_id || $quote['quo
     <a class="itflow-portal-back" href="quotes.php"><i class="fas fa-chevron-left"></i>Quotes</a>
     <section class="itflow-portal-panel">
         <?= emptyStateHtml(['title' => "That quote isn't here", 'text' => 'It may have been replaced, or the link is not quite right.', 'icon' => 'fa-comment-dollar', 'filtered' => false,
-            'actions' => [['label' => 'All quotes', 'href' => 'quotes.php', 'icon' => 'fa-arrow-left']]]) ?>
+            'actions' => [['label' => 'All Quotes', 'href' => 'quotes.php', 'icon' => 'fa-arrow-left']]]) ?>
     </section>
     <?php
     require_once "includes/footer.php";
@@ -122,7 +122,7 @@ $paper = [
                             <div class="small text-body-secondary">It was good until <?= escapeHtml(date('M j, Y', strtotime($quote['quote_expire']))) ?> - prices may have moved since.</div>
                         </div>
                     </div>
-                    <a class="btn btn-outline-primary w-100" href="<?= escapeHtml(portalAskUrl("Updated quote for $number")) ?>"><i class="fas fa-redo-alt me-2"></i>Ask for an updated quote</a>
+                    <a class="btn btn-outline-primary w-100" href="<?= escapeHtml(portalAskUrl("Updated quote for $number")) ?>"><i class="fas fa-redo-alt me-2"></i>Ask for an Updated Quote</a>
                 <?php } elseif ($state['key'] === 'accepted') { ?>
                     <div class="itflow-portal-outcome">
                         <span class="itflow-portal-outcome-icon is-success" aria-hidden="true"><i class="fas fa-check"></i></span>
@@ -148,7 +148,7 @@ $paper = [
                             </div>
                         </div>
                     </div>
-                    <a class="btn btn-outline-primary w-100 mt-3" href="<?= escapeHtml(portalAskUrl("New quote instead of $number")) ?>"><i class="fas fa-redo-alt me-2"></i>Ask for a new quote</a>
+                    <a class="btn btn-outline-primary w-100 mt-3" href="<?= escapeHtml(portalAskUrl("New quote instead of $number")) ?>"><i class="fas fa-redo-alt me-2"></i>Ask for a New Quote</a>
                 <?php } ?>
             </div>
         </section>
@@ -162,7 +162,7 @@ $paper = [
                     <?php if ($files) { ?>
                         <div class="itflow-portal-files mb-3">
                             <?php foreach ($files as $file) { ?>
-                                <span class="itflow-portal-file-chip" title="Sent <?= escapeHtml($file['file_created_at']) ?>"><i class="fas fa-file-pdf"></i><span class="text-truncate"><?= escapeHtml($file['file_name']) ?></span><span class="text-body-secondary"><?= escapeHtml(date('M j', strtotime($file['file_created_at']))) ?></span></span>
+                                <span class="itflow-portal-file-chip" title="Sent <?= formatDateTime($file['file_created_at']) ?>"><i class="fas fa-file-pdf"></i><span class="text-truncate"><?= escapeHtml($file['file_name']) ?></span><span class="text-body-secondary"><?= escapeHtml(date('M j', strtotime($file['file_created_at']))) ?></span></span>
                             <?php } ?>
                         </div>
                     <?php } ?>
@@ -218,14 +218,14 @@ $paper = [
                     <div class="mb-3">
                         <label class="form-label" for="acceptName">Your name <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-signature"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-signature"></i></span>
                             <input type="text" class="form-control" id="acceptName" name="name" value="<?= escapeHtml($contact_name) ?>" maxlength="200" required>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="acceptNote">A note for us</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
                             <textarea class="form-control" id="acceptNote" name="note" rows="3" maxlength="2000" placeholder="Optional - a PO number, when to start, who to talk to"></textarea>
                         </div>
                     </div>
@@ -236,7 +236,7 @@ $paper = [
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success" name="portal_quote_answer"><i class="fas fa-check me-2"></i>Accept quote</button>
+                    <button type="submit" class="btn btn-success" name="portal_quote_answer"><i class="fas fa-check me-2"></i>Accept Quote</button>
                 </div>
             </form>
         </div>
@@ -257,21 +257,21 @@ $paper = [
                     <div class="mb-3">
                         <label class="form-label" for="declineName">Your name <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                             <input type="text" class="form-control" id="declineName" name="name" value="<?= escapeHtml($contact_name) ?>" maxlength="200" required>
                         </div>
                     </div>
                     <div>
                         <label class="form-label" for="declineNote">What would change your mind?</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
                             <textarea class="form-control" id="declineNote" name="note" rows="3" maxlength="2000" placeholder="Optional - the price, the timing, what is missing"></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger" name="portal_quote_answer"><i class="fas fa-times me-2"></i>Decline quote</button>
+                    <button type="submit" class="btn btn-danger" name="portal_quote_answer"><i class="fas fa-times me-2"></i>Decline Quote</button>
                 </div>
             </form>
         </div>

@@ -571,6 +571,16 @@ function recurringExpenseRunningSql() {
     return "recurring_expense_status = 1 AND recurring_expense_archived_at IS NULL AND recurring_expense_vendor_id > 0";
 }
 
+/** The tabs atop Expenses and Recurring, which share one side menu entry - $active is 'expenses' or 'recurring'. HTML. */
+function expenseTabsHtml($active) {
+    global $mysqli;
+    $running = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM recurring_expenses WHERE " . recurringExpenseRunningSql()))[0]);
+    return pageTabsHtml([
+        ['url' => 'expenses.php', 'icon' => 'fa-shopping-cart', 'label' => 'Expenses', 'active' => $active === 'expenses'],
+        ['url' => 'recurring_expenses.php', 'icon' => 'fa-redo-alt', 'label' => 'Recurring', 'active' => $active === 'recurring', 'count' => $running, 'title' => 'Running'],
+    ]);
+}
+
 /** What the running recurring expenses come to a month, company-wide. */
 function recurringExpenseMonthlyTotal() {
     global $mysqli;
@@ -920,9 +930,9 @@ function recurringExpenseRecord($recurring_expense_id, $by_user_id = 0, $run = n
     $expense_id = mysqli_insert_id($mysqli);
 
     $label = recurringExpenseLabel($row);
-    logAudit("Expense", "Create", escapeSql("$by recorded $label for $due from the recurring expense"), intval($row['recurring_expense_client_id']), $expense_id);
+    logAudit("Expense", "Create", escapeSql("$by recorded $label for " . formatDate($due) . " from the recurring expense"), intval($row['recurring_expense_client_id']), $expense_id);
     if ($ends) {
-        logAudit("Recurring Expense", "End", escapeSql("$label ended after its last run on $due"), intval($row['recurring_expense_client_id']), $id);
+        logAudit("Recurring Expense", "End", escapeSql("$label ended after its last run on " . formatDate($due)), intval($row['recurring_expense_client_id']), $id);
     }
     return $expense_id;
 }
@@ -1078,7 +1088,7 @@ function expenseBillLine(array $expense) {
     }
     $description = implode(' - ', array_filter([
         $expense['vendor_name'] ?? '',
-        date('m/d/Y', strtotime((string) $expense['expense_date'])),
+        date('M j, Y', strtotime((string) $expense['expense_date'])),
         trim((string) $expense['expense_reference']) !== '' ? '#' . trim((string) $expense['expense_reference']) : '',
     ]));
     $rest = trim(implode("\n", $lines));
@@ -1460,7 +1470,7 @@ function expensePayers($keep_id = 0) {
     global $mysqli;
     $keep_id = intval($keep_id);
     $payers = [];
-    $sql = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE (user_type = 1 AND user_archived_at IS NULL) OR user_id = $keep_id ORDER BY user_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE (user_type = 1" . serviceAccountsOutSql() . " AND user_archived_at IS NULL) OR user_id = $keep_id ORDER BY user_name ASC");
     while ($row = mysqli_fetch_row($sql)) {
         $payers[intval($row[0])] = $row[1];
     }

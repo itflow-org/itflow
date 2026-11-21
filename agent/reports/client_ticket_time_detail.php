@@ -141,7 +141,7 @@ $hours = function ($seconds) {
                     <?= $hours($client['seconds']) ?> h logged ·
                     <span class="text-body fw-semibold"><?= $hours($client['to_bill']) ?> h to bill</span>
                     <?php if (count($client['rates']) > 1) { ?>· <span title="A contract's after-hours rate, or work on either side of a contract's start, makes more than one">rates vary</span> · <span class="text-body fw-semibold"><?= reportMoney($client['value']) ?></span>
-                    <?php } elseif ($client['rate'] > 0) { ?>· <?= reportMoney($client['rate']) ?>/h<?= $client['default_rate'] ? ' (default)' : ($client['rate_note'] !== '' ? ' (' . escapeHtml($client['rate_note']) . ')' : '') ?> · <span class="text-body fw-semibold"><?= reportMoney($client['value']) ?></span><?php } ?>
+                    <?php } elseif ($client['rate'] > 0 || !$client['default_rate']) { ?>· <?= reportMoney($client['rate']) ?>/h<?= $client['default_rate'] ? ' (default)' : ($client['rate_note'] !== '' ? ' (' . escapeHtml($client['rate_note']) . ')' : '') ?> · <span class="text-body fw-semibold"><?= reportMoney($client['value']) ?></span><?php } ?>
                 </span>
             </div>
             <div class="table-responsive">
@@ -171,7 +171,7 @@ $hours = function ($seconds) {
                                 <td class="itflow-report-sub">
                                     <div class="small text-body-secondary">
                                         <i class="far fa-clock me-1"></i><?= escapeHtml(date('D, M j, Y g:i A', strtotime($reply['ticket_reply_created_at']))) ?>
-                                        <?php if ($reply['ticket_reply_type'] === 'Internal') { ?><span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal ms-1">Internal note</span><?php } ?>
+                                        <?php if ($reply['ticket_reply_type'] === 'Internal') { ?><span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1">Internal note</span><?php } ?>
                                     </div>
                                     <?php if ($reply['text'] !== '') { ?>
                                         <div class="mt-1" style="white-space: pre-line"><?= escapeHtml($reply['text']) ?></div>

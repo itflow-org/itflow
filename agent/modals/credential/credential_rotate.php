@@ -4,7 +4,8 @@
  * Change a credential's password - the rotation every MSP owes its clients.
  * Make one up (a passphrase, or random characters), copy it to set it on
  * the device or site, and save it: the password and the date it changed are
- * updated and the change is logged. Nothing else about the credential moves.
+ * updated and the change is logged, and the old one is kept under Earlier
+ * passwords. Nothing else about the credential moves.
  */
 
 require_once '../../../includes/modal_header.php';
@@ -27,8 +28,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-sync-alt me-2"></i>Change password: <strong><?= escapeHtml($credential['credential_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-sync-alt me-2"></i>Change Password <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($credential['credential_name']) ?></span></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-credential-rotate>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -45,21 +46,21 @@ ob_start();
         </div>
         <label class="form-label">New password <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
             <input type="text" class="form-control font-monospace" name="password" maxlength="350" required autocomplete="new-password" data-rotate-password>
             <button class="btn btn-outline-secondary" type="button" title="Copy" data-rotate-copy><i class="far fa-fw fa-copy"></i></button>
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Make one up"><i class="fas fa-fw fa-magic"></i></button>
             <div class="dropdown-menu dropdown-menu-end">
                 <a class="dropdown-item" href="#" data-rotate-generate="passphrase"><i class="fas fa-fw fa-font text-secondary me-2"></i>Passphrase</a>
-                <a class="dropdown-item" href="#" data-rotate-generate="20"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 20 characters</a>
-                <a class="dropdown-item" href="#" data-rotate-generate="32"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 32 characters</a>
+                <a class="dropdown-item" href="#" data-rotate-generate="20"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 20 Characters</a>
+                <a class="dropdown-item" href="#" data-rotate-generate="32"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 32 Characters</a>
             </div>
         </div>
-        <div class="form-text">Set it on the device or site first, then save it here - the old one is gone once you do.</div>
+        <div class="form-text">Set it on the device or site first, then save it here.<?= credentialPasswordHistoryReady() ? ' The old one is kept under Earlier passwords on its quick look, in case something still uses it.' : ' The old one is gone once you do.' ?></div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="rotate_credential" class="btn btn-primary text-bold" <?= $vault_open ? '' : 'disabled' ?>><i class="fa fa-check me-2"></i>Save new password</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="rotate_credential" class="btn btn-primary fw-bold" <?= $vault_open ? '' : 'disabled' ?>><i class="fas fa-check me-2"></i>Save New Password</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

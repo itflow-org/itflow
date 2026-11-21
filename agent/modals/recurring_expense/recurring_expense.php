@@ -157,7 +157,7 @@ ob_start();
         <?php if ($made) { ?>
             <?php foreach ($made as $expense) { ?>
                 <div class="d-flex justify-content-between gap-2 small py-1 border-bottom">
-                    <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($expense['expense_id']) ?>"><?= escapeHtml($expense['expense_date']) ?></a>
+                    <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($expense['expense_id']) ?>"><?= formatDate($expense['expense_date']) ?></a>
                     <span class="flex-grow-1 text-end">
                         <?php if ($expense['expense_receipt']) { ?><i class="fas fa-paperclip text-success me-2" title="Receipt attached"></i><?php } ?>
                         <span class="itflow-money"><?= escapeHtml(billingMoney($expense['expense_amount'], $expense['expense_currency_code'])) ?></span>
@@ -177,7 +177,7 @@ ob_start();
 <div class="modal-footer">
     <?php if ($can_edit) { ?>
         <?php if ($state !== 'ended') { ?>
-            <a class="btn btn-primary text-bold confirm-link" href="<?= $post_url('recurring_expense_record', '&amp;run=' . $next) ?>"
+            <a class="btn btn-primary fw-bold confirm-link" href="<?= $post_url('recurring_expense_record', '&amp;run=' . $next) ?>"
                 data-confirm-title="Record the <?= escapeHtml(date('M j', strtotime($next))) ?> run now?"
                 data-confirm-text="An expense of <?= escapeHtml(billingMoney($amount, $currency)) ?> dated <?= escapeHtml(date('M j, Y', strtotime(min($next, date('Y-m-d'))))) ?>, and the next one moves to <?= escapeHtml(date('M j, Y', strtotime(recurringExpenseAfter($row, $next)))) ?>."
                 data-confirm-button="Record"><i class="fas fa-bolt me-2"></i>Record Now</a>
@@ -200,7 +200,7 @@ ob_start();
         <a class="btn btn-outline-danger confirm-link" href="<?= $post_url('delete_recurring_expense') ?>"
             data-confirm-text="<?= escapeHtml(recurringExpenseLabel($row)) ?> goes for good. The expenses it recorded stay."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

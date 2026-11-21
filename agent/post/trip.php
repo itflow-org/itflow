@@ -14,6 +14,13 @@
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
+// Trips switched off (Admin > Settings > Modules) - none of these until they're back on
+if (!moduleOn('trips') && (array_intersect(['add_trip', 'edit_trip', 'bulk_edit_trips', 'bulk_delete_trips', 'trip_claim', 'invoice_add_trips'], array_keys($_POST))
+    || array_intersect(['delete_trip', 'trip_unbill'], array_keys($_GET)))) {
+    flashAlert(moduleOffText('trips'), 'error');
+    redirect();
+}
+
 if (isset($_POST['add_trip'])) {
 
     validateCSRFToken();

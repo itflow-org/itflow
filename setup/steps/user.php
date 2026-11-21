@@ -37,7 +37,7 @@ $first_error = array_key_first($user_errors);
                     <div class="col-12">
                         <label class="form-label" for="setupUserName">Name <strong class="text-danger">*</strong></label>
                         <div class="input-group has-validation">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                             <input type="text" class="form-control<?= setupFieldInvalid($user_errors, 'name') ?>" id="setupUserName" name="name" value="<?= escapeHtml($user_form['name']) ?>" placeholder="Your full name" maxlength="200" autocomplete="name" required <?= $first_error === null || $first_error === 'name' ? 'autofocus' : '' ?>>
                         </div>
                         <?= setupFieldError($user_errors, 'name') ?>
@@ -45,7 +45,7 @@ $first_error = array_key_first($user_errors);
                     <div class="col-12">
                         <label class="form-label" for="setupUserEmail">Email <strong class="text-danger">*</strong></label>
                         <div class="input-group has-validation">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                             <input type="email" class="form-control<?= setupFieldInvalid($user_errors, 'email') ?>" id="setupUserEmail" name="email" value="<?= escapeHtml($user_form['email']) ?>" placeholder="you@company.com" maxlength="200" autocomplete="email" required <?= $first_error === 'email' ? 'autofocus' : '' ?>>
                         </div>
                         <?= setupFieldError($user_errors, 'email') ?: '<div class="form-text">What you sign in with.</div>' ?>
@@ -53,31 +53,28 @@ $first_error = array_key_first($user_errors);
                     <div class="col-md-6">
                         <label class="form-label" for="setupUserPassword">Password <strong class="text-danger">*</strong></label>
                         <div class="input-group has-validation">
-                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                             <input type="password" class="form-control<?= setupFieldInvalid($user_errors, 'password') ?>" id="setupUserPassword" data-toggle="password" name="password" placeholder="At least <?= USER_PASSWORD_MIN ?> characters" autocomplete="new-password" required minlength="<?= USER_PASSWORD_MIN ?>" <?= in_array($first_error, ['password', 'password_confirm', 'file'], true) ? 'autofocus' : '' ?>>
-                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                         </div>
                         <?= setupFieldError($user_errors, 'password') ?>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" for="setupUserPasswordConfirm">Password again <strong class="text-danger">*</strong></label>
                         <div class="input-group has-validation">
-                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                             <input type="password" class="form-control<?= setupFieldInvalid($user_errors, 'password_confirm') ?>" id="setupUserPasswordConfirm" data-toggle="password" name="password_confirm" placeholder="The same again" autocomplete="new-password" required data-setup-same-as="setupUserPassword">
-                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                         </div>
                         <?= setupFieldError($user_errors, 'password_confirm') ?>
                     </div>
                     <div class="col-12">
                         <label class="form-label" for="setupUserAvatar">Avatar</label>
                         <div class="d-flex gap-3 align-items-center">
-                            <div class="itflow-setup-preview is-round" data-setup-preview="setupUserAvatar"><i class="fas fa-user"></i></div>
+                            <?= pictureField('file', '', userAvatar(0, $user_form['name'] ?? '', '', 'lg'), userAvatar(0, $user_form['name'] ?? '', '', 'lg'),
+                                ['round' => true, 'title' => 'Your picture', 'class' => 'itflow-contact-avatar itflow-contact-avatar-lg', 'name' => 'name', 'id' => 'setupUserAvatar']) ?>
                             <div class="flex-grow-1 min-w-0">
-                                <div class="input-group has-validation">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-image"></i></span>
-                                    <input type="file" class="form-control<?= setupFieldInvalid($user_errors, 'file') ?>" id="setupUserAvatar" name="file" accept="image/jpeg,image/png,image/gif,image/webp" data-setup-image="JPG, PNG, GIF or WebP" data-setup-image-max="<?= SETUP_IMAGE_MAX_BYTES ?>">
-                                </div>
-                                <?= setupFieldError($user_errors, 'file') ?: '<div class="form-text">Optional - JPG, PNG, GIF or WebP, up to 5 MB.</div>' ?>
+                                <?= setupFieldError($user_errors, 'file') ?: '<div class="form-text mt-0">Optional - click it to add a picture.</div>' ?>
                             </div>
                         </div>
                     </div>

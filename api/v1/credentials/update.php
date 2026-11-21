@@ -25,6 +25,12 @@ if (!empty($_POST['api_key_decrypt_password']) && !empty($credential_id)) {
 
         if ($password_changed) {
             mysqli_query($mysqli, "UPDATE credentials SET credential_password_changed_at = NOW() WHERE credential_id = $credential_id LIMIT 1");
+
+            // The password it had goes under Earlier passwords, when this changed it
+            $old_password = apiDecryptCredentialEntry((string) $credential_row['credential_password'], $api_key_decrypt_hash, $api_key_decrypt_password);
+            if (is_string($old_password) && $old_password !== '' && $old_password !== (string) $_POST['credential_password']) {
+                credentialPasswordKeep($credential_row);
+            }
         }
 
         // The vendor and license it is for, when sent

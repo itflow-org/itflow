@@ -20,22 +20,22 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <?php foreach ($interface_ids as $interface_id) { ?><input type="hidden" name="interface_ids[]" value="<?= $interface_id ?>"><?php } ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-layer-group me-2"></i>VLANs of <strong><?= $count ?></strong> interface<?= $count === 1 ? '' : 's' ?></h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title"><i class="fas fa-fw fa-layer-group me-2"></i>VLANs of <strong><?= $count ?></strong> interface<?= $count === 1 ? '' : 's' ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
 
     <div class="modal-body">
         <label class="form-label">VLANs</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
             <input type="text" class="form-control" name="bulk_vlans" maxlength="200" placeholder="20, or Trunk 1, 10-20" autofocus>
         </div>
         <div class="form-text">Leave it empty to clear their VLANs.</div>
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_asset_interface_vlans" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Set</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="bulk_edit_asset_interface_vlans" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

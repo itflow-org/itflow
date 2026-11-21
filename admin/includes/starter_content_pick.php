@@ -51,7 +51,7 @@ function starterItemLook($pack, $row) {
 
 /* The packs whose items have more to them than a line - shown whole by Preview. */
 function starterPreviewPacks() {
-    return ['ticket_templates', 'project_templates', 'canned_responses', 'vendor_templates', 'document_templates', 'license_templates', 'products'];
+    return ['ticket_templates', 'project_templates', 'canned_responses', 'kb_articles', 'vendor_templates', 'document_templates', 'license_templates', 'products'];
 }
 
 /* [Words in brackets] in a template, marked as the bits filled in as it is used. */
@@ -171,6 +171,16 @@ function starterItemPreview($pack, $row) {
             $html .= starterPreviewFillIns((array) ($row['fill_ins'] ?? []));
             return $html . '<h3 class="itflow-starter-preview-head">What it says</h3><div class="itflow-starter-preview-doc">' . starterPreviewFills($row['content'] ?? '') . '</div>';
 
+        case 'kb_articles':
+            $review = intval($row['review_months'] ?? 0);
+            $html .= '<dl class="itflow-starter-preview-facts">'
+                . starterPreviewFact('Category', escapeHtml((string) ($row['category'] ?? '')))
+                . starterPreviewFact('Tags', escapeHtml(implode(', ', (array) ($row['tags'] ?? []))))
+                . starterPreviewFact('Reviewed', $review ? 'Every ' . ($review === 12 ? 'year' : "$review months") : '')
+                . starterPreviewFact('Comes in as', 'A draft only your team can see')
+                . '</dl>';
+            return $html . '<h3 class="itflow-starter-preview-head">What it says</h3><div class="itflow-starter-preview-doc">' . starterKbFill($row['content'] ?? '') . '</div>';
+
         case 'license_templates':
             $html .= '<dl class="itflow-starter-preview-facts">'
                 . starterPreviewFact('Type', escapeHtml((string) ($row['type'] ?? '')))
@@ -211,20 +221,26 @@ function starterMinutesText($minutes) {
  * A pack's Pick which - its items not here yet, each ticked, shown as they
  * will look with what they are for, and Preview where there is more to see.
  * $form is the id of the form the ticks go with, when they sit outside it (a
- * table row's Add). $items from starterContentItems().
+ * pack's Add). $items from starterContentItems(), or starterContentUnused()'s
+ * for Clear out unused, which shows the list open ($open) and without Preview,
+ * as Preview shows the library's version rather than the one here.
  */
-function starterPickHtml($pack, array $items, $form = '') {
+function starterPickHtml($pack, array $items, $form = '', $open = false) {
     if (!$items) {
         return '';
     }
     $form_attr = $form !== '' ? ' form="' . escapeHtml($form) . '"' : '';
-    $previews = in_array($pack, starterPreviewPacks(), true);
+    $previews = !$open && in_array($pack, starterPreviewPacks(), true);
     $kind = $pack === 'tags' ? ' is-pills' : '';
     ob_start(); ?>
+    <?php if ($open) { ?>
+    <div class="itflow-starter-pick" data-starter-pick-list>
+    <?php } else { ?>
     <details class="itflow-starter-pick mt-1" data-starter-pick-list>
         <summary class="small">Pick which</summary>
+    <?php } ?>
         <input type="hidden" name="picked[<?= escapeHtml($pack) ?>]" value="1"<?= $form_attr ?>>
-        <div class="itflow-starter-pick-tools small mt-2">
+        <div class="itflow-starter-pick-tools small<?= $open ? '' : ' mt-2' ?>">
             <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-starter-all>All</button>
             <span class="text-body-secondary" aria-hidden="true">·</span>
             <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-starter-none>None</button>
@@ -249,13 +265,13 @@ function starterPickHtml($pack, array $items, $form = '') {
                         </label>
                         <?php if ($previews) { ?>
                             <button type="button" class="btn btn-link btn-sm text-decoration-none flex-shrink-0 ms-auto py-0" data-starter-preview="<?= escapeHtml($pack) ?>" data-starter-key="<?= escapeHtml($item['key']) ?>"
-                                title="See all of <?= escapeHtml($item['name']) ?>"><i class="far fa-eye me-1"></i>Preview</button>
+                                title="See all of <?= escapeHtml($item['name']) ?>"><i class="fas fa-eye me-1"></i>Preview</button>
                         <?php } ?>
                     </div>
                 <?php } ?>
             </div>
         </div>
-    </details>
+    <?= $open ? '</div>' : '</details>' ?>
     <?php return ob_get_clean();
 }
 

@@ -11,6 +11,12 @@ if (!defined('FROM_POST_HANDLER')) {
     exit;
 }
 
+// Bookkeeping switched off (Admin > Settings > Modules)
+if (!moduleOn('bookkeeping') && isExportRequest('export_transactions')) {
+    flashAlert(moduleOffText('bookkeeping'), 'error');
+    redirect();
+}
+
 if (isExportRequest('export_transactions')) {
 
     validateCSRFToken();

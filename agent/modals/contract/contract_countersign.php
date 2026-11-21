@@ -33,7 +33,7 @@ if (!$round || $state['key'] !== 'countersign') { ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-pen-nib me-2"></i>Countersign <strong><?= escapeHtml($round['contract_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -52,8 +52,8 @@ if (!$round || $state['key'] !== 'countersign') { ?>
         </small>
     </div>
     <div class="modal-footer">
-        <a class="btn btn-link me-auto" href="contract_document.php?client_id=<?= $client_id ?>&contract_id=<?= intval($round['contract_id']) ?>&round=<?= intval($round['contract_signature_id']) ?>" target="_blank"><i class="fas fa-eye me-2"></i>Read what they signed</a>
-        <button type="submit" name="countersign_contract" class="btn btn-success text-bold"><i class="fas fa-pen-nib me-2"></i>Countersign</button>
+        <a class="btn btn-link me-auto" href="contract_document.php?client_id=<?= $client_id ?>&contract_id=<?= intval($round['contract_id']) ?>&round=<?= intval($round['contract_signature_id']) ?>" target="_blank" rel="noopener"><i class="fas fa-eye me-2"></i>Read what they signed</a>
+        <button type="submit" name="countersign_contract" class="btn btn-success fw-bold"><i class="fas fa-pen-nib me-2"></i>Countersign</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

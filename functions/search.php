@@ -81,7 +81,7 @@ function globalSearchMoney($amount, $currency_code) {
         return number_format(floatval($amount), 2);
     }
 
-    return numfmt_format_currency($currency_format, floatval($amount), $currency_code ?: 'USD');
+    return billingMoney(floatval($amount), $currency_code ?: 'USD');
 }
 
 /** Where a client-scoped record lives: the client's own copy of a page, or the global one. */
@@ -113,18 +113,19 @@ function globalSearchGroups($terms, $deep) {
 
     $groups[] = [
         'key' => 'clients', 'label' => 'Clients', 'icon' => 'users', 'module' => 'module_client',
-        'select' => 'client_id, client_name, client_type, client_abbreviation',
+        'select' => 'client_id, client_name, client_type, client_abbreviation, client_lead',
         'from' => 'clients',
         'where' => "client_archived_at IS NULL
             AND (client_name LIKE '%$like%' OR client_abbreviation LIKE '%$like%' OR client_website LIKE '%$like%' " . tagSearchSql('client', $like, 'clients.client_id') . ")",
         'scope' => 'clients.client_id',
         'tags' => ['client', 'clients.client_id'],
-        'order' => "(client_name = '$eq') DESC, (client_name LIKE '$like%') DESC, client_accessed_at DESC, client_name",
+        // A lead is still found by name, but after the clients and marked
+        'order' => "(client_name = '$eq') DESC, client_lead ASC, (client_name LIKE '$like%') DESC, client_accessed_at DESC, client_name",
         'list_url' => '/agent/clients.php?' . http_build_query(['q' => $q]),
         'item' => function ($row) {
             return [
                 'title' => $row['client_name'],
-                'subtitle' => $row['client_type'],
+                'subtitle' => intval($row['client_lead']) ? trim('Lead - ' . $row['client_type'], ' -') : $row['client_type'],
                 'url' => '/agent/client_overview.php?client_id=' . intval($row['client_id']),
             ];
         },
@@ -475,6 +476,30 @@ function globalSearchGroups($terms, $deep) {
                 'context' => $row['client_name'],
                 'url' => globalSearchClientUrl('document.php', $row['document_client_id'], ['document_id' => intval($row['document_id'])]),
                 'tile' => ['tone' => 'document', 'icon' => 'file-alt', 'label' => 'Document'],
+            ];
+        },
+    ];
+
+    // The Knowledge Base - no client's, so in no client's scope
+    $kb_deep_match = $deep ? "OR MATCH(kb_article_content_raw) AGAINST ('$eq')" : '';
+    $groups[] = [
+        'key' => 'kb_articles', 'label' => 'Knowledge Base', 'icon' => 'book', 'module' => 'module_support', 'enabled' => kbOn(),
+        'select' => 'kb_article_id, kb_article_title, kb_article_summary, kb_article_content, kb_article_published_at, category_name, category_icon, category_color',
+        'from' => 'kb_articles LEFT JOIN categories ON category_id = kb_article_category_id AND kb_article_category_id > 0',
+        'where' => "kb_article_archived_at IS NULL
+            AND (kb_article_title LIKE '%$like%' OR kb_article_summary LIKE '%$like%' $kb_deep_match
+                " . tagSearchSql('kb_article', $like, 'kb_articles.kb_article_id') . ")",
+        'scope' => null,
+        'tags' => ['kb_article', 'kb_articles.kb_article_id'],
+        'order' => "(kb_article_title LIKE '$like%') DESC, kb_article_published_at IS NULL, COALESCE(kb_article_updated_at, kb_article_created_at) DESC",
+        'list_url' => '/agent/kb.php?' . http_build_query(['q' => $q]),
+        'item' => function ($row) {
+            return [
+                'title' => $row['kb_article_title'],
+                'subtitle' => implode(' · ', array_filter([$row['kb_article_published_at'] ? '' : 'Draft', kbArticleExcerpt($row, 120)])),
+                'context' => $row['category_name'] ?? '',
+                'url' => '/agent/kb_article.php?kb_article_id=' . intval($row['kb_article_id']),
+                'tile' => ['tone' => 'document', 'icon' => categoryIcon($row['category_icon'] ?? '') ?: 'book', 'label' => 'Article'],
             ];
         },
     ];
@@ -886,10 +911,11 @@ function globalSearchPages($raw_query) {
     $pages = [
         ['Dashboard', '/agent/dashboard.php', true],
         ['Clients', '/agent/clients.php', $client],
-        ['All Client Docs', '/agent/contacts.php', $client],
+        ['Across clients', '/agent/contacts.php', $client && $support],
         ['Services', '/agent/services.php', $support],
         ['Vendors', '/agent/vendors.php', true],
-        ['Calendar', '/agent/calendar.php', true],
+        ['Calendar', '/agent/calendar.php', moduleOn('calendar')],
+        ['Knowledge Base', '/agent/kb.php', kbCan(1)],
         ['Tickets', '/agent/tickets.php', $support && $ticketing],
         ['Recurring Tickets', '/agent/recurring_tickets.php', $support && $ticketing],
         ['Projects', '/agent/projects.php', $support && $ticketing],
@@ -900,10 +926,10 @@ function globalSearchPages($raw_query) {
         ['Income', '/agent/income.php', $financial && $accounting],
         ['Expenses', '/agent/expenses.php', $financial && $accounting],
         ['Recurring Expenses', '/agent/recurring_expenses.php', $financial && $accounting],
-        ['Trips', '/agent/trips.php', $accounting],
-        ['Accounts', '/agent/accounts.php', $financial && $accounting],
-        ['Transactions', '/agent/transactions.php', $financial && $accounting],
-        ['Transfers', '/agent/transactions.php?show=transfers', $financial && $accounting],
+        ['Trips', '/agent/trips.php', moduleOn('trips')],
+        ['Accounts', '/agent/accounts.php', $financial && moduleOn('bookkeeping')],
+        ['Transactions', '/agent/transactions.php', $financial && moduleOn('bookkeeping')],
+        ['Transfers', '/agent/transactions.php?show=transfers', $financial && moduleOn('bookkeeping')],
         ['Reports', '/agent/reports/', lookupUserPermission('module_reporting') >= 1],
         ['Administration', '/admin/', (bool) $session_is_admin],
         ['Mail Queue', '/admin/mail_queue.php', (bool) $session_is_admin],

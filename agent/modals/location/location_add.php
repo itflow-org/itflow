@@ -28,25 +28,31 @@ $location_tag_ids = [];
 $client_has_location = $client_id ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL"))[0]) : 1;
 $location_primary = !empty($_GET['primary']) || !$client_has_location ? 1 : 0;
 
+// Opened by the + beside a location picker in another window (quickAddButton()) - js/quick_add.js
+// saves it in the background and picks it there
+$inline = !empty($_GET['inline']);
+
 ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-map-marker-alt me-2"></i>New Location</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-map-marker-alt me-2"></i>New Location</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
-<form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+<form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off"<?= $inline ? ' data-quick-add-inline' : '' ?>>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <?php if ($inline) { ?><input type="hidden" name="inline" value="1"><?php } ?>
     <?php if ($client_id) { ?>
         <input type="hidden" name="client_id" value="<?= $client_id ?>">
     <?php } ?>
 
     <div class="modal-body">
+        <div class="alert alert-danger small py-2" role="alert" data-quick-add-error hidden></div>
         <?php require 'location_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_location" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_location" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

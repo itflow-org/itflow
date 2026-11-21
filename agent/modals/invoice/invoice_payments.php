@@ -30,7 +30,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-credit-card me-2"></i>Payments <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber('invoice', $invoice)) ?> &middot; <?= escapeHtml($invoice['client_name']) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body">
     <div class="d-flex justify-content-between align-items-end mb-2">
@@ -56,7 +56,7 @@ ob_start();
                         <div class="fw-semibold itflow-money"><?= escapeHtml(billingMoney($payment['payment_amount'], $payment['payment_currency_code'])) ?></div>
                         <div class="small text-body-secondary text-truncate"><?= escapeHtml(implode(' · ', array_filter([$payment['payment_method'], $payment['payment_reference'], $payment['account_name']]))) ?></div>
                     </div>
-                    <div class="small text-body-secondary text-nowrap"><?= escapeHtml($payment['payment_date']) ?></div>
+                    <div class="small text-body-secondary text-nowrap"><?= formatDate($payment['payment_date']) ?></div>
                     <?php if ($can_manage) { ?>
                         <a class="btn btn-sm btn-link text-body-secondary ajax-modal" href="#" data-modal-url="modals/payment/payment_edit.php?id=<?= intval($payment['payment_id']) ?>" title="Edit payment"><i class="fas fa-fw fa-edit"></i></a>
                     <?php } ?>
@@ -71,7 +71,7 @@ ob_start();
     <?php if ($can_pay) { ?>
         <button type="button" class="btn btn-success ajax-modal me-auto" data-modal-url="modals/payment/payment_add.php?id=<?= $invoice_id ?>"><i class="fas fa-plus me-2"></i>Add Payment</button>
     <?php } ?>
-    <a href="invoice.php?invoice_id=<?= $invoice_id ?>" class="btn btn-primary text-bold"><i class="fas fa-file-invoice-dollar me-2"></i>Open Invoice</a>
+    <a href="invoice.php?invoice_id=<?= $invoice_id ?>" class="btn btn-primary fw-bold"><i class="fas fa-file-invoice-dollar me-2"></i>Open Invoice</a>
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 

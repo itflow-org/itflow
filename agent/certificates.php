@@ -2,7 +2,7 @@
 
 /*
  * Certificates - one client's, or every certificate the agent can see from
- * All Client Docs. Starred first. Each row has the host it is served on and
+ * Across clients. Starred first. Each row has the host it is served on and
  * the domain it belongs to, who issued it, when it expires (and whether it
  * renews itself), and what the last check of the host found. The pills along
  * the top count and filter the ones to act on: expiring soon, expired,
@@ -131,7 +131,7 @@ $export_extra = [
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-lock me-2"></i>Certificates</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-lock me-2"></i>Certificates</h3>
         <div class="card-tools">
             <?php if ($can_edit || $num_rows[0]) { ?>
             <div class="btn-group">
@@ -140,13 +140,20 @@ $export_extra = [
                         <i class="fas fa-plus me-2"></i>New Certificate
                     </button>
                 <?php } ?>
-                <?php if ($num_rows[0] > 0) { ?>
-                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <?php if ($num_rows[0] > 0 || ($can_edit && $client_url)) { ?>
+                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item text-dark ajax-modal" href="#"
-                            data-modal-url="<?= buildExportModalUrl('modals/certificate/certificate_export.php', ['client_id', 'client', 'expire_days', 'archived', 'q'], $export_extra) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
-                        </a>
+                        <?php if ($can_edit && $client_url) { ?>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=certificates">
+                                <i class="fas fa-fw fa-upload me-2"></i>Import
+                            </a>
+                        <?php } ?>
+                        <?php if ($num_rows[0] > 0) { ?>
+                            <a class="dropdown-item ajax-modal" href="#"
+                                data-modal-url="<?= buildExportModalUrl('modals/certificate/certificate_export.php', ['client_id', 'client', 'expire_days', 'archived', 'q'], $export_extra) ?>">
+                                <i class="fas fa-fw fa-download me-2"></i>Export
+                            </a>
+                        <?php } ?>
                     </div>
                 <?php } ?>
             </div>
@@ -165,7 +172,7 @@ $export_extra = [
                 <div class="<?= $client_url ? 'col-lg-5' : 'col-lg-4' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search name, host, names covered, issuer...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">
@@ -179,7 +186,7 @@ $export_extra = [
                 <?php if (!$client_url) { ?>
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="client" onchange="this.form.submit()">
-                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- Any client -</option>
                         <?php
                         $sql_clients_filter = mysqli_query($mysqli, "
                             SELECT DISTINCT client_id, client_name, client_abbreviation
@@ -200,7 +207,7 @@ $export_extra = [
                     <div class="d-flex justify-content-end gap-2">
                         <a href="<?= escapeHtml($filter_url(['archived' => $archived ? '' : 1])) ?>"
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active certificates' : 'Show archived certificates' ?>">
-                            <i class="fa fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
+                            <i class="fas fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
                         </a>
                         <?php if ($can_edit) { ?>
                         <div class="dropdown" id="bulkActionButton" hidden>
@@ -210,7 +217,7 @@ $export_extra = [
                             <div class="dropdown-menu dropdown-menu-end">
                                 <?php if (!$archived) { ?>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_check_certificates">
-                                        <i class="fas fa-fw fa-sync-alt me-2"></i>Check now
+                                        <i class="fas fa-fw fa-sync-alt me-2"></i>Check Now
                                     </button>
                                 <?php } ?>
                                 <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_favorite_certificates">
@@ -225,13 +232,13 @@ $export_extra = [
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_certificates"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_certificates"
                                             data-confirm-text="The certificates go for good, with their history. Services stop pointing at them.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
                                     <?php } ?>
                                 <?php } else { ?>
-                                    <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_certificates">
+                                    <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_certificates">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                 <?php } ?>
@@ -275,35 +282,23 @@ $export_extra = [
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=certificate_name&order=<?= $disp ?>">
-                            Certificate <?php if ($sort == 'certificate_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('certificate_name', 'Certificate') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=certificate_domain&order=<?= $disp ?>">
-                            Host <?php if ($sort == 'certificate_domain') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('certificate_domain', 'Host') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=certificate_issued_by&order=<?= $disp ?>">
-                            Issuer <?php if ($sort == 'certificate_issued_by') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('certificate_issued_by', 'Issuer') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=certificate_expire&order=<?= $disp ?>">
-                            Expires <?php if ($sort == 'certificate_expire') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('certificate_expire', 'Expires') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=certificate_checked_at&order=<?= $disp ?>">
-                            Last check <?php if ($sort == 'certificate_checked_at') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('certificate_checked_at', 'Last check') ?>
                     </th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>
@@ -378,28 +373,28 @@ $export_extra = [
                         <td class="text-nowrap">
                             <?= certificateExpiryPill($expiry) ?>
                             <?php if ($expiry) { ?>
-                                <div class="small text-body-secondary mt-1"><?= escapeHtml($expiry['date']) ?></div>
+                                <div class="small text-body-secondary mt-1"><?= formatDate($expiry['date']) ?></div>
                             <?php } ?>
                         </td>
                         <td class="text-nowrap">
                             <?= certificateStatusPill($row) ?>
                             <?php if (!empty($row['certificate_checked_at'])) { ?>
-                                <div class="small text-body-secondary mt-1" title="<?= escapeHtml($row['certificate_checked_at']) ?>"><?= timeAgo($row['certificate_checked_at']) ?></div>
+                                <div class="small text-body-secondary mt-1" title="<?= formatDateTime($row['certificate_checked_at']) ?>"><?= timeAgo($row['certificate_checked_at']) ?></div>
                             <?php } ?>
                         </td>
                         <?php if (!$client_url) { ?>
-                        <td><a href="certificates.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                        <td><a data-client-card="<?= $row_client_id ?>" href="certificates.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
                         <td class="text-end">
                             <div class="dropdown dropstart">
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $quick_url ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <?php if ($host) { ?>
                                         <a class="dropdown-item" href="https://<?= escapeHtml($host['display']) ?>" target="_blank" rel="noopener noreferrer">
-                                            <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open the site
+                                            <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open the Site
                                         </a>
                                     <?php } ?>
                                     <?php if ($can_edit && !$certificate_archived_at) { ?>
@@ -408,7 +403,7 @@ $export_extra = [
                                         </a>
                                         <?php if ($host) { ?>
                                             <a class="dropdown-item" href="post.php?check_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Check now
+                                                <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Check Now
                                             </a>
                                         <?php } ?>
                                         <a class="dropdown-item" href="post.php?<?= $certificate_favorite ? 'unfavorite_certificate' : 'favorite_certificate' ?>=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
@@ -422,13 +417,13 @@ $export_extra = [
                                                 <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                             <?php if ($can_delete) { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                     data-confirm-text="<?= $certificate_name ?> goes for good, with its history. Services stop pointing at it.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>
                                             <?php } ?>
                                         <?php } else { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                         <?php } ?>
@@ -452,7 +447,10 @@ $export_extra = [
         'views' => ['show'],
         'view' => emptyStatePill($shows, $show, '', ['soon', 'expired', 'problems', 'unchecked']),
         'text' => 'The certificates on their websites and services, and when each expires.',
-        'actions' => $can_edit ? [['label' => 'New Certificate', 'modal' => "modals/certificate/certificate_add.php?$client_url", 'size' => 'lg']] : [],
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New Certificate', 'modal' => "modals/certificate/certificate_add.php?$client_url", 'size' => 'lg']],
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=certificates", 'icon' => 'fa-upload', 'size' => 'lg']] : []
+        ) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>

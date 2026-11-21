@@ -98,12 +98,16 @@ if (isset($_GET['archive_vendor_template']) || isset($_GET['restore_vendor_templ
     $vendor_template_id = intval($row['vendor_template_id']);
 
     // Archived, it isn't offered for new vendors; the ones made from it stay
+    $undo = $archive ? undoArchivedBefore('vendor_templates', 'vendor_template_id', [$vendor_template_id]) : null;
     mysqli_query($mysqli, "UPDATE vendor_templates SET vendor_template_archived_at = " . ($archive ? 'NOW()' : 'NULL') . ", vendor_template_updated_at = vendor_template_updated_at
         WHERE vendor_template_id = $vendor_template_id");
 
     logAudit("Vendor Template", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " vendor template " . escapeSql($row['vendor_template_name']), 0, $vendor_template_id);
 
     flashAlert("Vendor template <strong>" . escapeHtml($row['vendor_template_name']) . "</strong> " . ($archive ? 'archived' : 'restored'), $archive ? 'error' : 'success');
+    if ($undo) {
+        undoOfferArchived($undo, '', $row['vendor_template_name']);
+    }
 
     redirect();
 

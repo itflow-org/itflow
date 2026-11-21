@@ -50,9 +50,9 @@ $contact_phone_value = ($vt['contact_phone'] ?? '') !== '' ? escapeHtml(formatPh
             </div>
         </div>
         <div class="col-12">
-            <label class="form-label">What they are</label>
+            <label class="form-label">Description</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Business internet and phone, servers and workstations" maxlength="200" value="<?= $value('description') ?>">
             </div>
         </div>
@@ -66,7 +66,7 @@ $contact_phone_value = ($vt['contact_phone'] ?? '') !== '' ? escapeHtml(formatPh
         <div class="col-md-8">
             <label class="form-label">Support phone</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
                 <input type="hidden" name="phone_country_code" value="<?= $value('phone_country_code') ?>">
                 <input type="tel" class="form-control" name="phone" value="<?= $phone_value ?>" placeholder="Phone number" maxlength="200" data-itflow-phone="phone_country_code">
             </div>
@@ -81,42 +81,42 @@ $contact_phone_value = ($vt['contact_phone'] ?? '') !== '' ? escapeHtml(formatPh
         <div class="col-md-6">
             <label class="form-label">Support hours</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                 <input type="text" class="form-control" name="hours" placeholder="24/7, Mon-Fri 8-6 ET" maxlength="200" value="<?= $value('hours') ?>">
             </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">SLA</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-handshake"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-handshake"></i></span>
                 <input type="text" class="form-control" name="sla" placeholder="4 hour response, next business day" maxlength="200" value="<?= $value('sla') ?>">
             </div>
         </div>
         <div class="col-12">
             <label class="form-label">Support email</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                 <input type="email" class="form-control" name="email" placeholder="support@vendor.com" maxlength="200" value="<?= $value('email') ?>">
             </div>
         </div>
         <div class="col-12">
             <label class="form-label">Support site</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                <input type="text" class="form-control" name="website" placeholder="support.vendor.com" maxlength="200" value="<?= $value('website') ?>">
+                <span class="input-group-text"><i class="fas fa-fw fa-globe"></i></span>
+                <input type="text" inputmode="url" class="form-control" name="website" placeholder="support.vendor.com" maxlength="200" value="<?= $value('website') ?>">
             </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">Status page</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-heartbeat"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-heartbeat"></i></span>
                 <input type="text" class="form-control" name="status_page" placeholder="status.vendor.com" maxlength="200" value="<?= $value('status_page') ?>">
             </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">Support portal</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-door-open"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-door-open"></i></span>
                 <input type="text" class="form-control" name="portal" placeholder="Where cases are opened" maxlength="200" value="<?= $value('portal') ?>">
             </div>
         </div>
@@ -132,14 +132,14 @@ $contact_phone_value = ($vt['contact_phone'] ?? '') !== '' ? escapeHtml(formatPh
         <div class="col-md-7">
             <label class="form-label">Account number</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-fingerprint"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-fingerprint"></i></span>
                 <input type="text" class="form-control" name="account_number" placeholder="Usually each client's own - leave blank" maxlength="200" value="<?= $value('account_number') ?>">
             </div>
         </div>
         <div class="col-md-5">
             <label class="form-label">PIN / passcode</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                 <input type="text" class="form-control" name="code" placeholder="Usually each client's own" maxlength="200" value="<?= $value('code') ?>" autocomplete="off">
             </div>
         </div>
@@ -149,14 +149,14 @@ $contact_phone_value = ($vt['contact_phone'] ?? '') !== '' ? escapeHtml(formatPh
         <div class="col-12">
             <label class="form-label">Account manager</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-user-tie"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
                 <input type="text" class="form-control" name="contact_name" placeholder="Your rep there, when every client has the same one" maxlength="200" value="<?= $value('contact_name') ?>">
             </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">Their direct line</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-phone-alt"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-phone-alt"></i></span>
                 <input type="hidden" name="contact_phone_country_code" value="<?= $value('contact_phone_country_code') ?>">
                 <input type="tel" class="form-control" name="contact_phone" value="<?= $contact_phone_value ?>" placeholder="Phone number" maxlength="200" data-itflow-phone="contact_phone_country_code">
             </div>
@@ -164,7 +164,7 @@ $contact_phone_value = ($vt['contact_phone'] ?? '') !== '' ? escapeHtml(formatPh
         <div class="col-md-6">
             <label class="form-label">Their email</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-at"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-at"></i></span>
                 <input type="email" class="form-control" name="contact_email" placeholder="name@vendor.com" maxlength="200" value="<?= $value('contact_email') ?>">
             </div>
         </div>

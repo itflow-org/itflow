@@ -11,8 +11,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-info me-2"></i>Set Status for <strong><?= $count ?></strong> asset<?= $count === 1 ? '' : 's' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-info me-2"></i>Set Status for <strong><?= $count ?></strong> asset<?= $count === 1 ? '' : 's' ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -21,22 +21,22 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Status</label>
+            <label class="form-label">Status <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-circle"></i></span>
-                <select class="form-select select2" name="bulk_status">
-                    <option value="">- Select Status -</option>
+                    <span class="input-group-text"><i class="fas fa-fw fa-circle"></i></span>
+                <select class="form-select select2" name="bulk_status" required>
+                    <option value="">- Select a status -</option>
                     <?= categoryOptionsHtml('asset_status') ?>
                 </select>
-                <?= categoryAddButtonHtml('asset_status', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('asset_status') ?>
             </div>
         </div>
 
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_asset_status" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Set Status</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="bulk_edit_asset_status" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set Status</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -30,8 +30,8 @@ if (!$tax || $tax['tax_archived_at']) { ?>
     $others = billingTaxes();
     unset($others[$tax_id]); ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fas fa-fw fa-archive me-2"></i>Archive tax: <strong><?= escapeHtml(taxLabel($tax)) ?></strong></h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title"><i class="fas fa-fw fa-archive me-2"></i>Archive Tax <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(taxLabel($tax)) ?></span></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -46,20 +46,20 @@ if (!$tax || $tax['tax_archived_at']) { ?>
                 <div class="mb-2">
                     <label class="form-label">Move them to</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
-                        <select class="form-select" name="move_to">
+                        <span class="input-group-text"><i class="fas fa-fw fa-exchange-alt"></i></span>
+                        <select class="form-select select2" name="move_to">
                             <option value="0">Leave them where they are</option>
                             <?php foreach ($others as $id => $other) { ?>
                                 <option value="<?= intval($id) ?>"><?= escapeHtml(taxLabel($other)) ?></option>
                             <?php } ?>
                         </select>
                     </div>
-                    <small class="text-secondary">Left where they are, recurring invoices and drafts keep charging it, products and clients fall back to the next rate along for new lines<?= $usage['default'] ? ', and there is no default until you pick one' : '' ?>.</small>
+                    <div class="form-text">Left where they are, recurring invoices and drafts keep charging it, products and clients fall back to the next rate along for new lines<?= $usage['default'] ? ', and there is no default until you pick one' : '' ?>.</div>
                 </div>
             <?php } ?>
         </div>
         <div class="modal-footer">
-            <button type="submit" name="archive_tax" class="btn btn-danger text-bold"><i class="fas fa-archive me-2"></i>Archive</button>
+            <button type="submit" name="archive_tax" class="btn btn-danger fw-bold"><i class="fas fa-archive me-2"></i>Archive</button>
             <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
         </div>
     </form>

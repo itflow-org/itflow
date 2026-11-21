@@ -18,7 +18,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-user-tie me-2"></i>Set the manager of <strong><?= $count ?></strong> project<?= $count === 1 ? '' : 's' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -30,9 +30,9 @@ ob_start();
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
             <select class="form-select select2" name="project_manager">
-                <option value="0" data-icon="fas fa-user-slash">No manager</option>
+                <option value="0" data-icon="fas fa-user-slash">- No manager -</option>
                 <?php
-                $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL
+                $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL
                     ORDER BY user_id = " . intval($session_user_id) . " DESC, user_name ASC");
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $user_id = intval($row['user_id']); ?>
@@ -44,8 +44,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_project_manager" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Set manager</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="bulk_edit_project_manager" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set Manager</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

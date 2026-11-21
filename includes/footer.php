@@ -16,7 +16,7 @@
          just content again. */ ?>
 <?php if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
 <footer class="app-footer py-2 d-flex align-items-center">
-    <div class="w-100 text-end fw-light">ITFlow <?= APP_VERSION ?> &nbsp; · &nbsp; <a target="_blank" href="https://docs.itflow.org">Docs</a> &nbsp; · &nbsp; <a target="_blank" href="https://forum.itflow.org">Forum</a> &nbsp; · &nbsp; <a target="_blank" href="https://services.itflow.org">Services</a></div>
+    <div class="w-100 text-end fw-light">ITFlow <?= APP_VERSION ?> &nbsp; · &nbsp; <a target="_blank" rel="noopener noreferrer" href="https://docs.itflow.org">Docs</a> &nbsp; · &nbsp; <a target="_blank" rel="noopener noreferrer" href="https://forum.itflow.org">Forum</a> &nbsp; · &nbsp; <a target="_blank" rel="noopener noreferrer" href="https://services.itflow.org">Services</a></div>
 </footer>
 <?php } ?>
 
@@ -31,7 +31,7 @@
     <?php
         echo escapeHtml($session_company_name);
         if (!$config_whitelabel_enabled) {
-            echo '<br><small class="text-muted">Powered by ITFlow</small>';
+            echo '<br><small class="text-body-secondary">Powered by ITFlow</small>';
         }
     ?>
 </footer>
@@ -58,6 +58,12 @@
          comment - and all of those still run well after this block. */ ?>
 <script src="<?= staticFileUrl('/js/itflow_select.js') ?>"></script>
 
+<?php /* Browser autofill and password managers kept out of agents' forms - they're about
+         clients, not the agent. Before anything else draws fields; the guest portal keeps them. */ ?>
+<?php if (basename(dirname($_SERVER['REQUEST_URI'])) !== 'guest') { ?>
+<script src="<?= staticFileUrl('/js/autofill_off.js') ?>"></script>
+<?php } ?>
+
 <!-- Bootstrap 5 -->
 <script src="<?= staticFileUrl('/libs/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/bootstrap_defaults.js') ?>"></script>
@@ -66,11 +72,9 @@
 <!-- Custom js-->
 <script src="<?= staticFileUrl('/libs/chart.js/chart.umd.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/libs/flatpickr/js/flatpickr.min.js') ?>"></script>
-<script src="<?= staticFileUrl('/libs/imask/js/imask.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/libs/tinymce/tinymce.min.js') ?>" referrerpolicy="origin"></script>
 <script src="<?= staticFileUrl('/js/tinymce_defaults.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/keepalive.js') ?>"></script>
-<script src="<?= staticFileUrl('/libs/DataTables/datatables.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/libs/intl-tel-input/js/intlTelInputWithUtils.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/phone_inputs.js') ?>"></script>
 
@@ -89,14 +93,35 @@ try {
 ?>
 <script>window.itflowAi = <?= json_encode($itflow_ai_config) ?>;</script>
 <script src="<?= staticFileUrl('/js/app.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/picture_field.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/credentials.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/tag_picker.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/link_picker.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/tab_fold.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/otp_input.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/quick_pick.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/ajax_modal.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/confirm_modal.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/date_filter.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/list_filters.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/global_search.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/notifications.js') ?>"></script>
+<?php
+// Open tickets in the tab's title, and desktop notifications - for agents who can see tickets (agent/ajax.php ?ticket_pulse)
+try {
+    $itflow_pulse = !empty($session_user_id) && !empty($config_module_enable_ticketing) && basename(dirname($_SERVER['REQUEST_URI'])) !== 'guest'
+        && lookupUserPermission('module_support') >= 1;
+} catch (Throwable $e) {
+    $itflow_pulse = false;
+}
+if ($itflow_pulse) { ?>
+<script src="<?= staticFileUrl('/js/ticket_pulse.js') ?>" data-user="<?= intval($session_user_id) ?>"></script>
+<?php } ?>
+<?php if (!empty($session_user_id) && basename(dirname($_SERVER['REQUEST_URI'])) !== 'guest') { ?>
+<script src="<?= staticFileUrl('/js/client_card.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/quick_add.js') ?>"></script>
+<?php } ?>
+<script src="<?= staticFileUrl('/js/ticket_timers.js') ?>"></script>
 <?php if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
 <script src="<?= staticFileUrl('/js/settings.js') ?>"></script>
 <?php } ?>
@@ -110,4 +135,4 @@ try {
 
 //$time_end = microtime(true);
 //$execution_time = ($time_end - $time_start);
-//echo '<h2>Total Execution Time: '.number_format((float) $execution_time, 10) .' seconds</h2>';
+//echo '<h2>Total Execution Time: '.number_format(floatval($execution_time), 10) .' seconds</h2>';

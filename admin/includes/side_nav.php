@@ -18,9 +18,9 @@
                         <a href="/admin/getting_started.php" class="nav-link" data-nav-getting-started>
                             <i class="nav-icon fas fa-flag-checkered"></i>
                             <p>
-                                Get started
+                                Get Started
                                 <?php if (!$nav_getting_started['finished']) { ?>
-                                    <span class="right badge text-light" data-bs-toggle="tooltip" title="Steps done or skipped"><?= $nav_getting_started['done'] ?>/<?= $nav_getting_started['total'] ?></span>
+                                    <span class="right badge rounded-pill text-light" title="Steps done or skipped"><?= number_format(intval($nav_getting_started['done'])) ?>/<?= $nav_getting_started['total'] ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -53,14 +53,8 @@
                         <p>API Keys</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="/admin/sign_ins.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'sign_ins.php' ? 'active' : '') ?>">
-                        <i class="nav-icon fas fa-sign-in-alt"></i>
-                        <p>Sign-ins</p>
-                    </a>
-                </li>
 
-                <li class="nav-header">LISTS</li>
+                <li class="nav-header">LISTS & TEMPLATES</li>
                 <li class="nav-item">
                     <a href="/admin/tags.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'tags.php' ? 'active' : '') ?>">
                         <i class="nav-icon fas fa-tags"></i>
@@ -73,6 +67,14 @@
                         <p>Categories</p>
                     </a>
                 </li>
+                <?php if ($config_module_enable_itdoc) { ?>
+                    <li class="nav-item">
+                        <a href="/admin/asset_types.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'asset_types.php' ? 'active' : '') ?>">
+                            <i class="nav-icon fas fa-layer-group"></i>
+                            <p>Asset Types</p>
+                        </a>
+                    </li>
+                <?php } ?>
                 <?php if ($config_module_enable_accounting) { ?>
                     <li class="nav-item">
                         <a href="/admin/tax_rates.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'tax_rates.php' ? 'active' : '') ?>">
@@ -84,6 +86,12 @@
                         <a href="/admin/payment_methods.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'payment_methods.php' ? 'active' : '') ?>">
                             <i class="nav-icon fas fa-hand-holding-usd"></i>
                             <p>Payment Methods</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/admin/labor_costs.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'labor_costs.php' ? 'active' : '') ?>">
+                            <i class="nav-icon fas fa-user-tag"></i>
+                            <p>Labor Costs</p>
                         </a>
                     </li>
                 <?php } ?>
@@ -103,6 +111,14 @@
                         </a>
                     </li>
                 <?php } ?>
+                <li class="nav-item">
+                    <a href="/admin/agent_banners.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'agent_banners.php' ? 'active' : '') ?>">
+                        <i class="nav-icon fas fa-bullhorn"></i>
+                        <p>Agent Banners</p>
+                    </a>
+                </li>
+                <?php // Every kind of template, and canned responses, as tabs (adminNavGroups()) ?>
+                <?= adminNavGroupItemHtml('templates') ?>
 
                 <li class="nav-header">INTEGRATIONS</li>
                 <?php if ($config_module_enable_accounting) { ?>
@@ -121,10 +137,13 @@
                         <p>AI Providers</p>
                     </a>
                 </li>
+                <?php // Its setup, and the texts sent and received once it's set up (adminNavGroups()) ?>
+                <?= adminNavGroupItemHtml('text') ?>
                 <li class="nav-item">
-                    <a href="/admin/text_messaging.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'text_messaging.php' ? 'active' : '') ?>">
-                        <i class="nav-icon fas fa-sms"></i>
-                        <p>Text Messaging</p>
+                    <a href="/admin/rmm_providers.php"
+                    class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['rmm_providers.php', 'rmm_clients.php']) ? 'active' : '') ?>">
+                        <i class="nav-icon fas fa-laptop-medical"></i>
+                        <p>RMM Providers</p>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -133,58 +152,6 @@
                         <p>Custom Links</p>
                     </a>
                 </li>
-
-                <?php if ($config_module_enable_itdoc || $config_module_enable_ticketing || $config_module_enable_accounting) { ?>
-                    <li class="nav-header">TEMPLATES</li>
-                <?php } ?>
-                <?php if ($config_module_enable_ticketing) { ?>
-                    <li class="nav-item">
-                        <a href="/admin/project_templates.php" class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['project_templates.php', 'project_template.php']) ? 'active' : '') ?>">
-                            <i class="nav-icon fas fa-project-diagram"></i>
-                            <p>Project Templates</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/admin/ticket_templates.php" class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['ticket_templates.php', 'ticket_template.php']) ? 'active' : '') ?>">
-                            <i class="nav-icon fas fa-life-ring"></i>
-                            <p>Ticket Templates</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/admin/canned_responses.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'canned_responses.php' ? 'active' : '') ?>">
-                            <i class="nav-icon fas fa-comment-dots"></i>
-                            <p>Canned Responses</p>
-                        </a>
-                    </li>
-                <?php } ?>
-                <?php if ($config_module_enable_accounting) { ?>
-                    <li class="nav-item">
-                        <a href="/admin/contract_templates.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'contract_templates.php' ? 'active' : '') ?>">
-                            <i class="nav-icon fas fa-file-contract"></i>
-                            <p>Contract Templates</p>
-                        </a>
-                    </li>
-                <?php } ?>
-                <?php if ($config_module_enable_itdoc) { ?>
-                    <li class="nav-item">
-                        <a href="/admin/vendor_templates.php" class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['vendor_templates.php', 'vendor_template.php']) ? 'active' : '') ?>">
-                            <i class="nav-icon fas fa-building"></i>
-                            <p>Vendor Templates</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/admin/software_templates.php" class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['software_templates.php', 'software_template.php']) ? 'active' : '') ?>">
-                            <i class="nav-icon fas fa-box-open"></i>
-                            <p>License Templates</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/admin/document_templates.php" class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['document_templates.php', 'document_template.php']) ? 'active' : '') ?>">
-                            <i class="nav-icon fas fa-file-alt"></i>
-                            <p>Document Templates</p>
-                        </a>
-                    </li>
-                <?php } ?>
 
                 <!-- One ITFlow managing others (functions/managed.php) - each side only when config.php turns it on -->
                 <?php if (managerEnabled() || managedEnabled()) { ?>
@@ -199,7 +166,7 @@
                                 Managed Instances
                                 <?php $nav_managed_offline = managedOfflineCount(); ?>
                                 <?php if ($nav_managed_offline) { ?>
-                                    <span class="right badge text-bg-danger" data-bs-toggle="tooltip" title="Not checking in" data-nav-managed-offline><?= $nav_managed_offline ?></span>
+                                    <span class="right badge rounded-pill text-bg-danger" title="Not checking in" data-nav-managed-offline><?= number_format(intval($nav_managed_offline)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -229,37 +196,13 @@
                             Mail Queue
                             <?php $nav_mail_failed = mailQueueSummary()['failed_week']; ?>
                             <?php if ($nav_mail_failed) { ?>
-                                <span class="right badge text-bg-danger" data-bs-toggle="tooltip" title="Failed to send in the last week" data-nav-mail-failed><?= $nav_mail_failed ?></span>
+                                <span class="right badge rounded-pill text-bg-danger" title="Failed to send in the last week" data-nav-mail-failed><?= number_format(intval($nav_mail_failed)) ?></span>
                             <?php } ?>
                         </p>
                     </a>
                 </li>
-                <?php if (smsProvider()) { ?>
-                    <li class="nav-item">
-                        <a href="/admin/text_messages.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'text_messages.php' ? 'active' : '') ?>">
-                            <i class="nav-icon fas fa-comment-dots"></i>
-                            <p>
-                                Text Messages
-                                <?php $nav_sms_failed = smsFailedRecently(); ?>
-                                <?php if ($nav_sms_failed) { ?>
-                                    <span class="right badge text-bg-danger" data-bs-toggle="tooltip" title="Failed to send in the last week" data-nav-sms-failed><?= $nav_sms_failed ?></span>
-                                <?php } ?>
-                            </p>
-                        </a>
-                    </li>
-                <?php } ?>
-                <li class="nav-item">
-                    <a href="/admin/audit_logs.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'audit_logs.php' ? 'active' : '') ?>">
-                        <i class="nav-icon fas fa-history"></i>
-                        <p>Audit Logs</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/admin/app_logs.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'app_logs.php' ? 'active' : '') ?>">
-                        <i class="nav-icon fas fa-clipboard-list"></i>
-                        <p>App Logs</p>
-                    </a>
-                </li>
+                <?php // Audit logs, sign-ins and app logs, as tabs (adminNavGroups()) ?>
+                <?= adminNavGroupItemHtml('logs') ?>
                 <li class="nav-item">
                     <a href="/admin/backup.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'backup.php' ? 'active' : '') ?>">
                         <i class="nav-icon fas fa-cloud-upload-alt"></i>

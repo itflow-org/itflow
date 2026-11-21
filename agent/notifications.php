@@ -77,7 +77,7 @@ $empty_state_skip = true;
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-bell me-2"></i>Notifications</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-light" data-notify-all data-notify-reload <?= $unread_count ? '' : 'disabled' ?>>
-                <i class="fas fa-check-double me-2"></i>Mark all as read
+                <i class="fas fa-check-double me-2"></i>Mark All as Read
             </button>
         </div>
     </div>
@@ -88,14 +88,14 @@ $empty_state_skip = true;
             <div class="row g-2 align-items-center">
                 <div class="col-md-5">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?= escapeHtml(stripslashes($q)) ?>" placeholder="Search notifications">
-                        <button class="btn btn-primary" title="Search"><i class="fa fa-search"></i></button>
+                        <input type="search" class="form-control" name="q" value="<?= escapeHtml(stripslashes($q)) ?>" placeholder="Search notifications...">
+                        <button class="btn btn-primary" title="Search"><i class="fas fa-search"></i></button>
                         <button class="btn btn-secondary" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <select class="form-select" name="type" onchange="this.form.submit()" aria-label="Notification type">
-                        <option value="">All types</option>
+                        <option value="">- Any type -</option>
                         <?php while ($row = mysqli_fetch_assoc($sql_types)) {
                             $type_option = escapeHtml($row['notification_type']); ?>
                             <option <?php if ($type_filter === $row['notification_type']) { echo "selected"; } ?>><?= $type_option ?></option>
@@ -136,7 +136,7 @@ $empty_state_skip = true;
                 'title' => "You're all caught up",
                 'text' => 'Nothing new since you last looked.',
                 'icon' => 'fa-check',
-                'actions' => [['label' => 'See all notifications', 'href' => 'notifications.php?view=all', 'icon' => 'fa-bell']],
+                'actions' => [['label' => 'See All Notifications', 'href' => 'notifications.php?view=all', 'icon' => 'fa-bell']],
             ] : null,
         ]) ?>
 

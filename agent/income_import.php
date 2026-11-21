@@ -21,6 +21,10 @@
 require_once "includes/inc_all.php";
 
 enforceUserPermission('module_financial', 2);
+if (!moduleOn('bookkeeping')) {
+    flashAlert(moduleOffText('bookkeeping'), 'error');
+    redirect('/agent/income.php');
+}
 
 $import = $_SESSION['income_import'] ?? null;
 $step = (string) ($_GET['step'] ?? '');
@@ -72,7 +76,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
         <div class="alert alert-info d-flex flex-wrap align-items-center gap-2">
             <i class="fas fa-file-csv"></i>
             <span class="me-auto"><?= escapeHtml($import['file_name']) ?> is part way through - nothing from it is imported yet.</span>
-            <a class="btn btn-sm btn-primary" href="income_import.php?step=<?= $import['map'] ? 'review' : 'columns' ?>">Carry on with it</a>
+            <a class="btn btn-sm btn-primary" href="income_import.php?step=<?= $import['map'] ? 'review' : 'columns' ?>">Carry on with It</a>
         </div>
     <?php } ?>
 
@@ -89,9 +93,9 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                             <div class="col-md-7">
                                 <label class="form-label">The deposits went into <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                                     <select class="form-select select2" name="account" required>
-                                        <option value="">- Which account -</option>
+                                        <option value="">- Select an account -</option>
                                         <?php foreach ($accounts as $account_id => $row) { ?>
                                             <option value="<?= $account_id ?>" <?= $account_id === intval($config_default_payment_account) ? 'selected' : '' ?> data-icon="fas fa-piggy-bank"
                                                 data-description="<?= escapeHtml(billingMoney($row['balance'], $row['account_currency_code'])) ?>"><?= escapeHtml($row['account_name']) ?></option>
@@ -102,9 +106,9 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                             <div class="col-md-5">
                                 <label class="form-label">Usually paid by</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                                     <select class="form-select select2" name="payment_method">
-                                        <option value="">- How they paid -</option>
+                                        <option value="">- Select a payment method -</option>
                                         <?php foreach ($methods as $method) { ?>
                                             <option value="<?= escapeHtml($method) ?>" <?= $method === (string) $config_default_payment_method ? 'selected' : '' ?>><?= escapeHtml($method) ?></option>
                                         <?php } ?>
@@ -115,7 +119,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                             <div class="col-12">
                                 <label class="form-label">Statement <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-file-csv"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-file-csv"></i></span>
                                     <input type="file" class="form-control" name="file" accept=".csv,.txt,.tsv,text/csv" required>
                                 </div>
                                 <div class="form-text">The CSV your bank's website exports - often under Download, Export or Activity. Up to <?= EXPENSE_IMPORT_MAX_LINES ?> lines. Only the money in is brought in here.</div>
@@ -123,7 +127,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                         </div>
                     </div>
                     <div class="card-footer">
-                        <button type="submit" name="income_import_upload" class="btn btn-primary text-bold"><i class="fas fa-upload me-2"></i>Read Statement</button>
+                        <button type="submit" name="income_import_upload" class="btn btn-primary fw-bold"><i class="fas fa-upload me-2"></i>Read Statement</button>
                         <a class="btn btn-light ms-1" href="income.php"><i class="fas fa-times me-2"></i>Cancel</a>
                     </div>
                 </form>
@@ -267,7 +271,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
             <div class="card-header py-2 d-flex flex-wrap align-items-center gap-2">
                 <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-tasks text-secondary me-2"></i>The deposits</h3>
                 <div class="input-group input-group-sm" style="width: auto;">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                     <select class="form-select" data-income-bulk-category aria-label="Category for the ticked other income">
                         <option value="">- Category for the ticked other income -</option>
                         <?= $category_options ?>
@@ -346,7 +350,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                                 <td class="itflow-import-pick itflow-import-details">
                                     <div data-income-for="payment">
                                         <select class="form-select form-select-sm" data-income-payer data-value="<?= $action === 'payment' ? intval($line['client_id']) : '' ?>" aria-label="Paid by client">
-                                            <option value="">- Which client paid -</option>
+                                            <option value="">- Select a client -</option>
                                             <?= $payer_options ?>
                                         </select>
                                         <div class="itflow-import-invoices mt-1" data-income-invoices data-value="<?= escapeHtml(implode(',', $line['invoice_ids'])) ?>"></div>
@@ -354,7 +358,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                                     </div>
                                     <div data-income-for="income">
                                         <select class="form-select form-select-sm" data-income-category data-value="<?= intval($line['category_id']) ?: '' ?>" aria-label="Category">
-                                            <option value="">- Category -</option>
+                                            <option value="">- Select a category -</option>
                                             <?= $category_options ?>
                                         </select>
                                         <select class="form-select form-select-sm mt-1" data-income-client data-value="<?= $action === 'income' ? intval($line['client_id']) : 0 ?>" aria-label="From client">
@@ -364,7 +368,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                                     </div>
                                     <div data-income-for="transfer">
                                         <select class="form-select form-select-sm" data-income-account data-value="<?= intval($line['from_account_id']) ?: '' ?>" aria-label="From account">
-                                            <option value="">- From which of your accounts -</option>
+                                            <option value="">- Select an account -</option>
                                             <?= $account_options ?>
                                         </select>
                                         <div class="small text-body-secondary mt-1">Money moved between your accounts - not income.</div>
@@ -388,7 +392,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                     </div>
                 <?php } ?>
                 <a class="btn btn-light" href="income_import.php?step=columns"><i class="fas fa-arrow-left me-2"></i>Columns</a>
-                <button type="submit" name="income_import_save" value="1" class="btn btn-primary text-bold" data-import-submit><i class="fas fa-file-import me-2"></i><span data-import-submit-label>Import</span></button>
+                <button type="submit" name="income_import_save" value="1" class="btn btn-primary fw-bold" data-import-submit><i class="fas fa-file-import me-2"></i><span data-import-submit-label>Import</span></button>
             </div>
         </div>
     </form>

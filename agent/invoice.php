@@ -18,6 +18,7 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_url = "client_id=$client_id&";
 } else {
+    $agent_banners_later = true; // drawn below, with its client's, once that is known (functions/agent_banner.php)
     require_once "includes/inc_all.php";
     $client_url = '';
 }
@@ -93,6 +94,9 @@ $csrf = $_SESSION['csrf_token'];
 $recurring = intval($invoice['invoice_recurring_invoice_id'])
     ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT recurring_invoice_id, recurring_invoice_prefix, recurring_invoice_number FROM recurring_invoices WHERE recurring_invoice_id = " . intval($invoice['invoice_recurring_invoice_id'])))
     : null;
+// Paid by the recurring invoice's autopay on its due date? (functions/billing_pay.php)
+$autopay = $recurring ? invoiceAutopay($invoice) : null;
+$autopay_status = invoiceAutopayStatus($invoice, $state, $autopay);
 // Made from a quote?
 $from_quote = intval($invoice['invoice_quote_id'] ?? 0)
     ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT quote_id, quote_prefix, quote_number FROM quotes WHERE quote_id = " . intval($invoice['invoice_quote_id'])))
@@ -118,6 +122,9 @@ $paper = [
     'logo_url' => billingCompany()['logo_url'],
     'csrf' => $csrf,
 ];
+
+// The banners, with the client's when it was opened without the client around it (functions/agent_banner.php)
+echo agentBannersHtml($client_id);
 
 ?>
 
@@ -145,10 +152,13 @@ $paper = [
                 <?php if ($recurring) { ?>
                     <span><i class="fas fa-fw fa-redo-alt me-1"></i>From <a class="text-reset" href="recurring_invoice.php?recurring_invoice_id=<?= intval($recurring['recurring_invoice_id']) ?>"><?= escapeHtml($recurring['recurring_invoice_prefix'] . $recurring['recurring_invoice_number']) ?></a></span>
                 <?php } ?>
+                <?php if ($autopay_status) { ?>
+                    <span class="text-<?= $autopay_status['tone'] ?>-emphasis<?= $autopay_status['tone'] === 'secondary' ? '' : ' fw-semibold' ?>" title="<?= escapeHtml($autopay_status['text']) ?>"><i class="fas fa-fw fa-wallet me-1"></i><?= escapeHtml($autopay_status['short']) ?></span>
+                <?php } ?>
                 <?php if ($from_quote) { ?>
                     <span><i class="fas fa-fw fa-comment-dollar me-1"></i>From <a class="text-reset" href="quote.php?quote_id=<?= intval($from_quote['quote_id']) ?>"><?= escapeHtml($from_quote['quote_prefix'] . $from_quote['quote_number']) ?></a></span>
                 <?php } ?>
-                <span title="<?= escapeHtml($invoice['invoice_created_at']) ?>"><i class="far fa-fw fa-clock me-1"></i>Created <?= escapeHtml(timeAgo($invoice['invoice_created_at'])) ?></span>
+                <span title="<?= formatDateTime($invoice['invoice_created_at']) ?>"><i class="far fa-fw fa-clock me-1"></i>Created <?= escapeHtml(timeAgo($invoice['invoice_created_at'])) ?></span>
             </div>
         </div>
 
@@ -217,13 +227,13 @@ $paper = [
                     <i class="fas fa-fw fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="post.php?export_invoice_pdf=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>" target="_blank">
+                    <a class="dropdown-item" href="post.php?export_invoice_pdf=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>" target="_blank" rel="noopener">
                         <i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Download PDF
                     </a>
                     <a class="dropdown-item" href="#" onclick="window.print(); return false;">
                         <i class="fas fa-fw fa-print text-secondary me-2"></i>Print
                     </a>
-                    <a class="dropdown-item" href="post.php?export_invoice_packing_slip=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>" target="_blank">
+                    <a class="dropdown-item" href="post.php?export_invoice_packing_slip=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>" target="_blank" rel="noopener">
                         <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Packing Slip
                     </a>
                     <div class="dropdown-divider"></div>
@@ -246,7 +256,7 @@ $paper = [
                         <?php } ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/invoice/invoice_copy.php?id=<?= $invoice_id ?>">
-                            <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                            <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                         </a>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/invoice/invoice_recurring_add.php?invoice_id=<?= $invoice_id ?>">
                             <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Make Recurring
@@ -260,7 +270,7 @@ $paper = [
                         <?php } ?>
                     <?php } ?>
                     <?php if ($can_delete) { ?>
-                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>"
+                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_invoice=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>"
                             data-confirm-text="<?= escapeHtml($number) ?> goes for good, with its lines, payments and history. Its tickets become unbilled again, and its expenses and trips are to bill again.">
                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                         </a>
@@ -302,13 +312,20 @@ $paper = [
                     <dt>Paid</dt><dd><?= $money($state['paid']) ?><?= $payments ? ' <span class="text-body-secondary">in ' . count($payments) . ' payment' . (count($payments) === 1 ? '' : 's') . '</span>' : '' ?></dd>
                     <dt>Due</dt>
                     <dd>
-                        <?= escapeHtml($invoice['invoice_due']) ?>
+                        <?= formatDate($invoice['invoice_due']) ?>
                         <?php if (in_array($state['state'], ['open', 'overdue'], true)) { ?>
                             <div class="small <?= $state['days'] < 0 ? 'text-danger-emphasis' : 'text-body-secondary' ?>">
                                 <?= $state['days'] < 0 ? (-$state['days']) . ' day' . (-$state['days'] === 1 ? '' : 's') . ' late' : ($state['days'] === 0 ? 'Today' : 'In ' . $state['days'] . ' day' . ($state['days'] === 1 ? '' : 's')) ?>
                             </div>
                         <?php } ?>
                     </dd>
+                    <?php if ($autopay_status) { ?>
+                        <dt>Autopay</dt>
+                        <dd>
+                            <i class="<?= escapeHtml($autopay['icon']) ?> fa-fw text-body-secondary me-1"></i><?= escapeHtml($autopay['method']) ?>
+                            <div class="small <?= $autopay_status['tone'] === 'success' || $autopay_status['tone'] === 'secondary' ? 'text-body-secondary' : 'text-' . $autopay_status['tone'] . '-emphasis' ?>"><?= escapeHtml($autopay_status['detail']) ?></div>
+                        </dd>
+                    <?php } ?>
                     <dt>Terms</dt><dd><?php $invoice_terms = contractNetTerms(intval($invoice['client_id']), (string) $invoice['invoice_date']); echo $invoice_terms ? "$invoice_terms days" : 'Due on receipt'; ?></dd>
                     <?php if ($owed) { ?>
                         <dt>Reminders</dt>
@@ -356,7 +373,7 @@ $paper = [
                             <div class="flex-grow-1 min-w-0">
                                 <div class="fw-semibold itflow-money"><?= escapeHtml(billingMoney($payment['payment_amount'], $payment['payment_currency_code'])) ?></div>
                                 <div class="small text-body-secondary text-truncate">
-                                    <?= escapeHtml(implode(' · ', array_filter([$payment['payment_date'], $payment['payment_method'], $payment['payment_reference'], $payment['account_name']]))) ?>
+                                    <?= escapeHtml(implode(' · ', array_filter([formatDate($payment['payment_date']), $payment['payment_method'], $payment['payment_reference'], moduleOn('bookkeeping') ? $payment['account_name'] : '']))) ?>
                                 </div>
                             </div>
                             <?php if ($can_edit_payments || $can_delete_payments) { ?>
@@ -372,7 +389,7 @@ $paper = [
                                             <?php if ($payment['payment_method'] === 'Stripe') { ?>
                                                 <a class="dropdown-item text-warning confirm-link" href="post.php?refund_payment_stripe=<?= $payment_id ?>&csrf_token=<?= $csrf ?>"
                                                     data-confirm-text="The payment is refunded to the client's card through Stripe.">
-                                                    <i class="fas fa-fw fa-undo me-2"></i>Refund through Stripe
+                                                    <i class="fas fa-fw fa-undo me-2"></i>Refund Through Stripe
                                                 </a>
                                             <?php } ?>
                                             <?php if ($can_edit_payments) { ?>
@@ -397,10 +414,10 @@ $paper = [
         <?php if ($hardware) { ?>
             <div class="card mb-3">
                 <div class="card-header d-flex align-items-center">
-                    <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-laptop text-secondary me-2"></i>Hardware <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= $hardware_units ?></span></h3>
+                    <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-laptop text-secondary me-2"></i>Hardware <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= number_format(intval($hardware_units)) ?></span></h3>
                     <?php if ($can_add_assets) { ?>
                         <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/invoice/invoice_assets.php?invoice_id=<?= $invoice_id ?>">
-                            <i class="fas fa-plus me-1"></i>Add to Assets <span class="badge rounded-pill text-bg-primary ms-1" title="Not on their assets yet"><?= $hardware_to_add ?></span>
+                            <i class="fas fa-plus me-1"></i>Add to Assets <span class="badge rounded-pill text-bg-primary ms-1" title="Not on their assets yet"><?= number_format(intval($hardware_to_add)) ?></span>
                         </button>
                     <?php } ?>
                 </div>
@@ -417,7 +434,7 @@ $paper = [
                                 <?php if ($line['units'] && $line_done >= $line['units']) { ?>
                                     <span class="badge rounded-pill bg-success-subtle text-success-emphasis fw-normal text-nowrap"><i class="fas fa-check me-1"></i>On assets</span>
                                 <?php } elseif ($status !== 'Cancelled' && $line['units']) { ?>
-                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal text-nowrap" title="On the client's assets"><?= $line_done ?> of <?= $line['units'] ?></span>
+                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal text-nowrap" title="On the client's assets"><?= number_format(intval($line_done)) ?> of <?= $line['units'] ?></span>
                                 <?php } ?>
                             </div>
                             <?php if ($line['assets']) { ?>
@@ -454,7 +471,7 @@ $paper = [
                     <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Tickets <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= count($tickets) ?></span></h3>
                     <?php if ($unbilled_tickets) { ?>
                         <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-url="modals/invoice/invoice_add_ticket.php?invoice_id=<?= $invoice_id ?>">
-                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="Unbilled"><?= $unbilled_tickets ?></span>
+                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="Unbilled"><?= number_format(intval($unbilled_tickets)) ?></span>
                         </button>
                     <?php } ?>
                 </div>
@@ -490,7 +507,7 @@ $paper = [
                     <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= count($billed_expenses) ?></span></h3>
                     <?php if ($unbilled_expenses) { ?>
                         <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/invoice/invoice_add_expenses.php?invoice_id=<?= $invoice_id ?>">
-                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="To bill"><?= $unbilled_expenses ?></span>
+                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="To bill"><?= number_format(intval($unbilled_expenses)) ?></span>
                         </button>
                     <?php } ?>
                 </div>
@@ -537,7 +554,7 @@ $paper = [
                     <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-route text-secondary me-2"></i>Travel <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= count($billed_trips) ?></span></h3>
                     <?php if ($unbilled_trips) { ?>
                         <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/invoice/invoice_add_trips.php?invoice_id=<?= $invoice_id ?>">
-                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="To bill"><?= $unbilled_trips ?></span>
+                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="To bill"><?= number_format(intval($unbilled_trips)) ?></span>
                         </button>
                     <?php } ?>
                 </div>

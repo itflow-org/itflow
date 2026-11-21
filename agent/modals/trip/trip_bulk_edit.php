@@ -10,6 +10,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Trips switched off (Admin > Settings > Modules)
+if (!moduleOn('trips')) {
+    exit(json_encode(['error' => moduleOffText('trips')]));
+}
+
 enforceUserPermission('module_financial', 2);
 
 $trip_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_GET['trip_ids'] ?? [])))));
@@ -36,7 +41,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw <?= $fields[$field]['icon'] ?> me-2"></i>Set <?= $fields[$field]['label'] ?> <span class="fw-normal text-white-50 ms-1"><?= $count ?> trip<?= $count === 1 ? '' : 's' ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -48,21 +53,21 @@ ob_start();
     <div class="modal-body">
         <label class="form-label"><?= $fields[$field]['label'] ?><?= $field === 'driver' ? ' <strong class="text-danger">*</strong>' : '' ?></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw <?= $fields[$field]['icon'] ?>"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw <?= $fields[$field]['icon'] ?>"></i></span>
             <?php if ($field === 'driver') { ?>
                 <select class="form-select select2" name="value" required>
-                    <option value="">- Pick who drove -</option>
+                    <option value="">- Select a driver -</option>
                     <?php foreach (tripDrivers() as $user_id => $driver) { ?>
                         <option value="<?= $user_id ?>"<?= selectOptionUser($user_id, $driver['user_name'], $driver['user_avatar'] ?? '') ?>><?= escapeHtml($driver['user_name']) ?></option>
                     <?php } ?>
                 </select>
             <?php } elseif ($field === 'vehicle') { ?>
-                <select class="form-select" name="value">
+                <select class="form-select select2" name="value">
                     <option value="1">Their own vehicle - paid back for the distance</option>
                     <option value="0">A company vehicle</option>
                 </select>
             <?php } elseif ($field === 'billable') { ?>
-                <select class="form-select" name="value">
+                <select class="form-select select2" name="value">
                     <option value="1">Bill the client for them</option>
                     <option value="0">Not billed - our cost</option>
                 </select>
@@ -70,7 +75,7 @@ ob_start();
                 <select class="form-select select2" name="value">
                     <option value="0">- Our own - not for a client -</option>
                     <?php
-                    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) { ?>
                         <option value="<?= intval($row['client_id']) ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
                     <?php } ?>
@@ -86,7 +91,7 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_trips" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Set on <?= $count ?></button>
+        <button type="submit" name="bulk_edit_trips" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set on <?= $count ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

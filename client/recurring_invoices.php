@@ -30,7 +30,7 @@ foreach ($cards_on ? billingSavedCards($session_client_id) : [] as $card) {
 
 <div class="itflow-portal-page-head">
     <div>
-        <h1>Recurring invoices</h1>
+        <h1>Recurring Invoices</h1>
         <p>What we bill you regularly</p>
     </div>
     <?php if ($cards_on && mysqli_num_rows($recurring)) { ?>

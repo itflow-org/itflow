@@ -34,7 +34,7 @@ if ($client_id) {
         $asset_options[] = $row;
     }
 } else {
-    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $client_options[] = $row;
     }
@@ -68,9 +68,9 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
             <div class="col-12">
                 <label class="form-label">Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required>
-                        <option value="">- Select Client -</option>
+                        <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
                             <option value="<?= intval($client_option['client_id']) ?>"<?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                         <?php } ?>
@@ -96,22 +96,22 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
         <div class="col-12">
             <label class="form-label">Username / ID</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                 <input type="text" class="form-control" name="username" placeholder="Username, email or ID" maxlength="350" value="<?= $credential_username ?>" autocomplete="off">
             </div>
         </div>
         <div class="col-12">
             <label class="form-label">Password / key</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control font-monospace" data-toggle="password" name="password" placeholder="Password, key or PSK" maxlength="350" value="<?= $credential_password ?>" autocomplete="new-password" data-credential-password>
-                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                 <button class="btn btn-outline-secondary clipboardjs" title="Copy password" type="button" data-clipboard-target="input[name=password]"><i class="far fa-fw fa-copy"></i></button>
                 <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Make one up"><i class="fas fa-fw fa-magic"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="#" data-credential-generate="passphrase"><i class="fas fa-fw fa-font text-secondary me-2"></i>Passphrase <small class="text-body-secondary">easy to read out</small></a>
-                    <a class="dropdown-item" href="#" data-credential-generate="20"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 20 characters</a>
-                    <a class="dropdown-item" href="#" data-credential-generate="32"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 32 characters</a>
+                    <a class="dropdown-item" href="#" data-credential-generate="20"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 20 Characters</a>
+                    <a class="dropdown-item" href="#" data-credential-generate="32"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 32 Characters</a>
                 </div>
             </div>
             <div class="d-flex align-items-center gap-2 mt-1 small" data-credential-strength hidden>
@@ -122,25 +122,25 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
         <div class="col-12">
             <label class="form-label">2FA secret</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                 <input type="password" class="form-control font-monospace" data-toggle="password" name="otp_secret" placeholder="The key behind the QR code, or the otpauth:// link" maxlength="200" value="<?= $credential_otp_secret ?>" autocomplete="off" data-credential-otp-input>
-                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
             </div>
             <div class="form-text" data-credential-otp-check>Every agent who can see this credential gets the current code, so nobody needs the phone.</div>
         </div>
         <div class="col-md-6">
             <label class="form-label">Opens at</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                <input type="text" class="form-control" name="uri" placeholder="https://192.168.1.1, rdp://server" maxlength="500" value="<?= $credential_uri ?>">
+                <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
+                <input type="text" inputmode="url" class="form-control" name="uri" placeholder="https://192.168.1.1, rdp://server" maxlength="500" value="<?= $credential_uri ?>">
                 <button class="btn btn-outline-secondary clipboardjs" title="Copy URI" type="button" data-clipboard-target="input[name=uri]"><i class="far fa-fw fa-copy"></i></button>
             </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">Also at</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                <input type="text" class="form-control" name="uri_2" placeholder="https://server.company.com:5001" maxlength="500" value="<?= $credential_uri_2 ?>">
+                <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
+                <input type="text" inputmode="url" class="form-control" name="uri_2" placeholder="https://server.company.com:5001" maxlength="500" value="<?= $credential_uri_2 ?>">
                 <button class="btn btn-outline-secondary clipboardjs" title="Copy URI 2" type="button" data-clipboard-target="input[name=uri_2]"><i class="far fa-fw fa-copy"></i></button>
             </div>
         </div>
@@ -154,7 +154,7 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
             <div class="col-12">
                 <label class="form-label">Asset</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                     <select class="form-select select2" name="asset">
                         <option value="0">- No asset -</option>
                         <?php foreach ($asset_options as $asset_option) {
@@ -163,12 +163,11 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
                         <?php } ?>
                     </select>
                 </div>
-                <div class="form-text">The device this login is for - it shows on the asset's Credentials tab.</div>
             </div>
             <div class="col-12">
                 <label class="form-label">Contact</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="contact">
                         <option value="0">- Nobody -</option>
                         <?php foreach ($contact_options as $contact_option) {
@@ -194,7 +193,7 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
         <div class="col-12">
             <label class="form-label">Description</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="What it opens, and who uses it" maxlength="500" value="<?= $credential_description ?>">
             </div>
         </div>
@@ -202,7 +201,7 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
             <label class="form-label">Tags</label>
             <input type="hidden" name="tags_form" value="1">
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
                 <select class="form-select select2" name="tags[]" data-placeholder="Domain Admin, Break Glass, Vendor Portal" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                     <?= tagOptionsHtml('credential', $credential_tag_ids) ?>
                 </select>

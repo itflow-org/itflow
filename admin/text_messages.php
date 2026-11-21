@@ -62,10 +62,6 @@ foreach ($tabs as $key => [, , $where]) {
 }
 $counts = array_combine(array_keys($tabs), array_map('intval', mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . " FROM sms_messages $joins WHERE $search"))));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($show) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $show, 'canned_date' => $_GET['canned_date'] ?? '', 'dtf' => $_GET['dtf'] ?? '', 'dtt' => $_GET['dtt'] ?? '']));
 };
@@ -74,6 +70,8 @@ $filtered_dates = isset($_GET['dtf']) && $_GET['dtf'] !== '' && $_GET['dtf'] !==
 $ready = smsReady();
 
 ?>
+
+<?= adminNavGroupTabsHtml('text') ?>
 
 <div class="card">
     <div class="card-header bg-dark py-2">
@@ -99,7 +97,7 @@ $ready = smsReady();
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search text messages..." title="The number, the words, the contact or client, the ticket, or why it failed">
                         <button class="btn btn-secondary" title="When" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-calendar-alt"></i></button>
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-7 col-md-6">
@@ -161,10 +159,10 @@ $ready = smsReady();
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" title="Select all on this page">
                         </div>
                     </th>
-                    <th class="d-none d-sm-table-cell"><?= $sort_link('sms_message_status', 'Status') ?></th>
-                    <th><?= $sort_link('sms_message_number', 'With') ?></th>
+                    <th class="d-none d-sm-table-cell"><?= sortLink('sms_message_status', 'Status') ?></th>
+                    <th><?= sortLink('sms_message_number', 'With') ?></th>
                     <th class="d-none d-md-table-cell">Text</th>
-                    <th class="d-none d-lg-table-cell"><?= $sort_link('sms_message_created_at', 'When') ?></th>
+                    <th class="d-none d-lg-table-cell"><?= sortLink('sms_message_created_at', 'When') ?></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -188,7 +186,7 @@ $ready = smsReady();
                             <?php } ?>
                         </td>
                         <td class="text-nowrap d-none d-sm-table-cell">
-                            <span class="badge <?= $state['badge'] ?>" data-sms-status><i class="fas fa-fw <?= $state['icon'] ?> me-1"></i><?= $state['label'] ?></span>
+                            <span class="badge rounded-pill <?= $state['badge'] ?>" data-sms-status><i class="fas fa-fw <?= $state['icon'] ?> me-1"></i><?= $state['label'] ?></span>
                             <?php if ($state['error'] !== '') { ?>
                                 <div class="small text-wrap <?= in_array($state['key'], ['failed', 'blocked'], true) ? 'text-danger-emphasis' : 'text-body-secondary' ?>" style="max-width: 18rem;" title="<?= escapeHtml($state['error']) ?>" data-sms-error><?= escapeHtml(mb_strimwidth($state['error'], 0, 160, '...')) ?></div>
                             <?php } ?>
@@ -205,7 +203,7 @@ $ready = smsReady();
                             <?php } ?>
                             <!-- On smaller screens the text comes along under who it is with -->
                             <div class="d-md-none small text-break mt-1"><?= nl2br(escapeHtml(mb_strimwidth($body, 0, 200, '...'))) ?></div>
-                            <div class="d-sm-none small mt-1"><span class="badge <?= $state['badge'] ?>"><?= $state['label'] ?></span></div>
+                            <div class="d-sm-none small mt-1"><span class="badge rounded-pill <?= $state['badge'] ?>"><?= $state['label'] ?></span></div>
                         </td>
                         <td class="d-none d-md-table-cell min-w-0" style="max-width: 32rem;">
                             <div class="text-break small"><?= nl2br(escapeHtml(mb_strimwidth($body, 0, 400, '...'))) ?></div>

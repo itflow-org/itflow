@@ -26,9 +26,9 @@ $gs_backup_on = settingsChecked('backup_enabled', true);
         <div class="fw-semibold mb-1"><i class="fas fa-key text-body-secondary me-2"></i>Your backup key</div>
         <p class="small text-body-secondary mb-2">Every backup is locked with it, and without it none can be restored - on this server or another. Keep a copy somewhere other than this server, as a password manager.</p>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
             <input type="password" class="form-control font-monospace" value="<?= escapeHtml($gs_key) ?>" id="gsBackupKey" aria-label="Backup key" readonly data-gs-secret>
-            <button type="button" class="btn btn-outline-secondary" data-gs-show="gsBackupKey" title="Show"><i class="far fa-eye"></i></button>
+            <button type="button" class="btn btn-outline-secondary" data-gs-show="gsBackupKey" title="Show"><i class="fas fa-eye"></i></button>
             <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-text="<?= escapeHtml($gs_key) ?>" title="Copy"><i class="far fa-copy"></i></button>
         </div>
     </div>

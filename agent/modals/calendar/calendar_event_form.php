@@ -8,6 +8,9 @@
  * (['agents' => ids, 'contacts' => ids, 'emails' => [...]]) and $form_invited
  * (whether anyone has been sent it already). The client's sites and contacts
  * follow the client picked (agent/js/calendar_event_modal.js).
+ *
+ * The agents on it are who it is assigned to - Assigned to, beside the title;
+ * the calendar it is kept on is picked only when there is more than one.
  */
 
 isset($mysqli) || die("Direct file access is not allowed");
@@ -15,6 +18,10 @@ isset($mysqli) || die("Direct file access is not allowed");
 $form_all_day = !empty($form['event_all_day']);
 $form_start_ts = strtotime($form['event_start'] ?? '') ?: strtotime(date('Y-m-d 09:00:00'));
 $form_end_ts = !empty($form['event_end']) ? (strtotime($form['event_end']) ?: $form_start_ts + 3600) : $form_start_ts + 3600;
+// Shown on the viewer's own clock (functions/user_timezone.php) - agent/post/event.php moves it back
+if (timezoneShifted() && !$form_all_day) {
+    [$form_start_ts, $form_end_ts] = [strtotime(timezoneToView(date('Y-m-d H:i:s', $form_start_ts))), strtotime(timezoneToView(date('Y-m-d H:i:s', $form_end_ts)))];
+}
 $form_repeat = isset(CALENDAR_REPEATS[$form['event_repeat'] ?? '']) ? $form['event_repeat'] : '';
 $form_interval = max(1, intval($form['event_repeat_interval'] ?? 1));
 $form_calendars = calendarList();
@@ -23,28 +30,46 @@ if (!isset($form_calendars[$form_calendar_id])) {
     $form_calendar_id = isset($form_calendars[intval($config_default_calendar ?? 0)]) ? intval($config_default_calendar) : intval(array_key_first($form_calendars) ?? 0);
 }
 $form_can_email = calendarCanEmail();
+$form_agents = calendarEventAgentChoices($form_attendees['agents']);
 
 ?>
 
 <div class="row g-3 mb-3">
-    <div class="col-md-8">
+    <div class="<?= count($form_calendars) > 1 ? 'col-12' : 'col-md-8' ?>">
         <label class="form-label">Title <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
             <input type="text" class="form-control" name="title" maxlength="200" value="<?= escapeHtml($form['event_title'] ?? '') ?>" placeholder="Onsite visit, Maintenance window, Quarterly review..." required autofocus>
         </div>
     </div>
-    <div class="col-md-4">
-        <label class="form-label">Calendar <strong class="text-danger">*</strong></label>
+    <div class="col-md-<?= count($form_calendars) > 1 ? '8' : '4' ?>">
+        <label class="form-label">Assigned to</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
-            <select class="form-select select2" name="calendar" required>
-                <?php foreach ($form_calendars as $calendar_id => $calendar) { ?>
-                    <option value="<?= $calendar_id ?>"<?= selectOptionColor(calendarColor($calendar['calendar_color'])) ?> <?= $calendar_id === $form_calendar_id ? 'selected' : '' ?>><?= escapeHtml($calendar['calendar_name']) ?></option>
+            <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
+            <select class="form-select select2" name="agents[]" multiple data-placeholder="- Select agents -">
+                <?php foreach ($form_agents as $user_id => $row) { ?>
+                    <option value="<?= $user_id ?>"<?= selectOptionUser($user_id, $row['user_name'], $row['user_avatar']) ?> <?= in_array($user_id, $form_attendees['agents'], true) ? 'selected' : '' ?>><?= escapeHtml($row['user_name']) ?></option>
                 <?php } ?>
             </select>
         </div>
+        <div class="form-text">On their calendar, in their color.</div>
     </div>
+    <?php if (count($form_calendars) > 1) { ?>
+        <div class="col-md-4">
+            <label class="form-label">Calendar <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
+                <select class="form-select select2" name="calendar" required>
+                    <?php foreach ($form_calendars as $calendar_id => $calendar) { ?>
+                        <option value="<?= $calendar_id ?>"<?= selectOptionColor(calendarColor($calendar['calendar_color'])) ?> <?= $calendar_id === $form_calendar_id ? 'selected' : '' ?>><?= escapeHtml($calendar['calendar_name']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div class="form-text">The list it is kept on.</div>
+        </div>
+    <?php } else { ?>
+        <input type="hidden" name="calendar" value="<?= $form_calendar_id ?>">
+    <?php } ?>
 </div>
 
 <div class="itflow-cal-form-when border rounded p-3 mb-3">
@@ -84,13 +109,16 @@ $form_can_email = calendarCanEmail();
                 <input type="time" class="form-control" id="event_form_end_time" name="end_time" value="<?= date('H:i', $form_end_ts) ?>"<?= $form_all_day ? '' : ' required' ?>>
             </div>
         </div>
+        <?php if (timezoneShifted()) { ?>
+            <div class="col-12 mt-0"><?= timezoneFormHint() ?></div>
+        <?php } ?>
     </div>
     <div class="row g-2 align-items-end mt-1">
         <div class="col-md-4">
             <label class="form-label small text-body-secondary mb-1" for="eventRepeat">Repeats</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-redo"></i></span>
-                <select class="form-select" name="repeat" id="eventRepeat">
+                <select class="form-select select2" name="repeat" id="eventRepeat">
                     <option value="" <?= $form_repeat === '' ? 'selected' : '' ?>>Does not repeat</option>
                     <?php foreach (['Day' => 'Daily', 'Week' => 'Weekly', 'Month' => 'Monthly', 'Year' => 'Yearly'] as $value => $label) { ?>
                         <option value="<?= $value ?>" data-one="<?= CALENDAR_REPEATS[$value][1] ?>" data-many="<?= CALENDAR_REPEATS[$value][2] ?>" <?= $form_repeat === $value ? 'selected' : '' ?>><?= $label ?></option>
@@ -113,7 +141,24 @@ $form_can_email = calendarCanEmail();
                 <input type="date" class="form-control" name="repeat_until" id="eventRepeatUntil" value="<?= escapeHtml($form['event_repeat_until'] ?? '') ?>">
             </div>
         </div>
+        <?= byDayField('[name=start_date]', '[name=repeat]', ['Month', 'Year'], ['Year'], $form['event_repeat_by_day'] ?? '', 'col-md-8', 'form-label small text-body-secondary mb-1') ?>
     </div>
+    <?php if (calendarRemindersReady()) { ?>
+        <!-- A reminder for the agents on it - functions/calendar_reminders.php -->
+        <div class="row g-2 align-items-end mt-1">
+            <div class="col-md-6">
+                <input type="hidden" name="reminder_field" value="1">
+                <label class="form-label small text-body-secondary mb-1" for="eventReminder">Remind</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-bell"></i></span>
+                    <select class="form-select select2" name="reminder" id="eventReminder">
+                        <?= calendarReminderOptions(isset($form['event_reminder']) && $form['event_reminder'] !== '' && $form['event_reminder'] !== null ? intval($form['event_reminder']) : null) ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6 form-text">The agents it's assigned to - or whoever made it, when nobody is - get a notification, and an email too if they asked for that in their Preferences.</div>
+        </div>
+    <?php } ?>
     <?php if (calendarSkippedDates($form)) { ?>
         <div class="small text-body-secondary mt-2"><i class="fas fa-fw fa-forward me-1"></i>Skipped: <?= escapeHtml(implode(', ', array_map(function ($date) {
             return date('M j, Y', strtotime($date));
@@ -134,7 +179,7 @@ $form_can_email = calendarCanEmail();
                     <?php
                     // A client's event takes Clients at Modify (calendarEventCan())
                     $form_can_clients = calendarEventCan(['event_client_id' => -1], 'edit');
-                    $sql = $form_can_clients ? mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL OR client_id = $form_client_id) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC") : false;
+                    $sql = $form_can_clients ? mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL OR client_id = $form_client_id)" . clientNotLeadSql($form_client_id) . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC") : false;
                     while ($sql && $row = mysqli_fetch_assoc($sql)) { ?>
                         <option value="<?= intval($row['client_id']) ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?> <?= intval($row['client_id']) === $form_client_id ? 'selected' : '' ?>><?= escapeHtml($row['client_name']) ?></option>
                     <?php } ?>
@@ -171,23 +216,9 @@ $form_can_email = calendarCanEmail();
 </div>
 
 <div class="mb-3">
-    <label class="form-label d-block">Who <span class="text-body-secondary small fw-normal">- agents, the client's contacts, and anyone else by email</span></label>
+    <label class="form-label d-block">Invite <span class="text-body-secondary small fw-normal">- the client's contacts, and anyone else by email</span></label>
     <div class="row g-2">
-        <div class="col-md-6">
-            <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
-                <select class="form-select select2" name="agents[]" multiple data-placeholder="Agents">
-                    <?php
-                    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_archived_at IS NULL AND (user_status = 1 OR user_id IN (0" . implode('', array_map(function ($id) {
-                        return ',' . intval($id);
-                    }, $form_attendees['agents'])) . ")) ORDER BY user_name");
-                    while ($row = mysqli_fetch_assoc($sql)) { ?>
-                        <option value="<?= intval($row['user_id']) ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar']) ?> <?= in_array(intval($row['user_id']), $form_attendees['agents'], true) ? 'selected' : '' ?>><?= escapeHtml($row['user_name']) ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-        </div>
-        <div class="col-md-6" id="eventContactsField" <?= $form_client_id ? '' : 'hidden' ?>>
+        <div class="col-12" id="eventContactsField" <?= $form_client_id ? '' : 'hidden' ?>>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-address-book"></i></span>
                 <select class="form-select select2" name="contacts[]" id="eventContactsSelect" multiple data-placeholder="Contacts">

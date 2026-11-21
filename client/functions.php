@@ -179,7 +179,7 @@ function portalEmptyState($message, $icon = 'fa-inbox', $type = 'secondary') {
  * icon, the pages that light it up, and an href or children.
  */
 function portalNav() {
-    global $mysqli, $config_module_enable_accounting, $config_module_enable_itdoc;
+    global $mysqli, $config_module_enable_accounting, $config_module_enable_itdoc, $session_client_id;
 
     $nav = [
         'home' => ['label' => 'Home', 'icon' => 'fa-home', 'href' => '/client/index.php', 'pages' => ['index.php']],
@@ -192,17 +192,17 @@ function portalNav() {
             ['label' => 'Invoices', 'icon' => 'fa-file-invoice-dollar', 'href' => '/client/invoices.php', 'pages' => ['invoices.php', 'invoice.php']],
         ];
         if ($cards) {
-            $children[] = ['label' => 'Pay invoices', 'icon' => 'fa-hand-holding-usd', 'href' => '/client/unpaid_invoices.php', 'pages' => ['unpaid_invoices.php', 'pay.php']];
+            $children[] = ['label' => 'Pay Invoices', 'icon' => 'fa-hand-holding-usd', 'href' => '/client/unpaid_invoices.php', 'pages' => ['unpaid_invoices.php', 'pay.php']];
         }
         $children[] = ['label' => 'Quotes', 'icon' => 'fa-comment-dollar', 'href' => '/client/quotes.php', 'pages' => ['quotes.php', 'quote.php']];
-        $children[] = ['label' => 'Recurring invoices', 'icon' => 'fa-redo-alt', 'href' => '/client/recurring_invoices.php', 'pages' => ['recurring_invoices.php', 'recurring_invoice.php']];
+        $children[] = ['label' => 'Recurring Invoices', 'icon' => 'fa-redo-alt', 'href' => '/client/recurring_invoices.php', 'pages' => ['recurring_invoices.php', 'recurring_invoice.php']];
         if (contractsReady() && intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM contracts WHERE " . portalContractScopeSql()))[0] ?? 0)) {
             $children[] = ['label' => 'Contracts', 'icon' => 'fa-file-contract', 'href' => '/client/contracts.php', 'pages' => ['contracts.php', 'contract.php']];
         }
         $children[] = ['label' => 'Payments', 'icon' => 'fa-receipt', 'href' => '/client/payments.php', 'pages' => ['payments.php', 'receipt.php']];
         $children[] = ['label' => 'Statement', 'icon' => 'fa-file-alt', 'href' => '/client/statement.php', 'pages' => ['statement.php']];
         if ($cards) {
-            $children[] = ['label' => 'Cards & autopay', 'icon' => 'fa-credit-card', 'href' => '/client/saved_payment_methods.php', 'pages' => ['saved_payment_methods.php']];
+            $children[] = ['label' => 'Cards & Autopay', 'icon' => 'fa-credit-card', 'href' => '/client/saved_payment_methods.php', 'pages' => ['saved_payment_methods.php']];
         }
         $nav['billing'] = ['label' => 'Billing', 'icon' => 'fa-file-invoice-dollar', 'children' => $children, 'pages' => array_merge(...array_column($children, 'pages'))];
     }
@@ -211,13 +211,18 @@ function portalNav() {
         $children = [
             ['label' => 'Devices', 'icon' => 'fa-desktop', 'href' => '/client/assets.php', 'pages' => ['assets.php', 'asset.php']],
             ['label' => 'Licenses', 'icon' => 'fa-cube', 'href' => '/client/licenses.php', 'pages' => ['licenses.php']],
-            ['label' => 'Domains & certificates', 'icon' => 'fa-globe', 'href' => '/client/domains.php', 'pages' => ['domains.php', 'certificates.php']],
+            ['label' => 'Domains & Certificates', 'icon' => 'fa-globe', 'href' => '/client/domains.php', 'pages' => ['domains.php', 'certificates.php']],
             ['label' => 'Documents', 'icon' => 'fa-folder-open', 'href' => '/client/documents.php', 'pages' => ['documents.php', 'document.php', 'document_add.php', 'file.php']],
         ];
         if (contactCan('contacts')) {
             $children[] = ['label' => 'Contacts', 'icon' => 'fa-address-book', 'href' => '/client/contacts.php', 'pages' => ['contacts.php', 'contact.php', 'contact_add.php', 'contact_edit.php']];
         }
         $nav['it'] = ['label' => 'Your IT', 'icon' => 'fa-laptop', 'children' => $children, 'pages' => array_merge(...array_column($children, 'pages'))];
+    }
+
+    // Help - the Knowledge Base articles shared with them, once there is one
+    if (kbClientHas($session_client_id)) {
+        $nav['help'] = ['label' => 'Help', 'icon' => 'fa-book', 'href' => '/client/kb.php', 'pages' => ['kb.php', 'kb_article.php']];
     }
 
     // The links an admin set to show in the portal (Admin > Custom Links)
@@ -318,6 +323,51 @@ function portalTicketColumnsSql() {
     return "tickets.ticket_id, tickets.ticket_prefix, tickets.ticket_number, tickets.ticket_subject, tickets.ticket_status, tickets.ticket_priority,
         tickets.ticket_created_at, tickets.ticket_updated_at, tickets.ticket_resolved_at, tickets.ticket_closed_at, tickets.ticket_contact_id,
         ticket_statuses.ticket_status_name, ticket_statuses.ticket_status_pauses_sla, " . ticketLastSpokeSql() . " AS ticket_last_spoke";
+}
+
+/*
+ * When to expect a reply - from the SLA, as the new-ticket email already
+ * promises it (ticketEmailSla()). Nothing when no SLA with a response target
+ * applies, so a company without SLAs promises nothing.
+ */
+
+/** How soon a new ticket of each priority hears back - [priority => 'within 4 business hours'], for the priorities with a response target. */
+function portalReplyTimes() {
+    global $mysqli, $session_client_id;
+    static $times = null;
+    if ($times !== null) {
+        return $times;
+    }
+    $times = [];
+    foreach (['Low', 'Medium', 'High', 'Urgent'] as $priority) {
+        $sla_id = intval(getTicketSlaId($session_client_id, $priority));
+        $minutes = $sla_id ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT sla_response_minutes FROM slas WHERE sla_id = $sla_id"))[0] ?? 0) : 0;
+        if ($minutes > 0) {
+            $times[$priority] = 'within ' . formatSlaMinutes($minutes);
+        }
+    }
+    return $times;
+}
+
+/*
+ * When this ticket's first reply is due - ['by' => the time, 'within' => '4 business hours'] -
+ * while it is open, not on hold, not yet answered and that time is still ahead. Else null: once
+ * we have replied, or the time has passed, the portal promises nothing more.
+ */
+function portalTicketReplyBy($ticket_id) {
+    global $mysqli;
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_first_response_at, ticket_response_due_at, ticket_resolved_at, ticket_closed_at,
+            ticket_status_pauses_sla, sla_response_minutes
+        FROM tickets
+        LEFT JOIN slas ON sla_id = ticket_sla_id
+        LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
+        WHERE ticket_id = " . intval($ticket_id) . " AND ticket_sla_id > 0 LIMIT 1"));
+    if (!$row || !empty($row['ticket_first_response_at']) || !empty($row['ticket_resolved_at']) || !empty($row['ticket_closed_at'])
+        || intval($row['ticket_status_pauses_sla'] ?? 0) === 1 || empty($row['ticket_response_due_at'])
+        || strtotime($row['ticket_response_due_at']) <= time() || intval($row['sla_response_minutes']) <= 0) {
+        return null;
+    }
+    return ['by' => $row['ticket_response_due_at'], 'within' => formatSlaMinutes(intval($row['sla_response_minutes']))];
 }
 
 /** Whether what the editor sent says nothing - only tags, spaces and non-breaking spaces, and no picture. */
@@ -534,7 +584,7 @@ function portalAssetScopeSql() {
 
 /** The tabs on Devices - each kind with its label, icon and SQL on asset_type; Other is whatever the rest don't take. */
 function portalAssetGroups() {
-    // By the type's group (ASSET_TYPES, functions/asset_type.php)
+    // By the type's group (assetTypes() - your own types too, functions/asset_type.php)
     $kinds = [
         'computers' => ['Computers', 'fa-desktop', assetTypesInGroup('workstation')],
         'servers' => ['Servers', 'fa-server', assetTypesInGroup('server', 'virtual')],

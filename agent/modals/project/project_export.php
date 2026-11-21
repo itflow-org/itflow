@@ -26,7 +26,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Projects</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <?php exportTabsNav(); ?>
@@ -67,7 +67,7 @@ ob_start();
                     <option value="">- Any manager -</option>
                     <option value="none" <?= $manager_filter === 'none' ? 'selected' : '' ?>>No manager</option>
                     <?php
-                    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND EXISTS (SELECT 1 FROM projects WHERE project_manager = user_id) ORDER BY user_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND EXISTS (SELECT 1 FROM projects WHERE project_manager = user_id) ORDER BY user_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) { ?>
                         <option value="<?= intval($row['user_id']) ?>" <?= $manager_filter === (string) intval($row['user_id']) ? 'selected' : '' ?><?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= escapeHtml($row['user_name']) ?></option>
                     <?php } ?>
@@ -81,7 +81,7 @@ ob_start();
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client">
-                        <option value="">- All Clients -</option>
+                        <option value="">- Any client -</option>
                         <option value="internal" <?= $client_filter === 'internal' ? 'selected' : '' ?>>Internal (no client)</option>
                         <?php
                         $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients

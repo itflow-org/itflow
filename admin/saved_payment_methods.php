@@ -81,10 +81,6 @@ $clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
     WHERE client_id IN (SELECT saved_payment_client_id FROM client_saved_payment_methods) OR client_id = $client_filter ORDER BY client_name ASC");
 $provider_count = mysqli_num_rows($providers);
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($show) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'provider' => $_GET['provider'] ?? '', 'client' => $_GET['client'] ?? '', 'show' => $show]));
 };
@@ -109,13 +105,13 @@ $page_title = 'Saved Cards';
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search saved cards..." title="Client, card, provider, or the provider's customer or payment method ID">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <?php if ($provider_count > 1 || $provider_filter) { ?>
                     <div class="col-md-3 col-lg-2">
                         <select class="form-select" name="provider" onchange="this.form.submit()" aria-label="Provider">
-                            <option value="">All providers</option>
+                            <option value="">- Any provider -</option>
                             <?php while ($provider = mysqli_fetch_assoc($providers)) { ?>
                                 <option value="<?= intval($provider['payment_provider_id']) ?>" <?= intval($provider['payment_provider_id']) === $provider_filter ? 'selected' : '' ?>><?= escapeHtml($provider['payment_provider_name']) ?></option>
                             <?php } ?>
@@ -124,7 +120,7 @@ $page_title = 'Saved Cards';
                 <?php } ?>
                 <div class="col-md-3 col-lg-3">
                     <select class="form-select select2" name="client" onchange="this.form.submit()" aria-label="Client">
-                        <option value="">All clients</option>
+                        <option value="">- Any client -</option>
                         <?php while ($client = mysqli_fetch_assoc($clients)) { ?>
                             <option value="<?= intval($client['client_id']) ?>" <?= intval($client['client_id']) === $client_filter ? 'selected' : '' ?>><?= escapeHtml($client['client_name']) ?></option>
                         <?php } ?>
@@ -142,11 +138,11 @@ $page_title = 'Saved Cards';
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('client_name', 'Client') ?></th>
-                <th><?= $sort_link('saved_payment_description', 'Card') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('expires', 'Expires') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('autopay', 'Autopay') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('saved_payment_created_at', 'Saved') ?></th>
+                <th class="ps-3"><?= sortLink('client_name', 'Client') ?></th>
+                <th><?= sortLink('saved_payment_description', 'Card') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('expires', 'Expires') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('autopay', 'Autopay') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('saved_payment_created_at', 'Saved') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -168,7 +164,7 @@ $page_title = 'Saved Cards';
                     <td class="ps-3">
                         <?php if ($row['client_name'] !== null) { ?>
                             <a class="fw-semibold text-body" href="/agent/client_overview.php?client_id=<?= $client_id ?>"><?= escapeHtml($row['client_name']) ?></a>
-                            <?php if ($row['client_archived_at']) { ?><span class="badge text-bg-secondary ms-1">Archived</span><?php } ?>
+                            <?php if ($row['client_archived_at']) { ?><span class="badge rounded-pill text-bg-secondary ms-1">Archived</span><?php } ?>
                         <?php } else { ?>
                             <span class="text-body-secondary">Client #<?= $client_id ?></span>
                         <?php } ?>
@@ -179,7 +175,7 @@ $page_title = 'Saved Cards';
                     <td>
                         <div class="text-nowrap"><i class="<?= escapeHtml($card['icon']) ?> fa-fw fa-lg text-secondary me-1"></i><span class="fw-semibold"><?= escapeHtml($card['label']) ?></span></div>
                         <div class="small text-body-secondary">
-                            <?= escapeHtml($row['payment_provider_name'] ?? '') ?><?= intval($row['payment_provider_active'] ?? 0) ? '' : ' <span class="badge text-bg-secondary">Off</span>' ?>
+                            <?= escapeHtml($row['payment_provider_name'] ?? '') ?><?= intval($row['payment_provider_active'] ?? 0) ? '' : ' <span class="badge rounded-pill text-bg-secondary">Off</span>' ?>
                             <span class="font-monospace ms-1" title="Its payment method at the provider"><?= escapeHtml($row['saved_payment_provider_method']) ?></span>
                         </div>
                         <!-- On smaller screens when it runs out comes along under it -->
@@ -194,9 +190,9 @@ $page_title = 'Saved Cards';
                         <?php } else { ?>
                             <?= escapeHtml($card['exp']) ?>
                             <?php if ($expired) { ?>
-                                <span class="badge text-bg-danger ms-1">Expired</span>
+                                <span class="badge rounded-pill text-bg-danger ms-1">Expired</span>
                             <?php } elseif ($expiring) { ?>
-                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1">Soon</span>
+                                <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1">Soon</span>
                             <?php } ?>
                         <?php } ?>
                     </td>
@@ -209,7 +205,7 @@ $page_title = 'Saved Cards';
                                 <a class="text-reset" href="/agent/recurring_invoice.php?recurring_invoice_id=<?= $use['id'] ?>"><i class="fas fa-fw fa-redo-alt text-secondary me-1"></i><?= escapeHtml($use['reference']) ?></a>
                                 <span class="text-body-secondary">· <?= escapeHtml(billingMoney($use['amount'], $use['currency'])) ?> <?= escapeHtml($use['frequency']) ?></span>
                                 <?php if (!$use['active']) { ?>
-                                    <span class="badge text-bg-secondary ms-1">Not running</span>
+                                    <span class="badge rounded-pill text-bg-secondary ms-1">Not running</span>
                                 <?php } elseif ($expired) { ?>
                                     <div class="text-danger-emphasis"><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Next on <?= escapeHtml(date('M j', strtotime($use['next']))) ?> - it will be declined</div>
                                 <?php } else { ?>
@@ -218,13 +214,13 @@ $page_title = 'Saved Cards';
                             </div>
                         <?php } ?>
                     </td>
-                    <td class="d-none d-lg-table-cell small text-body-secondary text-nowrap" title="<?= escapeHtml($row['saved_payment_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($row['saved_payment_created_at']))) ?></td>
+                    <td class="d-none d-lg-table-cell small text-body-secondary text-nowrap" title="<?= formatDateTime($row['saved_payment_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($row['saved_payment_created_at']))) ?></td>
                     <td class="text-end pe-3">
                         <div class="dropdown dropstart">
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="?<?= escapeHtml(http_build_query(['client' => $client_id])) ?>">
-                                    <i class="fas fa-fw fa-filter text-secondary me-2"></i>This client's cards
+                                    <i class="fas fa-fw fa-filter text-secondary me-2"></i>This Client's Cards
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item text-danger confirm-link" href="post.php?delete_saved_payment=<?= $saved_id ?>&csrf_token=<?= $csrf ?>"

@@ -42,7 +42,14 @@ if (isset($_POST['add_product'])) {
 
     logAudit("Product", "Create", "$session_name created " . strtolower($type_label) . " $name", 0, $product_id);
 
-    flashAlert("$type_label <strong>" . escapeHtml($product['product_name']) . "</strong> added");
+    // Its picture (functions/quote_images.php)
+    $image_error = quoteImageSave('products', $product_id, $_POST, $_FILES);
+    if ($image_error !== '') {
+        flashAlert("$type_label <strong>" . escapeHtml($product['product_name']) . "</strong> created, but its picture couldn't be added: " . escapeHtml($image_error), 'warning');
+        redirect();
+    }
+
+    flashAlert("$type_label <strong>" . escapeHtml($product['product_name']) . "</strong> created");
 
     redirect();
 
@@ -74,6 +81,13 @@ if (isset($_POST['edit_product'])) {
         if ($behind['lines']) {
             $price_note .= ", and <strong>" . intval($behind['lines']) . "</strong> line" . ($behind['lines'] == 1 ? ' is' : 's are') . " on recurring invoices, drafts or quotes at an old price. Update them from its page.";
         }
+    }
+
+    // Its picture (functions/quote_images.php)
+    $image_error = quoteImageSave('products', $product_id, $_POST, $_FILES);
+    if ($image_error !== '') {
+        flashAlert("<strong>" . escapeHtml($product['product_name']) . "</strong> saved$price_note - but its picture couldn't be added: " . escapeHtml($image_error), 'warning');
+        redirect();
     }
 
     flashAlert("<strong>" . escapeHtml($product['product_name']) . "</strong> saved$price_note");
@@ -114,11 +128,13 @@ if (isset($_GET['archive_product'])) {
 
     $product_name = escapeSql(getFieldById('products', $product_id, 'product_name'));
 
+    $undo = undoArchiveBefore('product', $product_id); // for Undo on the message
     mysqli_query($mysqli,"UPDATE products SET product_archived_at = NOW() WHERE product_id = $product_id");
 
     logAudit("Product", "Archive", "$session_name archived product $product_name", 0, $product_id);
 
     flashAlert("Product <strong>" . escapeHtml(stripslashes($product_name)) . "</strong> archived - it is no longer offered on new lines", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -177,6 +193,7 @@ if (isset($_POST['bulk_edit_product_category'])) {
     $category_name = escapeSql(getFieldById('categories', $category_id, 'category_name'));
 
     // Assign category to Selected Products
+    $undo = undoSnapshot('products', 'product_id', $_POST['product_ids'] ?? [], ['product_category_id'], ''); // for Undo on the message
     if (isset($_POST['product_ids'])) {
 
         // Get Count
@@ -196,7 +213,8 @@ if (isset($_POST['bulk_edit_product_category'])) {
 
         logAudit("Product", "Edit", "$session_name assigned category $category_name to $count product(s)");
 
-        flashAlert("Assigned category <strong>" . escapeHtml(stripslashes($category_name)) . "</strong> to <strong>$count</strong> product(s)");
+        flashAlert("Assigned category <strong>" . escapeHtml(stripslashes($category_name)) . "</strong> to <strong>$count</strong> product" . ($count === 1 ? '' : 's'));
+        undoOfferChanges($undo, "Category put back on <strong>{n}</strong> product{s}", 'module_sales');
     }
 
     redirect();
@@ -209,6 +227,7 @@ if (isset($_POST['bulk_archive_products'])) {
 
     enforceUserPermission('module_sales', 2);
 
+    $undo = undoArchiveBefore('product', $_POST['product_ids'] ?? []); // for Undo on the message
     if (isset($_POST['product_ids'])) {
 
         $count = count($_POST['product_ids']);
@@ -227,7 +246,8 @@ if (isset($_POST['bulk_archive_products'])) {
 
         logAudit("Product", "Bulk Archive", "$session_name archived $count product(s)");
 
-        flashAlert("Archived <strong>$count</strong> product(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> product" . ($count === 1 ? '' : 's'), 'error');
+        undoOfferArchive($undo);
 
     }
 
@@ -260,7 +280,7 @@ if (isset($_POST['bulk_restore_products'])) {
 
         logAudit("Product", "Bulk Restore", "$session_name restored $count product(s)");
 
-        flashAlert("Restored <strong>$count</strong> product(s)");
+        flashAlert("Restored <strong>$count</strong> product" . ($count === 1 ? '' : 's'));
 
     }
 
@@ -292,7 +312,7 @@ if (isset($_POST['bulk_delete_products'])) {
 
         logAudit("Product", "Bulk Delete", "$session_name deleted $count product(s)");
 
-        flashAlert("Deleted <strong>$count</strong> product(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> product" . ($count === 1 ? '' : 's'), 'error');
 
     }
 
@@ -561,179 +581,6 @@ if (isset($_POST['product_stock_count'])) {
 
 }
 
-/*
- * Import from a CSV with a header row. Columns are found by their heading,
- * in any order - only Name is needed:
- *   Name, Type, Code, Category, Description, Price, Cost, Tax, Billed, Counted,
- *   Vendor, Part Number, Track Stock, Reorder At, Order, Location, Notes
- * The old three column file (Product Name, Description, Price) still works.
- * A row whose code matches a product already here updates it when asked to.
- */
-if (isset($_POST["import_products_csv"])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_sales', 2);
-
-    if (empty($_FILES["file"]["tmp_name"]) || !is_uploaded_file($_FILES["file"]["tmp_name"])) {
-        flashAlert("Choose a CSV file to import.", 'error');
-        redirect();
-    }
-    if (strtolower(pathinfo((string) $_FILES['file']['name'], PATHINFO_EXTENSION)) !== 'csv') {
-        flashAlert("That isn't a CSV file.", 'error');
-        redirect();
-    }
-    $update_existing = !empty($_POST['update_existing']);
-
-    $file = fopen($_FILES["file"]["tmp_name"], "r");
-    $header = $file ? fgetcsv($file, 0, ",", '"', '\\') : false;
-    if (!$header) {
-        flashAlert("The file is empty.", 'error');
-        redirect();
-    }
-
-    // Which column is which, by its heading
-    $aliases = [
-        'name' => ['name', 'product name', 'product', 'item'],
-        'type' => ['type'],
-        'code' => ['code', 'sku', 'product code'],
-        'category' => ['category'],
-        'description' => ['description'],
-        'price' => ['price', 'unit price'],
-        'cost' => ['cost', 'unit cost'],
-        'tax' => ['tax'],
-        'frequency' => ['billed', 'frequency', 'billing'],
-        'seat_source' => ['counted', 'per'],
-        'vendor' => ['vendor', 'supplier'],
-        'vendor_part' => ['part number', 'vendor part', 'mpn', 'part'],
-        'track_stock' => ['track stock', 'tracked', 'stock tracked'],
-        'reorder_level' => ['reorder at', 'reorder level', 'reorder point', 'minimum stock'],
-        'reorder_qty' => ['order', 'order qty', 'reorder qty', 'reorder quantity'],
-        'location' => ['location'],
-        'asset_type' => ['asset type', 'asset', 'client asset'],
-        'make' => ['make', 'manufacturer', 'brand'],
-        'model' => ['model'],
-        'warranty_months' => ['warranty', 'warranty months', 'warranty (months)'],
-        'notes' => ['notes', 'internal notes'],
-    ];
-    $columns = [];
-    foreach ($header as $index => $heading) {
-        $heading = strtolower(trim(preg_replace('/^\xEF\xBB\xBF/', '', (string) $heading)));
-        foreach ($aliases as $key => $names) {
-            if (in_array($heading, $names, true) && !isset($columns[$key])) {
-                $columns[$key] = $index;
-            }
-        }
-    }
-    // A price list update can go by code alone
-    if (!isset($columns['name']) && !($update_existing && isset($columns['code']))) {
-        fclose($file);
-        flashAlert("The first row needs a Name column - download the template to see the layout.", 'error');
-        redirect();
-    }
-
-    // Names to ids, matched without case
-    $lookup = function ($sql) use ($mysqli) {
-        $map = [];
-        $result = mysqli_query($mysqli, $sql);
-        while ($row = mysqli_fetch_row($result)) {
-            $map[mb_strtolower(trim((string) $row[1]))] = intval($row[0]);
-        }
-        return $map;
-    };
-    $categories = $lookup("SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL");
-    $taxes = $lookup("SELECT tax_id, tax_name FROM taxes WHERE tax_archived_at IS NULL");
-    $vendors = $lookup("SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_archived_at IS NULL");
-    $frequencies = ['' => '', 'once' => '', 'one time' => '', 'one-time' => '', 'monthly' => 'month', 'month' => 'month', 'quarterly' => 'quarter', 'quarter' => 'quarter', 'yearly' => 'year', 'year' => 'year', 'annually' => 'year', 'annual' => 'year'];
-    $seat_sources = ['' => '', 'as typed' => '', 'per user' => 'contacts', 'user' => 'contacts', 'users' => 'contacts', 'per device' => 'assets', 'device' => 'assets', 'devices' => 'assets'];
-
-    $added = $updated = 0;
-    $skipped = [];
-    $line = 1;
-    while (($row = fgetcsv($file, 0, ",", '"', '\\')) !== false) {
-        $line++;
-        if ($row === [null] || !array_filter($row, function ($v) { return trim((string) $v) !== ''; })) {
-            continue;
-        }
-        $in = [];
-        foreach ($columns as $key => $index) {
-            $in[$key] = trim((string) ($row[$index] ?? ''));
-        }
-        if (isset($in['type'])) {
-            $type = strtolower($in['type']);
-            $in['type'] = in_array($type, ['product', 'products', 'hardware', 'goods'], true) ? 'product' : 'service';
-        }
-        if (isset($in['category'])) {
-            $in['category'] = $categories[mb_strtolower($in['category'])] ?? 0;
-        }
-        if (isset($in['tax'])) {
-            $in['tax'] = $taxes[mb_strtolower($in['tax'])] ?? 0;
-        }
-        if (isset($in['vendor'])) {
-            $in['vendor'] = $vendors[mb_strtolower($in['vendor'])] ?? 0;
-        }
-        if (isset($in['frequency'])) {
-            $in['frequency'] = $frequencies[strtolower($in['frequency'])] ?? '';
-        }
-        if (isset($in['seat_source'])) {
-            $in['seat_source'] = $seat_sources[strtolower($in['seat_source'])] ?? '';
-        }
-        if (isset($in['track_stock'])) {
-            $in['track_stock'] = in_array(strtolower($in['track_stock']), ['1', 'yes', 'y', 'true', 'tracked'], true);
-        }
-
-        // The same code as one here - update it, or leave it
-        $existing_id = 0;
-        if (($in['code'] ?? '') !== '') {
-            $code = escapeSql($in['code']);
-            $existing_id = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT product_id FROM products WHERE product_code = '$code' ORDER BY product_archived_at IS NOT NULL, product_id LIMIT 1"))[0] ?? 0);
-        }
-        if ($existing_id && !$update_existing) {
-            $skipped[] = "row $line - " . $in['code'] . " is already here";
-            continue;
-        }
-        if ($existing_id) {
-            // An update leaves the name alone when the file has none for it
-            if (($in['name'] ?? '') === '') {
-                unset($in['name']);
-            }
-        } else {
-            if (($in['name'] ?? '') === '') {
-                $skipped[] = "row $line has no name";
-                continue;
-            }
-            // A new one starts as the kind the file says, a product when it doesn't say
-            $in['type'] = $in['type'] ?? 'product';
-        }
-
-        $error = '';
-        if (productSave($in, $existing_id, $error, 'import')) {
-            $existing_id ? $updated++ : $added++;
-        } else {
-            $skipped[] = "row $line - " . rtrim($error, '.');
-        }
-    }
-    fclose($file);
-
-    logAudit("Product", "Import", "$session_name imported products from a CSV file - $added added, $updated updated, " . count($skipped) . " skipped");
-
-    $message = "<strong>$added</strong> added" . ($update_existing ? ", <strong>$updated</strong> updated" : '');
-    if ($skipped) {
-        $message .= ", <strong>" . count($skipped) . "</strong> skipped: " . escapeHtml(implode('; ', array_slice($skipped, 0, 5))) . (count($skipped) > 5 ? '...' : '');
-    }
-    // A new price list - say how many lines are at an old price now
-    if ($updated) {
-        $behind = productRepriceCount();
-        if ($behind['lines']) {
-            $message .= ". <strong>" . intval($behind['lines']) . "</strong> line" . ($behind['lines'] == 1 ? ' is' : 's are') . " on recurring invoices, drafts or quotes at an old price - Update Prices is in the Products menu";
-        }
-    }
-    flashAlert($message, $skipped && !$added && !$updated ? 'error' : 'success');
-
-    redirect();
-
-}
-
 if (isset($_POST['products_reprice_save'])) {
 
     validateCSRFToken();
@@ -763,21 +610,5 @@ if (isset($_POST['products_reprice_save'])) {
     flashAlert($message);
 
     redirect();
-
-}
-
-if (isset($_GET['download_products_csv_template'])) {
-
-    $f = fopen('php://memory', 'w');
-    fputcsv($f, ['Name', 'Type', 'Code', 'Category', 'Description', 'Price', 'Cost', 'Tax', 'Billed', 'Counted', 'Vendor', 'Part Number', 'Track Stock', 'Reorder At', 'Order', 'Location', 'Asset Type', 'Make', 'Model', 'Warranty', 'Notes'], ',', '"', '\\');
-    fputcsv($f, ['Managed Workstation', 'Service', 'MS-WKS', 'Managed Services', 'Per workstation, per month. Monitoring, patching and support.', '65.00', '18.00', '', 'Monthly', 'Per device', '', '', '', '', '', '', '', '', '', '', ''], ',', '"', '\\');
-    fputcsv($f, ['24 Port PoE Switch', 'Product', 'HW-SW24', 'Hardware Sales', '24 port managed PoE switch.', '785.00', '520.00', '', 'One time', '', '', 'USW-PRO-24-POE', 'Yes', '2', '5', 'Shelf B2', 'Switch', 'Ubiquiti', 'USW-Pro-24-PoE', '12', 'Order from the distributor, 2 day lead time'], ',', '"', '\\');
-    fseek($f, 0);
-
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="Products-Template.csv";');
-    fpassthru($f);
-
-    exit;
 
 }

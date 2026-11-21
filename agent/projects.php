@@ -136,10 +136,6 @@ $filter_url = function ($changes) {
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null; }));
 };
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $hidden_filter_count = $date_filter_active ? 1 : 0;
 
@@ -155,14 +151,14 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                         <i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Project</span>
                     </button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/project/project_export.php', ['client_id', 'client', 'manager', 'show', 'q']) ?>">
-                        <i class="fa fa-fw fa-download me-2"></i>Export
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/project/project_export.php', ['client_id', 'client', 'manager', 'show', 'q']) ?>">
+                        <i class="fas fa-fw fa-download me-2"></i>Export
                     </a>
                     <?php if ($session_is_admin) { ?>
                         <a class="dropdown-item" href="/admin/project_templates.php">
-                            <i class="fa fa-fw fa-cubes me-2"></i>Project templates
+                            <i class="fas fa-fw fa-cubes me-2"></i>Project Templates
                         </a>
                     <?php } ?>
                 </div>
@@ -180,10 +176,10 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                 <div class="<?= $client_url ? 'col-lg-5' : 'col-lg-4' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search projects..." title="Number, name, description, client, contact, manager">
-                        <button class="btn <?= $hidden_filter_count ? 'btn-warning' : 'btn-outline-secondary' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter" title="More filters" aria-expanded="<?= $hidden_filter_count ? 'true' : 'false' ?>">
+                        <button class="btn btn-outline-secondary<?= $hidden_filter_count ? ' itflow-filter-on' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter" title="More filters" aria-expanded="<?= $hidden_filter_count ? 'true' : 'false' ?>">
                             <i class="fas fa-sliders-h"></i><?php if ($hidden_filter_count) { ?><span class="ms-1"><?= $hidden_filter_count ?></span><?php } ?>
                         </button>
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="<?= $client_url ? 'col-lg-3' : 'col-lg-2' ?> col-md-6">
@@ -192,7 +188,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                         <option value="none" <?= $manager_filter === 'none' ? 'selected' : '' ?> data-icon="fas fa-user-slash">No manager</option>
                         <?php
                         $manager_filter_id = is_int($manager_filter) ? $manager_filter : 0;
-                        $sql_managers = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1
+                        $sql_managers = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . "
                             AND (EXISTS (SELECT 1 FROM projects WHERE project_manager = user_id) OR user_id = $manager_filter_id OR (user_archived_at IS NULL AND user_status = 1))
                             ORDER BY user_id = " . intval($session_user_id) . " DESC, user_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_managers)) {
@@ -204,7 +200,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                 <?php if (!$client_url) { ?>
                     <div class="col-lg-3 col-md-6">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
-                            <option value="">- All Clients -</option>
+                            <option value="">- Any client -</option>
                             <option value="internal" <?= $client_filter === 'internal' ? 'selected' : '' ?> data-icon="fas fa-building">Internal (no client)</option>
                             <?php
                             $client_filter_id = is_int($client_filter) ? $client_filter : 0;
@@ -227,15 +223,15 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_bulk_manager.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-user-tie me-2"></i>Set manager
+                                        <i class="fas fa-fw fa-user-tie me-2"></i>Set Manager
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_bulk_due.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-calendar-day me-2"></i>Set due date
+                                        <i class="fas fa-fw fa-calendar-day me-2"></i>Set Due Date
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item confirm-link" type="submit" form="bulkActions" name="bulk_complete_projects"
                                         data-confirm-text="Each one with no open tickets is marked complete. Any with open tickets stay as they are.">
-                                        <i class="fas fa-fw fa-check me-2"></i>Mark complete
+                                        <i class="fas fa-fw fa-check me-2"></i>Mark Complete
                                     </button>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_reopen_projects">
                                         <i class="fas fa-fw fa-redo me-2"></i>Reopen
@@ -244,11 +240,11 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_restore_projects">
-                                        <i class="fas fa-fw fa-box-open me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_projects"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_projects"
                                             data-confirm-text="The projects go for good. Their tickets stay, no longer part of a project.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
@@ -284,15 +280,6 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                 </a>
             <?php } ?>
         </nav>
-
-        <?php if ($date_filter_active) { ?>
-            <div class="d-flex flex-wrap align-items-center gap-1 mt-2">
-                <span class="badge rounded-pill bg-body-secondary text-body fw-normal border py-2 px-2">
-                    <span class="text-body-secondary">Created:</span> <?= escapeHtml("$dtf to $dtt") ?>
-                    <a href="<?= escapeHtml($filter_url(['canned_date' => null, 'dtf' => null, 'dtt' => null])) ?>" class="text-danger ms-1" title="Remove this filter"><i class="fas fa-times"></i></a>
-                </span>
-            </div>
-        <?php } ?>
     </div>
 
     <form id="bulkActions" action="post.php" method="post">
@@ -309,13 +296,13 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                             </div>
                         </th>
                     <?php } ?>
-                    <th><?= $sort_link('project_name', 'Project') ?></th>
-                    <th><?= $client_url ? 'Contact' : $sort_link('client_name', 'Client') ?></th>
+                    <th><?= sortLink('project_name', 'Project') ?></th>
+                    <th><?= $client_url ? 'Contact' : sortLink('client_name', 'Client') ?></th>
                     <th>Progress</th>
                     <th><?= $budgets_in_use ? 'Time / budget' : 'Time' ?></th>
-                    <th><?= in_array($show, ['completed', 'archived'], true) ? $sort_link('project_completed_at', 'Done') : $sort_link('project_due', 'Due') ?></th>
-                    <th><?= $sort_link('user_name', 'Manager') ?></th>
-                    <th class="d-none d-xxl-table-cell"><?= $sort_link('activity', 'Activity') ?></th>
+                    <th><?= in_array($show, ['completed', 'archived'], true) ? sortLink('project_completed_at', 'Done') : sortLink('project_due', 'Due') ?></th>
+                    <th><?= sortLink('user_name', 'Manager') ?></th>
+                    <th class="d-none d-xxl-table-cell"><?= sortLink('activity', 'Activity') ?></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -371,7 +358,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                         <td class="itflow-ticket-who-cell">
                             <?php if (!$client_url) { ?>
                                 <?php if ($row_client_id) { ?>
-                                    <a class="d-block text-truncate text-body fw-semibold small" href="projects.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a>
+                                    <a data-client-card="<?= $row_client_id ?>" class="d-block text-truncate text-body fw-semibold small" href="projects.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a>
                                 <?php } else { ?>
                                     <div class="small text-body-secondary"><i class="fas fa-building me-1"></i>Internal</div>
                                 <?php } ?>
@@ -419,15 +406,15 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/project/project.php?id=<?= $project_id ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
-                                    <a class="dropdown-item" href="<?= $url ?>" target="_blank">
-                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a new tab
+                                    <a class="dropdown-item" href="<?= $url ?>" target="_blank" rel="noopener">
+                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a New Tab
                                     </a>
                                     <?php if ($can_edit) { ?>
                                         <?php if ($is_open) { ?>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_add.php?<?= $row_client_id ? "client_id=$row_client_id&" : '' ?>project_id=<?= $project_id ?>">
-                                                <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>New ticket
+                                                <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>New Ticket
                                             </a>
                                         <?php } ?>
                                         <?php if (!$row['project_archived_at']) { ?>
@@ -438,10 +425,10 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                                         <div class="dropdown-divider"></div>
                                         <?php if ($is_open) { ?>
                                             <?php if ($s['open']) { ?>
-                                                <span class="dropdown-item disabled" title="Resolve or close its tickets first"><i class="fas fa-fw fa-check me-2"></i>Mark complete <small>(<?= $s['open'] ?> open)</small></span>
+                                                <span class="dropdown-item disabled" title="Resolve or close its tickets first"><i class="fas fa-fw fa-check me-2"></i>Mark Complete <small>(<?= $s['open'] ?> open)</small></span>
                                             <?php } else { ?>
                                                 <a class="dropdown-item confirm-link" href="post.php?complete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="<?= $reference ?> is marked complete.">
-                                                    <i class="fas fa-fw fa-check text-success me-2"></i>Mark complete
+                                                    <i class="fas fa-fw fa-check text-success me-2"></i>Mark Complete
                                                 </a>
                                             <?php } ?>
                                         <?php } elseif ($state === 'completed') { ?>
@@ -451,15 +438,15 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                                         <?php } ?>
                                         <?php if ($row['project_archived_at']) { ?>
                                             <a class="dropdown-item" href="post.php?restore_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                                <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                         <?php } else { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="<?= $reference ?> moves to Archived. Its tickets stay as they are.">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                         <?php } ?>
                                         <?php if ($can_delete) { ?>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                            <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                 data-confirm-text="<?= $reference ?> goes for good. Its tickets stay, no longer part of a project.">
                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </a>

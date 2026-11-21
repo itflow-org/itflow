@@ -22,6 +22,7 @@ if (!$template) {
 
 $ticket_template_id = intval($template['ticket_template_id']);
 $name = escapeHtml($template['ticket_template_name']);
+$page_title = $template['ticket_template_name'];
 $archived = !empty($template['ticket_template_archived_at']);
 $tasks = ticketTemplateTasks($ticket_template_id);
 $task_minutes = array_sum(array_column($tasks, 'estimate'));
@@ -123,14 +124,14 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
         </div>
         <div class="d-flex flex-wrap gap-2">
             <?php if (!$archived) { ?>
-                <a class="btn btn-primary" href="/agent/tickets.php?new_from_template=<?= $ticket_template_id ?>"><i class="fas fa-fw fa-plus me-2"></i>New ticket from it</a>
+                <a class="btn btn-primary" href="/agent/tickets.php?new_from_template=<?= $ticket_template_id ?>"><i class="fas fa-fw fa-plus me-2"></i>New Ticket from It</a>
             <?php } ?>
             <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</button>
             <div class="dropdown">
-                <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-h"></i></button>
+                <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item" href="post.php?copy_ticket_template=<?= $ticket_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
-                    <a class="dropdown-item" href="post.php?export_ticket_template=<?= $ticket_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-file-download me-2"></i>Export</a>
+                    <a class="dropdown-item" href="post.php?copy_ticket_template=<?= $ticket_template_id ?>&csrf_token=<?= $csrf ?>"><i class="far fa-fw fa-copy me-2"></i>Copy</a>
+                    <a class="dropdown-item" href="post.php?export_ticket_template=<?= $ticket_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-download me-2"></i>Export</a>
                     <?php if ($archived) { ?>
                         <a class="dropdown-item" href="post.php?restore_ticket_template=<?= $ticket_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo me-2"></i>Restore</a>
                     <?php } else { ?>
@@ -204,7 +205,7 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
                                                     data-confirm-title="Reset <?= escapeHtml($fill_in['name']) ?>?" data-confirm-text="It is still in the text, so it stays asked for - as plain, optional text." data-confirm-button="Reset"><i class="fas fa-fw fa-undo me-2"></i>Reset</a>
                                             <?php } else { ?>
                                                 <a class="dropdown-item text-danger confirm-link" href="post.php?delete_ticket_template_fill_in=<?= $fill_in['id'] ?>&csrf_token=<?= $csrf ?>"
-                                                    data-confirm-title="Remove <?= escapeHtml($fill_in['name']) ?>?" data-confirm-text="It is no longer asked for. Tickets already raised keep their answers." data-confirm-button="Remove"><i class="fas fa-fw fa-trash-alt me-2"></i>Remove</a>
+                                                    data-confirm-title="Remove <?= escapeHtml($fill_in['name']) ?>?" data-confirm-text="It is no longer asked for. Tickets already raised keep their answers." data-confirm-button="Remove"><i class="fas fa-fw fa-trash me-2"></i>Remove</a>
                                             <?php } ?>
                                         <?php } ?>
                                     </div>
@@ -271,7 +272,7 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket_template/ticket_template_task_edit.php?id=<?= $task['id'] ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task_template=<?= $task['id'] ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-trash-alt me-2"></i>Delete</a>
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task_template=<?= $task['id'] ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                                     </div>
                                 </div>
                             </div>

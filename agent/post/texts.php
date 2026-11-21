@@ -64,6 +64,8 @@ if (isset($_POST['sms_open_ticket'])) {
 
     if (!empty($_POST['assign_me'])) {
         mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = " . intval($session_user_id) . ", ticket_status = 2 WHERE ticket_id = $ticket_id");
+        // When Open counts as the first response (functions/ticket_status.php)
+        ticketStatusMovedByAgent($ticket_id, TICKET_STATUS_NEW, TICKET_STATUS_OPEN);
     }
 
     // Their next text finds them - when they have no mobile yet

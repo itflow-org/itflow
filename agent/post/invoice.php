@@ -84,7 +84,7 @@ if (isset($_POST['edit_invoice'])) {
 
     logAudit("Invoice", "Edit", "$session_name edited Invoice $invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
 
-    flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> edited");
+    flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> saved");
 
     redirect();
 
@@ -122,8 +122,10 @@ if (isset($_POST['add_invoice_copy'])) {
 
     enforceClientAccess();
 
-    // Its products that track stock come off the shelf again - there has to be enough
-    $copy_items = billingItems('invoice', $invoice_id);
+    // Its products that track stock come off the shelf again - there has to be enough.
+    // A card fee it was paid with isn't copied - that was for the payment
+    [$copy_items, $card_fees] = billingWithoutCardFees(billingItems('invoice', $invoice_id));
+    $invoice_amount = round($invoice_amount - $card_fees, 2);
     $shortfall = productStockShortfall($copy_items);
     if ($shortfall !== '') {
         flashAlert(escapeHtml($shortfall) . ' Add stock before copying it.', 'error');
@@ -157,7 +159,7 @@ if (isset($_POST['add_invoice_copy'])) {
 
     triggerCustomAction('invoice_create', $new_invoice_id);
 
-    flashAlert("Created new Invoice <strong>$config_invoice_prefix$new_invoice_number</strong> from <strong>$old_invoice_prefix$old_invoice_number</strong>");
+    flashAlert("Invoice <strong>$old_invoice_prefix$old_invoice_number</strong> copied to <strong>$config_invoice_prefix$new_invoice_number</strong>" . ($card_fees > 0 ? ' - without its card fee' : ''));
 
     redirect("invoice.php?invoice_id=$new_invoice_id");
 
@@ -190,20 +192,10 @@ if (isset($_POST['mark_invoice_sent'])) {
         flashAlert("Invalid delivery method", 'error');
         redirect();
     }
-    $sent_method = escapeSql($sent_method);
+    $note = substr(trim((string) ($_POST['note'] ?? '')), 0, 500);
 
-    $note = escapeSql(substr(trim($_POST['note'] ?? ''), 0, 500));
-
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
-
-    $history_description = "Invoice marked sent by $session_name - $sent_method";
-    if (!empty($note)) {
-        $history_description .= "\nNote: $note";
-    }
-
-    logHistory('Sent', $history_description, $invoice_id);
-
-    logAudit("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number sent - $sent_method", $client_id, $invoice_id);
+    // functions/invoice_actions.php - as the invoices list's Mark Sent does it
+    invoiceMarkSent($row + ['invoice_id' => $invoice_id], $sent_method, $note);
 
     flashAlert("Invoice marked sent");
 
@@ -265,14 +257,8 @@ if (isset($_GET['cancel_invoice'])) {
 
     enforceClientAccess();
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Cancelled' WHERE invoice_id = $invoice_id");
-
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Cancelled', history_description = 'Invoice cancelled by $session_name', history_invoice_id = $invoice_id");
-
-    // What it took off the shelf goes back
-    productStockReturnInvoice($invoice_id, stripslashes("$invoice_prefix$invoice_number cancelled"));
-
-    logAudit("Invoice", "Edit", "$session_name cancelled invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    // What it took off the shelf goes back (functions/invoice_actions.php)
+    invoiceCancel($row + ['invoice_id' => $invoice_id]);
 
     flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> cancelled", 'error');
 
@@ -308,43 +294,9 @@ if (isset($_GET['delete_invoice'])) {
         redirect();
     }
 
-    // What it took off the shelf goes back before its lines go
-    productStockReturnInvoice($invoice_id, stripslashes("$invoice_prefix$invoice_number deleted"));
-
-    mysqli_query($mysqli,"DELETE FROM invoices WHERE invoice_id = $invoice_id");
-
-    //Delete Items Associated with the Invoice
-    $sql = mysqli_query($mysqli,"SELECT item_id FROM invoice_items WHERE item_invoice_id = $invoice_id");
-    while($row = mysqli_fetch_assoc($sql)) {
-        $item_id = intval($row['item_id']);
-        mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
-    }
-
-    //Delete History Associated with the Invoice
-    $sql = mysqli_query($mysqli,"SELECT history_id FROM history WHERE history_invoice_id = $invoice_id");
-    while($row = mysqli_fetch_assoc($sql)) {
-        $history_id = intval($row['history_id']);
-        mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
-    }
-
-    //Delete Payments Associated with the Invoice
-    $sql = mysqli_query($mysqli,"SELECT payment_id FROM payments WHERE payment_invoice_id = $invoice_id");
-    while($row = mysqli_fetch_assoc($sql)) {
-        $payment_id = intval($row['payment_id']);
-        mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
-    }
-
-    //unlink tickets from invoice
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = 0 WHERE ticket_invoice_id = $invoice_id");
-
-    // Assets made from its hardware stay on the client's assets, unlinked
-    mysqli_query($mysqli, "UPDATE assets SET asset_invoice_id = 0, asset_invoice_item_id = 0 WHERE asset_invoice_id = $invoice_id");
-
-    // Expenses and trips billed on it are to bill again
-    mysqli_query($mysqli, "UPDATE expenses SET expense_invoice_id = NULL, expense_invoice_item_id = NULL WHERE expense_invoice_id = $invoice_id");
-    mysqli_query($mysqli, "UPDATE trips SET trip_invoice_id = 0, trip_invoice_item_id = 0 WHERE trip_invoice_id = $invoice_id");
-
-    logAudit("Invoice", "Delete", "$session_name deleted invoice $invoice_prefix$invoice_number", $client_id);
+    // Its lines, history and payments go; what it took off the shelf comes back, and what
+    // was billed on it is to bill again (functions/invoice_actions.php)
+    invoiceDelete($row + ['invoice_id' => $invoice_id]);
 
     flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> deleted", 'error');
 
@@ -390,9 +342,15 @@ if (isset($_POST['email_invoice'])) {
             redirect();
         }
     } else {
-        $recipients = billingEmailRecipients($client_id, (array) ($_POST['contacts'] ?? []));
+        // The contacts ticked, and any address typed in Also send to - for this once
+        $extra = billingEmailExtraRecipients($_POST['extra_emails'] ?? '', $extra_bad);
+        if ($extra_bad) {
+            flashAlert('Not an email address: ' . escapeHtml(implode(', ', $extra_bad)), 'error');
+            redirect();
+        }
+        $recipients = billingEmailMergeRecipients(empty($_POST['contacts']) ? [] : billingEmailRecipients($client_id, (array) $_POST['contacts']), $extra);
         if (!$recipients) {
-            flashAlert(empty($_POST['contacts']) ? "Select at least one contact to send to" : "None of the selected contacts have a usable email address", 'error');
+            flashAlert(empty($_POST['contacts']) ? "Tick a contact or type an address to send it to" : "None of the selected contacts have a usable email address", 'error');
             redirect();
         }
     }
@@ -856,6 +814,7 @@ if (isset($_POST['bulk_edit_invoice_category'])) {
     $category_name = escapeSql(getFieldById('categories', $category_id, 'category_name'));
 
     // Assign Income category to Selected Invoices
+    $undo = undoSnapshot('invoices', 'invoice_id', $_POST['invoice_ids'] ?? [], ['invoice_category_id'], 'invoice_client_id'); // for Undo on the message
     if (isset($_POST['invoice_ids'])) {
 
         // Get Selected Count
@@ -882,8 +841,57 @@ if (isset($_POST['bulk_edit_invoice_category'])) {
 
         logAudit("Invoice", "Bulk Edit", "$session_name assigned $count invoices to category $category_name");
 
-        flashAlert("Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice(s)");
+        flashAlert("Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice" . ($count === 1 ? '' : 's'));
+        undoOfferChanges($undo, "Income category put back on <strong>{n}</strong> invoice{s}", 'module_sales');
     }
+
+    redirect();
+
+}
+
+if (isset($_POST['invoice_bulk'])) {
+
+    validateCSRFToken();
+
+    // Mark Sent, Send by Email, Mark Paid, Cancel or Delete on the invoices ticked on the
+    // list - each invoice checked again as it is done (functions/invoice_actions.php)
+    $action = (string) ($_POST['action'] ?? '');
+    if (!isset(invoiceBulkActions()[$action]) || !invoiceBulkCan($action)) {
+        flashAlert("That bulk action isn't one your role can use", 'error');
+        redirect();
+    }
+    $invoice_ids = invoiceBulkRecall($_POST['set'] ?? '');
+    if (!$invoice_ids) {
+        flashAlert('The invoices ticked have been forgotten - tick them again', 'error');
+        redirect();
+    }
+
+    $opts = [];
+    if ($action === 'sent') {
+        $opts['method'] = (string) ($_POST['sent_method'] ?? '');
+        if (!in_array($opts['method'], getSentMethods(), true)) {
+            flashAlert("Pick how they were sent", 'error');
+            redirect();
+        }
+        $opts['note'] = substr(trim((string) ($_POST['note'] ?? '')), 0, 500);
+    }
+    if ($action === 'pay') {
+        $opts = [
+            'date' => preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($_POST['date'] ?? '')) ? $_POST['date'] : '',
+            'account' => intval($_POST['account'] ?? 0),
+            'method' => trim((string) ($_POST['payment_method'] ?? '')),
+            'reference' => mb_substr(trim((string) ($_POST['reference'] ?? '')), 0, 200),
+            'receipt' => !empty($_POST['email_receipt']),
+        ];
+        if ($opts['date'] === '' || !isset(paymentAccounts()[$opts['account']]) || !in_array($opts['method'], paymentMethods('in', true), true)) {
+            flashAlert("Pick the date, the method and the account they were paid into", 'error');
+            redirect();
+        }
+    }
+
+    $result = invoiceBulkRun($action, $invoice_ids, $opts);
+
+    flashAlert(invoiceBulkMessage($action, $result), $result['done'] ? ($result['skipped'] ? 'warning' : 'success') : 'error');
 
     redirect();
 

@@ -45,6 +45,11 @@ if (!$payment_provider_fees_provider) {
     cronJobStop("No Stripe payment provider\n");
 }
 
+// Development mode refuses every Stripe call (functions/dev_mode.php)
+if (devModeOn()) {
+    cronJobStop("Development mode - Stripe is off\n");
+}
+
 $payment_provider_fees_done = paymentProviderRecordFees($payment_provider_fees_provider);
 
 if ($payment_provider_fees_done['busy']) {

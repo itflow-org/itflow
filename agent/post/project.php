@@ -164,9 +164,11 @@ if (isset($_GET['archive_project'])) {
 
     $row = projectForRequest($_GET['archive_project'], 2);
 
+    $undo = undoArchiveBefore('project', $row['project_id']); // for Undo on the message
     projectArchive($row);
 
     flashAlert("Project <strong>" . escapeHtml(projectReference($row) . ' - ' . $row['project_name']) . "</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -201,70 +203,6 @@ if (isset($_GET['delete_project'])) {
     if (preg_match('#/project\.php#', $referer)) {
         redirect(projectBackUrl(strpos($referer, 'client_id=') !== false ? $row['project_client_id'] : 0));
     }
-    redirect();
-
-}
-
-/*
- * Tickets onto a project - picked from its client's tickets, or typed by
- * number for older ones. Moving a ticket off another project is fine; one
- * the agent can't reach, or another client's, is skipped.
- */
-if (isset($_POST['link_ticket_to_project'])) {
-
-    validateCSRFToken();
-
-    $row = projectForRequest($_POST['project_id'] ?? 0, 2);
-
-    if (!projectIsOpen($row)) {
-        flashAlert("Project <strong>" . escapeHtml(projectReference($row)) . "</strong> isn't open - reopen it to add tickets.", 'error');
-        redirect();
-    }
-
-    $ticket_ids = array_map('intval', (array) ($_POST['tickets'] ?? []));
-
-    // Numbers typed in, with or without the prefix
-    $not_found = [];
-    foreach (preg_split('/[\s,;]+/', (string) ($_POST['ticket_numbers'] ?? ''), -1, PREG_SPLIT_NO_EMPTY) as $typed) {
-        $number = intval(preg_replace('/^\D+/', '', $typed));
-        $found = $number ? mysqli_fetch_row(mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_number = $number ORDER BY ticket_id DESC LIMIT 1")) : null;
-        if ($found) {
-            $ticket_ids[] = intval($found[0]);
-        } else {
-            $not_found[] = escapeHtml($typed);
-        }
-    }
-
-    $added = 0;
-    $skipped = [];
-    foreach (array_unique(array_filter($ticket_ids)) as $ticket_id) {
-        $ticket = ticketRow($ticket_id);
-        if (!$ticket) {
-            continue;
-        }
-        if (intval($ticket['ticket_project_id']) === intval($row['project_id'])) {
-            continue;
-        }
-        $why_not = projectAddTicket($row, $ticket);
-        if ($why_not === '') {
-            $added++;
-        } else {
-            $skipped[] = escapeHtml(ticketReference($ticket)) . " ($why_not)";
-        }
-    }
-
-    if ($added) {
-        logAudit("Project", "Edit", "$session_name added $added ticket" . ($added === 1 ? '' : 's') . " to project " . escapeSql(projectReference($row) . ' - ' . $row['project_name']), $client_id, intval($row['project_id']));
-    }
-
-    // One message - a second flashAlert() would replace the first
-    $message = array_filter([
-        $added ? "<strong>$added</strong> ticket" . ($added === 1 ? '' : 's') . " added to <strong>" . escapeHtml($row['project_name']) . "</strong>" : '',
-        $skipped ? 'Skipped ' . implode(', ', $skipped) : '',
-        $not_found ? 'No ticket numbered ' . implode(', ', $not_found) : '',
-    ]);
-    flashAlert($message ? implode('. ', $message) : 'Nothing to add - those tickets are on the project already.', $added ? 'success' : 'error');
-
     redirect();
 
 }
@@ -377,6 +315,7 @@ if (isset($_POST['bulk_archive_projects'])) {
     validateCSRFToken();
 
     $done = 0;
+    $undo = undoArchiveBefore('project', $_POST['project_ids'] ?? []); // for Undo on the message
     foreach (projectsForBulk(2) as $row) {
         if (!empty($row['project_archived_at'])) {
             continue;
@@ -386,6 +325,7 @@ if (isset($_POST['bulk_archive_projects'])) {
     }
 
     flashAlert("<strong>$done</strong> project" . ($done === 1 ? '' : 's') . " archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -434,6 +374,7 @@ if (isset($_POST['bulk_edit_project_manager'])) {
     $manager_name = $manager_id ? escapeSql((string) getFieldById('users', $manager_id, 'user_name')) : 'No One';
 
     $done = 0;
+    $undo = undoSnapshot('projects', 'project_id', $_POST['project_ids'] ?? [], ['project_manager'], 'project_client_id'); // for Undo on the message
     foreach (projectsForBulk(2) as $row) {
         if (!projectIsOpen($row) || intval($row['project_manager']) === $manager_id) {
             continue;
@@ -445,6 +386,7 @@ if (isset($_POST['bulk_edit_project_manager'])) {
     }
 
     flashAlert("Manager of <strong>$done</strong> project" . ($done === 1 ? '' : 's') . " set to <strong>" . escapeHtml(stripslashes($manager_name)) . "</strong>");
+    undoOfferChanges($undo, "Manager put back on <strong>{n}</strong> project{s}", 'module_support');
 
     redirect();
 
@@ -458,6 +400,7 @@ if (isset($_POST['bulk_edit_project_due'])) {
 
     $done = 0;
     $skipped = 0;
+    $undo = undoSnapshot('projects', 'project_id', $_POST['project_ids'] ?? [], ['project_due'], 'project_client_id'); // for Undo on the message
     foreach (projectsForBulk(2) as $row) {
         if (!projectIsOpen($row)) {
             continue;
@@ -468,12 +411,13 @@ if (isset($_POST['bulk_edit_project_due'])) {
             continue;
         }
         mysqli_query($mysqli, "UPDATE projects SET project_due = $due WHERE project_id = " . intval($row['project_id']));
-        logAudit("Project", "Edit", "$session_name set the due date of project " . escapeSql(projectReference($row) . ' - ' . $row['project_name']) . " to " . ($due === 'NULL' ? 'none' : trim($due, "'")), intval($row['project_client_id']), intval($row['project_id']));
+        logAudit("Project", "Edit", "$session_name set the due date of project " . escapeSql(projectReference($row) . ' - ' . $row['project_name']) . " to " . ($due === 'NULL' ? 'none' : formatDate(trim($due, "'"))), intval($row['project_client_id']), intval($row['project_id']));
         $done++;
     }
 
     flashAlert("Due date of <strong>$done</strong> project" . ($done === 1 ? '' : 's') . ($due === 'NULL' ? ' cleared' : ' set to <strong>' . escapeHtml(date('M j, Y', strtotime(trim($due, "'")))) . '</strong>')
         . ($skipped ? ", <strong>$skipped</strong> skipped - they start after it" : ''));
+    undoOfferChanges($undo, "Due date put back on <strong>{n}</strong> project{s}", 'module_support');
 
     redirect();
 

@@ -157,17 +157,17 @@ $stat_monthly = function ($amount) use ($stat_money) {
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-comment-dollar me-2"></i>Quotes</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-comment-dollar me-2"></i>Quotes</h3>
         <div class="card-tools">
             <div class="btn-group">
                 <?php if ($can_edit) { ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/quote/quote_add.php?<?= $client_url ?>"><i class="fas fa-plus me-2"></i>New Quote</button>
                 <?php } ?>
                 <?php if ($num_rows[0] > 0) { ?>
-                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/quote/quote_export.php', ['client_id', 'category', 'q'], ['dtf' => $dtf, 'dtt' => $dtt, 'client_id' => $client ?: '']) ?>">
-                            <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                            <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                         </a>
                     </div>
                 <?php } ?>
@@ -185,7 +185,7 @@ $stat_monthly = function ($amount) use ($stat_money) {
                 <div class="<?= $client_url ? 'col-lg-5' : 'col-lg-4' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search number, scope, client, amount...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -203,7 +203,7 @@ $stat_monthly = function ($amount) use ($stat_money) {
                 <?php if (!$client_url) { ?>
                     <div class="col-lg-3 col-md-6">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
-                            <option value="">- All Clients -</option>
+                            <option value="">- Any client -</option>
                             <?php
                             $sql_clients_filter = mysqli_query($mysqli, "SELECT DISTINCT client_id, client_name, client_abbreviation FROM clients
                                 JOIN quotes ON quote_client_id = client_id WHERE 1 " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
@@ -231,14 +231,14 @@ $stat_monthly = function ($amount) use ($stat_money) {
         <table class="table table-hover align-middle mb-0 itflow-billing-table">
             <thead class="<?= $num_rows[0] ? '' : 'd-none' ?> text-nowrap table-light">
             <tr>
-                <th class="ps-3"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=quote_number&order=<?= $disp ?>">Quote <?php if ($sort == 'quote_number') { echo $order_icon; } ?></a></th>
+                <th class="ps-3"><?= sortLink('quote_number', 'Quote') ?></th>
                 <?php if (!$client_url) { ?>
-                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
+                    <th><?= sortLink('client_name', 'Client') ?></th>
                 <?php } ?>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=quote_date&order=<?= $disp ?>">Date <?php if ($sort == 'quote_date') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=quote_expire&order=<?= $disp ?>">Valid until <?php if ($sort == 'quote_expire') { echo $order_icon; } ?></a></th>
-                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=quote_amount&order=<?= $disp ?>">Total <?php if ($sort == 'quote_amount') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=quote_status&order=<?= $disp ?>">Status <?php if ($sort == 'quote_status') { echo $order_icon; } ?></a></th>
+                <th><?= sortLink('quote_date', 'Date') ?></th>
+                <th><?= sortLink('quote_expire', 'Valid until') ?></th>
+                <th class="text-end"><?= sortLink('quote_amount', 'Total') ?></th>
+                <th><?= sortLink('quote_status', 'Status') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -256,11 +256,11 @@ $stat_monthly = function ($amount) use ($stat_money) {
                         <div class="small text-body-secondary text-truncate" style="max-width: 24rem;"><?= escapeHtml(implode(' · ', array_filter([$row['quote_scope'], $row['category_name']]))) ?: '&nbsp;' ?></div>
                     </td>
                     <?php if (!$client_url) { ?>
-                        <td><a class="text-reset" href="quotes.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                        <td><a data-client-card="<?= $row_client_id ?>" class="text-reset" href="quotes.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                     <?php } ?>
-                    <td class="text-nowrap"><?= escapeHtml($row['quote_date']) ?></td>
+                    <td class="text-nowrap"><?= formatDate($row['quote_date']) ?></td>
                     <td class="text-nowrap">
-                        <?= escapeHtml($row['quote_expire']) ?>
+                        <?= formatDate($row['quote_expire']) ?>
                         <?php $expiry_pill = quoteExpiryPill($row); if ($expiry_pill) { ?><div><?= $expiry_pill ?></div><?php } ?>
                     </td>
                     <td class="text-end itflow-money">
@@ -275,7 +275,7 @@ $stat_monthly = function ($amount) use ($stat_money) {
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="<?= $row_url ?>"><i class="fas fa-fw fa-eye text-secondary me-2"></i>Open</a>
-                                <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank"><i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Download PDF</a>
+                                <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank" rel="noopener"><i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Download PDF</a>
                                 <?php if ($can_edit) { ?>
                                     <div class="dropdown-divider"></div>
                                     <?php if ($mail_ready && in_array($row_status, ['Draft', 'Sent', 'Viewed'], true)) { ?>
@@ -301,12 +301,12 @@ $stat_monthly = function ($amount) use ($stat_money) {
                                         <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/quote/quote_copy.php?id=<?= $quote_id ?>">
-                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                        <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                     </a>
                                 <?php } ?>
                                 <?php if ($can_delete) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= escapeHtml($row_number) ?> goes for good, with its lines and history.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

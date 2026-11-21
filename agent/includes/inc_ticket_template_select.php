@@ -26,7 +26,7 @@
 $selected_ticket_template_id = intval($selected_ticket_template_id ?? 0);
 $ticket_template_field = $ticket_template_field ?? 'ticket_template_id';
 $ticket_template_apply_on_load = !empty($ticket_template_apply_on_load);
-$ticket_template_hint = $ticket_template_hint ?? 'Picking one fills in the ticket - change anything before it is made. <span class="font-monospace">[Client]</span>, <span class="font-monospace">[Month]</span> and the like are filled in when it is saved.';
+$ticket_template_hint = $ticket_template_hint ?? '<span class="font-monospace">[Client]</span>, <span class="font-monospace">[Month]</span> and the like in it are filled in when the ticket is saved.';
 
 $ticket_template_fill_in_values = $ticket_template_fill_in_values ?? [];
 
@@ -55,9 +55,9 @@ while ($row = mysqli_fetch_row($sql_ticket_template_tags)) {
 <div class="mb-3">
     <label class="form-label">Template</label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
         <select class="form-select select2" id="ticket_template_select" name="<?= escapeHtml($ticket_template_field) ?>" data-template-picker<?= $ticket_template_apply_on_load ? ' data-template-apply="1"' : '' ?>>
-            <option value="0">- No Template -</option>
+            <option value="0">- No template -</option>
             <?php foreach ($ticket_template_rows as $id => $row) {
                 $tasks = $ticket_template_tasks[$id] ?? [];
                 $fill_ins = ticketTemplateFillIns($row, $tasks, $ticket_template_fill_in_rows[$id] ?? []);

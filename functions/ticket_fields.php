@@ -75,6 +75,23 @@ function ticketChangePriority($ticket_id, $priority) {
 }
 
 /*
+ * Whether a reply the client sees, on a ticket nobody is assigned to, assigns it to
+ * the agent who sent it - Admin > Settings > Tickets, config_ticket_reply_assigns.
+ * On until database 4.0.9 adds the switch.
+ */
+function ticketReplyAssigns() {
+    global $mysqli;
+    static $on = null;
+    if ($on === null) {
+        $on = true;
+        if (version_compare(defined('CURRENT_DATABASE_VERSION') ? (string) CURRENT_DATABASE_VERSION : '0', '4.0.9', '>=')) {
+            $on = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_ticket_reply_assigns FROM settings WHERE company_id = 1"))[0] ?? 1) === 1;
+        }
+    }
+    return $on;
+}
+
+/*
  * Assign to an agent, or to no one with 0. A New ticket that gets an agent
  * becomes Open. Returns [ok, message].
  */
@@ -117,6 +134,8 @@ function ticketChangeAssignee($ticket_id, $assigned_to) {
     // Update ticket & insert reply
     mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = $assigned_to, ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id");
     syncTicketSlaClock($ticket_id);
+    // New to Open, when Open counts as the first response (functions/ticket_status.php)
+    ticketStatusMovedByAgent($ticket_id, $row['ticket_status'], $ticket_status);
 
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
@@ -128,7 +147,7 @@ function ticketChangeAssignee($ticket_id, $assigned_to) {
     if ($session_user_id != $assigned_to && $assigned_to != 0) {
 
         // App Notification
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject has been assigned to you by $session_name', notification_action = '/agent/ticket.php?ticket_id=$ticket_id$client_uri', notification_client_id = $client_id, notification_user_id = $assigned_to");
+        ticketTeamNotifyOn('assigned_app') && mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject has been assigned to you by $session_name', notification_action = '/agent/ticket.php?ticket_id=$ticket_id$client_uri', notification_client_id = $client_id, notification_user_id = $assigned_to");
 
         // Email Notification
         ticketMailAssigned($assigned_to, [$ticket_id], stripslashes($session_name));
@@ -188,6 +207,7 @@ function ticketChangeStatus($ticket_id, $status_id) {
     syncTicketSlaClock($ticket_id);
 
     logTicketHistory($ticket_id, "$session_name set the status to $status_name");
+    ticketStatusMovedByAgent($ticket_id, $row['ticket_status'], $status_id);
 
     logAudit("Ticket", "Edit", "$session_name set the status of $ticket_prefix$ticket_number to $status_name", $client_id, $ticket_id);
 
@@ -231,11 +251,11 @@ function ticketPriorityHtml($priority, $style = 'list') {
 
 function ticketBillableHtml($billable, $style = 'list') {
     if ($style === 'detail') {
-        return $billable ? '<span>Billable</span>' : "<span class='text-muted'>Not billable</span>";
+        return $billable ? '<span>Billable</span>' : "<span class='text-body-secondary'>Not billable</span>";
     }
     return $billable
         ? '<span class="badge rounded-pill bg-success p-2"><i class="fas fa-fw fa-dollar-sign"></i></span>'
-        : '<span class="badge rounded-pill bg-secondary p-2"><i class="fas fa-fw fa-minus"></i></span>';
+        : '<span class="badge rounded-pill bg-body-secondary text-body-secondary p-2"><i class="fas fa-fw fa-minus"></i></span>';
 }
 
 /* A status as its badge - text that reads on its colour, and what it is for on hover (functions/ticket_status.php). */
@@ -279,7 +299,7 @@ function quickPickAgents($none_label = 'Unassigned') {
     global $mysqli, $session_user_id;
 
     $options = [['value' => '0', 'label' => $none_label, 'icon' => 'fas fa-user-slash', 'none' => true]];
-    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_archived_at IS NULL ORDER BY user_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $user_id = intval($row['user_id']);
         $option = ['value' => (string) $user_id, 'label' => $row['user_name'] . ($user_id == $session_user_id ? ' (me)' : '')];
@@ -375,7 +395,7 @@ function recurringTicketChangeAssignee($recurring_ticket_id, $assigned_to) {
     logAudit("Recurring Ticket", "Edit", "$session_name reassigned recurring ticket $subject to $agent_name", $client_id, $recurring_ticket_id);
 
     if ($assigned_to && $assigned_to != $session_user_id) {
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Ticket', notification = 'Recurring ticket $subject has been assigned to you by $session_name', notification_action = 'recurring_tickets.php?assigned=$assigned_to', notification_client_id = $client_id, notification_user_id = $assigned_to");
+        ticketTeamNotifyOn('assigned_app') && mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Ticket', notification = 'Recurring ticket $subject has been assigned to you by $session_name', notification_action = 'recurring_tickets.php?assigned=$assigned_to', notification_client_id = $client_id, notification_user_id = $assigned_to");
 
         recurringTicketMailAssigned($assigned_to, [(string) $row['recurring_ticket_subject']], stripslashes($session_name));
     }

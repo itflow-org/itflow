@@ -21,6 +21,13 @@ use DirectoryTree\ImapEngine\Exceptions\ImapStreamException;
 class ImapTokenizer
 {
     /**
+     * Atom delimiters, control characters (0x00–0x1F), and DEL (0x7F).
+     */
+    protected const ATOM_DELIMITERS = ' ()[]{}<>'
+        ."\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F"
+        ."\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F\x7F";
+
+    /**
      * The current position in the buffer.
      */
     protected int $position = 0;
@@ -44,6 +51,7 @@ class ImapTokenizer
     {
         $this->skipWhitespace();
 
+        // Retry if whitespace scanning stopped after an empty read.
         $this->ensureBuffer(1);
 
         $char = $this->currentChar();
@@ -134,24 +142,13 @@ class ImapTokenizer
         while (true) {
             $this->ensureBuffer(1);
 
-            $char = $this->currentChar();
+            $length = strspn($this->buffer, " \t", $this->position);
 
-            // Break on EOF.
-            if ($char === null || $char === '') {
-                break;
+            if ($length === 0) {
+                return;
             }
 
-            // Break on CRLF.
-            if ($char === "\r" || $char === "\n") {
-                break;
-            }
-
-            // Break on non-whitespace.
-            if ($char !== ' ' && $char !== "\t") {
-                break;
-            }
-
-            $this->advance();
+            $this->advance($length);
         }
     }
 
@@ -169,6 +166,17 @@ class ImapTokenizer
 
         while (true) {
             $this->ensureBuffer(1);
+
+            // Consume ordinary characters up to the next delimiter.
+            $length = strcspn($this->buffer, '"\\', $this->position);
+
+            if ($length > 0) {
+                $value .= substr($this->buffer, $this->position, $length);
+
+                $this->advance($length);
+
+                continue;
+            }
 
             $char = $this->currentChar();
 
@@ -198,15 +206,9 @@ class ImapTokenizer
                 continue;
             }
 
-            if ($char === '"') {
-                $this->advance(); // Skip the closing quote.
+            $this->advance(); // Skip the closing quote.
 
-                break;
-            }
-
-            $value .= $char;
-
-            $this->advance();
+            break;
         }
 
         return new QuotedString($value);
@@ -307,57 +309,28 @@ class ImapTokenizer
      */
     protected function readNumberOrAtom(): Token
     {
-        $position = $this->position;
+        $length = 0;
 
-        // First char must be a digit to even consider a number.
-        if (! ctype_digit($this->buffer[$position] ?? '')) {
+        // Look ahead without consuming digits until we can classify the token.
+        do {
+            $this->ensureBuffer($length + 1);
+
+            $digits = strspn($this->buffer, '0123456789', $this->position + $length);
+
+            $length += $digits;
+        } while ($digits > 0 && ! isset($this->buffer[$this->position + $length]));
+
+        $next = $this->buffer[$this->position + $length] ?? null;
+
+        if ($length === 0 || ($next !== null && ! $this->isDelimiter($next))) {
             return $this->readAtom();
         }
 
-        // Walk forward to find the end of the digit run.
-        while (ctype_digit($this->buffer[$position] ?? '')) {
-            $position++;
+        $value = substr($this->buffer, $this->position, $length);
 
-            $this->ensureBuffer($position - $this->position + 1);
-        }
+        $this->advance($length);
 
-        $next = $this->buffer[$position] ?? null;
-
-        // If next is EOF or a delimiter, it's a Number.
-        if ($next === null || $this->isDelimiter($next)) {
-            return $this->readNumber();
-        }
-
-        // Otherwise it's an Atom.
-        return $this->readAtom();
-    }
-
-    /**
-     * Reads a number token.
-     *
-     * A number consists of one or more digit characters and represents a numeric value.
-     */
-    protected function readNumber(): Number
-    {
-        $start = $this->position;
-
-        while (true) {
-            $this->ensureBuffer(1);
-
-            $char = $this->currentChar();
-
-            if ($char === null) {
-                break;
-            }
-
-            if (! ctype_digit($char)) {
-                break;
-            }
-
-            $this->advance();
-        }
-
-        return new Number(substr($this->buffer, $start, $this->position - $start));
+        return new Number($value);
     }
 
     /**
@@ -372,19 +345,20 @@ class ImapTokenizer
         while (true) {
             $this->ensureBuffer(1);
 
+            // Consume ordinary characters up to the next delimiter.
+            $length = strcspn($this->buffer, static::ATOM_DELIMITERS, $this->position);
+
+            if ($length > 0) {
+                $value .= substr($this->buffer, $this->position, $length);
+
+                $this->advance($length);
+
+                continue;
+            }
+
             $char = $this->currentChar();
 
-            if ($char === null) {
-                break;
-            }
-
-            if (! $this->isValidAtomCharacter($char)) {
-                break;
-            }
-
-            $value .= $char;
-
-            $this->advance();
+            break;
         }
 
         // If no value was read, we will throw an exception since
@@ -422,21 +396,26 @@ class ImapTokenizer
         while (true) {
             $this->ensureBuffer(1);
 
+            // Consume ordinary characters up to the next delimiter.
+            $length = strcspn($this->buffer, '>', $this->position);
+
+            if ($length > 0) {
+                $value .= substr($this->buffer, $this->position, $length);
+
+                $this->advance($length);
+
+                continue;
+            }
+
             $char = $this->currentChar();
 
             if ($char === null) {
                 throw new ImapParserException('Unterminated email address, expected ">"');
             }
 
-            if ($char === '>') {
-                $this->advance(); // Skip the closing '>'.
+            $this->advance(); // Skip the closing '>'.
 
-                break;
-            }
-
-            $value .= $char;
-
-            $this->advance();
+            break;
         }
 
         return new EmailAddress($value);
@@ -447,7 +426,11 @@ class ImapTokenizer
      */
     protected function ensureBuffer(int $length): void
     {
-        // If we have enough data in the buffer, return early.
+        if (isset($this->buffer[$this->position + $length - 1])) {
+            return;
+        }
+
+        // Read until the requested number of bytes is available.
         while ((strlen($this->buffer) - $this->position) < $length) {
             $data = $this->stream->fgets();
 

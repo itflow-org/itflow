@@ -9,6 +9,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// The calendar switched off (Admin > Settings > Modules)
+if (!moduleOn('calendar')) {
+    exit(json_encode(['error' => moduleOffText('calendar')]));
+}
+
 if (!calendarCanManage()) {
     echo json_encode(['error' => 'Only an admin can share a calendar.']);
     exit;
@@ -29,7 +34,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-share-alt me-2"></i>Share <?= escapeHtml($calendar['calendar_name']) ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -83,20 +88,20 @@ ob_start();
     <div class="modal-footer">
         <?php if ($urls) { ?>
             <div class="dropdown dropup me-auto">
-                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-ellipsis-h"></i></button>
+                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item confirm-link" href="post.php?regenerate_calendar_feed=<?= $calendar_id ?>&csrf_token=<?= $csrf ?>"
                         data-confirm-title="Make a new link?" data-confirm-button="New link"
-                        data-confirm-text="The current link stops working - everyone subscribed needs the new one."><i class="fas fa-fw fa-sync me-2"></i>Make a new link</a>
+                        data-confirm-text="The current link stops working - everyone subscribed needs the new one."><i class="fas fa-fw fa-sync me-2"></i>Make a New Link</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger confirm-link" href="post.php?unshare_calendar=<?= $calendar_id ?>&csrf_token=<?= $csrf ?>"
                         data-confirm-title="Stop sharing?" data-confirm-button="Stop sharing"
-                        data-confirm-text="Calendars subscribed to it stop updating."><i class="fas fa-fw fa-unlink me-2"></i>Stop sharing</a>
+                        data-confirm-text="Calendars subscribed to it stop updating."><i class="fas fa-fw fa-unlink me-2"></i>Stop Sharing</a>
                 </div>
             </div>
-            <button type="submit" name="share_calendar" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+            <button type="submit" name="share_calendar" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
         <?php } else { ?>
-            <button type="submit" name="share_calendar" class="btn btn-primary text-bold"><i class="fas fa-link me-2"></i>Make the link</button>
+            <button type="submit" name="share_calendar" class="btn btn-primary fw-bold"><i class="fas fa-link me-2"></i>Make the Link</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
     </div>

@@ -49,26 +49,24 @@ $numbers = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(sms_numbe
 $opted_out = intval($numbers[0]);
 $blocked = intval($numbers[1]);
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $add_url = 'modals/sms_provider/sms_provider_add.php';
 $csrf = $_SESSION['csrf_token'];
 
 ?>
 
+<?= adminNavGroupTabsHtml('text') ?>
+
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-sms me-2"></i>Text Messaging</h3>
         <div class="card-tools">
             <a class="btn btn-outline-light me-1 ajax-modal" href="#" data-modal-url="modals/sms_provider/sms_numbers.php" title="Numbers that replied STOP, and numbers blocked as spam">
-                <i class="fas fa-fw fa-ban"></i><span class="d-none d-lg-inline ms-2">Opted out and blocked</span><?php if ($opted_out + $blocked) { ?> <span class="badge text-bg-light ms-1"><?= $opted_out + $blocked ?></span><?php } ?>
+                <i class="fas fa-fw fa-ban"></i><span class="d-none d-lg-inline ms-2">Opted Out and Blocked</span><?php if ($opted_out + $blocked) { ?> <span class="badge rounded-pill text-bg-light ms-1"><?= $opted_out + $blocked ?></span><?php } ?>
             </a>
             <a class="btn btn-outline-light me-1" href="text_messages.php"><i class="fas fa-fw fa-list"></i><span class="d-none d-lg-inline ms-2">Text Messages</span></a>
             <?php if ($can_add) { ?>
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">Add Provider</span></button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Provider</span></button>
             <?php } ?>
         </div>
     </div>
@@ -78,7 +76,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search texting providers..." title="Name, description or number">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-7 col-md-6 small text-body-secondary text-md-end" data-sms-activity>
@@ -91,10 +89,10 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('sms_provider_name', 'Provider') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('sms_provider_number', 'Number') ?></th>
+                <th class="ps-3"><?= sortLink('sms_provider_name', 'Provider') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('sms_provider_number', 'Number') ?></th>
                 <th class="d-none d-lg-table-cell">Texts come back to</th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('sms_provider_last_inbound_at', 'Last text in') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('sms_provider_last_inbound_at', 'Last text in') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -114,7 +112,7 @@ $csrf = $_SESSION['csrf_token'];
                             <div class="min-w-0">
                                 <a class="fw-semibold text-body ajax-modal" href="#" data-modal-url="<?= $edit_url ?>"><?= escapeHtml($name) ?></a>
                                 <?php if (!$on) { ?>
-                                    <span class="badge text-bg-secondary ms-1" data-sms-provider-state="off" title="No texts go out, and texts sent to the number aren't taken in">Off</span>
+                                    <span class="badge rounded-pill text-bg-secondary ms-1" data-sms-provider-state="off" title="No texts go out, and texts sent to the number aren't taken in">Off</span>
                                 <?php } ?>
                                 <?php if (trim((string) $row['sms_provider_description']) !== '') { ?>
                                     <div class="small text-body-secondary"><?= escapeHtml($row['sms_provider_description']) ?></div>
@@ -134,7 +132,7 @@ $csrf = $_SESSION['csrf_token'];
                     </td>
                     <td class="d-none d-md-table-cell small text-nowrap" data-sms-last-in>
                         <?php if ($row['sms_provider_last_inbound_at']) { ?>
-                            <span title="<?= escapeHtml($row['sms_provider_last_inbound_at']) ?>"><?= escapeHtml(timeAgo($row['sms_provider_last_inbound_at'])) ?></span>
+                            <span title="<?= formatDateTime($row['sms_provider_last_inbound_at']) ?>"><?= escapeHtml(timeAgo($row['sms_provider_last_inbound_at'])) ?></span>
                         <?php } else { ?>
                             <span class="text-body-secondary">None yet - text the number to try it</span>
                         <?php } ?>
@@ -148,22 +146,22 @@ $csrf = $_SESSION['csrf_token'];
                                 </a>
                                 <?php if ($on) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sms_provider/sms_test.php?id=<?= $provider_id ?>">
-                                        <i class="fas fa-fw fa-vial text-secondary me-2"></i>Send a test text
+                                        <i class="fas fa-fw fa-vial text-secondary me-2"></i>Send a Test Text
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item confirm-link" href="post.php?new_sms_inbound_key=<?= $provider_id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Make a new address for texts to come back to?" data-confirm-button="Make a new one"
                                     data-confirm-text="The one <?= escapeHtml($name) ?> has stops working - paste the new one into its portal, or texts to the number won't reach ITFlow.">
-                                    <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>New inbound address
+                                    <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>New Inbound Address
                                 </a>
                                 <?php if ($on) { ?>
                                     <a class="dropdown-item confirm-link" href="post.php?turn_sms_provider_off=<?= $provider_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-title="Turn <?= escapeHtml($name) ?> off?" data-confirm-text="No texts go out, and texts to the number aren't taken in until it is on again. Waiting texts wait." data-confirm-button="Turn off">
-                                        <i class="fas fa-fw fa-toggle-off text-secondary me-2"></i>Turn off
+                                        <i class="fas fa-fw fa-toggle-off text-secondary me-2"></i>Turn Off
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item" href="post.php?turn_sms_provider_on=<?= $provider_id ?>&csrf_token=<?= $csrf ?>">
-                                        <i class="fas fa-fw fa-toggle-on text-secondary me-2"></i>Turn on
+                                        <i class="fas fa-fw fa-toggle-on text-secondary me-2"></i>Turn On
                                     </a>
                                 <?php } ?>
                                 <div class="dropdown-divider"></div>
@@ -185,7 +183,7 @@ $csrf = $_SESSION['csrf_token'];
         'thing' => 'texting providers',
         'icon' => 'fa-sms',
         'text' => 'Set up Skyetel and your agents can reply to tickets by text, texts from your clients open tickets, and verification codes texted to your number land in Texts.',
-        'actions' => $can_add ? [['label' => 'Add Provider', 'modal' => $add_url]] : [],
+        'actions' => $can_add ? [['label' => 'New Provider', 'modal' => $add_url]] : [],
     ];
     ?>
     <?php require_once "../includes/filter_footer.php"; ?>

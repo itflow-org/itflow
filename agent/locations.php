@@ -2,7 +2,7 @@
 
 /*
  * Locations - one client's sites, or every location the agent can see from
- * All Client Docs. The primary location first. Each row is what a tech needs
+ * Across clients. The primary location first. Each row is what a tech needs
  * before heading out - the address (opens in maps, copies in a click), the
  * phone and hours, who to ask for - and what is on site: people, assets,
  * networks and open tickets, each opening that tab on the location's page.
@@ -106,26 +106,26 @@ $locations_counts = locationCounts(array_keys($locations));
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-map-marker-alt me-2"></i>Locations</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-map-marker-alt me-2"></i>Locations</h3>
         <div class="card-tools">
             <?php if ($can_edit) { ?>
             <div class="btn-group">
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/location/location_add.php?<?= $client_url ?>">
                     <i class="fas fa-plus me-2"></i>New Location
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($client_url) { ?>
-                    <a class="dropdown-item text-dark ajax-modal" href="#"
-                        data-modal-url="modals/location/location_import.php?<?= $client_url ?>">
-                        <i class="fa fa-fw fa-upload me-2"></i>Import
+                    <a class="dropdown-item ajax-modal" href="#"
+                        data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=locations">
+                        <i class="fas fa-fw fa-upload me-2"></i>Import
                     </a>
                     <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
                         <?php if ($client_url) { ?><div class="dropdown-divider"></div><?php } ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                        <a class="dropdown-item ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/location/location_export.php', ['client_id', 'client', 'tags', 'archived', 'q']) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
+                            <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
                 </div>
@@ -143,13 +143,13 @@ $locations_counts = locationCounts(array_keys($locations));
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search name, address, phone, notes...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <?php if (!$client_url) { ?>
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="client" onchange="this.form.submit()">
-                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- Any client -</option>
                         <?php
                         $sql_clients_filter = mysqli_query($mysqli, "
                             SELECT DISTINCT client_id, client_name, client_abbreviation
@@ -167,7 +167,7 @@ $locations_counts = locationCounts(array_keys($locations));
                 </div>
                 <?php } ?>
                 <div class="col-lg-3 col-md-6">
-                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                         <?php
                         // Tags in use on locations in this scope, plus any already picked
                         $sql_tags_filter = mysqli_query($mysqli, "
@@ -190,7 +190,7 @@ $locations_counts = locationCounts(array_keys($locations));
                     <div class="d-flex justify-content-end gap-2">
                         <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>"
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active locations' : 'Show archived locations' ?>">
-                            <i class="fa fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
+                            <i class="fas fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
                         </a>
                         <?php if ($can_edit) { ?>
                         <div class="dropdown" id="bulkActionButton" hidden>
@@ -207,13 +207,13 @@ $locations_counts = locationCounts(array_keys($locations));
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_locations"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_locations"
                                             data-confirm-text="The locations go for good. Their people, assets, networks, racks and tickets stay, with no location.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
                                     <?php } ?>
                                 <?php } else { ?>
-                                    <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_locations">
+                                    <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_locations">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                 <?php } ?>
@@ -240,31 +240,21 @@ $locations_counts = locationCounts(array_keys($locations));
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=location_name&order=<?= $disp ?>">
-                            Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('location_name', 'Location') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=location_city&order=<?= $disp ?>">
-                            Address <?php if ($sort == 'location_city') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('location_city', 'Address') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=location_phone&order=<?= $disp ?>">
-                            Phone &amp; hours <?php if ($sort == 'location_phone') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('location_phone', 'Phone &amp; hours') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=contact_name&order=<?= $disp ?>">
-                            Ask for <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('contact_name', 'Ask for') ?>
                     </th>
                     <th>On site</th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>
@@ -312,7 +302,7 @@ $locations_counts = locationCounts(array_keys($locations));
                                         <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $location_description ?>"><?= $location_description ?></div>
                                     <?php } ?>
                                     <?php if ($location_tags || $can_edit) { ?>
-                                        <div class="mt-1 itflow-above-stretch"><?= tagPills('location', $location_id, $location_tags, "locations.php?$client_url") ?></div>
+                                        <div class="itflow-tags-row mt-1 itflow-above-stretch"><?= tagPills('location', $location_id, $location_tags, "locations.php?$client_url") ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -364,22 +354,23 @@ $locations_counts = locationCounts(array_keys($locations));
                             </div>
                         </td>
                         <?php if (!$client_url) { ?>
-                        <td><a href="locations.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                        <td><a data-client-card="<?= $client_id ?>" href="locations.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                         <?php } ?>
                         <td class="text-end">
                             <div class="dropdown dropstart">
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/location/location.php?id=<?= $location_id ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <?php if ($can_edit) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/location/location_edit.php?id=<?= $location_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('location', $location_id) ?>
                                         <?php if (!$location_primary && !$location_archived_at) { ?>
                                             <a class="dropdown-item" href="post.php?make_location_primary=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-building text-secondary me-2"></i>Make primary
+                                                <i class="fas fa-fw fa-building text-secondary me-2"></i>Make Primary
                                             </a>
                                         <?php } ?>
                                         <?php if (!$location_primary) { ?>
@@ -389,13 +380,13 @@ $locations_counts = locationCounts(array_keys($locations));
                                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                                 </a>
                                                 <?php if ($can_delete) { ?>
-                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                         data-confirm-text="<?= $location_name ?> goes for good. Its people, assets, networks, racks and tickets stay, with no location.">
                                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                     </a>
                                                 <?php } ?>
                                             <?php } else { ?>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                <a class="dropdown-item text-danger" href="post.php?archive_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                 </a>
                                             <?php } ?>
@@ -420,7 +411,7 @@ $locations_counts = locationCounts(array_keys($locations));
         'text' => 'Their offices and sites, with the address and phone of each.',
         'actions' => $can_edit ? array_merge(
             [['label' => 'New Location', 'modal' => "modals/location/location_add.php?$client_url", 'size' => 'lg']],
-            $client_url ? [['label' => 'Import', 'modal' => "modals/location/location_import.php?$client_url", 'icon' => 'fa-upload']] : []
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=locations", 'icon' => 'fa-upload', 'size' => 'lg']] : []
         ) : [],
     ];
     require_once "../includes/filter_footer.php";

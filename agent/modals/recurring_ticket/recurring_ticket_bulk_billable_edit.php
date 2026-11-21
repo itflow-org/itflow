@@ -14,8 +14,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-dollar-sign me-2"></i>Mark <strong><?= $count ?></strong> Tickets Billable</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-dollar-sign me-2"></i>Mark <strong><?= $count ?></strong> Tickets Billable</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -34,8 +34,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_recurring_ticket_billable" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Set</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="bulk_edit_recurring_ticket_billable" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -25,7 +25,7 @@ if ($client_id) {
     }
 } else {
     $client_options = [];
-    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $client_options[] = $row;
     }
@@ -70,7 +70,7 @@ $contact_roles = [
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-users fa-fw"></i></span>
                     <select class="form-select select2" name="client_id" required>
-                        <option value="">- Select Client -</option>
+                        <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
                             <option value="<?= intval($client_option['client_id']) ?>"<?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                         <?php } ?>
@@ -106,7 +106,7 @@ $contact_roles = [
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-map-marker-alt fa-fw"></i></span>
                     <select class="form-select select2" name="location">
-                        <option value="">- Select Location -</option>
+                        <option value="">- Select a location -</option>
                         <?php foreach ($location_options as $location_option) {
                             $location_option_id = intval($location_option['location_id']); ?>
                             <option value="<?= $location_option_id ?>" <?php if ($contact_location_id === $location_option_id) { echo "selected"; } ?><?= selectOptionData(['description' => $location_option['location_primary'] ? 'Primary' : '']) ?>><?= escapeHtml($location_option['location_name']) ?><?= $location_option['location_archived_at'] ? ' (archived)' : '' ?></option>
@@ -147,9 +147,8 @@ $contact_roles = [
                 <span class="input-group-text"><i class="fas fa-envelope fa-fw"></i></span>
                 <input type="email" class="form-control" name="email" id="contactFormEmail" placeholder="name@example.com" maxlength="200" value="<?= $contact_email ?>">
             </div>
-            <?php if ($contact_form_mode === 'add') { ?>
-                <div class="form-text text-info" id="contactFormEmailCheck"></div>
-            <?php } ?>
+            <!-- The address already on file for someone else - as it is typed (agent/ajax.php contact_email_check) -->
+            <div class="form-text text-warning-emphasis" id="contactFormEmailCheck" data-exclude="<?= $contact_form_mode === 'edit' ? intval($contact_id) : 0 ?>"></div>
         </div>
     </div>
 
@@ -232,7 +231,7 @@ $contact_roles = [
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-lock fa-fw"></i></span>
                         <input type="password" class="form-control" data-toggle="password" id="contactFormPassword" name="contact_password" placeholder="Password" autocomplete="new-password">
-                        <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                         <button type="button" class="btn btn-outline-secondary" title="Generate a password" data-contact-form-generate>
                             <i class="fas fa-fw fa-magic"></i>
                         </button>
@@ -260,7 +259,7 @@ $contact_roles = [
             <label class="form-label">Tags</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-tags fa-fw"></i></span>
-                <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
+                <select class="form-select select2" name="tags[]" data-placeholder="- Select tags -" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                     <?= tagOptionsHtml('contact', $contact_tag_id_array) ?>
                 </select>
             </div>
@@ -268,19 +267,9 @@ $contact_roles = [
         <div class="col-12">
             <label class="form-label">Photo</label>
             <div class="d-flex align-items-center gap-3">
-                <?= contactAvatar($client_id, $contact_id, html_entity_decode($contact_name), $contact_photo ? html_entity_decode($contact_photo) : '', 'lg') ?>
-                <div class="flex-grow-1">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-camera fa-fw"></i></span>
-                        <input type="file" class="form-control" name="file" accept="image/jpeg,image/png,image/gif,image/webp">
-                    </div>
-                    <?php if ($contact_photo) { ?>
-                        <div class="form-check mt-2">
-                            <input class="form-check-input" type="checkbox" name="remove_photo" value="1" id="contactFormRemovePhoto">
-                            <label class="form-check-label" for="contactFormRemovePhoto">Remove this photo</label>
-                        </div>
-                    <?php } ?>
-                </div>
+                <?= pictureField('file', $contact_photo ? 'remove_photo' : '', contactAvatar($client_id, $contact_id, html_entity_decode($contact_name), $contact_photo ? html_entity_decode($contact_photo) : '', 'lg'),
+                    contactAvatar($client_id, $contact_id, html_entity_decode($contact_name), '', 'lg'), ['round' => true, 'title' => 'Photo', 'class' => 'itflow-contact-avatar itflow-contact-avatar-lg', 'name' => 'name']) ?>
+                <div class="form-text mt-0">Click it to add a photo or change it.</div>
             </div>
         </div>
     </div>
@@ -318,7 +307,7 @@ $contact_roles = [
             });
         }
 
-        // A new contact whose email is already on file somewhere
+        // An email already on file for someone else
         var emailCheck = form.querySelector('#contactFormEmailCheck');
         if (emailCheck) {
             form.querySelector('#contactFormEmail').addEventListener('change', function () {
@@ -327,7 +316,7 @@ $contact_roles = [
                     emailCheck.textContent = '';
                     return;
                 }
-                itflowGet('ajax.php', { contact_email_check: 'true', email: email }, function (data) {
+                itflowGet('ajax.php', { contact_email_check: 'true', email: email, exclude: emailCheck.dataset.exclude }, function (data) {
                     emailCheck.innerHTML = JSON.parse(data).message || '';
                 });
             });

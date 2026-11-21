@@ -2,7 +2,7 @@
 
 /*
  * Tags on clients, locations, contacts, credentials, assets, vendors, domains,
- * licenses, services, networks, documents and tickets.
+ * licenses, services, networks, documents, tickets and Knowledge Base articles.
  *
  * Every list and detail page draws a record's tags with tagPills(): coloured
  * pills that open the list filtered to that tag, then a "+" pill that opens
@@ -78,7 +78,7 @@ function tagEntity($entity) {
             'type' => 8, 'label' => 'license', 'module' => 'module_support',
             'link_table' => 'software_tags', 'link_record' => 'software_id', 'link_tag' => 'tag_id',
             'table' => 'software', 'id' => 'software_id', 'client' => 'software_client_id', 'name' => 'software_name',
-            'log' => 'Software', 'list' => 'software.php'
+            'log' => 'License', 'list' => 'software.php'
         ],
         'service' => [
             'title' => 'Service', 'plural' => 'services', 'icon' => 'fa-stream',
@@ -108,6 +108,14 @@ function tagEntity($entity) {
             'link_table' => 'ticket_tags', 'link_record' => 'ticket_id', 'link_tag' => 'tag_id',
             'table' => 'tickets', 'id' => 'ticket_id', 'client' => 'ticket_client_id', 'name' => "CONCAT(ticket_prefix, ticket_number, ' ', ticket_subject)",
             'log' => 'Ticket', 'list' => 'tickets.php'
+        ],
+        // Knowledge Base articles are no client's - 'client' is null
+        'kb_article' => [
+            'title' => 'Article', 'plural' => 'Knowledge Base articles', 'icon' => 'fa-book',
+            'type' => 13, 'label' => 'article', 'module' => 'module_support',
+            'link_table' => 'kb_article_tags', 'link_record' => 'kb_article_id', 'link_tag' => 'tag_id',
+            'table' => 'kb_articles', 'id' => 'kb_article_id', 'client' => null, 'name' => 'kb_article_title',
+            'log' => 'Knowledge Base', 'list' => 'kb.php'
         ],
     ];
 
@@ -166,7 +174,8 @@ function tagPills($entity, $record_id, array $tags, $filter = '', $can_edit = nu
         return '';
     }
 
-    $html = '<span class="itflow-tags" data-tag-entity="' . $entity . '" data-tag-record="' . $record_id . '" data-tag-filter="' . escapeHtml($filter) . '">';
+    // Drawn without a + (a card, a header) - the picker keeps it that way when it redraws
+    $html = '<span class="itflow-tags" data-tag-entity="' . $entity . '" data-tag-record="' . $record_id . '" data-tag-filter="' . escapeHtml($filter) . '"' . ($can_edit ? '' : ' data-tag-plain') . '>';
 
     foreach ($tags as $tag) {
         $tag_id = intval($tag['tag_id']);
@@ -185,6 +194,31 @@ function tagPills($entity, $record_id, array $tags, $filter = '', $can_edit = nu
     }
 
     return $html . '</span>';
+}
+
+/*
+ * An untagged record's empty spot on a card that shows tags without a + (the
+ * Files grid, the tickets board) - Tags in the card's menu fills it.
+ */
+function tagSpot($entity, $record_id, $filter = '') {
+    if (!tagEntity($entity)) {
+        return '';
+    }
+    return '<span class="itflow-tags" data-tag-entity="' . $entity . '" data-tag-record="' . intval($record_id) . '" data-tag-filter="' . escapeHtml(tagFilterBase($entity, $filter)) . '" data-tag-plain></span>';
+}
+
+/*
+ * Tags in a list row's menu - the picker the + at the end of a record's tags
+ * opens (js/tag_picker.js), hung off the row's menu button. A list shows a
+ * row's tag line only once it has a tag (.itflow-tags-row), so this is how an
+ * untagged one gets its first. The caller checks the row can be edited.
+ */
+function tagMenuItem($entity, $record_id, $icon_class = 'text-secondary ') {
+    if (!tagEntity($entity)) {
+        return '';
+    }
+    return '<button type="button" class="dropdown-item" data-tag-picker data-tag-entity="' . escapeHtml($entity) . '" data-tag-ids="' . intval($record_id) . '" data-csrf="' . escapeHtml($_SESSION['csrf_token'] ?? '') . '">'
+        . '<i class="fas fa-fw fa-tags ' . $icon_class . 'me-2"></i>Tags</button>';
 }
 
 /* A pill link base - a page of ours with a query string, or the default list. */
@@ -251,7 +285,7 @@ function tagSearchSql($entity, $like, $column = null) {
 function tagFormFieldHtml($entity, array $selected, $placeholder = '', $label = 'Tags', $attributes = '') {
     global $session_is_admin;
     return '<label class="form-label">' . $label . '</label><input type="hidden" name="tags_form" value="1">'
-        . '<div class="input-group"><span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>'
+        . '<div class="input-group"><span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>'
         . '<select class="form-select select2" name="tags[]" data-placeholder="' . escapeHtml($placeholder) . '" multiple' . (!empty($session_is_admin) ? ' data-tags="true"' : '') . ($attributes !== '' ? ' ' . $attributes : '') . '>'
         . tagOptionsHtml($entity, $selected) . '</select></div>';
 }
@@ -287,7 +321,7 @@ function tagIdsForRecord($entity, $record_id) {
 /* An export window's Tags field - any of them, the tags offered as in a record form. */
 function tagExportFieldHtml($entity, array $selected) {
     return '<div class="mb-3"><label>Tags</label><div class="input-group">'
-        . '<span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>'
+        . '<span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>'
         . '<select class="form-select select2" name="tags[]" data-placeholder="- Any -" multiple>' . tagOptionsHtml($entity, $selected) . '</select>'
         . '</div></div>';
 }
@@ -374,7 +408,7 @@ function tagFilterOptionsHtml($entity, array $selected, $records_where = '1') {
     $selected = array_values(array_filter(array_map('intval', $selected)));
     $chosen_sql = $selected ? 'OR tag_id IN (' . implode(',', $selected) . ')' : '';
     // The record's client is there too, for a list that leaves out archived clients
-    $client_join = $config['table'] === 'clients' ? '' : "LEFT JOIN clients ON clients.client_id = {$config['table']}.{$config['client']}";
+    $client_join = $config['table'] === 'clients' || empty($config['client']) ? '' : "LEFT JOIN clients ON clients.client_id = {$config['table']}.{$config['client']}";
     $sql = mysqli_query($mysqli, "SELECT tag_id, tag_name, tag_description, tag_color, tag_icon, tag_archived_at FROM tags
         WHERE tag_type = {$config['type']} AND ((tag_archived_at IS NULL AND EXISTS (
             SELECT 1 FROM {$config['link_table']} JOIN {$config['table']} ON {$config['table']}.{$config['id']} = {$config['link_table']}.{$config['link_record']} $client_join
@@ -408,7 +442,7 @@ function tagRecordsEditable($entity, array $record_ids) {
 
     $records = [];
     $sql = mysqli_query($mysqli,
-        "SELECT {$config['id']} AS record_id, {$config['client']} AS client_id, {$config['name']} AS record_name
+        "SELECT {$config['id']} AS record_id, " . ($config['client'] ?: '0') . " AS client_id, {$config['name']} AS record_name
         FROM {$config['table']} WHERE {$config['id']} IN (" . implode(',', $record_ids) . ")"
     );
     while ($row = mysqli_fetch_assoc($sql)) {
@@ -416,7 +450,7 @@ function tagRecordsEditable($entity, array $record_ids) {
             if (!$can_ours) {
                 return false;
             }
-        } elseif (!$can_module || !hasClientAccess(intval($row['client_id']))) {
+        } elseif (!$can_module || ($config['client'] && !hasClientAccess(intval($row['client_id'])))) {
             return false;
         }
         $records[intval($row['record_id'])] = ['name' => $row['record_name'], 'client_id' => intval($row['client_id'])];
@@ -488,8 +522,14 @@ function tagPill(array $tag) {
 
 /* The seven kinds by tag type - type => the entity's key in tagEntity(). */
 function tagKinds() {
+    // Knowledge Base articles once database 3.9.5 has made their tables - asked of the database where the settings aren't loaded (the API)
+    static $kb = null;
+    if ($kb === null) {
+        global $mysqli;
+        $kb = isset($GLOBALS['config_module_enable_kb']) || mysqli_num_rows(mysqli_query($mysqli, "SHOW TABLES LIKE 'kb_article_tags'")) > 0;
+    }
     return [1 => 'client', 2 => 'location', 3 => 'contact', 4 => 'credential', 5 => 'asset', 6 => 'vendor', 7 => 'domain',
-        8 => 'license', 9 => 'service', 10 => 'network', 11 => 'document', 12 => 'ticket'];
+        8 => 'license', 9 => 'service', 10 => 'network', 11 => 'document', 12 => 'ticket'] + ($kb ? [13 => 'kb_article'] : []);
 }
 
 /* "an asset tag", "a client tag" - for messages. */
@@ -547,7 +587,7 @@ function tagSeatLineItems(array $tag_ids) {
     $items = [];
     // The filter is JSON written by recurringSeatFilter(); read in PHP rather than with SQL's JSON functions
     $sql = mysqli_query($mysqli, "SELECT item_id, item_seat_source, item_seat_filter FROM recurring_invoice_items
-        WHERE item_seat_source IN ('contacts', 'assets') AND item_seat_filter LIKE '%\"tag\"%'");
+        WHERE item_seat_source IN ('contacts', 'assets', 'managed') AND item_seat_filter LIKE '%\"tag\"%'");
     while ($row = mysqli_fetch_assoc($sql)) {
         $filter = recurringSeatFilter($row['item_seat_source'], $row['item_seat_filter']);
         if (in_array(intval($filter['tag'] ?? 0), $tag_ids, true)) {
@@ -562,7 +602,7 @@ function tagSeatLineCounts() {
     global $mysqli;
     $counts = [];
     $sql = mysqli_query($mysqli, "SELECT item_seat_source, item_seat_filter FROM recurring_invoice_items
-        WHERE item_seat_source IN ('contacts', 'assets') AND item_seat_filter LIKE '%\"tag\"%'");
+        WHERE item_seat_source IN ('contacts', 'assets', 'managed') AND item_seat_filter LIKE '%\"tag\"%'");
     while ($row = mysqli_fetch_assoc($sql)) {
         $tag_id = intval(recurringSeatFilter($row['item_seat_source'], $row['item_seat_filter'])['tag'] ?? 0);
         if ($tag_id) {
@@ -690,8 +730,10 @@ function tagMerge(array $from_ids, $into_id) {
     $moved = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(DISTINCT {$config['link_record']}) FROM {$config['link_table']} WHERE {$config['link_tag']} IN ($from_list)"))[0]);
     mysqli_query($mysqli, "INSERT IGNORE INTO {$config['link_table']} ({$config['link_record']}, {$config['link_tag']})
         SELECT DISTINCT {$config['link_record']}, $into_id FROM {$config['link_table']} WHERE {$config['link_tag']} IN ($from_list)");
-    // Templates that go by these tags - a ticket template's tags, the clients a document or license template is required of - go by the one they are merged into
-    foreach (['ticket_template_tags' => 'ticket_template_id', 'document_template_required_tags' => 'document_template_id', 'software_template_required_tags' => 'software_template_id'] as $table => $column) {
+    // Templates that go by these tags - a ticket template's tags, the clients a document or license template is required of - go by the one they are
+    // merged into, and so do the Knowledge Base articles shared with the clients that have them
+    foreach (['ticket_template_tags' => 'ticket_template_id', 'document_template_required_tags' => 'document_template_id', 'software_template_required_tags' => 'software_template_id']
+        + (isset($GLOBALS['config_kb_public_enable']) ? ['kb_article_client_tags' => 'kb_article_id'] : []) as $table => $column) {
         mysqli_query($mysqli, "INSERT IGNORE INTO $table ($column, tag_id) SELECT DISTINCT $column, $into_id FROM $table WHERE tag_id IN ($from_list)");
     }
     foreach (tagSeatLineItems($from_ids) as $item_id => $filter) {

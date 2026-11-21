@@ -33,7 +33,7 @@ if (!$cards) {
 // What is charged - agent/post/payment.php works it out the same way
 $currency = (string) $invoice['invoice_currency_code'];
 $fee_rates = billingCardFeeFor($client_id);
-$invoice_cents = (int) round(floatval($invoice['invoice_amount']) * 100);
+$invoice_cents = intval(round(floatval($invoice['invoice_amount']) * 100));
 $fee = billingCardFeeCents($invoice_cents, $fee_rates) / 100;
 $charge = $invoice_cents / 100 + $fee;
 
@@ -42,11 +42,12 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-wallet me-2"></i>Charge Saved Card <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber('invoice', $invoice)) ?> &middot; <?= escapeHtml($invoice['client_name']) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
+    <input type="hidden" name="pay_token" value="<?= bin2hex(random_bytes(16)) ?>">
 
     <div class="modal-body">
         <div class="text-center p-3 mb-3 rounded bg-body-tertiary">
@@ -60,8 +61,8 @@ ob_start();
         </div>
         <label class="form-label">Card <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
-            <select class="form-select" name="saved_payment_id" required>
+            <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
+            <select class="form-select select2" name="saved_payment_id" required>
                 <?php foreach ($cards as $card) { ?>
                     <option value="<?= intval($card['saved_payment_id']) ?>"><?= escapeHtml($card['saved_payment_description']) ?> (<?= escapeHtml($card['payment_provider_name']) ?>)</option>
                 <?php } ?>
@@ -70,7 +71,7 @@ ob_start();
         <div class="form-text">Charged straight away - the payment is recorded on the invoice and a receipt goes to the client.</div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_payment_stripe" class="btn btn-success text-bold confirm-link" data-confirm-title="Charge the card?"
+        <button type="submit" name="add_payment_stripe" class="btn btn-success fw-bold confirm-link" data-confirm-title="Charge the card?"
             data-confirm-text="<?= escapeHtml(billingMoney($charge, $currency)) ?> is taken from the card now<?= $fee > 0 ? ', with its ' . escapeHtml(billingMoney($fee, $currency)) . ' card fee' : '' ?>." data-confirm-button="Charge">
             <i class="fas fa-bolt me-2"></i>Charge
         </button>

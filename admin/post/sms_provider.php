@@ -48,7 +48,7 @@ if (isset($_POST['check_sms_provider']) || isset($_POST['add_sms_provider']) || 
     if (!$before) {
         $provider_id = smsProviderWrite($after);
         logAudit("Text Message", "Create", "$session_name added texting provider " . escapeSql("$name, texting from $number"), 0, $provider_id);
-        flashAlert('<strong>' . escapeHtml($name) . '</strong> added, texting from <strong>' . escapeHtml($number) . '</strong> - paste the address texts come back to into its portal, then send a test text');
+        flashAlert('<strong>' . escapeHtml($name) . '</strong> created, texting from <strong>' . escapeHtml($number) . '</strong> - paste the address texts come back to into its portal, then send a test text');
         redirect('text_messaging.php');
     }
 

@@ -17,7 +17,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-key me-2"></i>New API Key</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -38,17 +38,17 @@ ob_start();
 
             <div class="tab-pane fade show active" id="pills-api-details">
                 <div class="mb-3">
-                    <label>Name <strong class="text-danger">*</strong></label>
+                    <label class="form-label">Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-sticky-note"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-sticky-note"></i></span>
                         <input type="text" class="form-control" name="name" placeholder="What uses it - the RMM, a PSA sync" maxlength="255" required autofocus>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label>Expires <strong class="text-danger">*</strong></label>
+                    <label class="form-label">Expires <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                         <input type="date" class="form-control" name="expire" min="<?= date('Y-m-d', strtotime('+1 day')) ?>" max="2999-12-31" value="<?= date('Y-m-d', strtotime('+1 year')) ?>" required>
                     </div>
                     <div class="form-text">It works until the start of that day.</div>
@@ -60,18 +60,19 @@ ob_start();
             <div class="tab-pane fade" id="pills-api-keys">
                 <div class="alert alert-warning small py-2"><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Copy both now - they aren't shown again.</div>
                 <div class="mb-3">
-                    <label>API key</label>
+                    <label class="form-label">API key</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                         <input type="text" class="form-control font-monospace" value="<?= $key ?>" readonly>
                         <button class="btn btn-outline-secondary clipboardjs" title="Copy API key" type="button" data-clipboard-text="<?= $key ?>"><i class="far fa-fw fa-copy"></i></button>
                     </div>
+                    <div class="form-text">Sent in the <code>X-API-Key</code> header of each call - not in the address, which your web server's access log keeps.</div>
                 </div>
 
                 <div class="mb-3">
-                    <label>Credential decryption password</label>
+                    <label class="form-label">Credential decryption password</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-unlock-alt"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-unlock-alt"></i></span>
                         <input type="text" class="form-control font-monospace" value="<?= $decryptPW ?>" readonly>
                         <button class="btn btn-outline-secondary clipboardjs" title="Copy decryption password" type="button" data-clipboard-text="<?= $decryptPW ?>"><i class="far fa-fw fa-copy"></i></button>
                     </div>
@@ -88,7 +89,7 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_api_key" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
+        <button type="submit" name="add_api_key" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
     <script>

@@ -26,7 +26,7 @@ if ($client_id) {
         $domain_options[] = $row;
     }
 } else {
-    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $client_options[] = $row;
     }
@@ -58,9 +58,9 @@ $has_pem = trim(html_entity_decode($certificate_public_key, ENT_QUOTES, 'UTF-8')
             <div class="col-12">
                 <label class="form-label">Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required data-certificate-client>
-                        <option value="">- Select Client -</option>
+                        <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
                             <option value="<?= intval($client_option['client_id']) ?>"<?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                         <?php } ?>
@@ -82,7 +82,7 @@ $has_pem = trim(html_entity_decode($certificate_public_key, ENT_QUOTES, 'UTF-8')
         <div class="col-md-8">
             <label class="form-label">Name</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                 <input type="text" class="form-control" name="name" placeholder="<?= $certificate_domain !== '' ? $certificate_domain : 'The host, if left empty' ?>" maxlength="200" value="<?= $certificate_name ?>" data-certificate-name>
             </div>
         </div>
@@ -95,7 +95,7 @@ $has_pem = trim(html_entity_decode($certificate_public_key, ENT_QUOTES, 'UTF-8')
         <div class="col-12">
             <label class="form-label">Description</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Client portal, VPN, firewall admin, Exchange" maxlength="500" value="<?= $certificate_description ?>">
             </div>
         </div>
@@ -103,7 +103,7 @@ $has_pem = trim(html_entity_decode($certificate_public_key, ENT_QUOTES, 'UTF-8')
             <label class="form-label">Domain</label>
             <?php if ($client_id) { ?>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-globe"></i></span>
                     <select class="form-select select2" name="domain_id" data-certificate-domain>
                         <option value="0">- Matched from the host -</option>
                         <?php foreach ($domain_options as $domain_option) {
@@ -124,7 +124,7 @@ $has_pem = trim(html_entity_decode($certificate_public_key, ENT_QUOTES, 'UTF-8')
 <div class="tab-pane fade" id="<?= $form_id ?>Details">
     <label class="form-label">Certificate (PEM)</label>
     <textarea class="form-control font-monospace small" rows="9" name="public_key" spellcheck="false" placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----" data-certificate-pem><?= $certificate_public_key ?></textarea>
-    <div class="form-text mb-3">For a host ITFlow can't reach. The issuer, dates, names it covers and fingerprint are read from it - a whole chain is fine, only the first certificate is kept. Never paste the private key.</div>
+    <div class="form-text mb-3">For a host ITFlow can't reach - its details are read from it, and a whole chain is fine. Never paste the private key.</div>
 
     <fieldset data-certificate-by-hand>
         <div class="small text-body-secondary fw-semibold text-uppercase mb-2">Nothing to paste? By hand</div>
@@ -132,14 +132,14 @@ $has_pem = trim(html_entity_decode($certificate_public_key, ENT_QUOTES, 'UTF-8')
             <div class="col-md-7">
                 <label class="form-label">Issuer</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                     <input type="text" class="form-control" name="issued_by" maxlength="200" placeholder="Let's Encrypt, DigiCert, Sectigo" value="<?= $certificate_issued_by ?>">
                 </div>
             </div>
             <div class="col-md-5">
                 <label class="form-label">Expires</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar-times"></i></span>
                     <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?= $certificate_expire ?>">
                 </div>
             </div>

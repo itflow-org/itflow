@@ -18,19 +18,19 @@ $tax_part_row = function ($key, array $part = []) {
     <div class="row g-2 align-items-center mb-2" data-tax-part>
         <div class="col-sm-4">
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="part_name[<?= $key ?>]" maxlength="200" placeholder="State, county, GST..." value="<?= escapeHtml($part['name'] ?? '') ?>" data-tax-part-name>
             </div>
         </div>
         <div class="col-sm-3">
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-id-card"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-id-card"></i></span>
                 <input type="text" class="form-control" name="part_registration[<?= $key ?>]" maxlength="100" placeholder="Its own reg. no." title="This part's registration number, when it isn't the tax's" value="<?= escapeHtml($part['registration'] ?? '') ?>">
             </div>
         </div>
         <div class="col-7 col-sm-2">
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
                 <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,4}" name="part_percent[<?= $key ?>]" placeholder="0" value="<?= isset($part['percent']) ? taxPercentText($part['percent']) : '' ?>" data-tax-part-percent>
             </div>
         </div>
@@ -52,7 +52,7 @@ $tax_part_row = function ($key, array $part = []) {
     <div class="mb-3">
         <label class="form-label">Name <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-balance-scale"></i></span>
             <input type="text" class="form-control" name="name" maxlength="200" placeholder="PA Sales Tax, GST, VAT" value="<?= escapeHtml($t['tax_name'] ?? '') ?>" required autofocus>
         </div>
     </div>
@@ -61,17 +61,17 @@ $tax_part_row = function ($key, array $part = []) {
         <div class="col-md-7 mb-3">
             <label class="form-label">Description</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" maxlength="255" placeholder="Where and what it is charged on" value="<?= escapeHtml($t['tax_description'] ?? '') ?>">
             </div>
         </div>
         <div class="col-md-5 mb-3">
             <label class="form-label">Registration number</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-id-card"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-id-card"></i></span>
                 <input type="text" class="form-control" name="registration" maxlength="100" placeholder="Permit, GST/HST or VAT number" value="<?= escapeHtml($t['tax_registration_number'] ?? '') ?>">
             </div>
-            <small class="text-secondary">Printed with this tax on invoices</small>
+            <div class="form-text">Printed with this tax on invoices</div>
         </div>
     </div>
 
@@ -80,7 +80,7 @@ $tax_part_row = function ($key, array $part = []) {
         <div class="row g-2 align-items-center">
             <div class="col-sm-4">
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
                     <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,4}" name="percent" placeholder="0" value="<?= $t && !$t_parts ? taxPercentText($t['tax_percent']) : '' ?>"<?= $t_parts ? ' disabled' : ' required' ?> data-tax-percent>
                 </div>
             </div>
@@ -99,7 +99,7 @@ $tax_part_row = function ($key, array $part = []) {
         </div>
         <template data-tax-part-template><?= $tax_part_row('__KEY__') ?></template>
         <div class="d-flex flex-wrap align-items-center gap-2">
-            <button type="button" class="btn btn-outline-secondary btn-sm" data-tax-add-part><i class="fas fa-plus me-1"></i>Add a part</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-tax-add-part><i class="fas fa-plus me-1"></i>Add a Part</button>
             <span class="ms-auto">Comes to <strong data-tax-total><?= $t ? taxPercentText($t['tax_percent']) : '0' ?>%</strong></span>
         </div>
         <small class="text-secondary d-block mt-1">Each part is shown on its own on invoices, with its registration number - or the tax's. <em>On top</em> charges a part on the line plus the parts above it. Name a part the same as another tax's (PA Sales Tax at 6%) and Tax Collected adds them up together.</small>

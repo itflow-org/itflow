@@ -97,6 +97,12 @@ if (isset($_GET['complete_task']) || isset($_GET['undo_complete_task'])) {
     $ticket_id = intval($row['ticket_id']);
     $task_name = escapeSql($task['task_name']);
 
+    // A task waiting on an approval, or declined, isn't done until it is approved - as the ticket page shows it
+    if ($complete && mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM task_approvals WHERE approval_task_id = $task_id AND approval_status IN ('pending', 'declined') LIMIT 1"))) {
+        flashAlert("Task <strong>" . escapeHtml($task['task_name']) . "</strong> is waiting for approval", 'error');
+        redirect();
+    }
+
     if ($complete) {
         mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NOW(), task_completed_by = $session_user_id WHERE task_id = $task_id AND task_completed_at IS NULL");
     } else {
@@ -237,8 +243,12 @@ if (isset($_GET['complete_all_tasks']) || isset($_GET['undo_complete_all_tasks']
     $row = ticketForRequest($complete ? $_GET['complete_all_tasks'] : $_GET['undo_complete_all_tasks'], 2);
     $ticket_id = intval($row['ticket_id']);
 
+    $waiting = 0;
     if ($complete) {
-        mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NOW(), task_completed_by = $session_user_id WHERE task_ticket_id = $ticket_id AND task_completed_at IS NULL");
+        // Tasks waiting on an approval, or declined, stay open
+        mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NOW(), task_completed_by = $session_user_id WHERE task_ticket_id = $ticket_id AND task_completed_at IS NULL
+            AND NOT EXISTS (SELECT 1 FROM task_approvals WHERE approval_task_id = task_id AND approval_status IN ('pending', 'declined'))");
+        $waiting = mysqli_num_rows(mysqli_query($mysqli, "SELECT task_id FROM tasks WHERE task_ticket_id = $ticket_id AND task_completed_at IS NULL"));
     } else {
         mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NULL, task_completed_by = NULL WHERE task_ticket_id = $ticket_id AND task_completed_at IS NOT NULL");
     }
@@ -247,7 +257,11 @@ if (isset($_GET['complete_all_tasks']) || isset($_GET['undo_complete_all_tasks']
 
     logAudit("Ticket", "Edit", "$session_name marked all tasks " . ($complete ? 'complete' : 'as incomplete') . " for ticket " . escapeSql(ticketReference($row)), $client_id, $ticket_id);
 
-    flashAlert($complete ? "All tasks marked complete" : "All tasks marked not done", $complete ? 'success' : 'error');
+    if ($waiting) {
+        flashAlert("Tasks marked complete - <strong>$waiting</strong> waiting for approval left open", 'warning');
+    } else {
+        flashAlert($complete ? "All tasks marked complete" : "All tasks marked not done", $complete ? 'success' : 'error');
+    }
 
     redirect();
 

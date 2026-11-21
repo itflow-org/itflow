@@ -85,6 +85,62 @@ if (isset($_POST['rename_folder'])) {
 }
 
 /*
+ * A folder dragged onto another on the Files page (agent/js/files.js), or onto the top level.
+ * What is in it goes with it.
+ */
+if (isset($_POST['move_folder'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $folder_id = intval($_POST['folder_id']);
+
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT folder_name, folder_client_id FROM folders WHERE folder_id = $folder_id"));
+    if (!$row) {
+        flashAlert('That folder no longer exists.', 'error');
+        redirect();
+    }
+    $folder_name = $row['folder_name'];
+    $client_id = intval($row['folder_client_id']);
+
+    enforceClientAccess();
+
+    // Only under one of this client's folders - one that has gone isn't taken as the top level
+    $wanted = intval($_POST['parent_folder'] ?? 0);
+    $parent_folder = folderOwnedId($wanted, $client_id);
+    if ($parent_folder !== $wanted) {
+        flashAlert('The folder you dropped it on no longer exists.', 'error');
+        redirect();
+    }
+
+    // Never into itself or below itself
+    $tree = folderTree($client_id);
+    if (in_array($parent_folder, folderSubtree($tree, $folder_id), true)) {
+        flashAlert("A folder can't go inside itself or one of its own folders.", 'error');
+        redirect();
+    }
+
+    if ($parent_folder === intval($tree[$folder_id]['parent_folder'] ?? -1)) {
+        redirect();
+    }
+
+    $parent_name = folderDisplayName($parent_folder);
+
+    mysqli_query($mysqli, "UPDATE folders SET parent_folder = $parent_folder WHERE folder_id = $folder_id");
+
+    logAudit("Folder", "Move", "$session_name moved folder " . escapeSql($folder_name) . " into " . escapeSql($parent_name), $client_id, $folder_id);
+
+    flashAlert("Folder <strong>$folder_name</strong> moved into <strong>$parent_name</strong>");
+    $parent_before = intval($tree[$folder_id]['parent_folder'] ?? 0);
+    undoOffer("Folder <strong>" . escapeHtml($folder_name) . "</strong> is back in <strong>" . escapeHtml(folderDisplayName($parent_before)) . "</strong>",
+        [['folder', $folder_id, $parent_before, $parent_folder, $client_id]], 'module_support');
+
+    redirect();
+
+}
+
+/*
  * Deleting a folder never deletes what is in it: files, documents and
  * subfolders move up to the folder it sat in. (Only documents used to be
  * moved - files and subfolders were left pointing at a folder that no

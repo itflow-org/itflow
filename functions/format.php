@@ -209,9 +209,11 @@ function formatAssignee($user_id, $user_name, $user_avatar, $highlight_unassigne
     $user_id = intval($user_id);
 
     if (!$user_id) {
-        $tone = $highlight_unassigned ? 'danger' : 'secondary';
-        $colors = $highlight_unassigned ? 'text-danger-emphasis bg-danger-subtle' : 'text-body-secondary bg-body-secondary';
-        return "<span class='$pill $colors'><span class='position-relative d-inline-flex' aria-hidden='true'><i class='fas fa-circle fs-5 text-$tone'></i><i class='fas fa-user-slash position-absolute top-50 start-50 translate-middle small text-white'></i></span>" . escapeHtml($none_label) . "</span>";
+        // Amber, as the Unassigned view and the dashboard's tile are - red is kept for what is late
+        $tone = $highlight_unassigned ? 'warning' : 'secondary';
+        $colors = $highlight_unassigned ? 'text-warning-emphasis bg-warning-subtle' : 'text-body-secondary bg-body-secondary';
+        $icon = $highlight_unassigned ? 'text-dark' : 'text-white';
+        return "<span class='$pill $colors'><span class='position-relative d-inline-flex' aria-hidden='true'><i class='fas fa-circle fs-5 text-$tone'></i><i class='fas fa-user-slash position-absolute top-50 start-50 translate-middle small $icon'></i></span>" . escapeHtml($none_label) . "</span>";
     }
 
     $user_avatar = escapeHtml($user_avatar);
@@ -224,6 +226,49 @@ function formatAssignee($user_id, $user_name, $user_avatar, $highlight_unassigne
     return "<span class='$pill text-body-emphasis bg-body-secondary'>$avatar" . escapeHtml($user_name) . "</span>";
 }
 
+
+/*
+ * Dates and times the way ITFlow shows them - Nov 13, 2026, 2:30 PM, and
+ * Nov 13, 2026 2:30 PM - on its pages, windows, PDFs, emails and portals.
+ * Give them what is stored (2026-11-13, 2026-11-13 14:30:00) or a timestamp;
+ * nothing, or a zero date, gives ''. The stored form, 2026-11-13, is only for
+ * date fields, exports and file names. Safe to print as they are.
+ */
+function formatDate($date) {
+    $time = formatDateTimestamp($date);
+    return $time === null ? '' : date('M j, Y', $time);
+}
+
+/* With the time - $seconds for a log, where the second matters. */
+function formatDateTime($datetime, $seconds = false) {
+    $time = formatDateTimestamp($datetime);
+    return $time === null ? '' : date($seconds ? 'M j, Y g:i:s A' : 'M j, Y g:i A', $time);
+}
+
+/* The time of day alone - 2:30 PM. */
+function formatTime($datetime) {
+    $time = formatDateTimestamp($datetime);
+    return $time === null ? '' : date('g:i A', $time);
+}
+
+/* With the day of the week - Fri, Nov 13, 2026 - for bookings and schedules. */
+function formatDay($date) {
+    $time = formatDateTimestamp($date);
+    return $time === null ? '' : date('D, M j, Y', $time);
+}
+
+/* The timestamp behind a stored date or time - null for nothing or a zero date. */
+function formatDateTimestamp($value) {
+    if (is_int($value)) {
+        return $value;
+    }
+    $value = trim((string) $value);
+    if ($value === '' || strpos($value, '0000-00-00') === 0) {
+        return null;
+    }
+    $time = strtotime($value);
+    return $time === false ? null : $time;
+}
 
 function timeAgo($datetime) {
     if (is_null($datetime)) {
@@ -406,7 +451,7 @@ function selectOptionAsset($asset_type, $description = '') {
 }
 
 function roundUpToNearestMultiple($n, $increment = 1000) {
-    return (int) ($increment * ceil($n / $increment));
+    return intval($increment * ceil($n / $increment));
 }
 
 
@@ -479,16 +524,17 @@ function validateRecurringFrequency($frequency) {
 }
 
 /*
- * Formats bytes into human readable file sizes
+ * A size for people - "512 B", "1.5 MB" - the one way sizes are written.
  */
-function formatBytes($bytes, $precision = 2) {
-    $units = array('B', 'KB', 'MB', 'GB', 'TB');
+function formatBytes($bytes, $precision = 1) {
+    $bytes = floatval($bytes);
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-    for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+    for ($i = 0; $bytes >= 1024 && $i < count($units) - 1; $i++) {
         $bytes /= 1024;
     }
 
-    return round($bytes, $precision) . ' ' . $units[$i];
+    return round($bytes, $i === 0 ? 0 : $precision) . ' ' . $units[$i];
 }
 
 
@@ -517,10 +563,10 @@ function secondsToTime($inputSeconds) {
     // Format and return
     $timeParts = [];
     $sections = [
-        'day' => (int)$days,
-        'hour' => (int)$hours,
-        'minute' => (int)$minutes,
-        'second' => (int)$seconds,
+        'day' => intval($days),
+        'hour' => intval($hours),
+        'minute' => intval($minutes),
+        'second' => intval($seconds),
     ];
 
     foreach ($sections as $name => $value) {
@@ -577,6 +623,24 @@ function emptyStateClearUrl(array $views = []) {
 }
 
 /**
+ * Tabs across the top of pages that share one side menu entry - Expenses and
+ * Recurring, or Purchasing's three. Each tab: url, icon, label, active, and
+ * optionally count (shown when above 0), title (the count's tooltip) and
+ * tone (a badge class, for a count that needs someone). HTML.
+ */
+function pageTabsHtml(array $tabs) {
+    $html = '<nav class="nav nav-pills itflow-asset-tabs mb-3 flex-nowrap overflow-auto" aria-label="Pages here">';
+    foreach ($tabs as $tab) {
+        $count = intval($tab['count'] ?? 0);
+        $html .= '<a class="nav-link text-nowrap' . (!empty($tab['active']) ? ' active" aria-current="page' : '') . '" href="' . escapeHtml($tab['url']) . '">'
+            . '<i class="fas fa-fw ' . escapeHtml($tab['icon']) . ' me-1"></i>' . escapeHtml($tab['label'])
+            . ($count > 0 ? ' <span class="badge rounded-pill ms-1 ' . escapeHtml($tab['tone'] ?? '') . '"' . (!empty($tab['title']) ? ' title="' . escapeHtml($tab['title']) . '"' : '') . '>' . $count . '</span>' : '')
+            . '</a>';
+    }
+    return $html . '</nav>';
+}
+
+/**
  * The empty state of the pill picked ($key, from a page's $pills - label,
  * icon, title, alarm): "Nothing in Overdue" with the pill's own line under
  * it - with a tick for a pill that flags trouble (alarm, or one of $good),
@@ -594,6 +658,34 @@ function emptyStatePill(array $pills, $key, $default = '', array $good = []) {
         return $view + ['icon' => 'fa-check'];
     }
     return $view + ['icon' => $pill['icon'] ?? 'fa-filter'];
+}
+
+/*
+ * A sortable column header. includes/filter_header.php sets $sort, $disp, $order_icon and
+ * $url_query_strings_sort. A click on the column being sorted flips it; the first click on
+ * another sorts names A-Z and dates, money and counts newest or largest first, or $first
+ * ('ASC' or 'DESC') where the page knows better.
+ */
+function sortLink($column, $label, $first = null, $title = '', $class = '') {
+    global $sort, $disp, $order_icon, $url_query_strings_sort;
+    $active = isset($sort) && (string) $sort === (string) $column;
+    $order = $active ? $disp : (in_array($first, ['ASC', 'DESC'], true) ? $first : sortFirstOrder($column));
+    return '<a class="text-reset text-decoration-none' . ($class !== '' ? ' ' . $class : '') . '" href="?' . escapeHtml($url_query_strings_sort ?? '')
+        . '&amp;sort=' . escapeHtml($column) . '&amp;order=' . $order . '"' . ($title !== '' ? ' title="' . escapeHtml($title) . '"' : '') . '>'
+        . $label . ($active ? " $order_icon" : '') . '</a>';
+}
+
+/** The first way a column sorts: DESC for dates, money, counts and record numbers, ASC for the rest. */
+function sortFirstOrder($column) {
+    $column = strtolower((string) $column);
+    $name = preg_replace('/^.*\./', '', $column);
+    if (preg_match('/(^|_)(at|date|due|expire|expires|expiry|updated|created|run|seen|login|paid|used|checkin|synced|inbound|since|starts|ends|now)$/', $name)
+        || preg_match('/(^|_)(amount|total|balance|price|cost|margin|profit|value|stock|seats|threshold|percent|rate|count|views|size|ms|minutes|hours|miles|quantity|qty|devices|months|tokens|use|uses|failures|requests|activity|sign_ins|ips|linked|in)$/', $name)
+        || preg_match('/^(tickets|contracts|accounts|agents|used|clients|documents|invoices|assets)$/', $name)
+        || preg_match('/^(ticket|invoice|quote|po|project|recurring_invoice|contract)_number$/', $name)) {
+        return 'DESC';
+    }
+    return 'ASC';
 }
 
 /**
@@ -657,4 +749,41 @@ function emptyStateHtml(array $o) {
         . ($text !== '' ? '<div class="itflow-empty-state-text">' . $text . '</div>' : '')
         . ($buttons !== '' ? '<div class="itflow-empty-state-actions">' . $buttons . '</div>' : '')
         . '</div>';
+}
+
+/**
+ * A QR code of $text as inline SVG, drawn from the QR maker that comes with
+ * TCPDF (libs/TCPDF/tcpdf_barcodes_2d.php) - pure PHP, no GD. One square per
+ * module on a white ground with the standard four-module quiet zone, and a
+ * viewBox, so it scales with whatever box the CSS gives it. $attributes are
+ * added to the <svg> as they are (class, role, aria-label). '' if the text is
+ * too long for a QR code.
+ */
+function qrCodeSvg($text, $attributes = '') {
+    require_once dirname(__DIR__) . '/libs/TCPDF/tcpdf_barcodes_2d.php';
+    $code = (new TCPDF2DBarcode((string) $text, 'QRCODE,L'))->getBarcodeArray();
+    if (empty($code['bcode'])) {
+        return '';
+    }
+    $quiet = 4;
+    $size = intval($code['num_cols']) + 2 * $quiet;
+    $path = '';
+    foreach ($code['bcode'] as $y => $row) {
+        // Each run of dark modules in a row is one rectangle
+        $x = 0;
+        $cols = count($row);
+        while ($x < $cols) {
+            if (empty($row[$x])) {
+                $x++;
+                continue;
+            }
+            $start = $x;
+            while ($x < $cols && !empty($row[$x])) {
+                $x++;
+            }
+            $path .= 'M' . ($start + $quiet) . ' ' . ($y + $quiet) . 'h' . ($x - $start) . 'v1h-' . ($x - $start) . 'z';
+        }
+    }
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $size . ' ' . $size . '" shape-rendering="crispEdges"' . ($attributes !== '' ? ' ' . $attributes : '') . '>'
+        . '<rect width="' . $size . '" height="' . $size . '" fill="#fff"/><path fill="#000" d="' . $path . '"/></svg>';
 }

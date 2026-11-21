@@ -92,7 +92,7 @@ $after_row = shareRow($row['item_id']);
 $left = intval($after_row['item_view_limit']) - intval($after_row['item_views']);
 $after = intval($after_row['item_view_limit']) && $left <= 0
     ? 'That was the last download this link allows.'
-    : (intval($after_row['item_view_limit']) ? "It can be downloaded $left more " . ($left === 1 ? 'time' : 'times') . '.' : 'The link keeps working until ' . date('M j \a\t g:i A', strtotime($after_row['item_expire_at'])) . '.');
+    : (intval($after_row['item_view_limit']) ? "It can be downloaded $left more " . ($left === 1 ? 'time' : 'times') . '.' : 'The link keeps working until ' . date('M j, Y g:i A', strtotime($after_row['item_expire_at'])) . '.');
 
 $name = str_replace(["\r", "\n", '"'], ['', '', "'"], (string) $file['file_name']);
 $ascii = preg_replace('/[^\x20-\x7E]/', '_', $name);

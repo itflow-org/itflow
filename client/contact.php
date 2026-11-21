@@ -37,7 +37,7 @@ if (!$new) {
         <a class="itflow-portal-back" href="contacts.php"><i class="fas fa-chevron-left"></i>Contacts</a>
         <section class="itflow-portal-panel">
             <?= emptyStateHtml(['title' => "That person isn't here", 'text' => 'They may have been removed from your company\'s contacts.', 'icon' => 'fa-address-book', 'filtered' => false,
-                'actions' => [['label' => 'All contacts', 'href' => 'contacts.php', 'icon' => 'fa-arrow-left']]]) ?>
+                'actions' => [['label' => 'All Contacts', 'href' => 'contacts.php', 'icon' => 'fa-arrow-left']]]) ?>
         </section>
         <?php
         require_once "includes/footer.php";
@@ -69,7 +69,7 @@ $value = function ($field, $fallback = '') use ($form, $contact) {
 
     <div class="itflow-portal-page-head">
         <div>
-            <h1>Add a person</h1>
+            <h1>Add a Person</h1>
             <p>Someone new at <?= escapeHtml($session_client_name) ?> - and whether they can sign in here</p>
         </div>
     </div>
@@ -101,7 +101,7 @@ $value = function ($field, $fallback = '') use ($form, $contact) {
             </div>
         </div>
         <?php if ($self) { ?>
-            <a class="btn btn-outline-secondary" href="profile.php"><i class="fas fa-user me-2"></i>Your account</a>
+            <a class="btn btn-outline-secondary" href="profile.php"><i class="fas fa-user me-2"></i>Your Account</a>
         <?php } ?>
     </div>
 
@@ -134,7 +134,7 @@ $value = function ($field, $fallback = '') use ($form, $contact) {
                         <?php if ($manage && !$self) { ?>
                             <p class="small text-body-secondary mt-3 mb-0">This is the company's primary contact - <a href="<?= escapeHtml(portalAskUrl('Change the primary contact')) ?>">ask us</a> to change who that is.</p>
                         <?php } elseif ($self) { ?>
-                            <p class="small text-body-secondary mt-3 mb-0">Change your own phone numbers and sign-in in <a href="profile.php">Your account</a>.</p>
+                            <p class="small text-body-secondary mt-3 mb-0">Change your own phone numbers and sign-in in <a href="profile.php">Your Account</a>.</p>
                         <?php } ?>
                     </div>
                 </section>
@@ -160,9 +160,9 @@ $value = function ($field, $fallback = '') use ($form, $contact) {
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <input type="hidden" name="contact_id" value="<?= intval($contact['contact_id']) ?>">
                                 <input type="hidden" name="method" value="<?= escapeHtml($access['key']) ?>">
-                                <button type="submit" class="btn btn-outline-primary" name="portal_contact_access" value="invite"><i class="fas fa-paper-plane me-2"></i>Email the invite again</button>
+                                <button type="submit" class="btn btn-outline-primary" name="portal_contact_access" value="invite"><i class="fas fa-paper-plane me-2"></i>Email the Invite Again</button>
                                 <button type="submit" class="btn btn-outline-danger confirm-link" name="portal_contact_access" value="off"
-                                    data-confirm-title="Turn off <?= escapeHtml($contact['contact_name']) ?>'s access?" data-confirm-text="They are signed out straight away and can't sign in again until you give them access." data-confirm-button="Turn off"><i class="fas fa-ban me-2"></i>Turn off access</button>
+                                    data-confirm-title="Turn off <?= escapeHtml($contact['contact_name']) ?>'s access?" data-confirm-text="They are signed out straight away and can't sign in again until you give them access." data-confirm-button="Turn off"><i class="fas fa-ban me-2"></i>Turn Off Access</button>
                             </form>
                         <?php } else { ?>
                             <p class="small text-body-secondary">Give them access and we email <strong><?= escapeHtml($contact['contact_email'] ?: 'them') ?></strong> a link to sign in.</p>
@@ -173,7 +173,7 @@ $value = function ($field, $fallback = '') use ($form, $contact) {
                                     <div class="mb-3">
                                         <label class="form-label" for="accessMethod">They sign in</label>
                                         <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-sign-in-alt"></i></span>
+                                            <span class="input-group-text"><i class="fas fa-fw fa-sign-in-alt"></i></span>
                                             <select class="form-select" id="accessMethod" name="method">
                                                 <?php foreach ($methods as $key => $label) { ?>
                                                     <option value="<?= $key ?>"><?= escapeHtml($label) ?></option>
@@ -184,7 +184,7 @@ $value = function ($field, $fallback = '') use ($form, $contact) {
                                 <?php } else { ?>
                                     <input type="hidden" name="method" value="local">
                                 <?php } ?>
-                                <button type="submit" class="btn btn-primary" name="portal_contact_access" value="invite"<?= empty($contact['contact_email']) ? ' disabled' : '' ?>><i class="fas fa-paper-plane me-2"></i>Give access and email an invite</button>
+                                <button type="submit" class="btn btn-primary" name="portal_contact_access" value="invite"<?= empty($contact['contact_email']) ? ' disabled' : '' ?>><i class="fas fa-paper-plane me-2"></i>Give Access and Email an Invite</button>
                             </form>
                         <?php } ?>
                     </div>

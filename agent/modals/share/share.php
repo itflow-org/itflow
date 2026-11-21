@@ -59,7 +59,7 @@ ob_start();
             <div class="small text-body-secondary mt-1"><?= escapeHtml($type_info['label']) ?> &middot; <?= escapeHtml($row['client_name']) ?></div>
         </div>
     </div>
-    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <div class="modal-body">
@@ -140,7 +140,7 @@ ob_start();
                             <?php if (($received['password'] ?? '') !== '') { ?>
                                 <div class="input-group input-group-sm">
                                     <input type="password" class="form-control font-monospace" value="<?= escapeHtml($received['password']) ?>" readonly data-toggle="password" aria-label="Password">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                                     <button type="button" class="btn btn-outline-secondary clipboardjs" title="Copy password" data-clipboard-text="<?= escapeHtml($received['password']) ?>"><i class="far fa-fw fa-copy"></i></button>
                                 </div>
                             <?php } else { ?>
@@ -167,7 +167,7 @@ ob_start();
                     <form action="post.php" method="post" class="m-0">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <input type="hidden" name="item_id" value="<?= $item_id ?>">
-                        <button type="submit" name="share_request_save" value="1" class="btn btn-sm btn-primary text-bold"><i class="fas fa-save me-2"></i>Save to credentials</button>
+                        <button type="submit" name="share_request_save" value="1" class="btn btn-sm btn-primary fw-bold"><i class="fas fa-save me-2"></i>Save to Credentials</button>
                     </form>
                     <a class="btn btn-sm btn-outline-danger confirm-link" href="post.php?share_request_discard=<?= $item_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="What they sent is deleted without being saved."><i class="fas fa-trash me-2"></i>Discard</a>
                 </div>
@@ -199,7 +199,7 @@ ob_start();
                         <?= escapeHtml($entry['log_description']) ?>
                         <?php if ($where) { ?><span class="d-block text-body-secondary"><?= implode(' &middot; ', $where) ?></span><?php } ?>
                     </span>
-                    <span class="text-body-secondary text-nowrap" title="<?= escapeHtml($entry['log_created_at']) ?>"><?= timeAgo($entry['log_created_at']) ?></span>
+                    <span class="text-body-secondary text-nowrap" title="<?= formatDateTime($entry['log_created_at']) ?>"><?= timeAgo($entry['log_created_at']) ?></span>
                 </li>
             <?php } ?>
         </ul>
@@ -219,7 +219,7 @@ ob_start();
             <i class="fas fa-unlink me-2"></i><?= $type === 'Request' ? 'Cancel the request' : 'Turn off' ?>
         </a>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

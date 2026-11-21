@@ -142,6 +142,20 @@ $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
 $config_module_enable_ticketing = intval($row['config_module_enable_ticketing']);
 $config_module_enable_accounting = intval($row['config_module_enable_accounting']);
 $config_client_portal_enable = intval($row['config_client_portal_enable']);
+// Purchasing, Bookkeeping, Dispatch, Trips and Calendar - read once database 3.9.4 adds them; moduleOn() takes one not there yet as on
+if (version_compare((string) ($row['config_current_database_version'] ?? '0'), '3.9.4', '>=')) {
+    foreach (mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_module_enable_purchasing, config_module_enable_bookkeeping, config_module_enable_dispatch,
+        config_module_enable_trips, config_module_enable_calendar FROM settings WHERE company_id = 1")) ?: [] as $module_column => $module_on) {
+        $$module_column = intval($module_on);
+    }
+}
+// The Knowledge Base - from database 3.9.5, and its public help center from 3.9.6
+if (version_compare((string) ($row['config_current_database_version'] ?? '0'), '3.9.5', '>=')) {
+    $config_module_enable_kb = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_module_enable_kb FROM settings WHERE company_id = 1"))[0] ?? 1);
+}
+if (version_compare((string) ($row['config_current_database_version'] ?? '0'), '3.9.6', '>=')) {
+    $config_kb_public_enable = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_kb_public_enable FROM settings WHERE company_id = 1"))[0] ?? 0);
+}
 $config_client_portal_require_mfa = intval($row['config_client_portal_require_mfa']);
 
 // The client record that represents this MSP's own company, or 0 for none
@@ -162,7 +176,7 @@ $config_share_require_protection = intval($row['config_share_require_protection'
 // Locale
 $config_currency_format = "US_en";
 $config_timezone = $row['config_timezone'];
-$config_date_format = "M d, Y";
+$config_date_format = "M j, Y";
 $config_time_format = "g:i A";
 
 // Theme
@@ -206,9 +220,6 @@ $colors_array = array (
 $records_per_page_array = array ('5','10','15','20','30','50','100');
 
 include_once "settings_localization_array.php";
-
-// Type => icon - the asset types, in order (ASSET_TYPES in functions/asset_type.php)
-$asset_types_array = function_exists('assetTypeIcons') ? assetTypeIcons() : [];
 
 // A managed instance its manager has made read-only or suspended (functions/managed.php). The
 // pages anyone can open - guest links, signing up, joining, password resets - are checked here,

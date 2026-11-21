@@ -10,10 +10,16 @@ $ticket_id = intval($row['ticket_id']);
 
 $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
-$ticket_scheduled_for = escapeHtml($row['ticket_schedule']);
+// On the agent's own clock (functions/user_timezone.php) - edit_ticket_schedule moves it back
+$ticket_scheduled_for = escapeHtml(timezoneToView((string) $row['ticket_schedule']));
 $ticket_onsite = intval($row['ticket_onsite']);
 $client_name = escapeHtml($row['client_name']);
 $client_id = intval($row['ticket_client_id']);
+
+// Who does the work - the agents who can open this client's tickets, and whoever has it now - and for how long
+$schedule_tech = intval($row['ticket_assigned_to']);
+$schedule_agents = ticketMentionAgents($client_id);
+$schedule_minutes = ticketScheduleMinutes($row['ticket_schedule'], $row['ticket_schedule_end'] ?? null);
 
 ob_start();
 
@@ -21,9 +27,9 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-calendar-check me-2"></i>Schedule <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small>
+        <i class="fas fa-fw fa-calendar-check me-2"></i>Schedule <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small>
     </h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <div class="modal-body">
@@ -31,30 +37,59 @@ ob_start();
         <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
 
         <div class="mb-3">
-            <label>Date and time</label>
+            <label class="form-label">Date and time</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
-                <input type="datetime-local" class="form-control" name="scheduled_date_time" id="scheduleDateTime" placeholder="Scheduled Date & Time" min="<?= date('Y-m-d\TH:i') ?>" <?php if ($ticket_scheduled_for) { echo "value='$ticket_scheduled_for'"; } ?>>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
+                <input type="datetime-local" class="form-control" name="scheduled_date_time" id="scheduleDateTime" placeholder="Scheduled Date & Time" min="<?= substr(timezoneNow(), 0, 16) ?>" <?php if ($ticket_scheduled_for) { echo "value='$ticket_scheduled_for'"; } ?>>
+            </div>
+            <?= timezoneFormHint() ?>
+        </div>
+
+        <div class="row g-2 mb-3">
+            <div class="col-sm-7">
+                <label class="form-label">Agent</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
+                    <select class="form-select select2" name="schedule_tech" id="scheduleTech">
+                        <?php if (!$schedule_tech || !isset($schedule_agents[$schedule_tech])) { ?>
+                            <option value="<?= $schedule_tech ?>"><?= $schedule_tech ? escapeHtml($row['user_name']) : '- Unassigned -' ?></option>
+                        <?php } ?>
+                        <?php foreach ($schedule_agents as $agent) { ?>
+                            <option value="<?= intval($agent['id']) ?>" data-name="<?= escapeHtml($agent['name']) ?>" <?= intval($agent['id']) === $schedule_tech ? 'selected' : '' ?><?= selectOptionData($agent['avatar'] !== '' ? ['image' => $agent['avatar']] : ['initials' => $agent['initials'], 'shape' => 'circle', 'tone' => 'secondary']) ?>><?= escapeHtml($agent['name']) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <label class="form-label">How long</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-hourglass-half"></i></span>
+                    <select class="form-select select2" name="schedule_minutes" id="scheduleMinutes">
+                        <?php foreach (ticketScheduleLengths($schedule_minutes) as $minutes => $label) { ?>
+                            <option value="<?= intval($minutes) ?>" <?= intval($minutes) === $schedule_minutes ? 'selected' : '' ?>><?= escapeHtml($label) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
             </div>
         </div>
 
         <div class="mb-3">
-            <label>Visit</label>
+            <label class="form-label">Visit</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                <select class="form-select" name="onsite" required>
+                    <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
+                <select class="form-select select2" name="onsite" required>
                     <option value="0" <?php if ($ticket_onsite == 0) echo "selected"; ?>>Remote</option>
                     <option value="1" <?php if ($ticket_onsite == 1) echo "selected"; ?>>Onsite</option>
                 </select>
             </div>
         </div>
 
-        <?php if (intval($row['ticket_assigned_to'])) { ?>
-            <!-- What else the agent has that day, so it is not booked on top of something (agent/js/ticket_schedule_modal.js) -->
-            <div class="border rounded p-2 small" id="scheduleAgentDay" data-user="<?= intval($row['ticket_assigned_to']) ?>" data-ticket="<?= $ticket_id ?>" data-name="<?= escapeHtml($row['user_name']) ?>" hidden>
+        <?php if ($schedule_agents) { ?>
+            <!-- What else the chosen agent has that day, so it is not booked on top of something (agent/js/ticket_schedule_modal.js) -->
+            <div class="border rounded p-2 small" id="scheduleAgentDay" data-user="<?= $schedule_tech ?>" data-ticket="<?= $ticket_id ?>" data-name="<?= escapeHtml((string) $row['user_name']) ?>" hidden>
                 <div class="d-flex align-items-center mb-1">
                     <span class="fw-semibold"><i class="far fa-calendar-alt fa-fw text-secondary me-1"></i><span class="js-day-title"></span></span>
-                    <a class="ms-auto js-day-open" href="calendar.php">Calendar</a>
+                    <a class="ms-auto js-day-open" href="calendar.php"<?= moduleOn('calendar') ? '' : ' hidden' ?>>Calendar</a>
                 </div>
                 <div class="js-day-items"></div>
             </div>
@@ -64,11 +99,11 @@ ob_start();
     <div class="modal-footer">
     <?php if ($ticket_scheduled_for) { ?>
         <a href="post.php?cancel_ticket_schedule=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger confirm-link me-auto" data-confirm-title="Remove from the schedule?" data-confirm-text="A cancellation email goes to the assigned agent, and to the contact and watchers if client notifications are on." data-confirm-button="Remove from schedule">
-            <i class="fa fa-calendar-times me-2"></i>Remove from schedule
+            <i class="fas fa-calendar-times me-2"></i>Remove from Schedule
         </a>
     <?php } ?>
-        <button type="submit" name="edit_ticket_schedule" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_ticket_schedule" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

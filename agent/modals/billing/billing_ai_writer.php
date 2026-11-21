@@ -53,7 +53,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-magic me-2"></i>Write <?= escapeHtml($number) ?> with AI</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-ai-billing-form data-type="<?= $type ?>" data-doc-id="<?= $doc_id ?>" data-currency="<?= escapeHtml($currency) ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -85,7 +85,7 @@ ob_start();
                 <i class="fas fa-fw fa-tags me-1"></i><?= $catalog_count ? "Lines come from your catalog of $catalog_count where one fits, at its prices" : 'Your catalog is empty, so only labor will have a price' ?>;
                 labor <?= $rate > 0 ? 'at ' . escapeHtml(billingMoney($rate, $currency)) . ' an hour' : 'has no rate - set one for the client or as the default' ?>. Nothing goes on until you add it.
             </div>
-            <button type="button" class="btn btn-primary mt-3" data-ai-billing-write><i class="fas fa-fw fa-magic me-2"></i>Write it</button>
+            <button type="button" class="btn btn-primary mt-3" data-ai-billing-write><i class="fas fa-fw fa-magic me-2"></i>Write It</button>
         </div>
 
         <div class="mt-3" data-ai-billing-status aria-live="polite"></div>
@@ -128,9 +128,9 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="billing_ai_lines" class="btn btn-primary text-bold d-none" data-ai-billing-add><i class="fas fa-fw fa-plus me-2"></i><span>Add to <?= escapeHtml($number) ?></span></button>
+        <button type="submit" name="billing_ai_lines" class="btn btn-primary fw-bold d-none" data-ai-billing-add><i class="fas fa-fw fa-plus me-2"></i><span>Add to <?= escapeHtml($number) ?></span></button>
         <button type="button" class="btn btn-light border d-none" data-ai-billing-again><i class="fas fa-fw fa-redo me-2"></i>Again</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

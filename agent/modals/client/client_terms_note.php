@@ -27,7 +27,7 @@ $terms_note_from = count($terms_note_names) > 1 ? implode(', ', array_slice($ter
     <div class="fw-semibold mb-1"><i class="fas fa-fw fa-file-contract me-1"></i>Rates, net terms and SLAs</div>
     <?php if ($terms_note) { ?>
         <div>
-            <?= $terms_note_money($terms_note['rate']['rate']) ?>/hr<?= $terms_note['after_hours'][0] > 0 ? ', ' . $terms_note_money($terms_note['after_hours'][0]) . '/hr after hours' : '' ?>,
+            <?= $terms_note_money($terms_note['rate']['rate']) ?>/hr<?= $terms_note['after_hours'][0] !== null ? ', ' . $terms_note_money($terms_note['after_hours'][0]) . '/hr after hours' : '' ?>,
             <?= $terms_note_net($terms_note['net_terms'][0]) ?> -
             <?= $terms_note_from !== '' ? 'from ' . escapeHtml($terms_note_from) . (count($terms_note_names) > 1 ? ', the contracts in force, with the defaults for anything they leave empty.' : ', the contract in force, with the defaults for anything it leaves empty.') : 'the defaults, as no contract in force sets them.' ?>
         </div>

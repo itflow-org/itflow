@@ -25,10 +25,16 @@ $days = function ($n) {
 // How each page is set now - a line or two, and whether it is switched off
 $start_pages = settingsStartPages();
 $modules_on = array_keys(array_filter([
-    'IT documentation' => $config_module_enable_itdoc,
-    'Ticketing' => $config_module_enable_ticketing,
-    'Invoicing' => $config_module_enable_accounting,
-    'Client portal' => $config_client_portal_enable,
+    'IT documentation' => moduleOn('itdoc'),
+    'Ticketing' => moduleOn('ticketing'),
+    'Dispatch' => isset($config_module_enable_dispatch) && moduleOn('dispatch'),
+    'Invoicing' => moduleOn('accounting'),
+    'Bookkeeping' => isset($config_module_enable_bookkeeping) && moduleOn('bookkeeping'),
+    'Purchasing' => isset($config_module_enable_purchasing) && moduleOn('purchasing'),
+    'Trips' => isset($config_module_enable_trips) && moduleOn('trips'),
+    'Calendar' => isset($config_module_enable_calendar) && moduleOn('calendar'),
+    'Knowledge Base' => kbOn(),
+    'Client portal' => moduleOn('portal'),
 ]));
 $where = array_filter([$company['company_city'] ?? '', $company['company_country'] ?? '']);
 $summaries = [
@@ -36,11 +42,13 @@ $summaries = [
     'localization' => escapeHtml(implode(' · ', array_filter([$localization['locales'][$company['company_locale'] ?? ''] ?? '', $company['company_currency'] ?? '', $config_timezone]))),
     'theme' => '<span class="itflow-settings-dot theme-' . escapeHtml($config_theme) . '"></span>' . escapeHtml($themes[$config_theme] ?? $config_theme) . (file_exists(dirname(__DIR__) . '/uploads/favicon.ico') ? ' · its own tab icon' : ''),
     'default' => 'Opens on ' . escapeHtml($start_pages[$config_start_page] ?? $config_start_page) . ' · ' . ($config_default_net_terms ? 'net ' . intval($config_default_net_terms) : 'due on receipt')
-        . ($config_default_hourly_rate > 0 ? ' · ' . escapeHtml(numfmt_format_currency($currency_format, $config_default_hourly_rate, $session_company_currency)) . ' an hour' : '')
-        . (billingDefaults()['after_hours'] > 0 ? ', ' . escapeHtml(numfmt_format_currency($currency_format, billingDefaults()['after_hours'], $session_company_currency)) . ' after hours' : ''),
+        . ($config_default_hourly_rate > 0 ? ' · ' . escapeHtml(billingMoney($config_default_hourly_rate, $session_company_currency)) . ' an hour' : '')
+        . (billingDefaults()['after_hours'] > 0 ? ', ' . escapeHtml(billingMoney(billingDefaults()['after_hours'], $session_company_currency)) . ' after hours' : ''),
     'ticket' => 'Next ' . escapeHtml($config_ticket_prefix . $config_ticket_next_number) . ' · email to ticket ' . $on_off($config_ticket_email_parse),
     'project' => 'Next ' . escapeHtml($config_project_prefix . $config_project_next_number),
     'quote' => 'Next ' . escapeHtml($config_quote_prefix . $config_quote_next_number),
+    'kb' => isset($config_kb_public_enable) ? 'Public help center ' . $on_off($config_kb_public_enable) : 'Needs the database update',
+    'purchase_order' => poReady() ? 'Next ' . escapeHtml(poSettings()['prefix'] . poSettings()['next']) . ' · approval ' . $on_off(poSettings()['approval']) : 'Needs the database update',
     'invoice' => 'Next ' . escapeHtml($config_invoice_prefix . $config_invoice_next_number) . ' · reminders ' . $on_off($config_send_invoice_reminders) . ' · late fees ' . $on_off($config_invoice_late_fee_enable)
         . ' · cards ' . $on_off(billingStripeProvider()),
     'mail' => 'Sending ' . ($config_smtp_provider ? 'on' : '<span class="text-danger-emphasis">off</span>') . ' · receiving ' . $on_off($config_imap_provider)

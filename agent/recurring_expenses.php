@@ -100,6 +100,8 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
 
 ?>
 
+<?= expenseTabsHtml('recurring') ?>
+
 <!-- What is committed -->
 <div class="row g-3 mb-3">
     <div class="col-sm-6 col-xl-3">
@@ -140,11 +142,11 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
                 <?php if ($can_edit) { ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense_add.php<?= $vendor_filter ? "?vendor_id=$vendor_filter" : '' ?>"><i class="fas fa-plus me-2"></i>New Recurring Expense</button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item" href="expenses.php"><i class="fa fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses</a>
+                    <a class="dropdown-item" href="expenses.php"><i class="fas fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses</a>
                     <?php if (reportCanOpen('expense_by_vendor')) { ?>
-                        <a class="dropdown-item" href="reports/expense_by_vendor.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Spend by Vendor</a>
+                        <a class="dropdown-item" href="reports/expense_by_vendor.php"><i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Spend by Vendor</a>
                     <?php } ?>
                 </div>
             </div>
@@ -157,8 +159,8 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
             <div class="row g-2 align-items-center">
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search recurring expenses" title="Vendor, description, reference, amount, client, category">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search recurring expenses..." title="Vendor, description, reference, amount, client, category">
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -208,13 +210,13 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
         <table class="table table-hover align-middle mb-0 itflow-billing-table">
             <thead class="<?= $num_rows[0] ? '' : 'd-none' ?> text-nowrap table-light">
             <tr>
-                <th class="ps-3"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">Category <?php if ($sort == 'category_name') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
-                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_amount&order=<?= $disp ?>">Amount <?php if ($sort == 'recurring_expense_amount') { echo $order_icon; } ?></a></th>
-                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=monthly&order=<?= $disp ?>">A month <?php if ($sort == 'monthly') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_next_date&order=<?= $disp ?>">Next <?php if ($sort == 'recurring_expense_next_date') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_last_sent&order=<?= $disp ?>">Last <?php if ($sort == 'recurring_expense_last_sent') { echo $order_icon; } ?></a></th>
+                <th class="ps-3"><?= sortLink('vendor_name', 'Vendor') ?></th>
+                <th><?= sortLink('category_name', 'Category') ?></th>
+                <th><?= sortLink('client_name', 'Client') ?></th>
+                <th class="text-end"><?= sortLink('recurring_expense_amount', 'Amount') ?></th>
+                <th class="text-end"><?= sortLink('monthly', 'A month') ?></th>
+                <th><?= sortLink('recurring_expense_next_date', 'Next') ?></th>
+                <th><?= sortLink('recurring_expense_last_sent', 'Last') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -258,7 +260,7 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
                     <td class="text-nowrap">
                         <?= $row_state === 'ended' ? '' : escapeHtml($row_next) ?>
                         <div><?= recurringExpenseNextPill($row) ?></div>
-                        <?php if ($row['recurring_expense_end_date'] && $row_state !== 'ended') { ?><div class="small text-body-secondary" title="Its last run is on or before this date">Ends <?= escapeHtml($row['recurring_expense_end_date']) ?></div><?php } ?>
+                        <?php if ($row['recurring_expense_end_date'] && $row_state !== 'ended') { ?><div class="small text-body-secondary" title="Its last run is on or before this date">Ends <?= formatDate($row['recurring_expense_end_date']) ?></div><?php } ?>
                     </td>
                     <td class="text-nowrap small">
                         <?php if ($row['recurring_expense_last_sent']) { ?>
@@ -297,7 +299,7 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
                                 <?php } ?>
                                 <?php if ($can_delete) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="<?= $row_post('delete_recurring_expense') ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="<?= $row_post('delete_recurring_expense') ?>"
                                         data-confirm-text="<?= escapeHtml(recurringExpenseLabel($row)) ?> goes for good. The expenses it recorded stay.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

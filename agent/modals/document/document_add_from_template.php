@@ -37,8 +37,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-puzzle-piece me-2"></i>New document from a template</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-puzzle-piece me-2"></i>New Document from a Template</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-doc-template-make>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -60,7 +60,7 @@ ob_start();
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-puzzle-piece"></i></span>
                     <select class="form-select select2" name="document_template_id" required data-doc-template-select>
-                        <option value="">- Pick a template -</option>
+                        <option value="">- Select a template -</option>
                         <?php foreach ($templates as $template_id => $template) {
                             $used = $usage[$template_id]['count'] ?? 0;
                             $about = trim(implode(' · ', array_filter([isset($missing[$template_id]) ? 'this client should have one' : '', trim((string) $template['document_template_description']), $used ? 'used ' . $used . ' time' . ($used === 1 ? '' : 's') : '']))); ?>
@@ -104,9 +104,9 @@ ob_start();
     </div>
     <div class="modal-footer">
         <?php if ($templates) { ?>
-            <button type="submit" name="add_document_from_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
+            <button type="submit" name="add_document_from_template" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
         <?php } ?>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i><?= $templates ? 'Cancel' : 'Close' ?></button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i><?= $templates ? 'Cancel' : 'Close' ?></button>
     </div>
 </form>
 

@@ -18,8 +18,8 @@ ob_start();
 
 if (!$template) { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-balance-scale me-2"></i>True up seats</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title"><i class="fas fa-fw fa-balance-scale me-2"></i>True Up Seats</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That license template no longer exists.</div>
 <?php } else {
@@ -32,8 +32,8 @@ if (!$template) { ?>
     ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-balance-scale me-2"></i>True up seats <small class="ms-1 opacity-75"><?= escapeHtml($template['software_template_name']) ?></small></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-balance-scale me-2"></i>True Up Seats <small class="ms-1 opacity-75"><?= escapeHtml($template['software_template_name']) ?></small></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -66,7 +66,7 @@ if (!$template) { ?>
                             <td class="text-end text-nowrap"><?= $seats['total'] > 0 ? $seats['total'] . ($seats['state'] === 'over' ? ' <span class="badge rounded-pill bg-danger-subtle text-danger-emphasis fw-normal">' . $seats['over'] . ' over</span>' : '') : '<span class="text-secondary">No limit</span>' ?></td>
                             <td class="pe-2">
                                 <div class="input-group input-group-sm">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
                                     <input type="number" class="form-control" name="seats[<?= $software_id ?>]" min="0" max="1000000" step="1" placeholder="No limit" value="<?= escapeHtml($to) ?>" data-now="<?= escapeHtml($now) ?>" data-true-up-seats>
                                 </div>
                             </td>
@@ -80,9 +80,9 @@ if (!$template) { ?>
     </div>
     <div class="modal-footer">
         <?php if ($licenses) { ?>
-            <button type="submit" name="true_up_software_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>True up</button>
+            <button type="submit" name="true_up_software_template" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>True Up</button>
         <?php } ?>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i><?= $licenses ? 'Cancel' : 'Close' ?></button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i><?= $licenses ? 'Cancel' : 'Close' ?></button>
     </div>
 </form>
 

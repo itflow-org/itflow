@@ -8,6 +8,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Trips switched off (Admin > Settings > Modules)
+if (!moduleOn('trips')) {
+    exit(json_encode(['error' => moduleOffText('trips')]));
+}
+
 enforceUserPermission('module_sales', 2);
 enforceUserPermission('module_financial', 2);
 
@@ -31,7 +36,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-route me-2"></i>Add Trips <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber('invoice', $invoice)) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" id="invoiceAddTrips">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -49,12 +54,12 @@ ob_start();
                         <label class="flex-grow-1 min-w-0 mb-0" for="addTrip<?= $trip_id ?>">
                             <span class="d-block text-truncate"><?= escapeHtml($trip['trip_purpose']) ?></span>
                             <span class="small text-body-secondary d-block text-truncate">
-                                <?= escapeHtml($trip['trip_date']) ?> &middot; <?= escapeHtml($trip['location_name'] ?? $trip['trip_destination']) ?> &middot; <?= escapeHtml(tripMilesText($trip['trip_miles'])) ?><?= intval($trip['round_trip']) ? ' round trip' : '' ?>
+                                <?= formatDate($trip['trip_date']) ?> &middot; <?= escapeHtml($trip['location_name'] ?? $trip['trip_destination']) ?> &middot; <?= escapeHtml(tripMilesText($trip['trip_miles'])) ?><?= intval($trip['round_trip']) ? ' round trip' : '' ?>
                             </span>
                         </label>
                         <div class="flex-shrink-0" style="width: 8rem;">
                             <div class="input-group input-group-sm">
-                                <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                                 <input type="text" class="form-control text-end" name="trip_price[<?= $trip_id ?>]" value="<?= number_format($trip['price'], 2, '.', '') ?>" inputmode="decimal" aria-label="Price to bill" data-add-trip-price>
                             </div>
                         </div>
@@ -66,8 +71,8 @@ ob_start();
                     <div class="col-sm-6">
                         <label class="form-label">Tax</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
-                            <select class="form-select" name="tax_id" data-add-trip-tax>
+                            <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
+                            <select class="form-select select2" name="tax_id" data-add-trip-tax>
                                 <?= taxOptionsHtml($taxes, taxDefaultFor($client_id, 'trip')) ?>
                             </select>
                         </div>
@@ -85,7 +90,7 @@ ob_start();
     <div class="modal-footer">
         <?php if ($trips) { ?>
             <span class="me-auto small text-body-secondary" data-add-trip-summary></span>
-            <button type="submit" name="invoice_add_trips" class="btn btn-primary text-bold" data-add-trip-submit><i class="fas fa-check me-2"></i>Add</button>
+            <button type="submit" name="invoice_add_trips" class="btn btn-primary fw-bold" data-add-trip-submit><i class="fas fa-check me-2"></i>Add</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i><?= $trips ? 'Cancel' : 'Close' ?></button>
     </div>

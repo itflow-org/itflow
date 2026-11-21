@@ -65,7 +65,7 @@ $hint = function ($key, $text) use ($region_errors, $suggested) {
                     <div class="col-12">
                         <label class="form-label" for="setupLocale">Language <strong class="text-danger">*</strong></label>
                         <div class="input-group has-validation">
-                            <span class="input-group-text"><i class="fa fa-fw fa-language"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-language"></i></span>
                             <select class="form-select select2<?= setupFieldInvalid($region_errors, 'locale') ?>" id="setupLocale" name="locale" required>
                                 <option value="">- Language -</option>
                                 <?php foreach ($locales_array as $locale_code => $locale_name) { ?>
@@ -78,7 +78,7 @@ $hint = function ($key, $text) use ($region_errors, $suggested) {
                     <div class="col-12">
                         <label class="form-label" for="setupCurrency">Currency <strong class="text-danger">*</strong></label>
                         <div class="input-group has-validation">
-                            <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-money-bill"></i></span>
                             <select class="form-select select2<?= setupFieldInvalid($region_errors, 'currency_code') ?>" id="setupCurrency" name="currency_code" required>
                                 <option value="">- Currency -</option>
                                 <?php foreach ($currencies_array as $currency_code => $currency_name) { ?>
@@ -91,7 +91,7 @@ $hint = function ($key, $text) use ($region_errors, $suggested) {
                     <div class="col-12">
                         <label class="form-label" for="setupTimezone">Timezone <strong class="text-danger">*</strong></label>
                         <div class="input-group has-validation">
-                            <span class="input-group-text"><i class="fa fa-fw fa-business-time"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-business-time"></i></span>
                             <select class="form-select select2<?= setupFieldInvalid($region_errors, 'timezone') ?>" id="setupTimezone" name="timezone" required <?= $region_errors ? '' : 'data-setup-browser-timezone' ?>>
                                 <option value="">- Timezone -</option>
                                 <?php foreach ($timezones as $tz) { ?>

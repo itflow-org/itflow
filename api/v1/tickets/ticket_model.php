@@ -91,3 +91,21 @@ if (isset($_POST['ticket_billable'])) {
 } else {
     $billable = 0;
 }
+
+// The project it is part of - one of its client's, or an internal one, as the
+// ticket's Project field allows (ticketClientOwnedId()). 0 takes it off. Any
+// other is turned down, so a wrong id doesn't take it off the one it's on.
+if (isset($_POST['ticket_project_id'])) {
+    $ticket_project_id = ticketClientOwnedId('project', $_POST['ticket_project_id'], $client_id);
+    if (intval($_POST['ticket_project_id']) && !$ticket_project_id) {
+        header("HTTP/1.1 400 Bad Request");
+        $return_arr['success'] = "False";
+        $return_arr['message'] = "ticket_project_id " . intval($_POST['ticket_project_id']) . " isn't one of the client's projects or an internal one.";
+        echo json_encode($return_arr);
+        exit();
+    }
+} elseif ($ticket_row) {
+    $ticket_project_id = intval($ticket_row['ticket_project_id']);
+} else {
+    $ticket_project_id = 0;
+}

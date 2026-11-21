@@ -1,7 +1,16 @@
 Options -ExecCGI -Indexes
-php_flag engine off
+# php_flag is mod_php's - under PHP-FPM Apache refuses it with a 500, and the rules below keep PHP out
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>
 RemoveHandler .php .phtml .phar .phps
 RemoveType .php .phtml .phar .phps
 <FilesMatch "\.(php|phtml|phar|phps|cgi|pl|sh)$">
   Require all denied
 </FilesMatch>
+# A file opened straight from here is never run as a page - no type guessing, and no scripts, so an
+# HTML, SVG or XML file someone uploaded stays inert. Pictures and PDFs show as before.
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Content-Security-Policy "script-src 'none'; object-src 'none'; base-uri 'none'"
+</IfModule>

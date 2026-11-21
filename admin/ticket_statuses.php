@@ -56,10 +56,6 @@ $view_counts = array_combine(array_keys($views), $counts);
 // Dragging into order: the ones in use, in their order, with nothing searched
 $can_reorder = $show === '' && $sort === 'ticket_status_order' && $order === 'ASC' && $q === '' && $num_rows[0] > 1;
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($view) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $view]));
 };
@@ -84,7 +80,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search statuses..." title="Name or what it is for">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -100,9 +96,9 @@ $csrf = $_SESSION['csrf_token'];
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
                 <?php if ($can_reorder) { ?><th style="width: 1%"><span class="visually-hidden">Order</span></th><?php } ?>
-                <th class="<?= $can_reorder ? 'ps-0' : 'ps-3' ?>"><?= $sort_link('ticket_status_name', 'Status') ?></th>
-                <th class="text-end"><?= $sort_link('tickets', 'Tickets') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('ticket_status_pauses_sla', 'SLA clock') ?></th>
+                <th class="<?= $can_reorder ? 'ps-0' : 'ps-3' ?>"><?= sortLink('ticket_status_name', 'Status') ?></th>
+                <th class="text-end"><?= sortLink('tickets', 'Tickets') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('ticket_status_pauses_sla', 'SLA clock') ?></th>
                 <th class="d-none d-lg-table-cell">When the client replies</th>
                 <th></th>
             </tr>
@@ -126,9 +122,15 @@ $csrf = $_SESSION['csrf_token'];
                 $clock_html = $ticket_status_id === TICKET_STATUS_CLOSED
                     ? '<span class="text-body-secondary">Stopped</span>'
                     : ($paused ? '<span class="text-warning-emphasis"><i class="fas fa-fw fa-pause-circle me-1"></i>Paused</span>' : '<span class="text-body-secondary"><i class="fas fa-fw fa-play-circle me-1"></i>Runs</span>');
+                // Moved to another status by a reply, while that one is in use (ticketStatusAfterClientReply())
+                $reply_to = intval($row['ticket_status_reply_status_id'] ?? 0);
+                $reply_to_row = $reply_to && $ticket_status_id !== TICKET_STATUS_CLOSED ? (ticketStatusReplyTargets($ticket_status_id)[$reply_to] ?? null) : null;
                 $reply_html = $ticket_status_id === TICKET_STATUS_CLOSED
                     ? '<span class="text-body-secondary" title="A closed ticket can\'t be replied to - the client is told to raise a new one">Can\'t reply</span>'
-                    : '<span class="text-body-secondary"><i class="fas fa-fw ' . $reply['icon'] . ' me-1"></i>' . ([TICKET_STATUS_NEW => 'Opens it', TICKET_STATUS_OPEN => 'Stays Open', TICKET_STATUS_RESOLVED => 'Reopens it'][$ticket_status_id] ?? $reply['short']) . '</span>';
+                    : ($reply_to_row
+                        ? '<span class="text-body-secondary"><i class="fas fa-fw fa-share me-1"></i>To ' . ticketStatusBadgeHtml($reply_to_row['ticket_status_name'], $reply_to_row['ticket_status_color']) . '</span>'
+                        : '<span class="text-body-secondary"><i class="fas fa-fw ' . $reply['icon'] . ' me-1"></i>' . ([TICKET_STATUS_NEW => 'Opens it', TICKET_STATUS_OPEN => 'Stays Open', TICKET_STATUS_RESOLVED => 'Reopens it'][$ticket_status_id] ?? $reply['short']) . '</span>');
+                $first_response = TICKET_STATUS_FIRST_RESPONSE[intval($row['ticket_status_first_response'] ?? 0)] ?? TICKET_STATUS_FIRST_RESPONSE[0];
                 ?>
                 <tr data-ticket-status-id="<?= $ticket_status_id ?>">
                     <?php if ($can_reorder) { ?>
@@ -147,6 +149,9 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php if ($about !== '') { ?>
                                     <div class="small text-body-secondary mt-1"><?= escapeHtml($about) ?></div>
                                 <?php } ?>
+                                <?php if ($first_response['short'] !== '') { ?>
+                                    <div class="small text-success-emphasis mt-1" title="An agent moving a ticket into it before anyone has answered meets the SLA's response target"><i class="fas fa-fw fa-comment-dots me-1"></i><?= escapeHtml($first_response['short']) ?></div>
+                                <?php } ?>
                                 <!-- On smaller screens the clock and replies come along under the name -->
                                 <div class="d-lg-none mt-1 small d-flex flex-wrap gap-3">
                                     <span class="d-md-none"><?= $clock_html ?></span>
@@ -163,7 +168,7 @@ $csrf = $_SESSION['csrf_token'];
                         <?php } ?>
                     </td>
                     <td class="d-none d-md-table-cell text-nowrap"><?= $clock_html . $fixed ?></td>
-                    <td class="d-none d-lg-table-cell text-nowrap"><?= $reply_html . $fixed ?></td>
+                    <td class="d-none d-lg-table-cell text-nowrap"><?= $reply_html . ($ticket_status_id === TICKET_STATUS_CLOSED ? $fixed : '') ?></td>
                     <td class="text-end">
                         <div class="dropdown dropstart">
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
@@ -173,18 +178,18 @@ $csrf = $_SESSION['csrf_token'];
                                 </a>
                                 <?php if ($tickets) { ?>
                                     <a class="dropdown-item" href="<?= escapeHtml($tickets_url) ?>">
-                                        <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>See its tickets
+                                        <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>See Its Tickets
                                     </a>
                                 <?php } ?>
                                 <?php if ($can_reorder) { ?>
                                     <?php if ($position > 0) { ?>
                                         <a class="dropdown-item" href="post.php?move_ticket_status=<?= $ticket_status_id ?>&direction=up&csrf_token=<?= $csrf ?>">
-                                            <i class="fas fa-fw fa-arrow-up text-secondary me-2"></i>Move up
+                                            <i class="fas fa-fw fa-arrow-up text-secondary me-2"></i>Move Up
                                         </a>
                                     <?php } ?>
                                     <?php if ($position < $num_rows[0] - 1) { ?>
                                         <a class="dropdown-item" href="post.php?move_ticket_status=<?= $ticket_status_id ?>&direction=down&csrf_token=<?= $csrf ?>">
-                                            <i class="fas fa-fw fa-arrow-down text-secondary me-2"></i>Move down
+                                            <i class="fas fa-fw fa-arrow-down text-secondary me-2"></i>Move Down
                                         </a>
                                     <?php } ?>
                                 <?php } ?>
@@ -192,11 +197,11 @@ $csrf = $_SESSION['csrf_token'];
                                     <div class="dropdown-divider"></div>
                                     <?php if ($active) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket_status/ticket_status_remove.php?id=<?= $ticket_status_id ?>&action=off" title="Kept, but it can't be picked - and it comes off the board">
-                                            <i class="fas fa-fw fa-power-off text-secondary me-2"></i>Switch off
+                                            <i class="fas fa-fw fa-power-off text-secondary me-2"></i>Switch Off
                                         </a>
                                     <?php } else { ?>
                                         <a class="dropdown-item" href="post.php?switch_on_ticket_status=<?= $ticket_status_id ?>&csrf_token=<?= $csrf ?>" title="Back in the pickers and on the board">
-                                            <i class="fas fa-fw fa-power-off text-secondary me-2"></i>Switch on
+                                            <i class="fas fa-fw fa-power-off text-secondary me-2"></i>Switch On
                                         </a>
                                     <?php } ?>
                                     <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/ticket_status/ticket_status_remove.php?id=<?= $ticket_status_id ?>&action=delete">

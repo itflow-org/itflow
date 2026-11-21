@@ -19,6 +19,57 @@ function apiKeyRow($api_key_id) {
     return $row ?: null;
 }
 
+/*
+ * The key a call to the API came with - '' for none (api/v1/validate_api_key.php). The
+ * X-API-Key header first: web servers write the address of every request to their access
+ * logs, headers not, so a key sent as ?api_key= is in those logs. A JSON body's api_key, or
+ * the address's, still works for whatever was set up that way.
+ */
+function apiKeyFromRequest() {
+    foreach ([$_SERVER['HTTP_X_API_KEY'] ?? null, $_POST['api_key'] ?? null, $_GET['api_key'] ?? null] as $key) {
+        if (is_string($key) && trim($key) !== '') {
+            return trim($key);
+        }
+    }
+    return '';
+}
+
+/* Did this call come with a key in its address (?api_key=)? Then the web server's access log has it. */
+function apiKeyInAddress() {
+    return is_string($_GET['api_key'] ?? null) && trim($_GET['api_key']) !== '';
+}
+
+/*
+ * Whether the API still takes a key in the address - Admin > Settings > Security. Installs
+ * that had keys when the setting came (database 3.7.0) do, so nothing using them broke; others
+ * don't. Read here rather than with every page's settings, so the API still answers before the
+ * update that adds it - taking it, as it always did.
+ */
+function apiKeyInAddressAccepted() {
+    global $mysqli;
+    static $accepted = null;
+    if ($accepted === null) {
+        try {
+            $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_api_key_in_address FROM settings WHERE company_id = 1"));
+            $accepted = !empty($row[0]);
+        } catch (Throwable $e) {
+            $accepted = true;
+        }
+    }
+    return $accepted;
+}
+
+/* Note that a key came in the address, for Admin > API Keys to flag - at most once a minute, not every call. */
+function apiKeyNoteAddress($api_key_id) {
+    global $mysqli;
+    try {
+        mysqli_query($mysqli, "UPDATE api_keys SET api_key_address_at = NOW() WHERE api_key_id = " . intval($api_key_id) . "
+            AND (api_key_address_at IS NULL OR api_key_address_at < NOW() - INTERVAL 1 MINUTE)");
+    } catch (Throwable $e) {
+        // Before the update that adds it
+    }
+}
+
 /* Has this key expired? It works until the start of its expiry date. */
 function apiKeyExpired(array $row) {
     return (string) $row['api_key_expire'] <= date('Y-m-d');
@@ -60,7 +111,7 @@ function apiKeyStatePill(array $row, $role) {
     if ($problem !== '') {
         return '<span class="badge rounded-pill bg-danger-subtle text-danger-emphasis fw-normal" title="Every call is turned away until it acts as an active agent with a role"><i class="fas fa-exclamation-triangle me-1"></i>Won\'t work - ' . escapeHtml($problem) . '</span>';
     }
-    $days = (int) floor((strtotime($row['api_key_expire']) - strtotime(date('Y-m-d'))) / 86400);
+    $days = intval(floor((strtotime($row['api_key_expire']) - strtotime(date('Y-m-d'))) / 86400));
     if ($days <= 14) {
         return '<span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal" title="It stops working on ' . $expire . '"><i class="fas fa-hourglass-half me-1"></i>Expires in ' . $days . ' day' . ($days === 1 ? '' : 's') . '</span>';
     }
@@ -116,9 +167,9 @@ function apiKeyAgentFieldHtml($selected = 0) {
     <div class="mb-3" data-api-key-agent>
         <label>Acts as <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-user-shield"></i></span>
             <select class="form-select select2" name="run_as_user" required>
-                <option value="">- Pick an agent -</option>
+                <option value="">- Select an agent -</option>
                 <?php foreach ($agents as $user_id => $agent) { ?>
                     <option value="<?= $user_id ?>" <?= $user_id === $selected ? 'selected' : '' ?><?= selectOptionUser($user_id, $agent['user_name'], $agent['user_avatar'] ?? '') ?>><?= escapeHtml($agent['user_name']) ?></option>
                 <?php } ?>

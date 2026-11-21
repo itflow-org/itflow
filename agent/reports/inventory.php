@@ -118,7 +118,7 @@ $product_columns = [
 ];
 $move_columns = [
     'stock_created_at' => ['label' => 'When', 'type' => 'date', 'class' => 'small text-nowrap', 'html' => function ($row) {
-        return '<span title="' . escapeHtml($row['stock_created_at']) . '">' . escapeHtml(date('M j, Y', strtotime($row['stock_created_at']))) . '</span>';
+        return '<span title="' . formatDateTime($row['stock_created_at']) . '">' . escapeHtml(date('M j, Y', strtotime($row['stock_created_at']))) . '</span>';
     }],
     'product_name' => ['label' => 'Product', 'html' => function ($row) {
         return '<a href="/agent/product.php?product_id=' . intval($row['product_id']) . '#stock">' . escapeHtml($row['product_name']) . '</a>';

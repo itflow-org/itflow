@@ -8,6 +8,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// The calendar switched off (Admin > Settings > Modules)
+if (!moduleOn('calendar')) {
+    exit(json_encode(['error' => moduleOffText('calendar')]));
+}
+
 $form = calendarEventForModal($_GET['id'] ?? 0, 'edit');
 $event_id = intval($form['event_id']);
 $form_client_id = intval($form['event_client_id']);
@@ -34,7 +39,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-circle me-2 small" style="color:<?= escapeHtml(calendarColor($form['calendar_color'])) ?>"></i><?= escapeHtml($form['event_title']) ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -42,7 +47,7 @@ ob_start();
 
     <div class="modal-body">
         <?php if ($repeats) { ?>
-            <div class="alert alert-info py-2 small"><i class="fas fa-fw fa-redo me-1"></i>This changes every occurrence. To drop a single one, use <strong>Skip this one</strong> on it.</div>
+            <div class="alert alert-info py-2 small"><i class="fas fa-fw fa-redo me-1"></i>This changes every occurrence. To drop a single one, use <strong>Skip This One</strong> on it.</div>
         <?php } ?>
         <?php require 'calendar_event_form.php'; ?>
     </div>
@@ -51,11 +56,11 @@ ob_start();
             <a class="btn btn-outline-danger me-auto confirm-link" href="post.php?delete_event=<?= $event_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                 data-confirm-title="Delete <?= escapeHtml($form['event_title']) ?>?" data-confirm-button="Delete"
                 <?php if ($form_invited) { ?>data-confirm-text="Everyone who was sent the invitation is emailed the cancellation."<?php } ?>>
-                <i class="fas fa-trash-alt me-2"></i><?= $repeats ? 'Delete series' : 'Delete' ?>
+                <i class="fas fa-trash me-2"></i><?= $repeats ? 'Delete series' : 'Delete' ?>
             </a>
         <?php } ?>
-        <button type="submit" name="edit_event" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_event" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

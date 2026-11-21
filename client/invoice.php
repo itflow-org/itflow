@@ -19,7 +19,7 @@ if (!$invoice || intval($invoice['client_id']) !== $session_client_id || $invoic
     <a class="itflow-portal-back" href="invoices.php"><i class="fas fa-chevron-left"></i>Invoices</a>
     <section class="itflow-portal-panel">
         <?= emptyStateHtml(['title' => "That invoice isn't here", 'text' => 'It may have been replaced, or the link is not quite right.', 'icon' => 'fa-file-invoice-dollar', 'filtered' => false,
-            'actions' => [['label' => 'All invoices', 'href' => 'invoices.php', 'icon' => 'fa-arrow-left']]]) ?>
+            'actions' => [['label' => 'All Invoices', 'href' => 'invoices.php', 'icon' => 'fa-arrow-left']]]) ?>
     </section>
     <?php
     require_once "includes/footer.php";
@@ -42,7 +42,7 @@ $cards = billingStripeProvider() !== null;
 $can_pay = $owing && $cards && billingOnlinePayAllowed($state['balance']);
 // The card fee on paying the balance by card, when the client pays one - autopay adds it too
 $fee_rates = $cards ? billingCardFeeFor($session_client_id) : null;
-$card_fee = billingCardFeeCents((int) round($state['balance'] * 100), $fee_rates) / 100;
+$card_fee = billingCardFeeCents(intval(round($state['balance'] * 100)), $fee_rates) / 100;
 
 // The other invoices still owed, to pay with this one
 $others = array_filter(billingClientOpenInvoices($session_client_id), function ($row) use ($invoice_id) {

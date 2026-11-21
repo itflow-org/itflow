@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Racks - every rack a client has (or, from All Client Docs, every rack the
+ * Racks - every rack a client has (or, from Across clients, every rack the
  * agent can see), each as a card with a scale drawing of its front, how full it
  * is and what it draws. A card opens the rack (rack.php).
  */
@@ -27,7 +27,7 @@ enforceUserPermission('module_support');
 $can_edit = lookupUserPermission('module_support') >= 2;
 $can_delete = lookupUserPermission('module_support') >= 3;
 
-// Archived - from All Client Docs, an archived client's racks count as archived too
+// Archived - from Across clients, an archived client's racks count as archived too
 $archived = (isset($_GET['archived']) && $_GET['archived'] == 1) ? 1 : 0;
 if ($client_url) {
     $archive_query = $archived ? "rack_archived_at IS NOT NULL" : "rack_archived_at IS NULL";
@@ -37,7 +37,7 @@ if ($client_url) {
         : "(rack_archived_at IS NULL AND client_archived_at IS NULL)";
 }
 
-// Client filter (All Client Docs only)
+// Client filter (Across clients only)
 $client_filter = 0;
 if (!$client_url && !empty($_GET['client'])) {
     $client_filter = intval($_GET['client']);
@@ -124,15 +124,15 @@ foreach ($racks as $rack_id => $row) {
 
                 <div class="col-lg-3 col-md-4">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search racks and what's in them">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search racks..." title="Racks and what's in them">
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
 
                 <?php if ($client_url) { ?>
                     <div class="col-lg-2 col-md-4">
                         <select class="form-select select2" name="location" onchange="this.form.submit()">
-                            <option value="">- All Locations -</option>
+                            <option value="">- Any location -</option>
                             <?php
                             $sql_locations_filter = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations
                                 WHERE location_client_id = $client_id
@@ -148,7 +148,7 @@ foreach ($racks as $rack_id => $row) {
                 <?php } else { ?>
                     <div class="col-lg-2 col-md-4">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
-                            <option value="">- All Clients -</option>
+                            <option value="">- Any client -</option>
                             <?php
                             $sql_clients_filter = mysqli_query($mysqli, "SELECT DISTINCT client_id, client_name, client_abbreviation FROM clients
                                 JOIN racks ON rack_client_id = client_id
@@ -166,7 +166,7 @@ foreach ($racks as $rack_id => $row) {
 
                 <div class="col-lg-2 col-md-4">
                     <select class="form-select select2" name="type" onchange="this.form.submit()">
-                        <option value="">- All Types -</option>
+                        <option value="">- Any type -</option>
                         <?= categoryFilterOptionsHtml('rack_type', $type_filter, "SELECT DISTINCT rack_type FROM racks
                             LEFT JOIN clients ON client_id = rack_client_id
                             WHERE rack_type IS NOT NULL AND rack_type <> '' AND $archive_query
@@ -181,7 +181,7 @@ foreach ($racks as $rack_id => $row) {
                         </span>
                     <?php } ?>
                     <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>" class="btn btn-<?= $archived ? 'primary' : 'default' ?> text-nowrap">
-                        <i class="fa fa-fw fa-archive me-2"></i>Archived
+                        <i class="fas fa-fw fa-archive me-2"></i>Archived
                     </a>
                 </div>
 
@@ -217,7 +217,7 @@ foreach ($racks as $rack_id => $row) {
                     $rack_client_name = escapeHtml($row['client_name']);
                     $rack_archived_at = $row['rack_archived_at'];
                     $occupancy = $row['occupancy'];
-                    $used_percent = (int) round($occupancy['any'] / $rack_units * 100);
+                    $used_percent = intval(round($occupancy['any'] / $rack_units * 100));
                     $usage_tone = $used_percent >= 90 ? 'danger' : ($used_percent >= 75 ? 'warning' : 'primary');
                     $rack_items = array_map('rackUnitView', $racks_units[$rack_id]);
                     $power_used = array_sum(array_column($rack_items, 'power'));
@@ -269,16 +269,16 @@ foreach ($racks as $rack_id => $row) {
                                                     </a>
                                                     <div class="dropdown-divider"></div>
                                                     <?php if ($rack_archived_at) { ?>
-                                                        <a class="dropdown-item confirm-link" href="post.php?restore_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                        <a class="dropdown-item" href="post.php?restore_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                             <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                                         </a>
                                                     <?php } else { ?>
-                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                        <a class="dropdown-item text-danger" href="post.php?archive_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                             <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                         </a>
                                                     <?php } ?>
                                                     <?php if ($can_delete) { ?>
-                                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                         </a>
                                                     <?php } ?>

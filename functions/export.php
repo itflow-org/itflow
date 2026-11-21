@@ -163,7 +163,7 @@ function getExportColumns($export_type) {
         ],
 
         'networks' => [
-            // The first nine are the import's columns, in its order
+            // Headed as the network import heads them, so an export imports again (functions/import_kinds.php)
             'network_name'          => ['label' => 'Name', 'weight' => 2],
             'network_description'   => ['label' => 'Description', 'weight' => 3],
             'network_vlan'          => ['label' => 'VLAN'],
@@ -505,10 +505,10 @@ function getExportColumns($export_type) {
 
     ];
 
-    // An asset's details, a column each - off until picked (ASSET_SPECS, functions/asset_type.php)
-    if ($export_type === 'assets' && defined('ASSET_SPECS')) {
-        foreach (ASSET_SPECS as $spec_key => $spec) {
-            $registry['assets']['spec_' . $spec_key] = ['label' => $spec['label'] . (isset($spec['unit']) ? ' (' . $spec['unit'] . ')' : ''), 'default' => false];
+    // An asset's details, a column each - off until picked; your types' own too, headed with their type (functions/asset_type.php)
+    if ($export_type === 'assets' && function_exists('assetSpecDefs')) {
+        foreach (assetSpecDefs() as $spec_key => $spec) {
+            $registry['assets']['spec_' . $spec_key] = ['label' => assetSpecHeading($spec), 'default' => false];
         }
     }
 
@@ -664,7 +664,7 @@ function renderExportColumnPicker($export_type) {
                 <?php } ?>
             </div>
         </div>
-        <small class="form-text text-muted export-columns-count"></small>
+        <small class="form-text text-body-secondary export-columns-count"></small>
     </div>
 
     <script>
@@ -877,8 +877,8 @@ function exportTabsColumns($export_type) {
  */
 function renderExportButtons($trigger) {
     ?>
-    <button type="submit" name="<?= $trigger ?>" value="csv" class="btn btn-primary text-bold"><i class="fas fa-fw fa-file-csv me-2"></i>Download CSV</button>
-    <button type="submit" name="<?= $trigger ?>" value="pdf" class="btn btn-secondary text-bold"><i class="fas fa-fw fa-file-pdf me-2"></i>Download PDF</button>
+    <button type="submit" name="<?= $trigger ?>" value="csv" class="btn btn-primary fw-bold"><i class="fas fa-fw fa-file-csv me-2"></i>Download CSV</button>
+    <button type="submit" name="<?= $trigger ?>" value="pdf" class="btn btn-secondary fw-bold"><i class="fas fa-fw fa-file-pdf me-2"></i>Download PDF</button>
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     <?php
 }
@@ -1049,7 +1049,7 @@ function finishExport(&$export) {
         $html .= '<p class="meta">' . escapeHtml($export['subtitle']) . '</p>';
     }
 
-    $html .= '<p class="meta">' . $export['rows'] . ' record(s) - generated ' . date('Y-m-d H:i') . '</p><br>
+    $html .= '<p class="meta">' . $export['rows'] . ' record' . ($export['rows'] === 1 ? '' : 's') . ' - generated ' . formatDateTime(time()) . '</p><br>
     <table cellspacing="0" cellpadding="2">
         <thead><tr>' . $head . '</tr></thead>
         <tbody>' . $export['body'] . '</tbody>

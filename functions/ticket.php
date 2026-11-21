@@ -320,12 +320,94 @@ function ticketByGuestKey($ticket_id, $url_key) {
     return $row && $key !== '' && is_string($url_key) && hash_equals($key, $url_key) ? $row : null;
 }
 
+/**
+ * New guest links for a ticket, so the ones already emailed stop working - its
+ * own (ticket_url_key) and its tasks' client approvals. When it moves to
+ * another client: the old client's contacts have those links.
+ */
+function ticketNewGuestKeys($ticket_id) {
+    global $mysqli;
+    $ticket_id = intval($ticket_id);
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_url_key = '" . randomString(32) . "' WHERE ticket_id = $ticket_id");
+    $sql = mysqli_query($mysqli, "SELECT approval_id FROM task_approvals JOIN tasks ON task_id = approval_task_id WHERE task_ticket_id = $ticket_id AND approval_scope = 'client'");
+    while ($row = mysqli_fetch_row($sql)) {
+        mysqli_query($mysqli, "UPDATE task_approvals SET approval_url_key = '" . randomString(32) . "' WHERE approval_id = " . intval($row[0]));
+    }
+}
+
+/**
+ * Close a merged ticket into another one - notes on both, its tags onto the
+ * other, replies moved when asked. From the ticket's Merge (agent/post/ticket.php)
+ * and Dispatch's Schedule window (dispatchMerge()). $comment SQL-safe.
+ */
+function ticketMergeInto($child, $parent, $comment, $move_replies = false) {
+    global $mysqli, $session_name, $session_user_id;
+    $ticket_id = intval($child['ticket_id']);
+    $parent_id = intval($parent['ticket_id']);
+    $child_reference = escapeSql(ticketReference($child));
+    $parent_reference = escapeSql(ticketReference($parent));
+    $child_subject = escapeSql($child['ticket_subject']);
+    $child_details = mysqli_real_escape_string($mysqli, (string) $child['ticket_details']);
+    $parent_url = escapeSql(ticketUrl($parent_id, $parent['ticket_client_id']));
+
+    if ($move_replies) {
+        // The replies' attachments go with them - rows and files (uploads/tickets/<ticket id>/) - or
+        // they would be left on a ticket the replies are no longer on
+        $sql_attachments = mysqli_query($mysqli, "SELECT ticket_attachment_id, ticket_attachment_reference_name FROM ticket_attachments
+            INNER JOIN ticket_replies ON ticket_reply_id = ticket_attachment_reply_id AND ticket_reply_ticket_id = $ticket_id
+            WHERE ticket_attachment_ticket_id = $ticket_id");
+        if (mysqli_num_rows($sql_attachments)) {
+            $from_dir = dirname(__DIR__) . "/uploads/tickets/$ticket_id/";
+            $to_dir = dirname(__DIR__) . "/uploads/tickets/$parent_id/";
+            mkdirMissing(dirname(__DIR__) . "/uploads/tickets/");
+            mkdirMissing($to_dir);
+            while ($attachment = mysqli_fetch_assoc($sql_attachments)) {
+                $attachment_id = intval($attachment['ticket_attachment_id']);
+                $from_name = basename((string) $attachment['ticket_attachment_reference_name']);
+                // Never over a file already there - it gets a new name
+                $to_name = file_exists($to_dir . $from_name) ? randomString(32) . '.' . strtolower(pathinfo($from_name, PATHINFO_EXTENSION)) : $from_name;
+                if ($from_name !== '' && is_file($from_dir . $from_name)) {
+                    rename($from_dir . $from_name, $to_dir . $to_name);
+                }
+                $to_name_sql = escapeSql($to_name);
+                mysqli_query($mysqli, "UPDATE ticket_attachments SET ticket_attachment_ticket_id = $parent_id, ticket_attachment_reference_name = '$to_name_sql' WHERE ticket_attachment_id = $attachment_id");
+            }
+        }
+        mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply_ticket_id = $parent_id WHERE ticket_reply_ticket_id = $ticket_id");
+        // The work goes over, and the driving for it with it
+        mysqli_query($mysqli, "UPDATE trips SET trip_ticket_id = $parent_id WHERE trip_ticket_id = $ticket_id");
+    }
+    if (empty($child['ticket_first_response_at'])) {
+        setTicketFirstResponse($ticket_id);
+    }
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $child_reference merged into <a href=\"$parent_url\">$parent_reference</a>. Comment: $comment', ticket_reply_time_worked = '00:00:00', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_status = " . TICKET_STATUS_CLOSED . ", ticket_resolved_at = COALESCE(ticket_resolved_at, NOW()), ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id");
+    syncTicketSlaClock($ticket_id);
+    setTicketResolutionSlaMet($ticket_id);
+
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $child_reference was merged into this ticket with comment: $comment.<br><br><b>$child_subject</b><br>$child_details', ticket_reply_time_worked = '00:00:00', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $parent_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $parent_id");
+
+    // Its tags go with it - not archived ones, which aren't put on more tickets
+    mysqli_query($mysqli, "INSERT IGNORE INTO ticket_tags (ticket_id, tag_id)
+        SELECT $parent_id, ticket_tags.tag_id FROM ticket_tags JOIN tags ON tags.tag_id = ticket_tags.tag_id
+        WHERE ticket_tags.ticket_id = $ticket_id AND tags.tag_archived_at IS NULL");
+
+    // So do its related tickets (functions/ticket_link.php)
+    ticketLinkCarry($ticket_id, $parent_id);
+
+    logTicketHistory($ticket_id, "$session_name merged this ticket into $parent_reference and closed it");
+    logTicketHistory($parent_id, "$session_name merged $child_reference into this ticket");
+    logAudit("Ticket", "Merge", "$session_name merged ticket $child_reference into $parent_reference", intval($child['ticket_client_id']), $ticket_id);
+    triggerCustomAction('ticket_merge', $ticket_id);
+}
+
 /** The guest ticket page's address, from a page in guest/. */
 function ticketGuestPath(array $row) {
     return 'guest_view_ticket.php?ticket_id=' . intval($row['ticket_id']) . '&url_key=' . rawurlencode((string) $row['ticket_url_key']);
 }
 
-/** The foot's contact line on a ticket email - the company's phone and the support address. */
+/** The foot's contact line on a ticket email - the company's phone and the support address. Another office's is officeTicketFoot(). */
 function ticketEmailContactLine() {
     $company = billingCompany();
     return implode('  ·  ', array_filter([$company['phone_display'] ?? '', ticketEmailFrom()['email'], $company['company_website'] ?? '']));
@@ -352,7 +434,7 @@ function ticketEmailSla($ticket_id) {
         $callout = "This ticket is marked High priority. If it is holding up your business, calling us on $phone gets you the fastest answer.";
     }
     return [
-        'summary' => ['We will respond' => 'within ' . formatSlaMinutes(intval($row['sla_response_minutes'])) . ', by ' . date('D j M, g:i A', strtotime($row['ticket_response_due_at']))],
+        'summary' => ['We will respond' => 'within ' . formatSlaMinutes(intval($row['sla_response_minutes'])) . ', by ' . date('D, M j, g:i A', strtotime($row['ticket_response_due_at']))],
         'callout' => $callout,
     ];
 }
@@ -408,7 +490,7 @@ function ticketEmailHistory(array $row, array $opts = []) {
             $items[] = [
                 'by' => $client ? ((string) $reply['contact_name'] ?: 'Client') : ((string) $reply['user_name'] ?: $company_name),
                 'org' => $client ? '' : $company_name,
-                'when' => date('D j M, g:i A', strtotime($reply['ticket_reply_created_at'])),
+                'when' => date('D, M j, g:i A', strtotime($reply['ticket_reply_created_at'])),
                 'text' => $text,
                 'client' => $client,
             ];
@@ -426,7 +508,7 @@ function ticketEmailHistory(array $row, array $opts = []) {
             $items[] = [
                 'by' => $asked_by !== '' ? $asked_by : 'The request',
                 'action' => $asked_by !== '' ? 'the request' : '',
-                'when' => date('D j M, g:i A', strtotime($row['ticket_created_at'])),
+                'when' => date('D, M j, g:i A', strtotime($row['ticket_created_at'])),
                 'text' => $text,
                 'client' => true,
             ];
@@ -447,9 +529,11 @@ function ticketEmailExcerpt($html, $limit = 700) {
  * each. $row is ticketRow(). $kind and its $opts:
  *   created   it was opened - how: agent (the default), email (the reply to an emailed one) or scheduled
  *   reply     an agent's reply - message (its HTML), by (who wrote it)
- *   resolved  marked resolved, pending closure - message (the agent's note, HTML, or ''), by
+ *   resolved  marked resolved, pending closure - message (the agent's note, HTML, or ''), by,
+ *             no_response (true: the message is the email - Resolve - no response)
  *   closed    closed - asking how we did
  *   watcher   they were made a watcher - by (who added them)
+ *   assigned  an agent picked it up - message (the "ticket assigned" words, HTML), agent (who has it, or '')
  *   scheduled the work was booked - when (words), where (the site's address), or cancelled: true
  */
 function ticketEmailContent(array $row, $kind, array $opts = []) {
@@ -465,6 +549,7 @@ function ticketEmailContent(array $row, $kind, array $opts = []) {
         'preview' => "$reference - $subject",
         'tone' => 'primary',
         'contact' => ticketEmailContactLine(),
+        'office' => officeTicketFoot($row),
         'button' => ['label' => 'View the ticket', 'url' => $url],
     ];
 
@@ -506,6 +591,13 @@ function ticketEmailContent(array $row, $kind, array $opts = []) {
         // Resolved from the button or the board there is no note - the conversation says what was done
         $email['history'] = ticketEmailHistory($row, ['skip' => (string) ($opts['message'] ?? ''),
             'label' => emailPlainText($opts['message'] ?? '') !== '' ? 'Earlier on this ticket' : 'The conversation']);
+        // Resolve - no response: the agent's message is the email, in place of its usual words
+        if (!empty($opts['no_response'])) {
+            $email['intro'] = [];
+            $email['content'] = (string) ($opts['message'] ?? '');
+            unset($email['message']);
+            $email['history'] = [];
+        }
     } elseif ($kind === 'closed') {
         $email['marker'] = false;
         $email['kind'] = 'Closed';
@@ -526,6 +618,13 @@ function ticketEmailContent(array $row, $kind, array $opts = []) {
             : "We have booked the work on ticket $reference for " . $opts['when'] . ". The calendar file with this email adds it to your calendar."];
         $email['summary'] = $summary + ($cancelled ? [] : ['When' => (string) $opts['when'], 'Where' => !empty($row['ticket_onsite']) ? (trim((string) ($opts['where'] ?? '')) !== '' ? (string) $opts['where'] : 'Onsite') : 'Remote']);
         $email['history'] = $cancelled ? [] : ticketEmailHistory($row, ['limit' => 2, 'label' => 'What it is about']);
+    } elseif ($kind === 'assigned') {
+        $agent = trim((string) ($opts['agent'] ?? ''));
+        $email['kind'] = $agent !== '' ? 'Ticket assigned' : 'Ticket update';
+        $email['title'] = $agent !== '' ? "Your ticket is with $agent" : 'Your ticket has been picked up';
+        $email['content'] = (string) ($opts['message'] ?? '');
+        $email['summary'] = $summary + ($agent !== '' ? ['Assigned to' => $agent] : []);
+        $email['history'] = ticketEmailHistory($row, ['limit' => 2, 'label' => 'What it is about', 'skip' => $email['content']]);
     } elseif ($kind === 'watcher') {
         $email['kind'] = 'Watching';
         $email['title'] = 'You were added to a ticket';
@@ -562,6 +661,8 @@ function ticketEmailPreview(array $email) {
  *   to_contact   false leaves the contact out
  *   to_watchers  false is the contact alone - no watchers, no colleagues
  *   to           [['email', 'name'], ...] in place of the contact - the sender of an emailed ticket
+ *   recipients   emailQueue()'s list in place of everyone - the To line's people
+ *                (ticketReplyRecipientsPick())
  *   kind         created, closed or update (the default): a contact who asked
  *                for replies only gets no created or closed email
  *                (ticketContactWantsEmail()), and the client's primary and
@@ -587,7 +688,10 @@ function ticketMailSend($ticket_id, $subject, array $email, array $opts = []) {
     $reference = ticketReference($row);
     $company_name = (string) (billingCompany()['company_name'] ?? 'us');
     $recipients = [];
-    if (isset($opts['to'])) {
+    if (isset($opts['recipients'])) {
+        $recipients = (array) $opts['recipients'];
+        $to_watchers = false;
+    } elseif (isset($opts['to'])) {
         foreach ((array) $opts['to'] as $to) {
             $recipients[] = ['email' => $to['email'], 'name' => (string) ($to['name'] ?? ''), 'footnote' => "You get this because you emailed $company_name."];
         }
@@ -680,6 +784,7 @@ function ticketMailColleaguesNew($ticket_id) {
             'summary' => ['Ticket' => $reference, 'Subject' => (string) $ticket['ticket_subject'], 'Priority' => (string) $ticket['ticket_priority'], 'Raised by' => $raised_by === 'We' ? 'Us' : $raised_by],
             'button' => ['label' => $colleague['portal'] ? 'View it in the portal' : 'View the ticket', 'url' => $url],
             'contact' => ticketEmailContactLine(),
+            'office' => officeTicketFoot($ticket),
         ], ['from' => ticketEmailFrom()]));
     }
     return $sent;
@@ -700,19 +805,21 @@ function ticketMailCreated($ticket_id, $subject_prefix, $attachments = [], $to_w
 }
 
 /*
- * A public reply on a ticket, to its contact and watchers - $reply_html as
- * saved (with the signature), $by who wrote it (raw). $resolved when the
- * reply resolved it. $reply_id, the reply in ticket_replies, has who it went
- * to kept with it (ticketReplyEmailed()). How many it went to.
+ * A public reply on a ticket, to its contact and watchers - or the people in
+ * its To line, $to (ticketReplyRecipientsPick()) - $reply_html as saved (with
+ * the signature), $by who wrote it (raw). $resolved when the reply resolved
+ * it. $reply_id, the reply in ticket_replies, has who it went to kept with it
+ * (ticketReplyEmailed()). How many it went to.
  */
-function ticketMailReply($ticket_id, $reply_html, $by, $resolved = false, $attachments = [], $reply_id = 0) {
+function ticketMailReply($ticket_id, $reply_html, $by, $resolved = false, $attachments = [], $reply_id = 0, ?array $to = null) {
     $row = ticketRow($ticket_id);
     if (!$row) {
         ticketReplyEmailed($reply_id, false);
         return 0;
     }
     $sent = ticketMailSend($row['ticket_id'], ($resolved ? 'Ticket resolved' : 'Ticket update') . " - [" . ticketReference($row) . "] - " . $row['ticket_subject'] . ($resolved ? ' | (pending closure)' : ''),
-        ticketEmailContent($row, $resolved ? 'resolved' : 'reply', ['message' => (string) $reply_html, 'by' => (string) $by]), ['attachments' => $attachments, 'ticket_reply_id' => intval($reply_id)]);
+        ticketEmailContent($row, $resolved ? 'resolved' : 'reply', ['message' => (string) $reply_html, 'by' => (string) $by]),
+        ['attachments' => $attachments, 'ticket_reply_id' => intval($reply_id)] + ($to !== null ? ['recipients' => $to] : []));
     ticketReplyEmailed($reply_id, $sent > 0);
     return $sent;
 }
@@ -853,7 +960,9 @@ function ticketMailAgent($user_id) {
  *   assigned  it was assigned to them - by (who)
  *   mentioned an internal note mentions them - by (who), message (the note, HTML), reply_id (the note, to open)
  *   sla       an SLA alert - track: response or resolution, breached: true once missed, due (when)
- *   scheduled the work was booked - when, where, or cancelled: true
+ *   scheduled the work was booked - when, where, or cancelled: true (handed_over: true, it went to someone else)
+ *   helper    helping on it (functions/ticket_helpers.php) - when and where they are booked, lead (the lead's
+ *             name), or cancelled: true, or added: true (on it, not booked - by, who added them)
  *   paid      the invoice it waits on was paid - invoice (its number), amount, reopened (On Hold to Open)
  */
 function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
@@ -867,7 +976,7 @@ function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
         'button' => ['label' => 'Open in ITFlow', 'url' => ticketAgentUrl($row)],
     ];
     if ($kind === 'new') {
-        $how = ['portal' => ' in the client portal', 'email' => ' by email', 'text' => ' by text', 'api' => ' through the API', 'scheduled' => ', as scheduled'][$opts['how'] ?? ''] ?? '';
+        $how = ['portal' => ' in the client portal', 'email' => ' by email', 'text' => ' by text', 'api' => ' through the API', 'scheduled' => ', as scheduled', 'rmm' => ' by an RMM alert'][$opts['how'] ?? ''] ?? '';
         $who = ($opts['how'] ?? '') === 'scheduled' ? 'A recurring ticket was raised' : (trim((string) ($row['contact_name'] ?? '')) !== '' ? $row['contact_name'] . ' raised a ticket' : 'A ticket was raised');
         $email['kind'] = 'New ticket';
         $email['intro'] = [($opts['how'] ?? '') === 'scheduled' ? "$who for $client, as scheduled." : "$who$how for $client."];
@@ -904,14 +1013,33 @@ function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
         $cancelled = !empty($opts['cancelled']);
         $email['kind'] = $cancelled ? 'Visit cancelled' : 'Work booked';
         $email['tone'] = $cancelled ? 'secondary' : 'primary';
-        $email['intro'] = [$cancelled ? "The work booked on $reference is cancelled - the calendar file with this email takes it out of your calendar." : "$reference is booked for " . $opts['when'] . " - the calendar file with this email adds it to your calendar."];
+        $email['intro'] = [!empty($opts['handed_over']) ? "The work booked on $reference is with someone else now - the calendar file with this email takes it out of your calendar."
+            : ($cancelled ? "The work booked on $reference is cancelled - the calendar file with this email takes it out of your calendar." : "$reference is booked for " . $opts['when'] . " - the calendar file with this email adds it to your calendar.")];
         if (!$cancelled) {
+            $email['summary'] += ['When' => (string) $opts['when'], 'Where' => !empty($row['ticket_onsite']) ? (trim((string) ($opts['where'] ?? '')) !== '' ? (string) $opts['where'] : 'Onsite') : 'Remote'];
+            $email['history'] = ticketEmailHistory($row, ['limit' => 2, 'label' => 'What it is about']);
+        }
+    } elseif ($kind === 'helper') {
+        $lead = trim((string) ($opts['lead'] ?? ''));
+        $lead_line = $lead !== '' ? " $lead is the lead agent." : '';
+        if (!empty($opts['cancelled'])) {
+            $email['kind'] = 'Visit cancelled';
+            $email['tone'] = 'secondary';
+            $email['intro'] = ["Your time helping on $reference is cancelled - the calendar file with this email takes it out of your calendar."];
+        } elseif (!empty($opts['added'])) {
+            $email['kind'] = 'Helping';
+            $email['intro'] = [($by !== '' ? $by : 'Someone') . " added you to help on $reference.$lead_line It isn't booked on your calendar."];
+            $email['message'] = ['html' => (string) $row['ticket_details'], 'label' => 'Details'];
+            $email['history'] = ticketEmailHistory($row, ['request' => false, 'label' => 'Replies so far']);
+        } else {
+            $email['kind'] = 'Work booked';
+            $email['intro'] = ["You're booked to help on $reference for " . $opts['when'] . " - the calendar file with this email adds it to your calendar.$lead_line"];
             $email['summary'] += ['When' => (string) $opts['when'], 'Where' => !empty($row['ticket_onsite']) ? (trim((string) ($opts['where'] ?? '')) !== '' ? (string) $opts['where'] : 'Onsite') : 'Remote'];
             $email['history'] = ticketEmailHistory($row, ['limit' => 2, 'label' => 'What it is about']);
         }
     } elseif ($kind === 'sla') {
         $track = ($opts['track'] ?? 'response') === 'resolution' ? 'resolution' : 'response';
-        $due = !empty($opts['due']) ? date('D j M, g:i A', strtotime($opts['due'])) : '';
+        $due = !empty($opts['due']) ? date('D, M j, g:i A', strtotime($opts['due'])) : '';
         $breached = !empty($opts['breached']);
         $email['kind'] = ucfirst($track) . ($breached ? ' SLA missed' : ' SLA at risk');
         $email['tone'] = $breached ? 'danger' : 'warning';
@@ -946,7 +1074,7 @@ function ticketMailNewTicketAddress($ticket_id, $how) {
         $subject, ticketAgentEmailContent($row, 'new', ['how' => $how]));
 }
 
-/** Tell the agent a ticket is assigned to that the client replied - $how portal or email, $reply its HTML, $by who. */
+/** Tell the agent a ticket is assigned to that the client replied - and the agents helping on it - $how portal or email, $reply its HTML, $by who. */
 function ticketMailAssigneeReplied($ticket_id, $how, $reply, $by) {
     global $config_app_name;
     $row = ticketRow($ticket_id);
@@ -956,7 +1084,29 @@ function ticketMailAssigneeReplied($ticket_id, $how, $reply, $by) {
     }
     return ticketMailAgents([$agent + ['footnote' => 'You get this as the agent ' . ticketReference($row) . ' is assigned to.']],
         ($config_app_name ?: 'ITFlow') . " - Ticket updated - [" . ticketReference($row) . "] " . $row['ticket_subject'],
-        ticketAgentEmailContent($row, 'replied', ['how' => $how, 'message' => (string) $reply, 'by' => (string) $by]));
+        ticketAgentEmailContent($row, 'replied', ['how' => $how, 'message' => (string) $reply, 'by' => (string) $by]))
+        + ticketHelpersMailReplied($row, $agent, $how, $reply, $by);
+}
+
+/**
+ * Is this email or notice to your team switched on (Admin > Settings >
+ * Notifications, Emails to your team - database 3.9.1)? $key assigned_app
+ * (the bell notice to the agent a ticket or recurring ticket is assigned to),
+ * assigned_email (the email to them) or helper_replies (the copy of a
+ * client's reply to the agents helping on a ticket). On before the update.
+ */
+function ticketTeamNotifyOn($key) {
+    global $mysqli;
+    static $settings = null;
+    if ($settings === null) {
+        $settings = [];
+        $version = defined('CURRENT_DATABASE_VERSION') ? CURRENT_DATABASE_VERSION
+            : (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1"))[0] ?? '0');
+        if (version_compare($version, '3.9.1', '>=')) {
+            $settings = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_notify_assigned_app, config_notify_assigned_email, config_notify_helper_replies FROM settings WHERE company_id = 1")) ?: [];
+        }
+    }
+    return intval($settings["config_notify_$key"] ?? 1) === 1;
 }
 
 /*
@@ -965,6 +1115,10 @@ function ticketMailAssigneeReplied($ticket_id, $how, $reply, $by) {
  */
 function ticketMailAssigned($user_id, array $ticket_ids, $by) {
     global $session_user_id, $config_app_name, $config_base_url;
+    // Switched off in Admin > Settings > Notifications - the email preview still shows it
+    if (!ticketTeamNotifyOn('assigned_email') && !emailCapturing()) {
+        return 0;
+    }
     $agent = intval($user_id) !== intval($session_user_id ?? 0) ? ticketMailAgent($user_id) : null;
     $rows = array_values(array_filter(array_map('ticketRow', array_unique(array_map('intval', $ticket_ids)))));
     if (!$agent || !$rows) {
@@ -1049,7 +1203,8 @@ function ticketMailTaskApproval($approval_id, $by) {
         'button' => ['label' => 'Review and approve', 'url' => "https://$config_base_url/guest/guest_approve_ticket_task.php?task_approval_id=" . intval($approval['approval_id']) . '&url_key=' . rawurlencode((string) $approval['approval_url_key'])],
         'after' => ['Want to know more first? Just reply to this email.'],
         'contact' => ticketEmailContactLine(),
-    ], ['from' => ticketEmailFrom()]));
+        'office' => officeTicketFoot($row),
+    ], ['from' => ticketEmailFrom(), 'sensitive' => true]));
 }
 
 /*
@@ -1068,6 +1223,7 @@ function ticketMailClosedReply($ticket_id, $from_email) {
         'intro' => ["You replied to ticket " . ticketReference($closed) . " - \"" . $closed['ticket_subject'] . "\" - which is closed, so your reply won't reach us.", "To raise a new ticket, send a new email to $support."],
         'button' => ['label' => 'Email us', 'url' => "mailto:$support"],
         'contact' => ticketEmailContactLine(),
+        'office' => officeTicketFoot($closed),
     ], ['from' => ticketEmailFrom()]));
 }
 
@@ -1106,6 +1262,93 @@ function ticketTimeWorked($input) {
         return sprintf('%02d:%02d:%02d', intval($match[1]), intval($match[2]), intval($match[3] ?? 0));
     }
     return '00:00:00';
+}
+
+/*
+ * ---------- When a note's time was worked ----------
+ * A note with time worked keeps when that work was done - its start and end
+ * (ticket_replies.ticket_reply_work_start / _end, 3.7.8), in company time. The
+ * reply box fills them from the timer - ending now, starting the time worked
+ * ago - until the agent types them, and typed times set the time worked
+ * (agent/js/ticket_work_times.js). A note without them - from before, the API,
+ * a bulk reply or email - ended when it was posted.
+ */
+
+/** Whether the 3.7.8 update has run - a note's start and end. */
+function ticketWorkTimesReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '3.7.8', '>=');
+    }
+    return $ready;
+}
+
+/** "HH:MM:SS" as seconds. */
+function ticketTimeSeconds($time) {
+    $parts = array_map('intval', explode(':', (string) $time) + [0, 0, 0]);
+    return $parts[0] * 3600 + $parts[1] * 60 + $parts[2];
+}
+
+/** Seconds as "HH:MM:SS", under a day. */
+function ticketTimeClock($seconds) {
+    $seconds = max(0, min(86399, intval($seconds)));
+    return sprintf('%02d:%02d:%02d', intdiv($seconds, 3600), intdiv($seconds % 3600, 60), $seconds % 60);
+}
+
+/*
+ * A date (Y-m-d) and a start and end (HH:MM) as ['Y-m-d H:i:s' start, end] -
+ * an end before the start runs past midnight - or null when they aren't times
+ * or are a day or more apart.
+ */
+function ticketWorkRange($date, $start, $end) {
+    $date = trim((string) $date);
+    $start = trim((string) $start);
+    $end = trim((string) $end);
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !strtotime($date) || !preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $start) || !preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $end)) {
+        return null;
+    }
+    $from = strtotime("$date $start:00");
+    $to = strtotime("$date $end:00");
+    if ($to <= $from) {
+        // The next day by the calendar - adding a day's seconds is an hour out on the nights the clocks change
+        $to = strtotime("$date $end:00 +1 day");
+    }
+    if ($to >= strtotime("$date $start:00 +1 day")) {
+        return null;
+    }
+    return [date('Y-m-d H:i:s', $from), date('Y-m-d H:i:s', $to)];
+}
+
+/*
+ * The time worked to keep with a note's start and end ($range from
+ * ticketWorkRange()): the length of the range, unless the time worked agrees
+ * with it to the minute - then the timer's seconds stay.
+ */
+function ticketWorkTimeWorked(array $range, $time_worked) {
+    $length = strtotime($range[1]) - strtotime($range[0]);
+    return abs($length - ticketTimeSeconds($time_worked)) < 60 ? (string) $time_worked : ticketTimeClock($length);
+}
+
+/** "Tue Nov 17, 9:10 - 9:40 AM" - the end's day too when it runs past midnight. */
+function ticketWorkTimesWords($start, $end) {
+    $from = strtotime((string) $start);
+    $to = strtotime((string) $end);
+    $same_day = date('Y-m-d', $from) === date('Y-m-d', $to);
+    return date('D M j, ', $from) . date($same_day && date('A', $from) === date('A', $to) ? 'g:i' : 'g:i A', $from) . ' - '
+        . ($same_day ? '' : date('D ', $to)) . date('g:i A', $to);
+}
+
+/** The start and end a note without them is shown with - ending when it was posted, as long as its time worked. */
+function ticketWorkTimesShown(array $reply) {
+    $end = strtotime((string) ($reply['ticket_reply_created_at'] ?? 'now'));
+    return [date('Y-m-d H:i:s', $end - ticketTimeSeconds($reply['ticket_reply_time_worked'] ?? '')), date('Y-m-d H:i:s', $end)];
 }
 
 /** Statuses a reply may leave the ticket in: the active ones but New and Closed (the system sets those), plus the one it has. */
@@ -1256,6 +1499,87 @@ function ticketResolve($row, $how = '') {
     triggerCustomAction('ticket_resolve', $ticket_id);
 }
 
+/*
+ * ---------- Resolve - no response ----------
+ * For the client who never answers after several tries: a message saying so
+ * goes on the ticket as a public note and in the resolved email, in place of
+ * its usual words, and the ticket is resolved. It closes as usual, but asks
+ * them nothing as it does (ticketMailClosed()). A reply before then reopens
+ * it as any reply does.
+ */
+
+/** The built-in wording - Admin > Settings > Tickets can change it (config_ticket_no_response_message). */
+const TICKET_NO_RESPONSE_MESSAGE = "We have tried to reach you a few times about this ticket but have not heard back, so we are marking it resolved for now.\n\n"
+    . "If you still need help, just reply to this email and we will pick it up again.\n\nThank you,\n[Agent]";
+
+/** Whether the 3.7.4 update has run - tickets.ticket_no_response_at and config_ticket_no_response_message. */
+function ticketNoResponseReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '3.7.4', '>=');
+    }
+    return $ready;
+}
+
+/** The message as Admin > Settings > Tickets has it - plain text with placeholders - or the built-in one. */
+function ticketNoResponseMessage() {
+    global $mysqli;
+    if (!ticketNoResponseReady()) {
+        return TICKET_NO_RESPONSE_MESSAGE;
+    }
+    $text = (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_ticket_no_response_message FROM settings WHERE company_id = 1"))[0] ?? '');
+    return trim($text) !== '' ? $text : TICKET_NO_RESPONSE_MESSAGE;
+}
+
+/** The message filled in for a ticket, as plain text for the agent to change - [Agent] is $agent_name, the one sending it. */
+function ticketNoResponseText($ticket_id, $agent_name) {
+    $html = cannedResponsePlaceholders(nl2br(escapeHtml(trim(ticketNoResponseMessage())), false), $ticket_id, $agent_name);
+    return html_entity_decode(strip_tags(str_replace('<br>', '', $html)), ENT_QUOTES, 'UTF-8');
+}
+
+/** Whether a ticket was resolved as "no response" - this resolution, not an earlier one it was reopened from. $row is ticketRow(). */
+function ticketIsNoResponse(array $row) {
+    return !empty($row['ticket_no_response_at']) && (string) $row['ticket_no_response_at'] === (string) ($row['ticket_resolved_at'] ?? '');
+}
+
+/*
+ * Resolve $row (ticketForRequest()) as "no response": $message - plain text,
+ * as the agent left it - as a public note, the ticket resolved
+ * (ticketResolve()), and when client notifications are on the resolved
+ * email to the contact and watchers saying it in place of its usual words.
+ * The caller has checked it may be resolved. How many were emailed.
+ */
+function ticketResolveNoResponse(array $row, $message) {
+    global $mysqli, $session_user_id, $session_name, $config_ticket_client_general_notifications;
+    $ticket_id = intval($row['ticket_id']);
+    $html = nl2br(escapeHtml(trim((string) $message)), false);
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '" . mysqli_real_escape_string($mysqli, $html) . "', ticket_reply_type = 'Public',
+        ticket_reply_time_worked = '00:00:00', ticket_reply_by = " . intval($session_user_id) . ", ticket_reply_ticket_id = $ticket_id");
+    $reply_id = intval(mysqli_insert_id($mysqli));
+
+    // Resolved first, so the email says Resolved
+    ticketResolve($row, ' - no response from the client');
+    if (ticketNoResponseReady()) {
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_no_response_at = ticket_resolved_at WHERE ticket_id = $ticket_id");
+    }
+
+    $sent = 0;
+    $ticket = ticketRow($ticket_id);
+    if ($ticket && intval($config_ticket_client_general_notifications) === 1) {
+        $sent = ticketMailSend($ticket_id, "Ticket resolved - [" . ticketReference($ticket) . "] - " . $ticket['ticket_subject'] . " | (pending closure)",
+            ticketEmailContent($ticket, 'resolved', ['message' => $html, 'by' => stripslashes((string) ($session_name ?? '')), 'no_response' => true]), ['ticket_reply_id' => $reply_id]);
+    }
+    ticketReplyEmailed($reply_id, $sent > 0);
+    return $sent;
+}
+
 /** Bring a resolved (not closed) ticket back into a working status. The caller has checked it may be. */
 function ticketReopen($row, $status_id = TICKET_STATUS_OPEN, $how = '') {
     global $mysqli, $session_name;
@@ -1270,10 +1594,10 @@ function ticketReopen($row, $status_id = TICKET_STATUS_OPEN, $how = '') {
     triggerCustomAction('ticket_update', $ticket_id);
 }
 
-/** The "your ticket is closed" email - to its contact and watchers, asking how we did. */
+/** The "your ticket is closed" email - to its contact and watchers, asking how we did. Not for one resolved as "no response". */
 function ticketMailClosed($ticket_id) {
     $row = ticketRow($ticket_id);
-    if (!$row) {
+    if (!$row || ticketIsNoResponse($row)) {
         return 0;
     }
     return ticketMailSend($row['ticket_id'], "Ticket closed - [" . ticketReference($row) . "] - " . $row['ticket_subject'] . " | (do not reply)",
@@ -1326,7 +1650,7 @@ function ticketReplyEmailHtml($reply_id, array $state, $queue_url = '') {
         $item_state = $recipient['state'];
         $address = $recipient['name'] !== '' ? escapeHtml($recipient['name']) . ' <span class="text-body-secondary">&lt;' . escapeHtml($recipient['email']) . '&gt;</span>' : escapeHtml($recipient['email']);
         $items .= '<li class="d-flex flex-wrap align-items-center gap-2" data-reply-recipient="' . escapeHtml($recipient['email']) . '">'
-            . ($item_state ? '<span class="badge ' . $item_state['badge'] . '" title="' . escapeHtml($item_state['title']) . '"><i class="fas fa-fw ' . $item_state['icon'] . ' me-1"></i>' . escapeHtml($item_state['label']) . '</span>' : '')
+            . ($item_state ? '<span class="badge rounded-pill ' . $item_state['badge'] . '" title="' . escapeHtml($item_state['title']) . '"><i class="fas fa-fw ' . $item_state['icon'] . ' me-1"></i>' . escapeHtml($item_state['label']) . '</span>' : '')
             . '<span class="text-break">' . $address . '</span>'
             . ($item_state && $item_state['detail'] !== '' ? '<span class="text-body-secondary">' . escapeHtml($item_state['detail']) . '</span>' : '')
             . ($item_state && $item_state['error'] !== '' ? '<span class="w-100 text-danger">' . escapeHtml($item_state['error']) . '</span>' : '')
@@ -1433,11 +1757,16 @@ function ticketSlaState($row) {
         'due' => $responded ? ($row['ticket_resolution_due_at'] ?? null) : ($row['ticket_response_due_at'] ?? null),
         'what' => $responded ? 'Resolution due' : 'First response due',
     ];
-    if ($stage === 2) {
+    // Missed already - as the SLA breached view and the dashboard count it
+    if ($stage === 2 || ($row['ticket_response_sla_met'] ?? null) === '0' || ($row['ticket_resolution_sla_met'] ?? null) === '0') {
         return ['key' => 'breached'] + $state;
     }
     if (intval($row['ticket_status_pauses_sla'] ?? 0)) {
         return ['key' => 'paused'] + $state;
+    }
+    // Past its deadline is a breach whether or not cron has got round to marking it
+    if (!empty($state['due']) && strtotime($state['due']) < time()) {
+        return ['key' => 'breached'] + $state;
     }
     if ($stage === 1) {
         return ['key' => 'at_risk'] + $state;
@@ -1572,7 +1901,7 @@ function ticketActivityHtml($reply, $row) {
 function ticketSourceIcon($source) {
     $icons = ['Email' => ['fa-envelope', 'Came in by email'], 'Portal' => ['fa-globe', 'Raised in the client portal'],
         'Recurring' => ['fa-redo-alt', 'Raised by a recurring ticket'], 'API' => ['fa-plug', 'Raised through the API'],
-        'Project' => ['fa-project-diagram', 'From a project template'], 'Text' => ['fa-sms', 'Came in by text']];
+        'Project' => ['fa-project-diagram', 'From a project template'], 'Text' => ['fa-sms', 'Came in by text'], 'RMM' => ['fa-laptop-medical', 'Opened by an RMM alert']];
     foreach ($icons as $match => [$icon, $title]) {
         if (stripos((string) $source, $match) !== false) {
             return '<i class="fas fa-fw ' . $icon . '" title="' . $title . '"></i>';
@@ -1614,13 +1943,15 @@ function recurringTicketFrequency($frequency) {
  * was due fell on - except when that was a shorter month's last day standing
  * in for a later one: one that started ($anchor) on the 31st runs on the last
  * day of shorter months and back on the 31st after, rather than drifting.
- * Missed runs are stepped over, not raised one by one.
+ * Missed runs are stepped over, not raised one by one. With a weekday rule
+ * ($by_day, "3WE") month-based ones land on that weekday of the month instead.
  */
-function recurringTicketNextRun($due, $frequency, $anchor = '', $after = '') {
+function recurringTicketNextRun($due, $frequency, $anchor = '', $after = '', $by_day = '') {
     $frequency = recurringTicketFrequency($frequency) ?: 'Monthly';
     $step = RECURRING_TICKET_FREQUENCIES[$frequency];
     $after = $after !== '' ? $after : date('Y-m-d');
     $date = DateTime::createFromFormat('!Y-m-d', substr((string) $due, 0, 10)) ?: new DateTime('today');
+    $by_day = isset($step['months']) ? byDayRule($by_day) : '';
     $anchor_date = DateTime::createFromFormat('!Y-m-d', substr((string) $anchor, 0, 10));
     $anchor_day = intval($date->format('j'));
     if ($anchor_date && intval($anchor_date->format('j')) > $anchor_day && $anchor_day === intval($date->format('t'))) {
@@ -1635,6 +1966,10 @@ function recurringTicketNextRun($due, $frequency, $anchor = '', $after = '') {
             $month = intval($date->format('n')) + $step['months'];
             $year += intdiv($month - 1, 12);
             $month = ($month - 1) % 12 + 1;
+            if ($by_day !== '') {
+                $date = DateTime::createFromFormat('!Y-m-d', byDayDate($year, $month, $by_day));
+                continue;
+            }
             $days_in_month = intval(date('t', mktime(0, 0, 0, $month, 1, $year)));
             $date->setDate($year, $month, min($anchor_day, $days_in_month));
         }
@@ -1652,6 +1987,10 @@ function recurringTicketCadenceText($row) {
     $step = RECURRING_TICKET_FREQUENCIES[$frequency];
     if (isset($step['days'])) {
         return $step['days'] === 7 ? 'on ' . $next->format('l') . 's' : ($step['days'] === 14 ? 'every other ' . $next->format('l') : 'every three days');
+    }
+    $by_day = byDayText($row['recurring_ticket_by_day'] ?? '');
+    if ($by_day !== '') {
+        return 'on ' . $by_day . ($frequency === 'Annually' ? ' of ' . $next->format('F') : '');
     }
     $day = intval($next->format('j'));
     $start = DateTime::createFromFormat('!Y-m-d', substr((string) ($row['recurring_ticket_start_date'] ?? ''), 0, 10));
@@ -1803,10 +2142,127 @@ function recurringTicketRunNow($row, $by) {
     $ticket_id = recurringTicketRaise($recurring_ticket_id, $by);
     if ($ticket_id) {
         $due = (string) $row['recurring_ticket_next_run'];
-        $next_run = recurringTicketNextRun($due, $row['recurring_ticket_frequency'], $row['recurring_ticket_start_date'], max(date('Y-m-d'), substr($due, 0, 10)));
+        // Booked for the day of the run it is for, at its time - when it has one
+        recurringTicketBook($ticket_id, $recurring_ticket_id, $due);
+        $next_run = recurringTicketNextRun($due, $row['recurring_ticket_frequency'], $row['recurring_ticket_start_date'], max(date('Y-m-d'), substr($due, 0, 10)), $row['recurring_ticket_by_day'] ?? '');
         mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
     }
     return $ticket_id;
+}
+
+/*
+ * ---------- Recurring tickets booked at a time, and made ahead ----------
+ * A recurring ticket with a time books each ticket it raises for its run day
+ * at that time, remote or onsite, as the ticket's Schedule window does - the
+ * same emails, calendar file, note and history. One made ahead is raised so
+ * many days before its run - or before the 1st of the run's month, so every
+ * run in a month is made on one day - and its next run stays the day the work
+ * is for. The nightly job picks it up then (recurringTicketDueSql()).
+ */
+
+/** Whether the 3.7.7 update has run - the time, visit and days ahead on recurring tickets and invoices. */
+function recurringAheadReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '3.7.7', '>=');
+    }
+    return $ready;
+}
+
+/** Whether a recurring ticket's repeat counts in months - only those may be made ahead of the 1st of the month. */
+function recurringTicketMonthBased($frequency) {
+    return isset(RECURRING_TICKET_FREQUENCIES[recurringTicketFrequency($frequency)]['months']);
+}
+
+/*
+ * The weekday it repeats on (functions/by_day.php), as SQL for recurring_ticket_by_day - NULL is the
+ * same date each time. $posted is the Repeats on choice when one was sent (null when not), kept only
+ * when $date - the first or next run - falls on it; without one the rule it had ($current) follows the
+ * run to $date. Only month-based repeats have one.
+ */
+function recurringTicketByDaySql($frequency, $date, $posted, $current = '') {
+    if (!recurringTicketMonthBased($frequency)) {
+        return 'NULL';
+    }
+    $rule = $posted !== null ? byDayForDate($posted, $date) : byDayFollow($current, $date);
+    return $rule !== '' ? "'$rule'" : 'NULL';
+}
+
+/*
+ * Days ahead as kept: up to 90, and short of one step of the repeat (a month
+ * counts as 28 days), so the next run is never due before this one is made -
+ * before the 1st of the month, up to 27.
+ */
+function recurringTicketLeadDays($days, $frequency, $mode = 'days') {
+    $step = RECURRING_TICKET_FREQUENCIES[recurringTicketFrequency($frequency) ?: 'Monthly'];
+    $most = $mode === 'month' ? 27 : min(90, (isset($step['days']) ? $step['days'] : 28 * $step['months']) - 1);
+    return max(0, min(intval($days), $most));
+}
+
+/** The day a recurring ticket makes the ticket for a run on $run - Y-m-d. */
+function recurringTicketMadeOn($row, $run) {
+    $run = substr((string) $run, 0, 10);
+    $days = intval($row['recurring_ticket_lead_days'] ?? 0);
+    $from = ($row['recurring_ticket_lead_mode'] ?? '') === 'month' ? substr($run, 0, 8) . '01' : $run;
+    return $days ? date('Y-m-d', strtotime("$from -$days days")) : $run;
+}
+
+/** For the nightly job - the recurring tickets to raise: due today or missed, or with the day come to make one ahead. */
+function recurringTicketDueSql() {
+    if (!recurringAheadReady()) {
+        return "recurring_ticket_next_run <= CURDATE()";
+    }
+    return "(recurring_ticket_next_run <= CURDATE() OR (recurring_ticket_lead_days > 0 AND DATE_SUB(IF(recurring_ticket_lead_mode = 'month',
+        DATE_FORMAT(recurring_ticket_next_run, '%Y-%m-01'), recurring_ticket_next_run), INTERVAL recurring_ticket_lead_days DAY) <= CURDATE()))";
+}
+
+/*
+ * Book a ticket a recurring ticket raised for the run it is for ($run), at the
+ * recurring ticket's time - today, for a run that was missed. Nothing without
+ * a time. The nightly job has nobody signed in, so the history and note say
+ * the recurring ticket booked it.
+ */
+function recurringTicketBook($ticket_id, $recurring_ticket_id, $run) {
+    global $session_name;
+    $recurring = recurringAheadReady() ? recurringTicketRow($recurring_ticket_id) : null;
+    $ticket = $recurring && !empty($recurring['recurring_ticket_schedule_time']) ? ticketRow($ticket_id) : null;
+    if (!$ticket) {
+        return;
+    }
+    $day = max(date('Y-m-d'), substr((string) $run, 0, 10));
+    $was = $session_name ?? null;
+    if (empty($session_name)) {
+        $GLOBALS['session_name'] = 'Recurring ticket';
+    }
+    try {
+        $start = $day . ' ' . substr($recurring['recurring_ticket_schedule_time'], 0, 5) . ':00';
+        $minutes = intval($recurring['recurring_ticket_schedule_minutes'] ?? 0) ?: CALENDAR_TICKET_MINUTES;
+        ticketSetSchedule($ticket, $start, intval($recurring['recurring_ticket_schedule_onsite']), date('Y-m-d H:i:s', strtotime($start) + $minutes * 60));
+    } finally {
+        $GLOBALS['session_name'] = $was;
+    }
+}
+
+/** "9:00 am for 2 hours onsite · made 3 days ahead", for the recurring tickets list. '' with neither. */
+function recurringTicketAheadText($row) {
+    $bits = [];
+    if (!empty($row['recurring_ticket_schedule_time'])) {
+        $minutes = intval($row['recurring_ticket_schedule_minutes'] ?? 0);
+        $bits[] = date('g:i A', strtotime('2000-01-01 ' . $row['recurring_ticket_schedule_time'])) . ($minutes && $minutes !== CALENDAR_TICKET_MINUTES ? ' for ' . ticketScheduleLengthText($minutes) : '')
+            . (intval($row['recurring_ticket_schedule_onsite']) ? ' onsite' : ' remote');
+    }
+    $days = intval($row['recurring_ticket_lead_days'] ?? 0);
+    if ($days) {
+        $bits[] = 'made ' . $days . ' day' . ($days === 1 ? '' : 's') . (($row['recurring_ticket_lead_mode'] ?? '') === 'month' ? ' before the 1st' : ' ahead');
+    }
+    return implode(' · ', $bits);
 }
 
 /**
@@ -1864,7 +2320,7 @@ function recurringTicketUpcoming($row, $count = 3) {
     }
     $runs[] = $date;
     while (count($runs) < $count) {
-        $date = recurringTicketNextRun($date, $row['recurring_ticket_frequency'], $row['recurring_ticket_start_date'], $date);
+        $date = recurringTicketNextRun($date, $row['recurring_ticket_frequency'], $row['recurring_ticket_start_date'], $date, $row['recurring_ticket_by_day'] ?? '');
         $runs[] = $date;
     }
     return $runs;
@@ -1907,9 +2363,11 @@ function ticketScheduleValue($input) {
  * The scheduled-work emails, each with the calendar file - the invite, or its
  * cancellation: to the agent doing the work, and when client notifications
  * are on (Admin > Ticket) to the contact and the watchers. $row has the
- * ticket's id and, for a booking, location_address.
+ * ticket's id and, for a booking, location_address. With the booking's $start
+ * and $end, the agent's email has the time on their own clock. $tell_client
+ * false leaves the contact and watchers out of it (Dispatch).
  */
-function ticketMailSchedule($row, $cal_str, $cancelled, $when_text) {
+function ticketMailSchedule($row, $cal_str, $cancelled, $when_text, $start = null, $end = null, $tell_client = true) {
     global $config_ticket_client_general_notifications;
     $ticket = ticketRow($row['ticket_id']);
     if (!$ticket || !emailReady()) {
@@ -1920,11 +2378,31 @@ function ticketMailSchedule($row, $cal_str, $cancelled, $when_text) {
     $subject = ($cancelled ? 'Ticket Schedule Cancelled' : 'Ticket Scheduled') . " - [$reference] - " . $ticket['ticket_subject'];
     if ($agent = ticketMailAgent($ticket['ticket_assigned_to'])) {
         emailQueue([$agent + ['footnote' => "You get this as the agent $reference is assigned to."]], $subject,
-            ticketAgentEmailContent($ticket, 'scheduled', $opts), ['from' => ticketEmailFrom(), 'cal_str' => $cal_str]);
+            ticketAgentEmailContent($ticket, 'scheduled', ['when' => $start ? timezoneWhenFor($start, $end, $ticket['ticket_assigned_to']) : $when_text] + $opts), ['from' => ticketEmailFrom(), 'cal_str' => $cal_str]);
     }
-    if (intval($config_ticket_client_general_notifications) === 1) {
+    if ($tell_client && intval($config_ticket_client_general_notifications) === 1) {
         ticketMailSend($ticket['ticket_id'], $subject, ticketEmailContent($ticket, 'scheduled', $opts), ['cal_str' => $cal_str]);
     }
+}
+
+/*
+ * Booked work given to another agent: the one who had it ($row, the ticket as it
+ * was) is sent the calendar file's cancellation, so it comes off their calendar -
+ * the new agent is sent the booking as it is made again (ticketSetSchedule()).
+ */
+function ticketMailScheduleAgentCancelled(array $row) {
+    if (empty($row['ticket_schedule']) || !emailReady() || !($agent = ticketMailAgent($row['ticket_assigned_to']))) {
+        return;
+    }
+    $ticket = ticketRow($row['ticket_id']);
+    if (!$ticket) {
+        return;
+    }
+    $reference = ticketReference($ticket);
+    $cal_str = createiCalStrCancel($row['ticket_schedule'], intval($ticket['ticket_number']) . ": " . $ticket['client_name'] . " - " . $ticket['ticket_subject'], getTicketCalendarUid($ticket['ticket_id']));
+    emailQueue([$agent + ['footnote' => "You get this because $reference was booked with you and has gone to someone else."]],
+        "Ticket Schedule Cancelled - [$reference] - " . $ticket['ticket_subject'],
+        ticketAgentEmailContent($ticket, 'scheduled', ['cancelled' => true, 'handed_over' => true, 'when' => '', 'where' => '']), ['from' => ticketEmailFrom(), 'cal_str' => $cal_str]);
 }
 
 /** What the booking emails and the calendar file need of a ticket - the site is the ticket's location, else its contact's. */
@@ -1941,53 +2419,185 @@ function ticketScheduleRow($ticket_id) {
 }
 
 /*
- * The calendar file for the work booked on a ticket (ticketScheduleRow()) at
- * $schedule - the one the booking emails carry, and Add to calendar on the
- * guest ticket page. The UID is the ticket's, so either one updates the same
- * event in the calendar.
+ * ---------- How long booked work takes ----------
+ * Booked work has an end as well as a start (tickets.ticket_schedule_end, 3.8.2),
+ * in company time. A booking without one - from before, or made without a
+ * length - takes the usual CALENDAR_TICKET_MINUTES. Bookings are under a day.
  */
-function ticketScheduleIcs(array $row, $schedule) {
+
+/** Whether the 3.8.2 update has run - a booking's end, and how long a recurring ticket books. */
+function ticketScheduleEndReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '3.8.2', '>=');
+    }
+    return $ready;
+}
+
+/** When booked work starting at $start ends - $end when it is after the start, else the usual length later. 'Y-m-d H:i:s', or null without a start. */
+function ticketScheduleEnd($start, $end = null) {
+    if (empty($start)) {
+        return null;
+    }
+    if (!empty($end) && strtotime($end) > strtotime($start)) {
+        return date('Y-m-d H:i:s', strtotime($end));
+    }
+    return date('Y-m-d H:i:s', strtotime($start) + CALENDAR_TICKET_MINUTES * 60);
+}
+
+/** How long booked work takes, in minutes. */
+function ticketScheduleMinutes($start, $end = null) {
+    return empty($start) ? CALENDAR_TICKET_MINUTES : intval(round((strtotime(ticketScheduleEnd($start, $end)) - strtotime($start)) / 60));
+}
+
+/** A length as posted, in minutes - 15 to a day, else the usual. */
+function ticketScheduleMinutesValue($input) {
+    $minutes = intval($input);
+    return $minutes > 0 ? max(15, min(24 * 60, $minutes)) : CALENDAR_TICKET_MINUTES;
+}
+
+/** The lengths offered when booking work, minutes => label - with $keep added when it isn't one of them. */
+function ticketScheduleLengths($keep = 0) {
+    $lengths = [];
+    foreach ([15, 30, 45, 60, 90, 120, 150, 180, 240, 300, 360, 420, 480] as $minutes) {
+        $lengths[$minutes] = ticketScheduleLengthText($minutes);
+    }
+    $keep = intval($keep);
+    if ($keep > 0 && !isset($lengths[$keep])) {
+        $lengths[$keep] = ticketScheduleLengthText($keep);
+        ksort($lengths);
+    }
+    return $lengths;
+}
+
+/** "1h 30m", "45m" - how every length of time is written. */
+function ticketScheduleLengthText($minutes) {
+    $minutes = intval($minutes);
+    $hours = intdiv($minutes, 60);
+    $rest = $minutes % 60;
+    return trim(($hours ? "{$hours}h" : '') . ($rest ? " {$rest}m" : ''));
+}
+
+/** "Tuesday, October 20, 2026, 1:00pm - 3:00pm" - both dates in full when it runs past midnight. */
+function ticketScheduleWhenText($start, $end = null) {
+    $end = ticketScheduleEnd($start, $end);
+    $from = strtotime($start);
+    $to = strtotime($end);
+    return date('l, F j, Y, g:i A', $from) . ' - ' . (date('Y-m-d', $from) === date('Y-m-d', $to) ? date('g:i A', $to) : date('l, F j, Y, g:i A', $to));
+}
+
+/** "Oct 20, 2026 · 1:00 PM - 3:00 PM", for the ticket page - on the viewer's own clock, with its zone, when they work away from the company's. */
+function ticketScheduleShortText($start, $end = null) {
+    $end = ticketScheduleEnd($start, $end);
+    $zone = '';
+    if (timezoneShifted()) {
+        [$start, $end, $zone] = [timezoneToView($start), timezoneToView($end), ' ' . timezoneAbbr(timezoneView())];
+    }
+    $from = strtotime($start);
+    $to = strtotime($end);
+    return date('M j, Y · g:i A', $from) . ' - ' . (date('Y-m-d', $from) === date('Y-m-d', $to) ? date('g:i A', $to) : date('M j, g:i A', $to)) . $zone;
+}
+
+/*
+ * SQL: a ticket's booking overlaps $from - $to - not only starting in it, so
+ * one from 10 PM to 1 AM shows on both days. Bookings are under a day, so the
+ * start is looked for from a day before (and the ticket_schedule index used).
+ */
+function ticketScheduleOverlapSql($from, $to) {
+    $from = escapeSql($from);
+    $to = escapeSql($to);
+    $end = ticketScheduleEndReady() ? 'IF(ticket_schedule_end > ticket_schedule, ticket_schedule_end, NULL)' : 'NULL';
+    return "(ticket_schedule BETWEEN DATE_SUB('$from', INTERVAL 1 DAY) AND '$to'
+        AND COALESCE($end, DATE_ADD(ticket_schedule, INTERVAL " . intval(CALENDAR_TICKET_MINUTES) . " MINUTE)) > '$from')";
+}
+
+/*
+ * An agent's other open work that overlaps $start - $end, as plain text lines:
+ * their booked tickets, the timed calendar events they are on, and their
+ * bookings helping on other tickets. A ticket for
+ * a client the agent booking it can't see is only said to be there.
+ */
+function ticketScheduleConflicts($user_id, $start, $end, $ticket_id = 0) {
+    global $mysqli;
+    $user_id = intval($user_id);
+    $ticket_id = intval($ticket_id);
+    if (!$user_id || empty($start)) {
+        return [];
+    }
+    $start = date('Y-m-d H:i:s', strtotime($start));
+    $end = ticketScheduleEnd($start, $end);
+    $conflicts = [];
+    $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_client_id, ticket_schedule" . (ticketScheduleEndReady() ? ', ticket_schedule_end' : ', NULL AS ticket_schedule_end') . "
+        FROM tickets WHERE ticket_assigned_to = $user_id AND ticket_id <> $ticket_id AND " . ticketScheduleOverlapSql($start, $end) . " AND ticket_schedule < '" . escapeSql($end) . "'
+        AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL ORDER BY ticket_schedule");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        // Only when someone is signed in - the nightly job books recurring tickets with nobody's client access to check
+        $hidden = !empty($GLOBALS['session_user_id']) && intval($row['ticket_client_id']) && !hasClientAccess($row['ticket_client_id']);
+        $what = $hidden ? 'Another booking (a client you can\'t see)' : ticketReference($row) . ' - ' . $row['ticket_subject'];
+        $conflicts[] = $what . ' @ ' . date('g:i A', strtotime($row['ticket_schedule'])) . '-' . date('g:i A', strtotime(ticketScheduleEnd($row['ticket_schedule'], $row['ticket_schedule_end'])));
+    }
+    if (function_exists('calendarEventItems') && function_exists('calendarList')) {
+        foreach (calendarEventItems(array_keys(calendarList()), $start, $end, ['client_id' => 0, 'user_id' => $user_id]) as $item) {
+            if (empty($item['allDay']) && !empty($item['end']) && $item['end'] > $start && $item['start'] < $end) {
+                $conflicts[] = $item['title'] . ' @ ' . date('g:i A', strtotime($item['start'])) . '-' . date('g:i A', strtotime($item['end']));
+            }
+        }
+    }
+    // Tickets they are helping on (functions/ticket_helpers.php)
+    return array_merge($conflicts, ticketHelperConflicts($user_id, $start, $end, $ticket_id));
+}
+
+/*
+ * The calendar file for the work booked on a ticket (ticketScheduleRow()) at
+ * $schedule, to $end - the one the booking emails carry, and Add to calendar
+ * on the guest ticket page. The UID is the ticket's, so either one updates the
+ * same event in the calendar.
+ */
+function ticketScheduleIcs(array $row, $schedule, $end = null) {
     global $config_base_url;
     $ticket_id = intval($row['ticket_id'] ?? 0);
     $subject = intval($row['ticket_number'] ?? 0) . ": " . ($row['client_name'] ?? '') . " - " . ($row['ticket_subject'] ?? '');
     $description = mb_substr(strip_tags((string) ($row['ticket_details'] ?? '')), 0, 100) . " - https://$config_base_url/client/ticket.php?id=$ticket_id";
-    return createiCalStr($schedule, $subject, $description, (string) ($row['location_address'] ?? ''), getTicketCalendarUid($ticket_id));
+    return createiCalStr($schedule, $subject, $description, (string) ($row['location_address'] ?? ''), getTicketCalendarUid($ticket_id), ticketScheduleEnd($schedule, $end));
 }
 
 /**
- * Book the work on a ticket for $schedule ('Y-m-d H:i:s'), onsite or remote:
- * the agent, the contact and the watchers are emailed with the calendar file,
- * and it is noted on the ticket. Returns ['when_text' => ..., 'conflicts' =>
- * the same agent's other open work within two hours, as plain text].
+ * Book the work on a ticket for $schedule ('Y-m-d H:i:s') to $end (the usual
+ * length when none), onsite or remote: the agent, the contact and the watchers
+ * are emailed with the calendar file, and it is noted on the ticket. Helpers
+ * who follow the lead are sent the new time. $tell_client false leaves the
+ * contact and watchers out of it. Returns ['when_text' => ..., 'conflicts' =>
+ * the same agent's - and those helpers' - other work at that time, as plain
+ * text (ticketScheduleConflicts())].
  */
-function ticketSetSchedule(array $row, $schedule, $onsite) {
+function ticketSetSchedule(array $row, $schedule, $onsite, $end = null, $tell_client = true) {
     global $mysqli, $session_user_id, $session_name;
     $ticket_id = intval($row['ticket_id']);
     $client_id = intval($row['ticket_client_id']);
     $onsite = $onsite ? 1 : 0;
-    $schedule = escapeSql($schedule);
+    $schedule = date('Y-m-d H:i:s', strtotime($schedule));
+    $end = ticketScheduleEnd($schedule, $end);
 
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_schedule = '$schedule', ticket_onsite = $onsite WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_schedule = '" . escapeSql($schedule) . "'" . (ticketScheduleEndReady() ? ", ticket_schedule_end = '" . escapeSql($end) . "'" : '') . ", ticket_onsite = $onsite WHERE ticket_id = $ticket_id");
 
-    // The same agent's other open tickets within two hours of it
-    $conflicts = [];
-    $assigned_to = intval($row['ticket_assigned_to']);
-    if ($assigned_to) {
-        $start = date('Y-m-d H:i:s', strtotime($schedule) - 7200);
-        $end = date('Y-m-d H:i:s', strtotime($schedule) + 7200);
-        $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_schedule, ticket_subject FROM tickets
-            WHERE ticket_schedule BETWEEN '$start' AND '$end' AND ticket_id <> $ticket_id AND ticket_assigned_to = $assigned_to
-            AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL ORDER BY ticket_schedule");
-        while ($conflict = mysqli_fetch_assoc($sql)) {
-            $conflicts[] = ticketReference($conflict) . ' - ' . $conflict['ticket_subject'] . ' @ ' . date('g:ia', strtotime($conflict['ticket_schedule']));
-        }
-    }
+    // The same agent's other work at that time
+    $conflicts = ticketScheduleConflicts($row['ticket_assigned_to'], $schedule, $end, $ticket_id);
 
     // Who to tell, with the calendar file
     $mail_row = ticketScheduleRow($ticket_id);
-    $cal_str = ticketScheduleIcs($mail_row, $schedule);
-    $when_text = date('l, F j, Y \a\t g:ia', strtotime($schedule));
-    ticketMailSchedule($mail_row, $cal_str, false, $when_text);
+    $cal_str = ticketScheduleIcs($mail_row, $schedule, $end);
+    $when_text = ticketScheduleWhenText($schedule, $end);
+    ticketMailSchedule($mail_row, $cal_str, false, $when_text, $schedule, $end, $tell_client);
+
+    // The agents helping at the same time move with it, and are sent the new time (functions/ticket_helpers.php)
+    $conflicts = array_merge($conflicts, ticketHelpersLeadMoved($ticket_id));
 
     // Note it on the ticket
     $note = escapeSql("Ticket scheduled for $when_text " . ($onsite ? '(onsite).' : '(remote).'));
@@ -2007,7 +2617,7 @@ function ticketCancelSchedule(array $row) {
     $client_id = intval($row['ticket_client_id']);
     $old_schedule = $row['ticket_schedule'];
 
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_schedule = NULL WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_schedule = NULL" . (ticketScheduleEndReady() ? ', ticket_schedule_end = NULL' : '') . " WHERE ticket_id = $ticket_id");
 
     $mail_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_client_id, client_name,
             contact_name, contact_email, user_name, user_email
@@ -2019,6 +2629,7 @@ function ticketCancelSchedule(array $row) {
     $cal_subject = intval($mail_row['ticket_number']) . ": " . $mail_row['client_name'] . " - " . $mail_row['ticket_subject'];
     $cal_str = createiCalStrCancel($old_schedule, $cal_subject, getTicketCalendarUid($ticket_id));
     ticketMailSchedule($mail_row, $cal_str, true, '');
+    ticketHelpersLeadCancelled($ticket_id, $old_schedule);
 
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket schedule cancelled.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = " . intval($session_user_id) . ", ticket_reply_ticket_id = $ticket_id");
 

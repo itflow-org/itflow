@@ -164,7 +164,7 @@ ob_start();
             <?php if ($spend) { ?>
                 <div class="itflow-glance-item" title="Spent with them">
                     <i class="fas fa-fw fa-receipt"></i>
-                    <span><?= numfmt_format_currency($currency_format, $spend['year'], $session_company_currency) ?> this year<?php if ($spend['last']) { ?> <span class="text-body-secondary">&middot; last <?= escapeHtml($spend['last']) ?></span><?php } ?></span>
+                    <span><?= billingMoney($spend['year'], $session_company_currency) ?> this year<?php if ($spend['last']) { ?> <span class="text-body-secondary">&middot; last <?= escapeHtml($spend['last']) ?></span><?php } ?></span>
                 </div>
             <?php } ?>
         </div>
@@ -173,16 +173,16 @@ ob_start();
     <?php if ($vendor_dial || $vendor_email || $vendor_website_url || ($client_id && $can_support_edit && !$vendor_archived)) { ?>
         <div class="d-flex flex-wrap gap-2 mt-3">
             <?php if ($vendor_dial) { ?>
-                <a class="btn btn-sm btn-outline-primary" href="tel:<?= escapeHtml($vendor_dial) ?><?= $vendor['vendor_extension'] ? ',' . escapeHtml($vendor['vendor_extension']) : '' ?>"><i class="fas fa-phone me-1"></i>Call support</a>
+                <a class="btn btn-sm btn-outline-primary" href="tel:<?= escapeHtml($vendor_dial) ?><?= $vendor['vendor_extension'] ? ',' . escapeHtml($vendor['vendor_extension']) : '' ?>"><i class="fas fa-phone me-1"></i>Call Support</a>
             <?php } ?>
             <?php if ($vendor_email) { ?>
                 <a class="btn btn-sm btn-outline-primary" href="mailto:<?= $vendor_email ?>"><i class="fas fa-envelope me-1"></i>Email</a>
             <?php } ?>
             <?php if ($vendor_website_url) { ?>
-                <a class="btn btn-sm btn-outline-primary" href="<?= escapeHtml($vendor_website_url) ?>" target="_blank" rel="noopener"><i class="fas fa-external-link-alt me-1"></i>Support site</a>
+                <a class="btn btn-sm btn-outline-primary" href="<?= escapeHtml($vendor_website_url) ?>" target="_blank" rel="noopener"><i class="fas fa-external-link-alt me-1"></i>Support Site</a>
             <?php } ?>
             <?php if ($client_id && $can_support_edit && !$vendor_archived) { ?>
-                <a class="btn btn-sm btn-outline-secondary ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>"><i class="fas fa-life-ring me-1"></i>New case</a>
+                <a class="btn btn-sm btn-outline-secondary ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>"><i class="fas fa-life-ring me-1"></i>New Case</a>
             <?php } ?>
         </div>
     <?php } ?>
@@ -199,7 +199,7 @@ ob_start();
                 <?php foreach ($quick_tabs as $tab_key => $tab) { ?>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link text-nowrap <?= $tab_key === $first_tab ? 'active' : '' ?>" data-bs-toggle="pill" data-bs-target="#<?= $quick_id ?>-<?= $tab_key ?>" data-vendor-quick-tab="<?= $tab_key ?>" type="button" role="tab">
-                            <?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                            <?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                         </button>
                     </li>
                 <?php } ?>
@@ -233,7 +233,7 @@ ob_start();
                                 <li class="itflow-link-row">
                                     <?= linkRowHtml('asset', $asset, $client_id) ?>
                                     <?php if ($warranty) { ?>
-                                        <span class="small text-nowrap <?= $warranty < time() ? 'text-danger' : 'text-body-secondary' ?>" title="Warranty"><?= $warranty < time() ? 'Out of warranty' : 'Warranty to ' . escapeHtml($asset['asset_warranty_expire']) ?></span>
+                                        <span class="small text-nowrap <?= $warranty < time() ? 'text-danger' : 'text-body-secondary' ?>" title="Warranty"><?= $warranty < time() ? 'Out of warranty' : 'Warranty to ' . formatDate($asset['asset_warranty_expire']) ?></span>
                                     <?php } ?>
                                 </li>
                             <?php } ?>
@@ -247,11 +247,11 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a href="<?= $page_url ?>" class="btn btn-primary text-bold"><i class="fas fa-arrow-right me-2"></i>Open vendor</a>
+    <a href="<?= $page_url ?>" class="btn btn-primary fw-bold"><i class="fas fa-arrow-right me-2"></i>Open Vendor</a>
     <?php if ($can_edit) { ?>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/vendor/vendor_edit.php?id=<?= $vendor_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <script>

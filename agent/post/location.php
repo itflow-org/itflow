@@ -50,6 +50,7 @@ if (isset($_POST['add_location'])) {
 
     $set = locationFormSet($_POST, $client_id);
     if ($set === null) {
+        inlineSaveAnswer(['ok' => false, 'error' => 'A location needs a name.']);
         flashAlert('A location needs a name.', 'error');
         redirect();
     }
@@ -69,6 +70,8 @@ if (isset($_POST['add_location'])) {
 
     $name = trim($_POST['name']);
     logAudit("Location", "Create", "$session_name created location " . escapeSql($name), $client_id, $location_id);
+
+    inlineSaveAnswer(['ok' => true, 'value' => (string) $location_id, 'label' => $name, 'message' => "Location $name created"]);
 
     flashAlert("Location <strong>$name</strong> created");
 
@@ -114,7 +117,7 @@ if (isset($_POST['edit_location'])) {
     $name = trim($_POST['name']);
     logAudit("Location", "Edit", "$session_name edited location " . escapeSql($name), $client_id, $location_id);
 
-    flashAlert("Location <strong>$name</strong> updated");
+    flashAlert("Location <strong>$name</strong> saved");
 
     redirect();
 
@@ -213,11 +216,13 @@ if (isset($_GET['archive_location'])) {
         redirect();
     }
 
+    $undo = undoArchiveBefore('location', $location_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id");
 
     logAudit("Location", "Archive", "$session_name archived location " . escapeSql($row['location_name']), $client_id, $location_id);
 
     flashAlert("Location <strong>{$row['location_name']}</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -275,6 +280,7 @@ if (isset($_POST['bulk_archive_locations'])) {
 
     enforceUserPermission('module_client', 2);
 
+    $undo = undoArchiveBefore('location', $_POST['location_ids'] ?? []); // for Undo on the message
     $count = 0;
     $skipped = [];
     foreach (array_unique(array_map('intval', (array) ($_POST['location_ids'] ?? []))) as $location_id) {
@@ -294,6 +300,7 @@ if (isset($_POST['bulk_archive_locations'])) {
     }
 
     flashAlert("Archived <strong>$count</strong> location" . ($count === 1 ? '' : 's') . ($skipped ? ' - kept <strong>' . implode(', ', $skipped) . '</strong>, the primary location' : ''), 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -450,109 +457,6 @@ if (isExportRequest('export_locations')) {
 
     logAudit("Location", "Export", "$session_name exported $num_rows location(s) to a " . strtoupper($format) . " file", $client_id);
 
-    exit;
-
-}
-
-if (isset($_POST["import_locations_csv"])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    $client_id = intval($_POST['client_id']);
-
-    enforceClientAccess();
-
-    if (empty($_FILES["file"]["tmp_name"])) {
-        flashAlert("Please select a file to upload.", 'error');
-        redirect();
-    }
-
-    $file_extension = strtolower(pathinfo((string) $_FILES['file']['name'], PATHINFO_EXTENSION));
-    if ($file_extension !== 'csv') {
-        flashAlert("Bad file extension", 'error');
-        redirect();
-    }
-    if ($_FILES["file"]["size"] < 1) {
-        flashAlert("Bad file size (empty?)", 'error');
-        redirect();
-    }
-
-    $file = fopen($_FILES["file"]["tmp_name"], "r");
-    $header = fgetcsv($file, 1000, ",");
-    if (!is_array($header) || count($header) != 8) {
-        fclose($file);
-        flashAlert("Bad column count - use the template: Name, Description, Address, City, State, Postal Code, Phone, Hours.", 'error');
-        redirect();
-    }
-
-    $has_primary = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM locations WHERE location_client_id = $client_id AND location_primary = 1 AND location_archived_at IS NULL"))[0]);
-
-    $row_count = 0;
-    $duplicate_count = 0;
-    while (($column = fgetcsv($file, 1000, ",")) !== false) {
-        // Each row starts blank - a short row never inherits the row before it
-        $column = array_pad($column, 8, '');
-        $name = trim((string) $column[0]);
-        if ($name === '') {
-            continue;
-        }
-        $name_sql = escapeSql(mb_substr($name, 0, 200));
-        if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM locations WHERE location_name = '$name_sql' AND location_client_id = $client_id"))) {
-            $duplicate_count++;
-            continue;
-        }
-        $description = escapeSql((string) $column[1]);
-        $address = escapeSql(mb_substr((string) $column[2], 0, 200));
-        $city = escapeSql(mb_substr((string) $column[3], 0, 200));
-        $state = escapeSql(mb_substr((string) $column[4], 0, 200));
-        $zip = escapeSql(mb_substr((string) $column[5], 0, 200));
-        $phone = substr(preg_replace("/[^0-9]/", '', (string) $column[6]), 0, 200);
-        $hours = escapeSql(mb_substr((string) $column[7], 0, 200));
-
-        mysqli_query($mysqli, "INSERT INTO locations SET location_name = '$name_sql', location_description = '$description', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_client_id = $client_id");
-
-        // A client with no locations yet gets its first one as primary
-        if (!$has_primary) {
-            locationMakePrimary(mysqli_insert_id($mysqli), $client_id);
-            $has_primary = 1;
-        }
-        $row_count++;
-    }
-    fclose($file);
-
-    logAudit("Location", "Import", "$session_name imported $row_count location(s). $duplicate_count duplicate(s) found and not imported", $client_id);
-
-    flashAlert("$row_count Location(s) imported, $duplicate_count duplicate(s) detected and not imported");
-
-    redirect();
-
-}
-
-if (isset($_GET['download_locations_csv_template'])) {
-
-    $delimiter = ",";
-    $enclosure = '"';
-    $escape    = '\\';
-    $filename = "Locations-Template.csv";
-
-    //create a file pointer
-    $f = fopen('php://memory', 'w');
-
-    //set column headers
-    $fields = array('Name', 'Description', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Hours');
-    fputcsv($f, $fields, $delimiter, $enclosure, $escape);
-
-    //move back to beginning of file
-    fseek($f, 0);
-
-    //set headers to download file rather than displayed
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-    //output all remaining data on a file pointer
-    fpassthru($f);
     exit;
 
 }

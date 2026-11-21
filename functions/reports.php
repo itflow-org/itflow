@@ -6,7 +6,7 @@
  * What the report pages share: the catalogue (which reports there are and who
  * may open each - the side menu and the Reports home page are both drawn from
  * it), the period picker, number formatting, the strip of figures along the
- * top of a report, charts, tables and CSV export.
+ * top of a report, charts, tables, their export to CSV, and the report as a PDF.
  *
  * A report page reads:
  *
@@ -74,8 +74,12 @@ function reportCatalog() {
                     'description' => 'Tax on sales by part of each rate, invoiced or paid, with taxable, exempt and non-taxable sales and the tax paid on purchases, by month or quarter.',
                 ],
                 'mileage' => [
-                    'title' => 'Mileage', 'icon' => 'fa-route', 'module' => 'module_financial', 'feature' => ['accounting'],
+                    'title' => 'Mileage', 'icon' => 'fa-route', 'module' => 'module_financial', 'feature' => ['accounting', 'trips'],
                     'description' => 'Distance driven by agent and client, with what it comes to at your mileage rate.',
+                ],
+                'tax_package' => [
+                    'title' => 'Tax Package', 'icon' => 'fa-archive', 'module' => 'module_financial', 'feature' => ['accounting'],
+                    'description' => 'Everything your accountant asks for at year end, for one tax year - the summary, every payment, expense, invoice and trip as spreadsheets, and the receipts - in one download.',
                 ],
             ],
         ],
@@ -176,6 +180,10 @@ function reportCatalog() {
                     'title' => 'Documentation Coverage', 'icon' => 'fa-tasks', 'module' => 'module_support', 'feature' => ['itdoc'],
                     'description' => 'What is documented for each client, and what is missing.',
                 ],
+                'geography' => [
+                    'title' => 'Geography', 'icon' => 'fa-globe-americas', 'module' => 'module_client', 'feature' => [],
+                    'description' => 'Where your clients and their locations are, on a map - by country, then state or province and city.',
+                ],
                 'document_templates' => [
                     'title' => 'Document Templates', 'icon' => 'fa-file-alt', 'module' => 'module_support', 'feature' => ['itdoc'],
                     'description' => 'How often each document template is used, how many of the clients that should have a document from one do, and the documents due a review - by template and by client.',
@@ -227,13 +235,7 @@ function reportPermission($module) {
 
 /** Is that part of ITFlow turned on - accounting, ticketing or itdoc? */
 function reportFeatureOn($feature) {
-    global $config_module_enable_accounting, $config_module_enable_ticketing, $config_module_enable_itdoc;
-    $on = [
-        'accounting' => intval($config_module_enable_accounting) === 1,
-        'ticketing' => intval($config_module_enable_ticketing) === 1,
-        'itdoc' => intval($config_module_enable_itdoc) === 1,
-    ];
-    return !empty($on[$feature]);
+    return in_array($feature, ['accounting', 'ticketing', 'itdoc', 'trips', 'bookkeeping', 'calendar', 'dispatch', 'purchasing'], true) && moduleOn($feature);
 }
 
 /** May this user open this report? */
@@ -609,7 +611,7 @@ function reportClientSql($column, $client_id) {
 
 function reportMoney($amount) {
     global $currency_format, $session_company_currency;
-    return numfmt_format_currency($currency_format, floatval($amount), $session_company_currency);
+    return billingMoney(floatval($amount), $session_company_currency);
 }
 
 /** Money to the whole unit - for the wide year-of-months grids, where cents only crowd the columns. */
@@ -819,6 +821,8 @@ function reportCategoryColor($color, $i) {
  * Rows are plain arrays of raw values; 'totals' (same keys) goes in the footer.
  * A row ['_heading' => 'Label'] is a quiet heading over the rows after it (left out
  * of the export) - for tables that are not sortable; '_class' adds classes to a row.
+ * 'limit' shows the first rows of a long list; the PDF has them all unless
+ * 'pdf_whole' is false.
  */
 
 function reportColumnIsNumber(array $column) {
@@ -879,9 +883,9 @@ function reportTable(array $columns, array $rows, array $options = []) {
         return ($column['screen'] ?? true) !== false;
     });
     $sortable = $options['sortable'] ?? true;
-    // A long list shows its first rows; the CSV always has them all
+    // A long list shows its first rows; the CSV always has them all, and the PDF as many as a PDF can hold - unless 'pdf_whole' is false
     $all = count($rows);
-    $limit = intval($options['limit'] ?? 0);
+    $limit = reportPdfRequested() && ($options['pdf_whole'] ?? true) ? EXPORT_PDF_MAX_ROWS : intval($options['limit'] ?? 0);
     if ($limit && $all > $limit) {
         $rows = array_slice($rows, 0, $limit);
     }
@@ -975,6 +979,19 @@ function reportExporting($table = null) {
 function reportCsv($name, array $columns, array $rows, array $totals = null) {
     global $session_name;
 
+    $data = reportCsvData($columns, $rows, $totals);
+
+    // $session_name is SQL-safe already - escaping it again kept the backslash ("O\'Brien")
+    logAudit('Report', 'Export', "$session_name exported the " . escapeSql($name) . " report");
+
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . sanitizeFilename($name . '-' . date('Y-m-d') . '.csv') . '"');
+    echo $data;
+    exit;
+}
+
+/** Rows as CSV text, as reportCsv() sends them - for a file of several, such as the tax package. */
+function reportCsvData(array $columns, array $rows, array $totals = null) {
     $columns = array_filter($columns, function ($column) {
         return ($column['csv'] ?? true) !== false;
     });
@@ -1014,16 +1031,92 @@ function reportCsv($name, array $columns, array $rows, array $totals = null) {
         }
         fputcsv($out, $values, ',', '"', '\\');
     }
-
-    // $session_name is SQL-safe already - escaping it again kept the backslash ("O\'Brien")
-    logAudit('Report', 'Export', "$session_name exported the " . escapeSql($name) . " report");
-
     fseek($out, 0);
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="' . sanitizeFilename($name . '-' . date('Y-m-d') . '.csv') . '"');
-    fpassthru($out);
+    $data = stream_get_contents($out);
     fclose($out);
-    exit;
+    return $data;
+}
+
+/*
+ * ---------- the report as a PDF ----------
+ *
+ * Export > PDF (?export=pdf) draws the page as usual into a buffer, and as the
+ * page ends reportPdfFinish() lays out what it drew as a PDF instead
+ * (functions/report_pdf.php), so the PDF follows the page whatever the report
+ * puts on it. Tables come out whole rather than their first rows. The charts
+ * are drawn by the browser, which posts them as pictures (js/reports.js), with
+ * the theme's accent for the map; without them the PDF has no charts. A page
+ * that sends something with the PDF in it (the tax package's ZIP) starts this
+ * itself, with what sends it.
+ */
+
+/** Is this a request for the report as a PDF - or for a package with it in (?export=package)? */
+function reportPdfRequested() {
+    return in_array($_GET['export'] ?? '', ['pdf', 'package'], true);
+}
+
+/**
+ * Hold back what the page draws, to make it a PDF as the page ends. Called by
+ * inc_report_layout.php before anything is drawn - or by the page before
+ * that, with $send(ReportPdfWriter) to send something else made with the PDF.
+ */
+function reportPdfStart(callable $send = null) {
+    if (!empty($GLOBALS['report_pdf_level'])) {
+        return;
+    }
+    ob_start();
+    $GLOBALS['report_pdf_level'] = ob_get_level();
+    $GLOBALS['report_pdf_send'] = $send;
+    register_shutdown_function('reportPdfFinish');
+}
+
+/** The page drawn: send it as a PDF, or as it is when it went wrong or has no report on it. */
+function reportPdfFinish() {
+    global $session_name, $session_company_name, $session_company_country;
+
+    $level = $GLOBALS['report_pdf_level'] ?? 0;
+    $chunks = [];
+    while ($level && ob_get_level() >= $level) {
+        array_unshift($chunks, ob_get_clean());
+    }
+    $html = implode('', $chunks);
+    $error = error_get_last();
+    if (headers_sent() || ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true))) {
+        echo $html;
+        return;
+    }
+
+    // The charts, as PNG pictures - nothing else, and no more than a page could hold
+    $charts = [];
+    foreach (array_slice((array) ($_POST['charts'] ?? []), 0, 40) as $picture) {
+        $data = is_string($picture) && strncmp($picture, 'data:image/png;base64,', 22) === 0 && strlen($picture) < 4 * 1024 * 1024
+            ? base64_decode(substr($picture, 22), true) : false;
+        $size = $data !== false ? @getimagesizefromstring($data) : false;
+        $charts[] = $size && $size[2] === IMAGETYPE_PNG ? $data : null;
+    }
+    $accent = preg_match('/^#[0-9a-f]{6}$/i', (string) ($_POST['accent'] ?? '')) ? $_POST['accent'] : '#0d6efd';
+
+    require_once __DIR__ . '/../libs/TCPDF/tcpdf.php';
+    require_once __DIR__ . '/report_pdf.php';
+    $writer = new ReportPdfWriter($charts, $accent);
+    if (!$writer->render($html, $session_company_name, $session_company_country)) {
+        echo $html;
+        return;
+    }
+    if (!empty($GLOBALS['report_pdf_send'])) {
+        $GLOBALS['report_pdf_send']($writer);
+        return;
+    }
+    $data = $writer->pdf->Output('', 'S');
+
+    // $session_name is SQL-safe already - see reportCsv()
+    logAudit('Report', 'Export', "$session_name exported the " . escapeSql($writer->title) . " report as a PDF");
+
+    $name = sanitizeFilename(trim($writer->title . ' ' . $writer->subtitle) . '-' . date('Y-m-d') . '.pdf');
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: attachment; filename="' . $name . '"');
+    header('Content-Length: ' . strlen($data));
+    echo $data;
 }
 
 /** This page's URL with some query values changed (null drops one). */
@@ -1091,14 +1184,14 @@ function reportYearControl($year, array $years) {
 }
 
 /** The client picker - every client this user may see, or one. */
-function reportClientControl($client_id, $all_label = 'All clients', $required = false) {
+function reportClientControl($client_id, $all_label = 'Any client', $required = false) {
     global $mysqli;
     $client_id = intval($client_id);
     $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
-        WHERE (client_archived_at IS NULL OR client_id = $client_id) " . clientScopeSql('client_id') . "
+        WHERE (client_archived_at IS NULL OR client_id = $client_id)" . clientNotLeadSql($client_id) . clientScopeSql('client_id') . "
         ORDER BY client_name ASC");
     $html = '<div class="col-sm-6 col-lg-3"><select class="form-select select2" name="client_id" data-report-autosubmit aria-label="Client">'
-        . '<option value="">' . escapeHtml($required ? '- Pick a client -' : "- $all_label -") . '</option>';
+        . '<option value="">' . escapeHtml($required ? '- Select a client -' : "- $all_label -") . '</option>';
     while ($row = mysqli_fetch_assoc($sql)) {
         $id = intval($row['client_id']);
         $html .= '<option value="' . $id . '"' . ($id === $client_id ? ' selected' : '') . selectOptionClient($id, $row['client_name'], $row['client_abbreviation'] ?? '') . '>'
@@ -1108,11 +1201,11 @@ function reportClientControl($client_id, $all_label = 'All clients', $required =
 }
 
 /** The agent picker - active agents, and whoever is picked. */
-function reportAgentControl($user_id, $all_label = 'All agents') {
+function reportAgentControl($user_id, $all_label = 'Any agent') {
     global $mysqli;
     $user_id = intval($user_id);
     $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users
-        WHERE user_type = 1 AND ((user_archived_at IS NULL AND user_status = 1) OR user_id = $user_id)
+        WHERE user_type = 1" . serviceAccountsOutSql() . " AND ((user_archived_at IS NULL AND user_status = 1) OR user_id = $user_id)
         ORDER BY user_name ASC");
     $html = '<div class="col-sm-6 col-lg-2"><select class="form-select select2" name="agent" data-report-autosubmit aria-label="Agent">'
         . '<option value="">- ' . escapeHtml($all_label) . ' -</option>';
@@ -1168,6 +1261,7 @@ function reportSegmentControl($name, $value, array $choices, $col = 'col-auto') 
  *   'controls' more filter controls, HTML, in the same form
  *   'subtitle' what shows beside the name (default: the dates)
  *   'export'   false for no CSV; or [table => label] for a choice of tables
+ *   'pdf'      false for no PDF of the report (default: when there is an export)
  *   'client_required' the client picker asks for a client rather than offering all
  *   'note'     replaces the description line
  *   'actions'  more buttons beside Export and Print, HTML
@@ -1181,14 +1275,23 @@ function reportHeader($key, array $options = []) {
     $period = $options['period'] ?? null;
     $subtitle = $options['subtitle'] ?? ($period ? $period['range'] : (isset($options['year']) ? (string) $options['year'][0] : ''));
 
+    // Export is a menu: the CSV - or each table's - then the report as a PDF
     $export = $options['export'] ?? true;
+    $pdf = $options['pdf'] ?? $export !== false;
     $export_html = '';
-    if ($export === true) {
-        $export_html = '<a class="btn btn-outline-light" href="' . escapeHtml(reportUrl(['export' => 'csv'])) . '"><i class="fas fa-fw fa-file-csv"></i><span class="d-none d-md-inline ms-2">Export</span></a>';
-    } elseif (is_array($export) && $export) {
-        $export_html = '<div class="dropdown"><button type="button" class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-fw fa-file-csv"></i><span class="d-none d-md-inline ms-2">Export</span></button><div class="dropdown-menu dropdown-menu-end">';
-        foreach ($export as $table => $label) {
-            $export_html .= '<a class="dropdown-item" href="' . escapeHtml(reportUrl(['export' => 'csv', 'table' => $table])) . '"><i class="fas fa-fw fa-file-csv me-2"></i>' . escapeHtml($label) . '</a>';
+    if ($export !== false || $pdf) {
+        $export_html = '<div class="dropdown"><button type="button" class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-fw fa-download"></i><span class="d-none d-md-inline ms-2">Export</span></button><div class="dropdown-menu dropdown-menu-end">';
+        if ($export === true) {
+            $export_html .= '<a class="dropdown-item" href="' . escapeHtml(reportUrl(['export' => 'csv'])) . '"><i class="fas fa-fw fa-file-csv me-2"></i>CSV</a>';
+        } elseif (is_array($export) && $export) {
+            $export_html .= '<h6 class="dropdown-header">CSV</h6>';
+            foreach ($export as $table => $label) {
+                $export_html .= '<a class="dropdown-item" href="' . escapeHtml(reportUrl(['export' => 'csv', 'table' => $table])) . '"><i class="fas fa-fw fa-file-csv me-2"></i>' . escapeHtml($label) . '</a>';
+            }
+            $export_html .= $pdf ? '<div class="dropdown-divider"></div>' : '';
+        }
+        if ($pdf) {
+            $export_html .= '<a class="dropdown-item" href="' . escapeHtml(reportUrl(['export' => 'pdf', 'table' => null])) . '" data-report-pdf><i class="fas fa-fw fa-file-pdf me-2"></i>PDF</a>';
         }
         $export_html .= '</div></div>';
     }
@@ -1521,7 +1624,7 @@ function reportCategoryYearTable(array $categories, array $grid, $year, $list, $
     foreach ($categories as $cat => $category) {
         $row = reportGridRow($grid, $cat);
         $html .= '<tr><td data-value="' . escapeHtml(mb_strtolower($category['category_name'])) . '">' . escapeHtml($category['category_name'])
-            . (!empty($category['category_archived_at']) ? ' <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '') . '</td>';
+            . (!empty($category['category_archived_at']) ? ' <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '') . '</td>';
         foreach ($columns as $i => [$label, $first, $last]) {
             [$dtf, $dtt] = reportColumnDates($year, $first, $last);
             $url = $cat || $uncategorised !== '' ? "/agent/$list?" . ($cat ? "category=$cat" : $uncategorised) . "&canned_date=custom&dtf=$dtf&dtt=$dtt" : '';
@@ -1720,7 +1823,7 @@ function reportHeatmap(array $counts, $noun = 'ticket') {
     }
     $html = '<div class="table-responsive"><table class="itflow-report-heat" aria-label="When ' . $noun . 's came in, by weekday and hour"><thead><tr><th></th>';
     for ($h = 0; $h < 24; $h++) {
-        $html .= '<th scope="col">' . ($h % 3 === 0 ? date('ga', mktime($h, 0, 0)) : '') . '</th>';
+        $html .= '<th scope="col">' . ($h % 3 === 0 ? date('g A', mktime($h, 0, 0)) : '') . '</th>';
     }
     $html .= '</tr></thead><tbody>';
     for ($d = 1; $d <= 7; $d++) {
@@ -1795,14 +1898,14 @@ function reportLifecycleAssets($client_id = 0, $type = '') {
         ORDER BY client_name, asset_name");
     $today = new DateTime('today');
     while ($row = mysqli_fetch_assoc($sql)) {
-        $physical = $row['asset_type'] !== 'Virtual Machine';
+        $physical = !assetTypeIsVirtual($row['asset_type']);
         $row['age_date'] = null;
         $row['age_days'] = null;
         foreach (['asset_purchase_date', 'asset_install_date'] as $column) {
             $date = $physical ? DateTime::createFromFormat('!Y-m-d', substr((string) $row[$column], 0, 10)) : false;
             if ($date && $date->format('Y') > 1900) {
                 $row['age_date'] = $date->format('Y-m-d');
-                $row['age_days'] = max(0, (int) $date->diff($today)->format('%r%a'));
+                $row['age_days'] = max(0, intval($date->diff($today)->format('%r%a')));
                 break;
             }
         }
@@ -1861,7 +1964,7 @@ function reportRenewals($client_id, $ahead, array $kinds = []) {
         $rows[] = [
             'kind' => $kind, 'id' => intval($id), 'name' => (string) $name, 'detail' => trim((string) $detail, " ·"),
             'client_id' => intval($row['client_id']), 'client' => $row['client_name'], 'abbr' => $row['client_abbreviation'],
-            'date' => $due->format('Y-m-d'), 'days' => (int) $today->diff($due)->format('%r%a'), 'auto' => (bool) $auto, 'url' => $url, 'tile' => $tile,
+            'date' => $due->format('Y-m-d'), 'days' => intval($today->diff($due)->format('%r%a')), 'auto' => (bool) $auto, 'url' => $url, 'tile' => $tile,
         ];
     };
 
@@ -1900,7 +2003,7 @@ function reportRenewals($client_id, $ahead, array $kinds = []) {
         $gone = "'" . implode("', '", REPORT_ASSET_GONE) . "'";
         $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, asset_warranty_expire, client_id, client_name, client_abbreviation
             FROM assets JOIN clients ON asset_client_id = client_id
-            WHERE asset_archived_at IS NULL AND client_archived_at IS NULL AND asset_type != 'Virtual Machine' AND COALESCE(asset_status, '') NOT IN ($gone)
+            WHERE asset_archived_at IS NULL AND client_archived_at IS NULL AND NOT (" . assetTypeGroupSql('virtual') . ") AND COALESCE(asset_status, '') NOT IN ($gone)
             AND " . $window('asset_warranty_expire') . reportClientSql('asset_client_id', $client_id));
         while ($row = mysqli_fetch_assoc($sql)) {
             $add('warranty', $row['asset_id'], $row['asset_name'], $row['asset_type'] . ' · ' . trim($row['asset_make'] . ' ' . $row['asset_model']),
@@ -1974,7 +2077,7 @@ function reportCoverage($client_id = 0) {
     $client_id = intval($client_id);
 
     $clients = [];
-    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . reportClientSql('client_id', $client_id) . " ORDER BY client_name");
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql($client_id) . reportClientSql('client_id', $client_id) . " ORDER BY client_name");
     while ($row = mysqli_fetch_assoc($sql)) {
         $clients[intval($row['client_id'])] = ['client_id' => intval($row['client_id']), 'client' => $row['client_name'], 'abbr' => $row['client_abbreviation'],
             'contacts' => 0, 'primary' => 0, 'billing' => 0, 'locations' => 0, 'primary_loc' => 0, 'assets' => 0, 'placed' => 0, 'devices' => 0, 'owned' => 0,
@@ -2052,4 +2155,216 @@ function reportCoverageMissingHtml($client) {
             . (!empty($checks[$key]['title']) ? ' title="' . escapeHtml($checks[$key]['title']) . '"' : '') . '>' . escapeHtml($checks[$key]['label']) . '</a>';
     }
     return $html . '</span>';
+}
+
+/*
+ * ---------- geography ----------
+ *
+ * Where clients' locations are. Addresses are typed by hand, so they are read
+ * loosely: a country by its name in ITFlow's list, the map's own name for it,
+ * its two-letter code or a common short form ("USA", "UK"), and a US state or
+ * Canadian province by its name or postal abbreviation. A location with no
+ * country is counted in the company's own country, which the location form
+ * fills in by default. The maps are outlines kept in includes/maps (Natural
+ * Earth, public domain, projected ahead of time), shaded on the page - nothing
+ * is fetched from anywhere else.
+ */
+
+/** The countries with a map of their states or provinces, as country => map; includes/maps/world.json has the countries. */
+const REPORT_GEO_MAPS = ['US' => 'us', 'CA' => 'ca'];
+
+/** A map's outlines - ['width', 'height', 'regions' => [code => ['name', 'd' (its outline), 'dot' (one to mark a small place)]]] - or null. */
+function reportGeoMap($name) {
+    static $maps = [];
+    if (!array_key_exists($name, $maps)) {
+        $file = dirname(__DIR__) . '/includes/maps/' . basename($name) . '.json';
+        $maps[$name] = is_file($file) ? json_decode(file_get_contents($file), true) : null;
+    }
+    return $maps[$name];
+}
+
+/** Text as a key to group by - lower case, without full stops or doubled spaces: "U.S.A." and "usa" match. */
+function reportGeoKey($text) {
+    return mb_strtolower(trim(preg_replace(['/\./', '/\s+/'], ['', ' '], (string) $text)));
+}
+
+/** What a country's states are called - State, Province or Region. */
+function reportGeoRegionTerm($country, $plural = false) {
+    $terms = ['US' => ['State', 'States'], 'CA' => ['Province', 'Provinces']];
+    return ($terms[$country] ?? ['Region', 'Regions'])[$plural ? 1 : 0];
+}
+
+/** The countries ITFlow knows: ['codes' => typed key => code, 'names' => code => name]. */
+function reportGeoCountries() {
+    static $countries = null;
+    if ($countries !== null) {
+        return $countries;
+    }
+    $codes = $names = [];
+    foreach (settingsLocalizationArrays()['country_iso2'] as $name => $code) {
+        $code = strtoupper($code);
+        $names[$code] = $names[$code] ?? $name;
+        $codes[reportGeoKey($name)] = $code;
+    }
+    foreach (reportGeoMap('world')['regions'] ?? [] as $code => $region) {
+        if (strlen($code) === 2) {
+            $names[$code] = $names[$code] ?? $region['name'];
+            $codes[reportGeoKey($region['name'])] = $codes[reportGeoKey($region['name'])] ?? $code;
+        }
+    }
+    foreach (array_keys($names) as $code) {
+        $codes[strtolower($code)] = $codes[strtolower($code)] ?? $code;
+    }
+    $codes += ['usa' => 'US', 'united states of america' => 'US', 'america' => 'US', 'uk' => 'GB', 'great britain' => 'GB', 'britain' => 'GB',
+        'england' => 'GB', 'scotland' => 'GB', 'wales' => 'GB', 'northern ireland' => 'GB', 'can' => 'CA', 'aus' => 'AU', 'nz' => 'NZ',
+        'the netherlands' => 'NL', 'holland' => 'NL', 'deutschland' => 'DE', 'czechia' => 'CZ', 'eire' => 'IE'];
+    return $countries = ['codes' => $codes, 'names' => $names];
+}
+
+/** A country's states on its map: ['codes' => typed key => code (US-PA), 'names' => code => name] - empty without a map. */
+function reportGeoRegions($country) {
+    static $regions = [];
+    if (!isset($regions[$country])) {
+        $codes = $names = [];
+        $map = isset(REPORT_GEO_MAPS[$country]) ? reportGeoMap(REPORT_GEO_MAPS[$country]) : null;
+        foreach ($map['regions'] ?? [] as $code => $region) {
+            $names[$code] = $region['name'];
+            $codes[reportGeoKey(substr($code, strlen($country) + 1))] = $code;
+            $codes[reportGeoKey($region['name'])] = $code;
+        }
+        $regions[$country] = ['codes' => $codes, 'names' => $names];
+    }
+    return $regions[$country];
+}
+
+/**
+ * Where a location is, from its address: 'country' (a code such as US, or the
+ * text typed when it is not a country ITFlow knows), 'region' (US-PA for a US
+ * state or Canadian province, otherwise the text typed) and 'city', each with
+ * its '_name' to show. Typed text is keyed in lower case so spellings group,
+ * and a part left blank is '-', "Not set".
+ */
+function reportGeoPlace(array $row) {
+    global $session_company_country;
+
+    $typed = trim((string) ($row['location_country'] ?? ''));
+    if ($typed === '') {
+        $typed = trim((string) ($session_company_country ?? ''));
+    }
+    $countries = reportGeoCountries();
+    $key = reportGeoKey($typed);
+    $country = $key === '' ? '-' : ($countries['codes'][$key] ?? $key);
+    $place = ['country' => $country, 'country_name' => $countries['names'][$country] ?? ($typed !== '' ? $typed : 'Not set')];
+
+    $typed = trim((string) ($row['location_state'] ?? ''));
+    $regions = reportGeoRegions($country);
+    $key = reportGeoKey($typed);
+    $place['region'] = $key === '' ? '-' : ($regions['codes'][$key] ?? $key);
+    $place['region_name'] = $regions['names'][$place['region']] ?? ($typed !== '' ? $typed : 'Not set');
+
+    $typed = trim((string) ($row['location_city'] ?? ''));
+    $key = reportGeoKey($typed);
+    $place['city'] = $key === '' ? '-' : $key;
+    $place['city_name'] = $typed !== '' ? $typed : 'Not set';
+    return $place;
+}
+
+/** Active locations of the active clients this user can see - leads too when asked - each with where it is (reportGeoPlace()). */
+function reportGeoLocations($leads = false) {
+    global $mysqli;
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT location_id, location_name, location_address, location_city, location_state, location_zip, location_country, location_primary,
+            client_id, client_name, client_abbreviation
+        FROM locations
+        JOIN clients ON location_client_id = client_id
+        WHERE location_archived_at IS NULL AND client_archived_at IS NULL" . ($leads ? '' : ' AND client_lead = 0') . reportClientSql('client_id', 0) . "
+        ORDER BY client_name, location_primary DESC, location_name");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row + reportGeoPlace($row);
+    }
+    return $rows;
+}
+
+/**
+ * Locations grouped by 'country', 'region' or 'city', as rows of 'key' and
+ * 'name' (the spelling used most), 'clients' (with a location there),
+ * 'locations' and 'cities', with the country and region they are in. Most
+ * clients first, "Not set" last.
+ */
+function reportGeoGroup(array $locations, $level) {
+    $parents = ['country' => [], 'region' => ['country'], 'city' => ['country', 'region']][$level];
+    $groups = [];
+    foreach ($locations as $location) {
+        $id = '';
+        foreach ($parents as $parent) {
+            $id .= $location[$parent] . '|';
+        }
+        $id .= $location[$level];
+        if (!isset($groups[$id])) {
+            $groups[$id] = ['key' => $location[$level], 'spellings' => [], 'client_ids' => [], 'locations' => 0, 'cities' => [],
+                'country' => $location['country'], 'country_name' => $location['country_name'], 'region' => $location['region'], 'region_name' => $location['region_name']];
+        }
+        $group = &$groups[$id];
+        $spelling = $location[$level . '_name'];
+        $group['spellings'][$spelling] = ($group['spellings'][$spelling] ?? 0) + 1;
+        $group['client_ids'][$location['client_id']] = true;
+        $group['locations']++;
+        $group['cities'][$location['country'] . '|' . $location['region'] . '|' . $location['city']] = true;
+        unset($group);
+    }
+    foreach ($groups as &$group) {
+        arsort($group['spellings']);
+        $group['name'] = (string) array_key_first($group['spellings']);
+        $group['clients'] = count($group['client_ids']);
+        $group['cities'] = count($group['cities']);
+        unset($group['spellings'], $group['client_ids']);
+    }
+    unset($group);
+    $groups = array_values($groups);
+    usort($groups, function ($a, $b) {
+        return ($a['key'] === '-') <=> ($b['key'] === '-') ?: $b['clients'] <=> $a['clients'] ?: $b['locations'] <=> $a['locations'] ?: strcasecmp($a['name'], $b['name']);
+    });
+    return $groups;
+}
+
+/**
+ * An outline map shaded by how much is in each place. $values is code =>
+ * number, $titles code => what hovering says, $links code => where clicking
+ * goes; $current is outlined. A place with nothing is left plain, and one too
+ * small to see (Singapore, an island nation) gets a dot over it when it has
+ * something.
+ */
+function reportGeoMapHtml($name, array $values, array $titles, array $links, $current = '', $label = '') {
+    $map = reportGeoMap($name);
+    if (!$map) {
+        return '';
+    }
+    $max = max(1, ...array_values($values ?: [0]));
+    $shapes = $dots = $outline = '';
+    foreach ($map['regions'] as $code => $region) {
+        $n = floatval($values[$code] ?? 0);
+        $title = '<title>' . escapeHtml($titles[$code] ?? $region['name']) . '</title>';
+        // The square root keeps a place with one or two from vanishing beside one with fifty
+        $on = $n > 0 ? ' class="itflow-geo-on" style="--heat: ' . round(0.25 + 0.75 * sqrt($n / $max), 3) . '"' : '';
+        $open = isset($links[$code]) ? '<a href="' . escapeHtml($links[$code]) . '">' : '';
+        $close = $open !== '' ? '</a>' : '';
+        if ($region['d'] !== '') {
+            $shapes .= $open . '<path d="' . $region['d'] . '"' . $on . '>' . $title . '</path>' . $close;
+        }
+        if (!empty($region['dot']) && $n > 0) {
+            $dots .= $open . '<path d="' . $region['dot'] . '"' . $on . '>' . $title . '</path>' . $close;
+        }
+        if ($code === $current && $region['d'] !== '') {
+            $outline = '<path class="itflow-geo-current" d="' . $region['d'] . '"/>';
+        }
+    }
+    return '<svg class="itflow-geo-map" viewBox="0 0 ' . intval($map['width']) . ' ' . intval($map['height']) . '" role="img"'
+        . ($label !== '' ? ' aria-label="' . escapeHtml($label) . '"' : '') . '>' . $shapes . $outline . $dots . '</svg>';
+}
+
+/** The key under a map: plain for none, then light to dark from 1 to the most. */
+function reportGeoLegendHtml($max, $noun) {
+    return '<div class="itflow-geo-legend small text-body-secondary">'
+        . '<span class="itflow-geo-swatch"></span>None'
+        . '<span class="ms-3">1</span><span class="itflow-geo-scale"></span>' . reportCount($max) . ' ' . escapeHtml($noun) . '</div>';
 }

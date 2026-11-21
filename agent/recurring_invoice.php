@@ -21,6 +21,7 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_url = "client_id=$client_id&";
 } else {
+    $agent_banners_later = true; // drawn below, with its client's, once that is known (functions/agent_banner.php)
     require_once "includes/inc_all.php";
     $client_url = '';
 }
@@ -105,6 +106,9 @@ $paper = [
     'csrf' => $csrf,
 ];
 
+// The banners, with the client's when it was opened without the client around it (functions/agent_banner.php)
+echo agentBannersHtml($client_id);
+
 ?>
 
 <ol class="breadcrumb d-print-none">
@@ -121,7 +125,7 @@ $paper = [
         <div class="flex-grow-1 min-w-0">
             <h1 class="h4 fw-semibold mb-1 d-flex flex-wrap align-items-center gap-2">
                 <span>Recurring Invoice <?= escapeHtml($number) ?></span>
-                <span class="fs-6"><span class="badge rounded-pill text-bg-<?= $active ? 'success' : 'secondary' ?>"><?= $active ? 'Active' : 'Paused' ?></span></span>
+                <span class="fs-6"><span class="badge rounded-pill text-bg-<?= $active ? 'success' : 'secondary' ?>"><?= $active ? 'Active' : (!empty($recurring['recurring_invoice_paused_until']) ? 'Paused until ' . formatDate($recurring['recurring_invoice_paused_until']) : 'Paused') ?></span></span>
                 <?php if ($active) { ?><span class="fs-6"><?= recurringInvoiceNextPill($recurring) ?></span><?php } ?>
             </h1>
             <div class="text-body-secondary small d-flex flex-wrap column-gap-3 row-gap-1">
@@ -148,10 +152,9 @@ $paper = [
                     <i class="fas fa-bolt me-2"></i>Invoice Now
                 </a>
                 <?php if ($active) { ?>
-                    <a class="btn btn-outline-secondary confirm-link" href="post.php?recurring_invoice_set_status=<?= $recurring_invoice_id ?>&status=0&csrf_token=<?= $csrf ?>"
-                        data-confirm-title="Pause <?= escapeHtml($number) ?>?" data-confirm-text="No invoices are made from it until it is resumed." data-confirm-button="Pause">
+                    <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/recurring_invoice/recurring_invoice_bulk.php?action=pause&amp;recurring_invoice_ids[]=<?= $recurring_invoice_id ?>">
                         <i class="fas fa-pause me-2"></i>Pause
-                    </a>
+                    </button>
                 <?php } else { ?>
                     <a class="btn btn-outline-success" href="post.php?recurring_invoice_set_status=<?= $recurring_invoice_id ?>&status=1&csrf_token=<?= $csrf ?>">
                         <i class="fas fa-play me-2"></i>Resume
@@ -172,6 +175,11 @@ $paper = [
                     <a class="dropdown-item" href="invoices.php?client_id=<?= $client_id ?>&recurring_invoice_id=<?= $recurring_invoice_id ?>">
                         <i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Invoices Made <span class="text-body-secondary">(<?= $generated_count ?>)</span>
                     </a>
+                    <?php if ($can_edit) { ?>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_invoice/recurring_invoice_copy.php?id=<?= $recurring_invoice_id ?>">
+                            <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy to Another Client
+                        </a>
+                    <?php } ?>
                     <?php if ($can_edit && $auto_send) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="post.php?recurring_invoice_email_notify=<?= $email_notify ? 0 : 1 ?>&recurring_invoice_id=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>">
@@ -180,7 +188,7 @@ $paper = [
                     <?php } ?>
                     <?php if ($can_delete) { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_invoice=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>"
+                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_recurring_invoice=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>"
                             data-confirm-text="<?= escapeHtml($number) ?> goes for good, with its lines, autopay and history. The invoices it made stay.">
                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                         </a>
@@ -195,9 +203,9 @@ $paper = [
     <div class="alert alert-danger d-flex flex-wrap align-items-center gap-2 d-print-none">
         <i class="fas fa-exclamation-triangle"></i>
         <?php if ($late_days <= RECURRING_INVOICE_GRACE_DAYS) { ?>
-            <span class="me-auto">Its run on <?= escapeHtml($recurring['recurring_invoice_next_date']) ?> was missed - the next nightly run bills it. Invoice Now bills it straight away.</span>
+            <span class="me-auto">Its run on <?= formatDate($recurring['recurring_invoice_next_date']) ?> was missed - the next nightly run bills it. Invoice Now bills it straight away.</span>
         <?php } else { ?>
-            <span class="me-auto">Its next date, <?= escapeHtml($recurring['recurring_invoice_next_date']) ?>, is <?= $late_days ?> days gone - too far behind to bill by itself. Use Invoice Now for each run it missed, or move it on without billing them.</span>
+            <span class="me-auto">Its next date, <?= formatDate($recurring['recurring_invoice_next_date']) ?>, is <?= $late_days ?> days gone - too far behind to bill by itself. Use Invoice Now for each run it missed, or move it on without billing them.</span>
         <?php } ?>
         <?php if ($can_edit) { ?>
             <a class="btn btn-sm btn-danger confirm-link" href="post.php?recurring_invoice_catch_up=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>"
@@ -237,16 +245,18 @@ $paper = [
                     <dt>Next</dt>
                     <dd>
                         <?php if ($active) { ?>
-                            <?= escapeHtml($recurring['recurring_invoice_next_date']) ?>
+                            <?= formatDate($recurring['recurring_invoice_next_date']) ?>
                             <div class="small text-body-secondary">For <?= escapeHtml($next_period['{period}']) ?></div>
                             <?php if (count($upcoming) > 1 && !$late) { ?>
-                                <div class="small text-body-secondary">then <?= escapeHtml(implode(', ', array_slice($upcoming, 1))) ?></div>
+                                <div class="small text-body-secondary">then <?= escapeHtml(implode(', ', array_map('formatDate', array_slice($upcoming, 1)))) ?></div>
                             <?php } ?>
                         <?php } else { ?>
-                            <span class="text-body-secondary"><?= $for_contract && $for_contract['contract_status'] === 'Draft' ? 'Paused - it starts when ' . escapeHtml($for_contract['contract_name']) . ' is active' : 'Paused - nothing until it is resumed' ?></span>
+                            <span class="text-body-secondary"><?= $for_contract && $for_contract['contract_status'] === 'Draft' ? 'Paused - it starts when ' . escapeHtml($for_contract['contract_name']) . ' is active'
+                                : (!empty($recurring['recurring_invoice_paused_until']) ? 'Paused until ' . formatDate($recurring['recurring_invoice_paused_until']) . ' - then it runs again by itself, from its next date after that'
+                                : 'Paused - nothing until it is resumed') ?></span>
                         <?php } ?>
                     </dd>
-                    <dt>Last</dt><dd><?= $recurring['recurring_invoice_last_sent'] ? escapeHtml($recurring['recurring_invoice_last_sent']) : '<span class="text-body-secondary">Not yet</span>' ?></dd>
+                    <dt>Last</dt><dd><?= $recurring['recurring_invoice_last_sent'] ? formatDate($recurring['recurring_invoice_last_sent']) : '<span class="text-body-secondary">Not yet</span>' ?></dd>
                     <?php $margin_html = billingMarginHtml('recurring', $items, $currency, $period_word); if ($margin_html) { ?>
                         <dt>Margin</dt><dd><?= $margin_html ?></dd>
                     <?php } ?>
@@ -268,7 +278,7 @@ $paper = [
                             Made as a draft<div class="small text-body-secondary">Emailing is off for this one</div>
                         <?php } ?>
                     </dd>
-                    <dt>Since</dt><dd title="<?= escapeHtml($recurring['recurring_invoice_created_at']) ?>"><?= escapeHtml(date('Y-m-d', strtotime($recurring['recurring_invoice_created_at']))) ?></dd>
+                    <dt>Since</dt><dd title="<?= formatDateTime($recurring['recurring_invoice_created_at']) ?>"><?= formatDate($recurring['recurring_invoice_created_at']) ?></dd>
                 </dl>
             </div>
         </div>
@@ -279,7 +289,7 @@ $paper = [
                 <div class="card-header d-flex align-items-center">
                     <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-users text-secondary me-2"></i>Seats</h3>
                     <?php if ($can_edit && $seat_drift) { ?>
-                        <a class="btn btn-sm btn-outline-warning" href="post.php?recurring_invoice_sync=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-sync-alt me-1"></i>Update now</a>
+                        <a class="btn btn-sm btn-outline-warning" href="post.php?recurring_invoice_sync=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-sync-alt me-1"></i>Update Now</a>
                     <?php } ?>
                 </div>
                 <div class="list-group list-group-flush">
@@ -294,7 +304,7 @@ $paper = [
                             <div class="text-end text-nowrap">
                                 <div class="fw-semibold"><?= billingQuantity($seat['item_quantity']) ?></div>
                                 <?php if ($seat['seat_count'] === null) { ?>
-                                    <div class="small text-danger-emphasis">License gone</div>
+                                    <div class="small text-danger-emphasis"><?= escapeHtml($seat['seat_gone']) ?></div>
                                 <?php } elseif ($seat['seat_drift']) { ?>
                                     <div class="small text-warning-emphasis">now <?= billingQuantity($seat['seat_quantity']) ?></div>
                                 <?php } else { ?>
@@ -378,7 +388,7 @@ $paper = [
 
         <div class="card mb-3">
             <div class="card-header d-flex align-items-center">
-                <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Invoices Made <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= $generated_count ?></span></h3>
+                <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Invoices made <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= number_format(intval($generated_count)) ?></span></h3>
                 <?php if ($generated_count > count($generated)) { ?>
                     <a class="small" href="invoices.php?client_id=<?= $client_id ?>&recurring_invoice_id=<?= $recurring_invoice_id ?>">All</a>
                 <?php } ?>
@@ -389,7 +399,7 @@ $paper = [
                         $made_state = invoiceState($made, $made['paid']); ?>
                         <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="invoice.php?invoice_id=<?= intval($made['invoice_id']) ?>">
                             <div class="flex-grow-1 min-w-0">
-                                <div class="fw-semibold"><?= escapeHtml($made['invoice_prefix'] . $made['invoice_number']) ?> <span class="fw-normal text-body-secondary small ms-1"><?= escapeHtml($made['invoice_date']) ?></span></div>
+                                <div class="fw-semibold"><?= escapeHtml($made['invoice_prefix'] . $made['invoice_number']) ?> <span class="fw-normal text-body-secondary small ms-1"><?= formatDate($made['invoice_date']) ?></span></div>
                                 <div class="small"><?= invoiceStatusBadge($made['invoice_status'], $made_state['state'] === 'overdue') ?></div>
                             </div>
                             <span class="itflow-money small"><?= escapeHtml(billingMoney($made['invoice_amount'], $made['invoice_currency_code'])) ?></span>
@@ -397,7 +407,7 @@ $paper = [
                     <?php } ?>
                 </div>
             <?php } else { ?>
-                <div class="card-body small text-body-secondary">None yet<?= $active ? ' - the first is made on ' . escapeHtml($recurring['recurring_invoice_next_date']) : '' ?>.</div>
+                <div class="card-body small text-body-secondary">None yet<?= $active ? ' - the first is made on ' . formatDate($recurring['recurring_invoice_next_date']) : '' ?>.</div>
             <?php } ?>
         </div>
 

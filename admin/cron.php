@@ -43,7 +43,7 @@ $managed_kept = $managed_mode === 'active' ? [] : (MANAGED_KEEP_JOBS[$managed_mo
 $install_root = dirname(__DIR__);
 $file_owner = '';
 if (function_exists('posix_getpwuid')) {
-    $file_owner = (string) (posix_getpwuid((int) @fileowner($install_root . '/cron/cron.php'))['name'] ?? '');
+    $file_owner = (string) (posix_getpwuid(intval(@fileowner($install_root . '/cron/cron.php')))['name'] ?? '');
 }
 $shell_word = function ($word) {
     return preg_match('/^[A-Za-z0-9_\/.@%+=:,-]+$/', $word) ? $word : escapeshellarg($word);
@@ -189,16 +189,16 @@ $took = function ($seconds) {
         return 'under 0.1 s';
     }
     if ($seconds < 10) {
-        return rtrim(rtrim(number_format($seconds, 1), '0'), '.') . ' s';
+        return rtrim(rtrim(number_format($seconds, 1), '0'), '.') . 's';
     }
     if ($seconds < 60) {
-        return round($seconds) . ' s';
+        return round($seconds) . 's';
     }
-    $minutes = intdiv((int) round($seconds), 60);
+    $minutes = intdiv(intval(round($seconds)), 60);
     if ($minutes < 60) {
-        return $minutes . ' min ' . ((int) round($seconds) % 60) . ' s';
+        return $minutes . 'm ' . (intval(round($seconds)) % 60) . 's';
     }
-    return intdiv($minutes, 60) . ' h ' . ($minutes % 60) . ' min';
+    return intdiv($minutes, 60) . 'h ' . ($minutes % 60) . 'm';
 };
 // Job names in a sentence - "Mail Queue", "Mail Queue and Backup", "Mail Queue, Backup and Nightly Tasks" - each a link to its row
 $job_names = function ($list) {
@@ -234,9 +234,8 @@ uasort($jobs, function ($a, $b) use ($sort_keys, $sort, $order) {
 });
 // A heading sorts its own way round first - names A to Z, the latest run and what needs a look at the top - then the other
 $sort_first = ['job' => 'ASC', 'schedule' => 'ASC', 'last_run' => 'DESC', 'status' => 'ASC'];
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon, $sort_first) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . ($sort === $column ? $disp : $sort_first[$column]) . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
+$sort_link = function ($column, $label) use ($sort_first) {
+    return sortLink($column, $label, $sort_first[$column] ?? null);
 };
 
 $status_looks = [
@@ -325,7 +324,7 @@ $status_looks = [
                             <?php } ?>
                             <div class="d-flex flex-wrap gap-2 mt-3">
                                 <a class="btn <?= $state === 'off' ? 'btn-primary' : 'btn-outline-primary' ?>" href="post.php?enable_cron=1&amp;csrf_token=<?= $csrf ?>" data-cron-switch="on">
-                                    <i class="fas fa-fw fa-power-off me-2"></i>Turn cron on
+                                    <i class="fas fa-fw fa-power-off me-2"></i>Turn Cron On
                                 </a>
                             </div>
                         <?php } ?>
@@ -365,7 +364,7 @@ $status_looks = [
                             <td class="border-bottom-0 pt-3 pb-1 text-nowrap">
                                 <span class="fw-semibold<?= $job['enabled'] ? '' : ' text-body-secondary' ?>"><?= escapeHtml($job['label']) ?></span>
                                 <?php if (!$job['enabled']) { ?>
-                                    <span class="badge bg-secondary-subtle text-secondary-emphasis ms-1" title="It doesn't run on its schedule. Run now still works.">Off</span>
+                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis ms-1" title="It doesn't run on its schedule. Run now still works.">Off</span>
                                 <?php } ?>
                             </td>
                             <td class="border-bottom-0 pt-3 pb-1 text-nowrap d-none d-md-table-cell<?= $job['enabled'] ? '' : ' text-body-secondary' ?>">
@@ -381,11 +380,11 @@ $status_looks = [
                                         <div class="small text-body-secondary">Took <?= escapeHtml($took($job['last_duration'])) ?></div>
                                     <?php } ?>
                                 <?php } else { ?>
-                                    <span class="text-body-secondary">&mdash;</span>
+                                    <span class="text-body-secondary">-</span>
                                 <?php } ?>
                             </td>
                             <td class="border-bottom-0 pt-3 pb-1">
-                                <span class="badge bg-<?= $look['tone'] ?>-subtle text-<?= $look['tone'] ?>-emphasis"><?php if ($job['state'] === 'running') { ?><i class="fas fa-circle-notch fa-spin me-1"></i><?php } ?><?= escapeHtml($look['label']) ?></span>
+                                <span class="badge rounded-pill bg-<?= $look['tone'] ?>-subtle text-<?= $look['tone'] ?>-emphasis"><?php if ($job['state'] === 'running') { ?><i class="fas fa-circle-notch fa-spin me-1"></i><?php } ?><?= escapeHtml($look['label']) ?></span>
                             </td>
                             <td class="border-bottom-0 pt-3 pb-1 text-end pe-3">
                                 <?php if ($job['id']) { ?>
@@ -396,24 +395,24 @@ $status_looks = [
                                                 <span class="dropdown-item disabled"><i class="fas fa-fw fa-play me-2"></i><?= $job['state'] === 'queued' ? 'Queued to run' : 'Running now' ?></span>
                                             <?php } else { ?>
                                                 <a class="dropdown-item" href="post.php?run_cron_job=<?= $job['id'] ?>&amp;csrf_token=<?= $csrf ?>" data-cron-run>
-                                                    <i class="fas fa-fw fa-play text-secondary me-2"></i>Run now
+                                                    <i class="fas fa-fw fa-play text-secondary me-2"></i>Run Now
                                                 </a>
                                             <?php } ?>
                                             <button class="dropdown-item ajax-modal" type="button" data-modal-url="modals/cron/cron_edit.php?id=<?= $job['id'] ?>" data-cron-edit>
-                                                <i class="fas fa-fw fa-clock text-secondary me-2"></i>Change the schedule
+                                                <i class="fas fa-fw fa-clock text-secondary me-2"></i>Change the Schedule
                                             </button>
                                             <button type="button" class="dropdown-item clipboardjs" data-clipboard-text="<?= escapeHtml($by_hand($job['script'])) ?>" title="For running it yourself on the server, where it shows what it does as it goes">
-                                                <i class="fas fa-fw fa-terminal text-secondary me-2"></i>Copy the command to run it
+                                                <i class="fas fa-fw fa-terminal text-secondary me-2"></i>Copy the Command to Run It
                                             </button>
                                             <div class="dropdown-divider"></div>
                                             <?php if ($job['enabled']) { ?>
                                                 <a class="dropdown-item text-danger confirm-link" href="post.php?disable_cron_job=<?= $job['id'] ?>&amp;csrf_token=<?= $csrf ?>" data-cron-off
                                                     data-confirm-title="Turn <?= escapeHtml($job['label']) ?> off?" data-confirm-text="It stops running on its schedule until it's turned back on. Run now still works." data-confirm-button="Turn it off">
-                                                    <i class="fas fa-fw fa-power-off me-2"></i>Turn off
+                                                    <i class="fas fa-fw fa-power-off me-2"></i>Turn Off
                                                 </a>
                                             <?php } else { ?>
                                                 <a class="dropdown-item" href="post.php?enable_cron_job=<?= $job['id'] ?>&amp;csrf_token=<?= $csrf ?>" data-cron-on>
-                                                    <i class="fas fa-fw fa-power-off text-secondary me-2"></i>Turn on
+                                                    <i class="fas fa-fw fa-power-off text-secondary me-2"></i>Turn On
                                                 </a>
                                             <?php } ?>
                                         </div>
@@ -458,7 +457,7 @@ $status_looks = [
                 </table>
             </div>
             <div class="card-footer small text-body-secondary">
-                <strong>Run now</strong> doesn't run a job in your browser - cron picks it up within a minute, and this page shows how it went. What each job did is in <a href="app_logs.php">App Logs</a>.
+                <strong>Run Now</strong> doesn't run a job in your browser - cron picks it up within a minute, and this page shows how it went. What each job did is in <a href="app_logs.php">App Logs</a>.
             </div>
         </div>
 
@@ -503,11 +502,70 @@ $status_looks = [
                     <span class="text-body-secondary">Times are in</span>
                     <span class="text-end">
                         <a href="settings_localization.php" class="fw-semibold"><?= escapeHtml($session_timezone) ?></a>
-                        <span class="d-block text-body-secondary"><?= date('H:i') ?> now</span>
+                        <span class="d-block text-body-secondary"><?= date('g:i A') ?> now</span>
                     </span>
                 </li>
             </ul>
         </div>
+
+        <?php if (cronHealthReady()) {
+            $alert_settings = cronHealthSettings();
+            $alert_to = (string) ($alert_settings['config_cron_alert_to'] ?? '');
+            $alert_admins = $alert_to === '' ? cronHealthRecipients('') : [];
+            $health_url = cronHealthUrl();
+            $watch_on = !empty($jobs['cron_watch']['enabled']); ?>
+        <!-- Alerts: the Cron Watch job's emails and the health address (functions/cron_health.php) -->
+        <div class="card mb-3" data-cron-alerts>
+            <div class="card-header py-3">
+                <h3 class="card-title"><i class="fas fa-fw fa-bell me-2"></i>Alerts</h3>
+            </div>
+            <div class="card-body small">
+                <p class="text-body-secondary">
+                    When a job fails, gets stuck or falls behind, the Cron Watch job emails about it - when it starts, once a day while it lasts, and when it's fixed.
+                </p>
+                <?php if (!$watch_on) { ?>
+                    <p class="text-warning-emphasis" data-cron-watch-off><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Cron Watch is off, so no alerts are emailed - turn it on in Jobs.</p>
+                <?php } elseif (!emailReady()) { ?>
+                    <p class="text-warning-emphasis" data-cron-alerts-no-mail><i class="fas fa-fw fa-exclamation-triangle me-1"></i>No mail server is set up, so no alerts are emailed - <a href="settings_mail.php">Settings &gt; Mail</a>.</p>
+                <?php } ?>
+                <form action="post.php" method="post" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" role="switch" id="cronAlertEmail" name="cron_alert_email" value="1" <?= intval($alert_settings['config_cron_alert_email'] ?? 1) === 1 ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="cronAlertEmail">Email alerts</label>
+                    </div>
+                    <label class="form-label" for="cronAlertTo">Send to</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
+                        <input type="text" class="form-control" id="cronAlertTo" name="cron_alert_to" maxlength="500" placeholder="Every active admin" value="<?= escapeHtml($alert_to) ?>">
+                    </div>
+                    <div class="form-text">
+                        Email addresses, with commas between. Left empty, they go to every active admin<?= $alert_admins ? ' - ' . escapeHtml(implode(', ', array_keys($alert_admins))) : '' ?>.
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <button type="submit" name="edit_cron_alerts" class="btn btn-sm btn-primary"><i class="fas fa-fw fa-check me-1"></i>Save</button>
+                        <button type="submit" name="test_cron_alert" class="btn btn-sm btn-light border"><i class="fas fa-fw fa-paper-plane me-1"></i>Send a Test</button>
+                    </div>
+                </form>
+                <hr>
+                <h4 class="h6"><i class="fas fa-fw fa-satellite-dish me-2"></i>Uptime monitor</h4>
+                <p class="text-body-secondary">
+                    An email can't say cron has stopped - it's cron that sends it. Point an uptime monitor (Uptime Kuma, UptimeRobot...) at this address every 5 minutes:
+                    it answers <code>OK</code> while all is well, and an error (HTTP 503) when cron isn't running or a job is in trouble. Keep it private - it shows which jobs are failing.
+                </p>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
+                    <input type="text" class="form-control font-monospace" value="<?= escapeHtml($health_url) ?>" readonly aria-label="Health address" data-cron-health-url>
+                    <button type="button" class="btn btn-light border clipboardjs" title="Copy" data-clipboard-text="<?= escapeHtml($health_url) ?>"><i class="far fa-fw fa-copy"></i></button>
+                    <a class="btn btn-light border text-danger confirm-link" href="post.php?renew_cron_health_key=1&amp;csrf_token=<?= $csrf ?>" title="Make a new address"
+                        data-confirm-title="Make a new health address?" data-confirm-text="The old address stops working - give your uptime monitor the new one." data-confirm-button="Make a new one">
+                        <i class="fas fa-fw fa-sync-alt"></i>
+                    </a>
+                </div>
+                <div class="form-text">Or send the key in an <code>X-Health-Key</code> header to <code>/health.php</code>, which keeps it out of the web server's log.</div>
+            </div>
+        </div>
+        <?php } ?>
 
         <?php if ($cron_heard) { // not running, the card at the top has the line ?>
         <!-- The one crontab line everything on this page runs from -->
@@ -533,7 +591,7 @@ $status_looks = [
                 <p class="text-body-secondary">Stops every job at once, without touching their schedules. It's for a restored backup or a test copy, which would otherwise email your clients and charge their cards. Turning it back on picks up exactly where this leaves off.</p>
                 <a class="btn btn-sm btn-light border text-danger confirm-link" href="post.php?disable_cron=1&amp;csrf_token=<?= $csrf ?>" data-cron-switch="off"
                     data-confirm-title="Turn cron off?" data-confirm-text="No email is sent, no email becomes a ticket, and nothing is invoiced or backed up until it's turned back on." data-confirm-button="Turn it off">
-                    <i class="fas fa-fw fa-power-off me-2"></i>Turn cron off
+                    <i class="fas fa-fw fa-power-off me-2"></i>Turn Cron Off
                 </a>
             </div>
         </div>

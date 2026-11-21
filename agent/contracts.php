@@ -117,10 +117,6 @@ $filter_url = function ($changes) {
     unset($params['page']);
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null; }));
 };
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $add_url = 'modals/contract/contract_add.php' . ($client_url ? "?client_id=$client_id" : '');
 $csrf = $_SESSION['csrf_token'];
 
@@ -159,7 +155,7 @@ $csrf = $_SESSION['csrf_token'];
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-contract me-2"></i>Contracts</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-file-contract me-2"></i>Contracts</h3>
         <div class="card-tools">
             <?php if ($can_edit) { ?>
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= escapeHtml($add_url) ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Contract</span></button>
@@ -177,7 +173,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="<?= $client_url ? 'col-lg-8' : 'col-lg-6' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search contracts..." title="Name, client, support hours or notes">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">
@@ -191,7 +187,7 @@ $csrf = $_SESSION['csrf_token'];
                 <?php if (!$client_url) { ?>
                     <div class="col-lg-3 col-md-6">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
-                            <option value="">- All Clients -</option>
+                            <option value="">- Any client -</option>
                             <?php
                             if (contractsReady()) {
                                 $sql_clients_filter = mysqli_query($mysqli, "SELECT DISTINCT client_id, client_name, client_abbreviation FROM clients
@@ -221,13 +217,13 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="<?= $num_rows[0] ? '' : 'd-none' ?> text-nowrap table-light">
             <tr>
-                <th class="ps-3"><?= $sort_link('contract_name', 'Contract') ?></th>
+                <th class="ps-3"><?= sortLink('contract_name', 'Contract') ?></th>
                 <?php if (!$client_url) { ?>
-                    <th><?= $sort_link('client_name', 'Client') ?></th>
+                    <th><?= sortLink('client_name', 'Client') ?></th>
                 <?php } ?>
-                <th class="d-none d-md-table-cell"><?= $sort_link('contract_start_date', 'Term') ?></th>
-                <th><?= $sort_link('contract_end_date', 'Renewal') ?></th>
-                <th class="d-none d-xl-table-cell"><?= $sort_link('owner_name', 'Owner') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('contract_start_date', 'Term') ?></th>
+                <th><?= sortLink('contract_end_date', 'Renewal') ?></th>
+                <th class="d-none d-xl-table-cell"><?= sortLink('owner_name', 'Owner') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -263,7 +259,7 @@ $csrf = $_SESSION['csrf_token'];
                         </div>
                     </td>
                     <?php if (!$client_url) { ?>
-                        <td><a class="text-reset" href="contracts.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                        <td><a data-client-card="<?= $row_client_id ?>" class="text-reset" href="contracts.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                     <?php } ?>
                     <td class="d-none d-md-table-cell text-nowrap small">
                         <?php if ($row['contract_start_date']) { ?>
@@ -297,7 +293,7 @@ $csrf = $_SESSION['csrf_token'];
                                     <?php if (isset($delete_blocked[$contract_id])) { ?>
                                         <div class="dropdown-item-text small text-body-secondary text-wrap" style="max-width: 18rem;" data-delete-blocked><i class="fas fa-fw fa-lock me-1"></i>Can't be deleted. <?= escapeHtml($delete_blocked[$contract_id]) ?></div>
                                     <?php } else { ?>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contract=<?= $contract_id ?>&csrf_token=<?= $csrf ?>"
+                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_contract=<?= $contract_id ?>&csrf_token=<?= $csrf ?>"
                                             data-confirm-title="Delete <?= escapeHtml($row['contract_name']) ?>?" data-confirm-text="<?= escapeHtml(contractDeleteWarning($row)) ?>" data-confirm-button="Delete">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>

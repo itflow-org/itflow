@@ -31,7 +31,7 @@
 
     function niceDate(ymd) {
         const d = new Date(ymd + 'T00:00:00Z');
-        return isNaN(d) ? ymd : d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+        return isNaN(d) ? ymd : d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
     }
 
     document.querySelectorAll('[data-contract-form]:not([data-wired])').forEach(function (form) {

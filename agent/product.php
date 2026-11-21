@@ -118,7 +118,7 @@ if (!$product) {
                 <h1 class="h4 fw-semibold mb-1 d-flex flex-wrap align-items-center gap-2">
                     <span><?= escapeHtml($product['product_name']) ?></span>
                     <span class="badge rounded-pill text-bg-light border fw-normal fs-6"><?= $type_info['label'] ?></span>
-                    <?php if ($archived_at) { ?><span class="badge rounded-pill text-bg-secondary fw-normal fs-6" title="<?= escapeHtml($archived_at) ?>">Archived</span><?php } ?>
+                    <?php if ($archived_at) { ?><span class="badge rounded-pill text-bg-secondary fw-normal fs-6" title="<?= formatDateTime($archived_at) ?>">Archived</span><?php } ?>
                 </h1>
                 <div class="text-body-secondary small d-flex flex-wrap column-gap-3 row-gap-1">
                     <?php if ($product['product_code']) { ?><span title="Your code"><i class="fas fa-fw fa-barcode me-1"></i><span class="font-monospace"><?= escapeHtml($product['product_code']) ?></span></span><?php } ?>
@@ -128,6 +128,12 @@ if (!$product) {
                 </div>
             </div>
 
+            <?php if (poLevel() >= 2 && $type === 'product' && !$archived_at) { ?>
+                <!-- Onto Purchasing's To Order (functions/purchase_orders.php) -->
+                <button type="button" class="btn btn-outline-primary ajax-modal d-print-none" data-modal-url="modals/purchasing/order_item.php?product_id=<?= $product_id ?>" title="Put it on To Order">
+                    <i class="fas fa-cart-plus me-2"></i><?= $needs_reorder ? 'Order More' : 'Order' ?>
+                </button>
+            <?php } ?>
             <?php if ($can_edit) { ?>
                 <div class="d-flex flex-wrap gap-2 d-print-none">
                     <?php if ($tracked && !$archived_at) { ?>
@@ -138,7 +144,7 @@ if (!$product) {
                             <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More stock actions"></button>
                             <div class="dropdown-menu dropdown-menu-end">
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $stock_url('count') ?>"><i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Count</a>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $stock_url('write_off') ?>"><i class="fas fa-fw fa-minus-circle text-secondary me-2"></i>Write off</a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $stock_url('write_off') ?>"><i class="fas fa-fw fa-minus-circle text-secondary me-2"></i>Write Off</a>
                             </div>
                         </div>
                     <?php } ?>
@@ -151,7 +157,7 @@ if (!$product) {
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="post.php?copy_product=<?= $product_id ?>&csrf_token=<?= $csrf ?>">
-                                <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                             </a>
                             <div class="dropdown-divider"></div>
                             <?php if ($archived_at) { ?>
@@ -159,14 +165,13 @@ if (!$product) {
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                                 <?php if ($can_delete) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_product=<?= $product_id ?>&csrf_token=<?= $csrf ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_product=<?= $product_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-text="<?= escapeHtml($product['product_name']) ?> goes for good, with its stock. Lines it is on keep their text and amounts.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
                                 <?php } ?>
                             <?php } else { ?>
-                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_product=<?= $product_id ?>&csrf_token=<?= $csrf ?>"
-                                    data-confirm-text="<?= escapeHtml($product['product_name']) ?> stops being offered on new lines. Lines it is already on stay.">
+                                <a class="dropdown-item text-danger" href="post.php?archive_product=<?= $product_id ?>&csrf_token=<?= $csrf ?>">
                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                 </a>
                             <?php } ?>
@@ -294,7 +299,7 @@ if (!$product) {
                                 <span class="text-body-secondary">Not set</span>
                             <?php } ?>
                         </dd>
-                        <dt>Added</dt><dd title="<?= escapeHtml($product['product_created_at']) ?>"><?= timeAgo($product['product_created_at']) ?></dd>
+                        <dt>Added</dt><dd title="<?= formatDateTime($product['product_created_at']) ?>"><?= timeAgo($product['product_created_at']) ?></dd>
                     </dl>
                 </div>
             </div>
@@ -327,7 +332,7 @@ if (!$product) {
                             <div class="card-footer d-flex flex-wrap gap-2 d-print-none">
                                 <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-url="<?= $stock_url('receive') ?>"><i class="fas fa-dolly me-1"></i>Receive</button>
                                 <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $stock_url('count') ?>"><i class="fas fa-clipboard-check me-1"></i>Count</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $stock_url('write_off') ?>"><i class="fas fa-minus-circle me-1"></i>Write off</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $stock_url('write_off') ?>"><i class="fas fa-minus-circle me-1"></i>Write Off</button>
                             </div>
                         <?php } ?>
                     <?php } else { ?>
@@ -347,7 +352,7 @@ if (!$product) {
                     <?php if ($asset_type !== '') { ?>
                         <div class="card-body">
                             <dl class="itflow-asset-dl mb-0">
-                                <dt>Becomes</dt><dd><i class="fas fa-fw <?= escapeHtml(productAssetTypes()[$asset_type] ?? 'fa-tag') ?> text-secondary me-1"></i><?= escapeHtml($asset_type) ?></dd>
+                                <dt>Becomes</dt><dd><i class="fas fa-fw <?= escapeHtml(assetTypeInfo($asset_type)['icon']) ?> text-secondary me-1"></i><?= escapeHtml($asset_type) ?></dd>
                                 <dt>Make</dt><dd><?= $product['product_make'] ? escapeHtml($product['product_make']) : '<span class="text-body-secondary">Not set</span>' ?></dd>
                                 <dt>Model</dt><dd><?= $product['product_model'] ? escapeHtml($product['product_model']) : '<span class="text-body-secondary">Not set</span>' ?></dd>
                                 <dt>Warranty</dt><dd><?= $warranty_months ? $warranty_months . ' month' . ($warranty_months === 1 ? '' : 's') . ' <span class="small text-body-secondary">from the invoice date</span>' : '<span class="text-body-secondary">Not set</span>' ?></dd>
@@ -400,7 +405,7 @@ if (!$product) {
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link text-nowrap <?= $tab['count'] ? '' : 'is-empty' ?>" id="product-tab-<?= $tab_key ?>" data-bs-toggle="pill" data-bs-target="#product-pane-<?= $tab_key ?>" data-product-tab="<?= $tab_key ?>" type="button" role="tab">
                                     <i class="fas fa-fw <?= $tab['icon'] ?> me-1 d-none d-xxl-inline"></i><?= $tab['label'] ?>
-                                    <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                                    <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                                 </button>
                             </li>
                         <?php } ?>
@@ -428,7 +433,7 @@ if (!$product) {
                                             <td class="text-end"><?= escapeHtml(billingQuantity($row['qty'])) ?></td>
                                             <td class="text-end itflow-money"><?= escapeHtml(billingMoney($row['amount'], $row['recurring_invoice_currency_code'])) ?></td>
                                             <td class="text-end itflow-money fw-semibold"><?= escapeHtml(billingMoney($row['monthly'], $row['recurring_invoice_currency_code'])) ?></td>
-                                            <td class="d-none d-md-table-cell text-nowrap small"><?= escapeHtml($row['recurring_invoice_next_date']) ?></td>
+                                            <td class="d-none d-md-table-cell text-nowrap small"><?= formatDate($row['recurring_invoice_next_date']) ?></td>
                                         </tr>
                                     <?php } ?>
                                     </tbody>
@@ -452,7 +457,7 @@ if (!$product) {
                                         <tr>
                                             <td class="text-nowrap"><a class="fw-semibold" href="quote.php?quote_id=<?= intval($row['quote_id']) ?>"><?= escapeHtml($row['quote_prefix'] . $row['quote_number']) ?></a></td>
                                             <td><a class="text-reset" href="quotes.php?client_id=<?= intval($row['client_id']) ?>"><?= escapeHtml($row['client_name']) ?></a></td>
-                                            <td class="d-none d-md-table-cell text-nowrap small"><?= escapeHtml($row['quote_date']) ?></td>
+                                            <td class="d-none d-md-table-cell text-nowrap small"><?= formatDate($row['quote_date']) ?></td>
                                             <td class="text-end"><?= escapeHtml(billingQuantity($row['qty'])) ?></td>
                                             <td class="text-end itflow-money"><?= escapeHtml(billingMoney($row['amount'], $row['quote_currency_code'])) ?><?= $row['frequency'] ? '<div class="small text-body-secondary">a ' . escapeHtml(recurringInvoicePeriodWord($row['frequency'])) . '</div>' : '' ?></td>
                                             <td><?= quoteStatusBadge($row) ?></td>
@@ -479,7 +484,7 @@ if (!$product) {
                                         <tr>
                                             <td class="text-nowrap"><a class="fw-semibold" href="invoice.php?invoice_id=<?= intval($row['invoice_id']) ?>"><?= escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?></a></td>
                                             <td><a class="text-reset" href="invoices.php?client_id=<?= intval($row['client_id']) ?>"><?= escapeHtml($row['client_name']) ?></a></td>
-                                            <td class="d-none d-md-table-cell text-nowrap small"><?= escapeHtml($row['invoice_date']) ?></td>
+                                            <td class="d-none d-md-table-cell text-nowrap small"><?= formatDate($row['invoice_date']) ?></td>
                                             <td class="text-end"><?= escapeHtml(billingQuantity($row['item_quantity'])) ?></td>
                                             <td class="text-end itflow-money d-none d-sm-table-cell"><?= escapeHtml(billingMoney($row['item_price'], $row['invoice_currency_code'])) ?></td>
                                             <td class="text-end itflow-money fw-semibold"><?= escapeHtml(billingMoney($row['item_subtotal'], $row['invoice_currency_code'])) ?></td>
@@ -532,9 +537,9 @@ if (!$product) {
                                             <td class="d-none d-sm-table-cell text-nowrap small">
                                                 <?php if ($row['invoice_id'] !== null) { ?>
                                                     <a href="invoice.php?invoice_id=<?= intval($row['invoice_id']) ?>"><?= escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?></a>
-                                                    <div class="text-body-secondary"><?= escapeHtml($row['invoice_date']) ?></div>
+                                                    <div class="text-body-secondary"><?= formatDate($row['invoice_date']) ?></div>
                                                 <?php } else { ?>
-                                                    <span class="text-body-secondary"><?= $row['asset_purchase_date'] ? escapeHtml($row['asset_purchase_date']) : '-' ?></span>
+                                                    <span class="text-body-secondary"><?= $row['asset_purchase_date'] ? formatDate($row['asset_purchase_date']) : '-' ?></span>
                                                 <?php } ?>
                                             </td>
                                         </tr>
@@ -566,7 +571,7 @@ if (!$product) {
                                         $move_type = $stock_types[$move['stock_type']] ?? $stock_types['adjusted'];
                                         $qty = floatval($move['stock_qty']); ?>
                                         <tr>
-                                            <td class="text-nowrap small" title="<?= escapeHtml($move['stock_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($move['stock_created_at']))) ?></td>
+                                            <td class="text-nowrap small" title="<?= formatDateTime($move['stock_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($move['stock_created_at']))) ?></td>
                                             <td class="text-nowrap"><span class="badge rounded-pill bg-<?= $move_type['tone'] ?>-subtle text-<?= $move_type['tone'] ?>-emphasis fw-normal"><i class="fas <?= $move_type['icon'] ?> me-1"></i><?= $move_type['label'] ?></span></td>
                                             <td class="text-end fw-semibold text-nowrap <?= $qty < 0 ? 'text-danger-emphasis' : 'text-success-emphasis' ?>"><?= escapeHtml(productStockQty($qty)) ?></td>
                                             <td class="text-end text-nowrap"><?= escapeHtml(billingQuantity($move['balance'])) ?></td>
@@ -613,7 +618,7 @@ if (!$product) {
                                         $price_moved = round($price_new - $price_old, 2);
                                         $cost_moved = round(floatval($price_row['price_cost_new']) - floatval($price_row['price_cost_old']), 2); ?>
                                         <tr>
-                                            <td class="text-nowrap small" title="<?= escapeHtml($price_row['price_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($price_row['price_created_at']))) ?></td>
+                                            <td class="text-nowrap small" title="<?= formatDateTime($price_row['price_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($price_row['price_created_at']))) ?></td>
                                             <td class="text-end text-nowrap">
                                                 <?php if ($price_moved != 0) { ?>
                                                     <span class="text-body-secondary small"><?= $money($price_old) ?> &rarr;</span> <span class="fw-semibold"><?= $money($price_new) ?></span>

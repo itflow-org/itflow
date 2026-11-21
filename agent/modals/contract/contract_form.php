@@ -29,7 +29,7 @@ $c_start = $c_new ? date('Y-m-d') : (string) $c_value('start_date');
 $c_term = intval($c_value('term_months', 12));
 $c_end = $c_new ? contractTermEnd($c_start, $c_term) : (string) $c_value('end_date');
 $c_money = function ($value) {
-    return $value === '' || $value === null ? '' : number_format((float) $value, 2, '.', '');
+    return $value === '' || $value === null ? '' : number_format(floatval($value), 2, '.', '');
 };
 $c_hours = function ($value) {
     return floatval($value) > 0 ? rtrim(rtrim(number_format(floatval($value), 2, '.', ''), '0'), '.') : '';
@@ -39,7 +39,7 @@ $c_hours = function ($value) {
 // from the contracts page) there are none here - they are fetched when one is picked (js/contract_form.js)
 $c_clients = [];
 $c_contacts = [];
-$client_where = $c_client_id ? "client_id = $c_client_id" : "client_archived_at IS NULL " . clientScopeSql('clients.client_id');
+$client_where = $c_client_id ? "client_id = $c_client_id" : "client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id');
 $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE $client_where ORDER BY client_name ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
     $c_clients[intval($row['client_id'])] = $row;
@@ -63,7 +63,7 @@ if ($c_new && !$c_contact_id && $c_client_id) {
 }
 $c_owner_id = intval($c_value('owner_id', $c_new ? ($session_user_id ?? 0) : 0));
 $c_owners = [];
-$sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND (user_archived_at IS NULL OR user_id = $c_owner_id) ORDER BY user_name ASC");
+$sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND (user_archived_at IS NULL OR user_id = $c_owner_id) ORDER BY user_name ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
     $c_owners[intval($row['user_id'])] = $row;
 }
@@ -106,7 +106,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                 <div class="mb-3">
                     <label class="form-label">Start from a template</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-clone"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-clone"></i></span>
                         <select class="form-select select2" name="template_id" data-contract-template>
                             <option value="0">- None -</option>
                             <?php foreach ($c_templates as $template_id => $template) {
@@ -115,14 +115,14 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                             <?php } ?>
                         </select>
                     </div>
-                    <small class="text-secondary">Fills in the type, term, cover and terms from it - change any of them after.</small>
+                    <div class="form-text">Fills in the type, term, cover and terms from it - change any of them after.</div>
                 </div>
             <?php } else { ?>
                 <input type="hidden" name="template_id" value="<?= intval($c_value('template_id', 0)) ?>">
                 <?php if ($c_new && !empty($session_is_admin)) { ?>
                     <p class="small text-secondary" data-contract-no-templates>
                         <i class="fas fa-fw fa-clone me-1"></i>No contract templates yet - a template fills in the type, term, cover and terms of a new contract.
-                        <a href="/admin/contract_templates.php">Make one in Admin &gt; Contract Templates</a>
+                        <a href="/admin/contract_templates.php">Make one in Admin &gt; Templates &gt; Contracts</a>
                     </p>
                 <?php } ?>
             <?php } ?>
@@ -131,9 +131,9 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                 <div class="mb-3">
                     <label class="form-label">Client <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                         <select class="form-select select2" name="client_id" required data-contract-client>
-                            <option value="">- Pick a client -</option>
+                            <option value="">- Select a client -</option>
                             <?php foreach ($c_clients as $client_option_id => $client_option) { ?>
                                 <option value="<?= $client_option_id ?>"<?= selectOptionClient($client_option_id, $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                             <?php } ?>
@@ -148,14 +148,14 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                 <div class="col-md-7">
                     <label class="form-label">Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                         <input type="text" class="form-control" name="name" maxlength="255" placeholder="Managed Services Agreement" value="<?= escapeHtml($form_copy ? $c_value('name') . ' (copy)' : $c_value('name')) ?>" required<?= $c_new ? ' autofocus' : '' ?> data-contract-field="name">
                     </div>
                 </div>
                 <div class="col-md-5">
                     <label class="form-label">Type</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                         <select class="form-select select2" name="type" data-contract-field="type">
                             <?php foreach (CONTRACT_TYPES as $key => $type) { ?>
                                 <option value="<?= $key ?>"<?= $c_value('type', 'managed') === $key ? ' selected' : '' ?><?= selectOptionData(['description' => $type['about']]) ?>><?= escapeHtml($type['label']) ?></option>
@@ -169,7 +169,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                 <div class="col-md-6">
                     <label class="form-label">Contact at the client</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-address-card"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-address-card"></i></span>
                         <select class="form-select select2" name="contact_id" data-contract-contact>
                             <option value="0">- None -</option>
                             <?php foreach ($c_contacts as $contact) { ?>
@@ -181,15 +181,15 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                 <div class="col-md-6">
                     <label class="form-label">Owner</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user-tie"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
                         <select class="form-select select2" name="owner_id">
-                            <option value="0">- No one -</option>
+                            <option value="0">- Nobody -</option>
                             <?php foreach ($c_owners as $user_id => $owner) { ?>
                                 <option value="<?= $user_id ?>"<?= $user_id === $c_owner_id ? ' selected' : '' ?><?= selectOptionUser($user_id, $owner['user_name'], $owner['user_avatar'] ?? '') ?>><?= escapeHtml($owner['user_name']) ?></option>
                             <?php } ?>
                         </select>
                     </div>
-                    <small class="text-secondary">Reminded before it renews or ends.</small>
+                    <div class="form-text">Reminded before it renews or ends.</div>
                 </div>
             </div>
 
@@ -197,7 +197,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                 <div class="mb-3">
                     <label class="form-label">Status</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-flag"></i></span>
                         <select class="form-select select2" name="status">
                             <option value="Active">Active - in force from its start date</option>
                             <option value="Draft">Draft - not in force yet</option>
@@ -210,14 +210,14 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                 <div class="col-md-4">
                     <label class="form-label">Starts</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                         <input type="date" class="form-control" name="start_date" value="<?= escapeHtml($c_start) ?>" data-contract-start>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Term</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-history"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-history"></i></span>
                         <select class="form-select select2" name="term_months" data-contract-field="term_months" data-contract-term>
                             <?php $terms = CONTRACT_TERMS + ($c_term && !isset(CONTRACT_TERMS[$c_term]) ? [$c_term => contractTermLabel($c_term)] : []);
                             ksort($terms);
@@ -230,7 +230,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                 <div class="col-md-4">
                     <label class="form-label">Ends</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
                         <input type="date" class="form-control" name="end_date" value="<?= escapeHtml($c_end) ?>" data-contract-end<?= $c_new ? '' : ' data-touched="1"' ?>>
                     </div>
                 </div>
@@ -246,7 +246,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                 <div class="col-md-6">
                     <label class="form-label">Notice to end it</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-bell"></i></span>
                         <input type="number" class="form-control" name="notice_days" min="0" max="365" value="<?= intval($c_value('notice_days', 30)) ?>" data-contract-field="notice_days">
                         <span class="input-group-text">days</span>
                     </div>
@@ -259,7 +259,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
             <div class="mb-3">
                 <label class="form-label">Support hours</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-business-time"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-business-time"></i></span>
                     <input type="text" class="form-control" name="support_hours" maxlength="100" placeholder="Mon-Fri 8am-6pm, emergencies 24/7" value="<?= escapeHtml($c_value('support_hours')) ?>" data-contract-field="support_hours">
                 </div>
             </div>
@@ -268,7 +268,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     <div class="col-md-6">
                         <label class="form-label">Hours included each month</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-hourglass-half"></i></span>
                             <input type="text" inputmode="decimal" class="form-control" name="monthly_hours" placeholder="None" value="<?= escapeHtml($c_hours($c_value('monthly_hours', 0))) ?>" data-contract-field="monthly_hours">
                             <span class="input-group-text">hours</span>
                         </div>
@@ -276,7 +276,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     <div class="col-md-6">
                         <label class="form-label">Tell the owner under</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-bell"></i></span>
                             <input type="text" inputmode="decimal" class="form-control" name="hours_alert" placeholder="Don't tell" value="<?= escapeHtml($c_hours($c_value('hours_alert', 0))) ?>" data-contract-field="hours_alert">
                             <span class="input-group-text">hours left</span>
                         </div>
@@ -288,32 +288,32 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                 <div class="col-md-4">
                     <label class="form-label">Hourly rate</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                         <input type="text" inputmode="decimal" class="form-control" name="rate_standard" placeholder="<?= escapeHtml($c_hints['rate']) ?>" value="<?= escapeHtml($c_money($c_value('rate_standard', ''))) ?>" data-contract-field="rate_standard">
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">After hours</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-moon"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-moon"></i></span>
                         <input type="text" inputmode="decimal" class="form-control" name="rate_after_hours" placeholder="<?= escapeHtml($c_hints['after_hours']) ?>" value="<?= escapeHtml($c_money($c_value('rate_after_hours', ''))) ?>" data-contract-field="rate_after_hours">
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Net terms</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                         <input type="number" class="form-control" name="net_terms" min="0" max="365" placeholder="<?= escapeHtml($c_hints['net_terms']) ?>" value="<?= escapeHtml((string) $c_value('net_terms', '')) ?>" data-contract-field="net_terms">
                         <span class="input-group-text">days</span>
                     </div>
                 </div>
             </div>
-            <small class="text-secondary d-block mb-3">While the contract is in force, time bills at these rates - the after-hours one for tickets opened outside business hours - and new invoices are due on these terms. Leave one empty and the default in Admin > Settings > Defaults applies.</small>
+            <small class="text-secondary d-block mb-3">While the contract is in force, time bills at these rates - the after-hours one for tickets opened outside business hours - and new invoices are due on these terms. Leave one empty and the default in Admin > Settings > Defaults applies - a rate of 0 bills that time at nothing.</small>
 
             <label class="form-label">SLA by ticket priority</label>
             <?php foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) { ?>
                 <div class="input-group mb-2">
-                    <span class="input-group-text" style="width: 7rem;"><i class="fa fa-fw fa-stopwatch me-2"></i><?= $priority ?></span>
+                    <span class="input-group-text" style="width: 7rem;"><i class="fas fa-fw fa-stopwatch me-2"></i><?= $priority ?></span>
                     <select class="form-select select2" name="sla_<?= $part ?>" data-contract-field="sla_<?= $part ?>" aria-label="<?= $priority ?> priority SLA">
                         <option value="0"><?= escapeHtml($c_hints['slas'][$priority]) ?></option>
                         <?php foreach ($c_slas as $sla_id => $sla) { ?>
@@ -322,7 +322,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     </select>
                 </div>
             <?php } ?>
-            <small class="text-secondary">From Admin > SLAs. While the contract is in force, the client's new tickets get them, and the default for a priority left on the default.</small>
+            <div class="form-text">From Admin > SLAs. While the contract is in force, the client's new tickets get them, and the default for a priority left on the default.</div>
         </div>
 
         <div class="tab-pane fade" id="<?= $tab ?>Terms" role="tabpanel">
@@ -332,10 +332,10 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
 
         <div class="tab-pane fade" id="<?= $tab ?>Notes" role="tabpanel">
             <div class="input-group">
-                <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-sticky-note"></i></span>
+                <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-sticky-note"></i></span>
                 <textarea class="form-control" name="notes" rows="8" maxlength="10000" placeholder="For your team - what was agreed, who to talk to about renewing"><?= escapeHtml($c_value('notes')) ?></textarea>
             </div>
-            <small class="text-secondary">Only agents see these.</small>
+            <div class="form-text">Only agents see these.</div>
         </div>
     </div>
 </div>

@@ -27,7 +27,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-paper-plane me-2"></i>Update & Reply <strong><?= $count ?></strong> ticket<?= $count === 1 ? '' : 's' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -37,7 +37,7 @@ ob_start();
 
     <div class="modal-body">
         <div class="input-group mb-3">
-                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
 
             <select class="form-select select2" name="bulk_status" required>
 
@@ -63,7 +63,7 @@ ob_start();
 
         <div class="col-3">
             <div class="mb-3">
-                <label>Time worked</label>
+                <label class="form-label">Time worked</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
                     <input class="form-control timepicker" id="time_worked" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="00:01:00" required/>
@@ -75,13 +75,13 @@ ob_start();
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="bulkPrivateReplyCheckbox" name="bulk_private_reply" value="1">
                 <label class="form-check-label" for="bulkPrivateReplyCheckbox">Mark as internal</label>
-                <small class="form-text text-muted">Only agents see it.</small>
+                <small class="form-text text-body-secondary">Only agents see it.</small>
             </div>
         </div>
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-paper-plane me-2"></i>Update & Reply</button>
+        <button type="submit" name="bulk_ticket_reply" class="btn btn-primary fw-bold"><i class="fas fa-paper-plane me-2"></i>Update & Reply</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

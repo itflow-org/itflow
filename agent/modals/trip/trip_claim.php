@@ -12,6 +12,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Trips switched off (Admin > Settings > Modules)
+if (!moduleOn('trips')) {
+    exit(json_encode(['error' => moduleOffText('trips')]));
+}
+
 enforceUserPermission('module_financial', 2);
 
 $user_id = intval($_GET['user_id'] ?? 0);
@@ -40,7 +45,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-car-side me-2"></i>Pay Mileage <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($driver['user_name']) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" id="tripClaim">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -68,7 +73,7 @@ ob_start();
                 <div class="col-md-6">
                     <label class="form-label">Rate <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                         <input type="text" class="form-control text-end" name="rate" inputmode="decimal" value="<?= $rules['rate'] > 0 ? rtrim(rtrim(number_format($rules['rate'], 4, '.', ''), '0'), '.') : '' ?>" required data-claim-rate>
                         <span class="input-group-text">a <?= tripUnitOne() ?></span>
                     </div>
@@ -77,7 +82,7 @@ ob_start();
                 <div class="col-md-6">
                     <label class="form-label">Date <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                         <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
                     </div>
                     <div class="form-text">Of the mileage expense - when it counts as spent.</div>
@@ -88,12 +93,15 @@ ob_start();
                         <label class="form-check-label" for="tripClaimPayNow">Pay it back now</label>
                     </div>
                 </div>
+                <?php if (!moduleOn('bookkeeping')) { // Bookkeeping off - out of the default account ?>
+                    <input type="hidden" name="account" value="<?= bookkeepingAccount('expense') ?>">
+                <?php } else { ?>
                 <div class="col-md-7" data-claim-pay hidden>
                     <label class="form-label">Paid back from <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                         <select class="form-select select2" name="account">
-                            <option value="">- Which account -</option>
+                            <option value="">- Select an account -</option>
                             <?php foreach ($accounts as $account_id => $account) { ?>
                                 <option value="<?= $account_id ?>" <?= $account_id === $default_account ? 'selected' : '' ?> data-icon="fas fa-piggy-bank"
                                     data-description="<?= escapeHtml(billingMoney($account['balance'], $account['account_currency_code'])) ?>"><?= escapeHtml($account['account_name']) ?></option>
@@ -101,12 +109,13 @@ ob_start();
                         </select>
                     </div>
                 </div>
+                <?php } ?>
                 <div class="col-md-5" data-claim-pay hidden>
                     <label class="form-label">How</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                         <select class="form-select select2" name="payment_method">
-                            <option value="">- How they were paid -</option>
+                            <option value="">- Select a payment method -</option>
                             <?php foreach ($methods as $method) { ?>
                                 <option value="<?= escapeHtml($method) ?>"><?= escapeHtml($method) ?></option>
                             <?php } ?>
@@ -116,7 +125,7 @@ ob_start();
                 <div class="col-12" data-claim-pay hidden>
                     <label class="form-label">Reference</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                         <input type="text" class="form-control" name="reference" maxlength="200" placeholder="Check or transfer number">
                     </div>
                 </div>
@@ -125,7 +134,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <span class="me-auto small text-body-secondary" data-claim-summary></span>
-        <button type="submit" name="trip_claim" class="btn btn-primary text-bold" data-claim-submit><i class="fas fa-check me-2"></i><span data-claim-submit-label>Pay Mileage</span></button>
+        <button type="submit" name="trip_claim" class="btn btn-primary fw-bold" data-claim-submit><i class="fas fa-check me-2"></i><span data-claim-submit-label>Pay Mileage</span></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

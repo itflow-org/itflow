@@ -53,7 +53,7 @@ $retention_field = function ($name, $forever_name, $days, $label, $help) {
         <div class="row g-2 align-items-center">
             <div class="col-sm-6 col-lg-4">
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-alt"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar-alt"></i></span>
                     <input type="number" class="form-control" id="<?= $id ?>" name="<?= $name ?>" min="1" max="36500" placeholder="Days" value="<?= $days > 0 ? $days : '' ?>" <?= $days > 0 ? 'required' : 'disabled' ?>>
                     <span class="input-group-text">days</span>
                 </div>
@@ -113,21 +113,21 @@ $retention_field = function ($name, $forever_name, $days, $label, $help) {
                     <div class="col-md-6" data-setting="config_log_forward_host" id="setting-config_log_forward_host">
                         <label class="form-label">Server</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-server"></i></span>
                             <input type="text" class="form-control" name="config_log_forward_host" maxlength="200" placeholder="logs.example.com or 10.0.0.20" value="<?= escapeHtml($forward['host']) ?>" pattern="\[?[A-Za-z0-9.:_\-]{1,200}\]?" title="A name or an IP address">
                         </div>
                     </div>
                     <div class="col-md-2 col-sm-4">
                         <label class="form-label">Port</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-plug"></i></span>
                             <input type="number" class="form-control" name="config_log_forward_port" min="1" max="65535" value="<?= intval($forward['port']) ?>" required>
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-8">
                         <label class="form-label">Over</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-exchange-alt"></i></span>
                             <select class="form-select select2" name="config_log_forward_protocol" id="logForwardProtocol">
                                 <?php foreach (LOG_FORWARD_PROTOCOLS as $key => $label) { ?>
                                     <option value="<?= $key ?>" <?= $forward['protocol'] === $key ? 'selected' : '' ?><?= selectOptionData(['description' => logForwardProtocolHelp()[$key]]) ?>><?= $label ?></option>
@@ -149,7 +149,7 @@ $retention_field = function ($name, $forever_name, $days, $label, $help) {
                     <div class="col-md-6">
                         <label class="form-label">As</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-code"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-code"></i></span>
                             <select class="form-select select2" name="config_log_forward_format" id="logForwardFormat">
                                 <?php foreach (LOG_FORWARD_FORMATS as $key => $label) { ?>
                                     <option value="<?= $key ?>" <?= $forward['format'] === $key ? 'selected' : '' ?><?= selectOptionData(['description' => logForwardFormatHelp()[$key]]) ?>><?= $label ?></option>
@@ -160,7 +160,7 @@ $retention_field = function ($name, $forever_name, $days, $label, $help) {
                     <div class="col-md-6">
                         <label class="form-label">App logs</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-clipboard-list"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-clipboard-list"></i></span>
                             <select class="form-select select2" name="config_log_forward_app_level">
                                 <?php foreach (logForwardAppLevels() as $key => $label) { ?>
                                     <option value="<?= $key ?>" <?= $forward['app_level'] === $key ? 'selected' : '' ?>><?= $label ?></option>
@@ -189,7 +189,7 @@ $retention_field = function ($name, $forever_name, $days, $label, $help) {
             </div>
             <?= settingsSectionEnd() ?>
 
-            <?= settingsSaveBar('edit_log_settings', 'Save', '<button type="submit" name="test_log_forward" class="btn btn-outline-secondary" title="Saves, then sends one test message to the server"><i class="fas fa-paper-plane me-2"></i>Save and send a test</button>') ?>
+            <?= settingsSaveBar('edit_log_settings', 'Save', '<button type="submit" name="test_log_forward" class="btn btn-outline-secondary" title="Saves, then sends one test message to the server"><i class="fas fa-paper-plane me-2"></i>Save and Send a Test</button>') ?>
         </div>
     </div>
 </form>

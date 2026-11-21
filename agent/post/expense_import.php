@@ -13,6 +13,13 @@
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
+// Bookkeeping switched off (Admin > Settings > Modules) - none of these until it's back on
+if (!moduleOn('bookkeeping') && (array_intersect(['expense_import_upload', 'expense_import_columns', 'expense_import_save'], array_keys($_POST))
+    || array_intersect(['expense_import_discard', 'expense_import_rule_delete', 'expense_import_from_statement'], array_keys($_GET)))) {
+    flashAlert(moduleOffText('bookkeeping'), 'error');
+    redirect();
+}
+
 if (isset($_POST['expense_import_upload'])) {
 
     validateCSRFToken();

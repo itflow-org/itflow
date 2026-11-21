@@ -33,6 +33,11 @@ echo settingsPageStart('ticket');
                 <?= settingsSwitch('config_ticket_email_parse', $config_ticket_email_parse) ?>
                 <div data-settings-depends-on="config_ticket_email_parse">
                     <?= settingsSwitch('config_ticket_email_parse_unknown_senders', $config_ticket_email_parse_unknown_senders, ['help' => 'From someone who isn\'t a contact, at a domain no client has - otherwise those are left in the mailbox, flagged and unread.']) ?>
+                    <?php // What an email from someone with some subject would become, without sending one (functions/ticket_mail_try.php) ?>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/ticket_mail/ticket_mail_try.php" data-ticket-mail-try><i class="fas fa-vial me-2"></i>Try an Email</button>
+                        <span class="small text-body-secondary">What an email from someone would become - a reply, a ticket, or left in the mailbox - and why. Uses the saved settings.</span>
+                    </div>
                 </div>
             <?= settingsSectionEnd() ?>
 
@@ -62,12 +67,59 @@ echo settingsPageStart('ticket');
                 <?php } ?>
             <?= settingsSectionEnd() ?>
 
+            <?php if (version_compare((string) CURRENT_DATABASE_VERSION, '4.0.9', '>=')) { ?>
+                <?= settingsSectionStart('assigning', 'Assigning', 'Who a ticket goes to when nobody has picked it up.') ?>
+                    <?= settingsSwitch('config_ticket_reply_assigns', ticketReplyAssigns() ? 1 : 0, ['help' => 'The agent who replies to a ticket nobody is assigned to - by email, by text or as a public note - is assigned it, as Assign to me would. An internal note doesn\'t assign it, so a ticket can be looked at, or someone @mentioned on it, without taking it. A ticket already assigned keeps its agent.']) ?>
+                <?= settingsSectionEnd() ?>
+            <?php } ?>
+
             <?= settingsSectionStart('time', 'Time and billing', 'How time on a ticket starts, and whether it bills.') ?>
                 <?= settingsSwitch('config_ticket_timer_autostart', $config_ticket_timer_autostart, ['help' => 'The timer runs from opening a ticket, rather than from pressing start.']) ?>
                 <?php if ($config_module_enable_accounting) { ?>
                     <?= settingsSwitch('config_ticket_default_billable', $config_ticket_default_billable, ['help' => 'A new ticket starts billable - each can be changed. How the time is billed is in <a href="settings_invoice.php#billing-time">Invoices and billing</a>.']) ?>
                 <?php } ?>
             <?= settingsSectionEnd() ?>
+
+            <?php if (quickTicketReady()) {
+                $quick = quickTicketSettings(); ?>
+                <?= settingsSectionStart('quick', 'Quick tickets', 'The <i class="fas fa-plus-circle"></i> in the top bar - the client, the contact and the issue, for a call or a walk-up. It shows the contact\'s tickets still open first, so the same problem isn\'t raised twice. These are what a quick ticket starts with.', 'quick') ?>
+                    <?= settingsSwitch('config_quick_ticket_on', $quick['on'] ? 1 : 0, ['help' => 'For everyone who can make tickets.']) ?>
+                    <div data-settings-depends-on="config_quick_ticket_on">
+                        <?= settingsSelect('config_quick_ticket_assign', $quick['assign'], quickTicketAssignChoices(), ['icon' => 'fa-user-check', 'search' => true,
+                            'help' => 'The window has an "Assign it to ..." switch, to change it for one ticket.']) ?>
+                        <?= settingsSelect('config_quick_ticket_status', $quick['status'], quickTicketStatusChoices(), ['icon' => 'fa-info-circle']) ?>
+                        <?= settingsSelect('config_quick_ticket_priority', $quick['priority'], ['Low' => 'Low', 'Medium' => 'Medium', 'High' => 'High', 'Urgent' => 'Urgent'], ['icon' => 'fa-thermometer-half',
+                            'help' => 'The window can change it for one ticket. Its SLA follows the priority, as any ticket\'s does.']) ?>
+                        <?= settingsSelect('config_quick_ticket_category', $quick['category'], [], ['icon' => 'fa-layer-group', 'search' => true,
+                            'options_html' => '<option value="0"' . ($quick['category'] ? '' : ' selected') . '>- Not categorized -</option>' . categoryOptionsHtml('Ticket', $quick['category'] ?: null)]) ?>
+                        <?php if ($config_module_enable_accounting) { ?>
+                            <?= settingsSelect('config_quick_ticket_billable', $quick['billable'], QUICK_TICKET_BILLABLE, ['icon' => 'fa-dollar-sign']) ?>
+                        <?php } ?>
+                        <?= settingsSelect('config_quick_ticket_timer', $quick['timer'], QUICK_TICKET_TIMER, ['icon' => 'fa-stopwatch',
+                            'help' => 'It runs on the ticket page, as a ticket\'s timer does, until the time goes on a reply.']) ?>
+                        <?= settingsSwitch('config_quick_ticket_primary', $quick['primary'] ? 1 : 0, ['help' => 'Off, the contact starts empty, to be picked.']) ?>
+                        <?= settingsSwitch('config_quick_ticket_open_tickets', $quick['open_tickets'] ? 1 : 0, ['help' => 'Not resolved or closed - with Work on this one, to go to one instead.']) ?>
+                        <?= settingsSwitch('config_quick_ticket_email_client', $quick['email_client'] ? 1 : 0, ['help' => 'The "ticket created" email, as New Ticket sends it.'
+                            . (intval($config_ticket_client_general_notifications) === 1 ? '' : ' Emails to clients are off in <a href="settings_notification.php">Notifications</a>, so none goes either way.')]) ?>
+                    </div>
+                <?= settingsSectionEnd() ?>
+            <?php } ?>
+
+            <?php if (ticketStatusReplyReady()) {
+                // The statuses that send it now (Admin > Ticket Statuses)
+                $assigned_sent_by = array_column(array_filter(ticketStatusesAll(), function ($status) {
+                    return intval($status['ticket_status_first_response']) === 2 && intval($status['ticket_status_active']) === 1;
+                }), 'ticket_status_name'); ?>
+                <?= settingsSectionStart('messages', 'Messages to clients', 'Sent for you as a ticket moves along. Words in square brackets are filled in from the ticket - <code>[Ticket]</code>, <code>[Subject]</code>, <code>[Contact]</code>, <code>[First Name]</code>, <code>[Client]</code>, <code>[Agent]</code>, <code>[Ticket Link]</code>, <code>[Date]</code> and the others canned responses take. The email greets each person by name, so the message needn\'t.', 'messages') ?>
+                    <?= settingsTextarea('config_ticket_assigned_message', ticketAssignedMessage(), ['rows' => 5, 'maxlength' => 5000,
+                        'help' => 'Emailed to the contact and watchers when an agent moves a ticket nobody has answered yet into a status that counts as the first response by emailing the client - set in <a href="ticket_statuses.php">Ticket Statuses</a>. It is kept on the ticket as a public note. <code>[Agent]</code> is who it is assigned to. '
+                            . ($assigned_sent_by ? 'Sent on moving into <strong>' . escapeHtml(implode(', ', $assigned_sent_by)) . '</strong>.' : 'No status sends it yet.')]) ?>
+                    <?php if (ticketNoResponseReady()) { ?>
+                        <?= settingsTextarea('config_ticket_no_response_message', ticketNoResponseMessage(), ['rows' => 7, 'maxlength' => 5000,
+                            'help' => 'For a client who never answered: the arrow beside a ticket\'s Resolve button has <strong>Resolve - No Response</strong>, which sends this - changed for the ticket first, if need be - in place of the usual "resolved" words, resolves it, and closes it later without asking how we did. <code>[Agent]</code> is whoever sends it.']) ?>
+                    <?php } ?>
+                <?= settingsSectionEnd() ?>
+            <?php } ?>
 
             <?= settingsSectionStart('closing', 'Closing', 'A resolved ticket waits for the client to say it isn\'t, then closes by itself, each night.') ?>
                 <?= settingsInput('config_ticket_autoclose_hours', intval($config_ticket_autoclose_hours), ['icon' => 'fa-clock', 'type' => 'number', 'min' => 24, 'max' => 8760, 'required' => true,

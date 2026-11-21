@@ -101,18 +101,19 @@ $tickets_tags = tagsForRecords('ticket', $board_ids);
                                 <button class="btn btn-sm btn-link text-body-secondary p-0 px-1" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket.php?id=<?= $ticket_id ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
-                                    <a class="dropdown-item" href="<?= $url ?>" target="_blank">
-                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a new tab
+                                    <a class="dropdown-item" href="<?= $url ?>" target="_blank" rel="noopener">
+                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a New Tab
                                     </a>
                                     <?php if ($can_edit) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('ticket', $ticket_id) ?>
                                         <?php if (!$mine) { ?>
                                             <a class="dropdown-item" href="post.php?assign_ticket_to_me=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-hand-paper text-secondary me-2"></i>Assign to me
+                                                <i class="fas fa-fw fa-hand-paper text-secondary me-2"></i>Assign to Me
                                             </a>
                                         <?php } ?>
                                     <?php } ?>
@@ -147,14 +148,14 @@ $tickets_tags = tagsForRecords('ticket', $board_ids);
                             </div>
                         <?php } ?>
 
-                        <?php if (!empty($tickets_tags[$ticket_id])) { ?>
-                            <div class="mt-1"><?= tagPills('ticket', $ticket_id, $tickets_tags[$ticket_id], "tickets.php?{$client_url}view=kanban&", false) ?></div>
+                        <?php if (!empty($tickets_tags[$ticket_id]) || $can_edit) { ?>
+                            <div class="itflow-tags-row mt-1"><?= !empty($tickets_tags[$ticket_id]) ? tagPills('ticket', $ticket_id, $tickets_tags[$ticket_id], "tickets.php?{$client_url}view=kanban&", false) : tagSpot('ticket', $ticket_id, "tickets.php?{$client_url}view=kanban&") ?></div>
                         <?php } ?>
 
                         <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
                             <?php $assignee = formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], $is_open); ?>
-                            <span class="min-w-0 text-truncate"><?= $can_edit ? quickPick('assignee', $ticket_id, (string) intval($row['ticket_assigned_to']), $assignee) : $assignee ?></span>
-                            <span class="small text-body-secondary text-nowrap" title="<?= $reply ? escapeHtml(['Client' => 'The client replied', 'Public' => 'We replied', 'Internal' => 'Internal note'][$reply['ticket_reply_type']] ?? 'Last reply') . ' ' . escapeHtml($reply['ticket_reply_created_at']) : 'Opened ' . escapeHtml($row['ticket_created_at']) ?>">
+                            <span class="min-w-0 text-truncate"><?= $can_edit ? quickPick('assignee', $ticket_id, (string) intval($row['ticket_assigned_to']), $assignee) : $assignee ?><?= ticketHelpersBadge($ticket_id) ?></span>
+                            <span class="small text-body-secondary text-nowrap" title="<?= $reply ? escapeHtml(['Client' => 'The client replied', 'Public' => 'We replied', 'Internal' => 'Internal note'][$reply['ticket_reply_type']] ?? 'Last reply') . ' ' . formatDateTime($reply['ticket_reply_created_at']) : 'Opened ' . formatDateTime($row['ticket_created_at']) ?>">
                                 <?php if ($reply && $reply['ticket_reply_type'] === 'Client') { ?>
                                     <i class="fas fa-reply text-warning me-1"></i>
                                 <?php } elseif ($reply) { ?>
@@ -175,7 +176,7 @@ $tickets_tags = tagsForRecords('ticket', $board_ids);
 
 <?php if (!$board_count && !$off_board_count) { ?>
     <div class="itflow-asset-empty pt-0">
-        <div><?= $q !== '' || $active_filters || $assigned_filter !== '' || $client_filter ? 'No tickets match.' : 'Nothing on the board here.' ?></div>
+        <div><?= $filter_sql ? 'No tickets match.' : 'Nothing on the board here.' ?></div>
     </div>
 <?php } ?>
 

@@ -37,7 +37,7 @@ if (isset($_POST['add_payment_method']) || isset($_POST['edit_payment_method']))
     } else {
         $payment_method_id = paymentMethodCreate($fields);
         logAudit("Payment Method", "Create", "$session_name added payment method " . escapeSql($fields['name']) . " for " . strtolower(PAYMENT_METHOD_USES[$fields['use']]['short']), 0, $payment_method_id);
-        flashAlert("Payment method <strong>" . escapeHtml($fields['name']) . "</strong> added");
+        flashAlert("Payment method <strong>" . escapeHtml($fields['name']) . "</strong> created");
     }
 
     redirect();
@@ -71,10 +71,15 @@ if (isset($_GET['archive_payment_method']) || isset($_GET['restore_payment_metho
     $archive = isset($_GET['archive_payment_method']);
     $row = paymentMethodRow($archive ? $_GET['archive_payment_method'] : $_GET['restore_payment_method']);
     if ($row) {
+        $undo = $archive ? undoArchivedBefore('payment_methods', 'payment_method_id', [$row['payment_method_id']]) : null;
+        $defaults = $archive ? undoSnapshot('settings', 'company_id', [1], ['config_default_payment_method', 'config_default_expense_payment_method']) : null;
         $cleared = paymentMethodSetArchived($row, $archive);
         $no_longer = $cleared ? ' - no longer the default for ' . implode(' or ', array_map(function ($way) { return $way === 'in' ? 'payments' : 'expenses'; }, $cleared)) : '';
         logAudit("Payment Method", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " payment method " . escapeSql($row['payment_method_name']) . $no_longer, 0, intval($row['payment_method_id']));
-        flashAlert("Payment method <strong>" . escapeHtml($row['payment_method_name']) . "</strong> " . ($archive ? "archived - it isn't offered any more$no_longer" : 'restored'));
+        flashAlert("Payment method <strong>" . escapeHtml($row['payment_method_name']) . "</strong> " . ($archive ? "archived - it isn't offered any more$no_longer" : 'restored'), $archive ? 'error' : 'success');
+        if ($undo) {
+            undoOfferArchived($undo, '', $row['payment_method_name'], [$defaults]);
+        }
     }
 
     redirect();

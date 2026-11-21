@@ -6,7 +6,14 @@
  * query parts this runs. Each row: the subject and what it is about, who it
  * is for, its status, priority and agent (changed in place), when it is due,
  * and who spoke last - with a dot before the subject when it is our move and
- * a red or amber edge when it is late or close to it.
+ * a red or amber edge when it is late or close to it. The subject is in bold
+ * when the client has written since this agent last opened the ticket
+ * (functions/ticket_read.php).
+ *
+ * agent/js/tickets_live.js fetches this page again every minute and swaps in
+ * the rows that changed (by data-ticket-sig), and says when tickets have come
+ * into or left the view; agent/js/ticket_reply_peek.js shows the last reply
+ * when the Activity cell is hovered.
  */
 
 isset($mysqli) || die("Direct file access is not allowed");
@@ -61,16 +68,20 @@ while ($row = mysqli_fetch_assoc($sql)) {
 $last_replies = ticketLastReplies(array_keys($tickets));
 $tickets_tags = tagsForRecords('ticket', array_keys($tickets));
 $task_counts = ticketTaskCounts(array_keys($tickets));
+$link_counts = ticketLinkCounts(array_keys($tickets));
 
 // A Due column only when there is something to put in it
 $show_due = $sla_in_use || mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM tickets WHERE ticket_due_at IS NOT NULL AND ticket_closed_at IS NULL LIMIT 1"));
 
-$sort_link = function ($column, $label, $class = '') use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none ' . $class . '" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 ?>
+
+<!-- Tickets that came into or left this view since it loaded (agent/js/tickets_live.js) -->
+<div class="alert alert-primary d-flex flex-wrap align-items-center gap-2 py-2 px-3 mb-0 rounded-0 border-start-0 border-end-0" data-tickets-live-bar hidden>
+    <i class="fas fa-fw fa-sync-alt"></i>
+    <span data-tickets-live-text></span>
+    <button type="button" class="btn btn-sm btn-primary ms-auto" data-tickets-live-show>Show</button>
+</div>
 
 <form id="bulkActions" action="post.php" method="post">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -86,22 +97,22 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                         </div>
                     </th>
                 <?php } ?>
-                <th><?= $sort_link('ticket_number', 'Ticket') ?></th>
+                <th><?= sortLink('ticket_number', 'Ticket') ?></th>
                 <th>
                     <?php if (!$client_url) { ?>
-                        <?= $sort_link('client_name', 'Client') ?> <span class="text-body-secondary">/</span>
+                        <?= sortLink('client_name', 'Client') ?> <span class="text-body-secondary">/</span>
                     <?php } ?>
-                    <?= $sort_link('contact_name', 'Contact', $client_url ? '' : 'text-body-secondary') ?>
+                    <?= sortLink('contact_name', 'Contact', null, '', $client_url ? '' : 'text-body-secondary') ?>
                 </th>
-                <th><?= $sort_link('ticket_status', 'Status') ?></th>
-                <th><?= $sort_link('ticket_priority', 'Priority') ?></th>
-                <th><?= $sort_link('user_name', 'Assigned') ?></th>
+                <th><?= sortLink('ticket_status', 'Status') ?></th>
+                <th><?= sortLink('ticket_priority', 'Priority') ?></th>
+                <th><?= sortLink('user_name', 'Assigned') ?></th>
                 <?php if ($show_due) { ?>
-                    <th><?= $sort_link('ticket_sla', 'Due') ?></th>
+                    <th><?= sortLink('ticket_sla', 'Due') ?></th>
                 <?php } ?>
-                <th><?= $sort_link('ticket_updated_at', 'Activity') ?></th>
+                <th><?= sortLink('ticket_updated_at', 'Activity') ?></th>
                 <?php if ($show_billing) { ?>
-                    <th class="text-center"><?= $sort_link('ticket_billable', 'Billing') ?></th>
+                    <th class="text-center"><?= sortLink('ticket_billable', 'Billing') ?></th>
                 <?php } ?>
                 <th></th>
             </tr>
@@ -127,9 +138,21 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                 $ticket_quote_id = intval($row['ticket_quote_id']);
 
                 $row_title = ['danger' => $sla['key'] === 'breached' ? 'SLA breached' : 'Past its due date', 'warning' => $sla['key'] === 'at_risk' ? 'SLA at risk' : 'Due within a day'][$attention] ?? '';
+                $unread = intval($row['ticket_unread'] ?? 0) === 1;
+
+                // What the row shows, boiled down - a change means agent/js/tickets_live.js swaps the row in
+                $last_reply = $last_replies[$ticket_id] ?? [];
+                $row_sig = substr(md5(json_encode([
+                    $row['ticket_subject'], $row['ticket_status'], $row['ticket_priority'], $row['ticket_assigned_to'], $row['ticket_contact_id'],
+                    $row['ticket_billable'], $row['ticket_invoice_id'], $row['ticket_quote_id'], $row['ticket_updated_at'], $row['ticket_resolved_at'],
+                    $row['ticket_closed_at'], $row['ticket_schedule'], $row['ticket_due_at'], $row['category_name'], $row['asset_name'],
+                    $row['ticket_response_sla_alert_stage'], $row['ticket_resolution_sla_alert_stage'], $unread,
+                    $last_reply['ticket_reply_type'] ?? '', $last_reply['ticket_reply_created_at'] ?? '',
+                    $task_counts[$ticket_id] ?? null, array_column($tickets_tags[$ticket_id] ?? [], 'tag_id'),
+                ])), 0, 12);
 
                 ?>
-                <tr class="itflow-ticket-row <?= $attention ? "is-$attention" : '' ?> <?= $is_open ? '' : 'is-done' ?>"<?= $row_title ? ' title="' . $row_title . '"' : '' ?>>
+                <tr class="itflow-ticket-row <?= $attention ? "is-$attention" : '' ?> <?= $is_open ? '' : 'is-done' ?> <?= $unread ? 'is-unread' : '' ?>"<?= $row_title ? ' title="' . $row_title . '"' : '' ?> data-ticket-id="<?= $ticket_id ?>" data-ticket-sig="<?= $row_sig ?>">
                     <?php if ($can_edit) { ?>
                         <td class="checkbox-column bg-light border-end">
                             <?php if (!$is_closed) { ?>
@@ -145,10 +168,10 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                         <div class="d-flex align-items-start gap-2">
                             <span class="itflow-ticket-move <?= $move === 'us' ? 'is-ours' : '' ?>" <?= $move === 'us' ? 'title="Needs a reply from us"' : 'aria-hidden="true"' ?>></span>
                             <div class="min-w-0">
-                                <a class="<?= $is_open ? 'fw-semibold text-body' : 'text-body-secondary' ?> itflow-ticket-subject" href="<?= $url ?>"><?= $subject ?></a>
+                                <a class="<?= $unread ? 'fw-bold text-body' : ($is_open ? 'text-body' : 'text-body-secondary') ?> itflow-ticket-subject" href="<?= $url ?>"<?= $unread ? ' title="The client has written since you last opened it"' : '' ?>><?php if ($unread) { ?><span class="visually-hidden">New from the client: </span><?php } ?><?= $subject ?></a>
                                 <div class="itflow-ticket-meta small text-body-secondary">
                                     <a class="font-monospace text-body-secondary" href="<?= $url ?>"><?= $reference ?></a>
-                                    <span title="Opened <?= escapeHtml($row['ticket_created_at']) ?>"><?= timeAgo($row['ticket_created_at']) ?></span>
+                                    <span title="Opened <?= formatDateTime($row['ticket_created_at']) ?>"><?= timeAgo($row['ticket_created_at']) ?></span>
                                     <?= ticketSourceIcon($row['ticket_source']) ?>
                                     <?php if ($row['category_name'] !== null && $row['category_name'] !== '') { ?>
                                         <span class="text-nowrap"><?= categoryMarkHtml($row['category_color'], $row['category_icon'] ?? '', '<i class="fas fa-circle itflow-ticket-dot"%s aria-hidden="true"></i>') ?><?= escapeHtml($row['category_name']) ?></span>
@@ -165,10 +188,13 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                                         </span>
                                     <?php } ?>
                                     <?= ticketTasksHtml($task_counts[$ticket_id] ?? null) ?>
+                                    <?php if (!empty($link_counts[$ticket_id])) { ?>
+                                        <span class="text-nowrap" title="Related to <?= $link_counts[$ticket_id] ?> other ticket<?= $link_counts[$ticket_id] === 1 ? '' : 's' ?>"><i class="fas fa-link me-1"></i><?= $link_counts[$ticket_id] ?></span>
+                                    <?php } ?>
                                 </div>
-                                <?php if (!empty($tickets_tags[$ticket_id])) { ?>
-                                    <!-- Tags - the + to change them while it is open; tag an untagged one from its page or Bulk Action -->
-                                    <div class="mt-1"><?= tagPills('ticket', $ticket_id, $tickets_tags[$ticket_id], "tickets.php?$client_url", $can_edit && !$is_closed) ?></div>
+                                <?php if (!empty($tickets_tags[$ticket_id]) || ($can_edit && !$is_closed)) { ?>
+                                    <!-- Tags - the + to change them while it is open; an untagged one gets its first from Tags in the row's menu -->
+                                    <div class="itflow-tags-row mt-1"><?= tagPills('ticket', $ticket_id, $tickets_tags[$ticket_id] ?? [], "tickets.php?$client_url", $can_edit && !$is_closed) ?></div>
                                 <?php } ?>
                                 <!-- On a phone the other columns are off to the side - the essentials come along -->
                                 <div class="d-md-none d-flex flex-wrap align-items-center gap-1 mt-1 small">
@@ -184,7 +210,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                     <td class="itflow-ticket-who-cell">
                         <?php if (!$client_url) { ?>
                             <?php if ($row_client_id) { ?>
-                                <a class="d-block text-truncate text-body fw-semibold small" href="tickets.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a>
+                                <a data-client-card="<?= $row_client_id ?>" class="d-block text-truncate text-body fw-semibold small" href="tickets.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a>
                             <?php } else { ?>
                                 <div class="small text-body-secondary"><i class="fas fa-building me-1"></i>Internal</div>
                             <?php } ?>
@@ -227,6 +253,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                         <?php } else { ?>
                             <?= $assignee ?>
                         <?php } ?>
+                        <?= ticketHelpersBadge($ticket_id) ?>
                     </td>
 
                     <!-- Due - its own date and its SLA -->
@@ -238,7 +265,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                     <?php } ?>
 
                     <!-- Who spoke last -->
-                    <td class="small itflow-ticket-activity">
+                    <td class="small itflow-ticket-activity" data-reply-peek="<?= $ticket_id ?>">
                         <?= ticketActivityHtml($last_replies[$ticket_id] ?? null, $row) ?>
                     </td>
 
@@ -260,22 +287,23 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket.php?id=<?= $ticket_id ?>">
-                                    <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                    <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                 </a>
-                                <a class="dropdown-item" href="<?= $url ?>" target="_blank">
-                                    <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a new tab
+                                <a class="dropdown-item" href="<?= $url ?>" target="_blank" rel="noopener">
+                                    <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a New Tab
                                 </a>
                                 <?php if ($can_edit && !$is_closed) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>">
                                         <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                     </a>
+                                    <?= tagMenuItem('ticket', $ticket_id) ?>
                                     <?php if (!$mine) { ?>
                                         <a class="dropdown-item" href="post.php?assign_ticket_to_me=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-hand-paper text-secondary me-2"></i>Assign to me
+                                            <i class="fas fa-fw fa-hand-paper text-secondary me-2"></i>Assign to Me
                                         </a>
                                     <?php } ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_merge.php?ticket_id=<?= $ticket_id ?>">
-                                        <i class="fas fa-fw fa-clone text-secondary me-2"></i>Merge into a ticket
+                                        <i class="fas fa-fw fa-clone text-secondary me-2"></i>Merge into a Ticket
                                     </a>
                                     <?php if ($is_open) { ?>
                                         <div class="dropdown-divider"></div>
@@ -286,7 +314,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                                     <?php } ?>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                             data-confirm-text="<?= $reference ?> goes for good, with its replies, tasks and attachments.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>
@@ -307,7 +335,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
 $empty_state = [
     'thing' => 'tickets',
     'icon' => 'fa-life-ring',
-    'filtered' => $q !== '' || $active_filters || $assigned_filter !== '' || $client_filter,
+    'filtered' => (bool) $filter_sql,
     'views' => ['show', 'view'],
     'view' => $show === 'open' ? ['title' => 'No open tickets', 'text' => 'Nothing is waiting to be worked on.', 'icon' => 'fa-check'] : emptyStatePill($shows, $show),
     'text' => 'Tickets come in by email and from the client portal, or add one here.',

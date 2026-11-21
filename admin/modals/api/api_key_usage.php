@@ -30,7 +30,7 @@ if (!$row) { ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-chart-bar me-2"></i>API Key: <strong><?= escapeHtml($row['api_key_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body">
 
@@ -72,7 +72,7 @@ if (!$row) { ?>
                         <tr>
                             <td class="font-monospace small text-break"><?= escapeHtml($endpoint['endpoint'] !== '' ? $endpoint['endpoint'] : '-') ?></td>
                             <td class="text-end small text-nowrap"><?= number_format(intval($endpoint['calls'])) ?></td>
-                            <td class="text-end small text-body-secondary text-nowrap" title="<?= escapeHtml($endpoint['last_at']) ?>"><?= escapeHtml(timeAgo($endpoint['last_at'])) ?></td>
+                            <td class="text-end small text-body-secondary text-nowrap" title="<?= formatDateTime($endpoint['last_at']) ?>"><?= escapeHtml(timeAgo($endpoint['last_at'])) ?></td>
                         </tr>
                     <?php } ?>
                     </tbody>
@@ -88,7 +88,7 @@ if (!$row) { ?>
                     <?php foreach ($ips as $ip) { ?>
                         <li class="d-flex justify-content-between gap-2 py-1 border-bottom">
                             <a class="font-monospace" href="/admin/audit_logs.php?q=<?= urlencode($ip['ip']) ?>" title="Everything from it in the audit log"><?= escapeHtml($ip['ip']) ?></a>
-                            <span class="text-body-secondary text-nowrap" title="<?= escapeHtml($ip['last_at']) ?>"><?= escapeHtml(timeAgo($ip['last_at'])) ?></span>
+                            <span class="text-body-secondary text-nowrap" title="<?= formatDateTime($ip['last_at']) ?>"><?= escapeHtml(timeAgo($ip['last_at'])) ?></span>
                         </li>
                     <?php } ?>
                 </ul>
@@ -107,7 +107,7 @@ if (!$row) { ?>
 
 </div>
 <div class="modal-footer">
-    <a class="btn btn-outline-secondary me-auto" href="/admin/audit_logs.php?type=<?= urlencode('API Key') ?>&amp;entity=<?= $api_key_id ?>"><i class="fas fa-fw fa-history me-2"></i>Its history</a>
+    <a class="btn btn-outline-secondary me-auto" href="/admin/audit_logs.php?type=<?= urlencode('API Key') ?>&amp;entity=<?= $api_key_id ?>"><i class="fas fa-fw fa-history me-2"></i>Its History</a>
     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/api/api_key_edit.php?id=<?= $api_key_id ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</button>
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>

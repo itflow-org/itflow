@@ -75,11 +75,11 @@ const DEMO_MODE_LOCKS = [
     ],
     [
         'message' => "Backups and updates are turned off in the demo.",
-        'keys' => ['backup_master_key', 'delete_backup', 'edit_backup_settings', 'queue_backup', 'check_update', 'queue_update'],
+        'keys' => ['backup_master_key', 'delete_backup', 'edit_backup_settings', 'edit_dev_mode', 'queue_backup', 'restore_backup', 'cancel_restore', 'backup_upload', 'backup_upload_start', 'backup_upload_chunk', 'backup_upload_finish', 'check_update', 'queue_update'],
     ],
     [
         'message' => "Cron can't be changed in the demo - it runs the nightly reset.",
-        'keys' => ['clear_cron_error', 'disable_cron', 'disable_cron_job', 'edit_cron_job', 'enable_cron', 'enable_cron_job', 'run_cron_job'],
+        'keys' => ['clear_cron_error', 'disable_cron', 'disable_cron_job', 'edit_cron_alerts', 'edit_cron_job', 'enable_cron', 'enable_cron_job', 'renew_cron_health_key', 'run_cron_job', 'test_cron_alert'],
     ],
     [
         'message' => "Card payments and payment providers are turned off in the demo.",
@@ -96,6 +96,11 @@ const DEMO_MODE_LOCKS = [
         'message' => "Text messaging can't be set up in the demo - it sends no texts.",
         'keys' => ['add_sms_provider', 'check_sms_provider', 'delete_sms_provider', 'edit_sms_provider', 'new_sms_inbound_key', 'send_sms_test',
             'sms_number_opt_in', 'sms_number_unblock', 'turn_sms_provider_off', 'turn_sms_provider_on'],
+    ],
+    [
+        'message' => "RMM providers can't be set up in the demo.",
+        'keys' => ['add_rmm_provider', 'check_rmm_provider', 'edit_rmm_provider', 'delete_rmm_provider', 'test_rmm_provider', 'sync_rmm', 'turn_rmm_provider_off',
+            'turn_rmm_provider_on', 'link_rmm_client', 'link_rmm_suggested', 'unlink_rmm_client', 'rmm_bring_back'],
     ],
     [
         'message' => "Managed instances are turned off in the demo.",
@@ -136,7 +141,7 @@ const DEMO_MODE_LOCKED_PAGES = [
     '/admin/users.php' => true, '/admin/roles.php' => true, '/admin/api_keys.php' => true, '/admin/backup.php' => true, '/admin/update.php' => true,
     '/admin/settings_mail.php' => true, '/admin/settings_security.php' => true, '/admin/identity_providers.php' => true, '/admin/settings_telemetry.php' => true,
     '/admin/cron.php' => true, '/admin/payment_providers.php' => true, '/admin/saved_payment_methods.php' => true, '/admin/ai_providers.php' => true,
-    '/admin/ai_models.php' => true, '/admin/text_messaging.php' => true, '/admin/managed_by.php' => true, '/admin/managed_instances.php' => true,
+    '/admin/ai_models.php' => true, '/admin/text_messaging.php' => true, '/admin/rmm_providers.php' => true, '/admin/rmm_clients.php' => true, '/admin/managed_by.php' => true, '/admin/managed_instances.php' => true,
     '/admin/managed_instance.php' => true, '/admin/settings_logs.php' => true, '/admin/settings_company.php' => true, '/admin/settings_module.php' => true,
     '/admin/settings_client_portal.php' => true, '/admin/custom_links.php' => true, '/admin/starter_content.php' => true, '/admin/getting_started.php' => true,
     '/agent/user/user_details.php' => true, '/agent/user/user_security.php' => false, '/client/profile.php' => false,
@@ -228,7 +233,7 @@ function demoModeGuestGuard(): void
         . '<link rel="stylesheet" href="' . staticFileUrl('/css/itflow_custom.css') . '"></head><body class="hold-transition login-page"><div class="login-box"><div class="card" data-demo-guest><div class="card-body p-4 text-center">'
         . '<i class="fas fa-flask fa-2x text-info mb-3" aria-hidden="true"></i><h1 class="h4 mb-2">Sign in to the demo first</h1>'
         . '<p class="text-body-secondary">This is a demo, so links from it open only for someone signed in to it.</p>'
-        . '<a href="/login.php" class="btn btn-primary"><i class="fas fa-fw fa-sign-in-alt me-2"></i>Sign in</a></div></div></div></body></html>');
+        . '<a href="/login.php" class="btn btn-primary"><i class="fas fa-fw fa-sign-in-alt me-2"></i>Sign In</a></div></div></div></body></html>');
 }
 
 /*

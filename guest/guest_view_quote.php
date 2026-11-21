@@ -15,7 +15,7 @@ $quote = billingRow('quote', intval($_GET['quote_id'] ?? 0), false);
 $url_key = (string) ($_GET['url_key'] ?? '');
 
 if (!$quote || (string) $quote['quote_url_key'] === '' || !hash_equals((string) $quote['quote_url_key'], $url_key)) {
-    echo '<div class="itflow-asset-empty mt-5"><i class="fas fa-comment-dollar fa-3x mb-3 opacity-50"></i><h1 class="h4">This quote link isn\'t working</h1><p>It may have been mistyped or replaced. Ask whoever sent it for a new link.</p></div>';
+    echo guestDeadEndHtml('fa-comment-dollar', "This quote link isn't working", "It may have been mistyped or replaced. Ask whoever sent it for a new link.");
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
     exit();
 }
@@ -74,7 +74,7 @@ $paper = [
 
                 <?php if ($awaiting) { ?>
                     <p class="small text-body-secondary mb-3">
-                        Good until <?= escapeHtml($quote['quote_expire']) ?><?= $days_left === 0 ? ' - today is the last day' : ' - ' . $days_left . ' day' . ($days_left === 1 ? '' : 's') . ' left' ?>.
+                        Good until <?= formatDate($quote['quote_expire']) ?><?= $days_left === 0 ? ' - today is the last day' : ' - ' . $days_left . ' day' . ($days_left === 1 ? '' : 's') . ' left' ?>.
                         Let us know whether to go ahead.
                     </p>
                     <?php /* Buttons that post, not links - a mail scanner or link preview opening links on the page must not answer the quote */ ?>
@@ -95,7 +95,7 @@ $paper = [
                         <span class="itflow-asset-icon bg-warning-subtle text-warning-emphasis" aria-hidden="true"><i class="fas fa-hourglass-end"></i></span>
                         <div>
                             <div class="fw-semibold">This quote has run out</div>
-                            <div class="small text-body-secondary">It was good until <?= escapeHtml($quote['quote_expire']) ?> - ask us for an updated one.</div>
+                            <div class="small text-body-secondary">It was good until <?= formatDate($quote['quote_expire']) ?> - ask us for an updated one.</div>
                         </div>
                     </div>
                 <?php } elseif (in_array($status, ['Accepted', 'Invoiced'], true)) { ?>
@@ -148,7 +148,7 @@ $paper = [
             <div class="modal-content">
                 <div class="modal-header bg-dark">
                     <h5 class="modal-title"><i class="fas fa-fw fa-file-upload me-2"></i>Send a Signed Copy or PO</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="guest_post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                     <input type="hidden" name="quote_id" value="<?= $quote_id ?>">
@@ -162,7 +162,7 @@ $paper = [
                         <div class="form-text">The signed quote, a purchase order - goes straight to us with <?= escapeHtml($number) ?>.</div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" name="guest_quote_upload_file" class="btn btn-primary text-bold"><i class="fas fa-upload me-2"></i>Send</button>
+                        <button type="submit" name="guest_quote_upload_file" class="btn btn-primary fw-bold"><i class="fas fa-upload me-2"></i>Send</button>
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
                     </div>
                 </form>

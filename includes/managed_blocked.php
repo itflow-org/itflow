@@ -63,10 +63,10 @@ header('Content-Type: text/html; charset=UTF-8');
             <?php if ($managed_blocked_back !== '' || $managed_blocked_signout !== '') { ?>
                 <div class="d-flex flex-wrap justify-content-center gap-2 mt-4">
                     <?php if ($managed_blocked_back !== '') { ?>
-                        <a href="<?= escapeHtml($managed_blocked_back) ?>" class="btn btn-light"><i class="fas fa-fw fa-arrow-left me-2"></i>Go back</a>
+                        <a href="<?= escapeHtml($managed_blocked_back) ?>" class="btn btn-light"><i class="fas fa-fw fa-arrow-left me-2"></i>Go Back</a>
                     <?php } ?>
                     <?php if ($managed_blocked_signout !== '') { ?>
-                        <a href="<?= escapeHtml($managed_blocked_signout) ?>" class="btn btn-outline-secondary"><i class="fas fa-fw fa-sign-out-alt me-2"></i>Sign out</a>
+                        <a href="<?= escapeHtml($managed_blocked_signout) ?>" class="btn btn-outline-secondary"><i class="fas fa-fw fa-sign-out-alt me-2"></i>Sign Out</a>
                     <?php } ?>
                 </div>
             <?php } ?>

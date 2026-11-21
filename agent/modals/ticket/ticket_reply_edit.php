@@ -6,7 +6,8 @@ enforceUserPermission('module_support', 2);
 
 $ticket_reply_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_reply, ticket_reply_time_worked, ticket_reply_type,
+$sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_reply, ticket_reply_time_worked, ticket_reply_type, ticket_reply_created_at,
+    " . (ticketWorkTimesReady() ? 'ticket_reply_work_start, ticket_reply_work_end,' : 'NULL AS ticket_reply_work_start, NULL AS ticket_reply_work_end,') . "
     " . (ticketReplyEmailReady() ? 'ticket_reply_emailed, ticket_reply_emailed_to' : 'NULL AS ticket_reply_emailed, NULL AS ticket_reply_emailed_to') . " FROM ticket_replies
     LEFT JOIN tickets ON ticket_id = ticket_reply_ticket_id
     WHERE ticket_reply_id = $ticket_reply_id
@@ -44,8 +45,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-edit me-2"></i>Edit reply</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-edit me-2"></i>Edit Reply</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -60,7 +61,7 @@ ob_start();
                 <input class="btn-check" id="ticket_reply_type_opt1" type="radio" name="ticket_reply_type" value="Public" <?php if ($ticket_reply_type == 'Public') { echo "checked"; } ?>>
                 <label class="btn btn-outline-secondary" for="ticket_reply_type_opt1"><i class="fas fa-fw fa-eye me-1"></i>Public</label>
             </div>
-            <small class="text-muted">Public replies show in the client portal. Saving here never sends an email.</small>
+            <div class="form-text">Public replies show in the client portal. Saving here never sends an email.</div>
         </div>
 
         <?php if ($emailed_to !== '') { ?>
@@ -82,21 +83,40 @@ ob_start();
         </div>
 
         <?php if (!empty($ticket_reply_time_worked)) { ?>
-            <div class="col-6 col-md-3">
-                <div class="mb-3">
-                    <label>Time worked</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
-                        <input class="form-control" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="<?= $ticket_reply_time_worked_formatted ?>" required>
+            <div class="row g-2">
+                <div class="col-sm-4">
+                    <div class="mb-3">
+                        <label class="form-label">Time worked</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
+                            <input class="form-control" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="<?= $ticket_reply_time_worked_formatted ?>" required>
+                        </div>
                     </div>
                 </div>
+                <?php if (ticketWorkTimesReady() && $ticket_reply_time_worked_formatted !== '00:00:00') {
+                    // When it was worked - for a note without times, ending when it was posted (functions/ticket.php)
+                    [$work_start, $work_end] = !empty($row['ticket_reply_work_start']) ? [$row['ticket_reply_work_start'], $row['ticket_reply_work_end']] : ticketWorkTimesShown($row); ?>
+                    <div class="col-sm-8">
+                        <div class="mb-3">
+                            <label class="form-label">When it was worked</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
+                                <input type="date" class="form-control" name="work_date" max="2999-12-31" style="min-width: 9.5rem" value="<?= escapeHtml(substr($work_start, 0, 10)) ?>" aria-label="Date worked">
+                                <input type="time" class="form-control" name="work_start" step="60" style="min-width: 7.5rem" value="<?= escapeHtml(substr($work_start, 11, 5)) ?>" aria-label="Start">
+                                <span class="input-group-text px-2">-</span>
+                                <input type="time" class="form-control" name="work_end" step="60" style="min-width: 7.5rem" value="<?= escapeHtml(substr($work_end, 11, 5)) ?>" aria-label="End">
+                            </div>
+                            <div class="form-text">Change the times and the time worked follows them. Change only the time worked and the start moves.</div>
+                        </div>
+                    </div>
+                <?php } ?>
             </div>
         <?php } ?>
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_ticket_reply" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_ticket_reply" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

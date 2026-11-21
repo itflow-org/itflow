@@ -6,7 +6,7 @@
 
 // Function to generate both crypto & URL safe random strings
 function randomString(int $length = 16): string {
-    $bytes = random_bytes((int) ceil($length * 3 / 4));
+    $bytes = random_bytes(intval(ceil($length * 3 / 4)));
     return substr(
         rtrim(strtr(base64_encode($bytes), '+/', '-_'), '='),
         0,
@@ -133,8 +133,9 @@ function generateUserSessionKey($site_encryption_master_key) {
     if ($config_https_only) {
         setcookie("user_encryption_session_key", base64_encode($user_encryption_session_key), ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
     } else {
-        setcookie("user_encryption_session_key", base64_encode($user_encryption_session_key), 0, "/");
-        $_SESSION['alert_message'] = "Unencrypted connection flag set: Using non-secure cookies.";
+        // Not secure without HTTPS, but still out of reach of page scripts
+        setcookie("user_encryption_session_key", base64_encode($user_encryption_session_key), ['path' => '/', 'httponly' => true, 'samesite' => 'Lax']);
+        flashAlert("Unencrypted connection flag set: Using non-secure cookies.", 'warning');
     }
 }
 

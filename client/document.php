@@ -28,7 +28,7 @@ if (!$document) { ?>
     <a class="itflow-portal-back" href="documents.php"><i class="fas fa-chevron-left"></i>Documents</a>
     <section class="itflow-portal-panel">
         <?= emptyStateHtml(['title' => "That document isn't here", 'text' => 'It may have been moved or is no longer shared with you.', 'icon' => 'fa-folder-open', 'filtered' => false,
-            'actions' => [['label' => 'All documents', 'href' => 'documents.php', 'icon' => 'fa-arrow-left']]]) ?>
+            'actions' => [['label' => 'All Documents', 'href' => 'documents.php', 'icon' => 'fa-arrow-left']]]) ?>
     </section>
     <?php
     require_once "includes/footer.php";
@@ -71,7 +71,7 @@ foreach ($files as $file) {
     </div>
     <div class="d-flex flex-wrap gap-2 d-print-none">
         <button type="button" class="btn btn-outline-secondary" data-portal-print><i class="fas fa-print me-2"></i>Print</button>
-        <a class="btn btn-outline-secondary" href="<?= escapeHtml(portalAskUrl('Question about ' . $document['document_name'])) ?>"><i class="fas fa-question-circle me-2"></i>Ask us about it</a>
+        <a class="btn btn-outline-secondary" href="<?= escapeHtml(portalAskUrl('Question about ' . $document['document_name'])) ?>"><i class="fas fa-question-circle me-2"></i>Ask Us About It</a>
     </div>
 </div>
 

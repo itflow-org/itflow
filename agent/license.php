@@ -29,7 +29,7 @@ $license = softwareRow($software_id);
 
 if (!$license || ($client_url && intval($license['software_client_id']) !== intval($client_id))) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
 } else {
 
@@ -75,7 +75,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
     $credentials = $can_credentials ? credentialRows("credential_id IN (SELECT credential_id FROM software_credentials WHERE software_id = $software_id)") : [];
     $documents = linkedRecords('software', $software_id, 'document');
     $files = linkedRecords('software', $software_id, 'file');
-    $history = auditLogHistory('Software', $software_id);
+    $history = auditLogHistory('License', $software_id);
 
     $license_tabs = [
         'seats' => ['label' => 'Seats', 'icon' => 'fa-users', 'count' => $seats['used']],
@@ -100,8 +100,6 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
         $license['software_purchase_reference'] ? 'Last order: ' . $license['software_purchase_reference'] : '',
     ]));
     $renewal_ticket_url = 'modals/ticket/ticket_add.php?' . http_build_query(['client_id' => $client_id, 'subject' => $renewal_subject, 'details' => $renewal_details]);
-
-    $link_url = "modals/link/link.php?from=software&id=$software_id&to=";
     $unlink_url = function ($to, $other_id) use ($software_id) {
         return "post.php?unlink_item&from=software&id=$software_id&to=$to&other=" . intval($other_id) . "&csrf_token=" . $_SESSION['csrf_token'];
     };
@@ -110,7 +108,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
 
     <ol class="breadcrumb d-print-none">
         <li class="breadcrumb-item">
-            <a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
+            <a data-client-card="<?= $client_id ?>" href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
         </li>
         <li class="breadcrumb-item">
             <a href="software.php?client_id=<?= $client_id ?>">Licenses</a>
@@ -154,29 +152,29 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                         <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-plus me-2"></i>New</button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml($renewal_ticket_url) ?>">
-                                <i class="fa fa-fw fa-life-ring text-secondary me-2"></i>Renewal Ticket
+                                <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Renewal Ticket
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software/software_key_add.php?software_id=<?= $software_id ?>">
-                                <i class="fa fa-fw fa-key text-secondary me-2"></i>Keys
+                                <i class="fas fa-fw fa-key text-secondary me-2"></i>Keys
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="xl" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&software_id=<?= $software_id ?>">
-                                <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
+                                <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>Document
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?client_id=<?= $client_id ?>&software_id=<?= $software_id ?>">
-                                <i class="fa fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
+                                <i class="fas fa-fw fa-upload text-secondary me-2"></i>Upload Files
                             </a>
                         </div>
                     </div>
                     <div class="dropdown">
                         <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>asset"><i class="fa fa-fw fa-desktop text-secondary me-2"></i>Device</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>contact"><i class="fa fa-fw fa-user text-secondary me-2"></i>User</a>
+                            <?= linkPickerButton('software', $software_id, 'asset', 'Device', 'dropdown-item', 'fas fa-fw fa-desktop text-secondary me-2') ?>
+                            <?= linkPickerButton('software', $software_id, 'contact', 'User', 'dropdown-item', 'fas fa-fw fa-user text-secondary me-2') ?>
                             <?php if ($can_link_credentials) { ?>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>credential"><i class="fa fa-fw fa-lock text-secondary me-2"></i>Credential</a>
+                                <?= linkPickerButton('software', $software_id, 'credential', 'Credential', 'dropdown-item', 'fas fa-fw fa-lock text-secondary me-2') ?>
                             <?php } ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>document"><i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>file"><i class="fa fa-fw fa-paperclip text-secondary me-2"></i>File</a>
+                            <?= linkPickerButton('software', $software_id, 'document', 'Document', 'dropdown-item', 'fas fa-fw fa-file-alt text-secondary me-2') ?>
+                            <?= linkPickerButton('software', $software_id, 'file', 'File', 'dropdown-item', 'fas fa-fw fa-paperclip text-secondary me-2') ?>
                         </div>
                     </div>
                     <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/software/software_edit.php?id=<?= $software_id ?>">
@@ -194,7 +192,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                                 <?php if ($can_delete) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= $software_name ?> goes for good, with its seats and keys.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
@@ -204,8 +202,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                                     <i class="fas fa-fw fa-users text-secondary me-2"></i>Seats
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                    data-confirm-text="It drops off every device and user until it is restored.">
+                                <a class="dropdown-item text-danger" href="post.php?archive_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                 </a>
                             <?php } ?>
@@ -246,7 +243,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                         <dt>Renews</dt>
                         <dd>
                             <?php if ($renewal) { ?>
-                                <?= escapeHtml($renewal['date']) ?>
+                                <?= formatDate($renewal['date']) ?>
                                 <div class="small text-<?= $renewal['tone'] === 'success' ? 'body-secondary' : $renewal['tone'] . '-emphasis' ?>"><?= escapeHtml($renewal['text']) ?></div>
                             <?php } else { ?>
                                 <span class="text-body-secondary">No date</span>
@@ -254,13 +251,13 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                         </dd>
                         <?php if ($software_purchase) { ?>
                             <dt>Purchased</dt>
-                            <dd><?= $software_purchase ?><?php if ($software_purchase_age) { ?><div class="small text-body-secondary"><?= $software_purchase_age ?> ago</div><?php } ?></dd>
+                            <dd><?= formatDate($software_purchase) ?><?php if ($software_purchase_age) { ?><div class="small text-body-secondary"><?= $software_purchase_age ?> ago</div><?php } ?></dd>
                         <?php } ?>
                         <?php if ($software_purchase_reference) { ?>
                             <dt>Order ref</dt>
                             <dd><?= $software_purchase_reference ?><button type="button" class="itflow-copy clipboardjs" title="Copy reference" data-clipboard-text="<?= $software_purchase_reference ?>"><i class="far fa-copy"></i></button></dd>
                         <?php } ?>
-                        <dt>Added</dt><dd title="<?= $software_created_at ?>"><?= timeAgo($software_created_at) ?></dd>
+                        <dt>Added</dt><dd title="<?= formatDateTime($software_created_at) ?>"><?= timeAgo($software_created_at) ?></dd>
                     </dl>
                 </div>
             </div>
@@ -328,7 +325,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link text-nowrap <?= $tab['count'] ? '' : 'is-empty' ?>" id="license-tab-<?= $tab_key ?>" data-bs-toggle="pill" data-bs-target="#license-pane-<?= $tab_key ?>" data-license-tab="<?= $tab_key ?>" type="button" role="tab">
                                     <i class="fas fa-fw <?= $tab['icon'] ?> me-1 d-none d-xxl-inline"></i><?= $tab['label'] ?>
-                                    <span class="badge rounded-pill ms-1"><?= $tab['count'] ?><?= $tab_key === 'seats' && $seats['total'] ? ' / ' . $seats['total'] : '' ?></span>
+                                    <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?><?= $tab_key === 'seats' && $seats['total'] ? ' / ' . $seats['total'] : '' ?></span>
                                 </button>
                             </li>
                         <?php } ?>
@@ -432,7 +429,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                             <div class="itflow-asset-empty">
                                 <div>Nothing and nobody on this license yet.</div>
                                 <?php if ($can_edit) { ?>
-                                    <button type="button" class="btn btn-sm btn-outline-primary mt-3 ajax-modal" data-modal-url="modals/software/software_seats.php?id=<?= $software_id ?>"><i class="fas fa-users me-2"></i>Add devices and users</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary mt-3 ajax-modal" data-modal-url="modals/software/software_seats.php?id=<?= $software_id ?>"><i class="fas fa-users me-2"></i>Add Devices and Users</button>
                                 <?php } ?>
                             </div>
                         <?php } ?>
@@ -508,9 +505,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                         <div class="itflow-asset-pane-bar">
                             <span class="text-body-secondary small">Logins that go with it - the vendor portal, the admin console. Passwords are fetched only when you ask.</span>
                             <?php if ($can_link_credentials) { ?>
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $link_url ?>credential">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('software', $software_id, 'credential', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                             <?php } ?>
                         </div>
                         <?php if ($credentials) { ?>
@@ -534,9 +529,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                                 <span class="text-body-secondary small"><?= $hint ?></span>
                                 <?php if ($can_edit) { ?>
                                     <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $link_url . $to ?>">
-                                            <i class="fas fa-link me-2"></i>Link
-                                        </button>
+                                        <?= linkPickerButton('software', $software_id, $to, 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                         <?php if ($to === 'document') { ?>
                                             <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&software_id=<?= $software_id ?>">
                                                 <i class="fas fa-plus me-2"></i>New Document

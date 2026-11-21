@@ -194,17 +194,22 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/software/software_add.php?<?= $client_url ?>">
                     <i class="fas fa-plus me-2"></i>New License
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg"
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg"
                         data-modal-url="modals/software/software_add_from_template.php?<?= $client_url ?>">
                         <i class="fas fa-fw fa-puzzle-piece me-2"></i>New from Template
                     </a>
+                    <?php if ($client_url) { ?>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=licenses">
+                            <i class="fas fa-fw fa-upload me-2"></i>Import
+                        </a>
+                    <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                        <a class="dropdown-item ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/software/software_export.php', ['client_id', 'client', 'status', 'software_type', 'license_type', 'tags', 'expire_days', 'archived', 'q']) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
+                            <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
                 </div>
@@ -234,7 +239,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
         <div class="card-header py-2 itflow-asset-tabs">
             <nav class="nav nav-pills flex-nowrap overflow-auto">
                 <a class="nav-link text-nowrap <?= $status === '' ? 'active' : '' ?>" href="?<?= $url_query_strings_sort ?>&status=">
-                    All <span class="badge rounded-pill ms-1"><?= $tab_counts[''] ?></span>
+                    All <span class="badge rounded-pill ms-1"><?= number_format(intval($tab_counts[''])) ?></span>
                 </a>
                 <?php foreach ($status_filters as $status_key => $status_filter) {
                     if (!$tab_counts[$status_key] && $status !== $status_key) {
@@ -242,7 +247,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                     }
                     $tab_tone = ['expired' => 'danger', 'over' => 'danger', 'renewing' => 'warning'][$status_key] ?? ''; ?>
                     <a class="nav-link text-nowrap <?= $status === $status_key ? 'active' : '' ?>" href="?<?= $url_query_strings_sort ?>&status=<?= $status_key ?>" title="<?= $status_filter['title'] ?>">
-                        <i class="fas fa-fw <?= $status_filter['icon'] ?> me-1 <?= $tab_tone && $status !== $status_key ? "text-$tab_tone" : '' ?>"></i><?= $status_filter['label'] ?> <span class="badge rounded-pill ms-1"><?= $tab_counts[$status_key] ?></span>
+                        <i class="fas fa-fw <?= $status_filter['icon'] ?> me-1 <?= $tab_tone && $status !== $status_key ? "text-$tab_tone" : '' ?>"></i><?= $status_filter['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($tab_counts[$status_key])) ?></span>
                     </a>
                 <?php } ?>
             </nav>
@@ -260,13 +265,13 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                 <div class="<?= $client_url ? 'col-xl-3 col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search licenses, keys, vendors, tags...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <?php if (!$client_url) { ?>
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="client" onchange="this.form.submit()">
-                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- Any client -</option>
                         <?php
                         $sql_clients_filter = mysqli_query($mysqli, "
                             SELECT DISTINCT client_id, client_name, client_abbreviation
@@ -287,7 +292,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                 <?php } ?>
                 <div class="<?= $client_url ? 'col-xl col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <select class="form-select select2" name="software_type" onchange="this.form.submit()">
-                        <option value="">- Software Type -</option>
+                        <option value="">- Any software type -</option>
                         <?= categoryFilterOptionsHtml('software_type', $software_type_filter, "SELECT DISTINCT software_type FROM software
                             LEFT JOIN clients ON client_id = software_client_id
                             WHERE software_type IS NOT NULL AND software_type <> '' AND $archive_query
@@ -296,7 +301,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                 </div>
                 <div class="<?= $client_url ? 'col-xl col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <select class="form-select select2" name="license_type" onchange="this.form.submit()">
-                        <option value="">- License Type -</option>
+                        <option value="">- Any license type -</option>
                         <?php foreach ($license_type_options as $license_type_option) { ?>
                             <option <?= $license_type_option === $license_type_filter ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas ' . softwareLicenseTypeIcon($license_type_option)]) ?>><?= escapeHtml($license_type_option) ?></option>
                         <?php } ?>
@@ -304,7 +309,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                 </div>
                 <div class="<?= $client_url ? 'col-xl col-lg-3' : 'col-lg-3' ?> col-md-6">
                     <select class="form-select select2" name="expire_days" onchange="this.form.submit()">
-                        <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Renewal -</option>
+                        <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Any renewal -</option>
                         <option value="expired" <?php if ($expire_days === "expired") { echo "selected"; } ?>>Expired</option>
                         <?php foreach ([7, 30, 45, 60, 90] as $expire_option) { ?>
                             <option value="<?= $expire_option ?>" <?php if ($expire_days === $expire_option) { echo "selected"; } ?>>Renews in <?= $expire_option ?> days</option>
@@ -312,7 +317,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                     </select>
                 </div>
                 <div class="<?= $client_url ? 'col-xl col-lg-3' : 'col-lg-3' ?> col-md-6">
-                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                         <?= tagFilterOptionsHtml('license', $tag_filter_ids, "$archive_query " . clientScopeSql('software_client_id') . " $client_query") ?>
                     </select>
                 </div>
@@ -327,7 +332,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                     <div class="d-flex justify-content-end gap-2">
                         <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>"
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active licenses' : 'Show archived licenses' ?>">
-                            <i class="fa fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
+                            <i class="fas fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
                         </a>
                         <?php if ($can_edit) { ?>
                         <div class="dropdown" id="bulkActionButton" hidden>
@@ -343,7 +348,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                                         <i class="fas fa-fw fa-tags me-2"></i>Tags
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_software">
+                                    <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_software">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                 <?php } else { ?>
@@ -351,7 +356,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_software"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_software"
                                             data-confirm-text="The licenses go for good, with their seats and keys.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
@@ -380,52 +385,36 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=software_name&order=<?= $disp ?>">
-                            License <?php if ($sort == 'software_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('software_name', 'License') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=software_license_type&order=<?= $disp ?>">
-                            Type <?php if ($sort == 'software_license_type') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('software_license_type', 'Type') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=seats_used&order=<?= $disp ?>">
-                            Seats <?php if ($sort == 'seats_used') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('seats_used', 'Seats') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=software_expire&order=<?= $disp ?>">
-                            Renews <?php if ($sort == 'software_expire') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('software_expire', 'Renews') ?>
                     </th>
                     <?php if ($show_key) { ?>
                         <th>Key</th>
                     <?php } ?>
                     <?php if ($show_purchased) { ?>
                         <th>
-                            <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=software_purchase&order=<?= $disp ?>">
-                                Purchased <?php if ($sort == 'software_purchase') { echo $order_icon; } ?>
-                            </a>
+                            <?= sortLink('software_purchase', 'Purchased') ?>
                         </th>
                     <?php } ?>
                     <?php if ($show_order_ref) { ?>
                         <th>
-                            <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=software_purchase_reference&order=<?= $disp ?>">
-                                Order ref <?php if ($sort == 'software_purchase_reference') { echo $order_icon; } ?>
-                            </a>
+                            <?= sortLink('software_purchase_reference', 'Order ref') ?>
                         </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">
-                            Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('vendor_name', 'Vendor') ?>
                     </th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>
@@ -475,7 +464,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                                     <?php if ($software_archived_at) { ?><span class="badge rounded-pill text-bg-secondary fw-normal ms-1">Archived</span><?php } ?>
                                     <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $software_description ?: $software_type ?>"><?= $software_description ?: $software_type ?></div>
                                     <?php if ($license_tags || ($can_tag && !$software_archived_at)) { ?>
-                                        <div class="mt-1 itflow-above-stretch"><?= tagPills('license', $software_id, $license_tags, "software.php?$client_url", $can_tag && !$software_archived_at) ?></div>
+                                        <div class="itflow-tags-row mt-1 itflow-above-stretch"><?= tagPills('license', $software_id, $license_tags, "software.php?$client_url", $can_tag && !$software_archived_at) ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -491,7 +480,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                         <td class="itflow-seats-cell"><?= softwareSeatBar($seats) ?></td>
                         <td class="text-nowrap">
                             <?php if ($renewal) { ?>
-                                <div><?= escapeHtml($renewal['date']) ?></div>
+                                <div><?= formatDate($renewal['date']) ?></div>
                                 <?php if ($renewal['state'] === 'active') { ?>
                                     <div class="small text-body-secondary"><?= escapeHtml($renewal['text']) ?></div>
                                 <?php } else { ?>
@@ -531,19 +520,20 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                             <?php } ?>
                         </td>
                         <?php if (!$client_url) { ?>
-                        <td><a href="software.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                        <td><a data-client-card="<?= $client_id ?>" href="software.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                         <?php } ?>
                         <td class="text-end">
                             <div class="dropdown dropstart">
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software.php?id=<?= $software_id ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <?php if ($can_edit && !$software_archived_at) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software_edit.php?id=<?= $software_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('license', $software_id) ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software/software_seats.php?id=<?= $software_id ?>">
                                             <i class="fas fa-fw fa-users text-secondary me-2"></i>Seats
                                         </a>
@@ -551,7 +541,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                                             <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Renew
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <a class="dropdown-item text-danger" href="post.php?archive_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-archive me-2"></i>Archive
                                         </a>
                                     <?php } elseif ($can_edit) { ?>
@@ -560,7 +550,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                                             <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                         </a>
                                         <?php if ($can_delete) { ?>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                            <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                 data-confirm-text="<?= $software_name ?> goes for good, with its seats and keys.">
                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </a>
@@ -584,7 +574,10 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
         'views' => ['status'],
         'view' => emptyStatePill($status_filters, $status, '', ['renewing', 'expired', 'over', 'unused']),
         'text' => 'Their software and subscriptions - the seats bought, who and what uses them, and when each renews.',
-        'actions' => $can_edit ? [['label' => 'New License', 'modal' => "modals/software/software_add.php?$client_url", 'size' => 'lg']] : [],
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New License', 'modal' => "modals/software/software_add.php?$client_url", 'size' => 'lg']],
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=licenses", 'icon' => 'fa-upload', 'size' => 'lg']] : []
+        ) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>

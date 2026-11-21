@@ -43,12 +43,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(project_template_archived_at IS NULL), 0), COALESCE(SUM(project_template_archived_at IS NOT NULL), 0) FROM project_templates WHERE $search"));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 ?>
+
+<?= adminNavGroupTabsHtml('templates') ?>
 
 <div class="card">
     <div class="card-header bg-dark py-2">
@@ -64,7 +62,7 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                 <div class="col-md-5">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search project templates...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -78,10 +76,10 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('project_template_name', 'Template') ?></th>
-                <th class="text-center"><?= $sort_link('ticket_count', 'Tickets') ?></th>
-                <th class="text-center"><?= $sort_link('task_count', 'Tasks') ?></th>
-                <th><?= $sort_link('project_template_updated_at', 'Updated') ?></th>
+                <th class="ps-3"><?= sortLink('project_template_name', 'Template') ?></th>
+                <th class="text-center"><?= sortLink('ticket_count', 'Tickets') ?></th>
+                <th class="text-center"><?= sortLink('task_count', 'Tasks') ?></th>
+                <th><?= sortLink('project_template_updated_at', 'Updated') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -113,19 +111,19 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                                     <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                 </a>
                                 <a class="dropdown-item" href="post.php?duplicate_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                    <i class="fas fa-fw fa-copy text-secondary me-2"></i>Duplicate
+                                    <i class="far fa-fw fa-copy text-secondary me-2"></i>Duplicate
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['project_template_archived_at']) { ?>
                                     <a class="dropdown-item" href="post.php?restore_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                        <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item text-danger" href="post.php?archive_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </a>
                                 <?php } ?>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                     data-confirm-text="The template goes for good. Its ticket templates stay, and so do projects started from it.">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>

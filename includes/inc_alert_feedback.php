@@ -26,9 +26,8 @@ if (!empty($_SESSION['alert_message'])) {
     $alert_type = $_SESSION['alert_type'] ?? 'success';
 
     // One mapping for both renderers - see alertStyleClass() in
-    // functions/sanitize.php. flashAlert() is called with more type names than
-    // Bootstrap has classes ('danger', 'alert' and a typo'd 'errpr' among
-    // them), and an unmapped value used to resolve to nothing at all.
+    // functions/sanitize.php - 'error' is Bootstrap's 'danger', and an unmapped
+    // value used to resolve to nothing at all.
     $alert_style_class = alertStyleClass($alert_type);
     $alert_style = 'text-bg-' . $alert_style_class;
     // text-bg-info and text-bg-warning are the two Bootstrap pairs with dark text
@@ -36,7 +35,7 @@ if (!empty($_SESSION['alert_message'])) {
 
     // Font Awesome 5 names - the vendored build is 5.15.4, so no fa-circle-*
     // aliases. Keyed on alertStyleClass()' output rather than the raw type, so
-    // 'error', 'errpr' and 'danger' all land on the same icon the same way they
+    // 'error' and 'danger' land on the same icon the same way they
     // already land on the same colour.
     $alert_icons = [
         'success'   => 'fa-check-circle',
@@ -50,6 +49,9 @@ if (!empty($_SESSION['alert_message'])) {
     // Escaping lives in one place now - see alertMessageHtml() in functions/sanitize.php
     $alert_safe_message = alertMessageHtml($_SESSION['alert_message']);
 
+    // Undo, when the change can be put back (functions/undo.php) - and the message stays up longer for it
+    $alert_undo_token = function_exists('undoTokenForAlert') && !empty($_SESSION['csrf_token']) ? undoTokenForAlert() : '';
+
     ?>
 
     <?php /* `show` is on the element from the server, and `fade` is gone: the
@@ -62,15 +64,20 @@ if (!empty($_SESSION['alert_message'])) {
              loaded in the header. */ ?>
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;">
         <div id="itflowFlashToast"
-             class="toast show itflow-toast align-items-center <?= $alert_style ?> border-0"
+             class="toast show itflow-toast<?= $alert_undo_token ? ' itflow-toast-undo' : '' ?> align-items-center <?= $alert_style ?> border-0"
              role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex align-items-center">
                 <i class="fas fa-fw <?= $alert_icon ?> fa-lg ms-3"></i>
                 <div class="toast-body"><?= $alert_safe_message ?></div>
+                <?php if ($alert_undo_token) { ?>
+                    <a class="btn btn-sm <?= $alert_dark_text ? 'btn-outline-dark' : 'btn-outline-light' ?> fw-semibold text-nowrap flex-shrink-0 me-3" data-undo
+                       href="/agent/post.php?undo=<?= escapeHtml($alert_undo_token) ?>&amp;csrf_token=<?= escapeHtml($_SESSION['csrf_token']) ?>"><i class="fas fa-undo me-1"></i>Undo</a>
+                <?php } ?>
                 <?php /* No data-bs-dismiss - the click handler below covers the
-                         whole toast, and this button sits inside it. */ ?>
+                         whole toast, and this button sits inside it. Beside Undo
+                         it stands apart behind a line (.itflow-toast-close). */ ?>
                 <button type="button"
-                        class="btn-close <?= $alert_dark_text ? '' : 'btn-close-white' ?> me-2 m-auto"
+                        class="btn-close <?= $alert_dark_text ? '' : 'btn-close-white' ?> <?= $alert_undo_token ? 'itflow-toast-close' : 'me-2 m-auto' ?>"
                         aria-label="Close"></button>
             </div>
             <div class="itflow-toast-progress"></div>
@@ -90,7 +97,21 @@ if (!empty($_SESSION['alert_message'])) {
 
             // Click anywhere on it to dismiss, the way toastr did. The close
             // button is inside the toast, so this covers it too.
-            el.addEventListener('click', function () {
+            el.addEventListener('click', function (event) {
+                // Undo goes where it links - and only once
+                var undo = event.target.closest('[data-undo]');
+                if (undo) {
+                    if (undo.classList.contains('disabled')) {
+                        event.preventDefault();
+                    }
+                    undo.classList.add('disabled');
+                    return;
+                }
+                // With Undo on it, only the x closes it - a click that just
+                // misses Undo keeps the offer
+                if (el.classList.contains('itflow-toast-undo') && !event.target.closest('.btn-close')) {
+                    return;
+                }
                 el.remove();
             });
 
@@ -109,6 +130,7 @@ if (!empty($_SESSION['alert_message'])) {
 
     unset($_SESSION['alert_type']);
     unset($_SESSION['alert_message']);
+    unset($_SESSION['alert_undo']);
 
 }
 
@@ -121,3 +143,9 @@ echo managedBannerHtml();
 
 // The demo - what it is and when it goes back to fresh data (functions/demo.php)
 echo demoModeBannerHtml();
+
+// Banners for agents - every client's, and this client's on its pages (functions/agent_banner.php).
+// A page that learns its client further down ($agent_banners_later) draws them all there.
+if (empty($agent_banners_later)) {
+    echo agentBannersHtml($client_id ?? 0);
+}

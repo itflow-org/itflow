@@ -76,7 +76,7 @@ ob_start();
     <!-- Preview -->
     <div class="itflow-file-preview mb-3">
         <?php if ($preview_kind === 'image') { ?>
-            <a href="file.php?file_id=<?= $file_id ?>&action=view" target="_blank" title="Open full size"><img src="file.php?file_id=<?= $file_id ?>&thumb=1" alt="<?= $file_name ?>"></a>
+            <a href="file.php?file_id=<?= $file_id ?>&action=view" target="_blank" rel="noopener" title="Open full size"><img src="file.php?file_id=<?= $file_id ?>&thumb=1" alt="<?= $file_name ?>"></a>
         <?php } elseif ($preview_kind === 'pdf') { ?>
             <iframe src="file.php?file_id=<?= $file_id ?>&action=view#view=FitH" title="<?= $file_name ?>"></iframe>
         <?php } elseif ($preview_kind === 'text') { ?>
@@ -98,7 +98,7 @@ ob_start();
             </div>
             <div class="itflow-glance-item" title="Uploaded">
                 <i class="fas fa-fw fa-cloud-upload-alt"></i>
-                <span><span title="<?= escapeHtml($row['file_created_at']) ?>"><?= timeAgo($row['file_created_at']) ?></span><?php if ($row['user_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['user_name']) ?></span><?php } ?></span>
+                <span><span title="<?= formatDateTime($row['file_created_at']) ?>"><?= timeAgo($row['file_created_at']) ?></span><?php if ($row['user_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['user_name']) ?></span><?php } ?></span>
             </div>
         </div>
         <div class="col-sm-6">
@@ -129,7 +129,7 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a class="btn btn-primary text-bold" href="file.php?file_id=<?= $file_id ?>"><i class="fas fa-download me-2"></i>Download</a>
+    <a class="btn btn-primary fw-bold" href="file.php?file_id=<?= $file_id ?>"><i class="fas fa-download me-2"></i>Download</a>
     <?php if (!$file_archived && shareCanMake('File')) { ?>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/share/share_add.php?type=File&amp;id=<?= $file_id ?>"><i class="fas fa-share-alt me-2"></i>Share</button>
     <?php } ?>
@@ -137,7 +137,7 @@ ob_start();
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/file/file_rename.php?id=<?= $file_id ?>"><i class="fas fa-pen me-2"></i>Rename</button>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/file/file_move.php?id=<?= $file_id ?>"><i class="fas fa-folder-open me-2"></i>Move</button>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

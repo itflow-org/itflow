@@ -11,8 +11,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-envelope-open me-2"></i>Send Emails to <strong><?= $count ?></strong> client<?= $count === 1 ? '' : 's' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-envelope-open me-2"></i>Send Emails to <strong><?= $count ?></strong> client<?= $count === 1 ? '' : 's' ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -38,8 +38,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_send_client_email" class="btn btn-primary text-bold"<?= emailReady() ? '' : ' disabled' ?>><i class="fas fa-paper-plane me-2"></i>Send</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="bulk_send_client_email" class="btn btn-primary fw-bold"<?= emailReady() ? '' : ' disabled' ?>><i class="fas fa-paper-plane me-2"></i>Send</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

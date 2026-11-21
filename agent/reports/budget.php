@@ -161,7 +161,7 @@ $used_meter = function ($spent, $plan) {
                     <?php if ($has_prev_budget) { ?>
                         <button type="submit" name="copy_budget" value="1" class="btn btn-outline-secondary btn-sm confirm-link"
                                 data-confirm-title="Copy <?= $year - 1 ?>'s budget?" data-confirm-text="Every amount in <?= $year ?> is replaced with <?= $year - 1 ?>'s, month for month." data-confirm-button="Copy it">
-                            <i class="fas fa-fw fa-copy me-1"></i>Copy <?= $year - 1 ?>
+                            <i class="far fa-fw fa-copy me-1"></i>Copy <?= $year - 1 ?>
                         </button>
                     <?php } ?>
                 </div>
@@ -183,7 +183,7 @@ $used_meter = function ($spent, $plan) {
                                 continue;
                             } ?>
                             <tr data-budget-row>
-                                <td><?= escapeHtml($line['name']) ?><?php if ($line['archived']) { ?> <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span><?php } ?></td>
+                                <td><?= escapeHtml($line['name']) ?><?php if ($line['archived']) { ?> <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span><?php } ?></td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <input type="text" inputmode="decimal" class="form-control" data-budget-fill-value aria-label="Amount for every month of <?= escapeHtml($line['name']) ?>" placeholder="0.00">
@@ -210,7 +210,7 @@ $used_meter = function ($spent, $plan) {
                     </table>
                 </div>
                 <div class="card-footer d-flex flex-wrap align-items-center gap-2">
-                    <button type="submit" name="save_budget" value="1" class="btn btn-primary"><i class="fas fa-check me-2"></i>Save budget</button>
+                    <button type="submit" name="save_budget" value="1" class="btn btn-primary"><i class="fas fa-check me-2"></i>Save Budget</button>
                     <a class="btn btn-light" href="<?= escapeHtml(reportUrl(['view' => null])) ?>">Cancel</a>
                     <span class="small text-body-secondary ms-sm-2">Leave a month empty for no budget. Amounts are per month, before tax as you record expenses.</span>
                 </div>
@@ -325,7 +325,7 @@ $used_meter = function ($spent, $plan) {
             <?php
             $columns = [
                 'name' => ['label' => 'Category', 'html' => function ($row) {
-                    return escapeHtml($row['name']) . ($row['archived'] ? ' <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '');
+                    return escapeHtml($row['name']) . ($row['archived'] ? ' <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '');
                 }],
                 'plan_total' => ['label' => "Budget $year", 'type' => 'money', 'html' => function ($row) {
                     return $row['plan_total'] > 0 ? reportMoney($row['plan_total']) : '<span class="itflow-report-zero">–</span>';

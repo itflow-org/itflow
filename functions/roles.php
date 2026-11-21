@@ -24,7 +24,8 @@ const ROLE_LEVEL_TONES = [0 => 'secondary', 1 => 'primary', 2 => 'warning', 3 =>
 /*
  * The modules a role gives levels for, by module_name: label, icon, about
  * (what is in it) and levels (what each level adds - Modify and Full take in
- * the ones before). 'max' is the highest level that means anything.
+ * the ones before). 'max' is the highest level that means anything; 'full'
+ * is what Full lets a role do, for the refusal, where it isn't deleting.
  */
 function roleModuleInfo() {
     return [
@@ -41,7 +42,7 @@ function roleModuleInfo() {
             'levels' => [1 => 'See and copy them', 2 => 'Add, edit and share them', 3 => 'Delete them'],
         ],
         'module_sales' => [
-            'label' => 'Sales', 'icon' => 'fa-file-invoice', 'about' => 'Quotes, invoices, recurring invoices and products',
+            'label' => 'Sales', 'icon' => 'fa-file-invoice-dollar', 'about' => 'Quotes, invoices, recurring invoices and products',
             'levels' => [1 => 'See them', 2 => 'Create, edit and send them - and record payments, with Financial at Modify too', 3 => 'Delete them, and edit or refund a payment'],
         ],
         'module_financial' => [
@@ -51,6 +52,11 @@ function roleModuleInfo() {
         'module_reporting' => [
             'label' => 'Reports', 'icon' => 'fa-chart-line', 'about' => 'The reports - each needs read access to what it reports on too',
             'levels' => [1 => 'Open the reports'], 'max' => 1,
+        ],
+        'module_procurement' => [
+            'label' => 'Purchasing', 'icon' => 'fa-truck-loading', 'about' => 'Items to order, purchase orders to vendors and receiving - with invoicing on',
+            'levels' => [1 => 'See them', 2 => 'Add items, make and send purchase orders, add tracking and receive', 3 => 'Approve and cancel purchase orders, and undo a receipt'],
+            'full' => 'approve or cancel purchase orders, or undo a receipt',
         ],
         'module_ai' => [
             'label' => 'AI', 'icon' => 'fa-robot', 'about' => 'Rewording, summaries and drafts, by the AI providers in Admin - each needs access to what it works on too',
@@ -213,7 +219,7 @@ function roleAdminBlocker(array $row) {
         return 'It is your own role - another admin can change it.';
     }
     $others = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM users JOIN user_roles ON role_id = user_role_id
-        WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL AND role_is_admin = 1 AND role_id <> " . intval($row['role_id'])))[0]);
+        WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL AND role_is_admin = 1 AND role_id <> " . intval($row['role_id'])))[0]);
     if ($others === 0 && intval($row['agents'])) {
         return 'Its agents are the only admins - nobody would be left to run Admin.';
     }

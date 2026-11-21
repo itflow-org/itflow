@@ -16,6 +16,10 @@
 require_once "includes/inc_all.php";
 
 enforceUserPermission('module_financial');
+if (!moduleOn('bookkeeping')) {
+    flashAlert(moduleOffText('bookkeeping'), 'error');
+    redirect('/agent/dashboard.php');
+}
 
 $can_edit = lookupUserPermission('module_financial') >= 2;
 $can_delete = lookupUserPermission('module_financial') >= 3;
@@ -100,17 +104,17 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                 <?php if ($can_edit) { ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/account/account_add.php"><i class="fas fa-plus me-2"></i>New Account</button>
                 <?php } ?>
-                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit) { ?>
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php"><i class="fa fa-fw fa-exchange-alt text-secondary me-2"></i>New Transfer</a>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php"><i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>New Transfer</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement - expenses</a>
-                        <a class="dropdown-item" href="income_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Deposits - income</a>
+                        <a class="dropdown-item" href="expense_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Statement - Expenses</a>
+                        <a class="dropdown-item" href="income_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Deposits - Income</a>
                         <div class="dropdown-divider"></div>
                     <?php } ?>
-                    <a class="dropdown-item" href="transactions.php"><i class="fa fa-fw fa-list-alt text-secondary me-2"></i>Every account's transactions</a>
-                    <a class="dropdown-item" href="transactions.php?show=transfers"><i class="fa fa-fw fa-exchange-alt text-secondary me-2"></i>Transfers</a>
+                    <a class="dropdown-item" href="transactions.php"><i class="fas fa-fw fa-list-alt text-secondary me-2"></i>Every Account's Transactions</a>
+                    <a class="dropdown-item" href="transactions.php?show=transfers"><i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>Transfers</a>
                 </div>
             </div>
         </div>
@@ -121,8 +125,8 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
             <form autocomplete="off" class="me-auto" style="min-width: 16rem;">
                 <?php if ($show) { ?><input type="hidden" name="show" value="<?= $show ?>"><?php } ?>
                 <div class="input-group">
-                    <input type="search" class="form-control" name="q" value="<?= escapeHtml($q_text) ?>" placeholder="Search accounts">
-                    <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                    <input type="search" class="form-control" name="q" value="<?= escapeHtml($q_text) ?>" placeholder="Search accounts...">
+                    <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                 </div>
             </form>
             <nav class="nav nav-pills itflow-asset-tabs flex-nowrap">
@@ -191,7 +195,7 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                     </td>
                     <td class="text-nowrap small">
                         <?php if ($account['last_date']) { ?>
-                            <?= escapeHtml($account['last_date']) ?><div class="text-body-secondary"><?= $account['line_count'] ?> line<?= $account['line_count'] === 1 ? '' : 's' ?></div>
+                            <?= formatDate($account['last_date']) ?><div class="text-body-secondary"><?= $account['line_count'] ?> line<?= $account['line_count'] === 1 ? '' : 's' ?></div>
                         <?php } else { ?>
                             <span class="text-body-secondary">Nothing yet</span>
                         <?php } ?>
@@ -206,8 +210,8 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="transactions.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-list-alt text-secondary me-2"></i>Transactions</a>
-                                <a class="dropdown-item" href="income.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-hand-holding-usd text-secondary me-2"></i>Income into it</a>
-                                <a class="dropdown-item" href="expenses.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses from it</a>
+                                <a class="dropdown-item" href="income.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-hand-holding-usd text-secondary me-2"></i>Income into It</a>
+                                <a class="dropdown-item" href="expenses.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses from It</a>
                                 <a class="dropdown-item" href="reconcile.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-tasks text-secondary me-2"></i><?= $account['reconciling_id'] ? 'Carry on reconciling' : 'Reconcile' ?></a>
                                 <?php if ($can_edit && !$account['account_archived_at']) { ?>
                                     <div class="dropdown-divider"></div>
@@ -215,21 +219,20 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                                     <?php if ($card) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php?to=<?= $account_id ?>"><i class="fas fa-fw fa-credit-card text-secondary me-2"></i>Pay the Card</a>
                                     <?php } else { ?>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php?from=<?= $account_id ?>"><i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>Transfer from it</a>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php?from=<?= $account_id ?>"><i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>Transfer from It</a>
                                     <?php } ?>
                                     <div class="dropdown-divider"></div>
                                     <?php if (abs($balance) < 0.005) { ?>
-                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                            data-confirm-text="<?= escapeHtml($account['account_name']) ?> leaves the account pickers. Its history stays, and it can be restored."><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
+                                        <a class="dropdown-item text-danger" href="post.php?archive_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
                                     <?php } else { ?>
                                         <span class="dropdown-item-text small text-body-secondary"><i class="fas fa-fw fa-archive me-2"></i>Archive once it's empty</span>
                                     <?php } ?>
                                 <?php } elseif ($can_edit) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="post.php?restore_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Restore</a>
+                                    <a class="dropdown-item" href="post.php?restore_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore</a>
                                 <?php } ?>
                                 <?php if ($can_delete && !$in_use && !accountInUse($account_id)) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= escapeHtml($account['account_name']) ?> has never been used, so it goes for good."><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                                 <?php } ?>
                             </div>

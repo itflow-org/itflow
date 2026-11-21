@@ -100,7 +100,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw <?= $title_icon ?> me-2"></i><?= $title_html ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form autocomplete="off" data-share-add id="<?= $uid ?>"<?= $protect_with_secrets ? ' data-share-protect-secrets' : '' ?>>
@@ -173,7 +173,7 @@ ob_start();
             <label class="form-label" for="<?= $uid ?>Recipient"><?= $type === 'Request' ? 'Ask' : 'Send to' ?></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
-                <select class="form-select select2" id="<?= $uid ?>Recipient" name="recipient" data-placeholder="Pick a contact or type an email" data-tags="true" data-share-recipient>
+                <select class="form-select select2" id="<?= $uid ?>Recipient" name="recipient" data-placeholder="- Select a contact or type an email -" data-tags="true" data-share-recipient>
                     <option value=""></option>
                     <?php foreach ($recipients as $recipient) { ?>
                         <option value="<?= escapeHtml($recipient['contact_email']) ?>"<?= selectOptionContact($recipient['contact_client_id'], $recipient['contact_name'], $recipient['contact_photo'], $recipient['contact_email'], $recipient['contact_id']) ?>><?= escapeHtml($recipient['contact_name']) ?></option>
@@ -195,7 +195,7 @@ ob_start();
                 <label class="form-label" for="<?= $uid ?>Expires">Works for</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
-                    <select class="form-select" id="<?= $uid ?>Expires" name="expires">
+                    <select class="form-select select2" id="<?= $uid ?>Expires" name="expires">
                         <?php foreach (shareExpiryOptions() as $hours => $label) { ?>
                             <option value="<?= $hours ?>" <?= $hours === $defaults['expires'] ? 'selected' : '' ?>><?= $label ?></option>
                         <?php } ?>
@@ -207,7 +207,7 @@ ob_start();
                     <label class="form-label" for="<?= $uid ?>Views">Can be opened</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
-                        <select class="form-select" id="<?= $uid ?>Views" name="views">
+                        <select class="form-select select2" id="<?= $uid ?>Views" name="views">
                             <?php foreach (shareViewOptions() as $views => $label) { ?>
                                 <option value="<?= $views ?>" <?= $views === $defaults['views'] ? 'selected' : '' ?>><?= $label ?></option>
                             <?php } ?>
@@ -276,13 +276,13 @@ ob_start();
             </div>
             <div class="form-text mb-3">Give it to them another way - by phone or text, not with the link.</div>
         </div>
-        <button type="button" class="btn btn-sm btn-outline-secondary" data-share-qr-toggle><i class="fas fa-qrcode me-2"></i>QR code</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-share-qr-toggle><i class="fas fa-qrcode me-2"></i>QR Code</button>
         <div class="text-center mt-3 p-3 bg-white rounded border" data-share-qr hidden></div>
     </div>
 
     <div class="modal-footer">
-        <button type="submit" class="btn btn-primary text-bold" data-share-make><i class="fas fa-<?= $type === 'Request' ? 'paper-plane' : 'link' ?> me-2"></i><?= $type === 'Request' ? 'Make the request' : 'Make the link' ?></button>
-        <button type="button" class="btn btn-outline-secondary" data-share-again hidden><i class="fas fa-redo me-2"></i>Make another</button>
+        <button type="submit" class="btn btn-primary fw-bold" data-share-make><i class="fas fa-<?= $type === 'Request' ? 'paper-plane' : 'link' ?> me-2"></i><?= $type === 'Request' ? 'Make the request' : 'Make the link' ?></button>
+        <button type="button" class="btn btn-outline-secondary" data-share-again hidden><i class="fas fa-redo me-2"></i>Make Another</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i><span data-share-close>Cancel</span></button>
     </div>
 </form>

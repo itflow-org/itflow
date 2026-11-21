@@ -22,7 +22,7 @@ if ($client_id) {
     $vendor_options = domainVendorChoices($client_id, array_values($domain_vendor_ids));
     $client_name_for_vendors = getFieldById('clients', $client_id, 'client_name');
 } else {
-    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $client_options[] = $row;
     }
@@ -56,9 +56,9 @@ $form_id = 'domainForm' . ($domain_form_mode === 'edit' ? $domain_id : 'New');
             <div class="col-12">
                 <label class="form-label">Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required data-domain-client>
-                        <option value="">- Select Client -</option>
+                        <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
                             <option value="<?= intval($client_option['client_id']) ?>"<?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                         <?php } ?>
@@ -96,20 +96,20 @@ $form_id = 'domainForm' . ($domain_form_mode === 'edit' ? $domain_id : 'New');
             <div class="col-12 d-none" data-domain-several>
                 <label class="form-label">Domain names <strong class="text-danger">*</strong></label>
                 <textarea class="form-control font-monospace" name="names" rows="8" placeholder="example.com&#10;example.net&#10;shop.example.org" disabled data-domain-names></textarea>
-                <div class="form-text">One per line - or separated by spaces or commas. Each is looked up as it is added; ones already on the client are skipped. The registrar, hosts, auto-renew and tags you set here go on all of them.</div>
+                <div class="form-text">One per line, or separated by spaces or commas. The registrar, hosts, auto-renew and tags here go on all of them.</div>
             </div>
         <?php } ?>
         <div class="col-12" data-domain-one>
             <label class="form-label">Description</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Primary domain - website and email" maxlength="500" value="<?= $domain_description ?>">
             </div>
         </div>
         <div class="col-md-6" data-domain-one>
             <label class="form-label">Expires</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar-times"></i></span>
                 <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?= $domain_expire ?>">
             </div>
             <div class="form-text">Leave it empty - it is looked up from the registry. Set it by hand for registries that don't publish it.</div>
@@ -132,7 +132,7 @@ $form_id = 'domainForm' . ($domain_form_mode === 'edit' ? $domain_id : 'New');
                 <div class="col-md-6">
                     <label class="form-label"><?= $role === 'registrar' ? 'Registrar' : $info['label'] . ' host' ?></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw <?= $info['icon'] ?>"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw <?= $info['icon'] ?>"></i></span>
                         <select class="form-select select2" name="<?= $role ?>" data-domain-vendor="<?= $role ?>">
                             <option value="0">- Nobody -</option>
                             <?php foreach ([1, 0] as $theirs) {
@@ -152,7 +152,7 @@ $form_id = 'domainForm' . ($domain_form_mode === 'edit' ? $domain_id : 'New');
                 </div>
             <?php } ?>
             <div class="col-12 d-flex flex-wrap align-items-center gap-3">
-                <button type="button" class="btn btn-sm btn-outline-secondary" data-domain-same><i class="fas fa-clone me-2"></i>Registrar does it all</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-domain-same><i class="fas fa-clone me-2"></i>Registrar Does It All</button>
                 <span class="form-text mt-0">Someone missing? Add them as a vendor - the client's own, or one of ours if we host it.</span>
             </div>
         </div>
@@ -166,7 +166,7 @@ $form_id = 'domainForm' . ($domain_form_mode === 'edit' ? $domain_id : 'New');
     <label class="form-label">Tags</label>
     <input type="hidden" name="tags_form" value="1">
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
         <select class="form-select select2" name="tags[]" data-placeholder="Primary, Parked, Client-owned, Managed DNS" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
             <?= tagOptionsHtml('domain', $domain_tag_ids) ?>
         </select>

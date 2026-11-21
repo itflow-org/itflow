@@ -22,8 +22,8 @@ $tax_choices = billingTaxes();
     <div class="col-md-7">
         <label class="form-label">Tax included</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
-            <select class="form-select" name="tax_id" data-expense-tax-rate>
+            <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
+            <select class="form-select select2" name="tax_id" data-expense-tax-rate>
                 <?= taxOptionsHtml($tax_choices, intval($tax_selected)) ?>
             </select>
         </div>
@@ -32,7 +32,7 @@ $tax_choices = billingTaxes();
     <div class="col-md-5">
         <label class="form-label">Tax</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-balance-scale"></i></span>
             <input type="text" class="form-control text-end" inputmode="decimal" pattern="-?[0-9,]*\.?[0-9]{0,2}" name="tax_amount" placeholder="0.00"
                 value="<?= $tax_amount === null || floatval($tax_amount) == 0 ? '' : number_format(abs(floatval($tax_amount)), 2, '.', '') ?>" data-expense-tax-amount <?= !empty($tax_lock) ? 'readonly' : '' ?>>
             <span class="input-group-text"><?= escapeHtml($tax_currency) ?></span>

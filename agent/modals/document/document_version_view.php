@@ -37,7 +37,7 @@ ob_start();
         <div class="min-w-0">
             <h5 class="modal-title fw-semibold text-break"><?= escapeHtml($row['document_version_name']) ?></h5>
             <div class="small text-body-secondary mt-1">
-                Version of <?= date('M j, Y g:ia', strtotime($row['document_version_created_at'])) ?><?= $row['user_name'] ? ' by ' . escapeHtml($row['user_name']) : '' ?>
+                Version of <?= date('M j, Y g:i A', strtotime($row['document_version_created_at'])) ?><?= $row['user_name'] ? ' by ' . escapeHtml($row['user_name']) : '' ?>
                 <?php if ($row['document_version_description']) { ?> &middot; <?= escapeHtml($row['document_version_description']) ?><?php } ?>
             </div>
         </div>
@@ -50,21 +50,22 @@ ob_start();
 </div>
 
 <div class="modal-footer">
+    <a class="btn btn-outline-secondary ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document/document_changes.php?document_id=<?= intval($row['document_version_document_id']) ?>&version_id=<?= $document_version_id ?>"><i class="fas fa-exchange-alt me-2"></i>What Changed</a>
     <?php if ($can_delete) { ?>
         <a class="btn btn-outline-danger confirm-link me-auto" href="post.php?delete_document_version=<?= $document_version_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="This version is removed from the history for good.">
-            <i class="fas fa-trash me-2"></i>Delete version
+            <i class="fas fa-trash me-2"></i>Delete Version
         </a>
     <?php } ?>
     <?php if ($can_edit) { ?>
         <form action="post.php" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             <input type="hidden" name="document_version_id" value="<?= $document_version_id ?>">
-            <button type="submit" name="restore_document_version" class="btn btn-primary text-bold confirm-link" data-confirm-title="Put this version back?" data-confirm-text="What the document says now is kept in its history." data-confirm-button="Restore">
-                <i class="fas fa-undo me-2"></i>Restore this version
+            <button type="submit" name="restore_document_version" class="btn btn-primary fw-bold confirm-link" data-confirm-title="Put this version back?" data-confirm-text="What the document says now is kept in its history." data-confirm-button="Restore">
+                <i class="fas fa-undo me-2"></i>Restore This Version
             </button>
         </form>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>

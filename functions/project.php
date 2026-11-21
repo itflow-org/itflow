@@ -211,13 +211,13 @@ function projectDuePill($row) {
     return '';
 }
 
-/** Hours for people: "45m", "3h", "12.5h". */
+/** Hours for people: "45m", "3 h", "12.5 h". */
 function projectHoursText($seconds) {
     $seconds = max(0, intval($seconds));
     if ($seconds < 3600) {
         return round($seconds / 60) . 'm';
     }
-    return rtrim(rtrim(number_format($seconds / 3600, 1, '.', ''), '0'), '.') . 'h';
+    return rtrim(rtrim(number_format($seconds / 3600, 1, '.', ''), '0'), '.') . ' h';
 }
 
 /** A budget in hours as posted - a positive number up to 999999, or null for none. */
@@ -569,6 +569,7 @@ function projectAddTicket($project, $ticket) {
         return '';
     }
     mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = " . intval($project['project_id']) . ", ticket_updated_at = ticket_updated_at WHERE ticket_id = $ticket_id");
+    projectTicketMoved($ticket_id, $ticket['ticket_project_id']);
     logTicketHistory($ticket_id, "$session_name added the ticket to project " . escapeSql(projectReference($project) . ' - ' . $project['project_name']));
     return '';
 }
@@ -578,6 +579,7 @@ function projectRemoveTicket($ticket) {
     global $mysqli, $session_name;
     $ticket_id = intval($ticket['ticket_id']);
     mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = 0, ticket_updated_at = ticket_updated_at WHERE ticket_id = $ticket_id");
+    projectTicketMoved($ticket_id, $ticket['ticket_project_id'] ?? 0);
     logTicketHistory($ticket_id, "$session_name took the ticket out of its project");
 }
 
@@ -628,7 +630,16 @@ function projectDelete($row) {
     while ($ticket = mysqli_fetch_row($sql)) {
         logTicketHistory(intval($ticket[0]), "$session_name deleted project $name, which the ticket was part of");
     }
+    $left = [];
+    $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_project_id = $project_id");
+    while ($ticket = mysqli_fetch_row($sql)) {
+        $left[] = intval($ticket[0]);
+    }
     mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = 0, ticket_updated_at = ticket_updated_at WHERE ticket_project_id = $project_id");
+    // Out of the project - their SLA back, counted from now, while project tickets are kept apart (functions/project_tickets.php)
+    foreach ($left as $ticket_id) {
+        projectTicketMoved($ticket_id, $project_id);
+    }
     mysqli_query($mysqli, "DELETE FROM projects WHERE project_id = $project_id");
     logAudit("Project", "Delete", "$session_name deleted project $name", intval($row['project_client_id']), $project_id);
 }
@@ -644,4 +655,122 @@ function projectNotifyManager($row, $manager_id) {
     $text = escapeSql("$session_name made you the manager of project " . projectReference($row) . ' - ' . $row['project_name']);
     $action = escapeSql('/agent/' . projectUrl($row['project_id'], $client_id));
     mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Project', notification = '$text', notification_action = '$action', notification_client_id = $client_id, notification_user_id = $manager_id");
+}
+
+/*
+ * The project's bookings laid out in time, for its Timeline tab: each booked
+ * ticket a bar from its booking's start to its end, on a scale from the
+ * project's start (or its first booking) to its due date (or its last one) -
+ * by the day up to three weeks, by the week (starting on $first_day, 0 Sunday
+ * or 1 Monday) up to twenty, else by the month. An open booking that overlaps
+ * another open one of the same agent's on this project lists it in 'clashes'.
+ * Times are on the viewer's clock (functions/user_timezone.php). Open tickets
+ * with no booking come back in 'unbooked'. Positions are percentages of the scale.
+ */
+function projectTimeline($project, array $tickets, $first_day = 0) {
+    $shifted = timezoneShifted();
+    $view = function ($value) use ($shifted) {
+        return strtotime($shifted ? timezoneToView($value) : $value);
+    };
+    $rows = [];
+    $unbooked = [];
+    foreach ($tickets as $ticket) {
+        if (empty($ticket['ticket_schedule'])) {
+            if (ticketIsOpen($ticket)) {
+                $unbooked[] = $ticket;
+            }
+            continue;
+        }
+        $start = $view($ticket['ticket_schedule']);
+        $end = max($view(ticketScheduleEnd($ticket['ticket_schedule'], $ticket['ticket_schedule_end'] ?? null)), $start + 60);
+        $rows[] = ['ticket' => $ticket, 'start' => $start, 'end' => $end, 'clashes' => []];
+    }
+    $out = ['rows' => [], 'unbooked' => $unbooked, 'ticks' => [], 'markers' => [], 'scale' => '', 'clashes' => 0];
+    if (!$rows) {
+        return $out;
+    }
+    usort($rows, function ($a, $b) {
+        return ($a['start'] <=> $b['start']) ?: (intval($a['ticket']['ticket_number']) <=> intval($b['ticket']['ticket_number']));
+    });
+
+    // The same agent booked twice at once
+    foreach ($rows as $i => $a) {
+        $agent = intval($a['ticket']['ticket_assigned_to']);
+        if (!$agent || !ticketIsOpen($a['ticket'])) {
+            continue;
+        }
+        foreach ($rows as $j => $b) {
+            if ($j <= $i || intval($b['ticket']['ticket_assigned_to']) !== $agent || !ticketIsOpen($b['ticket'])) {
+                continue;
+            }
+            if ($a['start'] < $b['end'] && $b['start'] < $a['end']) {
+                $rows[$i]['clashes'][] = ticketReference($b['ticket']);
+                $rows[$j]['clashes'][] = ticketReference($a['ticket']);
+            }
+        }
+    }
+
+    // The scale - whole days, from the earliest of the project's start and its bookings to the latest of its due date and theirs
+    $now = $view(date('Y-m-d H:i:s'));
+    $points = array_merge(array_column($rows, 'start'), array_column($rows, 'end'));
+    $project_start = !empty($project['project_start']) ? strtotime($project['project_start']) : null;
+    $project_due = !empty($project['project_due']) ? strtotime($project['project_due']) : null;
+    foreach ([$project_start, $project_due] as $point) {
+        if ($point) {
+            $points[] = $point;
+        }
+    }
+    $from = strtotime(date('Y-m-d', min($points)));
+    $to = strtotime(date('Y-m-d', max($points)) . ' +1 day');
+    $days = max(1, intval(round(($to - $from) / 86400)));
+    if ($days <= 21) {
+        $scale = 'day';
+    } elseif ($days <= 140) {
+        $scale = 'week';
+        $from = strtotime(date('Y-m-d', $from) . ' -' . ((intval(date('w', $from)) - intval($first_day) + 7) % 7) . ' days');
+        $to = strtotime(date('Y-m-d', $to) . ' +' . ((intval($first_day) - intval(date('w', $to)) + 7) % 7) . ' days');
+    } else {
+        $scale = 'month';
+        $from = strtotime(date('Y-m-01', $from));
+        $to = strtotime(date('Y-m-01', $to) . (date('j', $to) === '1' ? '' : ' +1 month'));
+    }
+    $span = max(1, $to - $from);
+    $pct = function ($ts) use ($from, $span) {
+        return round(max(0, min(100, ($ts - $from) / $span * 100)), 3);
+    };
+
+    $step = ['day' => '+1 day', 'week' => '+1 week', 'month' => '+1 month'][$scale];
+    $format = ['day' => 'D j', 'week' => 'M j', 'month' => 'M Y'][$scale];
+    for ($tick = $from; $tick < $to; $tick = strtotime(date('Y-m-d', $tick) . " $step")) {
+        $out['ticks'][] = ['at' => $pct($tick), 'label' => date($format, $tick), 'weekend' => $scale === 'day' && in_array(date('w', $tick), ['0', '6'], true)];
+    }
+    // Each tick's room to the next - a label is cut short there rather than running into the next; past a dozen, every other one is labelled
+    $many = count($out['ticks']) > 12;
+    foreach ($out['ticks'] as $i => $tick) {
+        $out['ticks'][$i]['minor'] = $many && $i % 2 === 1;
+        $next = $out['ticks'][$i + ($many && $i % 2 === 0 ? 2 : 1)]['at'] ?? 100;
+        $out['ticks'][$i]['room'] = round(($out['ticks'][$i + 1]['at'] ?? 100) - $tick['at'], 3);
+        $out['ticks'][$i]['label_room'] = round($next - $tick['at'], 3);
+    }
+
+    if ($now >= $from && $now < $to) {
+        $out['markers'][] = ['at' => $pct($now), 'kind' => 'today', 'label' => 'Now'];
+    }
+    if ($project_start) {
+        $out['markers'][] = ['at' => $pct($project_start), 'kind' => 'start', 'label' => 'Start ' . date('M j', $project_start)];
+    }
+    if ($project_due) {
+        $out['markers'][] = ['at' => $pct(strtotime(date('Y-m-d', $project_due) . ' +1 day')), 'kind' => 'due', 'label' => 'Due ' . date('M j', $project_due)];
+    }
+
+    foreach ($rows as $row) {
+        $open = ticketIsOpen($row['ticket']);
+        $row['left'] = $pct($row['start']);
+        $row['width'] = max(0, $pct($row['end']) - $row['left']);
+        $row['state'] = !$open ? 'done' : ($row['end'] < $now ? 'late' : 'open');
+        $out['clashes'] += $row['clashes'] ? 1 : 0;
+        $out['rows'][] = $row;
+    }
+    $out['scale'] = $scale;
+    return $out;
 }

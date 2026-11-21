@@ -39,6 +39,25 @@ if ($queued > 0) {
 }
 
 /*
+ * Then a restore asked for in Maintenance > Backup (functions/backup_restore.php). The database
+ * is the backup's afterwards, so nothing else is done this run, and the cron dispatch ends its
+ * cycle here - the jobs after this one run with the next.
+ */
+$restore = backupRestoreRunQueued($mysqli);
+
+if ($restore !== null) {
+    [$restore_ok, $restore_message] = $restore;
+    echo ($restore_ok ? '' : 'Restore FAILED: ') . "$restore_message\n";
+    appNotify("Backup", ($restore_ok ? 'Restore finished: ' : 'Restore failed: ') . $restore_message, "/admin/backup.php");
+    logAudit("Backup", "Restore", ($restore_ok ? 'Restored from Maintenance > Backup: ' : 'A restore from Maintenance > Backup failed: ') . $restore_message);
+    if (!$restore_ok) {
+        logApp("Backup", "error", "Restore failed: $restore_message");
+    }
+    $cron_dispatch_stop_cycle = true;
+    return;
+}
+
+/*
  * Then the scheduled one. The dispatcher only calls this script when the schedule says so,
  * so reaching here means a scheduled backup is due.
  *

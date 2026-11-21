@@ -17,8 +17,47 @@
  *
  * A link whose classes mark it destructive (text-danger, btn-danger or
  * btn-outline-danger) defaults to a red confirm button and a warning icon, so
- * the delete links read as dangerous without touching any of them.
+ * the delete links read as dangerous without touching any of them. With no
+ * data-confirm-button, the confirm button says what the link says - Delete,
+ * Archive, Remove - when that is a word or three, and Yes otherwise.
+ *
+ * itflowConfirm({title, text, button, icon, danger}) asks the same question
+ * from script and resolves true when it is confirmed.
  */
+function itflowConfirm(options) {
+    options = options || {};
+    if (typeof Swal === 'undefined') {
+        return Promise.resolve(window.confirm(options.title || 'Are you sure?'));
+    }
+    return Swal.fire({
+        // SweetAlert2 has no idea about Bootstrap's mode - it keys its own dark
+        // palette off the `theme` option and defaults to 'light', so the dialog
+        // stayed white on a dark page. Read at fire time, not at load.
+        theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',
+        title: options.title || 'Are you sure?',
+        text: options.text || '',
+        icon: options.icon || (options.danger ? 'warning' : 'question'),
+        showCancelButton: true,
+        confirmButtonText: options.button || 'Yes',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true,
+        focusCancel: !!options.danger,
+        buttonsStyling: false,
+        customClass: {
+            confirmButton: options.danger ? 'btn btn-danger mx-1' : 'btn btn-primary mx-1',
+            cancelButton: 'btn btn-secondary mx-1'
+        }
+    }).then(function (result) {
+        return !!result.isConfirmed;
+    });
+}
+
+// What the link itself says, for the confirm button - only when it is short
+function itflowConfirmLabel(link) {
+    const said = (link.textContent || '').replace(/\s+/g, ' ').trim() || link.getAttribute('title') || link.getAttribute('aria-label') || '';
+    return said && said.length <= 24 && said.split(' ').length <= 3 ? said : '';
+}
+
 document.addEventListener('click', function (e) {
     const link = e.target.closest('a.confirm-link, button.confirm-link');
     if (!link || typeof Swal === 'undefined') {
@@ -35,26 +74,14 @@ document.addEventListener('click', function (e) {
     const destructive = ['text-danger', 'btn-danger', 'btn-outline-danger']
         .some(function (cls) { return link.classList.contains(cls); });
 
-    Swal.fire({
-        // SweetAlert2 has no idea about Bootstrap's mode - it keys its own dark
-        // palette off the `theme` option and defaults to 'light', so the dialog
-        // stayed white on a dark page. Read at fire time, not at load.
-        theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',
-        title: link.dataset.confirmTitle || 'Are you sure?',
-        text: link.dataset.confirmText || '',
-        icon: link.dataset.confirmIcon || (destructive ? 'warning' : 'question'),
-        showCancelButton: true,
-        confirmButtonText: link.dataset.confirmButton || 'Yes',
-        cancelButtonText: 'Cancel',
-        reverseButtons: true,
-        focusCancel: destructive,
-        buttonsStyling: false,
-        customClass: {
-            confirmButton: destructive ? 'btn btn-danger mx-1' : 'btn btn-primary mx-1',
-            cancelButton: 'btn btn-secondary mx-1'
-        }
-    }).then(function (result) {
-        if (!result.isConfirmed) {
+    itflowConfirm({
+        title: link.dataset.confirmTitle,
+        text: link.dataset.confirmText,
+        button: link.dataset.confirmButton || itflowConfirmLabel(link),
+        icon: link.dataset.confirmIcon,
+        danger: destructive
+    }).then(function (confirmed) {
+        if (!confirmed) {
             return;
         }
         if (form) {

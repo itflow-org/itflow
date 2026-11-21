@@ -28,8 +28,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-clone me-2"></i>Merge into another ticket <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-clone me-2"></i>Merge into Another Ticket <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -41,9 +41,9 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Merge into <strong class="text-danger">*</strong></label>
+            <label class="form-label">Merge into <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <select class="form-select select2" name="merge_into_ticket_id" required>
                     <option value=''>- Pick the ticket to keep -</option>
                     <?php
@@ -64,9 +64,9 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Reason <strong class="text-danger">*</strong></label>
+            <label class="form-label">Reason <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-sticky-note"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-sticky-note"></i></span>
                 <input type="text" class="form-control" name="merge_comment" placeholder="Noted on both tickets" required>
             </div>
         </div>
@@ -82,8 +82,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="merge_ticket" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Merge and close</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="merge_ticket" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Merge and Close</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

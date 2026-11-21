@@ -29,7 +29,7 @@ foreach ($tabs as $key => $info) {
     $counts[$key] = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM logs WHERE $scope AND {$info['where']}"))[0]);
 }
 $total = $counts[$tab];
-$pages = max(1, (int) ceil($total / $per_page));
+$pages = max(1, intval(ceil($total / $per_page)));
 $page = min(max(1, intval($_GET['page'] ?? 1)), $pages);
 $offset = ($page - 1) * $per_page;
 
@@ -60,18 +60,18 @@ function activityUrl(array $changes) {
 }
 ?>
 
-<a class="itflow-portal-back" href="profile.php"><i class="fas fa-chevron-left"></i>Your account</a>
+<a class="itflow-portal-back" href="profile.php"><i class="fas fa-chevron-left"></i>Your Account</a>
 
 <div class="itflow-portal-page-head">
     <div>
-        <h1>Your activity</h1>
+        <h1>Your Activity</h1>
         <p>Every time you signed in, and what you did here</p>
     </div>
 </div>
 
 <nav class="itflow-portal-tabs" aria-label="Kinds of activity">
     <?php foreach ($tabs as $key => $info) { ?>
-        <a class="<?= $tab === $key ? 'active' : '' ?>" href="<?= escapeHtml(activityUrl(['tab' => $key !== 'all' ? $key : null])) ?>"><i class="fas <?= $info['icon'] ?>"></i><?= $info['label'] ?> <span class="badge rounded-pill"><?= $counts[$key] ?></span></a>
+        <a class="<?= $tab === $key ? 'active' : '' ?>" href="<?= escapeHtml(activityUrl(['tab' => $key !== 'all' ? $key : null])) ?>"><i class="fas <?= $info['icon'] ?>"></i><?= $info['label'] ?> <span class="badge rounded-pill"><?= number_format(intval($counts[$key])) ?></span></a>
     <?php } ?>
 </nav>
 

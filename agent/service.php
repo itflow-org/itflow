@@ -31,7 +31,7 @@ $service = serviceRow($service_id);
 
 if (!$service || ($client_url && intval($service['service_client_id']) !== intval($client_id))) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
 } else {
 
@@ -132,8 +132,6 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
     if (!$can_credentials) {
         unset($service_tabs['logins']);
     }
-
-    $link_url = "modals/link/link.php?from=service&id=$service_id&to=";
     $unlink_url = function ($to, $other_id) use ($service_id) {
         return "post.php?unlink_item&from=service&id=$service_id&to=$to&other=" . intval($other_id) . "&csrf_token=" . $_SESSION['csrf_token'];
     };
@@ -187,25 +185,25 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
             <div class="d-flex flex-wrap gap-2 d-print-none">
                 <?php if ($can_edit) { ?>
                     <button type="button" class="btn btn-outline-danger ajax-modal" data-modal-size="lg" data-modal-url="<?= escapeHtml($report_url) ?>">
-                        <i class="fas fa-life-ring me-2"></i>Report a problem
+                        <i class="fas fa-life-ring me-2"></i>Report a Problem
                     </button>
                     <div class="dropdown">
                         <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>asset"><i class="fa fa-fw fa-desktop text-secondary me-2"></i>Asset it runs on</a>
+                            <?= linkPickerButton('service', $service_id, 'asset', 'Asset it runs on', 'dropdown-item', 'fas fa-fw fa-desktop text-secondary me-2') ?>
                             <?php if ($can_link_credentials) { ?>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>credential"><i class="fa fa-fw fa-key text-secondary me-2"></i>Login</a>
+                                <?= linkPickerButton('service', $service_id, 'credential', 'Login', 'dropdown-item', 'fas fa-fw fa-key text-secondary me-2') ?>
                             <?php } ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>domain"><i class="fa fa-fw fa-globe text-secondary me-2"></i>Domain</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>certificate"><i class="fa fa-fw fa-lock text-secondary me-2"></i>Certificate</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>contact"><i class="fa fa-fw fa-user text-secondary me-2"></i>Person</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>vendor"><i class="fa fa-fw fa-building text-secondary me-2"></i>Vendor</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>document"><i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/service/service_link_ticket.php?id=<?= $service_id ?>"><i class="fa fa-fw fa-life-ring text-secondary me-2"></i>Ticket</a>
+                            <?= linkPickerButton('service', $service_id, 'domain', 'Domain', 'dropdown-item', 'fas fa-fw fa-globe text-secondary me-2') ?>
+                            <?= linkPickerButton('service', $service_id, 'certificate', 'Certificate', 'dropdown-item', 'fas fa-fw fa-lock text-secondary me-2') ?>
+                            <?= linkPickerButton('service', $service_id, 'contact', 'Person', 'dropdown-item', 'fas fa-fw fa-user text-secondary me-2') ?>
+                            <?= linkPickerButton('service', $service_id, 'vendor', 'Vendor', 'dropdown-item', 'fas fa-fw fa-building text-secondary me-2') ?>
+                            <?= linkPickerButton('service', $service_id, 'document', 'Document', 'dropdown-item', 'fas fa-fw fa-file-alt text-secondary me-2') ?>
+                            <?= linkPickerButton('service', $service_id, 'ticket', 'Ticket', 'dropdown-item', 'fas fa-fw fa-life-ring text-secondary me-2') ?>
                         </div>
                     </div>
                     <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/service/service_review.php?id=<?= $service_id ?>">
-                        <i class="fas fa-clipboard-check me-2"></i>Mark reviewed
+                        <i class="fas fa-clipboard-check me-2"></i>Mark Reviewed
                     </button>
                     <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/service/service_edit.php?id=<?= $service_id ?>">
                         <i class="fas fa-edit me-2"></i>Edit
@@ -222,21 +220,20 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                                 <?php if ($can_delete) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= $service_name ?> goes for good. What it linked to - assets, logins, documents - stays.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
                                 <?php } ?>
                             <?php } else { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="xl" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&service_id=<?= $service_id ?>">
-                                    <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>New runbook document
+                                    <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>New Runbook Document
                                 </a>
                                 <a class="dropdown-item" href="post.php?<?= $is_favorite ? 'unfavorite_service' : 'favorite_service' ?>=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="<?= $is_favorite ? 'far' : 'fas' ?> fa-fw fa-star text-secondary me-2"></i><?= $is_favorite ? 'Unstar' : 'Star' ?>
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                    data-confirm-text="<?= $service_name ?> moves to Archived, off the lists and counts, until restored.">
+                                <a class="dropdown-item text-danger" href="post.php?archive_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                 </a>
                             <?php } ?>
@@ -298,9 +295,9 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                                 <?php if ($networks) { ?><div class="d-flex flex-wrap column-gap-3"><?= implode('', $networks) ?></div><?php } ?>
                             </dd>
                         <?php } ?>
-                        <dt>Added</dt><dd title="<?= escapeHtml($service['service_created_at']) ?>"><?= timeAgo($service['service_created_at']) ?></dd>
+                        <dt>Added</dt><dd title="<?= formatDateTime($service['service_created_at']) ?>"><?= timeAgo($service['service_created_at']) ?></dd>
                         <?php if ($service['service_updated_at']) { ?>
-                            <dt>Updated</dt><dd title="<?= escapeHtml($service['service_updated_at']) ?>"><?= timeAgo($service['service_updated_at']) ?></dd>
+                            <dt>Updated</dt><dd title="<?= formatDateTime($service['service_updated_at']) ?>"><?= timeAgo($service['service_updated_at']) ?></dd>
                         <?php } ?>
                     </dl>
                 </div>
@@ -330,8 +327,8 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                         <div class="dropdown">
                             <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-1"></i>Link</button>
                             <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>vendor"><i class="fa fa-fw fa-building text-secondary me-2"></i>Vendor</a>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>contact"><i class="fa fa-fw fa-user text-secondary me-2"></i>Person at the client</a>
+                                <?= linkPickerButton('service', $service_id, 'vendor', 'Vendor', 'dropdown-item', 'fas fa-fw fa-building text-secondary me-2') ?>
+                                <?= linkPickerButton('service', $service_id, 'contact', 'Person at the client', 'dropdown-item', 'fas fa-fw fa-user text-secondary me-2') ?>
                             </div>
                         </div>
                     <?php } ?>
@@ -429,9 +426,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                         <div class="itflow-asset-pane-bar">
                             <span class="text-body-secondary small">The servers, firewalls, NAS and other kit it runs on - when one is down, so is the service.</span>
                             <?php if ($can_edit) { ?>
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $link_url ?>asset">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('service', $service_id, 'asset', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                             <?php } ?>
                         </div>
                         <?php if ($assets) { ?>
@@ -487,7 +482,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                             <div class="itflow-asset-empty">
                                 <div>Nothing linked as what it runs on.</div>
                                 <?php if ($can_edit) { ?>
-                                    <button type="button" class="btn btn-sm btn-outline-primary mt-3 ajax-modal" data-modal-url="<?= $link_url ?>asset"><i class="fas fa-link me-2"></i>Link assets</button>
+                                    <?= linkPickerButton('service', $service_id, 'asset', 'Link assets', 'btn btn-sm btn-outline-primary mt-3', 'fas fa-link me-2') ?>
                                 <?php } ?>
                             </div>
                         <?php } ?>
@@ -499,9 +494,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                         <div class="itflow-asset-pane-bar">
                             <span class="text-body-secondary small">Admin consoles, portals and service accounts. Passwords are fetched only when you ask.</span>
                             <?php if ($can_link_credentials) { ?>
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $link_url ?>credential">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('service', $service_id, 'credential', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                             <?php } ?>
                         </div>
                         <?php if ($credentials) { ?>
@@ -535,8 +528,8 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                                 <div class="dropdown">
                                     <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
                                     <div class="dropdown-menu dropdown-menu-end">
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>domain"><i class="fa fa-fw fa-globe text-secondary me-2"></i>Domain</a>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $link_url ?>certificate"><i class="fa fa-fw fa-lock text-secondary me-2"></i>Certificate</a>
+                                        <?= linkPickerButton('service', $service_id, 'domain', 'Domain', 'dropdown-item', 'fas fa-fw fa-globe text-secondary me-2') ?>
+                                        <?= linkPickerButton('service', $service_id, 'certificate', 'Certificate', 'dropdown-item', 'fas fa-fw fa-lock text-secondary me-2') ?>
                                     </div>
                                 </div>
                             <?php } ?>
@@ -572,9 +565,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                             <span class="text-body-secondary small">Runbooks, diagrams, the restore procedure, the vendor contract.</span>
                             <?php if ($can_edit) { ?>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $link_url ?>document">
-                                        <i class="fas fa-link me-2"></i>Link
-                                    </button>
+                                    <?= linkPickerButton('service', $service_id, 'document', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&service_id=<?= $service_id ?>">
                                         <i class="fas fa-plus me-2"></i>New Document
                                     </button>
@@ -607,11 +598,9 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                             <span class="text-body-secondary small">Raised about it, or about what it runs on - open ones first.</span>
                             <?php if ($can_edit) { ?>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/service/service_link_ticket.php?id=<?= $service_id ?>">
-                                        <i class="fas fa-link me-2"></i>Link
-                                    </button>
+                                    <?= linkPickerButton('service', $service_id, 'ticket', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= escapeHtml($report_url) ?>">
-                                        <i class="fas fa-plus me-2"></i>Report a problem
+                                        <i class="fas fa-plus me-2"></i>Report a Problem
                                     </button>
                                 </div>
                             <?php } ?>
@@ -625,7 +614,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                                     <span>Raised about the service:</span>
                                     <?php foreach ($linked_tickets as $row) { ?>
                                         <span class="itflow-contact-chip"><?= escapeHtml(ticketReference($row)) ?>
-                                            <a class="text-body-secondary ms-1" href="post.php?unlink_service_ticket=<?= intval($row['ticket_id']) ?>&service_id=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Not about this service"><i class="fas fa-times"></i></a>
+                                            <a class="text-body-secondary ms-1 confirm-link" href="post.php?unlink_service_ticket=<?= intval($row['ticket_id']) ?>&service_id=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Not about this service"><i class="fas fa-times"></i></a>
                                         </span>
                                     <?php } ?>
                                 </div>

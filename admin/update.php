@@ -121,7 +121,8 @@ $update_finished = !$update_running && $update_status === 'Completed' && !empty(
 
 // A release number to show when the branch moves by release (master), or nothing to compare
 $new_release = $latest_release !== '' && version_compare($latest_release, APP_VERSION, '>') ? $latest_release : '';
-$commit_count = count($pending_commits);
+// All of them - the stored list is the newest 100 (cron/update_check.php)
+$commit_count = max(count($pending_commits), intval($details['commits'] ?? 0));
 $has_upgrading_notes = (bool) array_filter($changelog, function ($section) {
     return preg_match('/^###\s+Upgrading/mi', $section[1]) === 1;
 });
@@ -169,7 +170,7 @@ $confirm_text .= " Make sure you have a backup first.";
 $install_root = dirname(__DIR__);
 $file_owner = '';
 if (function_exists('posix_getpwuid')) {
-    $file_owner = (string) (posix_getpwuid((int) @fileowner($install_root . '/scripts/update_cli.php'))['name'] ?? '');
+    $file_owner = (string) (posix_getpwuid(intval(@fileowner($install_root . '/scripts/update_cli.php')))['name'] ?? '');
 }
 $shell_word = function ($word) {
     return preg_match('/^[A-Za-z0-9_\/.@%+=:,-]+$/', $word) ? $word : escapeshellarg($word);
@@ -405,7 +406,7 @@ $hero = [
                                     <h4 class="h5 mb-2">
                                         <?= escapeHtml($section_version) ?>
                                         <?php if ($section_version === APP_VERSION) { ?>
-                                            <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal align-middle ms-1">The version you're on, with changes since</span>
+                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal align-middle ms-1">The version you're on, with changes since</span>
                                         <?php } ?>
                                     </h4>
                                     <?= updateChangelogHtml($section_markdown) ?>
@@ -435,8 +436,8 @@ $hero = [
                                     <span class="flex-shrink-0 text-body-secondary text-nowrap"><?= escapeHtml(timeAgo($commit_date)) ?></span>
                                 </li>
                             <?php } ?>
-                            <?php if ($commit_count > 100) { ?>
-                                <li class="small text-body-secondary">and <?= $commit_count - 100 ?> more</li>
+                            <?php if ($commit_count > min(100, count($pending_commits))) { ?>
+                                <li class="small text-body-secondary">and <?= $commit_count - min(100, count($pending_commits)) ?> more</li>
                             <?php } ?>
                         </ul>
                     </details>
@@ -473,13 +474,13 @@ $hero = [
                 </li>
                 <li class="list-group-item d-flex justify-content-between gap-3">
                     <span class="text-body-secondary">Commit</span>
-                    <span><?= $current_version === '' ? '<span class="text-body-secondary">&mdash;</span>' : '<code>' . escapeHtml(substr($current_version, 0, 7)) . '</code>' ?></span>
+                    <span><?= $current_version === '' ? '<span class="text-body-secondary">-</span>' : '<code>' . escapeHtml(substr($current_version, 0, 7)) . '</code>' ?></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between gap-3">
                     <span class="text-body-secondary">Last checked</span>
                     <span class="text-end">
                         <?php if (!empty($update_checked_at)) { ?>
-                            <span title="<?= escapeHtml($update_checked_at) ?>"><?= escapeHtml(timeAgo($update_checked_at)) ?></span>
+                            <span title="<?= formatDateTime($update_checked_at) ?>"><?= escapeHtml(timeAgo($update_checked_at)) ?></span>
                         <?php } else { ?>
                             <span class="text-body-secondary">Never</span>
                         <?php } ?>
@@ -489,8 +490,8 @@ $hero = [
                     <span class="text-body-secondary">Last updated</span>
                     <span class="text-end">
                         <?php if (!empty($update_job['cron_job_last_finished_at']) && in_array($update_status, ['Completed', 'Failed'], true)) { ?>
-                            <span title="<?= escapeHtml($update_job['cron_job_last_finished_at']) ?>"><?= escapeHtml(timeAgo($update_job['cron_job_last_finished_at'])) ?></span>
-                            <?php if ($update_status === 'Failed') { ?><span class="badge bg-danger-subtle text-danger-emphasis ms-1">Failed</span><?php } ?>
+                            <span title="<?= formatDateTime($update_job['cron_job_last_finished_at']) ?>"><?= escapeHtml(timeAgo($update_job['cron_job_last_finished_at'])) ?></span>
+                            <?php if ($update_status === 'Failed') { ?><span class="badge rounded-pill bg-danger-subtle text-danger-emphasis ms-1">Failed</span><?php } ?>
                         <?php } else { ?>
                             <span class="text-body-secondary">Not from this page yet</span>
                         <?php } ?>

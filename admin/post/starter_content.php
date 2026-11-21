@@ -57,6 +57,49 @@ if (isset($_POST['load_starter_content'])) {
 
 }
 
+/*
+ * Clear out unused - a pack's items that are here and nothing uses, archived
+ * (admin/modals/starter_content/starter_clear.php ticks which). Checked again
+ * here, so one put to use since the window opened stays. Undo puts them back.
+ */
+if (isset($_POST['clear_starter_unused'])) {
+
+    validateCSRFToken();
+
+    require_once 'starter_content_model.php';
+
+    $starter_content_packs = starterContentPacks();
+    $pack = (string) $_POST['clear_starter_unused'];
+    if (!isset($starter_content_packs[$pack]) || !starterPackRecords($pack)) {
+        flashAlert("Unknown starter content pack", 'error');
+        redirect();
+    }
+
+    $only = null;
+    if (isset($_POST['picked'][$pack])) {
+        $only = array_map('strval', array_filter((array) ($_POST['items'][$pack] ?? []), 'is_string'));
+        if (!$only) {
+            flashAlert("Nothing is ticked - tick what to archive", 'info');
+            redirect();
+        }
+    }
+
+    $label = $starter_content_packs[$pack]['label'];
+    [$archived, $before] = starterClearUnused($mysqli, $pack, $only);
+    $count = count($archived);
+
+    if ($count) {
+        logAudit("Starter Content", "Archive", "$session_name archived $count unused from the starter $label pack");
+        flashAlert("Archived <strong>$count</strong> unused from " . escapeHtml($label), 'error');
+        undoOfferChanges($before, "<strong>{n}</strong> from " . escapeHtml($label) . " put back", 'module_client');
+    } else {
+        flashAlert("Nothing to archive - those are in use now, or already archived", 'info');
+    }
+
+    redirect();
+
+}
+
 if (isset($_POST['update_starter_ticket_templates'])) {
 
     // The starter ticket templates already here, brought up to this version
@@ -139,6 +182,26 @@ if (isset($_POST['update_starter_vendor_templates'])) {
 
 }
 
+if (isset($_POST['update_starter_kb_articles'])) {
+
+    // The starter Knowledge Base articles already here, brought up to this version
+    validateCSRFToken();
+
+    require_once 'starter_content_model.php';
+
+    $counts = starterUpdateKbArticles();
+
+    if ($counts['replaced']) {
+        logAudit("Starter Content", "Edit", "$session_name brought {$counts['replaced']} starter Knowledge Base articles up to date");
+        flashAlert("Brought <strong>{$counts['replaced']}</strong> starter Knowledge Base articles up to date - any whose words changed keep what they said before in their versions");
+    } else {
+        flashAlert("None of the starter Knowledge Base articles are here to update - add them instead", 'info');
+    }
+
+    redirect();
+
+}
+
 if (isset($_POST['update_starter_license_templates'])) {
 
     // The starter license templates already here, brought up to this version
@@ -167,12 +230,15 @@ if (isset($_POST['load_demo_data'])) {
 
     $counts = demoDataLoad($mysqli);
 
-    if (!$counts['clients']) {
+    if (!$counts['clients'] && !$counts['kb']) {
         flashAlert("Nothing to add - every demo client is already here", 'info');
         redirect();
     }
 
-    $summary = "{$counts['clients']} clients, {$counts['contacts']} contacts, {$counts['assets']} assets, {$counts['documentation']} documentation records, {$counts['tickets']} tickets, {$counts['projects']} projects, {$counts['billing']} billing records, {$counts['company']} company records";
+    $summary = $counts['clients'] ? "{$counts['clients']} clients, {$counts['contacts']} contacts, {$counts['assets']} assets, {$counts['documentation']} documentation records, {$counts['tickets']} tickets, {$counts['projects']} projects, {$counts['billing']} billing records, {$counts['company']} company records" : '';
+    if ($counts['kb']) {
+        $summary .= ($summary !== '' ? ', ' : '') . "{$counts['kb']} Knowledge Base articles";
+    }
 
 
     logAudit("Demo Data", "Create", "$session_name loaded demo data - $summary");

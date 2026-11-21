@@ -123,7 +123,7 @@ function billingReminderNext(array $invoice, ?array $rules = null, $late_only = 
     }
     $today = new DateTime('today');
     $due_date = new DateTime($due);
-    $from = (int) $due_date->diff($today)->format('%r%a') + 1;
+    $from = intval($due_date->diff($today)->format('%r%a')) + 1;
     if ($late_only) {
         $from = max($from, 1);
     }
@@ -156,8 +156,7 @@ function billingReminderWhen($days) {
 
 /** A date for an email - "Oct 20, 2026". */
 function billingEmailDate($date) {
-    $time = strtotime((string) $date);
-    return $time ? date('M j, Y', $time) : (string) $date;
+    return formatDate($date) ?: (string) $date;
 }
 
 /**
@@ -226,6 +225,46 @@ function billingEmailRecipients($client_id, ?array $contact_ids = null, $type = 
         $recipients[$key] = ['id' => intval($row['contact_id']), 'name' => (string) $row['contact_name'], 'email' => trim($row['contact_email'])];
     }
     return array_values($recipients);
+}
+
+/**
+ * The addresses typed into a Send window's "Also send to" - for this once,
+ * not saved anywhere: the valid ones as recipients with no contact (id 0)
+ * and nobody to greet by name, at most 10, in the order typed. $bad gets
+ * what isn't an address.
+ */
+function billingEmailExtraRecipients($text, &$bad = []) {
+    $bad = [];
+    $recipients = [];
+    foreach (preg_split('/[\s,;]+/', trim((string) $text), -1, PREG_SPLIT_NO_EMPTY) as $address) {
+        if (!filter_var($address, FILTER_VALIDATE_EMAIL)) {
+            $bad[] = $address;
+            continue;
+        }
+        $recipients[strtolower($address)] = ['id' => 0, 'name' => '', 'email' => $address];
+    }
+    return array_slice(array_values($recipients), 0, 10);
+}
+
+/** The contacts picked and the addresses typed, as one list - an address once, as the contact where it is one. */
+function billingEmailMergeRecipients(array $contacts, array $extra) {
+    $all = [];
+    foreach (array_merge($contacts, $extra) as $recipient) {
+        $key = strtolower(trim($recipient['email']));
+        if (!isset($all[$key])) {
+            $all[$key] = $recipient;
+        }
+    }
+    return array_values($all);
+}
+
+/** A Send window's "Also send to" field - the extra addresses billingEmailExtraRecipients() reads. HTML. */
+function billingEmailExtraField($id) {
+    return '<label class="form-label" for="' . escapeHtml($id) . '">Also send to <span class="text-body-secondary fw-normal small">an address that isn\'t a contact, this once - their accountant, say</span></label>'
+        . '<div class="input-group mb-3">'
+        . '<span class="input-group-text"><i class="fas fa-fw fa-at"></i></span>'
+        . '<input type="email" multiple class="form-control" name="extra_emails" id="' . escapeHtml($id) . '" maxlength="500" placeholder="accounts@example.com - more than one with commas" autocomplete="off">'
+        . '</div>';
 }
 
 /**

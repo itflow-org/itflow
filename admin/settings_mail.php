@@ -16,7 +16,7 @@ require_once "includes/inc_all_admin.php";
 function renderMailStatusDot($on) {
     return $on
         ? '<i class="fas fa-circle text-success ms-2" style="font-size:.5rem;vertical-align:middle;" title="Configured"></i>'
-        : '<i class="far fa-circle text-muted ms-2" style="font-size:.5rem;vertical-align:middle;" title="Not configured"></i>';
+        : '<i class="far fa-circle text-body-secondary ms-2" style="font-size:.5rem;vertical-align:middle;" title="Not configured"></i>';
 }
 
 $smtp_on = !empty($config_smtp_provider);
@@ -145,7 +145,7 @@ if (!$config_module_enable_ticketing) {
 <div class="card itflow-settings-card">
     <div class="card-body">
 
-        <ul class="nav nav-tabs pt-3" id="mailTabs" role="tablist">
+        <ul class="nav nav-tabs pt-3 itflow-tabs-foldable" id="mailTabs" role="tablist">
             <li class="nav-item">
                 <a class="nav-link <?php if ($active_tab === 'sending') { echo 'active'; } ?>" href="?tab=sending" data-bs-target="#tab-sending">
                     <i class="fas fa-fw fa-paper-plane me-1"></i>Sending<?= renderMailStatusDot($smtp_on) ?>
@@ -277,7 +277,7 @@ if (!$config_module_enable_ticketing) {
 
                     <?= settingsSectionStart('oauth-connect', 'Connecting the mailbox', 'Signing in to the mailbox once gives ITFlow a refresh token - lasting permission to use it. ITFlow renews what it signs in with from it, on its own.') ?>
                         <div class="itflow-settings-field" data-oauth-state="<?= $oauth_connected ? 'connected' : 'not-connected' ?>">
-                            <span class="badge <?= $oauth_connected ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= $oauth_connected ? 'Connected' : 'Not connected' ?></span>
+                            <span class="badge rounded-pill <?= $oauth_connected ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= $oauth_connected ? 'Connected' : 'Not connected' ?></span>
                             <span class="small text-body-secondary ms-1">
                                 <?php if ($oauth_connected) { ?>
                                     A refresh token is saved.<?= !empty($config_mail_oauth_access_token_expires_at) && strtotime($config_mail_oauth_access_token_expires_at) > time()
@@ -290,11 +290,31 @@ if (!$config_module_enable_ticketing) {
                             </span>
                         </div>
                         <div class="itflow-settings-field" id="ms_connect_group" style="display:none;">
+                            <?php
+                            // Through Microsoft Graph, or by SMTP and IMAP - as Graph last said (functions/mail_graph.php)
+                            $graph_state = mailGraphState();
+                            $graph_send_ms = $config_smtp_provider === 'microsoft_oauth';
+                            $graph_read_ms = $config_imap_provider === 'microsoft_oauth';
+                            if ($graph_state && $oauth_connected && ($graph_send_ms || $graph_read_ms)) {
+                                $graph_all = (!$graph_send_ms || $graph_state['send']) && (!$graph_read_ms || $graph_state['read']); ?>
+                                <div class="itflow-settings-note mb-3" data-mail-graph="<?= !$graph_state['checked'] ? 'unchecked' : ($graph_all ? 'graph' : ($graph_state['send'] || $graph_state['read'] ? 'some' : 'none')) ?>">
+                                    <?php if (!$graph_state['checked']) { ?>
+                                        <i class="fas fa-fw fa-clock text-body-secondary me-1"></i>Whether the app can use Microsoft Graph is checked when ITFlow next sends or reads mail - or test the sign-in on Tests.
+                                    <?php } else { ?>
+                                        <i class="fas fa-fw <?= $graph_all ? 'fa-check-circle text-success' : 'fa-info-circle text-info' ?> me-1"></i><?= escapeHtml(mailGraphSays($graph_send_ms, $graph_read_ms, $graph_state['send'], $graph_state['read'])) ?>
+                                        <?php if (!$graph_all) {
+                                            $graph_missing = array_filter(['Mail.Send' => $graph_send_ms && !$graph_state['send'], 'Mail.ReadWrite' => $graph_read_ms && !$graph_state['read']]);
+                                            $graph_spared = array_filter(['SMTP AUTH' => isset($graph_missing['Mail.Send']), 'IMAP' => isset($graph_missing['Mail.ReadWrite'])]); ?>
+                                            Give the app Microsoft Graph's <?= implode(' and ', array_keys($graph_missing)) ?> permission<?= count($graph_missing) > 1 ? 's' : '' ?> to go through Graph instead, and the mailbox needs no <?= implode(' or ', array_keys($graph_spared)) ?> - then test the sign-in on Tests.
+                                        <?php } ?>
+                                    <?php } ?>
+                                </div>
+                            <?php } ?>
                             <label class="form-label" for="mailOauthRedirect">Redirect address</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
                                 <input type="text" class="form-control font-monospace" id="mailOauthRedirect" value="<?= escapeHtml($mail_oauth_callback_uri) ?>" readonly>
-                                <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-target="#mailOauthRedirect" title="Copy"><i class="fa fa-fw fa-copy"></i></button>
+                                <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-target="#mailOauthRedirect" title="Copy"><i class="far fa-fw fa-copy"></i></button>
                             </div>
                             <div class="form-text">Under Authentication in the app registration, as a Web platform.</div>
                             <button type="submit" name="oauth_connect_microsoft_mail" class="btn btn-outline-primary mt-3">
@@ -338,9 +358,9 @@ if (!$config_module_enable_ticketing) {
                     <span class="me-auto">
                         <strong>Mail Queue</strong>
                         <span class="text-body-secondary">- <?= $mail_queue['last_sent'] ? 'last sent ' . escapeHtml(timeAgo($mail_queue['last_sent'])) : 'nothing sent yet' ?></span>
-                        <?php if ($mail_queue['waiting']) { ?><span class="badge text-bg-primary ms-1"><?= $mail_queue['waiting'] ?> waiting</span><?php } ?>
-                        <?php if ($mail_queue['retrying']) { ?><span class="badge text-bg-warning ms-1"><?= $mail_queue['retrying'] ?> retrying</span><?php } ?>
-                        <?php if ($mail_queue['failed_day']) { ?><span class="badge text-bg-danger ms-1"><?= $mail_queue['failed_day'] ?> failed in the last day</span><?php } ?>
+                        <?php if ($mail_queue['waiting']) { ?><span class="badge rounded-pill text-bg-primary ms-1"><?= number_format(intval($mail_queue['waiting'])) ?> waiting</span><?php } ?>
+                        <?php if ($mail_queue['retrying']) { ?><span class="badge rounded-pill text-bg-warning ms-1"><?= number_format(intval($mail_queue['retrying'])) ?> retrying</span><?php } ?>
+                        <?php if ($mail_queue['failed_day']) { ?><span class="badge rounded-pill text-bg-danger ms-1"><?= number_format(intval($mail_queue['failed_day'])) ?> failed in the last day</span><?php } ?>
                     </span>
                     <a class="btn btn-sm btn-outline-secondary" href="mail_queue.php<?= $mail_queue['failed_day'] ? '?show=failed' : '' ?>">Open the Mail Queue</a>
                 </div>
@@ -353,7 +373,7 @@ if (!$config_module_enable_ticketing) {
 
                 <?php if ($send_ready) { ?>
                 <div class="mb-4">
-                    <h6 class="text-bold"><i class="fas fa-fw fa-paper-plane me-2"></i>Send a Test Email</h6>
+                    <h6 class="fw-bold"><i class="fas fa-fw fa-paper-plane me-2"></i>Send a Test Email</h6>
                     <form action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <input type="hidden" name="tab" value="tests">
@@ -374,7 +394,7 @@ if (!$config_module_enable_ticketing) {
 
                 <?php if ($imap_ready) { ?>
                 <div class="mb-4">
-                    <h6 class="text-bold"><i class="fas fa-fw fa-plug me-2"></i>Test IMAP Connection</h6>
+                    <h6 class="fw-bold"><i class="fas fa-fw fa-plug me-2"></i>Test IMAP Connection</h6>
                     <form action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <input type="hidden" name="tab" value="tests">
@@ -385,12 +405,12 @@ if (!$config_module_enable_ticketing) {
 
                 <?php if ($oauth_has_required_fields) { ?>
                 <div>
-                    <h6 class="text-bold"><i class="fas fa-fw fa-sync-alt me-2"></i>Test OAuth Token Refresh</h6>
+                    <h6 class="fw-bold"><i class="fas fa-fw fa-sync-alt me-2"></i>Test OAuth Token Refresh</h6>
                     <form action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <input type="hidden" name="tab" value="tests">
-                        <input type="hidden" name="oauth_provider" value="<?= htmlspecialchars($oauth_provider_for_test) ?>">
-                        <p class="text-muted mb-2">Validates the refresh token and stores a new access token for <?= $oauth_provider_for_test === 'microsoft_oauth' ? 'Microsoft 365' : 'Google Workspace' ?>.</p>
+                        <input type="hidden" name="oauth_provider" value="<?= escapeHtml($oauth_provider_for_test) ?>">
+                        <p class="text-body-secondary mb-2">Validates the refresh token and stores a new access token for <?= $oauth_provider_for_test === 'microsoft_oauth' ? 'Microsoft 365' : 'Google Workspace' ?>.</p>
                         <button type="submit" name="test_oauth_token_refresh" class="btn btn-success"><i class="fas fa-fw fa-sync-alt me-2"></i>Test OAuth Token Refresh</button>
                     </form>
                 </div>
@@ -454,7 +474,7 @@ if (!$config_module_enable_ticketing) {
                                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                             <input type="hidden" name="email" value="<?= escapeHtml($preview_first) ?>" data-preview-key>
                                             <button type="submit" name="send_email_preview" class="btn btn-sm btn-primary" <?= emailReady() ? '' : 'disabled title="Set up Sending first"' ?>>
-                                                <i class="fas fa-fw fa-paper-plane me-1"></i>Send me a copy
+                                                <i class="fas fa-fw fa-paper-plane me-1"></i>Send Me a Copy
                                             </button>
                                         </form>
                                     </div>
@@ -727,7 +747,7 @@ if (!$config_module_enable_ticketing) {
         setHtml(oauthHint, '<i class="fas fa-fw fa-info-circle me-1"></i>' + (anyMs && anyGoogle
             ? 'Sending and receiving each pick a different one - both have to use the same, as they share this app.'
             : anyMs
-                ? 'Microsoft 365: register an app in Microsoft Entra (App registrations) with the redirect address below, the IMAP.AccessAsUser.All and SMTP.Send permissions, and a client secret. Its ID, secret and tenant go here.'
+                ? 'Microsoft 365: register an app in Microsoft Entra (App registrations) with the redirect address below and a client secret, and give it Microsoft Graph\'s Mail.Send and Mail.ReadWrite permissions (with Mail.Send.Shared and Mail.ReadWrite.Shared for a shared mailbox) - or Exchange\'s SMTP.Send and IMAP.AccessAsUser.All. Its ID, secret and tenant go here.'
                 : anyGoogle
                     ? 'Google Workspace: make an OAuth client ID (a Web application) in Google Cloud. Its ID and secret go here; the refresh token needs the https://mail.google.com/ scope.'
                     : 'Used when Sending or Receiving is set to Google Workspace or Microsoft 365.'));

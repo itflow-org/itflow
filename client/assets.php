@@ -35,7 +35,7 @@ $counts = array_map('intval', mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT "
 
 $tab = isset($groups[$_GET['tab'] ?? '']) ? $_GET['tab'] : 'all';
 $total = $counts[$tab];
-$pages = max(1, (int) ceil($total / $per_page));
+$pages = max(1, intval(ceil($total / $per_page)));
 $page = min(max(1, intval($_GET['page'] ?? 1)), $pages);
 $offset = ($page - 1) * $per_page;
 
@@ -68,7 +68,7 @@ function assetsUrl(array $changes) {
             <?php if ($mine) { ?><input type="hidden" name="scope" value="mine"><?php } ?>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Name, model, serial or person" aria-label="Search devices" maxlength="200">
+                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search devices..." title="Name, model, serial or person" aria-label="Search devices" maxlength="200">
             </div>
         </form>
     </div>
@@ -81,7 +81,7 @@ function assetsUrl(array $changes) {
         } ?>
         <a class="<?= $key === $tab ? 'active' : '' ?>" href="<?= escapeHtml(assetsUrl(['tab' => $key, 'page' => null])) ?>">
             <i class="fas <?= $group['icon'] ?>"></i><?= escapeHtml($group['label']) ?>
-            <span class="badge rounded-pill"><?= $counts[$key] ?></span>
+            <span class="badge rounded-pill"><?= number_format(intval($counts[$key])) ?></span>
         </a>
     <?php } ?>
 </nav>

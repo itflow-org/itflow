@@ -3,12 +3,14 @@
 // Items are fetched for the range on screen from ajax.php?calendar_items -
 // the events on the calendars ticked, and the built-in sources ticked - for
 // one client or all, everyone's or one agent's. What is ticked, whose, and
-// the view are remembered in this browser.
+// the view are remembered in this browser and kept to the agent's account
+// (ajax.php?calendar_state), so every device opens the same way.
 //
-// Picking a day or a time range opens New Event for it. A click opens the
-// item's quick look. Scheduled tickets and events that do not repeat can be
-// dragged to a new time (ajax.php?calendar_move), and the open tickets in To
-// schedule dragged onto the calendar to book them - a ticket is booked exactly
+// Picking a day or a time range opens New Event for it - assigned to the
+// agent whose calendar it is. A click opens the item's quick look. Scheduled
+// tickets and events that do not repeat can be dragged to a new time
+// (ajax.php?calendar_move), and the open tickets in To schedule and Left
+// behind dragged onto the calendar to book them - a ticket is booked exactly
 // as from the ticket, so the agent and contact are emailed the time.
 
 (function () {
@@ -29,6 +31,17 @@
     const sourceDefaults = JSON.parse(root.dataset.sources || '{}');
     const agentSelect = document.getElementById('calendarAgent');
     const unscheduledList = document.getElementById('calendarUnscheduled');
+    const leftBehindList = document.getElementById('calendarLeftBehind');
+    // Away from the company's time zone: "now" on the agent's own clock - the server sends their times moved into it
+    const zone = root.dataset.zone || '';
+    function zoneNow() {
+        const parts = {};
+        new Intl.DateTimeFormat('en-CA', {timeZone: zone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'})
+            .formatToParts(new Date()).forEach(function (part) {
+                parts[part.type] = part.value;
+            });
+        return parts.year + '-' + parts.month + '-' + parts.day + 'T' + parts.hour + ':' + parts.minute + ':' + parts.second;
+    }
 
     // ---------- what this browser remembers ----------
 
@@ -39,16 +52,42 @@
     } catch (e) {
         state = {};
     }
+    // What is kept to the account wins, so every device opens the same way
+    try {
+        const kept = JSON.parse(root.dataset.savedState || '{}');
+        if (kept && typeof kept === 'object' && Object.keys(kept).length) {
+            state = kept;
+        }
+    } catch (e) {
+        // Nothing kept yet - this browser's copy, or the defaults
+    }
+    let saveTimer = null;
     function save() {
         try {
             window.localStorage.setItem(storeKey, JSON.stringify(state));
         } catch (e) {
-            // Private window or storage blocked - it just won't be remembered
+            // Private window or storage blocked - the account's copy still keeps it
         }
+        // And to the account, a moment after the last change
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(function () {
+            fetch('ajax.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                credentials: 'same-origin',
+                body: new URLSearchParams({calendar_state: 1, csrf_token: csrf, page: clientId ? 'client' : 'all', state: JSON.stringify(state)}).toString()
+            }).catch(function () {
+                // Offline - this browser still remembers it
+            });
+        }, 800);
     }
 
+    const views = ['dayGridMonth', 'timeGridWeek', 'timeGridSevenDays', 'timeGridDay', 'listWeek'];
     state.hidden = Array.isArray(state.hidden) ? state.hidden : [];
-    state.sources = state.sources && typeof state.sources === 'object' ? state.sources : {};
+    state.sources = state.sources && typeof state.sources === 'object' && !Array.isArray(state.sources) ? state.sources : {};
+    if (state.view && views.indexOf(state.view) === -1) {
+        delete state.view;
+    }
 
     root.querySelectorAll('.itflow-cal-check[data-calendar]').forEach(function (box) {
         box.checked = state.hidden.indexOf(box.dataset.calendar) === -1;
@@ -59,6 +98,9 @@
     });
     if (agentSelect && state.agent && agentSelect.querySelector('option[value="' + Number(state.agent) + '"]')) {
         agentSelect.value = String(Number(state.agent));
+    } else if (agentSelect && !('agent' in state) && agentSelect.querySelector('option[value="' + myId + '"]')) {
+        // The first time, your own calendar
+        agentSelect.value = String(myId);
     }
 
     function shownCalendars() {
@@ -93,7 +135,7 @@
             options.hour = 'numeric';
             options.minute = '2-digit';
         }
-        return date.toLocaleString(undefined, options);
+        return date.toLocaleString('en-US', options);
     }
 
     function openModal(url, size) {
@@ -114,6 +156,10 @@
         if (clientId) {
             query.set('client_id', clientId);
             query.set('lock_client', '1');
+        }
+        // From someone's calendar, it is theirs
+        if (agentId()) {
+            query.set('agent_id', agentId());
         }
         openModal('modals/calendar/calendar_event_add.php?' + query.toString(), 'lg');
     }
@@ -164,7 +210,7 @@
     function saved(json) {
         itflowToast(json.message, 'success');
         if (json.conflicts && json.conflicts.length) {
-            itflowToast('Same agent, within two hours: ' + json.conflicts.join('; '), 'warning');
+            itflowToast('Already booked then - the agent, or those helping: ' + json.conflicts.join('; '), 'warning');
         }
     }
 
@@ -175,7 +221,7 @@
         initialDate: root.dataset.initialDate || undefined,
         headerToolbar: mobile
             ? {left: 'prev,next', center: 'title', right: 'today'}
-            : {left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'},
+            : {left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridSevenDays,timeGridDay,listWeek'},
         footerToolbar: mobile ? {center: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'} : false,
         noEventsText: 'Nothing on the calendar for these days',
         firstDay: Number(root.dataset.firstDay) || 0,
@@ -190,10 +236,17 @@
         scrollTime: '07:30:00',
         businessHours: {daysOfWeek: [1, 2, 3, 4, 5], startTime: '08:00', endTime: '18:00'},
         eventOrder: 'allDay,start,-duration,title',
+        // Bookings at the same time sit side by side, never on top of each other
+        slotEventOverlap: false,
+        now: zone ? zoneNow : undefined,
         views: {
             // Side by side past three, the rest go behind "+N more"
-            timeGrid: {eventMaxStack: 3}
+            timeGrid: {eventMaxStack: 3},
+            // Seven days from any day - the arrows move a day at a time, so a booking can be
+            // dragged across a weekend without leaving the view
+            timeGridSevenDays: {type: 'timeGrid', duration: {days: 7}, dateIncrement: {days: 1}}
         },
+        buttons: {timeGridSevenDays: {text: '7 days', hint: 'Seven days from any day - the arrows move a day at a time'}},
 
         events: function (info, success, failure) {
             const end = new Date(info.end.getTime());
@@ -234,11 +287,42 @@
             const view = arg.view.type;
             const wrap = document.createElement('div');
             wrap.className = 'itflow-cal-event ' + (view.indexOf('list') === 0 ? 'is-list' : (view.indexOf('timeGrid') === 0 && !arg.event.allDay ? 'is-timegrid' : 'is-daygrid'));
+            // Onsite work stands out - an orange strip with a car across the top of the booking, an orange edge on a one-line one
+            if (props.icon === 'fa-car' && view.indexOf('list') !== 0) {
+                wrap.classList.add('is-onsite');
+                if (view.indexOf('timeGrid') === 0 && !arg.event.allDay) {
+                    const strip = document.createElement('div');
+                    strip.className = 'itflow-cal-onsite';
+                    strip.innerHTML = '<i class="fas fa-car me-1" aria-hidden="true"></i>Onsite';
+                    wrap.appendChild(strip);
+                }
+            }
+            let agentShown = false;
             if ((arg.timeText && !arg.event.allDay) || (arg.event.allDay && view.indexOf('list') === 0)) {
                 const time = document.createElement('span');
                 time.className = 'itflow-cal-time';
                 time.textContent = arg.event.allDay ? 'All day' : arg.timeText;
-                wrap.appendChild(time);
+                // Who it is for, on the time's line - not on the month's one-line items, where it
+                // would push the title out (the colour and the tooltip say who)
+                if (props.agent_name && view.indexOf('dayGrid') !== 0) {
+                    const when = document.createElement('span');
+                    when.className = 'itflow-cal-when';
+                    const agent = document.createElement('span');
+                    agent.className = 'itflow-cal-agent';
+                    agent.textContent = props.agent_name;
+                    // A project's booking is in the project colour - a dot in the agent's beside their name (functions/project_tickets.php)
+                    if (props.agent_color) {
+                        const dot = document.createElement('span');
+                        dot.className = 'itflow-cal-agent-dot';
+                        dot.style.backgroundColor = props.agent_color;
+                        agent.prepend(dot);
+                    }
+                    when.append(time, agent);
+                    wrap.appendChild(when);
+                    agentShown = true;
+                } else {
+                    wrap.appendChild(time);
+                }
             }
             if (props.icon) {
                 const icon = document.createElement('i');
@@ -249,10 +333,12 @@
             title.className = 'itflow-cal-title';
             title.textContent = arg.event.title;
             wrap.appendChild(title);
-            if (props.detail && (view.indexOf('timeGrid') === 0 || view.indexOf('list') === 0)) {
+            // With no time line to put the agent on, they go at the front of the detail
+            const detailText = [agentShown ? '' : (props.agent_name || ''), props.detail || ''].filter(Boolean).join(' · ');
+            if (detailText && (view.indexOf('timeGrid') === 0 || view.indexOf('list') === 0)) {
                 const detail = document.createElement('div');
                 detail.className = 'itflow-cal-detail';
-                detail.textContent = props.detail;
+                detail.textContent = detailText;
                 wrap.appendChild(detail);
             }
             return {domNodes: [wrap]};
@@ -260,7 +346,8 @@
 
         eventDidMount: function (info) {
             const props = info.event.extendedProps || {};
-            info.el.setAttribute('title', info.event.title + (props.detail ? '\n' + props.detail : ''));
+            const who = [props.agent_full || props.agent_name || '', props.detail || ''].filter(Boolean).join(' · ');
+            info.el.setAttribute('title', info.event.title + (who ? '\n' + who : ''));
             info.el.dataset.kind = props.kind || '';
         },
 
@@ -288,7 +375,7 @@
             moved(info);
         },
         eventResize: function (info) {
-            moved(info);
+            moved(info, true);
         },
 
         // A ticket from To schedule
@@ -301,23 +388,50 @@
 
     // ---------- moving things ----------
 
-    function moved(info) {
+    function moved(info, resized) {
         const event = info.event;
         const props = event.extendedProps || {};
         const start = event.start;
         const end = event.end;
 
         if (props.kind === 'ticket') {
+            // Its end dragged (resized), or the whole booking moved
             confirmDialog({
-                title: 'Move ' + event.title.split(' ')[0] + ' to ' + words(start, false) + '?',
+                title: resized && end
+                    ? 'Book ' + event.title.split(' ')[0] + ' until ' + end.toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'}) + '?'
+                    : 'Move ' + event.title.split(' ')[0] + ' to ' + words(start, false) + '?',
                 text: 'The agent and the contact are emailed the new time, as when it is rescheduled on the ticket.',
-                confirmButtonText: 'Move it'
+                confirmButtonText: resized ? 'Change it' : 'Move it'
             }).then(function (result) {
                 if (!result.isConfirmed) {
                     info.revert();
                     return;
                 }
-                post({kind: 'ticket', id: props.ticket_id, start: ymdhm(start), all_day: event.allDay ? 1 : 0}, function (json) {
+                post({kind: 'ticket', id: props.ticket_id, start: ymdhm(start), end: end && !event.allDay ? ymdhm(end) : '', all_day: event.allDay ? 1 : 0}, function (json) {
+                    saved(json);
+                    calendar.refetchEvents();
+                }, function (error) {
+                    itflowToast(error, 'error');
+                    info.revert();
+                });
+            });
+            return;
+        }
+
+        // An agent helping on a ticket - moved or stretched, it becomes a time of their own
+        if (props.kind === 'helper') {
+            confirmDialog({
+                title: resized && end
+                    ? 'Book ' + event.title.split(' ')[0] + ' for this agent until ' + end.toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'}) + '?'
+                    : 'Move ' + event.title.split(' ')[0] + ' for this agent to ' + words(start, false) + '?',
+                text: props.follows_lead ? 'It becomes a time of their own - no longer moving with the lead. They are emailed the new time.' : 'They are emailed the new time.',
+                confirmButtonText: resized ? 'Change it' : 'Move it'
+            }).then(function (result) {
+                if (!result.isConfirmed) {
+                    info.revert();
+                    return;
+                }
+                post({kind: 'helper', id: props.ticket_id, user_id: props.user_id, start: ymdhm(start), end: end && !event.allDay ? ymdhm(end) : '', all_day: event.allDay ? 1 : 0}, function (json) {
                     saved(json);
                     calendar.refetchEvents();
                 }, function (error) {
@@ -393,6 +507,7 @@
                 saved(json);
                 item.remove();
                 countUnscheduled();
+                countLeftBehind();
                 calendar.refetchEvents();
             }, function (error) {
                 itflowToast(error, 'error');
@@ -425,6 +540,7 @@
             save();
             calendar.refetchEvents();
             loadUnscheduled();
+            loadLeftBehind();
         });
     }
 
@@ -449,7 +565,7 @@
         if (hint) {
             hint.textContent = n
                 ? 'Open tickets with no time booked - drag one onto the calendar to book it.'
-                : 'Nothing waiting - every open ticket ' + (agentId() && agentId() !== myId ? 'they have' : 'you have') + ' is booked or needs no visit.';
+                : 'Nothing waiting - every open ticket ' + (!agentId() ? 'anyone has' : (agentId() !== myId ? 'they have' : 'you have')) + ' is booked or needs no visit.';
         }
     }
 
@@ -457,7 +573,8 @@
         if (!unscheduledList) {
             return;
         }
-        itflowGet('ajax.php', {calendar_unscheduled: 1, user_id: agentId() || myId, client_id: clientId}, function (text) {
+        // Everyone: the open tickets assigned to anyone
+        itflowGet('ajax.php', {calendar_unscheduled: 1, user_id: agentId(), client_id: clientId}, function (text) {
             let tickets = [];
             try {
                 tickets = JSON.parse(text).tickets || [];
@@ -486,7 +603,7 @@
                 line.textContent = ticket.reference + ' ' + ticket.subject;
                 const sub = document.createElement('div');
                 sub.className = 'text-truncate small text-body-secondary';
-                sub.textContent = (clientId ? '' : ticket.client + ' · ') + ticket.priority + (ticket.onsite ? ' · Onsite' : '');
+                sub.textContent = (clientId ? '' : ticket.client + ' · ') + (!agentId() && ticket.agent ? ticket.agent + ' · ' : '') + ticket.priority + (ticket.onsite ? ' · Onsite' : '');
                 text.appendChild(line);
                 text.appendChild(sub);
                 item.appendChild(text);
@@ -508,6 +625,97 @@
             }
         });
         loadUnscheduled();
+    }
+
+    // ---------- Left behind ----------
+
+    // Open tickets booked on a day gone by. Each row carries what a To schedule row does, so
+    // dropping one books it again (keeping its length); a click opens the quick look.
+    const leftBehindCard = document.getElementById('calendarLeftBehindCard');
+
+    function countLeftBehind() {
+        if (!leftBehindList) {
+            return;
+        }
+        const n = leftBehindList.children.length;
+        const count = document.getElementById('calendarLeftBehindCount');
+        const hint = document.getElementById('calendarLeftBehindHint');
+        count.textContent = n ? String(n) : 'None';
+        count.className = 'badge rounded-pill ms-auto ' + (n ? 'text-bg-danger' : 'bg-body-secondary text-body-secondary');
+        hint.textContent = n
+            ? 'Open tickets booked on a day that has gone - drag one onto the calendar to book it again.'
+            : 'Nothing left behind - every open ticket booked before today has been moved on or done.';
+        // With some, the calendar makes room for a row of them under it
+        const was = leftBehindCard.classList.contains('is-empty');
+        leftBehindCard.classList.toggle('is-empty', n === 0);
+        if (!mobile && was !== (n === 0)) {
+            calendar.setOption('height', n ? 'calc(100vh - 19rem)' : 'calc(100vh - 11rem)');
+        }
+    }
+
+    function loadLeftBehind() {
+        if (!leftBehindList) {
+            return;
+        }
+        itflowGet('ajax.php', {calendar_left_behind: 1, user_id: agentId(), client_id: clientId}, function (text) {
+            let tickets = [];
+            try {
+                tickets = JSON.parse(text).tickets || [];
+            } catch (e) {
+                tickets = [];
+            }
+            leftBehindList.innerHTML = '';
+            tickets.forEach(function (ticket) {
+                const item = document.createElement('div');
+                item.className = 'itflow-cal-unscheduled';
+                item.dataset.ticket = ticket.id;
+                item.dataset.reference = ticket.reference;
+                item.dataset.title = ticket.reference + ' ' + ticket.subject;
+                item.dataset.onsite = ticket.onsite;
+                item.title = 'Booked ' + ticket.booked + ' - drag onto the calendar to book it again, click for a quick look';
+
+                const dot = document.createElement('span');
+                dot.className = 'itflow-cal-priority bg-' + (priorityTones[ticket.priority] || 'secondary');
+                dot.title = ticket.priority;
+                item.appendChild(dot);
+
+                const text = document.createElement('div');
+                text.className = 'min-w-0 flex-grow-1';
+                const line = document.createElement('div');
+                line.className = 'text-truncate small fw-semibold';
+                line.textContent = ticket.reference + ' ' + ticket.subject;
+                const sub = document.createElement('div');
+                sub.className = 'text-truncate small text-body-secondary';
+                sub.textContent = [clientId ? '' : ticket.client, agentId() ? '' : ticket.agent, 'booked ' + ticket.booked].filter(Boolean).join(' · ');
+                text.appendChild(line);
+                text.appendChild(sub);
+                item.appendChild(text);
+
+                const days = document.createElement('span');
+                days.className = 'badge rounded-pill text-bg-danger flex-shrink-0';
+                days.textContent = ticket.days + 'd';
+                days.title = ticket.days + ' day' + (ticket.days === 1 ? '' : 's') + ' since it was booked for';
+                item.appendChild(days);
+
+                item.addEventListener('click', function () {
+                    openModal('modals/ticket/ticket.php?id=' + ticket.id, 'lg');
+                });
+                leftBehindList.appendChild(item);
+            });
+            countLeftBehind();
+        });
+    }
+
+    if (leftBehindList && canSchedule && FullCalendar.Interaction && FullCalendar.Interaction.Draggable) {
+        new FullCalendar.Interaction.Draggable(leftBehindList, {
+            itemSelector: '.itflow-cal-unscheduled',
+            eventData: function (item) {
+                return {title: item.dataset.title, duration: '01:00', create: false, color: '#dc3545'};
+            }
+        });
+        loadLeftBehind();
+        // The ticket's quick look can resolve it or book it again
+        document.addEventListener('hidden.bs.modal', loadLeftBehind);
     }
 
 })();

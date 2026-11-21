@@ -69,10 +69,6 @@ while ($row = mysqli_fetch_row($sql)) {
     $kind_counts[intval($row[0])] = intval($row[1]);
 }
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($archived) use ($type) {
     return '?' . http_build_query(array_filter(['type' => $type, 'q' => $_GET['q'] ?? '', 'show' => $archived ? 'archived' : '']));
 };
@@ -97,7 +93,7 @@ $csrf = $_SESSION['csrf_token'];
     <div class="row g-0">
         <!-- Kinds -->
         <div class="col-md-3 col-xl-2 border-end">
-            <nav class="nav nav-pills flex-nowrap flex-md-column overflow-auto p-2 gap-1 itflow-tag-kinds" aria-label="Kinds of tag">
+            <nav class="nav nav-pills flex-nowrap flex-md-column overflow-auto p-2 gap-1 itflow-tag-kinds itflow-tabs-foldable" aria-label="Kinds of tag">
                 <?php foreach ($kinds as $kind_type => $kind_config) { ?>
                     <a class="nav-link d-flex align-items-center gap-2 text-nowrap<?= $kind_type === $type ? ' active' : '' ?>" href="tags.php?type=<?= $kind_type ?>"<?= $kind_type === $type ? ' aria-current="page"' : '' ?>>
                         <i class="fas fa-fw <?= $kind_config['icon'] ?>"></i><?= ucfirst($kind_config['plural']) ?>
@@ -117,7 +113,7 @@ $csrf = $_SESSION['csrf_token'];
                         <div class="col-lg-6 col-md-8">
                             <div class="input-group">
                                 <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?= $kind_word ?> tags..." title="Name or description">
-                                <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-4">
@@ -128,11 +124,11 @@ $csrf = $_SESSION['csrf_token'];
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end">
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/tag/tag_merge.php" data-bulk="true">
-                                            <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge into one...
+                                            <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge into One...
                                         </a>
                                         <?php if ($show_archived) { ?>
                                             <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_restore_tags">
-                                                <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                                <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </button>
                                         <?php } else { ?>
                                             <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_archive_tags">
@@ -169,8 +165,8 @@ $csrf = $_SESSION['csrf_token'];
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" title="Select all on this page">
                                 </div>
                             </th>
-                            <th><?= $sort_link('tag_name', 'Tag') ?></th>
-                            <th class="d-none d-sm-table-cell"><?= $sort_link('used', 'On') ?></th>
+                            <th><?= sortLink('tag_name', 'Tag') ?></th>
+                            <th class="d-none d-sm-table-cell"><?= sortLink('used', 'On') ?></th>
                             <th></th>
                         </tr>
                         </thead>
@@ -222,7 +218,7 @@ $csrf = $_SESSION['csrf_token'];
                                                 <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                             </a>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/tag/tag_merge.php?tag_ids[]=<?= $tag_id ?>">
-                                                <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge into...
+                                                <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge Into...
                                             </a>
                                             <?php if ($used) { ?>
                                                 <a class="dropdown-item" href="<?= escapeHtml($list_url) ?>">
@@ -232,7 +228,7 @@ $csrf = $_SESSION['csrf_token'];
                                             <div class="dropdown-divider"></div>
                                             <?php if ($tag['tag_archived_at']) { ?>
                                                 <a class="dropdown-item" href="post.php?restore_tag=<?= $tag_id ?>&csrf_token=<?= $csrf ?>">
-                                                    <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                                    <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                                 </a>
                                             <?php } else { ?>
                                                 <a class="dropdown-item text-danger" href="post.php?archive_tag=<?= $tag_id ?>&csrf_token=<?= $csrf ?>" title="It stays on its <?= $kind['plural'] ?>, but isn't offered for tagging or in the filters">
@@ -242,7 +238,7 @@ $csrf = $_SESSION['csrf_token'];
                                             <?php if ($lines) { ?>
                                                 <span class="dropdown-item disabled" title="Recurring invoice lines count by it - archive it, or merge it into another tag"><i class="fas fa-fw fa-trash me-2"></i>Delete</span>
                                             <?php } else { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_tag=<?= $tag_id ?>&csrf_token=<?= $csrf ?>"
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_tag=<?= $tag_id ?>&csrf_token=<?= $csrf ?>"
                                                     data-confirm-title="Delete <?= $name ?>?" data-confirm-text="<?= escapeHtml($delete_text) ?>" data-confirm-button="Delete"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                                             <?php } ?>
                                         </div>

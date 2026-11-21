@@ -59,7 +59,7 @@ function licensesUrl(array $changes) {
         <?php if ($tab !== 'all') { ?><input type="hidden" name="tab" value="<?= escapeHtml($tab) ?>"><?php } ?>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-            <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Name, kind or vendor" aria-label="Search licenses" maxlength="200">
+            <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search licenses..." title="Name, kind or vendor" aria-label="Search licenses" maxlength="200">
         </div>
     </form>
 </div>
@@ -68,7 +68,7 @@ function licensesUrl(array $changes) {
     <?php foreach ($tabs as $key => $t) { ?>
         <a class="<?= $key === $tab ? 'active' : '' ?><?= $key !== 'all' && $counts[$key] ? ' itflow-portal-tab-alert' : '' ?>" href="<?= escapeHtml(licensesUrl(['tab' => $key])) ?>">
             <i class="fas <?= $t['icon'] ?>"></i><?= escapeHtml($t['label']) ?>
-            <span class="badge rounded-pill"><?= $counts[$key] ?></span>
+            <span class="badge rounded-pill"><?= number_format(intval($counts[$key])) ?></span>
         </a>
     <?php } ?>
 </nav>

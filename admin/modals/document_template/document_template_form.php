@@ -24,14 +24,14 @@ $ai_model = aiReady('Documentation') ? getAiModel('Documentation') : null;
     <div class="col-lg-5">
         <label class="form-label">Name <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-file-alt"></i></span>
             <input type="text" class="form-control" name="name" placeholder="What it is - Network Overview" maxlength="200" value="<?= escapeHtml($t['document_template_name'] ?? '') ?>" required autofocus>
         </div>
     </div>
     <div class="col-lg-7">
         <label class="form-label">Summary</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
             <input type="text" class="form-control" name="description" placeholder="One line on what it covers - shown when an agent picks a template" maxlength="500" value="<?= escapeHtml($t['document_template_description'] ?? '') ?>">
         </div>
     </div>
@@ -41,11 +41,11 @@ $ai_model = aiReady('Documentation') ? getAiModel('Documentation') : null;
     <div class="mb-3">
         <label class="form-label" for="documentTemplatePrompt">Draft it with AI</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-magic"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-magic"></i></span>
             <input type="text" class="form-control" id="documentTemplatePrompt" placeholder="What it is for - a network troubleshooting guide for junior technicians" data-document-template-prompt>
-            <button class="btn btn-info" type="button" data-document-template-generate><i class="fa fa-fw fa-magic me-1"></i>Draft</button>
+            <button class="btn btn-info" type="button" data-document-template-generate><i class="fas fa-fw fa-magic me-1"></i>Draft</button>
         </div>
-        <small class="text-secondary">Replaces what is in the editor below.</small>
+        <div class="form-text">Replaces what is in the editor below.</div>
     </div>
 <?php } ?>
 
@@ -81,7 +81,7 @@ $ai_model = aiReady('Documentation') ? getAiModel('Documentation') : null;
         }
         var label = button.innerHTML;
         button.disabled = true;
-        button.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i>Drafting...';
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Drafting...';
         fetch('/agent/ajax.php?ai_create_document_template', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

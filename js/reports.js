@@ -6,7 +6,9 @@
  * <canvas data-report-chart="{...}"> (reportChart() in functions/reports.php
  * documents the settings) and drawn here in the page's own colours, so they
  * follow the theme accent and dark mode. Tables with data-report-sort sort by
- * any column whose heading is clicked. On the Reports page, typing in the
+ * any column whose heading is clicked. Export > PDF sends the charts with the
+ * request, drawn again in the light colours of paper, as the server only has
+ * the page's HTML to make the PDF from. On the Reports page, typing in the
  * search box narrows the list of reports.
  *
  * Loaded once per report page, after includes/footer.php.
@@ -122,15 +124,16 @@
 
     const charts = [];
 
-    function drawChart(canvas) {
+    // $extra: options for a copy drawn for the PDF (no animation, a sharper picture)
+    function drawChart(canvas, extra) {
         if (typeof Chart === 'undefined') {
-            return;
+            return null;
         }
         let config;
         try {
             config = JSON.parse(canvas.dataset.reportChart);
         } catch (e) {
-            return;
+            return null;
         }
         const base = typeof itflowChartDefaults === 'function' ? itflowChartDefaults() : { grid: 'rgba(0,0,0,.1)' };
         const type = config.type || 'bar';
@@ -262,11 +265,15 @@
             }
         }
 
-        charts.push(new Chart(canvas, {
+        const chart = new Chart(canvas, {
             type: type === 'line' ? 'line' : (type === 'doughnut' ? 'doughnut' : 'bar'),
             data: { labels: config.labels || [], datasets: datasets },
-            options: options
-        }));
+            options: Object.assign(options, extra || {})
+        });
+        if (!extra) {
+            charts.push(chart);
+        }
+        return chart;
     }
 
     document.querySelectorAll('canvas[data-report-chart]').forEach(drawChart);
@@ -277,6 +284,72 @@
     });
     window.addEventListener('afterprint', function () {
         charts.forEach(function (chart) { chart.resize(); });
+    });
+
+    /* ---------- the report as a PDF ---------- */
+
+    // Each chart drawn again off the page, in the light theme and the page's proportions, as a PNG
+    function chartPictures() {
+        const root = document.documentElement;
+        const theme = root.getAttribute('data-bs-theme');
+        root.setAttribute('data-bs-theme', 'light');
+        const pictures = [];
+        document.querySelectorAll('.itflow-report canvas[data-report-chart]').forEach(function (canvas) {
+            const width = 900;
+            const height = Math.max(180, Math.round(width * (canvas.clientHeight || 300) / (canvas.clientWidth || width)));
+            const holder = document.createElement('div');
+            holder.style.cssText = 'position: fixed; left: -10000px; top: 0; width: ' + width + 'px; height: ' + height + 'px;';
+            const copy = document.createElement('canvas');
+            copy.dataset.reportChart = canvas.dataset.reportChart;
+            holder.appendChild(copy);
+            document.body.appendChild(holder);
+            const chart = drawChart(copy, { animation: false, devicePixelRatio: 2 });
+            pictures.push(chart ? chart.toBase64Image('image/png', 1) : '');
+            if (chart) {
+                chart.destroy();
+            }
+            holder.remove();
+        });
+        if (theme) {
+            root.setAttribute('data-bs-theme', theme);
+        } else {
+            root.removeAttribute('data-bs-theme');
+        }
+        // Back to the page's own colours for its charts
+        if (typeof itflowChartDefaults === 'function') {
+            itflowChartDefaults();
+        }
+        return pictures;
+    }
+
+    document.querySelectorAll('[data-report-pdf]').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = link.href;
+            form.hidden = true;
+            const add = function (name, value) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                form.appendChild(input);
+            };
+            chartPictures().forEach(function (picture) {
+                add('charts[]', picture);
+            });
+            // The theme's accent shades the map - as #rrggbb, however the browser gives it
+            let accent = tones.accent;
+            const rgb = /^rgba?\((\d+),\s*(\d+),\s*(\d+)/i.exec(accent);
+            if (rgb) {
+                accent = '#' + rgb.slice(1, 4).map(function (n) { return ('0' + parseInt(n, 10).toString(16)).slice(-2); }).join('');
+            }
+            add('accent', /^#[0-9a-f]{6}$/i.test(accent) ? accent : '');
+            document.body.appendChild(form);
+            form.submit();
+            form.remove();
+        });
     });
 
     /* ---------- sortable tables ---------- */

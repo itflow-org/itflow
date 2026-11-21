@@ -113,14 +113,31 @@ function redirect($url = null, $permanent = false) {
         exit;
     } else {
         // Fallback for headers already sent
-        echo "<script>window.location.href = '" . addslashes($url) . "';</script>";
-        echo '<noscript><meta http-equiv="refresh" content="0;url=' . htmlspecialchars($url) . '"></noscript>';
+        echo '<script>window.location.href = ' . json_encode((string) $url, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES) . ';</script>';
+        echo '<noscript><meta http-equiv="refresh" content="0;url=' . escapeHtml($url) . '"></noscript>';
         exit;
     }
+}
+
+/*
+ * A New Contact, New Location or New Vendor window opened by the + beside a picker in another
+ * window (quickAddButton(), js/quick_add.js) posts inline=1: answer it with the new record for the
+ * picker - ['ok' => true, 'value', 'label', 'message'] - or ['ok' => false, 'error'], in place of
+ * a message and a reload. Does nothing for an ordinary post.
+ */
+function inlineSaveAnswer(array $answer): void {
+    if (empty($_POST['inline'])) {
+        return;
+    }
+    header('Content-Type: application/json');
+    echo json_encode($answer);
+    exit;
 }
 
 //Flash Alert Function
 function flashAlert(string $message, string $type = 'success'): void {
     $_SESSION['alert_type'] = $type;
     $_SESSION['alert_message'] = $message;
+    // A new message carries no Undo until undoOffer() gives it one (functions/undo.php)
+    unset($_SESSION['alert_undo']);
 }

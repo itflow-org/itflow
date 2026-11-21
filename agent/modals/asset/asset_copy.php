@@ -54,8 +54,9 @@ $asset_favorite = 0;
 $device_icon = getAssetIcon($row['asset_type']);
 
 // Its details come along, bar the ones that belong to that one unit - an IMEI, a circuit
-$asset_specs = array_filter(assetSpecs($source_asset_id), function ($key) {
-    return empty(ASSET_SPECS[$key]['unit_only']);
+$asset_spec_defs = assetSpecDefs();
+$asset_specs = array_filter(assetSpecs($source_asset_id), function ($key) use ($asset_spec_defs) {
+    return empty($asset_spec_defs[$key]['unit_only']);
 }, ARRAY_FILTER_USE_KEY);
 
 // Tags come along
@@ -70,8 +71,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class='fa fa-fw fa-<?= $device_icon ?> me-2'></i>Copying asset: <strong><?= $asset_name ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title text-truncate"><i class='fas fa-fw fa-<?= $device_icon ?> me-2'></i>Copy Asset <span class="fw-normal text-white-50 ms-1"><?= $asset_name ?></span></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -82,8 +83,8 @@ ob_start();
         <?php require 'asset_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_asset" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create Copy</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_asset" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create Copy</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

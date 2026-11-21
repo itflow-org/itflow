@@ -13,22 +13,22 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-eye me-2"></i>Add watcher</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-eye me-2"></i>Add Watcher</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
     <div class="modal-body">
 
-        <p class="text-muted small">Watchers get a copy of every emailed reply on this ticket.</p>
+        <p class="text-body-secondary small">Watchers get a copy of every emailed reply on this ticket.</p>
 
         <div class="mb-3">
-            <label>Email</label>
+            <label class="form-label">Email</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                 <select class="form-select select2" data-tags="true" name="watcher_email">
-                    <option value="">- Pick a contact or type an email address -</option>
+                    <option value="">- Select a contact or type an email address -</option>
                     <?php
 
                     $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_client_id, contact_photo, contact_title, contact_email FROM contacts WHERE contact_client_id = $client_id AND contact_email <> '' ORDER BY contact_name ASC");
@@ -60,8 +60,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_ticket_watcher" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Add watcher</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_ticket_watcher" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Add Watcher</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

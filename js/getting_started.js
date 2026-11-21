@@ -39,7 +39,7 @@
             button.title = shown ? 'Show' : 'Hide';
             var icon = button.querySelector('i');
             if (icon) {
-                icon.className = shown ? 'far fa-eye' : 'far fa-eye-slash';
+                icon.className = shown ? 'fas fa-eye' : 'fas fa-eye-slash';
             }
         });
     }

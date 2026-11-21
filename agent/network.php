@@ -32,7 +32,7 @@ $network = networkRow($network_id);
 
 if (!$network || ($client_url && intval($network['network_client_id']) !== intval($client_id))) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
 } else {
 
@@ -131,13 +131,13 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                     <?php if ($plan['next_free']) { ?>
                         <div class="btn-group">
                             <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-text="<?= escapeHtml($plan['next_free']) ?>" title="The first address nothing has, outside the DHCP range - copy it">
-                                <i class="fas fa-magic me-2"></i>Next free <span class="font-monospace ms-1"><?= escapeHtml($plan['next_free']) ?></span>
+                                <i class="fas fa-magic me-2"></i>Next Free <span class="font-monospace ms-1"><?= escapeHtml($plan['next_free']) ?></span>
                             </button>
                             <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="<?= escapeHtml($ip_add_url(['ip' => $plan['next_free']])) ?>" title="Document it"><i class="fas fa-plus"></i></button>
                         </div>
                     <?php } ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= escapeHtml($ip_add_url(['next' => 1])) ?>">
-                        <i class="fas fa-plus me-2"></i>Document an address
+                        <i class="fas fa-plus me-2"></i>Document an Address
                     </button>
                     <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/network/network_edit.php?id=<?= $network_id ?>">
                         <i class="fas fa-edit me-2"></i>Edit
@@ -161,12 +161,12 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                                 </form>
                             <?php } ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_ip_import.php?network_id=<?= $network_id ?>">
-                                <i class="fas fa-fw fa-upload text-secondary me-2"></i>Import addresses
+                                <i class="fas fa-fw fa-upload text-secondary me-2"></i>Import Addresses
                             </a>
                         <?php } ?>
                         <?php if ($usage['documented']) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_ip_export.php?network_id=<?= $network_id ?>">
-                                <i class="fas fa-fw fa-download text-secondary me-2"></i>Export addresses
+                                <i class="fas fa-fw fa-download text-secondary me-2"></i>Export Addresses
                             </a>
                         <?php } ?>
                         <?php if ($can_edit) { ?>
@@ -181,14 +181,13 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                                 <?php if ($can_delete) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-text="<?= $network_name ?> and the addresses documented on it go for good. The devices on it are left with no network.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
                                 <?php } ?>
                             <?php } else { ?>
-                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
-                                    data-confirm-text="<?= $network_name ?> moves to Archived, off the lists and pickers, until restored. The devices on it keep it.">
+                                <a class="dropdown-item text-danger" href="post.php?archive_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>">
                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                 </a>
                             <?php } ?>
@@ -295,9 +294,9 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                                 <?php if ($network['vendor_hours']) { ?><div class="small text-body-secondary"><i class="fas fa-fw fa-clock me-1"></i><?= escapeHtml($network['vendor_hours']) ?></div><?php } ?>
                             </dd>
                         <?php } ?>
-                        <dt>Added</dt><dd title="<?= escapeHtml($network['network_created_at']) ?>"><?= timeAgo($network['network_created_at']) ?></dd>
+                        <dt>Added</dt><dd title="<?= formatDateTime($network['network_created_at']) ?>"><?= timeAgo($network['network_created_at']) ?></dd>
                         <?php if ($network['network_updated_at']) { ?>
-                            <dt>Updated</dt><dd title="<?= escapeHtml($network['network_updated_at']) ?>"><?= timeAgo($network['network_updated_at']) ?></dd>
+                            <dt>Updated</dt><dd title="<?= formatDateTime($network['network_updated_at']) ?>"><?= timeAgo($network['network_updated_at']) ?></dd>
                         <?php } ?>
                     </dl>
                 </div>
@@ -322,7 +321,7 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link text-nowrap <?= $tab['count'] ? '' : 'is-empty' ?>" id="network-tab-<?= $tab_key ?>" data-bs-toggle="pill" data-bs-target="#network-pane-<?= $tab_key ?>" data-network-tab="<?= $tab_key ?>" type="button" role="tab">
                                     <i class="fas fa-fw <?= $tab['icon'] ?> me-1"></i><?= $tab['label'] ?>
-                                    <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                                    <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                                 </button>
                             </li>
                         <?php } ?>
@@ -346,7 +345,7 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                             <?php if ($can_edit) { ?>
                                 <div class="dropdown ms-auto" id="bulkActionButton" hidden>
                                     <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-fw fa-layer-group me-1"></i>Selected (<span id="selectedCount">0</span>)
+                                        <i class="fas fa-fw fa-layer-group me-1"></i>Bulk Action (<span id="selectedCount">0</span>)
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end">
                                         <h6 class="dropdown-header">Make them</h6>
@@ -474,7 +473,7 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                         <?php } else { ?>
                             <div class="itflow-asset-empty">
                                 Nothing documented and no device on it yet.
-                                <?php if ($can_edit) { ?><div class="mt-2"><button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="<?= escapeHtml($ip_add_url(['next' => 1])) ?>"><i class="fas fa-plus me-2"></i>Document an address</button></div><?php } ?>
+                                <?php if ($can_edit) { ?><div class="mt-2"><button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="<?= escapeHtml($ip_add_url(['next' => 1])) ?>"><i class="fas fa-plus me-2"></i>Document an Address</button></div><?php } ?>
                             </div>
                         <?php } ?>
 

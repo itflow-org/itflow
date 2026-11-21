@@ -52,12 +52,11 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-layer-group me-2"></i>Batch Payment <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($client['client_name']) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="client_id" value="<?= $client_id ?>">
-    <input type="hidden" name="balance" value="<?= number_format($owed, 2, '.', '') ?>">
     <input type="hidden" name="currency_code" value="<?= escapeHtml($currency) ?>">
 
     <div class="modal-body">
@@ -76,7 +75,7 @@ ob_start();
         <?php require __DIR__ . '/payment_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_bulk_payment" class="btn btn-success text-bold"><i class="fas fa-check me-2"></i>Add Payment</button>
+        <button type="submit" name="add_bulk_payment" class="btn btn-success fw-bold"><i class="fas fa-check me-2"></i>Add Payment</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

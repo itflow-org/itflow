@@ -21,7 +21,7 @@ isset($mysqli) || die("Direct file access is not allowed");
         <?php } ?>
         <?php if (lookupUserPermission('module_financial') >= 3) { ?>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item text-danger text-bold ajax-modal" href="#" data-modal-url="modals/trip/trip_bulk_delete.php" data-bulk="true"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
+            <a class="dropdown-item text-danger fw-bold ajax-modal" href="#" data-modal-url="modals/trip/trip_bulk_delete.php" data-bulk="true"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
         <?php } ?>
     </div>
 </div>

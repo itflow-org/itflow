@@ -46,7 +46,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-users me-2"></i>Seats on <strong><?= escapeHtml($row['software_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-seats-form>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -59,8 +59,8 @@ ob_start();
         </div>
         <?php
         $pickers = [
-            'contacts' => ['label' => 'Users', 'icon' => 'fa-user', 'placeholder' => $contact_options ? 'Pick the people licensed to use it' : 'This client has no contacts yet'],
-            'assets' => ['label' => 'Devices', 'icon' => 'fa-desktop', 'placeholder' => $asset_options ? 'Pick the devices it is installed on' : 'This client has no assets yet'],
+            'contacts' => ['label' => 'Users', 'icon' => 'fa-user', 'placeholder' => $contact_options ? '- Select the people licensed to use it -' : 'This client has no contacts yet'],
+            'assets' => ['label' => 'Devices', 'icon' => 'fa-desktop', 'placeholder' => $asset_options ? '- Select the devices it is installed on -' : 'This client has no assets yet'],
         ];
         if (!$users_first) {
             $pickers = array_reverse($pickers, true);
@@ -88,8 +88,8 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="set_software_seats" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="set_software_seats" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -20,7 +20,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-user-plus me-2"></i>New User</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -32,7 +32,7 @@ ob_start();
         <?php require 'user_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_user" class="btn btn-primary text-bold" data-user-submit data-label-create="Create"
+        <button type="submit" name="add_user" class="btn btn-primary fw-bold" data-user-submit data-label-create="Create"
             data-label-invite="<?= userInvitesReady() && !userInviteMailReady() ? 'Make the invite link' : 'Send invite' ?>"><i class="fas fa-check me-2"></i><span data-user-submit-label>Create</span></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>

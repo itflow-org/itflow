@@ -82,10 +82,6 @@ $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', array
 }, $views)) . " FROM canned_responses WHERE $filters"));
 $view_counts = array_combine(array_keys($views), $counts);
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($view) use ($category_filter) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'category' => $category_filter, 'show' => $view]));
 };
@@ -95,6 +91,8 @@ $csrf = $_SESSION['csrf_token'];
 
 ?>
 
+<?= adminNavGroupTabsHtml('templates') ?>
+
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-comment-dots me-2"></i>Canned Responses</h3>
@@ -103,20 +101,20 @@ $csrf = $_SESSION['csrf_token'];
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= escapeHtml($add_url) ?>">
                     <i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Canned Response</span>
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/canned_response/canned_response_import.php">
                         <i class="fas fa-fw fa-file-upload text-secondary me-2"></i>Import
                     </a>
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/canned_response/canned_response_export.php">
-                        <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="/agent/reports/canned_responses.php">
-                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How they are used
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How They Are Used
                     </a>
                     <a class="dropdown-item" href="starter_content.php">
-                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter canned responses
+                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter Canned Responses
                     </a>
                 </div>
             </div>
@@ -129,7 +127,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search canned responses..." title="Name or what it says">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -153,10 +151,10 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('canned_response_name', 'Response') ?></th>
+                <th class="ps-3"><?= sortLink('canned_response_name', 'Response') ?></th>
                 <th class="d-none d-lg-table-cell">Offered on</th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('use_count', 'Used') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('last_used', 'Last used') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('use_count', 'Used') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('last_used', 'Last used') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -217,28 +215,28 @@ $csrf = $_SESSION['csrf_token'];
                                     <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                 </a>
                                 <a class="dropdown-item" href="post.php?copy_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>" title="<?= $owner_id ? 'A new shared response starting from this one' : 'A new response starting from this one' ?>">
-                                    <i class="fas fa-fw fa-copy text-secondary me-2"></i><?= $owner_id ? 'Copy as shared' : 'Copy' ?>
+                                    <i class="far fa-fw fa-copy text-secondary me-2"></i><?= $owner_id ? 'Copy as shared' : 'Copy' ?>
                                 </a>
                                 <a class="dropdown-item" href="post.php?export_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>" title="A file of it, to import into another ITFlow">
-                                    <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
+                                    <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                                 </a>
                                 <?php if ($owner_id) { ?>
                                     <a class="dropdown-item confirm-link" href="post.php?share_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-title="Share <?= $name ?> with everyone?" data-confirm-text="It moves to the shared ones and every agent is offered it. <?= escapeHtml($row['owner_name'] ?? 'Its agent') ?> can't change it after." data-confirm-button="Share">
-                                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Share with everyone
+                                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Share with Everyone
                                     </a>
                                 <?php } ?>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['canned_response_archived_at']) { ?>
                                     <a class="dropdown-item" href="post.php?restore_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>">
-                                        <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item text-danger" href="post.php?archive_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>" title="Not offered on tickets">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </a>
                                 <?php } ?>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>"
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Delete <?= $name ?>?" data-confirm-text="It goes for good, with its record of use. Replies it went into stay as they are." data-confirm-button="Delete">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>

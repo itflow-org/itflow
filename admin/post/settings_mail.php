@@ -98,6 +98,10 @@ if (isset($_POST['edit_mail_oauth_settings']) || isset($_POST['oauth_connect_mic
     }
 
     $changed = settingsWrite('settings', $before, $after);
+    // Graph is asked again too - the app may now have its permissions, or be another app (functions/mail_graph.php)
+    if (array_key_exists('config_mail_oauth_access_token', $after)) {
+        mailGraphForget();
+    }
     // What it signed in with is only ever fetched - not something anyone changed
     unset($changed['config_mail_oauth_access_token'], $changed['config_mail_oauth_access_token_expires_at']);
     $lines = settingsChangeLines($before, $changed);
@@ -263,8 +267,14 @@ if (isset($_POST['test_email_imap'])) {
 
     $provider = escapeSql($config_imap_provider ?? '');
 
+    // Read through Microsoft Graph, the mailbox is tested that way - as the email parser reads it (functions/mail_graph.php)
+    if ($provider === 'microsoft_oauth' && ($graph_test = mailGraphMailboxTest($config_imap_username ?? '')) !== null) {
+        flashAlert($graph_test['ok'] ? escapeHtml($graph_test['message']) : '<strong>Mailbox test failed:</strong> ' . escapeHtml($graph_test['message']), $graph_test['ok'] ? 'success' : 'error');
+        redirect($mail_tab_redirect);
+    }
+
     $host       = $config_imap_host;
-    $port       = (int) $config_imap_port;
+    $port       = intval($config_imap_port);
     $encryption = strtolower(trim($config_imap_encryption)); // e.g. "ssl", "tls", "none"
     $username   = $config_imap_username;
     $password   = $config_imap_password;
@@ -360,6 +370,7 @@ if (isset($_POST['test_email_imap'])) {
                     'client_secret' => $config_mail_oauth_client_secret,
                     'refresh_token' => $config_mail_oauth_refresh_token,
                     'grant_type' => 'refresh_token',
+                    'scope' => MAIL_MICROSOFT_EXCHANGE_SCOPE,
                 ]);
             }
 
@@ -375,7 +386,7 @@ if (isset($_POST['test_email_imap'])) {
             }
 
             $password = $json['access_token'];
-            $expires_at = date('Y-m-d H:i:s', time() + (int)($json['expires_in'] ?? 3600));
+            $expires_at = date('Y-m-d H:i:s', time() + intval($json['expires_in'] ?? 3600));
             $refresh_token_to_save = $json['refresh_token'] ?? null;
 
             $token_esc = mysqli_real_escape_string($mysqli, $password);
@@ -463,7 +474,7 @@ if (isset($_POST['test_oauth_token_refresh'])) {
         'client_secret' => $oauth_client_secret,
         'refresh_token' => $oauth_refresh_token,
         'grant_type' => 'refresh_token',
-    ]);
+    ] + ($provider === 'microsoft_oauth' ? ['scope' => MAIL_MICROSOFT_EXCHANGE_SCOPE] : []));
 
     $ch = curl_init($token_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -490,7 +501,7 @@ if (isset($_POST['test_oauth_token_refresh'])) {
     }
 
     $new_access_token = escapeSql($json['access_token']);
-    $new_expires_at = date('Y-m-d H:i:s', time() + (int)($json['expires_in'] ?? 3600));
+    $new_expires_at = date('Y-m-d H:i:s', time() + intval($json['expires_in'] ?? 3600));
     $new_refresh_token = !empty($json['refresh_token']) ? escapeSql($json['refresh_token']) : '';
 
     $new_access_token_esc = mysqli_real_escape_string($mysqli, $new_access_token);
@@ -507,6 +518,18 @@ if (isset($_POST['test_oauth_token_refresh'])) {
     $provider_label = $provider === 'microsoft_oauth' ? 'Microsoft 365' : 'Google Workspace';
     logAudit("Settings", "Edit", "$session_name tested OAuth token refresh for $provider_label mail settings");
 
-    flashAlert("OAuth token refresh successful for $provider_label. Access token expires at $new_expires_at.");
+    // And what Microsoft Graph can do for the mailbox now - asked afresh (functions/mail_graph.php)
+    $graph_said = '';
+    if ($provider === 'microsoft_oauth') {
+        try {
+            $graph_send = mailGraphToken('Mail.Send', true) !== null;
+            $graph_read = mailGraphToken('Mail.ReadWrite') !== null;
+            $graph_said = ' ' . mailGraphSays($config_smtp_provider === 'microsoft_oauth', $config_imap_provider === 'microsoft_oauth', $graph_send, $graph_read);
+        } catch (\Throwable $e) {
+            $graph_said = ' ' . escapeHtml($e->getMessage());
+        }
+    }
+
+    flashAlert("OAuth token refresh successful for $provider_label. Access token expires at $new_expires_at." . $graph_said);
     redirect($mail_tab_redirect);
 }

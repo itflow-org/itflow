@@ -207,7 +207,7 @@ $people_columns = [
             return '<span class="small text-body-secondary"><i class="fas fa-fw fa-user-slash text-body-tertiary me-1"></i>' . escapeHtml($row['person']) . '</span>';
         } else {
             $cell = reportAgentCell($row['id'], $row['person'], $row['avatar'], 'Someone since deleted')
-                . ($row['kind'] === 'portal' ? ' <span class="badge text-bg-light border fw-normal">Portal</span>' : '');
+                . ($row['kind'] === 'portal' ? ' <span class="badge rounded-pill text-bg-light border fw-normal">Portal</span>' : '');
         }
         $url = $log_url(['user' => $row['id'] ?: 'system']);
         return $url !== '' ? '<a class="text-decoration-none" href="' . escapeHtml($url) . '" title="Their entries in the audit log">' . $cell . '</a>' : $cell;
@@ -377,7 +377,7 @@ if ($admin) {
             </div>
         </div>
 
-        <?= reportSectionOpen('When', reportCount($out_of_hours) . ' of ' . reportCount($by_people) . ' entries by people out of hours - before ' . escapeHtml(date('g:ia', strtotime($work_start))) . ', after ' . escapeHtml(date('g:ia', strtotime($work_end))) . ' or on a day off') ?>
+        <?= reportSectionOpen('When', reportCount($out_of_hours) . ' of ' . reportCount($by_people) . ' entries by people out of hours - before ' . escapeHtml(date('g:i A', strtotime($work_start))) . ', after ' . escapeHtml(date('g:i A', strtotime($work_end))) . ' or on a day off') ?>
             <div class="card-body">
                 <?= reportHeatmap($heat, 'entry') ?>
             </div>

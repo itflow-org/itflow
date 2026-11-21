@@ -36,7 +36,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Licenses</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <?php exportTabsNav(); ?>
@@ -50,20 +50,20 @@ ob_start();
         <?php exportTabsFiltersOpen(); ?>
 
         <div class="mb-3">
-            <label>Search</label>
+            <label class="form-label">Search</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, type, key, vendor">
             </div>
         </div>
 
         <?php if (!$client_id) { ?>
         <div class="mb-3">
-            <label>Client</label>
+            <label class="form-label">Client</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
-                    <option value="">- All Clients -</option>
+                    <option value="">- Any client -</option>
                     <?php
                     $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE EXISTS (SELECT 1 FROM software WHERE software_client_id = client_id)" . clientScopeSql('client_id') . " ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
@@ -80,9 +80,9 @@ ob_start();
         <?php } ?>
 
         <div class="mb-3">
-            <label>Expiring In</label>
+            <label class="form-label">Expiring in</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-hourglass-half"></i></span>
                 <select class="form-select select2" name="expire_days">
                     <option value="">- Any -</option>
                     <option <?php if ($expire_filter === 'expired') { echo "selected"; } ?> value="expired">Expired</option>
@@ -94,11 +94,11 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Showing</label>
+            <label class="form-label">Showing</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-filter"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-filter"></i></span>
                 <select class="form-select select2" name="status">
-                    <option value="">- All -</option>
+                    <option value="">- Any -</option>
                     <?php foreach ($status_filters as $status_key => $status_option) { ?>
                         <option <?php if ($status_filter === $status_key) { echo "selected"; } ?> value="<?= $status_key ?>"<?= selectOptionData(['icon' => 'fas ' . $status_option['icon']]) ?>><?= $status_option['label'] ?></option>
                     <?php } ?>
@@ -107,9 +107,9 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Software Type</label>
+            <label class="form-label">Software type</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="software_type">
                     <option value="">- Any -</option>
                     <?= categoryFilterOptionsHtml('software_type', $software_type_filter, "SELECT DISTINCT software_type FROM software WHERE software_type IS NOT NULL AND software_type <> ''" . ($client_id ? " AND software_client_id = $client_id" : '') . clientScopeSql('software_client_id')) ?>
@@ -118,9 +118,9 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>License Type</label>
+            <label class="form-label">License type</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-certificate"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-certificate"></i></span>
                 <select class="form-select select2" name="license_type">
                     <option value="">- Any -</option>
                     <?php foreach (array_unique(array_merge(array_keys(SOFTWARE_LICENSE_TYPES), $license_type_filter !== '' ? [$license_type_filter] : [])) as $license_type_option) { ?>
@@ -133,9 +133,9 @@ ob_start();
         <?= tagExportFieldHtml('license', $tag_filter) ?>
 
         <div class="mb-3">
-            <label>Archived</label>
+            <label class="form-label">Archived</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-archive"></i></span>
                 <select class="form-select select2" name="archived">
                     <option <?php if (!$archived_filter) { echo "selected"; } ?> value="0">Active only</option>
                     <option <?php if ($archived_filter) { echo "selected"; } ?> value="1">Archived only</option>

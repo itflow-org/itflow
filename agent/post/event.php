@@ -9,10 +9,18 @@
  * Attendees are agents, the client's contacts and anyone by email; ticking
  * "Email the invitation" sends each of them an iCalendar invitation, and from
  * then on a change, a skipped occurrence or the deletion goes to the people
- * who have it in their calendar.
+ * who have it in their calendar. An event's agents are who it is assigned to,
+ * changed from its form or its quick look (assign_event).
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
+// The calendar switched off (Admin > Settings > Modules) - none of these until it's back on
+if (!moduleOn('calendar') && (array_intersect(['add_calendar', 'edit_calendar', 'share_calendar', 'add_event', 'edit_event', 'assign_event', 'send_event_invites', 'calendar_feed_save'], array_keys($_POST))
+    || array_intersect(['delete_calendar', 'regenerate_calendar_feed', 'unshare_calendar', 'skip_event_occurrence', 'delete_event', 'export_event_ics', 'calendar_feed_regenerate', 'calendar_feed_stop'], array_keys($_GET)))) {
+    flashAlert(moduleOffText('calendar'), 'error');
+    redirect();
+}
 
 /** A colour from the picker - #rrggbb - or a default. */
 function calendarPostedColor($color) {
@@ -219,7 +227,8 @@ if (isset($_POST['add_event'])) {
         enforceCalendarEvent(['event_client_id' => $client_id], 'edit');
     }
 
-    $set = calendarEventFormSet($_POST, $client_id, $error);
+    // Typed on the agent's own clock - kept in the company's (functions/user_timezone.php)
+    $set = calendarEventFormSet(timezoneEventPost($_POST), $client_id, $error);
     if ($set === '') {
         flashAlert($error, 'error');
         redirect();
@@ -236,7 +245,7 @@ if (isset($_POST['add_event'])) {
 
     logAudit("Calendar Event", "Create", "$session_name added the event " . escapeSql($event['event_title']) . " to calendar " . escapeSql($event['calendar_name']), $client_id, $event_id);
 
-    flashAlert("Event <strong>" . escapeHtml($event['event_title']) . "</strong> added" . calendarSentText($sent));
+    flashAlert("Event <strong>" . escapeHtml($event['event_title']) . "</strong> created" . calendarSentText($sent));
 
     redirect();
 
@@ -256,7 +265,7 @@ if (isset($_POST['edit_event'])) {
         enforceCalendarEvent(['event_client_id' => $client_id], 'edit');
     }
 
-    $set = calendarEventFormSet($_POST, $client_id, $error);
+    $set = calendarEventFormSet(timezoneEventPost($_POST) + ['repeat_on_current' => $old['event_repeat_by_day'] ?? ''], $client_id, $error);
     if ($set === '') {
         flashAlert($error, 'error');
         redirect();
@@ -267,7 +276,7 @@ if (isset($_POST['edit_event'])) {
     // A change a calendar that already has it needs to know about moves it on a version
     $event = calendarEventRow($event_id);
     $changed = false;
-    foreach (['event_title', 'event_start', 'event_end', 'event_all_day', 'event_location', 'event_location_id', 'event_description', 'event_repeat', 'event_repeat_interval', 'event_repeat_until'] as $field) {
+    foreach (array_merge(['event_title', 'event_start', 'event_end', 'event_all_day', 'event_location', 'event_location_id', 'event_description', 'event_repeat', 'event_repeat_interval', 'event_repeat_until'], byDayReady() ? ['event_repeat_by_day'] : []) as $field) {
         if ((string) $old[$field] !== (string) $event[$field]) {
             $changed = true;
         }
@@ -307,6 +316,25 @@ if (isset($_POST['edit_event'])) {
     logAudit("Calendar Event", "Edit", "$session_name edited the event " . escapeSql($event['event_title']), $client_id, $event_id);
 
     flashAlert("Event <strong>" . escapeHtml($event['event_title']) . "</strong> saved" . calendarSentText($sent + $cancelled, ''));
+
+    redirect();
+
+}
+
+// Who it is assigned to, from its quick look - its contacts and others by email stay as they are
+if (isset($_POST['assign_event'])) {
+
+    validateCSRFToken();
+
+    $event = calendarEventForRequest($_POST['event_id'] ?? 0, 'edit');
+    [$added, $removed, $sent] = calendarEventSetAgents($event, (array) ($_POST['agents'] ?? []));
+    $words = calendarEventAgentsText($added, $removed);
+
+    if ($words !== '') {
+        logAudit("Calendar Event", "Edit", "$session_name " . escapeSql($words) . " - the event " . escapeSql($event['event_title']), intval($event['event_client_id']), intval($event['event_id']));
+    }
+
+    flashAlert("<strong>" . escapeHtml($event['event_title']) . "</strong> " . ($words !== '' ? escapeHtml($words) : 'unchanged') . calendarSentText($sent, ''));
 
     redirect();
 

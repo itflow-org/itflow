@@ -71,10 +71,6 @@ $counts = array_combine(array_keys($views), array_map('intval', mysqli_fetch_row
 
 $any_filter = $q !== '' || $dtf !== '1970-01-01' || $dtt !== '2099-12-31';
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $view_url = function ($key) {
     $query = $_GET;
     unset($query['page']);
@@ -94,11 +90,11 @@ $view_empty = [
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-history me-2"></i>Your activity</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-history me-2"></i>Your Activity</h3>
         <?php if ($session_is_admin) { ?>
             <div class="card-tools">
-                <a class="btn btn-outline-light" href="/admin/audit_logs.php?user=<?= intval($session_user_id) ?>" title="The same in Admin > Audit Logs, with each entry's quick look and export">
-                    <i class="fas fa-fw fa-user-shield"></i><span class="d-none d-lg-inline ms-2">Admin &gt; Audit Logs</span>
+                <a class="btn btn-outline-light" href="/admin/audit_logs.php?user=<?= intval($session_user_id) ?>" title="The same in Admin > Logs > Audit Logs, with each entry's quick look and export">
+                    <i class="fas fa-fw fa-user-shield"></i><span class="d-none d-lg-inline ms-2">Admin &gt; Logs &gt; Audit Logs</span>
                 </a>
             </div>
         <?php } ?>
@@ -109,8 +105,8 @@ $view_empty = [
             <div class="row g-2 align-items-center">
                 <div class="col-lg-6 col-md-7">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search what you did" title="What you did, the client, the IP address or the browser">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search your activity..." title="What you did, the client, the IP address or the browser">
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-5">
@@ -134,11 +130,11 @@ $view_empty = [
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('log_created_at', 'When') ?></th>
-                <th><?= $sort_link('log_type', 'What') ?></th>
+                <th class="ps-3"><?= sortLink('log_created_at', 'When') ?></th>
+                <th><?= sortLink('log_type', 'What') ?></th>
                 <th>Description</th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('client_name', 'Client') ?></th>
-                <th class="d-none d-xl-table-cell pe-3"><?= $sort_link('log_ip', 'From') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('client_name', 'Client') ?></th>
+                <th class="d-none d-xl-table-cell pe-3"><?= sortLink('log_ip', 'From') ?></th>
             </tr>
             </thead>
             <tbody>
@@ -150,7 +146,7 @@ $view_empty = [
                 $from = implode(' · ', array_filter([(string) $row['log_ip'], $device]));
                 ?>
                 <tr data-log-id="<?= intval($row['log_id']) ?>">
-                    <td class="ps-3 text-nowrap small" title="<?= escapeHtml($row['log_created_at']) ?>">
+                    <td class="ps-3 text-nowrap small" title="<?= formatDateTime($row['log_created_at']) ?>">
                         <div><?= escapeHtml(date('M j, Y g:i A', strtotime($row['log_created_at']))) ?></div>
                         <div class="text-body-secondary"><?= escapeHtml(timeAgo($row['log_created_at'])) ?></div>
                     </td>

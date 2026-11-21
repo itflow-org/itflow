@@ -36,7 +36,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-hand-holding-usd me-2"></i>Reimburse <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($agent['user_name']) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" id="expenseReimburse">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -61,12 +61,15 @@ ob_start();
         </div>
         <div class="p-3 border-top">
             <div class="row g-3">
+                <?php if (!moduleOn('bookkeeping')) { // Bookkeeping off - out of the default account ?>
+                    <input type="hidden" name="account" value="<?= bookkeepingAccount('expense') ?>">
+                <?php } else { ?>
                 <div class="col-md-7">
                     <label class="form-label">Paid back from <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                         <select class="form-select select2" name="account" required>
-                            <option value="">- Which account -</option>
+                            <option value="">- Select an account -</option>
                             <?php foreach ($accounts as $account_id => $account) { ?>
                                 <option value="<?= $account_id ?>" <?= $account_id === $default_account ? 'selected' : '' ?> data-icon="fas fa-piggy-bank"
                                     data-description="<?= escapeHtml(billingMoney($account['balance'], $account['account_currency_code'])) ?>"><?= escapeHtml($account['account_name']) ?></option>
@@ -74,19 +77,20 @@ ob_start();
                         </select>
                     </div>
                 </div>
+                <?php } ?>
                 <div class="col-md-5">
                     <label class="form-label">Date <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                         <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
                     </div>
                 </div>
                 <div class="col-md-7">
                     <label class="form-label">How</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                         <select class="form-select select2" name="payment_method">
-                            <option value="">- How they were paid -</option>
+                            <option value="">- Select a payment method -</option>
                             <?php foreach ($methods as $method) { ?>
                                 <option value="<?= escapeHtml($method) ?>"><?= escapeHtml($method) ?></option>
                             <?php } ?>
@@ -96,7 +100,7 @@ ob_start();
                 <div class="col-md-5">
                     <label class="form-label">Reference</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                         <input type="text" class="form-control" name="reference" maxlength="200" placeholder="Check or transfer number">
                     </div>
                 </div>
@@ -105,7 +109,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <span class="me-auto small text-body-secondary" data-reimburse-summary></span>
-        <button type="submit" name="expense_reimburse" class="btn btn-primary text-bold" data-reimburse-submit><i class="fas fa-check me-2"></i>Pay Back</button>
+        <button type="submit" name="expense_reimburse" class="btn btn-primary fw-bold" data-reimburse-submit><i class="fas fa-check me-2"></i>Pay Back</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

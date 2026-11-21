@@ -61,7 +61,7 @@ function aiUseCases() {
     return [
         'General' => 'Everything without a model of its own - Reword and translate in any editor, and client briefings.',
         'Tickets' => 'Drafting replies, triage, summaries, and Reword and translate in the ticket reply editor.',
-        'Documentation' => 'Drafting and reviewing documents, writing a ticket up as a document, and drafting document templates.',
+        'Documentation' => 'Drafting and reviewing documents and Knowledge Base articles, writing a ticket up as either, and drafting document templates.',
         'Billing' => 'Writing quotes and invoices - their lines from your catalog, labor at the client\'s rate - and the work done on a ticket for its invoice line.',
     ];
 }
@@ -77,8 +77,10 @@ function aiFeatures() {
         'ticket_summary' => 'Ticket summary',
         'document_template' => 'Document template draft',
         'ticket_document' => 'Ticket written up as a document',
+        'ticket_kb_article' => 'Ticket written up for the Knowledge Base',
         'document_draft' => 'Document draft',
         'document_review' => 'Document review',
+        'kb_article_review' => 'Knowledge Base article review',
         'client_briefing' => 'Client briefing',
         'billing_draft' => 'Quote or invoice written',
         'invoice_description' => 'Ticket time described for its invoice',
@@ -402,14 +404,14 @@ function callAiApi($model, $messages, array $context = []) {
         }
         logApp('AI', 'error', $detail);
         aiUsageRecord($usage + ['ok' => false, 'error' => "HTTP $status" . (!empty($provider_error['message']) && is_scalar($provider_error['message']) ? ' - ' . $provider_error['message'] : '')]);
-        return ['ok' => false, 'error' => "The AI provider turned the request away (HTTP $status) - see Admin > App Logs."];
+        return ['ok' => false, 'error' => "The AI provider turned the request away (HTTP $status) - see Admin > Logs > App Logs."];
     }
 
     $content = $decoded['choices'][0]['message']['content'] ?? null;
     if (!is_string($content)) {
         logApp('AI', 'error', "$label - HTTP $status but the response carried no choices[0].message.content");
         aiUsageRecord($usage + ['ok' => false, 'error' => 'No answer in the response']);
-        return ['ok' => false, 'error' => 'The AI provider returned an unexpected response - see Admin > App Logs.'];
+        return ['ok' => false, 'error' => 'The AI provider returned an unexpected response - see Admin > Logs > App Logs.'];
     }
 
     aiUsageRecord($usage + ['ok' => true, 'tokens_in' => intval($decoded['usage']['prompt_tokens'] ?? 0), 'tokens_out' => intval($decoded['usage']['completion_tokens'] ?? 0)]);

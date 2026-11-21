@@ -37,7 +37,7 @@ if ($q !== '') {
     $where .= " AND (document_name LIKE '%$q_sql%' OR document_description LIKE '%$q_sql%' OR document_content_raw LIKE '%$q_sql%')";
 }
 $total = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM documents WHERE $where"))[0]);
-$pages = max(1, (int) ceil($total / $per_page));
+$pages = max(1, intval(ceil($total / $per_page)));
 $page = min(max(1, intval($_GET['page'] ?? 1)), $pages);
 $offset = ($page - 1) * $per_page;
 
@@ -68,21 +68,21 @@ function documentsUrl(array $changes) {
             <?php if ($folder !== null) { ?><input type="hidden" name="folder" value="<?= $folder ?>"><?php } ?>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search documents" aria-label="Search documents" maxlength="200">
+                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search documents..." aria-label="Search documents" maxlength="200">
             </div>
         </form>
         <div class="btn-group">
-            <a class="btn btn-primary" href="document_add.php"><i class="fas fa-plus me-2"></i>New document</a>
-            <a class="btn btn-outline-primary" href="document_add.php?upload=1"><i class="fas fa-upload me-2"></i>Upload a file</a>
+            <a class="btn btn-primary" href="document_add.php"><i class="fas fa-plus me-2"></i>New Document</a>
+            <a class="btn btn-outline-primary" href="document_add.php?upload=1"><i class="fas fa-upload me-2"></i>Upload a File</a>
         </div>
     </div>
 </div>
 
 <?php if (count($folders) > 1) { ?>
     <nav class="itflow-portal-tabs" aria-label="Folders">
-        <a class="<?= $folder === null ? 'active' : '' ?>" href="<?= escapeHtml(documentsUrl(['folder' => null, 'page' => null])) ?>"><i class="fas fa-list"></i>All <span class="badge rounded-pill"><?= $all_count ?></span></a>
+        <a class="<?= $folder === null ? 'active' : '' ?>" href="<?= escapeHtml(documentsUrl(['folder' => null, 'page' => null])) ?>"><i class="fas fa-list"></i>All <span class="badge rounded-pill"><?= number_format(intval($all_count)) ?></span></a>
         <?php foreach ($folders as $id => $f) { ?>
-            <a class="<?= $folder === $id ? 'active' : '' ?>" href="<?= escapeHtml(documentsUrl(['folder' => $id, 'page' => null])) ?>"><i class="fas <?= $id ? 'fa-folder' : 'fa-file' ?>"></i><?= escapeHtml($f['name']) ?> <span class="badge rounded-pill"><?= $f['count'] ?></span></a>
+            <a class="<?= $folder === $id ? 'active' : '' ?>" href="<?= escapeHtml(documentsUrl(['folder' => $id, 'page' => null])) ?>"><i class="fas <?= $id ? 'fa-folder' : 'fa-file' ?>"></i><?= escapeHtml($f['name']) ?> <span class="badge rounded-pill"><?= number_format(intval($f['count'])) ?></span></a>
         <?php } ?>
     </nav>
 <?php } ?>
@@ -93,7 +93,7 @@ function documentsUrl(array $changes) {
             <?= emptyStateHtml(['thing' => 'documents', 'filtered' => true, 'match_text' => 'No document mentions &ldquo;' . escapeHtml($q) . '&rdquo;.', 'clear_url' => documentsUrl(['q' => null, 'page' => null])]) ?>
         <?php } else { ?>
             <?= emptyStateHtml(['title' => 'No documents yet', 'text' => 'Guides and records we share with you show here - and you can add your own.', 'icon' => 'fa-folder-open', 'filtered' => false,
-                'actions' => [['label' => 'New document', 'href' => 'document_add.php'], ['label' => 'Upload a file', 'href' => 'document_add.php?upload=1', 'icon' => 'fa-upload']]]) ?>
+                'actions' => [['label' => 'New Document', 'href' => 'document_add.php'], ['label' => 'Upload a File', 'href' => 'document_add.php?upload=1', 'icon' => 'fa-upload']]]) ?>
         <?php } ?>
     <?php } else { ?>
         <ul class="itflow-portal-list">

@@ -28,7 +28,7 @@ if (!$contract || $contract['contract_status'] === 'Draft' || !$contract['contra
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-sync-alt me-2"></i>Renew <strong><?= escapeHtml($contract['contract_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -39,15 +39,15 @@ if (!$contract || $contract['contract_status'] === 'Draft' || !$contract['contra
             It <?= $end >= date('Y-m-d') ? 'ends' : 'ended' ?> on <?= escapeHtml(date('M j, Y', strtotime($end))) ?>.
             <?= in_array($contract['contract_status'], ['Ended', 'Cancelled'], true) ? 'Renewing makes it active again.' : '' ?>
         </p>
-        <label class="form-label">New last day</label>
+        <label class="form-label">New last day <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
             <input type="date" class="form-control" name="end_date" value="<?= escapeHtml($new_end) ?>" min="<?= escapeHtml(date('Y-m-d')) ?>" required>
         </div>
-        <small class="text-secondary">Another <?= escapeHtml(contractTermLabel($contract['contract_term_months'])) ?>. Its owner is reminded again before this one ends.</small>
+        <div class="form-text">Another <?= escapeHtml(contractTermLabel($contract['contract_term_months'])) ?>. Its owner is reminded again before this one ends.</div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="renew_contract" class="btn btn-primary text-bold"><i class="fas fa-sync-alt me-2"></i>Renew</button>
+        <button type="submit" name="renew_contract" class="btn btn-primary fw-bold"><i class="fas fa-sync-alt me-2"></i>Renew</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

@@ -53,7 +53,7 @@ $location_map_query = rawurlencode(html_entity_decode(trim("$location_address $l
             <a class="small text-reset text-decoration-none d-block mt-1" href="tel:<?= escapeHtml(preg_replace('/[^0-9+]/', '', html_entity_decode($location_phone))) ?>"><i class="fas fa-fw fa-phone text-body-secondary me-2" aria-hidden="true"></i><?= $location_phone ?></a>
         <?php } ?>
     <?php } elseif ($client_details_edit) { ?>
-        <a class="ajax-modal small" href="#" data-modal-url="modals/location/location_add.php?client_id=<?= $client_id ?>&primary=1"><i class="fas fa-fw fa-plus me-1"></i>Add primary location</a>
+        <a class="ajax-modal small" href="#" data-modal-size="lg" data-modal-url="modals/location/location_add.php?client_id=<?= $client_id ?>&primary=1"><i class="fas fa-fw fa-plus me-1"></i>Add primary location</a>
     <?php } else { ?>
         <span class="text-body-tertiary">None</span>
     <?php } ?>

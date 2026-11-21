@@ -106,7 +106,7 @@ $filter_url = function ($changes) {
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-share-alt me-2"></i>Shared Links</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-share-alt me-2"></i>Shared Links</h3>
         <div class="card-tools">
             <?php if ($can_note || $can_request || $can_export || ($client_url && $can_end && $counts[''])) { ?>
             <div class="btn-group">
@@ -115,16 +115,16 @@ $filter_url = function ($changes) {
                         <i class="fas fa-user-secret me-2"></i>Secure Note
                     </button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_note ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_note ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_note ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_note ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_export) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/share/share_add.php?type=Export&amp;client_id=<?= intval($client_id) ?>">
-                            <i class="fa fa-fw fa-book me-2"></i>Share the IT documentation
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/share/share_add.php?type=Export&amp;client_id=<?= intval($client_id) ?>">
+                            <i class="fas fa-fw fa-book me-2"></i>Share the IT Documentation
                         </a>
                     <?php } ?>
                     <?php if ($can_request) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Request&amp;client_id=<?= intval($client_id) ?>">
-                            <i class="fa fa-fw fa-inbox me-2"></i>Ask the client for a login
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Request&amp;client_id=<?= intval($client_id) ?>">
+                            <i class="fas fa-fw fa-inbox me-2"></i>Ask the Client for a Login
                         </a>
                     <?php } ?>
                     <?php if ($client_url && $can_end && $counts['']) { ?>
@@ -134,7 +134,7 @@ $filter_url = function ($changes) {
                             <input type="hidden" name="client_id" value="<?= intval($client_id) ?>">
                             <button type="submit" name="share_revoke_all" value="1" class="dropdown-item text-danger confirm-link"
                                 data-confirm-text="Every open link for <?= $client_name ?> stops working straight away - <?= $counts[''] ?> of them. Requests not answered yet are cancelled too.">
-                                <i class="fa fa-fw fa-unlink me-2"></i>Turn off every open link
+                                <i class="fas fa-fw fa-unlink me-2"></i>Turn Off Every Open Link
                             </button>
                         </form>
                     <?php } ?>
@@ -154,7 +154,7 @@ $filter_url = function ($changes) {
                 <div class="<?= $client_url ? 'col-lg-5' : 'col-lg-4' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search what, who it went to, who made it...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">
@@ -168,7 +168,7 @@ $filter_url = function ($changes) {
                 <?php if (!$client_url) { ?>
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="client" onchange="this.form.submit()">
-                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- Any client -</option>
                         <?php
                         $sql_clients_filter = mysqli_query($mysqli, "
                             SELECT DISTINCT client_id, client_name, client_abbreviation
@@ -195,7 +195,7 @@ $filter_url = function ($changes) {
                             <div class="dropdown-menu dropdown-menu-end">
                                 <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="share_bulk_revoke" value="1"
                                     data-confirm-text="The ticked links stop working straight away.">
-                                    <i class="fas fa-fw fa-unlink me-2"></i>Turn off
+                                    <i class="fas fa-fw fa-unlink me-2"></i>Turn Off
                                 </button>
                             </div>
                         </div>
@@ -231,36 +231,24 @@ $filter_url = function ($changes) {
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=item_name&order=<?= $disp ?>">
-                            Shared <?php if ($sort == 'item_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('item_name', 'Shared') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=item_recipient&order=<?= $disp ?>">
-                            With <?php if ($sort == 'item_recipient') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('item_recipient', 'With') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=item_created_at&order=<?= $disp ?>">
-                            Made <?php if ($sort == 'item_created_at') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('item_created_at', 'Made') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=item_expire_at&order=<?= $disp ?>">
-                            Works until <?php if ($sort == 'item_expire_at') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('item_expire_at', 'Works until') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=item_last_viewed_at&order=<?= $disp ?>">
-                            Opened <?php if ($sort == 'item_last_viewed_at') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('item_last_viewed_at', 'Opened') ?>
                     </th>
                     <th>Status</th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>
@@ -313,10 +301,10 @@ $filter_url = function ($changes) {
                             <?php } ?>
                         </td>
                         <td class="small text-nowrap">
-                            <div title="<?= escapeHtml($row['item_created_at']) ?>"><?= timeAgo($row['item_created_at']) ?></div>
+                            <div title="<?= formatDateTime($row['item_created_at']) ?>"><?= timeAgo($row['item_created_at']) ?></div>
                             <div class="text-body-secondary"><?= $row['creator_name'] !== null ? escapeHtml($row['creator_name']) : '' ?></div>
                         </td>
-                        <td class="small text-nowrap" title="<?= escapeHtml($row['item_expire_at']) ?>">
+                        <td class="small text-nowrap" title="<?= formatDateTime($row['item_expire_at']) ?>">
                             <?php if ($is_open) { ?>
                                 <?= escapeHtml(date('M j, g:i A', strtotime($row['item_expire_at']))) ?>
                                 <div class="text-body-secondary"><?= timeAgo($row['item_expire_at']) ?></div>
@@ -327,24 +315,24 @@ $filter_url = function ($changes) {
                         <td class="small text-nowrap">
                             <?= escapeHtml(shareViewsText($row)) ?>
                             <?php if ($row['item_last_viewed_at']) { ?>
-                                <div class="text-body-secondary" title="<?= escapeHtml($row['item_last_viewed_at']) ?>">Last <?= timeAgo($row['item_last_viewed_at']) ?></div>
+                                <div class="text-body-secondary" title="<?= formatDateTime($row['item_last_viewed_at']) ?>">Last <?= timeAgo($row['item_last_viewed_at']) ?></div>
                             <?php } ?>
                         </td>
                         <td class="text-nowrap"><?= shareStateBadge($row) ?></td>
                         <?php if (!$client_url) { ?>
-                        <td><a href="shares.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                        <td><a data-client-card="<?= $row_client_id ?>" href="shares.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
                         <td class="text-end">
                             <div class="dropdown dropstart">
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $quick_url ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Details and history
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Details and History
                                     </a>
                                     <?= shareItemMenuLink($row) ?>
                                     <?php if ($can_end_row && $state === 'received') { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $quick_url ?>">
-                                            <i class="fas fa-fw fa-save text-secondary me-2"></i>Review and save
+                                            <i class="fas fa-fw fa-save text-secondary me-2"></i>Review and Save
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger confirm-link" href="post.php?share_request_discard=<?= $item_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
@@ -380,8 +368,8 @@ $filter_url = function ($changes) {
         'text' => 'Share a credential, document or file from its menu' . ($can_note || $can_request || $can_export ? ', or send a secure note, the IT documentation or ask for a login here' : '') . '.',
         'actions' => array_merge(
             $can_note ? [['label' => 'Secure Note', 'modal' => 'modals/share/share_add.php?type=Note&client_id=' . intval($client_id), 'icon' => 'fa-user-secret']] : [],
-            $can_export ? [['label' => 'IT documentation', 'modal' => 'modals/share/share_add.php?type=Export&client_id=' . intval($client_id), 'icon' => 'fa-book', 'size' => 'lg']] : [],
-            $can_request ? [['label' => 'Ask the client for a login', 'modal' => 'modals/share/share_add.php?type=Request&client_id=' . intval($client_id), 'icon' => 'fa-inbox']] : []
+            $can_export ? [['label' => 'IT Documentation', 'modal' => 'modals/share/share_add.php?type=Export&client_id=' . intval($client_id), 'icon' => 'fa-book', 'size' => 'lg']] : [],
+            $can_request ? [['label' => 'Ask the Client for a Login', 'modal' => 'modals/share/share_add.php?type=Request&client_id=' . intval($client_id), 'icon' => 'fa-inbox']] : []
         ),
     ];
     require_once "../includes/filter_footer.php";

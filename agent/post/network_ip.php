@@ -156,6 +156,7 @@ if (isset($_POST['bulk_ip_type'])) {
         redirect();
     }
 
+    $undo = undoSnapshot('network_ips', 'ip_id', $_POST['network_ip_ids'] ?? [], ['ip_type'], ''); // for Undo on the message
     $count = 0;
     foreach (networkIpsForBulk(2) as $ip_id => $row) {
         mysqli_query($mysqli, "UPDATE network_ips SET ip_type = '$type' WHERE ip_id = $ip_id");
@@ -164,6 +165,7 @@ if (isset($_POST['bulk_ip_type'])) {
     }
 
     flashAlert("Made <strong>$count</strong> address" . ($count === 1 ? '' : 'es') . " <strong>" . strtolower(NETWORK_IP_TYPES[$type][3]) . "</strong>");
+    undoOfferChanges($undo, "Type put back on <strong>{n}</strong> address{s}", 'module_support', 2, 'es', '');
 
     redirect();
 
@@ -305,7 +307,7 @@ if (isset($_POST['import_network_ips_csv'])) {
 
     logAudit("IP Address", "Import", "$session_name imported $row_count IP(s) to network " . escapeSql($network['network_name']) . ". $skipped_count row(s) skipped", $client_id);
 
-    flashAlert("<strong>$row_count</strong> IP(s) imported, <strong>$skipped_count</strong> skipped (invalid, outside the subnet or already documented)", $skipped_count ? 'warning' : 'success');
+    flashAlert("<strong>$row_count</strong> IP" . ($row_count === 1 ? '' : 's') . " imported, <strong>$skipped_count</strong> skipped (invalid, outside the subnet or already documented)", $skipped_count ? 'warning' : 'success');
 
     redirect();
 

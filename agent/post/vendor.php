@@ -51,12 +51,14 @@ if (isset($_POST['add_vendor'])) {
     $client_id = intval($_POST['client_id'] ?? 0);
     vendorEnforce($client_id, 2);
     if ($client_id && !getFieldById('clients', $client_id, 'client_name')) {
+        inlineSaveAnswer(['ok' => false, 'error' => 'That client no longer exists.']);
         flashAlert('That client no longer exists.', 'error');
         redirect();
     }
 
     $vendor_id = vendorCreate($_POST, $client_id);
     if (!$vendor_id) {
+        inlineSaveAnswer(['ok' => false, 'error' => 'A vendor needs a name.']);
         flashAlert('A vendor needs a name.', 'error');
         redirect();
     }
@@ -66,6 +68,8 @@ if (isset($_POST['add_vendor'])) {
     $name = trim($_POST['name']);
     $template_note = intval($_POST['vendor_template_id'] ?? 0) ? ' from a template' : '';
     logAudit("Vendor", "Create", "$session_name created vendor " . escapeSql($name) . $template_note, $client_id, $vendor_id);
+
+    inlineSaveAnswer(['ok' => true, 'value' => (string) $vendor_id, 'label' => $name, 'message' => "Vendor $name created"]);
 
     flashAlert("Vendor <strong>$name</strong> created");
 
@@ -252,7 +256,7 @@ if (isset($_POST['edit_vendor'])) {
     $name = trim($_POST['name']);
     logAudit("Vendor", "Edit", "$session_name edited vendor " . escapeSql($name), $client_id, $vendor_id);
 
-    flashAlert("Vendor <strong>$name</strong> updated");
+    flashAlert("Vendor <strong>$name</strong> saved");
 
     redirect();
 
@@ -281,11 +285,13 @@ if (isset($_GET['archive_vendor'])) {
     $row = vendorForRequest($_GET['archive_vendor'], 2);
     $vendor_id = intval($row['vendor_id']);
 
+    $undo = undoArchiveBefore('vendor', $vendor_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
 
     logAudit("Vendor", "Archive", "$session_name archived vendor " . escapeSql($row['vendor_name']), $client_id, $vendor_id);
 
     flashAlert("Vendor <strong>{$row['vendor_name']}</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -337,6 +343,7 @@ if (isset($_POST['bulk_archive_vendors'])) {
 
     validateCSRFToken();
 
+    $undo = undoArchiveBefore('vendor', $_POST['vendor_ids'] ?? []); // for Undo on the message
     $count = 0;
     foreach (array_unique(array_map('intval', (array) ($_POST['vendor_ids'] ?? []))) as $vendor_id) {
         $row = vendorRow($vendor_id);
@@ -351,6 +358,7 @@ if (isset($_POST['bulk_archive_vendors'])) {
     }
 
     flashAlert("Archived <strong>$count</strong> vendor" . ($count === 1 ? '' : 's'), 'error');
+    undoOfferArchive($undo);
 
     redirect();
 

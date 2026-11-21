@@ -208,9 +208,8 @@ $day_distance = function ($date) use ($today) {
 // A heading sorts its own way round first - names A to Z, the shortest target and the most used at the top - then the other
 $sort_first = ['sla_name' => 'ASC', 'sla_response_minutes' => 'ASC', 'sla_resolution_minutes' => 'ASC', 'tickets' => 'DESC',
     'holiday_name' => 'ASC', 'holiday_date' => $show === 'past' ? 'DESC' : 'ASC'];
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon, $sort_first) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . ($sort === $column ? $disp : $sort_first[$column]) . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
+$sort_link = function ($column, $label) use ($sort_first) {
+    return sortLink($column, $label, $sort_first[$column] ?? null);
 };
 // A view keeps the search only on its own side - a name typed for an SLA is no use against closure days
 $pill_url = function ($view) use ($on_days) {
@@ -238,29 +237,29 @@ $pill_url = function ($view) use ($on_days) {
                                 <i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New SLA</span>
                             </button>
                         <?php } ?>
-                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <?php if ($on_days) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sla/holiday_generate.php" data-sla-us-holidays>
-                                    <i class="fas fa-fw fa-magic text-secondary me-2"></i>Add US holidays
+                                    <i class="fas fa-fw fa-magic text-secondary me-2"></i>Add US Holidays
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sla/sla_add.php">
                                     <i class="fas fa-fw fa-stopwatch text-secondary me-2"></i>New SLA
                                 </a>
                             <?php } else { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sla/holiday_add.php">
-                                    <i class="fas fa-fw fa-calendar-times text-secondary me-2"></i>New closure day
+                                    <i class="fas fa-fw fa-calendar-times text-secondary me-2"></i>New Closure Day
                                 </a>
                                 <a class="dropdown-item" href="ticket_statuses.php" title="Which statuses pause the resolution clock">
-                                    <i class="fas fa-fw fa-pause-circle text-secondary me-2"></i>Ticket statuses
+                                    <i class="fas fa-fw fa-pause-circle text-secondary me-2"></i>Ticket Statuses
                                 </a>
                             <?php } ?>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="/agent/reports/sla_summary.php">
-                                <i class="fas fa-fw fa-chart-line text-secondary me-2"></i>SLA Performance report
+                                <i class="fas fa-fw fa-chart-line text-secondary me-2"></i>SLA Performance Report
                             </a>
                             <a class="dropdown-item" href="/agent/reports/sla_by_client.php">
-                                <i class="fas fa-fw fa-users text-secondary me-2"></i>SLA by Client report
+                                <i class="fas fa-fw fa-users text-secondary me-2"></i>SLA by Client Report
                             </a>
                         </div>
                     </div>
@@ -274,7 +273,7 @@ $pill_url = function ($view) use ($on_days) {
                             <div class="input-group">
                                 <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>"
                                     placeholder="<?= $on_days ? 'Search closure days...' : 'Search SLAs...' ?>" title="<?= $on_days ? 'Name, date, month or day of the week' : 'Name or description' ?>">
-                                <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                             </div>
                         </div>
                     </div>
@@ -283,7 +282,7 @@ $pill_url = function ($view) use ($on_days) {
                     <?php foreach ($views as $view_key => $view) {
                         if ($view_key === 'days') { ?><span class="vr mx-1 my-1"></span><?php } ?>
                         <a class="nav-link text-nowrap <?= $show === (string) $view_key ? 'active' : '' ?>" href="<?= escapeHtml($pill_url($view_key)) ?>" title="<?= escapeHtml($view['title']) ?>" data-sla-view="<?= $view_key ?>">
-                            <i class="fas fa-fw <?= $view['icon'] ?> me-1"></i><?= $view['label'] ?> <span class="badge rounded-pill ms-1"><?= $view_counts[$view_key] ?></span>
+                            <i class="fas fa-fw <?= $view['icon'] ?> me-1"></i><?= $view['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($view_counts[$view_key])) ?></span>
                         </a>
                     <?php } ?>
                 </nav>
@@ -362,18 +361,7 @@ $pill_url = function ($view) use ($on_days) {
                             $resolution = intval($sla['sla_resolution_minutes']);
                             $used = $used_text($sla);
                             $default_priorities = $default_for[$sla_id] ?? [];
-                            $edit_url = "modals/sla/sla_edit.php?id=$sla_id";
-                            // What archiving it changes, for the confirmation - the part that differs from one SLA to the next first.
-                            // As getTicketSlaId() has it: a default that is archived gives nothing, and a contract's falls back to the default.
-                            $contracts_giving = intval($sla_used[$sla_id]['contracts'] ?? 0);
-                            $default_priorities_text = implode(' and ', array_filter([implode(', ', array_slice($default_priorities, 0, -1)), end($default_priorities) ?: '']));
-                            $gives = array_filter([
-                                $default_priorities ? "It is the default for $default_priorities_text tickets, which get no SLA from then on." : '',
-                                $contracts_giving ? number_format($contracts_giving) . ' contract' . ($contracts_giving === 1 ? ' gives' : 's give') . ' it - new tickets under ' . ($contracts_giving === 1 ? 'it' : 'them') . ' get the default for their priority instead.' : '',
-                            ]);
-                            $open_tickets = intval($sla['n_tickets']);
-                            $archive_text = ($gives ? implode(' ', $gives) : 'New tickets no longer get it.') . ' '
-                                . ($open_tickets ? 'The ' . number_format($open_tickets) . ' open ticket' . ($open_tickets === 1 ? ' on it keeps its' : 's on it keep their') . ' targets.' : 'Tickets that have it keep their targets.'); ?>
+                            $edit_url = "modals/sla/sla_edit.php?id=$sla_id"; ?>
                             <tr data-sla-id="<?= $sla_id ?>">
                                 <td class="ps-3">
                                     <div class="d-flex align-items-start gap-3">
@@ -407,11 +395,10 @@ $pill_url = function ($view) use ($on_days) {
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
                                             <?php if ($sla['sla_archived_at']) { ?>
-                                                <a class="dropdown-item" href="post.php?unarchive_sla=<?= $sla_id ?>&amp;csrf_token=<?= $csrf ?>" data-sla-restore><i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore</a>
+                                                <a class="dropdown-item" href="post.php?unarchive_sla=<?= $sla_id ?>&amp;csrf_token=<?= $csrf ?>" data-sla-restore><i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore</a>
                                             <?php } else { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_sla=<?= $sla_id ?>&amp;csrf_token=<?= $csrf ?>" data-sla-archive
-                                                    data-confirm-title="Archive <?= $name ?>?" data-confirm-text="<?= escapeHtml($archive_text) ?>" data-confirm-button="Archive">
+                                                <a class="dropdown-item text-danger" href="post.php?archive_sla=<?= $sla_id ?>&amp;csrf_token=<?= $csrf ?>">
                                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                 </a>
                                             <?php } ?>
@@ -441,7 +428,7 @@ $pill_url = function ($view) use ($on_days) {
                 'text' => 'Holidays and other days the office is shut. No SLA clock runs on them.',
                 'actions' => [
                     ['label' => 'New Closure Day', 'modal' => 'modals/sla/holiday_add.php'],
-                    ['label' => 'Add US holidays', 'modal' => 'modals/sla/holiday_generate.php', 'icon' => 'fa-magic'],
+                    ['label' => 'Add US Holidays', 'modal' => 'modals/sla/holiday_generate.php', 'icon' => 'fa-magic'],
                 ],
             ] : [
                 'thing' => 'SLAs',
@@ -513,9 +500,9 @@ $pill_url = function ($view) use ($on_days) {
                         // The priority's own colour, as its badge has in the ticket lists
                         $flag_tone = ticketPriorityColor($priority) === 'dark' ? 'body' : ticketPriorityColor($priority); ?>
                         <div class="input-group mb-2">
-                            <span class="input-group-text" style="width: 7rem;"><i class="fa fa-fw fa-flag me-2 text-<?= $flag_tone ?>"></i><?= $priority ?></span>
+                            <span class="input-group-text" style="width: 7rem;"><i class="fas fa-fw fa-flag me-2 text-<?= $flag_tone ?>"></i><?= $priority ?></span>
                             <select class="form-select select2" name="global_sla_<?= strtolower($priority) ?>" aria-label="Default SLA for <?= $priority ?> tickets" data-sla-default="<?= $priority ?>">
-                                <option value="0">No SLA</option>
+                                <option value="0">- No SLA -</option>
                                 <?php foreach ($sla_choices as $choice_id => $choice) { ?>
                                     <option value="<?= $choice_id ?>"<?= $selected_sla_id === $choice_id ? ' selected' : '' ?><?= selectOptionData(['description' => $choice['sla_archived_at'] ? 'Archived - tickets get none' : $targets_text($choice)]) ?>><?= escapeHtml($choice['sla_name']) ?><?= $choice['sla_archived_at'] ? ' (archived)' : '' ?></option>
                                 <?php } ?>
@@ -528,7 +515,7 @@ $pill_url = function ($view) use ($on_days) {
                     </small>
                 </div>
                 <div class="card-footer d-flex flex-wrap align-items-center gap-2">
-                    <button type="submit" name="save_sla_assignments" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+                    <button type="submit" name="save_sla_assignments" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
                     <span class="small text-secondary">Every ticket not yet closed is looked at again.</span>
                 </div>
             </form>
@@ -553,7 +540,7 @@ $pill_url = function ($view) use ($on_days) {
                     <div class="mb-3">
                         <label class="form-label">Business hours</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                             <input type="time" class="form-control" name="business_hours_start" value="<?= escapeHtml($business_hours_start) ?>" required aria-label="The business day starts">
                             <span class="input-group-text">to</span>
                             <input type="time" class="form-control" name="business_hours_end" value="<?= escapeHtml($business_hours_end) ?>" required aria-label="The business day ends">
@@ -571,7 +558,7 @@ $pill_url = function ($view) use ($on_days) {
                     <div class="mb-3">
                         <label class="form-label">Warn at</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-bell"></i></span>
                             <input type="number" class="form-control" name="warning_percent" min="1" max="99" step="1" value="<?= $warning_percent ?>" required>
                             <span class="input-group-text">% of the target</span>
                         </div>
@@ -581,7 +568,7 @@ $pill_url = function ($view) use ($on_days) {
                     <div class="mb-1">
                         <label class="form-label">Also email</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                             <input type="email" class="form-control" name="notification_email" maxlength="200" placeholder="dispatch@example.com" value="<?= escapeHtml($notification_email) ?>">
                         </div>
                         <small class="text-secondary">A shared address that gets every warning and missed target too. Leave it empty for none.</small>
@@ -594,7 +581,7 @@ $pill_url = function ($view) use ($on_days) {
                     <?php } ?>
                 </div>
                 <div class="card-footer d-flex flex-wrap align-items-center gap-2">
-                    <button type="submit" name="edit_sla_settings" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+                    <button type="submit" name="edit_sla_settings" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
                     <span class="small text-secondary">Targets on tickets not yet closed are worked out again.</span>
                 </div>
             </form>

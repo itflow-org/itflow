@@ -21,7 +21,7 @@ function staticFileUrl(string $path): string
     return $changed ? "$path?v=$changed" : $path;
 }
 
-/** The icon of an asset type, without its fa- (laptop) - from ASSET_TYPES (functions/asset_type.php); a tag for one it doesn't know. */
+/** The icon of an asset type, without its fa- (laptop) - from assetTypes() (functions/asset_type.php); a tag for one it doesn't know. */
 function getAssetIcon($asset_type) {
     return substr(assetTypeInfo($asset_type)['icon'], 3);
 }
@@ -189,7 +189,7 @@ function getFieldById($table, $id, $field) {
     }
 
     // Sanitize id as an integer
-    $id = (int)$id;
+    $id = intval($id);
 
     /*
      * Get the list of columns from the table, to find the primary key and to
@@ -239,6 +239,19 @@ function getFieldById($table, $id, $field) {
     }
 
     return null; // Return null if no record was found
+}
+
+/*
+ * getFieldById() for a record that belongs to a client: null when the agent
+ * signed in can't open that client, as it is for a record that isn't there -
+ * so a filter's label, made from an id in the address, never names another
+ * client's record. $client_field is the record's own client column, where 0
+ * is no client.
+ */
+function getFieldByIdInScope($table, $id, $field, $client_field) {
+    $client_id = intval(getFieldById($table, $id, $client_field));
+
+    return $client_id && !hasClientAccess($client_id) ? null : getFieldById($table, $id, $field);
 }
 
 
@@ -630,6 +643,7 @@ function checkForUpdates() {
  *                  version while work lands (develop), that version's section too
  *   local_changes  ITFlow's own files this install has changed, which updating puts back
  *                  (update_cli.php resets to the remote) - the first 50, and how many in all
+ *   commits        how many commits behind - config_update_pending_commits keeps the newest 100
  *
  * Anything that can't be read comes back empty rather than failing the check.
  */
@@ -639,7 +653,7 @@ function updateCheckDetails(int $pending_commits): array
         require_once __DIR__ . '/../includes/app_version.php';
     }
 
-    $details = ['version' => '', 'changelog' => [], 'local_changes' => [], 'local_changes_count' => 0];
+    $details = ['version' => '', 'changelog' => [], 'local_changes' => [], 'local_changes_count' => 0, 'commits' => $pending_commits];
 
     if (!shellCommandsAvailable()) {
         return $details;
@@ -794,12 +808,12 @@ function addToMailQueue($data) {
     global $mysqli;
 
     foreach ($data as $email) {
-        $from = strval($email['from']);
-        $from_name = strval($email['from_name']);
-        $recipient = strval($email['recipient']);
-        $recipient_name = strval($email['recipient_name']);
-        $subject = strval($email['subject']);
-        $body = strval($email['body']);
+        $from = (string) $email['from'];
+        $from_name = (string) $email['from_name'];
+        $recipient = (string) $email['recipient'];
+        $recipient_name = (string) $email['recipient_name'];
+        $subject = (string) $email['subject'];
+        $body = (string) $email['body'];
 
         $cal_str = '';
         if (isset($email['cal_str'])) {
@@ -816,10 +830,11 @@ function addToMailQueue($data) {
                 if (empty($attachment['path']) || empty($attachment['name'])) {
                     continue;
                 }
+                // A picture in the message goes in inline, where its cid: points (emailInlineImages())
                 $attachment_manifest[] = [
-                    'path' => strval($attachment['path']),
-                    'name' => strval($attachment['name'])
-                ];
+                    'path' => (string) $attachment['path'],
+                    'name' => (string) $attachment['name']
+                ] + (!empty($attachment['cid']) ? ['cid' => preg_replace('/[^A-Za-z0-9@._-]/', '', (string) $attachment['cid'])] : []);
             }
             if ($attachment_manifest) {
                 $attachments = mysqli_escape_string($mysqli, json_encode($attachment_manifest));
@@ -836,8 +851,10 @@ function addToMailQueue($data) {
 
         // The ticket reply it carries (emailQueue()'s ticket_reply_id), once the 3.4.8 update has made the column
         $ticket_reply_sql = !empty($email['ticket_reply_id']) ? ', email_ticket_reply_id = ' . intval($email['ticket_reply_id']) : '';
+        // One with a link or code that opens something, cleared once it has gone (emailQueue()'s sensitive) - once the 3.7.1 update has made the column
+        $sensitive_sql = !empty($email['sensitive']) && mailQueueHasSensitive() ? ', email_sensitive = 1' : '';
 
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body', email_queued_at = $queued_at, email_cal_str = '$cal_str', email_attachments = '$attachments'$ticket_reply_sql");
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body', email_queued_at = $queued_at, email_cal_str = '$cal_str', email_attachments = '$attachments'$ticket_reply_sql$sensitive_sql");
     }
 
     return true;
@@ -853,14 +870,15 @@ function getTicketCalendarUid($ticket_id) {
 }
 
 /*
- * The calendar file sent with a ticket's "scheduled" email - the visit, an hour
- * long, in the instance timezone - for the recipient to add to their calendar.
+ * The calendar file sent with a ticket's "scheduled" email - the visit, to $end
+ * (an hour long without one), in the instance timezone - for the recipient to
+ * add to their calendar.
  * Published rather than sent as a meeting request: the support mailbox is not
  * an organiser people should be accepting invitations from, and an "Accepted:"
  * reply would arrive there as a new ticket. Rescheduling sends it again with the
  * same UID and a higher SEQUENCE, which moves the one already added.
  */
-function createiCalStr($datetime, $title, $description, $location, $uid = null) {
+function createiCalStr($datetime, $title, $description, $location, $uid = null, $end = null) {
     global $config_timezone;
     if (empty($uid)) {
         $uid = date('Y-m-d-H-i-s') . "@" . ($_SERVER['SERVER_NAME'] ?? 'itflow');
@@ -868,7 +886,7 @@ function createiCalStr($datetime, $title, $description, $location, $uid = null) 
     return icsCalendar(['method' => 'PUBLISH', 'invite' => true], [[
         'uid' => $uid,
         'start' => $datetime,
-        'end' => date('Y-m-d H:i:s', strtotime($datetime) + CALENDAR_TICKET_MINUTES * 60),
+        'end' => !empty($end) && strtotime($end) > strtotime($datetime) ? date('Y-m-d H:i:s', strtotime($end)) : date('Y-m-d H:i:s', strtotime($datetime) + CALENDAR_TICKET_MINUTES * 60),
         'summary' => $title,
         'description' => $description,
         'location' => $location,
@@ -881,6 +899,8 @@ function createiCalStr($datetime, $title, $description, $location, $uid = null) 
 /*
  * Its cancellation. There is no stored copy of the original to reopen - the
  * match is made by UID - and the SEQUENCE must outrank the one it was sent with.
+ * Like the booking it has no organiser or attendees, so it goes with the email
+ * as an attached file to open, not as a meeting cancellation (cron/mail_queue.php).
  */
 function createiCalStrCancel($datetime, $title, $uid) {
     global $config_timezone;

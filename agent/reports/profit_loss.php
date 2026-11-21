@@ -121,7 +121,7 @@ $render = function ($line, $class = '') use ($columns, $year) {
     $cat = $line['cat'] ?? 0;
     $list = $kind === 'income' ? 'income.php' : ($kind === 'expense' ? 'expenses.php' : '');
     $html = '<tr' . ($class !== '' ? ' class="' . $class . '"' : '') . '><td' . ($list ? ' class="itflow-report-sub"' : '') . '>'
-        . escapeHtml($line['name']) . (!empty($line['archived']) ? ' <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '') . '</td>';
+        . escapeHtml($line['name']) . (!empty($line['archived']) ? ' <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '') . '</td>';
     foreach ($columns as $i => [$label, $first, $last]) {
         $url = '';
         if ($list && ($cat || $kind === 'income')) {
@@ -149,7 +149,7 @@ $span = count($columns) + 4;
         'year' => [$year, $years],
         'controls' => reportSegmentControl('view', $view, ['month' => 'Monthly', 'quarter' => 'Quarterly']),
         'subtitle' => $current_year ? "$year to date" : (string) $year,
-        'print_meta' => $current_year ? "January 1 to " . date('F j, Y') : "Year $year",
+        'print_meta' => $current_year ? "Jan 1 to " . date('M j, Y') : "Year $year",
     ]); ?>
 
     <?= reportStats([

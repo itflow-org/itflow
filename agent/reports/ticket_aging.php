@@ -123,7 +123,7 @@ $ticket_columns = [
     'age_days' => ['label' => 'Open for', 'type' => 'decimal', 'decimals' => 1, 'csv_label' => 'Days open', 'html' => function ($row) {
         $days = $row['age_days'];
         $tone = $days > 30 ? 'text-danger-emphasis fw-semibold' : ($days > 7 ? 'text-warning-emphasis fw-semibold' : '');
-        return '<span class="' . $tone . '" title="Opened ' . escapeHtml($row['ticket_created_at']) . '">' . reportDuration($row['age_seconds']) . '</span>';
+        return '<span class="' . $tone . '" title="Opened ' . formatDateTime($row['ticket_created_at']) . '">' . reportDuration($row['age_seconds']) . '</span>';
     }],
     'last_activity' => ['label' => 'Last activity', 'type' => 'date', 'csv' => function ($row) { return $row['last_activity']; }, 'html' => function ($row) {
         return '<span class="small text-body-secondary text-nowrap" title="' . escapeHtml($row['last_activity']) . '">' . escapeHtml(timeAgo($row['last_activity'])) . '</span>';
@@ -149,7 +149,7 @@ $bucket_tones = ['day' => 'success', '3' => 'info', '7' => 'accent', '30' => 'wa
 $agent_choices = '<div class="col-sm-6 col-lg-2"><select class="form-select select2" name="agent" data-report-autosubmit aria-label="Agent">'
     . '<option value="">- All agents -</option>'
     . '<option value="none"' . ($unassigned_only ? ' selected' : '') . ' data-icon="fas fa-user-slash">Unassigned</option>';
-$sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND ((user_archived_at IS NULL AND user_status = 1) OR user_id = $agent_id) ORDER BY user_name");
+$sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND ((user_archived_at IS NULL AND user_status = 1) OR user_id = $agent_id) ORDER BY user_name");
 while ($row = mysqli_fetch_assoc($sql)) {
     $id = intval($row['user_id']);
     $agent_choices .= '<option value="' . $id . '"' . ($id === $agent_id ? ' selected' : '') . selectOptionUser($id, $row['user_name'], $row['user_avatar'] ?? '') . '>' . escapeHtml($row['user_name']) . '</option>';

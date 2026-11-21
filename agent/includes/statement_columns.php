@@ -20,7 +20,7 @@ $header = $import['header'];
 $two = $guess['amount'] === null && ($guess['debit'] !== null || $guess['credit'] !== null);
 $column_select = function ($name, $selected, $optional, $attrs = '') use ($header) {
     $html = '<select class="form-select" name="' . $name . '" ' . $attrs . '>';
-    $html .= '<option value="">' . ($optional ? '- None -' : '- Pick the column -') . '</option>';
+    $html .= '<option value="">' . ($optional ? '- None -' : '- Select a column -') . '</option>';
     foreach ($header as $c => $label) {
         $html .= '<option value="' . $c . '"' . ($selected !== null && intval($selected) === $c ? ' selected' : '') . '>' . escapeHtml($label) . '</option>';
     }
@@ -34,7 +34,7 @@ $sign_options = $columns_side === 'income'
 
 <div class="card mb-3">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-columns me-2"></i>Which column is which <span class="fw-normal text-white-50 ms-1"><?= count($import['rows']) ?> lines</span></h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-columns me-2"></i>Which Column Is Which <span class="fw-normal text-white-50 ms-1"><?= count($import['rows']) ?> lines</span></h3>
     </div>
     <form action="post.php" method="post" autocomplete="off" id="<?= escapeHtml($columns_form_id) ?>">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -43,14 +43,14 @@ $sign_options = $columns_side === 'income'
                 <div class="col-md-4">
                     <label class="form-label">Date <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                         <?= $column_select('date', $guess['date'], false, 'required') ?>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Date format</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-alt"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar-alt"></i></span>
                         <select class="form-select" name="date_format">
                             <?php foreach (expenseImportDateFormats() as $format => $example) { ?>
                                 <option value="<?= escapeHtml($format) ?>" <?= $guess['date_format'] === $format ? 'selected' : '' ?>><?= escapeHtml($example) ?></option>
@@ -61,21 +61,21 @@ $sign_options = $columns_side === 'income'
                 <div class="col-md-4">
                     <label class="form-label">Reference</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                         <?= $column_select('reference', $guess['reference'], true) ?>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Description <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                         <?= $column_select('description', $guess['description'], false, 'required') ?>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">More description</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
                         <?= $column_select('memo', $guess['memo'], true) ?>
                     </div>
                     <div class="form-text">A memo or notes column, added after the description.</div>
@@ -83,7 +83,7 @@ $sign_options = $columns_side === 'income'
                 <div class="col-md-4">
                     <label class="form-label">The amounts are in</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-coins"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-coins"></i></span>
                         <select class="form-select" name="amounts" data-import-amounts>
                             <option value="one" <?= $two ? '' : 'selected' ?>>One column</option>
                             <option value="two" <?= $two ? 'selected' : '' ?>>Money out and money in columns</option>
@@ -93,14 +93,14 @@ $sign_options = $columns_side === 'income'
                 <div class="col-md-4" data-import-amounts-for="one">
                     <label class="form-label">Amount <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                         <?= $column_select('amount', $guess['amount'], false) ?>
                     </div>
                 </div>
                 <div class="col-md-4" data-import-amounts-for="one">
                     <label class="form-label"><?= $columns_side === 'income' ? 'Money in is' : 'A charge is' ?></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-balance-scale"></i></span>
                         <select class="form-select" name="sign">
                             <?php foreach ($sign_options as $value => $label) { ?>
                                 <option value="<?= $value ?>" <?= $guess['sign'] === $value ? 'selected' : '' ?>><?= $label ?></option>
@@ -111,14 +111,14 @@ $sign_options = $columns_side === 'income'
                 <div class="col-md-4" data-import-amounts-for="two">
                     <label class="form-label">Money out</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-arrow-up"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-arrow-up"></i></span>
                         <?= $column_select('debit', $guess['debit'], true) ?>
                     </div>
                 </div>
                 <div class="col-md-4" data-import-amounts-for="two">
                     <label class="form-label">Money in</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-arrow-down"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-arrow-down"></i></span>
                         <?= $column_select('credit', $guess['credit'], true) ?>
                     </div>
                 </div>
@@ -147,7 +147,7 @@ $sign_options = $columns_side === 'income'
             </table>
         </div>
         <div class="card-footer d-flex flex-wrap gap-2 align-items-center">
-            <button type="submit" name="<?= escapeHtml($columns_submit) ?>" class="btn btn-primary text-bold"><i class="fas fa-arrow-right me-2"></i>Review the Lines</button>
+            <button type="submit" name="<?= escapeHtml($columns_submit) ?>" class="btn btn-primary fw-bold"><i class="fas fa-arrow-right me-2"></i>Review the Lines</button>
             <span class="small text-body-secondary">The first <?= min(8, count($import['rows'])) ?> of <?= count($import['rows']) ?> lines. These columns are kept for the next statement of <?= escapeHtml($account['account_name'] ?? 'this account') ?>, for expenses and deposits alike.</span>
         </div>
     </form>
@@ -180,7 +180,7 @@ $sign_options = $columns_side === 'income'
                 var tag = cell.querySelector('.badge');
                 if (!tag) {
                     tag = document.createElement('span');
-                    tag.className = 'badge text-bg-primary fw-normal ms-1';
+                    tag.className = 'badge rounded-pill text-bg-primary fw-normal ms-1';
                     cell.appendChild(tag);
                 }
                 tag.textContent = name || '';

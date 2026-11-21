@@ -13,6 +13,10 @@
  *   [data-starter-preview=pack]  the item ([data-starter-key]) whole, in the
  *                                #starterPreview window
  *
+ * A count with data-starter-format="clear" counts what Clear out unused
+ * archives (admin/modals/starter_content/starter_clear.php). A pack in a window
+ * opened later is set up as the window opens.
+ *
  * Without it, the items can still be ticked and unticked and are sent as they
  * are; the server goes by them.
  */
@@ -21,9 +25,10 @@
 
     function initPick(pack) {
         var items = Array.prototype.slice.call(pack.querySelectorAll('[data-starter-item]'));
-        if (!items.length) {
+        if (!items.length || pack.dataset.starterReady) {
             return;
         }
+        pack.dataset.starterReady = '1';
         var check = pack.querySelector('[data-starter-pack-check]');
         var counts = Array.prototype.slice.call(pack.querySelectorAll('[data-starter-count]'));
         var adds = Array.prototype.slice.call(pack.querySelectorAll('[data-starter-add]'));
@@ -38,7 +43,9 @@
             counts.forEach(function (count) {
                 var short = count.dataset.starterFormat === 'short';
                 var more = count.dataset.starterMore === '1';
-                if (short) {
+                if (count.dataset.starterFormat === 'clear') {
+                    count.textContent = ticked === of ? of + ' to archive' : (ticked ? ticked + ' of ' + of + ' to archive' : 'None picked');
+                } else if (short) {
                     count.textContent = ticked === of ? String(of) : ticked + ' of ' + of;
                 } else {
                     count.textContent = ticked === of ? of + (more ? ' more to add' : ' to add') : (ticked ? ticked + ' of ' + of + ' to add' : 'None picked');
@@ -104,6 +111,9 @@
 
     function init() {
         document.querySelectorAll('[data-starter-pick]').forEach(initPick);
+        document.addEventListener('shown.bs.modal', function (e) {
+            e.target.querySelectorAll('[data-starter-pick]').forEach(initPick);
+        });
         document.addEventListener('click', function (e) {
             var button = e.target.closest('[data-starter-preview]');
             if (button) {

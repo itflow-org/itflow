@@ -56,7 +56,7 @@ $gs_client_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*
     </div>
     <p class="small text-body-secondary">The website's domain and certificate are added too, to watch for renewals. The rest - their address, phones, rate and SLAs - is on the client once it's made, and Clients &gt; Import brings in a whole list from a CSV.</p>
     <div class="d-flex flex-wrap align-items-center gap-3">
-        <button type="submit" name="add_client" value="1" class="btn btn-primary" data-gs-save><i class="fas fa-plus me-2"></i>Add the client</button>
+        <button type="submit" name="add_client" value="1" class="btn btn-primary" data-gs-save><i class="fas fa-plus me-2"></i>Add the Client</button>
         <?php if (clientOnboardingReady()) { ?>
             <a href="<?= clientOnboardingUrl() ?>" class="small" data-gs-onboard><i class="fas fa-route me-1"></i>Or onboard them step by step - their sites, people, agreement and more</a>
         <?php } ?>
@@ -79,7 +79,7 @@ $gs_client_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*
     <?php if (count($gs_demo['loaded']) < $gs_demo['total']) { ?>
         <form action="post.php" method="post" class="m-0">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-            <button type="submit" name="load_demo_data" value="1" class="btn btn-outline-secondary" data-gs-demo-load><i class="fas fa-flask me-2"></i>Load the demo data</button>
+            <button type="submit" name="load_demo_data" value="1" class="btn btn-outline-secondary" data-gs-demo-load><i class="fas fa-flask me-2"></i>Load the Demo Data</button>
         </form>
     <?php } ?>
 </div>

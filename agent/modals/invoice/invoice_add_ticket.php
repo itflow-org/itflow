@@ -36,7 +36,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-life-ring me-2"></i>Add Tickets <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber('invoice', $invoice)) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" id="invoiceAddTickets">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -55,7 +55,7 @@ ob_start();
                             <span class="d-block text-truncate"><span class="font-monospace small text-body-secondary me-2"><?= escapeHtml($ticket['ticket_prefix'] . $ticket['ticket_number']) ?></span><?= escapeHtml($ticket['ticket_subject']) ?></span>
                             <span class="small text-body-secondary">
                                 <i class="far fa-clock me-1"></i><?= $ticket['seconds'] ? billingDuration($ticket['seconds']) . ' logged' : '<span class="text-warning-emphasis">No time logged</span>' ?>
-                                &middot; done <?= escapeHtml(date('Y-m-d', strtotime((string) ($ticket['ticket_resolved_at'] ?: $ticket['ticket_closed_at'])))) ?>
+                                &middot; done <?= escapeHtml(date('M j, Y', strtotime((string) ($ticket['ticket_resolved_at'] ?: $ticket['ticket_closed_at'])))) ?>
                                 <?= $ticket['prepaid'] > 0 ? '&middot; less ' . escapeHtml(contractHoursText($ticket['prepaid'])) . ' prepaid' : '' ?>
                                 <?php if ($rate === null) { ?>
                                     &middot; <span title="<?= escapeHtml(ucfirst($ticket['rate_note'])) ?>"><?= in_array($ticket['rate_source'], ['after_hours', 'default_after_hours'], true) ? '<i class="fas fa-moon me-1"></i>' : '' ?><?= escapeHtml(billingMoney($ticket['rate'], $currency)) ?>/hr</span>
@@ -76,16 +76,16 @@ ob_start();
                 </div>
                 <div class="row g-3" data-add-ticket-lines>
                     <div class="col-12">
-                        <label class="form-label">Line</label>
+                        <label class="form-label">Line <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
                             <input type="text" class="form-control" name="item_name" maxlength="200" value="<?= escapeHtml($rules['item_name']) ?>" required>
                         </div>
                     </div>
                     <div class="col-sm-4">
                         <label class="form-label">Rate</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                             <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= $rate !== null ? number_format($rate, 2, '.', '') : '' ?>" placeholder="Each its own" data-add-ticket-rate>
                         </div>
                         <?php if ($rate === null) { ?>
@@ -95,8 +95,8 @@ ob_start();
                     <div class="col-sm-4">
                         <label class="form-label">Tax</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
-                            <select class="form-select" name="tax_id" data-add-ticket-tax>
+                            <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
+                            <select class="form-select select2" name="tax_id" data-add-ticket-tax>
                                 <?= taxOptionsHtml($taxes, taxDefaultFor($client_id, 'time')) ?>
                             </select>
                         </div>
@@ -104,8 +104,8 @@ ob_start();
                     <div class="col-sm-4">
                         <label class="form-label">Lines</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                            <select class="form-select" name="lines">
+                            <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
+                            <select class="form-select select2" name="lines">
                                 <option value="each">One each</option>
                                 <option value="one">One for all</option>
                             </select>
@@ -124,7 +124,7 @@ ob_start();
     <div class="modal-footer">
         <?php if ($tickets) { ?>
             <span class="me-auto small text-body-secondary" data-add-ticket-summary></span>
-            <button type="submit" name="add_ticket_to_invoice" class="btn btn-primary text-bold" disabled data-add-ticket-submit><i class="fas fa-check me-2"></i>Add</button>
+            <button type="submit" name="add_ticket_to_invoice" class="btn btn-primary fw-bold" disabled data-add-ticket-submit><i class="fas fa-check me-2"></i>Add</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i><?= $tickets ? 'Cancel' : 'Close' ?></button>
     </div>

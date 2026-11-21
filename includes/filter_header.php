@@ -17,7 +17,7 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 // Paging
 if (isset($_GET['page'])) {
-    $page = intval($_GET['page']);
+    $page = max(1, intval($_GET['page'])); // page 0 or below made a negative LIMIT - the list stopped there
     $record_from = (($page)-1)*$user_config_records_per_page;
     $record_to = $user_config_records_per_page;
 } else {
@@ -73,7 +73,7 @@ if (empty($_GET['canned_date'])) {
 // Date Filter
 if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
     $dtf = escapeSql($_GET['dtf']);
-    $dtt = escapeSql($_GET['dtt']);
+    $dtt = !empty($_GET['dtt']) ? escapeSql($_GET['dtt']) : '2099-12-31'; // A start and no end is open-ended, as All time is
 } elseif ($_GET['canned_date'] == "today") {
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');

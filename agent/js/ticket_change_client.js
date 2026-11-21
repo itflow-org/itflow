@@ -31,7 +31,7 @@ itflowReady(function () {
             .then(function (response) {
                 contactSelect.innerHTML = '';
                 if (response.contacts && response.contacts.length > 0) {
-                    contactSelect.appendChild(new Option('Select a contact', ''));
+                    contactSelect.appendChild(new Option('- Select a contact -', ''));
                     response.contacts.forEach(function (contact) {
                         // new Option() sets text content, so contact names are
                         // never parsed as markup. The picker draws their avatar
@@ -50,12 +50,12 @@ itflowReady(function () {
                         contactSelect.appendChild(option);
                     });
                 } else {
-                    contactSelect.appendChild(new Option('No contacts found', ''));
+                    contactSelect.appendChild(new Option('- No contacts -', ''));
                 }
             })
             .catch(function (error) {
                 console.error('AJAX Error:', error);
-                contactSelect.innerHTML = '<option value="">Failed to load contacts</option>';
+                contactSelect.innerHTML = '<option value="">- Could not load contacts -</option>';
             });
     }
 

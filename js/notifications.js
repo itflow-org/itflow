@@ -83,9 +83,9 @@
             return 'Yesterday';
         }
         if (minutes < 6 * 24 * 60) {
-            return date.toLocaleDateString(undefined, { weekday: 'short' });
+            return date.toLocaleDateString('en-US', { weekday: 'short' });
         }
-        return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: date.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
     }
 
     function dayGroup(date) {
@@ -291,7 +291,7 @@
             '<div class="itflow-notify-head">' +
                 '<span class="fw-semibold">Notifications</span>' +
                 '<button type="button" class="btn btn-link btn-sm p-0 ms-auto text-decoration-none" data-notify-all>' +
-                    '<i class="fas fa-check-double me-1" aria-hidden="true"></i>Mark all as read</button>' +
+                    '<i class="fas fa-check-double me-1" aria-hidden="true"></i>Mark All as Read</button>' +
             '</div>' +
             '<div class="nav nav-underline itflow-notify-tabs" role="tablist">' +
                 '<button type="button" class="nav-link active" role="tab" aria-selected="true" data-notify-view="unread">' +
@@ -299,7 +299,13 @@
                 '<button type="button" class="nav-link" role="tab" aria-selected="false" data-notify-view="all">All</button>' +
             '</div>' +
             '<div class="itflow-notify-list" role="list" aria-label="Notifications"></div>' +
-            '<a class="itflow-notify-foot" href="/agent/notifications.php">View all notifications</a>';
+            '<a class="itflow-notify-foot" href="/agent/notifications.php">View all notifications</a>' +
+            // Desktop notifications in this browser - on, off or blocked, with a switch (js/ticket_pulse.js)
+            '<label class="itflow-notify-foot itflow-notify-desktop" data-desktop-notify hidden>' +
+                '<i class="fas fa-fw fa-desktop" aria-hidden="true"></i>' +
+                '<span class="itflow-notify-desktop-text"><span>Desktop notifications</span><span class="small" data-desktop-state></span></span>' +
+                '<span class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" data-desktop-switch></span>' +
+            '</label>';
 
         list = panel.querySelector('.itflow-notify-list');
 
@@ -405,7 +411,7 @@
             postMark([row.dataset.id], makeRead ? 'read' : 'unread').catch(function () {
                 setRowRead(row, !makeRead);
                 if (typeof itflowToast === 'function') {
-                    itflowToast('Couldn’t update the notification', 'danger');
+                    itflowToast('Couldn’t update the notification', 'error');
                 }
             });
             return;
@@ -485,7 +491,7 @@
             .catch(function () {
                 button.disabled = false;
                 if (typeof itflowToast === 'function') {
-                    itflowToast('Couldn’t mark notifications as read', 'danger');
+                    itflowToast('Couldn’t mark notifications as read', 'error');
                 }
             });
     });

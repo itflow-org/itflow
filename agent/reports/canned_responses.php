@@ -106,7 +106,7 @@ $columns = [
             $link = '';
         }
         return ($link !== '' ? '<a href="' . escapeHtml($link) . '">' . $name . '</a>' : $name)
-            . ($row['archived'] ? ' <span class="badge text-bg-light border fw-normal">Archived</span>' : '');
+            . ($row['archived'] ? ' <span class="badge rounded-pill text-bg-light border fw-normal">Archived</span>' : '');
     }],
     'whose' => ['label' => 'Whose', 'html' => function ($row) {
         return $row['owner'] ? '<span class="small"><i class="fas fa-user text-body-tertiary me-1"></i>' . escapeHtml($row['whose']) . '</span>' : '<span class="small text-body-secondary">Shared</span>';

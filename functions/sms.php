@@ -600,6 +600,11 @@ function smsSendQueued(int $id): array
         return ['ok' => false, 'error' => "Texting isn't set up"];
     }
 
+    // Development mode sends no texts - they wait in the queue (functions/dev_mode.php)
+    if (devModeOn()) {
+        return ['ok' => false, 'error' => "Development mode - no texts are sent from this server, so it waits in the queue"];
+    }
+
     // Claimed, so the job and a request can't both send it
     mysqli_query($mysqli, "UPDATE sms_messages SET sms_message_status = 'sending', sms_message_attempts = sms_message_attempts + 1, sms_message_attempted_at = NOW()
         WHERE sms_message_id = $id AND sms_message_direction = 'out' AND sms_message_status = 'queued'");
@@ -691,7 +696,7 @@ function smsSkyetelSend(array $provider, string $to, string $text, array $media 
     ]);
     $raw = curl_exec($ch);
     $curl_error = curl_error($ch);
-    $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $code = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
     curl_close($ch);
 
     if ($raw === false) {
@@ -1053,7 +1058,7 @@ function smsSaveMedia(array $urls, int $ticket_id, ?int $reply_id, int $message_
             },
         ]);
         $ok = curl_exec($ch);
-        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $code = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
         $type = strtolower(trim(explode(';', (string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE))[0]));
         curl_close($ch);
         if (strlen($data) > SMS_MEDIA_MAX_BYTES) {
@@ -1206,7 +1211,7 @@ function smsLogState(array $row): array
     $error = trim((string) $row['sms_message_error']);
     // Waiting for the morning - says when
     if ($status === 'queued' && !empty($row['sms_message_send_after']) && strtotime($row['sms_message_send_after']) > time() && $error === '') {
-        $error = 'Waiting until ' . date('g:ia', strtotime($row['sms_message_send_after'])) . ' - it would land at night';
+        $error = 'Waiting until ' . date('g:i A', strtotime($row['sms_message_send_after'])) . ' - it would land at night';
     }
     return ['key' => $status, 'label' => $label, 'badge' => $badge, 'icon' => $icon, 'error' => $error];
 }
@@ -1473,7 +1478,7 @@ function smsTicketSubject(array $row): string
 function smsWhenText(string $datetime): string
 {
     $at = strtotime($datetime);
-    $time = date('g:ia', $at);
+    $time = date('g:i A', $at);
     if (date('Y-m-d', $at) === date('Y-m-d')) {
         return "today at $time";
     }

@@ -61,7 +61,8 @@ foreach ($clients as $c) {
     $total['value'] += $c['value'];
     $total['oldest'] = max($total['oldest'], $c['oldest']);
     $total['no_time'] += $c['no_time'];
-    $total['no_rate'] += $c['tickets'] && $c['rate'] <= 0 ? 1 : 0;
+    // No rate is none from a contract and no default - a contract's rate of 0 is one
+    $total['no_rate'] += $c['tickets'] && $c['rate'] <= 0 && $c['default_rate'] ? 1 : 0;
     $total['expenses'] += count($c['expenses'] ?? []);
     $total['expense_value'] += $c['expense_value'] ?? 0;
     $total['expense_cost'] += $c['expense_cost'] ?? 0;
@@ -116,7 +117,7 @@ $hours_text = function ($hours) {
                 <?php if ($total['extras']) { ?>
                     <?= $money($total['value']) ?> of time<?= $total['expenses'] ? ' &middot; ' . $money($total['expense_value']) . ' of expenses' : '' ?><?= $total['trips'] ? ' &middot; ' . $money($total['trip_value']) . ' of travel' : '' ?>
                 <?php } else { ?>
-                    <?= $client_view ? (!$one_rate ? "At each ticket's rate" : 'At ' . ($this_client && $this_client['rate'] > 0 ? $money($this_client['rate']) . ' an hour' . (in_array($this_client['rate_source'] ?? '', ['contract', 'after_hours'], true) ? ', ' . escapeHtml($this_client['rate_note']) : '') : 'no rate set')) : 'At each client\'s hourly rate' ?>
+                    <?= $client_view ? (!$one_rate ? "At each ticket's rate" : 'At ' . ($this_client && ($this_client['rate'] > 0 || !$this_client['default_rate']) ? $money($this_client['rate']) . ' an hour' . (in_array($this_client['rate_source'] ?? '', ['contract', 'after_hours'], true) ? ', ' . escapeHtml($this_client['rate_note']) : '') : 'no rate set')) : 'At each client\'s hourly rate' ?>
                 <?php } ?>
             </div>
         </div>
@@ -216,7 +217,7 @@ $hours_text = function ($hours) {
                                         <div class="small text-body-secondary"><?= escapeHtml(implode(' · ', array_filter([$expense['vendor_name'], $expense['category_name']]))) ?></div>
                                     </td>
                                     <td class="text-nowrap d-none d-md-table-cell">
-                                        <div class="small"><?= escapeHtml($expense['expense_date']) ?></div>
+                                        <div class="small"><?= formatDate($expense['expense_date']) ?></div>
                                         <?= $waiting_pill($expense['waiting']) ?>
                                     </td>
                                     <td class="text-end text-nowrap">
@@ -284,7 +285,7 @@ $hours_text = function ($hours) {
                                         </div>
                                     </td>
                                     <td class="text-nowrap d-none d-md-table-cell">
-                                        <div class="small"><?= escapeHtml($trip['trip_date']) ?></div>
+                                        <div class="small"><?= formatDate($trip['trip_date']) ?></div>
                                         <?= $waiting_pill($trip['waiting']) ?>
                                     </td>
                                     <td class="text-end text-nowrap">
@@ -320,7 +321,7 @@ $hours_text = function ($hours) {
                         Done tickets are drawn from them each night - the tickets here are beyond them, done outside the days they cover, or put back.
                     </div>
                     <?php if ($can_edit && $prepaid_left > 0) { ?>
-                        <button type="submit" name="draw_contract_hours" value="1" class="btn btn-sm btn-info flex-shrink-0 text-nowrap" formnovalidate title="Draw these tickets from the prepaid hours now"><i class="fas fa-fw fa-arrow-down me-1"></i>Draw now</button>
+                        <button type="submit" name="draw_contract_hours" value="1" class="btn btn-sm btn-info flex-shrink-0 text-nowrap" formnovalidate title="Draw these tickets from the prepaid hours now"><i class="fas fa-fw fa-arrow-down me-1"></i>Draw Now</button>
                     <?php } ?>
                 </div>
             <?php } ?>
@@ -329,7 +330,7 @@ $hours_text = function ($hours) {
                 <div class="card-header bg-dark py-2 d-flex align-items-center">
                     <h3 class="card-title mt-2 me-auto"><i class="fas fa-fw fa-user-clock me-2"></i>Unbilled Time<?= $client_view ? '' : ' by client' ?></h3>
                     <?php if ($client_view) { ?>
-                        <a class="btn btn-dark btn-sm me-1" href="unbilled_time.php" title="Every client's unbilled time"><i class="fas fa-users me-1"></i>All clients</a>
+                        <a class="btn btn-dark btn-sm me-1" href="unbilled_time.php" title="Every client's unbilled time"><i class="fas fa-users me-1"></i>All Clients</a>
                     <?php } ?>
                     <?php if ($with_time && reportCanOpen('tickets_unbilled')) { ?>
                         <a class="btn btn-dark btn-sm" href="reports/tickets_unbilled.php<?= $client_view ? "?client_id=$client_id" : '' ?>" title="The Unbilled Work report"><i class="fas fa-chart-bar me-1"></i>Report</a>
@@ -359,7 +360,6 @@ $hours_text = function ($hours) {
                                 <th>Client</th>
                                 <?php if ($with_time) { ?>
                                     <th class="text-end">Tickets</th>
-                                    <th class="text-end d-none d-lg-table-cell">Logged</th>
                                     <th class="text-end d-none d-sm-table-cell">Bill</th>
                                     <th class="text-end d-none d-lg-table-cell">Rate</th>
                                 <?php } ?>
@@ -398,7 +398,7 @@ $hours_text = function ($hours) {
                                         </div>
                                     </td>
                                     <td class="text-nowrap d-none d-md-table-cell">
-                                        <div class="small"><?= escapeHtml(date('Y-m-d', strtotime((string) ($ticket['ticket_resolved_at'] ?: $ticket['ticket_closed_at'])))) ?></div>
+                                        <div class="small"><?= escapeHtml(date('M j, Y', strtotime((string) ($ticket['ticket_resolved_at'] ?: $ticket['ticket_closed_at'])))) ?></div>
                                         <?= $waiting_pill($ticket['waiting']) ?>
                                     </td>
                                     <td class="text-end text-nowrap <?= $ticket['seconds'] ? '' : 'text-warning-emphasis' ?>" <?= $ticket['seconds'] ? '' : 'title="No time logged - type the hours to bill, or leave it at 0 to put it on the invoice with no charge"' ?>>
@@ -443,14 +443,21 @@ $hours_text = function ($hours) {
                                                 <div class="small text-warning-emphasis text-nowrap" title="No time logged - they go on the invoice with no charge unless you open the client and type the hours"><?= $c['no_time'] ?> with no time</div>
                                             <?php } ?>
                                         </td>
-                                        <td class="text-end text-nowrap d-none d-lg-table-cell"><?= $c['tickets'] ? billingDuration($c['seconds']) : '<span class="text-body-secondary">-</span>' ?></td>
-                                        <td class="text-end text-nowrap d-none d-sm-table-cell"><?= $c['tickets'] ? $hours_text($c['hours']) : '<span class="text-body-secondary">-</span>' ?></td>
+                                        <!-- What it bills, with the time logged under it -->
+                                        <td class="text-end text-nowrap d-none d-sm-table-cell">
+                                            <?php if ($c['tickets']) { ?>
+                                                <?= $hours_text($c['hours']) ?>
+                                                <div class="small text-body-secondary" title="Time logged"><?= billingDuration($c['seconds']) ?> logged</div>
+                                            <?php } else { ?>
+                                                <span class="text-body-secondary">-</span>
+                                            <?php } ?>
+                                        </td>
                                         <td class="text-end text-nowrap d-none d-lg-table-cell">
                                             <?php if (!$c['tickets']) { ?>
                                                 <span class="text-body-secondary">-</span>
                                             <?php } elseif (count($c['rates'] ?? []) > 1) { ?>
-                                                <span class="small" title="An after-hours rate, or a change of contract - each ticket bills at its own">Each its own</span>
-                                            <?php } elseif ($c['rate'] > 0) { ?>
+                                                <span class="small" title="An after-hours rate, or a change of contract - each ticket bills at its own">Varies</span>
+                                            <?php } elseif ($c['rate'] > 0 || !$c['default_rate']) { ?>
                                                 <?= $money($c['rate']) ?><?= $c['default_rate'] ? '<div class="small text-body-tertiary" title="No contract in force sets a rate - the default in Admin > Settings > Defaults">default</div>' : (in_array($c['rate_source'] ?? '', ['contract', 'after_hours'], true) ? '<div class="small text-body-tertiary" title="' . escapeHtml(ucfirst($c['rate_note'])) . '">contract</div>' : '') ?>
                                             <?php } else { ?>
                                                 <span class="small text-warning-emphasis" title="Give the client's contract an hourly rate, or set a default in Admin > Settings > Defaults">No rate</span>
@@ -502,7 +509,7 @@ $hours_text = function ($hours) {
                                 <div class="col-12">
                                     <label class="form-label">Invoice</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-file-invoice"></i></span>
+                                        <span class="input-group-text"><i class="fas fa-fw fa-file-invoice-dollar"></i></span>
                                         <select class="form-select" name="invoice_id" data-unbilled-target>
                                             <option value="0">A new draft invoice</option>
                                             <?php foreach ($this_client['drafts'] as $draft_id => $draft) { ?>
@@ -515,7 +522,7 @@ $hours_text = function ($hours) {
                                 <div class="col-12">
                                     <label class="form-label">Invoices</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-file-invoice"></i></span>
+                                        <span class="input-group-text"><i class="fas fa-fw fa-file-invoice-dollar"></i></span>
                                         <select class="form-select" name="target" data-unbilled-target>
                                             <option value="new">A new draft for each client</option>
                                             <option value="draft">Each client's newest draft, or a new one</option>
@@ -526,25 +533,25 @@ $hours_text = function ($hours) {
                             <div class="col-sm-6 col-xl-12" data-unbilled-new>
                                 <label class="form-label">Invoice date <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                                     <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
                                 </div>
                             </div>
                             <div class="col-sm-6 col-xl-12" data-unbilled-new>
                                 <label class="form-label">Category <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                                     <select class="form-select" name="category" required>
-                                        <option value="">- Category -</option>
+                                        <option value="">- Select a category -</option>
                                         <?= categoryOptionsHtml('Income') ?>
                                     </select>
-                                    <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
+                                    <?= categoryAddButtonHtml('Income') ?>
                                 </div>
                             </div>
                             <div class="col-12" data-unbilled-new>
                                 <label class="form-label">Scope</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
                                     <input type="text" class="form-control" name="scope" maxlength="255" value="<?= escapeHtml($scope_options[0]) ?>" list="unbilledScopes">
                                     <datalist id="unbilledScopes">
                                         <?php foreach ($scope_options as $scope_option) { ?>
@@ -557,7 +564,7 @@ $hours_text = function ($hours) {
                             <div class="col-12">
                                 <label class="form-label">Line</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
                                     <input type="text" class="form-control" name="item_name" maxlength="200" value="<?= escapeHtml($rules['item_name']) ?>" required>
                                 </div>
                             </div>
@@ -566,8 +573,8 @@ $hours_text = function ($hours) {
                                 <div class="col-sm-6 col-xl-12">
                                     <label class="form-label">Rate<?= $one_rate ? ' <strong class="text-danger">*</strong>' : '' ?></label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                                        <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= $one_rate ? number_format($this_client['rate'], 2, '.', '') : '' ?>" placeholder="Each its own"<?= $one_rate ? ' required' : '' ?> data-unbilled-rate>
+                                        <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
+                                        <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= $one_rate ? number_format($this_client['rate'], 2, '.', '') : '' ?>" placeholder="Each ticket's own"<?= $one_rate ? ' required' : '' ?> data-unbilled-rate>
                                     </div>
                                     <div class="form-text"><?= !$one_rate ? "Each ticket at its own rate - a contract's sets some. Type one to bill them all at it." : 'An hour - ' . ($this_client['default_rate'] ? 'the default, the client has no rate' : escapeHtml($this_client['rate_note'] ?: "the client's rate")) ?></div>
                                 </div>
@@ -575,7 +582,7 @@ $hours_text = function ($hours) {
                             <div class="<?= $client_view ? 'col-sm-6 col-xl-12' : 'col-12' ?>">
                                 <label class="form-label">Tax</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
                                     <select class="form-select" name="tax_id" data-unbilled-tax>
                                         <?= taxOptionsHtml($taxes, TAX_USUAL, $client_view ? "Each line's usual rate" : "Each client's usual rates", $client_view ? floatval(taxRow(taxDefaultFor($client_id, 'time'))['tax_percent'] ?? 0) : 0) ?>
                                     </select>
@@ -585,7 +592,7 @@ $hours_text = function ($hours) {
                             <div class="col-12">
                                 <label class="form-label">Lines</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
                                     <select class="form-select" name="lines">
                                         <option value="each">A line for each ticket</option>
                                         <option value="one">One line for all of them</option>
@@ -604,13 +611,13 @@ $hours_text = function ($hours) {
                             <div class="fs-4 fw-semibold itflow-money" data-unbilled-total></div>
                         </div>
                         <div class="d-flex flex-wrap gap-2">
-                            <button type="submit" name="<?= $client_view ? 'unbilled_invoice' : 'unbilled_invoice_clients' ?>" value="1" class="btn btn-primary text-bold flex-grow-1" data-unbilled-submit>
+                            <button type="submit" name="<?= $client_view ? 'unbilled_invoice' : 'unbilled_invoice_clients' ?>" value="1" class="btn btn-primary fw-bold flex-grow-1" data-unbilled-submit>
                                 <i class="fas fa-check me-2"></i><span data-unbilled-submit-label><?= $client_view ? 'Make Invoice' : 'Make Invoices' ?></span>
                             </button>
                             <?php if ($client_view) { ?>
                                 <button type="submit" name="unbilled_write_off" value="1" class="btn btn-outline-danger confirm-link" formnovalidate
                                     data-confirm-title="Mark them not billable?" data-confirm-text="The ticked tickets<?= $total['extras'] ? ', ' . ($total['expenses'] && $total['trips'] ? 'expenses and trips' : ($total['expenses'] ? 'expenses' : 'trips')) : '' ?> stop being billable and leave this list. <?= $total['tickets'] ? "Their time stays logged on them, and each one's history says it." : 'They stay as our cost.' ?>" data-confirm-button="Not billable">
-                                    <i class="fas fa-ban me-2"></i>Not billable
+                                    <i class="fas fa-ban me-2"></i>Not Billable
                                 </button>
                             <?php } ?>
                         </div>

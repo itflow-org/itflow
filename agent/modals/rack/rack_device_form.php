@@ -38,7 +38,7 @@ $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_mak
         asset_archived_at IS NULL
         AND NOT EXISTS (SELECT 1 FROM rack_units WHERE unit_asset_id = asset_id)
     ))
-    ORDER BY FIELD(asset_type, '" . implode("', '", array_map('escapeSql', ASSET_RACK_TYPES)) . "') = 0, asset_type, asset_name");
+    ORDER BY FIELD(asset_type, '" . implode("', '", array_map('escapeSql', assetRackTypes())) . "') = 0, asset_type, asset_name");
 while ($row = mysqli_fetch_assoc($sql)) {
     $asset_options[] = $row;
 }
@@ -136,7 +136,7 @@ $item_types = rackItemTypes();
     <div class="col-sm-5">
         <label class="form-label">Power draw</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-bolt"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-bolt"></i></span>
             <input type="number" class="form-control" name="power_watts" min="0" max="100000" placeholder="350" value="<?= $unit_power_watts ?: '' ?>">
             <span class="input-group-text">W</span>
         </div>

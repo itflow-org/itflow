@@ -25,8 +25,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-ban me-2"></i>Opted out and blocked</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-ban me-2"></i>Opted Out and Blocked</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body p-0">
     <?php if (!$rows) { ?>
@@ -69,7 +69,7 @@ ob_start();
                             <?php if ($row['sms_number_opted_out_at']) { ?>
                                 <a class="btn btn-sm btn-light border confirm-link" href="post.php?sms_number_opt_in=<?= urlencode($number) ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Text <?= escapeHtml(smsNumberText($number)) ?> again?" data-confirm-button="Opt back in"
-                                    data-confirm-text="Only when they've asked for texts again - by phone, email or in person. Otherwise they text START themselves.">Opt back in</a>
+                                    data-confirm-text="Only when they've asked for texts again - by phone, email or in person. Otherwise they text START themselves.">Opt Back In</a>
                             <?php } ?>
                             <?php if ($row['sms_number_blocked_at']) { ?>
                                 <a class="btn btn-sm btn-light border" href="post.php?sms_number_unblock=<?= urlencode($number) ?>&csrf_token=<?= $csrf ?>">Unblock</a>
@@ -83,7 +83,7 @@ ob_start();
     <?php } ?>
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 <?php
 require_once '../../../includes/modal_footer.php';

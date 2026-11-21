@@ -55,7 +55,7 @@ ob_start();
         <div class="col-sm-6">
             <div class="itflow-glance-item" title="Entered">
                 <i class="fas fa-fw fa-clock"></i>
-                <span><span title="<?= escapeHtml($row['reimbursement_created_at']) ?>"><?= timeAgo($row['reimbursement_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?></span>
+                <span><span title="<?= formatDateTime($row['reimbursement_created_at']) ?>"><?= timeAgo($row['reimbursement_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?></span>
             </div>
             <?= reconcileGlanceHtml($cleared) ?>
         </div>
@@ -66,7 +66,7 @@ ob_start();
         <?php foreach ($expenses as $expense) { ?>
             <div class="d-flex justify-content-between gap-2 small py-1 border-bottom">
                 <a class="text-truncate ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($expense['expense_id']) ?>">
-                    <span class="text-body-secondary me-1"><?= escapeHtml($expense['expense_date']) ?></span><?= escapeHtml($expense['vendor_name'] ?: 'Expense') ?><?= trim((string) $expense['expense_description']) !== '' ? ' - ' . escapeHtml(truncate(strtok((string) $expense['expense_description'], "\n"), 50)) : '' ?>
+                    <span class="text-body-secondary me-1"><?= formatDate($expense['expense_date']) ?></span><?= escapeHtml($expense['vendor_name'] ?: 'Expense') ?><?= trim((string) $expense['expense_description']) !== '' ? ' - ' . escapeHtml(truncate(strtok((string) $expense['expense_description'], "\n"), 50)) : '' ?>
                 </a>
                 <span class="itflow-money text-nowrap"><?= escapeHtml(billingMoney($expense['expense_amount'], $expense['expense_currency_code'])) ?></span>
             </div>
@@ -86,7 +86,7 @@ ob_start();
         <a class="btn btn-outline-danger confirm-link me-auto" href="post.php?expense_reimbursement_delete=<?= $reimbursement_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
             data-confirm-text="The <?= escapeHtml(billingMoney($row['reimbursement_amount'], $currency)) ?> comes back off <?= escapeHtml($row['account_name'] ?: 'the account') ?>, and its expenses are to reimburse again."><i class="fas fa-undo-alt me-2"></i>Undo</a>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

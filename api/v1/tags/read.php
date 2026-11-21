@@ -9,8 +9,8 @@
  * Parameters (GET):
  *   api_key    required - Your API key
  *   kind       optional - client, location, contact, credential, asset, vendor,
- *                         domain, license, service, network, document or ticket
- *                         (or its tag type, 1 to 12)
+ *                         domain, license, service, network, document, ticket or kb_article
+ *                         (or its tag type, 1 to 13)
  *   record_id  optional - With kind: that record's tags
  *   tag_id     optional - One tag (archived or not), with tag_record_ids - the
  *                         records with it this key can see
@@ -37,7 +37,7 @@ if (isset($_GET['record_id'])) {
     $entity = tagApiKind($_GET['kind'] ?? '', 1);
     $config = tagEntity($entity);
     $record_id = intval($_GET['record_id']);
-    $record = mysqli_fetch_row(mysqli_query($mysqli, "SELECT {$config['id']} FROM {$config['table']} WHERE {$config['id']} = $record_id " . apiClientScopeSql($config['client'])));
+    $record = mysqli_fetch_row(mysqli_query($mysqli, "SELECT {$config['id']} FROM {$config['table']} WHERE {$config['id']} = $record_id " . ($config['client'] ? apiClientScopeSql($config['client']) : '')));
     if (!$record) {
         $sql = false;
         require_once "../read_output.php";
@@ -66,7 +66,7 @@ if (isset($_GET['tag_id'])) {
     $tag_row['tag_record_ids'] = [];
     $records = mysqli_query($mysqli, "SELECT {$config['link_table']}.{$config['link_record']} FROM {$config['link_table']}
         JOIN {$config['table']} ON {$config['table']}.{$config['id']} = {$config['link_table']}.{$config['link_record']}
-        WHERE {$config['link_table']}.{$config['link_tag']} = " . intval($row['tag_id']) . " " . apiClientScopeSql($config['client']) . "
+        WHERE {$config['link_table']}.{$config['link_tag']} = " . intval($row['tag_id']) . " " . ($config['client'] ? apiClientScopeSql($config['client']) : '') . "
         ORDER BY {$config['link_table']}.{$config['link_record']}");
     while ($record = mysqli_fetch_row($records)) {
         $tag_row['tag_record_ids'][] = intval($record[0]);

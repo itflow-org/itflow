@@ -13,12 +13,12 @@ isset($mysqli) || die("Direct file access is not allowed");
     </button>
     <div class="dropdown-menu dropdown-menu-end">
         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/income/income_bulk_edit.php?field=category" data-bulk="true"><i class="fas fa-fw fa-tag text-secondary me-2"></i>Set Category</a>
-        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/income/income_bulk_edit.php?field=account" data-bulk="true"><i class="fas fa-fw fa-piggy-bank text-secondary me-2"></i>Set Account</a>
+        <?php if (moduleOn('bookkeeping')) { ?><a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/income/income_bulk_edit.php?field=account" data-bulk="true"><i class="fas fa-fw fa-piggy-bank text-secondary me-2"></i>Set Account</a><?php } ?>
         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/income/income_bulk_edit.php?field=method" data-bulk="true"><i class="fas fa-fw fa-credit-card text-secondary me-2"></i>Set Payment Method</a>
         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/income/income_bulk_edit.php?field=client" data-bulk="true"><i class="fas fa-fw fa-building text-secondary me-2"></i>Set Client</a>
         <?php if (incomeCanDelete()) { ?>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item text-danger text-bold ajax-modal" href="#" data-modal-url="modals/income/income_bulk_delete.php" data-bulk="true"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
+            <a class="dropdown-item text-danger fw-bold ajax-modal" href="#" data-modal-url="modals/income/income_bulk_delete.php" data-bulk="true"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
         <?php } ?>
     </div>
 </div>

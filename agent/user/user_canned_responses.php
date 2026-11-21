@@ -79,10 +79,6 @@ $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', array
 }, $views)) . " FROM canned_responses WHERE $filters"));
 $view_counts = array_combine(array_keys($views), $counts);
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($view) use ($category_filter) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'category' => $category_filter, 'show' => $view]));
 };
@@ -106,7 +102,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search canned responses..." title="Name or what it says">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -130,10 +126,10 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('canned_response_name', 'Response') ?></th>
+                <th class="ps-3"><?= sortLink('canned_response_name', 'Response') ?></th>
                 <th class="d-none d-lg-table-cell">Offered on</th>
-                <th class="d-none d-md-table-cell" title="In your replies"><?= $sort_link('use_count', 'You used it') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('last_used', 'Last used') ?></th>
+                <th class="d-none d-md-table-cell" title="In your replies"><?= sortLink('use_count', 'You used it') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('last_used', 'Last used') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -196,31 +192,31 @@ $csrf = $_SESSION['csrf_token'];
                                         <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                     </a>
                                     <a class="dropdown-item" href="post.php?copy_your_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>" title="A new one of yours starting from this one">
-                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                        <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                     </a>
                                     <?php if ($session_is_admin && !$row['canned_response_archived_at']) { ?>
                                         <a class="dropdown-item confirm-link" href="/admin/post.php?share_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>"
-                                            data-confirm-title="Share <?= $name ?> with everyone?" data-confirm-text="It moves to the shared ones in Admin > Canned Responses, and every agent is offered it." data-confirm-button="Share">
-                                            <i class="fas fa-fw fa-users text-secondary me-2"></i>Share with everyone
+                                            data-confirm-title="Share <?= $name ?> with everyone?" data-confirm-text="It moves to the shared ones in Admin > Templates > Canned Responses, and every agent is offered it." data-confirm-button="Share">
+                                            <i class="fas fa-fw fa-users text-secondary me-2"></i>Share with Everyone
                                         </a>
                                     <?php } ?>
                                     <div class="dropdown-divider"></div>
                                     <?php if ($row['canned_response_archived_at']) { ?>
                                         <a class="dropdown-item" href="post.php?restore_your_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>">
-                                            <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                            <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                         </a>
                                     <?php } else { ?>
                                         <a class="dropdown-item text-danger" href="post.php?archive_your_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>" title="Not offered on tickets">
                                             <i class="fas fa-fw fa-archive me-2"></i>Archive
                                         </a>
                                     <?php } ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_your_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_your_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-title="Delete <?= $name ?>?" data-confirm-text="It goes for good, with its record of use. Replies it went into stay as they are." data-confirm-button="Delete">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item" href="post.php?copy_canned_response_to_yours=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>" title="A new one of yours starting from this one, to change as you like">
-                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy to yours
+                                        <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy to Yours
                                     </a>
                                 <?php } ?>
                             </div>
@@ -239,11 +235,11 @@ $csrf = $_SESSION['csrf_token'];
         'views' => ['show'],
         'title' => 'No canned responses of your own yet',
         'text' => 'Yours are offered to you alone, first in the picker above a reply. Make one here, copy a shared one, or write a reply on a ticket and save it from the picker with <strong>Save your reply as a canned response</strong>.',
-        'actions' => [['label' => 'New Canned Response', 'modal' => $add_url, 'size' => 'lg'], ['label' => 'See the shared ones', 'href' => $pill_url('shared'), 'icon' => 'fa-users']],
+        'actions' => [['label' => 'New Canned Response', 'modal' => $add_url, 'size' => 'lg'], ['label' => 'See the Shared Ones', 'href' => $pill_url('shared'), 'icon' => 'fa-users']],
         'view' => $yours ? [] : [
             'title' => 'No shared canned responses',
             'icon' => 'fa-users',
-            'text' => 'An admin makes them in Admin > Canned Responses.',
+            'text' => 'An admin makes them in Admin > Templates > Canned Responses.',
             'actions' => [],
         ],
     ];

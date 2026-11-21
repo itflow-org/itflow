@@ -17,8 +17,8 @@ if (!$ticket_status) { ?>
     $ticket_status_id = intval($ticket_status['ticket_status_id']); ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-info-circle me-2"></i>Ticket Status: <strong><?= escapeHtml($ticket_status['ticket_status_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-info-circle me-2"></i>Edit Ticket Status <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($ticket_status['ticket_status_name']) ?></span></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -31,7 +31,7 @@ if (!$ticket_status) { ?>
         <?php require __DIR__ . '/ticket_status_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_ticket_status" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save changes</button>
+        <button type="submit" name="edit_ticket_status" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

@@ -8,7 +8,9 @@
  * A line from a product keeps its link to the product; on an invoice,
  * changing the quantity of a stocked product moves the stock with it. On a
  * recurring invoice, the quantity can come from the client instead - their
- * users, devices or a license's seats, counted again for each invoice.
+ * users, devices or a license's seats, counted again for each invoice. On a
+ * quote, what the line costs you and how its price comes from that - a
+ * markup, a margin or a set price (functions/quote_pricing.php).
  */
 
 require_once '../../../includes/modal_header.php';
@@ -54,9 +56,9 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-edit me-2"></i>Edit Line <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber($type, $doc)) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
-<form action="post.php" method="post" autocomplete="off" data-billing-line-form>
+<form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off" data-billing-line-form>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="billing_item_save" value="1">
     <input type="hidden" name="type" value="<?= escapeHtml($type) ?>">
@@ -68,7 +70,7 @@ ob_start();
             <div class="col-12">
                 <label class="form-label">Item <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
                     <input type="text" class="form-control" name="name" maxlength="200" value="<?= escapeHtml($item['item_name']) ?>" required data-line-name>
                 </div>
                 <?php if ($product_name !== '' && $product_name !== null) { ?>
@@ -78,7 +80,7 @@ ob_start();
             <div class="col-12">
                 <label class="form-label">Description</label>
                 <div class="input-group">
-                    <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-align-left"></i></span>
+                    <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-align-left"></i></span>
                     <textarea class="form-control" name="description" rows="3" placeholder="<?= $type === 'recurring' ? 'What it covers - {month}, {quarter}, {year} or {period} become the period each invoice covers' : 'What it is, the period it covers, serial numbers - shown under the item' ?>" data-line-description><?= escapeHtml($item['item_description']) ?></textarea>
                 </div>
             </div>
@@ -87,8 +89,8 @@ ob_start();
                 <div class="col-12">
                     <label class="form-label">Billed</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
-                        <select class="form-select" name="frequency">
+                        <span class="input-group-text"><i class="fas fa-fw fa-redo-alt"></i></span>
+                        <select class="form-select select2" name="frequency">
                             <?php foreach (quoteFrequencies() as $frequency_value => $frequency_label) { ?>
                                 <option value="<?= $frequency_value ?>" <?= $line_frequency === $frequency_value ? 'selected' : '' ?>><?= $frequency_label ?></option>
                             <?php } ?>
@@ -103,21 +105,29 @@ ob_start();
                 $seat_filter = recurringSeatFilter($seat_source, $item['item_seat_filter'] ?? '');
                 // The line's own tag stays offered once archived, or on nothing the client has now, so saving doesn't drop it
                 $seat_tag = intval($seat_filter['tag'] ?? 0);
-                $seat_tag_key = ['contacts' => 'contact_tags', 'assets' => 'asset_tags'][$seat_source] ?? '';
+                $seat_tag_key = ['contacts' => 'contact_tags', 'assets' => 'asset_tags', 'managed' => 'managed_tags'][$seat_source] ?? '';
                 if ($seat_tag && $seat_tag_key && !isset($seat_options[$seat_tag_key][$seat_tag]) && ($seat_tag_row = tagRow($seat_tag))) {
                     $seat_options[$seat_tag_key][$seat_tag] = ['tag_id' => $seat_tag, 'tag_name' => $seat_tag_row['tag_name'] . ($seat_tag_row['tag_archived_at'] ? ' (archived)' : ''),
                         'n' => intval(recurringSeatCount($client_id, $seat_source, ['tag' => $seat_tag]))];
                 }
-                $seat_minimum = floatval($item['item_seat_minimum'] ?? 0); ?>
+                $seat_minimum = floatval($item['item_seat_minimum'] ?? 0);
+                // Managed devices - once an RMM is set up (functions/rmm.php). Which RMM is asked only with more than one, or when the line names one
+                $seat_managed = $seat_options['managed'] !== null || $seat_source === 'managed';
+                $seat_rmm = $seat_source === 'managed' ? intval($seat_filter['rmm'] ?? 0) : 0;
+                $seat_rmm_gone = $seat_rmm && !isset($seat_options['rmm_providers'][$seat_rmm]);
+                $seat_rmm_pick = count($seat_options['rmm_providers']) > 1 || $seat_rmm; ?>
                 <!-- Where the quantity comes from - counted again for each invoice -->
                 <div class="col-12">
                     <label class="form-label">Quantity from</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                        <select class="form-select" name="seat_source" data-seat-source>
+                        <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
+                        <select class="form-select select2" name="seat_source" data-seat-source>
                             <option value="">Typed in - the same every time</option>
                             <option value="contacts" <?= $seat_source === 'contacts' ? 'selected' : '' ?>>Users - the client's contacts (<?= intval($seat_options['contacts']) ?> now)</option>
                             <option value="assets" <?= $seat_source === 'assets' ? 'selected' : '' ?>>Devices - the client's devices in use (<?= intval($seat_options['assets']) ?> now)</option>
+                            <?php if ($seat_managed) { ?>
+                                <option value="managed" <?= $seat_source === 'managed' ? 'selected' : '' ?>>Managed devices - the client's devices in your RMM (<?= intval($seat_options['managed']) ?> now)</option>
+                            <?php } ?>
                             <option value="license" <?= $seat_source === 'license' ? 'selected' : '' ?> <?= $seat_options['licenses'] || $seat_source === 'license' ? '' : 'disabled' ?>>License seats - one of the client's licenses<?= $seat_options['licenses'] ? '' : ' (they have none)' ?></option>
                         </select>
                     </div>
@@ -126,8 +136,8 @@ ob_start();
                 <div class="col-12" data-seat-for="contacts" hidden>
                     <label class="form-label">Which contacts</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <select class="form-select" name="seat_tag" data-seat-input>
+                        <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
+                        <select class="form-select select2" name="seat_tag" data-seat-input>
                             <option value="0">All of them</option>
                             <?php foreach ($seat_options['contact_tags'] as $tag_id => $tag) { ?>
                                 <option value="<?= $tag_id ?>" <?= $seat_source === 'contacts' && intval($seat_filter['tag'] ?? 0) === $tag_id ? 'selected' : '' ?>>Tagged <?= escapeHtml($tag['tag_name']) ?> (<?= intval($tag['n']) ?>)</option>
@@ -143,15 +153,15 @@ ob_start();
                             $type_id = 'seatType' . substr(md5($asset_type), 0, 8); ?>
                             <input type="checkbox" class="btn-check" name="seat_types[]" value="<?= escapeHtml($asset_type) ?>" id="<?= $type_id ?>" autocomplete="off" data-seat-input
                                 <?= $seat_source === 'assets' && in_array($asset_type, $seat_filter['types'] ?? [], true) ? 'checked' : '' ?>>
-                            <label class="btn btn-sm btn-outline-secondary" for="<?= $type_id ?>"><i class="fas fa-fw fa-<?= getAssetIcon($asset_type) ?> me-1"></i><?= escapeHtml($asset_type) ?> <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis ms-1"><?= $asset_count ?></span></label>
+                            <label class="btn btn-sm btn-outline-secondary" for="<?= $type_id ?>"><i class="fas fa-fw fa-<?= getAssetIcon($asset_type) ?> me-1"></i><?= escapeHtml($asset_type) ?> <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis ms-1"><?= number_format(intval($asset_count)) ?></span></label>
                         <?php } ?>
                         <?php if (!$seat_options['asset_types']) { ?>
                             <span class="small text-body-secondary">The client has no devices yet.</span>
                         <?php } ?>
                     </div>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <select class="form-select" name="seat_tag" data-seat-input>
+                        <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
+                        <select class="form-select select2" name="seat_tag" data-seat-input>
                             <option value="0">Any tag</option>
                             <?php foreach ($seat_options['asset_tags'] as $tag_id => $tag) { ?>
                                 <option value="<?= $tag_id ?>" <?= $seat_source === 'assets' && intval($seat_filter['tag'] ?? 0) === $tag_id ? 'selected' : '' ?>>Tagged <?= escapeHtml($tag['tag_name']) ?> (<?= intval($tag['n']) ?>)</option>
@@ -160,13 +170,59 @@ ob_start();
                     </div>
                     <div class="form-text">No types ticked counts every device - tick Desktop and Laptop for a per-workstation line, Server and Virtual Machine for per-server.</div>
                 </div>
+                <?php if ($seat_managed) { ?>
+                    <div class="col-12" data-seat-for="managed" hidden>
+                        <label class="form-label">Which managed devices</label>
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <?php foreach ($seat_options['managed_types'] as $asset_type => $asset_count) {
+                                $type_id = 'seatManagedType' . substr(md5($asset_type), 0, 8); ?>
+                                <input type="checkbox" class="btn-check" name="seat_types[]" value="<?= escapeHtml($asset_type) ?>" id="<?= $type_id ?>" autocomplete="off" data-seat-input
+                                    <?= $seat_source === 'managed' && in_array($asset_type, $seat_filter['types'] ?? [], true) ? 'checked' : '' ?>>
+                                <label class="btn btn-sm btn-outline-secondary" for="<?= $type_id ?>"><i class="fas fa-fw fa-<?= getAssetIcon($asset_type) ?> me-1"></i><?= escapeHtml($asset_type) ?> <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis ms-1"><?= number_format(intval($asset_count)) ?></span></label>
+                            <?php } ?>
+                            <?php if (!$seat_options['managed_types']) { ?>
+                                <span class="small text-body-secondary">None of the client's devices are in your RMM yet - link the client on its RMM provider's Clients page.</span>
+                            <?php } ?>
+                        </div>
+                        <div class="row g-2">
+                            <div class="<?= $seat_rmm_pick ? 'col-sm-6' : 'col-12' ?>">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
+                                    <select class="form-select select2" name="seat_tag" data-seat-input>
+                                        <option value="0">Any tag</option>
+                                        <?php foreach ($seat_options['managed_tags'] as $tag_id => $tag) { ?>
+                                            <option value="<?= $tag_id ?>" <?= $seat_source === 'managed' && intval($seat_filter['tag'] ?? 0) === $tag_id ? 'selected' : '' ?>>Tagged <?= escapeHtml($tag['tag_name']) ?> (<?= intval($tag['n']) ?>)</option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <?php if ($seat_rmm_pick) { ?>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-fw fa-laptop-medical"></i></span>
+                                        <select class="form-select select2" name="seat_rmm" data-seat-input>
+                                            <?php if ($seat_rmm_gone) { ?>
+                                                <option value="<?= $seat_rmm ?>" selected>The RMM provider it counted is gone - pick another</option>
+                                            <?php } ?>
+                                            <option value="0" <?= !$seat_rmm ? 'selected' : '' ?>>In any RMM (<?= intval($seat_options['managed']) ?>)</option>
+                                            <?php foreach ($seat_options['rmm_providers'] as $provider_id => $provider) { ?>
+                                                <option value="<?= $provider_id ?>" <?= $seat_rmm === $provider_id ? 'selected' : '' ?>>In <?= escapeHtml($provider['name']) ?> (<?= intval($provider['n']) ?>)</option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            <?php } ?>
+                        </div>
+                        <div class="form-text">The client's devices your RMM has - one it no longer has stops counting. No types ticked counts every one.</div>
+                    </div>
+                <?php } ?>
                 <div class="col-12" data-seat-for="license" hidden>
                     <div class="row g-3">
                         <div class="col-sm-8">
                             <label class="form-label">License</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-                                <select class="form-select" name="seat_software_id" data-seat-input>
+                                <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
+                                <select class="form-select select2" name="seat_software_id" data-seat-input>
                                     <?php if ($seat_source === 'license' && !isset($seat_options['licenses'][intval($seat_filter['software_id'] ?? 0)])) { ?>
                                         <option value="0" selected disabled>The license it counted is gone - pick another</option>
                                     <?php } ?>
@@ -179,8 +235,8 @@ ob_start();
                         <div class="col-sm-4">
                             <label class="form-label">Count</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calculator"></i></span>
-                                <select class="form-select" name="seat_count" data-seat-input>
+                                <span class="input-group-text"><i class="fas fa-fw fa-calculator"></i></span>
+                                <select class="form-select select2" name="seat_count" data-seat-input>
                                     <option value="used">Seats in use</option>
                                     <option value="total" <?= ($seat_filter['count'] ?? '') === 'total' ? 'selected' : '' ?>>Seats bought</option>
                                 </select>
@@ -191,7 +247,7 @@ ob_start();
                 <div class="col-sm-4" data-seat-for="any" hidden>
                     <label class="form-label">At least</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-arrow-down"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-arrow-down"></i></span>
                         <input type="text" class="form-control text-end" name="seat_minimum" inputmode="decimal" value="<?= $seat_minimum ? billingQuantity($seat_minimum) : '' ?>" placeholder="0" data-seat-input>
                     </div>
                     <div class="form-text">A contract's minimum.</div>
@@ -200,17 +256,23 @@ ob_start();
                     <div class="small" data-seat-preview></div>
                 </div>
             <?php } ?>
+            <?php if ($type === 'quote') { // what it costs you and how its price comes from that (functions/quote_pricing.php) ?>
+                <?= quotePricingFields($item, $currency) ?>
+            <?php } ?>
+            <?php if ($type === 'quote' && quoteImagesShown()) { // its picture (functions/quote_images.php) ?>
+                <?= quoteImageField('item_image', $item['item_image'] ?? '', 'Shown beside the line, on the quote and its PDF.') ?>
+            <?php } ?>
             <div class="col-sm-4">
                 <label class="form-label">Quantity <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                     <input type="text" class="form-control text-end" name="qty" inputmode="decimal" value="<?= $quantity ?>" required data-line-qty>
                 </div>
             </div>
             <div class="col-sm-4">
                 <label class="form-label">Price <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                     <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= $price ?>" required data-line-price>
                 </div>
                 <div class="form-text">Each, in <?= escapeHtml($currency) ?>. A credit can be negative.</div>
@@ -218,8 +280,8 @@ ob_start();
             <div class="col-sm-4">
                 <label class="form-label">Tax</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
-                    <select class="form-select" name="tax_id" data-line-tax>
+                    <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
+                    <select class="form-select select2" name="tax_id" data-line-tax>
                         <?= taxOptionsHtml($taxes, $item['item_tax_id']) ?>
                     </select>
                 </div>
@@ -231,7 +293,7 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="submit" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
@@ -248,6 +310,9 @@ ob_start();
     }
     if (typeof itflowBillingSeatForm === 'function') {
         itflowBillingSeatForm(form, <?= intval($doc_id) ?>);
+    }
+    if (typeof itflowBillingPricingForm === 'function') {
+        itflowBillingPricingForm(form, { currency: <?= json_encode($currency) ?>, locale: <?= json_encode(str_replace('_', '-', (string) $session_company_locale)) ?> });
     }
 })();
 </script>

@@ -89,7 +89,10 @@
         }
 
         function resetTimer() {
-            if (confirm("Are you sure you want to reset the timer?")) {
+            itflowConfirm({ title: 'Reset the timer?', text: 'The time on it goes back to zero.', button: 'Reset', danger: true }).then(function (confirmed) {
+                if (!confirmed) {
+                    return;
+                }
                 clearInterval(timerInterval);
                 timerInterval = null;
                 elapsedSecs = 0;
@@ -97,8 +100,8 @@
                 displayTime();
                 let btn = document.getElementById("startStopTimer");
                 if (btn) btn.innerHTML = "<i class='fas fa-play'></i>";
-            }
-            localStorage.setItem("ticket-timer-running-" + ticketID, "false");
+                localStorage.setItem("ticket-timer-running-" + ticketID, "false");
+            });
         }
 
         function forceResetTimer() {

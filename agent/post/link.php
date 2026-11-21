@@ -6,7 +6,7 @@
  * files about a location, and what a service depends on.
  *
  * One handler for every pair LINK_RELATIONS knows (functions/links.php):
- * link_items links any number of records at once, unlink_item drops one.
+ * unlink_item drops one. Linking is the Link picker's (functions/link_picker.php).
  * The older one-pair-each names (link_asset_to_document, unlink_contact_from_file
  * and so on) are still answered here, so a link built by any page or older
  * modal keeps working - and gets the same checks: the same client, nothing
@@ -61,11 +61,6 @@ function linkHandle($action, $from, $id, $to, $ids) {
     }
 
     redirect();
-}
-
-if (isset($_POST['link_items'])) {
-    $ids = $_POST['ids'] ?? [];
-    linkHandle('link', (string) ($_POST['from'] ?? ''), intval($_POST['id'] ?? 0), (string) ($_POST['to'] ?? ''), is_array($ids) ? $ids : [$ids]);
 }
 
 if (isset($_GET['unlink_item'])) {

@@ -54,10 +54,6 @@ $agents = roleAgents(array_keys($roles), 5);
 
 $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(role_archived_at IS NULL), 0), COALESCE(SUM(role_archived_at IS NOT NULL), 0) FROM user_roles WHERE $search"));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $csrf = $_SESSION['csrf_token'];
 
@@ -77,7 +73,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-md-5">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search roles..." title="Name or description">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -91,10 +87,10 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('role_name', 'Role') ?></th>
+                <th class="ps-3"><?= sortLink('role_name', 'Role') ?></th>
                 <th class="d-none d-md-table-cell">Access</th>
-                <th class="d-none d-sm-table-cell"><?= $sort_link('agents', 'Agents') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('role_updated_at', 'Updated') ?></th>
+                <th class="d-none d-sm-table-cell"><?= sortLink('agents', 'Agents') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('role_updated_at', 'Updated') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -155,17 +151,17 @@ $csrf = $_SESSION['csrf_token'];
                                     <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/role/role_add.php?copy=<?= $role_id ?>" title="A new role starting from this one">
-                                    <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                    <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
                                 <?php if ($agent_count) { ?>
                                     <a class="dropdown-item" href="users.php?role=<?= $role_id ?>">
-                                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Its agents
+                                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Its Agents
                                     </a>
                                 <?php } ?>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['role_archived_at']) { ?>
                                     <a class="dropdown-item" href="post.php?restore_role=<?= $role_id ?>&csrf_token=<?= $csrf ?>">
-                                        <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                     </a>
                                 <?php } elseif ($archive_blocker !== '') { ?>
                                     <span class="dropdown-item disabled" title="<?= escapeHtml($archive_blocker) ?>"><i class="fas fa-fw fa-archive me-2"></i>Archive</span>
@@ -177,7 +173,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php if ($delete_blocker !== '') { ?>
                                     <span class="dropdown-item disabled" title="<?= escapeHtml($delete_blocker) ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</span>
                                 <?php } else { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_role=<?= $role_id ?>&csrf_token=<?= $csrf ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_role=<?= $role_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-title="Delete <?= $name ?>?" data-confirm-text="Nobody has it, so no agent changes." data-confirm-button="Delete">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

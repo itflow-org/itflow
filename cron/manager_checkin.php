@@ -50,6 +50,11 @@ if (!managedIsManaged()) {
     cronJobStop("Not managed\n");
 }
 
+// Development mode: a copy of a managed ITFlow must not check in as it (functions/dev_mode.php)
+if (devModeOn()) {
+    cronJobStop("Development mode - no check-ins with the manager\n");
+}
+
 $manager_checkin = managedCheckin();
 
 // Thrown, so the dispatcher records why against the job and Admin > Managed By can show it

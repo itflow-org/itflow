@@ -28,8 +28,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-ethernet me-2"></i>Add ports to <strong><?= escapeHtml($asset['asset_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-ethernet me-2"></i>Add ports to <strong><?= escapeHtml($asset['asset_name']) ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off" id="interfaceSeriesForm" data-existing="<?= escapeHtml(json_encode(array_values(array_map('mb_strtolower', $existing)))) ?>">
@@ -41,29 +41,29 @@ ob_start();
             <div class="col-md-5">
                 <label class="form-label">Name before the number</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-font"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-font"></i></span>
                     <input type="text" class="form-control font-monospace" name="name_prefix" maxlength="190" placeholder="Gi1/0/, eth, Port " value="<?= escapeHtml($prefix) ?>" data-series="prefix">
                 </div>
             </div>
             <div class="col-md-3 col-6">
-                <label class="form-label">First number</label>
+                <label class="form-label">First number <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                     <input type="number" class="form-control" name="interface_start" min="0" value="<?= $start ?>" required data-series="start">
                 </div>
             </div>
             <div class="col-md-4 col-6">
-                <label class="form-label">How many</label>
+                <label class="form-label">How many <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-ethernet"></i></span>
                     <input type="number" class="form-control" name="interfaces" min="1" max="128" value="<?= $count ?>" required data-series="count">
                 </div>
             </div>
             <div class="col-md-5">
                 <label class="form-label">Numbers</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-down"></i></span>
-                    <select class="form-select" name="pad" data-series="pad">
+                    <span class="input-group-text"><i class="fas fa-fw fa-sort-numeric-down"></i></span>
+                    <select class="form-select select2" name="pad" data-series="pad">
                         <option value="0">1, 2 ... 10</option>
                         <option value="2" <?= $pad === 2 ? 'selected' : '' ?>>01, 02 ... 10</option>
                         <option value="3" <?= $pad === 3 ? 'selected' : '' ?>>001, 002 ... 010</option>
@@ -73,18 +73,18 @@ ob_start();
             <div class="col-md-7">
                 <label class="form-label">Type</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-plug"></i></span>
                     <select class="form-select select2" name="type">
                         <option value="">- No type -</option>
                         <?= categoryOptionsHtml('network_interface', isset($types['Ethernet']) ? 'Ethernet' : null) ?>
                     </select>
-                    <?= categoryAddButtonHtml('network_interface', 'btn btn-secondary') ?>
+                    <?= categoryAddButtonHtml('network_interface') ?>
                 </div>
             </div>
             <div class="col-md-7">
                 <label class="form-label">Network</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-network-wired"></i></span>
                     <select class="form-select select2" name="network_id">
                         <option value="0">- No network -</option>
                         <?php foreach ($networks as $network) { ?>
@@ -96,14 +96,14 @@ ob_start();
             <div class="col-md-5">
                 <label class="form-label">VLANs</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                    <input type="text" class="form-control" name="vlans" maxlength="200" placeholder="e.g. 10">
+                    <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
+                    <input type="text" class="form-control" name="vlans" maxlength="200" placeholder="10">
                 </div>
             </div>
             <div class="col-12">
                 <label class="form-label">Notes</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-pen"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-pen"></i></span>
                     <input type="text" class="form-control" name="notes" placeholder="On every one of them">
                 </div>
             </div>
@@ -111,7 +111,7 @@ ob_start();
         <div class="small mt-3 p-2 rounded bg-body-tertiary" data-series="preview"></div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_asset_multiple_interfaces" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Add</button>
+        <button type="submit" name="add_asset_multiple_interfaces" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Add</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

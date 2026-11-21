@@ -46,6 +46,12 @@ if (isset($_POST['add_user'])) {
     $password = (string) ($_POST['password'] ?? '');
     $how = ($_POST['sign_in'] ?? ($password !== '' ? 'password' : 'invite')) === 'invite' && userInvitesReady() ? 'invite' : 'password';
 
+    // An API / service account never signs in, so it has no one to invite (functions/service_account.php)
+    if ($how === 'invite' && !empty($_POST['service_account']) && serviceAccountsReady()) {
+        flashAlert("An API / service account isn't invited - choose Set a password now.", 'error');
+        redirect();
+    }
+
     // An invite waiting for them holds a seat already - it is this one
     $open = userInviteFor($email);
     if (agentUserLimitReached($open && userInviteState($open) === 'pending' ? intval($open['invite_id']) : 0)) {
@@ -56,7 +62,7 @@ if (isset($_POST['add_user'])) {
     if ($how === 'invite') {
 
         $saved = userInviteSave(['name' => $name, 'email' => $email, 'role_id' => $role_id, 'force_mfa' => $force_mfa,
-            'access' => intval($role['role_is_admin']) ? [] : ($_POST['client_permission'] ?? [])], $_FILES['avatar'] ?? null);
+            'access' => intval($role['role_is_admin']) ? [] : ($_POST['client_permission'] ?? []), 'office_id' => $_POST['office_id'] ?? 0], $_FILES['avatar'] ?? null);
         $invite_id = $saved['invite_id'];
         $mail = userInviteMailReady();
         $send_error = '';
@@ -114,11 +120,80 @@ if (isset($_POST['add_user'])) {
         $notes[] = 'the invite waiting for them is cancelled';
     }
 
-    logAudit("User", "Create", "$session_name created user " . escapeSql($name), 0, $user_id);
+    $service_change = serviceAccountSave($user_id, $_POST);
+    officeUserSave($user_id, $_POST);
+
+    logAudit("User", "Create", "$session_name created user " . escapeSql($name) . ($service_change !== '' ? ' as an API / service account' : ''), 0, $user_id);
 
     flashAlert("User <strong>$name</strong> created - give them their password yourself" . ($notes ? ' - ' . implode('; ', $notes) : ''), $avatar_error ? 'warning' : 'success');
 
     redirect();
+
+}
+
+if (isset($_POST['invite_users_bulk'])) {
+
+    // Several agents invited at once, all with one role - each emailed their own link (functions/user_invite.php)
+    validateCSRFToken();
+
+    if (!userInvitesReady() || !userInviteMailReady()) {
+        flashAlert('Inviting several at once needs email set up - invite them one at a time from New User to get each link.', 'error');
+        redirect();
+    }
+    $error = '';
+    $role = userCheckRole($_POST['role'] ?? 0, 0, $error);
+    if (!$role) {
+        flashAlert($error, 'error');
+        redirect();
+    }
+    $people = userInviteBulkParse($_POST['people'] ?? '');
+    if (!$people) {
+        flashAlert('Put one person on each line - their name and email, or just the email.', 'error');
+        redirect();
+    }
+    $force_mfa = !empty($_POST['force_mfa']) ? 1 : 0;
+
+    $invited = [];
+    $skipped = [];
+    foreach ($people as $i => $person) {
+        if (!filter_var($person['email'], FILTER_VALIDATE_EMAIL)) {
+            $skipped[] = mb_substr($person['line'], 0, 100) . ' - no email address in it';
+            continue;
+        }
+        $identity = userCheckIdentity($person, 0, $error);
+        if (!$identity) {
+            $skipped[] = rtrim(strip_tags($error), '.');
+            continue;
+        }
+        [$name, $email] = $identity;
+        $open = userInviteFor($email);
+        if (agentUserLimitReached($open && userInviteState($open) === 'pending' ? intval($open['invite_id']) : 0)) {
+            $skipped[] = 'every seat is taken, so ' . (count($people) - $i) . ' more weren\'t invited';
+            break;
+        }
+        $saved = userInviteSave(['name' => $name, 'email' => $email, 'role_id' => intval($role['role_id']), 'force_mfa' => $force_mfa,
+            'access' => [], 'office_id' => $_POST['office_id'] ?? 0]);
+        $send_error = '';
+        if (!userInviteSend($saved['invite_id'], true, $send_error)) {
+            if (!$saved['again']) {
+                mysqli_query($mysqli, "DELETE FROM user_invites WHERE invite_id = " . intval($saved['invite_id']));
+            }
+            $skipped[] = rtrim(strip_tags($send_error), '.');
+            break;
+        }
+        logAudit("User", "Invite", "$session_name invited " . escapeSql("$name ($email) as {$role['role_name']}") . ($saved['again'] ? ' again' : ''));
+        $invited[] = escapeHtml($name);
+    }
+
+    $count = count($invited);
+    $message = $count
+        ? "Invited <strong>$count</strong> as <strong>" . escapeHtml($role['role_name']) . "</strong> - an email with a link to join is on the way to " . ($count === 1 ? 'them' : 'each') . ". It works for " . USER_INVITE_LINK_DAYS . " days"
+        : 'Nobody was invited';
+    if ($skipped) {
+        $message .= '. Skipped: ' . implode('; ', array_map('escapeHtml', $skipped));
+    }
+    flashAlert($message, $skipped ? ($count ? 'warning' : 'error') : 'success');
+    redirect($count ? 'users.php?show=invited' : null);
 
 }
 
@@ -140,7 +215,7 @@ if (isset($_GET['resend_user_invite']) || isset($_GET['link_user_invite']) || is
     if ($what === 'cancel') {
         userInviteCancel($invite_id);
         logAudit("User", "Cancel", "$session_name cancelled the invite to $who");
-        flashAlert("Cancelled the invite to <strong>" . escapeHtml($invite['invite_email']) . "</strong> - its link no longer works");
+        flashAlert("Cancelled the invite to <strong>" . escapeHtml($invite['invite_email']) . "</strong> - its link no longer works", 'error');
         redirect();
     }
 
@@ -197,6 +272,7 @@ if (isset($_POST['edit_user'])) {
     mysqli_query($mysqli, "UPDATE users SET user_name = '" . escapeSql($name) . "', user_email = '" . escapeSql($email) . "', user_role_id = " . intval($role['role_id']) . " WHERE user_id = $user_id");
     $force_mfa = !empty($_POST['force_mfa']) ? 1 : 0;
     mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_config_force_mfa = $force_mfa ON DUPLICATE KEY UPDATE user_config_force_mfa = $force_mfa");
+    calendarAgentColorSave($user_id, $_POST);
 
     // An admin sees every client - their rules are left as they were, in case the role changes back
     if (!intval($role['role_is_admin']) && isset($_POST['client_permission_shown'])) {
@@ -226,6 +302,15 @@ if (isset($_POST['edit_user'])) {
         if (userSaveAvatar($user_id, $_FILES['avatar'], $avatar_error)) {
             $changes[] = 'avatar updated';
         }
+    }
+
+    $service_change = serviceAccountSave($user_id, $_POST);
+    if ($service_change !== '') {
+        $changes[] = $service_change;
+    }
+    $office_change = officeUserSave($user_id, $_POST);
+    if ($office_change !== '') {
+        $changes[] = $office_change;
     }
 
     logAudit("User", "Edit", "$session_name edited user " . escapeSql($name) . ($changes ? ' - ' . escapeSql(implode(', ', $changes)) : ''), 0, $user_id);
@@ -564,7 +649,7 @@ if (isset($_POST['ir_reset_user_password'])) {
 
     // Agents only - client portal logins have their own reset, and no vault key to rewrite
     $reset = [];
-    $sql_users = mysqli_query($mysqli, "SELECT user_id, user_name, user_email FROM users WHERE user_type = 1 AND user_archived_at IS NULL AND user_id <> $session_user_id ORDER BY user_name");
+    $sql_users = mysqli_query($mysqli, "SELECT user_id, user_name, user_email FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_archived_at IS NULL AND user_id <> $session_user_id ORDER BY user_name");
     while ($row = mysqli_fetch_assoc($sql_users)) {
         $new_password = generateReadablePassword(4);
         userSetPassword($row['user_id'], $new_password);

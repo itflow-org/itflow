@@ -17,6 +17,8 @@
  * or for bulk, data-tag-bulk instead of data-tag-ids (the ticked .bulk-select
  * boxes on the page are the records - or only those named in data-tag-bulk,
  * such as "document_ids[]" on a list that mixes documents and uploads).
+ * Tags in a list row's menu (tagMenuItem()) is the same button in a
+ * .dropdown-menu; the panel hangs off the row's menu button, as the menu closes.
  *
  * Styled with the select picker's panel classes (css: "Select picker"), so
  * the two look and behave alike.
@@ -71,8 +73,14 @@
                 holder.innerHTML = pills[id];
                 var fresh = holder.firstElementChild;
                 if (fresh) {
-                    // Keep this spot's own filter links
+                    // Keep this spot's own filter links, and no + where it had none (a card)
                     fresh.setAttribute('data-tag-filter', old.getAttribute('data-tag-filter') || fresh.getAttribute('data-tag-filter'));
+                    if (old.hasAttribute('data-tag-plain')) {
+                        fresh.setAttribute('data-tag-plain', '');
+                        fresh.querySelectorAll('[data-tag-picker]').forEach(function (plus) {
+                            plus.remove();
+                        });
+                    }
                     // The open picker hangs off the + in the pills being replaced -
                     // move it to the new +, or the next redraw finds it detached
                     // and closes the panel
@@ -101,8 +109,11 @@
         this.bulk = button.hasAttribute('data-tag-bulk');
         this.ids = this.bulk ? bulkIds(button.dataset.tagBulk || '') : String(button.dataset.tagIds || '').split(',').filter(Boolean);
         this.csrf = csrfFor(button);
-        // Bulk opens from a menu item that closes - hang the panel off the Action button
-        this.anchor = this.bulk ? (document.querySelector('#bulkActionButton > button') || button) : button;
+        // Bulk and a row's Tags open from a menu item that closes - hang the panel
+        // off the Action button, or the row's menu button
+        var menu = button.closest('.dropdown-menu');
+        var toggle = menu && menu.parentElement ? menu.parentElement.querySelector('[data-bs-toggle="dropdown"]') : null;
+        this.anchor = this.bulk ? (document.querySelector('#bulkActionButton > button') || button) : (toggle || button);
         this.query = '';
         this.rows = [];
         this.active = -1;
@@ -257,7 +268,9 @@
         var width = Math.min(288, viewWidth - 16);
         var panel = this.panel;
         panel.style.width = width + 'px';
-        panel.style.left = Math.min(Math.max(8, rect.left), viewWidth - width - 8) + 'px';
+        // From the anchor's left edge, or its right where that runs off the page (a row's menu button)
+        var left = rect.left + width > viewWidth - 8 ? rect.right - width : rect.left;
+        panel.style.left = Math.min(Math.max(8, left), viewWidth - width - 8) + 'px';
         this.list.style.maxHeight = '';
         var height = panel.offsetHeight;
         var below = viewHeight - rect.bottom - 12;

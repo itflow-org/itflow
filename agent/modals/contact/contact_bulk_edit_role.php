@@ -11,8 +11,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-user-shield me-2"></i>Set Roles for <strong><?= $count ?></strong> contact<?= $count === 1 ? '' : 's' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-user-shield me-2"></i>Set Roles for <strong><?= $count ?></strong> contact<?= $count === 1 ? '' : 's' ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -25,7 +25,7 @@ ob_start();
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="bulkContactImportantCheckbox" name="bulk_contact_important" value="1">
                 <label class="form-check-label" for="bulkContactImportantCheckbox">Important</label>
-                <small class="form-text text-muted">Important Person and pins them to the top of the contact list</small>
+                <small class="form-text text-body-secondary">Important Person and pins them to the top of the contact list</small>
             </div>
         </div>
 
@@ -33,7 +33,7 @@ ob_start();
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="bulkContactBillingCheckbox" name="bulk_contact_billing" value="1">
                 <label class="form-check-label" for="bulkContactBillingCheckbox">Billing</label>
-                <small class="form-text text-muted">Receives Invoices and Receipts and has access to billing via the portal</small>
+                <small class="form-text text-body-secondary">Receives Invoices and Receipts and has access to billing via the portal</small>
             </div>
         </div>
 
@@ -41,15 +41,15 @@ ob_start();
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="bulkContactTechnicalCheckbox" name="bulk_contact_technical" value="1">
                 <label class="form-check-label" for="bulkContactTechnicalCheckbox">Technical</label>
-                <small class="form-text text-muted">Person to contact for technical related things and has access to all tickets and documents via the portal</small>
+                <small class="form-text text-body-secondary">Person to contact for technical related things and has access to all tickets and documents via the portal</small>
             </div>
         </div>
 
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_contact_role" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Set Roles</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="bulk_edit_contact_role" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set Roles</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

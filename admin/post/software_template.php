@@ -38,7 +38,7 @@ if (isset($_POST['add_software_template']) || isset($_POST['edit_software_templa
     }
     $software_template_id = softwareTemplateSave($software_template_id, $fields);
 
-    logAudit("Software Template", $editing ? "Edit" : "Create", "$session_name " . ($editing ? 'edited' : 'created') . " license template " . escapeSql($fields['name']), 0, $software_template_id);
+    logAudit("License Template", $editing ? "Edit" : "Create", "$session_name " . ($editing ? 'edited' : 'created') . " license template " . escapeSql($fields['name']), 0, $software_template_id);
 
     flashAlert("License template <strong>" . escapeHtml($fields['name']) . "</strong> " . ($editing ? 'saved' : 'created'));
 
@@ -77,7 +77,7 @@ if (isset($_POST['make_licenses_from_template'])) {
             $vendor_id = intval(getFieldById('software', $software_id, 'software_vendor_id'));
             logAudit("Vendor", "Create", "$session_name created vendor " . escapeSql((string) getFieldById('vendors', $vendor_id, 'vendor_name')) . " from a template for license " . escapeSql($row['software_template_name']), $client_id, $vendor_id);
         }
-        logAudit("Software", "Create", "$session_name created license " . escapeSql($row['software_template_name']) . " from template " . escapeSql($row['software_template_name']), $client_id, $software_id);
+        logAudit("License", "Create", "$session_name created license " . escapeSql($row['software_template_name']) . " from template " . escapeSql($row['software_template_name']), $client_id, $software_id);
     }
 
     $made = count($result['made']);
@@ -110,7 +110,7 @@ if (isset($_POST['save_software_template_required'])) {
     $scope = softwareTemplateScopeText($saved['software_template_required'], softwareTemplateRequiredTags([$software_template_id])[$software_template_id]);
     $said = $scope !== '' ? "required of " . lcfirst($scope) : 'not required of anyone';
 
-    logAudit("Software Template", "Edit", "$session_name set license template " . escapeSql($row['software_template_name']) . " " . escapeSql($said), 0, $software_template_id);
+    logAudit("License Template", "Edit", "$session_name set license template " . escapeSql($row['software_template_name']) . " " . escapeSql($said), 0, $software_template_id);
 
     flashAlert("<strong>" . escapeHtml($row['software_template_name']) . "</strong> is " . escapeHtml($said));
 
@@ -136,7 +136,7 @@ if (isset($_POST['true_up_software_template'])) {
 
     $changes = softwareTemplateTrueUp($software_template_id, $seats);
     foreach ($changes as $software_id => $change) {
-        logAudit("Software", "Edit", "$session_name trued up license " . escapeSql($change['name']) . " from " . softwareTemplateSeatsText($change['from']) . " to " . softwareTemplateSeatsText($change['to']), $change['client_id'], $software_id);
+        logAudit("License", "Edit", "$session_name trued up license " . escapeSql($change['name']) . " from " . softwareTemplateSeatsText($change['from']) . " to " . softwareTemplateSeatsText($change['to']), $change['client_id'], $software_id);
     }
 
     $count = count($changes);
@@ -207,7 +207,7 @@ if (isset($_GET['copy_software_template'])) {
     $new_id = softwareTemplateCopy($row['software_template_id']);
     $new_name = (string) softwareTemplateRow($new_id)['software_template_name'];
 
-    logAudit("Software Template", "Create", "$session_name copied license template " . escapeSql($row['software_template_name']) . " as " . escapeSql($new_name), 0, $new_id);
+    logAudit("License Template", "Create", "$session_name copied license template " . escapeSql($row['software_template_name']) . " as " . escapeSql($new_name), 0, $new_id);
 
     flashAlert("License template <strong>" . escapeHtml($row['software_template_name']) . "</strong> copied as <strong>" . escapeHtml($new_name) . "</strong>");
 
@@ -224,12 +224,16 @@ if (isset($_GET['archive_software_template']) || isset($_GET['restore_software_t
     $software_template_id = intval($row['software_template_id']);
 
     // Archived, it isn't offered for new licenses; the ones made from it stay
+    $undo = $archive ? undoArchivedBefore('software_templates', 'software_template_id', [$software_template_id]) : null;
     mysqli_query($mysqli, "UPDATE software_templates SET software_template_archived_at = " . ($archive ? 'NOW()' : 'NULL') . ", software_template_updated_at = software_template_updated_at
         WHERE software_template_id = $software_template_id");
 
-    logAudit("Software Template", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " license template " . escapeSql($row['software_template_name']), 0, $software_template_id);
+    logAudit("License Template", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " license template " . escapeSql($row['software_template_name']), 0, $software_template_id);
 
     flashAlert("License template <strong>" . escapeHtml($row['software_template_name']) . "</strong> " . ($archive ? 'archived' : 'restored'), $archive ? 'error' : 'success');
+    if ($undo) {
+        undoOfferArchived($undo, '', $row['software_template_name']);
+    }
 
     redirect();
 
@@ -244,7 +248,7 @@ if (isset($_GET['delete_software_template'])) {
     // The licenses made from it stay, no longer linked to it
     softwareTemplateDelete($row['software_template_id']);
 
-    logAudit("Software Template", "Delete", "$session_name deleted license template " . escapeSql($row['software_template_name']));
+    logAudit("License Template", "Delete", "$session_name deleted license template " . escapeSql($row['software_template_name']));
 
     flashAlert("License template <strong>" . escapeHtml($row['software_template_name']) . "</strong> deleted", 'error');
 
@@ -270,7 +274,7 @@ if (isset($_POST['export_software_templates']) || isset($_GET['export_software_t
     }
 
     $count = count($export['templates']);
-    logAudit("Software Template", "Export", "$session_name exported $count license template" . ($count === 1 ? ' ' . escapeSql($export['templates'][0]['name']) : 's'));
+    logAudit("License Template", "Export", "$session_name exported $count license template" . ($count === 1 ? ' ' . escapeSql($export['templates'][0]['name']) : 's'));
 
     header('Content-Type: application/json; charset=utf-8');
     header('Content-Disposition: attachment; filename="' . softwareTemplatesExportFileName($export) . '"');
@@ -306,7 +310,7 @@ if (isset($_POST['import_software_templates'])) {
     $existing = in_array($_POST['existing'] ?? '', ['skip', 'copy', 'replace'], true) ? $_POST['existing'] : 'skip';
     $counts = softwareTemplatesImport($templates, $existing);
 
-    logAudit("Software Template", "Import", "$session_name imported license templates from " . escapeSql(mb_substr((string) $file['name'], 0, 100)) . " - {$counts['added']} added, {$counts['replaced']} replaced, {$counts['skipped']} skipped"
+    logAudit("License Template", "Import", "$session_name imported license templates from " . escapeSql(mb_substr((string) $file['name'], 0, 100)) . " - {$counts['added']} added, {$counts['replaced']} replaced, {$counts['skipped']} skipped"
         . ($counts['vendors'] ? ", {$counts['vendors']} vendor templates added" : ''));
 
     flashAlert(softwareTemplatesImportSummary($counts), $counts['products'] ? 'warning' : ($counts['added'] || $counts['replaced'] ? 'success' : 'info'));

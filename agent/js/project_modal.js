@@ -22,7 +22,7 @@
             return;
         }
         contactSelect.innerHTML = '';
-        contactSelect.add(new Option('Nobody', '0'));
+        contactSelect.add(new Option('- Nobody -', '0'));
         const internal = !clientId || clientId === '0';
         if (contactField) {
             contactField.hidden = internal;

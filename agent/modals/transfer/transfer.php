@@ -9,6 +9,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Bookkeeping switched off (Admin > Settings > Modules)
+if (!moduleOn('bookkeeping')) {
+    exit(json_encode(['error' => moduleOffText('bookkeeping')]));
+}
+
 enforceUserPermission('module_financial');
 
 $row = transferRow(intval($_GET['id'] ?? 0));
@@ -71,7 +76,7 @@ ob_start();
         <div class="col-sm-6">
             <div class="itflow-glance-item" title="Entered">
                 <i class="fas fa-fw fa-clock"></i>
-                <span><span title="<?= escapeHtml($row['transfer_created_at']) ?>"><?= timeAgo($row['transfer_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?><?php if (!empty($row['revenue_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
+                <span><span title="<?= formatDateTime($row['transfer_created_at']) ?>"><?= timeAgo($row['transfer_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?><?php if (!empty($row['revenue_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
             </div>
             <?= reconcileGlanceHtml($cleared_out) ?>
             <?= reconcileGlanceHtml($cleared_in) ?>
@@ -108,7 +113,7 @@ ob_start();
 
 <div class="modal-footer">
     <?php if (lookupUserPermission('module_financial') >= 2) { ?>
-        <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/transfer/transfer_edit.php?id=<?= $transfer_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+        <button type="button" class="btn btn-primary fw-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/transfer/transfer_edit.php?id=<?= $transfer_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
     <?php if (lookupUserPermission('module_financial') >= 3) { ?>
         <?php if ($cleared_out || $cleared_in) { ?>
@@ -118,7 +123,7 @@ ob_start();
                 data-confirm-text="<?= escapeHtml(transferLabel($row)) ?> - both sides go, and the balances go back to before it."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
         <?php } ?>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

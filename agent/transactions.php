@@ -30,6 +30,10 @@ $order = "DESC";
 require_once "includes/inc_all.php";
 
 enforceUserPermission('module_financial');
+if (!moduleOn('bookkeeping')) {
+    flashAlert(moduleOffText('bookkeeping'), 'error');
+    redirect('/agent/dashboard.php');
+}
 
 $can_edit = lookupUserPermission('module_financial') >= 2;
 $open_accounts = accountsList(false);
@@ -237,25 +241,25 @@ $is_card = $account && $account['type'] === 3;
                         <i class="fas fa-<?= $is_card ? 'credit-card' : 'exchange-alt' ?> me-2"></i><?= $is_card ? 'Pay the Card' : 'New Transfer' ?>
                     </button>
                 <?php } ?>
-                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/transaction/transaction_export.php', ['account', 'show', 'kind', 'type', 'category', 'client', 'method', 'payment_method', 'amount_min', 'amount_max', 'reconciliation', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
-                        <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <?php if ($account) { ?>
-                        <a class="dropdown-item" href="reconcile.php?account=<?= $account_filter ?>"><i class="fa fa-fw fa-tasks text-secondary me-2"></i><?= $account['reconciling_id'] ? 'Carry on reconciling' : 'Reconcile' ?></a>
+                        <a class="dropdown-item" href="reconcile.php?account=<?= $account_filter ?>"><i class="fas fa-fw fa-tasks text-secondary me-2"></i><?= $account['reconciling_id'] ? 'Carry on reconciling' : 'Reconcile' ?></a>
                     <?php } ?>
                     <?php if ($account && $can_edit) { ?>
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/account/account_edit.php?id=<?= $account_filter ?>"><i class="fa fa-fw fa-edit text-secondary me-2"></i>Edit Account</a>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/account/account_edit.php?id=<?= $account_filter ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit Account</a>
                     <?php } ?>
                     <?php if ($can_edit) { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement - expenses</a>
-                        <a class="dropdown-item" href="income_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Deposits - income</a>
+                        <a class="dropdown-item" href="expense_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Statement - Expenses</a>
+                        <a class="dropdown-item" href="income_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Deposits - Income</a>
                     <?php } ?>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="accounts.php"><i class="fa fa-fw fa-piggy-bank text-secondary me-2"></i>Accounts</a>
+                    <a class="dropdown-item" href="accounts.php"><i class="fas fa-fw fa-piggy-bank text-secondary me-2"></i>Accounts</a>
                 </div>
             </div>
         </div>
@@ -270,9 +274,9 @@ $is_card = $account && $account['type'] === 3;
             <div class="row g-2 align-items-center">
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                         <select class="form-select select2" name="account" onchange="this.form.submit()" aria-label="Account">
-                            <option value="">- Every account -</option>
+                            <option value="">- Any account -</option>
                             <?php foreach ($open_accounts + ($account && $account['account_archived_at'] ? [$account_filter => $account] : []) as $id => $option) { ?>
                                 <option value="<?= $id ?>" <?= $account_filter === $id ? 'selected' : '' ?> data-icon="fas <?= $types[$option['type']]['icon'] ?>" data-description="<?= escapeHtml(accountBalanceText($option)) ?>"><?= escapeHtml($option['account_name']) ?></option>
                             <?php } ?>
@@ -281,9 +285,9 @@ $is_card = $account && $account['type'] === 3;
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search transactions" title="Who or what, description, reference, amount, category, client, account">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search transactions..." title="Who or what, description, reference, amount, category, client, account">
                         <button class="btn btn-outline-secondary <?= $more_filters ? 'active' : '' ?>" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#ledgerMoreFilters"><i class="fas fa-filter"></i></button>
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-4">
@@ -310,7 +314,7 @@ $is_card = $account && $account['type'] === 3;
                         <option value="">- Any client -</option>
                         <?php
                         $sql_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
-                            WHERE (client_archived_at IS NULL OR client_id = $client_filter) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                            WHERE (client_archived_at IS NULL OR client_id = $client_filter)" . clientNotLeadSql($client_filter) . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_filter)) {
                             $option_id = intval($row['client_id']); ?>
                             <option <?= $client_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
@@ -322,7 +326,7 @@ $is_card = $account && $account['type'] === 3;
                 <div class="row g-2 mt-0">
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-shapes"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-shapes"></i></span>
                             <select class="form-select select2" name="kind" onchange="this.form.submit()" aria-label="Kind">
                                 <option value="">- Any kind -</option>
                                 <?php foreach ($kinds as $key => $info) { ?>
@@ -333,7 +337,7 @@ $is_card = $account && $account['type'] === 3;
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                             <select class="form-select select2" name="method" onchange="this.form.submit()" aria-label="Paid by">
                                 <option value="">- Any payment method -</option>
                                 <?php foreach (array_unique(array_filter(array_merge(paymentMethods('', true), [$method_filter]))) as $method) { ?>
@@ -344,9 +348,9 @@ $is_card = $account && $account['type'] === 3;
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                            <input type="number" step="0.01" min="0" class="form-control" name="amount_min" value="<?= escapeHtml($amount_min) ?>" placeholder="At least" aria-label="At least" onchange="this.form.submit()">
-                            <input type="number" step="0.01" min="0" class="form-control" name="amount_max" value="<?= escapeHtml($amount_max) ?>" placeholder="At most" aria-label="At most" onchange="this.form.submit()">
+                            <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
+                            <input type="text" inputmode="decimal" pattern="[0-9,]*\.?[0-9]{0,2}" class="form-control" name="amount_min" value="<?= escapeHtml($amount_min) ?>" placeholder="At least" aria-label="At least" onchange="this.form.submit()">
+                            <input type="text" inputmode="decimal" pattern="[0-9,]*\.?[0-9]{0,2}" class="form-control" name="amount_max" value="<?= escapeHtml($amount_max) ?>" placeholder="At most" aria-label="At most" onchange="this.form.submit()">
                         </div>
                     </div>
                 </div>
@@ -364,7 +368,7 @@ $is_card = $account && $account['type'] === 3;
             <?php foreach ($shows as $key => $s) { ?>
                 <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $key])) ?>">
                     <?php if (!empty($s['icon'])) { ?><i class="fas fa-fw <?= $s['icon'] ?> me-1"></i><?php } ?><?= $s['label'] ?>
-                    <span class="badge rounded-pill ms-1"><?= $counts[$key] ?></span>
+                    <span class="badge rounded-pill ms-1"><?= number_format(intval($counts[$key])) ?></span>
                 </a>
             <?php } ?>
         </nav>
@@ -374,14 +378,14 @@ $is_card = $account && $account['type'] === 3;
         <table class="table table-hover align-middle mb-0 itflow-billing-table">
             <thead class="<?= $num_rows[0] ? '' : 'd-none' ?> text-nowrap table-light">
             <tr>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=txn_date&order=<?= $disp ?>">Date <?php if ($sort == 'txn_date') { echo $order_icon; } ?></a></th>
+                <th><?= sortLink('txn_date', 'Date') ?></th>
                 <?php if ($all) { ?>
-                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=account_name&order=<?= $disp ?>">Account <?php if ($sort == 'account_name') { echo $order_icon; } ?></a></th>
+                    <th><?= sortLink('account_name', 'Account') ?></th>
                 <?php } ?>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=txn_what&order=<?= $disp ?>">Who or what <?php if ($sort == 'txn_what') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">Category <?php if ($sort == 'category_name') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
-                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=txn_amount&order=<?= $disp ?>">In <?php if ($sort == 'txn_amount') { echo $order_icon; } ?></a></th>
+                <th><?= sortLink('txn_what', 'Who or what') ?></th>
+                <th><?= sortLink('category_name', 'Category') ?></th>
+                <th><?= sortLink('client_name', 'Client') ?></th>
+                <th class="text-end"><?= sortLink('txn_amount', 'In') ?></th>
                 <th class="text-end">Out</th>
                 <?php if ($balance_visible) { ?>
                     <th class="text-end" title="What it held after the line">Balance</th>
@@ -399,7 +403,7 @@ $is_card = $account && $account['type'] === 3;
                 $meta = array_filter([(string) $row['txn_method'], $row['txn_reference'] ? '#' . $row['txn_reference'] : '']);
                 ?>
                 <tr>
-                    <td class="text-nowrap"><?php if ($row['hidden']) { ?><span class="fw-semibold" title="For a client you cannot open"><?= escapeHtml($row['txn_date']) ?></span><?php } else { ?><a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml(accountLedgerModal($row)) ?>"><?= escapeHtml($row['txn_date']) ?></a><?php } ?><?php if ($row['txn_cleared_id']) { ?><a class="ms-1 text-success-emphasis small" href="<?= escapeHtml($filter_url(['reconciliation' => intval($row['txn_cleared_id']), 'account' => intval($row['txn_account_id'])])) ?>" title="<?= intval($row['txn_cleared_opening']) ? 'Brought forward as reconciled to ' : 'Cleared on the statement to ' ?><?= escapeHtml(date('M j, Y', strtotime($row['txn_cleared_date']))) ?>"><i class="fas fa-check-circle"></i></a><?php } ?></td>
+                    <td class="text-nowrap"><?php if ($row['hidden']) { ?><span class="fw-semibold" title="For a client you cannot open"><?= formatDate($row['txn_date']) ?></span><?php } else { ?><a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml(accountLedgerModal($row)) ?>"><?= formatDate($row['txn_date']) ?></a><?php } ?><?php if ($row['txn_cleared_id']) { ?><a class="ms-1 text-success-emphasis small" href="<?= escapeHtml($filter_url(['reconciliation' => intval($row['txn_cleared_id']), 'account' => intval($row['txn_account_id'])])) ?>" title="<?= intval($row['txn_cleared_opening']) ? 'Brought forward as reconciled to ' : 'Cleared on the statement to ' ?><?= escapeHtml(date('M j, Y', strtotime($row['txn_cleared_date']))) ?>"><i class="fas fa-check-circle"></i></a><?php } ?></td>
                     <?php if ($all) { ?>
                         <td class="text-nowrap small">
                             <a class="text-reset" href="<?= escapeHtml($filter_url(['account' => intval($row['txn_account_id'])])) ?>" title="Its transactions"><i class="fas fa-fw <?= $types[accountType($row)]['icon'] ?> text-body-secondary me-1"></i><?= escapeHtml($row['account_name']) ?></a>

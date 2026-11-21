@@ -121,8 +121,9 @@
 
     if (clientSelectDropdown) {
 
-        // If the client selector is disabled, we must be on a client-specific page instead. Trigger the lists to update.
-        if (clientSelectDropdown.disabled) {
+        // If the client selector is disabled, we must be on a client-specific page instead - or it starts
+        // with a client picked (a copy of a ticket) that can still be changed. Trigger the lists to update.
+        if (clientSelectDropdown.disabled || clientSelectDropdown.value) {
 
             let client_id = clientSelectDropdown.value;
 
@@ -493,7 +494,7 @@
                 const projects = response.projects || [];
 
                 // Projects dropdown
-                const projectSelectDropdown = resetDropdown("projectSelect", '- Select Project -', '0');
+                const projectSelectDropdown = resetDropdown("projectSelect", '- Select a project -', '0');
 
                 // Populate dropdown - the client's own, then our internal ones
                 projects.forEach(project => {

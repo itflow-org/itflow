@@ -23,7 +23,7 @@ while ($co_signer = mysqli_fetch_assoc($co_sql)) {
     $co_signers[intval($co_signer['contact_id'])] = $co_signer['contact_name'] . ' - ' . $co_signer['contact_email'];
 }
 $co_agents = [];
-$co_sql = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+$co_sql = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
 while ($co_agent = mysqli_fetch_assoc($co_sql)) {
     $co_agents[intval($co_agent['user_id'])] = $co_agent['user_name'];
 }
@@ -43,7 +43,7 @@ foreach ($co_templates as $co_template_id => $co_template) {
             <li data-co-contract="<?= intval($co_contract['contract_id']) ?>">
                 <span class="itflow-gs-person-initials" aria-hidden="true"><i class="fas fa-file-contract"></i></span>
                 <div class="min-w-0 flex-grow-1">
-                    <a href="/agent/contract.php?contract_id=<?= intval($co_contract['contract_id']) ?>" class="fw-semibold text-truncate d-block" target="_blank"><?= escapeHtml($co_contract['contract_name']) ?></a>
+                    <a href="/agent/contract.php?contract_id=<?= intval($co_contract['contract_id']) ?>" class="fw-semibold text-truncate d-block" target="_blank" rel="noopener"><?= escapeHtml($co_contract['contract_name']) ?></a>
                     <div class="small text-body-secondary text-truncate"><?= escapeHtml(contractTypeLabel($co_contract['contract_type'])) ?>, <?= escapeHtml(strtolower(contractTermLabel($co_contract['contract_term_months']))) ?>
                         <?= !empty($co_contract['contract_start_date']) ? ' - from ' . escapeHtml(date('M j, Y', strtotime($co_contract['contract_start_date']))) : '' ?>
                         <?php if ($co_sign_ready && contractSignaturePendingFor(intval($co_contract['contract_id']))) { ?> - out to sign<?php } ?>
@@ -58,7 +58,7 @@ foreach ($co_templates as $co_template_id => $co_template) {
 
 <?php if (!$co_templates) { ?>
     <div class="alert alert-info small mb-0" data-co-no-templates>
-        <i class="fas fa-info-circle me-1"></i>There are no contract templates yet. Make one in <a href="/admin/contract_templates.php">Admin &gt; Contract Templates</a>, or write the contract on the client's <a href="/agent/contracts.php?client_id=<?= $client_id ?>">Contracts</a> and come back - this step then ticks itself off.
+        <i class="fas fa-info-circle me-1"></i>There are no contract templates yet. Make one in <a href="/admin/contract_templates.php">Admin &gt; Templates &gt; Contracts</a>, or write the contract on the client's <a href="/agent/contracts.php?client_id=<?= $client_id ?>">Contracts</a> and come back - this step then ticks itself off.
     </div>
 <?php } else { ?>
     <form action="post.php" method="post" autocomplete="off" data-gs-form data-co-form="agreement">
@@ -98,6 +98,6 @@ foreach ($co_templates as $co_template_id => $co_template) {
                 </div>
             <?php } ?>
         </div>
-        <button type="submit" name="client_onboarding_agreement" value="1" class="btn btn-primary" data-gs-save><i class="fas fa-file-signature me-2"></i>Start the contract</button>
+        <button type="submit" name="client_onboarding_agreement" value="1" class="btn btn-primary" data-gs-save><i class="fas fa-file-signature me-2"></i>Start the Contract</button>
     </form>
 <?php } ?>

@@ -231,11 +231,13 @@ if (isset($_POST['move_document'])) {
     $folder_id = folderOwnedId($_POST['folder'] ?? 0, $client_id);
     $folder_name = folderDisplayName($folder_id);
 
+    $undo = undoSnapshot('documents', 'document_id', [$document_id], ['document_folder_id'], 'document_client_id'); // for Undo on the message
     mysqli_query($mysqli, "UPDATE documents SET document_folder_id = $folder_id, document_updated_at = document_updated_at WHERE document_id = $document_id");
 
     logAudit("Document", "Move", "$session_name moved document " . escapeSql($row['document_name']) . " to folder " . escapeSql($folder_name), $client_id, $document_id);
 
     flashAlert("Document <strong>{$row['document_name']}</strong> moved to <strong>$folder_name</strong>");
+    undoOfferChanges($undo, "<strong>" . escapeHtml($row['document_name']) . "</strong> moved back", 'module_support');
 
     redirect();
 
@@ -259,10 +261,41 @@ if (isset($_GET['mark_document_reviewed'])) {
 
     logAudit("Document", "Edit", "$session_name marked document " . escapeSql($row['document_name']) . " as reviewed", $client_id, $document_id);
 
-    $review = documentReviewState(mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_created_at, document_updated_at, document_reviewed_at, document_template_review_months, document_template_archived_at
+    $review = documentReviewState(mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_created_at, document_updated_at, document_reviewed_at, document_template_review_months, document_template_archived_at,
+            " . (documentReviewOwnReady() ? 'document_review_months' : 'NULL AS document_review_months') . "
         FROM documents LEFT JOIN document_templates USING (document_template_id) WHERE document_id = $document_id")));
 
     flashAlert("Document <strong>" . escapeHtml($row['document_name']) . "</strong> marked as reviewed" . ($review ? " - next due " . date('M j, Y', strtotime($review['next'])) : ''));
+
+    redirect();
+
+}
+
+/*
+ * How often a document is reviewed, set on it - every so many months, never,
+ * or as its template says ('template'). When it was last looked at stays as
+ * it is.
+ */
+if (isset($_GET['set_document_review'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $row = documentForHandler($_GET['set_document_review']);
+    $document_id = intval($row['document_id']);
+    $months = (string) ($_GET['months'] ?? '');
+    if (!documentReviewOwnReady() || ($months !== 'template' && (!ctype_digit($months) || !isset(DOCUMENT_TEMPLATE_REVIEW_MONTHS[intval($months)])))) {
+        flashAlert('Pick how often it is reviewed.', 'error');
+        redirect();
+    }
+
+    mysqli_query($mysqli, "UPDATE documents SET document_review_months = " . ($months === 'template' ? 'NULL' : intval($months)) . ", document_updated_at = document_updated_at WHERE document_id = $document_id");
+
+    $how = $months === 'template' ? 'as its template says' : lcfirst(DOCUMENT_TEMPLATE_REVIEW_MONTHS[intval($months)]);
+    logAudit("Document", "Edit", "$session_name set document " . escapeSql($row['document_name']) . ($months === '0' ? ' not to be reviewed on a schedule' : " to be reviewed $how"), $client_id, $document_id);
+
+    flashAlert("Document <strong>" . escapeHtml($row['document_name']) . "</strong> " . ($months === '0' ? "isn't reviewed on a schedule" : "is reviewed $how"));
 
     redirect();
 
@@ -318,6 +351,68 @@ if (isset($_POST['rename_document'])) {
     logAudit("Document", "Edit", "$session_name renamed document " . escapeSql($row['document_name']) . " to $name", $client_id, $document_id);
 
     flashAlert("Document <strong>" . trim($_POST['name']) . "</strong> saved");
+
+    redirect();
+
+}
+
+/*
+ * Copy a document (agent/modals/document/document_copy.php) - in the same client's files, or into
+ * another client's that the agent can reach (functions/files.php documentCopy()).
+ */
+if (isset($_POST['copy_document'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $row = documentForHandler($_POST['document_id']);
+    $document_id = intval($row['document_id']);
+    $from_client_id = $client_id;
+
+    $client_id = intval($_POST['client_id'] ?? $from_client_id);
+    enforceClientAccess();
+    if (!mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM clients WHERE client_id = $client_id AND client_archived_at IS NULL"))) {
+        flashAlert('Pick a client to copy it to.', 'error');
+        redirect();
+    }
+    // A folder of that client's, or their top level
+    $folder_id = folderOwnedId($_POST['folder_id'] ?? 0, $client_id);
+
+    $copy_name = trim((string) ($_POST['name'] ?? ''));
+    if ($copy_name === '') {
+        flashAlert('A document needs a name.', 'error');
+        redirect();
+    }
+
+    $new_id = documentCopy($document_id, $client_id, $folder_id, mb_substr($copy_name, 0, 200));
+
+    $copy_name_sql = escapeSql($copy_name);
+    $to = $client_id === $from_client_id ? '' : ' for ' . escapeSql((string) getFieldById('clients', $client_id, 'client_name'));
+    logAudit("Document", "Create", "$session_name copied document " . escapeSql($row['document_name']) . " as $copy_name_sql$to", $client_id, $new_id);
+
+    flashAlert("Copied to <strong>" . escapeHtml($copy_name) . "</strong>" . ($to ? ' for <strong>' . escapeHtml((string) getFieldById('clients', $client_id, 'client_name')) . '</strong>' : '') . " - it isn't in the client portal or linked to anything yet");
+
+    redirect("document.php?client_id=$client_id&document_id=$new_id");
+
+}
+
+/* A favorite or not - favorites show on the client's overview, with their favorite assets, licenses and logins. */
+if (isset($_GET['toggle_document_favorite'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $row = documentForHandler($_GET['toggle_document_favorite']);
+    $document_id = intval($row['document_id']);
+    $favorite = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT document_favorite FROM documents WHERE document_id = $document_id"))[0]) ? 0 : 1;
+
+    mysqli_query($mysqli, "UPDATE documents SET document_favorite = $favorite, document_updated_at = document_updated_at WHERE document_id = $document_id");
+
+    logAudit("Document", "Edit", "$session_name " . ($favorite ? 'made' : 'took') . " document " . escapeSql($row['document_name']) . ($favorite ? ' a favorite' : ' out of the favorites'), $client_id, $document_id);
+
+    flashAlert("<strong>" . escapeHtml($row['document_name']) . "</strong> " . ($favorite ? "is a favorite - it's on the client's overview" : 'is no longer a favorite'));
 
     redirect();
 
@@ -381,6 +476,7 @@ if (isset($_GET['archive_document'])) {
     $row = documentForHandler($_GET['archive_document']);
     $document_id = intval($row['document_id']);
 
+    $undo = undoArchiveBefore('document', $document_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE documents SET document_archived_at = NOW(), document_updated_at = document_updated_at WHERE document_id = $document_id");
 
     // An archived document drops its links, as it always has
@@ -389,6 +485,7 @@ if (isset($_GET['archive_document'])) {
     logAudit("Document", "Archive", "$session_name archived document " . escapeSql($row['document_name']), $client_id, $document_id);
 
     flashAlert("Document <strong>{$row['document_name']}</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -448,7 +545,7 @@ if (isset($_POST['restore_document_version'])) {
         document_updated_by = $session_user_id
         WHERE document_id = $document_id");
 
-    $version_date = date('M j, Y g:ia', strtotime($version['document_version_created_at']));
+    $version_date = date('M j, Y g:i A', strtotime($version['document_version_created_at']));
     logAudit("Document", "Edit", "$session_name restored document $name to its version of " . escapeSql($version_date) . ", the current one kept", $client_id, $document_id);
 
     flashAlert("Document <strong>{$version['document_version_name']}</strong> restored to the version of $version_date - what it said before is kept as a version");

@@ -90,7 +90,7 @@ $columns = [
     'template' => ['label' => 'Template', 'html' => function ($row) use ($admin) {
         $name = escapeHtml($row['template']);
         return ($admin ? '<a href="/admin/ticket_template.php?ticket_template_id=' . $row['id'] . '">' . $name . '</a>' : $name)
-            . ($row['archived'] ? ' <span class="badge text-bg-light border fw-normal">Archived</span>' : '')
+            . ($row['archived'] ? ' <span class="badge rounded-pill text-bg-light border fw-normal">Archived</span>' : '')
             . ($row['portal_form'] ? ' <i class="fas fa-door-open text-body-tertiary ms-1" title="Offered in the client portal"></i>' : '');
     }],
     'raised' => ['label' => 'Raised', 'type' => 'count', 'class' => 'fw-semibold'],

@@ -140,11 +140,15 @@ if (isset($_GET['archive_project_template']) || isset($_GET['restore_project_tem
     $project_template_id = intval($archive ? $_GET['archive_project_template'] : $_GET['restore_project_template']);
     $name = projectTemplateName($project_template_id);
 
+    $undo = $archive ? undoArchivedBefore('project_templates', 'project_template_id', [$project_template_id]) : null;
     mysqli_query($mysqli, "UPDATE project_templates SET project_template_archived_at = " . ($archive ? 'NOW()' : 'NULL') . " WHERE project_template_id = $project_template_id");
 
     logAudit("Project Template", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " project template " . escapeSql($name), 0, $project_template_id);
 
     flashAlert("Project template <strong>" . escapeHtml($name) . "</strong> " . ($archive ? 'archived - it is no longer offered on New Project' : 'restored'), $archive ? 'error' : 'success');
+    if ($undo) {
+        undoOfferArchived($undo, '', $name);
+    }
 
     redirect();
 

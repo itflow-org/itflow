@@ -82,9 +82,8 @@ while ($row = mysqli_fetch_row($sql)) {
 }
 
 // A column first sorts the way it reads best - A to Z, most used, first to last - then flips
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon, $sort_first) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . ($sort === $column ? $disp : $sort_first[$column]) . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
+$sort_link = function ($column, $label) use ($sort_first) {
+    return sortLink($column, $label, $sort_first[$column] ?? null);
 };
 $pill_url = function ($archived) use ($kind) {
     return '?' . http_build_query(array_filter(['category' => $kind, 'q' => $_GET['q'] ?? '', 'show' => $archived ? 'archived' : '']));
@@ -107,7 +106,7 @@ $csrf = $_SESSION['csrf_token'];
     <div class="row g-0">
         <!-- Kinds -->
         <div class="col-md-4 col-lg-3 border-end">
-            <nav class="nav nav-pills flex-nowrap flex-md-column overflow-auto p-2 gap-1 itflow-category-kinds" aria-label="Kinds of category">
+            <nav class="nav nav-pills flex-nowrap flex-md-column overflow-auto p-2 gap-1 itflow-category-kinds itflow-tabs-foldable" aria-label="Kinds of category">
                 <?php foreach ($kinds as $kind_key => $kind_config) { ?>
                     <a class="nav-link d-flex align-items-center gap-2 text-nowrap<?= $kind_key === $kind ? ' active' : '' ?>" href="categories.php?category=<?= urlencode($kind_key) ?>" title="<?= escapeHtml($kind_config['about']) ?>"<?= $kind_key === $kind ? ' aria-current="page"' : '' ?>>
                         <i class="fas fa-fw <?= $kind_config['icon'] ?>"></i><span class="text-truncate"><?= escapeHtml($kind_config['label']) ?></span>
@@ -127,7 +126,7 @@ $csrf = $_SESSION['csrf_token'];
                         <div class="col-lg-6 col-md-8">
                             <div class="input-group">
                                 <input type="search" class="form-control" name="q" value="<?= escapeHtml($search) ?>" placeholder="Search <?= escapeHtml($config['many']) ?>..." title="Name or description">
-                                <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-4">
@@ -138,11 +137,11 @@ $csrf = $_SESSION['csrf_token'];
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end">
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/category/category_merge.php" data-bulk="true">
-                                            <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge into one...
+                                            <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge into One...
                                         </a>
                                         <?php if ($show_archived) { ?>
                                             <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_restore_categories">
-                                                <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                                <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </button>
                                         <?php } else { ?>
                                             <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_archive_categories">
@@ -163,8 +162,8 @@ $csrf = $_SESSION['csrf_token'];
                     </div>
                 </form>
                 <nav class="nav nav-pills itflow-asset-tabs mt-2">
-                    <a class="nav-link <?= $show_archived ? '' : 'active' ?>" href="<?= escapeHtml($pill_url(false)) ?>"><i class="fas fa-fw <?= $config['icon'] ?> me-1"></i>Active <span class="badge rounded-pill ms-1"><?= $counts[0] ?></span></a>
-                    <a class="nav-link <?= $show_archived ? 'active' : '' ?>" href="<?= escapeHtml($pill_url(true)) ?>" title="They stay on their records, but aren't offered for new ones"><i class="fas fa-fw fa-archive me-1"></i>Archived <span class="badge rounded-pill ms-1"><?= $counts[1] ?></span></a>
+                    <a class="nav-link <?= $show_archived ? '' : 'active' ?>" href="<?= escapeHtml($pill_url(false)) ?>"><i class="fas fa-fw <?= $config['icon'] ?> me-1"></i>Active <span class="badge rounded-pill ms-1"><?= number_format(intval($counts[0])) ?></span></a>
+                    <a class="nav-link <?= $show_archived ? 'active' : '' ?>" href="<?= escapeHtml($pill_url(true)) ?>" title="They stay on their records, but aren't offered for new ones"><i class="fas fa-fw fa-archive me-1"></i>Archived <span class="badge rounded-pill ms-1"><?= number_format(intval($counts[1])) ?></span></a>
                 </nav>
             </div>
 
@@ -227,24 +226,24 @@ $csrf = $_SESSION['csrf_token'];
                                                 <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                             </a>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/category/category_merge.php?category_ids[]=<?= $category_id ?>">
-                                                <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge into...
+                                                <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge Into...
                                             </a>
                                             <?php if ($can_reorder) { ?>
                                                 <?php if ($position > 0) { ?>
                                                     <a class="dropdown-item" href="post.php?move_category=<?= $category_id ?>&direction=up&csrf_token=<?= $csrf ?>">
-                                                        <i class="fas fa-fw fa-arrow-up text-secondary me-2"></i>Move up
+                                                        <i class="fas fa-fw fa-arrow-up text-secondary me-2"></i>Move Up
                                                     </a>
                                                 <?php } ?>
                                                 <?php if ($position < $num_rows[0] - 1) { ?>
                                                     <a class="dropdown-item" href="post.php?move_category=<?= $category_id ?>&direction=down&csrf_token=<?= $csrf ?>">
-                                                        <i class="fas fa-fw fa-arrow-down text-secondary me-2"></i>Move down
+                                                        <i class="fas fa-fw fa-arrow-down text-secondary me-2"></i>Move Down
                                                     </a>
                                                 <?php } ?>
                                             <?php } ?>
                                             <div class="dropdown-divider"></div>
                                             <?php if ($row['category_archived_at']) { ?>
                                                 <a class="dropdown-item" href="post.php?restore_category=<?= $category_id ?>&csrf_token=<?= $csrf ?>">
-                                                    <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                                    <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                                 </a>
                                             <?php } else { ?>
                                                 <a class="dropdown-item text-danger" href="post.php?archive_category=<?= $category_id ?>&csrf_token=<?= $csrf ?>" title="It stays on its records, but isn't offered for new ones">
@@ -254,7 +253,7 @@ $csrf = $_SESSION['csrf_token'];
                                             <?php if ($blocker !== '') { ?>
                                                 <span class="dropdown-item disabled" title="<?= escapeHtml($blocker) ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</span>
                                             <?php } else { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_category=<?= $category_id ?>&csrf_token=<?= $csrf ?>"
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_category=<?= $category_id ?>&csrf_token=<?= $csrf ?>"
                                                     data-confirm-title="Delete <?= $name ?>?" data-confirm-text="Nothing uses it, so no record changes." data-confirm-button="Delete">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>

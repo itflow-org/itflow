@@ -5,7 +5,7 @@
  * Each row says what it is and whose, the version it runs and whether an update is waiting,
  * how it's doing (from the report it sends every minute), its agents against the seat limit
  * set here, whether it's active, read-only or suspended, and when it last checked in. Removed
- * instances sit under Removed, where they can be deleted. Add Instance makes one and its
+ * instances sit under Removed, where they can be deleted. New Instance makes one and its
  * connection code; the handlers are admin/post/managed_instances.php.
  */
 
@@ -58,10 +58,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(managed_instance_archived_at IS NULL), 0), COALESCE(SUM(managed_instance_archived_at IS NOT NULL), 0)
     FROM managed_instances LEFT JOIN clients ON client_id = managed_instance_client_id WHERE $search"));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $csrf = $_SESSION['csrf_token'];
 
@@ -71,7 +67,7 @@ $csrf = $_SESSION['csrf_token'];
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-network-wired me-2"></i>Managed Instances</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/managed_instance/managed_instance_form.php"><i class="fas fa-plus me-2"></i>Add Instance</button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/managed_instance/managed_instance_form.php"><i class="fas fa-plus me-2"></i>New Instance</button>
         </div>
     </div>
     <div class="card-header py-3">
@@ -81,7 +77,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-md-5">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search instances..." title="Name, address, client or version">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -96,11 +92,11 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('managed_instance_name', 'Instance') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('client_name', 'by client') ?></span></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('managed_instance_version', 'Version') ?></th>
+                <th class="ps-3"><?= sortLink('managed_instance_name', 'Instance') ?> <span class="fw-normal text-body-secondary small ms-2"><?= sortLink('client_name', 'by client') ?></span></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('managed_instance_version', 'Version') ?></th>
                 <th class="d-none d-lg-table-cell">Health</th>
                 <th class="d-none d-xl-table-cell">Agents</th>
-                <th class="d-none d-sm-table-cell"><?= $sort_link('managed_instance_last_checkin_at', 'Last check-in') ?></th>
+                <th class="d-none d-sm-table-cell"><?= sortLink('managed_instance_last_checkin_at', 'Last check-in') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -151,12 +147,12 @@ $csrf = $_SESSION['csrf_token'];
                             <?php } ?>
                             <div class="text-body-secondary"><?= $row['managed_instance_update_policy'] === 'auto' ? 'Updates itself' : 'Updated by hand' ?></div>
                         <?php } else { ?>
-                            <span class="text-body-secondary">&mdash;</span>
+                            <span class="text-body-secondary">-</span>
                         <?php } ?>
                     </td>
                     <td class="d-none d-lg-table-cell small text-nowrap">
                         <?php if ($health['state'] === 'pending') { ?>
-                            <span class="text-body-secondary">&mdash;</span>
+                            <span class="text-body-secondary">-</span>
                         <?php } elseif (!$health['issues']) { ?>
                             <span class="text-success-emphasis"><i class="fas fa-fw fa-check-circle me-1"></i>All good</span>
                         <?php } else { ?>
@@ -171,7 +167,7 @@ $csrf = $_SESSION['csrf_token'];
                             <?= intval($agents['active'] ?? 0) + intval($agents['invites'] ?? 0) ?><?= $seat_limit > 0 ? ' of ' . $seat_limit : '' ?>
                             <div class="text-body-secondary"><?= $seat_limit > 0 ? 'seats' : 'agents, no limit' ?></div>
                         <?php } else { ?>
-                            <span class="text-body-secondary">&mdash;</span>
+                            <span class="text-body-secondary">-</span>
                         <?php } ?>
                     </td>
                     <td class="d-none d-sm-table-cell small text-nowrap"><?= $last_html ?></td>
@@ -183,10 +179,10 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php if (!$show_removed) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/managed_instance/managed_instance_form.php?id=<?= $instance_id ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
                                     <?php if ($health['state'] !== 'pending' && $url !== '') { ?>
-                                        <a class="dropdown-item" href="post.php?managed_support_sign_in=<?= $instance_id ?>&csrf_token=<?= $csrf ?>" target="_blank" rel="noopener"><i class="fas fa-fw fa-sign-in-alt text-secondary me-2"></i>Sign in as support</a>
+                                        <a class="dropdown-item" href="post.php?managed_support_sign_in=<?= $instance_id ?>&csrf_token=<?= $csrf ?>" target="_blank" rel="noopener"><i class="fas fa-fw fa-sign-in-alt text-secondary me-2"></i>Sign In as Support</a>
                                         <?php if (!empty($update['available'])) { ?>
                                             <a class="dropdown-item confirm-link" href="post.php?managed_command=update_now&id=<?= $instance_id ?>&csrf_token=<?= $csrf ?>"
-                                                data-confirm-title="Update <?= $name ?>?" data-confirm-text="It updates its files and then its database at its next check-in. Make sure it has a backup." data-confirm-button="Update"><i class="fas fa-fw fa-download text-secondary me-2"></i>Update now</a>
+                                                data-confirm-title="Update <?= $name ?>?" data-confirm-text="It updates its files and then its database at its next check-in. Make sure it has a backup." data-confirm-button="Update"><i class="fas fa-fw fa-download text-secondary me-2"></i>Update Now</a>
                                         <?php } ?>
                                     <?php } ?>
                                     <div class="dropdown-divider"></div>
@@ -195,7 +191,7 @@ $csrf = $_SESSION['csrf_token'];
                                         <i class="fas fa-fw fa-unlink me-2"></i>Remove
                                     </a>
                                 <?php } else { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_managed_instance=<?= $instance_id ?>&csrf_token=<?= $csrf ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_managed_instance=<?= $instance_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-title="Delete <?= $name ?>?" data-confirm-text="Its record and history here go for good. The instance itself isn't touched." data-confirm-button="Delete">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
@@ -217,7 +213,7 @@ $csrf = $_SESSION['csrf_token'];
         'archived_title' => 'No removed instances',
         'views' => ['show'],
         'text' => 'Manage other ITFlow installs from here - a client\'s, a reseller\'s or your own hosted ones. Each checks in every minute with how it\'s doing; from here you set its seat limit, white label and updates, update it, make it read-only or suspend it, and sign in to it as support.',
-        'actions' => [['label' => 'Add Instance', 'modal' => 'modals/managed_instance/managed_instance_form.php']],
+        'actions' => [['label' => 'New Instance', 'modal' => 'modals/managed_instance/managed_instance_form.php']],
     ];
     require_once "../includes/filter_footer.php";
     ?>

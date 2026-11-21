@@ -165,7 +165,7 @@ ob_start();
         <div class="d-flex align-items-center mt-3 mb-1">
             <span class="small text-body-secondary fw-semibold text-uppercase me-auto">Services that use it</span>
             <?php if ($can_edit) { ?>
-                <a class="small ajax-modal" href="#" data-modal-url="modals/link/link.php?from=domain&id=<?= $domain_id ?>&to=service"><i class="fas fa-link me-1"></i>Link a service</a>
+                <?= linkPickerButton('domain', $domain_id, 'service', 'Link a service', 'small', 'fas fa-link me-1') ?>
             <?php } ?>
         </div>
         <?php if ($services) { ?>
@@ -221,7 +221,7 @@ ob_start();
                                 changed
                             <?php } ?>
                         </span>
-                        <span class="text-body-secondary text-nowrap" title="<?= escapeHtml($entry['domain_history_modified_at']) ?>"><?= timeAgo($entry['domain_history_modified_at']) ?></span>
+                        <span class="text-body-secondary text-nowrap" title="<?= formatDateTime($entry['domain_history_modified_at']) ?>"><?= timeAgo($entry['domain_history_modified_at']) ?></span>
                     </li>
                 <?php } ?>
             </ul>
@@ -232,10 +232,10 @@ ob_start();
 
 <div class="modal-footer">
     <?php if ($can_edit) { ?>
-        <a class="btn btn-outline-secondary me-auto" href="post.php?refresh_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-sync-alt me-2"></i>Look up now</a>
-        <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/domain/domain_edit.php?id=<?= $domain_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+        <a class="btn btn-outline-secondary me-auto" href="post.php?refresh_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-sync-alt me-2"></i>Look Up Now</a>
+        <button type="button" class="btn btn-primary fw-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/domain/domain_edit.php?id=<?= $domain_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

@@ -52,7 +52,7 @@ function ticketMentionAgents($client_id) {
     $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar, role_name, role_is_admin,
             COALESCE((SELECT user_role_permission_level FROM user_role_permissions WHERE user_role_permissions.user_role_id = users.user_role_id AND module_id = $support_id LIMIT 1), 0) AS support_level
         FROM users LEFT JOIN user_roles ON role_id = user_role_id
-        WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL
+        WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL
         ORDER BY user_name ASC");
     $agents = [];
     while ($row = mysqli_fetch_assoc($sql)) {

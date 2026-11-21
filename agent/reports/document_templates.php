@@ -100,7 +100,7 @@ $templates = array_values($templates);
 // By client: the ones each should have, has and is missing, its documents from templates and the ones due
 $by_client = [];
 $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL"
-    . ($client_id ? " AND client_id = $client_id" : '') . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+    . ($client_id ? " AND client_id = $client_id" : clientNotLeadSql()) . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
     $by_client[intval($row['client_id'])] = ['client_id' => intval($row['client_id']), 'client' => $row['client_name'], 'abbr' => (string) $row['client_abbreviation'],
         'should' => 0, 'have' => 0, 'missing' => [], 'documents' => 0, 'due' => 0, 'last' => null];
@@ -142,7 +142,7 @@ $columns = [
     'template' => ['label' => 'Template', 'html' => function ($row) use ($admin) {
         $name = escapeHtml($row['template']);
         return ($admin ? '<a href="/admin/document_template.php?document_template_id=' . $row['id'] . '">' . $name . '</a>' : $name)
-            . ($row['archived'] ? ' <span class="badge text-bg-light border fw-normal">Archived</span>' : '');
+            . ($row['archived'] ? ' <span class="badge rounded-pill text-bg-light border fw-normal">Archived</span>' : '');
     }],
     'scope' => ['label' => 'Required of', 'html' => function ($row) {
         return $row['scope'] !== '' ? '<span class="small">' . escapeHtml($row['scope']) . '</span>' : '<span class="itflow-report-zero">–</span>';

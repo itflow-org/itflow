@@ -4,10 +4,16 @@
  * New Event - from the calendar (a day or a time range picked on it fills in
  * when), inside a client, or from a client's site, contact or ticket with
  * those already filled in. GET: client_id, start / end ('Y-m-d' or
- * 'Y-m-d H:i'), all_day, calendar_id, location_id, contact_id, title.
+ * 'Y-m-d H:i'), all_day, calendar_id, location_id, contact_id, title, agent_id
+ * (the agent whose calendar it was opened from).
  */
 
 require_once '../../../includes/modal_header.php';
+
+// The calendar switched off (Admin > Settings > Modules)
+if (!moduleOn('calendar')) {
+    exit(json_encode(['error' => moduleOffText('calendar')]));
+}
 
 $form_client_id = intval($_GET['client_id'] ?? 0);
 // Opened from a contact or a site with no client in the link - theirs
@@ -40,6 +46,10 @@ if ($all_day) {
 } elseif ($end === '' || $end <= $start) {
     $end = date('Y-m-d H:i:s', strtotime($start) + 3600);
 }
+// Picked on the viewer's own clock - kept in the company's (functions/user_timezone.php)
+if (!$all_day && ($_GET['start'] ?? '') !== '') {
+    [$start, $end] = [timezoneFromView($start), timezoneFromView($end)];
+}
 
 $form = [
     'event_title' => (string) ($_GET['title'] ?? ''),
@@ -50,7 +60,8 @@ $form = [
     'event_location_id' => $form_client_id ? intval(assetClientOwnedId('location', $_GET['location_id'] ?? 0, $form_client_id)) : 0,
 ];
 $form_attendees = [
-    'agents' => [intval($session_user_id)],
+    // Assigned to the agent whose calendar it was added from, or the one adding it
+    'agents' => calendarEventDefaultAgents($_GET['agent_id'] ?? 0),
     'contacts' => $form_client_id && intval(assetClientOwnedId('contact', $_GET['contact_id'] ?? 0, $form_client_id)) ? [intval($_GET['contact_id'])] : [],
     'emails' => [],
 ];
@@ -66,7 +77,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="far fa-fw fa-calendar-plus me-2"></i>New Event<?php if ($form_client_id) { ?> <small class="ms-1 opacity-75"><?= escapeHtml((string) getFieldById('clients', $form_client_id, 'client_name')) ?></small><?php } ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -75,8 +86,8 @@ ob_start();
         <?php require 'calendar_event_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_event" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Add event</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_event" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

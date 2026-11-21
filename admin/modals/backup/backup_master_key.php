@@ -13,8 +13,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-key me-2"></i>Export the master key</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-key me-2"></i>Export the Master Key</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -32,11 +32,11 @@ ob_start();
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
             <input type="password" class="form-control" data-toggle="password" name="password" id="backupMasterKeyPassword" placeholder="To confirm it's you" autocomplete="current-password" required autofocus>
-            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="backup_master_key" class="btn btn-primary text-bold"><i class="fas fa-fw fa-key me-2"></i>Show the master key</button>
+        <button type="submit" name="backup_master_key" class="btn btn-primary fw-bold"><i class="fas fa-fw fa-key me-2"></i>Show the Master Key</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

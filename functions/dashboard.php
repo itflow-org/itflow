@@ -13,8 +13,8 @@
  *   - period (income, expenses, profit, the donuts, miles, top clients) - for
  *     the picked period, compared with the same span before it
  *
- * The cash flow chart also looks ahead: from this month on it shows what is
- * expected in and out, worked out from unpaid invoices and the recurring
+ * The cash flow chart runs January to December, and looks ahead: from this
+ * month on it shows what is expected in and out, worked out from unpaid invoices and the recurring
  * invoices and expenses (dashboardExpectedIncome / dashboardExpectedExpenses).
  *
  * Anything tied to a client goes through clientScopeSql(), so a technician
@@ -249,14 +249,14 @@ function dashboardAttention($access) {
             'url' => '/agent/tickets.php?sla=breached',
         ];
         $items[] = [
-            'count' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE ticket_resolved_at IS NULL AND ticket_assigned_to = 0 $ticket_scope"),
-            'label' => 'Unassigned tickets', 'icon' => 'user-slash', 'tone' => 'warning',
+            'count' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE ticket_resolved_at IS NULL AND ticket_assigned_to = 0 $ticket_scope" . projectTicketsServiceSql()),
+            'label' => 'Unassigned tickets', 'one' => 'Unassigned ticket', 'icon' => 'user-slash', 'tone' => 'warning',
             'url' => '/agent/tickets.php?assigned=unassigned',
         ];
         // The same rule as projects.php?show=overdue
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(project_id) FROM projects WHERE " . projectViews()['overdue']['where'] . ' ' . clientScopeSql('project_client_id')),
-            'label' => 'Overdue projects', 'icon' => 'project-diagram', 'tone' => 'danger',
+            'label' => 'Overdue projects', 'one' => 'Overdue project', 'icon' => 'project-diagram', 'tone' => 'danger',
             'url' => '/agent/projects.php?show=overdue',
         ];
     }
@@ -269,13 +269,13 @@ function dashboardAttention($access) {
             - dashboardSum("SELECT SUM(payment_amount) FROM payments JOIN invoices ON payment_invoice_id = invoice_id WHERE $overdue_where");
         $items[] = [
             'count' => $overdue_count,
-            'label' => 'Overdue invoices', 'icon' => 'file-invoice-dollar', 'tone' => 'danger',
+            'label' => 'Overdue invoices', 'one' => 'Overdue invoice', 'icon' => 'file-invoice-dollar', 'tone' => 'danger',
             'detail' => $overdue_count ? dashboardMoney($overdue_amount) . ' outstanding' : null,
             'url' => '/agent/invoices.php?status=Overdue',
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(invoice_id) FROM invoices WHERE invoice_status = 'Draft' $invoice_scope"),
-            'label' => 'Draft invoices', 'icon' => 'pen', 'tone' => 'secondary',
+            'label' => 'Draft invoices', 'one' => 'Draft invoice', 'icon' => 'pen', 'tone' => 'secondary',
             'url' => '/agent/invoices.php?status=Draft',
         ];
         // The same rule as products.php?type=reorder
@@ -288,7 +288,7 @@ function dashboardAttention($access) {
         $reprice = productRepriceCount();
         $items[] = [
             'count' => intval($reprice['lines']),
-            'label' => 'Lines at an old price', 'icon' => 'tags', 'tone' => 'warning',
+            'label' => 'Lines at an old price', 'one' => 'Line at an old price', 'icon' => 'tags', 'tone' => 'warning',
             'detail' => $reprice['monthly'] > 0 ? '+' . dashboardMoney($reprice['monthly']) . ' a month on recurring' : ($reprice['lines'] ? 'On recurring invoices, drafts and quotes' : null),
             'url' => '/agent/products_reprice.php',
         ];
@@ -314,7 +314,7 @@ function dashboardAttention($access) {
             $to_bill = expenseUnbilledCount();
             $items[] = [
                 'count' => $to_bill['count'],
-                'label' => 'Expenses to bill', 'icon' => 'shopping-cart', 'tone' => 'info',
+                'label' => 'Expenses to bill', 'one' => 'Expense to bill', 'icon' => 'shopping-cart', 'tone' => 'info',
                 'detail' => $to_bill['count'] ? dashboardMoney($to_bill['value']) . ' to bill on' : null,
                 'url' => '/agent/expenses.php?show=to_bill',
             ];
@@ -322,7 +322,7 @@ function dashboardAttention($access) {
             $owed = expenseToReimburseCount();
             $items[] = [
                 'count' => $owed['count'],
-                'label' => 'Expenses to reimburse', 'icon' => 'hand-holding-usd', 'tone' => 'warning',
+                'label' => 'Expenses to reimburse', 'one' => 'Expense to reimburse', 'icon' => 'hand-holding-usd', 'tone' => 'warning',
                 'detail' => $owed['count'] ? dashboardMoney($owed['total']) . ' owed to ' . ($owed['agents'] === 1 ? '1 agent' : $owed['agents'] . ' agents') : null,
                 'url' => '/agent/expenses.php?show=to_reimburse',
             ];
@@ -330,7 +330,7 @@ function dashboardAttention($access) {
             $trips_to_bill = tripUnbilledCount();
             $items[] = [
                 'count' => $trips_to_bill['count'],
-                'label' => 'Trips to bill', 'icon' => 'route', 'tone' => 'info',
+                'label' => 'Trips to bill', 'one' => 'Trip to bill', 'icon' => 'route', 'tone' => 'info',
                 'detail' => $trips_to_bill['count'] ? dashboardMoney($trips_to_bill['value']) . ' of travel' : null,
                 'url' => '/agent/unbilled_time.php',
             ];
@@ -350,22 +350,22 @@ function dashboardAttention($access) {
         $soon = "BETWEEN CURDATE() AND CURDATE() + INTERVAL 30 DAY";
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(domain_id) FROM domains WHERE domain_archived_at IS NULL AND domain_expire $soon " . clientScopeSql('domain_client_id')),
-            'label' => 'Domains expiring', 'icon' => 'globe', 'tone' => 'warning', 'detail' => 'Next 30 days',
+            'label' => 'Domains expiring', 'one' => 'Domain expiring', 'icon' => 'globe', 'tone' => 'warning', 'detail' => 'Next 30 days',
             'url' => '/agent/domains.php?expire_days=30&sort=domain_expire&order=ASC',
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(certificate_id) FROM certificates WHERE certificate_archived_at IS NULL AND " . certificateSoonSql() . ' ' . clientScopeSql('certificate_client_id')),
-            'label' => 'Certificates expiring', 'icon' => 'lock', 'tone' => 'warning', 'detail' => 'Next 30 days',
+            'label' => 'Certificates expiring', 'one' => 'Certificate expiring', 'icon' => 'lock', 'tone' => 'warning', 'detail' => 'Next 30 days',
             'url' => '/agent/certificates.php?show=soon&sort=certificate_expire&order=ASC',
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(software_id) FROM software WHERE software_archived_at IS NULL AND software_expire $soon " . clientScopeSql('software_client_id')),
-            'label' => 'Licenses expiring', 'icon' => 'cube', 'tone' => 'warning', 'detail' => 'Next 30 days',
+            'label' => 'Licenses expiring', 'one' => 'License expiring', 'icon' => 'cube', 'tone' => 'warning', 'detail' => 'Next 30 days',
             'url' => '/agent/software.php?status=renewing&sort=software_expire&order=ASC',
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(asset_id) FROM assets WHERE asset_archived_at IS NULL AND asset_warranty_expire $soon " . clientScopeSql('asset_client_id')),
-            'label' => 'Warranties expiring', 'icon' => 'shield-alt', 'tone' => 'warning', 'detail' => 'Next 30 days',
+            'label' => 'Warranties expiring', 'one' => 'Warranty expiring', 'icon' => 'shield-alt', 'tone' => 'warning', 'detail' => 'Next 30 days',
             'url' => '/agent/assets.php?expire_days=30&sort=asset_warranty_expire&order=ASC&show_column[]=Warranty_Expire',
         ];
         // The same rules as services.php?show=attention and ?show=review
@@ -373,19 +373,25 @@ function dashboardAttention($access) {
         $service_scope = "FROM services JOIN clients ON client_id = service_client_id WHERE client_archived_at IS NULL " . clientScopeSql('service_client_id');
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(service_id) $service_scope AND " . $service_views['attention']['where']),
-            'label' => 'Services needing attention', 'icon' => 'stream', 'tone' => 'danger', 'detail' => 'What they depend on',
+            'label' => 'Services needing attention', 'one' => 'Service needing attention', 'icon' => 'stream', 'tone' => 'danger', 'detail' => 'What they depend on',
             'url' => '/agent/services.php?show=attention',
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(service_id) $service_scope AND " . $service_views['review']['where']),
-            'label' => 'Service reviews due', 'icon' => 'clipboard-check', 'tone' => 'warning', 'detail' => 'Next ' . SERVICE_REVIEW_SOON_DAYS . ' days',
+            'label' => 'Service reviews due', 'one' => 'Service review due', 'icon' => 'clipboard-check', 'tone' => 'warning', 'detail' => 'Next ' . SERVICE_REVIEW_SOON_DAYS . ' days',
             'url' => '/agent/services.php?show=review&sort=service_review_due&order=ASC',
         ];
     }
 
-    return array_values(array_filter($items, function ($item) {
+    // "1 Draft invoice", not "1 Draft invoices"
+    return array_values(array_map(function ($item) {
+        if (intval($item['count']) === 1 && isset($item['one'])) {
+            $item['label'] = $item['one'];
+        }
+        return $item;
+    }, array_filter($items, function ($item) {
         return $item['count'] > 0;
-    }));
+    })));
 }
 
 /*
@@ -397,7 +403,8 @@ function dashboardMyTickets($limit = 8) {
     global $mysqli, $session_user_id;
 
     $user_id = intval($session_user_id);
-    $where = "ticket_assigned_to = $user_id AND ticket_resolved_at IS NULL " . clientScopeSql('ticket_client_id');
+    // Mine - leading it, or helping (functions/ticket_helpers.php)
+    $where = ticketAssignedSql($user_id) . " AND ticket_resolved_at IS NULL " . clientScopeSql('ticket_client_id');
 
     $sql = mysqli_query($mysqli, "
         SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_priority, ticket_client_id,
@@ -463,6 +470,9 @@ function dashboardSchedule($days = 7, $limit = 30) {
         ];
     }
 
+    // Tickets I am helping on, booked
+    $items = array_merge($items, ticketHelperDashboardItems($from, $to));
+
     // Projects I manage, starting or due - all day
     $sql = mysqli_query($mysqli, "
         SELECT project_id, project_prefix, project_number, project_name, project_start, project_due, project_client_id, client_name
@@ -492,13 +502,13 @@ function dashboardSchedule($days = 7, $limit = 30) {
     // Events I am on or added - and the ones nobody owns (made before events had
     // attendees, or with no agent on them), which are everyone's
     $sql = mysqli_query($mysqli, "
-        SELECT event_id, event_title, event_start, event_end, event_all_day, event_repeat, event_repeat_interval, event_repeat_until, event_repeat_skip,
+        SELECT event_id, event_title, event_start, event_end, event_all_day, event_repeat, event_repeat_interval, event_repeat_until, event_repeat_skip," . (byDayReady() ? " event_repeat_by_day," : "") . "
             event_location, client_name, calendar_color, location_name
         FROM calendar_events
         JOIN calendars ON event_calendar_id = calendar_id AND calendar_archived_at IS NULL
         LEFT JOIN clients ON event_client_id = client_id AND event_client_id > 0
         LEFT JOIN locations ON location_id = event_location_id AND event_location_id > 0
-        WHERE event_archived_at IS NULL AND event_start <= '$to'
+        WHERE event_archived_at IS NULL AND event_start <= '$to'" . (moduleOn('calendar') ? '' : ' AND 0') . "
         AND ((event_repeat IS NOT NULL AND event_repeat != '') OR event_start >= '$from' OR event_end >= '$from')
         AND (event_created_by = $user_id
             OR EXISTS (SELECT 1 FROM calendar_event_attendees a WHERE a.attendee_event_id = event_id AND a.attendee_user_id = $user_id)
@@ -615,7 +625,7 @@ function dashboardTeamWorkload($limit = 8) {
 
     return [
         'techs' => $techs,
-        'unassigned' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE ticket_resolved_at IS NULL AND ticket_assigned_to = 0 $scope"),
+        'unassigned' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE ticket_resolved_at IS NULL AND ticket_assigned_to = 0 $scope" . projectTicketsServiceSql()),
     ];
 }
 
@@ -653,7 +663,7 @@ function dashboardTicketTrend() {
 
 function dashboardMoney($amount) {
     global $currency_format, $session_company_currency;
-    return numfmt_format_currency($currency_format, floatval($amount), $session_company_currency);
+    return billingMoney(floatval($amount), $session_company_currency);
 }
 
 /**
@@ -703,8 +713,8 @@ function dashboardMoneyCards($access, $period) {
         $cards[] = ['label' => 'Expenses', 'value' => $expenses, 'change' => dashboardChange($expenses, $expenses_prev), 'good' => 'down',
             'url' => '/agent/expenses.php?canned_date=custom&dtf=' . $period['start'] . '&dtt=' . $period['end']];
         $cards[] = ['label' => 'Profit', 'value' => $income - $expenses, 'change' => dashboardChange($income - $expenses, $income_prev - $expenses_prev), 'good' => 'up',
-            // Profit & Loss for those who may open reports, the period's money in and out for anyone else
-            'url' => reportCanOpen('profit_loss') ? '/agent/reports/profit_loss.php' : '/agent/transactions.php?canned_date=custom&dtf=' . $period['start'] . '&dtt=' . $period['end']];
+            // Profit & Loss for those who may open reports, else the period's money in and out - its income without Bookkeeping
+            'url' => reportCanOpen('profit_loss') ? '/agent/reports/profit_loss.php' : '/agent/' . (moduleOn('bookkeeping') ? 'transactions' : 'income') . '.php?canned_date=custom&dtf=' . $period['start'] . '&dtt=' . $period['end']];
     }
 
     if ($access['sales']) {
@@ -744,21 +754,18 @@ function dashboardMonthly($sql, $months) {
 }
 
 /**
- * Income and expenses per month over the chart's 12 months, plus income for
- * the 12 before. A chart that reaches this month runs three months further,
- * and from this month on carries what is expected in and out on top of what
- * has already happened.
+ * Income and expenses per month, January to December - of the year picked,
+ * or this one for the other periods - plus income in the same months the
+ * year before. From this month on it carries what is expected in and out on
+ * top of what has already happened.
  */
 function dashboardCashFlow($period) {
-    $months = dashboardChartMonths($period);
-    $this_month = date('Y-m');
-
-    $extended = end($months) === $this_month;
-    if ($extended) {
-        for ($i = 1; $i <= 3; $i++) {
-            $months[] = substr(dashboardShiftMonths(date('Y-m-01'), $i), 0, 7);
-        }
+    $year = preg_match('/^year-(\d{4})$/', (string) $period['key'], $m) ? intval($m[1]) : intval(date('Y'));
+    $months = [];
+    for ($i = 1; $i <= 12; $i++) {
+        $months[] = sprintf('%04d-%02d', $year, $i);
     }
+    $this_month = date('Y-m');
 
     $last_year = array_map(function ($m) {
         return substr(dashboardShiftMonths("$m-01", -12), 0, 7);
@@ -805,7 +812,7 @@ function dashboardCashFlow($period) {
 
     return [
         'labels' => array_map(function ($m) {
-            return date('M y', strtotime("$m-01"));
+            return date('M', strtotime("$m-01"));
         }, $months),
         'income' => $income($from, $to, $months),
         'expenses' => $round(dashboardMonthly("SELECT DATE_FORMAT(expense_date, '%Y-%m') AS m, SUM(expense_amount) AS v FROM expenses
@@ -814,7 +821,7 @@ function dashboardCashFlow($period) {
         'expected_income' => $expected_income,
         'expected_expenses' => $expected_expenses,
         'first_future' => $first_future,
-        'extended' => $extended,
+        'year' => $year,
     ];
 }
 
@@ -971,7 +978,7 @@ function dashboardTrips($period) {
 
     return [
         'labels' => array_map(function ($m) {
-            return date('M y', strtotime("$m-01"));
+            return date('M Y', strtotime("$m-01"));
         }, $months),
         'miles' => dashboardMonthly("SELECT DATE_FORMAT(trip_date, '%Y-%m') AS m, SUM(trip_miles) AS v FROM trips
             WHERE trip_archived_at IS NULL AND trip_date BETWEEN '$from' AND '$to' GROUP BY m", $months),

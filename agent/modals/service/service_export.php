@@ -28,7 +28,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Services</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <?php exportTabsNav(); ?>
@@ -91,7 +91,7 @@ ob_start();
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client">
-                        <option value="">- All Clients -</option>
+                        <option value="">- Any client -</option>
                         <?php
                         $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
                             WHERE client_archived_at IS NULL AND EXISTS (SELECT 1 FROM services WHERE service_client_id = client_id) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");

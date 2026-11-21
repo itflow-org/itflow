@@ -59,10 +59,6 @@ foreach (CONTRACT_SLA_PRIORITIES as $priority => $part) {
     $template_default_slas[$priority] = intval(getTicketSlaId(0, $priority, false));
 }
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($view) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $view]));
 };
@@ -70,9 +66,11 @@ $csrf = $_SESSION['csrf_token'];
 
 ?>
 
+<?= adminNavGroupTabsHtml('templates') ?>
+
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-contract me-2"></i>Contract Templates</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-file-contract me-2"></i>Contract Templates</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contract_template/contract_template_add.php" data-modal-size="lg">
                 <i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Template</span>
@@ -86,7 +84,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search templates..." title="Name, description or support hours">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -101,10 +99,10 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('contract_template_name', 'Template') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('contract_template_term_months', 'Term') ?></th>
+                <th class="ps-3"><?= sortLink('contract_template_name', 'Template') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('contract_template_term_months', 'Term') ?></th>
                 <th class="d-none d-lg-table-cell">Cover</th>
-                <th class="text-end"><?= $sort_link('contracts', 'Contracts') ?></th>
+                <th class="text-end"><?= sortLink('contracts', 'Contracts') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -135,7 +133,7 @@ $csrf = $_SESSION['csrf_token'];
                 };
                 $cover = array_filter([
                     $row['contract_template_support_hours'],
-                    $row['contract_template_rate_standard'] !== null ? number_format((float) $row['contract_template_rate_standard'], 2) . '/hr'
+                    $row['contract_template_rate_standard'] !== null ? number_format(floatval($row['contract_template_rate_standard']), 2) . '/hr'
                         : ($template_defaults['rate'] > 0 ? number_format($template_defaults['rate'], 2) . '/hr (default)' : ''),
                     $row['contract_template_net_terms'] !== null ? $net_text($row['contract_template_net_terms']) : $net_text($template_defaults['net_terms']) . ' (default)',
                 ]);
@@ -173,14 +171,14 @@ $csrf = $_SESSION['csrf_token'];
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
-                                <a class="dropdown-item" href="post.php?copy_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
+                                <a class="dropdown-item" href="post.php?copy_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"><i class="far fa-fw fa-copy text-secondary me-2"></i>Copy</a>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($archived) { ?>
-                                    <a class="dropdown-item" href="post.php?restore_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore</a>
+                                    <a class="dropdown-item" href="post.php?restore_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore</a>
                                 <?php } else { ?>
                                     <a class="dropdown-item text-danger" href="post.php?archive_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>" title="Kept, but not offered on a new contract"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
                                 <?php } ?>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Delete <?= $name ?>?" data-confirm-text="<?= intval($row['n_contracts']) ? 'The ' . intval($row['n_contracts']) . ' contract' . (intval($row['n_contracts']) === 1 ? '' : 's') . ' started from it keep their terms.' : 'Nothing was started from it.' ?>" data-confirm-button="Delete">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>

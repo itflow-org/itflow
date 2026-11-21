@@ -76,11 +76,15 @@ if (isset($_GET['archive_canned_response']) || isset($_GET['restore_canned_respo
     $name = escapeSql($row['canned_response_name']);
 
     // Archived, it isn't offered on tickets; restoring it is all it takes to offer it again
+    $undo = $archive ? undoArchivedBefore('canned_responses', 'canned_response_id', [$canned_response_id]) : null;
     mysqli_query($mysqli, "UPDATE canned_responses SET canned_response_archived_at = " . ($archive ? 'NOW()' : 'NULL') . " WHERE canned_response_id = $canned_response_id");
 
     logAudit("Canned Response", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " canned response $name", 0, $canned_response_id);
 
     flashAlert("Canned response <strong>" . escapeHtml($row['canned_response_name']) . "</strong> " . ($archive ? 'archived' : 'restored'), $archive ? 'error' : 'success');
+    if ($undo) {
+        undoOfferArchived($undo, '', $row['canned_response_name']);
+    }
 
     redirect();
 

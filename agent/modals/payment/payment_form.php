@@ -37,7 +37,7 @@ $pay_lock = $pay['lock'] ?? null;
     <div class="col-sm-6">
         <label class="form-label">Amount <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
             <input type="text" class="form-control text-end fw-semibold" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount"
                 value="<?= number_format(floatval($pay['amount']), 2, '.', '') ?>" placeholder="0.00" required data-pay-amount <?= $pay_lock ? 'readonly' : '' ?>>
             <span class="input-group-text"><?= escapeHtml($pay['currency']) ?></span>
@@ -51,16 +51,16 @@ $pay_lock = $pay['lock'] ?? null;
     <div class="col-sm-6">
         <label class="form-label">Date <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
             <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($pay['date'] ?? date('Y-m-d')) ?>" required <?= $pay_lock ? 'readonly' : '' ?>>
         </div>
     </div>
     <div class="col-sm-6">
         <label class="form-label">Method <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-money-check-alt"></i></span>
             <select class="form-select select2" name="payment_method" required>
-                <option value="">- How it was paid -</option>
+                <option value="">- Select a payment method -</option>
                 <?php foreach ($pay_methods as $method) { ?>
                     <option <?= $pay_method === $method ? 'selected' : '' ?>><?= escapeHtml($method) ?></option>
                 <?php } ?>
@@ -70,14 +70,17 @@ $pay_lock = $pay['lock'] ?? null;
     <div class="col-sm-6">
         <label class="form-label">Reference</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
             <input type="text" class="form-control" name="reference" placeholder="Check number, transaction ID" maxlength="200" value="<?= escapeHtml($pay['reference'] ?? '') ?>">
         </div>
     </div>
+    <?php if (!moduleOn('bookkeeping')) { // Bookkeeping off - into the account it is in, or the default ?>
+        <input type="hidden" name="account" value="<?= isset($pay['account_id']) ? $pay_account_id : bookkeepingAccount('payment') ?>">
+    <?php } else { ?>
     <div class="col-12">
         <label class="form-label">Into account <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
             <select class="form-select select2" name="account" required <?= $pay_lock ? 'disabled' : '' ?>>
                 <option value="">- Select an account -</option>
                 <?php foreach ($pay_accounts as $account_id => $account) { ?>
@@ -90,6 +93,7 @@ $pay_lock = $pay['lock'] ?? null;
             <?php } ?>
         </div>
     </div>
+    <?php } ?>
     <?php if (!empty($pay['email']) && !empty($config_smtp_provider)) { ?>
         <div class="col-12">
             <div class="form-check form-switch">

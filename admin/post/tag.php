@@ -77,11 +77,13 @@ if (isset($_GET['archive_tag'])) {
 
     $row = tagRow(intval($_GET['archive_tag']));
     if ($row && !$row['tag_archived_at']) {
+        $undo = undoArchivedBefore('tags', 'tag_id', [$row['tag_id']]);
         tagArchive($row['tag_id']);
         $used = tagUsage($row['tag_id']);
         logAudit("Tag", "Archive", "$session_name archived " . $tag_kind_word($row) . " tag " . escapeSql($row['tag_name']), 0, intval($row['tag_id']));
         flashAlert("Tag <strong>" . escapeHtml($row['tag_name']) . "</strong> archived - "
-            . ($used ? "it stays on its " . $tag_records_text($used, $row['tag_type']) . ", but isn't offered for tagging" : "it isn't offered for tagging"));
+            . ($used ? "it stays on its " . $tag_records_text($used, $row['tag_type']) . ", but isn't offered for tagging" : "it isn't offered for tagging"), 'error');
+        undoOfferArchived($undo, 'tag', $row['tag_name']);
     }
 
     redirect();
@@ -171,6 +173,7 @@ if (isset($_POST['bulk_archive_tags']) || isset($_POST['bulk_restore_tags'])) {
     validateCSRFToken();
 
     $archive = isset($_POST['bulk_archive_tags']);
+    $undo = $archive ? undoArchivedBefore('tags', 'tag_id', $_POST['tag_ids'] ?? []) : null;
     $count = 0;
     foreach (array_unique(array_map('intval', (array) ($_POST['tag_ids'] ?? []))) as $tag_id) {
         $row = tagRow($tag_id);
@@ -186,7 +189,10 @@ if (isset($_POST['bulk_archive_tags']) || isset($_POST['bulk_restore_tags'])) {
         $count++;
     }
 
-    flashAlert(($archive ? "Archived " : "Restored ") . $count . ($count === 1 ? " tag" : " tags") . ($archive && $count ? " - they stay on their records, but aren't offered for tagging" : ''));
+    flashAlert(($archive ? "Archived " : "Restored ") . $count . ($count === 1 ? " tag" : " tags") . ($archive && $count ? " - they stay on their records, but aren't offered for tagging" : ''), $archive ? 'error' : 'success');
+    if ($undo) {
+        undoOfferArchived($undo, 'tag');
+    }
 
     redirect();
 

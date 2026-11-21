@@ -56,6 +56,13 @@
  *   data-avatar="initials"     initials tiles for options that have no
  *                              picture (for lists filled in by JS)
  *
+ * RECENT PICKS - a single select for a client, contact, vendor, category,
+ * location, asset, agent, project, account or product (by its name, or
+ * data-recent="<kind>" on the <select>; data-recent="false" leaves it out)
+ * lists the last five this agent picked in a field of that kind first, under
+ * Recent, while nothing is typed - when they are among its options and it is
+ * long enough to search. Kept in this browser (localStorage itflow.recent.*).
+ *
  * Above the list is what the field is for, with Cancel to close it without
  * picking - or Done, where several can be ticked. Escape and a click
  * anywhere else close it too, a click into a reply box among them (see
@@ -65,6 +72,9 @@
  * .clear(), .setValue(v). itflowSelectAll(root) enhances anything not yet
  * done; it also happens by itself for selects added to the page later, and
  * again whenever includes/modal_footer.php re-runs this file for a modal.
+ * Set .anchor to an element and the panel opens under that instead of the
+ * field - a button that is the only way in to a hidden select (the Link
+ * picker, js/link_picker.js). Closing fires itflow:close on the <select>.
  *
  * Loaded first in includes/footer.php, ahead of the heavy libraries, so the
  * swap happens before the page has finished drawing - see the note there.
@@ -91,6 +101,43 @@
     var current = null;       // the picker whose panel is open
 
     /* ---------- small helpers ---------- */
+
+    var RECENT_KEEP = 5;
+    var RECENT_NAMES = {
+        client: 'client', client_id: 'client', contact: 'contact', contact_id: 'contact', vendor: 'vendor', vendor_id: 'vendor',
+        category: 'category', category_id: 'category', location: 'location', location_id: 'location', asset_id: 'asset',
+        assigned_to: 'agent', project_id: 'project', account: 'account', product_id: 'product'
+    };
+
+    /* Which recent picks a select shares - by its name, or data-recent - or '' for none. */
+    function recentKey(select) {
+        if (select.multiple || select.dataset.recent === 'false') {
+            return '';
+        }
+        return select.dataset.recent || RECENT_NAMES[(select.name || '').replace(/\[\]$/, '')] || '';
+    }
+
+    function recentRead(key) {
+        try {
+            var list = JSON.parse(window.localStorage.getItem('itflow.recent.' + key) || '[]');
+            return Array.isArray(list) ? list.map(String) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function recentRemember(key, value) {
+        if (!key || value === '' || value === '0') {
+            return;
+        }
+        try {
+            var list = recentRead(key).filter(function (v) { return v !== value; });
+            list.unshift(value);
+            window.localStorage.setItem('itflow.recent.' + key, JSON.stringify(list.slice(0, RECENT_KEEP)));
+        } catch (e) {
+            // No storage - nothing is remembered
+        }
+    }
 
     function make(tag, className, text) {
         var node = document.createElement(tag);
@@ -239,6 +286,7 @@
         this.id = 'itflow-select-' + (++counter);
         this.multiple = select.multiple;
         this.tags = select.dataset.tags === 'true';
+        this.recent = recentKey(select);
         this.label = labelText(select);
         this.isOpen = false;
         this.query = '';
@@ -248,6 +296,15 @@
         this.queued = false;
 
         var wrap = this.wrap = make('div', 'itflow-select' + (this.multiple ? ' is-multiple' : ''));
+        // How wide the <select> was set to be, so it sits as it did - beside a time in an input group, say
+        ['w-auto', 'flex-grow-0', 'flex-shrink-0'].forEach(function (name) {
+            if (select.classList.contains(name)) {
+                wrap.classList.add(name);
+            }
+        });
+        if (select.style.maxWidth) {
+            wrap.style.maxWidth = select.style.maxWidth;
+        }
         var control = this.control = make('div', 'itflow-select-control form-select');
         control.setAttribute('role', 'combobox');
         control.setAttribute('aria-haspopup', 'listbox');
@@ -631,6 +688,7 @@
             this.dirty = false;
             this.emit();
         }
+        this.select.dispatchEvent(new CustomEvent('itflow:close'));
     };
 
     Picker.prototype.emit = function () {
@@ -644,14 +702,15 @@
         if (!this.isOpen) {
             return;
         }
-        if (!this.control.isConnected) {
+        var at = this.anchor || this.control;
+        if (!at.isConnected) {
             this.close(false, false);
             return;
         }
         if (this.sheet) {
             return;
         }
-        var rect = this.control.getBoundingClientRect();
+        var rect = at.getBoundingClientRect();
         var viewWidth = document.documentElement.clientWidth;
         var viewHeight = window.innerHeight;
         var edge = 8;
@@ -660,9 +719,12 @@
             this.close(false, false);
             return;
         }
-        var width = Math.min(Math.max(rect.width, 240), viewWidth - edge * 2);
+        // Under a button it is as wide as a list of names needs, and lines up with
+        // the button's right edge where its left would run off the page
+        var width = Math.min(Math.max(rect.width, this.anchor ? 320 : 240), viewWidth - edge * 2);
+        var left = this.anchor && rect.left + width > viewWidth - edge ? rect.right - width : rect.left;
         panel.style.width = width + 'px';
-        panel.style.left = Math.min(Math.max(edge, rect.left), viewWidth - width - edge) + 'px';
+        panel.style.left = Math.min(Math.max(edge, left), viewWidth - width - edge) + 'px';
 
         this.list.style.maxHeight = '';
         var height = panel.offsetHeight;
@@ -689,10 +751,35 @@
         var exact = false;
         var options = select.options;
 
+        // Nothing typed in a long list - the recent picks first, under Recent, then the rest under All
+        var recent = [];
+        var first = [];
+        if (!terms.length && this.recent && options.length >= SEARCH_FROM) {
+            recentRead(this.recent).forEach(function (value) {
+                for (var r = 0; r < options.length; r++) {
+                    if (options[r].value === value) {
+                        var found = describe(options[r], select);
+                        if (!found.none && !found.disabled) {
+                            found.group = 'Recent';
+                            recent.push(found);
+                        }
+                        break;
+                    }
+                }
+            });
+        }
+
         for (var i = 0; i < options.length; i++) {
             var item = describe(options[i], select);
             if (item.value === '' && (hideEmpty || !item.label)) {
                 continue;
+            }
+            if (recent.length) {
+                if (item.none) {
+                    first.push(item);
+                    continue;
+                }
+                item.group = item.group || 'All';
             }
             if (terms.length) {
                 if (item.none) {
@@ -719,8 +806,8 @@
         }
 
         this.terms = query.toLowerCase().split(/\s+/).filter(Boolean);
-        this.view = view;
-        this.total = total;
+        this.view = first.concat(recent, view);
+        this.total = total + first.length + recent.length;
         this.creatable = this.tags && query && !exact ? query : '';
         this.drawList(keep);
     };
@@ -899,6 +986,7 @@
             this.filter(true);
             return;
         }
+        recentRemember(this.recent, row.option.value);
         if (!row.option.selected) {
             row.option.selected = true;
             this.dirty = true;
@@ -1170,13 +1258,17 @@
     watch(HTMLOptionElement.prototype, 'selected', selectOf);
 
     // Outside click closes - and keeps what was typed into a data-tags field
+    // (Its anchor is left to its own click - the Link button closes what it opened)
+    function outside(target) {
+        return current && !current.wrap.contains(target) && !current.panel.contains(target) && !(current.anchor && current.anchor.contains(target));
+    }
     document.addEventListener('mousedown', function (e) {
-        if (current && !current.wrap.contains(e.target) && !current.panel.contains(e.target)) {
+        if (outside(e.target)) {
             current.close(true, false);
         }
     }, true);
     document.addEventListener('touchstart', function (e) {
-        if (current && !current.wrap.contains(e.target) && !current.panel.contains(e.target)) {
+        if (outside(e.target)) {
             current.close(true, false);
         }
     }, { capture: true, passive: true });

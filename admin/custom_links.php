@@ -60,10 +60,6 @@ $view_counts = array_combine(array_keys($views), $counts);
 // Dragging into order: one menu's links, in its order, with nothing searched
 $can_reorder = $show_location && $sort === 'custom_link_order' && $order === 'ASC' && $q === '' && $num_rows[0] > 1;
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($view) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $view]));
 };
@@ -89,7 +85,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search links..." title="Name, address or description">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -105,11 +101,11 @@ $csrf = $_SESSION['csrf_token'];
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
                 <?php if ($can_reorder) { ?><th style="width: 1%"><span class="visually-hidden">Order</span></th><?php } ?>
-                <th class="<?= $can_reorder ? 'ps-0' : 'ps-3' ?>"><?= $sort_link('custom_link_name', 'Link') ?></th>
+                <th class="<?= $can_reorder ? 'ps-0' : 'ps-3' ?>"><?= sortLink('custom_link_name', 'Link') ?></th>
                 <?php if (!$show_location) { ?>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('custom_link_location', 'Shows in') ?></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('custom_link_location', 'Shows in') ?></th>
                 <?php } ?>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('custom_link_uri', 'Goes to') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('custom_link_uri', 'Goes to') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -173,31 +169,31 @@ $csrf = $_SESSION['csrf_token'];
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item" href="post.php?copy_custom_link=<?= $custom_link_id ?>&csrf_token=<?= $csrf ?>" title="The same link again - to put it in another menu too">
-                                    <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                    <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
                                 <?php if ($can_reorder) { ?>
                                     <?php if ($position > 0) { ?>
                                         <a class="dropdown-item" href="post.php?move_custom_link=<?= $custom_link_id ?>&direction=up&csrf_token=<?= $csrf ?>">
-                                            <i class="fas fa-fw fa-arrow-up text-secondary me-2"></i>Move up
+                                            <i class="fas fa-fw fa-arrow-up text-secondary me-2"></i>Move Up
                                         </a>
                                     <?php } ?>
                                     <?php if ($position < $num_rows[0] - 1) { ?>
                                         <a class="dropdown-item" href="post.php?move_custom_link=<?= $custom_link_id ?>&direction=down&csrf_token=<?= $csrf ?>">
-                                            <i class="fas fa-fw fa-arrow-down text-secondary me-2"></i>Move down
+                                            <i class="fas fa-fw fa-arrow-down text-secondary me-2"></i>Move Down
                                         </a>
                                     <?php } ?>
                                 <?php } ?>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['custom_link_archived_at']) { ?>
                                     <a class="dropdown-item" href="post.php?restore_custom_link=<?= $custom_link_id ?>&csrf_token=<?= $csrf ?>" title="Back at the end of the <?= escapeHtml($location_config['label']) ?>">
-                                        <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item text-danger" href="post.php?archive_custom_link=<?= $custom_link_id ?>&csrf_token=<?= $csrf ?>" title="Kept, but no longer shown">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </a>
                                 <?php } ?>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_custom_link=<?= $custom_link_id ?>&csrf_token=<?= $csrf ?>"
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_custom_link=<?= $custom_link_id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Delete <?= $name ?>?" data-confirm-text="It goes from the <?= escapeHtml($location_config['label']) ?> for good. Archive it instead to keep it." data-confirm-button="Delete">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>

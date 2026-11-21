@@ -29,9 +29,9 @@
             'dev_requirement' => false,
         ),
         'directorytree/imapengine' => array(
-            'pretty_version' => 'v1.25.6',
-            'version' => '1.25.6.0',
-            'reference' => '20655ae7dbe045a64d6c72237ee5ae322af49f67',
+            'pretty_version' => 'v1.25.12',
+            'version' => '1.25.12.0',
+            'reference' => 'e052d71dfb463a0aa1b956eb165d17a49ee423e8',
             'type' => 'library',
             'install_path' => __DIR__ . '/../directorytree/imapengine',
             'aliases' => array(),

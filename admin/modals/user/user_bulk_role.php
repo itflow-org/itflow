@@ -16,7 +16,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-user-tag me-2"></i>Role for <strong><?= $count ?></strong> user<?= $count === 1 ? '' : 's' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -27,7 +27,7 @@ ob_start();
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-user-shield"></i></span>
             <select class="form-select select2" name="role" required>
-                <option value="">- Pick a role -</option>
+                <option value="">- Select a role -</option>
                 <?php foreach ($roles as $role_id => $role) { ?>
                     <option value="<?= $role_id ?>"<?= selectOptionRole($role) ?>><?= escapeHtml($role['role_name']) ?></option>
                 <?php } ?>
@@ -36,7 +36,7 @@ ob_start();
         <div class="form-text">The only active admin keeps an admin role, so there is always someone to run ITFlow.</div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_role_users" class="btn btn-primary text-bold" <?= $count ? '' : 'disabled' ?>><i class="fas fa-check me-2"></i>Set role</button>
+        <button type="submit" name="bulk_role_users" class="btn btn-primary fw-bold" <?= $count ? '' : 'disabled' ?>><i class="fas fa-check me-2"></i>Set Role</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

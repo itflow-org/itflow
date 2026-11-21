@@ -136,7 +136,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-globe me-2"></i>Domains</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-globe me-2"></i>Domains</h3>
         <div class="card-tools">
             <?php if ($can_edit || $num_rows[0]) { ?>
             <div class="btn-group">
@@ -145,13 +145,20 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                         <i class="fas fa-plus me-2"></i>New Domain
                     </button>
                 <?php } ?>
-                <?php if ($num_rows[0] > 0) { ?>
-                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <?php if ($num_rows[0] > 0 || ($can_edit && $client_url)) { ?>
+                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item text-dark ajax-modal" href="#"
-                            data-modal-url="<?= buildExportModalUrl('modals/domain/domain_export.php', ['client_id', 'client', 'expire_days', 'archived', 'q', 'tags', 'vendor']) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
-                        </a>
+                        <?php if ($can_edit && $client_url) { ?>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=domains">
+                                <i class="fas fa-fw fa-upload me-2"></i>Import
+                            </a>
+                        <?php } ?>
+                        <?php if ($num_rows[0] > 0) { ?>
+                            <a class="dropdown-item ajax-modal" href="#"
+                                data-modal-url="<?= buildExportModalUrl('modals/domain/domain_export.php', ['client_id', 'client', 'expire_days', 'archived', 'q', 'tags', 'vendor']) ?>">
+                                <i class="fas fa-fw fa-download me-2"></i>Export
+                            </a>
+                        <?php } ?>
                     </div>
                 <?php } ?>
             </div>
@@ -170,11 +177,11 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search domain, registrar, host, notes...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                         <?php
                         // Tags in use on domains in this scope, plus any already picked
                         $sql_tags_filter = mysqli_query($mysqli, "
@@ -205,7 +212,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                 <?php if (!$client_url) { ?>
                 <div class="col-lg-2 col-md-6">
                             <select class="form-select select2" name="client" onchange="this.form.submit()">
-                                <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+                                <option value="" <?php if ($client == "") { echo "selected"; } ?>>- Any client -</option>
                                 <?php
                                 $sql_clients_filter = mysqli_query($mysqli, "
                                     SELECT DISTINCT client_id, client_name, client_abbreviation
@@ -226,7 +233,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                     <div class="d-flex justify-content-end gap-2">
                         <a href="<?= escapeHtml($filter_url(['archived' => $archived ? '' : 1])) ?>"
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active domains' : 'Show archived domains' ?>">
-                            <i class="fa fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
+                            <i class="fas fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
                         </a>
                         <?php if ($can_edit) { ?>
                         <div class="dropdown" id="bulkActionButton" hidden>
@@ -236,10 +243,10 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                             <div class="dropdown-menu dropdown-menu-end">
                                 <?php if (!$archived) { ?>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_refresh_domains">
-                                        <i class="fas fa-fw fa-sync-alt me-2"></i>Look up now
+                                        <i class="fas fa-fw fa-sync-alt me-2"></i>Look Up Now
                                     </button>
                                     <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#domainBulkVendorModal">
-                                        <i class="fas fa-fw fa-building me-2"></i>Set registrar or host
+                                        <i class="fas fa-fw fa-building me-2"></i>Set Registrar or Host
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="domain" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
@@ -257,13 +264,13 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_domains"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_domains"
                                             data-confirm-text="The domains go for good, with their history. Services and certificates stop pointing at them.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
                                     <?php } ?>
                                 <?php } else { ?>
-                                    <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_domains">
+                                    <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_domains">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                 <?php } ?>
@@ -307,26 +314,18 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=domain_name&order=<?= $disp ?>">
-                            Domain <?php if ($sort == 'domain_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('domain_name', 'Domain') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=domain_expire&order=<?= $disp ?>">
-                            Expires <?php if ($sort == 'domain_expire') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('domain_expire', 'Expires') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=registrar_name&order=<?= $disp ?>">
-                            Registrar and hosts <?php if ($sort == 'registrar_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('registrar_name', 'Registrar and hosts') ?>
                     </th>
                     <th>Email</th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>
@@ -365,7 +364,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                                         <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $domain_description ?>"><?= $domain_description ?></div>
                                     <?php } ?>
                                     <?php if ($domain_tags || $can_edit) { ?>
-                                        <div class="mt-1"><?= tagPills('domain', $domain_id, $domain_tags, "domains.php?$client_url", $can_edit) ?></div>
+                                        <div class="itflow-tags-row mt-1"><?= tagPills('domain', $domain_id, $domain_tags, "domains.php?$client_url", $can_edit) ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -373,7 +372,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                         <td class="text-nowrap">
                             <?= domainExpiryPill($expiry) ?>
                             <?php if ($expiry) { ?>
-                                <div class="small text-body-secondary mt-1"><?= escapeHtml($expiry['date']) ?></div>
+                                <div class="small text-body-secondary mt-1"><?= formatDate($expiry['date']) ?></div>
                             <?php } ?>
                         </td>
                         <td class="small itflow-domain-who">
@@ -382,24 +381,25 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                         </td>
                         <td class="itflow-domain-mail"><?= domainMailPillsHtml(array_diff_key(domainMailChecks($row), ['mx' => 1])) ?></td>
                         <?php if (!$client_url) { ?>
-                        <td><a href="domains.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                        <td><a data-client-card="<?= $row_client_id ?>" href="domains.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
                         <td class="text-end">
                             <div class="dropdown dropstart">
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $quick_url ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <a class="dropdown-item" href="https://<?= $domain_name ?>" target="_blank" rel="noopener noreferrer">
-                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open the website
+                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open the Website
                                     </a>
                                     <?php if ($can_edit && !$domain_archived_at) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/domain/domain_edit.php?id=<?= $domain_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('domain', $domain_id) ?>
                                         <a class="dropdown-item" href="post.php?refresh_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Look up now
+                                            <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Look Up Now
                                         </a>
                                         <a class="dropdown-item" href="post.php?<?= $domain_favorite ? 'unfavorite_domain' : 'favorite_domain' ?>=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="<?= $domain_favorite ? 'far' : 'fas' ?> fa-fw fa-star text-secondary me-2"></i><?= $domain_favorite ? 'Unstar' : 'Star' ?>
@@ -412,13 +412,13 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                                                 <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                             <?php if ($can_delete) { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                     data-confirm-text="<?= $domain_name ?> goes for good, with its history. Services and certificates stop pointing at it.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>
                                             <?php } ?>
                                         <?php } else { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                         <?php } ?>
@@ -442,7 +442,10 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
         'views' => ['show'],
         'view' => emptyStatePill($shows, $show, '', ['soon', 'expired', 'noauto', 'mail']),
         'text' => 'Their domain names, where each is registered and when it expires.',
-        'actions' => $can_edit ? [['label' => 'New Domain', 'modal' => "modals/domain/domain_add.php?$client_url", 'size' => 'lg']] : [],
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New Domain', 'modal' => "modals/domain/domain_add.php?$client_url", 'size' => 'lg']],
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=domains", 'icon' => 'fa-upload', 'size' => 'lg']] : []
+        ) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>
@@ -454,8 +457,8 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fas fa-fw fa-building me-2"></i>Set registrar or host</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title"><i class="fas fa-fw fa-building me-2"></i>Set Registrar or Host</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <label class="form-label">What they do</label>
@@ -475,8 +478,8 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                 <div class="form-text"><?= $client_url ? "The client's vendors, and ours." : 'Across clients only our own vendors can be set - open a client to use theirs.' ?></div>
             </div>
             <div class="modal-footer">
-                <button type="submit" form="bulkActions" name="bulk_set_domain_vendor" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Set it</button>
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+                <button type="submit" form="bulkActions" name="bulk_set_domain_vendor" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set It</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
             </div>
         </div>
     </div>

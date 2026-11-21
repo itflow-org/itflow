@@ -162,7 +162,18 @@ mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = NULL, user_p
 // Clean-up old dismissed notifications
 mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_dismissed_at < CURDATE() - INTERVAL 90 DAY");
 
-// Clean-up mail queue
+// Clean-up reply drafts (functions/ticket_reply_draft.php) - a month untouched, or on a ticket since closed
+if (ticketReplyDraftsReady()) {
+    mysqli_query($mysqli, "DELETE ticket_reply_drafts FROM ticket_reply_drafts LEFT JOIN tickets ON tickets.ticket_id = ticket_reply_drafts.ticket_id
+        WHERE draft_updated_at < NOW() - INTERVAL 30 DAY OR tickets.ticket_id IS NULL OR tickets.ticket_closed_at IS NOT NULL");
+}
+
+// What each agent has seen - closed tickets drop out (functions/ticket_read.php)
+ticketReadsCleanup();
+
+// Clean-up mail queue - a failed or cancelled email with a link or code that opens something is cleared after a day, everything is deleted after 90
+mailQueueClearSensitive();
+mailQueueImageCleanup();
 mysqli_query($mysqli, "DELETE FROM email_queue WHERE email_queued_at < CURDATE() - INTERVAL " . MAIL_QUEUE_KEEP_DAYS . " DAY");
 
 // Clean-up the PDFs made to go with billing emails - sent or given up on by now
@@ -363,18 +374,37 @@ foreach ($warranty_alert_array as $day) {
 // Logging
 // logAudit("Cron", "Task", "Cron created notifications for asset warranties expiring");
 
-// UPS batteries due for replacing - the same days ahead as warranties (asset_specs, functions/asset_type.php)
-foreach (assetSpecsReady() ? $warranty_alert_array : [] as $day) {
-    $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_spec_value, client_id, client_name FROM asset_specs
-        JOIN assets ON asset_id = asset_spec_asset_id
-        JOIN clients ON asset_client_id = client_id
-        WHERE asset_spec_key = 'battery_replace' AND asset_spec_value = CURDATE() + INTERVAL $day DAY
-        AND asset_type = 'UPS' AND asset_archived_at IS NULL AND client_archived_at IS NULL");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $asset_id = intval($row['asset_id']);
-        $client_id = intval($row['client_id']);
-        appNotify("UPS Battery Due", "The battery in " . escapeSql($row['asset_name']) . " for " . escapeSql($row['client_name']) . " is due for replacing in $day day" . ($day === 1 ? '' : 's') . ", on " . escapeSql($row['asset_spec_value']),
-            "/agent/asset.php?client_id=$client_id&asset_id=$asset_id", $client_id);
+// UPS batteries due for replacing - the same days ahead as warranties (asset_specs, functions/asset_type.php) - and the
+// dates your own types flag as they near, like an inspection: on the types that have them
+$flagged_dates = [];
+foreach (assetSpecsReady() ? assetTypes() : [] as $flag_type => $flag_info) {
+    foreach (assetTypeSpecs($flag_type) as $flag_key => $flag_spec) {
+        if (!empty($flag_spec['flag'])) {
+            $flagged_dates[$flag_key]['types'][] = $flag_type;
+            $flagged_dates[$flag_key]['label'] = $flag_spec['label'];
+        }
+    }
+}
+foreach ($flagged_dates as $flag_key => $flagged) {
+    $flag_types = "'" . implode("', '", array_map('escapeSql', $flagged['types'])) . "'";
+    foreach ($warranty_alert_array as $day) {
+        $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_spec_value, client_id, client_name FROM asset_specs
+            JOIN assets ON asset_id = asset_spec_asset_id
+            JOIN clients ON asset_client_id = client_id
+            WHERE asset_spec_key = '" . escapeSql($flag_key) . "' AND asset_spec_value = CURDATE() + INTERVAL $day DAY
+            AND asset_type IN ($flag_types) AND asset_archived_at IS NULL AND client_archived_at IS NULL");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $asset_id = intval($row['asset_id']);
+            $client_id = intval($row['client_id']);
+            $days = "$day day" . ($day === 1 ? '' : 's');
+            if ($flag_key === 'battery_replace') {
+                appNotify("UPS Battery Due", "The battery in " . escapeSql($row['asset_name']) . " for " . escapeSql($row['client_name']) . " is due for replacing in $days, on " . escapeSql($row['asset_spec_value']),
+                    "/agent/asset.php?client_id=$client_id&asset_id=$asset_id", $client_id);
+            } else {
+                appNotify("Asset Date Due", escapeSql($flagged['label']) . " for " . escapeSql($row['asset_name']) . " at " . escapeSql($row['client_name']) . " is due in $days, on " . escapeSql($row['asset_spec_value']),
+                    "/agent/asset.php?client_id=$client_id&asset_id=$asset_id", $client_id);
+            }
+        }
     }
 }
 
@@ -405,11 +435,12 @@ if ($tickets_pending_assignment > 0) {
 }
 
 // Recurring tickets - each one due today, or missed (a night the cron didn't
-// run), raises one ticket and moves on to its next run after today. Paused ones
-// raise nothing. recurringTicketRunNow() (functions/ticket.php) is the same code
-// the Raise now button runs.
-$sql_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_id, recurring_ticket_next_run, recurring_ticket_frequency, recurring_ticket_start_date
-    FROM recurring_tickets WHERE recurring_ticket_next_run <= CURDATE() AND recurring_ticket_paused_at IS NULL");
+// run), or made so many days ahead of its run (recurringTicketDueSql()), raises
+// one ticket - booked for its run day, when it has a time - and moves on to its
+// next run. Paused ones raise nothing. recurringTicketRunNow() (functions/ticket.php)
+// is the same code the Raise now button runs.
+$sql_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_id, recurring_ticket_next_run, recurring_ticket_frequency, recurring_ticket_start_date" . (byDayReady() ? ", recurring_ticket_by_day" : "") . "
+    FROM recurring_tickets WHERE " . recurringTicketDueSql() . " AND recurring_ticket_paused_at IS NULL");
 
 $recurring_tickets_raised = 0;
 while ($row = mysqli_fetch_assoc($sql_recurring_tickets)) {
@@ -560,8 +591,24 @@ if ($reminder_rules['enabled']) {
 }
 
 
+// Reminders already sent are only kept so each goes once - forget the old ones
+calendarRemindersCleanup();
+
+// The weekly summary to the owners, on the day picked in Admin > Settings > Notifications (functions/weekly_summary.php)
+$weekly_summary_sent = weeklySummaryRun();
+if ($weekly_summary_sent) {
+    logApp("Cron", "info", "Cron emailed the weekly summary to $weekly_summary_sent " . ($weekly_summary_sent === 1 ? 'person' : 'people'));
+}
+
+// Recurring invoices paused until today run again first - so one due today bills today
+$recurring_invoices_resumed = recurringInvoiceResumePaused();
+if ($recurring_invoices_resumed) {
+    logApp("Cron", "info", "Cron resumed $recurring_invoices_resumed recurring invoice(s) at the end of their pause");
+}
+
 // Recurring invoices - each one due today, or missed by up to
-// RECURRING_INVOICE_GRACE_DAYS (a night or a few the cron didn't run), makes
+// RECURRING_INVOICE_GRACE_DAYS (a night or a few the cron didn't run), or
+// within the days ahead it is made (dated today, due by its due rule), makes
 // its invoice and moves on a period from the run it billed. One further
 // behind than that is left for someone to look at - the page says it is late
 // and offers Invoice Now, or moving it on without billing the missed runs.
@@ -569,12 +616,13 @@ if ($reminder_rules['enabled']) {
 // Invoice Now button runs.
 $sql_recurring_invoices = mysqli_query($mysqli, "SELECT recurring_invoice_id, recurring_invoice_next_date FROM recurring_invoices
     WHERE recurring_invoice_status = 1 AND recurring_invoice_archived_at IS NULL
-    AND recurring_invoice_next_date <= CURDATE() AND recurring_invoice_next_date >= CURDATE() - INTERVAL " . RECURRING_INVOICE_GRACE_DAYS . " DAY
+    AND recurring_invoice_next_date <= CURDATE()" . (recurringAheadReady() ? " + INTERVAL recurring_invoice_lead_days DAY" : "") . "
+    AND recurring_invoice_next_date >= CURDATE() - INTERVAL " . RECURRING_INVOICE_GRACE_DAYS . " DAY
     ORDER BY recurring_invoice_next_date ASC, recurring_invoice_id ASC");
 
 $recurring_invoices_made = 0;
 while ($row = mysqli_fetch_assoc($sql_recurring_invoices)) {
-    if (recurringInvoiceGenerate($row['recurring_invoice_id'], 'Cron', false, $row['recurring_invoice_next_date'])) {
+    if (recurringInvoiceGenerate($row['recurring_invoice_id'], 'Cron', $row['recurring_invoice_next_date'] > date('Y-m-d'), $row['recurring_invoice_next_date'])) {
         $recurring_invoices_made++;
     }
 }
@@ -593,15 +641,27 @@ while ($row = mysqli_fetch_assoc($sql_invalid_recurring_invoices)) {
 }
 // End Flag any active recurring "next run" dates that are in the past
 
-// Start Notify draft invoices needing review
-$sql_invoices_pending_send = mysqli_query($mysqli,"SELECT invoice_id FROM invoices WHERE invoice_status = 'Draft'");
-$invoices_pending_send = mysqli_num_rows($sql_invoices_pending_send);
+// Start Notify draft invoices needing review - with how many have been left more than a week
+$drafts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(invoice_created_at < NOW() - INTERVAL " . INVOICE_DRAFT_STALE_DAYS . " DAY), 0) FROM invoices WHERE invoice_status = 'Draft'"));
+$invoices_pending_send = intval($drafts[0]);
+$invoices_pending_stale = intval($drafts[1]);
 
 if ($invoices_pending_send > 0) {
 
-    appNotify("Draft Invoices", "There are $invoices_pending_send draft invoices pending review", "/agent/invoices.php?&status=Draft");
+    appNotify("Draft Invoices", "There are $invoices_pending_send draft invoices pending review" . ($invoices_pending_stale ? ", $invoices_pending_stale of them left more than " . INVOICE_DRAFT_STALE_DAYS . " days" : ''),
+        $invoices_pending_stale ? "/agent/invoices.php?status=StaleDraft" : "/agent/invoices.php?&status=Draft");
 }
 // End Notify draft invoices needing review
+
+// Sent quotes running out soon with no answer - a nudge to Sales to follow each one up
+$sql_quotes_expiring = mysqli_query($mysqli, "SELECT quote_id, quote_prefix, quote_number, quote_scope, quote_expire, quote_client_id, client_name FROM quotes
+    JOIN clients ON client_id = quote_client_id
+    WHERE quote_status IN ('Sent', 'Viewed') AND quote_archived_at IS NULL AND quote_expire = CURDATE() + INTERVAL " . QUOTE_EXPIRY_NUDGE_DAYS . " DAY");
+while ($row = mysqli_fetch_assoc($sql_quotes_expiring)) {
+    $quote_label = billingNumber('quote', $row) . (trim((string) $row['quote_scope']) !== '' ? ' (' . $row['quote_scope'] . ')' : '');
+    appNotify("Quote Expiring", escapeSql("Quote $quote_label for {$row['client_name']} runs out on {$row['quote_expire']}, in " . QUOTE_EXPIRY_NUDGE_DAYS . " days, with no answer yet - a good time to follow it up"),
+        "/agent/quote.php?quote_id=" . intval($row['quote_id']), intval($row['quote_client_id']), intval($row['quote_id']));
+}
 
 
 
@@ -615,10 +675,15 @@ $sql_recurring_payments = mysqli_query($mysqli, "
     LEFT JOIN clients ON client_id = invoice_client_id
     LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
     WHERE invoice_due = CURDATE()
-      AND (invoice_status = 'Sent' OR invoice_status = 'Viewed')
+      AND invoice_status IN ('Sent', 'Viewed', 'Partial')
 ");
 
 while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
+    // Development mode charges no cards (functions/dev_mode.php)
+    if (devModeOn()) {
+        echo "Development mode - autopay doesn't charge cards\n";
+        break;
+    }
     $invoice_id = intval($row['invoice_id']);
     $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
@@ -640,6 +705,17 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
     // A card that already declined today is not retried - the day-matched selection above
     // would otherwise re-attempt the same charge on every extra run of this script
     if (cronInvoiceHistoryToday($invoice_id, 'Stripe autopay failed')) {
+        continue;
+    }
+
+    // What is still owed, read again now - a part payment is taken off rather than charged again
+    // in full, and an invoice paid since the list above was read is left alone
+    $invoice_now = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT invoice_amount, invoice_status FROM invoices WHERE invoice_id = $invoice_id"));
+    if (!$invoice_now || !in_array($invoice_now['invoice_status'], invoiceOpenStatuses(), true)) {
+        continue;
+    }
+    $invoice_amount = round(floatval($invoice_now['invoice_amount']) - invoicePaid($invoice_id), 2);
+    if ((int) round($invoice_amount * 100) <= 0) {
         continue;
     }
 
@@ -719,6 +795,13 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
                     $pi_livemode = $payment_intent->livemode;
 
                 } catch (Exception $e) {
+                    // The client's Stripe customer is gone from Stripe - forgotten with its cards, so the client adds a card again
+                    if (billingStripeCustomerGone($e)) {
+                        billingStripeCustomerForget($client_id, $stripe_customer_id);
+                        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe autopay failed - the client\\'s Stripe customer is no longer in Stripe, so its card was removed', history_invoice_id = $invoice_id");
+                        logAudit("Invoice", "Payment", "Failed auto Payment of invoice $invoice_prefix$invoice_number - the client's Stripe customer is no longer in Stripe", $client_id, $invoice_id);
+                        continue;
+                    }
                     $error = $e->getMessage();
                     error_log("Stripe payment error - encountered exception during payment intent for invoice ID $invoice_id / $invoice_prefix$invoice_number: $error");
                     logApp("Stripe", "error", "Exception during PI for invoice ID $invoice_id: $error");
@@ -729,15 +812,13 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
 
                 if ($payment_intent->status == "succeeded" && intval($payment_intent->amount_received) === $balance_cents + $fee_cents) {
 
-                    // Update Invoice Status
-                    mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
-
-                    // The card fee goes on the invoice, so the payment - the invoice and its fee - pays it to the cent
+                    // The card fee goes on the invoice, so the payment - the balance and its fee - pays it to the cent
                     billingCardFeeAdd($invoice_id, $fee_cents / 100, $pi_date);
 
                     // Add Payment to History
                     mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $account_id, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
-                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (autopay)" . ($fee_cents > 0 ? ', with a ' . escapeSql(billingMoney($fee_cents / 100, $pi_currency)) . ' card fee' : '') . "', history_invoice_id = $invoice_id");
+                    $invoice_status = updateInvoiceStatusFromPayments($invoice_id);
+                    mysqli_query($mysqli, "INSERT INTO history SET history_status = '$invoice_status', history_description = 'Online Payment added (autopay)" . ($fee_cents > 0 ? ', with a ' . escapeSql(billingMoney($fee_cents / 100, $pi_currency)) . ' card fee' : '') . "', history_invoice_id = $invoice_id");
 
                     // The client's receipt, and the paid notification address - functions/billing_email.php
                     if (!empty($config_smtp_provider)) {
@@ -765,8 +846,8 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
         mysqli_query($mysqli, "INSERT INTO payments SET payment_date = CURDATE(), payment_amount = $invoice_amount, payment_currency_code = '$recurring_payment_currency_code', payment_account_id = $recurring_payment_account_id, payment_method = '$recurring_payment_method', payment_reference = 'Paid via AutoPay', payment_invoice_id = $invoice_id");
         $payment_id = mysqli_insert_id($mysqli);
 
-        mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
-        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Payment added via Auto Pay', history_invoice_id = $invoice_id");
+        $invoice_status = updateInvoiceStatusFromPayments($invoice_id);
+        mysqli_query($mysqli, "INSERT INTO history SET history_status = '$invoice_status', history_description = 'Payment added via Auto Pay', history_invoice_id = $invoice_id");
         logAudit("Invoice", "Payment", "Auto Payment amount of $recurring_payment_currency_code $invoice_amount added to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
     }
 }
@@ -802,9 +883,9 @@ while ($row = mysqli_fetch_assoc($sql_recurring_expenses)) {
         "/agent/recurring_expenses.php?status=late", intval($recurring['recurring_expense_client_id']));
 }
 
-// TELEMETRY
+// TELEMETRY - not from a development copy, which would be counted as production (functions/dev_mode.php)
 
-if ($config_telemetry > 0 || $config_telemetry == 2) {
+if (($config_telemetry > 0 || $config_telemetry == 2) && !devModeOn()) {
 
     $current_version = gitCurrentCommit();
 

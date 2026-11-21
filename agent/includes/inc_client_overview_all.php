@@ -5,6 +5,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/check_login.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/page_title.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
+$nav_across_clients = true; // the top bar's Across clients shows as open
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/top_nav.php';
 require_once 'includes/client_overview_side_nav.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_wrapper.php';

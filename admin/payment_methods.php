@@ -65,10 +65,6 @@ $rows = array_slice($rows, $record_from, $record_to);
 
 $missing = $show === '' && $search === '' ? paymentMethodsNotSetUp() : [];
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($view) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $view]));
 };
@@ -113,7 +109,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search payment methods..." title="Name or description">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -128,10 +124,10 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('payment_method_name', 'Method') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('payment_method_use', 'For') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('used', 'Used on') ?></th>
-                <th class="d-none d-sm-table-cell"><?= $sort_link('last_used', 'Last used') ?></th>
+                <th class="ps-3"><?= sortLink('payment_method_name', 'Method') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('payment_method_use', 'For') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('used', 'Used on') ?></th>
+                <th class="d-none d-sm-table-cell"><?= sortLink('last_used', 'Last used') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -150,7 +146,7 @@ $csrf = $_SESSION['csrf_token'];
                 $records_url = '/agent/transactions.php?' . http_build_query(['method' => $row['payment_method_name']]);
                 $edit_url = "modals/payment_method/payment_method_edit.php?id=$payment_method_id";
                 $use_html = '<span class="text-body-secondary text-nowrap" title="' . escapeHtml($use_info['about']) . '"><i class="fas fa-fw ' . $use_info['icon'] . ' me-1"></i>' . escapeHtml($use_info['short']) . '</span>';
-                $used_html = $used['total'] ? '<a href="' . escapeHtml($records_url) . '" class="text-reset" title="See them in Transactions">' . escapeHtml($used_text) . '</a>' : '<span class="text-body-tertiary">Not used yet</span>';
+                $used_html = $used['total'] ? (moduleOn('bookkeeping') ? '<a href="' . escapeHtml($records_url) . '" class="text-reset" title="See them in Transactions">' . escapeHtml($used_text) . '</a>' : escapeHtml($used_text)) : '<span class="text-body-tertiary">Not used yet</span>';
                 ?>
                 <tr data-payment-method-id="<?= $payment_method_id ?>">
                     <td class="ps-3">
@@ -192,7 +188,7 @@ $csrf = $_SESSION['csrf_token'];
                                 </a>
                                 <?php if ($used['total']) { ?>
                                     <a class="dropdown-item" href="<?= escapeHtml($records_url) ?>">
-                                        <i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>See its transactions
+                                        <i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>See Its Transactions
                                     </a>
                                 <?php } ?>
                                 <?php if (!$archived) {
@@ -207,11 +203,11 @@ $csrf = $_SESSION['csrf_token'];
                                 <div class="dropdown-divider"></div>
                                 <?php if ($archived) { ?>
                                     <a class="dropdown-item" href="post.php?restore_payment_method=<?= $payment_method_id ?>&csrf_token=<?= $csrf ?>" title="Back in the pickers">
-                                        <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                     </a>
                                 <?php } else { ?>
-                                    <a class="dropdown-item text-danger confirm-link" href="post.php?archive_payment_method=<?= $payment_method_id ?>&csrf_token=<?= $csrf ?>"
-                                        data-confirm-title="Archive <?= $name ?>?" data-confirm-text="It can't be picked any more<?= $is_default ? ', and stops being a default' : '' ?>. The records that used it keep it." data-confirm-button="Archive">
+                                    <a class="dropdown-item text-danger" href="post.php?archive_payment_method=<?= $payment_method_id ?>&csrf_token=<?= $csrf ?>"
+                                        title="It can't be picked any more<?= $is_default ? ', and stops being a default' : '' ?> - the records that used it keep it">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </a>
                                 <?php } ?>

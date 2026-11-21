@@ -118,10 +118,6 @@ $filter_url = function ($changes) {
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null; }));
 };
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['fa-key', 'login', 'logins'], 'domain' => ['fa-globe', 'domain', 'domains'],
     'certificate' => ['fa-lock', 'certificate', 'certificates'], 'contact' => ['fa-user', 'person', 'people'], 'vendor' => ['fa-building', 'vendor', 'vendors'],
@@ -139,10 +135,15 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                         <i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Service</span>
                     </button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/service/service_export.php', ['client_id', 'client', 'show', 'importance', 'category', 'tags', 'q']) ?>">
-                        <i class="fa fa-fw fa-download me-2"></i>Export
+                    <?php if ($can_edit && $client_url) { ?>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=services">
+                            <i class="fas fa-fw fa-upload me-2"></i>Import
+                        </a>
+                    <?php } ?>
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/service/service_export.php', ['client_id', 'client', 'show', 'importance', 'category', 'tags', 'q']) ?>">
+                        <i class="fas fa-fw fa-download me-2"></i>Export
                     </a>
                 </div>
             </div>
@@ -159,7 +160,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                 <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search services..." title="Name, description, category, notes, client, tags">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -179,14 +180,14 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                     </select>
                 </div>
                 <div class="col-lg-2 col-md-6">
-                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                         <?= tagFilterOptionsHtml('service', $tag_filter_ids, '1 ' . clientScopeSql('service_client_id') . ($client_url ? " AND service_client_id = $client_id" : '')) ?>
                     </select>
                 </div>
                 <?php if (!$client_url) { ?>
                     <div class="col-lg-2 col-md-6">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
-                            <option value="">- All Clients -</option>
+                            <option value="">- Any client -</option>
                             <?php
                             $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
                                 WHERE client_archived_at IS NULL AND (EXISTS (SELECT 1 FROM services WHERE service_client_id = client_id) OR client_id = $client_filter)
@@ -207,11 +208,11 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/service/service_bulk_edit.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-edit me-2"></i>Importance, category, review
+                                        <i class="fas fa-fw fa-edit me-2"></i>Importance, Category, Review
                                     </a>
                                     <button class="dropdown-item confirm-link" type="submit" form="bulkActions" name="bulk_review_services"
                                         data-confirm-text="Each one is marked reviewed today, and its next review set from its schedule.">
-                                        <i class="fas fa-fw fa-clipboard-check me-2"></i>Mark reviewed
+                                        <i class="fas fa-fw fa-clipboard-check me-2"></i>Mark Reviewed
                                     </button>
                                     <?php if ($show !== 'archived') { ?>
                                         <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="service" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
@@ -230,14 +231,13 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                             <i class="fas fa-fw fa-redo me-2"></i>Restore
                                         </button>
                                         <?php if ($can_delete) { ?>
-                                            <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_services"
+                                            <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_services"
                                                 data-confirm-text="The services go for good. What they linked to - assets, logins, documents - stays.">
                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </button>
                                         <?php } ?>
                                     <?php } else { ?>
-                                        <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_services"
-                                            data-confirm-text="They move to Archived, off the lists and counts, until restored.">
+                                        <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_services">
                                             <i class="fas fa-fw fa-archive me-2"></i>Archive
                                         </button>
                                     <?php } ?>
@@ -276,12 +276,12 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                             </div>
                         </th>
                     <?php } ?>
-                    <th><?= $sort_link('service_name', 'Service') ?></th>
-                    <?php if (!$client_url) { ?><th><?= $sort_link('client_name', 'Client') ?></th><?php } ?>
-                    <th><?= $sort_link('service_importance', 'Importance') ?></th>
+                    <th><?= sortLink('service_name', 'Service') ?></th>
+                    <?php if (!$client_url) { ?><th><?= sortLink('client_name', 'Client') ?></th><?php } ?>
+                    <th><?= sortLink('service_importance', 'Importance') ?></th>
                     <th class="d-none d-xxl-table-cell">Depends on</th>
                     <th>Attention</th>
-                    <th><?= $sort_link('service_review_due', 'Review') ?></th>
+                    <th><?= sortLink('service_review_due', 'Review') ?></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -328,7 +328,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                         <div class="small text-body-secondary text-truncate itflow-service-desc" title="<?= escapeHtml($detail) ?>"><?= escapeHtml($detail) ?></div>
                                     <?php } ?>
                                     <?php if ($service_tags || ($can_edit && !$is_archived)) { ?>
-                                        <div class="mt-1"><?= tagPills('service', $service_id, $service_tags, "services.php?$client_url", $can_edit && !$is_archived) ?></div>
+                                        <div class="itflow-tags-row mt-1"><?= tagPills('service', $service_id, $service_tags, "services.php?$client_url", $can_edit && !$is_archived) ?></div>
                                     <?php } ?>
                                     <!-- Narrower screens drop the Depends on column - the chips come along -->
                                     <?php if ($chips) { ?><div class="d-none d-md-flex d-xxl-none flex-wrap gap-1 mt-1"><?= $chips ?></div><?php } ?>
@@ -343,7 +343,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                         </td>
 
                         <?php if (!$client_url) { ?>
-                            <td class="itflow-ticket-who-cell"><a class="d-block text-truncate text-body fw-semibold small" href="services.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                            <td class="itflow-ticket-who-cell"><a data-client-card="<?= $row_client_id ?>" class="d-block text-truncate text-body fw-semibold small" href="services.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
 
                         <td class="text-nowrap">
@@ -381,20 +381,21 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $quick_url ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
-                                    <a class="dropdown-item" href="<?= $url ?>" target="_blank">
-                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a new tab
+                                    <a class="dropdown-item" href="<?= $url ?>" target="_blank" rel="noopener">
+                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a New Tab
                                     </a>
                                     <?php if ($can_edit && !$is_archived) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml('modals/ticket/ticket_add.php?' . http_build_query(['client_id' => $row_client_id, 'service_id' => $service_id])) ?>">
-                                            <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Report a problem
+                                            <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Report a Problem
                                         </a>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/service/service_edit.php?id=<?= $service_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('service', $service_id) ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/service/service_review.php?id=<?= $service_id ?>">
-                                            <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Mark reviewed
+                                            <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Mark Reviewed
                                         </a>
                                         <a class="dropdown-item" href="post.php?<?= $is_favorite ? 'unfavorite_service' : 'favorite_service' ?>=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="<?= $is_favorite ? 'far' : 'fas' ?> fa-fw fa-star text-secondary me-2"></i><?= $is_favorite ? 'Unstar' : 'Star' ?>
@@ -407,14 +408,13 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                                 <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                             <?php if ($can_delete) { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                     data-confirm-text="<?= $name ?> goes for good. What it linked to - assets, logins, documents - stays.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>
                                             <?php } ?>
                                         <?php } else { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                                data-confirm-text="<?= $name ?> moves to Archived, off the lists and counts, until restored.">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                         <?php } ?>
@@ -437,7 +437,10 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
         'views' => ['show'],
         'view' => emptyStatePill($shows, $show, '', ['unreviewed']),
         'text' => 'Start with what the client cannot work without: email, backup, their line of business app.',
-        'actions' => $can_edit ? [['label' => 'New Service', 'modal' => "modals/service/service_add.php?$client_url", 'size' => 'lg']] : [],
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New Service', 'modal' => "modals/service/service_add.php?$client_url", 'size' => 'lg']],
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=services", 'icon' => 'fa-upload', 'size' => 'lg']] : []
+        ) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>

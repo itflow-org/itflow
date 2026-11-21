@@ -5,7 +5,7 @@
  * user_edit.php, which set $form (the user, raw - or the defaults for a new
  * one) and $is_new. Posts what admin/post/users.php add_user / edit_user read.
  *
- * Tabs: Details (picture, name, email, role), Sign in (password, MFA) and
+ * Tabs: Details (picture, name, email, role, office), Sign in (password, MFA) and
  * Client access - which clients a role without admin is limited to or kept
  * from. An admin sees every client, so for an admin role that tab just says
  * so (any rules are kept, in case the role changes back).
@@ -60,22 +60,11 @@ $value = function ($key) use ($form) {
 <!-- Who they are -->
 <div class="tab-pane fade show active" id="<?= $form_id ?>Details">
     <div class="d-flex align-items-center gap-3 mb-3">
-        <span data-user-avatar-preview><?= userAvatar($form_user_id ?: 0, $form['user_name'] ?? '', $form['user_avatar'] ?? '', 'lg') ?></span>
+        <?= pictureField('avatar', $form_has_avatar ? 'remove_avatar' : '', userAvatar($form_user_id ?: 0, $form['user_name'] ?? '', $form['user_avatar'] ?? '', 'lg'), userAvatar($form_user_id ?: 0, $form['user_name'] ?? '', '', 'lg'),
+            ['round' => true, 'title' => 'Picture', 'class' => 'itflow-contact-avatar itflow-contact-avatar-lg', 'name' => 'name']) ?>
         <div class="flex-grow-1 min-w-0">
-            <label class="form-label mb-1">Picture</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-fw fa-image"></i></span>
-                <input type="file" class="form-control" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp" data-user-avatar-input>
-            </div>
-            <div class="d-flex flex-wrap align-items-center column-gap-3 mt-1">
-                <span class="form-text mt-0">JPG, PNG, GIF or WebP, up to 5 MB. Without one, their initials.</span>
-                <?php if ($form_has_avatar) { ?>
-                    <div class="form-check small mb-0">
-                        <input class="form-check-input" type="checkbox" name="remove_avatar" value="1" id="<?= $form_id ?>RemoveAvatar" data-user-avatar-remove>
-                        <label class="form-check-label" for="<?= $form_id ?>RemoveAvatar">Remove the picture</label>
-                    </div>
-                <?php } ?>
-            </div>
+            <div class="fw-semibold">Picture</div>
+            <div class="form-text mt-0">Click it to add one or change it. Without one, their initials.</div>
         </div>
     </div>
 
@@ -103,7 +92,7 @@ $value = function ($key) use ($form) {
                 <span class="input-group-text"><i class="fas fa-fw fa-user-shield"></i></span>
                 <select class="form-select select2" name="role" required data-user-role>
                     <?php if (!isset($form_roles[$form_role_id])) { ?>
-                        <option value="">- Pick a role -</option>
+                        <option value="">- Select a role -</option>
                     <?php } ?>
                     <?php foreach ($form_roles as $role_id => $role) { ?>
                         <option value="<?= $role_id ?>" <?= $form_role_id === $role_id ? 'selected' : '' ?> data-role-admin="<?= intval($role['role_is_admin']) ?>"<?= selectOptionRole($role) ?>><?= escapeHtml($role['role_name']) ?><?= $role['role_archived_at'] ? ' (archived)' : '' ?></option>
@@ -118,8 +107,12 @@ $value = function ($key) use ($form) {
                     <div class="mt-2" data-user-role-access="<?= $role_id ?>"<?= $form_role_id === $role_id ? '' : ' hidden' ?>><?= roleAccessHtml($form_role_rows[$role_id]) ?></div>
                 <?php }
             } ?>
-            <div class="form-text">What they can see and change. <a href="roles.php" target="_blank">Roles <i class="fas fa-external-link-alt small"></i></a></div>
+            <div class="form-text">What they can see and change. <a href="roles.php" target="_blank" rel="noopener">Roles <i class="fas fa-external-link-alt small"></i></a></div>
         </div>
+        <?= officeUserField($form_user_id ? officeIdForUser($form_user_id) : 0) ?>
+        <?php if (!$is_new) { ?>
+            <?= calendarAgentColorField($form_user_id, 'col-12') ?>
+        <?php } ?>
     </div>
 </div>
 
@@ -151,7 +144,7 @@ $value = function ($key) use ($form) {
                 <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control font-monospace" data-toggle="password" name="<?= $is_new ? 'password' : 'new_password' ?>" id="<?= $form_id ?>Password"
                     placeholder="<?= $is_new ? 'At least ' . USER_PASSWORD_MIN . ' characters' : 'Leave blank to keep their password' ?>" minlength="<?= USER_PASSWORD_MIN ?>" autocomplete="new-password" <?= $is_new && !$form_invites ? 'required' : '' ?><?= $form_invites ? ' disabled' : '' ?> data-user-password>
-                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                 <button class="btn btn-outline-secondary clipboardjs" type="button" title="Copy password" data-clipboard-target="#<?= $form_id ?>Password"><i class="far fa-fw fa-copy"></i></button>
                 <button class="btn btn-outline-secondary" type="button" title="Make one up - words that are easy to read out" data-user-generate><i class="fas fa-fw fa-magic"></i></button>
             </div>
@@ -182,6 +175,24 @@ $value = function ($key) use ($form) {
                 <?php } ?>
             </div>
         </div>
+
+        <?php if (serviceAccountsReady()) {
+            $form_service = $form_user_id && serviceAccountIs($form_user_id); ?>
+            <!-- A login only for API keys to act as (functions/service_account.php) -->
+            <div class="col-12" data-user-service-account>
+                <input type="hidden" name="service_account_present" value="1">
+                <div class="border rounded p-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" name="service_account" value="1" id="<?= $form_id ?>ServiceAccount" <?= $form_service ? 'checked' : '' ?>>
+                        <label class="form-check-label fw-semibold" for="<?= $form_id ?>ServiceAccount"><i class="fas fa-fw fa-plug text-body-secondary me-1"></i>API / service account</label>
+                        <div class="form-text mt-0">
+                            For a login that API keys act as, for an integration. It keeps its role, so its keys work, but it's left out of the calendar, every assign picker, the reports and the other agent lists, gets no notifications, and can't sign in to ITFlow.
+                            <?= $is_new ? 'Set a password for it - it isn\'t invited.' : '' ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
     </div>
 </div>
 
@@ -208,8 +219,8 @@ $value = function ($key) use ($form) {
             </div>
             <div class="btn-group btn-group-sm" role="group" aria-label="Set every client shown">
                 <button type="button" class="btn btn-outline-secondary" data-user-access-all="" title="Every client shown">Clear</button>
-                <button type="button" class="btn btn-outline-success" data-user-access-all="allow" title="Every client shown">All only</button>
-                <button type="button" class="btn btn-outline-danger" data-user-access-all="deny" title="Every client shown">All never</button>
+                <button type="button" class="btn btn-outline-success" data-user-access-all="allow" title="Every client shown">All Only</button>
+                <button type="button" class="btn btn-outline-danger" data-user-access-all="deny" title="Every client shown">All Never</button>
             </div>
             <span class="small fw-semibold ms-auto" data-user-access-summary></span>
         </div>
@@ -258,46 +269,6 @@ $value = function ($key) use ($form) {
         return;
     }
     var form = root.closest('form');
-
-    // The picture - shown as soon as it is picked
-    var avatarInput = root.querySelector('[data-user-avatar-input]');
-    var avatarPreview = root.querySelector('[data-user-avatar-preview]');
-    var avatarOriginal = avatarPreview.innerHTML;
-    var avatarRemove = root.querySelector('[data-user-avatar-remove]');
-    avatarInput.addEventListener('change', function () {
-        var file = avatarInput.files && avatarInput.files[0];
-        if (file && /^image\//.test(file.type)) {
-            var img = document.createElement('img');
-            img.className = 'itflow-contact-avatar itflow-contact-avatar-lg';
-            img.alt = '';
-            img.src = URL.createObjectURL(file);
-            avatarPreview.replaceChildren(img);
-            if (avatarRemove) {
-                avatarRemove.checked = false;
-            }
-        } else {
-            avatarPreview.innerHTML = avatarOriginal;
-        }
-    });
-    if (avatarRemove) {
-        avatarRemove.addEventListener('change', function () {
-            avatarPreview.classList.toggle('opacity-25', avatarRemove.checked);
-            if (avatarRemove.checked) {
-                avatarInput.value = '';
-                avatarPreview.innerHTML = avatarOriginal;
-            }
-        });
-    }
-
-    // No picture - their initials, as the name is typed
-    var nameInput = root.querySelector('[data-user-name]');
-    nameInput.addEventListener('input', function () {
-        var initials = avatarPreview.querySelector('span.itflow-contact-avatar');
-        if (initials && !(avatarInput.files && avatarInput.files.length)) {
-            var words = nameInput.value.trim().split(/\s+/).filter(Boolean).slice(0, 2);
-            initials.textContent = words.map(function (w) { return w.charAt(0).toUpperCase(); }).join('') || '?';
-        }
-    });
 
     // Make up a password - words, easy to read out over the phone
     var password = root.querySelector('[data-user-password]');

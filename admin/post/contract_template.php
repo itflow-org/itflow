@@ -88,10 +88,14 @@ if (isset($_GET['archive_contract_template']) || isset($_GET['restore_contract_t
     $contract_template_id = intval($row['contract_template_id']);
 
     // Archived, it isn't offered on a new contract; contracts started from it are unchanged
+    $undo = $archive ? undoArchivedBefore('contract_templates', 'contract_template_id', [$contract_template_id]) : null;
     mysqli_query($mysqli, "UPDATE contract_templates SET contract_template_archived_at = " . ($archive ? 'NOW()' : 'NULL') . " WHERE contract_template_id = $contract_template_id");
 
     logAudit("Contract Template", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " contract template " . escapeSql($row['contract_template_name']), 0, $contract_template_id);
     flashAlert("Contract template <strong>" . escapeHtml($row['contract_template_name']) . "</strong> " . ($archive ? 'archived' : 'restored'), $archive ? 'error' : 'success');
+    if ($undo) {
+        undoOfferArchived($undo, '', $row['contract_template_name']);
+    }
 
     redirect();
 

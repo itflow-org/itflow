@@ -18,8 +18,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-redo-alt me-2"></i>Restore <?= escapeHtml($name) ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-redo me-2"></i>Restore <?= escapeHtml($name) ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -47,7 +47,7 @@ ob_start();
                 <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control font-monospace" data-toggle="password" name="new_password" id="userRestorePassword<?= $user_id ?>"
                     placeholder="At least <?= USER_PASSWORD_MIN ?> characters" minlength="<?= USER_PASSWORD_MIN ?>" autocomplete="new-password" required>
-                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                 <button class="btn btn-outline-secondary clipboardjs" type="button" title="Copy password" data-clipboard-target="#userRestorePassword<?= $user_id ?>"><i class="far fa-fw fa-copy"></i></button>
                 <button class="btn btn-outline-secondary" type="button" title="Make one up - words that are easy to read out" data-user-restore-generate><i class="fas fa-fw fa-magic"></i></button>
             </div>
@@ -60,7 +60,7 @@ ob_start();
                 <span class="input-group-text"><i class="fas fa-fw fa-user-shield"></i></span>
                 <select class="form-select select2" name="role" required>
                     <?php if (!isset($roles[$role_id])) { ?>
-                        <option value="">- Pick a role -</option>
+                        <option value="">- Select a role -</option>
                     <?php } ?>
                     <?php foreach ($roles as $id => $role) { ?>
                         <option value="<?= $id ?>" <?= $id === $role_id ? 'selected' : '' ?><?= selectOptionRole($role) ?>><?= escapeHtml($role['role_name']) ?><?= $role['role_archived_at'] ? ' (archived)' : '' ?></option>
@@ -70,7 +70,7 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="restore_user" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Restore</button>
+        <button type="submit" name="restore_user" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Restore</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

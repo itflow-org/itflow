@@ -50,13 +50,26 @@ document.addEventListener('click', function (e) {
         return;
     }
 
+    // Only ever our own pages: what comes back is put in the page and its scripts run, so a link in
+    // an email or a document that carries this class must not fetch - and run - another site's
+    let sameOrigin = false;
+    try {
+        sameOrigin = new URL(modalUrl, window.location.href).origin === window.location.origin;
+    } catch (err) {
+        sameOrigin = false;
+    }
+    if (!sameOrigin) {
+        console.warn('ajax-modal: refused a URL on another site:', modalUrl);
+        return;
+    }
+
     const host = document.querySelector('.app-main') || document.body;
 
     // Show loading spinner while fetching content
     const spinner = document.createElement('div');
     spinner.id = 'modal-loading-spinner';
     spinner.className = 'text-center p-5';
-    spinner.innerHTML = '<i class="fas fa-spinner fa-spin fa-2x text-muted"></i>';
+    spinner.innerHTML = '<i class="fas fa-spinner fa-spin fa-2x text-body-secondary"></i>';
     host.appendChild(spinner);
 
     function clearSpinner() {
@@ -89,6 +102,8 @@ document.addEventListener('click', function (e) {
             wrapper.className = 'modal fade';
             wrapper.id = modalId;
             wrapper.tabIndex = -1;
+            // What it was opened with, so it can load again in place (js/link_picker.js)
+            wrapper.dataset.modalUrl = modalUrl;
             wrapper.innerHTML =
                 '<div class="modal-dialog modal-' + modalSize + '">' +
                     '<div class="modal-content border-dark">' +
@@ -129,7 +144,11 @@ document.addEventListener('click', function (e) {
         })
         .catch(function (error) {
             clearSpinner();
-            alert('Error loading modal content. Please try again.');
+            if (typeof itflowToast === 'function') {
+                itflowToast('That window could not be opened - try again.', 'error');
+            } else {
+                alert('That window could not be opened - try again.');
+            }
             console.error('Modal AJAX Error:', error);
         });
 });

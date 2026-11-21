@@ -14,7 +14,7 @@
  *   edit       the lines can be changed here (agent pages): drag handles,
  *              a menu on each line, the add field, and a line's name,
  *              description, quantity, price and tax changed where they sit
- *              (js/billing_items.js)
+ *              (js/billing_items.js); a quote line's cost under it
  *   notes_edit the notes save in place (agent pages)
  *   taxes      billingTaxes(), the rates a line's tax is picked from
  *   logo_url   the company logo, relative to the page
@@ -60,12 +60,12 @@ if ($paper_type === 'invoice' && $paper_status === 'Paid') {
 
 $paper_dates = [];
 if ($paper_type === 'invoice') {
-    $paper_dates = ['Invoice date' => $paper_row['invoice_date'], 'Due' => $paper_row['invoice_due']];
+    $paper_dates = ['Invoice date' => formatDate($paper_row['invoice_date']), 'Due' => formatDate($paper_row['invoice_due'])];
 } elseif ($paper_type === 'quote') {
-    $paper_dates = ['Quote date' => $paper_row['quote_date'], 'Valid until' => $paper_row['quote_expire']];
+    $paper_dates = ['Quote date' => formatDate($paper_row['quote_date']), 'Valid until' => formatDate($paper_row['quote_expire'])];
 } else {
     $paper_dates = ['Billed' => recurringInvoiceFrequencies()[$paper_row['recurring_invoice_frequency']] ?? ucfirst((string) $paper_row['recurring_invoice_frequency']),
-        'Next invoice' => $paper_row['recurring_invoice_next_date']];
+        'Next invoice' => formatDate($paper_row['recurring_invoice_next_date'])];
 }
 
 // A recurring invoice's seat lines - what each counts now, and whether the line is off
@@ -75,6 +75,9 @@ $paper_seat_sources = recurringSeatSources();
 // A quote with lines billed each month, quarter or year shows them apart from
 // what is billed once - the lines under a heading each, and a total each
 $paper_groups = $paper_type === 'quote' && !empty($paper_totals['recurring']) ? $paper_totals['groups'] : null;
+
+// A quote's lines show their pictures, unless Admin > Settings > Quotes says not to (functions/quote_images.php)
+$paper_images = $paper_type === 'quote' && quoteImagesShown();
 $paper_line_groups = $paper_groups ?: ['' => ['frequency' => '', 'label' => '', 'items' => $paper_items]];
 
 // Where the lines can be changed, what can be changed where it sits is wrapped
@@ -147,7 +150,7 @@ $paper_bill_lines = array_filter([
                 <div class="itflow-paper-label"><?= in_array($paper_status, ['Paid', 'Cancelled', 'Non-Billable'], true) ? 'Balance' : 'Amount due' ?></div>
                 <div class="itflow-paper-amount"><?= $paper_money($paper['balance'] ?? $paper_totals['total']) ?></div>
                 <?php if (!in_array($paper_status, ['Paid', 'Cancelled', 'Non-Billable', 'Draft'], true) && ($paper['balance'] ?? 0) > 0) { ?>
-                    <div class="small text-body-secondary">by <?= escapeHtml($paper_row['invoice_due']) ?></div>
+                    <div class="small text-body-secondary">by <?= formatDate($paper_row['invoice_due']) ?></div>
                 <?php } ?>
             <?php } elseif ($paper_type === 'quote' && $paper_groups) {
                 $paper_first = true;
@@ -207,12 +210,15 @@ $paper_bill_lines = array_filter([
                     $item_tax_html = $item_tax_label !== ''
                         ? $paper_money($item['item_tax']) . '<div class="small text-body-secondary itflow-paper-tax-label">' . escapeHtml($item_tax_label) . '</div>'
                         : '<span class="text-body-secondary">-</span>';
-                    $item_quantity = billingQuantity($item['item_quantity']); ?>
+                    $item_quantity = billingQuantity($item['item_quantity']);
+                    // A quote line's picture, beside its name (functions/quote_images.php)
+                    $item_image = $paper_type === 'quote' && $paper_images ? quoteImageThumbHtml($item['item_image'] ?? '') : ''; ?>
                     <tr id="line-<?= $item_id ?>" data-item-id="<?= $item_id ?>" data-group="<?= $paper_frequency ?>">
                         <?php if ($paper_edit) { ?>
                             <td class="itflow-paper-handle d-print-none"><span class="drag-handle" title="Drag to reorder"><i class="fas fa-grip-vertical"></i></span></td>
                         <?php } ?>
                         <td class="itflow-paper-item">
+                            <?php if ($item_image !== '') { ?><div class="d-flex align-items-start gap-2"><?= $item_image ?><div class="flex-grow-1 min-w-0"><?php } ?>
                             <div class="fw-semibold"><?= $paper_field('name', $item['item_name'], 'name', escapeHtml($item['item_name']), 'd-block') ?></div>
                             <?php if (trim((string) $item['item_description']) !== '') { ?>
                                 <div class="small text-body-secondary"><?= $paper_field('description', $item['item_description'], 'description', nl2br(escapeHtml($item['item_description'])), 'd-block') ?></div>
@@ -227,12 +233,16 @@ $paper_bill_lines = array_filter([
                                         <i class="fas <?= $seat_source['icon'] ?> me-1"></i>Per <?= $seat_source['unit'] ?> &middot; <?= escapeHtml($seat['seat_label']) ?><?= floatval($seat['item_seat_minimum']) > 0 ? ' &middot; at least ' . billingQuantity($seat['item_seat_minimum']) : '' ?>
                                     </span>
                                     <?php if ($seat['seat_count'] === null) { ?>
-                                        <?php if (empty($paper['client'])) { ?><span class="badge rounded-pill text-bg-danger fw-normal">The license is gone - it stays at <?= billingQuantity($item['item_quantity']) ?></span><?php } ?>
+                                        <?php if (empty($paper['client'])) { ?><span class="badge rounded-pill text-bg-danger fw-normal"><?= escapeHtml($seat['seat_gone']) ?> - it stays at <?= billingQuantity($item['item_quantity']) ?></span><?php } ?>
                                     <?php } elseif ($seat['seat_drift']) { ?>
                                         <span class="badge rounded-pill text-bg-warning fw-normal" title="The next invoice bills the new count">Now <?= billingQuantity($seat['seat_quantity']) ?></span>
                                     <?php } ?>
                                 </div>
                             <?php } ?>
+                            <?php if ($paper_edit && $paper_type === 'quote') { // its cost and pricing - agents only, never printed (functions/quote_pricing.php) ?>
+                                <?= quotePricingLineHtml($item, $paper_currency) ?>
+                            <?php } ?>
+                            <?php if ($item_image !== '') { ?></div></div><?php } ?>
                         </td>
                         <?php // A counted quantity isn't typed - the Edit Line window has what it counts ?>
                         <td class="text-end text-nowrap"><?= isset($paper_seats[$item_id]) ? $item_quantity : $paper_field('qty', $item_quantity, 'quantity', $item_quantity) ?></td>
@@ -244,7 +254,7 @@ $paper_bill_lines = array_filter([
                                 <div class="dropdown dropstart">
                                     <button class="btn btn-sm btn-link text-body-secondary" title="Line actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/billing/billing_item.php?type=<?= $paper_type ?>&doc_id=<?= $paper_id ?>&item_id=<?= $item_id ?>">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/billing/billing_item.php?type=<?= $paper_type ?>&doc_id=<?= $paper_id ?>&item_id=<?= $item_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
                                         <?php if ($paper_type === 'quote') {
@@ -286,7 +296,7 @@ $paper_bill_lines = array_filter([
                         <?php if (!empty($paper['ai'])) { ?>
                             <div class="d-flex flex-wrap align-items-center column-gap-2 row-gap-1 mt-2 pt-2 border-top" data-billing-ai>
                                 <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/billing/billing_ai_writer.php?type=<?= $paper_type ?>&doc_id=<?= $paper_id ?>">
-                                    <i class="fas fa-magic me-1"></i>Write it with AI
+                                    <i class="fas fa-magic me-1"></i>Write It with AI
                                 </button>
                                 <span class="small text-body-secondary">Say what it's for - lines from your catalog, labor at the client's rate.</span>
                             </div>

@@ -100,7 +100,7 @@ $manager = array_filter([
     trim((string) $t['vendor_template_contact_email']) !== '' ? '<i class="fas fa-fw fa-at text-secondary me-1"></i><a href="mailto:' . escapeHtml($t['vendor_template_contact_email']) . '">' . escapeHtml($t['vendor_template_contact_email']) . '</a>' : '',
 ]);
 $facts = array_filter([
-    'What they are' => escapeHtml((string) $t['vendor_template_description']),
+    'Description' => escapeHtml((string) $t['vendor_template_description']),
     'Support line' => vendorTemplatePhoneHtml($t['vendor_template_phone'], $t['vendor_template_phone_country_code'], $t['vendor_template_extension']),
     'Support hours' => escapeHtml((string) $t['vendor_template_hours']),
     'SLA' => escapeHtml((string) $t['vendor_template_sla']),
@@ -144,23 +144,23 @@ foreach (vendorTemplateFieldLabels() as $field) {
             <?php if (!$archived) { ?>
                 <?php if ($missing_text) { ?>
                     <div class="btn-group">
-                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $clients_url ?>"><i class="fas fa-fw fa-users me-2"></i>Add to clients</button>
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $clients_url ?>"><i class="fas fa-fw fa-users me-2"></i>Add to Clients</button>
                         <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More ways to add it"></button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $clients_url ?>&missing=1"><i class="fas fa-fw fa-clipboard-check me-2"></i>To <?= $missing_text ?></a>
                         </div>
                     </div>
                 <?php } else { ?>
-                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $clients_url ?>"><i class="fas fa-fw fa-users me-2"></i>Add to clients</button>
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $clients_url ?>"><i class="fas fa-fw fa-users me-2"></i>Add to Clients</button>
                 <?php } ?>
             <?php } ?>
             <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</button>
             <div class="dropdown">
-                <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-h"></i></button>
+                <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $required_url ?>"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who should have it</a>
-                    <a class="dropdown-item" href="post.php?copy_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
-                    <a class="dropdown-item" href="post.php?export_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow - without account numbers or PINs"><i class="fas fa-fw fa-file-download me-2"></i>Export</a>
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $required_url ?>"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who Should Have It</a>
+                    <a class="dropdown-item" href="post.php?copy_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>"><i class="far fa-fw fa-copy me-2"></i>Copy</a>
+                    <a class="dropdown-item" href="post.php?export_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow - without account numbers or PINs"><i class="fas fa-fw fa-download me-2"></i>Export</a>
                     <a class="dropdown-item" href="/agent/reports/vendor_templates.php" title="Reports > Vendor Templates"><i class="fas fa-fw fa-chart-bar me-2"></i>How they are used</a>
                     <?php if ($archived) { ?>
                         <a class="dropdown-item" href="post.php?restore_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo me-2"></i>Restore</a>
@@ -217,7 +217,7 @@ foreach (vendorTemplateFieldLabels() as $field) {
                             <i class="fas fa-fw fa-layer-group me-1"></i>Bulk Action (<span id="selectedCount"></span>)
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $in_line_url ?>" data-bulk="true"><i class="fas fa-fw fa-sync-alt me-2"></i>Bring in line</a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $in_line_url ?>" data-bulk="true"><i class="fas fa-fw fa-sync-alt me-2"></i>Bring in Line</a>
                         </div>
                     </div>
                 <?php } ?>
@@ -246,7 +246,7 @@ foreach (vendorTemplateFieldLabels() as $field) {
                         <button type="button" class="btn btn-sm btn-primary ms-auto ajax-modal" data-modal-size="lg" data-view-action
                             data-modal-url="<?= escapeHtml($in_line_url . '&' . implode('&', array_map(function ($id) {
                                 return 'vendor_ids[]=' . $id;
-                            }, array_keys($vendors)))) ?>"><i class="fas fa-fw fa-sync-alt me-1"></i>Bring these in line</button>
+                            }, array_keys($vendors)))) ?>"><i class="fas fa-fw fa-sync-alt me-1"></i>Bring These in Line</button>
                     </div>
                 <?php } ?>
             <?php } ?>
@@ -295,14 +295,14 @@ foreach (vendorTemplateFieldLabels() as $field) {
                                         <span class="text-body-secondary">-</span>
                                     <?php } ?>
                                 </td>
-                                <td class="d-none d-lg-table-cell small text-body-secondary text-nowrap" title="<?= escapeHtml($vendor['created_at']) ?>"><?= date('M j, Y', strtotime($vendor['created_at'])) ?></td>
+                                <td class="d-none d-lg-table-cell small text-body-secondary text-nowrap" title="<?= formatDateTime($vendor['created_at']) ?>"><?= date('M j, Y', strtotime($vendor['created_at'])) ?></td>
                                 <td class="text-end pe-3">
                                     <div class="dropdown dropstart">
                                         <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="<?= $vendor_url ?>"><i class="fas fa-fw fa-building text-secondary me-2"></i>Open their vendor</a>
+                                            <a class="dropdown-item" href="<?= $vendor_url ?>"><i class="fas fa-fw fa-building text-secondary me-2"></i>Open Their Vendor</a>
                                             <?php if ($differences) { ?>
-                                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $update_url ?>?vendor_id=<?= $vendor_id ?>"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Bring in line</a>
+                                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $update_url ?>?vendor_id=<?= $vendor_id ?>"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Bring in Line</a>
                                             <?php } ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item confirm-link" href="/agent/post.php?unlink_vendor_template=<?= $vendor_id ?>&amp;csrf_token=<?= $csrf ?>"
@@ -404,7 +404,7 @@ foreach (vendorTemplateFieldLabels() as $field) {
                         <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="software_template.php?software_template_id=<?= $software_template_id ?>">
                             <i class="fas fa-fw fa-cube text-secondary"></i>
                             <span class="min-w-0 text-truncate <?= $license_template['archived'] ? 'text-body-secondary' : '' ?>"><?= escapeHtml($license_template['name']) ?></span>
-                            <?php if ($license_template['archived']) { ?><span class="badge text-bg-light border fw-normal ms-auto">Archived</span><?php } ?>
+                            <?php if ($license_template['archived']) { ?><span class="badge rounded-pill text-bg-light border fw-normal ms-auto">Archived</span><?php } ?>
                         </a>
                     <?php } ?>
                 </div>
@@ -461,10 +461,10 @@ foreach (vendorTemplateFieldLabels() as $field) {
             <div class="card-body">
                 <dl class="row mb-0 small">
                     <dt class="col-5 fw-normal text-secondary">Made</dt>
-                    <dd class="col-7 mb-2" title="<?= escapeHtml($template['vendor_template_created_at']) ?>"><?= date('M j, Y', strtotime($template['vendor_template_created_at'])) ?><?= $template['created_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['created_by_name']) . '</div>' : '' ?></dd>
+                    <dd class="col-7 mb-2" title="<?= formatDateTime($template['vendor_template_created_at']) ?>"><?= date('M j, Y', strtotime($template['vendor_template_created_at'])) ?><?= $template['created_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['created_by_name']) . '</div>' : '' ?></dd>
                     <?php if ($template['vendor_template_updated_at']) { ?>
                         <dt class="col-5 fw-normal text-secondary">Last changed</dt>
-                        <dd class="col-7 mb-0" title="<?= escapeHtml($template['vendor_template_updated_at']) ?>"><?= timeAgo($template['vendor_template_updated_at']) ?><?= $template['updated_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['updated_by_name']) . '</div>' : '' ?></dd>
+                        <dd class="col-7 mb-0" title="<?= formatDateTime($template['vendor_template_updated_at']) ?>"><?= timeAgo($template['vendor_template_updated_at']) ?><?= $template['updated_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['updated_by_name']) . '</div>' : '' ?></dd>
                     <?php } ?>
                 </dl>
             </div>

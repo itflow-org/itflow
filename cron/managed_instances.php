@@ -50,6 +50,11 @@ if ($managed_instances_count === 0) {
     cronJobStop("No instances connected\n");
 }
 
+// Development mode: the instances check in with production, not with this copy (functions/dev_mode.php)
+if (devModeOn()) {
+    cronJobStop("Development mode - instances check in with production, not here\n");
+}
+
 // Gone quiet - told once, until it checks in again
 $managed_instances_quiet = mysqli_query($mysqli, "SELECT managed_instance_id, managed_instance_name, managed_instance_client_id, managed_instance_last_checkin_at, managed_instance_secret_hash, managed_instance_report FROM managed_instances
     WHERE managed_instance_archived_at IS NULL AND managed_instance_secret_hash IS NOT NULL AND managed_instance_offline_notified_at IS NULL

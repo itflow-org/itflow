@@ -4,6 +4,11 @@ require_once "../../functions.php";
 require_once "../../includes/check_login.php";
 require_once '../../libs/totp/totp.php'; //TOTP MFA Lib
 
+// Set up already - nothing to do here
+if (trim((string) $session_token) !== '') {
+    redirect("../$config_start_page");
+}
+
 // Get Company Logo
 $sql = mysqli_query($mysqli, "SELECT company_logo FROM companies");
 $row = mysqli_fetch_assoc($sql);
@@ -53,7 +58,7 @@ $mfa_secret = $_SESSION['mfa_token'];
             <?php if (!empty($company_logo)) { ?>
                 <img alt="<?= escapeHtml($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?= "../../uploads/settings/$company_logo" ?>">
             <?php } else { ?>
-                <span class="text-primary text-bold"><i class="fas fa-paper-plane me-2"></i>IT</span>Flow
+                <span class="text-primary fw-bold"><i class="fas fa-paper-plane me-2"></i>IT</span>Flow
             <?php } ?>
         </div>
 
@@ -70,7 +75,7 @@ $mfa_secret = $_SESSION['mfa_token'];
                     <?php require __DIR__ . '/includes/mfa_setup.php'; ?>
 
                     <div class="mb-3"></div>
-                    <button type="submit" name="enable_mfa" class="btn btn-primary w-100 mb-2"><i class="fa fa-check me-2"></i>Turn on MFA</button>
+                    <button type="submit" name="enable_mfa" class="btn btn-primary w-100 mb-2"><i class="fas fa-check me-2"></i>Turn On MFA</button>
                     <a class="small text-body-secondary" href="post.php?logout">Sign out</a>
                 </form>
 
@@ -85,9 +90,7 @@ $mfa_secret = $_SESSION['mfa_token'];
     <!-- Bootstrap 4 -->
     <script src="<?= staticFileUrl('/js/http.js') ?>"></script>
     <script src="<?= staticFileUrl('/libs/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
-
-    <!-- Custom js-->
-    <script src="<?= staticFileUrl('/libs/clipboardjs/clipboard.min.js') ?>"></script>
+    <script src="<?= staticFileUrl('/js/otp_input.js') ?>"></script>
 
     <script>
 
@@ -105,8 +108,6 @@ $mfa_secret = $_SESSION['mfa_token'];
             }, 500);
         }, 5000);
     })();
-
-    // ClipboardJS
 
     // Tooltip - manual trigger only, so a copy flash can never stay stranded
     // on screen. This page is standalone and does not load js/app.js, so it
@@ -129,16 +130,43 @@ $mfa_secret = $_SESSION['mfa_token'];
         }, 1000);
     }
 
-    // Clipboard
+    // Copy buttons (the secret beside the QR code). The same as js/app.js's,
+    // cut down to the one data-clipboard-text button this page has: the
+    // clipboard API where the browser allows it (https or localhost),
+    // otherwise copying a selected textarea.
+    function copyText(text, trigger) {
+        if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text);
+        }
+        const area = document.createElement('textarea');
+        area.value = text;
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.top = '0';
+        area.style.left = '-9999px';
+        document.body.appendChild(area);
+        area.focus({ preventScroll: true });
+        area.select();
+        area.setSelectionRange(0, text.length);
+        let copied = false;
+        try {
+            copied = document.execCommand('copy');
+        } catch (err) {
+            copied = false;
+        }
+        area.remove();
+        trigger.focus({ preventScroll: true });
+        return copied ? Promise.resolve() : Promise.reject(new Error('Copy failed'));
+    }
 
-    var clipboard = new ClipboardJS('.clipboardjs');
-
-    clipboard.on('success', function(e) {
-        flashTooltip(e.trigger, 'Copied!');
-    });
-
-    clipboard.on('error', function(e) {
-        flashTooltip(e.trigger, 'Failed!');
+    document.querySelectorAll('.clipboardjs').forEach(function (button) {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            copyText(button.getAttribute('data-clipboard-text') || '', button).then(
+                function () { flashTooltip(button, 'Copied!'); },
+                function () { flashTooltip(button, 'Failed!'); }
+            );
+        });
     });
 
     // Enable Popovers

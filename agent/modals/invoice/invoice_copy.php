@@ -18,7 +18,9 @@ if (!$doc) {
 $client_id = intval($doc['client_id']);
 enforceClientAccess();
 $doc_number = billingNumber($doc_type, $doc);
-$lines = count(billingItems('invoice', intval($doc['invoice_id'])));
+// Without the card fee it was paid with - that was for the payment (billingWithoutCardFees())
+[$copy_lines, $card_fees] = billingWithoutCardFees(billingItems('invoice', intval($doc['invoice_id'])));
+$lines = count($copy_lines);
 // 0 is On Receipt - a contract in force's net terms, else the default
 [$terms, $terms_from] = contractNetTermsWhose($client_id, date('Y-m-d'));
 
@@ -26,24 +28,24 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-copy me-2"></i>Copy Invoice <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($doc_number) ?> &middot; <?= escapeHtml($doc['client_name']) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="far fa-fw fa-copy me-2"></i>Copy Invoice <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($doc_number) ?> &middot; <?= escapeHtml($doc['client_name']) ?></span></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="invoice_id" value="<?= intval($doc['invoice_id']) ?>">
 
     <div class="modal-body">
-        <p class="text-body-secondary small">A new draft for <?= escapeHtml($doc['client_name']) ?> with the same <?= $lines ?> line<?= $lines === 1 ? '' : 's' ?>, scope, discount and notes - <?= escapeHtml(billingMoney($doc['invoice_amount'], $doc['invoice_currency_code'])) ?>.</p>
+        <p class="text-body-secondary small">A new draft for <?= escapeHtml($doc['client_name']) ?> with the same <?= $lines ?> line<?= $lines === 1 ? '' : 's' ?>, scope, discount and notes - <?= escapeHtml(billingMoney(floatval($doc['invoice_amount']) - $card_fees, $doc['invoice_currency_code'])) ?>.<?= $card_fees > 0 ? ' The card fee it was paid with is left off.' : '' ?></p>
         <label class="form-label">Invoice date <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
             <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
         </div>
         <div class="form-text"><?= $terms ? "Due $terms days after it" : 'Due on receipt' ?> - <?= escapeHtml($terms_from) ?> terms.</div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_invoice_copy" class="btn btn-primary text-bold"><i class="fas fa-copy me-2"></i>Copy</button>
+        <button type="submit" name="add_invoice_copy" class="btn btn-primary fw-bold"><i class="far fa-copy me-2"></i>Copy</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

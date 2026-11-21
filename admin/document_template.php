@@ -24,6 +24,7 @@ if (!$template) {
 
 $document_template_id = intval($template['document_template_id']);
 $name = escapeHtml($template['document_template_name']);
+$page_title = $template['document_template_name'];
 $archived = !empty($template['document_template_archived_at']);
 $usage = documentTemplateUsage([$document_template_id])[$document_template_id] ?? ['count' => 0, 'clients' => 0, 'last' => null];
 $content = trim((string) $template['document_template_content']) !== '' ? documentTemplateMarkBrackets(documentHtmlPurify($template['document_template_content'])) : '';
@@ -83,10 +84,10 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
         <div class="d-flex flex-wrap gap-2 d-print-none">
             <?php if (!$archived) { ?>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $use_url ?>"><i class="fas fa-fw fa-plus me-2"></i>New document for a client</button>
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $use_url ?>"><i class="fas fa-fw fa-plus me-2"></i>New Document for a Client</button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More ways to make one"></button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>"><i class="fas fa-fw fa-copy me-2"></i>For several clients</a>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>"><i class="far fa-fw fa-copy me-2"></i>For Several Clients</a>
                         <?php if ($coverage && $coverage['missing']) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>&missing=1"><i class="fas fa-fw fa-clipboard-check me-2"></i>For <?= $missing_text ?></a>
                         <?php } ?>
@@ -95,10 +96,10 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
             <?php } ?>
             <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="xl" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</button>
             <div class="dropdown">
-                <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-h"></i></button>
+                <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item" href="post.php?copy_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
-                    <a class="dropdown-item" href="post.php?export_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow"><i class="fas fa-fw fa-file-download me-2"></i>Export</a>
+                    <a class="dropdown-item" href="post.php?copy_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>"><i class="far fa-fw fa-copy me-2"></i>Copy</a>
+                    <a class="dropdown-item" href="post.php?export_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow"><i class="fas fa-fw fa-download me-2"></i>Export</a>
                     <a class="dropdown-item" href="#" onclick="window.print(); return false;"><i class="fas fa-fw fa-print me-2"></i>Print</a>
                     <?php if ($archived) { ?>
                         <a class="dropdown-item" href="post.php?restore_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo me-2"></i>Restore</a>
@@ -164,7 +165,7 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
                             <?php if (count($coverage['missing']) > $list_limit) { ?>
                                 <div class="small text-secondary mb-2">and <?= count($coverage['missing']) - $list_limit ?> more</div>
                             <?php } ?>
-                            <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $several_url ?>&missing=1"><i class="fas fa-copy me-1"></i>Make for <?= $missing_text ?></button>
+                            <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $several_url ?>&missing=1"><i class="far fa-copy me-1"></i>Make for <?= $missing_text ?></button>
                         <?php } elseif ($coverage['clients']) { ?>
                             <div class="small text-success"><i class="fas fa-fw fa-check me-1"></i>Every one of them has one.</div>
                         <?php } else { ?>
@@ -191,7 +192,7 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
                                                 <span class="d-block text-truncate"><?= escapeHtml($due_row['client_name']) ?></span>
                                                 <span class="d-block text-truncate text-secondary"><?= escapeHtml($due_row['document_name']) ?></span>
                                             </span>
-                                            <span class="text-secondary text-nowrap" title="Last edited or reviewed <?= escapeHtml($due_row['reviewed_at']) ?>"><?= timeAgo($due_row['reviewed_at']) ?></span>
+                                            <span class="text-secondary text-nowrap" title="Last edited or reviewed <?= formatDateTime($due_row['reviewed_at']) ?>"><?= timeAgo($due_row['reviewed_at']) ?></span>
                                         </a>
                                     <?php } ?>
                                 </div>
@@ -223,7 +224,7 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
                         <?php } ?>
                     </div>
                 <?php } else { ?>
-                    <div class="small text-secondary">No documents made from it yet - counting started with this version of ITFlow. Agents start one from <strong>Document from template</strong> in a client's Files.</div>
+                    <div class="small text-secondary">No documents made from it yet - counting started with this version of ITFlow. Agents start one from <strong>Document from Template</strong> in a client's Files.</div>
                 <?php } ?>
             </div>
         </div>
@@ -270,7 +271,7 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
                                                     data-confirm-title="Reset <?= escapeHtml($fill_in['name']) ?>?" data-confirm-text="It is still in what it says, so it stays asked for - as plain, optional text." data-confirm-button="Reset"><i class="fas fa-fw fa-undo me-2"></i>Reset</a>
                                             <?php } else { ?>
                                                 <a class="dropdown-item text-danger confirm-link" href="post.php?delete_document_template_fill_in=<?= $fill_in['id'] ?>&csrf_token=<?= $csrf ?>"
-                                                    data-confirm-title="Remove <?= escapeHtml($fill_in['name']) ?>?" data-confirm-text="It is no longer asked for." data-confirm-button="Remove"><i class="fas fa-fw fa-trash-alt me-2"></i>Remove</a>
+                                                    data-confirm-title="Remove <?= escapeHtml($fill_in['name']) ?>?" data-confirm-text="It is no longer asked for." data-confirm-button="Remove"><i class="fas fa-fw fa-trash me-2"></i>Remove</a>
                                             <?php } ?>
                                         <?php } ?>
                                     </div>
@@ -315,10 +316,10 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
             <div class="card-body">
                 <dl class="row mb-0 small">
                     <dt class="col-5 fw-normal text-secondary">Made</dt>
-                    <dd class="col-7 mb-2" title="<?= escapeHtml($template['document_template_created_at']) ?>"><?= date('M j, Y', strtotime($template['document_template_created_at'])) ?><?= $template['created_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['created_by_name']) . '</div>' : '' ?></dd>
+                    <dd class="col-7 mb-2" title="<?= formatDateTime($template['document_template_created_at']) ?>"><?= date('M j, Y', strtotime($template['document_template_created_at'])) ?><?= $template['created_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['created_by_name']) . '</div>' : '' ?></dd>
                     <?php if ($template['document_template_updated_at']) { ?>
                         <dt class="col-5 fw-normal text-secondary">Last changed</dt>
-                        <dd class="col-7 mb-2" title="<?= escapeHtml($template['document_template_updated_at']) ?>"><?= timeAgo($template['document_template_updated_at']) ?><?= $template['updated_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['updated_by_name']) . '</div>' : '' ?></dd>
+                        <dd class="col-7 mb-2" title="<?= formatDateTime($template['document_template_updated_at']) ?>"><?= timeAgo($template['document_template_updated_at']) ?><?= $template['updated_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['updated_by_name']) . '</div>' : '' ?></dd>
                     <?php } ?>
                     <dt class="col-5 fw-normal text-secondary">Images</dt>
                     <dd class="col-7 mb-0"><?= $images ? $images . ' - copied into each document' : 'None' ?></dd>

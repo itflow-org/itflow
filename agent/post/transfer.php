@@ -10,6 +10,13 @@
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
+// Bookkeeping switched off (Admin > Settings > Modules) - none of these until it's back on
+if (!moduleOn('bookkeeping') && (array_intersect(['add_transfer', 'edit_transfer'], array_keys($_POST))
+    || array_intersect(['delete_transfer'], array_keys($_GET)))) {
+    flashAlert(moduleOffText('bookkeeping'), 'error');
+    redirect();
+}
+
 /** The transfer form's fields as transferSave() takes them. */
 function transferPostInput() {
     return [
@@ -36,7 +43,7 @@ if (isset($_POST['add_transfer'])) {
     }
     $row = transferRow($transfer_id);
 
-    logAudit("Account Transfer", "Create", "$session_name transferred " . escapeSql(transferLabel($row)), 0, $transfer_id);
+    logAudit("Transfer", "Create", "$session_name transferred " . escapeSql(transferLabel($row)), 0, $transfer_id);
 
     flashAlert("Moved <strong>" . escapeHtml(transferLabel($row)) . "</strong>");
 
@@ -57,7 +64,7 @@ if (isset($_POST['edit_transfer'])) {
     }
     $row = transferRow($transfer_id);
 
-    logAudit("Account Transfer", "Edit", "$session_name edited the transfer " . escapeSql(transferLabel($row)), 0, $transfer_id);
+    logAudit("Transfer", "Edit", "$session_name edited the transfer " . escapeSql(transferLabel($row)), 0, $transfer_id);
 
     flashAlert("Transfer <strong>" . escapeHtml(transferLabel($row)) . "</strong> saved");
 
@@ -77,7 +84,7 @@ if (isset($_GET['delete_transfer'])) {
         redirect();
     }
 
-    logAudit("Account Transfer", "Delete", "$session_name deleted the transfer " . escapeSql(transferLabel($row)));
+    logAudit("Transfer", "Delete", "$session_name deleted the transfer " . escapeSql(transferLabel($row)));
 
     flashAlert("Transfer <strong>" . escapeHtml(transferLabel($row)) . "</strong> deleted", 'error');
 

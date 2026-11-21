@@ -28,7 +28,7 @@ enforceUserPermission('module_client');
 $contact_id = intval($_GET['contact_id'] ?? 0);
 
 $sql = mysqli_query($mysqli, "SELECT client_id, client_name, contact_archived_at, contact_billing, contact_client_id, contact_created_at,
-    contact_department, contact_email, contact_extension, contact_id, contact_important, contact_location_id, contact_mobile,
+    contact_department, contact_email, " . contactBounceColumns() . ", contact_extension, contact_id, contact_important, contact_location_id, contact_mobile,
     contact_mobile_country_code, contact_name, contact_notes, contact_phone, contact_phone_country_code, contact_photo, contact_pin,
     contact_primary, contact_technical, contact_title, contact_updated_at, contact_user_id,
     contact_ticket_emails, contact_company_ticket_emails, location_archived_at, location_city, location_name, location_state, user_auth_method, user_token
@@ -43,7 +43,7 @@ $sql = mysqli_query($mysqli, "SELECT client_id, client_name, contact_archived_at
 ");
 
 if (mysqli_num_rows($sql) == 0) {
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
     require_once "../includes/footer.php";
     exit();
 }
@@ -201,7 +201,7 @@ if (!$can_support) {
 
 <ol class="breadcrumb d-print-none">
     <li class="breadcrumb-item">
-        <a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
+        <a data-client-card="<?= $client_id ?>" href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
     </li>
     <li class="breadcrumb-item">
         <a href="contacts.php?client_id=<?= $client_id ?>">Contacts</a>
@@ -255,32 +255,34 @@ if (!$can_support) {
                     <div class="dropdown-menu dropdown-menu-end">
                         <?php if ($can_support_edit) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="lg">
-                                <i class="fa fa-fw fa-life-ring text-secondary me-2"></i>Ticket
+                                <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Ticket
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="lg">
-                                <i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Ticket
+                                <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Ticket
                             </a>
+                            <?php if (moduleOn('calendar')) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/calendar/calendar_event_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>&lock_client=1" data-modal-size="lg">
                                 <i class="far fa-fw fa-calendar-plus text-secondary me-2"></i>Meeting
                             </a>
+                            <?php } ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
-                                <i class="fa fa-fw fa-desktop text-secondary me-2"></i>Asset
+                                <i class="fas fa-fw fa-desktop text-secondary me-2"></i>Asset
                             </a>
                         <?php } ?>
                         <?php if ($can_credentials_edit) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
-                                <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
+                                <i class="fas fa-fw fa-key text-secondary me-2"></i>Credential
                             </a>
                         <?php } ?>
                         <?php if ($can_support_edit) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="xl">
-                                <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
+                                <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>Document
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
-                                <i class="fa fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
+                                <i class="fas fa-fw fa-upload text-secondary me-2"></i>Upload Files
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>">
-                                <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
+                                <i class="fas fa-fw fa-cube text-secondary me-2"></i>License
                             </a>
                         <?php } ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_note_add.php?id=<?= $contact_id ?>">
@@ -291,30 +293,18 @@ if (!$can_support) {
                 <div class="dropdown">
                     <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_asset.php?id=<?= $contact_id ?>">
-                            <i class="fa fa-fw fa-desktop text-secondary me-2"></i>Asset
-                        </a>
+                        <?= linkPickerButton('contact', $contact_id, 'asset', 'Asset', 'dropdown-item', 'fas fa-fw fa-desktop text-secondary me-2') ?>
                         <?php if ($can_credentials_edit) { ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_credential.php?id=<?= $contact_id ?>">
-                                <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
-                            </a>
+                            <?= linkPickerButton('contact', $contact_id, 'credential', 'Credential', 'dropdown-item', 'fas fa-fw fa-key text-secondary me-2') ?>
                         <?php } ?>
                         <?php if ($can_support_edit) { ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/link/link.php?from=contact&id=<?= $contact_id ?>&to=software">
-                                <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
-                            </a>
+                            <?= linkPickerButton('contact', $contact_id, 'software', 'License', 'dropdown-item', 'fas fa-fw fa-cube text-secondary me-2') ?>
                         <?php } ?>
                         <?php if ($can_support_edit) { ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_service.php?id=<?= $contact_id ?>">
-                                <i class="fa fa-fw fa-stream text-secondary me-2"></i>Service
-                            </a>
+                            <?= linkPickerButton('contact', $contact_id, 'service', 'Service', 'dropdown-item', 'fas fa-fw fa-stream text-secondary me-2') ?>
                         <?php } ?>
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_document.php?id=<?= $contact_id ?>">
-                            <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
-                        </a>
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_file.php?id=<?= $contact_id ?>">
-                            <i class="fa fa-fw fa-paperclip text-secondary me-2"></i>File
-                        </a>
+                        <?= linkPickerButton('contact', $contact_id, 'document', 'Document', 'dropdown-item', 'fas fa-fw fa-file-alt text-secondary me-2') ?>
+                        <?= linkPickerButton('contact', $contact_id, 'file', 'File', 'dropdown-item', 'fas fa-fw fa-paperclip text-secondary me-2') ?>
                     </div>
                 </div>
                 <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
@@ -327,11 +317,11 @@ if (!$can_support) {
                         </button>
                         <div class="dropdown-menu">
                             <?php if ($contact_archived_at) { ?>
-                                <a class="dropdown-item confirm-link" href="post.php?restore_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <a class="dropdown-item" href="post.php?restore_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                             <?php } else { ?>
-                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <a class="dropdown-item text-danger" href="post.php?archive_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                 </a>
                                 <?php if ($can_delete) { ?>
@@ -342,7 +332,7 @@ if (!$can_support) {
                             <?php } ?>
                             <?php if ($can_delete && $config_destructive_deletes_enable) { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>
                             <?php } ?>
@@ -377,6 +367,16 @@ if (!$can_support) {
                         <?php if ($contact_email) { ?>
                             <dt>Email</dt>
                             <dd class="d-flex align-items-center min-w-0"><a class="text-truncate" href="mailto:<?= $contact_email ?>" title="<?= $contact_email ?>"><?= $contact_email ?></a><button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= $contact_email ?>"><i class="far fa-copy"></i></button></dd>
+                            <?php if ($bounce_badge = contactBounceBadge($contact_row)) { ?>
+                                <!-- Mail to it bounced (functions/contact_bounce.php) -->
+                                <dt></dt>
+                                <dd class="d-flex flex-wrap align-items-center gap-2">
+                                    <?= $bounce_badge ?>
+                                    <?php if (lookupUserPermission('module_client') >= 2) { ?>
+                                        <a class="small" href="post.php?clear_contact_bounce=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="The address works again">Clear</a>
+                                    <?php } ?>
+                                </dd>
+                            <?php } ?>
                         <?php } ?>
                     </dl>
                 <?php } else { ?>
@@ -460,7 +460,7 @@ if (!$can_support) {
                         </dd>
                     <?php } ?>
                     <dt>Added</dt>
-                    <dd title="<?= $contact_created_at ?>"><?= timeAgo($contact_created_at) ?></dd>
+                    <dd title="<?= formatDateTime($contact_created_at) ?>"><?= timeAgo($contact_created_at) ?></dd>
                 </dl>
             </div>
         </div>
@@ -483,7 +483,7 @@ if (!$can_support) {
                         <li class="nav-item" role="presentation">
                             <button class="nav-link text-nowrap <?= $tab['count'] ? '' : 'is-empty' ?>" id="contact-tab-<?= $tab_key ?>" data-bs-toggle="pill" data-bs-target="#contact-pane-<?= $tab_key ?>" data-contact-tab="<?= $tab_key ?>" type="button" role="tab">
                                 <i class="fas fa-fw <?= $tab['icon'] ?> me-1 d-none d-xxl-inline"></i><?= $tab['label'] ?>
-                                <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                                <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                                 <?php if (!empty($tab['badge'])) { ?>
                                     <span class="badge rounded-pill text-bg-danger" title="Open"><?= intval($tab['badge']) ?> open</span>
                                 <?php } ?>
@@ -501,9 +501,7 @@ if (!$can_support) {
                         <span class="text-body-secondary small">Assets assigned to <?= $contact_name ?>.</span>
                         <?php if ($can_edit) { ?>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_link_asset.php?id=<?= $contact_id ?>">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('contact', $contact_id, 'asset', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                 <?php if ($can_support_edit) { ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                                         <i class="fas fa-plus me-2"></i>New Asset
@@ -516,7 +514,7 @@ if (!$can_support) {
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="text-nowrap table-light">
-                                <tr><th>Asset</th><th>Model / Serial</th><th>IP</th><th>Status</th><th></th></tr>
+                                <tr><th>Asset</th><th>Model / serial</th><th>IP</th><th>Status</th><th></th></tr>
                                 </thead>
                                 <tbody>
                                 <?php while ($row = mysqli_fetch_assoc($sql_related_assets)) {
@@ -582,9 +580,7 @@ if (!$can_support) {
                         <span class="text-body-secondary small">Their logins. Passwords and codes are fetched only when you ask for them.</span>
                         <?php if ($can_edit && $can_credentials_edit) { ?>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_link_credential.php?id=<?= $contact_id ?>">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('contact', $contact_id, 'credential', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                 <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                                     <i class="fas fa-plus me-2"></i>New Credential
                                 </button>
@@ -650,7 +646,7 @@ if (!$can_support) {
                                         </td>
                                         <td><?= ticketPriorityHtml($row['recurring_ticket_priority'], 'detail') ?></td>
                                         <td><?= escapeHtml($row['recurring_ticket_frequency']) ?></td>
-                                        <td class="text-nowrap"><?= recurringTicketNextRunPill($row) ?> <span class="small text-body-secondary ms-1"><?= escapeHtml($row['recurring_ticket_next_run']) ?></span></td>
+                                        <td class="text-nowrap"><?= recurringTicketNextRunPill($row) ?> <span class="small text-body-secondary ms-1"><?= formatDate($row['recurring_ticket_next_run']) ?></span></td>
                                         <td class="text-end">
                                             <?php if ($can_support_edit) { ?>
                                                 <div class="dropdown dropstart">
@@ -661,11 +657,11 @@ if (!$can_support) {
                                                         </a>
                                                         <a class="dropdown-item confirm-link" href="post.php?force_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                             data-confirm-text="A ticket is raised now, and the next run moves on a step - this takes its place.">
-                                                            <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Raise now
+                                                            <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Raise Now
                                                         </a>
                                                         <?php if (lookupUserPermission('module_support') >= 3) { ?>
                                                             <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                            <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                             </a>
                                                         <?php } ?>
@@ -691,9 +687,7 @@ if (!$can_support) {
                         <span class="text-body-secondary small">Licenses they hold a seat on, and the key they were given.</span>
                         <?php if ($can_support_edit) { ?>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/link/link.php?from=contact&id=<?= $contact_id ?>&to=software">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('contact', $contact_id, 'software', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                 <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>">
                                     <i class="fas fa-plus me-2"></i>New License
                                 </button>
@@ -715,9 +709,7 @@ if (!$can_support) {
                         <span class="text-body-secondary small">Documentation about or for them.</span>
                         <?php if ($can_edit) { ?>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_link_document.php?id=<?= $contact_id ?>">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('contact', $contact_id, 'document', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                 <?php if ($can_support_edit) { ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                                         <i class="fas fa-plus me-2"></i>New Document
@@ -756,9 +748,7 @@ if (!$can_support) {
                         <span class="text-body-secondary small">Files linked to them.</span>
                         <?php if ($can_edit) { ?>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_link_file.php?id=<?= $contact_id ?>">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('contact', $contact_id, 'file', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                 <?php if ($can_support_edit) { ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                                         <i class="fas fa-upload me-2"></i>Upload
@@ -777,7 +767,7 @@ if (!$can_support) {
                                         <a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $file_id ?>"><?= escapeHtml($row['file_name']) ?></a>
                                         <?php if ($row['file_description']) { ?><div class="small text-body-secondary text-truncate"><?= escapeHtml($row['file_description']) ?></div><?php } ?>
                                     </div>
-                                    <span class="small text-body-secondary text-nowrap" title="<?= escapeHtml($row['file_created_at']) ?>"><?= formatBytes($row['file_size']) ?> &middot; <?= timeAgo($row['file_created_at']) ?></span>
+                                    <span class="small text-body-secondary text-nowrap" title="<?= formatDateTime($row['file_created_at']) ?>"><?= formatBytes($row['file_size']) ?> &middot; <?= timeAgo($row['file_created_at']) ?></span>
                                     <?php if ($can_edit) { ?>
                                         <a class="btn btn-sm btn-light" title="Unlink" href="post.php?unlink_contact_from_file&contact_id=<?= $contact_id ?>&file_id=<?= $file_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-unlink"></i></a>
                                     <?php } ?>
@@ -794,9 +784,7 @@ if (!$can_support) {
                     <div class="itflow-asset-pane-bar">
                         <span class="text-body-secondary small">Services they own or are the contact for at the client.</span>
                         <?php if ($can_support_edit) { ?>
-                            <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_link_service.php?id=<?= $contact_id ?>">
-                                <i class="fas fa-link me-2"></i>Link Service
-                            </button>
+                            <?= linkPickerButton('contact', $contact_id, 'service', 'Link Service', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                         <?php } ?>
                     </div>
                     <?php if ($service_count) { ?>
@@ -839,7 +827,7 @@ if (!$can_support) {
                                     <div class="flex-grow-1 min-w-0">
                                         <div class="small text-body-secondary mb-1">
                                             <span class="fw-semibold text-body"><?= $contact_note_type ?></span>
-                                            &middot; <?= escapeHtml($row['user_name']) ?> &middot; <span title="<?= $contact_note_created_at ?>"><?= timeAgo($contact_note_created_at) ?></span>
+                                            &middot; <?= escapeHtml($row['user_name']) ?> &middot; <span title="<?= formatDateTime($contact_note_created_at) ?>"><?= timeAgo($contact_note_created_at) ?></span>
                                         </div>
                                         <div><?= nl2br(escapeHtml($row['contact_note'])) ?></div>
                                     </div>
@@ -851,7 +839,7 @@ if (!$can_support) {
                                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                 </a>
                                                 <?php if ($can_delete) { ?>
-                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contact_note=<?= $contact_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_contact_note=<?= $contact_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                     </a>
                                                 <?php } ?>

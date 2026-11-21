@@ -33,9 +33,9 @@ if (isset($_POST['add_expense'])) {
     logAudit("Expense", $refund ? "Refund" : "Create", "$session_name " . ($refund ? 'recorded a refund from ' : 'added the expense ') . escapeSql($label), intval($row['expense_client_id']), $expense_id);
 
     if ($receipt_error) {
-        flashAlert(($refund ? 'Refund' : 'Expense') . " <strong>" . escapeHtml($label) . "</strong> added, but " . lcfirst(escapeHtml($receipt_error)), 'warning');
+        flashAlert(($refund ? 'Refund' : 'Expense') . " <strong>" . escapeHtml($label) . "</strong> " . ($refund ? 'recorded' : 'created') . ", but " . lcfirst(escapeHtml($receipt_error)), 'warning');
     } else {
-        flashAlert(($refund ? 'Refund' : 'Expense') . " <strong>" . escapeHtml($label) . "</strong> added" . ($row['expense_receipt'] ? ' with its receipt' : ''));
+        flashAlert(($refund ? 'Refund' : 'Expense') . " <strong>" . escapeHtml($label) . "</strong> " . ($refund ? 'recorded' : 'created') . ($row['expense_receipt'] ? ' with its receipt' : ''));
     }
 
     redirect();

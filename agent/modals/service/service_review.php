@@ -30,7 +30,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-clipboard-check me-2"></i>Review <strong><?= escapeHtml($service['service_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -83,8 +83,8 @@ ob_start();
 
     <div class="modal-footer">
         <a class="me-auto small" href="<?= escapeHtml(serviceUrl($service_id, $client_id)) ?>">Open the service</a>
-        <button type="submit" name="review_service" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Mark reviewed</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="review_service" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Mark Reviewed</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

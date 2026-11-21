@@ -7,7 +7,7 @@ $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_prov
 
 // Stripe switched off (Admin > Payment Providers) saves no new cards
 if (!$stripe_provider) {
-    echo "<br><h2>Saving a card isn't available just now. Please get in touch.</h2>";
+    echo guestDeadEndHtml('fa-credit-card', "Saving a card isn't available just now", "Get in touch to pay this invoice another way.");
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
     exit();
 }
@@ -38,9 +38,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key'])) {
 
     // Ensure valid invoice
     if (!$sql || mysqli_num_rows($sql) !== 1) {
-        echo "<br><h2>Oops, something went wrong! Please ensure you have the correct URL and have not already paid this invoice.</h2>";
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
         error_log("Stripe payment error - Invoice with ID $invoice_id not found or not eligible.");
+        echo guestDeadEndHtml('fa-file-invoice-dollar', "This invoice link isn't working", "It may have been mistyped, or the invoice is already paid. Ask whoever sent it for a new link.");
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
         exit();
     }
 
@@ -99,7 +99,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key'])) {
                         </div>
 
                         <div class="mb-3">
-                            <small class="text-muted d-block mt-2">Stripe processes your information in accordance with its Privacy Policy and Terms.</small>
+                            <small class="text-body-secondary d-block mt-2">Stripe processes your information in accordance with its Privacy Policy and Terms.</small>
                         </div>
 
                         <div class="mb-3">
@@ -111,9 +111,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key'])) {
 
         <?php }
         else {
-            echo "<br><h2>Stripe customer record already exists.</h2>";
-            echo "<p>You can now proceed to pay your invoice.</p>";
-            echo "<a href='guest_view_invoice.php?invoice_id=$invoice_id&url_key=" . urlencode($invoice_url_key) . "' class='btn btn-primary'>View Invoice</a>";
+            echo '<div class="itflow-asset-empty mt-5"><i class="fas fa-credit-card fa-3x mb-3 opacity-50"></i><h1 class="h4">Card payments are already set up</h1><p>You can pay this invoice by card now.</p>'
+                . '<a class="btn btn-primary" href="guest_view_invoice.php?invoice_id=' . intval($invoice_id) . '&url_key=' . urlencode($invoice_url_key) . '">View Invoice</a></div>';
         }
 
 } else {

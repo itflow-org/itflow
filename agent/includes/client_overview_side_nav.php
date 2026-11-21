@@ -42,7 +42,7 @@ $num_vendors = $row['num'];
     <div class="sidebar-brand">
         <a class="brand-link" href="clients.php">
             <i class="fas fa-arrow-left me-2"></i>
-            <span class="brand-text h6 mb-0">Back | <strong>All Client Docs</strong></span>
+            <span class="brand-text h6 mb-0">Back | <strong>Across Clients</strong></span>
         </a>
     </div>
 
@@ -62,7 +62,7 @@ $num_vendors = $row['num'];
                                 Contacts
                                 <?php
                                 if ($num_contacts > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_contacts ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_contacts)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -74,12 +74,13 @@ $num_vendors = $row['num'];
                                 Locations
                                 <?php
                                 if ($num_locations > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_locations ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_locations)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
                     </li>
 
+                    <?php if ($config_module_enable_itdoc == 1) { // IT documentation, as each client's menu shows it ?>
                     <li class="nav-header mt-3">INFRASTRUCTURE</li>
 
                     <li class="nav-item">
@@ -89,7 +90,7 @@ $num_vendors = $row['num'];
                                 Assets
                                 <?php
                                 if ($num_assets > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_assets ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_assets)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -102,7 +103,7 @@ $num_vendors = $row['num'];
                                 Networks
                                 <?php
                                 if ($num_networks > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_networks ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_networks)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -115,7 +116,7 @@ $num_vendors = $row['num'];
                                 Racks
                                 <?php
                                 if ($num_racks > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_racks ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_racks)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -131,7 +132,7 @@ $num_vendors = $row['num'];
                                 Credentials
                                 <?php
                                 if ($num_credentials > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_credentials ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_credentials)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -145,7 +146,7 @@ $num_vendors = $row['num'];
                                 Certificates
                                 <?php
                                 if ($num_certificates > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_certificates ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_certificates)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -157,7 +158,7 @@ $num_vendors = $row['num'];
                                 Domains
                                 <?php
                                 if ($num_domains > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_domains ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_domains)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -169,9 +170,11 @@ $num_vendors = $row['num'];
                             <p>Shared Links</p>
                         </a>
                     </li>
+                    <?php } ?>
 
                     <li class="nav-header mt-3">DOCUMENTATION</li>
 
+                    <?php if ($config_module_enable_itdoc == 1) { ?>
                     <li class="nav-item">
                         <a href="software.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "software.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-cube"></i>
@@ -179,11 +182,12 @@ $num_vendors = $row['num'];
                                 Licenses
                                 <?php
                                 if ($num_software > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_software ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_software)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
                     </li>
+                    <?php } ?>
 
                     <li class="nav-item">
                         <a href="vendors.php?view=clients" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php" || basename($_SERVER["PHP_SELF"]) == "vendor.php") { echo "active"; } ?>">
@@ -192,12 +196,13 @@ $num_vendors = $row['num'];
                                 Vendors
                                 <?php
                                 if ($num_vendors > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_vendors ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_vendors)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
                     </li>
 
+                    <?php if ($config_module_enable_itdoc == 1) { ?>
                     <li class="nav-item">
                         <a href="services.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "services.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-stream"></i>
@@ -205,11 +210,12 @@ $num_vendors = $row['num'];
                                 Services
                                 <?php
                                 if ($num_services > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_services ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_services)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
                     </li>
+                    <?php } ?>
 
                 <?php } ?>
 

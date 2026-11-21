@@ -16,30 +16,30 @@ ob_start();
     <?php foreach ($interface_ids as $interface_id) { ?><input type="hidden" name="interface_ids[]" value="<?= $interface_id ?>"><?php } ?>
 
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-plug me-2"></i>Type of <strong><?= $count ?></strong> interface<?= $count === 1 ? '' : 's' ?></h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title"><i class="fas fa-fw fa-plug me-2"></i>Type of <strong><?= $count ?></strong> interface<?= $count === 1 ? '' : 's' ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
 
     <div class="modal-body">
 
         <!-- Type -->
         <div class="mb-3">
-            <label for="interface_type">Interface Type</label>
+            <label class="form-label" for="interface_type">Interface type</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-plug"></i></span>
                 <select class="form-select select2" id="interface_type" name="bulk_type">
                     <option value="">- No type -</option>
                     <?= categoryOptionsHtml('network_interface') ?>
                 </select>
-                <?= categoryAddButtonHtml('network_interface', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('network_interface') ?>
             </div>
         </div>
 
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_asset_interface_type" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Set</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="bulk_edit_asset_interface_type" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

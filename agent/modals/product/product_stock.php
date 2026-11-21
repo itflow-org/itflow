@@ -54,7 +54,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-warehouse me-2"></i>Stock <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($product['product_name']) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" id="productStock<?= $product_id ?>" data-on-hand="<?= $on_hand ?>" data-level="<?= $level ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -141,7 +141,7 @@ ob_start();
                 <label class="form-label">Why</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-question-circle"></i></span>
-                    <select class="form-select" name="reason">
+                    <select class="form-select select2" name="reason">
                         <?php foreach (productWriteOffReasons() as $reason) { ?>
                             <option><?= escapeHtml($reason) ?></option>
                         <?php } ?>
@@ -160,7 +160,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="product_stock_save" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i><span data-stock-submit>Save</span></button>
+        <button type="submit" name="product_stock_save" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i><span data-stock-submit>Save</span></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

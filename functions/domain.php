@@ -448,9 +448,9 @@ function getDomainExpirationDate($domain) {
     // Fallback - handles ISO 8601 (2026-07-05T04:00:00Z) and most everything else
     $parsedDate = date_create($expireDate);
     if ($parsedDate) {
-        $year = (int) $parsedDate->format('Y');
+        $year = intval($parsedDate->format('Y'));
         // Reject obviously bogus parses
-        if ($year >= 1995 && $year <= ((int) date('Y') + 100)) {
+        if ($year >= 1995 && $year <= (intval(date('Y')) + 100)) {
             return $parsedDate->format('Y-m-d');
         }
     }

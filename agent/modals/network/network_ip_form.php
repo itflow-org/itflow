@@ -26,7 +26,7 @@ $pool = networkParseRange($network['network_dhcp_range'] ?? '', networkSubnetInf
 
 $ip_input = function ($name, $id, $value, $required) use ($ip_split, $ip_fixed_octets, $ip_host_octets, $ip_placeholder) {
     $html = '<div class="input-group">';
-    $html .= $ip_split ? '<span class="input-group-text font-monospace fw-semibold">' . escapeHtml($ip_fixed_octets) . '</span>' : '<span class="input-group-text"><i class="fa fa-fw fa-map-pin"></i></span>';
+    $html .= $ip_split ? '<span class="input-group-text font-monospace fw-semibold">' . escapeHtml($ip_fixed_octets) . '</span>' : '<span class="input-group-text"><i class="fas fa-fw fa-map-pin"></i></span>';
     $html .= '<input type="text" class="form-control font-monospace" name="' . $name . '" id="' . $id . '" value="' . escapeHtml($value) . '" placeholder="' . escapeHtml($ip_placeholder) . '"'
         . ($ip_split && $ip_host_octets === 1 ? ' inputmode="numeric"' : '') . ' maxlength="45"' . ($required ? ' required' : '') . '>';
     return $html . '</div>';
@@ -35,7 +35,7 @@ $ip_input = function ($name, $id, $value, $required) use ($ip_split, $ip_fixed_o
 ?>
 
 <div class="mb-3">
-    <label class="form-label">IP Address <strong class="text-danger">*</strong></label>
+    <label class="form-label">IP address <strong class="text-danger">*</strong></label>
     <?= $ip_input('ip_address', 'networkIpAddress', $ip_split ? $ip_host_value : $ip_value, true) ?>
     <div class="small mt-1" id="networkIpFeedback"></div>
     <div class="small text-body-secondary d-flex flex-wrap column-gap-3">
@@ -72,14 +72,14 @@ $ip_input = function ($name, $id, $value, $required) use ($ip_split, $ip_fixed_o
     <div class="col-md-6">
         <label class="form-label">Hostname</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-server"></i></span>
             <input type="text" class="form-control" name="hostname" placeholder="dc01, printer-hr, ap-lobby" maxlength="200" value="<?= escapeHtml($form['ip_hostname'] ?? '') ?>">
         </div>
     </div>
     <div class="col-md-6">
         <label class="form-label">MAC address <span class="text-danger" id="networkIpMacRequired" <?= $form_type === 'Reservation' ? '' : 'hidden' ?>>*</span></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-ethernet"></i></span>
             <input type="text" class="form-control font-monospace" name="mac" placeholder="00:1A:2B:3C:4D:5E" maxlength="200" value="<?= escapeHtml($form['ip_mac'] ?? '') ?>">
         </div>
     </div>

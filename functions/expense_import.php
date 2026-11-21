@@ -32,7 +32,7 @@ function expenseImportDateFormats() {
     return [
         'm/d/Y' => '10/14/2026', 'm/d/y' => '10/14/26', 'Y-m-d' => '2026-10-14', 'd/m/Y' => '14/10/2026', 'd/m/y' => '14/10/26',
         'd.m.Y' => '14.10.2026', 'Y/m/d' => '2026/10/14', 'm-d-Y' => '10-14-2026', 'd-M-Y' => '14-Oct-2026', 'd-M-y' => '14-Oct-26',
-        'd M Y' => '14 Oct 2026', 'M d, Y' => 'Oct 14, 2026', 'Ymd' => '20261014',
+        'd M Y' => '14 Oct 2026', 'M j, Y' => 'Oct 14, 2026', 'Ymd' => '20261014',
     ];
 }
 
@@ -375,7 +375,7 @@ function expenseImportLines(array $rows, array $map) {
         } else {
             $debit = $map['debit'] !== null ? expenseImportAmount($cells[$map['debit']] ?? '') : null;
             $credit = $map['credit'] !== null ? expenseImportAmount($cells[$map['credit']] ?? '') : null;
-            $amount = $debit === null && $credit === null ? null : round(abs((float) $debit) - abs((float) $credit), 2);
+            $amount = $debit === null && $credit === null ? null : round(abs(floatval($debit)) - abs(floatval($credit)), 2);
         }
         // Totals and notes - nothing like a date where the date goes
         if (($date === null && $amount === null) || ($date === null && !preg_match('/\d/', (string) ($cells[$map['date']] ?? '')))) {
@@ -570,7 +570,7 @@ function expenseImportMatch(array $lines) {
 function expenseImportKeys($account_id, array $lines) {
     $seen = [];
     foreach ($lines as $i => $line) {
-        $base = intval($account_id) . '|' . $line['date'] . '|' . number_format((float) $line['amount'], 2, '.', '') . '|' . mb_strtolower(preg_replace('/\s+/u', ' ', $line['description']));
+        $base = intval($account_id) . '|' . $line['date'] . '|' . number_format(floatval($line['amount']), 2, '.', '') . '|' . mb_strtolower(preg_replace('/\s+/u', ' ', $line['description']));
         $seen[$base] = ($seen[$base] ?? 0) + 1;
         $lines[$i]['key_hash'] = hash('sha256', $base . '|' . $seen[$base]);
     }

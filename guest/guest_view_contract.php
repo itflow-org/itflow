@@ -17,7 +17,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/guest/includes/inc_all_guest.php';
 $round = contractSignaturesReady() ? contractSignatureByKey(intval($_GET['id'] ?? 0), $_GET['key'] ?? '') : null;
 
 if (!$round) {
-    echo '<div class="itflow-asset-empty mt-5"><i class="fas fa-file-signature fa-3x mb-3 opacity-50"></i><h1 class="h4">This contract link isn\'t working</h1><p>It may have been mistyped, or the contract deleted. Ask whoever sent it for a new link.</p></div>';
+    echo guestDeadEndHtml('fa-file-signature', "This contract link isn't working", "It may have been mistyped, or the contract deleted. Ask whoever sent it for a new link.");
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
     exit();
 }

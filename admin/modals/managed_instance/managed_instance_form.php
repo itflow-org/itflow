@@ -19,19 +19,19 @@ ob_start();
 if (!managerEnabled()) { ?>
     <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-server me-2"></i>Instance</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">Managing other ITFlow installs is off in this install's config.php.</div>
 <?php } elseif (!$is_new && !empty($instance['managed_instance_archived_at'])) { ?>
     <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-server me-2"></i><?= escapeHtml($instance['managed_instance_name']) ?></h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">It has been removed, so there's nothing to set for it.</div>
 <?php } elseif (isset($_GET['id']) && $is_new) { ?>
     <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-server me-2"></i>Instance</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That instance is gone - it may have been deleted.</div>
 <?php } else {
@@ -60,8 +60,8 @@ if (!managerEnabled()) { ?>
     ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-<?= $is_new ? 'plus' : 'server' ?> me-2"></i><?= $is_new ? 'Add Instance' : $value('managed_instance_name') ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-<?= $is_new ? 'plus' : 'server' ?> me-2"></i><?= $is_new ? 'New Instance' : 'Edit Instance <span class="fw-normal text-white-50 ms-1">' . $value('managed_instance_name') . '</span>' ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -91,7 +91,7 @@ if (!managerEnabled()) { ?>
                     <label class="form-label">Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-fw fa-server"></i></span>
-                        <input type="text" class="form-control" name="name" placeholder="e.g. Ravenwood Dental ITFlow" maxlength="200" value="<?= $value('managed_instance_name') ?>" required <?= $is_new ? 'autofocus' : '' ?>>
+                        <input type="text" class="form-control" name="name" placeholder="Ravenwood Dental ITFlow" maxlength="200" value="<?= $value('managed_instance_name') ?>" required <?= $is_new ? 'autofocus' : '' ?>>
                     </div>
                     <div class="form-text">What it's called here - its own company name shows from its reports.</div>
                 </div>
@@ -101,7 +101,7 @@ if (!managerEnabled()) { ?>
                         <label class="form-label">Address</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fw fa-globe"></i></span>
-                            <input type="text" class="form-control" name="url" placeholder="e.g. itflow.ravenwooddental.com" maxlength="240" value="<?= escapeHtml(preg_replace('#^https?://#', '', (string) $form['managed_instance_url'])) ?>">
+                            <input type="text" inputmode="url" class="form-control" name="url" placeholder="itflow.ravenwooddental.com" maxlength="240" value="<?= escapeHtml(preg_replace('#^https?://#', '', (string) $form['managed_instance_url'])) ?>">
                         </div>
                         <div class="form-text">Where it's reached, without https:// - it goes in the command that sets up a new install for it. Once it connects, it's the address it says it has.</div>
                     </div>
@@ -114,7 +114,7 @@ if (!managerEnabled()) { ?>
                         <select class="form-select select2" name="client_id">
                             <option value="0">- None - one of your own -</option>
                             <?php
-                            $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL OR client_id = $client_id ORDER BY client_name ASC");
+                            $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL OR client_id = $client_id)" . clientNotLeadSql($client_id) . " ORDER BY client_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_clients)) { ?>
                                 <option value="<?= intval($row['client_id']) ?>" <?= intval($row['client_id']) === $client_id ? 'selected' : '' ?><?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
                             <?php } ?>
@@ -149,7 +149,7 @@ if (!managerEnabled()) { ?>
                         <label class="form-label">Updates</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fw fa-download"></i></span>
-                            <select class="form-select" name="update_policy">
+                            <select class="form-select select2" name="update_policy">
                                 <option value="manual" <?= $form['managed_instance_update_policy'] !== 'auto' ? 'selected' : '' ?>>By hand, from here</option>
                                 <option value="auto" <?= $form['managed_instance_update_policy'] === 'auto' ? 'selected' : '' ?>>Automatically</option>
                             </select>
@@ -199,7 +199,7 @@ if (!managerEnabled()) { ?>
                     <label class="form-label">Message</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
-                        <input type="text" class="form-control" name="mode_message" maxlength="500" placeholder="e.g. Your subscription has ended - call us to carry on" value="<?= $value('managed_instance_mode_message') ?>">
+                        <input type="text" class="form-control" name="mode_message" maxlength="500" placeholder="Your subscription has ended - call us to carry on" value="<?= $value('managed_instance_mode_message') ?>">
                     </div>
                     <div class="form-text">What its people see while it's read-only or suspended, with your company's email and phone. Left empty, a plain notice.</div>
                 </div>
@@ -213,7 +213,7 @@ if (!managerEnabled()) { ?>
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="<?= $is_new ? 'add_managed_instance' : 'edit_managed_instance' ?>" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i><?= $is_new ? 'Add' : 'Save' ?></button>
+        <button type="submit" name="<?= $is_new ? 'add_managed_instance' : 'edit_managed_instance' ?>" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i><?= $is_new ? 'Create' : 'Save' ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

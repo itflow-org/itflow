@@ -22,8 +22,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-calendar-check me-2"></i>New Recurring Ticket</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-calendar-check me-2"></i>New Recurring Ticket</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -36,16 +36,16 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-add-details"><i class="fa fa-fw fa-life-ring me-2"></i>Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-add-details"><i class="fas fa-fw fa-life-ring me-2"></i>Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-schedule"><i class="fa fa-fw fa-calendar-alt me-2"></i>Schedule</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-schedule"><i class="fas fa-fw fa-calendar-alt me-2"></i>Schedule</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-assets"><i class="fa fa-fw fa-link me-2"></i>Related</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-assets"><i class="fas fa-fw fa-link me-2"></i>Related</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-tasks"><i class="fa fa-fw fa-tasks me-2"></i>Tasks</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-tasks"><i class="fas fa-fw fa-tasks me-2"></i>Tasks</a>
             </li>
         </ul>
 
@@ -59,14 +59,14 @@ ob_start();
                 <div class="row">
                     <div class="col">
                         <div class="mb-3">
-                            <label>Client <strong class="text-danger">*</strong></label>
+                            <label class="form-label">Client <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                                 <select class="form-select select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
-                                    <option value="">- Select a Client -</option>
+                                    <option value="">- Select a client -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                                    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql($client_id) . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql)) {
                                         $client_id_select = intval($row['client_id']);
                                         $client_name = escapeHtml($row['client_name']); ?>
@@ -80,9 +80,9 @@ ob_start();
                     </div>
                     <div class="col">
                         <div class="mb-3">
-                            <label>Contact </label>
+                            <label class="form-label">Contact </label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                                 <select class="form-select select2" name="contact_id" id="contactSelect">
                                 </select>
                             </div>
@@ -93,14 +93,14 @@ ob_start();
                 <?php } ?>
 
                 <?php
-                $ticket_template_hint = "Picking one fills in the recurring ticket - change anything before it is saved. <span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like are filled in each time it raises a ticket, and what the template asks for is answered once here.";
+                $ticket_template_hint = "<span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like in it are filled in each time it raises a ticket.";
                 require_once '../../includes/inc_ticket_template_select.php';
                 ?>
 
                 <div class="mb-3">
-                    <label>Subject <strong class="text-danger">*</strong></label>
+                    <label class="form-label">Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                         <input type="text" class="form-control" id="subjectInput" name="subject" data-template-field="subject" placeholder="Subject" maxlength="500" required>
                     </div>
                 </div>
@@ -113,9 +113,9 @@ ob_start();
 
                     <div class="col">
                         <div class="mb-3">
-                            <label>Priority <strong class="text-danger">*</strong></label>
+                            <label class="form-label">Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                                 <select class="form-select select2" name="priority" data-template-field="priority" required>
                                     <option data-color="var(--bs-info)">Low</option>
                                     <option selected data-color="var(--bs-warning)">Medium</option>
@@ -128,14 +128,14 @@ ob_start();
 
                     <div class="col">
                         <div class="mb-3">
-                            <label>Category</label>
+                            <label class="form-label">Category</label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                                 <select class="form-select select2" name="category_id" data-template-field="category">
-                                    <option value="0">- Not Categorized -</option>
+                                    <option value="0">- Not categorized -</option>
                                     <?= categoryOptionsHtml('Ticket') ?>
                                 </select>
-                                <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
+                                <?= categoryAddButtonHtml('Ticket') ?>
                             </div>
                         </div>
                     </div>
@@ -143,9 +143,9 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Assign to</label>
+                    <label class="form-label">Assign to</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                         <select class="form-select select2" name="assigned_to" data-template-field="assigned">
                             <option value="0">- Unassigned -</option>
                             <?php
@@ -153,7 +153,7 @@ ob_start();
                             $sql = mysqli_query(
                                 $mysqli,
                                 "SELECT user_id, user_name, user_avatar FROM users
-                                WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
+                                WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
                             );
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $user_id = intval($row['user_id']);
@@ -184,11 +184,11 @@ ob_start();
             <div class="tab-pane fade" id="pills-add-schedule">
 
                 <div class="mb-3">
-                    <label>Frequency <strong class="text-danger">*</strong></label>
+                    <label class="form-label">Frequency <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-recycle"></i></span>
                         <select class="form-select select2" name="frequency" required>
-                            <option value="">- Select Frequency -</option>
+                            <option value="">- Select a frequency -</option>
                             <optgroup label="Days">
                                 <option>Three Days</option>
                                 <option>Weekly</option>
@@ -205,38 +205,42 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>First run <strong class="text-danger">*</strong></label>
+                    <label class="form-label">First run <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                         <input class="form-control" type="date" name="start_date" min="<?= date("Y-m-d") ?>" max="2999-12-31" value="<?= date("Y-m-d", strtotime('+1 day')) ?>" required>
                     </div>
                     <div class="form-text">The nightly cron raises a ticket on this day, then again each time it comes round. Monthly ones keep to this day of the month - the last day, in a shorter month.</div>
                 </div>
+
+                <?= byDayField('[name=start_date]', '[name=frequency]', ['Monthly', 'Quarterly', 'Biannually', 'Annually'], ['Annually'], '') ?>
+
+                <?php $ahead_row = null; require __DIR__ . '/../../includes/inc_recurring_ticket_ahead.php'; ?>
 
             </div>
 
             <div class="tab-pane fade" id="pills-add-assets">
 
                 <div class="mb-3">
-                    <label>Asset</label>
+                    <label class="form-label">Asset</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="asset_id" id="assetSelect" data-selected="<?= $asset_id ?>">
                         </select>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label>Other assets</label>
+                    <label class="form-label">Other assets</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="additional_assets[]" id="additionalAssetsSelect" data-placeholder="- Any other assets involved -" multiple>
                         </select>
                     </div>
                 </div>
 
                 <?php if (!$client_id) { ?>
-                <small class="form-text text-muted">Select a client on the Details tab to load its assets.</small>
+                <small class="form-text text-body-secondary">Select a client on the Details tab to load its assets.</small>
                 <?php } ?>
 
             </div>
@@ -245,7 +249,7 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_recurring_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create Recurring Ticket</button>
+        <button type="submit" name="add_recurring_ticket" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

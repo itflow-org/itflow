@@ -66,7 +66,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-compress-alt me-2"></i>Merge <?= count($merging) === 1 ? 'Tag' : count($merging) . ' Tags' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <?php if (!$merging || !$kind) { ?>
@@ -91,7 +91,7 @@ ob_start();
             <div class="mb-3">
                 <label class="form-label">Into <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                     <select class="form-select select2" name="into_tag_id" data-placeholder="- Keep which tag -" required>
                         <option value=""></option>
                         <?php foreach ($into as $into_id => $row) { ?>
@@ -104,7 +104,7 @@ ob_start();
             <p class="small text-secondary mb-0"><?= $merge_text ?></p>
         </div>
         <div class="modal-footer">
-            <button type="submit" name="merge_tags" class="btn btn-primary text-bold"><i class="fas fa-compress-alt me-2"></i>Merge</button>
+            <button type="submit" name="merge_tags" class="btn btn-primary fw-bold"><i class="fas fa-compress-alt me-2"></i>Merge</button>
             <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
         </div>
     </form>

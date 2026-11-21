@@ -46,7 +46,7 @@ if ($access['financial']) {
 $priority_colors = ['Urgent' => 'dark', 'High' => 'danger', 'Medium' => 'warning', 'Low' => 'info'];
 $tone_text = ['danger' => 'text-danger-emphasis', 'warning' => 'text-warning-emphasis', 'info' => 'text-info-emphasis', 'secondary' => 'text-body'];
 $money_format = function ($amount) use ($currency_format, $client_currency_code, $session_company_currency) {
-    return numfmt_format_currency($currency_format, floatval($amount), $client_currency_code ?: $session_company_currency);
+    return billingMoney(floatval($amount), $client_currency_code ?: $session_company_currency);
 };
 
 ?>
@@ -170,22 +170,20 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <?php if ($open_tickets['total']) { ?><a class="small ms-2" href="tickets.php?client_id=<?= $client_id ?>">View all <?= $open_tickets['total'] ?></a><?php } ?>
                     </div>
                     <?php if ($open_tickets['tickets']) { ?>
-                        <div class="list-group list-group-flush">
+                        <div class="list-group list-group-flush itflow-dash-mine">
                             <?php foreach ($open_tickets['tickets'] as $ticket) {
                                 $last_activity = $ticket['ticket_updated_at'] ?: $ticket['ticket_created_at'];
                                 $ticket_who = trim(implode(', ', array_filter([$ticket['contact_name'], $ticket['user_name'] ? 'assigned to ' . $ticket['user_name'] : 'unassigned'])));
                                 ?>
-                                <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= intval($ticket['ticket_id']) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2">
+                                <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= intval($ticket['ticket_id']) ?>" class="list-group-item list-group-item-action py-2">
                                     <span class="itflow-dash-dot bg-<?= $priority_colors[$ticket['ticket_priority']] ?? 'secondary' ?>" title="<?= escapeHtml($ticket['ticket_priority']) ?> priority"></span>
-                                    <span class="flex-grow-1 overflow-hidden">
+                                    <span class="overflow-hidden">
                                         <span class="d-block text-truncate"><span class="small text-body-secondary me-2"><?= escapeHtml($ticket['ticket_prefix'] . $ticket['ticket_number']) ?></span><?= escapeHtml($ticket['ticket_subject']) ?></span>
                                         <span class="d-block small text-body-secondary text-truncate"><?= escapeHtml(ucfirst($ticket_who)) ?></span>
                                     </span>
-                                    <?php if ($ticket['sla_breached']) { ?>
-                                        <span class="badge rounded-pill text-bg-danger" title="Past SLA"><i class="fas fa-stopwatch me-1" aria-hidden="true"></i>SLA</span>
-                                    <?php } ?>
-                                    <span class="d-none d-sm-inline"><?= ticketStatusHtml($ticket['ticket_status_name'], $ticket['ticket_status_color'], 'detail') ?></span>
-                                    <span class="small text-body-secondary text-nowrap d-none d-md-inline" title="Last activity <?= escapeHtml($last_activity) ?>"><?= escapeHtml(timeAgo($last_activity)) ?></span>
+                                    <span class="itflow-dash-mine-cell"><?php if ($ticket['sla_breached']) { ?><span class="badge rounded-pill text-bg-danger" title="Past SLA"><i class="fas fa-stopwatch me-1" aria-hidden="true"></i>SLA</span><?php } ?></span>
+                                    <span class="itflow-dash-mine-cell d-none d-sm-flex"><?= ticketStatusHtml($ticket['ticket_status_name'], $ticket['ticket_status_color'], 'detail') ?></span>
+                                    <span class="itflow-dash-mine-cell justify-content-end small text-body-secondary text-nowrap d-none d-md-flex" title="Last activity <?= escapeHtml($last_activity) ?>"><?= escapeHtml(timeAgo($last_activity)) ?></span>
                                 </a>
                             <?php } ?>
                         </div>
@@ -255,7 +253,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
             </div>
         </div>
 
-        <?php if ($favorites['assets'] || $favorites['licenses'] || $favorites['credentials']) { ?>
+        <?php if ($favorites['assets'] || $favorites['licenses'] || $favorites['credentials'] || $favorites['documents']) { ?>
             <div class="col-md-6 col-xl-4">
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
@@ -263,6 +261,17 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <i class="fas fa-star text-warning" aria-hidden="true"></i>
                     </div>
                     <div class="list-group list-group-flush">
+                        <?php foreach ($favorites['documents'] as $favorite_document) { ?>
+                            <div class="list-group-item d-flex align-items-center gap-2 py-2">
+                                <i class="fas fa-fw fa-file-alt text-body-secondary" title="Document"></i>
+                                <span class="flex-grow-1 overflow-hidden">
+                                    <a class="d-block text-truncate" href="document.php?client_id=<?= $client_id ?>&document_id=<?= intval($favorite_document['document_id']) ?>"><?= escapeHtml($favorite_document['document_name']) ?></a>
+                                    <?php if ($favorite_document['document_description'] !== '' && $favorite_document['document_description'] !== null) { ?>
+                                        <span class="d-block small text-body-secondary text-truncate"><?= escapeHtml($favorite_document['document_description']) ?></span>
+                                    <?php } ?>
+                                </span>
+                            </div>
+                        <?php } ?>
                         <?php foreach ($favorites['assets'] as $asset) {
                             $asset_ip = escapeHtml($asset['interface_ip']); ?>
                             <div class="list-group-item d-flex align-items-center gap-2 py-2">
@@ -317,7 +326,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0 me-auto">Coming up <span class="small text-body-secondary fw-normal ms-1">14 days</span></h3>
-                        <a class="small" href="calendar.php?client_id=<?= $client_id ?>">Calendar</a>
+                        <?php if (moduleOn('calendar')) { ?><a class="small" href="calendar.php?client_id=<?= $client_id ?>">Calendar</a><?php } ?>
                     </div>
                     <div class="itflow-dash-schedule">
                         <?php
@@ -514,7 +523,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <?php foreach ($activity as $log) { ?>
                             <div class="list-group-item py-2">
                                 <div class="small"><?= escapeHtml($log['log_description']) ?></div>
-                                <div class="small text-body-secondary" title="<?= escapeHtml($log['log_created_at']) ?>"><?= escapeHtml(timeAgo($log['log_created_at'])) ?></div>
+                                <div class="small text-body-secondary" title="<?= formatDateTime($log['log_created_at']) ?>"><?= escapeHtml(timeAgo($log['log_created_at'])) ?></div>
                             </div>
                         <?php } ?>
                     </div>
@@ -593,7 +602,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         ?>
                         <span class="small text-body-secondary">Terms</span>
                         <span class="itflow-dash-money-value"><?= $money_format($overview_rate['rate']) ?><span class="fs-6 fw-normal text-body-secondary">/hr</span></span>
-                        <span class="small text-body-tertiary"><?= $overview_net ? "Net $overview_net" : 'Due on receipt' ?><?= $overview_after > 0 ? ', ' . $money_format($overview_after) . '/hr after hours' : '' ?><?= $client_tax_id_number ? ", tax ID $client_tax_id_number" : '' ?></span>
+                        <span class="small text-body-tertiary"><?= $overview_net ? "Net $overview_net" : 'Due on receipt' ?><?= $overview_after !== null ? ', ' . $money_format($overview_after) . '/hr after hours' : '' ?><?= $client_tax_id_number ? ", tax ID $client_tax_id_number" : '' ?></span>
                         <?php if ($overview_from !== '') { ?>
                             <span class="small text-body-tertiary text-truncate" data-overview-terms-contract title="While it is in force, the contract's rates and net terms apply - the defaults for what it leaves empty"><i class="fas fa-file-contract me-1" aria-hidden="true"></i>From <?= escapeHtml($overview_from) ?></span>
                         <?php } else { ?>
@@ -622,7 +631,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <?php if ($open_invoices['invoices']) { ?>
                             <div class="list-group list-group-flush">
                                 <?php foreach ($open_invoices['invoices'] as $invoice) {
-                                    $days_over = (int) (new DateTime('today'))->diff(new DateTime($invoice['invoice_due']))->format('%r%a') * -1;
+                                    $days_over = intval((new DateTime('today'))->diff(new DateTime($invoice['invoice_due']))->format('%r%a')) * -1;
                                     ?>
                                     <a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?= intval($invoice['invoice_id']) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2">
                                         <span class="flex-grow-1 overflow-hidden">

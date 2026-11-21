@@ -47,8 +47,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-sync-alt me-2"></i>Bring in line<?= $template ? ' with <strong>' . escapeHtml($template['vendor_template_name']) . '</strong>' : '' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-sync-alt me-2"></i>Bring in Line<?= $template ? ' with <strong>' . escapeHtml($template['vendor_template_name']) . '</strong>' : '' ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <?php if (!$template || !$vendors) { ?>
@@ -93,7 +93,7 @@ ob_start();
                         <i class="fas fa-fw <?= $labels[$key]['icon'] ?> text-secondary"></i>
                         <span class="flex-grow-1"><?= $labels[$key]['label'] ?></span>
                         <span class="small text-body-secondary text-truncate" style="max-width: 50%;" title="What the template says"><?= vendorTemplateValueHtml($key, $template, 'template') ?></span>
-                        <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal"><?= $count ?> differ<?= $count === 1 ? 's' : '' ?></span>
+                        <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal"><?= number_format(intval($count)) ?> differ<?= $count === 1 ? 's' : '' ?></span>
                     </label>
                 <?php } ?>
             </div>
@@ -107,8 +107,8 @@ ob_start();
         <div class="form-text mt-3">Their account number, PIN and account manager stay their own.</div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="update_vendors_from_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Take them from the template</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="update_vendors_from_template" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Take Them from the Template</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 <?php } ?>

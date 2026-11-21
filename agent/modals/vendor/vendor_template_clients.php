@@ -20,7 +20,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $templates[] = $row;
 }
 if (!$templates) {
-    echo json_encode(['error' => 'There are no vendor templates yet - an admin adds them under Admin > Vendor Templates.']);
+    echo json_encode(['error' => 'There are no vendor templates yet - an admin adds them under Admin > Templates > Vendors.']);
     exit;
 }
 
@@ -48,7 +48,7 @@ if (!empty($_GET['missing'])) {
 $picked = array_flip($picked);
 
 $clients = [];
-$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql(array_keys($picked)) . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
     $clients[] = $row;
 }
@@ -57,8 +57,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-puzzle-piece me-2"></i>Add a Vendor to Clients</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-puzzle-piece me-2"></i>Add a Vendor to Clients</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="/agent/post.php" method="post" autocomplete="off" data-vendor-template-clients>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -67,7 +67,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Template</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-puzzle-piece"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-puzzle-piece"></i></span>
                 <select class="form-select select2" name="vendor_template_id" data-template-pick>
                     <?php foreach ($templates as $template) {
                         $option_id = intval($template['vendor_template_id']); ?>
@@ -85,8 +85,8 @@ ob_start();
             <div data-template-clients="<?= $option_id ?>" <?= $option_id === $template_id ? '' : 'hidden' ?>>
                 <label class="form-label">Clients</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                    <select class="form-select select2" name="client_ids[]" multiple data-placeholder="Pick the clients that use them" <?= $option_id === $template_id ? '' : 'disabled' ?>>
+                    <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
+                    <select class="form-select select2" name="client_ids[]" multiple data-placeholder="- Select the clients that use them -" <?= $option_id === $template_id ? '' : 'disabled' ?>>
                         <?php foreach ($clients as $client) {
                             $client_option_id = intval($client['client_id']);
                             $client_has = isset($has[$option_id][$client_option_id]); ?>
@@ -99,8 +99,8 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_vendor_template_to_clients" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Add to clients</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_vendor_template_to_clients" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Add to Clients</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

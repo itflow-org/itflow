@@ -77,16 +77,18 @@ ob_start();
             </div>
             <div class="itflow-glance-item" title="Entered">
                 <i class="fas fa-fw fa-clock"></i>
-                <span><span title="<?= escapeHtml($row['revenue_created_at']) ?>"><?= timeAgo($row['revenue_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?><?php if (!empty($row['revenue_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
+                <span><span title="<?= formatDateTime($row['revenue_created_at']) ?>"><?= timeAgo($row['revenue_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?><?php if (!empty($row['revenue_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
             </div>
             <?= transferDepositedGlanceHtml($deposited) ?>
             <?= reconcileGlanceHtml($cleared) ?>
         </div>
         <div class="col-sm-6">
+            <?php if (moduleOn('bookkeeping')) { ?>
             <div class="itflow-glance-item" title="Paid into">
                 <i class="fas fa-fw fa-piggy-bank"></i>
                 <span class="text-truncate"><?= escapeHtml($row['account_name'] ?: 'No account') ?><?= $row['account_archived_at'] ? ' <span class="text-body-secondary">(archived)</span>' : '' ?></span>
             </div>
+            <?php } ?>
             <div class="itflow-glance-item" title="Paid by">
                 <i class="fas fa-fw fa-credit-card"></i>
                 <span><?= escapeHtml($row['revenue_payment_method'] ?: '-') ?></span>
@@ -119,8 +121,8 @@ ob_start();
 
 <div class="modal-footer">
     <?php if ($can_edit) { ?>
-        <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/revenue/revenue_edit.php?id=<?= $revenue_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
-        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/revenue/revenue_copy.php?id=<?= $revenue_id ?>"><i class="fas fa-copy me-2"></i>Copy</button>
+        <button type="button" class="btn btn-primary fw-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/revenue/revenue_edit.php?id=<?= $revenue_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/revenue/revenue_copy.php?id=<?= $revenue_id ?>"><i class="far fa-copy me-2"></i>Copy</button>
     <?php } ?>
     <?php if ($can_delete && $cleared) { ?>
         <?= reconcileLockedButtonHtml($cleared) ?>
@@ -128,7 +130,7 @@ ob_start();
         <a class="btn btn-outline-danger confirm-link" href="post.php?delete_revenue=<?= $revenue_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
             data-confirm-text="<?= escapeHtml(incomeRevenueLabel($row)) ?> goes for good."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

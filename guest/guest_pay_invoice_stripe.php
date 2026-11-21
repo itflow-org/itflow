@@ -2,7 +2,8 @@
 
 require_once 'includes/inc_all_guest.php';
 
-DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information before attempting payment again.</h2>");
+// What a payment that can't be confirmed shows - get in touch rather than pay twice
+$payment_failed_html = guestDeadEndHtml('fa-credit-card', "We couldn't confirm that payment", "Get in touch with us before you try to pay again.");
 
 // --- Get Stripe config from payment_providers table ---
 $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_account, payment_provider_private_key, payment_provider_public_key, payment_provider_active FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
@@ -18,7 +19,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Stripe switched off (Admin > Payment Providers) takes no new payments, even from an old link.
     // A payment already made still comes back below and is booked.
     if (!$stripe_provider || !intval($stripe_provider['payment_provider_active'])) {
-        echo "<br><h2>Paying online isn't available just now. Please get in touch to pay this invoice another way.</h2>";
+        echo guestDeadEndHtml('fa-credit-card', "Paying online isn't available just now", "Get in touch to pay this invoice another way.");
         require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
         exit();
     }
@@ -41,9 +42,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     // Ensure valid invoice
     if (!$sql || mysqli_num_rows($sql) !== 1) {
-        echo "<br><h2>Oops, something went wrong! Please ensure you have the correct URL and have not already paid this invoice.</h2>";
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
         error_log("Stripe payment error - Invoice with ID $invoice_id not found or not eligible.");
+        echo guestDeadEndHtml('fa-file-invoice-dollar', "This invoice link isn't working", "It may have been mistyped, or the invoice is already paid. Ask whoever sent it for a new link.");
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
         exit();
     }
 
@@ -70,9 +71,16 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $amount_paid = floatval(mysqli_fetch_assoc($sql_amount_paid)['amount_paid']);
     $balance_to_pay = round($invoice_amount - $amount_paid, 2);
 
+    // As the invoice's Pay button: sent and still owed on, and under Stripe's limit (Admin > Payment Providers)
+    if (!invoiceCanPay($row, invoiceState($row, $amount_paid)) || !billingOnlinePayAllowed($invoice_amount)) {
+        echo guestDeadEndHtml('fa-file-invoice-dollar', "This invoice can't be paid online", "Get in touch to pay it another way.");
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
+    }
+
     // The card fee, when the client pays it - guest_ajax.php charges the same
     $fee_rates = billingCardFeeFor($client_id);
-    $card_fee = billingCardFeeCents((int) round($balance_to_pay * 100), $fee_rates) / 100;
+    $card_fee = billingCardFeeCents(intval(round($balance_to_pay * 100)), $fee_rates) / 100;
 
     // Get invoice items
     $sql_invoice_items = mysqli_query($mysqli, "SELECT item_name, item_quantity, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
@@ -110,14 +118,14 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                             <tr>
                                 <td><?= $item_name ?></td>
                                 <td class="text-center"><?= $item_quantity ?></td>
-                                <td class="text-end"><?= numfmt_format_currency($currency_format, $item_total, $invoice_currency_code) ?></td>
+                                <td class="text-end"><?= billingMoney($item_total, $invoice_currency_code) ?></td>
                             </tr>
                         <?php } ?>
                         <?php if ($invoice_discount > 0) { ?>
                             <tr class="text-end">
                                 <td colspan="2">Discount</td>
                                 <td>
-                                    <?= numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code) ?>
+                                    <?= billingMoney($invoice_discount, $invoice_currency_code) ?>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -125,18 +133,18 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                             <tr class="text-end">
                                 <td colspan="2">Paid</td>
                                 <td>
-                                    <?= numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code) ?>
+                                    <?= billingMoney($amount_paid, $invoice_currency_code) ?>
                                 </td>
                             </tr>
                         <?php } ?>
                         <?php if ($card_fee > 0) { ?>
                             <tr class="text-end">
                                 <td colspan="2">Balance</td>
-                                <td><?= numfmt_format_currency($currency_format, $balance_to_pay, $invoice_currency_code) ?></td>
+                                <td><?= billingMoney($balance_to_pay, $invoice_currency_code) ?></td>
                             </tr>
                             <tr class="text-end">
                                 <td colspan="2">Card fee <div class="small text-body-secondary"><?= escapeHtml(billingCardFeeTerms($fee_rates, $invoice_currency_code)) ?></div></td>
-                                <td><?= numfmt_format_currency($currency_format, $card_fee, $invoice_currency_code) ?></td>
+                                <td><?= billingMoney($card_fee, $invoice_currency_code) ?></td>
                             </tr>
                         <?php } ?>
                         </tbody>
@@ -148,11 +156,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         <div class="col-sm offset-sm-1">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Payment Total: <strong><?= numfmt_format_currency($currency_format, $balance_to_pay + $card_fee, $invoice_currency_code) ?></strong></h3>
+                    <h3 class="card-title">Payment Total: <strong><?= billingMoney($balance_to_pay + $card_fee, $invoice_currency_code) ?></strong></h3>
                 </div>
                 <div class="card-body">
                     <?php if ($card_fee > 0) { ?>
-                        <p class="small text-body-secondary">With a <?= numfmt_format_currency($currency_format, $card_fee, $invoice_currency_code) ?> card fee for paying by card, which goes on the invoice as a line.</p>
+                        <p class="small text-body-secondary">With a <?= billingMoney($card_fee, $invoice_currency_code) ?> card fee for paying by card, which goes on the invoice as a line.</p>
                     <?php } ?>
                     <form id="payment-form">
                         <input type="hidden" id="stripe_publishable_key" value="<?= $stripe_publishable ?>">
@@ -160,11 +168,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                         <input type="hidden" id="url_key" value="<?= $invoice_url_key ?>">
                         <div id="payment-element"></div>
                         <br>
-                        <button type="submit" id="submit" class="btn btn-primary btn-lg w-100 text-bold" hidden="hidden">
-                            <div class="spinner hidden" id="spinner"></div>
+                        <button type="submit" id="submit" class="btn btn-primary btn-lg w-100 fw-bold" hidden="hidden">
+                            <span class="spinner-border spinner-border-sm d-none" id="spinner" role="status"></span>
                             <span id="button-text"><i class="fas fa-check me-2"></i>Pay Invoice</span>
                         </button>
-                        <div id="payment-message" class="d-none"></div>
+                        <div id="payment-message" class="alert alert-danger mt-3 mb-0 d-none" role="alert"></div>
                     </form>
                 </div>
             </div>
@@ -188,19 +196,25 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     if ($pi_obj->client_secret !== $pi_cs) {
         error_log("Stripe payment error - Payment intent ID/Secret mismatch for $pi_id");
-        exit(WORDING_PAYMENT_FAILED);
+        echo $payment_failed_html;
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
     } elseif ($pi_obj->status !== "succeeded") {
-        exit(WORDING_PAYMENT_FAILED);
+        echo $payment_failed_html;
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
     } elseif ($pi_obj->amount !== $pi_obj->amount_received) {
         error_log("Stripe payment error - payment amount does not match amount paid for $pi_id");
-        exit(WORDING_PAYMENT_FAILED);
+        echo $payment_failed_html;
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
     }
 
     // PI details
     $pi_date = date('Y-m-d', $pi_obj->created);
     $pi_invoice_id = intval($pi_obj->metadata->itflow_invoice_id);
     $pi_client_id = intval($pi_obj->metadata->itflow_client_id);
-    $pi_amount_paid = floatval(($pi_obj->amount_received / 100));
+    $pi_amount_paid = floatval($pi_obj->amount_received / 100);
     $pi_currency = strtoupper(escapeSql($pi_obj->currency));
     $pi_livemode = $pi_obj->livemode;
 
@@ -217,7 +231,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     );
     if (!$invoice_sql || mysqli_num_rows($invoice_sql) !== 1) {
         error_log("Stripe payment error - Invoice with ID $pi_invoice_id is unknown/not eligible. PI $pi_id");
-        exit(WORDING_PAYMENT_FAILED);
+        echo $payment_failed_html;
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
     }
 
     $row = mysqli_fetch_assoc($invoice_sql);
@@ -249,21 +265,24 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_fee_cents = intval($pi_fees[$invoice_id] ?? 0);
     if (array_diff_key($pi_fees, [$invoice_id => true])) {
         error_log("Stripe payment error - card fee is not for invoice $invoice_id on $pi_id");
-        exit(WORDING_PAYMENT_FAILED);
+        echo $payment_failed_html;
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
     }
 
     // Compare in whole cents - intval() truncates, which silently accepted an underpayment
     // of up to 99c as payment in full while rejecting a 1c overpayment.
-    if ((int) round($balance_to_pay * 100) + $pi_fee_cents !== (int) round($pi_amount_paid * 100)) {
+    if (intval(round($balance_to_pay * 100)) + $pi_fee_cents !== intval(round($pi_amount_paid * 100))) {
         error_log("Stripe payment error - Invoice balance does not match amount paid for $pi_id");
-        exit(WORDING_PAYMENT_FAILED);
+        echo $payment_failed_html;
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
     }
 
     // A payment already booked - here, or in the client portal - is never booked again, even
     // when its invoice has been reopened since (an edit, a payment deleted) and owes it again
     if (mysqli_num_rows(mysqli_query($mysqli, "SELECT payment_id FROM payments WHERE payment_reference = 'Stripe - $pi_id' LIMIT 1"))) {
-        header('Location: //' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
-        exit();
+        redirect('//' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
     }
 
     // Claim the invoice - the conditional UPDATE is the lock, and the row lock it takes
@@ -272,8 +291,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id AND invoice_status NOT IN ('Draft', 'Paid', 'Cancelled')");
     if (mysqli_affected_rows($mysqli) !== 1) {
         error_log("Stripe payment - invoice $invoice_id was already settled by a concurrent request; skipping duplicate booking of $pi_id");
-        header('Location: //' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
-        exit();
+        redirect('//' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
     }
 
     // The card fee goes on the invoice first, so the payment - balance and fee - pays it to the cent
@@ -297,16 +315,17 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     logForwardQueue('audit', mysqli_insert_id($mysqli));
 
     // The client's receipt, and the paid notification address - functions/billing_email.php
-    $config_smtp_host = mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_smtp_host FROM settings WHERE company_id = 1"))[0] ?? '';
-    if (!empty($config_smtp_host)) {
+    if (billingEmailReady()) {
         billingPaymentSend($invoice_id, $pi_amount_paid, ['date' => $pi_date, 'method' => 'Card', 'reference' => "Stripe - $pi_id", 'how' => 'Online card'], true);
     }
 
     // Redirect user to invoice
-    header('Location: //' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
+    redirect('//' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
 
 } else {
-    exit(WORDING_PAYMENT_FAILED);
+    echo $payment_failed_html;
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+    exit();
 }
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';

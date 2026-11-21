@@ -44,7 +44,7 @@ if ($refuse !== '') { ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-redo-alt me-2"></i>Recurring invoice for <strong><?= escapeHtml($contract['contract_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body pb-0">
     <ul class="nav nav-pills nav-justified mb-3" role="tablist">
@@ -65,15 +65,15 @@ if ($refuse !== '') { ?>
                     <div class="col-sm-6">
                         <label class="form-label">Amount each time <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                             <input type="text" inputmode="decimal" class="form-control" name="amount" placeholder="1,500.00" required autofocus>
                         </div>
                     </div>
                     <div class="col-sm-6">
                         <label class="form-label">How often</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>
-                            <select class="form-select" name="frequency">
+                            <span class="input-group-text"><i class="fas fa-fw fa-sync-alt"></i></span>
+                            <select class="form-select select2" name="frequency">
                                 <?php foreach (recurringInvoiceFrequencies() as $key => $label) { ?>
                                     <option value="<?= $key ?>"<?= $key === 'month' ? ' selected' : '' ?>><?= escapeHtml($label) ?></option>
                                 <?php } ?>
@@ -85,16 +85,16 @@ if ($refuse !== '') { ?>
                     <div class="col-sm-6">
                         <label class="form-label">First invoice <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                             <input type="date" class="form-control" name="start" max="2999-12-31" value="<?= escapeHtml(contractRecurringFirstDate($contract)) ?>" required>
                         </div>
                     </div>
                     <div class="col-sm-6">
                         <label class="form-label">Category</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                             <select class="form-select select2" name="category">
-                                <option value="0">- Category -</option>
+                                <option value="0">- Select a category -</option>
                                 <?= categoryOptionsHtml('Income') ?>
                             </select>
                         </div>
@@ -103,14 +103,14 @@ if ($refuse !== '') { ?>
                 <div class="mb-3">
                     <label class="form-label">Line <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
                         <input type="text" class="form-control" name="item_name" maxlength="200" value="<?= escapeHtml($contract['contract_name']) ?>" required>
                     </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Description</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                         <input type="text" class="form-control" name="description" maxlength="1000" value="<?= escapeHtml(contractTypeLabel($contract['contract_type'])) ?> - {period}">
                     </div>
                     <div class="form-text">{month}, {quarter}, {year} and {period} become the dates each invoice covers.</div>
@@ -119,8 +119,8 @@ if ($refuse !== '') { ?>
                     <div class="col-sm-6">
                         <label class="form-label">Tax</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
-                            <select class="form-select" name="tax_id">
+                            <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
+                            <select class="form-select select2" name="tax_id">
                                 <?= taxOptionsHtml($taxes, taxDefaultFor($client_id, 'goods')) ?>
                             </select>
                         </div>
@@ -134,7 +134,7 @@ if ($refuse !== '') { ?>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" name="make_contract_recurring" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Make it</button>
+                <button type="submit" name="make_contract_recurring" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Make It</button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
             </div>
         </form>
@@ -146,7 +146,7 @@ if ($refuse !== '') { ?>
             <div class="modal-body pt-0">
                 <label class="form-label">Recurring invoice</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-redo-alt"></i></span>
                     <select class="form-select select2" name="recurring_invoice_id" required>
                         <?php foreach ($choices as $choice_id => $choice) {
                             // Under its number and scope: what it bills and whether it is running
@@ -158,7 +158,7 @@ if ($refuse !== '') { ?>
                 <div class="form-text"><?= escapeHtml($contract['client_name']) ?>'s recurring invoices that aren't another contract's.<?= $draft ? ' An active one is paused until the contract is active.' : ' A paused one starts now, its missed runs skipped.' ?></div>
             </div>
             <div class="modal-footer">
-                <button type="submit" name="link_contract_recurring" class="btn btn-primary text-bold"><i class="fas fa-link me-2"></i>Link it</button>
+                <button type="submit" name="link_contract_recurring" class="btn btn-primary fw-bold"><i class="fas fa-link me-2"></i>Link It</button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
             </div>
         </form>

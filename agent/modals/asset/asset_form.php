@@ -11,11 +11,12 @@
  * Notes. Every field is always in the form, whatever the asset type: fields
  * that came and went with the type used to drop out of the POST entirely,
  * and the handler then saved them as empty - editing an access point wiped
- * its firmware version. So a field its type doesn't have (ASSET_TYPES in
+ * its firmware version. So a field its type doesn't have (assetTypes() in
  * functions/asset_type.php) is only hidden, and one with a value is shown
  * all the same; a tab left with nothing in it goes too. Details - the type's
- * own, from ASSET_SPECS - are under Hardware, as spec[key]; the caller sets
- * $asset_specs (raw) for an asset that has them.
+ * own, from assetSpecDefs() - are under Hardware, as spec[key]; the caller
+ * sets $asset_specs (raw) for an asset that has them. The type picker offers
+ * the types switched on, and the asset's own even when it is off.
  *
  * Should not be accessed directly.
  */
@@ -57,7 +58,7 @@ if ($client_id) {
     }
 } else {
     $client_options = [];
-    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $client_options[] = $row;
     }
@@ -76,9 +77,10 @@ $asset_ip_is_dhcp = $asset_ip === 'DHCP';
 $asset_specs = $asset_specs ?? [];
 $asset_type_raw = html_entity_decode($asset_type, ENT_QUOTES, 'UTF-8');
 $asset_type_known = assetTypeName($asset_type_raw);
+$asset_type_picker = assetTypePicker($asset_type_raw);
 // What each type shows, for the script - fields, what the OS field is called, details
 $asset_form_types = [];
-foreach (ASSET_TYPES as $asset_form_type => $asset_form_info) {
+foreach (assetTypes() as $asset_form_type => $asset_form_info) {
     $asset_form_types[$asset_form_type] = ['fields' => $asset_form_info['fields'], 'os' => assetTypeOsLabel($asset_form_type), 'specs' => $asset_form_info['specs'], 'example' => $asset_form_info['example']];
 }
 // Ports it has now, for the counts' hints - copper and SFP cages
@@ -149,9 +151,9 @@ $asset_form_icons = [
             <div class="col-12">
                 <label class="form-label">Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required>
-                        <option value="">- Select Client -</option>
+                        <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
                             <option value="<?= intval($client_option['client_id']) ?>"<?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                         <?php } ?>
@@ -165,9 +167,9 @@ $asset_form_icons = [
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-layer-group fa-fw"></i></span>
                 <select class="form-select select2" name="type" required>
-                    <option value="">- Select Type -</option>
-                    <?php foreach ($asset_types_array as $asset_type_select => $asset_icon_select) { ?>
-                        <option <?php if ($asset_type_select === $asset_type_raw) { echo "selected"; } ?><?= selectOptionData(['icon' => "fas $asset_icon_select"]) ?>><?= $asset_type_select ?></option>
+                    <option value="">- Select a type -</option>
+                    <?php foreach ($asset_type_picker as $asset_type_select => $asset_icon_select) { ?>
+                        <option <?php if ($asset_type_select === $asset_type_known) { echo "selected"; } ?><?= selectOptionData(['icon' => "fas $asset_icon_select"]) ?>><?= escapeHtml($asset_type_select) ?></option>
                     <?php } ?>
                     <?php if ($asset_type_raw !== '' && $asset_type_known === '') { ?>
                         <option selected<?= selectOptionData(['icon' => 'fas fa-tag']) ?>><?= escapeHtml($asset_type_raw) ?></option>
@@ -192,24 +194,24 @@ $asset_form_icons = [
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-circle fa-fw" data-asset-form-icon="status" style="color: <?= $asset_form_icons['status'] ?>"></i></span>
                 <select class="form-select select2" name="status">
-                    <option value="">- Status -</option>
+                    <option value="">- Select a status -</option>
                     <?= categoryOptionsHtml('asset_status', html_entity_decode($asset_status)) ?>
                 </select>
-                <?= categoryAddButtonHtml('asset_status', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('asset_status') ?>
             </div>
         </div>
         <div class="col-md-7">
             <label class="form-label">Description</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Domain controller for HQ" maxlength="255" value="<?= $asset_description ?>">
             </div>
         </div>
         <div class="col-md-5">
             <label class="form-label">Tags</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
+                <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
+                <select class="form-select select2" name="tags[]" data-placeholder="- Select tags -" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                     <?= tagOptionsHtml('asset', $asset_tag_id_array) ?>
                 </select>
             </div>
@@ -235,9 +237,10 @@ $asset_form_icons = [
         <div class="col-md-5" data-asset-field="serial">
             <label class="form-label">Serial number</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
-                <input type="text" class="form-control font-monospace" name="serial" placeholder="ABC1234XYZ" maxlength="200" value="<?= $asset_serial ?>">
+                <span class="input-group-text"><i class="fas fa-fw fa-barcode"></i></span>
+                <input type="text" class="form-control font-monospace" name="serial" placeholder="ABC1234XYZ" maxlength="200" value="<?= $asset_serial ?>" data-asset-duplicate="serial">
             </div>
+            <div class="form-text text-warning-emphasis" data-asset-duplicate-note="serial"></div>
         </div>
         <div class="col-12" data-asset-field="os">
             <label class="form-label" for="assetFormOs" data-asset-os-label><?= $asset_type_raw !== '' ? assetTypeOsLabel($asset_type_raw) : 'Operating system / firmware' ?></label>
@@ -251,7 +254,7 @@ $asset_form_icons = [
     <?php // Its type's details - each type's are shown by the script below, the rest hidden ?>
     <div class="itflow-form-section mt-4" data-asset-specs-heading>Details</div>
     <div class="row g-3" data-asset-specs>
-        <?php foreach (ASSET_SPECS as $spec_key => $spec) {
+        <?php foreach (assetSpecDefs() as $spec_key => $spec) {
             $spec_value = (string) ($asset_specs[$spec_key] ?? '');
             $spec_id = 'assetFormSpec_' . $spec_key;
             $spec_shown = in_array($spec_key, assetTypeInfo($asset_type_raw)['specs'], true); ?>
@@ -260,8 +263,8 @@ $asset_form_icons = [
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw <?= $spec['icon'] ?>"></i></span>
                     <?php if ($spec['input'] === 'select') { ?>
-                        <select class="form-select" name="spec[<?= $spec_key ?>]" id="<?= $spec_id ?>">
-                            <option value="">-</option>
+                        <select class="form-select select2" name="spec[<?= $spec_key ?>]" id="<?= $spec_id ?>">
+                            <option value="">- None -</option>
                             <?php foreach ($spec['options'] as $spec_option) { ?>
                                 <option <?= strcasecmp($spec_option, $spec_value) === 0 ? 'selected' : '' ?>><?= escapeHtml($spec_option) ?></option>
                             <?php } ?>
@@ -331,12 +334,13 @@ $asset_form_icons = [
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-map-marker-alt fa-fw"></i></span>
                     <select class="form-select select2" name="location">
-                        <option value="">- Select Location -</option>
+                        <option value="">- Select a location -</option>
                         <?php foreach ($location_options as $location_option) {
                             $location_option_id = intval($location_option['location_id']); ?>
                             <option value="<?= $location_option_id ?>" <?php if ($asset_location_id === $location_option_id) { echo "selected"; } ?>><?= escapeHtml($location_option['location_name']) ?><?= $location_option['location_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
                     </select>
+                    <?= $client_id ? quickAddButton('location', $client_id) : '' ?>
                 </div>
             </div>
             <div class="col-md-6">
@@ -357,6 +361,7 @@ $asset_form_icons = [
                             <option value="<?= $contact_option_id ?>" <?php if ($asset_contact_id === $contact_option_id) { echo "selected"; } ?><?= selectOptionContact($contact_option['contact_client_id'] ?? 0, $contact_option['contact_name'], $contact_option['contact_photo'] ?? '', $contact_option['contact_title'] ?? '', $contact_option['contact_id'] ?? 0) ?>><?= escapeHtml($contact_option['contact_name']) ?><?= $contact_option['contact_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
                     </select>
+                    <?= $client_id ? quickAddButton('contact', $client_id) : '' ?>
                 </div>
             </div>
         </div>
@@ -382,9 +387,9 @@ $asset_form_icons = [
             <div class="col-md-6" data-asset-field="network">
                 <label class="form-label">Network</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-network-wired"></i></span>
                     <select class="form-select select2" name="network">
-                        <option value="">- Select Network -</option>
+                        <option value="">- Select a network -</option>
                         <?php foreach ($network_options as $network_option) {
                             $network_option_id = intval($network_option['network_id']); ?>
                             <option value="<?= $network_option_id ?>" <?php if ($asset_network_id === $network_option_id) { echo "selected"; } ?><?= selectOptionData(['description' => $network_option['network']]) ?>><?= escapeHtml($network_option['network_name']) ?><?= $network_option['network_archived_at'] ? ' (archived)' : '' ?></option>
@@ -409,14 +414,15 @@ $asset_form_icons = [
         <div class="col-md-6" data-asset-field="network">
             <label class="form-label">MAC address</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                <input type="text" class="form-control font-monospace" name="mac" placeholder="00:1A:2B:3C:4D:5E" maxlength="200" value="<?= $asset_mac ?>" data-inputmask="'alias': 'mac'" data-mask>
+                <span class="input-group-text"><i class="fas fa-fw fa-ethernet"></i></span>
+                <input type="text" class="form-control font-monospace" name="mac" placeholder="00:1A:2B:3C:4D:5E" maxlength="200" value="<?= $asset_mac ?>" data-inputmask="'alias': 'mac'" data-mask data-asset-duplicate="mac">
             </div>
+            <div class="form-text text-warning-emphasis" data-asset-duplicate-note="mac"></div>
         </div>
         <div class="col-md-6" data-asset-field="nat">
             <label class="form-label">NAT address</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-exchange-alt"></i></span>
                 <input type="text" class="form-control font-monospace" name="nat_ip" placeholder="203.0.113.10" maxlength="200" value="<?= $asset_nat_ip ?>" data-inputmask="'alias': 'ip'" data-mask>
             </div>
         </div>
@@ -436,21 +442,21 @@ $asset_form_icons = [
                 <label class="form-label">Link</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="<?= $asset_form_icons['uri'] ?> fa-fw" data-asset-form-icon="link"></i></span>
-                    <input type="text" class="form-control" name="uri" placeholder="https://, ssh://, rdp://" maxlength="500" value="<?= $asset_uri ?>">
+                    <input type="text" inputmode="url" class="form-control" name="uri" placeholder="https://, ssh://, rdp://" maxlength="500" value="<?= $asset_uri ?>">
                 </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Second link</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="<?= $asset_form_icons['uri_2'] ?> fa-fw" data-asset-form-icon="link"></i></span>
-                    <input type="text" class="form-control" name="uri_2" placeholder="https://, ssh://, rdp://" maxlength="500" value="<?= $asset_uri_2 ?>">
+                    <input type="text" inputmode="url" class="form-control" name="uri_2" placeholder="https://, ssh://, rdp://" maxlength="500" value="<?= $asset_uri_2 ?>">
                 </div>
             </div>
             <div class="col-12">
                 <label class="form-label">Client link</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-share-square fa-fw"></i></span>
-                    <input type="text" class="form-control" name="uri_client" placeholder="https://" maxlength="500" value="<?= $asset_uri_client ?>">
+                    <input type="text" inputmode="url" class="form-control" name="uri_client" placeholder="https://" maxlength="500" value="<?= $asset_uri_client ?>">
                 </div>
                 <div class="form-text">Shown to the client in their portal.</div>
             </div>
@@ -465,21 +471,22 @@ $asset_form_icons = [
             <div class="col-md-6" data-asset-field="purchase">
                 <label class="form-label">Vendor</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                     <select class="form-select select2" name="vendor">
-                        <option value="">- Select Vendor -</option>
+                        <option value="">- Select a vendor -</option>
                         <?php foreach ($vendor_options as $vendor_option) {
                             $vendor_option_id = intval($vendor_option['vendor_id']); ?>
                             <option value="<?= $vendor_option_id ?>" <?php if ($asset_vendor_id === $vendor_option_id) { echo "selected"; } ?><?= selectOptionVendor($vendor_option['vendor_name'], $vendor_option['vendor_description']) ?>><?= escapeHtml($vendor_option['vendor_name']) ?><?= $vendor_option['vendor_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
                     </select>
+                    <?= $client_id ? quickAddButton('vendor', $client_id) : '' ?>
                 </div>
             </div>
         <?php } ?>
         <div class="col-md-6" data-asset-field="purchase">
             <label class="form-label">Order / invoice reference</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-receipt"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-receipt"></i></span>
                 <input type="text" class="form-control" name="purchase_reference" placeholder="INV-1045, PO-7782" maxlength="200" value="<?= $asset_purchase_reference ?>">
             </div>
         </div>
@@ -515,14 +522,14 @@ $asset_form_icons = [
             <div class="col-md-6">
                 <label class="form-label">Username</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <input type="text" class="form-control" name="username" placeholder="admin" maxlength="350" autocomplete="off">
                 </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Password</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                     <input type="text" class="form-control" name="password" placeholder="Leave empty to skip" maxlength="350" autocomplete="off">
                 </div>
             </div>
@@ -538,20 +545,9 @@ $asset_form_icons = [
             <textarea class="form-control" rows="7" placeholder="Configuration details, quirks, anything worth knowing" name="notes"><?= $asset_notes ?></textarea>
         </div>
         <div class="col-md-6">
-            <label class="form-label">Photo</label>
-            <?php if ($asset_photo) { ?>
-                <div class="mb-2"><img class="img-thumbnail" style="max-height: 7rem" alt="Current photo" src="<?= "../uploads/clients/$client_id/$asset_photo" ?>"></div>
-            <?php } ?>
-            <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-camera fa-fw"></i></span>
-                <input type="file" class="form-control" name="file" accept="image/jpeg,image/png,image/gif,image/webp">
-            </div>
-            <?php if ($asset_photo) { ?>
-                <div class="form-check mt-2">
-                    <input class="form-check-input" type="checkbox" name="remove_photo" value="1" id="assetFormRemovePhoto">
-                    <label class="form-check-label" for="assetFormRemovePhoto">Remove this photo</label>
-                </div>
-            <?php } ?>
+            <label class="form-label d-block">Photo</label>
+            <?= pictureField('file', $asset_photo ? 'remove_photo' : '', $asset_photo ? picturePhoto('../uploads/clients/' . intval($client_id) . '/' . html_entity_decode($asset_photo), 'Photo') : picturePhotoEmpty(), picturePhotoEmpty(),
+                ['shapes' => 'square,4:3,whole']) ?>
         </div>
     </div>
 </div>
@@ -568,7 +564,7 @@ $asset_form_icons = [
                                 <?= assetStatusPill($row['asset_history_status']) ?>
                             <?php } ?>
                         </div>
-                        <div class="small text-body-secondary" title="<?= escapeHtml($row['asset_history_created_at']) ?>"><?= timeAgo($row['asset_history_created_at']) ?> &middot; <?= escapeHtml($row['asset_history_created_at']) ?></div>
+                        <div class="small text-body-secondary" title="<?= formatDateTime($row['asset_history_created_at']) ?>"><?= timeAgo($row['asset_history_created_at']) ?> &middot; <?= formatDateTime($row['asset_history_created_at']) ?></div>
                     </li>
                 <?php } ?>
             </ul>
@@ -582,6 +578,21 @@ $asset_form_icons = [
 <script>
     itflowReady(function () {
         var form = document.getElementById('assetFormOs').closest('form');
+
+        // A serial number or MAC already on another asset (agent/ajax.php asset_duplicate_check) - said, not refused
+        form.querySelectorAll('[data-asset-duplicate]').forEach(function (input) {
+            var note = form.querySelector('[data-asset-duplicate-note="' + input.dataset.assetDuplicate + '"]');
+            input.addEventListener('change', function () {
+                var value = input.value.trim();
+                if (value === '') {
+                    note.textContent = '';
+                    return;
+                }
+                itflowGet('ajax.php', { asset_duplicate_check: input.dataset.assetDuplicate, value: value, exclude: <?= intval($asset_id ?? 0) ?> }, function (data) {
+                    note.innerHTML = JSON.parse(data).message || '';
+                });
+            });
+        });
 
         // OS / firmware suggestions from what's already in use
         var osInput = form.querySelector('#assetFormOs');

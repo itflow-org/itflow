@@ -464,7 +464,7 @@ function clientExportRows($dataset, $client_id, $options) {
                     'name' => $row['client_name'], 'abbreviation' => $row['client_abbreviation'], 'industry' => $row['client_type'], 'website' => $row['client_website'],
                     'referral' => $row['client_referral'], 'lead' => clientExportYes($row['client_lead']),
                     'tags' => clientExportTags('client_tags', 'client_id', [$client_id])[$client_id] ?? '',
-                    'hourly_rate' => $terms ? sprintf('%.2f', $terms['rate']['rate']) : '', 'after_hours_rate' => $terms && $terms['after_hours'][0] > 0 ? sprintf('%.2f', $terms['after_hours'][0]) : '',
+                    'hourly_rate' => $terms ? sprintf('%.2f', $terms['rate']['rate']) : '', 'after_hours_rate' => $terms && $terms['after_hours'][0] !== null ? sprintf('%.2f', $terms['after_hours'][0]) : '',
                     'net_terms' => $terms ? $terms['net_terms'][0] : '',
                     'terms_from' => $terms ? (($terms['rate']['contract_name'] ?: ($terms['net_terms'][1] ?: $terms['after_hours'][1])) ?: 'The defaults') : '',
                     'currency' => $billing ? $row['client_currency_code'] : '', 'tax_id' => $billing ? $row['client_tax_id_number'] : '',
@@ -1152,10 +1152,10 @@ function clientExportPdf($client_id, $options) {
     $pdf->Ln(2);
     $pdf->SetFont('dejavusans', '', 10);
     $pdf->SetTextColor(73, 80, 87);
-    $pdf->MultiCell($width, 5, 'Prepared ' . date('F j, Y') . ' by ' . stripslashes((string) $session_name) . ($company['company_name'] ? ', ' . $company['company_name'] : ''), 0, 'L', false, 1);
+    $pdf->MultiCell($width, 5, 'Prepared ' . date('M j, Y') . ' by ' . stripslashes((string) $session_name) . ($company['company_name'] ? ', ' . $company['company_name'] : ''), 0, 'L', false, 1);
 
     $included = array_map(function ($key) use ($sections) { return lcfirst($sections[$key]['label']); }, $options['sections']);
-    $about = 'This document records ' . $client['name'] . "'s IT environment as documented on " . date('F j, Y') . ': the client details'
+    $about = 'This document records ' . $client['name'] . "'s IT environment as documented on " . date('M j, Y') . ': the client details'
         . ($included ? ', ' . implode(', ', array_slice($included, 0, -1)) . (count($included) > 1 ? ' and ' : '') . end($included) : '') . '.';
     $pdf->SetY(150);
     $pdf->SetFont('dejavusans', '', 9);
@@ -1232,7 +1232,7 @@ function clientExportPdf($client_id, $options) {
         $chapter('Service levels', 'Targets run in business hours.', 1);
         $minutes = function ($m) {
             $m = intval($m);
-            return $m >= 60 ? round($m / 60, 1) . ' h' : $m . ' min';
+            return $m >= 60 ? round($m / 60, 1) . ' h' : $m . 'm';
         };
         $write(clientExportPdfTable(['Priority' => 20, 'SLA' => 40, 'First reply within' => 20, 'Resolved within' => 20], array_map(function ($s) use ($e, $minutes) {
             return [$e($s['priority']), $e($s['sla']), $e($minutes($s['response_minutes'])), $e($minutes($s['resolution_minutes']))];
@@ -1302,7 +1302,7 @@ function clientExportPdf($client_id, $options) {
     $assets = $has('assets') ? $data('assets') : [];
     if ($assets) {
         $chapter('Assets', $count(count($assets), 'asset') . ' in use', 0, true);
-        // By the type's group (ASSET_TYPES, functions/asset_type.php)
+        // By the type's group (assetTypes() - your own types too, functions/asset_type.php)
         $families = [
             'Servers and storage' => assetTypesInGroup('server', 'virtual'),
             'Network equipment' => assetTypesInGroup('network'),
@@ -1591,7 +1591,8 @@ function clientExportHtmlPage($title, $body, $up = '') {
  * anything else is left pointing where it did.
  */
 function clientExportLocalImages($html, array $roots, $image_folder, $up, callable $add_file) {
-    return preg_replace_callback('/(<img\b[^>]*\bsrc\s*=\s*")([^"]*)(")/i', function ($m) use ($roots, $image_folder, $up, $add_file) {
+    // To the first src= - not the last, which ran out of PCRE's backtracking past a large picture's data
+    return preg_replace_callback('/(<img\b[^>]*?\bsrc\s*=\s*")([^"]*)(")/i', function ($m) use ($roots, $image_folder, $up, $add_file) {
         $src = html_entity_decode($m[2], ENT_QUOTES, 'UTF-8');
         foreach ($roots as $web => $dir) {
             $web_relative = ltrim($web, '/');
@@ -1609,7 +1610,7 @@ function clientExportLocalImages($html, array $roots, $image_folder, $up, callab
             return $m[1] . escapeHtml($up . $target) . $m[3];
         }
         return $m[0];
-    }, $html);
+    }, $html) ?? $html;
 }
 
 /**

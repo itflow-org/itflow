@@ -29,7 +29,7 @@ $vendor_client_id = $vendor ? intval($vendor['vendor_client_id']) : 0;
 
 if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($client_id)) || !vendorCan($vendor_client_id, 1)) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
 } else {
 
@@ -215,8 +215,6 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
             unset($vendor_tabs['logins']);
         }
     }
-
-    $link_url = "modals/link/link.php?from=vendor&id=$vendor_id&to=";
     $unlink_url = function ($to, $other_id) use ($vendor_id) {
         return "post.php?unlink_item&from=vendor&id=$vendor_id&to=$to&other=" . intval($other_id) . "&csrf_token=" . $_SESSION['csrf_token'];
     };
@@ -271,16 +269,16 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
 
             <div class="d-flex flex-wrap gap-2 d-print-none">
                 <?php if ($vendor_dial) { ?>
-                    <a class="btn btn-outline-primary" href="tel:<?= escapeHtml($vendor_dial) ?><?= $vendor['vendor_extension'] ? ',' . escapeHtml($vendor['vendor_extension']) : '' ?>" title="<?= escapeHtml($vendor_phone_text) ?>"><i class="fas fa-phone me-2"></i>Call support</a>
+                    <a class="btn btn-outline-primary" href="tel:<?= escapeHtml($vendor_dial) ?><?= $vendor['vendor_extension'] ? ',' . escapeHtml($vendor['vendor_extension']) : '' ?>" title="<?= escapeHtml($vendor_phone_text) ?>"><i class="fas fa-phone me-2"></i>Call Support</a>
                 <?php } ?>
                 <?php if ($vendor_email) { ?>
                     <a class="btn btn-outline-primary" href="mailto:<?= $vendor_email ?>"><i class="fas fa-envelope me-2"></i>Email</a>
                 <?php } ?>
                 <?php if ($vendor_website_url) { ?>
-                    <a class="btn btn-outline-primary" href="<?= escapeHtml($vendor_website_url) ?>" target="_blank" rel="noopener"><i class="fas fa-external-link-alt me-2"></i>Support site</a>
+                    <a class="btn btn-outline-primary" href="<?= escapeHtml($vendor_website_url) ?>" target="_blank" rel="noopener"><i class="fas fa-external-link-alt me-2"></i>Support Site</a>
                 <?php } ?>
                 <?php if ($vendor_status_url) { ?>
-                    <a class="btn btn-outline-primary" href="<?= escapeHtml($vendor_status_url) ?>" target="_blank" rel="noopener" title="Whether they have an outage" data-vendor-status-page><i class="fas fa-heartbeat me-2"></i>Status page</a>
+                    <a class="btn btn-outline-primary" href="<?= escapeHtml($vendor_status_url) ?>" target="_blank" rel="noopener" title="Whether they have an outage" data-vendor-status-page><i class="fas fa-heartbeat me-2"></i>Status Page</a>
                 <?php } ?>
                 <?php if ($can_new) { ?>
                     <div class="dropdown">
@@ -288,35 +286,35 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                         <div class="dropdown-menu dropdown-menu-end">
                             <?php if ($is_ours) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_add.php?vendor_id=<?= $vendor_id ?>">
-                                    <i class="fa fa-fw fa-receipt text-secondary me-2"></i>Expense
+                                    <i class="fas fa-fw fa-receipt text-secondary me-2"></i>Expense
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense_add.php?vendor_id=<?= $vendor_id ?>">
-                                    <i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring expense
+                                    <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Expense
                                 </a>
                             <?php } else { ?>
                                 <?php if ($can_support_edit) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $new_case_url ?>">
-                                        <i class="fa fa-fw fa-life-ring text-secondary me-2"></i>Case with them
+                                        <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Case with Them
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
-                                        <i class="fa fa-fw fa-cube text-secondary me-2"></i>License from them
+                                        <i class="fas fa-fw fa-cube text-secondary me-2"></i>License from Them
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
-                                        <i class="fa fa-fw fa-desktop text-secondary me-2"></i>Asset bought from them
+                                        <i class="fas fa-fw fa-desktop text-secondary me-2"></i>Asset Bought from Them
                                     </a>
                                 <?php } ?>
                                 <?php if ($can_credentials_edit) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
-                                        <i class="fa fa-fw fa-key text-secondary me-2"></i>Portal login
+                                        <i class="fas fa-fw fa-key text-secondary me-2"></i>Portal Login
                                     </a>
                                 <?php } ?>
                                 <?php if ($can_support_edit) { ?>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="xl" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
-                                        <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
+                                        <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>Document
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
-                                        <i class="fa fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
+                                        <i class="fas fa-fw fa-upload text-secondary me-2"></i>Upload Files
                                     </a>
                                 <?php } ?>
                             <?php } ?>
@@ -335,18 +333,18 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                             <?php if ($template_row) { ?>
                                 <?php if ($template_differences) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/vendor/vendor_template_update.php?vendor_id=<?= $vendor_id ?>">
-                                        <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Update from template
+                                        <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Update from Template
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item confirm-link" href="post.php?unlink_vendor_template=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                     data-confirm-title="Unlink from <?= escapeHtml($template_row['vendor_template_name']) ?>?" data-confirm-text="<?= $vendor_name ?> stays as it is, and is no longer kept in step with the template." data-confirm-button="Unlink">
-                                    <i class="fas fa-fw fa-unlink text-secondary me-2"></i>Unlink from template
+                                    <i class="fas fa-fw fa-unlink text-secondary me-2"></i>Unlink from Template
                                 </a>
                                 <div class="dropdown-divider"></div>
                             <?php } ?>
                             <?php if (!empty($session_is_admin) && !$vendor['vendor_template_name'] && !$vendor_archived_at) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="/admin/modals/vendor_template/vendor_template_add.php?from_vendor=<?= $vendor_id ?>" title="A vendor template starting from this vendor, so other clients can have it">
-                                    <i class="fas fa-fw fa-puzzle-piece text-secondary me-2"></i>Make a template from it
+                                    <i class="fas fa-fw fa-puzzle-piece text-secondary me-2"></i>Make a Template from It
                                 </a>
                                 <div class="dropdown-divider"></div>
                             <?php } ?>
@@ -355,13 +353,13 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                                 <?php if ($can_delete) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= $vendor_name ?> goes for good. Its cases, licenses, assets and domains stay, with no vendor.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
                                 <?php } ?>
                             <?php } else { ?>
-                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <a class="dropdown-item text-danger" href="post.php?archive_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                 </a>
                             <?php } ?>
@@ -378,7 +376,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
             <i class="fas fa-fw fa-not-equal"></i>
             <span class="flex-grow-1 small">Differs from the <strong><?= escapeHtml($template_row['vendor_template_name']) ?></strong> template it was made from in its <?= escapeHtml(vendorTemplateLabelsText($template_differences)) ?> - its own, or the template changed since.</span>
             <?php if ($can_edit) { ?>
-                <button type="button" class="btn btn-sm btn-warning ajax-modal" data-modal-size="lg" data-modal-url="modals/vendor/vendor_template_update.php?vendor_id=<?= $vendor_id ?>"><i class="fas fa-sync-alt me-1"></i>Update from template</button>
+                <button type="button" class="btn btn-sm btn-warning ajax-modal" data-modal-size="lg" data-modal-url="modals/vendor/vendor_template_update.php?vendor_id=<?= $vendor_id ?>"><i class="fas fa-sync-alt me-1"></i>Update from Template</button>
             <?php } ?>
         </div>
     <?php } elseif ($template_match) { ?>
@@ -389,7 +387,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
             <input type="hidden" name="vendor_ids[]" value="<?= $vendor_id ?>">
             <i class="fas fa-fw fa-puzzle-piece"></i>
             <span class="flex-grow-1 small">Looks like the <strong><?= escapeHtml($template_match['vendor_template_name']) ?></strong> vendor template. Link it, and it counts as made from it and is kept in step with it - nothing here changes unless you say so.</span>
-            <button type="submit" name="link_vendors_to_template" class="btn btn-sm btn-info"><i class="fas fa-link me-1"></i>Link to template</button>
+            <button type="submit" name="link_vendors_to_template" class="btn btn-sm btn-info"><i class="fas fa-link me-1"></i>Link to Template</button>
         </form>
     <?php } ?>
 
@@ -457,7 +455,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                 <span class="text-body-secondary">Not recorded</span>
                             <?php } ?>
                         </dd>
-                        <dt>Added</dt><dd title="<?= $vendor_created_at ?>"><?= timeAgo($vendor_created_at) ?></dd>
+                        <dt>Added</dt><dd title="<?= formatDateTime($vendor_created_at) ?>"><?= timeAgo($vendor_created_at) ?></dd>
                     </dl>
                 </div>
             </div>
@@ -466,7 +464,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                 <div class="card-header">
                     <h3 class="card-title mb-0"><i class="fas fa-fw fa-sticky-note text-secondary me-2"></i>Notes</h3>
                 </div>
-                <textarea class="form-control border-0 rounded-0 rounded-bottom itflow-vendor-notes" rows="7" placeholder="Escalation path, who is authorised to call them, circuit IDs, contract renewal - saves when you click away"
+                <textarea class="form-control border-0 rounded-0 rounded-bottom itflow-vendor-notes" rows="7" placeholder="Escalation path, who is authorized to call them, circuit IDs, contract renewal - saves when you click away"
                     data-vendor-id="<?= $vendor_id ?>" data-csrf="<?= escapeHtml($_SESSION['csrf_token']) ?>" <?= $can_edit ? '' : 'readonly' ?>><?= $vendor_notes ?></textarea>
             </div>
 
@@ -499,7 +497,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link text-nowrap <?= $tab['count'] ? '' : 'is-empty' ?>" id="vendor-tab-<?= $tab_key ?>" data-bs-toggle="pill" data-bs-target="#vendor-pane-<?= $tab_key ?>" data-vendor-tab="<?= $tab_key ?>" type="button" role="tab">
                                     <i class="fas fa-fw <?= $tab['icon'] ?> me-1 d-none d-xxl-inline"></i><?= $tab['label'] ?>
-                                    <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                                    <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                                     <?php if (!empty($tab['badge'])) { ?>
                                         <span class="badge rounded-pill text-bg-danger" title="Open"><?= intval($tab['badge']) ?> open</span>
                                     <?php } ?>
@@ -586,7 +584,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                             </td>
                                             <td class="text-nowrap"><?php if ($serial) { ?><span class="font-monospace small"><?= $serial ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy serial" data-clipboard-text="<?= $serial ?>"><i class="far fa-copy"></i></button><?php } else { ?><span class="text-body-secondary">-</span><?php } ?></td>
                                             <td class="text-nowrap small"><?= $order_ref ?: '<span class="text-body-secondary">-</span>' ?></td>
-                                            <td class="text-nowrap small"><?= escapeHtml($asset['asset_purchase_date']) ?: '<span class="text-body-secondary">-</span>' ?></td>
+                                            <td class="text-nowrap small"><?= formatDate($asset['asset_purchase_date']) ?: '<span class="text-body-secondary">-</span>' ?></td>
                                             <td class="text-nowrap">
                                                 <?php if ($warranty) {
                                                     $tone = $warranty['tone']; ?>
@@ -664,9 +662,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                         <div class="itflow-asset-pane-bar">
                             <span class="text-body-secondary small">The client's services that depend on them - who gets the call when one breaks.</span>
                             <?php if ($can_link_services) { ?>
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/link/link.php?from=vendor&id=<?= $vendor_id ?>&to=service">
-                                    <i class="fas fa-link me-2"></i>Link
-                                </button>
+                                <?= linkPickerButton('vendor', $vendor_id, 'service', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                             <?php } ?>
                         </div>
                         <?php if ($services) { ?>
@@ -691,9 +687,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                 <span class="text-body-secondary small"><?= $hint ?></span>
                                 <?php if ($can_link && !$vendor_archived_at) { ?>
                                     <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $link_url . $to ?>">
-                                            <i class="fas fa-link me-2"></i>Link
-                                        </button>
+                                        <?= linkPickerButton('vendor', $vendor_id, $to, 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                         <?php if ($to === 'credential') { ?>
                                             <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
                                                 <i class="fas fa-plus me-2"></i>New Login
@@ -739,9 +733,9 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                     <div class="tab-pane fade" id="vendor-pane-expenses" role="tabpanel">
                         <div class="itflow-asset-pane-bar">
                             <span class="text-body-secondary small d-flex flex-wrap column-gap-3">
-                                <span><strong class="text-body"><?= numfmt_format_currency($currency_format, $spend['year'], $session_company_currency) ?></strong> this year</span>
-                                <span><?= numfmt_format_currency($currency_format, $spend['last_year'], $session_company_currency) ?> last year</span>
-                                <span><?= numfmt_format_currency($currency_format, $spend['total'], $session_company_currency) ?> in all</span>
+                                <span><strong class="text-body"><?= billingMoney($spend['year'], $session_company_currency) ?></strong> this year</span>
+                                <span><?= billingMoney($spend['last_year'], $session_company_currency) ?> last year</span>
+                                <span><?= billingMoney($spend['total'], $session_company_currency) ?> in all</span>
                             </span>
                             <div class="d-flex gap-2">
                                 <a class="btn btn-sm btn-outline-secondary" href="expenses.php?vendor=<?= $vendor_id ?>"><i class="fas fa-list me-2"></i>All</a>
@@ -757,13 +751,13 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                     <tbody>
                                     <?php foreach ($expenses as $expense) { ?>
                                         <tr>
-                                            <td class="text-nowrap"><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($expense['expense_id']) ?>"><?= escapeHtml($expense['expense_date']) ?></a><?php if ($expense['expense_receipt']) { ?><i class="fas fa-paperclip text-success small ms-1" title="Receipt attached"></i><?php } ?></td>
+                                            <td class="text-nowrap"><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($expense['expense_id']) ?>"><?= formatDate($expense['expense_date']) ?></a><?php if ($expense['expense_receipt']) { ?><i class="fas fa-paperclip text-success small ms-1" title="Receipt attached"></i><?php } ?></td>
                                             <td class="w-100">
                                                 <div><?= escapeHtml(truncate((string) $expense['expense_description'], 90)) ?: '<span class="text-body-secondary">-</span>' ?></div>
                                                 <div class="small text-body-secondary"><?= escapeHtml(implode(' · ', array_filter([$expense['category_name'], $expense['expense_reference']]))) ?></div>
                                             </td>
-                                            <td class="text-nowrap small"><?= intval($expense['expense_paid_by']) ? '<i class="fas fa-hand-holding-usd text-body-secondary me-1" title="Paid personally"></i>' . escapeHtml($expense['paid_by_name'] ?: 'An agent') : escapeHtml($expense['account_name']) ?></td>
-                                            <td class="text-end text-nowrap font-monospace"><?= numfmt_format_currency($currency_format, floatval($expense['expense_amount']), $expense['expense_currency_code']) ?></td>
+                                            <td class="text-nowrap small"><?= intval($expense['expense_paid_by']) ? '<i class="fas fa-hand-holding-usd text-body-secondary me-1" title="Paid personally"></i>' . escapeHtml($expense['paid_by_name'] ?: 'An agent') : (moduleOn('bookkeeping') ? escapeHtml($expense['account_name']) : 'The business') ?></td>
+                                            <td class="text-end text-nowrap font-monospace"><?= billingMoney(floatval($expense['expense_amount']), $expense['expense_currency_code']) ?></td>
                                         </tr>
                                     <?php } ?>
                                     </tbody>
@@ -793,13 +787,13 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                     <?php foreach ($recurring as $recurring_expense) {
                                         $active = recurringExpenseState($recurring_expense) === 'active'; ?>
                                         <tr class="<?= $active ? '' : 'text-body-secondary' ?>">
-                                            <td class="text-nowrap"><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense.php?id=<?= intval($recurring_expense['recurring_expense_id']) ?>"><?= escapeHtml($recurring_expense['recurring_expense_next_date']) ?></a><?php if (!$active) { ?> <?= recurringExpenseNextPill($recurring_expense) ?><?php } ?></td>
+                                            <td class="text-nowrap"><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense.php?id=<?= intval($recurring_expense['recurring_expense_id']) ?>"><?= formatDate($recurring_expense['recurring_expense_next_date']) ?></a><?php if (!$active) { ?> <?= recurringExpenseNextPill($recurring_expense) ?><?php } ?></td>
                                             <td class="text-nowrap"><?= ['month' => 'Month', 'quarter' => 'Quarter', 'year' => 'Year'][$recurring_expense['recurring_expense_frequency']] ?? 'Month' ?></td>
                                             <td class="w-100">
                                                 <div><?= escapeHtml(truncate((string) $recurring_expense['recurring_expense_description'], 90)) ?: '<span class="text-body-secondary">-</span>' ?></div>
                                                 <div class="small text-body-secondary"><?= escapeHtml($recurring_expense['category_name']) ?></div>
                                             </td>
-                                            <td class="text-end text-nowrap font-monospace"><?= numfmt_format_currency($currency_format, floatval($recurring_expense['recurring_expense_amount']), $recurring_expense['recurring_expense_currency_code']) ?></td>
+                                            <td class="text-end text-nowrap font-monospace"><?= billingMoney(floatval($recurring_expense['recurring_expense_amount']), $recurring_expense['recurring_expense_currency_code']) ?></td>
                                         </tr>
                                     <?php } ?>
                                     </tbody>

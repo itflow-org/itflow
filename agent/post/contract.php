@@ -78,7 +78,7 @@ if (isset($_POST['add_contract']) || isset($_POST['edit_contract'])) {
         contractHoursSync($contract_id);
         logAudit("Contract", "Create", "$session_name added " . strtolower($fields['status']) . " contract " . escapeSql($fields['name']) . " (" . escapeSql(contractTypeLabel($fields['type'])) . ")"
             . ($fields['start_date'] !== '' ? " from " . escapeSql($fields['start_date']) : '') . ($fields['end_date'] !== '' ? " to " . escapeSql($fields['end_date']) : ''), $client_id, $contract_id);
-        flashAlert("Contract <strong>" . escapeHtml($fields['name']) . "</strong> added" . ($fields['status'] === 'Draft' ? ' as a draft' : ''));
+        flashAlert("Contract <strong>" . escapeHtml($fields['name']) . "</strong> created" . ($fields['status'] === 'Draft' ? ' as a draft' : ''));
         redirect("contract.php?client_id=$client_id&contract_id=$contract_id");
     }
 

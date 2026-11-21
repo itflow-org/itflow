@@ -71,14 +71,12 @@ if ($templates) {
 
 $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(ticket_template_archived_at IS NULL), 0), COALESCE(SUM(ticket_template_archived_at IS NOT NULL), 0) FROM ticket_templates WHERE $search"));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $csrf = $_SESSION['csrf_token'];
 
 ?>
+
+<?= adminNavGroupTabsHtml('templates') ?>
 
 <div class="card">
     <div class="card-header bg-dark py-2">
@@ -88,20 +86,20 @@ $csrf = $_SESSION['csrf_token'];
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/ticket_template/ticket_template_add.php">
                     <i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Ticket Template</span>
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket_template/ticket_template_import.php">
                         <i class="fas fa-fw fa-file-upload text-secondary me-2"></i>Import
                     </a>
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket_template/ticket_template_export.php">
-                        <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="/agent/reports/ticket_templates.php">
-                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How they are used
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How They Are Used
                     </a>
                     <a class="dropdown-item" href="starter_content.php">
-                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter templates
+                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter Templates
                     </a>
                 </div>
             </div>
@@ -114,7 +112,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-md-5">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search ticket templates..." title="Name, description or subject">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -128,11 +126,11 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('ticket_template_name', 'Template') ?></th>
+                <th class="ps-3"><?= sortLink('ticket_template_name', 'Template') ?></th>
                 <th class="d-none d-lg-table-cell">Sets up</th>
-                <th class="d-none d-sm-table-cell text-center"><?= $sort_link('task_count', 'Tasks') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('used_count', 'Used') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('last_used', 'Last used') ?></th>
+                <th class="d-none d-sm-table-cell text-center"><?= sortLink('task_count', 'Tasks') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('used_count', 'Used') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('last_used', 'Last used') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -210,23 +208,23 @@ $csrf = $_SESSION['csrf_token'];
                                 </a>
                                 <?php if (!$row['ticket_template_archived_at']) { ?>
                                     <a class="dropdown-item" href="/agent/tickets.php?new_from_template=<?= $template_id ?>">
-                                        <i class="fas fa-fw fa-plus text-secondary me-2"></i>New ticket from it
+                                        <i class="fas fa-fw fa-plus text-secondary me-2"></i>New Ticket from It
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item" href="post.php?copy_ticket_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">
-                                    <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                    <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['ticket_template_archived_at']) { ?>
                                     <a class="dropdown-item" href="post.php?restore_ticket_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>">
-                                        <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item text-danger" href="post.php?archive_ticket_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="Not offered for new tickets - recurring tickets and project templates that use it keep it">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </a>
                                 <?php } ?>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>"
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_ticket_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Delete <?= $name ?>?" data-confirm-text="Its tasks go with it<?= $linked ? ', and ' . escapeHtml(implode(' and ', $linked)) . ' stop using it' : '' ?>. Tickets raised from it stay as they are." data-confirm-button="Delete">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>

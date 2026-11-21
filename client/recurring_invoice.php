@@ -16,10 +16,10 @@ portalBillingGate();
 
 $recurring = billingRow('recurring', intval($_GET['id'] ?? 0), false);
 if (!$recurring || intval($recurring['client_id']) !== $session_client_id || intval($recurring['recurring_invoice_status']) !== 1) { ?>
-    <a class="itflow-portal-back" href="recurring_invoices.php"><i class="fas fa-chevron-left"></i>Recurring invoices</a>
+    <a class="itflow-portal-back" href="recurring_invoices.php"><i class="fas fa-chevron-left"></i>Recurring Invoices</a>
     <section class="itflow-portal-panel">
         <?= emptyStateHtml(['title' => "That recurring invoice isn't here", 'text' => 'It may have ended, or the link is not quite right.', 'icon' => 'fa-redo-alt', 'filtered' => false,
-            'actions' => [['label' => 'Recurring invoices', 'href' => 'recurring_invoices.php', 'icon' => 'fa-arrow-left']]]) ?>
+            'actions' => [['label' => 'Recurring Invoices', 'href' => 'recurring_invoices.php', 'icon' => 'fa-arrow-left']]]) ?>
     </section>
     <?php
     require_once "includes/footer.php";
@@ -53,7 +53,7 @@ $paper = [
 ];
 ?>
 
-<a class="itflow-portal-back" href="recurring_invoices.php"><i class="fas fa-chevron-left"></i>Recurring invoices</a>
+<a class="itflow-portal-back" href="recurring_invoices.php"><i class="fas fa-chevron-left"></i>Recurring Invoices</a>
 
 <div class="itflow-portal-page-head">
     <div>
@@ -80,7 +80,7 @@ $paper = [
                         <input type="hidden" name="recurring_invoice_id" value="<?= $recurring_id ?>">
                         <label class="form-label fw-semibold" for="autopayCard">Autopay</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                             <select class="form-select" id="autopayCard" name="saved_payment_id" data-autosubmit<?= !$usable && !$autopay ? ' disabled' : '' ?>>
                                 <option value="0">Off - I'll pay each invoice</option>
                                 <?php foreach ($cards as $card) {

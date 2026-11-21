@@ -11,27 +11,27 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-phone-alt me-2"></i>Set Phone Number for <strong><?= $count ?></strong> contact<?= $count === 1 ? '' : 's' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-phone-alt me-2"></i>Set Phone Number for <strong><?= $count ?></strong> contact<?= $count === 1 ? '' : 's' ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <?php foreach ($contact_ids as $contact_id) { ?><input type="hidden" name="contact_ids[]" value="<?= $contact_id ?>"><?php } ?>
     <div class="modal-body">
 
-        <label>Phone</label>
+        <label class="form-label">Phone</label>
         <div class="mb-3">
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                <input type="text" class="form-control" name="bulk_phone" placeholder="Phone Number" maxlength="200">
+                    <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
+                <input type="tel" class="form-control" name="bulk_phone" placeholder="Phone Number" maxlength="200">
             </div>
         </div>
 
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_contact_phone" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Set Phone Number</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="bulk_edit_contact_phone" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set Phone Number</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

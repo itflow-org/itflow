@@ -624,6 +624,7 @@ $setup_title = ['restore' => 'Restore a backup', 'restored' => 'Backup restored'
     <script src="<?= staticFileUrl('/js/phone_inputs.js') ?>"></script>
 <?php } ?>
 <script src="<?= staticFileUrl('/js/app.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/picture_field.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/setup.js') ?>"></script>
 
 </body>

@@ -6,6 +6,11 @@ $order = "DESC";
 
 require_once "includes/inc_all_admin.php";
 
+// Only a column the list has - another was an SQL error that stopped the page
+if (!in_array($sort, ['module_name', 'module_description'], true)) {
+    $sort = 'module_name';
+}
+
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS module_description, module_id, module_name FROM modules
@@ -20,21 +25,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-puzzle-piece me-2"></i>Access Modules</h3>
-        <div class="card-tools">
-            <div class="btn-group">
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/module/module_add.php">
-                    <i class="fas fa-fw fa-plus me-2"></i>New Module
-                </button>
-            </div>
-        </div>
+        <?php // No New Module, Edit or Delete: modules are built in - there is no form or handler to add or change one ?>
     </div>
     <div class="card-header py-3">
         <form autocomplete="off">
             <div class="row g-2 align-items-center">
                 <div class="col-md-4">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Modules">
-                            <button class="btn btn-primary" title="Search"><i class="fa fa-search"></i></button>
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search modules...">
+                            <button class="btn btn-primary" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -45,9 +44,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
             <tr>
                 <th class="ps-3">
-                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=module_name&order=<?= $disp ?>">
-                        Module <?php if ($sort == 'module_name') { echo $order_icon; } ?>
-                    </a>
+                    <?= sortLink('module_name', 'Module') ?>
                 </th>
                 <th class="text-center">Action</th>
             </tr>
@@ -63,32 +60,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 ?>
                 <tr>
                     <td class="ps-3">
-                        <a href="#" <?php if ($module_id > 6) { ?> class="ajax-modal" data-modal-url="modals/modules/module_edit.php?id=<?= $module_id ?>" <?php } ?>>
-                            <strong class="text-dark"><?= $module_name ?></strong>
-                        </a>
+                        <strong class="text-dark"><?= $module_name ?></strong>
                         <div class="text-secondary"><?= $module_description ?></div>
                     </td>
                     <td>
-                        <?php if ($module_id > 6) { ?>
-                            <div class="dropdown dropstart text-center">
-                                <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu">
-
-                                    <a class="dropdown-item ajax-modal" href="#"
-                                        data-modal-url="modals/module/module_edit.php?id=<?= $module_id ?>">
-                                        <i class="fas fa-fw fa-user-edit me-2"></i>Edit
-                                    </a>
-
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger confirm-link" href="post.php?delete_module=<?= $module_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                        <i class="fas fa-fw fa-archive me-2"></i>Delete
-                                    </a>
-
-                                </div>
-                            </div>
-                        <?php } else { echo "<p class='text-center'>N/A Predefined</p>"; } ?>
+                        <p class='text-center'>N/A Predefined</p>
                     </td>
                 </tr>
 
@@ -105,7 +81,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     $empty_state = [
         'thing' => 'modules',
         'icon' => 'fa-puzzle-piece',
-        'actions' => [['label' => 'New Module', 'modal' => 'modals/module/module_add.php']],
     ];
     ?>
     <?php require_once "../includes/filter_footer.php";

@@ -27,7 +27,7 @@ isset($mysqli) || die("Direct file access is not allowed");
             <div class="col-md-7">
                 <label class="form-label">Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-server"></i></span>
                     <input type="text" class="form-control" name="name" placeholder="MDF-RACK-01" maxlength="200" value="<?= $rack_name ?>" required autofocus>
                 </div>
             </div>
@@ -37,11 +37,11 @@ isset($mysqli) || die("Direct file access is not allowed");
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-server"></i></span>
                     <select class="form-select select2" name="type" required>
-                        <option value="">- Type -</option>
+                        <option value="">- Select a type -</option>
                         <?php // Rack types from Admin > Categories - one the rack has that is archived or isn't a type any more stays an option, or the required select would change it on every edit ?>
                         <?= categoryOptionsHtml('rack_type', html_entity_decode($rack_type, ENT_QUOTES, 'UTF-8')) ?>
                     </select>
-                    <?= categoryAddButtonHtml('rack_type', 'btn btn-secondary') ?>
+                    <?= categoryAddButtonHtml('rack_type') ?>
                 </div>
             </div>
 
@@ -61,7 +61,7 @@ isset($mysqli) || die("Direct file access is not allowed");
                 <label class="form-label">Unit numbering</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-sort-numeric-down"></i></span>
-                    <select class="form-select" name="units_descending">
+                    <select class="form-select select2" name="units_descending">
                         <option value="0" <?php if (!$rack_units_descending) { echo "selected"; } ?>>U1 at the bottom (standard)</option>
                         <option value="1" <?php if ($rack_units_descending) { echo "selected"; } ?>>U1 at the top</option>
                     </select>
@@ -71,7 +71,7 @@ isset($mysqli) || die("Direct file access is not allowed");
             <div class="col-md-7">
                 <label class="form-label">Model</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                     <input type="text" class="form-control" name="model" placeholder="APC NetShelter SX 42U" maxlength="200" value="<?= $rack_model ?>">
                 </div>
             </div>
@@ -79,7 +79,7 @@ isset($mysqli) || die("Direct file access is not allowed");
             <div class="col-md-5">
                 <label class="form-label">Depth</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-ruler"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-ruler"></i></span>
                     <input type="text" class="form-control" name="depth" placeholder="1070 mm" maxlength="50" value="<?= $rack_depth ?>">
                 </div>
             </div>
@@ -89,7 +89,7 @@ isset($mysqli) || die("Direct file access is not allowed");
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
                     <select class="form-select select2" name="location">
-                        <option value="">- Location -</option>
+                        <option value="">- Select a location -</option>
                         <?php
                         $sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
@@ -105,7 +105,7 @@ isset($mysqli) || die("Direct file access is not allowed");
             <div class="col-md-6">
                 <label class="form-label">Where in the building</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-door-closed"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-door-closed"></i></span>
                     <input type="text" class="form-control" name="physical_location" placeholder="2nd floor, comms closet B" maxlength="200" value="<?= $rack_physical_location ?>">
                 </div>
             </div>
@@ -113,7 +113,7 @@ isset($mysqli) || die("Direct file access is not allowed");
             <div class="col-md-6">
                 <label class="form-label">Power budget</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-bolt"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-bolt"></i></span>
                     <input type="number" class="form-control" name="power_capacity" placeholder="1440" min="0" max="1000000" value="<?= $rack_power_capacity ?: '' ?>">
                     <span class="input-group-text">W</span>
                 </div>
@@ -123,7 +123,7 @@ isset($mysqli) || die("Direct file access is not allowed");
             <div class="col-md-6">
                 <label class="form-label">Description</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                     <input type="text" class="form-control" name="description" placeholder="Main comms rack" maxlength="500" value="<?= $rack_description ?>">
                 </div>
             </div>
@@ -137,19 +137,9 @@ isset($mysqli) || die("Direct file access is not allowed");
         <div class="row g-3 mb-3">
             <?php foreach (['front' => ['file', 'remove_photo', $rack_photo], 'rear' => ['file_rear', 'remove_photo_rear', $rack_photo_rear]] as $photo_side => [$photo_field, $photo_remove_field, $photo_current]) { ?>
                 <div class="col-md-6">
-                    <label class="form-label"><?= ucfirst($photo_side) ?> photo</label>
-                    <?php if ($photo_current) { ?>
-                        <div class="itflow-rack-form-photo mb-2">
-                            <img src="<?= "../uploads/clients/$client_id/$photo_current" ?>" alt="<?= ucfirst($photo_side) ?> of the rack">
-                        </div>
-                    <?php } ?>
-                    <input type="file" class="form-control" name="<?= $photo_field ?>" accept="image/jpeg,image/png,image/gif,image/webp">
-                    <?php if ($photo_current) { ?>
-                        <div class="form-check mt-2">
-                            <input class="form-check-input" type="checkbox" name="<?= $photo_remove_field ?>" value="1" id="rackForm_<?= $photo_remove_field ?>">
-                            <label class="form-check-label" for="rackForm_<?= $photo_remove_field ?>">Remove this photo</label>
-                        </div>
-                    <?php } ?>
+                    <label class="form-label d-block"><?= ucfirst($photo_side) ?> photo</label>
+                    <?= pictureField($photo_field, $photo_current ? $photo_remove_field : '', $photo_current ? picturePhoto('../uploads/clients/' . intval($client_id) . '/' . html_entity_decode($photo_current), ucfirst($photo_side) . ' of the rack') : picturePhotoEmpty(),
+                        picturePhotoEmpty(), ['title' => ucfirst($photo_side) . ' photo', 'shapes' => '4:3,3:4,whole', 'box' => 'wide']) ?>
                 </div>
             <?php } ?>
         </div>

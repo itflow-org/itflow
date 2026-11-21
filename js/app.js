@@ -581,9 +581,9 @@ function itflowInit() {
     });
 
     // Initialize TinyMCE with AI
-    itflowTinyMce.init({
+    // Documents, articles and the like - in a window, and on a page of their own below
+    const itflowDocumentEditor = {
         ...itflowTinyMceSkin(),
-        selector: '.tinymce',
         browser_spellcheck: true,
         contextmenu: false,
         resize: true,
@@ -629,6 +629,29 @@ function itflowInit() {
             });
 
             itflowAiReword(editor, false);
+        }
+    };
+    itflowTinyMce.init({ ...itflowDocumentEditor, selector: '.tinymce' });
+
+    // A document edited on its own page (agent/document_edit.php): the editor fills the window
+    // below the fields and scrolls inside itself, so the toolbar never scrolls away
+    itflowTinyMce.init({
+        ...itflowDocumentEditor,
+        selector: '.tinymce-page',
+        plugins: 'link image lists table code codesample fullscreen',
+        min_height: 420,
+        max_height: undefined,
+        resize: false,
+        setup: function (editor) {
+            itflowDocumentEditor.setup(editor);
+            function fit() {
+                const box = editor.getContainer();
+                if (box && !editor.plugins.fullscreen?.isFullscreen()) {
+                    box.style.height = Math.max(420, window.innerHeight - box.getBoundingClientRect().top - 24) + 'px';
+                }
+            }
+            editor.on('init', fit);
+            window.addEventListener('resize', fit);
         }
     });
 
@@ -698,7 +721,7 @@ function itflowInit() {
                         var newContent = '<span style="font-weight: bold; color: red;">[REDACTED]</span>';
                         editor.selection.setContent(newContent);
                     } else {
-                        alert('Please select a word to redact');
+                        itflowToast('Select the text to redact first', 'warning');
                     }
                 }
             });
@@ -754,7 +777,7 @@ function itflowInit() {
                         var newContent = '<span style="font-weight: bold; color: red;">[REDACTED]</span>';
                         editor.selection.setContent(newContent);
                     } else {
-                        alert('Please select a word to redact');
+                        itflowToast('Select the text to redact first', 'warning');
                     }
                 }
             });
@@ -774,44 +797,11 @@ function itflowInit() {
         });
     });
 
-    // Data Input Mask
-    // IMask replaces jquery.inputmask. Only two aliases were ever used.
-    document.querySelectorAll('[data-mask]').forEach(function (el) {
-        if (el.dataset.imaskReady) {
-            return;
-        }
-        el.dataset.imaskReady = '1';
-        var spec = el.getAttribute('data-inputmask') || '';
-        if (spec.indexOf('ip') !== -1) {
-            // A pattern mask built from MaskedRange blocks will not advance past the dot
-            // until the block reaches its maxLength, so 10.0.0.1 had to be entered as
-            // 010.000.000.001. A regex mask has no per-block completeness rule - it tests
-            // the whole value on every keystroke, so partial input like "10.0." is valid on
-            // its own. Octets are still bounded to 0-255 and leading zeros are still
-            // accepted, matching what jquery.inputmask's 'ip' alias allowed.
-            //
-            // interface_ip / asset_ip are varchar(200) and hold free text as well - 'DHCP'
-            // is written there by the checkbox on these same modals. Masking a value like
-            // that would strip it to nothing the moment the modal opened, so anything not
-            // made of digits and dots is left unmasked instead.
-            if (el.value && !/^[\d.]*$/.test(el.value)) {
-                return;
-            }
-            var octet = '(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)';
-            var octet4 = octet + '?';
-            var octet3 = '(' + octet + '(\\.' + octet4 + ')?)?';
-            var octet2 = '(' + octet + '(\\.' + octet3 + ')?)?';
-            IMask(el, {
-                mask: new RegExp('^(' + octet + '(\\.' + octet2 + ')?)?$')
-            });
-        } else if (spec.indexOf('mac') !== -1) {
-            IMask(el, {
-                mask: 'HH:HH:HH:HH:HH:HH',
-                definitions: { H: /[0-9a-fA-F]/ },
-                prepare: function (s) { return s.toUpperCase(); },
-                lazy: true
-            });
-        }
+    // Data Input Mask - the IP and MAC fields on the asset form
+    // (data-inputmask="'alias': 'ip'" / 'mac', with data-mask). ITFlow's own
+    // code, itflowInputMask() further down, in place of IMask.
+    itflowStep('input-masks', function () {
+        document.querySelectorAll('[data-mask]').forEach(itflowInputMask);
     });
 
     // Password reveal. Replaces Show-Hide-Passwords-Bootstrap-4, which has no Bootstrap 5
@@ -916,14 +906,6 @@ function itflowInit() {
         });
     });
 
-    // Data Tables - only loaded on agent and admin pages (includes/footer.php);
-    // setup and Get started load this file without it
-    itflowStep('datatables', function () {
-        if (typeof DataTable !== 'undefined') {
-            new DataTable('.dataTables');
-        }
-    });
-
     // Phone inputs
     // js/phone_inputs.js is only loaded where phone fields exist - the agent
     // footer and the portal profile page. Referencing the bare identifier here
@@ -975,7 +957,15 @@ itflowBindOnce('itflowModalFocus', 'shown.bs.modal', '.modal', function () {
     if (this.querySelector('[autofocus]')) {
         return;
     }
-    this.focus();
+    const modal = this;
+    modal.focus();
+    // AdminLTE's own shown handler runs after this one and puts focus on the first
+    // button - the X - so take it back once the handlers are done
+    setTimeout(function () {
+        if (document.activeElement && document.activeElement.matches('.btn-close') && modal.contains(document.activeElement)) {
+            modal.focus();
+        }
+    }, 0);
 });
 
 /**
@@ -1005,6 +995,140 @@ itflowBindOnce('itflowModalStackHidden', 'hidden.bs.modal', '.modal', function (
         document.body.classList.add('modal-open');
     }
 });
+
+/**
+ * A window with something typed in it asks before it closes on a click outside it, Escape, its X
+ * or Cancel - what was typed would be gone. Only text typed into a form that saves (method post)
+ * counts, and only if it differs from what the field held when it was first clicked into, or an
+ * editor in the window has changes. Saving, and a script closing the window after a save, never
+ * ask: the question is only put when the person asked for the window to close.
+ */
+if (!window.itflowWindowGuard) {
+    window.itflowWindowGuard = true;
+
+    const itflowGuardFields = new WeakMap(); // window -> the fields typed in
+    const itflowGuardBefore = new WeakMap(); // field -> its value when first clicked into
+    let itflowCloseAsked = null;              // the window the person last asked to close, and when
+
+    const itflowGuardTyped = function (el) {
+        return !!(el && el.matches && el.matches('input, textarea')
+            && !el.matches('[type=hidden], [type=checkbox], [type=radio], [type=search], [type=file], [type=button], [type=submit], [type=reset], [readonly], [data-no-guard]')
+            && el.form && (el.form.getAttribute('method') || '').toLowerCase() === 'post'
+            && !el.closest('.itflow-select'));
+    };
+
+    document.addEventListener('focusin', function (e) {
+        const el = e.target;
+        const modal = el.closest ? el.closest('.modal') : null;
+        if (!modal || !itflowGuardTyped(el) || itflowGuardBefore.has(el)) {
+            return;
+        }
+        itflowGuardBefore.set(el, el.value);
+        if (!itflowGuardFields.has(modal)) {
+            itflowGuardFields.set(modal, new Set());
+        }
+        itflowGuardFields.get(modal).add(el);
+    });
+
+    const itflowGuardChanged = function (modal) {
+        const fields = itflowGuardFields.get(modal);
+        if (fields) {
+            for (const el of fields) {
+                if (el.isConnected && modal.contains(el) && el.value !== itflowGuardBefore.get(el)) {
+                    return true;
+                }
+            }
+        }
+        if (window.tinymce) {
+            return tinymce.get().some(function (editor) {
+                const el = editor.getElement();
+                return el && modal.contains(el) && el.form && (el.form.getAttribute('method') || '').toLowerCase() === 'post' && editor.isDirty();
+            });
+        }
+        return false;
+    };
+
+    const itflowAskedToClose = function (modal) {
+        if (modal) {
+            itflowCloseAsked = { modal: modal, at: Date.now() };
+        }
+    };
+    // A click on the shade around the window, its X or Cancel, or Escape
+    document.addEventListener('mousedown', function (e) {
+        if (e.target.classList && e.target.classList.contains('modal')) {
+            itflowAskedToClose(e.target);
+        }
+    }, true);
+    document.addEventListener('click', function (e) {
+        const dismiss = e.target.closest ? e.target.closest('[data-bs-dismiss="modal"]') : null;
+        if (dismiss) {
+            itflowAskedToClose(dismiss.closest('.modal'));
+        }
+    }, true);
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            const open = document.querySelectorAll('.modal.show');
+            itflowAskedToClose(open[open.length - 1]);
+        }
+    }, true);
+
+    document.addEventListener('hide.bs.modal', function (e) {
+        const modal = e.target;
+        if (!modal.classList || !modal.classList.contains('modal')) {
+            return;
+        }
+        if (modal.dataset.itflowDiscard === '1') {
+            delete modal.dataset.itflowDiscard;
+            return;
+        }
+        const asked = itflowCloseAsked;
+        itflowCloseAsked = null;
+        if (!asked || asked.modal !== modal || Date.now() - asked.at > 1500) {
+            return;
+        }
+        // Escape on the question itself closes the question, not the window under it
+        if (typeof Swal !== 'undefined' && Swal.isVisible()) {
+            e.preventDefault();
+            return;
+        }
+        if (!itflowGuardChanged(modal)) {
+            return;
+        }
+        e.preventDefault();
+        const discard = function () {
+            modal.dataset.itflowDiscard = '1';
+            bootstrap.Modal.getOrCreateInstance(modal).hide();
+        };
+        if (typeof Swal === 'undefined') {
+            if (window.confirm('Discard what you typed in this window?')) {
+                discard();
+            }
+            return;
+        }
+        Swal.fire({
+            theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',
+            // Inside the window, so its focus trap leaves the question's buttons alone
+            target: modal,
+            title: 'Discard your changes?',
+            text: "What you typed in this window hasn't been saved.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Discard',
+            cancelButtonText: 'Keep editing',
+            reverseButtons: true,
+            focusCancel: true,
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'btn btn-danger mx-1',
+                cancelButton: 'btn btn-secondary mx-1'
+            }
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                discard();
+            }
+        });
+    });
+}
 
 /**
  * A required field left empty on a tab that isn't showing - the Ticket tab of
@@ -1050,7 +1174,9 @@ itflowBindOnce('itflowCategoryAdd', 'click', '[data-category-add]', function () 
  *
  * Editors inside an open modal are skipped, as before: the modal is where that
  * work gets submitted or discarded. Editors from a closed ajax modal are removed
- * by js/ajax_modal.js, so tinymce.get() no longer returns them.
+ * by js/ajax_modal.js, so tinymce.get() no longer returns them. So is one whose
+ * text is kept as a draft (data-draft-kept - the ticket reply, agent/js/ticket_reply_extras.js),
+ * where leaving loses nothing.
  *
  * Flagged on window because modal_footer.php re-loads this file on every ajax
  * modal open.
@@ -1063,7 +1189,8 @@ if (!window.itflowEditorUnloadGuard) {
         }
         const unsaved = tinymce.get().some(function (editor) {
             const inVisibleModal = editor.getContainer()?.closest('.modal.show');
-            return !inVisibleModal && editor.isDirty();
+            const keptAsDraft = editor.getElement()?.dataset.draftKept === '1';
+            return !inVisibleModal && !keptAsDraft && editor.isDirty();
         });
         if (unsaved) {
             e.preventDefault();
@@ -1204,6 +1331,77 @@ function flashTooltip(button, message) {
  * execCommand('copy') - placed inside the trigger's own modal, worked out now
  * rather than in advance.
  */
+/**
+ * The IP and MAC address masks, for an input with data-mask and
+ * data-inputmask="'alias': 'ip'" or "'alias': 'mac'". Bound once per field -
+ * app.js re-runs on every ajax modal open.
+ *
+ * IP: each keystroke or paste is kept only if the whole value is still on its
+ * way to an IPv4 address - octets 0-255, leading zeros allowed, a partial value
+ * like "10.0." fine - otherwise the field goes back to what it was. Tested on
+ * the whole value rather than per octet, so 10.0.0.1 is typed as it reads, not
+ * as 010.000.000.001. interface_ip / asset_ip are varchar(200) and hold free
+ * text as well - 'DHCP' is written there by the checkbox on these same modals -
+ * so a field that opens with anything but digits and dots is left alone.
+ *
+ * MAC: whatever is typed or pasted is cut down to its hex digits, upper-cased
+ * and grouped in pairs - 001a2b3c4d5e, 00-1a-2b-3c-4d-5e and 001a.2b3c.4d5e
+ * all become 00:1A:2B:3C:4D:5E. A colon appears once the next pair is started.
+ * A field that opens holding something other than a MAC address (a note, say)
+ * is left alone too, rather than cut down to whatever hex digits it holds.
+ */
+function itflowInputMask(el) {
+    if (el.dataset.maskReady) {
+        return;
+    }
+    el.dataset.maskReady = '1';
+    const spec = el.getAttribute('data-inputmask') || '';
+
+    if (spec.indexOf('ip') !== -1) {
+        if (el.value && !/^[\d.]*$/.test(el.value)) {
+            return;
+        }
+        const octet = '(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)';
+        const octet3 = '(' + octet + '(\\.' + octet + '?)?)?';
+        const octet2 = '(' + octet + '(\\.' + octet3 + ')?)?';
+        const ip = new RegExp('^(' + octet + '(\\.' + octet2 + ')?)?$');
+        let good = ip.test(el.value) ? el.value : '';
+        el.addEventListener('input', function () {
+            if (ip.test(el.value)) {
+                good = el.value;
+                return;
+            }
+            const caret = Math.max(0, (el.selectionStart || 0) - (el.value.length - good.length));
+            el.value = good;
+            el.setSelectionRange(caret, caret);
+        });
+    } else if (spec.indexOf('mac') !== -1) {
+        const format = function (value) {
+            return value.replace(/[^0-9a-fA-F]/g, '').slice(0, 12).toUpperCase().replace(/(..)(?=.)/g, '$1:');
+        };
+        if (el.value && !/^[0-9a-fA-F:.\- ]*$/.test(el.value)) {
+            return;
+        }
+        el.value = format(el.value);
+        el.addEventListener('input', function () {
+            // Keep the caret after the same number of hex digits it was after
+            const before = el.value.slice(0, el.selectionStart || 0).replace(/[^0-9a-fA-F]/g, '').length;
+            const value = format(el.value);
+            if (value === el.value) {
+                return;
+            }
+            el.value = value;
+            let caret = 0;
+            for (let seen = 0; caret < value.length && seen < before; caret++) {
+                if (value[caret] !== ':') {
+                    seen++;
+                }
+            }
+            el.setSelectionRange(caret, caret);
+        });
+    }
+}
+
 function itflowCopyText(text, trigger) {
     if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
         return navigator.clipboard.writeText(text);
@@ -1401,3 +1599,16 @@ function itflowWatchNetworkIp(networkId, ipId) {
 
 }
 
+
+// The client side nav's More - shows the pages this client has nothing on yet (agent/includes/client_side_nav.php)
+document.addEventListener('click', function (event) {
+    var more = event.target.closest('[data-nav-more]');
+    if (!more) {
+        return;
+    }
+    event.preventDefault();
+    document.querySelectorAll('[data-nav-quiet]').forEach(function (item) {
+        item.hidden = false;
+    });
+    more.closest('li').hidden = true;
+});

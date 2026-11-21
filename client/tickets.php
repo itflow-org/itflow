@@ -41,7 +41,7 @@ foreach ($tabs as $key => $t) {
 $counts = array_map('intval', mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . " $from")));
 
 $total = $counts[$tab];
-$pages = max(1, (int) ceil($total / $per_page));
+$pages = max(1, intval(ceil($total / $per_page)));
 $page = min($page, $pages);
 $offset = ($page - 1) * $per_page;
 
@@ -86,7 +86,7 @@ $empty_titles = [
             <?php if ($sees_all && $scope === 'mine') { ?><input type="hidden" name="scope" value="mine"><?php } ?>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search subject or number" aria-label="Search tickets" maxlength="200">
+                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search tickets..." title="Subject or number" aria-label="Search tickets" maxlength="200">
             </div>
         </form>
     </div>
@@ -96,7 +96,7 @@ $empty_titles = [
     <?php foreach ($tabs as $key => $t) { ?>
         <a class="<?= $key === $tab ? 'active' : '' ?><?= $key === 'you' && $counts['you'] ? ' itflow-portal-tab-alert' : '' ?>" href="<?= escapeHtml(ticketsUrl(['tab' => $key, 'page' => null])) ?>">
             <i class="fas <?= $t['icon'] ?>"></i><?= escapeHtml($t['label']) ?>
-            <span class="badge rounded-pill"><?= $counts[$key] ?></span>
+            <span class="badge rounded-pill"><?= number_format(intval($counts[$key])) ?></span>
         </a>
     <?php } ?>
 </nav>
@@ -108,7 +108,7 @@ $empty_titles = [
         <?php } else {
             [$title, $text, $icon] = $empty_titles[$tab]; ?>
             <?= emptyStateHtml(['title' => $title, 'text' => $text, 'icon' => $icon, 'filtered' => false,
-                'actions' => in_array($tab, ['open', 'all'], true) ? [['label' => 'New ticket', 'href' => 'ticket_add.php']] : []]) ?>
+                'actions' => in_array($tab, ['open', 'all'], true) ? [['label' => 'New Ticket', 'href' => 'ticket_add.php']] : []]) ?>
         <?php } ?>
     <?php } else { ?>
         <ul class="itflow-portal-list">

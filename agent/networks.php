@@ -144,10 +144,6 @@ $filter_url = function ($changes) {
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null; }));
 };
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $csrf = $_SESSION['csrf_token'];
 
@@ -163,16 +159,16 @@ $csrf = $_SESSION['csrf_token'];
                         <i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Network</span>
                     </button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($num_rows[0] > 0) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/network/network_export.php', ['client_id', 'client', 'location', 'type', 'tags', 'q'], ['archived' => $show === 'archived' ? 1 : null]) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/network/network_export.php', ['client_id', 'client', 'location', 'type', 'tags', 'q'], ['archived' => $show === 'archived' ? 1 : null]) ?>">
+                            <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
                     <?php if ($can_edit && $client_url) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/network/network_import.php?<?= $client_url ?>">
-                            <i class="fa fa-fw fa-upload me-2"></i>Import
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=networks">
+                            <i class="fas fa-fw fa-upload me-2"></i>Import
                         </a>
                     <?php } ?>
                 </div>
@@ -191,7 +187,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?= escapeHtml($q_raw) ?>" placeholder="Search networks or an address..." title="Name, subnet, VLAN, gateway, DNS, site, provider - or an IP address, to find the network it is in">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <?php if ($client_url) { ?>
@@ -210,7 +206,7 @@ $csrf = $_SESSION['csrf_token'];
                 <?php } else { ?>
                     <div class="col-lg-3 col-md-6">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
-                            <option value="">- All Clients -</option>
+                            <option value="">- Any client -</option>
                             <?php
                             $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
                                 WHERE client_archived_at IS NULL AND (EXISTS (SELECT 1 FROM networks WHERE network_client_id = client_id) OR client_id = $client_filter)
@@ -223,7 +219,7 @@ $csrf = $_SESSION['csrf_token'];
                     </div>
                 <?php } ?>
                 <div class="col-lg-3 col-md-6">
-                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                         <?= tagFilterOptionsHtml('network', $tag_filter_ids, '1 ' . clientScopeSql('network_client_id') . ($client_url ? " AND network_client_id = $client_id" : '')) ?>
                     </select>
                 </div>
@@ -236,7 +232,7 @@ $csrf = $_SESSION['csrf_token'];
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_bulk_edit.php?<?= $client_url ?>" data-bulk="true">
-                                        <i class="fas fa-fw fa-edit me-2"></i>Type and site
+                                        <i class="fas fa-fw fa-edit me-2"></i>Type and Site
                                     </a>
                                     <?php if ($show !== 'archived') { ?>
                                         <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="network" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
@@ -255,14 +251,13 @@ $csrf = $_SESSION['csrf_token'];
                                             <i class="fas fa-fw fa-redo me-2"></i>Restore
                                         </button>
                                         <?php if ($can_delete) { ?>
-                                            <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_networks"
+                                            <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_networks"
                                                 data-confirm-text="The networks and the addresses documented on them go for good. The devices on them are left with no network.">
                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </button>
                                         <?php } ?>
                                     <?php } else { ?>
-                                        <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_networks"
-                                            data-confirm-text="They move to Archived, off the lists and pickers, until restored. The devices on them keep them.">
+                                        <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_networks">
                                             <i class="fas fa-fw fa-archive me-2"></i>Archive
                                         </button>
                                     <?php } ?>
@@ -277,7 +272,7 @@ $csrf = $_SESSION['csrf_token'];
         <!-- The types, counted over what the filters above leave - then starred and archived -->
         <nav class="nav nav-pills itflow-asset-tabs mt-2 flex-nowrap overflow-auto">
             <a class="nav-link text-nowrap <?= $show === '' && !$type_filter ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => null, 'type' => null])) ?>">
-                <i class="fas fa-fw fa-network-wired me-1"></i>Active <span class="badge rounded-pill ms-1"><?= $view_counts[''] ?></span>
+                <i class="fas fa-fw fa-network-wired me-1"></i>Active <span class="badge rounded-pill ms-1"><?= number_format(intval($view_counts[''])) ?></span>
             </a>
             <?php foreach (NETWORK_TYPES as $type => [$icon]) {
                 if (empty($type_counts[$type]) && $type_filter !== $type) {
@@ -290,7 +285,7 @@ $csrf = $_SESSION['csrf_token'];
             <span class="vr mx-1 my-1"></span>
             <?php foreach (['starred', 'archived'] as $key) { ?>
                 <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $show === $key ? null : $key])) ?>">
-                    <i class="fas fa-fw <?= $shows[$key]['icon'] ?> me-1"></i><?= $shows[$key]['label'] ?> <span class="badge rounded-pill ms-1"><?= $view_counts[$key] ?></span>
+                    <i class="fas fa-fw <?= $shows[$key]['icon'] ?> me-1"></i><?= $shows[$key]['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($view_counts[$key])) ?></span>
                 </a>
             <?php } ?>
         </nav>
@@ -310,9 +305,9 @@ $csrf = $_SESSION['csrf_token'];
                             </div>
                         </th>
                     <?php } ?>
-                    <th><?= $sort_link('network_name', 'Network') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('network_type', 'by type') ?></span></th>
-                    <?php if (!$client_url) { ?><th><?= $sort_link('client_name', 'Client') ?></th><?php } ?>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('network', 'Subnet') ?></th>
+                    <th><?= sortLink('network_name', 'Network') ?> <span class="fw-normal text-body-secondary small ms-2"><?= sortLink('network_type', 'by type') ?></span></th>
+                    <?php if (!$client_url) { ?><th><?= sortLink('client_name', 'Client') ?></th><?php } ?>
+                    <th class="d-none d-md-table-cell"><?= sortLink('network', 'Subnet') ?></th>
                     <th class="d-none <?= $client_url ? 'd-lg-table-cell' : 'd-xxl-table-cell' ?>">Gateway, DNS &amp; DHCP</th>
                     <th>In use</th>
                     <th></th>
@@ -358,14 +353,14 @@ $csrf = $_SESSION['csrf_token'];
                                     <!-- On a phone the other columns are off to the side - the subnet comes along -->
                                     <div class="d-md-none small font-monospace mt-1"><?= escapeHtml($row['network']) ?><?= $row['network_gateway'] ? ' · gw ' . escapeHtml($row['network_gateway']) : '' ?></div>
                                     <?php if (!empty($networks_tags[$network_id]) || ($can_edit && !$is_archived)) { ?>
-                                        <div class="mt-1"><?= tagPills('network', $network_id, $networks_tags[$network_id] ?? [], "networks.php?$client_url", $can_edit && !$is_archived) ?></div>
+                                        <div class="itflow-tags-row mt-1"><?= tagPills('network', $network_id, $networks_tags[$network_id] ?? [], "networks.php?$client_url", $can_edit && !$is_archived) ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
                         </td>
 
                         <?php if (!$client_url) { ?>
-                            <td class="itflow-ticket-who-cell"><a class="d-block text-truncate text-body fw-semibold small" href="networks.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                            <td class="itflow-ticket-who-cell"><a data-client-card="<?= $row_client_id ?>" class="d-block text-truncate text-body fw-semibold small" href="networks.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
 
                         <td class="text-nowrap d-none d-md-table-cell">
@@ -400,17 +395,18 @@ $csrf = $_SESSION['csrf_token'];
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/network/network.php?id=<?= $network_id ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
-                                    <a class="dropdown-item" href="<?= $url ?>" target="_blank">
-                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a new tab
+                                    <a class="dropdown-item" href="<?= $url ?>" target="_blank" rel="noopener">
+                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a New Tab
                                     </a>
                                     <?php if ($can_edit && !$is_archived) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/network/network_edit.php?id=<?= $network_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('network', $network_id) ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_ip_add.php?network_id=<?= $network_id ?>&next=1">
-                                            <i class="fas fa-fw fa-plus text-secondary me-2"></i>Document an address
+                                            <i class="fas fa-fw fa-plus text-secondary me-2"></i>Document an Address
                                         </a>
                                         <a class="dropdown-item" href="post.php?<?= $is_favorite ? 'unfavorite_network' : 'favorite_network' ?>=<?= $network_id ?>&csrf_token=<?= $csrf ?>">
                                             <i class="<?= $is_favorite ? 'far' : 'fas' ?> fa-fw fa-star text-secondary me-2"></i><?= $is_favorite ? 'Unstar' : 'Star' ?>
@@ -423,14 +419,13 @@ $csrf = $_SESSION['csrf_token'];
                                                 <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                             <?php if ($can_delete) { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
                                                     data-confirm-text="<?= $name ?> and the addresses documented on it go for good. The devices on it are left with no network.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>
                                             <?php } ?>
                                         <?php } else { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
-                                                data-confirm-text="<?= $name ?> moves to Archived, off the lists and pickers, until restored. The devices on it keep it.">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>">
                                                 <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                         <?php } ?>
@@ -456,7 +451,7 @@ $csrf = $_SESSION['csrf_token'];
         'text' => 'Start with the office LAN, the guest wireless and the internet connection.',
         'actions' => $can_edit ? array_merge(
             [['label' => 'New Network', 'modal' => "modals/network/network_add.php?{$client_url}location_id=$location_filter&type=$type_filter", 'size' => 'lg']],
-            $client_url ? [['label' => 'Import', 'modal' => "modals/network/network_import.php?$client_url", 'icon' => 'fa-upload']] : []
+            $client_url ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=networks", 'icon' => 'fa-upload', 'size' => 'lg']] : []
         ) : [],
     ];
     require_once "../includes/filter_footer.php";

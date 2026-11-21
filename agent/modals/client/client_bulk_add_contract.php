@@ -19,8 +19,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-contract me-2"></i>Start a contract for <strong><?= $count ?></strong> client<?= $count === 1 ? '' : 's' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-file-contract me-2"></i>Start a contract for <strong><?= $count ?></strong> client<?= $count === 1 ? '' : 's' ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -33,9 +33,9 @@ ob_start();
             <div class="mb-3">
                 <label class="form-label">Template <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-file-contract"></i></span>
-                    <select class="form-select" name="contract_template_id" required data-bulk-contract-template>
-                        <option value="">- Pick a template -</option>
+                    <span class="input-group-text"><i class="fas fa-fw fa-file-contract"></i></span>
+                    <select class="form-select select2" name="contract_template_id" required data-bulk-contract-template>
+                        <option value="">- Select a template -</option>
                         <?php foreach ($templates as $template_id => $template) { ?>
                             <option value="<?= intval($template_id) ?>"><?= escapeHtml($template['contract_template_name']) ?> - <?= escapeHtml(contractTypeLabel($template['contract_template_type'])) ?>, <?= escapeHtml(strtolower(contractTermLabel($template['contract_template_term_months']))) ?></option>
                         <?php } ?>
@@ -44,9 +44,9 @@ ob_start();
             </div>
 
             <div class="mb-3">
-                <label class="form-label">From</label>
+                <label class="form-label">From <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                     <input type="date" class="form-control" name="contract_start" value="<?= date('Y-m-d') ?>" required>
                 </div>
             </div>
@@ -56,16 +56,16 @@ ob_start();
                 Its rates, net terms and SLAs are the client's while it is in force, ahead of a contract in force now for what it sets.
             </p>
         <?php } else { ?>
-            <p class="text-secondary mb-0">There are no contract templates to start one from - make one in Admin &gt; Contract Templates.</p>
+            <p class="text-secondary mb-0">There are no contract templates to start one from - make one in Admin &gt; Templates &gt; Contracts.</p>
         <?php } ?>
 
     </div>
 
     <div class="modal-footer">
         <?php if ($templates) { ?>
-            <button type="submit" name="bulk_add_client_contract" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Start</button>
+            <button type="submit" name="bulk_add_client_contract" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Start</button>
         <?php } ?>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

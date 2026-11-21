@@ -272,7 +272,7 @@ function portalInviteMail($invite_id, $token) {
         ];
         $footnote = "You received this because $who invited this address to the $company_name client portal.";
     }
-    $sent = (bool) emailQueue([['email' => (string) $row['invite_email'], 'name' => $greet, 'greet' => $greet !== '' ? $greet : null, 'footnote' => $footnote]], $subject, $email);
+    $sent = (bool) emailQueue([['email' => (string) $row['invite_email'], 'name' => $greet, 'greet' => $greet !== '' ? $greet : null, 'footnote' => $footnote]], $subject, $email, ['sensitive' => true]);
     if ($sent && !emailCapturing()) {
         mysqli_query($mysqli, "UPDATE portal_invites SET invite_sent_at = NOW(), invite_sent_count = invite_sent_count + 1 WHERE invite_id = " . intval($row['invite_id']));
     }
@@ -604,7 +604,7 @@ function portalMailInviteAccepted($invite_id) {
  * ---------- signing up ----------
  */
 
-/** Is signing up on for the portal as a whole (Admin > Settings > Client portal)? */
+/** Is signing up on for the portal as a whole (Admin > Settings > Client Portal)? */
 function portalSignupOn() {
     global $mysqli;
     static $on = null;
@@ -808,7 +808,7 @@ function portalMailSignupExists($user_id) {
         'summary' => ['Account' => (string) $row['user_email']],
         'button' => $local ? ['label' => 'Set a new password', 'url' => portalPasswordLink($user_id, PORTAL_RESET_LINK_MINUTES)] : ['label' => 'Sign in', 'url' => "https://$config_base_url/login.php"],
         'after' => [$local ? 'The link works once, for the next ' . PORTAL_RESET_LINK_MINUTES . ' minutes. If you did not ask, ignore this email - your account stays as it is.' : 'If you did not ask, ignore this email - your account stays as it is.'],
-    ]);
+    ], ['sensitive' => $local]);
 }
 
 /** Set whether people at a client can sign up. True when it changed. */

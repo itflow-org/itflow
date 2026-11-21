@@ -9,8 +9,8 @@
  * Parameters (POST, JSON):
  *   api_key    required - Your API key
  *   kind       required - client, location, contact, credential, asset, vendor,
- *                         domain, license, service, network, document or ticket
- *                         (or its tag type, 1 to 12)
+ *                         domain, license, service, network, document, ticket or kb_article
+ *                         (or its tag type, 1 to 13)
  *   record_id  required - The record
  *   tags       required - Tag ids or names, as an array or comma-separated.
  *                         A name that is no tag of the kind yet is made when the

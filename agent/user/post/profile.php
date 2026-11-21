@@ -123,6 +123,17 @@ if (isset($_POST['edit_your_user_preferences'])) {
 
     mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $session_user_id, user_config_calendar_first_day = $calendar_first_day, user_config_theme_dark = $dark_mode, user_config_records_per_page = $per_page
         ON DUPLICATE KEY UPDATE user_config_calendar_first_day = $calendar_first_day, user_config_theme_dark = $dark_mode, user_config_records_per_page = $per_page");
+    if (compactRowsReady()) {
+        $compact_rows = intval($_POST['compact_rows'] ?? 0) === 1 ? 1 : 0;
+        mysqli_query($mysqli, "UPDATE user_settings SET user_config_compact_rows = $compact_rows WHERE user_id = $session_user_id");
+    }
+    calendarAgentColorSave($session_user_id, $_POST);
+    timezoneSave($session_user_id, $_POST);
+    if (calendarRemindersReady() && array_key_exists('booking_reminder', $_POST)) {
+        $booking_reminder = calendarReminderFromInput($_POST['booking_reminder']);
+        $reminder_email = intval($_POST['reminder_email'] ?? 0) === 1 ? 1 : 0;
+        mysqli_query($mysqli, "UPDATE user_settings SET user_config_booking_reminder = " . ($booking_reminder === null ? 'NULL' : $booking_reminder) . ", user_config_reminder_email = $reminder_email WHERE user_id = $session_user_id");
+    }
 
     logAudit("User Account", "Edit", "$session_name updated their preferences");
 
@@ -135,6 +146,12 @@ if (isset($_POST['edit_your_user_preferences'])) {
 if (isset($_POST['enable_mfa'])) {
 
     validateCSRFToken();
+
+    // Setting it up again over one that is on would skip the password that turning it off asks for
+    if (trim((string) $session_token) !== '') {
+        flashAlert("Multi-factor authentication is already on - turn it off first to set it up again.", 'error');
+        redirect("user_security.php");
+    }
 
     require_once "../../libs/totp/totp.php";
 

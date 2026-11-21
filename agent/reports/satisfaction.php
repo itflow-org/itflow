@@ -56,7 +56,7 @@ $by_bucket = $grouped(reportBucketSql('tickets.ticket_closed_at', $buckets['unit
 
 // By agent
 $names = [];
-$sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1");
+$sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1" . serviceAccountsOutSql());
 while ($row = mysqli_fetch_assoc($sql)) {
     $names[intval($row['user_id'])] = $row;
 }

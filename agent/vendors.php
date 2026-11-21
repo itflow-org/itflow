@@ -3,7 +3,7 @@
 /*
  * Vendors - one client's (their ISP, phone provider, software maker), ours
  * (our suppliers - what expenses are booked against), or every client's from
- * All Client Docs (?view=clients) - which is how an outage at one ISP is
+ * Across clients (?view=clients) - which is how an outage at one ISP is
  * checked against every client that uses it.
  *
  * Starred vendors come first. Each row is what a tech needs to make the call -
@@ -118,7 +118,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-building me-2"></i><?= $view === 'clients' ? 'Client Vendors' : 'Vendors' ?></h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-building me-2"></i><?= $view === 'clients' ? 'Client Vendors' : 'Vendors' ?></h3>
         <div class="card-tools d-flex align-items-center gap-2">
             <?php if ($view !== 'client' && lookupUserPermission('module_client') >= 1) { ?>
                 <!-- Ours, or every client's -->
@@ -134,23 +134,28 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                         <i class="fas fa-plus me-2"></i>New Vendor
                     </button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit && $has_templates) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $add_url ?>&from_template=1">
-                            <i class="fa fa-fw fa-puzzle-piece me-2"></i>New from Template
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $add_url ?>&from_template=1">
+                            <i class="fas fa-fw fa-puzzle-piece me-2"></i>New from Template
                         </a>
                         <?php if ($view !== 'ours') { ?>
-                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/vendor/vendor_template_clients.php">
-                                <i class="fa fa-fw fa-users me-2"></i>Add a Template to Clients
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/vendor/vendor_template_clients.php">
+                                <i class="fas fa-fw fa-users me-2"></i>Add a Template to Clients
                             </a>
                         <?php } ?>
                     <?php } ?>
+                    <?php if ($can_edit && $view !== 'clients') { ?>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=vendors">
+                            <i class="fas fa-fw fa-upload me-2"></i>Import
+                        </a>
+                    <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
-                        <?php if ($can_edit && $has_templates) { ?><div class="dropdown-divider"></div><?php } ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                        <?php if ($can_edit && ($has_templates || $view !== 'clients')) { ?><div class="dropdown-divider"></div><?php } ?>
+                        <a class="dropdown-item ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/vendor/vendor_export.php', ['client_id', 'view', 'client', 'tags', 'archived', 'q']) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
+                            <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
                 </div>
@@ -170,13 +175,13 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search name, account, phone, contact...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <?php if ($view === 'clients') { ?>
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="client" onchange="this.form.submit()">
-                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- Any client -</option>
                         <?php
                         $sql_clients_filter = mysqli_query($mysqli, "
                             SELECT DISTINCT client_id, client_name, client_abbreviation
@@ -194,7 +199,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                 </div>
                 <?php } ?>
                 <div class="col-lg-3 col-md-6">
-                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                         <?php
                         // Tags in use on vendors in this scope, plus any already picked
                         $sql_tags_filter = mysqli_query($mysqli, "
@@ -223,7 +228,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                         <?php } ?>
                         <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>"
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active vendors' : 'Show archived vendors' ?>">
-                            <i class="fa fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
+                            <i class="fas fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
                         </a>
                         <?php if ($can_edit) { ?>
                         <div class="dropdown" id="bulkActionButton" hidden>
@@ -240,13 +245,13 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_vendors"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_vendors"
                                             data-confirm-text="The vendors go for good. Their cases, licenses, assets and domains stay, with no vendor. Vendors with expenses are kept.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
                                     <?php } ?>
                                 <?php } else { ?>
-                                    <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_vendors">
+                                    <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_vendors">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                 <?php } ?>
@@ -288,26 +293,18 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">
-                            Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('vendor_name', 'Vendor') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=vendor_phone&order=<?= $disp ?>">
-                            Support <?php if ($sort == 'vendor_phone') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('vendor_phone', 'Support') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=vendor_account_number&order=<?= $disp ?>">
-                            Account <?php if ($sort == 'vendor_account_number') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('vendor_account_number', 'Account') ?>
                     </th>
                     <th><?= $view === 'ours' ? 'Spend' : 'With them' ?></th>
                     <?php if ($view === 'clients') { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>
@@ -358,7 +355,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                                         <div class="small text-body-secondary text-truncate itflow-asset-desc" title="<?= $vendor_description ?>"><?= $vendor_description ?></div>
                                     <?php } ?>
                                     <?php if ($vendor_tags || $row_can_edit) { ?>
-                                        <div class="mt-1 itflow-above-stretch"><?= tagPills('vendor', $vendor_id, $vendor_tags, $tag_base, $row_can_edit) ?></div>
+                                        <div class="itflow-tags-row mt-1 itflow-above-stretch"><?= tagPills('vendor', $vendor_id, $vendor_tags, $tag_base, $row_can_edit) ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -392,7 +389,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                                 <?php } ?>
                                 <?php if ($view === 'ours') { ?>
                                     <?php if ($can_financial && $counts['expense']) { ?>
-                                        <span class="w-100 small text-nowrap"><strong><?= numfmt_format_currency($currency_format, $counts['spend_year'], $session_company_currency) ?></strong> <span class="text-body-secondary">this year</span></span>
+                                        <span class="w-100 small text-nowrap"><strong><?= billingMoney($counts['spend_year'], $session_company_currency) ?></strong> <span class="text-body-secondary">this year</span></span>
                                     <?php } ?>
                                     <?php if ($can_financial && $counts['expense']) { ?>
                                         <a class="itflow-contact-chip" href="<?= $vendor_url ?>#expenses" title="<?= $counts['expense'] ?> expense<?= $counts['expense'] === 1 ? '' : 's' ?>"><i class="fas fa-receipt"></i><?= $counts['expense'] ?></a>
@@ -418,19 +415,20 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                             </div>
                         </td>
                         <?php if ($view === 'clients') { ?>
-                        <td><a href="vendors.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                        <td><a data-client-card="<?= $row_client_id ?>" href="vendors.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
                         <td class="text-end">
                             <div class="dropdown dropstart">
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/vendor/vendor.php?id=<?= $vendor_id ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <?php if ($row_can_edit) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/vendor/vendor_edit.php?id=<?= $vendor_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
+                                        <?= tagMenuItem('vendor', $vendor_id) ?>
                                         <?php if (!$vendor_archived_at) { ?>
                                             <a class="dropdown-item" href="post.php?<?= $vendor_favorite ? 'unfavorite_vendor' : 'favorite_vendor' ?>=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="<?= $vendor_favorite ? 'far' : 'fas' ?> fa-fw fa-star text-secondary me-2"></i><?= $vendor_favorite ? 'Unstar' : 'Star' ?>
@@ -442,13 +440,13 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                                                 <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                             <?php if ($can_delete) { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                     data-confirm-text="<?= $vendor_name ?> goes for good. Its cases, licenses, assets and domains stay, with no vendor.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>
                                             <?php } ?>
                                         <?php } else { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                         <?php } ?>
@@ -472,7 +470,10 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
         'views' => ['view'],
         'title' => $view === 'ours' ? 'None of our own vendors yet' : 'No vendors yet',
         'text' => $view === 'ours' ? 'The suppliers expenses are booked against.' : 'Their ISP, phone provider and software makers.',
-        'actions' => $can_edit ? [['label' => 'New Vendor', 'modal' => $add_url, 'size' => 'lg']] : [],
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New Vendor', 'modal' => $add_url, 'size' => 'lg']],
+            $view !== 'clients' ? [['label' => 'Import', 'modal' => "modals/import/import.php?{$client_url}kind=vendors", 'icon' => 'fa-upload', 'size' => 'lg']] : []
+        ) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>

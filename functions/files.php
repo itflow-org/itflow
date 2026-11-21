@@ -254,7 +254,7 @@ function saveTicketAttachments($ticket_id, $reply_id = null, $field_name = 'atta
         $stored_attachments[] = [
             'name' => $single_file['name'],
             'path' => "uploads/tickets/$ticket_id/$attachment_reference_name",
-            'size' => (int) $single_file['size']
+            'size' => intval($single_file['size'])
         ];
     }
 
@@ -463,7 +463,7 @@ function getFileTextExcerpt($client_id, $file_reference_name, $length = 400) {
 /*
  * Files & documents section - how a file's type is shown, and the client's
  * folder tree. Shared by agent/files.php, the document page, the file and
- * document quick looks and the upload, move and link modals.
+ * document quick looks, the upload and move modals and the Link picker.
  */
 
 /**
@@ -589,6 +589,17 @@ function folderOptionsHtml($client_id, $selected = 0, $exclude = 0) {
     return $html;
 }
 
+/** The kinds of file a client's Files take - by extension. Upload Files and the API's files/create both check against it. */
+function fileUploadExtensions() {
+    return [
+        'jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx',
+        'odt', 'csv', 'xls', 'xlsx', 'ods', 'pptx', 'odp', 'zip', 'tar', 'gz',
+        'msg', 'json', 'wav', 'mp3', 'ogg', 'mov', 'mp4', 'av1', 'ovpn',
+        'cfg', 'ps1', 'vsdx', 'drawio', 'pfx', 'pages', 'numbers', 'unf', 'unifi',
+        'key', 'bat', 'stk', 'swb'
+    ];
+}
+
 /** $folder_id if it is one of the client's folders (0, the top level, always is), otherwise 0. */
 function folderOwnedId($folder_id, $client_id) {
     global $mysqli;
@@ -604,6 +615,203 @@ function folderOwnedId($folder_id, $client_id) {
 function folderDisplayName($folder_id) {
     $folder_id = intval($folder_id);
     return $folder_id ? (string) getFieldById('folders', $folder_id, 'folder_name') : 'Top level';
+}
+
+/**
+ * For an uploaded folder (Upload > Choose a folder): the folder a file goes in, given the path it
+ * had on the computer under the folder it was uploaded into - "Network/Configs/router.cfg" puts
+ * it in Network, then Configs, made as needed. $made counts the folders made, and $cache keeps
+ * what was found for the rest of the upload. Names are tidied; "." and ".." and empty ones are
+ * left out, and only the first ten levels are kept.
+ */
+function folderForUploadPath($client_id, $parent_id, $relative_path, array &$cache, &$made) {
+    global $mysqli, $session_name;
+    $client_id = intval($client_id);
+    $folder_id = intval($parent_id);
+    $parts = explode('/', str_replace('\\', '/', (string) $relative_path));
+    array_pop($parts); // the file's own name
+    $depth = 0;
+    foreach ($parts as $part) {
+        $name = trim(preg_replace('/[\x00-\x1F\x7F]/u', '', $part) ?? '');
+        if ($name === '' || $name === '.' || $name === '..' || ++$depth > 10) {
+            continue;
+        }
+        $name = mb_substr($name, 0, 200);
+        $key = $folder_id . '/' . mb_strtolower($name);
+        if (!isset($cache[$key])) {
+            $name_sql = escapeSql($name);
+            $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT folder_id FROM folders WHERE folder_client_id = $client_id AND parent_folder = $folder_id AND folder_name = '$name_sql' LIMIT 1"));
+            if ($row) {
+                $cache[$key] = intval($row[0]);
+            } else {
+                mysqli_query($mysqli, "INSERT INTO folders SET folder_name = '$name_sql', parent_folder = $folder_id, folder_location = 0, folder_client_id = $client_id");
+                $cache[$key] = mysqli_insert_id($mysqli);
+                $made++;
+                logAudit("Folder", "Create", "$session_name created folder $name_sql uploading a folder", $client_id, $cache[$key]);
+            }
+        }
+        $folder_id = $cache[$key];
+    }
+    return $folder_id;
+}
+
+/** A name that works in a zip on every computer - no slashes, colons or the like, never empty. */
+function filesZipName($name, $fallback = 'Untitled') {
+    $name = trim(preg_replace('/[\\\\\/:*?"<>|\x00-\x1F\x7F]+/u', '-', (string) $name) ?? '', " .\t");
+    return $name === '' ? $fallback : mb_substr($name, 0, 150);
+}
+
+/**
+ * Send a client's files and documents as one zip - "Download as zip" on a folder and Bulk Action
+ * on the files ticked. $items is a list of ['kind' => 'file'|'document', 'id' => id, 'path' => the
+ * folder path inside the zip, '' for its top]. Documents go in as .html pages. Archived ones and
+ * anything not the client's are left out. Returns false when there is nothing to send, or when the
+ * zip can't be made here (no ZipArchive, or over the size limit) - the caller says so.
+ */
+const FILES_ZIP_MAX_BYTES = 2147483648; // 2 GB of files in one zip
+
+function filesZipSend($client_id, array $items, $zip_name) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    if (!class_exists('ZipArchive') || !$items) {
+        return false;
+    }
+
+    $file_ids = $document_ids = [];
+    foreach ($items as $item) {
+        if ($item['kind'] === 'file') {
+            $file_ids[intval($item['id'])] = $item['path'];
+        } else {
+            $document_ids[intval($item['id'])] = $item['path'];
+        }
+    }
+
+    $entries = [];
+    $bytes = 0;
+    $uploads = realpath(dirname(__DIR__) . '/uploads');
+    if ($file_ids) {
+        $sql = mysqli_query($mysqli, "SELECT file_id, file_name, file_reference_name FROM files
+            WHERE file_client_id = $client_id AND file_archived_at IS NULL AND file_id IN (" . implode(',', array_keys($file_ids)) . ")");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $path = realpath(dirname(__DIR__) . "/uploads/clients/$client_id/" . basename((string) $row['file_reference_name']));
+            if ($path === false || $uploads === false || strpos($path, $uploads) !== 0 || !is_file($path)) {
+                continue;
+            }
+            $bytes += filesize($path);
+            $entries[] = ['path' => $file_ids[intval($row['file_id'])], 'name' => filesZipName($row['file_name'], 'File'), 'file' => $path];
+        }
+    }
+    if ($document_ids) {
+        $sql = mysqli_query($mysqli, "SELECT document_id, document_name, document_content FROM documents
+            WHERE document_client_id = $client_id AND document_archived_at IS NULL AND document_id IN (" . implode(',', array_keys($document_ids)) . ")");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $title = escapeHtml($row['document_name']);
+            $html = "<!DOCTYPE html>\n<html><head><meta charset=\"utf-8\"><title>$title</title></head><body>\n<h1>$title</h1>\n"
+                . documentHtmlPurify($row['document_content']) . "\n</body></html>\n";
+            $bytes += strlen($html);
+            $entries[] = ['path' => $document_ids[intval($row['document_id'])], 'name' => filesZipName($row['document_name'], 'Document') . '.html', 'html' => $html];
+        }
+    }
+    if (!$entries || $bytes > FILES_ZIP_MAX_BYTES) {
+        return false;
+    }
+
+    @set_time_limit(0);
+    $tmp = tempnam(sys_get_temp_dir(), 'itflow-zip-');
+    $zip = new ZipArchive();
+    if ($tmp === false || $zip->open($tmp, ZipArchive::OVERWRITE) !== true) {
+        return false;
+    }
+    $taken = [];
+    foreach ($entries as $entry) {
+        // Two of the same name in one folder - "Report (2).pdf"
+        $name = ($entry['path'] !== '' ? $entry['path'] . '/' : '') . $entry['name'];
+        $base = $name;
+        for ($n = 2; isset($taken[mb_strtolower($name)]); $n++) {
+            $dot = strrpos($base, '.');
+            $name = $dot !== false && $dot > strrpos($base, '/') ? substr($base, 0, $dot) . " ($n)" . substr($base, $dot) : "$base ($n)";
+        }
+        $taken[mb_strtolower($name)] = true;
+        isset($entry['file']) ? $zip->addFile($entry['file'], $name) : $zip->addFromString($name, $entry['html']);
+    }
+    $zip->close();
+
+    $download = filesZipName($zip_name, 'Files') . '.zip';
+    header('Content-Type: application/zip');
+    header('Content-Disposition: attachment; filename="' . str_replace('"', '', $download) . '"; filename*=UTF-8\'\'' . rawurlencode($download));
+    header('Content-Length: ' . filesize($tmp));
+    header('Cache-Control: no-store');
+    readfile($tmp);
+    unlink($tmp);
+    return count($entries);
+}
+
+/** Everything in a folder and the folders under it, for filesZipSend() - with each one's path inside the zip. */
+function filesZipFolderItems($client_id, $folder_id) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    $tree = folderTree($client_id);
+    $folder_id = isset($tree[intval($folder_id)]) ? intval($folder_id) : 0;
+    $paths = [];
+    foreach (folderSubtree($tree, $folder_id) as $id) {
+        $below = [];
+        for ($walk = $id; $walk !== $folder_id && $walk; $walk = $tree[$walk]['parent_folder']) {
+            array_unshift($below, filesZipName($tree[$walk]['folder_name'], 'Folder'));
+        }
+        $paths[$id] = implode('/', $below);
+    }
+    $ids = implode(',', array_keys($paths));
+    $items = [];
+    $sql = mysqli_query($mysqli, "SELECT file_id, file_folder_id FROM files WHERE file_client_id = $client_id AND file_archived_at IS NULL AND file_folder_id IN ($ids)");
+    while ($row = mysqli_fetch_row($sql)) {
+        $items[] = ['kind' => 'file', 'id' => intval($row[0]), 'path' => $paths[intval($row[1])]];
+    }
+    $sql = mysqli_query($mysqli, "SELECT document_id, document_folder_id FROM documents WHERE document_client_id = $client_id AND document_archived_at IS NULL AND document_folder_id IN ($ids)");
+    while ($row = mysqli_fetch_row($sql)) {
+        $items[] = ['kind' => 'document', 'id' => intval($row[0]), 'path' => $paths[intval($row[1])]];
+    }
+    return $items;
+}
+
+/**
+ * Copy a document - for the same client or another one the agent can reach. The copy has the
+ * content, summary, tags, template and review schedule; its pictures are copied with it, so it
+ * keeps them if the original goes. It starts out of the client portal, linked to nothing, with
+ * no history. Returns the new document's id.
+ */
+function documentCopy($document_id, $client_id, $folder_id, $name) {
+    global $mysqli, $session_user_id;
+    $document_id = intval($document_id);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = $document_id"));
+    if (!$row) {
+        return 0;
+    }
+    $review = documentReviewOwnReady() && $row['document_review_months'] !== null ? intval($row['document_review_months']) : 'NULL';
+    mysqli_query($mysqli, "INSERT INTO documents SET
+        document_name = '" . escapeSql($name) . "',
+        document_description = '" . escapeSql($row['document_description']) . "',
+        document_content = '',
+        document_content_raw = '',
+        document_template_id = " . intval($row['document_template_id']) . ",
+        document_folder_id = " . intval($folder_id) . ",
+        document_client_visible = 0,
+        document_created_by = " . intval($session_user_id) . ",
+        document_client_id = " . intval($client_id)
+        . (documentReviewOwnReady() ? ", document_review_months = $review" : ''));
+    $new_id = mysqli_insert_id($mysqli);
+
+    $content = (string) $row['document_content'];
+    $from = dirname(__DIR__) . "/uploads/documents/$document_id";
+    if (is_dir($from)) {
+        copyDirectory($from, dirname(__DIR__) . "/uploads/documents/$new_id");
+        $content = str_replace("/uploads/documents/$document_id/", "/uploads/documents/$new_id/", $content);
+    }
+    mysqli_query($mysqli, "UPDATE documents SET document_content = '" . mysqli_real_escape_string($mysqli, $content) . "',
+        document_content_raw = '" . escapeSql(documentContentRaw($name, $content)) . "' WHERE document_id = $new_id");
+
+    tagSetForRecord('document', $new_id, tagIdsForRecord('document', $document_id));
+
+    return $new_id;
 }
 
 /*
@@ -676,6 +884,8 @@ function documentHtmlPurify($html) {
         $config = HTMLPurifier_Config::createDefault();
         $config->set('Cache.DefinitionImpl', null);
         $config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+        // Classes our scripts act on (ajax-modal fetches a page and runs it) never come from stored HTML
+        $config->set('Attr.ForbiddenClasses', ['ajax-modal']);
         $purifier = new HTMLPurifier($config);
     }
     return $purifier->purify((string) $html);

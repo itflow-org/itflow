@@ -48,7 +48,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-file-invoice-dollar me-2"></i><?= $recurring ? 'Start Billing' : 'Make Invoice' ?> <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($doc_number) ?> &middot; <?= escapeHtml($doc['client_name']) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" id="quoteToInvoice">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -70,14 +70,14 @@ ob_start();
         <!-- What is billed once -->
         <div data-quote-invoice <?= $one_time && $one_time['items'] || !$recurring ? '' : 'hidden' ?>>
             <h6 class="fw-semibold mb-2">
-                <i class="fas fa-fw fa-file-invoice text-secondary me-1"></i>Invoice
+                <i class="fas fa-fw fa-file-invoice-dollar text-secondary me-1"></i>Invoice
                 <span class="fw-normal text-body-secondary small ms-1">
                     <?= $one_time && $one_time['items'] ? count($one_time['items']) . ' one-time line' . (count($one_time['items']) === 1 ? '' : 's') . ' - ' . $money($one_time['total']) : ($recurring ? 'The first period' : '') ?>
                 </span>
             </h6>
             <label class="form-label">Invoice date <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
             </div>
             <div class="form-text"><?= $terms ? "Due $terms days after it" : 'Due on receipt' ?> - <?= escapeHtml($terms_from) ?> terms.</div>
@@ -99,8 +99,8 @@ ob_start();
                     <div class="col-12">
                         <label class="form-label">Bill it on</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
-                            <select class="form-select" name="recurring[<?= $frequency ?>][to]" data-quote-recurring-to>
+                            <span class="input-group-text"><i class="fas fa-fw fa-redo-alt"></i></span>
+                            <select class="form-select select2" name="recurring[<?= $frequency ?>][to]" data-quote-recurring-to>
                                 <option value="0">A new recurring invoice, billed <?= strtolower($frequencies[$frequency]) ?></option>
                                 <?php foreach ($options as $recurring_id => $option) { ?>
                                     <option value="<?= $recurring_id ?>">Add to <?= escapeHtml(billingNumber('recurring', $option)) ?><?= trim((string) $option['recurring_invoice_scope']) !== '' ? ' - ' . escapeHtml($option['recurring_invoice_scope']) : '' ?> (<?= $money($option['recurring_invoice_amount']) ?> a <?= $period ?>)</option>
@@ -111,15 +111,15 @@ ob_start();
                     <div class="col-sm-6" data-quote-recurring-new>
                         <label class="form-label">First invoice <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                             <input type="date" class="form-control" name="recurring[<?= $frequency ?>][start]" max="2999-12-31" value="<?= quoteRecurringStart() ?>" required>
                         </div>
                     </div>
                     <div class="col-sm-6" data-quote-recurring-new>
                         <label class="form-label">Its invoices</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-paper-plane"></i></span>
-                            <select class="form-select" name="recurring[<?= $frequency ?>][auto_send]">
+                            <span class="input-group-text"><i class="fas fa-fw fa-paper-plane"></i></span>
+                            <select class="form-select select2" name="recurring[<?= $frequency ?>][auto_send]">
                                 <option value="1">Emailed as they are made</option>
                                 <option value="0">Left as drafts to check</option>
                             </select>
@@ -138,7 +138,7 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_quote_to_invoice" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i><?= $recurring ? 'Start Billing' : 'Make Invoice' ?></button>
+        <button type="submit" name="add_quote_to_invoice" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i><?= $recurring ? 'Start Billing' : 'Make Invoice' ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

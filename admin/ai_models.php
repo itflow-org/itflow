@@ -56,10 +56,6 @@ $unused = aiUseCaseMap()['unused'];
 $providers = mysqli_query($mysqli, "SELECT ai_provider_id, ai_provider_name, ai_provider_kind FROM ai_providers ORDER BY ai_provider_name");
 $any_provider = mysqli_num_rows($providers) > 0;
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $add_url = 'modals/ai/ai_model_edit.php' . ($provider_filter ? "?provider=$provider_filter" : '');
 $csrf = $_SESSION['csrf_token'];
@@ -78,7 +74,7 @@ $csrf = $_SESSION['csrf_token'];
         <div class="card-tools">
             <a class="btn btn-outline-light me-1" href="ai_usage.php" title="Each request - who, for what, and the tokens it took"><i class="fas fa-fw fa-chart-bar"></i><span class="d-none d-lg-inline ms-2">Usage</span></a>
             <?php if ($any_provider) { ?>
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">Add Model</span></button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Model</span></button>
             <?php } ?>
         </div>
     </div>
@@ -88,7 +84,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search AI models..." title="Name, provider, use case or instructions">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -109,11 +105,11 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('ai_model_name', 'Model') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('ai_provider_name', 'Provider') ?></th>
-                <th><?= $sort_link('ai_model_use_case', 'For') ?></th>
+                <th class="ps-3"><?= sortLink('ai_model_name', 'Model') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('ai_provider_name', 'Provider') ?></th>
+                <th><?= sortLink('ai_model_use_case', 'For') ?></th>
                 <th class="d-none d-lg-table-cell">Instructions</th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('requests', 'Last 30 days') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('requests', 'Last 30 days') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -141,7 +137,7 @@ $csrf = $_SESSION['csrf_token'];
                     <td class="ps-3">
                         <a class="fw-semibold text-body font-monospace ajax-modal" href="#" data-modal-url="<?= $edit_url ?>"><?= escapeHtml($name) ?></a>
                         <?php if ($is_unused) { ?>
-                            <span class="badge text-bg-light border fw-normal ms-1" data-model-unused title="<?= escapeHtml($unused[$model_id] ? $unused[$model_id]['ai_model_name'] . " is for $use_case already, and is the one used" : "$use_case isn't a use case") ?>">Not used</span>
+                            <span class="badge rounded-pill text-bg-light border fw-normal ms-1" data-model-unused title="<?= escapeHtml($unused[$model_id] ? $unused[$model_id]['ai_model_name'] . " is for $use_case already, and is the one used" : "$use_case isn't a use case") ?>">Not used</span>
                         <?php } ?>
                         <div class="d-md-none small text-body-secondary"><?= escapeHtml($row['ai_provider_name']) ?></div>
                         <?php if ($row['ai_model_temperature'] !== null) { ?>
@@ -204,7 +200,7 @@ $csrf = $_SESSION['csrf_token'];
         'thing' => 'AI models',
         'icon' => 'fa-brain',
         'text' => $any_provider ? 'The model on each provider that ITFlow uses - one for everything (General), and others for tickets or documents if you like.' : 'Add an AI provider first - then the models on it ITFlow uses.',
-        'actions' => $any_provider ? [['label' => 'Add Model', 'modal' => $add_url]] : [['label' => 'AI Providers', 'href' => 'ai_providers.php', 'icon' => 'fa-robot']],
+        'actions' => $any_provider ? [['label' => 'New Model', 'modal' => $add_url]] : [['label' => 'AI Providers', 'href' => 'ai_providers.php', 'icon' => 'fa-robot']],
     ];
     ?>
     <?php require_once "../includes/filter_footer.php"; ?>

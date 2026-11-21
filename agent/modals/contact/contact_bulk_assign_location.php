@@ -16,8 +16,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-map-marker-alt me-2"></i>Assign Location to <strong><?= $count ?></strong> contact<?= $count === 1 ? '' : 's' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-map-marker-alt me-2"></i>Assign Location to <strong><?= $count ?></strong> contact<?= $count === 1 ? '' : 's' ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -25,11 +25,11 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Location</label>
+            <label class="form-label">Location <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                <select class="form-select select2" name="bulk_location_id">
-                    <option value="">- Select Location -</option>
+                    <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
+                <select class="form-select select2" name="bulk_location_id" required>
+                    <option value="">- Select a location -</option>
                     <?php
 
                     $sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
@@ -47,8 +47,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_assign_contact_location" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Assign Location</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="bulk_assign_contact_location" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Assign Location</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -158,7 +158,7 @@ if (isset($_GET['recurring_expense_catch_up'])) {
     mysqli_query($mysqli, "UPDATE recurring_expenses SET recurring_expense_next_date = '$next'" . ($ends ? ', recurring_expense_status = 0' : '') . "
         WHERE recurring_expense_id = $recurring_expense_id AND recurring_expense_next_date = '" . escapeSql($from) . "'");
 
-    logAudit("Recurring Expense", "Move On", "$session_name moved the recurring expense " . escapeSql(recurringExpenseLabel($row)) . " on from $from to $next without recording the missed runs", intval($row['recurring_expense_client_id']), $recurring_expense_id);
+    logAudit("Recurring Expense", "Move On", "$session_name moved the recurring expense " . escapeSql(recurringExpenseLabel($row)) . " on from " . formatDate($from) . " to " . formatDate($next) . " without recording the missed runs", intval($row['recurring_expense_client_id']), $recurring_expense_id);
 
     flashAlert("<strong>" . escapeHtml(recurringExpenseLabel($row)) . "</strong> moved on to " . escapeHtml(date('M j, Y', strtotime($next))) . ($ends ? ' - past its end date, so it has ended' : ''));
 

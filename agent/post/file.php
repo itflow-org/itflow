@@ -42,17 +42,16 @@ if (isset($_POST['upload_files'])) {
         mkdir($client_dir, 0755, true);
     }
 
-    $allowedExtensions = [
-        'jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx',
-        'odt', 'csv', 'xls', 'xlsx', 'ods', 'pptx', 'odp', 'zip', 'tar', 'gz',
-        'msg', 'json', 'wav', 'mp3', 'ogg', 'mov', 'mp4', 'av1', 'ovpn',
-        'cfg', 'ps1', 'vsdx', 'drawio', 'pfx', 'pages', 'numbers', 'unf', 'unifi',
-        'key', 'bat', 'stk', 'swb'
-    ];
+    $allowedExtensions = fileUploadExtensions();
 
     $uploaded = [];
     $skipped = [];
     $names = $_FILES['file']['name'] ?? [];
+
+    // A folder from the computer - each file's path under it, its folders made as needed (functions/files.php)
+    $upload_paths = (array) ($_POST['file_paths'] ?? []);
+    $upload_folders = [];
+    $folders_made = 0;
 
     foreach ((array) $names as $index => $original_name) {
 
@@ -83,6 +82,8 @@ if (isset($_POST['upload_files'])) {
         $file_mime_type = escapeSql($detected_mime !== '' && $detected_mime !== 'application/octet-stream' ? $detected_mime : $single_file['type']);
         $file_size = intval($single_file['size']);
 
+        $file_folder_id = isset($upload_paths[$index]) ? folderForUploadPath($client_id, $folder_id, $upload_paths[$index], $upload_folders, $folders_made) : $folder_id;
+
         mysqli_query($mysqli, "INSERT INTO files SET
             file_reference_name = '$file_reference_name',
             file_name = '$file_name',
@@ -91,7 +92,7 @@ if (isset($_POST['upload_files'])) {
             file_mime_type = '$file_mime_type',
             file_size = $file_size,
             file_created_by = $session_user_id,
-            file_folder_id = $folder_id,
+            file_folder_id = $file_folder_id,
             file_client_id = $client_id");
         $file_id = mysqli_insert_id($mysqli);
 
@@ -116,6 +117,13 @@ if (isset($_POST['upload_files'])) {
         $uploaded[] = basename($original_name);
     }
 
+    // A folder goes up in parts from the upload window, which adds up what each part says
+    if (!empty($_POST['upload_json'])) {
+        header('Content-Type: application/json');
+        echo json_encode(['uploaded' => count($uploaded), 'skipped' => array_values(array_map('strval', $skipped)), 'folders' => $folders_made]);
+        exit;
+    }
+
     if ($uploaded && !$skipped) {
         flashAlert(count($uploaded) === 1 ? "Uploaded <strong>{$uploaded[0]}</strong>" : "Uploaded <strong>" . count($uploaded) . "</strong> files");
     } elseif ($uploaded) {
@@ -125,6 +133,77 @@ if (isset($_POST['upload_files'])) {
     }
 
     redirect();
+
+}
+
+/*
+ * A folder uploaded in parts from the upload window (upload_json above) - when the last part is
+ * in, it says how it went, here, so the message is on the page it reloads.
+ */
+if (isset($_POST['upload_folder_done'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $uploaded = intval($_POST['uploaded'] ?? 0);
+    $folders = intval($_POST['folders'] ?? 0);
+    $skipped = array_slice(array_map(function ($name) { return escapeHtml(mb_substr((string) $name, 0, 200)); }, (array) ($_POST['skipped'] ?? [])), 0, 50);
+    $made = $folders ? " and made <strong>$folders</strong> folder" . ($folders === 1 ? '' : 's') : '';
+
+    if ($uploaded && !$skipped) {
+        flashAlert("Uploaded <strong>$uploaded</strong> file" . ($uploaded === 1 ? '' : 's') . $made);
+    } elseif ($uploaded) {
+        flashAlert("Uploaded <strong>$uploaded</strong>$made, skipped <strong>" . count($skipped) . "</strong> (not an allowed type, empty or too big): " . implode(', ', $skipped), 'warning');
+    } else {
+        flashAlert('Nothing uploaded - not an allowed type, empty or too big' . ($skipped ? ': ' . implode(', ', $skipped) : ''), 'error');
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode(['ok' => true]);
+    exit;
+
+}
+
+/*
+ * A folder and everything under it as one zip (the folder's menu on the files list), or the files
+ * and documents ticked (Bulk Action) - functions/files.php filesZipSend(). Documents go in as
+ * .html pages; archived ones are left out.
+ */
+if (isset($_GET['download_folder_zip']) || isset($_POST['bulk_download_files'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 1);
+
+    $client_id = intval($_GET['client_id'] ?? $_POST['client_id'] ?? 0);
+    enforceClientAccess();
+
+    if (isset($_GET['download_folder_zip'])) {
+        $folder_id = folderOwnedId($_GET['download_folder_zip'], $client_id);
+        $zip_items = filesZipFolderItems($client_id, $folder_id);
+        $zip_name = $folder_id ? folderDisplayName($folder_id) : getFieldById('clients', $client_id, 'client_name') . ' files';
+        $what = $folder_id ? 'folder ' . escapeSql(folderDisplayName($folder_id)) : 'all files';
+    } else {
+        $zip_items = [];
+        foreach (['file', 'document'] as $kind) {
+            foreach ((array) ($_POST[$kind . '_ids'] ?? []) as $id) {
+                $zip_items[] = ['kind' => $kind, 'id' => intval($id), 'path' => ''];
+            }
+        }
+        $zip_name = getFieldById('clients', $client_id, 'client_name') . ' files';
+        $what = count($zip_items) . ' ticked';
+    }
+
+    $sent = filesZipSend($client_id, $zip_items, $zip_name);
+    if ($sent === false) {
+        flashAlert(class_exists('ZipArchive') ? ($zip_items ? 'Too big for one zip - over 2 GB. Download it a folder at a time.' : 'Nothing to download - there are no files or documents here.')
+            : 'Zips can\'t be made on this server - PHP\'s zip extension isn\'t installed.', 'error');
+        redirect();
+    }
+
+    logAudit("File", "Download", "$session_name downloaded $what as a zip - $sent files and documents", $client_id);
+    exit;
 
 }
 
@@ -185,11 +264,13 @@ if (isset($_POST['move_file'])) {
     $folder_id = folderOwnedId($_POST['folder_id'] ?? 0, $client_id);
     $folder_name = folderDisplayName($folder_id);
 
+    $undo = undoSnapshot('files', 'file_id', [$file_id], ['file_folder_id'], 'file_client_id'); // for Undo on the message
     mysqli_query($mysqli, "UPDATE files SET file_folder_id = $folder_id WHERE file_id = $file_id");
 
     logAudit("File", "Move", "$session_name moved file $file_name to " . escapeSql($folder_name), $client_id, $file_id);
 
     flashAlert("File <strong>{$row['file_name']}</strong> moved to <strong>$folder_name</strong>");
+    undoOfferChanges($undo, "<strong>" . escapeHtml($row['file_name']) . "</strong> moved back", 'module_support');
 
     redirect();
 
@@ -212,11 +293,13 @@ if (isset($_GET['archive_file'])) {
 
     enforceClientAccess();
 
+    $undo = undoArchiveBefore('file', $file_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE files SET file_archived_at = NOW() WHERE file_id = $file_id");
 
     logAudit("File", "Archive", "$session_name archived file " . escapeSql($row['file_name']), $client_id, $file_id);
 
     flashAlert("File <strong>{$row['file_name']}</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -282,6 +365,8 @@ if (isset($_POST['bulk_archive_files'])) {
     $file_count = 0;
     $document_count = 0;
 
+    $undo = undoArchiveBefore('file', $_POST['file_ids'] ?? []); // for Undo on the message
+    $undo_documents = undoArchiveBefore('document', $_POST['document_ids'] ?? []);
     foreach (array_map('intval', (array) ($_POST['file_ids'] ?? [])) as $file_id) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_client_id, file_name FROM files WHERE file_id = $file_id AND file_archived_at IS NULL"));
         if (!$row) {
@@ -307,6 +392,7 @@ if (isset($_POST['bulk_archive_files'])) {
     }
 
     flashAlert("Archived " . filesCountPhrase($document_count, $file_count), 'error');
+    undoOfferArchive($undo, $undo_documents);
 
     redirect();
 
@@ -396,16 +482,20 @@ if (isset($_POST['bulk_move_files'])) {
     $file_count = 0;
     $document_count = 0;
 
+    // For Undo on the message - each back to the folder it came from
+    $undo = undoSnapshot('files', 'file_id', $_POST['file_ids'] ?? [], ['file_folder_id'], 'file_client_id');
+    $undo_documents = undoSnapshot('documents', 'document_id', $_POST['document_ids'] ?? [], ['document_folder_id'], 'document_client_id');
+
     // Each item only moves into a folder of its own client - one of another
-    // client's folders would take it out of sight of both
+    // client's folders would take it out of sight of both. One already there is left alone.
     foreach (array_map('intval', (array) ($_POST['file_ids'] ?? [])) as $file_id) {
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_client_id, file_name FROM files WHERE file_id = $file_id"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_client_id, file_name, file_folder_id FROM files WHERE file_id = $file_id"));
         if (!$row) {
             continue;
         }
         $client_id = intval($row['file_client_id']);
         enforceClientAccess();
-        if ($target_folder && folderOwnedId($target_folder, $client_id) !== $target_folder) {
+        if (($target_folder && folderOwnedId($target_folder, $client_id) !== $target_folder) || intval($row['file_folder_id']) === $target_folder) {
             continue;
         }
         mysqli_query($mysqli, "UPDATE files SET file_folder_id = $target_folder WHERE file_id = $file_id");
@@ -414,13 +504,13 @@ if (isset($_POST['bulk_move_files'])) {
     }
 
     foreach (array_map('intval', (array) ($_POST['document_ids'] ?? [])) as $document_id) {
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_client_id, document_name FROM documents WHERE document_id = $document_id"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_client_id, document_name, document_folder_id FROM documents WHERE document_id = $document_id"));
         if (!$row) {
             continue;
         }
         $client_id = intval($row['document_client_id']);
         enforceClientAccess();
-        if ($target_folder && folderOwnedId($target_folder, $client_id) !== $target_folder) {
+        if (($target_folder && folderOwnedId($target_folder, $client_id) !== $target_folder) || intval($row['document_folder_id']) === $target_folder) {
             continue;
         }
         mysqli_query($mysqli, "UPDATE documents SET document_folder_id = $target_folder, document_updated_at = document_updated_at WHERE document_id = $document_id");
@@ -429,6 +519,7 @@ if (isset($_POST['bulk_move_files'])) {
     }
 
     flashAlert("Moved " . filesCountPhrase($document_count, $file_count) . " to <strong>$folder_name</strong>");
+    undoOffer('<strong>{n}</strong> item{s} moved back', array_merge(undoChangedSteps($undo), undoChangedSteps($undo_documents)), 'module_support');
 
     redirect();
 

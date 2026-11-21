@@ -118,10 +118,10 @@ $facts = array_filter([
         <div class="d-flex flex-wrap gap-2 d-print-none">
             <?php if (!$archived) { ?>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $use_url ?>"><i class="fas fa-fw fa-plus me-2"></i>New license for a client</button>
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $use_url ?>"><i class="fas fa-fw fa-plus me-2"></i>New License for a Client</button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More ways to make one"></button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>"><i class="fas fa-fw fa-copy me-2"></i>For several clients</a>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>"><i class="far fa-fw fa-copy me-2"></i>For Several Clients</a>
                         <?php if ($coverage && $coverage['missing']) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>&missing=1"><i class="fas fa-fw fa-clipboard-check me-2"></i>For <?= $missing_text ?></a>
                         <?php } ?>
@@ -130,11 +130,11 @@ $facts = array_filter([
             <?php } ?>
             <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</button>
             <div class="dropdown">
-                <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-h"></i></button>
+                <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $required_url ?>"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who should have it</a>
-                    <a class="dropdown-item" href="post.php?copy_software_template=<?= $software_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
-                    <a class="dropdown-item" href="post.php?export_software_template=<?= $software_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-file-download me-2"></i>Export</a>
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $required_url ?>"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who Should Have It</a>
+                    <a class="dropdown-item" href="post.php?copy_software_template=<?= $software_template_id ?>&csrf_token=<?= $csrf ?>"><i class="far fa-fw fa-copy me-2"></i>Copy</a>
+                    <a class="dropdown-item" href="post.php?export_software_template=<?= $software_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-download me-2"></i>Export</a>
                     <?php if ($archived) { ?>
                         <a class="dropdown-item" href="post.php?restore_software_template=<?= $software_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo me-2"></i>Restore</a>
                     <?php } else { ?>
@@ -187,9 +187,9 @@ $facts = array_filter([
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $renew_url ?>" data-modal-size="lg" data-bulk="true"><i class="fas fa-fw fa-redo-alt me-2"></i>Renew</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $true_up_url ?>" data-modal-size="lg" data-bulk="true"><i class="fas fa-fw fa-balance-scale me-2"></i>True up seats</a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $true_up_url ?>" data-modal-size="lg" data-bulk="true"><i class="fas fa-fw fa-balance-scale me-2"></i>True Up Seats</a>
                             <?php if ($has_product) { ?>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $bill_url ?>" data-modal-size="lg" data-bulk="true"><i class="fas fa-fw fa-file-invoice-dollar me-2"></i>Bill seats</a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $bill_url ?>" data-modal-size="lg" data-bulk="true"><i class="fas fa-fw fa-file-invoice-dollar me-2"></i>Bill Seats</a>
                             <?php } ?>
                         </div>
                     </div>
@@ -260,12 +260,12 @@ $facts = array_filter([
                                         <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $renew_url ?>?id=<?= $software_id ?>"><i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Renew</a>
-                                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $true_up_url ?>&software_ids[]=<?= $software_id ?>"><i class="fas fa-fw fa-balance-scale text-secondary me-2"></i>True up seats</a>
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $true_up_url ?>&software_ids[]=<?= $software_id ?>"><i class="fas fa-fw fa-balance-scale text-secondary me-2"></i>True Up Seats</a>
                                             <?php if ($has_product && !$billing) { ?>
-                                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $bill_url ?>&software_ids[]=<?= $software_id ?>"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Bill seats</a>
+                                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $bill_url ?>&software_ids[]=<?= $software_id ?>"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Bill Seats</a>
                                             <?php } ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="/agent/software.php?client_id=<?= $client_id ?>"><i class="fas fa-fw fa-cube text-secondary me-2"></i>The client's Licenses</a>
+                                            <a class="dropdown-item" href="/agent/software.php?client_id=<?= $client_id ?>"><i class="fas fa-fw fa-cube text-secondary me-2"></i>The Client's Licenses</a>
                                         </div>
                                     </div>
                                 </td>
@@ -338,7 +338,7 @@ $facts = array_filter([
                         <?php if (count($coverage['missing']) > $list_limit) { ?>
                             <div class="small text-secondary mb-2">and <?= count($coverage['missing']) - $list_limit ?> more</div>
                         <?php } ?>
-                        <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $several_url ?>&missing=1"><i class="fas fa-copy me-1"></i>Make for <?= $missing_text ?></button>
+                        <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $several_url ?>&missing=1"><i class="far fa-copy me-1"></i>Make for <?= $missing_text ?></button>
                     <?php } elseif ($coverage['clients']) { ?>
                         <div class="small text-success"><i class="fas fa-fw fa-check me-1"></i>Every one of them has it.</div>
                     <?php } else { ?>
@@ -353,17 +353,17 @@ $facts = array_filter([
             <div class="card-body">
                 <dl class="row mb-0 small">
                     <dt class="col-5 fw-normal text-secondary">Made</dt>
-                    <dd class="col-7 mb-2" title="<?= escapeHtml($template['software_template_created_at']) ?>"><?= date('M j, Y', strtotime($template['software_template_created_at'])) ?><?= $template['created_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['created_by_name']) . '</div>' : '' ?></dd>
+                    <dd class="col-7 mb-2" title="<?= formatDateTime($template['software_template_created_at']) ?>"><?= date('M j, Y', strtotime($template['software_template_created_at'])) ?><?= $template['created_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['created_by_name']) . '</div>' : '' ?></dd>
                     <?php if ($template['software_template_updated_at']) { ?>
                         <dt class="col-5 fw-normal text-secondary">Last changed</dt>
-                        <dd class="col-7 mb-0" title="<?= escapeHtml($template['software_template_updated_at']) ?>"><?= timeAgo($template['software_template_updated_at']) ?><?= $template['updated_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['updated_by_name']) . '</div>' : '' ?></dd>
+                        <dd class="col-7 mb-0" title="<?= formatDateTime($template['software_template_updated_at']) ?>"><?= timeAgo($template['software_template_updated_at']) ?><?= $template['updated_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['updated_by_name']) . '</div>' : '' ?></dd>
                     <?php } ?>
                 </dl>
             </div>
         </div>
 
         <!-- History, from the audit log -->
-        <?= auditLogHistoryCard(auditLogHistory('Software Template', $software_template_id, 10)) ?>
+        <?= auditLogHistoryCard(auditLogHistory('License Template', $software_template_id, 10)) ?>
 
     </div>
 </div>

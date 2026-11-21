@@ -15,8 +15,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-download me-2"></i>Export ticket templates</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Ticket Templates</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -27,7 +27,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Templates</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-life-ring"></i></span>
                 <select class="form-select select2" name="ticket_template_ids[]" multiple data-placeholder="Every current one">
                     <?php while ($row = mysqli_fetch_assoc($sql)) { ?>
                         <option value="<?= intval($row['ticket_template_id']) ?>"><?= escapeHtml($row['ticket_template_name']) ?><?= $row['ticket_template_archived_at'] ? ' (archived)' : '' ?></option>
@@ -44,8 +44,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="export_ticket_templates" class="btn btn-primary text-bold"><i class="fa fa-download me-2"></i>Download</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="export_ticket_templates" class="btn btn-primary fw-bold"><i class="fas fa-download me-2"></i>Download</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

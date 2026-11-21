@@ -16,6 +16,10 @@ $type_param = strtolower((string) ($_GET['type'] ?? ''));
 $asset_form_mode = 'add';
 $asset_id = 0;
 $asset_type = $type_presets[$type_param] ?? '';
+// One switched off in Admin > Asset Types isn't offered - then the first of that tab's that is
+if ($asset_type !== '' && !isset(assetTypePicker()[$asset_type])) {
+    $asset_type = array_values(array_intersect(array_keys(assetTypePicker()), assetTypesInGroup($type_param)))[0] ?? '';
+}
 $asset_name = $asset_description = $asset_make = $asset_model = $asset_serial = $asset_os = '';
 $asset_ip = $asset_ipv6 = $asset_nat_ip = $asset_mac = $asset_uri = $asset_uri_2 = $asset_uri_client = '';
 $asset_status = $asset_purchase_reference = $asset_purchase_date = $asset_install_date = $asset_warranty_expire = '';
@@ -34,8 +38,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-desktop me-2"></i>New Asset</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-desktop me-2"></i>New Asset</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -48,8 +52,8 @@ ob_start();
         <?php require 'asset_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_asset" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_asset" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

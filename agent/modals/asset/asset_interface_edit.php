@@ -17,8 +17,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-ethernet me-2"></i><?= escapeHtml($form['asset_name']) ?> - <strong><?= escapeHtml($form['interface_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-ethernet me-2"></i>Edit Interface <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($form['interface_name']) ?> &middot; <?= escapeHtml($form['asset_name']) ?></span></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -31,9 +31,9 @@ ob_start();
     <div class="modal-footer">
         <?php if (!intval($form['interface_primary'])) { ?>
             <a class="btn btn-outline-danger me-auto confirm-link" href="post.php?delete_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                data-confirm-text="<?= escapeHtml($form['interface_name']) ?> goes for good<?= $form['link'] ? ', and its connection to ' . escapeHtml($form['link']['asset_name'] . ' ' . $form['link']['interface_name']) . ' with it' : '' ?>."><i class="fas fa-trash-alt me-2"></i>Delete</a>
+                data-confirm-text="<?= escapeHtml($form['interface_name']) ?> goes for good<?= $form['link'] ? ', and its connection to ' . escapeHtml($form['link']['asset_name'] . ' ' . $form['link']['interface_name']) . ' with it' : '' ?>."><i class="fas fa-trash me-2"></i>Delete</a>
         <?php } ?>
-        <button type="submit" name="edit_asset_interface" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="submit" name="edit_asset_interface" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

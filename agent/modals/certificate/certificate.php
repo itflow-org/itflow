@@ -108,7 +108,7 @@ ob_start();
                 <dd class="text-break"><?= $certificate['certificate_issued_by'] !== '' ? escapeHtml($certificate['certificate_issued_by']) : '<span class="text-body-secondary">Unknown</span>' ?><?= $parsed && $parsed['self_signed'] ? ' <span class="small text-body-secondary">(self-signed)</span>' : '' ?></dd>
                 <?php if (!empty($certificate['certificate_issued_at'])) { ?>
                     <dt>Issued</dt>
-                    <dd><?= escapeHtml($certificate['certificate_issued_at']) ?> <span class="small text-body-secondary">(<?= timeAgo($certificate['certificate_issued_at']) ?>)</span></dd>
+                    <dd><?= formatDate($certificate['certificate_issued_at']) ?> <span class="small text-body-secondary">(<?= timeAgo($certificate['certificate_issued_at']) ?>)</span></dd>
                 <?php } ?>
                 <dt>Expires</dt>
                 <dd><?= $expiry ? escapeHtml($expiry['date']) . ' <span class="small text-body-secondary">(' . timeAgo($expiry['date']) . ')</span>' : '<span class="text-body-secondary">Unknown</span>' ?></dd>
@@ -176,7 +176,7 @@ ob_start();
         <div class="d-flex align-items-center mt-1 mb-1">
             <span class="small text-body-secondary fw-semibold text-uppercase me-auto">Services that use it</span>
             <?php if ($can_edit) { ?>
-                <a class="small ajax-modal" href="#" data-modal-url="modals/link/link.php?from=certificate&id=<?= $certificate_id ?>&to=service"><i class="fas fa-link me-1"></i>Link a service</a>
+                <?= linkPickerButton('certificate', $certificate_id, 'service', 'Link a service', 'small', 'fas fa-link me-1') ?>
             <?php } ?>
         </div>
         <?php if ($services) { ?>
@@ -221,7 +221,7 @@ ob_start();
                                 changed
                             <?php } ?>
                         </span>
-                        <span class="text-body-secondary text-nowrap" title="<?= escapeHtml($entry['certificate_history_modified_at']) ?>"><?= timeAgo($entry['certificate_history_modified_at']) ?></span>
+                        <span class="text-body-secondary text-nowrap" title="<?= formatDateTime($entry['certificate_history_modified_at']) ?>"><?= timeAgo($entry['certificate_history_modified_at']) ?></span>
                     </li>
                 <?php } ?>
             </ul>
@@ -233,11 +233,11 @@ ob_start();
 <div class="modal-footer">
     <?php if ($can_edit) { ?>
         <?php if ($host) { ?>
-            <a class="btn btn-outline-secondary me-auto" href="post.php?check_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-sync-alt me-2"></i>Check now</a>
+            <a class="btn btn-outline-secondary me-auto" href="post.php?check_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-sync-alt me-2"></i>Check Now</a>
         <?php } ?>
-        <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/certificate/certificate_edit.php?id=<?= $certificate_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+        <button type="button" class="btn btn-primary fw-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/certificate/certificate_edit.php?id=<?= $certificate_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

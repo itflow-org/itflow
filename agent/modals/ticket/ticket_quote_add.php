@@ -46,16 +46,16 @@ $ticket_onsite = intval($row['ticket_onsite']);
 
 $ticket_created_at = escapeHtml($row['ticket_created_at']);
 $ticket_created_by = intval($row['ticket_created_by']);
-$ticket_date = date('Y-m-d g:i A', strtotime($ticket_created_at));
+$ticket_date = date('M j, Y g:i A', strtotime($ticket_created_at));
 $ticket_first_response_at = escapeHtml($row['ticket_first_response_at']);
 if ($ticket_first_response_at) {
-    $ticket_first_response_date_time = date('Y-m-d g:i A', strtotime($ticket_first_response_at));
+    $ticket_first_response_date_time = date('M j, Y g:i A', strtotime($ticket_first_response_at));
 } else {
     $ticket_first_response_date_time = '';
 }
 $ticket_resolved_at = escapeHtml($row['ticket_resolved_at']);
 if ($ticket_resolved_at) {
-    $ticket_resolved_date = date('Y-m-d g:i A', strtotime($ticket_resolved_at));
+    $ticket_resolved_date = date('M j, Y g:i A', strtotime($ticket_resolved_at));
 } else {
     $ticket_resolved_date = '';
 }
@@ -83,8 +83,8 @@ ob_start();
 ?>
 
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-comment-dollar me-2"></i>Create quote from ticket</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title"><i class="fas fa-fw fa-comment-dollar me-2"></i>Create Quote from Ticket</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
 
     <form action="post.php" method="post" autocomplete="off">
@@ -97,9 +97,9 @@ ob_start();
             <div class="row">
                 <div class="col-sm-6">
                     <div class="mb-3">
-                        <label>Scope</label>
+                        <label class="form-label">Scope</label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
                             <input type="text" class="form-control" name="scope" placeholder="Quick description" maxlength="255">
                         </div>
                     </div>
@@ -107,15 +107,15 @@ ob_start();
 
                 <div class="col-sm-6">
                     <div class="mb-3">
-                        <label>Quote Category <strong class="text-danger">*</strong></label>
+                        <label class="form-label">Quote category <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
 
                             <select class="form-select select2" name="category" required>
-                                <option value="">- Select a Category -</option>
+                                <option value="">- Select a category -</option>
                                 <?= categoryOptionsHtml('Income') ?>
                             </select>
-                            <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
+                            <?= categoryAddButtonHtml('Income') ?>
                         </div>
                     </div>
                 </div>
@@ -126,19 +126,19 @@ ob_start();
             <div class="row">
                 <div class="col-sm-6">
                     <div class="mb-3">
-                        <label>Quote Date <strong class="text-danger">*</strong></label>
+                        <label class="form-label">Quote date <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>">
+                                <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
+                            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-sm-6">
                     <div class="mb-3">
-                        <label>Expire <strong class="text-danger">*</strong></label>
+                        <label class="form-label">Expire <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                             <input type="date" class="form-control" name="expire" min="<?= date("Y-m-d") ?>" max="2999-12-31" value="<?= date("Y-m-d", strtotime("+30 days")) ?>" required>
                         </div>
                     </div>
@@ -147,9 +147,9 @@ ob_start();
             <!-- End row 2 -->
 
             <div class="mb-3">
-                <label>Item <strong class="text-danger">*</strong></label>
+                <label class="form-label">Item <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-box"></i></span>
                     <input type="text" class="form-control" name="item_name" placeholder="Item" maxlength="200" required>
                 </div>
             </div>
@@ -157,7 +157,7 @@ ob_start();
             <?php $description = "Ticket: {$ticket_prefix}{$ticket_number} - $ticket_subject\n"; ?>
 
             <div class="mb-3">
-                <label>Item Description</label>
+                <label class="form-label">Item description</label>
                 <div class="input-group">
                     <textarea class="form-control" rows="10" name="item_description"><?= trim($description) ?></textarea>
                 </div>
@@ -166,9 +166,9 @@ ob_start();
             <div class="row g-2">
                 <div class="col">
                     <div class="mb-3">
-                        <label>QTY <strong class="text-danger">*</strong></label>
+                        <label class="form-label">QTY <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-balance-scale"></i></span>
                             <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" required>
                         </div>
                     </div>
@@ -176,22 +176,22 @@ ob_start();
 
                 <div class="col">
                     <div class="mb-3">
-                        <label>Price <strong class="text-danger">*</strong></label>
+                        <label class="form-label">Price <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                             <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($client_rate, 2, '.', '') ?>" required>
                         </div>
-                        <small class="form-text text-muted">
-                            <?= escapeHtml(ucfirst($client_rate_info['note'])) ?> is <strong><?= numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></strong> an hour
-                        </small>
+                        <div class="form-text">
+                            <?= escapeHtml(ucfirst($client_rate_info['note'])) ?> is <strong><?= billingMoney($client_rate, $session_company_currency); ?></strong> an hour
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="mb-3">
-                <label>Tax <strong class="text-danger">*</strong></label>
+                <label class="form-label">Tax <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                     <select class="form-select select2" name="tax_id" required>
                         <?= taxSelectOptions(taxDefaultFor($client_id, 'time')) ?>
                     </select>
@@ -201,11 +201,11 @@ ob_start();
         </div>
 
         <div class="modal-footer">
-            <button type="submit" name="add_quote_from_ticket" class="btn btn-primary text-bold">
-                <i class="fa fa-check me-2"></i>Quote
+            <button type="submit" name="add_quote_from_ticket" class="btn btn-primary fw-bold">
+                <i class="fas fa-check me-2"></i>Quote
             </button>
             <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                <i class="fa fa-times me-2"></i>Cancel
+                <i class="fas fa-times me-2"></i>Cancel
             </button>
         </div>
     </form>

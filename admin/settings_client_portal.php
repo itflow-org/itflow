@@ -16,9 +16,9 @@ $sql = mysqli_query($mysqli, "SELECT announcement_id, announcement_title, announ
     FROM portal_announcements
     LEFT JOIN clients ON client_id = announcement_client_id
     LEFT JOIN users ON user_id = announcement_created_by
-    WHERE announcement_archived_at IS " . ($show_archived ? 'NOT NULL' : 'NULL') . "
+    WHERE " . portalAnnouncementsOnlySql() . "announcement_archived_at IS " . ($show_archived ? 'NOT NULL' : 'NULL') . "
     ORDER BY COALESCE(announcement_starts_at, announcement_created_at) DESC, announcement_id DESC");
-$archived_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM portal_announcements WHERE announcement_archived_at IS NOT NULL"))[0]);
+$archived_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM portal_announcements WHERE " . portalAnnouncementsOnlySql() . "announcement_archived_at IS NOT NULL"))[0]);
 $state_badges = ['showing' => 'text-bg-success', 'scheduled' => 'text-bg-info', 'ended' => 'text-bg-secondary', 'archived' => 'text-bg-secondary'];
 
 // Signing up - on for the portal, and the clients that let people at their domains do it (functions/portal_invite.php)
@@ -80,10 +80,10 @@ $signup_clients = $signup_ready ? portalSignupClients() : [];
         </div>
     </div>
     <div class="card-header py-2 d-flex flex-wrap align-items-center gap-2">
-        <span class="text-secondary small me-auto">Shown at the top of the portal's home page - to every client, or one - between their start and end.</span>
+        <span class="text-secondary small me-auto">Shown at the top of the portal's home page - to every client, or one - between their start and end. For a banner your agents see instead, use <a href="agent_banners.php">Agent Banners</a>.</span>
         <div class="btn-group btn-group-sm">
             <a class="btn btn-outline-secondary<?= $show_archived ? '' : ' active' ?>" href="settings_client_portal.php">Current</a>
-            <a class="btn btn-outline-secondary<?= $show_archived ? ' active' : '' ?>" href="settings_client_portal.php?archived=1">Archived <span class="badge text-bg-secondary ms-1"><?= $archived_count ?></span></a>
+            <a class="btn btn-outline-secondary<?= $show_archived ? ' active' : '' ?>" href="settings_client_portal.php?archived=1">Archived <span class="badge rounded-pill text-bg-secondary ms-1"><?= number_format(intval($archived_count)) ?></span></a>
         </div>
     </div>
     <div class="table-responsive-sm">
@@ -118,11 +118,11 @@ $signup_clients = $signup_ready ? portalSignupClients() : [];
                             </div>
                         </div>
                     </td>
-                    <td><?= intval($row['announcement_client_id']) ? escapeHtml($row['client_name'] ?? 'A client no longer here') : '<span class="badge text-bg-dark">Every client</span>' ?></td>
+                    <td><?= intval($row['announcement_client_id']) ? escapeHtml($row['client_name'] ?? 'A client no longer here') : '<span class="badge rounded-pill text-bg-dark">Every client</span>' ?></td>
                     <td class="small"><?= escapeHtml(implode(' ', $when)) ?><div class="text-secondary">Posted by <?= escapeHtml($row['user_name'] ?: 'someone') ?></div></td>
                     <td>
                         <div class="dropdown dropstart text-center">
-                            <button class="btn btn-secondary btn-sm" title="More actions" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
+                            <button class="btn btn-secondary btn-sm" title="More actions" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/portal_announcement/portal_announcement_edit.php?id=<?= $announcement_id ?>" data-modal-size="lg"><i class="fas fa-fw fa-edit me-2"></i>Edit</a>
                                 <?php if ($row['announcement_archived_at']) { ?>
@@ -131,7 +131,7 @@ $signup_clients = $signup_ready ? portalSignupClients() : [];
                                     <a class="dropdown-item text-danger" href="post.php?archive_portal_announcement=<?= $announcement_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
                                 <?php } ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_portal_announcement=<?= $announcement_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_portal_announcement=<?= $announcement_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                             </div>
                         </div>
                     </td>

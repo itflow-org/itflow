@@ -36,7 +36,7 @@ $counts = array_map('intval', mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT "
 // The waiting tab when something is waiting, else all of them
 $tab = isset($tabs[$_GET['tab'] ?? '']) ? $_GET['tab'] : ($counts['waiting'] ? 'waiting' : 'all');
 $total = $counts[$tab];
-$pages = max(1, (int) ceil($total / $per_page));
+$pages = max(1, intval(ceil($total / $per_page)));
 $page = min(max(1, intval($_GET['page'] ?? 1)), $pages);
 $offset = ($page - 1) * $per_page;
 
@@ -63,7 +63,7 @@ function quotesUrl(array $changes) {
         <input type="hidden" name="tab" value="<?= escapeHtml($tab) ?>">
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-            <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search number or scope" aria-label="Search quotes" maxlength="200">
+            <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search quotes..." title="Number or scope" aria-label="Search quotes" maxlength="200">
         </div>
     </form>
 </div>
@@ -72,7 +72,7 @@ function quotesUrl(array $changes) {
     <?php foreach ($tabs as $key => $t) { ?>
         <a class="<?= $key === $tab ? 'active' : '' ?><?= $key === 'waiting' && $counts['waiting'] ? ' itflow-portal-tab-alert' : '' ?>" href="<?= escapeHtml(quotesUrl(['tab' => $key, 'page' => null])) ?>">
             <i class="fas <?= $t['icon'] ?>"></i><?= escapeHtml($t['label']) ?>
-            <span class="badge rounded-pill"><?= $counts[$key] ?></span>
+            <span class="badge rounded-pill"><?= number_format(intval($counts[$key])) ?></span>
         </a>
     <?php } ?>
 </nav>
@@ -87,7 +87,7 @@ function quotesUrl(array $changes) {
             <?= emptyStateHtml(['title' => 'No accepted quotes', 'text' => '', 'icon' => 'fa-thumbs-up', 'filtered' => false]) ?>
         <?php } else { ?>
             <?= emptyStateHtml(['title' => 'No quotes yet', 'text' => 'Need something priced up? Raise a ticket and we will put a quote together.', 'icon' => 'fa-comment-dollar', 'filtered' => false,
-                'actions' => [['label' => 'Ask for a quote', 'href' => portalAskUrl('Quote request'), 'icon' => 'fa-plus']]]) ?>
+                'actions' => [['label' => 'Ask for a Quote', 'href' => portalAskUrl('Quote request'), 'icon' => 'fa-plus']]]) ?>
         <?php } ?>
     <?php } else { ?>
         <ul class="itflow-portal-list">

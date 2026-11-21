@@ -29,7 +29,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-edit me-2"></i>Change <strong><?= $count ?></strong> network<?= $count === 1 ? '' : 's' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -56,7 +56,7 @@ ob_start();
                     <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
                     <select class="form-select select2" name="location_id">
                         <option value="">- No change -</option>
-                        <option value="0" data-icon="fas fa-times">No site</option>
+                        <option value="0" data-icon="fas fa-times">- No site -</option>
                         <?php foreach ($locations as $location) { ?>
                             <option value="<?= intval($location['location_id']) ?>" data-icon="fas fa-<?= intval($location['location_primary']) ? 'building' : 'map-marker-alt' ?>"><?= escapeHtml($location['location_name']) ?></option>
                         <?php } ?>
@@ -69,7 +69,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_networks" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Change</button>
+        <button type="submit" name="bulk_edit_networks" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Change</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

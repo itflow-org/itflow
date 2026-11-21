@@ -98,7 +98,7 @@ function categoryKinds() {
         ],
         'asset_status' => [
             'label' => 'Asset Status', 'one' => 'asset status', 'many' => 'asset statuses', 'icon' => 'fa-heartbeat',
-            'about' => 'Where an asset stands - deployed, out for repair, retired. Its colour is the status badge\'s; without one the built-in statuses keep theirs.',
+            'about' => 'Where an asset stands - deployed, out for repair, retired. Its color is the status badge\'s; without one the built-in statuses keep theirs.',
             'by' => 'name', 'ordered' => true, 'max' => 200, 'modules' => ['module_support'],
             'uses' => [
                 $use('assets', 'asset_status', 'asset', 'assets', '/agent/assets.php?status={name}', 'asset_archived_at', 'asset_updated_at'),
@@ -127,6 +127,14 @@ function categoryKinds() {
             'by' => 'name', 'ordered' => true, 'max' => 200, 'modules' => ['module_client'],
             'uses' => [
                 $use('contact_notes', 'contact_note_type', 'contact note', 'contact notes', null, 'contact_note_archived_at', 'contact_note_updated_at'),
+            ],
+        ],
+        'kb' => [
+            'label' => 'Knowledge Base', 'one' => 'Knowledge Base category', 'many' => 'Knowledge Base categories', 'icon' => 'fa-book',
+            'about' => 'How Knowledge Base articles are grouped - each has one, the Knowledge Base filters by them, and an article\'s icon is its category\'s.',
+            'by' => 'id', 'ordered' => true, 'max' => 200, 'modules' => ['module_support'],
+            'uses' => [
+                $use('kb_articles', 'kb_article_category_id', 'article', 'articles', '/agent/kb.php?category={id}', 'kb_article_archived_at'),
             ],
         ],
         'asset_note_type' => [
@@ -689,6 +697,29 @@ function categoryPicker($kind, $keep = [], array $opts = []) {
         }
     }
     return $rows;
+}
+
+/*
+ * A name posted for a kind held by name (a rack type, an asset note type) as
+ * the picker would post it: one of the kind's current categories, in any case,
+ * or $keep (what the record has now). '' for blank, null when it is none of
+ * them - while the kind has none set up, any name is taken as it is.
+ */
+function categoryPickedName($kind, $name, $keep = '') {
+    $name = trim((string) $name);
+    if ($name === '') {
+        return '';
+    }
+    $rows = categoryPicker($kind, (string) $keep !== '' ? [$keep] : []);
+    if (!$rows) {
+        return mb_substr($name, 0, 200);
+    }
+    foreach (array_keys($rows) as $value) {
+        if (categoryNameKey($value) === categoryNameKey($name)) {
+            return (string) $value;
+        }
+    }
+    return null;
 }
 
 /* One picker <option> for a categoryPicker() row - its colour, icon and description, the value as the kind is held, and a note when archived or not set up. */

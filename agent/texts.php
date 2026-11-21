@@ -81,10 +81,6 @@ foreach ($tabs as $key => $tab) {
 $counts = array_combine(array_keys($tabs), array_map('intval', mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . " FROM sms_messages $joins WHERE $scope"))));
 $latest_code = $can_codes ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(MAX(sms_message_id), 0) FROM sms_messages WHERE sms_message_direction = 'in' AND sms_message_status = 'code'"))[0]) : 0;
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $csrf = $_SESSION['csrf_token'];
 $provider = smsProvider();
 
@@ -101,7 +97,7 @@ $provider = smsProvider();
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search texts..." title="<?= $codes ? 'The number, or the name it was given' : 'The number, its name, or the words' ?>">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-7 col-md-6 small text-body-secondary text-md-end">
@@ -129,10 +125,10 @@ $provider = smsProvider();
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('sms_message_number', 'From') ?></th>
+                <th class="ps-3"><?= sortLink('sms_message_number', 'From') ?></th>
                 <?php if ($codes) { ?><th>Code</th><?php } ?>
                 <th class="d-none d-md-table-cell">Text</th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('sms_message_created_at', 'When') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('sms_message_created_at', 'When') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -167,7 +163,7 @@ $provider = smsProvider();
                                 <button type="button" class="btn btn-sm btn-outline-secondary clipboardjs d-none" data-sms-copy title="Copy the code"><i class="far fa-fw fa-copy"></i></button>
                             <?php } else { ?>
                                 <span class="font-monospace fs-5 me-2 text-body-secondary"><?= escapeHtml(smsCodeMasked((string) $row['sms_message_code'])) ?></span>
-                                <span class="badge text-bg-light border" title="Codes can be revealed for <?= SMS_CODE_MASK_MINUTES ?> minutes after they come">Expired</span>
+                                <span class="badge rounded-pill text-bg-light border" title="Codes can be revealed for <?= SMS_CODE_MASK_MINUTES ?> minutes after they come">Expired</span>
                             <?php } ?>
                         </td>
                     <?php } ?>
@@ -183,7 +179,7 @@ $provider = smsProvider();
                     </td>
                     <td class="text-end pe-3 text-nowrap">
                         <?php if ($show === 'unmatched' && $can_work) { ?>
-                            <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/sms/sms_ticket_open.php?id=<?= $message_id ?>"><i class="fas fa-fw fa-life-ring me-1"></i><span class="d-none d-sm-inline">Open ticket</span></button>
+                            <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/sms/sms_ticket_open.php?id=<?= $message_id ?>"><i class="fas fa-fw fa-life-ring me-1"></i><span class="d-none d-sm-inline">Open Ticket</span></button>
                         <?php } ?>
                         <?php if (($show !== 'codes' && $can_work) || ($codes && $can_codes)) { ?>
                             <div class="dropdown dropstart d-inline-block">
@@ -191,20 +187,20 @@ $provider = smsProvider();
                                 <div class="dropdown-menu">
                                     <?php if ($show === 'unmatched') { ?>
                                         <a class="dropdown-item" href="post.php?sms_dismiss=<?= $message_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-check text-secondary me-2"></i>Dismiss</a>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sms/sms_label.php?id=<?= $message_id ?>"><i class="fas fa-fw fa-tag text-secondary me-2"></i>Name this number</a>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sms/sms_label.php?id=<?= $message_id ?>"><i class="fas fa-fw fa-tag text-secondary me-2"></i>Name This Number</a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger confirm-link" href="post.php?sms_mark_spam=<?= $message_id ?>&csrf_token=<?= $csrf ?>"
                                             data-confirm-title="Mark as spam?" data-confirm-button="Mark as spam"
-                                            data-confirm-text="<?= escapeHtml(smsNumberText($number)) ?> is blocked - what it sends goes straight to Spam, and its texts here go there now."><i class="fas fa-fw fa-ban me-2"></i>Mark as spam</a>
+                                            data-confirm-text="<?= escapeHtml(smsNumberText($number)) ?> is blocked - what it sends goes straight to Spam, and its texts here go there now."><i class="fas fa-fw fa-ban me-2"></i>Mark as Spam</a>
                                     <?php } elseif ($codes) { ?>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sms/sms_label.php?id=<?= $message_id ?>"><i class="fas fa-fw fa-tag text-secondary me-2"></i>Name this sender</a>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sms/sms_label.php?id=<?= $message_id ?>"><i class="fas fa-fw fa-tag text-secondary me-2"></i>Name This Sender</a>
                                         <?php if (lookupUserPermission('module_credential') >= 2 && $row['sms_message_body'] !== null) { ?>
                                             <a class="dropdown-item confirm-link" href="post.php?sms_not_code=<?= $message_id ?>&csrf_token=<?= $csrf ?>"
                                                 data-confirm-title="Not a code?" data-confirm-button="Move to Unmatched"
-                                                data-confirm-text="It moves to Unmatched, where everyone who works tickets sees its words."><i class="fas fa-fw fa-undo text-secondary me-2"></i>Not a code</a>
+                                                data-confirm-text="It moves to Unmatched, where everyone who works tickets sees its words."><i class="fas fa-fw fa-undo text-secondary me-2"></i>Not a Code</a>
                                         <?php } ?>
                                     <?php } else { ?>
-                                        <a class="dropdown-item" href="post.php?sms_not_spam=<?= $message_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-undo text-secondary me-2"></i>Not spam</a>
+                                        <a class="dropdown-item" href="post.php?sms_not_spam=<?= $message_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-undo text-secondary me-2"></i>Not Spam</a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger" href="post.php?sms_delete=<?= $message_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                                     <?php } ?>

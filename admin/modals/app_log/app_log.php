@@ -55,7 +55,7 @@ ob_start();
         <span class="itflow-asset-icon itflow-asset-icon-lg bg-<?= $style['tone'] ?>-subtle text-<?= $style['tone'] ?>-emphasis" aria-hidden="true"><i class="<?= appLogCategoryIcon($category) ?>"></i></span>
         <div class="min-w-0 flex-grow-1">
             <h5 class="modal-title fw-semibold text-break"><?= escapeHtml($category !== '' ? $category : 'No category') ?> &middot; <?= $style['one'] ?></h5>
-            <div class="small text-body-secondary mt-1"><?= escapeHtml(date('D, M j, Y \a\t g:i:s A', $created)) ?> &middot; <?= escapeHtml(timeAgo($row['app_log_created_at'])) ?></div>
+            <div class="small text-body-secondary mt-1"><?= escapeHtml(date('D, M j, Y g:i:s A', $created)) ?> &middot; <?= escapeHtml(timeAgo($row['app_log_created_at'])) ?></div>
         </div>
     </div>
     <button type="button" class="btn-close btn-close-white ms-3" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -90,7 +90,7 @@ ob_start();
             </div>
             <div class="itflow-glance-item" title="When">
                 <i class="fas fa-fw fa-clock"></i>
-                <span class="font-monospace small"><?= escapeHtml($row['app_log_created_at']) ?></span>
+                <span class="font-monospace small"><?= formatDateTime($row['app_log_created_at'], true) ?></span>
             </div>
         </div>
     </div>
@@ -106,7 +106,7 @@ ob_start();
             <div class="list-group">
                 <?php foreach ($around as $entry) { ?>
                     <a href="#" class="list-group-item list-group-item-action d-flex align-items-start gap-2 small ajax-modal" data-modal-size="lg" data-modal-url="/admin/modals/app_log/app_log.php?id=<?= intval($entry['app_log_id']) ?>">
-                        <span class="text-body-secondary text-nowrap flex-shrink-0" style="min-width: 4.5rem;" title="<?= escapeHtml($entry['app_log_created_at']) ?>"><?= escapeHtml(date('g:i:s A', strtotime($entry['app_log_created_at']))) ?></span>
+                        <span class="text-body-secondary text-nowrap flex-shrink-0" style="min-width: 4.5rem;" title="<?= formatDateTime($entry['app_log_created_at'], true) ?>"><?= escapeHtml(date('g:i:s A', strtotime($entry['app_log_created_at']))) ?></span>
                         <span class="flex-shrink-0"><?= appLogLevelPill($entry['app_log_type']) ?></span>
                         <span class="text-break"><span class="fw-semibold"><?= escapeHtml((string) $entry['app_log_category']) ?></span> <?= escapeHtml(mb_strimwidth((string) $entry['app_log_details'], 0, 160, '…')) ?></span>
                     </a>
@@ -131,7 +131,7 @@ ob_start();
             <div class="list-group">
                 <?php foreach ($audit as $entry) { ?>
                     <a href="#" class="list-group-item list-group-item-action d-flex align-items-start gap-2 small ajax-modal" data-modal-size="lg" data-modal-url="/admin/modals/audit_log/audit_log.php?id=<?= intval($entry['log_id']) ?>">
-                        <span class="text-body-secondary text-nowrap flex-shrink-0" style="min-width: 4.5rem;" title="<?= escapeHtml($entry['log_created_at']) ?>"><?= escapeHtml(date('g:i:s A', strtotime($entry['log_created_at']))) ?></span>
+                        <span class="text-body-secondary text-nowrap flex-shrink-0" style="min-width: 4.5rem;" title="<?= formatDateTime($entry['log_created_at'], true) ?>"><?= escapeHtml(date('g:i:s A', strtotime($entry['log_created_at']))) ?></span>
                         <span class="flex-shrink-0"><?= auditLogActionPill($entry['log_action']) ?></span>
                         <span class="text-break"><?= escapeHtml($entry['log_description']) ?></span>
                     </a>
@@ -148,7 +148,7 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

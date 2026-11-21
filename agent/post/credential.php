@@ -98,8 +98,13 @@ if (isset($_POST['edit_credential'])) {
         redirect();
     }
 
-    // Changed password - record when, for the rotation report and the age shown everywhere
-    $password_changed = trim((string) ($_POST['password'] ?? '')) !== (string) decryptCredentialEntry($row['credential_password']);
+    // Changed password - record when, for the rotation report and the age shown everywhere,
+    // and keep the one it had under Earlier passwords
+    $old_password = (string) decryptCredentialEntry($row['credential_password']);
+    $password_changed = trim((string) ($_POST['password'] ?? '')) !== $old_password;
+    if ($password_changed && $old_password !== '') {
+        credentialPasswordKeep($row);
+    }
 
     mysqli_query($mysqli, "UPDATE credentials SET $set" . ($password_changed ? ", credential_password_changed_at = NOW()" : '') . " WHERE credential_id = $credential_id");
 
@@ -111,7 +116,7 @@ if (isset($_POST['edit_credential'])) {
     $name = trim($_POST['name']);
     logAudit("Credential", "Edit", "$session_name edited credential " . escapeSql($name) . ($password_changed ? ' and changed its password' : ''), $client_id, $credential_id);
 
-    flashAlert("Credential <strong>$name</strong> updated");
+    flashAlert("Credential <strong>$name</strong> saved");
 
     redirect();
 
@@ -140,11 +145,79 @@ if (isset($_POST['rotate_credential'])) {
         redirect();
     }
 
+    // The one it had goes under Earlier passwords
+    $old_password = (string) decryptCredentialEntry($row['credential_password']);
+    if ($old_password !== '' && $old_password !== $password) {
+        credentialPasswordKeep($row);
+    }
+
     mysqli_query($mysqli, "UPDATE credentials SET credential_password = '" . escapeSql($encrypted) . "', credential_password_changed_at = NOW() WHERE credential_id = $credential_id");
 
     logAudit("Credential", "Rotate", "$session_name changed the password on credential " . escapeSql($row['credential_name']), $client_id, $credential_id);
 
     flashAlert("Password changed on <strong>{$row['credential_name']}</strong>");
+
+    redirect();
+
+}
+
+// An earlier password made the password again - when a change broke something.
+// The one it has now goes under Earlier passwords in its place
+if (isset($_GET['restore_credential_password'])) {
+
+    validateCSRFToken();
+
+    $history = credentialPasswordHistoryRow($_GET['restore_credential_password']);
+    if (!$history) {
+        flashAlert('That earlier password is no longer kept.', 'error');
+        redirect();
+    }
+    $row = credentialForRequest($history['credential_id'], 2);
+    $credential_id = intval($row['credential_id']);
+
+    if (!empty($row['credential_archived_at'])) {
+        flashAlert('Restore the credential first.', 'error');
+        redirect();
+    }
+
+    $current = decryptCredentialEntry($row['credential_password']);
+    if ($current === false) {
+        flashAlert('Your vault session has expired - sign out and back in, then try again.', 'error');
+        redirect();
+    }
+    if ((string) $current !== '' && $current !== decryptCredentialEntry($history['password_history_password'])) {
+        credentialPasswordKeep($row);
+    }
+
+    mysqli_query($mysqli, "UPDATE credentials SET credential_password = '" . escapeSql($history['password_history_password']) . "', credential_password_changed_at = NOW() WHERE credential_id = $credential_id");
+    mysqli_query($mysqli, "DELETE FROM password_history WHERE password_history_id = " . intval($history['password_history_id']));
+
+    logAudit("Credential", "Rotate", "$session_name put back an earlier password on credential " . escapeSql($row['credential_name']), $client_id, $credential_id);
+
+    flashAlert("The earlier password is back on <strong>{$row['credential_name']}</strong>");
+
+    redirect();
+
+}
+
+// An earlier password that shouldn't be kept, gone for good
+if (isset($_GET['delete_credential_password_history'])) {
+
+    validateCSRFToken();
+
+    $history = credentialPasswordHistoryRow($_GET['delete_credential_password_history']);
+    if (!$history) {
+        flashAlert('That earlier password is no longer kept.', 'error');
+        redirect();
+    }
+    $row = credentialForRequest($history['credential_id'], 3);
+    $credential_id = intval($row['credential_id']);
+
+    mysqli_query($mysqli, "DELETE FROM password_history WHERE password_history_id = " . intval($history['password_history_id']));
+
+    logAudit("Credential", "Delete", "$session_name deleted an earlier password of credential " . escapeSql($row['credential_name']), $client_id, $credential_id);
+
+    flashAlert("Earlier password deleted from <strong>{$row['credential_name']}</strong>", 'error');
 
     redirect();
 
@@ -173,11 +246,13 @@ if (isset($_GET['archive_credential'])) {
     $row = credentialForRequest($_GET['archive_credential'], 2);
     $credential_id = intval($row['credential_id']);
 
+    $undo = undoArchiveBefore('credential', $credential_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
 
     logAudit("Credential", "Archive", "$session_name archived credential " . escapeSql($row['credential_name']), $client_id, $credential_id);
 
     flashAlert("Credential <strong>{$row['credential_name']}</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -238,6 +313,7 @@ if (isset($_POST['bulk_archive_credentials'])) {
 
     validateCSRFToken();
 
+    $undo = undoArchiveBefore('credential', $_POST['credential_ids'] ?? []); // for Undo on the message
     $count = 0;
     foreach (credentialsForBulk(2) as $credential_id => $row) {
         mysqli_query($mysqli, "UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
@@ -246,6 +322,7 @@ if (isset($_POST['bulk_archive_credentials'])) {
     }
 
     flashAlert("Archived <strong>$count</strong> credential" . ($count === 1 ? '' : 's'), 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -387,119 +464,6 @@ if (isExportRequest('export_credentials')) {
 
     logAudit("Credential", "Export", "$session_name exported $num_rows credential(s) to a " . strtoupper($format) . " file", $client_id);
 
-    exit;
-
-}
-
-if (isset($_POST["import_credentials_csv"])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_credential', 2);
-
-    $client_id = intval($_POST['client_id']);
-
-    enforceClientAccess();
-
-    if (empty($_FILES["file"]["tmp_name"])) {
-        flashAlert("Please select a file to upload.", 'error');
-        redirect();
-    }
-    $file_name = $_FILES["file"]["tmp_name"];
-
-    if (strtolower(pathinfo((string) $_FILES['file']['name'], PATHINFO_EXTENSION)) !== 'csv') {
-        flashAlert("Bad file extension", 'error');
-        redirect();
-    }
-    if ($_FILES["file"]["size"] < 1) {
-        flashAlert("Bad file size (empty?)", 'error');
-        redirect();
-    }
-
-    $file = fopen($file_name, "r");
-    $f_columns = fgetcsv($file, 1000, ",");
-    if (!is_array($f_columns) || count($f_columns) != 6) {
-        fclose($file);
-        flashAlert("Bad column count.", 'error');
-        redirect();
-    }
-
-    // The vault must be open, or every imported password would be saved empty
-    if (encryptCredentialEntry('') === false) {
-        fclose($file);
-        flashAlert('Your vault session has expired, so nothing could be encrypted - sign out and back in, then import again.', 'error');
-        redirect();
-    }
-
-    $row_count = $duplicate_count = $too_long_count = $bad_otp_count = 0;
-    while (($column = fgetcsv($file, 1000, ",")) !== false) {
-        // Every row stands alone - a column missing on one row must not take the last row's value
-        $column = array_pad($column, 6, '');
-        [$name, $description, $username, $password, $totp, $uri] = array_map(function ($value) {
-            return trim((string) $value);
-        }, array_slice($column, 0, 6));
-
-        if ($name === '') {
-            continue;
-        }
-
-        // Nothing client-side guards an uploaded file, and an overlong value is a hard
-        // MySQL error - skip the row and report it rather than losing the whole import
-        if (checkCredentialLengths(['name' => $name, 'description' => $description, 'username' => $username, 'password' => $password, 'otp_secret' => $totp, 'uri' => $uri])) {
-            $too_long_count++;
-            continue;
-        }
-
-        $otp = credentialOtpSeed($totp);
-        if ($otp === false) {
-            $bad_otp_count++;
-            $otp = '';
-        }
-
-        $name_sql = escapeSql($name);
-        if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM credentials WHERE credential_name = '$name_sql' AND credential_client_id = $client_id"))) {
-            $duplicate_count++;
-            continue;
-        }
-
-        mysqli_query($mysqli, "INSERT INTO credentials SET credential_name = '$name_sql', credential_description = '" . escapeSql($description) . "', credential_uri = '" . escapeSql($uri) . "',
-            credential_username = '" . escapeSql(encryptCredentialEntry($username)) . "', credential_password = '" . escapeSql(encryptCredentialEntry($password)) . "',
-            credential_otp_secret = '" . escapeSql($otp) . "', credential_password_changed_at = NOW(), credential_client_id = $client_id");
-        $row_count++;
-    }
-    fclose($file);
-
-    logAudit("Credential", "Import", "$session_name imported $row_count credential(s) via CSV file. $duplicate_count duplicate(s) found and not imported, $too_long_count row(s) skipped for over-length fields", $client_id);
-
-    flashAlert("<strong>$row_count</strong> credential(s) imported, <strong>$duplicate_count</strong> duplicate(s) detected and not imported, <strong>$too_long_count</strong> row(s) skipped for over-length fields" . ($bad_otp_count ? ", <strong>$bad_otp_count</strong> 2FA secret(s) left off - they were not secrets" : ''), 'warning');
-
-    redirect();
-
-}
-
-if (isset($_GET['download_credentials_csv_template'])) {
-
-    $delimiter = ",";
-    $enclosure = '"';
-    $escape    = '\\';
-    $filename = "Credentials-Template.csv";
-
-    //create a file pointer
-    $f = fopen('php://memory', 'w');
-
-    //set column headers
-    $fields = array('Name', 'Description', 'Username', 'Password', 'TOTP', 'URI');
-    fputcsv($f, $fields, $delimiter, $enclosure, $escape);
-
-    //move back to beginning of file
-    fseek($f, 0);
-
-    //set headers to download file rather than displayed
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-    //output all remaining data on a file pointer
-    fpassthru($f);
     exit;
 
 }

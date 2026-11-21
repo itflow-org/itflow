@@ -1,3 +1,5 @@
 Require all denied
 Options -ExecCGI -Indexes
-php_flag engine off
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>

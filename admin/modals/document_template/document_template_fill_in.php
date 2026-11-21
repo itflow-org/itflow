@@ -26,8 +26,8 @@ ob_start();
 
 if (!$template || ($name !== '' && !$fill_in)) { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-pen-square me-2"></i>Fill-in</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title"><i class="fas fa-fw fa-pen-square me-2"></i>Fill-in</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That fill-in is gone - it may have been taken out of the template.</div>
 <?php } else {
@@ -35,8 +35,8 @@ if (!$template || ($name !== '' && !$fill_in)) { ?>
     ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-pen-square me-2"></i><?= $fill_in ? 'Fill-in' : 'New fill-in' ?> <small class="ms-1 opacity-75"><?= escapeHtml($template['document_template_name']) ?></small></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-pen-square me-2"></i><?= $fill_in ? 'Edit Fill-in' : 'New Fill-in' ?> <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($template['document_template_name']) ?></span></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -48,7 +48,7 @@ if (!$template || ($name !== '' && !$fill_in)) { ?>
         <div class="mb-3">
             <label class="form-label">Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-pen-square"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-pen-square"></i></span>
                 <input type="text" class="form-control" name="name" placeholder="Firewall Model" maxlength="41" pattern="[A-Za-z][A-Za-z0-9 _\-\/]{0,40}" value="<?= escapeHtml($fill_in['name'] ?? '') ?>" required autofocus>
             </div>
             <div class="form-text">
@@ -60,7 +60,7 @@ if (!$template || ($name !== '' && !$fill_in)) { ?>
         <div class="mb-3">
             <label class="form-label">Answer</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-sliders-h"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-sliders-h"></i></span>
                 <select class="form-select select2" name="type" id="documentFillInType">
                     <?php foreach (TICKET_FILL_IN_TYPES as $key => $kind) { ?>
                         <option value="<?= $key ?>" <?= $type === $key ? 'selected' : '' ?> data-icon="fas <?= $kind['icon'] ?>"><?= $kind['label'] ?></option>
@@ -72,7 +72,7 @@ if (!$template || ($name !== '' && !$fill_in)) { ?>
         <div class="mb-3" id="documentFillInChoices" <?= $type === 'list' ? '' : 'hidden' ?>>
             <label class="form-label">Choices <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-list-ul"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-list-ul"></i></span>
                 <textarea class="form-control" name="options" rows="4" placeholder="Critical&#10;High&#10;Normal"><?= escapeHtml(implode("\n", $fill_in['options'] ?? [])) ?></textarea>
             </div>
             <div class="form-text">One per line.</div>
@@ -81,7 +81,7 @@ if (!$template || ($name !== '' && !$fill_in)) { ?>
         <div class="mb-3">
             <label class="form-label">Help</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-info-circle"></i></span>
                 <input type="text" class="form-control" name="help" maxlength="255" placeholder="Shown under it - as on the label on the back" value="<?= escapeHtml($fill_in['help'] ?? '') ?>">
             </div>
         </div>
@@ -94,8 +94,8 @@ if (!$template || ($name !== '' && !$fill_in)) { ?>
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="save_document_template_fill_in" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="save_document_template_fill_in" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

@@ -55,7 +55,7 @@ $sql = mysqli_query($mysqli, "SELECT asset_archived_at, asset_client_id, asset_c
 
 if (mysqli_num_rows($sql) == 0) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
 } else {
 
@@ -123,6 +123,16 @@ if (mysqli_num_rows($sql) == 0) {
     $can_credentials = lookupUserPermission('module_credential') >= 1;
     $can_credentials_edit = lookupUserPermission('module_credential') >= 2;
 
+    // Its devices in an RMM, if it came from one (functions/rmm.php) - the one that matters most first; its links go up top
+    $rmm_devices = rmmDevicesForAsset($asset_id);
+    $rmm_device = $rmm_devices[0] ?? null;
+    $rmm_urls = $rmm_device && $rmm_device['rmm_device_removed_at'] === null ? rmmDeviceUrls($rmm_device) : [];
+    $rmm_links = $rmm_device ? (rmmKind($rmm_device)['links'] ?? []) : [];
+    $rmm_first = $rmm_urls ? (isset($rmm_urls['control']) ? 'control' : (string) array_key_first($rmm_urls)) : '';
+    $rmm_icons = ['open' => 'fa-external-link-alt', 'control' => 'fa-desktop', 'background' => 'fa-terminal'];
+    // Its alerts that are open, with their tickets
+    $rmm_open_alerts = rmmOpenAlertsForDevices(array_column($rmm_devices, 'rmm_device_id'));
+
     // The rack it sits in, if any
     $asset_rack = rackPositionForAsset($asset_id);
     if ($asset_rack) {
@@ -166,7 +176,7 @@ if (mysqli_num_rows($sql) == 0) {
     interfaceSort($interfaces);
     $interface_count = count($interfaces);
     // A switch, firewall or access point with a few ports is drawn as its ports too
-    $interface_port_map = in_array(html_entity_decode($asset_type, ENT_QUOTES, 'UTF-8'), INTERFACE_PORT_MAP_TYPES, true) && $interface_count >= 4;
+    $interface_port_map = assetTypeHasPortMap(html_entity_decode($asset_type, ENT_QUOTES, 'UTF-8')) && $interface_count >= 4;
 
     // Files
     $sql_related_files = mysqli_query($mysqli, "SELECT file_created_at, file_description, file_ext, files.file_id, file_name FROM asset_files
@@ -241,7 +251,7 @@ if (mysqli_num_rows($sql) == 0) {
 
     <ol class="breadcrumb d-print-none">
         <li class="breadcrumb-item">
-            <a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
+            <a data-client-card="<?= $client_id ?>" href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
         </li>
         <li class="breadcrumb-item">
             <a href="assets.php?client_id=<?= $client_id ?>">Assets</a>
@@ -270,6 +280,9 @@ if (mysqli_num_rows($sql) == 0) {
                     <?php } else { ?>
                         <span class="fs-6"><?= $asset_status_pill ?></span>
                     <?php } ?>
+                    <?php if ($rmm_device) { ?>
+                        <span class="fs-6"><?= rmmDeviceStatePill($rmm_device) ?></span>
+                    <?php } ?>
                 </h1>
                 <div class="text-body-secondary small d-flex flex-wrap column-gap-3 row-gap-1">
                     <span><i class="fas fa-fw fa-<?= $device_icon ?> me-1"></i><?= $asset_type ?></span>
@@ -289,37 +302,57 @@ if (mysqli_num_rows($sql) == 0) {
             </div>
 
             <div class="d-flex flex-wrap gap-2 d-print-none">
+                <?php if ($rmm_urls) {
+                    $rmm_name = rmmProviderName($rmm_device); ?>
+                    <div class="btn-group" data-rmm-links>
+                        <a class="btn btn-outline-primary" href="<?= escapeHtml($rmm_urls[$rmm_first]) ?>" target="_blank" rel="noopener noreferrer" title="<?= escapeHtml(($rmm_links[$rmm_first] ?? 'Open') . " - $rmm_name") ?>"><i class="fas <?= $rmm_icons[$rmm_first] ?? 'fa-external-link-alt' ?> me-2"></i><?= escapeHtml($rmm_links[$rmm_first] ?? "Open in $rmm_name") ?></a>
+                        <?php if (count($rmm_urls) > 1) { ?>
+                            <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More in <?= escapeHtml($rmm_name) ?>"></button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <?php foreach ($rmm_urls as $rmm_key => $rmm_url) {
+                                    if ($rmm_key === $rmm_first) {
+                                        continue;
+                                    } ?>
+                                    <a class="dropdown-item" href="<?= escapeHtml($rmm_url) ?>" target="_blank" rel="noopener noreferrer"><i class="fas fa-fw <?= $rmm_icons[$rmm_key] ?? 'fa-external-link-alt' ?> text-secondary me-2"></i><?= escapeHtml($rmm_links[$rmm_key] ?? $rmm_key) ?></a>
+                                <?php } ?>
+                            </div>
+                        <?php } ?>
+                    </div>
+                <?php } ?>
                 <?php foreach ($asset_links as [$link_label, $link_url]) { ?>
                     <a class="btn btn-outline-primary" href="<?= escapeUrl($link_url) ?>" target="_blank" rel="noopener" title="<?= $link_label ?>: <?= escapeHtml($link_url) ?>">
                         <i class="<?= assetLinkIcon($link_url) ?> me-2"></i><?= escapeHtml(assetLinkLabel($link_url)) ?><?= $link_label === 'Client link' ? ' (client)' : '' ?>
                     </a>
                 <?php } ?>
+                <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-text="<?= escapeHtml(assetDetailsText($asset_id)) ?>" title="Copy its make, serial, OS, address, warranty and where it is as text - for a vendor's support case or an email">
+                    <i class="far fa-clipboard me-2"></i>Copy Details
+                </button>
                 <?php if ($can_edit) { ?>
                     <div class="dropdown">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-plus me-2"></i>New</button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="lg">
-                                <i class="fa fa-fw fa-life-ring text-secondary me-2"></i>Ticket
+                                <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Ticket
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="lg">
-                                <i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Ticket
+                                <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Ticket
                             </a>
                             <?php if ($can_credentials_edit) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>asset_id=<?= $asset_id ?>">
-                                    <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
+                                    <i class="fas fa-fw fa-key text-secondary me-2"></i>Credential
                                 </a>
                             <?php } ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_add.php?asset_id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-ethernet text-secondary me-2"></i>Interface
+                                <i class="fas fa-fw fa-ethernet text-secondary me-2"></i>Interface
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
+                                <i class="fas fa-fw fa-cube text-secondary me-2"></i>License
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="xl">
-                                <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
+                                <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>Document
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
+                                <i class="fas fa-fw fa-upload text-secondary me-2"></i>Upload Files
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_note_add.php?id=<?= $asset_id ?>">
                                 <i class="fas fa-fw fa-sticky-note text-secondary me-2"></i>Note
@@ -329,23 +362,13 @@ if (mysqli_num_rows($sql) == 0) {
                     <div class="dropdown">
                         <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/link/link.php?from=asset&id=<?= $asset_id ?>&to=software">
-                                <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
-                            </a>
+                            <?= linkPickerButton('asset', $asset_id, 'software', 'License', 'dropdown-item', 'fas fa-fw fa-cube text-secondary me-2') ?>
                             <?php if ($can_credentials_edit) { ?>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_credential.php?id=<?= $asset_id ?>">
-                                    <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
-                                </a>
+                                <?= linkPickerButton('asset', $asset_id, 'credential', 'Credential', 'dropdown-item', 'fas fa-fw fa-key text-secondary me-2') ?>
                             <?php } ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_service.php?id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-stream text-secondary me-2"></i>Service
-                            </a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_document.php?id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
-                            </a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_file.php?id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-paperclip text-secondary me-2"></i>File
-                            </a>
+                            <?= linkPickerButton('asset', $asset_id, 'service', 'Service', 'dropdown-item', 'fas fa-fw fa-stream text-secondary me-2') ?>
+                            <?= linkPickerButton('asset', $asset_id, 'document', 'Document', 'dropdown-item', 'fas fa-fw fa-file-alt text-secondary me-2') ?>
+                            <?= linkPickerButton('asset', $asset_id, 'file', 'File', 'dropdown-item', 'fas fa-fw fa-paperclip text-secondary me-2') ?>
                         </div>
                     </div>
                     <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
@@ -357,7 +380,7 @@ if (mysqli_num_rows($sql) == 0) {
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_copy.php?id=<?= $asset_id ?>">
-                                <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                             </a>
                             <div class="dropdown-divider"></div>
                             <?php if ($asset_archived_at) { ?>
@@ -365,12 +388,12 @@ if (mysqli_num_rows($sql) == 0) {
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                                 <?php if ($can_delete) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
                                 <?php } ?>
                             <?php } else { ?>
-                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <a class="dropdown-item text-danger" href="post.php?archive_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                 </a>
                             <?php } ?>
@@ -385,6 +408,83 @@ if (mysqli_num_rows($sql) == 0) {
 
         <!-- The facts: how to reach it, what it is, where it is -->
         <div class="col-xl-4 col-lg-5">
+
+            <?php foreach ($rmm_devices as $rmm_each) {
+                $rmm_state = rmmDeviceState($rmm_each);
+                $rmm_attention = rmmDeviceAttention($rmm_each);
+                $rmm_each_name = rmmProviderName($rmm_each);
+                $rmm_each_kind = rmmKind($rmm_each);
+                $rmm_each_urls = $rmm_each !== $rmm_device && $rmm_state['key'] !== 'removed' ? rmmDeviceUrls($rmm_each) : [];
+                $rmm_elsewhere = intval($rmm_each['rmm_client_client_id'] ?? 0) && intval($rmm_each['rmm_client_client_id']) !== $client_id; ?>
+                <div class="card mb-3" data-rmm-card="<?= escapeHtml($rmm_state['key']) ?>">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0"><i class="<?= escapeHtml($rmm_each_kind['icon'] ?? 'fas fa-laptop-medical') ?> fa-fw text-secondary me-2"></i><?= escapeHtml($rmm_each_name) ?></h3>
+                        <?php if (isset($rmm_each_urls['open'])) { ?>
+                            <a class="ms-auto ps-2 text-secondary" href="<?= escapeHtml($rmm_each_urls['open']) ?>" target="_blank" rel="noopener noreferrer" title="<?= escapeHtml(($rmm_each_kind['links']['open'] ?? 'Open') . " - $rmm_each_name") ?>"><i class="fas fa-fw fa-external-link-alt"></i></a>
+                        <?php } ?>
+                    </div>
+                    <div class="card-body">
+                        <?php if ($rmm_state['key'] === 'removed') { ?>
+                            <p class="text-body-secondary small mb-0"><i class="fas fa-fw fa-ghost me-1"></i><?= escapeHtml($rmm_each_name) ?> stopped listing it <?= escapeHtml(timeAgo($rmm_each['rmm_device_removed_at'])) ?> - its agent was removed, or it moved to a client that isn't linked. <?= escapeHtml(preg_replace('/^[^:]*: /', '', $rmm_state['title'])) ?> there.</p>
+                        <?php } else { ?>
+                            <dl class="itflow-asset-dl mb-0">
+                                <dt>Status</dt>
+                                <dd><span class="text-<?= $rmm_state['tone'] ?>-emphasis fw-semibold"><?= escapeHtml($rmm_state['label']) ?></span>
+                                    <?php if ($rmm_each['rmm_device_last_seen_at'] && $rmm_state['key'] !== 'online') { ?>
+                                        <span class="small text-body-secondary">- last seen <span title="<?= formatDateTime($rmm_each['rmm_device_last_seen_at']) ?>"><?= escapeHtml(timeAgo($rmm_each['rmm_device_last_seen_at'])) ?></span></span>
+                                    <?php } ?>
+                                </dd>
+                                <?php if ((string) $rmm_each['rmm_device_logged_user'] !== '') { ?>
+                                    <dt><?= $rmm_state['key'] === 'online' ? 'Signed in' : 'Last user' ?></dt>
+                                    <dd><?= escapeHtml($rmm_each['rmm_device_logged_user']) ?></dd>
+                                <?php } ?>
+                                <?php if ($rmm_each['rmm_device_boot_at'] && $rmm_state['key'] === 'online') { ?>
+                                    <dt>Up since</dt>
+                                    <dd title="<?= formatDateTime($rmm_each['rmm_device_boot_at']) ?>"><?= escapeHtml(timeAgo($rmm_each['rmm_device_boot_at'])) ?></dd>
+                                <?php } ?>
+                                <?php if ((string) $rmm_each['rmm_device_public_ip'] !== '') { ?>
+                                    <dt>Public IP</dt>
+                                    <dd><span class="font-monospace"><?= escapeHtml($rmm_each['rmm_device_public_ip']) ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy public IP" data-clipboard-text="<?= escapeHtml($rmm_each['rmm_device_public_ip']) ?>"><i class="far fa-copy"></i></button></dd>
+                                <?php } ?>
+                                <?php if ((string) $rmm_each['rmm_device_local_ips'] !== '' && $rmm_each['rmm_device_local_ips'] !== (string) $asset_row['interface_ip']) { ?>
+                                    <dt>Local IPs</dt>
+                                    <dd class="font-monospace small"><?= escapeHtml($rmm_each['rmm_device_local_ips']) ?></dd>
+                                <?php } ?>
+                                <dt>Site</dt>
+                                <dd><?= escapeHtml(trim($rmm_each['rmm_client_name'] . ' / ' . $rmm_each['rmm_device_site'], ' /')) ?></dd>
+                                <?php if ((string) $rmm_each['rmm_device_agent_version'] !== '') { ?>
+                                    <dt>Agent</dt>
+                                    <dd class="small"><?= escapeHtml($rmm_each['rmm_device_agent_version']) ?><?= $rmm_each['rmm_device_role'] !== '' ? ' &middot; ' . escapeHtml($rmm_each['rmm_device_role']) : '' ?></dd>
+                                <?php } ?>
+                            </dl>
+                            <?php $rmm_alerts = $rmm_open_alerts[intval($rmm_each['rmm_device_id'])] ?? []; ?>
+                            <?php if ($rmm_alerts) { ?>
+                                <ul class="list-unstyled small mt-3 mb-0" data-rmm-alerts="<?= count($rmm_alerts) ?>">
+                                    <?php foreach ($rmm_alerts as $rmm_alert) { ?>
+                                        <li class="text-<?= ['error' => 'danger', 'warning' => 'warning'][$rmm_alert['rmm_alert_severity']] ?? 'secondary' ?>-emphasis">
+                                            <i class="fas fa-fw fa-bell me-1"></i><a class="fw-semibold" href="<?= escapeHtml(ticketUrl($rmm_alert['ticket_id'], $rmm_alert['ticket_client_id'])) ?>"><?= escapeHtml($rmm_alert['ticket_prefix'] . $rmm_alert['ticket_number']) ?></a>
+                                            <?= escapeHtml(mb_strimwidth((string) $rmm_alert['rmm_alert_message'], 0, 120, '...')) ?>
+                                        </li>
+                                    <?php } ?>
+                                </ul>
+                            <?php } ?>
+                            <?php if ($rmm_attention) { ?>
+                                <ul class="list-unstyled small mt-<?= $rmm_alerts ? '2' : '3' ?> mb-0" data-rmm-attention>
+                                    <?php foreach ($rmm_attention as $item) { ?>
+                                        <li class="text-<?= $item['tone'] ?>-emphasis"><i class="fas fa-fw <?= $item['icon'] ?> me-1"></i><?= escapeHtml($item['text']) ?></li>
+                                    <?php } ?>
+                                </ul>
+                            <?php } elseif (intval($rmm_each['rmm_device_checks_total']) && !$rmm_alerts) { ?>
+                                <div class="small text-success-emphasis mt-3"><i class="fas fa-fw fa-check-circle me-1"></i>All <?= intval($rmm_each['rmm_device_checks_total']) ?> checks passing</div>
+                            <?php } ?>
+                            <?php if ($rmm_elsewhere) { ?>
+                                <div class="small text-warning-emphasis mt-2"><i class="fas fa-fw fa-exclamation-triangle me-1"></i><?= escapeHtml($rmm_each_name) ?> has it under <?= escapeHtml($rmm_each['rmm_client_name']) ?>, which is linked to another client.</div>
+                            <?php } ?>
+                        <?php } ?>
+                        <div class="small text-body-secondary mt-2" title="<?= escapeHtml((string) $rmm_each['rmm_device_synced_at']) ?>">As <?= escapeHtml($rmm_each_kind['short'] ?? $rmm_each_name) ?> said <?= escapeHtml(timeAgo($rmm_each['rmm_device_synced_at'])) ?>.</div>
+                    </div>
+                </div>
+            <?php } ?>
 
             <?php if ($asset_ip || $asset_ipv6 || $asset_nat_ip || $asset_mac || $network_name) { ?>
                 <div class="card mb-3">
@@ -466,11 +566,11 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php } ?>
                         <?php if ($asset_purchase_date) { ?>
                             <dt>Purchased</dt>
-                            <dd><?= $asset_purchase_date ?><?php if ($asset_purchase_age) { ?><div class="small text-body-secondary"><?= $asset_purchase_age ?> old</div><?php } ?></dd>
+                            <dd><?= formatDate($asset_purchase_date) ?><?php if ($asset_purchase_age) { ?><div class="small text-body-secondary"><?= $asset_purchase_age ?> old</div><?php } ?></dd>
                         <?php } ?>
                         <?php if ($asset_install_date) { ?>
                             <dt>Installed</dt>
-                            <dd><?= $asset_install_date ?><?php if ($asset_install_age) { ?><div class="small text-body-secondary"><?= $asset_install_age ?> in service</div><?php } ?></dd>
+                            <dd><?= formatDate($asset_install_date) ?><?php if ($asset_install_age) { ?><div class="small text-body-secondary"><?= $asset_install_age ?> in service</div><?php } ?></dd>
                         <?php } ?>
                         <?php if ($vendor_name) { ?>
                             <dt>Vendor</dt>
@@ -480,7 +580,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <dt>Sold on</dt>
                             <dd>
                                 <?= $can_sales ? "<a href=\"invoice.php?invoice_id=$asset_invoice_id\">$asset_sold_number</a>" : $asset_sold_number ?>
-                                <div class="small text-body-secondary">Our invoice, <?= $asset_sold_date ?></div>
+                                <div class="small text-body-secondary">Our invoice, <?= formatDate($asset_sold_date) ?></div>
                             </dd>
                         <?php } ?>
                         <?php if ($asset_product_name) { ?>
@@ -489,7 +589,7 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php if ($asset_purchase_reference && $asset_purchase_reference !== $asset_sold_number) { ?>
                             <dt>Order ref</dt><dd><?= $asset_purchase_reference ?></dd>
                         <?php } ?>
-                        <dt>Added</dt><dd title="<?= $asset_created_at ?>"><?= timeAgo($asset_created_at) ?></dd>
+                        <dt>Added</dt><dd title="<?= formatDateTime($asset_created_at) ?>"><?= timeAgo($asset_created_at) ?></dd>
                     </dl>
                 </div>
             </div>
@@ -553,7 +653,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link text-nowrap <?= $tab['count'] ? '' : 'is-empty' ?>" id="asset-tab-<?= $tab_key ?>" data-bs-toggle="pill" data-bs-target="#asset-pane-<?= $tab_key ?>" data-asset-tab="<?= $tab_key ?>" type="button" role="tab">
                                     <i class="fas fa-fw <?= $tab['icon'] ?> me-1 d-none d-xxl-inline"></i><?= $tab['label'] ?>
-                                    <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                                    <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                                     <?php if (!empty($tab['badge'])) { ?>
                                         <span class="badge rounded-pill text-bg-danger" title="Open"><?= intval($tab['badge']) ?> open</span>
                                     <?php } ?>
@@ -600,7 +700,7 @@ if (mysqli_num_rows($sql) == 0) {
                                             </button>
                                             <?php if ($can_delete) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_asset_interfaces"
+                                                <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_asset_interfaces"
                                                     data-confirm-text="The interfaces go for good, and their connections with them.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </button>
@@ -611,17 +711,17 @@ if (mysqli_num_rows($sql) == 0) {
                                         <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_add.php?asset_id=<?= $asset_id ?>">
                                             <i class="fas fa-plus me-2"></i>New Interface
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
+                                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                                         <div class="dropdown-menu dropdown-menu-end">
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_multiple_add.php?asset_id=<?= $asset_id ?>">
-                                                <i class="fa fa-fw fa-th me-2"></i>Add a run of ports
+                                                <i class="fas fa-fw fa-th me-2"></i>Add a Run of Ports
                                             </a>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_import.php?asset_id=<?= $asset_id ?>">
-                                                <i class="fa fa-fw fa-upload me-2"></i>Import
+                                                <i class="fas fa-fw fa-upload me-2"></i>Import
                                             </a>
                                             <?php if ($interface_count) { ?>
                                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_export.php?asset_id=<?= $asset_id ?>">
-                                                    <i class="fa fa-fw fa-download me-2"></i>Export
+                                                    <i class="fas fa-fw fa-download me-2"></i>Export
                                                 </a>
                                             <?php } ?>
                                         </div>
@@ -753,7 +853,7 @@ if (mysqli_num_rows($sql) == 0) {
                                                             </a>
                                                             <?php if (!$interface_primary) { ?>
                                                                 <a class="dropdown-item" href="post.php?primary_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                                    <i class="fas fa-fw fa-star text-secondary me-2"></i>Make primary
+                                                                    <i class="fas fa-fw fa-star text-secondary me-2"></i>Make Primary
                                                                 </a>
                                                             <?php } ?>
                                                             <?php if ($link) { ?>
@@ -765,12 +865,12 @@ if (mysqli_num_rows($sql) == 0) {
                                                             <?php } ?>
                                                             <?php if ($row['interface_network_id'] && $ip !== false) { ?>
                                                                 <a class="dropdown-item" href="<?= escapeHtml(networkUrl($row['interface_network_id'], $client_id)) ?>#addresses">
-                                                                    <i class="fas fa-fw fa-list-ol text-secondary me-2"></i>On the address plan
+                                                                    <i class="fas fa-fw fa-list-ol text-secondary me-2"></i>On the Address Plan
                                                                 </a>
                                                             <?php } ?>
                                                             <?php if ($can_delete && !$interface_primary) { ?>
                                                                 <div class="dropdown-divider"></div>
-                                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                                     data-confirm-text="<?= escapeHtml($row['interface_name']) ?> goes for good<?= $link ? ', and its connection with it' : '' ?>.">
                                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                                 </a>
@@ -797,9 +897,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <span class="text-body-secondary small">Logins for this asset. Passwords and codes are fetched only when you ask for them.</span>
                             <?php if ($can_edit && $can_credentials_edit) { ?>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_credential.php?id=<?= $asset_id ?>">
-                                        <i class="fas fa-link me-2"></i>Link
-                                    </button>
+                                    <?= linkPickerButton('asset', $asset_id, 'credential', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>asset_id=<?= $asset_id ?>">
                                         <i class="fas fa-plus me-2"></i>New Credential
                                     </button>
@@ -854,7 +952,7 @@ if (mysqli_num_rows($sql) == 0) {
                                         <th>Subject</th>
                                         <th>Priority</th>
                                         <th>Frequency</th>
-                                        <th>Next Run</th>
+                                        <th>Next run</th>
                                         <th></th>
                                     </tr>
                                     </thead>
@@ -876,7 +974,7 @@ if (mysqli_num_rows($sql) == 0) {
                                             </td>
                                             <td><?= ticketPriorityHtml($row['recurring_ticket_priority'], 'detail') ?></td>
                                             <td><?= $recurring_ticket_frequency ?></td>
-                                            <td class="text-nowrap"><?= recurringTicketNextRunPill($row) ?> <span class="small text-body-secondary ms-1"><?= $recurring_ticket_next_run ?></span></td>
+                                            <td class="text-nowrap"><?= recurringTicketNextRunPill($row) ?> <span class="small text-body-secondary ms-1"><?= formatDate($recurring_ticket_next_run) ?></span></td>
                                             <td class="text-end">
                                                 <?php if ($can_edit) { ?>
                                                     <div class="dropdown dropstart">
@@ -889,11 +987,11 @@ if (mysqli_num_rows($sql) == 0) {
                                                             </a>
                                                             <a class="dropdown-item confirm-link" href="post.php?force_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                                 data-confirm-text="A ticket is raised now, and the next run moves on a step - this takes its place.">
-                                                                <i class="fa fa-fw fa-paper-plane text-secondary me-2"></i>Raise now
+                                                                <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Raise Now
                                                             </a>
                                                             <?php if ($can_delete) { ?>
                                                                 <div class="dropdown-divider"></div>
-                                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                                 </a>
                                                             <?php } ?>
@@ -917,9 +1015,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <span class="text-body-secondary small">Licenses this asset holds a seat on, and the key to install.</span>
                             <?php if ($can_edit) { ?>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/link/link.php?from=asset&id=<?= $asset_id ?>&to=software">
-                                        <i class="fas fa-link me-2"></i>Link
-                                    </button>
+                                    <?= linkPickerButton('asset', $asset_id, 'software', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
                                         <i class="fas fa-plus me-2"></i>New License
                                     </button>
@@ -939,9 +1035,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <span class="text-body-secondary small">Runbooks, configs and how-tos for this asset.</span>
                             <?php if ($can_edit) { ?>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_document.php?id=<?= $asset_id ?>">
-                                        <i class="fas fa-link me-2"></i>Link
-                                    </button>
+                                    <?= linkPickerButton('asset', $asset_id, 'document', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
                                         <i class="fas fa-plus me-2"></i>New Document
                                     </button>
@@ -978,7 +1072,7 @@ if (mysqli_num_rows($sql) == 0) {
                                                 </div>
                                             </td>
                                             <td><?= $document_created_by ?></td>
-                                            <td class="text-nowrap small" title="<?= $document_updated_at ?>"><?= timeAgo($document_updated_at) ?></td>
+                                            <td class="text-nowrap small" title="<?= formatDateTime($document_updated_at) ?>"><?= timeAgo($document_updated_at) ?></td>
                                             <td class="text-end text-nowrap">
                                                 <a href="#" class="btn btn-sm btn-light ajax-modal" title="View document" data-modal-size="lg" data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>"><i class="fas fa-fw fa-eye"></i></a>
                                                 <?php if ($can_edit) { ?>
@@ -1001,9 +1095,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <span class="text-body-secondary small">Configs, photos, invoices, exports.</span>
                             <?php if ($can_edit) { ?>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_file.php?id=<?= $asset_id ?>">
-                                        <i class="fas fa-link me-2"></i>Link
-                                    </button>
+                                    <?= linkPickerButton('asset', $asset_id, 'file', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
                                         <i class="fas fa-upload me-2"></i>Upload
                                     </button>
@@ -1038,7 +1130,7 @@ if (mysqli_num_rows($sql) == 0) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="text-nowrap small" title="<?= $file_created_at ?>"><?= timeAgo($file_created_at) ?></td>
+                                            <td class="text-nowrap small" title="<?= formatDateTime($file_created_at) ?>"><?= timeAgo($file_created_at) ?></td>
                                             <td class="text-end">
                                                 <?php if ($can_edit) { ?>
                                                     <a href="post.php?unlink_asset_from_file&asset_id=<?= $asset_id ?>&file_id=<?= $file_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-light" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
@@ -1059,9 +1151,7 @@ if (mysqli_num_rows($sql) == 0) {
                         <div class="itflow-asset-pane-bar">
                             <span class="text-body-secondary small">Services that run on it - when it is down, so are they.</span>
                             <?php if ($can_edit) { ?>
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_service.php?id=<?= $asset_id ?>">
-                                    <i class="fas fa-link me-2"></i>Link Service
-                                </button>
+                                <?= linkPickerButton('asset', $asset_id, 'service', 'Link Service', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                             <?php } ?>
                         </div>
                         <?php if ($service_count) { ?>
@@ -1106,7 +1196,7 @@ if (mysqli_num_rows($sql) == 0) {
                                         <div class="flex-grow-1 min-w-0">
                                             <div class="small text-body-secondary mb-1">
                                                 <span class="fw-semibold text-body"><?= $asset_note_type ?></span>
-                                                &middot; <?= $note_by ?> &middot; <span title="<?= $asset_note_created_at ?>"><?= timeAgo($asset_note_created_at) ?></span>
+                                                &middot; <?= $note_by ?> &middot; <span title="<?= formatDateTime($asset_note_created_at) ?>"><?= timeAgo($asset_note_created_at) ?></span>
                                             </div>
                                             <div><?= $asset_note ?></div>
                                         </div>
@@ -1120,7 +1210,7 @@ if (mysqli_num_rows($sql) == 0) {
                                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                     </a>
                                                     <?php if ($can_delete) { ?>
-                                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset_note=<?= $asset_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_asset_note=<?= $asset_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                         </a>
                                                     <?php } ?>

@@ -65,11 +65,11 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a href="document.php?client_id=<?= $client_id ?>&document_id=<?= $document_id ?>" class="btn btn-primary text-bold"><i class="fas fa-arrow-right me-2"></i>Open document</a>
+    <a href="document.php?client_id=<?= $client_id ?>&document_id=<?= $document_id ?>" class="btn btn-primary fw-bold"><i class="fas fa-arrow-right me-2"></i>Open Document</a>
     <?php if ($can_edit && !$document_archived) { ?>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="xl" data-modal-url="modals/document/document_edit.php?id=<?= $document_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>

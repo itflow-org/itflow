@@ -48,6 +48,7 @@ if (!empty($client_id)) {
         $sql_quotes = mysqli_query($mysqli, "SELECT quote_id FROM quotes WHERE quote_client_id = $client_id");
         while ($quote_row = mysqli_fetch_assoc($sql_quotes)) {
             $quote_id = intval($quote_row['quote_id']);
+            quoteImagesDeleteFor("item_quote_id = $quote_id");
             mysqli_query($mysqli, "DELETE FROM quote_items WHERE item_quote_id = $quote_id");
         }
         mysqli_query($mysqli, "DELETE FROM quotes WHERE quote_client_id = $client_id");
@@ -75,7 +76,7 @@ if (!empty($client_id)) {
         mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_client_id = $client_id");
 
-        removeDirectory("../../uploads/clients/$client_id");
+        removeDirectory(__DIR__ . "/../../../uploads/clients/$client_id");
 
         $delete_sql = mysqli_query($mysqli, "DELETE FROM clients WHERE client_id = $client_id");
 

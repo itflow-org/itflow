@@ -25,9 +25,8 @@ $row = mysqli_fetch_assoc($sql_settings);
 // Company Settings
 $config_enable_cron = intval($row['config_enable_cron']);
 
-// Check cron is enabled
+// Check cron is enabled - switched off isn't an error, Maintenance > Cron shows why it stopped
 if ($config_enable_cron == 0) {
-    logApp("Cron-Domain-Refresher", "error", "Cron Domain Refresh unable to run - cron not enabled in admin settings.");
     cronJobStop("Cron: is not enabled -- Quitting..");
 }
 

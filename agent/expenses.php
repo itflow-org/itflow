@@ -107,6 +107,8 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
 
 ?>
 
+<?= expenseTabsHtml('expenses') ?>
+
 <!-- The spending -->
 <div class="row g-3 mb-3">
     <div class="col-sm-6 col-xl-3">
@@ -154,19 +156,19 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                 <?php if ($can_edit) { ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_add.php<?= $vendor_filter ? "?vendor_id=$vendor_filter" : '' ?>"><i class="fas fa-plus me-2"></i>New Expense</button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit) { ?>
-                        <a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement</a>
+                        <?php if (moduleOn('bookkeeping')) { ?><a class="dropdown-item" href="expense_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Statement</a><?php } ?>
                         <div class="dropdown-divider"></div>
                     <?php } ?>
                     <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/expense/expense_export.php', ['account', 'vendor', 'category', 'client', 'method', 'paid_by', 'recurring_expense_id', 'show', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
-                        <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
-                    <a class="dropdown-item" href="recurring_expenses.php"><i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Expenses</a>
+                    <a class="dropdown-item" href="recurring_expenses.php"><i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Expenses</a>
                     <?php if (reportCanOpen('expense_summary')) { ?>
-                        <a class="dropdown-item" href="reports/expense_summary.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Expenses Report</a>
+                        <a class="dropdown-item" href="reports/expense_summary.php"><i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Expenses Report</a>
                     <?php } ?>
                 </div>
             </div>
@@ -185,9 +187,9 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
             <div class="row g-2 align-items-center">
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search expenses" title="Vendor, description, reference, amount, client, category">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search expenses..." title="Vendor, description, reference, amount, client, category">
                         <button class="btn btn-outline-secondary <?= $more_filters ? 'active' : '' ?>" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#expenseMoreFilters"><i class="fas fa-filter"></i></button>
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -235,14 +237,14 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=category" data-bulk="true"><i class="fas fa-fw fa-list text-secondary me-2"></i>Set Category</a>
-                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=account" data-bulk="true"><i class="fas fa-fw fa-piggy-bank text-secondary me-2"></i>Set Account</a>
+                                    <?php if (moduleOn('bookkeeping')) { ?><a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=account" data-bulk="true"><i class="fas fa-fw fa-piggy-bank text-secondary me-2"></i>Set Account</a><?php } ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=method" data-bulk="true"><i class="fas fa-fw fa-credit-card text-secondary me-2"></i>Set Payment Method</a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=client" data-bulk="true"><i class="fas fa-fw fa-user text-secondary me-2"></i>Set Client</a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=billable" data-bulk="true"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Set Billable</a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_reimburse.php" data-bulk="true"><i class="fas fa-fw fa-hand-holding-usd text-secondary me-2"></i>Reimburse</a>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_delete.php" data-bulk="true"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
+                                        <a class="dropdown-item text-danger fw-bold ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_delete.php" data-bulk="true"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -252,9 +254,10 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
             </div>
             <div class="collapse <?= $more_filters ? 'show' : '' ?>" id="expenseMoreFilters">
                 <div class="row g-2 mt-0">
+                    <?php if (moduleOn('bookkeeping')) { // the account filter - with Bookkeeping on ?>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                             <select class="form-select select2" name="account" onchange="this.form.submit()" aria-label="Paid from">
                                 <option value="">- Any account -</option>
                                 <?php
@@ -266,9 +269,10 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                             </select>
                         </div>
                     </div>
+                    <?php } ?>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                             <select class="form-select select2" name="method" onchange="this.form.submit()" aria-label="Paid by">
                                 <option value="">- Any payment method -</option>
                                 <?php
@@ -333,12 +337,12 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                         </div>
                     </th>
                 <?php } ?>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=expense_date&order=<?= $disp ?>">Date <?php if ($sort == 'expense_date') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">Category <?php if ($sort == 'category_name') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=account_name&order=<?= $disp ?>">Paid from <?php if ($sort == 'account_name') { echo $order_icon; } ?></a></th>
-                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=expense_amount&order=<?= $disp ?>">Amount <?php if ($sort == 'expense_amount') { echo $order_icon; } ?></a></th>
+                <th><?= sortLink('expense_date', 'Date') ?></th>
+                <th><?= sortLink('vendor_name', 'Vendor') ?></th>
+                <th><?= sortLink('category_name', 'Category') ?></th>
+                <th><?= sortLink('client_name', 'Client') ?></th>
+                <th><?= sortLink('account_name', 'Paid from') ?></th>
+                <th class="text-end"><?= sortLink('expense_amount', 'Amount') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -358,9 +362,9 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                         </td>
                     <?php } ?>
                     <td class="text-nowrap">
-                        <a class="fw-semibold ajax-modal" href="#" <?= $row_open ?>><?= escapeHtml($row['expense_date']) ?></a>
+                        <a class="fw-semibold ajax-modal" href="#" <?= $row_open ?>><?= formatDate($row['expense_date']) ?></a>
                         <?php if ($row['expense_receipt']) { ?>
-                            <a class="text-success ms-1" href="expense_receipt.php?expense_id=<?= $expense_id ?>&amp;action=view" target="_blank" title="Open the receipt"><i class="fas fa-paperclip"></i></a>
+                            <a class="text-success ms-1" href="expense_receipt.php?expense_id=<?= $expense_id ?>&amp;action=view" target="_blank" rel="noopener" title="Open the receipt"><i class="fas fa-paperclip"></i></a>
                         <?php } ?>
                         <?php if (intval($row['expense_recurring_expense_id'])) { ?>
                             <a class="text-body-secondary small ms-1 ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense.php?id=<?= intval($row['expense_recurring_expense_id']) ?>" title="Recorded by a recurring expense"><i class="fas fa-redo-alt"></i></a>
@@ -395,7 +399,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                                 <div class="small text-warning-emphasis">To reimburse</div>
                             <?php } ?>
                         <?php } else { ?>
-                            <?= escapeHtml($row['account_name'] ?: '-') ?>
+                            <?= moduleOn('bookkeeping') ? escapeHtml($row['account_name'] ?: '-') : 'The business' ?>
                             <?php if ($row['expense_payment_method']) { ?><div class="small text-body-secondary"><?= escapeHtml($row['expense_payment_method']) ?></div><?php } ?>
                         <?php } ?>
                     </td>
@@ -415,14 +419,14 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                                 <?php if ($can_edit) { ?>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_edit.php?id=<?= $expense_id ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
-                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_copy.php?id=<?= $expense_id ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_copy.php?id=<?= $expense_id ?>"><i class="far fa-fw fa-copy text-secondary me-2"></i>Copy</a>
                                     <?php if ($row_amount > 0) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_refund.php?id=<?= $expense_id ?>"><i class="fas fa-fw fa-undo-alt text-secondary me-2"></i>Refund</a>
                                     <?php } ?>
                                 <?php } ?>
                                 <?php if ($can_delete) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_expense=<?= $expense_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_expense=<?= $expense_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= escapeHtml(expenseLabel($row)) ?> goes for good<?= $row['expense_receipt'] ? ', with its receipt' : '' ?>.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
@@ -454,10 +458,10 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
         'views' => ['show'],
         'view' => emptyStatePill($shows, $show, '', ['no_receipt', 'to_bill', 'to_reimburse']),
         'text' => 'What the business spends - enter them as they come, or bring in a bank or card statement.',
-        'actions' => $can_edit ? [
+        'actions' => $can_edit ? array_values(array_filter([
             ['label' => 'New Expense', 'modal' => 'modals/expense/expense_add.php' . ($vendor_filter ? "?vendor_id=$vendor_filter" : ''), 'size' => 'lg'],
             ['label' => 'Import Statement', 'href' => 'expense_import.php', 'icon' => 'fa-file-import'],
-        ] : [],
+        ], function ($action) { return moduleOn('bookkeeping') || ($action['href'] ?? '') !== 'expense_import.php'; })) : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>

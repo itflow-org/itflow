@@ -32,7 +32,4 @@ $mfa_secret_grouped = trim(chunk_split($mfa_secret, 4, ' '));
 <ol class="itflow-mfa-steps small text-start ps-3 mb-2" start="3">
     <li>Enter the 6-digit code it shows:</li>
 </ol>
-<div class="input-group">
-    <span class="input-group-text"><i class="fas fa-fw fa-mobile-alt"></i></span>
-    <input type="text" class="form-control form-control-lg font-monospace text-center itflow-mfa-code" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" name="verify_code" placeholder="000000" autocomplete="one-time-code" required>
-</div>
+<?= otpCodeInput('verify_code', ['submit' => true, 'autofocus' => true]) ?>

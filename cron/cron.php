@@ -191,6 +191,14 @@ function cronJobFinished($mysqli, string $job_name, string $status, ?float $dura
     }
 }
 
+// A restore is replacing the database (functions/backup_restore.php) - no job may write to tables
+// being replaced. The dispatch that runs the restore carries on; the ones that start meanwhile stop
+// here, and the first after it runs everything that came due.
+if (backupRestoreInProgress()) {
+    echo "Cron: a restore is running - nothing else runs until it's done.\n";
+    exit;
+}
+
 // Proof the crontab is firing, recorded before any job runs. Maintenance > Cron reads it to tell
 // "no job was due" apart from "nothing has run this since the server was rebuilt".
 mysqli_query($mysqli, "UPDATE settings SET config_cron_last_dispatch_at = '" . date('Y-m-d H:i:s') . "' WHERE company_id = 1");
@@ -270,9 +278,19 @@ foreach (cronJobRegistry() as $cron_dispatch_job) {
         require_once $cron_dispatch_path;
         cronJobFinished($mysqli, $cron_dispatch_job['name'], 'Completed', microtime(true) - $cron_dispatch_started);
     } catch (CronJobStopped $e) {
-        // The job ended itself early - disabled in settings, nothing configured, nothing to do
-        $reason = $e->getMessage();
-        cronJobFinished($mysqli, $cron_dispatch_job['name'], $reason === '' ? 'Stopped' : "Stopped: $reason", microtime(true) - $cron_dispatch_started);
+        // The job ended itself early - disabled in settings, nothing configured, nothing to do. One that
+        // stopped with an error code (the mail server turned it away, say) failed, and shows as Failed
+        $reason = trim($e->getMessage());
+        if ($e->getCode() !== 0) {
+            try {
+                logApp("Cron", "error", "Cron job {$cron_dispatch_job['name']} stopped with an error" . ($reason === '' ? '' : ": $reason"));
+            } catch (Throwable $log_e) {
+                // Logging the failure must never become a second, fatal failure
+            }
+            cronJobFinished($mysqli, $cron_dispatch_job['name'], 'Failed', microtime(true) - $cron_dispatch_started, $reason === '' ? 'Stopped with an error - see App Logs' : $reason);
+        } else {
+            cronJobFinished($mysqli, $cron_dispatch_job['name'], $reason === '' ? 'Stopped' : "Stopped: $reason", microtime(true) - $cron_dispatch_started);
+        }
     } catch (Throwable $e) {
         // One job throwing is not a reason to skip the rest of the cycle
         echo "Cron: job '{$cron_dispatch_job['name']}' failed - " . $e->getMessage() . "\n";

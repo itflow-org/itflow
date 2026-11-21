@@ -30,7 +30,7 @@ There is no `composer install` or `npm install` step. All third-party libraries 
 | `post/` (root) | **Shared** POST handlers (logout, misc). |
 | `modals/` (root) | **Shared** modals used by both agent and admin. |
 | `js/`, `css/` (root) | Shared front-end assets (portals also have their own). |
-| `libs/` | Vendored third-party libraries. Never edit these; update them wholesale. |
+| `libs/` | Vendored third-party libraries. Never edit these; update one by replacing its files with the new release's - only the files already there, as two are trimmed to what ITFlow uses: TinyMCE to the plugins and skins `js/app.js` and `js/portal.js` load, Font Awesome to its `.woff2` and `.woff` fonts. |
 | `setup/` | First-run installer. |
 | `scripts/` | Helper/utility scripts — `setup_cli.php`, `update_cli.php`, `restore_cli.php`. CLI only; the directory denies web access. |
  
@@ -282,7 +282,7 @@ One removed **variable** deserves its own warning: the old `$access_permission_q
 
 **Bulk vs. single actions.** If you change the behavior of a single action (e.g. resolving a ticket), check whether a `bulk_*` counterpart exists and update it too. They are currently parallel implementations and drift between them is a known bug source.
  
-**UI.** Bootstrap 4 / AdminLTE, modals per-module under `<portal>/modals/<module>/`, DataTables for lists, monospace styling for technical data (IPs, serials, keys) and proportional for human text. Match the page you're standing in.
+**UI.** Bootstrap 4 / AdminLTE, modals per-module under `<portal>/modals/<module>/`, list pages paginated and sorted on the server like Projects, monospace styling for technical data (IPs, serials, keys) and proportional for human text. Match the page you're standing in.
 
 **Scripts and stylesheets go through `staticFileUrl()`.** Every `<script src>` and `<link href>` to a file in ITFlow — `libs/` included — is written `src="<?= staticFileUrl('/js/app.js') ?>"`, with the address from the site root (`/agent/js/files.js`, not `js/files.js`). It adds `?v=` and the file's modification time, so an update changes the address of each file it changes and browsers fetch the new copy; ITFlow sends no caching headers for these files, and without it browsers went on using the old ones for days or weeks after an update, until someone cleared their cache. A plain `src="/js/app.js"` works on your machine and breaks for users on the next update. Files that a library fetches by itself need the library's own setting — TinyMCE's `cache_suffix`, set in `js/tinymce_defaults.js`.
 

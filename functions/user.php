@@ -56,6 +56,22 @@ function userMfaPill($token, $forced) {
     return '<span class="badge rounded-pill bg-danger-subtle text-danger-emphasis fw-normal" title="Password only"><i class="fas fa-unlock me-1"></i>No MFA</span>';
 }
 
+/** Whether the 4.0.0 update has run - user_settings.user_config_compact_rows. */
+function compactRowsReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '4.0.0', '>=');
+    }
+    return $ready;
+}
+
 /** One agent by id, with their settings and role - raw, or null. */
 function userRow($user_id) {
     global $mysqli;
@@ -65,7 +81,9 @@ function userRow($user_id) {
     }
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT users.user_id, user_name, user_email, user_auth_method, user_type, user_status, user_token, user_avatar,
             user_created_at, user_updated_at, user_archived_at, user_role_id, role_name, role_is_admin, role_archived_at,
-            user_config_force_mfa, user_config_calendar_first_day, user_config_theme_dark, user_config_records_per_page, user_config_signature
+            user_config_force_mfa, user_config_calendar_first_day, user_config_theme_dark, user_config_records_per_page, user_config_signature"
+            . (compactRowsReady() ? ', user_config_compact_rows' : '')
+            . (function_exists('calendarRemindersReady') && calendarRemindersReady() ? ', user_config_booking_reminder, user_config_reminder_email' : '') . "
         FROM users
         LEFT JOIN user_settings ON user_settings.user_id = users.user_id
         LEFT JOIN user_roles ON role_id = user_role_id
@@ -141,7 +159,7 @@ function selectOptionRole($role) {
 function userActiveAdminCount($except_user_id = 0) {
     global $mysqli;
     return intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM users JOIN user_roles ON role_id = user_role_id
-        WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL AND role_is_admin = 1 AND user_id <> " . intval($except_user_id)))[0]);
+        WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL AND role_is_admin = 1 AND user_id <> " . intval($except_user_id)))[0]);
 }
 
 /** Would taking this agent out of the admins (a new role, disabled, archived) leave nobody to run the place? */
@@ -219,6 +237,26 @@ function userSetPassword($user_id, $password) {
  */
 function userSessionStamp($password_hash) {
     return hash('sha256', 'itflow-session|' . (string) $password_hash);
+}
+
+/*
+ * The agent signed in to ITFlow in this browser - their user id, or 0. For the pages anyone with
+ * the link can open (guest/), to tell an agent looking - View as Client - from the client. Their
+ * session counts only as an agent page would take it (includes/load_user_session.php): an active
+ * agent, whose password hasn't changed since.
+ */
+function userSignedInAgent() {
+    global $mysqli;
+    if (session_status() !== PHP_SESSION_ACTIVE || empty($_SESSION['logged']) || !intval($_SESSION['user_id'] ?? 0)) {
+        return 0;
+    }
+    $user_id = intval($_SESSION['user_id']);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_password FROM users
+        WHERE user_id = $user_id AND user_type = 1 AND user_status = 1 AND user_archived_at IS NULL LIMIT 1"));
+    if (!$row || !hash_equals(userSessionStamp($row['user_password']), (string) ($_SESSION['user_session_stamp'] ?? ''))) {
+        return 0;
+    }
+    return $user_id;
 }
 
 /**
@@ -399,7 +437,7 @@ function userLoginLineHtml($log) {
     }
     return '<div class="d-flex gap-2 align-items-start">'
         . '<i class="fas fa-fw ' . ($ok ? 'fa-check-circle text-success' : 'fa-times-circle text-danger') . ' mt-1" title="' . escapeHtml($log['log_action']) . '"></i>'
-        . '<div class="min-w-0"><span title="' . escapeHtml($log['log_created_at']) . '">' . escapeHtml(timeAgo($log['log_created_at'])) . '</span>'
+        . '<div class="min-w-0"><span title="' . formatDateTime($log['log_created_at']) . '">' . escapeHtml(timeAgo($log['log_created_at'])) . '</span>'
         . ($ok ? '' : ' <span class="text-danger-emphasis">' . escapeHtml($why) . '</span>')
         . '<div class="small text-body-secondary">' . userDeviceHtml($log['log_user_agent']) . ' · <span class="font-monospace">' . escapeHtml($log['log_ip']) . '</span></div></div>'
         . '</div>';
@@ -464,7 +502,7 @@ function userLoginHtml($log, $with_ip = true) {
     if (!$log) {
         return '<span class="text-body-secondary">Never signed in</span>';
     }
-    return '<span title="' . escapeHtml($log['log_created_at']) . '">' . escapeHtml(timeAgo($log['log_created_at'])) . '</span>'
+    return '<span title="' . formatDateTime($log['log_created_at']) . '">' . escapeHtml(timeAgo($log['log_created_at'])) . '</span>'
         . '<div class="small text-body-secondary text-nowrap">' . userDeviceHtml($log['log_user_agent'])
         . ($with_ip ? ' · <span class="font-monospace">' . escapeHtml($log['log_ip']) . '</span>' : '') . '</div>';
 }
@@ -476,18 +514,41 @@ function userLoginHtml($log, $with_ip = true) {
  */
 function userMfaQrSvg($secret, $email) {
     global $config_app_name;
-    // libs/barcode/barcode.php stops the page outright without GD - then it is the secret to type in
-    if (!extension_loaded('gd')) {
-        return '';
-    }
-    require_once dirname(__DIR__) . '/libs/barcode/barcode.php';
     $issuer = (string) ($config_app_name ?: 'ITFlow');
     $uri = 'otpauth://totp/' . rawurlencode($issuer) . ':' . rawurlencode((string) $email) . '?secret=' . rawurlencode((string) $secret) . '&issuer=' . rawurlencode($issuer);
-    $generator = new barcode_generator();
-    $svg = $generator->render_svg('qr', $uri, ['w' => 200, 'h' => 200, 'p' => 0]);
-    // Shown inline in the page, not as an image - the XML prolog has to go, and it scales with its box
-    $svg = preg_replace('/^<\?xml[^>]*>\s*/', '', (string) $svg);
-    return preg_replace('/<svg /', '<svg class="itflow-mfa-qr" role="img" aria-label="QR code for your authenticator app" ', $svg, 1);
+    return qrCodeSvg($uri, 'class="itflow-mfa-qr" role="img" aria-label="QR code for your authenticator app"');
+}
+
+/**
+ * A 6-digit code, typed into six boxes - signing in with MFA, setting it up,
+ * and share codes. The one field under the boxes is what the form sends and
+ * what phones and password managers fill in; js/otp_input.js draws the boxes
+ * over it (a plain field without it). $options: id, label (its accessible
+ * name), class (on the wrapper), autofocus, submit (send the form once the
+ * sixth digit is in), invalid (a code that was just wrong - the boxes go red).
+ */
+function otpCodeInput($name, array $options = []) {
+    $attrs = [
+        'type' => 'text',
+        'class' => 'form-control form-control-lg font-monospace text-center itflow-otp-input' . (empty($options['invalid']) ? '' : ' is-invalid'),
+        'name' => $name,
+        'id' => $options['id'] ?? '',
+        'inputmode' => 'numeric',
+        'pattern' => '[0-9]{6}',
+        'minlength' => '6',
+        'maxlength' => '6',
+        'autocomplete' => 'one-time-code',
+        'placeholder' => '000000',
+        'aria-label' => $options['label'] ?? '6-digit code',
+    ];
+    $html = '<input';
+    foreach ($attrs as $attr => $value) {
+        if ($value !== '') {
+            $html .= ' ' . $attr . '="' . escapeHtml($value) . '"';
+        }
+    }
+    $html .= ' required data-otp' . (empty($options['submit']) ? '' : ' data-otp-submit') . (empty($options['autofocus']) ? '' : ' autofocus') . '>';
+    return '<div class="itflow-otp' . (empty($options['class']) ? '' : ' ' . escapeHtml($options['class'])) . '">' . $html . '</div>';
 }
 
 /** An agent's work not finished - [tickets not closed, recurring tickets] assigned to them. */
@@ -567,7 +628,7 @@ function userMailSignInAlert($name, $email, $kind, $ip, $user_agent) {
             'intro' => [$mfa
                 ? "Someone signed in to your $app account with your password, but the multi-factor code was wrong, so they were stopped."
                 : "Someone signed in to your $app account from a device and address it hasn't seen before. If that was you, there is nothing to do."],
-            'summary' => ['When' => date('D j M Y, g:i A'), 'Device' => $device !== '' ? $device : 'Unknown device', 'IP address' => (string) $ip],
+            'summary' => ['When' => date('D, M j, Y g:i A'), 'Device' => $device !== '' ? $device : 'Unknown device', 'IP address' => (string) $ip],
             'callout' => $mfa ? 'If that was not you, your password is known to someone else - change it now.' : 'If that was not you, change your password now and tell your administrator.',
             'button' => ['label' => 'Review your sign in security', 'url' => "https://$config_base_url/agent/user/user_security.php"],
         ]);

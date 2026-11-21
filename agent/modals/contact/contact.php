@@ -19,7 +19,7 @@ enforceUserPermission('module_client');
 $contact_id = intval($_GET['id'] ?? 0);
 
 $contact_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_archived_at, contact_billing, contact_client_id, contact_department,
-    contact_email, contact_extension, contact_id, contact_important, contact_location_id, contact_mobile, contact_mobile_country_code,
+    contact_email, " . contactBounceColumns() . ", contact_extension, contact_id, contact_important, contact_location_id, contact_mobile, contact_mobile_country_code,
     contact_name, contact_notes, contact_phone, contact_phone_country_code, contact_photo, contact_pin, contact_primary, contact_technical,
     contact_title, contact_user_id, location_archived_at, location_name, user_auth_method
     FROM contacts
@@ -167,6 +167,7 @@ ob_start();
                 <?php } ?>
                 <?php if ($contact_email) { ?>
                     <a class="btn btn-sm btn-outline-primary" href="mailto:<?= $contact_email ?>"><i class="far fa-envelope me-1"></i>Email</a>
+                    <?= contactBounceBadge($contact_row) ?>
                 <?php } ?>
             </div>
         </div>
@@ -234,7 +235,7 @@ ob_start();
                 <?php foreach ($quick_tabs as $tab_key => $tab) { ?>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link text-nowrap <?= $tab_key === $first_tab ? 'active' : '' ?>" data-bs-toggle="pill" data-bs-target="#contact-quick-<?= $contact_id ?>-<?= $tab_key ?>" data-contact-quick-tab="<?= $tab_key ?>" type="button" role="tab">
-                            <?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                            <?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                             <?php if (!empty($tab['badge'])) { ?><span class="badge rounded-pill text-bg-danger" title="Open"><?= intval($tab['badge']) ?> open</span><?php } ?>
                         </button>
                     </li>
@@ -332,7 +333,7 @@ ob_start();
                                     <i class="fas fa-fw <?= $note_icon ?> text-secondary mt-1" title="<?= escapeHtml($row['contact_note_type']) ?>"></i>
                                     <div class="min-w-0">
                                         <div><?= nl2br(escapeHtml($row['contact_note'])) ?></div>
-                                        <div class="small text-body-secondary"><?= escapeHtml($row['user_name']) ?> &middot; <span title="<?= escapeHtml($row['contact_note_created_at']) ?>"><?= timeAgo($row['contact_note_created_at']) ?></span></div>
+                                        <div class="small text-body-secondary"><?= escapeHtml($row['user_name']) ?> &middot; <span title="<?= formatDateTime($row['contact_note_created_at']) ?>"><?= timeAgo($row['contact_note_created_at']) ?></span></div>
                                     </div>
                                 </li>
                             <?php } ?>
@@ -347,11 +348,11 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a href="contact.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>" class="btn btn-primary text-bold"><i class="fas fa-arrow-right me-2"></i>Open contact</a>
+    <a href="contact.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>" class="btn btn-primary fw-bold"><i class="fas fa-arrow-right me-2"></i>Open Contact</a>
     <?php if ($can_edit) { ?>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>"><i class="fas fa-user-edit me-2"></i>Edit</button>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <script>

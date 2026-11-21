@@ -27,7 +27,7 @@ if (empty($client_top_head_skip)) {
     $client_head_glance_tickets = $client_head_support && $num_active_tickets > 0;
     $client_head_glance_due = $client_head_billing && $balance > 0;
     $client_head_money = function ($amount) use ($currency_format, $client_currency_code, $session_company_currency) {
-        return numfmt_format_currency($currency_format, floatval($amount), $client_currency_code ?: $session_company_currency);
+        return billingMoney(floatval($amount), $client_currency_code ?: $session_company_currency);
     };
     ?>
 
@@ -47,7 +47,8 @@ if (empty($client_top_head_skip)) {
             <?php if (!empty($config_module_enable_accounting) && ($client_head_tax = taxClient($client_id))['exempt']) { ?>
                 <span class="badge rounded-pill fw-normal <?= $client_head_tax['expired'] ? 'bg-warning-subtle text-warning-emphasis' : 'bg-success-subtle text-success-emphasis' ?>" title="<?= escapeHtml(taxExemptText($client_head_tax)) ?>"><?= $client_head_tax['expired'] ? 'Tax exempt - certificate expired' : 'Tax exempt' ?></span>
             <?php } ?>
-            <?= tagPills('client', $client_id, $client_tags) ?>
+            <?php // Its tags only - the + to change them is on the client's overview and the clients list ?>
+            <?= tagPills('client', $client_id, $client_tags, '', false) ?>
 
             <?php /* Open tickets and balance due, always in sight */ ?>
             <?php if ($client_head_glance_tickets || $client_head_glance_due) { ?>

@@ -21,7 +21,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-upload me-2"></i>Import IP Addresses</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -35,11 +35,11 @@ ob_start();
             <input type="file" class="form-control" name="file" accept=".csv" required>
         </div>
         <hr>
-        <div>Download: <a class="text-bold" href="post.php?download_network_ips_csv_template=<?= $network_id ?>">sample csv template</a></div>
+        <div>Download: <a class="fw-bold" href="post.php?download_network_ips_csv_template=<?= $network_id ?>">sample csv template</a></div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="import_network_ips_csv" class="btn btn-primary text-bold"><i class="fa fa-upload me-2"></i>Import</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="import_network_ips_csv" class="btn btn-primary fw-bold"><i class="fas fa-upload me-2"></i>Import</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

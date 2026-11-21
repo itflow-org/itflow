@@ -47,6 +47,8 @@ const EMAIL_REPLY_MARKER = '##- Please type your reply above this line -##';
  *            each item ['by', 'org', 'action', 'when', 'text' => plain text, 'client' => true for
  *            the client's side] or ['gap' => how many are left out here] (ticketEmailHistory())
  *   contact  the foot's contact line, in place of the company's phone, email and website
+ *   office   ['address', 'contact'] - the foot of another office (officeTicketFoot()), in place
+ *            of the company's address and contact line; null for the company's own
  *   footnote a line under the card - why they got it
  */
 function emailHtml(array $email) {
@@ -171,12 +173,13 @@ function emailHtml(array $email) {
             . $items . '</div>';
     }
 
-    $contact = array_key_exists('contact', $email)
+    $office = is_array($email['office'] ?? null) ? $email['office'] : null;
+    $contact = $office ? (string) ($office['contact'] ?? '') : (array_key_exists('contact', $email)
         ? (string) $email['contact']
-        : implode('  ·  ', array_filter([$company['phone_display'] ?? '', $company['company_email'] ?? '', $company['company_website'] ?? '']));
+        : implode('  ·  ', array_filter([$company['phone_display'] ?? '', $company['company_email'] ?? '', $company['company_website'] ?? ''])));
     $foot = array_filter([
         $company_name,
-        formatAddress($company['company_address'] ?? '', $company['company_city'] ?? '', $company['company_state'] ?? '', $company['company_zip'] ?? '', $company['company_country'] ?? '', ', '),
+        $office ? (string) ($office['address'] ?? '') : formatAddress($company['company_address'] ?? '', $company['company_city'] ?? '', $company['company_state'] ?? '', $company['company_zip'] ?? '', $company['company_country'] ?? '', ', '),
         $contact,
     ]);
 
@@ -295,11 +298,18 @@ function emailMessageHtml($html) {
     $html = documentHtmlPurify($html);
     if (!empty($config_base_url)) {
         $base = 'https://' . $config_base_url;
-        $html = preg_replace('/\b(src|href)="\/(?!\/)/i', '$1="' . $base . '/', $html);
+        $html = preg_replace('/\b(src|href)="\/(?!\/)/i', '$1="' . $base . '/', $html) ?? $html;
     }
-    // Images no wider than the card, paragraphs closer together than a mail program's default
-    $html = preg_replace('/<img\b(?![^>]*\bstyle=)/i', '<img style="max-width:100%;height:auto;"', $html);
-    return preg_replace('/<p(?=[\s>])(?![^>]*\bstyle=)/i', '<p style="margin:0 0 10px;"', $html);
+    // Images no wider than the card, paragraphs closer together than a mail program's default - a
+    // tag at a time. A lookahead across the tag ran out of PCRE's backtracking (pcre.backtrack_limit,
+    // a million) on a pasted picture of 750 KB or more, whose data is that long, and the whole
+    // message was lost
+    return preg_replace_callback('/<(img|p)\b([^>]*)>/i', function ($m) {
+        if (preg_match('/\sstyle\s*=/i', $m[2])) {
+            return $m[0];
+        }
+        return '<' . $m[1] . ' style="' . (strtolower($m[1]) === 'img' ? 'max-width:100%;height:auto;' : 'margin:0 0 10px;') . '"' . $m[2] . '>';
+    }, $html) ?? $html;
 }
 
 /*
@@ -329,6 +339,113 @@ function emailPlainText($html, $limit = 0) {
     return $text;
 }
 
+/*
+ * What someone wrote in an email reply to a ticket, without the email of ours
+ * they are answering - HTML in and out, for cron/ticket_email_parser.php.
+ * Usually that is everything above EMAIL_REPLY_MARKER. When nothing they
+ * wrote is above it - they typed below the line, or their mail program puts
+ * a reply under the email it quotes - it is what follows the quote: after the
+ * blockquote the line is in, or, in a plain text reply, the lines not quoted
+ * with ">". Words on both sides are both kept. When none of that has
+ * anything - they typed into the quote, where their words can't be told from
+ * ours, or wrote nothing - the whole email is kept, with a note saying so,
+ * rather than nothing.
+ */
+function emailReplyText($html) {
+    $html = (string) $html;
+    if (!preg_match('/(?:<i\b[^>]*>\s*)?(?:&gt;\s*)*##-\s*Please\s+type\s+your\s+reply\s+above\s+this\s+line\s*-##(?:\s*<\/i>)?/is', $html, $m, PREG_OFFSET_CAPTURE)) {
+        return $html;
+    }
+    $above = substr($html, 0, $m[0][1]);
+    $below = substr($html, $m[0][1] + strlen($m[0][0]));
+
+    // What follows the quote the line is in
+    $after = '';
+    $open = preg_match_all('/<blockquote\b/i', $above) - preg_match_all('/<\/blockquote\s*>/i', $above);
+    if ($open > 0 && preg_match_all('/<(\/?)blockquote\b[^>]*>/i', $below, $tags, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
+        foreach ($tags as $tag) {
+            $open += $tag[1][0] === '/' ? -1 : 1;
+            if ($open === 0) {
+                $after = substr($below, $tag[0][1] + strlen($tag[0][0]));
+                break;
+            }
+        }
+    } elseif (strpos($m[0][0], '&gt;') !== false) {
+        // A plain text reply quoting the line with ">" - its lines that aren't quoted
+        $lines = preg_split('/<br\s*\/?>\s*|\r\n|\n|\r/i', $below);
+        $after = implode('<br>', array_filter($lines, function ($line) {
+            return !preg_match('/^\s*(&gt;|>)/', strip_tags($line));
+        }));
+    }
+
+    $kept = array_values(array_filter([emailReplyHasText($above) ? $above : '', emailReplyHasText($after) ? $after : '']));
+    if ($kept) {
+        return implode('<br><br>', $kept);
+    }
+    return '<p><i>Nothing was written above the reply line, so here is the whole email, in case they wrote into it:</i></p>' . $above . $below;
+}
+
+/*
+ * Whether HTML from an email reply has anything someone wrote in it - not
+ * just what mail programs put around a quote: who wrote it and when ("On ...
+ * wrote:"), Outlook's From, Sent, To and Subject, "Original Message", lines
+ * quoted with ">", "Sent from my iPhone". A picture counts.
+ */
+function emailReplyHasText($html) {
+    $text = emailPlainText($html);
+    $text = preg_replace([
+        '/\bOn\b[^\n]{0,200}(?:\n[^\n]{0,200}){0,2}?\bwrote:/iu',
+        '/^\s*-+\s*Original Message\s*-+\s*$/imu',
+        '/^\s*(From|Sent|Date|To|Cc|Subject)\s*:.*$/imu',
+        '/^\s*Sent from my\b.*$/imu',
+        '/^\s*>.*$/mu',
+    ], '', $text) ?? $text;
+    return trim((string) preg_replace('/[\s\x{00A0}\x{200B}]+/u', '', $text)) !== '';
+}
+
+/*
+ * The pictures in an email's HTML as data - pasted into a ticket reply, say - taken out to files
+ * the mail queue attaches inline, each <img> pointing at its cid: instead. Gmail, among others,
+ * shows no picture carried as data, and the queue keeps each picture once rather than a copy in
+ * every email. [html, [['path', 'name', 'cid'], ...]]. A tag at a time, as a scan through a
+ * large picture's data runs out of PCRE's backtracking (emailMessageHtml()); a picture that isn't
+ * one, or can't be saved, stays as it was.
+ */
+function emailInlineImages($html) {
+    $images = [];
+    $html = (string) $html;
+    if (stripos($html, 'data:image/') === false) {
+        return [$html, []];
+    }
+    $types = [IMAGETYPE_PNG => 'png', IMAGETYPE_JPEG => 'jpg', IMAGETYPE_GIF => 'gif', IMAGETYPE_WEBP => 'webp'];
+    $out = preg_replace_callback('/<img\b[^>]*>/i', function ($tag) use (&$images, $types) {
+        if (!preg_match('/\ssrc\s*=\s*(["\'])data:image\/[a-z+.-]+;base64,([A-Za-z0-9+\/=\s]+)\1/i', $tag[0], $m)) {
+            return $tag[0];
+        }
+        $data = base64_decode(preg_replace('/\s+/', '', $m[2]), true);
+        $info = $data !== false ? @getimagesizefromstring($data) : false;
+        $ext = $info ? ($types[$info[2]] ?? '') : '';
+        if ($ext === '') {
+            return $tag[0];
+        }
+        $hash = hash('sha256', $data);
+        $path = MAIL_QUEUE_IMAGE_DIR . "/$hash.$ext";
+        $file = dirname(__DIR__) . '/' . $path;
+        if (!is_file($file)) {
+            if (!is_dir(dirname($file))) {
+                @mkdir(dirname($file), 0775, true);
+            }
+            if (@file_put_contents($file, $data) === false) {
+                return $tag[0];
+            }
+        }
+        $cid = substr($hash, 0, 32) . '@itflow';
+        $images[$cid] = ['path' => $path, 'name' => 'picture-' . substr($hash, 0, 8) . ".$ext", 'cid' => $cid];
+        return str_replace($m[0], ' src=' . $m[1] . 'cid:' . $cid . $m[1], $tag[0]);
+    }, $html);
+    return $out === null ? [$html, []] : [$out, array_values($images)];
+}
+
 /**
  * Queue an email - one per recipient, each greeted by name, each address once.
  * $recipients: [['email' => ..., 'name' => ..., 'greet' => name to greet (or
@@ -343,6 +460,9 @@ function emailPlainText($html, $limit = 0) {
  *   ticket_reply_id  the agent's ticket reply it carries - kept with each email
  *                (email_queue.email_ticket_reply_id), so the conversation says who
  *                it went to and whether it went (ticketReplyEmailed())
+ *   sensitive    it carries a link or code that opens something - a shared login, an
+ *                invite, a password link, a signing or approval link - so the mail queue
+ *                clears what it said once it has gone (email_queue.email_sensitive)
  * Who it was queued to, "Name (email)". Nothing is queued without mail set up.
  */
 function emailQueue(array $recipients, $subject, array $email, array $opts = []) {
@@ -370,6 +490,8 @@ function emailQueue(array $recipients, $subject, array $email, array $opts = [])
                 'subject' => (string) $subject, 'html' => $html, 'attachments' => $attachments, 'cal_str' => (string) ($opts['cal_str'] ?? '')];
             continue;
         }
+        // Its pictures attached inline, not carried as data
+        [$html, $images] = emailInlineImages($html);
         $data[] = [
             'from' => mysqli_real_escape_string($mysqli, (string) $from['email']),
             'from_name' => mysqli_real_escape_string($mysqli, (string) $from['name']),
@@ -377,10 +499,11 @@ function emailQueue(array $recipients, $subject, array $email, array $opts = [])
             'recipient_name' => mysqli_real_escape_string($mysqli, $name !== '' ? $name : $address),
             'subject' => mysqli_real_escape_string($mysqli, (string) $subject),
             'body' => mysqli_real_escape_string($mysqli, $html),
-            'attachments' => $attachments,
+            'attachments' => array_merge($attachments, $images),
         ] + (!empty($opts['cal_str']) ? ['cal_str' => (string) $opts['cal_str']] : [])
           + ($queued_at !== '' ? ['queued_at' => $queued_at] : [])
-          + (intval($opts['ticket_reply_id'] ?? 0) > 0 && ticketReplyEmailReady() ? ['ticket_reply_id' => intval($opts['ticket_reply_id'])] : []);
+          + (intval($opts['ticket_reply_id'] ?? 0) > 0 && ticketReplyEmailReady() ? ['ticket_reply_id' => intval($opts['ticket_reply_id'])] : [])
+          + (!empty($opts['sensitive']) ? ['sensitive' => 1] : []);
     }
     if ($data) {
         addToMailQueue($data);
@@ -396,7 +519,7 @@ function emailTestSend($to, $mailbox) {
         'kind' => 'Test', 'tone' => 'success', 'preview' => "A test from $which",
         'title' => 'Mail is working',
         'intro' => ["This is a test email from ITFlow, sent from $which. If you are reading this, it worked."],
-        'summary' => ['From' => trim($box['name'] . ' <' . $box['email'] . '>'), 'To' => trim((string) $to), 'Sent' => date('D j M Y, g:i A')],
+        'summary' => ['From' => trim($box['name'] . ' <' . $box['email'] . '>'), 'To' => trim((string) $to), 'Sent' => date('D, M j, Y g:i A')],
     ], ['from' => ['email' => $box['email'], 'name' => $box['name']]]);
 }
 
@@ -431,7 +554,7 @@ function emailBulkPost(array $recipients, $picked) {
         flashAlert('None of them has an email address, so nothing was sent', 'error');
         redirect();
     }
-    $later = $queued_at !== '' && strtotime($queued_at) > time() ? ' to go ' . date('M j \a\t g:i A', strtotime($queued_at)) : '';
+    $later = $queued_at !== '' && strtotime($queued_at) > time() ? ' to go ' . date('M j, Y g:i A', strtotime($queued_at)) : '';
     logAudit("Bulk Mail", "Send", "$session_name sent " . escapeSql($subject) . " to $count " . ($count === 1 ? 'contact' : 'contacts') . " via bulk mail" . ($later !== '' ? escapeSql($later) : ''));
     $left_out = max(0, intval($picked) - $count);
     flashAlert("<strong>$count</strong> email" . ($count === 1 ? '' : 's') . " queued$later" . ($left_out ? " - $left_out left out with no email address, or the same one" : ''));

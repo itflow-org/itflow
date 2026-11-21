@@ -46,9 +46,9 @@ $c_max = $c_config['max'] ?? 200;
         <div class="mb-3">
             <label class="form-label">For <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                <select class="form-select" name="type" required>
-                    <option value="">- What it sorts -</option>
+                <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
+                <select class="form-select select2" name="type" required>
+                    <option value="">- Select a type -</option>
                     <?php foreach (categoryKinds() as $kind_key => $kind_config) { ?>
                         <option value="<?= escapeHtml($kind_key) ?>"><?= escapeHtml(ucfirst($kind_config['many'])) ?></option>
                     <?php } ?>
@@ -62,7 +62,7 @@ $c_max = $c_config['max'] ?? 200;
     <div class="mb-3">
         <label class="form-label">Name <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-list-ul"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-list-ul"></i></span>
             <input type="text" class="form-control" name="name" maxlength="<?= $c_max ?>" placeholder="<?= escapeHtml(ucfirst($c_config['one'] ?? 'category')) ?> name" value="<?= escapeHtml($c['category_name'] ?? '') ?>" required<?= $c ? '' : ' autofocus' ?> data-category-name>
         </div>
         <?php if ($c && $c_config && $c_config['by'] === 'name' && $c_used['all']) { ?>
@@ -73,7 +73,7 @@ $c_max = $c_config['max'] ?? 200;
     <div class="mb-3">
         <label class="form-label">Description</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
             <input type="text" class="form-control" name="description" maxlength="255" placeholder="What it's for, and when to use it" value="<?= escapeHtml($c['category_description'] ?? '') ?>">
         </div>
     </div>
@@ -89,7 +89,7 @@ $c_max = $c_config['max'] ?? 200;
                 <?php } ?>
             </div>
             <div class="input-group input-group-sm w-auto" title="Any other color">
-                <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-paint-brush"></i></span>
                 <input type="color" class="form-control form-control-color" value="<?= $c_color ?: '#6c757d' ?>" aria-label="Custom color" data-category-color-pick>
                 <input type="text" class="form-control font-monospace" style="width: 6rem" maxlength="7" value="<?= $c_color ?>" placeholder="None" pattern="#?[0-9a-fA-F]{6}" aria-label="Color as hex" data-category-color-hex>
             </div>
@@ -100,7 +100,7 @@ $c_max = $c_config['max'] ?? 200;
         <label class="form-label">Icon</label>
         <input type="hidden" name="icon" value="<?= $c_icon ?>" data-category-icon>
         <div class="input-group mb-2">
-            <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
             <input type="search" class="form-control" placeholder="Search icons - or type any Font Awesome icon's name" aria-label="Search icons" data-category-icon-search>
         </div>
         <div class="itflow-tag-icons border rounded p-1" role="group" aria-label="Icons" data-category-icons>
@@ -112,7 +112,7 @@ $c_max = $c_config['max'] ?? 200;
             <div class="small text-secondary p-2" data-category-icon-none hidden>No icon by that name here - type its whole name to use it</div>
         </div>
         <?php if ($kind === 'asset_status') { ?>
-            <small class="text-secondary">Asset statuses show as a badge in their color - the icon shows in the status picker.</small>
+            <div class="form-text">Asset statuses show as a badge in their color - the icon shows in the status picker.</div>
         <?php } ?>
     </div>
 </div>

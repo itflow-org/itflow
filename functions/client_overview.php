@@ -50,7 +50,7 @@ function clientOverviewAttention($client_id, $access, $renewals) {
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE $open AND ticket_assigned_to = 0"),
-            'label' => 'Unassigned tickets', 'icon' => 'user-slash', 'tone' => 'warning',
+            'label' => 'Unassigned tickets', 'one' => 'Unassigned ticket', 'icon' => 'user-slash', 'tone' => 'warning',
             'url' => "/agent/tickets.php?client_id=$client_id&assigned=unassigned",
         ];
         $items[] = [
@@ -61,7 +61,7 @@ function clientOverviewAttention($client_id, $access, $renewals) {
         // The same rule as projects.php?show=overdue
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(project_id) FROM projects WHERE project_client_id = $client_id AND " . projectViews()['overdue']['where']),
-            'label' => 'Overdue projects', 'icon' => 'project-diagram', 'tone' => 'danger',
+            'label' => 'Overdue projects', 'one' => 'Overdue project', 'icon' => 'project-diagram', 'tone' => 'danger',
             'url' => "/agent/projects.php?client_id=$client_id&show=overdue",
         ];
     }
@@ -73,7 +73,7 @@ function clientOverviewAttention($client_id, $access, $renewals) {
             - dashboardSum("SELECT SUM(payment_amount) FROM payments JOIN invoices ON payment_invoice_id = invoice_id WHERE $overdue_where");
         $items[] = [
             'count' => $overdue_count,
-            'label' => 'Overdue invoices', 'icon' => 'file-invoice-dollar', 'tone' => 'danger',
+            'label' => 'Overdue invoices', 'one' => 'Overdue invoice', 'icon' => 'file-invoice-dollar', 'tone' => 'danger',
             'detail' => $overdue_count ? dashboardMoney($overdue_amount) . ' outstanding' : null,
             'url' => "/agent/invoices.php?client_id=$client_id&status=Overdue",
         ];
@@ -82,13 +82,13 @@ function clientOverviewAttention($client_id, $access, $renewals) {
             $soon = contractViews()['soon']['where'];
             $items[] = [
                 'count' => dashboardCount("SELECT COUNT(contract_id) FROM contracts WHERE contract_client_id = $client_id AND contract_archived_at IS NULL AND $soon AND contract_auto_renew = 0"),
-                'label' => 'Contracts ending', 'icon' => 'file-contract', 'tone' => 'warning',
+                'label' => 'Contracts ending', 'one' => 'Contract ending', 'icon' => 'file-contract', 'tone' => 'warning',
                 'detail' => "They don't renew themselves",
                 'url' => "/agent/contracts.php?client_id=$client_id&show=soon",
             ];
             $items[] = [
                 'count' => dashboardCount("SELECT COUNT(contract_id) FROM contracts WHERE contract_client_id = $client_id AND contract_archived_at IS NULL AND $soon AND contract_auto_renew = 1"),
-                'label' => 'Contracts renewing', 'icon' => 'sync-alt', 'tone' => 'info',
+                'label' => 'Contracts renewing', 'one' => 'Contract renewing', 'icon' => 'sync-alt', 'tone' => 'info',
                 'detail' => 'Time to review them with the client',
                 'url' => "/agent/contracts.php?client_id=$client_id&show=soon",
             ];
@@ -104,14 +104,14 @@ function clientOverviewAttention($client_id, $access, $renewals) {
             $to_bill = expenseUnbilledCount($client_id);
             $items[] = [
                 'count' => $to_bill['count'],
-                'label' => 'Expenses to bill', 'icon' => 'shopping-cart', 'tone' => 'info',
+                'label' => 'Expenses to bill', 'one' => 'Expense to bill', 'icon' => 'shopping-cart', 'tone' => 'info',
                 'detail' => $to_bill['count'] ? dashboardMoney($to_bill['value']) . ' to bill on' : null,
                 'url' => "/agent/unbilled_time.php?client_id=$client_id",
             ];
             $trips_to_bill = tripUnbilledCount($client_id);
             $items[] = [
                 'count' => $trips_to_bill['count'],
-                'label' => 'Trips to bill', 'icon' => 'route', 'tone' => 'info',
+                'label' => 'Trips to bill', 'one' => 'Trip to bill', 'icon' => 'route', 'tone' => 'info',
                 'detail' => $trips_to_bill['count'] ? dashboardMoney($trips_to_bill['value']) . ' of travel' : null,
                 'url' => "/agent/unbilled_time.php?client_id=$client_id",
             ];
@@ -123,14 +123,14 @@ function clientOverviewAttention($client_id, $access, $renewals) {
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(software_id) FROM software WHERE software_client_id = $client_id AND software_archived_at IS NULL
                 AND " . softwareStatusFilters()['over']['sql']),
-            'label' => 'Licenses over seats', 'icon' => 'cube', 'tone' => 'danger',
+            'label' => 'Licenses over seats', 'one' => 'License over seats', 'icon' => 'cube', 'tone' => 'danger',
             'url' => "/agent/software.php?client_id=$client_id&status=over",
         ];
         // What the last check of a host found wrong - the same rule as certificates.php?show=problems
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(certificate_id) FROM certificates WHERE certificate_client_id = $client_id AND certificate_archived_at IS NULL
                 AND " . certificateProblemSql()),
-            'label' => 'Certificate problems', 'icon' => 'lock', 'tone' => 'warning',
+            'label' => 'Certificate problems', 'one' => 'Certificate problem', 'icon' => 'lock', 'tone' => 'warning',
             'detail' => 'Name mismatch, untrusted, expired or unreachable',
             'url' => "/agent/certificates.php?client_id=$client_id&show=problems",
         ];
@@ -138,34 +138,34 @@ function clientOverviewAttention($client_id, $access, $renewals) {
         $service_views = serviceViews();
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(service_id) FROM services WHERE service_client_id = $client_id AND " . $service_views['attention']['where']),
-            'label' => 'Services needing attention', 'icon' => 'stream', 'tone' => 'danger',
+            'label' => 'Services needing attention', 'one' => 'Service needing attention', 'icon' => 'stream', 'tone' => 'danger',
             'detail' => 'What they run on needs a look',
             'url' => "/agent/services.php?client_id=$client_id&show=attention",
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(service_id) FROM services WHERE service_client_id = $client_id AND " . $service_views['review']['where']),
-            'label' => 'Service reviews due', 'icon' => 'clipboard-check', 'tone' => 'warning',
+            'label' => 'Service reviews due', 'one' => 'Service review due', 'icon' => 'clipboard-check', 'tone' => 'warning',
             'detail' => 'Next ' . SERVICE_REVIEW_SOON_DAYS . ' days or overdue',
             'url' => "/agent/services.php?client_id=$client_id&show=review",
         ];
         // Document templates it should have a document from - the strip across the top of its Files
         $items[] = [
             'count' => count(documentTemplatesMissingFor($client_id)),
-            'label' => 'Documents missing', 'icon' => 'file-medical', 'tone' => 'warning',
+            'label' => 'Documents missing', 'one' => 'Document missing', 'icon' => 'file-medical', 'tone' => 'warning',
             'detail' => 'Ones every client like it should have',
             'url' => "/agent/files.php?client_id=$client_id",
         ];
         // The same rule as files.php?type=due
         $items[] = [
             'count' => count(documentsReviewDue("documents.document_client_id = $client_id")),
-            'label' => 'Document reviews due', 'icon' => 'calendar-check', 'tone' => 'warning',
+            'label' => 'Document reviews due', 'one' => 'Document review due', 'icon' => 'calendar-check', 'tone' => 'warning',
             'detail' => 'As their templates ask',
             'url' => "/agent/files.php?client_id=$client_id&type=due",
         ];
         // License templates it should have a license from - the strip across the top of its Licenses
         $items[] = [
             'count' => count(softwareTemplatesMissingFor($client_id)),
-            'label' => 'Licenses missing', 'icon' => 'cube', 'tone' => 'warning',
+            'label' => 'Licenses missing', 'one' => 'License missing', 'icon' => 'cube', 'tone' => 'warning',
             'detail' => 'Ones every client like it should have',
             'url' => "/agent/software.php?client_id=$client_id",
         ];
@@ -176,7 +176,7 @@ function clientOverviewAttention($client_id, $access, $renewals) {
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(credential_id) FROM credentials WHERE credential_client_id = $client_id AND credential_archived_at IS NULL
                 AND (credential_password_changed_at IS NULL OR credential_password_changed_at < NOW() - INTERVAL " . CREDENTIAL_ROTATE_DAYS . " DAY)"),
-            'label' => 'Passwords due for a change', 'icon' => 'history', 'tone' => 'warning',
+            'label' => 'Passwords due for a change', 'one' => 'Password due for a change', 'icon' => 'history', 'tone' => 'warning',
             'detail' => 'Not changed in ' . CREDENTIAL_ROTATE_DAYS . ' days',
             'url' => "/agent/credentials.php?client_id=$client_id&show=due&sort=credential_password_changed_at&order=ASC",
         ];
@@ -186,7 +186,7 @@ function clientOverviewAttention($client_id, $access, $renewals) {
         // Vendor templates it should have a vendor from - the strip across the top of its Vendors
         $items[] = [
             'count' => count(vendorTemplatesMissingFor($client_id)),
-            'label' => 'Vendors missing', 'icon' => 'building', 'tone' => 'warning',
+            'label' => 'Vendors missing', 'one' => 'Vendor missing', 'icon' => 'building', 'tone' => 'warning',
             'detail' => 'Ones every client like it should have',
             'url' => "/agent/vendors.php?client_id=$client_id",
         ];
@@ -201,9 +201,15 @@ function clientOverviewAttention($client_id, $access, $renewals) {
             'detail' => 'Next ' . $renewals['days'] . ' days', 'url' => '#clientRenewals'];
     }
 
-    return array_values(array_filter($items, function ($item) {
+    // "1 Draft invoice", not "1 Draft invoices"
+    return array_values(array_map(function ($item) {
+        if (intval($item['count']) === 1 && isset($item['one'])) {
+            $item['label'] = $item['one'];
+        }
+        return $item;
+    }, array_filter($items, function ($item) {
         return $item['count'] > 0;
-    }));
+    })));
 }
 
 /** Open tickets, the ones most in need of attention first: past SLA, then priority, then waiting longest. */
@@ -260,7 +266,7 @@ function clientOverviewContacts($client_id, $limit = 6) {
 function clientOverviewFavorites($client_id, $access) {
     global $mysqli;
 
-    $favorites = ['assets' => [], 'licenses' => [], 'credentials' => []];
+    $favorites = ['assets' => [], 'licenses' => [], 'credentials' => [], 'documents' => []];
 
     if ($access['docs']) {
         $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, interface_ip
@@ -278,6 +284,15 @@ function clientOverviewFavorites($client_id, $access) {
             ORDER BY software_name");
         while ($row = mysqli_fetch_assoc($sql)) {
             $favorites['licenses'][] = $row;
+        }
+
+        // The documents a client's calls keep needing - the network overview, the runbook
+        $sql = mysqli_query($mysqli, "SELECT document_id, document_name, document_description
+            FROM documents
+            WHERE document_client_id = $client_id AND document_favorite = 1 AND document_archived_at IS NULL
+            ORDER BY document_name");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $favorites['documents'][] = $row;
         }
     }
 
@@ -400,12 +415,12 @@ function clientOverviewUpcoming($client_id, $access, $days = 14) {
         }
     }
 
-    $sql = mysqli_query($mysqli, "SELECT event_id, event_title, event_start, event_end, event_all_day, event_repeat, event_repeat_interval, event_repeat_until, event_repeat_skip,
+    $sql = mysqli_query($mysqli, "SELECT event_id, event_title, event_start, event_end, event_all_day, event_repeat, event_repeat_interval, event_repeat_until, event_repeat_skip," . (byDayReady() ? " event_repeat_by_day," : "") . "
             event_location, location_name
         FROM calendar_events
         JOIN calendars ON calendar_id = event_calendar_id AND calendar_archived_at IS NULL
         LEFT JOIN locations ON location_id = event_location_id AND event_location_id > 0
-        WHERE event_client_id = $client_id AND event_archived_at IS NULL AND event_start <= '$to'
+        WHERE event_client_id = $client_id AND event_archived_at IS NULL AND event_start <= '$to'" . (moduleOn('calendar') ? '' : ' AND 0') . "
         AND ((event_repeat IS NOT NULL AND event_repeat != '') OR event_start >= '$from' OR event_end >= '$from')");
     while ($row = mysqli_fetch_assoc($sql)) {
         foreach (expandRecurringEvent($row, $from, $to) as $occurrence) {
@@ -468,7 +483,7 @@ function clientOverviewRenewals($client_id, $days = 45) {
             $items[] = [
                 'kind' => $kind, 'icon' => $icon, 'label' => $label,
                 'name' => $row['name'], 'date' => $row['d'],
-                'days' => (int) $today->diff($date)->format('%r%a'),
+                'days' => intval($today->diff($date)->format('%r%a')),
                 'url' => in_array($kind, ['domain', 'certificate', 'warranty', 'retire', 'software'], true) ? $url . intval($row['id']) : $url . rawurlencode($row['name']),
             ];
         }
@@ -679,7 +694,7 @@ function clientOverviewMonthly($client_id) {
 
     return [
         'labels' => array_map(function ($m) {
-            return date('M y', strtotime("$m-01"));
+            return date('M Y', strtotime("$m-01"));
         }, $months),
         'invoiced' => array_map(function ($v) {
             return round($v, 2);

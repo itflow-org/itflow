@@ -59,10 +59,6 @@ $categories = appLogCategories();
 $any_filter = $q !== '' || $category_filter !== '' || $dtf !== '1970-01-01' || $dtt !== '2099-12-31';
 $retention = appLogRetention();
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 // A view keeps the filters, and starts from its first page
 $view_url = function ($key) {
     $query = $_GET;
@@ -85,6 +81,8 @@ $filters_url = function ($modal) use ($dtf, $dtt, $view, $category_filter) {
 
 ?>
 
+<?= adminNavGroupTabsHtml('logs') ?>
+
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-clipboard-list me-2"></i>App Logs</h3>
@@ -93,14 +91,14 @@ $filters_url = function ($modal) use ($dtf, $dtt, $view, $category_filter) {
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $filters_url('modals/app_log/app_log_export.php') ?>">
                     <i class="fas fa-fw fa-download"></i><span class="d-none d-lg-inline ms-2">Export</span>
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="<?= $filters_url('modals/app_log/app_log_clear.php') ?>" data-app-log-clear>
-                        <i class="fas fa-fw fa-trash-alt me-2"></i>Clear
+                        <i class="fas fa-fw fa-trash me-2"></i>Clear
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="settings_logs.php">
-                        <i class="fas fa-fw fa-cog text-secondary me-2"></i>Keeping and forwarding
+                        <i class="fas fa-fw fa-cog text-secondary me-2"></i>Keeping and Forwarding
                     </a>
                     <a class="dropdown-item" href="audit_logs.php">
                         <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit Logs
@@ -115,8 +113,8 @@ $filters_url = function ($modal) use ($dtf, $dtt, $view, $category_filter) {
             <div class="row g-2 align-items-center">
                 <div class="col-lg-5 col-md-12">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search the app logs" title="The category or what it says">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search the app logs..." title="The category or what it says">
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -151,9 +149,9 @@ $filters_url = function ($modal) use ($dtf, $dtt, $view, $category_filter) {
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('app_log_created_at', 'When') ?></th>
-                <th><?= $sort_link('app_log_type', 'Level') ?></th>
-                <th><?= $sort_link('app_log_category', 'Category') ?></th>
+                <th class="ps-3"><?= sortLink('app_log_created_at', 'When') ?></th>
+                <th><?= sortLink('app_log_type', 'Level') ?></th>
+                <th><?= sortLink('app_log_category', 'Category') ?></th>
                 <th>Details</th>
                 <th></th>
             </tr>
@@ -166,7 +164,7 @@ $filters_url = function ($modal) use ($dtf, $dtt, $view, $category_filter) {
                 $short = mb_strlen($details) > 240 ? rtrim(mb_substr($details, 0, 240)) . '…' : $details;
                 ?>
                 <tr data-app-log-id="<?= $app_log_id ?>">
-                    <td class="ps-3 text-nowrap small" title="<?= escapeHtml($row['app_log_created_at']) ?>">
+                    <td class="ps-3 text-nowrap small" title="<?= formatDateTime($row['app_log_created_at']) ?>">
                         <div><?= escapeHtml(date('M j, Y g:i A', strtotime($row['app_log_created_at']))) ?></div>
                         <div class="text-body-secondary"><?= escapeHtml(timeAgo($row['app_log_created_at'])) ?></div>
                     </td>

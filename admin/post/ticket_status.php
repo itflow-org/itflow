@@ -4,8 +4,8 @@
  * ITFlow - Admin > Ticket Statuses: add and change a status, put them in
  * order (dragged, or up and down), switch one off or on, and delete one of
  * your own - moving its tickets first. The five ITFlow has keep their names,
- * stay on, and have fixed SLA and client-reply behaviour, whatever a request
- * says. The work is in functions/ticket_status.php.
+ * stay on, have fixed SLA behaviour, and a client's reply never leaves a
+ * ticket in one, whatever a request says. The work is in functions/ticket_status.php.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -37,7 +37,7 @@ if (isset($_POST['add_ticket_status']) || isset($_POST['edit_ticket_status'])) {
     } else {
         $ticket_status_id = ticketStatusCreate($fields);
         logAudit("Ticket Status", "Create", "$session_name added ticket status " . escapeSql($fields['name']) . ($fields['pauses_sla'] ? ' (pauses the resolution clock)' : ''), 0, $ticket_status_id);
-        flashAlert("Status <strong>" . escapeHtml($fields['name']) . "</strong> added - at the end of the order");
+        flashAlert("Status <strong>" . escapeHtml($fields['name']) . "</strong> created - at the end of the order");
     }
 
     redirect();
@@ -123,6 +123,7 @@ if (isset($_POST['switch_off_ticket_status'])) {
         redirect();
     }
 
+    $undo = undoSnapshot('ticket_statuses', 'ticket_status_id', [$row['ticket_status_id']], ['ticket_status_active']);
     [$ok, $moved] = ticketStatusSetActive($row, false, $move_to);
     if (!$ok) {
         flashAlert("ITFlow's own statuses can't be switched off.", 'error');
@@ -131,7 +132,11 @@ if (isset($_POST['switch_off_ticket_status'])) {
 
     $to_name = $moved ? ticketStatusesAll()[$move_to]['ticket_status_name'] : '';
     logAudit("Ticket Status", "Edit", "$session_name switched off ticket status " . escapeSql($name) . ($moved ? ", moving $moved tickets to " . escapeSql($to_name) : ''), 0, intval($row['ticket_status_id']));
-    flashAlert("Status <strong>" . escapeHtml($name) . "</strong> switched off" . ($moved ? " - $moved " . ($moved === 1 ? 'ticket' : 'tickets') . " moved to <strong>" . escapeHtml($to_name) . "</strong>" : ''));
+    flashAlert("Status <strong>" . escapeHtml($name) . "</strong> switched off" . ($moved ? " - $moved " . ($moved === 1 ? 'ticket' : 'tickets') . " moved to <strong>" . escapeHtml($to_name) . "</strong>" : ''), 'error');
+    // Tickets moved to another status stay there - with none moved, Undo switches it back on
+    if (!$moved) {
+        undoOfferChanges($undo, '<strong>' . escapeHtml($name) . '</strong> is switched on again', 'admin', 3);
+    }
 
     redirect();
 

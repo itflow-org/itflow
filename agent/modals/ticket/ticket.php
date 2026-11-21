@@ -41,9 +41,14 @@ if ($client_id) {
     enforceClientAccess();
 }
 
+// The quick look shows the latest replies - seen, as on the ticket page (functions/ticket_read.php)
+ticketMarkRead($ticket_id, $session_user_id);
+
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null);
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+// Classes our scripts act on (ajax-modal fetches a page and runs it) never come from stored HTML
+$purifier_config->set('Attr.ForbiddenClasses', ['ajax-modal']);
 $purifier = new HTMLPurifier($purifier_config);
 
 $reference = escapeHtml(ticketReference($ticket));
@@ -175,7 +180,7 @@ ob_start();
 
         <?php if (!empty($ticket['ticket_schedule'])) { ?>
             <dt>Scheduled</dt>
-            <dd><i class="fas fa-<?= intval($ticket['ticket_onsite']) ? 'truck' : 'calendar-check' ?> text-body-secondary me-1"></i><?= escapeHtml(date('D M j, g:i A', strtotime($ticket['ticket_schedule']))) ?><?= intval($ticket['ticket_onsite']) ? ' <span class="text-body-secondary">on site</span>' : '' ?></dd>
+            <dd><i class="fas fa-<?= intval($ticket['ticket_onsite']) ? 'truck' : 'calendar-check' ?> text-body-secondary me-1"></i><?= escapeHtml(ticketScheduleShortText($ticket['ticket_schedule'], $ticket['ticket_schedule_end'] ?? null)) ?><?= intval($ticket['ticket_onsite']) ? ' <span class="text-body-secondary">on site</span>' : '' ?></dd>
         <?php } ?>
 
         <?php if (intval($ticket['ticket_project_id']) && $ticket['project_name'] !== null) { ?>
@@ -233,7 +238,7 @@ ob_start();
                 <div class="small d-flex flex-wrap align-items-center gap-2 mb-1">
                     <span class="badge rounded-pill <?= ['Client' => 'text-bg-warning', 'Public' => 'text-bg-primary', 'Internal' => 'text-bg-secondary'][$type] ?? 'text-bg-secondary' ?>"><?= ['Client' => 'Client', 'Public' => 'Public', 'Internal' => 'Internal note'][$type] ?? escapeHtml($type) ?></span>
                     <span class="fw-semibold"><?= escapeHtml($who ?? '') ?></span>
-                    <span class="text-body-secondary ms-auto" title="<?= escapeHtml($reply['ticket_reply_created_at']) ?>"><?= timeAgo($reply['ticket_reply_created_at']) ?></span>
+                    <span class="text-body-secondary ms-auto" title="<?= formatDateTime($reply['ticket_reply_created_at']) ?>"><?= timeAgo($reply['ticket_reply_created_at']) ?></span>
                 </div>
                 <div class="itflow-ticket-glance-text small"><?= $purifier->purify($reply['ticket_reply']) ?></div>
             </div>
@@ -246,12 +251,12 @@ ob_start();
 
 <div class="modal-footer">
     <?php if ($can_edit && !$mine) { ?>
-        <a class="btn btn-outline-secondary me-auto" href="post.php?assign_ticket_to_me=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-hand-paper me-2"></i>Assign to me</a>
+        <a class="btn btn-outline-secondary me-auto" href="post.php?assign_ticket_to_me=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-hand-paper me-2"></i>Assign to Me</a>
     <?php } ?>
     <?php if ($can_edit) { ?>
         <button type="button" class="btn btn-light ajax-modal" data-modal-size="lg" data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <a class="btn btn-primary text-bold" href="<?= $url ?>"><i class="fas fa-life-ring me-2"></i>Open ticket</a>
+    <a class="btn btn-primary fw-bold" href="<?= $url ?>"><i class="fas fa-life-ring me-2"></i>Open Ticket</a>
 </div>
 
 <?php

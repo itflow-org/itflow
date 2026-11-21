@@ -72,10 +72,6 @@ $entity_filter = is_scalar($_GET['entity'] ?? null) ? intval($_GET['entity']) : 
 $more_filters = $action_filter !== '' || $entity_filter;
 $any_filter = $q !== '' || $client_filter || $user_filter !== '' || $type_filter !== '' || $action_filter !== '' || $entity_filter || $dtf !== '1970-01-01' || $dtt !== '2099-12-31';
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 // A view keeps the filters, and starts from its first page
 $view_url = function ($key) {
     $query = $_GET;
@@ -97,6 +93,8 @@ $view_empty = [
 
 ?>
 
+<?= adminNavGroupTabsHtml('logs') ?>
+
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-history me-2"></i>Audit Logs</h3>
@@ -105,13 +103,13 @@ $view_empty = [
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= buildExportModalUrl('modals/audit_log/audit_log_export.php', ['client', 'user', 'type', 'action', 'entity', 'q'], ['dtf' => $dtf, 'dtt' => $dtt, 'view' => $view]) ?>">
                     <i class="fas fa-fw fa-download"></i><span class="d-none d-lg-inline ms-2">Export</span>
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="/agent/reports/audit_activity.php">
-                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Activity report
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Activity Report
                     </a>
                     <a class="dropdown-item" href="settings_logs.php">
-                        <i class="fas fa-fw fa-cog text-secondary me-2"></i>Keeping and forwarding
+                        <i class="fas fa-fw fa-cog text-secondary me-2"></i>Keeping and Forwarding
                     </a>
                     <a class="dropdown-item" href="app_logs.php">
                         <i class="fas fa-fw fa-clipboard-list text-secondary me-2"></i>App Logs
@@ -126,9 +124,9 @@ $view_empty = [
             <div class="row g-2 align-items-center">
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search the audit log" title="What was done, who did it, the client, the IP address or the browser">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search the audit log..." title="What was done, who did it, the client, the IP address or the browser">
                         <button class="btn btn-outline-secondary <?= $more_filters ? 'active' : '' ?>" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#auditMoreFilters"><i class="fas fa-filter"></i></button>
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -175,7 +173,7 @@ $view_empty = [
                 <div class="row g-2 mt-0 align-items-center">
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-bolt"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-bolt"></i></span>
                             <select class="form-select select2" name="action" onchange="this.form.submit()" aria-label="Action">
                                 <option value="">- Any action -</option>
                                 <?php
@@ -209,12 +207,12 @@ $view_empty = [
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('log_created_at', 'When') ?></th>
-                <th><?= $sort_link('user_name', 'Who') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('client_name', 'Client') ?></th>
-                <th><?= $sort_link('log_type', 'What') ?></th>
+                <th class="ps-3"><?= sortLink('log_created_at', 'When') ?></th>
+                <th><?= sortLink('user_name', 'Who') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('client_name', 'Client') ?></th>
+                <th><?= sortLink('log_type', 'What') ?></th>
                 <th>Description</th>
-                <th class="d-none d-xl-table-cell"><?= $sort_link('log_ip', 'From') ?></th>
+                <th class="d-none d-xl-table-cell"><?= sortLink('log_ip', 'From') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -229,7 +227,7 @@ $view_empty = [
                 $from = implode(' · ', array_filter([(string) $row['log_ip'], $device]));
                 ?>
                 <tr data-log-id="<?= $log_id ?>">
-                    <td class="ps-3 text-nowrap small" title="<?= escapeHtml($row['log_created_at']) ?>">
+                    <td class="ps-3 text-nowrap small" title="<?= formatDateTime($row['log_created_at']) ?>">
                         <div><?= escapeHtml(date('M j, Y g:i A', strtotime($row['log_created_at']))) ?></div>
                         <div class="text-body-secondary"><?= escapeHtml(timeAgo($row['log_created_at'])) ?></div>
                     </td>

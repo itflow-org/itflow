@@ -26,7 +26,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-magic me-2"></i>Remembered Merchants <span class="fw-normal text-white-50 ms-1"><?= count($rules) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body p-0">
     <div class="px-3 py-2 small text-body-secondary border-bottom">A statement line whose words start like these is matched to what was picked for it last time. Each import updates them.</div>
@@ -49,7 +49,7 @@ ob_start();
                         <td class="ps-3 font-monospace"><?= escapeHtml($rule['import_rule_match']) ?></td>
                         <td><?= escapeHtml($rule['vendor_name'] ?: 'A vendor since deleted') ?></td>
                         <td><?= escapeHtml($rule['category_name'] ?: '-') ?></td>
-                        <td><?= escapeHtml($rule['client_name'] ?: '-') ?><?= intval($rule['import_rule_billable']) ? ' <span class="badge bg-warning-subtle text-warning-emphasis fw-normal">bill on</span>' : '' ?></td>
+                        <td><?= escapeHtml($rule['client_name'] ?: '-') ?><?= intval($rule['import_rule_billable']) ? ' <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal">bill on</span>' : '' ?></td>
                         <td class="text-end"><?= intval($rule['import_rule_used_count']) ?></td>
                         <td class="text-end pe-3">
                             <a class="btn btn-sm btn-link text-danger p-0 confirm-link" title="Forget" href="post.php?expense_import_rule_delete=<?= intval($rule['import_rule_id']) ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
@@ -68,7 +68,7 @@ ob_start();
     <?php } ?>
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 <?php
 require_once '../../../includes/modal_footer.php';

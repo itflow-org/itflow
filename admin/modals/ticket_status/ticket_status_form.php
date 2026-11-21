@@ -3,8 +3,9 @@
 /*
  * A ticket status's fields - for ticket_status_add.php and
  * ticket_status_edit.php, which set $ticket_status (a ticketStatusRow(), or
- * null when new). A built-in status keeps its name and has fixed answers for
- * the SLA clock and a client's reply - shown, not asked. The preview of its
+ * null when new). A built-in status keeps its name and has a fixed answer for
+ * the SLA clock - shown, not asked; a client's reply moves a ticket in one
+ * back to Open or to a status picked, and Closed takes none. The preview of its
  * badge and the colour swatches are js/ticket_status_form.js. The server
  * checks it all again (ticketStatusFromInput(), ticketStatusProblem()).
  */
@@ -19,6 +20,19 @@ $s_color = $s ? ticketStatusColor($s['ticket_status_color']) : ticketStatusNextC
 $s_description = (string) ($s['ticket_status_description'] ?? '');
 $s_paused = $s ? intval($s['ticket_status_pauses_sla']) === 1 : false;
 $s_reply = $s ? (intval($s['ticket_status_client_reply'] ?? 1) === 0 ? 0 : 1) : 1;
+$s_reply_to = intval($s['ticket_status_reply_status_id'] ?? 0);
+$s_first_response = intval($s['ticket_status_first_response'] ?? 0);
+// What a client's reply can do - back to Open (in the words that fit), stay (your own), or move to another status
+$s_reply_choices = ['1' => [TICKET_STATUS_NEW => 'Open it', TICKET_STATUS_OPEN => 'It stays Open', TICKET_STATUS_RESOLVED => 'Reopen it - back to Open'][$s_id] ?? 'Move it back to Open'];
+if (!$s_builtin) {
+    $s_reply_choices['0'] = 'Leave it in this status';
+}
+foreach (ticketStatusReplyReady() ? ticketStatusReplyTargets($s_id) : [] as $target_id => $target) {
+    if ($target_id !== TICKET_STATUS_OPEN) {
+        $s_reply_choices["to-$target_id"] = 'Move it to ' . $target['ticket_status_name'];
+    }
+}
+$s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-$s_reply_to" : (string) ($s_builtin ? 1 : $s_reply);
 
 ?>
 
@@ -32,21 +46,21 @@ $s_reply = $s ? (intval($s['ticket_status_client_reply'] ?? 1) === 0 ? 0 : 1) : 
     <div class="mb-3">
         <label class="form-label">Name <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
             <input type="text" class="form-control" name="name" maxlength="200" placeholder="Waiting on Vendor, Scheduled, Parts Ordered" value="<?= escapeHtml($s_name) ?>" required<?= $s_builtin ? ' readonly' : ($s ? '' : ' autofocus') ?> data-ticket-status-name>
         </div>
         <?php if ($s_builtin) { ?>
-            <small class="text-secondary"><i class="fas fa-fw fa-lock me-1"></i>ITFlow's own statuses keep their names. <?= escapeHtml($s_builtin['set_by']) ?></small>
+            <div class="form-text"><i class="fas fa-fw fa-lock me-1"></i>ITFlow's own statuses keep their names. <?= escapeHtml($s_builtin['set_by']) ?></div>
         <?php } ?>
     </div>
 
     <div class="mb-3">
         <label class="form-label">Description</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
             <input type="text" class="form-control" name="description" maxlength="255" placeholder="<?= escapeHtml($s_builtin ? $s_builtin['about'] : 'What it means, and when to use it') ?>" value="<?= escapeHtml($s_description) ?>">
         </div>
-        <small class="text-secondary">Shown when the status is hovered - in the pickers, on the board and on tickets.</small>
+        <div class="form-text">Shown when the status is hovered - in the pickers, on the board and on tickets.</div>
     </div>
 
     <div class="mb-3">
@@ -59,7 +73,7 @@ $s_reply = $s ? (intval($s['ticket_status_client_reply'] ?? 1) === 0 ? 0 : 1) : 
                 <?php } ?>
             </div>
             <div class="input-group input-group-sm w-auto" title="Any other color">
-                <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-paint-brush"></i></span>
                 <input type="color" class="form-control form-control-color" value="<?= $s_color ?>" aria-label="Custom color" data-ticket-status-color-pick>
                 <input type="text" class="form-control font-monospace" style="width: 6rem" maxlength="7" value="<?= $s_color ?>" pattern="#?[0-9a-fA-F]{6}" aria-label="Color as hex" data-ticket-status-color-hex>
             </div>
@@ -69,44 +83,61 @@ $s_reply = $s ? (intval($s['ticket_status_client_reply'] ?? 1) === 0 ? 0 : 1) : 
     <div class="mb-3">
         <label class="form-label">SLA resolution clock</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
             <?php if ($s_builtin) { ?>
                 <input type="text" class="form-control" value="<?= $s_id === TICKET_STATUS_CLOSED ? 'Stopped - the ticket is finished' : ($s_paused ? 'Paused while a ticket is in it' : 'Keeps running') ?>" readonly>
             <?php } else { ?>
-                <select class="form-select" name="pauses_sla">
+                <select class="form-select select2" name="pauses_sla">
                     <option value="0"<?= $s_paused ? '' : ' selected' ?>>Keeps running - the ticket is being worked</option>
                     <option value="1"<?= $s_paused ? ' selected' : '' ?>>Paused - waiting on someone else</option>
                 </select>
             <?php } ?>
         </div>
-        <small class="text-secondary">
+        <div class="form-text">
             <?php if ($s_builtin) { ?><i class="fas fa-fw fa-lock me-1"></i>Fixed for ITFlow's own statuses. <?php } ?>
             A ticket in a paused status never warns or breaches on resolution - the time already spent is kept, and the deadline moves out when it comes back. The response clock always runs.
-        </small>
+        </div>
     </div>
 
-    <div class="mb-1">
+    <div class="<?= $s_id && !ticketStatusCanBeFirstResponse($s_id) ? 'mb-1' : 'mb-3' ?>">
         <label class="form-label">When the client replies</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-reply"></i></span>
-            <?php if ($s_builtin) { ?>
+            <span class="input-group-text"><i class="fas fa-fw fa-reply"></i></span>
+            <?php if ($s_id === TICKET_STATUS_CLOSED || ($s_builtin && !ticketStatusReplyReady())) { ?>
                 <input type="text" class="form-control" value="<?= [TICKET_STATUS_OPEN => 'It stays Open', TICKET_STATUS_RESOLVED => 'It is reopened - back to Open', TICKET_STATUS_CLOSED => 'They can\'t - they are told to raise a new ticket'][$s_id] ?? 'It moves back to Open' ?>" readonly>
             <?php } else { ?>
-                <select class="form-select" name="client_reply">
-                    <?php foreach (TICKET_STATUS_CLIENT_REPLY as $value => $reply) { ?>
-                        <option value="<?= $value ?>"<?= $value === $s_reply ? ' selected' : '' ?>><?= escapeHtml($reply['label']) ?></option>
+                <select class="form-select select2" name="client_reply">
+                    <?php foreach ($s_reply_choices as $value => $label) { ?>
+                        <option value="<?= escapeHtml($value) ?>"<?= (string) $value === $s_reply_value ? ' selected' : '' ?>><?= escapeHtml($label) ?></option>
                     <?php } ?>
                 </select>
             <?php } ?>
         </div>
-        <small class="text-secondary">
-            <?php if ($s_builtin) { ?>
-                <i class="fas fa-fw fa-lock me-1"></i>Fixed for ITFlow's own statuses.
+        <div class="form-text">
+            <?php if ($s_id === TICKET_STATUS_CLOSED) { ?>
+                <i class="fas fa-fw fa-lock me-1"></i>A closed ticket takes no replies.
             <?php } else { ?>
-                By email or in the portal. Back to Open suits a status that waits on the client; leave it for one like Scheduled, where a "thanks, see you then" shouldn't put it back in the queue. Whoever it is assigned to is told either way.
+                By email, in the portal or by text. Move it to a status such as "Client responded" to see at a glance which tickets have a new answer; back to Open suits a status that waits on the client<?= $s_builtin ? '' : '; leave it for one like Scheduled, where a "thanks, see you then" shouldn\'t put it back in the queue' ?>. Whoever it is assigned to is told either way.
             <?php } ?>
-        </small>
+        </div>
     </div>
+
+    <?php if (ticketStatusReplyReady() && (!$s_id || ticketStatusCanBeFirstResponse($s_id))) { ?>
+        <div class="mb-1">
+            <label class="form-label">Counts as the first response</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-comment-dots"></i></span>
+                <select class="form-select select2" name="first_response">
+                    <?php foreach (TICKET_STATUS_FIRST_RESPONSE as $value => $first_response) { ?>
+                        <option value="<?= $value ?>"<?= $value === $s_first_response ? ' selected' : '' ?>><?= escapeHtml($first_response['label']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div class="form-text">
+                An agent moving a ticket into this status before anyone has answered the client meets - or misses - the SLA's response target then: setting it by hand or in a reply, or assigning a new ticket, which moves it to Open. Once per ticket. With the email, the contact and watchers get the "ticket assigned" message from <a href="settings_ticket.php#messages">Settings &gt; Tickets</a>, kept on the ticket as a public note; if nobody could be emailed, it doesn't count.
+            </div>
+        </div>
+    <?php } ?>
 </div>
 
 <script src="<?= staticFileUrl('/js/ticket_status_form.js') ?>"></script>

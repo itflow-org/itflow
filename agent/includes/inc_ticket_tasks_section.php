@@ -23,9 +23,9 @@ $existing_tasks = $existing_tasks ?? [];
 <input type="hidden" name="tasks_submitted" value="1">
 
 <div class="mb-3">
-    <label>Tasks</label>
+    <label class="form-label">Tasks</label>
 
-    <div class="row g-2 mb-1 text-muted small">
+    <div class="row g-2 mb-1 text-body-secondary small">
         <div class="col-7">Task</div>
         <div class="col-3">Estimate (mins)</div>
         <div class="col-2"></div>
@@ -41,7 +41,7 @@ $existing_tasks = $existing_tasks ?? [];
                 <input type="number" class="form-control" name="task_estimates[]" placeholder="Mins" min="0" value="<?= intval($existing_task['estimate']) ?: '' ?>">
             </div>
             <div class="col-2">
-                <button type="button" class="btn btn-secondary w-100 ticket-task-remove" title="Remove task"><i class="fa fa-fw fa-trash"></i></button>
+                <button type="button" class="btn btn-secondary w-100 ticket-task-remove" title="Remove task"><i class="fas fa-fw fa-trash"></i></button>
             </div>
         </div>
         <?php } ?>
@@ -49,5 +49,5 @@ $existing_tasks = $existing_tasks ?? [];
 
     <button type="button" class="btn btn-secondary" id="ticketTaskAdd"><i class="fas fa-plus me-2"></i>Add Task</button>
 
-    <small class="form-text text-muted">Leave the estimate blank if you don't track one. Blank task names are ignored.</small>
+    <small class="form-text text-body-secondary">Leave the estimate blank if you don't track one. Blank task names are ignored.</small>
 </div>

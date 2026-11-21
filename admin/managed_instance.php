@@ -29,6 +29,7 @@ if (!$row) { ?>
 }
 
 $name = escapeHtml($row['managed_instance_name']);
+$page_title = $row['managed_instance_name'];
 $removed = !empty($row['managed_instance_archived_at']);
 $health = managedInstanceHealth($row);
 $state = $health['state'];
@@ -164,7 +165,7 @@ $size = function ($mb) {
                             <div class="d-flex flex-wrap gap-2 mt-3" data-managed-actions>
                                 <?php if ($can_act) { ?>
                                     <a class="btn btn-primary" href="post.php?managed_support_sign_in=<?= $instance_id ?>&csrf_token=<?= $csrf ?>" target="_blank" rel="noopener" data-managed-support
-                                        title="Opens it in a new tab, signed in as its support user - for two hours"><i class="fas fa-fw fa-sign-in-alt me-2"></i>Sign in as support</a>
+                                        title="Opens it in a new tab, signed in as its support user - for two hours"><i class="fas fa-fw fa-sign-in-alt me-2"></i>Sign In as Support</a>
                                     <?php if (!empty($update['available']) && !$updating) { ?>
                                         <a class="btn btn-outline-primary confirm-link" href="post.php?managed_command=update_now&id=<?= $instance_id ?>&csrf_token=<?= $csrf ?>"
                                             data-confirm-title="Update <?= $name ?>?" data-confirm-text="It updates its files and then its database, starting at its next check-in. Make sure it has a backup." data-confirm-button="Update" data-confirm-icon="question">
@@ -174,10 +175,10 @@ $size = function ($mb) {
                                 <?php } ?>
                                 <button type="button" class="btn btn-light ajax-modal" data-modal-url="modals/managed_instance/managed_instance_form.php?id=<?= $instance_id ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</button>
                                 <div class="dropdown">
-                                    <button class="btn btn-light" type="button" data-bs-toggle="dropdown" title="More"><i class="fas fa-fw fa-ellipsis-h"></i></button>
+                                    <button class="btn btn-light" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                     <div class="dropdown-menu dropdown-menu-end">
                                         <?php if ($can_act) { ?>
-                                            <a class="dropdown-item" href="post.php?managed_command=check_updates&id=<?= $instance_id ?>&csrf_token=<?= $csrf ?>" title="It checks at its next check-in, and the answer comes with the one after"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Check for updates</a>
+                                            <a class="dropdown-item" href="post.php?managed_command=check_updates&id=<?= $instance_id ?>&csrf_token=<?= $csrf ?>" title="It checks at its next check-in, and the answer comes with the one after"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Check for Updates</a>
                                             <div class="dropdown-divider"></div>
                                         <?php } ?>
                                         <?php foreach (MANAGED_MODES as $mode_key => $mode_label) {
@@ -197,7 +198,7 @@ $size = function ($mb) {
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item confirm-link" href="post.php?managed_instance_new_code=<?= $instance_id ?>&csrf_token=<?= $csrf ?>"
                                             data-confirm-title="Make a new connection code?" data-confirm-text="<?= $connected ? 'For moving it to a new server, or connecting a restored copy. Whatever connects with the new code takes the place of what\'s connected now.' : 'The code made before stops working.' ?>" data-confirm-button="Make a code">
-                                            <i class="fas fa-fw fa-key text-secondary me-2"></i>New connection code
+                                            <i class="fas fa-fw fa-key text-secondary me-2"></i>New Connection Code
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger confirm-link" href="post.php?remove_managed_instance=<?= $instance_id ?>&csrf_token=<?= $csrf ?>"
@@ -250,10 +251,10 @@ $size = function ($mb) {
                         </div>
                     <?php } elseif (!empty($row['managed_instance_enroll_expires_at']) && strtotime($row['managed_instance_enroll_expires_at']) > time()) { ?>
                         <p class="small text-body-secondary mb-2">The code was shown when it was made - only a fingerprint of it is kept here. If it's lost, make a new one; the old one stops working.</p>
-                        <a class="btn btn-sm btn-outline-primary" href="post.php?managed_instance_new_code=<?= $instance_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-key me-2"></i>New connection code</a>
+                        <a class="btn btn-sm btn-outline-primary" href="post.php?managed_instance_new_code=<?= $instance_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-key me-2"></i>New Connection Code</a>
                     <?php } else { ?>
                         <p class="small text-body-secondary mb-2">There's no code that works - <?= $row['managed_instance_enroll_expires_at'] ? 'the last one ran out' : 'make one to connect it' ?>.</p>
-                        <a class="btn btn-sm btn-primary" href="post.php?managed_instance_new_code=<?= $instance_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-key me-2"></i>Make a connection code</a>
+                        <a class="btn btn-sm btn-primary" href="post.php?managed_instance_new_code=<?= $instance_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-key me-2"></i>Make a Connection Code</a>
                     <?php } ?>
                     <p class="small text-body-secondary mt-3 mb-0">
                         <i class="fas fa-fw fa-info-circle me-1"></i>It checks in with this ITFlow at <strong><?= escapeHtml(managedRequestBaseUrl()) ?></strong>, so that has to be reachable from where it is.
@@ -370,7 +371,7 @@ $size = function ($mb) {
                     <?= $fact('Database', escapeHtml((string) ($app['db_version'] ?? '')) . (!empty($app['db_latest']) && version_compare((string) $app['db_latest'], (string) ($app['db_version'] ?? ''), '>') ? ' <span class="text-warning-emphasis">&rarr; ' . escapeHtml($app['db_latest']) . '</span>' : '')) ?>
                     <?= $fact('Updates checked', $when($update['checked_at'] ?? null)) ?>
                     <?= $fact('Agents', $agents ? '<span class="fw-semibold">' . (intval($agents['active'] ?? 0) + intval($agents['invites'] ?? 0)) . '</span>' . (intval($agents['limit'] ?? 0) > 0 ? ' of ' . intval($agents['limit']) : '')
-                        . (intval($agents['invites'] ?? 0) > 0 ? '<div class="text-body-secondary">' . intval($agents['invites']) . ' invited</div>' : '') : '&mdash;') ?>
+                        . (intval($agents['invites'] ?? 0) > 0 ? '<div class="text-body-secondary">' . intval($agents['invites']) . ' invited</div>' : '') : '<span class="text-body-secondary">-</span>') ?>
                     <?= $fact('Clients', intval($report['clients'] ?? 0)) ?>
                     <?= $fact('Last backup', $when($backup['last_ok_at'] ?? null, 'None')) ?>
                     <?= $fact('Cron', empty($cron['enabled']) ? '<span class="text-danger-emphasis">Switched off</span>' : 'Last ran ' . $when($cron['last_dispatch_at'] ?? null)) ?>

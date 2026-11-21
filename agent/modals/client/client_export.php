@@ -39,7 +39,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Clients</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <?php exportTabsNav(); ?>
@@ -52,17 +52,17 @@ ob_start();
         <?php exportTabsFiltersOpen(); ?>
 
         <div class="mb-3">
-            <label>Search</label>
+            <label class="form-label">Search</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, contact, address, tag">
             </div>
         </div>
 
         <div class="mb-3">
-            <label>Showing</label>
+            <label class="form-label">Showing</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user-friends"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user-friends"></i></span>
                 <select class="form-select select2" name="leads">
                     <option value="">- Clients -</option>
                     <option <?php if ($leads_filter === '1') { echo "selected"; } ?> value="1">Leads</option>
@@ -71,11 +71,11 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Industry</label>
+            <label class="form-label">Industry</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-industry"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-industry"></i></span>
                 <select class="form-select select2" name="industry">
-                    <option value="">- All Industries -</option>
+                    <option value="">- Any industry -</option>
                     <?php
                     $sql_industry_filter = mysqli_query($mysqli, "SELECT DISTINCT client_type FROM clients WHERE client_type != '' ORDER BY client_type ASC");
                     while ($row = mysqli_fetch_assoc($sql_industry_filter)) {
@@ -90,11 +90,11 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Referral</label>
+            <label class="form-label">Referral</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-share-alt"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-share-alt"></i></span>
                 <select class="form-select select2" name="referral">
-                    <option value="">- All Referrals -</option>
+                    <option value="">- Any referral -</option>
                     <?php
                     $sql_referral_filter = mysqli_query($mysqli, "SELECT DISTINCT client_referral FROM clients WHERE client_referral != '' ORDER BY client_referral ASC");
                     while ($row = mysqli_fetch_assoc($sql_referral_filter)) {
@@ -109,35 +109,35 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Tags</label>
+            <label class="form-label">Tags</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                <select class="form-select select2" name="tags[]" data-placeholder="- All Tags -" multiple>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
+                <select class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                     <?= tagOptionsHtml('client', $tag_filter) ?>
                 </select>
             </div>
         </div>
 
         <div class="mb-3">
-            <label>Created From</label>
+            <label class="form-label">Created from</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
             </div>
         </div>
 
         <div class="mb-3">
-            <label>Created To</label>
+            <label class="form-label">Created to</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">
             </div>
         </div>
 
         <div class="mb-3">
-            <label>Archived</label>
+            <label class="form-label">Archived</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-archive"></i></span>
                 <select class="form-select select2" name="archived">
                     <option <?php if (!$archived_filter) { echo "selected"; } ?> value="0">Active only</option>
                     <option <?php if ($archived_filter) { echo "selected"; } ?> value="1">Archived only</option>

@@ -17,7 +17,7 @@ if (isset($_POST['add_invoice_recurring'])) {
     $recurring_invoice_frequency = validateRecurringFrequency($_POST['frequency']);
 
     $sql = mysqli_query($mysqli,"SELECT invoice_amount, invoice_category_id, invoice_client_id, invoice_currency_code,
-        invoice_date, invoice_note, invoice_number, invoice_prefix, invoice_scope FROM invoices WHERE invoice_id = $invoice_id");
+        invoice_date, invoice_discount_amount, invoice_note, invoice_number, invoice_prefix, invoice_scope FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
     if (!$row) {
         flashAlert('That invoice no longer exists.', 'error');
@@ -27,6 +27,8 @@ if (isset($_POST['add_invoice_recurring'])) {
     $invoice_number = intval($row['invoice_number']);
     $invoice_date = escapeSql(validateDate($row['invoice_date']));
     $invoice_amount = floatval($row['invoice_amount']);
+    // Its discount goes with it - the amount already has it taken off
+    $invoice_discount_amount = floatval($row['invoice_discount_amount']);
     $invoice_currency_code = escapeSql($row['invoice_currency_code']);
     $invoice_scope = escapeSql($row['invoice_scope']);
     $invoice_note = escapeSql($row['invoice_note']);
@@ -34,6 +36,10 @@ if (isset($_POST['add_invoice_recurring'])) {
     $category_id = intval($row['invoice_category_id']);
 
     enforceClientAccess();
+
+    // A card fee it was paid with isn't billed again - that was for the payment
+    $card_fees = billingWithoutCardFees(billingItems('invoice', $invoice_id))[1];
+    $invoice_amount = round($invoice_amount - $card_fees, 2);
 
     // Atomically increment and get the new recurring_invoice number
     mysqli_query($mysqli, "
@@ -46,15 +52,18 @@ if (isset($_POST['add_invoice_recurring'])) {
 
     $recurring_invoice_number = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$config_recurring_invoice_prefix', recurring_invoice_number = $recurring_invoice_number, recurring_invoice_scope = '$invoice_scope', recurring_invoice_frequency = '$recurring_invoice_frequency', recurring_invoice_next_date = '" . recurringInvoiceStep($invoice_date, $recurring_invoice_frequency) . "', recurring_invoice_anchor_day = DAY('$invoice_date'), recurring_invoice_status = 1, recurring_invoice_amount = $invoice_amount, recurring_invoice_currency_code = '$invoice_currency_code', recurring_invoice_note = '$invoice_note', recurring_invoice_category_id = $category_id, recurring_invoice_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$config_recurring_invoice_prefix', recurring_invoice_number = $recurring_invoice_number, recurring_invoice_scope = '$invoice_scope', recurring_invoice_frequency = '$recurring_invoice_frequency', recurring_invoice_next_date = '" . recurringInvoiceStep($invoice_date, $recurring_invoice_frequency) . "', recurring_invoice_anchor_day = DAY('$invoice_date'), recurring_invoice_status = 1, recurring_invoice_discount_amount = $invoice_discount_amount, recurring_invoice_amount = $invoice_amount, recurring_invoice_currency_code = '$invoice_currency_code', recurring_invoice_note = '$invoice_note', recurring_invoice_category_id = $category_id, recurring_invoice_client_id = $client_id");
 
     $recurring_invoice_id = mysqli_insert_id($mysqli);
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Recurring Invoice Created from INVOICE!', history_recurring_invoice_id = $recurring_invoice_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT item_description, item_id, item_name, item_order, item_price, item_quantity, item_subtotal,
-        item_tax, item_tax_id, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id");
+        item_tax, item_tax_id, item_total, item_product_id FROM invoice_items WHERE item_invoice_id = $invoice_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
+        if (billingCardFeeLine($row)) {
+            continue;
+        }
         $item_id = intval($row['item_id']);
         $item_name = escapeSql($row['item_name']);
         $item_description = escapeSql($row['item_description']);
@@ -71,7 +80,7 @@ if (isset($_POST['add_invoice_recurring'])) {
 
     logAudit("Recurring Invoice", "Create", "$session_name created recurring Invoice from Invoice $invoice_prefix$invoice_number", $client_id, $recurring_invoice_id);
 
-    flashAlert("Created recurring Invoice from Invoice <strong>$invoice_prefix$invoice_number</strong>");
+    flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> made recurring as <strong>$config_recurring_invoice_prefix$recurring_invoice_number</strong>" . ($card_fees > 0 ? ' - without its card fee' : ''));
 
     redirect("recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
 
@@ -91,6 +100,9 @@ if (isset($_POST['add_recurring_invoice'])) {
     $scope = escapeSql($_POST['scope']);
     $recurring_invoice_discount = round(floatval($_POST['recurring_invoice_discount'] ?? 0), 2);
     $auto_send = intval($_POST['auto_send'] ?? 1) ? 1 : 0;
+    // Made ahead of its date, and when one made ahead is due (functions/billing.php)
+    $ahead_sql = recurringAheadReady() ? ", recurring_invoice_lead_days = " . recurringInvoiceLeadDays($_POST['lead_days'] ?? 0, $frequency)
+        . ", recurring_invoice_due_mode = '" . (($_POST['due_mode'] ?? '') === 'next' ? 'next' : 'terms') . "'" : '';
 
     enforceClientAccess();
 
@@ -105,7 +117,7 @@ if (isset($_POST['add_recurring_invoice'])) {
 
     $recurring_invoice_number = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$config_recurring_invoice_prefix', recurring_invoice_number = $recurring_invoice_number, recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_next_date = '$start_date', recurring_invoice_anchor_day = DAY('$start_date'), recurring_invoice_category_id = $category, recurring_invoice_status = 1, recurring_invoice_discount_amount = $recurring_invoice_discount, recurring_invoice_amount = " . (0 - $recurring_invoice_discount) . ", recurring_invoice_auto_send = $auto_send, recurring_invoice_currency_code = '$session_company_currency', recurring_invoice_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$config_recurring_invoice_prefix', recurring_invoice_number = $recurring_invoice_number, recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_next_date = '$start_date', recurring_invoice_anchor_day = DAY('$start_date'), recurring_invoice_category_id = $category, recurring_invoice_status = 1, recurring_invoice_discount_amount = $recurring_invoice_discount, recurring_invoice_amount = " . (0 - $recurring_invoice_discount) . ", recurring_invoice_auto_send = $auto_send, recurring_invoice_currency_code = '$session_company_currency', recurring_invoice_client_id = $client_id $ahead_sql");
 
     $recurring_invoice_id = mysqli_insert_id($mysqli);
 
@@ -113,9 +125,85 @@ if (isset($_POST['add_recurring_invoice'])) {
 
     logAudit("Recurring Invoice", "Create", "$session_name created recurring invoice $config_recurring_invoice_prefix$recurring_invoice_number - $scope", $client_id, $recurring_invoice_id);
 
-    flashAlert("Recurring Invoice <strong>$config_recurring_invoice_prefix$recurring_invoice_number</strong> created");
+    flashAlert("Recurring invoice <strong>$config_recurring_invoice_prefix$recurring_invoice_number</strong> created");
 
     redirect("recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
+
+}
+
+/*
+ * Copy a recurring invoice to another client (agent/modals/recurring_invoice/
+ * recurring_invoice_copy.php) - its lines, scope, category, discount, notes,
+ * how often and how it sends, starting on the day picked. Seat lines count
+ * the new client's; one counting a license of the first client's keeps its
+ * quantity and stops counting. Not autopay, a contract or the quote it came from.
+ */
+if (isset($_POST['copy_recurring_invoice'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    $from = billingRow('recurring', intval($_POST['recurring_invoice_id'] ?? 0));
+    if (!$from) {
+        flashAlert('That recurring invoice no longer exists.', 'error');
+        redirect();
+    }
+    $from_id = intval($from['recurring_invoice_id']);
+    $client_id = intval($from['client_id']);
+    enforceClientAccess();
+
+    $client_id = intval($_POST['client_id'] ?? 0);
+    enforceClientAccess();
+    $client_name = getFieldById('clients', $client_id, 'client_name');
+    if (!$client_id || $client_id === intval($from['client_id']) || !$client_name) {
+        flashAlert('Pick the client to copy it to.', 'error');
+        redirect();
+    }
+
+    $start = trim((string) ($_POST['start_date'] ?? ''));
+    $start_check = DateTime::createFromFormat('!Y-m-d', $start);
+    if (!$start_check || $start_check->format('Y-m-d') !== $start) {
+        flashAlert('Pick the day its first invoice is made.', 'error');
+        redirect();
+    }
+    $start_sql = escapeSql($start);
+
+    $prefix = escapeSql($config_recurring_invoice_prefix);
+    $number = billingNextNumber('recurring');
+    $frequency = escapeSql($from['recurring_invoice_frequency']);
+    $ahead_sql = recurringAheadReady() ? ", recurring_invoice_lead_days = " . intval($from['recurring_invoice_lead_days']) . ", recurring_invoice_due_mode = '" . escapeSql($from['recurring_invoice_due_mode']) . "'" : '';
+
+    mysqli_query($mysqli, "INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$prefix', recurring_invoice_number = $number,
+        recurring_invoice_scope = '" . escapeSql($from['recurring_invoice_scope']) . "', recurring_invoice_frequency = '$frequency',
+        recurring_invoice_next_date = '$start_sql', recurring_invoice_anchor_day = DAY('$start_sql'), recurring_invoice_status = 1,
+        recurring_invoice_discount_amount = " . floatval($from['recurring_invoice_discount_amount']) . ", recurring_invoice_amount = 0,
+        recurring_invoice_currency_code = '" . escapeSql($from['recurring_invoice_currency_code']) . "', recurring_invoice_note = '" . escapeSql($from['recurring_invoice_note']) . "',
+        recurring_invoice_auto_send = " . intval($from['recurring_invoice_auto_send']) . ", recurring_invoice_email_notify = " . intval($from['recurring_invoice_email_notify']) . ",
+        recurring_invoice_category_id = " . intval($from['recurring_invoice_category_id']) . ", recurring_invoice_client_id = $client_id $ahead_sql");
+    $recurring_invoice_id = intval(mysqli_insert_id($mysqli));
+
+    // The lines as they are - a license seat line keeps its quantity, as the license is the other client's
+    mysqli_query($mysqli, "INSERT INTO recurring_invoice_items (item_name, item_description, item_quantity, item_price, item_subtotal, item_tax, item_total, item_order,
+            item_tax_id, item_product_id, item_seat_source, item_seat_filter, item_seat_minimum, item_recurring_invoice_id)
+        SELECT item_name, item_description, item_quantity, item_price, item_subtotal, item_tax, item_total, item_order, item_tax_id, item_product_id,
+            IF(item_seat_source = 'license', NULL, item_seat_source), IF(item_seat_source = 'license', NULL, item_seat_filter), IF(item_seat_source = 'license', 0, item_seat_minimum),
+            $recurring_invoice_id
+        FROM recurring_invoice_items WHERE item_recurring_invoice_id = $from_id AND item_archived_at IS NULL ORDER BY item_order, item_id");
+
+    // Seat lines counted for the new client, taxes at today's rates, and the total
+    $from_number = billingNumber('recurring', $from);
+    $new_number = "$config_recurring_invoice_prefix$number";
+    billingLog('recurring', $recurring_invoice_id, 'Active', "Copied from $from_number ({$from['client_name']}) by " . stripslashes($session_name));
+    $seat_changes = recurringInvoiceRefresh($recurring_invoice_id, stripslashes($session_name));
+    billingLog('recurring', $from_id, $from['recurring_invoice_status'] ? 'Active' : 'Paused', "Copied to $client_name as $new_number by " . stripslashes($session_name));
+
+    logAudit("Recurring Invoice", "Create", escapeSql("$session_name copied recurring invoice $from_number to $client_name as $new_number"), $client_id, $recurring_invoice_id);
+
+    flashAlert("Recurring invoice <strong>" . escapeHtml($new_number) . "</strong> made for <strong>" . escapeHtml($client_name) . "</strong>, first billing on " . escapeHtml($start)
+        . ($seat_changes ? ' - seats counted for them: ' . escapeHtml(implode('; ', $seat_changes)) : ''));
+
+    redirect("recurring_invoice.php?client_id=$client_id&recurring_invoice_id=$recurring_invoice_id");
 
 }
 
@@ -133,6 +221,9 @@ if (isset($_POST['edit_recurring_invoice'])) {
     $status = intval($_POST['status']);
     $recurring_invoice_discount = floatval($_POST['recurring_invoice_discount']);
     $auto_send = intval($_POST['auto_send']);
+    // Made ahead of its date, and when one made ahead is due - kept as it is by a form without them
+    $ahead_sql = recurringAheadReady() && isset($_POST['lead_days']) ? ", recurring_invoice_lead_days = " . recurringInvoiceLeadDays($_POST['lead_days'], $frequency)
+        . ", recurring_invoice_due_mode = '" . (($_POST['due_mode'] ?? '') === 'next' ? 'next' : 'terms') . "'" : '';
 
     // Get Recurring Invoice Details and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT recurring_invoice_prefix, recurring_invoice_number, recurring_invoice_client_id FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
@@ -151,7 +242,7 @@ if (isset($_POST['edit_recurring_invoice'])) {
     // so a schedule on the 31st that is on the 28th this month keeps the 31st.
     // (Set before next_date: MySQL reads a column already set in the same
     // UPDATE as its new value.)
-    mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_anchor_day = IF(recurring_invoice_next_date = '$next_date' AND recurring_invoice_anchor_day > 0, recurring_invoice_anchor_day, DAY('$next_date')), recurring_invoice_next_date = '$next_date', recurring_invoice_category_id = $category, recurring_invoice_discount_amount = $recurring_invoice_discount, recurring_invoice_auto_send = $auto_send, recurring_invoice_status = $status WHERE recurring_invoice_id = $recurring_invoice_id");
+    mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_anchor_day = IF(recurring_invoice_next_date = '$next_date' AND recurring_invoice_anchor_day > 0, recurring_invoice_anchor_day, DAY('$next_date')), recurring_invoice_next_date = '$next_date', recurring_invoice_category_id = $category, recurring_invoice_discount_amount = $recurring_invoice_discount, recurring_invoice_auto_send = $auto_send, recurring_invoice_status = $status" . (recurringPauseReady() ? ", recurring_invoice_paused_until = IF($status = 1, NULL, recurring_invoice_paused_until)" : '') . " $ahead_sql WHERE recurring_invoice_id = $recurring_invoice_id");
 
     billingRecalc('recurring', $recurring_invoice_id);
 
@@ -159,7 +250,7 @@ if (isset($_POST['edit_recurring_invoice'])) {
 
     logAudit("Recurring Invoice", "Edit", "$session_name edited recurring invoice $recurring_invoice_prefix$recurring_invoice_number - $scope", $client_id, $recurring_invoice_id);
 
-    flashAlert("Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> edited");
+    flashAlert("Recurring invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> saved");
 
     redirect();
 
@@ -216,7 +307,7 @@ if (isset($_GET['delete_recurring_invoice'])) {
 
     logAudit("Recurring Invoice", "Delete", "$session_name deleted recurring invoice $recurring_invoice_prefix$recurring_invoice_number - $recurring_invoice_scope", $client_id);
 
-    flashAlert("Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> deleted", 'error');
+    flashAlert("Recurring invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> deleted", 'error');
 
     redirect();
 
@@ -313,16 +404,16 @@ if (isset($_POST['set_recurring_payment'])) {
         // Get Payment ID for reference
         $recurring_payment_id = mysqli_insert_id($mysqli);
 
-        logAudit("Recurring Invoice", "Auto Payment", "$session_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $client_id, $recurring_invoice_id);
+        logAudit("Recurring Invoice", "Auto Payment", "$session_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . billingMoney($recurring_invoice_amount, $recurring_invoice_currency_code), $client_id, $recurring_invoice_id);
 
-        flashAlert("Automatic Payment <strong>$saved_payment_description</strong> enabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
+        flashAlert("Automatic payment with <strong>$saved_payment_description</strong> turned on for recurring invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong>");
     } else {
         // Delete
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = $recurring_invoice_id");
 
-        logAudit("Recurring Invoice", "Auto Payment", "$session_name removed Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $client_id, $recurring_invoice_id);
+        logAudit("Recurring Invoice", "Auto Payment", "$session_name removed Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . billingMoney($recurring_invoice_amount, $recurring_invoice_currency_code), $client_id, $recurring_invoice_id);
 
-        flashAlert("Automatic Payment <strong>Disabled</strong> for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number", 'error');
+        flashAlert("Automatic payment turned off for recurring invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong>", 'error');
     }
 
     redirect();

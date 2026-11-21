@@ -88,7 +88,7 @@ echo settingsPageStart('default');
                         <div class="col-md-6"><?= settingsSelect('config_default_transfer_from_account', intval($config_default_transfer_from_account), $accounts, ['icon' => 'fa-sign-out-alt', 'search' => true]) ?></div>
                         <div class="col-md-6"><?= settingsSelect('config_default_transfer_to_account', intval($config_default_transfer_to_account), $accounts, ['icon' => 'fa-sign-in-alt', 'search' => true]) ?></div>
                     </div>
-                    <div class="form-text mt-2">Accounts are in <a href="/agent/accounts.php">Accounts</a>, payment methods in <a href="payment_methods.php">Payment methods</a>.</div>
+                    <div class="form-text mt-2"><?php if (moduleOn('bookkeeping')) { ?>Accounts are in <a href="/agent/accounts.php">Accounts</a>, payment methods in <a href="payment_methods.php">Payment methods</a>.<?php } else { ?>With Bookkeeping off, payments go into the default payment account and expenses come out of the default expense account. Payment methods are in <a href="payment_methods.php">Payment methods</a>.<?php } ?></div>
                 <?= settingsSectionEnd() ?>
             <?php } ?>
 

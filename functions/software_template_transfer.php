@@ -93,7 +93,7 @@ function softwareTemplateFileNotes($value, $max = 20000) {
 function softwareTemplatesImportRead($contents, &$error = '') {
     $data = is_array($contents) ? $contents : json_decode((string) $contents, true);
     if (!is_array($data) || ($data['format'] ?? '') !== SOFTWARE_TEMPLATE_FILE_FORMAT || !isset($data['templates']) || !is_array($data['templates'])) {
-        $error = "That isn't a license templates file - export one from Admin > License Templates.";
+        $error = "That isn't a license templates file - export one from Admin > Templates > Licenses.";
         return null;
     }
     if (intval($data['version'] ?? 0) > SOFTWARE_TEMPLATE_FILE_VERSION) {

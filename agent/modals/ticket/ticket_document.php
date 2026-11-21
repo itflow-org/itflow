@@ -43,7 +43,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-file-medical me-2"></i>Write up <?= escapeHtml(ticketReference($ticket)) ?> as a document <small class="opacity-75 ms-1">for <?= escapeHtml($client_name) ?></small></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-ai-document-form data-ticket-id="<?= $ticket_id ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -57,8 +57,8 @@ ob_start();
         <?php require __DIR__ . '/../document/document_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_document" class="btn btn-primary text-bold" data-ai-document-save disabled><i class="fa fa-check me-2"></i>Create document</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_document" class="btn btn-primary fw-bold" data-ai-document-save disabled><i class="fas fa-check me-2"></i>Create Document</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

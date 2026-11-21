@@ -13,7 +13,7 @@
  * Every link is a row in a two-column table (asset_documents, document_files,
  * contact_files...) and they all work the same way, so they are described once
  * here and linked, unlinked, listed and offered by the same few functions -
- * one link modal (agent/modals/link/link.php), one handler
+ * one Link picker (functions/link_picker.php, js/link_picker.js), one handler
  * (agent/post/link.php) and one list (linkGroupsHtml()) on the document page
  * and the file and document quick looks.
  *
@@ -192,17 +192,17 @@ function linkCandidates($from, $id, $to, $client_id) {
     return $rows;
 }
 
-/** The audit log entry a link change is filed under - the service, document, file or license side of it. */
+/** The audit log entry a link change is filed under - the service, document, file or license side of it: [its type, its id, whether it is the $from side]. */
 function linkLogSide($from, $id, $to, $other_id) {
     foreach (['service', 'document', 'file', 'software'] as $side) {
         if ($from === $side) {
-            return [ucfirst($side), $id];
+            return [ucfirst(LINK_ENTITIES[$side]['label']), $id, true];
         }
         if ($to === $side) {
-            return [ucfirst($side), $other_id];
+            return [ucfirst(LINK_ENTITIES[$side]['label']), $other_id, false];
         }
     }
-    return [ucfirst($from), $id];
+    return [ucfirst(LINK_ENTITIES[$from]['label']), $id, true];
 }
 
 /**
@@ -233,10 +233,10 @@ function linkAdd($from, $id, $to, $ids) {
             continue;
         }
         $added[] = $other['name'];
-        [$log_type, $log_id] = linkLogSide($from, intval($source['id']), $to, $other_id);
-        $log_from = $log_type === ucfirst($from) ? $source['name'] : $other['name'];
-        $log_other = $log_type === ucfirst($from) ? $other['name'] : $source['name'];
-        $log_other_label = $log_type === ucfirst($from) ? $to_entity['label'] : $from_entity['label'];
+        [$log_type, $log_id, $log_is_from] = linkLogSide($from, intval($source['id']), $to, $other_id);
+        $log_from = $log_is_from ? $source['name'] : $other['name'];
+        $log_other = $log_is_from ? $other['name'] : $source['name'];
+        $log_other_label = $log_is_from ? $to_entity['label'] : $from_entity['label'];
         logAudit($log_type, "Link", "$session_name linked $log_other_label " . escapeSql($log_other) . " to " . strtolower($log_type) . " " . escapeSql($log_from), $client_id, $log_id);
     }
     return $added;
@@ -265,10 +265,10 @@ function linkRemove($from, $id, $to, $other_id) {
             softwareFreeKeys($other['id'], $holder, $source['id']);
         }
     }
-    [$log_type, $log_id] = linkLogSide($from, intval($source['id']), $to, intval($other['id']));
-    $log_from = $log_type === ucfirst($from) ? $source['name'] : $other['name'];
-    $log_other = $log_type === ucfirst($from) ? $other['name'] : $source['name'];
-    $log_other_label = $log_type === ucfirst($from) ? $to_entity['label'] : $from_entity['label'];
+    [$log_type, $log_id, $log_is_from] = linkLogSide($from, intval($source['id']), $to, intval($other['id']));
+    $log_from = $log_is_from ? $source['name'] : $other['name'];
+    $log_other = $log_is_from ? $other['name'] : $source['name'];
+    $log_other_label = $log_is_from ? $to_entity['label'] : $from_entity['label'];
     logAudit($log_type, "Unlink", "$session_name unlinked $log_other_label " . escapeSql($log_other) . " from " . strtolower($log_type) . " " . escapeSql($log_from), intval($source['client_id']), $log_id);
     return $other['name'];
 }
@@ -429,10 +429,9 @@ function linkGroupsHtml($from, $id, $client_id, $archived = false) {
         $entity = LINK_ENTITIES[$to];
         $rows = linkedRecords($from, $id, $to);
         $can_edit = !$archived && linkCanEdit($from, $to);
-        $link_url = "modals/link/link.php?from=$from&amp;id=$id&amp;to=$to";
         if (!$rows) {
             if ($can_edit) {
-                $empty[] = "<a class=\"ajax-modal btn btn-xs btn-outline-secondary\" href=\"#\" data-modal-url=\"$link_url\"><i class=\"fas {$entity['icon']} me-1\"></i>{$entity['plural']}</a>";
+                $empty[] = linkPickerButton($from, $id, $to, $entity['plural'], 'btn btn-xs btn-outline-secondary', "fas {$entity['icon']} me-1");
             }
             continue;
         }
@@ -443,7 +442,7 @@ function linkGroupsHtml($from, $id, $client_id, $archived = false) {
                 : '';
             $items .= '<li class="itflow-link-row">' . linkRowHtml($to, $row, $client_id) . $unlink . '</li>';
         }
-        $add = $can_edit ? "<a class=\"ajax-modal ms-auto small\" href=\"#\" data-modal-url=\"$link_url\" title=\"Link {$entity['label']}\"><i class=\"fas fa-plus me-1\"></i>Link</a>" : '';
+        $add = $can_edit ? linkPickerButton($from, $id, $to, 'Link', 'ms-auto small', 'fas fa-plus me-1', "Link {$entity['label']}") : '';
         $groups .= "<div class=\"itflow-link-group\"><div class=\"itflow-link-group-head\"><i class=\"fas fa-fw {$entity['icon']} me-1\"></i>{$entity['plural']}<span class=\"badge rounded-pill ms-1\">" . count($rows) . "</span>$add</div><ul class=\"list-unstyled mb-0\">$items</ul></div>";
     }
     if ($empty) {

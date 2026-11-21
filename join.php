@@ -59,9 +59,10 @@ $invite = $link['row'];
 $error = '';
 $in_name = $invite ? (string) $invite['invite_name'] : '';
 
-// Where they sign in - with the login key when one is required, for someone with a real invite
+// Where they sign in - with the login key when one is required, for someone whose invite is
+// waiting or was taken up. A cancelled or run-out link says nothing about how to sign in.
 $sign_in = '/login.php';
-if ($invite && !empty($config_login_key_required)) {
+if ($invite && in_array($link['state'], ['pending', 'accepted'], true) && !empty($config_login_key_required)) {
     $sign_in .= '?key=' . rawurlencode((string) $config_login_key_secret);
 }
 

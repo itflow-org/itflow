@@ -16,7 +16,7 @@ $contract_pick_templates = contractClientPickReady() ? contractTemplates() : [];
             <label class="form-label"><?= $contract_pick_edit ? 'New contract' : 'Contract' ?></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-file-contract"></i></span>
-                <select class="form-select" name="contract_template_id" data-client-contract-template>
+                <select class="form-select select2" name="contract_template_id" data-client-contract-template>
                     <option value="0"><?= $contract_pick_edit ? '- None - keep its contracts as they are -' : '- None - bill on the defaults -' ?></option>
                     <?php foreach ($contract_pick_templates as $contract_pick_id => $contract_pick_template) { ?>
                         <option value="<?= intval($contract_pick_id) ?>"><?= escapeHtml($contract_pick_template['contract_template_name']) ?> - <?= escapeHtml(contractTypeLabel($contract_pick_template['contract_template_type'])) ?>, <?= escapeHtml(strtolower(contractTermLabel($contract_pick_template['contract_template_term_months']))) ?></option>

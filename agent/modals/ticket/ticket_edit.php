@@ -48,8 +48,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-life-ring me-2"></i>Edit Ticket <small class="ms-1 opacity-75 font-monospace"><?= escapeHtml(ticketReference($ticket)) ?></small></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring me-2"></i>Edit Ticket <span class="fw-normal text-white-50 ms-1 font-monospace"><?= escapeHtml(ticketReference($ticket)) ?></span></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -59,10 +59,10 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-edit-details"><i class="fa fa-fw fa-life-ring me-2"></i>Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-edit-details"><i class="fas fa-fw fa-life-ring me-2"></i>Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-edit-related"><i class="fa fa-fw fa-link me-2"></i>Related</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-edit-related"><i class="fas fa-fw fa-link me-2"></i>Related</a>
             </li>
         </ul>
 
@@ -71,10 +71,10 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-edit-details">
 
                 <div class="mb-3">
-                    <label>For</label>
+                    <label class="form-label">For</label>
                     <?php if ($client_id) { ?>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                             <select class="form-select select2" name="contact_id">
                                 <option value="0">- No contact -</option>
                                 <?php
@@ -86,6 +86,7 @@ ob_start();
                                     <option value="<?= $contact_id_select ?>" <?= $contact_id_select === $contact_id ? 'selected' : '' ?><?= selectOptionContact($row['contact_client_id'], $row['contact_name'], $row['contact_photo'] ?? '', contactOptionDescription($row), $row['contact_id']) ?>><?= escapeHtml($row['contact_name']) ?><?= $row['contact_archived_at'] ? ' (archived)' : '' ?></option>
                                 <?php } ?>
                             </select>
+                            <?= $client_id ? quickAddButton('contact', $client_id) : '' ?>
                         </div>
                         <div class="form-text"><?= escapeHtml($ticket['client_name']) ?></div>
                         <?php if (!empty($config_smtp_provider)) { ?>
@@ -100,9 +101,9 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Subject <strong class="text-danger">*</strong></label>
+                    <label class="form-label">Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                         <input type="text" class="form-control" name="subject" maxlength="500" value="<?= escapeHtml($ticket['ticket_subject']) ?>" placeholder="Subject" required>
                     </div>
                 </div>
@@ -114,9 +115,9 @@ ob_start();
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>Priority <strong class="text-danger">*</strong></label>
+                            <label class="form-label">Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                                 <select class="form-select select2" name="priority" required>
                                     <?php foreach (['Low' => 'var(--bs-info)', 'Medium' => 'var(--bs-warning)', 'High' => 'var(--bs-danger)', 'Urgent' => 'var(--bs-emphasis-color)'] as $priority => $color) { ?>
                                         <option <?= $ticket['ticket_priority'] === $priority ? 'selected' : '' ?> data-color="<?= $color ?>"><?= $priority ?></option>
@@ -127,14 +128,14 @@ ob_start();
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>Category</label>
+                            <label class="form-label">Category</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                                 <select class="form-select select2" name="category_id">
                                     <option value="0">- Not categorized -</option>
                                     <?= categoryOptionsHtml('Ticket', $ticket_category) ?>
                                 </select>
-                                <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
+                                <?= categoryAddButtonHtml('Ticket') ?>
                             </div>
                         </div>
                     </div>
@@ -143,14 +144,14 @@ ob_start();
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>Assigned to</label>
+                            <label class="form-label">Assigned to</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                                 <select class="form-select select2" name="assigned_to">
                                     <option value="0">- Unassigned -</option>
                                     <?php
                                     $sql_agents = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users
-                                        WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+                                        WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_agents)) {
                                         $user_id = intval($row['user_id']); ?>
                                         <option <?= $ticket_assigned_to === $user_id ? 'selected' : '' ?> value="<?= $user_id ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= escapeHtml($row['user_name']) ?><?= $user_id === intval($session_user_id) ? ' (me)' : '' ?></option>
@@ -161,9 +162,9 @@ ob_start();
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>Due</label>
+                            <label class="form-label">Due</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
                                 <input type="datetime-local" class="form-control" name="due" value="<?= escapeHtml($ticket_due_at) ?>">
                             </div>
                         </div>
@@ -191,9 +192,9 @@ ob_start();
                 <?php if ($client_id) { ?>
 
                     <div class="mb-3">
-                        <label>Asset</label>
+                        <label class="form-label">Asset</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                             <select class="form-select select2" name="asset_id">
                                 <option value="0">- None -</option>
                                 <?php
@@ -214,9 +215,9 @@ ob_start();
                     </div>
 
                     <div class="mb-3">
-                        <label>Other assets</label>
+                        <label class="form-label">Other assets</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                             <select class="form-select select2" name="additional_assets[]" data-placeholder="- Any other assets involved -" multiple>
                                 <?php foreach ($assets as $row) {
                                     $asset_id_select = intval($row['asset_id']); ?>
@@ -227,9 +228,9 @@ ob_start();
                     </div>
 
                     <div class="mb-3">
-                        <label>Site</label>
+                        <label class="form-label">Site</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
                             <select class="form-select select2" name="location_id">
                                 <option value="0">- None -</option>
                                 <?php
@@ -240,6 +241,7 @@ ob_start();
                                     <option <?= $location_id === $location_id_select ? 'selected' : '' ?> value="<?= $location_id_select ?>" data-icon="fas fa-map-marker-alt"><?= escapeHtml($row['location_name']) ?><?= $row['location_archived_at'] ? ' (archived)' : '' ?></option>
                                 <?php } ?>
                             </select>
+                            <?= $client_id ? quickAddButton('location', $client_id) : '' ?>
                         </div>
                     </div>
 
@@ -248,9 +250,9 @@ ob_start();
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>Vendor</label>
+                            <label class="form-label">Vendor</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                                 <select class="form-select select2" name="vendor_id">
                                     <option value="0">- None -</option>
                                     <?php
@@ -262,14 +264,15 @@ ob_start();
                                         <option <?= $vendor_id === $vendor_id_select ? 'selected' : '' ?> value="<?= $vendor_id_select ?>"<?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= escapeHtml($row['vendor_name']) ?><?= $row['vendor_archived_at'] ? ' (archived)' : '' ?></option>
                                     <?php } ?>
                                 </select>
+                            <?= $client_id ? quickAddButton('vendor', $client_id) : '' ?>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>Their reference</label>
+                            <label class="form-label">Their reference</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                                 <input type="text" class="form-control" name="vendor_ticket_number" placeholder="The vendor's case number" maxlength="255" value="<?= escapeHtml($ticket['ticket_vendor_ticket_number']) ?>">
                             </div>
                         </div>
@@ -277,9 +280,9 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Project</label>
+                    <label class="form-label">Project</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-project-diagram"></i></span>
                         <select class="form-select select2" name="project_id">
                             <option value="0">- None -</option>
                             <?php
@@ -302,8 +305,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="edit_ticket" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save changes</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_ticket" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

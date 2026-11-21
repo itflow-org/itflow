@@ -46,9 +46,11 @@ function rackItemStyle($asset_type, $unit_type, $has_asset) {
             'PDU' => 'power',
         ];
         $asset_type = (string) $asset_type;
+        // One of your types by its group (functions/asset_type.php)
+        $group_tones = ['server' => 'server', 'virtual' => 'server', 'network' => 'network', 'power' => 'power'];
         return [
             'icon' => 'fa-' . getAssetIcon($asset_type),
-            'tone' => $tones[$asset_type] ?? 'device',
+            'tone' => $tones[$asset_type] ?? $group_tones[assetTypeInfo($asset_type)['group']] ?? 'device',
             'label' => $asset_type !== '' ? $asset_type : 'Asset',
         ];
     }
@@ -321,6 +323,19 @@ function rackUnitView(array $row) {
         'tone' => $style['tone'],
         'type_label' => escapeHtml($style['label']),
         'position' => rackPositionLabel($start, $end),
+    ];
+}
+
+/**
+ * How an asset of this type usually goes in a rack, to start the Add window
+ * from: ['height' => U, 'full_depth' => 0|1]. A server, NAS or UPS takes 2U;
+ * an access point, firewall, modem or PDU is usually half depth.
+ */
+function rackAssetDefaults($asset_type) {
+    $asset_type = (string) $asset_type;
+    return [
+        'height' => in_array($asset_type, ['Server', 'NAS', 'UPS'], true) ? 2 : 1,
+        'full_depth' => in_array($asset_type, ['Access Point', 'Firewall/Router', 'Modem/ONT', 'PDU'], true) ? 0 : 1,
     ];
 }
 

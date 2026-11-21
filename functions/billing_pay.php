@@ -61,6 +61,56 @@ function billingStripeCustomer($client_id) {
 }
 
 /**
+ * Whether Stripe turned a call down because the customer it named isn't there -
+ * deleted in Stripe's dashboard, or made under other keys (test and live mode,
+ * and each Stripe account, keep customers of their own). Stripe answers
+ * resource_missing on the customer parameter, "No such customer: 'cus_...'".
+ */
+function billingStripeCustomerGone(\Throwable $e) {
+    return $e instanceof \Stripe\Exception\InvalidRequestException
+        && $e->getStripeCode() === 'resource_missing'
+        && ($e->getStripeParam() === 'customer' || stripos($e->getMessage(), 'No such customer') !== false);
+}
+
+/**
+ * Forget a client's Stripe customer that Stripe no longer has, so the next
+ * card payment or saved card starts by setting them up again - as a client
+ * with no customer does - rather than every one failing on it. The cards
+ * saved on it go too, as Stripe dropped them with the customer, and so does
+ * the autopay on them, each recurring invoice saying why (paymentCardRemove(),
+ * functions/payment_provider.php). Only while the client still has
+ * $customer_id, so a customer made since stays. Logged, and agents are told.
+ * True when it was forgotten here.
+ */
+function billingStripeCustomerForget($client_id, $customer_id) {
+    global $mysqli;
+    $provider = billingStripeProvider();
+    $customer_id = stripslashes((string) $customer_id);
+    if (!$provider || !preg_match('/^cus_[A-Za-z0-9]+$/', $customer_id)) {
+        return false;
+    }
+    $client_id = intval($client_id);
+    $provider_id = intval($provider['payment_provider_id']);
+    mysqli_query($mysqli, "DELETE FROM client_payment_provider WHERE client_id = $client_id AND payment_provider_id = $provider_id AND payment_provider_client = '$customer_id'");
+    if (mysqli_affected_rows($mysqli) < 1) {
+        return false;
+    }
+    $cards = 0;
+    $sql = mysqli_query($mysqli, "SELECT saved_payment_id FROM client_saved_payment_methods WHERE saved_payment_client_id = $client_id AND saved_payment_provider_id = $provider_id");
+    while ($row = mysqli_fetch_row($sql)) {
+        if (paymentCardRemove($row[0], "ITFlow - the client's Stripe customer is no longer in Stripe")) {
+            $cards++;
+        }
+    }
+    $client_name = (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id"))[0] ?? '');
+    $cards_text = $cards ? " and the $cards saved " . ($cards === 1 ? 'card' : 'cards') . ' on it' : '';
+    logApp("Stripe", "warning", "Stripe has no customer $customer_id for client $client_id - forgotten$cards_text");
+    logAudit("Stripe", "Delete", "Stripe customer $customer_id for $client_name is no longer in Stripe - ITFlow forgot it$cards_text, so card payments are set up again next time", $client_id);
+    appNotify("Stripe", "$client_name's Stripe customer is no longer in Stripe - deleted there, or made under other Stripe keys. ITFlow forgot it$cards_text; card payments and autopay need a card added again.", "/agent/recurring_invoices.php?client_id=$client_id", $client_id);
+    return true;
+}
+
+/**
  * Whether an amount can be paid by card - Stripe's threshold (Admin > Payment
  * Providers) caps what is offered at checkout; none set means no cap.
  */
@@ -77,6 +127,31 @@ function billingOnlinePayAllowed($amount) {
 
 /** The name of the line a card fee goes on the invoice as. */
 const BILLING_CARD_FEE_NAME = 'Card Fee';
+
+/** Is it a card fee line ITFlow put on the invoice (billingCardFeeAdd()) - not one typed in with the same name? */
+function billingCardFeeLine(array $item) {
+    return (string) ($item['item_name'] ?? '') === BILLING_CARD_FEE_NAME
+        && strpos((string) ($item['item_description'] ?? ''), 'For paying by card on ') === 0
+        && !intval($item['item_product_id'] ?? 0);
+}
+
+/**
+ * An invoice's lines without the card fees ITFlow put on - the fee was for
+ * that one payment, so Copy Invoice and Make Recurring leave it off.
+ * [the lines, what the fees came to].
+ */
+function billingWithoutCardFees(array $items) {
+    $kept = [];
+    $fees = 0.0;
+    foreach ($items as $item) {
+        if (billingCardFeeLine($item)) {
+            $fees += floatval($item['item_total']);
+        } else {
+            $kept[] = $item;
+        }
+    }
+    return [$kept, round($fees, 2)];
+}
 
 /**
  * The card fee clients pay, when Stripe is set to have them pay it (Admin >
@@ -123,8 +198,8 @@ function billingCardFeeCents($cents, $rates) {
     if (!$rates || $cents <= 0) {
         return 0;
     }
-    $keep = 10000 - (int) round(floatval($rates['percent']) * 100);   // what Stripe leaves, in hundredths of a percent
-    $fixed = (int) round(floatval($rates['fixed']) * 100);
+    $keep = 10000 - intval(round(floatval($rates['percent']) * 100));   // what Stripe leaves, in hundredths of a percent
+    $fixed = intval(round(floatval($rates['fixed']) * 100));
     if ($keep <= 0) {
         return 0;
     }
@@ -312,6 +387,89 @@ function billingSavedCards($client_id) {
     return $rows;
 }
 
+/*
+ * The autopay on an invoice - the recurring invoice's it came from, which
+ * cron/nightly_tasks.php charges on its due date while it is sent and still
+ * owed - or null when nothing pays it by itself. ['method' => what pays it,
+ * in words: the card ("Visa •••• 4242") or the payment method it records,
+ * 'icon', 'card' => whether it is a card, 'problem' => why it won't go
+ * through, or '' (the card's payment provider is turned off, or the card
+ * runs out before the due date), 'failed' => the last time it couldn't
+ * charge this invoice, ['at', 'why'], or null, 'since' => when it was set
+ * up].
+ */
+function invoiceAutopay(array $invoice) {
+    global $mysqli;
+    $recurring_id = intval($invoice['invoice_recurring_invoice_id'] ?? 0);
+    if ($recurring_id <= 0) {
+        return null;
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT recurring_payment_method, recurring_payment_saved_payment_id, recurring_payment_created_at, saved_payment_description, payment_provider_name, payment_provider_active
+        FROM recurring_payments
+        LEFT JOIN client_saved_payment_methods ON saved_payment_id = recurring_payment_saved_payment_id
+        LEFT JOIN payment_providers ON payment_provider_id = saved_payment_provider_id
+        WHERE recurring_payment_recurring_invoice_id = $recurring_id LIMIT 1"));
+    if (!$row) {
+        return null;
+    }
+    $card = intval($row['recurring_payment_saved_payment_id']) > 0;
+    $parts = $card ? billingCardParts($row['saved_payment_description']) : null;
+    $problem = '';
+    if ($card && !intval($row['payment_provider_active'])) {
+        $problem = ($row['payment_provider_name'] ?: 'Its payment provider') . ' is turned off';
+    } elseif ($parts && $parts['exp'] !== '') {
+        // A card is good to the end of the month it runs out
+        [$month, $year] = array_map('intval', explode('/', $parts['exp']));
+        if (date('Y-m-d', mktime(0, 0, 0, $month + 1, 0, 2000 + $year)) < (string) $invoice['invoice_due']) {
+            $problem = 'the card runs out ' . $parts['exp'] . ', before it is due';
+        }
+    }
+    $failed = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT history_description, history_created_at FROM history
+        WHERE history_invoice_id = " . intval($invoice['invoice_id']) . " AND history_description LIKE 'Stripe autopay failed%' ORDER BY history_id DESC LIMIT 1"));
+    return [
+        'method' => $card ? $parts['label'] : (string) $row['recurring_payment_method'],
+        'icon' => $card ? $parts['icon'] : 'fas fa-wallet',
+        'card' => $card,
+        'problem' => $problem,
+        'failed' => $failed ? ['at' => $failed['history_created_at'], 'why' => trim(preg_replace('/^Stripe autopay failed:?\s*/i', '', $failed['history_description']))] : null,
+        'since' => (string) $row['recurring_payment_created_at'],
+    ];
+}
+
+/*
+ * Where an invoice's autopay stands (invoiceAutopay()), for its page - or
+ * null when there is none to speak of: none on it, or nothing owed.
+ * ['tone' => success, secondary, warning or danger, 'short' => a few words
+ * ("Autopay Nov 30"), 'text' => a sentence, 'detail' => the sentence without
+ * what pays it, to go under it]. Autopay charges on the due
+ * date, so one still owed after it didn't go through - unless autopay was
+ * set up after that.
+ */
+function invoiceAutopayStatus(array $invoice, array $state, $autopay) {
+    if (!$autopay || !in_array($state['state'], ['draft', 'open', 'overdue'], true)) {
+        return null;
+    }
+    $how = $autopay['card'] ? "charges {$autopay['method']}" : "records it as paid by {$autopay['method']}";
+    $done = $autopay['card'] ? 'Charged' : 'Recorded as paid';
+    $due = date('M j, Y', strtotime($invoice['invoice_due']));
+    if ($state['state'] === 'overdue') {
+        if (substr($autopay['since'], 0, 10) > (string) $invoice['invoice_due']) {
+            return null;
+        }
+        $why = $autopay['failed'] ? $autopay['failed']['why'] . ' on ' . date('M j', strtotime($autopay['failed']['at'])) : $autopay['problem'];
+        $then = ($why !== '' ? " - $why" : '') . '. Take the payment another way, or check the card.';
+        return ['tone' => 'danger', 'short' => "Autopay didn't pay it", 'text' => "Autopay didn't pay it on its due date$then", 'detail' => "Didn't pay it on its due date$then"];
+    }
+    if ($autopay['problem'] !== '') {
+        return ['tone' => 'warning', 'short' => "Autopay won't charge", 'text' => "Autopay is on, but it won't go through on $due - {$autopay['problem']}.", 'detail' => "Won't go through on $due - {$autopay['problem']}."];
+    }
+    if ($state['state'] === 'draft') {
+        return ['tone' => 'secondary', 'short' => 'Autopay once sent', 'text' => "Autopay $how on its due date, $due, once it's sent.", 'detail' => "$done on its due date, $due, once it's sent."];
+    }
+    return ['tone' => 'success', 'short' => 'Autopay ' . date('M j', strtotime($invoice['invoice_due'])), 'text' => "Autopay $how on its due date, $due - for what is still owed then.",
+        'detail' => "$done on its due date, $due - for what is still owed then."];
+}
+
 /* ------------------------------------------------------- Choosing and paying */
 
 /**
@@ -344,7 +502,7 @@ function billingPaySelection($client_id, array $invoice_ids, &$error = '') {
             return null;
         }
         $row = $open[$id];
-        $cents = (int) round((floatval($row['invoice_amount']) - floatval($row['paid'])) * 100);
+        $cents = intval(round((floatval($row['invoice_amount']) - floatval($row['paid'])) * 100));
         $currency = strtoupper((string) $row['invoice_currency_code']);
         if ($selection['currency'] !== '' && $currency !== $selection['currency']) {
             $error = 'Those invoices are in different currencies - pay each currency on its own';
@@ -464,6 +622,10 @@ function billingStripeChargeSaved(array $selection, $client_id, $saved_payment_i
             ? 'Your bank wants to confirm this payment - choose A new card and enter the card details to approve it'
             : 'Your card was declined: ' . rtrim($e->getMessage(), '.') . '. Try another card'];
     } catch (\Throwable $e) {
+        if (billingStripeCustomerGone($e)) {
+            billingStripeCustomerForget($client_id, $customer);
+            return ['ok' => false, 'error' => 'Your saved cards are no longer with Stripe - nothing was charged. Pay with a new card, and save it again if you want one on file'];
+        }
         logApp("Stripe", "error", "Saved card payment failed for client $client_id: " . $e->getMessage());
         return ['ok' => false, 'error' => 'The payment could not be made just now - nothing was charged. Try again in a moment'];
     }
@@ -501,7 +663,17 @@ function billingStripeCheckoutIntent(array $selection, $client_id, array $by = [
             // Gone or not cancellable - a new one is made below either way
         }
     }
-    return $stripe->paymentIntents->create($params);
+    try {
+        return $stripe->paymentIntents->create($params);
+    } catch (\Stripe\Exception\InvalidRequestException $e) {
+        // A customer Stripe no longer has - forgotten, and this payment goes ahead without one
+        if (!isset($params['customer']) || !billingStripeCustomerGone($e)) {
+            throw $e;
+        }
+        billingStripeCustomerForget($client_id, $params['customer']);
+        unset($params['customer']);
+        return $stripe->paymentIntents->create($params);
+    }
 }
 
 /* ------------------------------------------------------------------ Booking */

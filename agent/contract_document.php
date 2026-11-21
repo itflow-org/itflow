@@ -26,7 +26,7 @@ if ($contract && !empty($_GET['round'])) {
 
 if (!$contract || (isset($_GET['client_id']) && intval($contract['contract_client_id']) !== intval($client_id)) || (!empty($_GET['round']) && !$round)) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
 } else {
 

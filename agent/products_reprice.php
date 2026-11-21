@@ -44,7 +44,7 @@ if ($filters['product_id']) {
     $narrowed[] = ['Product', getFieldById('products', $filters['product_id'], 'product_name') ?: 'a product', $clear_url(['product_id'])];
 }
 if ($filters['client_id']) {
-    $narrowed[] = ['Client', getFieldById('clients', $filters['client_id'], 'client_name') ?: 'a client', $clear_url(['client_id'])];
+    $narrowed[] = ['Client', getFieldByIdInScope('clients', $filters['client_id'], 'client_name', 'client_id') ?: 'a client', $clear_url(['client_id'])];
 }
 if ($filters['kind']) {
     $doc = $filters['doc_id'] ? billingRow($filters['kind'], $filters['doc_id']) : null;
@@ -107,7 +107,7 @@ $page_title = 'Update Prices';
                     </div>
                     <?php if ($can_edit) { ?>
                         <div class="btn-group btn-group-sm" role="group" aria-label="Set the new prices">
-                            <button type="button" class="btn btn-outline-secondary" data-reprice-fill="catalog" title="Every line here at <?= escapeHtml(billingMoney($group['product_price'], $currency)) ?>"><i class="fas fa-tag me-1"></i>Catalog price</button>
+                            <button type="button" class="btn btn-outline-secondary" data-reprice-fill="catalog" title="Every line here at <?= escapeHtml(billingMoney($group['product_price'], $currency)) ?>"><i class="fas fa-tag me-1"></i>Catalog Price</button>
                             <?php if ($ratio && $percent != 0) { ?>
                                 <button type="button" class="btn btn-outline-secondary" data-reprice-fill="ratio" data-ratio="<?= $ratio ?>" title="Each line's price changed by the same <?= escapeHtml((string) $percent) ?>%"><i class="fas fa-percent me-1"></i><?= $percent > 0 ? '+' : '' ?><?= escapeHtml((string) $percent) ?>% each</button>
                             <?php } ?>
@@ -189,7 +189,7 @@ $page_title = 'Update Prices';
         <?php if ($groups && $can_edit) { ?>
             <div class="card-footer d-flex flex-wrap gap-2 align-items-center itflow-reprice-footer">
                 <span class="small text-body-secondary me-auto" data-reprice-summary>Nothing picked</span>
-                <button type="submit" name="products_reprice_save" class="btn btn-primary text-bold" data-reprice-save disabled
+                <button type="submit" name="products_reprice_save" class="btn btn-primary fw-bold" data-reprice-save disabled
                     ><i class="fas fa-check me-2"></i><span data-reprice-save-label>Update Prices</span></button>
             </div>
         <?php } ?>

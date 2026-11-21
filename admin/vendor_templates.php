@@ -104,10 +104,6 @@ $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(vendor_tem
     COALESCE(SUM(vendor_template_archived_at IS NULL AND vendor_template_required > 0), 0), COALESCE(SUM(vendor_template_archived_at IS NULL AND vendor_template_id IN ($out_ids)), 0)
     FROM vendor_templates WHERE $search"));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($show) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $show]));
 };
@@ -120,30 +116,32 @@ $csrf = $_SESSION['csrf_token'];
 
 ?>
 
+<?= adminNavGroupTabsHtml('templates') ?>
+
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-building me-2"></i>Vendor Templates</h3>
         <div class="card-tools">
             <div class="btn-group">
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Vendor Template</span></button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $clients_url ?>">
-                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Add one to clients
+                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Add One to Clients
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $import_url ?>">
                         <i class="fas fa-fw fa-file-upload text-secondary me-2"></i>Import
                     </a>
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $export_url ?>">
-                        <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="/agent/reports/vendor_templates.php">
-                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How they are used
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How They Are Used
                     </a>
                     <a class="dropdown-item" href="starter_content.php">
-                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter vendor templates
+                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter Vendor Templates
                     </a>
                 </div>
             </div>
@@ -156,7 +154,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search vendor templates..." title="Name, what they are, support line, email, site, status page, portal, hours, SLA, account manager or notes">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -172,11 +170,11 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('vendor_template_name', 'Template') ?></th>
+                <th class="ps-3"><?= sortLink('vendor_template_name', 'Template') ?></th>
                 <th class="d-none d-lg-table-cell">Support</th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('used_count', 'Used') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('last_used', 'Last used') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('changed_at', 'Changed') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('used_count', 'Used') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('last_used', 'Last used') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('changed_at', 'Changed') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -258,7 +256,7 @@ $csrf = $_SESSION['csrf_token'];
                         <?php } ?>
                     </td>
                     <td class="d-none d-md-table-cell small text-body-secondary text-nowrap"<?= $row['last_used'] ? ' title="' . escapeHtml($row['last_used']) . '"' : '' ?>><?= $row['last_used'] ? timeAgo($row['last_used']) : '-' ?></td>
-                    <td class="d-none d-lg-table-cell small text-body-secondary text-nowrap" title="<?= escapeHtml($row['changed_at']) ?>">
+                    <td class="d-none d-lg-table-cell small text-body-secondary text-nowrap" title="<?= formatDateTime($row['changed_at']) ?>">
                         <?= timeAgo($row['changed_at']) ?>
                         <?php if ($row['changed_by'] !== null) { ?><div><?= escapeHtml($row['changed_by']) ?></div><?php } ?>
                     </td>
@@ -271,29 +269,29 @@ $csrf = $_SESSION['csrf_token'];
                                 </a>
                                 <?php if (!$row['vendor_template_archived_at']) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $clients_url ?>?template_id=<?= $template_id ?>">
-                                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Add to clients
+                                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Add to Clients
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/vendor_template/vendor_template_required.php?id=<?= $template_id ?>">
-                                    <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Who should have it
+                                    <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Who Should Have It
                                 </a>
                                 <a class="dropdown-item" href="post.php?copy_vendor_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">
-                                    <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                    <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
                                 <a class="dropdown-item" href="post.php?export_vendor_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow - without account numbers or PINs">
-                                    <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
+                                    <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['vendor_template_archived_at']) { ?>
                                     <a class="dropdown-item" href="post.php?restore_vendor_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>">
-                                        <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item text-danger" href="post.php?archive_vendor_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="Not offered for new vendors - the vendors made from it stay">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </a>
                                 <?php } ?>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_vendor_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>"
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_vendor_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Delete <?= $name ?>?" data-confirm-text="The vendors made from it stay as they are." data-confirm-button="Delete">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>
@@ -316,7 +314,7 @@ $csrf = $_SESSION['csrf_token'];
             'out' => ['title' => 'Every vendor is in step', 'text' => 'Every client\'s vendor made from a template says what the template says.']][$show] ?? null,
         'text' => 'A vendor your clients use again and again - an ISP, a hardware maker, the software they run - set up once with its support line, hours and site, ready to add to any client. Agents start one from <strong>New Vendor</strong> on a client\'s Vendors.',
         'actions' => [['label' => 'New Vendor Template', 'modal' => $add_url, 'size' => 'lg'], ['label' => 'Import', 'modal' => $import_url, 'icon' => 'fa-file-upload'],
-            ['label' => 'Starter vendor templates', 'href' => 'starter_content.php', 'icon' => 'fa-seedling']],
+            ['label' => 'Starter Vendor Templates', 'href' => 'starter_content.php', 'icon' => 'fa-seedling']],
     ];
     require_once "../includes/filter_footer.php";
     ?>

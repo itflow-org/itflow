@@ -28,7 +28,7 @@ if (!$contract || $contract['contract_status'] !== 'Active') { ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-ban me-2"></i>Cancel <strong><?= escapeHtml($contract['contract_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -40,23 +40,23 @@ if (!$contract || $contract['contract_status'] !== 'Active') { ?>
             </p>
         <?php } ?>
         <div class="mb-3">
-            <label class="form-label">Last day in force</label>
+            <label class="form-label">Last day in force <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar-times"></i></span>
                 <input type="date" class="form-control" name="last_day" value="<?= escapeHtml($last_day) ?>" required>
             </div>
         </div>
         <div class="mb-1">
             <label class="form-label">Why</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
                 <input type="text" class="form-control" name="reason" maxlength="255" placeholder="Moving to another provider, bought out, closing down">
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="cancel_contract" class="btn btn-danger text-bold"><i class="fas fa-ban me-2"></i>Cancel contract</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Keep it</button>
+        <button type="submit" name="cancel_contract" class="btn btn-danger fw-bold"><i class="fas fa-ban me-2"></i>Cancel Contract</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Keep It</button>
     </div>
 </form>
 

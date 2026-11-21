@@ -29,8 +29,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-life-ring me-2"></i>Open a ticket <small class="ms-1 opacity-75">from <?= escapeHtml(smsNumberText($number)) ?></small></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring me-2"></i>Open a Ticket <small class="ms-1 opacity-75">from <?= escapeHtml(smsNumberText($number)) ?></small></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -54,7 +54,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="client_select">Client</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
                 <select class="form-select select2" name="client_id" id="client_select">
                     <option value="">- No client -</option>
                     <?php
@@ -70,7 +70,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="contact_select">Contact</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="contact_id" id="contact_select">
                     <option value="">- Pick the client first -</option>
                 </select>
@@ -84,7 +84,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="smsTicketSubject">Subject <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="subject" id="smsTicketSubject" maxlength="500" required value="<?= escapeHtml($subject) ?>">
             </div>
         </div>
@@ -96,8 +96,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="sms_open_ticket" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Open ticket</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="sms_open_ticket" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Open Ticket</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

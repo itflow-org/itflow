@@ -29,16 +29,16 @@ $password_fields = function ($form) use ($password_min) {
     ?>
     <div class="border rounded p-3 mt-2 bg-body-tertiary" data-client-export-password hidden>
         <div class="mb-2">
-            <label for="<?= $form ?>Password">Password for the file</label>
+            <label class="form-label" for="<?= $form ?>Password">Password for the file</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control" id="<?= $form ?>Password" name="password" minlength="<?= $password_min ?>" maxlength="200" autocomplete="new-password" disabled>
             </div>
         </div>
         <div class="mb-2">
-            <label for="<?= $form ?>PasswordConfirm">Confirm password</label>
+            <label class="form-label" for="<?= $form ?>PasswordConfirm">Confirm password</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control" id="<?= $form ?>PasswordConfirm" name="password_confirm" minlength="<?= $password_min ?>" maxlength="200" autocomplete="new-password" disabled>
             </div>
         </div>
@@ -59,8 +59,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-file-export me-2"></i>Export <?= $client_name ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-download me-2"></i>Export <?= $client_name ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <ul class="modal-header nav nav-pills nav-justified">
@@ -102,10 +102,10 @@ ob_start();
                 <?php if (shareCanMake('Export')) { ?>
                     <button type="button" class="btn btn-outline-primary me-auto ajax-modal" data-bs-dismiss="modal" data-client-export-share data-modal-size="lg"
                         data-modal-url="modals/share/share_add.php?type=Export&amp;client_id=<?= $client_id ?>" title="A secure link to the PDF instead - for someone outside">
-                        <i class="fas fa-fw fa-share-alt me-2"></i>Share a link
+                        <i class="fas fa-fw fa-share-alt me-2"></i>Share a Link
                     </button>
                 <?php } ?>
-                <button type="submit" name="export_client_pdf" value="1" class="btn btn-primary text-bold" data-client-export-submit>
+                <button type="submit" name="export_client_pdf" value="1" class="btn btn-primary fw-bold" data-client-export-submit>
                     <i class="fas fa-fw fa-file-pdf me-2"></i>Download PDF
                 </button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
@@ -151,7 +151,7 @@ ob_start();
                 <?php } ?>
             </div>
             <div class="modal-footer">
-                <button type="submit" name="export_client_archive" value="1" class="btn btn-primary text-bold" data-client-export-submit>
+                <button type="submit" name="export_client_archive" value="1" class="btn btn-primary fw-bold" data-client-export-submit>
                     <i class="fas fa-fw fa-file-archive me-2"></i>Download ZIP
                 </button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>

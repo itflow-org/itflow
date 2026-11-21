@@ -4,7 +4,8 @@
  * Maintenance > Mail Queue - one email: where it stands, and why it last
  * failed or who cancelled it; who it is to and from; when it was queued,
  * tried, sent or given up on; its attachments and calendar file; and what it
- * says, until it is sent - that is cleared then (cron/mail_queue.php). The
+ * says - unless it carried a link or code that opens something, cleared once it
+ * has gone (functions/mail_queue.php). The
  * email is shown as it will arrive, in a sandboxed frame that runs nothing
  * and can't reach this page. Retry now, Cancel and Delete as on its row
  * (admin/post/mail_queue.php).
@@ -14,7 +15,7 @@ require_once '../../includes/modal_header.php';
 
 $email_id = intval($_GET['id'] ?? 0);
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT email_id, email_status, email_attempts, email_from, email_from_name, email_recipient, email_recipient_name,
-    email_subject, email_content, email_cal_str, email_attachments, email_queued_at, email_failed_at, email_sent_at, " . mailQueueErrorColumn() . "
+    email_subject, email_content, email_content = '' AS email_cleared, email_cal_str, email_attachments, email_queued_at, email_failed_at, email_sent_at, " . mailQueueErrorColumn() . "
     FROM email_queue WHERE email_id = $email_id LIMIT 1"));
 
 ob_start();
@@ -22,7 +23,7 @@ ob_start();
 if (!$row) { ?>
     <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-envelope me-2"></i>Email</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5" data-email-gone>That email is no longer in the queue - it may have been deleted.</div>
 <?php } else {
@@ -44,14 +45,10 @@ if (!$row) { ?>
         }
         return escapeHtml($name) . ' <span class="text-body-secondary">&lt;' . escapeHtml($address) . '&gt;</span>';
     };
-    $attachments = [];
-    foreach ((array) json_decode((string) $row['email_attachments'], true) as $attachment) {
-        if (is_array($attachment) && trim((string) ($attachment['name'] ?? '')) !== '') {
-            $attachments[] = basename((string) $attachment['name']);
-        }
-    }
+    // The files attached; the pictures in its message are shown in it
+    $attachments = mailQueueAttachments($row['email_attachments'])['files'];
     $has_invite = trim((string) $row['email_cal_str']) !== '';
-    $content = (string) $row['email_content'];
+    $content = mailQueueShowImages((string) $row['email_content'], $row['email_attachments']);
     $subject = trim((string) $row['email_subject']) !== '' ? escapeHtml($row['email_subject']) : '(no subject)';
 
     // How many tries, in words
@@ -68,12 +65,12 @@ if (!$row) { ?>
 
     <div class="modal-header bg-dark">
         <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-envelope-open me-2"></i><strong><?= $subject ?></strong></h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body" data-email-view="<?= intval($row['email_id']) ?>">
 
         <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-            <span class="badge <?= $state['badge'] ?> fs-6" data-email-status><i class="fas fa-fw <?= $state['icon'] ?> me-1"></i><?= $state['label'] ?></span>
+            <span class="badge rounded-pill <?= $state['badge'] ?> fs-6" data-email-status><i class="fas fa-fw <?= $state['icon'] ?> me-1"></i><?= $state['label'] ?></span>
             <span class="text-body-secondary" title="<?= escapeHtml($state['title']) ?>"><?= escapeHtml($state['detail']) ?></span>
         </div>
 
@@ -108,7 +105,7 @@ if (!$row) { ?>
                 <dt class="col-sm-2 text-body-secondary fw-normal">Attachments</dt>
                 <dd class="col-sm-10" data-email-attachments>
                     <?php foreach ($attachments as $name) { ?>
-                        <span class="badge text-bg-light border fw-normal me-1"><i class="fas fa-fw fa-paperclip me-1"></i><?= escapeHtml($name) ?></span>
+                        <span class="badge rounded-pill text-bg-light border fw-normal me-1"><i class="fas fa-fw fa-paperclip me-1"></i><?= escapeHtml($name) ?></span>
                     <?php } ?>
                 </dd>
             <?php } ?>
@@ -122,8 +119,8 @@ if (!$row) { ?>
             <div class="text-center text-body-secondary border rounded py-4 px-3" data-email-cleared>
                 <i class="fas fa-fw fa-eraser fa-lg mb-2 d-block"></i>
                 <?= $status === 3
-                    ? 'What it said was cleared when it was sent - an email can carry share links and temporary passwords, so it isn\'t kept.'
-                    : 'There is nothing in it.' ?>
+                    ? 'What it said was cleared when it was sent - it carried a link or code that opens something, such as a shared login, an invite or a password link, so it isn\'t kept.'
+                    : (in_array($status, [2, MAIL_QUEUE_CANCELLED], true) ? 'What it said was cleared a day after it was queued - it carried a link or code that opens something, so it isn\'t kept. Send a new one from where it came from.' : 'There is nothing in it.') ?>
             </div>
         <?php } else { ?>
             <!-- As it will arrive - sandboxed: nothing in it runs, and it can't reach this page; its links open on their own -->
@@ -137,10 +134,10 @@ if (!$row) { ?>
                 data-confirm-title="Delete this email?" data-confirm-text="<?= $status === 3 ? 'It has been sent - this only takes it off the list.' : 'It won\'t be sent.' ?>" data-confirm-button="Delete"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
         <?php } ?>
         <?php if (mailQueueCan($row, 'retry')) { ?>
-            <a class="btn btn-primary" href="post.php?retry_mail=<?= intval($row['email_id']) ?>&csrf_token=<?= $csrf ?>" title="From the start, at the next run" data-email-retry><i class="fas fa-fw fa-redo-alt me-2"></i>Retry now</a>
+            <a class="btn btn-primary" href="post.php?retry_mail=<?= intval($row['email_id']) ?>&csrf_token=<?= $csrf ?>" title="From the start, at the next run" data-email-retry><i class="fas fa-fw fa-redo-alt me-2"></i>Retry Now</a>
         <?php } ?>
         <?php if (mailQueueCan($row, 'cancel')) { ?>
-            <a class="btn btn-outline-secondary" href="post.php?cancel_mail=<?= intval($row['email_id']) ?>&csrf_token=<?= $csrf ?>" data-email-cancel><i class="fas fa-fw fa-ban me-2"></i>Cancel it</a>
+            <a class="btn btn-outline-secondary" href="post.php?cancel_mail=<?= intval($row['email_id']) ?>&csrf_token=<?= $csrf ?>" data-email-cancel><i class="fas fa-fw fa-ban me-2"></i>Cancel It</a>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
     </div>

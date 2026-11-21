@@ -56,6 +56,15 @@ $shows = [
 if (!userInvitesReady()) {
     unset($shows['invited']);
 }
+// API / service accounts (functions/service_account.php) - a view of their own, out of the others but Archived
+if (serviceAccountsReady()) {
+    foreach (['', 'admins', 'nomfa', 'disabled'] as $view_key) {
+        $shows[$view_key]['where'] .= ' AND user_service_account = 0';
+    }
+    $shows = array_slice($shows, 0, array_search('archived', array_keys($shows), true), true)
+        + ['service' => ['label' => 'API accounts', 'icon' => 'fa-plug', 'where' => 'user_archived_at IS NULL AND user_service_account = 1', 'title' => 'Logins only for API keys to act as - left out of every agent list, and unable to sign in']]
+        + $shows;
+}
 $show = isset($shows[$_GET['show'] ?? '']) ? ($_GET['show'] ?? '') : '';
 
 // Client portal - contacts, not agents, so a list of their own: narrowed to a client, and by how they sign in
@@ -136,7 +145,7 @@ if ($show === 'portal') {
     }
 } else {
     $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS users.user_id, user_name, user_email, user_status, user_token, user_avatar, user_created_at, user_archived_at,
-            user_role_id, role_name, role_is_admin, user_config_force_mfa
+            user_role_id, role_name, role_is_admin, user_config_force_mfa" . (serviceAccountsReady() ? ', user_service_account' : '') . "
         FROM users $joins
         WHERE $filters AND {$shows[$show]['where']}
         ORDER BY {$sortable_columns[$sort]}, users.user_id ASC
@@ -210,10 +219,6 @@ $filter_url = function ($changes) {
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null; }));
 };
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $csrf = $_SESSION['csrf_token'];
 
@@ -240,20 +245,26 @@ $csrf = $_SESSION['csrf_token'];
                         <i class="fas fa-user-plus"></i><span class="d-none d-lg-inline ms-2">New User</span>
                     </button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
+                    <?php if (userInvitesReady() && !$agent_user_limit_reached) { ?>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/user/user_invite_bulk.php?role=<?= $role_filter ?>">
+                            <i class="fas fa-fw fa-users text-secondary me-2"></i>Invite Several
+                        </a>
+                        <div class="dropdown-divider"></div>
+                    <?php } ?>
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/user/user_export.php', ['q', 'role'], ['archived' => $show === 'archived' ? 1 : null]) ?>">
-                        <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <a class="dropdown-item" href="roles.php">
-                        <i class="fa fa-fw fa-user-tag text-secondary me-2"></i>Roles
+                        <i class="fas fa-fw fa-user-tag text-secondary me-2"></i>Roles
                     </a>
                     <a class="dropdown-item" href="settings_security.php">
-                        <i class="fa fa-fw fa-shield-alt text-secondary me-2"></i>Security settings
+                        <i class="fas fa-fw fa-shield-alt text-secondary me-2"></i>Security Settings
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/user/user_all_reset_password.php">
-                        <i class="fas fa-fw fa-skull-crossbones me-2"></i>Incident response
+                        <i class="fas fa-fw fa-skull-crossbones me-2"></i>Incident Response
                     </a>
                 </div>
             </div>
@@ -267,7 +278,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?= escapeHtml($_GET['q'] ?? '') ?>" placeholder="<?= $show === 'portal' ? 'Search portal users...' : 'Search users...' ?>" title="<?= $show === 'portal' ? 'Name, email or client' : 'Name, email or role' ?>">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <?php if ($show === 'portal') { ?>
@@ -309,20 +320,20 @@ $csrf = $_SESSION['csrf_token'];
                                         data-confirm-title="Email them a password link?" data-confirm-icon="info"
                                         data-confirm-text="Each one who signs in with a password is emailed a link to choose a new one, good for <?= PORTAL_RESET_LINK_MINUTES ?> minutes. Their password stays as it is until they use it."
                                         data-confirm-button="Email the links">
-                                        <i class="fas fa-fw fa-key text-secondary me-2"></i>Email a password link
+                                        <i class="fas fa-fw fa-key text-secondary me-2"></i>Email a Password Link
                                     </button>
                                 <?php } ?>
                                 <button class="dropdown-item confirm-link" type="submit" form="bulkActions" name="bulk_portal_reset_mfa"
                                     data-confirm-text="They sign in with their password alone until they set two-step sign-in up again, and are emailed that it was turned off. For a lost or replaced phone."
                                     data-confirm-button="Turn off two-step">
-                                    <i class="fas fa-fw fa-mobile-alt text-secondary me-2"></i>Turn off two-step sign-in
+                                    <i class="fas fa-fw fa-mobile-alt text-secondary me-2"></i>Turn Off Two-step Sign-in
                                 </button>
                                 <?php if ($portal_access !== 'off') { ?>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_portal_access_off"
                                         data-confirm-text="They are signed out of the client portal and can't sign in. Their contact stays as it is - turn their access back on here or from the contact."
                                         data-confirm-button="Turn off access">
-                                        <i class="fas fa-fw fa-user-slash me-2"></i>Turn off portal access
+                                        <i class="fas fa-fw fa-user-slash me-2"></i>Turn Off Portal Access
                                     </button>
                                 <?php } ?>
                             </div>
@@ -335,10 +346,10 @@ $csrf = $_SESSION['csrf_token'];
                                     <i class="fas fa-fw fa-lock text-secondary me-2"></i>Require MFA
                                 </button>
                                 <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_unrequire_mfa_users">
-                                    <i class="fas fa-fw fa-lock-open text-secondary me-2"></i>Stop requiring MFA
+                                    <i class="fas fa-fw fa-lock-open text-secondary me-2"></i>Stop Requiring MFA
                                 </button>
                                 <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_revoke_remember_users">
-                                    <i class="fas fa-fw fa-laptop text-secondary me-2"></i>Forget remembered browsers
+                                    <i class="fas fa-fw fa-laptop text-secondary me-2"></i>Forget Remembered Browsers
                                 </button>
                                 <?php if ($show !== 'archived') { ?>
                                     <div class="dropdown-divider"></div>
@@ -361,11 +372,15 @@ $csrf = $_SESSION['csrf_token'];
 
         <nav class="nav nav-pills itflow-asset-tabs mt-2 flex-nowrap overflow-auto">
             <?php foreach ($shows as $key => $view) {
+                // API accounts only once there is one
+                if ($key === 'service' && !$view_counts['service'] && $show !== 'service') {
+                    continue;
+                }
                 if ($key === 'archived' || $key === 'portal') { ?><span class="vr mx-1 my-1"></span><?php }
                 // The search and role narrow agents, and the search, client and sign-in narrow portal users - none follow to the other side
                 $view_filters = ($key === 'portal') === ($show === 'portal') ? [] : ['q' => null, 'role' => null, 'client' => null, 'access' => null, 'sort' => null, 'order' => null]; ?>
                 <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $key === '' || $show === $key ? null : $key] + $view_filters)) ?>" title="<?= escapeHtml($view['title']) ?>">
-                    <i class="fas fa-fw <?= $view['icon'] ?> me-1"></i><?= $view['label'] ?> <span class="badge rounded-pill ms-1"><?= $view_counts[$key] ?></span>
+                    <i class="fas fa-fw <?= $view['icon'] ?> me-1"></i><?= $view['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($view_counts[$key])) ?></span>
                 </a>
             <?php } ?>
         </nav>
@@ -405,10 +420,10 @@ $csrf = $_SESSION['csrf_token'];
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" title="Select all on this page">
                         </div>
                     </th>
-                    <th><?= $sort_link('user_name', 'Contact') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('user_email', 'by email') ?></span></th>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('client_name', 'Client') ?></th>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('user_status', 'Sign in') ?></th>
-                    <th class="d-none d-lg-table-cell"><?= $sort_link('last_login', 'Last signed in') ?></th>
+                    <th><?= sortLink('user_name', 'Contact') ?> <span class="fw-normal text-body-secondary small ms-2"><?= sortLink('user_email', 'by email') ?></span></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('client_name', 'Client') ?></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('user_status', 'Sign in') ?></th>
+                    <th class="d-none d-lg-table-cell"><?= sortLink('last_login', 'Last signed in') ?></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -475,15 +490,15 @@ $csrf = $_SESSION['csrf_token'];
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="<?= $contact_url ?>">
-                                        <i class="fas fa-fw fa-address-card text-secondary me-2"></i>Open contact
+                                        <i class="fas fa-fw fa-address-card text-secondary me-2"></i>Open Contact
                                     </a>
                                     <?php if ($is_on && intval($config_client_portal_enable)) { ?>
                                         <a class="dropdown-item" href="/agent/post.php?portal_view_as=<?= $contact_id ?>&csrf_token=<?= $csrf ?>" title="The portal as they see it, read only">
-                                            <i class="fas fa-fw fa-eye text-secondary me-2"></i>View the portal as them
+                                            <i class="fas fa-fw fa-eye text-secondary me-2"></i>View the Portal as Them
                                         </a>
                                     <?php } ?>
                                     <a class="dropdown-item" href="audit_logs.php?user=<?= $user_id ?>">
-                                        <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit log
+                                        <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit Log
                                     </a>
                                     <?php if ($is_on && $portal_mail_ready) { ?>
                                         <?php if ($is_local) { ?>
@@ -491,12 +506,12 @@ $csrf = $_SESSION['csrf_token'];
                                                 data-confirm-title="Email <?= $name ?> a password link?" data-confirm-icon="info"
                                                 data-confirm-text="<?= $name ?> is emailed a link to choose a new password, good for <?= PORTAL_RESET_LINK_MINUTES ?> minutes. Their password stays as it is until they use it."
                                                 data-confirm-button="Email the link">
-                                                <i class="fas fa-fw fa-key text-secondary me-2"></i>Email a password link
+                                                <i class="fas fa-fw fa-key text-secondary me-2"></i>Email a Password Link
                                             </a>
                                         <?php } ?>
                                         <?php if (!$login) { ?>
                                             <a class="dropdown-item" href="post.php?portal_user_invite=<?= $user_id ?>&csrf_token=<?= $csrf ?>">
-                                                <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send the invite again
+                                                <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send the Invite Again
                                             </a>
                                         <?php } ?>
                                     <?php } ?>
@@ -504,7 +519,7 @@ $csrf = $_SESSION['csrf_token'];
                                         <a class="dropdown-item confirm-link" href="post.php?portal_user_reset_mfa=<?= $user_id ?>&csrf_token=<?= $csrf ?>"
                                             data-confirm-text="<?= $name ?> signs in with their password alone until they set two-step sign-in up again, and is emailed that it was turned off. For a lost or replaced phone."
                                             data-confirm-button="Turn off two-step">
-                                            <i class="fas fa-fw fa-mobile-alt text-secondary me-2"></i>Turn off two-step sign-in
+                                            <i class="fas fa-fw fa-mobile-alt text-secondary me-2"></i>Turn Off Two-step Sign-in
                                         </a>
                                     <?php } ?>
                                     <?php if ($remember_count) { ?>
@@ -518,12 +533,12 @@ $csrf = $_SESSION['csrf_token'];
                                             data-confirm-title="Turn off portal access for <?= $name ?>?"
                                             data-confirm-text="<?= $name ?> is signed out of the client portal and can't sign in. Their contact stays as it is - turn their access back on here or from the contact."
                                             data-confirm-button="Turn off access">
-                                            <i class="fas fa-fw fa-user-slash me-2"></i>Turn off portal access
+                                            <i class="fas fa-fw fa-user-slash me-2"></i>Turn Off Portal Access
                                         </a>
                                     <?php } elseif ($can_turn_on) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/portal_user/portal_user_access.php?id=<?= $user_id ?>">
-                                            <i class="fas fa-fw fa-user-check text-secondary me-2"></i>Turn on portal access
+                                            <i class="fas fa-fw fa-user-check text-secondary me-2"></i>Turn On Portal Access
                                         </a>
                                     <?php } ?>
                                 </div>
@@ -542,11 +557,11 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0 itflow-asset-table itflow-ticket-list itflow-user-list" data-user-invites>
             <thead class="<?php if (!$invites) { echo "d-none"; } ?> text-nowrap table-light">
             <tr>
-                <th><?= $sort_link('user_name', 'Invited') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('user_email', 'by email') ?></span></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('role_name', 'Role') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('user_status', 'Invite') ?></th>
+                <th><?= sortLink('user_name', 'Invited') ?> <span class="fw-normal text-body-secondary small ms-2"><?= sortLink('user_email', 'by email') ?></span></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('role_name', 'Role') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('user_status', 'Invite') ?></th>
                 <th class="d-none d-xl-table-cell">Clients</th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('user_created_at', 'Invited by') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('user_created_at', 'Invited by') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -606,7 +621,7 @@ $csrf = $_SESSION['csrf_token'];
 
                     <!-- Who sent it, and how -->
                     <td class="d-none d-lg-table-cell small">
-                        <div><?= escapeHtml(userInviteBy($invite) !== '' ? userInviteBy($invite) : 'Someone no longer here') ?> <span class="text-body-secondary" title="<?= escapeHtml($invite['invite_created_at']) ?>">· <?= escapeHtml(timeAgo($invite['invite_created_at'])) ?></span></div>
+                        <div><?= escapeHtml(userInviteBy($invite) !== '' ? userInviteBy($invite) : 'Someone no longer here') ?> <span class="text-body-secondary" title="<?= formatDateTime($invite['invite_created_at']) ?>">· <?= escapeHtml(timeAgo($invite['invite_created_at'])) ?></span></div>
                         <div class="text-body-secondary">
                             <?php if ($invite_sent) { ?>
                                 <i class="fas fa-fw fa-envelope me-1"></i><span title="<?= escapeHtml((string) $invite['invite_sent_at']) ?>">Emailed <?= escapeHtml(timeAgo($invite['invite_sent_at'])) ?></span><?= $invite_sent > 1 ? " · $invite_sent times" : '' ?>
@@ -622,24 +637,24 @@ $csrf = $_SESSION['csrf_token'];
                             <div class="dropdown-menu">
                                 <?php if ($invite_mail_ready) { ?>
                                     <a class="dropdown-item" href="post.php?resend_user_invite=<?= $invite_id ?>&csrf_token=<?= $csrf ?>">
-                                        <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send again
+                                        <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send Again
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item confirm-link" href="post.php?link_user_invite=<?= $invite_id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Get a new invite link?" data-confirm-icon="info"
                                     data-confirm-text="A new link is made for you to send <?= $invite_name ?> yourself, shown once. Any link sent before stops working, and it works for <?= USER_INVITE_LINK_DAYS ?> days."
                                     data-confirm-button="Get the link">
-                                    <i class="fas fa-fw fa-link text-secondary me-2"></i>Get the link
+                                    <i class="fas fa-fw fa-link text-secondary me-2"></i>Get the Link
                                 </a>
                                 <a class="dropdown-item" href="audit_logs.php?q=<?= rawurlencode($invite['invite_email']) ?>">
-                                    <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit log
+                                    <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit Log
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item text-danger confirm-link" href="post.php?cancel_user_invite=<?= $invite_id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Cancel <?= $invite_name ?>'s invite?"
                                     data-confirm-text="The link <?= $invite_name ?> has stops working<?= $agent_user_limit > 0 && !$invite_expired ? ', and the seat it holds is free again' : '' ?>. Invite them again any time."
                                     data-confirm-button="Cancel invite">
-                                    <i class="fas fa-fw fa-ban me-2"></i>Cancel invite
+                                    <i class="fas fa-fw fa-ban me-2"></i>Cancel Invite
                                 </a>
                             </div>
                         </div>
@@ -664,11 +679,11 @@ $csrf = $_SESSION['csrf_token'];
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" title="Select all on this page">
                         </div>
                     </th>
-                    <th><?= $sort_link('user_name', 'User') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('user_email', 'by email') ?></span></th>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('role_name', 'Role') ?></th>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('user_status', 'Sign in') ?></th>
+                    <th><?= sortLink('user_name', 'User') ?> <span class="fw-normal text-body-secondary small ms-2"><?= sortLink('user_email', 'by email') ?></span></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('role_name', 'Role') ?></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('user_status', 'Sign in') ?></th>
                     <th class="d-none d-xl-table-cell">Clients</th>
-                    <th class="d-none d-lg-table-cell"><?= $sort_link('last_login', 'Last signed in') ?></th>
+                    <th class="d-none d-lg-table-cell"><?= sortLink('last_login', 'Last signed in') ?></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -707,6 +722,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <div class="min-w-0">
                                     <a class="ajax-modal <?= $is_active ? 'fw-semibold text-body' : 'text-body-secondary' ?>" href="#" data-modal-url="<?= $quick_url ?>"><?= $name ?></a>
                                     <?php if ($is_self) { ?><span class="badge rounded-pill bg-primary-subtle text-primary-emphasis fw-normal ms-1">You</span><?php } ?>
+                                    <?php if (!empty($row['user_service_account'])) { ?><span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1" data-user-service-account-badge title="Only for API keys to act as - left out of every agent list, and can't sign in"><i class="fas fa-plug me-1"></i>API</span><?php } ?>
                                     <?php if ($user_id === $managed_support_id) { ?><span class="badge rounded-pill bg-info-subtle text-info-emphasis fw-normal ms-1" data-managed-support-user title="<?= escapeHtml(managedManagerName()) ?> signs in as this user for support - only from there, with no password. It takes no seat."><i class="fas fa-headset me-1"></i>Support</span><?php } ?>
                                     <div class="small text-body-secondary text-truncate">
                                         <?= escapeHtml($row['user_email']) ?><button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= escapeHtml($row['user_email']) ?>"><i class="far fa-copy"></i></button>
@@ -739,7 +755,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <div class="small text-body-secondary mt-1 text-nowrap" title="Browsers that skip the MFA code - remember me, at sign in"><i class="fas fa-fw fa-laptop me-1"></i><?= $remember_count ?> remembered browser<?= $remember_count === 1 ? '' : 's' ?></div>
                             <?php } ?>
                             <?php if ($is_archived) { ?>
-                                <div class="small text-body-secondary mt-1" title="<?= escapeHtml($row['user_archived_at']) ?>"><?= escapeHtml(timeAgo($row['user_archived_at'])) ?></div>
+                                <div class="small text-body-secondary mt-1" title="<?= formatDateTime($row['user_archived_at']) ?>"><?= escapeHtml(timeAgo($row['user_archived_at'])) ?></div>
                             <?php } ?>
                         </td>
 
@@ -754,19 +770,19 @@ $csrf = $_SESSION['csrf_token'];
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $quick_url ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <a class="dropdown-item" href="audit_logs.php?user=<?= $user_id ?>">
-                                        <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit log
+                                        <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit Log
                                     </a>
                                     <?php if ($is_self) { ?>
                                         <a class="dropdown-item" href="/agent/user/user_details.php">
-                                            <i class="fas fa-fw fa-user-cog text-secondary me-2"></i>Your account
+                                            <i class="fas fa-fw fa-user-cog text-secondary me-2"></i>Your Account
                                         </a>
                                     <?php } elseif ($is_archived) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/user/user_restore.php?id=<?= $user_id ?>">
-                                            <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Restore
+                                            <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                         </a>
                                     <?php } else { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/user/user_edit.php?id=<?= $user_id ?>">

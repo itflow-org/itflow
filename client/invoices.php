@@ -39,7 +39,7 @@ $counts = array_map('intval', mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT "
 // The To pay tab when there is something to pay, else all of them
 $tab = isset($tabs[$_GET['tab'] ?? '']) ? $_GET['tab'] : ($counts['open'] ? 'open' : 'all');
 $total = $counts[$tab];
-$pages = max(1, (int) ceil($total / $per_page));
+$pages = max(1, intval(ceil($total / $per_page)));
 $page = min(max(1, intval($_GET['page'] ?? 1)), $pages);
 $offset = ($page - 1) * $per_page;
 
@@ -88,11 +88,11 @@ function invoicesUrl(array $changes) {
             <input type="hidden" name="tab" value="<?= escapeHtml($tab) ?>">
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search number or scope" aria-label="Search invoices" maxlength="200">
+                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search invoices..." title="Number or scope" aria-label="Search invoices" maxlength="200">
             </div>
         </form>
         <?php if ($owed > 0 && $cards) { ?>
-            <a class="btn btn-primary" href="unpaid_invoices.php"><i class="fas fa-credit-card me-2"></i>Pay invoices</a>
+            <a class="btn btn-primary" href="unpaid_invoices.php"><i class="fas fa-credit-card me-2"></i>Pay Invoices</a>
         <?php } ?>
     </div>
 </div>
@@ -101,7 +101,7 @@ function invoicesUrl(array $changes) {
     <?php foreach ($tabs as $key => $t) { ?>
         <a class="<?= $key === $tab ? 'active' : '' ?><?= $key === 'open' && $counts['open'] && $late > 0 ? ' itflow-portal-tab-alert' : '' ?>" href="<?= escapeHtml(invoicesUrl(['tab' => $key, 'page' => null])) ?>">
             <i class="fas <?= $t['icon'] ?>"></i><?= escapeHtml($t['label']) ?>
-            <span class="badge rounded-pill"><?= $counts[$key] ?></span>
+            <span class="badge rounded-pill"><?= number_format(intval($counts[$key])) ?></span>
         </a>
     <?php } ?>
 </nav>

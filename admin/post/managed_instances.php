@@ -56,7 +56,7 @@ if (isset($_POST['add_managed_instance'])) {
 
     logAudit("Managed Instance", "Create", "$session_name added managed instance " . escapeSql($fields['name']), $fields['client_id'], $instance_id);
 
-    flashAlert("<strong>" . escapeHtml($fields['name']) . "</strong> added - now connect it with the code below");
+    flashAlert("<strong>" . escapeHtml($fields['name']) . "</strong> created - now connect it with the code below");
 
     redirect("managed_instance.php?id=$instance_id");
 

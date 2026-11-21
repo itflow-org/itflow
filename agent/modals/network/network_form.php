@@ -35,7 +35,7 @@ if ($form_client_id) {
         $vendor_options[intval($row['vendor_client_id']) ? 'client' : 'ours'][] = $row;
     }
 } else {
-    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $client_options[] = $row;
     }
@@ -68,9 +68,9 @@ $value = function ($key) use ($form) {
             <div class="col-12">
                 <label class="form-label">Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required>
-                        <option value="">- Select Client -</option>
+                        <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
                             <option value="<?= intval($client_option['client_id']) ?>"<?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                         <?php } ?>
@@ -129,7 +129,7 @@ $value = function ($key) use ($form) {
             <label class="form-label">VLAN</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
-                <input type="number" class="form-control" name="vlan" min="1" max="4094" placeholder="e.g. 10" value="<?= $value('network_vlan') ?>">
+                <input type="number" class="form-control" name="vlan" min="1" max="4094" placeholder="10" value="<?= $value('network_vlan') ?>">
             </div>
         </div>
 

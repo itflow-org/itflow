@@ -24,7 +24,7 @@ function productTypes() {
 
 /** How a recurring product is counted by default => label. Empty is as typed. */
 function productSeatSources() {
-    return ['' => 'As typed', 'contacts' => 'Per user', 'assets' => 'Per device'];
+    return ['' => 'As typed', 'contacts' => 'Per user', 'assets' => 'Per device', 'managed' => 'Per managed device'];
 }
 
 /** A product's default billing in words - "One time", "Monthly, per user". */
@@ -236,7 +236,7 @@ function productSave(array $in, $product_id = 0, &$error = '', $source = 'edit')
         } else {
             $asset_type = productAssetType($asset_type);
             if ($asset_type === '') {
-                $error = "\"" . trim((string) ($in['asset_type'] ?? '')) . "\" isn't an asset type - use one of " . implode(', ', array_keys(productAssetTypes())) . '.';
+                $error = "\"" . trim((string) ($in['asset_type'] ?? '')) . "\" isn't an asset type - use one of " . implode(', ', array_keys(assetTypePicker())) . '.';
                 return 0;
             }
         }
@@ -338,13 +338,16 @@ function productCopy($product_id) {
     ], 0, $error);
 }
 
-/** Delete a product, its stock and its price history. Lines it is on keep their text and amounts; license templates sold as it no longer are. */
+/** Delete a product, its stock, its price history and its picture. Lines it is on keep their text and amounts; license templates sold as it no longer are. */
 function productDelete($product_id) {
     global $mysqli;
     $product_id = intval($product_id);
     mysqli_query($mysqli, "UPDATE software_templates SET software_template_product_id = 0, software_template_updated_at = software_template_updated_at WHERE software_template_product_id = $product_id");
     mysqli_query($mysqli, "DELETE FROM product_stock WHERE stock_product_id = $product_id");
     mysqli_query($mysqli, "DELETE FROM product_prices WHERE price_product_id = $product_id");
+    if (quoteImagesReady()) {
+        quoteImageDelete((string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT product_image FROM products WHERE product_id = $product_id"))[0] ?? ''));
+    }
     mysqli_query($mysqli, "DELETE FROM products WHERE product_id = $product_id");
 }
 
@@ -602,20 +605,14 @@ function productStockQty($qty) {
  * units are recorded.
  */
 
-/** Asset types => icon class (fa-laptop) - ASSET_TYPES (functions/asset_type.php). */
-function productAssetTypes() {
-    return assetTypeIcons();
+/** The asset types a product can become => icon class (fa-laptop) - the ones switched on, and $keep (a product's own) (functions/asset_type.php). */
+function productAssetTypes($keep = '') {
+    return assetTypePicker($keep);
 }
 
-/** An asset type as the list spells it, matched without case - '' when it isn't one. */
+/** An asset type as the list spells it, matched without case - '' when it isn't one. A switched-off one still is. */
 function productAssetType($value) {
-    $value = trim((string) $value);
-    foreach (array_keys(productAssetTypes()) as $asset_type) {
-        if (strcasecmp($asset_type, $value) === 0) {
-            return $asset_type;
-        }
-    }
-    return '';
+    return assetTypeName($value);
 }
 
 /** An asset type's round icon, as on the assets list - $size '' or sm. */
@@ -632,7 +629,7 @@ function productHardwareSql() {
 /** How many units a line stands for - its quantity rounded up, none for a credit. */
 function productHardwareUnits($qty) {
     $qty = round(floatval($qty), 2);
-    return $qty > 0 ? (int) ceil($qty) : 0;
+    return $qty > 0 ? intval(ceil($qty)) : 0;
 }
 
 /** When a warranty of $months from $date (Y-m-d) runs out - the 31st becomes the month's last day. Null for none. */
@@ -1113,11 +1110,12 @@ function productRepriceApply(array $changes, &$error = '') {
 }
 
 /**
- * The margin on a document's lines that come from a product with a cost, at
- * today's cost - for the agent's eyes only. By how often each line is billed
- * for a quote ('' once, month, quarter, year), otherwise under ''. Each:
- * ['cost', 'revenue', 'margin', 'percent', 'lines']. Empty when no line has a
- * cost to go on.
+ * The margin on a document's lines that have a cost - a quote line's own cost
+ * (functions/quote_pricing.php), else the cost of the product it came from,
+ * at today's cost - for the agent's eyes only. By how often each line is
+ * billed for a quote ('' once, month, quarter, year), otherwise under ''.
+ * Each: ['cost', 'revenue', 'margin', 'percent', 'lines']. Empty when no line
+ * has a cost to go on.
  */
 function billingMargin($type, array $items) {
     global $mysqli;
@@ -1127,23 +1125,24 @@ function billingMargin($type, array $items) {
             $ids[intval($item['item_product_id'])] = true;
         }
     }
-    if (!$ids) {
-        return [];
-    }
     $costs = [];
-    $sql = mysqli_query($mysqli, "SELECT product_id, product_cost FROM products WHERE product_cost > 0 AND product_id IN (" . implode(',', array_keys($ids)) . ")");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $costs[intval($row['product_id'])] = floatval($row['product_cost']);
+    if ($ids) {
+        $sql = mysqli_query($mysqli, "SELECT product_id, product_cost FROM products WHERE product_cost > 0 AND product_id IN (" . implode(',', array_keys($ids)) . ")");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $costs[intval($row['product_id'])] = floatval($row['product_cost']);
+        }
     }
     $groups = [];
     foreach ($items as $item) {
         $id = intval($item['item_product_id'] ?? 0);
-        if (!isset($costs[$id])) {
+        // The line's own cost, when it has one - 0 is a cost too (a freebie)
+        $line_cost = isset($item['item_cost']) && $item['item_cost'] !== '' ? floatval($item['item_cost']) : ($costs[$id] ?? null);
+        if ($line_cost === null) {
             continue;
         }
         $key = $type === 'quote' ? quoteFrequency($item['item_frequency'] ?? '') : '';
         $groups[$key] = $groups[$key] ?? ['cost' => 0.0, 'revenue' => 0.0, 'lines' => 0];
-        $groups[$key]['cost'] += round(floatval($item['item_quantity']) * $costs[$id], 2);
+        $groups[$key]['cost'] += round(floatval($item['item_quantity']) * $line_cost, 2);
         $groups[$key]['revenue'] += floatval($item['item_subtotal']);
         $groups[$key]['lines']++;
     }
@@ -1173,5 +1172,8 @@ function billingMarginHtml($type, array $items, $currency, $period = '') {
         $tone = $group['margin'] < 0 ? 'text-danger-emphasis' : '';
         $parts[] = '<span class="' . $tone . '">' . escapeHtml(billingMoney($group['margin'], $currency)) . '</span>' . $percent . escapeHtml($when);
     }
-    return '<span title="On the ' . $lines . ' line' . ($lines === 1 ? '' : 's') . ' from products with a cost, at today\'s cost - only you see this">' . implode(', ', $parts) . '</span>';
+    $total = count($items);
+    $without = $total - $lines;
+    return '<span title="On the ' . $lines . ' line' . ($lines === 1 ? '' : 's') . ' with a cost' . ($type === 'quote' ? ' - its own, or its product\'s today' : ', from its product today')
+        . ($without > 0 ? '. ' . $without . ' line' . ($without === 1 ? ' has' : 's have') . ' no cost and ' . ($without === 1 ? 'is' : 'are') . ' left out' : '') . ' - only you see this">' . implode(', ', $parts) . '</span>';
 }

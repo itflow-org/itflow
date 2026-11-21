@@ -10,8 +10,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-link me-2"></i>Set Referral for <strong><?= $count ?></strong> client<?= $count === 1 ? '' : 's' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-link me-2"></i>Set Referral for <strong><?= $count ?></strong> client<?= $count === 1 ? '' : 's' ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -21,22 +21,22 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Referral</label>
+            <label class="form-label">Referral <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                <select class="form-select select2" name="bulk_referral">
-                    <option value="">- Select a Referral -</option>
+                    <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
+                <select class="form-select select2" name="bulk_referral" required>
+                    <option value="">- Select a referral -</option>
                     <?= categoryOptionsHtml('Referral') ?>
                 </select>
-                <?= categoryAddButtonHtml('Referral', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('Referral') ?>
             </div>
         </div>
 
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_client_referral" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Set</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="bulk_edit_client_referral" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

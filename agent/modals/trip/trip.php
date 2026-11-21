@@ -12,6 +12,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Trips switched off (Admin > Settings > Modules)
+if (!moduleOn('trips')) {
+    exit(json_encode(['error' => moduleOffText('trips')]));
+}
+
 $row = tripRow(intval($_GET['id'] ?? 0));
 if (!$row) {
     echo json_encode(['error' => 'That trip no longer exists, or is not one you can see.']);
@@ -115,7 +120,7 @@ ob_start();
             <?php } ?>
             <div class="itflow-glance-item" title="Logged">
                 <i class="fas fa-fw fa-clock"></i>
-                <span><span title="<?= escapeHtml($row['trip_created_at']) ?>"><?= timeAgo($row['trip_created_at']) ?></span><?php if ($row['created_by_name'] && intval($row['trip_created_by']) !== intval($row['trip_user_id'])) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?></span>
+                <span><span title="<?= formatDateTime($row['trip_created_at']) ?>"><?= timeAgo($row['trip_created_at']) ?></span><?php if ($row['created_by_name'] && intval($row['trip_created_by']) !== intval($row['trip_user_id'])) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?></span>
             </div>
             <?php if ($client_id || intval($row['trip_location_id'])) {
                 [$site_trips, $site_miles] = intval($row['trip_location_id']) ? tripTotalsFor('trip_location_id', $row['trip_location_id']) : tripTotalsFor('trip_client_id', $client_id); ?>
@@ -171,24 +176,24 @@ ob_start();
 
 <div class="modal-footer">
     <?php if ($can_edit) { ?>
-        <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_edit.php?id=<?= $trip_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+        <button type="button" class="btn btn-primary fw-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_edit.php?id=<?= $trip_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
     <?php if ($can_claim) { ?>
         <button type="button" class="btn btn-outline-success ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_claim.php?trip_ids[]=<?= $trip_id ?>"><i class="fas fa-hand-holding-usd"></i><span class="d-none d-sm-inline ms-2">Pay Mileage</span></button>
     <?php } ?>
     <?php if ($can_unbill) { ?>
         <a class="btn btn-outline-secondary confirm-link" href="post.php?trip_unbill=<?= $trip_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
-            data-confirm-text="<?= $row['invoice_status'] === 'Cancelled' ? 'The invoice is cancelled, so its line stays on it' : 'Its line comes off ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?> and the trip waits to be billed again."><i class="fas fa-unlink"></i><span class="d-none d-sm-inline ms-2">Take off Invoice</span></a>
+            data-confirm-text="<?= $row['invoice_status'] === 'Cancelled' ? 'The invoice is cancelled, so its line stays on it' : 'Its line comes off ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?> and the trip waits to be billed again."><i class="fas fa-unlink"></i><span class="d-none d-sm-inline ms-2">Take Off Invoice</span></a>
     <?php } ?>
     <div class="btn-group">
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>&amp;return=1"><i class="fas fa-undo-alt me-2"></i>Return Trip</button>
-        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>"><i class="fas fa-copy me-2"></i>Copy</button>
+        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>"><i class="far fa-copy me-2"></i>Copy</button>
     </div>
     <?php if ($can_delete) { ?>
         <a class="btn btn-outline-danger confirm-link" href="post.php?delete_trip=<?= $trip_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
             data-confirm-text="<?= escapeHtml(tripLabel($row)) ?> goes for good."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

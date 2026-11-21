@@ -65,7 +65,7 @@ $entry_line = function ($entry, $show_when_as = 'date') {
     $time = strtotime($entry['log_created_at']);
     $when = $show_when_as === 'time' ? date('g:i A', $time) : date('M j, Y g:i A', $time);
     return '<a href="#" class="list-group-item list-group-item-action d-flex align-items-start gap-2 small ajax-modal" data-modal-size="lg" data-modal-url="/admin/modals/audit_log/audit_log.php?id=' . intval($entry['log_id']) . '">'
-        . '<span class="text-body-secondary text-nowrap flex-shrink-0" style="min-width: 4.5rem;" title="' . escapeHtml($entry['log_created_at']) . '">' . escapeHtml($when) . '</span>'
+        . '<span class="text-body-secondary text-nowrap flex-shrink-0" style="min-width: 4.5rem;" title="' . formatDateTime($entry['log_created_at']) . '">' . escapeHtml($when) . '</span>'
         . '<span class="flex-shrink-0">' . auditLogActionPill($entry['log_action']) . '</span>'
         . '<span class="text-break">' . escapeHtml($entry['log_description']) . '</span>'
         . '</a>';
@@ -80,7 +80,7 @@ ob_start();
         <span class="itflow-asset-icon itflow-asset-icon-lg bg-<?= $style['tone'] ?>-subtle text-<?= $style['tone'] ?>-emphasis" aria-hidden="true"><i class="fas <?= auditLogTypeIcon($type) ?>"></i></span>
         <div class="min-w-0 flex-grow-1">
             <h5 class="modal-title fw-semibold text-break"><?= escapeHtml($type) ?> &middot; <?= escapeHtml($row['log_action']) ?></h5>
-            <div class="small text-body-secondary mt-1"><?= escapeHtml(date('D, M j, Y \a\t g:i:s A', $created)) ?> &middot; <?= escapeHtml(timeAgo($row['log_created_at'])) ?></div>
+            <div class="small text-body-secondary mt-1"><?= escapeHtml(date('D, M j, Y g:i:s A', $created)) ?> &middot; <?= escapeHtml(timeAgo($row['log_created_at'])) ?></div>
         </div>
     </div>
     <button type="button" class="btn-close btn-close-white ms-3" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -189,7 +189,7 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

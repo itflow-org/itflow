@@ -123,7 +123,7 @@ ob_start();
 <div class="modal-footer">
     <a class="btn btn-outline-secondary me-auto" href="<?= escapeHtml(networkUrl($network_id, $client_id)) ?>"><i class="fas fa-external-link-alt me-2"></i>Open</a>
     <?php if ($can_edit) { ?>
-        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/network/network_ip_add.php?network_id=<?= $network_id ?>&next=1"><i class="fas fa-plus me-2"></i>Document an address</button>
+        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/network/network_ip_add.php?network_id=<?= $network_id ?>&next=1"><i class="fas fa-plus me-2"></i>Document an Address</button>
         <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/network/network_edit.php?id=<?= $network_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
 </div>

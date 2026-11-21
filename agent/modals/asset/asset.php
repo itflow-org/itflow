@@ -54,6 +54,10 @@ $asset_serial = escapeHtml($asset_row['asset_serial']);
 $asset_ip = escapeHtml($asset_row['interface_ip']);
 $asset_mac = escapeHtml($asset_row['interface_mac']);
 $asset_links = assetLinks($asset_row['asset_uri'], $asset_row['asset_uri_2'], $asset_row['asset_uri_client']);
+// Its device in an RMM - online or not, and Take Control (functions/rmm.php). The one that matters most, when more than one has it
+$rmm_device = rmmDevicesForAsset(intval($asset_row['asset_id']))[0] ?? null;
+$rmm_urls = $rmm_device && $rmm_device['rmm_device_removed_at'] === null ? rmmDeviceUrls($rmm_device) : [];
+$rmm_links = $rmm_device ? (rmmKind($rmm_device)['links'] ?? []) : [];
 $asset_warranty = assetWarranty($asset_row['asset_warranty_expire']);
 $asset_photo = escapeHtml($asset_row['asset_photo']);
 $asset_physical_location = escapeHtml($asset_row['asset_physical_location']);
@@ -189,6 +193,7 @@ ob_start();
                         <?= assetStatusPill($asset_row['asset_status']) ?>
                     <?php } ?>
                 </span>
+                <?php if ($rmm_device) { ?><span class="fs-6"><?= rmmDeviceStatePill($rmm_device) ?></span><?php } ?>
             </h5>
             <div class="small text-body-secondary d-flex flex-wrap column-gap-3 mt-1">
                 <span><?= $asset_type ?></span>
@@ -202,14 +207,17 @@ ob_start();
 
 <div class="modal-body">
 
-    <?php if ($asset_description || $asset_tags_display || $asset_links) { ?>
+    <?php if ($asset_description || $asset_tags_display || $asset_links || isset($rmm_urls['control'])) { ?>
         <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
             <div class="min-w-0">
                 <?php if ($asset_description) { ?><div class="text-body-secondary"><?= $asset_description ?></div><?php } ?>
                 <?php if ($asset_tags_display) { ?><div class="<?= $asset_description ? 'mt-1' : '' ?>"><?= $asset_tags_display ?></div><?php } ?>
             </div>
-            <?php if ($asset_links) { ?>
+            <?php if ($asset_links || isset($rmm_urls['control'])) { ?>
                 <div class="d-flex flex-wrap gap-2">
+                    <?php if (isset($rmm_urls['control'])) { ?>
+                        <a class="btn btn-sm btn-outline-primary" href="<?= escapeHtml($rmm_urls['control']) ?>" target="_blank" rel="noopener noreferrer" title="<?= escapeHtml($rmm_links['control'] . ' in ' . rmmProviderName($rmm_device)) ?>"><i class="fas fa-desktop me-1"></i><?= escapeHtml($rmm_links['control']) ?></a>
+                    <?php } ?>
                     <?php foreach ($asset_links as [$link_label, $link_url]) { ?>
                         <a class="btn btn-sm btn-outline-primary" href="<?= escapeUrl($link_url) ?>" target="_blank" rel="noopener" title="<?= $link_label ?>: <?= escapeHtml($link_url) ?>">
                             <i class="<?= assetLinkIcon($link_url) ?> me-1"></i><?= escapeHtml(assetLinkLabel($link_url)) ?><?= $link_label === 'Client link' ? ' (client)' : '' ?>
@@ -311,7 +319,7 @@ ob_start();
                 <?php foreach ($quick_tabs as $tab_key => $tab) { ?>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link text-nowrap <?= $tab_key === $first_tab ? 'active' : '' ?>" data-bs-toggle="pill" data-bs-target="#asset-quick-<?= $asset_id ?>-<?= $tab_key ?>" data-asset-quick-tab="<?= $tab_key ?>" type="button" role="tab">
-                            <?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                            <?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                             <?php if (!empty($tab['badge'])) { ?><span class="badge rounded-pill text-bg-danger" title="Open"><?= intval($tab['badge']) ?> open</span><?php } ?>
                         </button>
                     </li>
@@ -426,7 +434,7 @@ ob_start();
                                     <i class="fas fa-fw <?= $note_icon ?> text-secondary mt-1" title="<?= escapeHtml($row['asset_note_type']) ?>"></i>
                                     <div class="min-w-0">
                                         <div><?= nl2br(escapeHtml($row['asset_note'])) ?></div>
-                                        <div class="small text-body-secondary"><?= escapeHtml($row['user_name']) ?> &middot; <span title="<?= escapeHtml($row['asset_note_created_at']) ?>"><?= timeAgo($row['asset_note_created_at']) ?></span></div>
+                                        <div class="small text-body-secondary"><?= escapeHtml($row['user_name']) ?> &middot; <span title="<?= formatDateTime($row['asset_note_created_at']) ?>"><?= timeAgo($row['asset_note_created_at']) ?></span></div>
                                     </div>
                                 </li>
                             <?php } ?>
@@ -441,11 +449,12 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>" class="btn btn-primary text-bold"><i class="fas fa-arrow-right me-2"></i>Open asset</a>
+    <button type="button" class="btn btn-outline-secondary clipboardjs me-auto" data-clipboard-text="<?= escapeHtml(assetDetailsText($asset_id)) ?>" title="Copy its make, serial, OS, address, warranty and where it is as text - for a vendor's support case or an email"><i class="far fa-clipboard me-2"></i>Copy Details</button>
+    <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>" class="btn btn-primary fw-bold"><i class="fas fa-arrow-right me-2"></i>Open Asset</a>
     <?php if ($can_edit) { ?>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <script>

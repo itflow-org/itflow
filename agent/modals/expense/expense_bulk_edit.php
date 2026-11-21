@@ -22,6 +22,9 @@ $fields = [
     'method' => ['label' => 'Payment Method', 'icon' => 'fa-credit-card'],
     'billable' => ['label' => 'Billable', 'icon' => 'fa-file-invoice-dollar'],
 ];
+if (!moduleOn('bookkeeping')) {
+    unset($fields['account']); // Bookkeeping off (Admin > Settings > Modules)
+}
 if (!isset($fields[$field])) {
     echo json_encode(['error' => 'Pick what to set from the Bulk Action menu.']);
     exit;
@@ -36,7 +39,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw <?= $fields[$field]['icon'] ?> me-2"></i>Set <?= $fields[$field]['label'] ?> <span class="fw-normal text-white-50 ms-1"><?= $count ?> expense<?= $count === 1 ? '' : 's' ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -48,16 +51,16 @@ ob_start();
     <div class="modal-body">
         <label class="form-label"><?= $fields[$field]['label'] ?><?= in_array($field, ['category', 'account'], true) ? ' <strong class="text-danger">*</strong>' : '' ?></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw <?= $fields[$field]['icon'] ?>"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw <?= $fields[$field]['icon'] ?>"></i></span>
             <?php if ($field === 'category') { ?>
                 <select class="form-select select2" name="value" required>
-                    <option value="">- Pick a category -</option>
+                    <option value="">- Select a category -</option>
                     <?= categoryOptionsHtml('Expense') ?>
                 </select>
-                <?= categoryAddButtonHtml('Expense', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('Expense') ?>
             <?php } elseif ($field === 'account') { ?>
                 <select class="form-select select2" name="value" required>
-                    <option value="">- Pick an account -</option>
+                    <option value="">- Select an account -</option>
                     <?php foreach (paymentAccounts() as $account_id => $account) { ?>
                         <option value="<?= $account_id ?>" data-icon="fas fa-piggy-bank" data-description="<?= escapeHtml(billingMoney($account['balance'], $account['account_currency_code'])) ?>"><?= escapeHtml($account['account_name']) ?></option>
                     <?php } ?>
@@ -66,13 +69,13 @@ ob_start();
                 <select class="form-select select2" name="value">
                     <option value="0">- Not for a client -</option>
                     <?php
-                    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) { ?>
                         <option value="<?= intval($row['client_id']) ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
                     <?php } ?>
                 </select>
             <?php } elseif ($field === 'billable') { ?>
-                <select class="form-select" name="value" data-bulk-billable>
+                <select class="form-select select2" name="value" data-bulk-billable>
                     <option value="yes">Bill them on to their clients</option>
                     <option value="no">Our cost - not billed on</option>
                 </select>
@@ -89,7 +92,7 @@ ob_start();
             <div class="mt-3" data-bulk-markup>
                 <label class="form-label">Markup</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
                     <input type="text" class="form-control" name="markup" inputmode="decimal" value="<?= rtrim(rtrim(number_format(expenseMarkupDefault(), 2, '.', ''), '0'), '.') ?>" aria-label="Markup">
                 </div>
             </div>
@@ -110,7 +113,7 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_expenses" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Set on <?= $count ?></button>
+        <button type="submit" name="bulk_edit_expenses" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set on <?= $count ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

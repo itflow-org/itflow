@@ -77,21 +77,21 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
             <select class="form-select select2" name="category" required>
-                <option value="">- Category -</option>
+                <option value="">- Select a category -</option>
                 <?= categoryOptionsHtml('Income', $form_category_id) ?>
             </select>
-            <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
+            <?= categoryAddButtonHtml('Income') ?>
         </div>
     </div>
     <div class="col-sm-5">
         <label class="form-label">Tax</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-balance-scale"></i></span>
-            <select class="form-select" name="tax">
+            <select class="form-select select2" name="tax">
                 <?= taxOptionsHtml($form_taxes, $form_tax_id) ?>
             </select>
         </div>
-        <small class="text-secondary">Taxed, its lines take the client's own rate when it has one</small>
+        <div class="form-text">Taxed, its lines take the client's own rate when it has one</div>
     </div>
 
     <!-- What it sells for, what it costs us -->
@@ -118,7 +118,7 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
         <label class="form-label">Billed</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-redo-alt"></i></span>
-            <select class="form-select" name="frequency" data-product-frequency>
+            <select class="form-select select2" name="frequency" data-product-frequency>
                 <?php foreach (quoteFrequencies() as $frequency_value => $frequency_label) { ?>
                     <option value="<?= $frequency_value ?>" <?= $form_frequency === $frequency_value ? 'selected' : '' ?>><?= $frequency_label ?></option>
                 <?php } ?>
@@ -129,7 +129,7 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
         <label class="form-label">Counted</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
-            <select class="form-select" name="seat_source">
+            <select class="form-select select2" name="seat_source">
                 <?php foreach (productSeatSources() as $seat_value => $seat_label) { ?>
                     <option value="<?= $seat_value ?>" <?= $form_seat === $seat_value ? 'selected' : '' ?>><?= $seat_label ?></option>
                 <?php } ?>
@@ -137,7 +137,7 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
         </div>
     </div>
     <div class="col-12 mt-1">
-        <div class="form-text" data-product-billed-help>Picked on a quote, it fills in Billed. On a recurring invoice, per user or per device takes the quantity from the client's count.</div>
+        <div class="form-text" data-product-billed-help>Picked on a quote, it fills in Billed. On a recurring invoice, per user or per device takes the quantity from the client's count - per managed device, from the devices your RMM has.</div>
     </div>
 
     <!-- Where it comes from -->
@@ -153,7 +153,7 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
             <select class="form-select select2" name="vendor">
-                <option value="0">- Who you buy it from -</option>
+                <option value="0">- Select a vendor -</option>
                 <?php foreach ($form_vendors as $vendor_id => $vendor_name) { ?>
                     <option value="<?= intval($vendor_id) ?>" <?= $form_vendor_id === intval($vendor_id) ? 'selected' : '' ?>><?= escapeHtml($vendor_name) ?></option>
                 <?php } ?>
@@ -209,10 +209,10 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
             <span class="input-group-text"><i class="fas fa-fw fa-laptop"></i></span>
             <select class="form-select select2" name="asset_type" data-product-asset-type>
                 <option value="">- Not an asset -</option>
-                <?php foreach (productAssetTypes() as $asset_type_option => $asset_type_icon) { ?>
+                <?php foreach (productAssetTypes($form_asset_type) as $asset_type_option => $asset_type_icon) { ?>
                     <option value="<?= escapeHtml($asset_type_option) ?>" <?= $form_asset_type === $asset_type_option ? 'selected' : '' ?><?= selectOptionData(['icon' => "fas $asset_type_icon"]) ?>><?= escapeHtml($asset_type_option) ?></option>
                 <?php } ?>
-                <?php if ($form_asset_type !== '' && !isset(productAssetTypes()[$form_asset_type])) { ?>
+                <?php if ($form_asset_type !== '' && !isset(productAssetTypes($form_asset_type)[$form_asset_type])) { ?>
                     <option value="<?= escapeHtml($form_asset_type) ?>" selected><?= escapeHtml($form_asset_type) ?></option>
                 <?php } ?>
             </select>
@@ -252,6 +252,9 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
             <textarea class="form-control" name="description" rows="3" placeholder="What the client sees under the line - what it covers, per user per month, what is included"><?= escapeHtml($form_value('product_description')) ?></textarea>
         </div>
     </div>
+    <?php if (quoteImagesReady()) { // a quote line added from it takes a copy (functions/quote_images.php) ?>
+        <?= quoteImageField('product_image', $form_edit ? ($form_product['product_image'] ?? '') : '', 'A quote line added from it takes a copy.') ?>
+    <?php } ?>
     <div class="col-12">
         <label class="form-label">Notes <span class="text-body-secondary fw-normal small">for agents only</span></label>
         <div class="input-group">

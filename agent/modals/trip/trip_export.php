@@ -8,6 +8,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Trips switched off (Admin > Settings > Modules)
+if (!moduleOn('trips')) {
+    exit(json_encode(['error' => moduleOffText('trips')]));
+}
+
 $client_id = intval($_GET['client_id'] ?? 0);
 if ($client_id) {
     enforceClientAccess();
@@ -26,8 +31,8 @@ $see_all = tripCanSeeAll();
 $date_from_filter = (!empty($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') ? escapeHtml($_GET['dtf']) : '';
 $date_to_filter = (!empty($_GET['dtt']) && $_GET['dtt'] !== '2099-12-31') ? escapeHtml($_GET['dtt']) : '';
 
-$location_name = $location_filter ? getFieldById('locations', $location_filter, 'location_name') : null;
-$ticket_row = $ticket_filter ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject FROM tickets WHERE ticket_id = $ticket_filter")) : null;
+$location_name = $location_filter ? getFieldByIdInScope('locations', $location_filter, 'location_name', 'location_client_id') : null;
+$ticket_row = $ticket_filter ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject FROM tickets WHERE ticket_id = $ticket_filter" . clientScopeSql('ticket_client_id'))) : null;
 
 ob_start();
 
@@ -35,7 +40,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Trips</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <?php exportTabsNav(); ?>
@@ -63,7 +68,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Search</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Purpose, from, to, client, site, driver, ticket">
             </div>
         </div>
@@ -73,7 +78,7 @@ ob_start();
                 <div class="col-md-6">
                     <label class="form-label">Driver</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                         <select class="form-select select2" name="driver">
                             <option value="">- Anyone -</option>
                             <?php
@@ -90,7 +95,7 @@ ob_start();
                 <div class="col-md-6">
                     <label class="form-label">Client</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                         <select class="form-select select2" name="client">
                             <option value="">- Any client -</option>
                             <?php
@@ -106,7 +111,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Showing</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-filter"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-filter"></i></span>
                     <select class="form-select select2" name="show">
                         <?php foreach ($shows as $key => $s) { ?>
                             <option <?= $show_filter === $key ? 'selected' : '' ?> value="<?= escapeHtml($key) ?>"><?= escapeHtml($key === '' ? 'All trips' : $s['label']) ?></option>
@@ -117,14 +122,14 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Dated from</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                     <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
                 </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Dated to</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                     <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">
                 </div>
             </div>

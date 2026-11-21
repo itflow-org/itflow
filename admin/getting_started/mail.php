@@ -99,6 +99,6 @@ $gs_parse = intval($gs_mail['config_ticket_email_parse'] ?? 0) === 1;
 
     <div class="d-flex flex-wrap gap-2">
         <button type="submit" name="getting_started_mail" value="continue" class="btn btn-primary" data-gs-save>Save and continue<i class="fas fa-arrow-right ms-2"></i></button>
-        <button type="submit" name="getting_started_mail" value="test" class="btn btn-outline-primary" data-gs-test><i class="fas fa-paper-plane me-2"></i>Save and send me a test</button>
+        <button type="submit" name="getting_started_mail" value="test" class="btn btn-outline-primary" data-gs-test><i class="fas fa-paper-plane me-2"></i>Save and Send Me a Test</button>
     </div>
 </form>

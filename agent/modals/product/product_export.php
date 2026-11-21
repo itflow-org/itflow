@@ -32,7 +32,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Products</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <?php exportTabsNav(); ?>
@@ -45,17 +45,17 @@ ob_start();
         <?php exportTabsFiltersOpen(); ?>
 
         <div class="mb-3">
-            <label>Search</label>
+            <label class="form-label">Search</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, code, description">
             </div>
         </div>
 
         <div class="mb-3">
-            <label>Type</label>
+            <label class="form-label">Type</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-box"></i></span>
                 <select class="form-select select2" name="type">
                     <option value="">- Everything -</option>
                     <option <?php if ($type_filter === 'service') { echo "selected"; } ?> value="service">Services</option>
@@ -69,22 +69,22 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Category</label>
+            <label class="form-label">Category</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
                 <select class="form-select select2" name="category">
-                    <option value="">- All Categories -</option>
+                    <option value="">- Any category -</option>
                     <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT DISTINCT product_category_id FROM products") ?>
                 </select>
             </div>
         </div>
 
         <div class="mb-3">
-            <label>Vendor</label>
+            <label class="form-label">Vendor</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                 <select class="form-select select2" name="vendor">
-                    <option value="">- All Vendors -</option>
+                    <option value="">- Any vendor -</option>
                     <?php foreach (productVendors() as $filter_vendor_id => $filter_vendor_name) { ?>
                         <option <?php if ($vendor_filter === $filter_vendor_id) { echo "selected"; } ?> value="<?= $filter_vendor_id ?>"><?= escapeHtml($filter_vendor_name) ?></option>
                     <?php } ?>
@@ -93,9 +93,9 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Archived</label>
+            <label class="form-label">Archived</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-archive"></i></span>
                 <select class="form-select select2" name="archived">
                     <option <?php if (!$archived_filter) { echo "selected"; } ?> value="0">Active only</option>
                     <option <?php if ($archived_filter) { echo "selected"; } ?> value="1">Archived only</option>

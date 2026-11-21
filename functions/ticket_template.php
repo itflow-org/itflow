@@ -559,7 +559,7 @@ function ticketFillInFieldHtml(array $fill_in, $value, $required = true) {
     $value = (string) $value;
     if ($fill_in['type'] === 'list' || $fill_in['type'] === 'yesno') {
         $choices = $fill_in['type'] === 'yesno' ? ['Yes', 'No'] : $fill_in['options'];
-        $control = '<select class="form-select' . ($fill_in['type'] === 'list' ? ' select2' : '') . '" ' . $attributes . '><option value="">- Choose -</option>';
+        $control = '<select class="form-select' . ($fill_in['type'] === 'list' ? ' select2' : '') . '" ' . $attributes . '><option value="">- Select one -</option>';
         foreach ($choices as $choice) {
             $control .= '<option value="' . escapeHtml($choice) . '"' . (mb_strtolower($choice) === mb_strtolower($value) ? ' selected' : '') . '>' . escapeHtml($choice) . '</option>';
         }
@@ -1002,7 +1002,7 @@ function ticketTemplatePortalRaise(array $template, $client_id, $contact_id, $us
     // The agent it goes to hears about it
     if ($assigned_to) {
         $row = ticketRow($ticket_id);
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '" . escapeSql("Ticket " . ticketReference($row) . " - " . $row['ticket_subject'] . " has been assigned to you from the client portal") . "',
+        ticketTeamNotifyOn('assigned_app') && mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '" . escapeSql("Ticket " . ticketReference($row) . " - " . $row['ticket_subject'] . " has been assigned to you from the client portal") . "',
             notification_action = '" . escapeSql('/agent/' . ticketUrl($ticket_id, $client_id)) . "', notification_client_id = $client_id, notification_user_id = $assigned_to");
         ticketMailAssigned($assigned_to, [$ticket_id], $contact_name);
     }

@@ -78,7 +78,7 @@ ob_start();
                     <?php if (trim((string) $row['invoice_scope']) !== '') { ?>
                         <div class="small text-body-secondary text-truncate mt-1"><?= escapeHtml($row['invoice_scope']) ?></div>
                     <?php } ?>
-                    <div class="small text-body-secondary mt-1">Dated <?= escapeHtml($row['invoice_date']) ?>, due <?= escapeHtml($row['invoice_due']) ?></div>
+                    <div class="small text-body-secondary mt-1">Dated <?= formatDate($row['invoice_date']) ?>, due <?= formatDate($row['invoice_due']) ?></div>
                 </div>
                 <div class="text-end small">
                     <div><span class="text-body-secondary">Invoice</span> <span class="itflow-money fw-semibold ms-2"><?= $money($row['invoice_amount'], $row['invoice_currency_code']) ?></span></div>
@@ -94,7 +94,7 @@ ob_start();
                     <div class="small fw-semibold text-uppercase text-body-secondary mb-1">The other payment<?= count($row['others']) === 1 ? '' : 's' ?> on it</div>
                     <?php foreach ($row['others'] as $other) { ?>
                         <div class="d-flex justify-content-between small">
-                            <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/payment/payment.php?id=<?= intval($other['payment_id']) ?>"><?= escapeHtml($other['payment_date']) ?><?= $other['payment_method'] ? ' - ' . escapeHtml($other['payment_method']) : '' ?></a>
+                            <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/payment/payment.php?id=<?= intval($other['payment_id']) ?>"><?= formatDate($other['payment_date']) ?><?= $other['payment_method'] ? ' - ' . escapeHtml($other['payment_method']) : '' ?></a>
                             <span class="itflow-money"><?= $money($other['payment_amount'], $other['payment_currency_code'] ?: $row['invoice_currency_code']) ?></span>
                         </div>
                     <?php } ?>
@@ -126,16 +126,18 @@ ob_start();
             </div>
             <div class="itflow-glance-item" title="Entered">
                 <i class="fas fa-fw fa-clock"></i>
-                <span><span title="<?= escapeHtml($row['payment_created_at']) ?>"><?= timeAgo($row['payment_created_at']) ?></span><?php if (!empty($row['payment_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
+                <span><span title="<?= formatDateTime($row['payment_created_at']) ?>"><?= timeAgo($row['payment_created_at']) ?></span><?php if (!empty($row['payment_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
             </div>
             <?= transferDepositedGlanceHtml($deposited) ?>
             <?= reconcileGlanceHtml($cleared) ?>
         </div>
         <div class="col-sm-6">
+            <?php if (moduleOn('bookkeeping')) { ?>
             <div class="itflow-glance-item" title="Paid into">
                 <i class="fas fa-fw fa-piggy-bank"></i>
                 <span class="text-truncate"><?= escapeHtml($row['account_name'] ?: 'No account') ?><?= $row['account_archived_at'] ? ' <span class="text-body-secondary">(archived)</span>' : '' ?></span>
             </div>
+            <?php } ?>
             <div class="itflow-glance-item" title="Paid by">
                 <i class="fas fa-fw fa-credit-card"></i>
                 <span><?= escapeHtml($row['payment_method'] ?: '-') ?></span>
@@ -165,7 +167,7 @@ ob_start();
 
 <div class="modal-footer">
     <?php if ($has_invoice && $can_sales) { ?>
-        <a class="btn btn-primary text-bold" href="invoice.php?invoice_id=<?= intval($row['invoice_id']) ?>"><i class="fas fa-file-invoice me-2"></i>Open Invoice</a>
+        <a class="btn btn-primary fw-bold" href="invoice.php?invoice_id=<?= intval($row['invoice_id']) ?>"><i class="fas fa-file-invoice-dollar me-2"></i>Open Invoice</a>
     <?php } ?>
     <?php if ($can_receipt) { ?>
         <a class="btn btn-outline-secondary confirm-link <?= $receipt_to ? '' : 'disabled' ?>" href="post.php?payment_send_receipt=<?= $payment_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
@@ -183,7 +185,7 @@ ob_start();
                 data-confirm-text="The payment of <?= $money($amount) ?> comes off <?= escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?>, which is owed again."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
         <?php } ?>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

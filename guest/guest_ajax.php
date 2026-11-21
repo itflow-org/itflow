@@ -35,11 +35,11 @@ if (isset($_GET['stripe_create_pi'])) {
         LEFT JOIN clients ON invoice_client_id = client_id
         WHERE invoice_id = $invoice_id
         AND invoice_url_key = '$url_key'
-        AND invoice_status NOT IN ('Draft','Paid','Cancelled')
+        AND invoice_status NOT IN ('Draft','Paid','Cancelled','Non-Billable')
         LIMIT 1"
     );
     if (!$invoice_sql || mysqli_num_rows($invoice_sql) !== 1) {
-        exit("Invalid Invoice ID/SQL query");
+        exit(json_encode(['error' => 'This invoice is paid, or no longer open for payment']));
     }
 
     $row = mysqli_fetch_assoc($invoice_sql);
@@ -58,14 +58,19 @@ if (isset($_GET['stripe_create_pi'])) {
 
     $balance_to_pay = round($balance_to_pay, 2);
 
-    if (intval($balance_to_pay) == 0) {
-        exit("No balance outstanding");
+    // In whole cents - a balance under 1.00 can still be paid, and nothing owed (or overpaid) can't
+    if (intval(round($balance_to_pay * 100)) <= 0) {
+        exit(json_encode(['error' => 'Nothing is owed on this invoice']));
     }
 
     // Setup Stripe from payment_providers
     $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_id, payment_provider_private_key FROM payment_providers WHERE payment_provider_name = 'Stripe' AND payment_provider_active = 1 LIMIT 1"));
     if (!$stripe_provider) {
-        exit("Stripe not enabled / configured");
+        exit(json_encode(['error' => 'Paying online is not available just now']));
+    }
+    // Under Stripe's limit (Admin > Payment Providers), as the invoice's Pay button
+    if (!billingOnlinePayAllowed($invoice_amount)) {
+        exit(json_encode(['error' => 'This invoice is over the limit for paying online - please get in touch to pay it another way']));
     }
     $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
     $stripe_secret_key = $stripe_provider['payment_provider_private_key'];
@@ -82,7 +87,7 @@ if (isset($_GET['stripe_create_pi'])) {
     $stripe_customer_id = $stripe_customer ? escapeSql($stripe_customer['payment_provider_client']) : null;
 
     // The card fee, when the client pays it - as guest_pay_invoice_stripe.php showed it, and booked from itflow_fees on the way back
-    $balance_cents = (int) round($balance_to_pay * 100);
+    $balance_cents = intval(round($balance_to_pay * 100));
     $fee_cents = billingCardFeeCents($balance_cents, billingCardFeeFor($client_id));
     $pi_metadata = [
         'itflow_client_id' => $client_id,
@@ -100,14 +105,25 @@ if (isset($_GET['stripe_create_pi'])) {
     try {
         \Stripe\Stripe::setApiKey($stripe_secret_key);
 
-        $paymentIntent = \Stripe\PaymentIntent::create([
+        $pi_params = [
             'amount' => $balance_cents + $fee_cents, // Stripe expects cents
             'currency' => $invoice_currency_code,
             'description' => $pi_description,
             'metadata' => $pi_metadata,
             'payment_method_types' => ['card'],
             'customer' => $stripe_customer_id,
-        ]);
+        ];
+        try {
+            $paymentIntent = \Stripe\PaymentIntent::create($pi_params);
+        } catch (\Stripe\Exception\InvalidRequestException $e) {
+            // A customer Stripe no longer has - forgotten (next time they are set up again), and this payment goes ahead without one
+            if (!$stripe_customer_id || !billingStripeCustomerGone($e)) {
+                throw $e;
+            }
+            billingStripeCustomerForget($client_id, $stripe_customer_id);
+            unset($pi_params['customer']);
+            $paymentIntent = \Stripe\PaymentIntent::create($pi_params);
+        }
 
         $output = [
             'clientSecret' => $paymentIntent->client_secret,

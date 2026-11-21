@@ -20,9 +20,9 @@ $ct_expires = (string) ($ct['client_tax_exempt_expires'] ?? '');
 <input type="hidden" name="tax_fields" value="1">
 
 <div class="mb-3">
-    <label>Tax Rate</label>
+    <label class="form-label">Tax rate</label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
         <select class="form-select select2" name="default_tax_id">
             <option value="0"><?= $ct_company_default ? 'The default - ' . escapeHtml(taxLabel($ct_company_default)) : 'The default - none set' ?></option>
             <?php
@@ -35,7 +35,7 @@ $ct_expires = (string) ($ct['client_tax_exempt_expires'] ?? '');
             <?php } ?>
         </select>
     </div>
-    <small class="text-secondary">For new lines on its invoices and quotes - where it is, for sales tax</small>
+    <div class="form-text">For new lines on its invoices and quotes - where it is, for sales tax</div>
 </div>
 
 <div class="mb-2">
@@ -43,21 +43,21 @@ $ct_expires = (string) ($ct['client_tax_exempt_expires'] ?? '');
         <input type="checkbox" class="form-check-input" name="tax_exempt" value="1" id="clientTaxExempt<?= $ct_key ?>"<?= !empty($ct['client_tax_exempt']) ? ' checked' : '' ?>>
         <label class="form-check-label" for="clientTaxExempt<?= $ct_key ?>">Tax exempt</label>
     </div>
-    <small class="text-secondary">Its new lines get no tax, and its invoices and quotes say it is exempt</small>
+    <div class="form-text">Its new lines get no tax, and its invoices and quotes say it is exempt</div>
 </div>
 
 <div class="row">
     <div class="col-md-7 mb-3">
-        <label>Exemption Certificate</label>
+        <label class="form-label">Exemption certificate</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-file-contract"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-file-contract"></i></span>
             <input type="text" class="form-control" name="tax_exempt_number" maxlength="200" placeholder="Certificate number" value="<?= escapeHtml($ct['client_tax_exempt_number'] ?? '') ?>">
         </div>
     </div>
     <div class="col-md-5 mb-3">
-        <label>Expires</label>
+        <label class="form-label">Expires</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar-times"></i></span>
             <input type="date" class="form-control" name="tax_exempt_expires" max="2999-12-31" value="<?= escapeHtml($ct_expires) ?>">
         </div>
     </div>

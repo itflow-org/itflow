@@ -36,7 +36,7 @@ $money = function ($amount) use ($currency) {
             <a class="btn btn-outline-secondary" href="post.php?export_statement_pdf=1<?= $with_paid ? '&paid=1' : '' ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-file-pdf me-2"></i>Download PDF</a>
         <?php } ?>
         <?php if ($statement['total'] > 0 && $cards) { ?>
-            <a class="btn btn-primary" href="unpaid_invoices.php"><i class="fas fa-credit-card me-2"></i>Pay invoices</a>
+            <a class="btn btn-primary" href="unpaid_invoices.php"><i class="fas fa-credit-card me-2"></i>Pay Invoices</a>
         <?php } ?>
     </div>
 </div>

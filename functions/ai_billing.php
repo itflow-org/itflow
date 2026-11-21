@@ -42,7 +42,7 @@ function aiBillingCatalog($limit = 200) {
 /* The catalog as a model reads it - one line each: id | name | service or product | how it is billed | price | what it is. */
 function aiBillingCatalogText(array $catalog, $currency) {
     $billed = ['month' => 'monthly', 'quarter' => 'quarterly', 'year' => 'yearly'];
-    $per = ['contacts' => ' per user', 'assets' => ' per device'];
+    $per = ['contacts' => ' per user', 'assets' => ' per device', 'managed' => ' per managed device'];
     $lines = [];
     foreach ($catalog as $id => $row) {
         $description = aiHtmlToText((string) $row['product_description'], 120);

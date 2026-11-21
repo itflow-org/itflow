@@ -45,7 +45,7 @@ $files = !empty($r['canned_response_id']) ? cannedResponseFiles($r['canned_respo
     <div class="mb-3">
         <label class="form-label">Name <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-comment-dots"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-comment-dots"></i></span>
             <input type="text" class="form-control" name="name" placeholder="What an agent picks it by - Password reset done" maxlength="200" value="<?= escapeHtml($r['canned_response_name'] ?? '') ?>" required autofocus>
         </div>
     </div>
@@ -53,7 +53,7 @@ $files = !empty($r['canned_response_id']) ? cannedResponseFiles($r['canned_respo
     <div class="mb-3">
         <label class="form-label">Offered on</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-life-ring"></i></span>
             <select class="form-select select2" name="category_ids[]" multiple data-placeholder="Every ticket">
                 <?php foreach (categoryPicker('Ticket', $picked) as $category_id => $category_row) { ?>
                     <?= categoryOptionHtml($category_row, in_array(intval($category_id), $picked, true)) ?>
@@ -84,7 +84,7 @@ $files = !empty($r['canned_response_id']) ? cannedResponseFiles($r['canned_respo
     <div class="mb-3">
         <label class="form-label">Reply as</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-reply"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-reply"></i></span>
             <select class="form-select select2" name="reply_type">
                 <option value=""<?= $reply_type === '' ? ' selected' : '' ?>>- Leave as it is -</option>
                 <?php foreach (CANNED_RESPONSE_REPLY_TYPES as $type => [$label, $icon]) { ?>
@@ -98,7 +98,7 @@ $files = !empty($r['canned_response_id']) ? cannedResponseFiles($r['canned_respo
     <div class="mb-3">
         <label class="form-label">Status after it</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
             <select class="form-select select2" name="ticket_status">
                 <option value="">- Leave as it is -</option>
                 <?php foreach (cannedResponseStatuses() as $status_id => $status) { ?>
@@ -112,7 +112,7 @@ $files = !empty($r['canned_response_id']) ? cannedResponseFiles($r['canned_respo
     <div class="mb-3">
         <label class="form-label">Time worked</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
             <input type="number" class="form-control" name="minutes" min="0" max="<?= CANNED_RESPONSE_MAX_MINUTES ?>" step="1" placeholder="None" value="<?= $minutes ?: '' ?>">
             <span class="input-group-text">minutes</span>
         </div>
@@ -129,7 +129,7 @@ $files = !empty($r['canned_response_id']) ? cannedResponseFiles($r['canned_respo
                 $file_id = intval($file['canned_response_file_id']); ?>
                 <li class="list-group-item d-flex align-items-center gap-2">
                     <i class="far fa-fw fa-<?= getFileIcon(pathinfo($file['canned_response_file_name'], PATHINFO_EXTENSION)) ?> text-secondary"></i>
-                    <a class="text-truncate" href="/agent/canned_response_file.php?file_id=<?= $file_id ?>" target="_blank"><?= escapeHtml($file['canned_response_file_name']) ?></a>
+                    <a class="text-truncate" href="/agent/canned_response_file.php?file_id=<?= $file_id ?>" target="_blank" rel="noopener"><?= escapeHtml($file['canned_response_file_name']) ?></a>
                     <span class="small text-secondary text-nowrap"><?= cannedResponseFileSizeText($file['canned_response_file_size']) ?></span>
                     <div class="form-check ms-auto mb-0">
                         <input class="form-check-input" type="checkbox" name="remove_file_ids[]" value="<?= $file_id ?>" id="cannedResponseRemoveFile<?= $file_id ?>">
@@ -142,7 +142,7 @@ $files = !empty($r['canned_response_id']) ? cannedResponseFiles($r['canned_respo
 
     <label class="form-label" for="cannedResponseFiles">Add files</label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-paperclip"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-paperclip"></i></span>
         <input type="file" class="form-control" id="cannedResponseFiles" name="files[]" multiple accept="<?= escapeHtml(implode(', ', array_map(function ($extension) {
             return ".$extension";
         }, TICKET_ATTACHMENT_EXTENSIONS))) ?>">

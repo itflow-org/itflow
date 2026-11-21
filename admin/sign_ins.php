@@ -144,10 +144,6 @@ if ($view === 'ips') {
     }
 }
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 // A view keeps the search and dates, and starts from the top
 $view_url = function ($key) {
     $query = array_diff_key($_GET, ['page' => 1, 'sort' => 1, 'order' => 1]);
@@ -164,6 +160,8 @@ $audit_url = function (array $query) use ($dates_query) {
 
 ?>
 
+<?= adminNavGroupTabsHtml('logs') ?>
+
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-sign-in-alt me-2"></i>Sign-ins</h3>
@@ -179,8 +177,8 @@ $audit_url = function (array $query) use ($dates_query) {
             <div class="row g-2 align-items-center">
                 <div class="col-lg-6 col-md-7">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Name, email or IP address">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search sign-ins..." title="Name, email or IP address">
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-5">
@@ -205,22 +203,22 @@ $audit_url = function (array $query) use ($dates_query) {
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <?php if ($view === 'ips') { ?>
                 <tr>
-                    <th class="ps-3"><?= $sort_link('log_ip', 'IP address') ?></th>
-                    <th><?= $sort_link('accounts', 'Accounts tried') ?></th>
-                    <th class="text-end"><?= $sort_link('sign_ins', 'Sign-ins') ?></th>
-                    <th class="text-end"><?= $sort_link('failures', 'Failed') ?></th>
-                    <th class="d-none d-lg-table-cell"><?= $sort_link('first_seen', 'First seen') ?></th>
-                    <th><?= $sort_link('last_seen', 'Last seen') ?></th>
+                    <th class="ps-3"><?= sortLink('log_ip', 'IP address') ?></th>
+                    <th><?= sortLink('accounts', 'Accounts tried') ?></th>
+                    <th class="text-end"><?= sortLink('sign_ins', 'Sign-ins') ?></th>
+                    <th class="text-end"><?= sortLink('failures', 'Failed') ?></th>
+                    <th class="d-none d-lg-table-cell"><?= sortLink('first_seen', 'First seen') ?></th>
+                    <th><?= sortLink('last_seen', 'Last seen') ?></th>
                     <th></th>
                 </tr>
             <?php } else { ?>
                 <tr>
-                    <th class="ps-3"><?= $sort_link('user_name', 'Who') ?></th>
+                    <th class="ps-3"><?= sortLink('user_name', 'Who') ?></th>
                     <th class="d-none d-md-table-cell">Last sign in</th>
-                    <th class="text-end"><?= $sort_link('sign_ins', 'Sign-ins') ?></th>
-                    <th class="text-end"><?= $sort_link('failures', 'Failed') ?></th>
-                    <th class="text-end d-none d-sm-table-cell"><?= $sort_link('ips', 'IP addresses') ?></th>
-                    <th class="d-none d-lg-table-cell"><?= $sort_link('last_seen', 'Last seen') ?></th>
+                    <th class="text-end"><?= sortLink('sign_ins', 'Sign-ins') ?></th>
+                    <th class="text-end"><?= sortLink('failures', 'Failed') ?></th>
+                    <th class="text-end d-none d-sm-table-cell"><?= sortLink('ips', 'IP addresses') ?></th>
+                    <th class="d-none d-lg-table-cell"><?= sortLink('last_seen', 'Last seen') ?></th>
                     <th></th>
                 </tr>
             <?php } ?>
@@ -288,7 +286,7 @@ $audit_url = function (array $query) use ($dates_query) {
                         </td>
                         <td class="d-none d-md-table-cell small">
                             <?php if ($success) { ?>
-                                <div title="<?= escapeHtml($success['log_created_at']) ?>"><?= escapeHtml(timeAgo($success['log_created_at'])) ?></div>
+                                <div title="<?= formatDateTime($success['log_created_at']) ?>"><?= escapeHtml(timeAgo($success['log_created_at'])) ?></div>
                                 <div class="text-body-secondary"><span class="font-monospace"><?= escapeHtml($success['log_ip']) ?></span><?= auditLogDevice($success['log_user_agent']) !== '' ? ' · ' . escapeHtml(auditLogDevice($success['log_user_agent'])) : '' ?></div>
                             <?php } else { ?>
                                 <span class="text-body-secondary">None<?= $dated ? ' in these dates' : '' ?></span>
@@ -304,7 +302,7 @@ $audit_url = function (array $query) use ($dates_query) {
                         <td class="text-end d-none d-sm-table-cell">
                             <?= number_format(intval($row['ips'])) ?>
                             <?php if (!empty($new_ips[$user_id])) { ?>
-                                <div><span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal" title="First used to sign in in these dates" data-new-ips><?= $new_ips[$user_id] ?> new</span></div>
+                                <div><span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal" title="First used to sign in in these dates" data-new-ips><?= number_format(intval($new_ips[$user_id])) ?> new</span></div>
                             <?php } ?>
                         </td>
                         <td class="d-none d-lg-table-cell small text-nowrap" title="<?= escapeHtml($row['last_seen']) ?>"><?= escapeHtml(timeAgo($row['last_seen'])) ?></td>

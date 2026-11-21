@@ -81,11 +81,15 @@ if (isset($_GET['archive_ticket_template']) || isset($_GET['restore_ticket_templ
     $name = escapeSql($row['ticket_template_name']);
 
     // Archived, it isn't offered for new tickets - recurring tickets and project templates that use it keep it, so restoring it is all it takes
+    $undo = $archive ? undoArchivedBefore('ticket_templates', 'ticket_template_id', [$ticket_template_id]) : null;
     mysqli_query($mysqli, "UPDATE ticket_templates SET ticket_template_archived_at = " . ($archive ? 'NOW()' : 'NULL') . " WHERE ticket_template_id = $ticket_template_id");
 
     logAudit("Ticket Template", $archive ? "Archive" : "Restore", "$session_name " . ($archive ? 'archived' : 'restored') . " ticket template $name", 0, $ticket_template_id);
 
     flashAlert("Ticket template <strong>" . escapeHtml($row['ticket_template_name']) . "</strong> " . ($archive ? 'archived' : 'restored'), $archive ? 'error' : 'success');
+    if ($undo) {
+        undoOfferArchived($undo, '', $row['ticket_template_name']);
+    }
 
     redirect();
 

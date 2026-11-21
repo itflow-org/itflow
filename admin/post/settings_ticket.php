@@ -3,8 +3,9 @@
 /*
  * Admin > Settings > Tickets (admin/settings_ticket.php):
  * edit_ticket_settings saves the numbering, email and text to ticket, who hears of a
- * new ticket and whether AI triages it, the timer and billing, closing and the
- * tickets page. A next
+ * new ticket and whether AI triages it, whether the first agent to reply to an
+ * unassigned ticket is assigned it, what a quick ticket starts with, the timer
+ * and billing, the messages to clients, closing and the tickets page. A next
  * number already in use, an email address that isn't one or a closing time
  * out of range comes back to the page saying so - nothing is saved. Billable
  * by default is only on the page with accounting on, so is kept as it is
@@ -21,7 +22,11 @@ if (isset($_POST['edit_ticket_settings'])) {
     $before = settingsCurrent(array_merge(['config_ticket_prefix', 'config_ticket_next_number', 'config_ticket_email_parse', 'config_ticket_email_parse_unknown_senders',
         'config_ticket_new_ticket_notification_email', 'config_ticket_timer_autostart', 'config_ticket_default_billable', 'config_ticket_autoclose_hours',
         'config_ticket_default_view', 'config_ticket_ordering', 'config_ticket_moving_columns'], aiTriageReady() ? ['config_ticket_ai_triage'] : [],
-        settingsColumnExists($mysqli, 'config_ticket_sms_parse') ? ['config_ticket_sms_parse', 'config_ticket_sms_unknown_senders', 'config_ticket_sms_acknowledge'] : []));
+        version_compare((string) CURRENT_DATABASE_VERSION, '4.0.9', '>=') ? ['config_ticket_reply_assigns'] : [],
+        settingsColumnExists($mysqli, 'config_ticket_sms_parse') ? ['config_ticket_sms_parse', 'config_ticket_sms_unknown_senders', 'config_ticket_sms_acknowledge'] : [],
+        ticketStatusReplyReady() ? ['config_ticket_assigned_message'] : [], ticketNoResponseReady() ? ['config_ticket_no_response_message'] : [],
+        quickTicketReady() ? ['config_quick_ticket_on', 'config_quick_ticket_assign', 'config_quick_ticket_status', 'config_quick_ticket_priority', 'config_quick_ticket_category',
+            'config_quick_ticket_billable', 'config_quick_ticket_timer', 'config_quick_ticket_primary', 'config_quick_ticket_open_tickets', 'config_quick_ticket_email_client'] : []));
 
     // What was sent, and what is saved for anything that wasn't - a switch not sent is off
     $in = $_POST + array_map(function ($value) { return (string) $value; }, $before);
@@ -38,6 +43,10 @@ if (isset($_POST['edit_ticket_settings'])) {
     foreach (['config_ticket_email_parse', 'config_ticket_email_parse_unknown_senders', 'config_ticket_timer_autostart', 'config_ticket_ordering', 'config_ticket_moving_columns'] as $switch) {
         $after[$switch] = empty($_POST[$switch]) ? 0 : 1;
     }
+    // Assigning a ticket to the first agent to reply - once the database has it
+    if (array_key_exists('config_ticket_reply_assigns', $before)) {
+        $after['config_ticket_reply_assigns'] = empty($_POST['config_ticket_reply_assigns']) ? 0 : 1;
+    }
     // Text to ticket - once the database has it
     if (array_key_exists('config_ticket_sms_parse', $before)) {
         foreach (['config_ticket_sms_parse', 'config_ticket_sms_unknown_senders', 'config_ticket_sms_acknowledge'] as $switch) {
@@ -46,6 +55,44 @@ if (isset($_POST['edit_ticket_settings'])) {
     }
     if ($config_module_enable_accounting) {
         $after['config_ticket_default_billable'] = empty($_POST['config_ticket_default_billable']) ? 0 : 1;
+    }
+    // The messages to clients - the built-in wording sent back as it is, or nothing, is kept as none, so it follows that wording
+    foreach (['config_ticket_assigned_message' => TICKET_ASSIGNED_MESSAGE, 'config_ticket_no_response_message' => TICKET_NO_RESPONSE_MESSAGE] as $message_setting => $built_in) {
+        if (array_key_exists($message_setting, $before) && isset($_POST[$message_setting])) {
+            $message = mb_substr(trim(str_replace("\r\n", "\n", (string) $_POST[$message_setting])), 0, 5000);
+            $after[$message_setting] = $message === '' || $message === $built_in ? null : $message;
+        }
+    }
+
+    // Quick tickets - once the database has them. Billable is only on the page with accounting on
+    if (array_key_exists('config_quick_ticket_on', $before)) {
+        foreach (['config_quick_ticket_on', 'config_quick_ticket_primary', 'config_quick_ticket_open_tickets', 'config_quick_ticket_email_client'] as $switch) {
+            $after[$switch] = empty($_POST[$switch]) ? 0 : 1;
+        }
+        $quick_assign = (string) $in['config_quick_ticket_assign'];
+        $after['config_quick_ticket_assign'] = in_array($quick_assign, ['me', 'nobody'], true) ? $quick_assign : (string) ticketAgentId(intval($quick_assign));
+        if ($after['config_quick_ticket_assign'] === '0') {
+            $errors['config_quick_ticket_assign'] = 'Pick who it goes to from the list.';
+        }
+        $after['config_quick_ticket_status'] = intval($in['config_quick_ticket_status']);
+        if ($after['config_quick_ticket_status'] && !isset(ticketPickableStatuses()[$after['config_quick_ticket_status']])) {
+            $errors['config_quick_ticket_status'] = 'Pick the status from the list.';
+        }
+        $after['config_quick_ticket_priority'] = (string) $in['config_quick_ticket_priority'];
+        if (!in_array($after['config_quick_ticket_priority'], ['Low', 'Medium', 'High', 'Urgent'], true)) {
+            $errors['config_quick_ticket_priority'] = 'Pick the priority from the list.';
+        }
+        $after['config_quick_ticket_category'] = ticketCategoryId($in['config_quick_ticket_category']);
+        if ($config_module_enable_accounting) {
+            $after['config_quick_ticket_billable'] = intval($in['config_quick_ticket_billable']);
+            if (!isset(QUICK_TICKET_BILLABLE[$after['config_quick_ticket_billable']])) {
+                $errors['config_quick_ticket_billable'] = 'Pick whether it bills from the list.';
+            }
+        }
+        $after['config_quick_ticket_timer'] = (string) $in['config_quick_ticket_timer'];
+        if (!isset(QUICK_TICKET_TIMER[$after['config_quick_ticket_timer']])) {
+            $errors['config_quick_ticket_timer'] = 'Pick when its timer starts from the list.';
+        }
     }
 
     if ($problem = settingsEmailProblem($after['config_ticket_new_ticket_notification_email'])) {

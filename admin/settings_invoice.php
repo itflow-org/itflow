@@ -99,7 +99,7 @@ echo settingsPageStart('invoice');
                             </div>
                         </div>
                     </div>
-                    <div class="itflow-settings-note mt-3"><i class="fa fa-fw fa-bell me-1 text-body-secondary"></i>Reminders go <strong data-reminder-summary><?= escapeHtml(billingReminderScheduleText($reminder_rules)) ?></strong>. An invoice a recurring autopay charges on its due date isn't reminded before then.</div>
+                    <div class="itflow-settings-note mt-3"><i class="fas fa-fw fa-bell me-1 text-body-secondary"></i>Reminders go <strong data-reminder-summary><?= escapeHtml(billingReminderScheduleText($reminder_rules)) ?></strong>. An invoice a recurring autopay charges on its due date isn't reminded before then.</div>
                 </div>
 
                 <div class="row g-3 align-items-start itflow-settings-field">
@@ -184,7 +184,7 @@ echo settingsPageStart('invoice');
                         'placeholder' => '0.70', 'help' => 'For driving their own vehicle - your reimbursement rate, such as the IRS standard mileage rate. Empty turns paying back off.']) ?></div>
                     <div class="col-md-6"><?= settingsSelect('config_mileage_category_id', $trip_rules['category_id'], [], ['icon' => 'fa-list', 'search' => true,
                         'options_html' => '<option value="0">- Mileage, or Travel -</option>' . categoryOptionsHtml('Expense', intval(settingsValue('config_mileage_category_id', $trip_rules['category_id']))),
-                        'append' => categoryAddButtonHtml('Expense', 'btn btn-secondary'),
+                        'append' => categoryAddButtonHtml('Expense'),
                         'help' => 'The expense category of the mileage paid back. The expenses are to the vendor Mileage, made the first time.']) ?></div>
                 </div>
 

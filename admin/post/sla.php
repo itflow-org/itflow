@@ -86,6 +86,8 @@ if (isset($_GET['archive_sla'])) {
     validateCSRFToken();
 
     $sla_id = intval($_GET['archive_sla']);
+    $sla_name = (string) getFieldById('slas', $sla_id, 'sla_name');
+    $undo = undoArchivedBefore('slas', 'sla_id', [$sla_id]);
 
     mysqli_query($mysqli, "UPDATE slas SET sla_archived_at = NOW() WHERE sla_id = $sla_id");
 
@@ -94,7 +96,8 @@ if (isset($_GET['archive_sla'])) {
 
     logAudit("SLA", "Archive", "$session_name archived SLA ID $sla_id");
 
-    flashAlert("SLA archived");
+    flashAlert($sla_name !== '' ? "SLA <strong>" . escapeHtml($sla_name) . "</strong> archived" : "SLA archived", 'error');
+    undoOfferArchived($undo, 'SLA', $sla_name);
 
     redirect();
 
@@ -200,7 +203,7 @@ if (isset($_POST['add_holiday'])) {
     getBusinessHolidays(true);
     $restamped = restampOpenSlaTickets();
 
-    logAudit("Settings", "Create", "$session_name added SLA closure day $holiday_date - $holiday_name");
+    logAudit("Settings", "Create", "$session_name added SLA closure day " . formatDate($holiday_date) . " - $holiday_name");
 
     flashAlert("Closure day added" . ($restamped ? " - targets worked out again on " . $sla_open_tickets_text($restamped) : ''));
 
@@ -227,9 +230,9 @@ if (isset($_POST['delete_holiday'])) {
     getBusinessHolidays(true);
     $restamped = restampOpenSlaTickets();
 
-    logAudit("Settings", "Delete", "$session_name removed SLA closure day $holiday_date - $holiday_name");
+    logAudit("Settings", "Delete", "$session_name removed SLA closure day " . formatDate($holiday_date) . " - $holiday_name");
 
-    flashAlert("Closure day removed" . ($restamped ? " - targets worked out again on " . $sla_open_tickets_text($restamped) : ''));
+    flashAlert("Closure day removed" . ($restamped ? " - targets worked out again on " . $sla_open_tickets_text($restamped) : ''), 'error');
 
     redirect();
 

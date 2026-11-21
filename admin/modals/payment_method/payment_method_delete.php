@@ -27,7 +27,7 @@ if (!$payment_method) { ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-trash me-2"></i>Delete <strong><?= $name ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -37,20 +37,20 @@ if (!$payment_method) { ?>
         <?php if ($usage['total']) { ?>
             <div class="alert alert-warning small py-2">
                 <i class="fas fa-fw fa-exchange-alt me-1"></i>Used on <strong><?= escapeHtml(paymentMethodUsageText($usage)) ?></strong>.
-                <a href="/agent/transactions.php?<?= escapeHtml(http_build_query(['method' => $payment_method['payment_method_name']])) ?>" target="_blank">See them</a>
+                <?php if (moduleOn('bookkeeping')) { ?><a href="/agent/transactions.php?<?= escapeHtml(http_build_query(['method' => $payment_method['payment_method_name']])) ?>" target="_blank" rel="noopener">See them</a><?php } ?>
             </div>
             <div class="mb-3">
                 <label class="form-label">Change them to <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-random"></i></span>
-                    <select class="form-select" name="move_to" required>
-                        <option value="">- Pick a method -</option>
+                    <span class="input-group-text"><i class="fas fa-fw fa-random"></i></span>
+                    <select class="form-select select2" name="move_to" required>
+                        <option value="">- Select a payment method -</option>
                         <?php foreach ($others as $other_id => $other) { ?>
                             <option value="<?= intval($other_id) ?>"><?= escapeHtml($other['payment_method_name']) ?><?= empty($other['payment_method_archived_at']) ? '' : ' (archived)' ?></option>
                         <?php } ?>
                     </select>
                 </div>
-                <small class="text-secondary">Merges <?= $name ?> into the method you pick<?= $is_default ? ', which also takes its place as a default' : '' ?>. To leave its records as they are, archive it instead - it stops being offered, and they keep saying <?= $name ?>.</small>
+                <div class="form-text">Merges <?= $name ?> into the method you pick<?= $is_default ? ', which also takes its place as a default' : '' ?>. To leave its records as they are, archive it instead - it stops being offered, and they keep saying <?= $name ?>.</div>
             </div>
         <?php } else { ?>
             <p class="mb-2">Nothing has been paid this way, so nothing else changes.</p>
@@ -60,7 +60,7 @@ if (!$payment_method) { ?>
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="delete_payment_method" class="btn btn-danger text-bold"><i class="fas fa-trash me-2"></i><?= $usage['total'] ? 'Merge and delete' : 'Delete' ?></button>
+        <button type="submit" name="delete_payment_method" class="btn btn-danger fw-bold"><i class="fas fa-trash me-2"></i><?= $usage['total'] ? 'Merge and delete' : 'Delete' ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

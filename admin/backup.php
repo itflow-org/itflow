@@ -114,8 +114,22 @@ if (!empty($_SESSION['backup_master_key_reveal'])) {
     unset($_SESSION['backup_master_key_reveal']);
 }
 
-// The page reloads while a backup is on its way - but never out from under a key shown once
-$reload = $state === 'working' && $master_key_reveal === '';
+// A restore - waiting for cron, being done, or how the last one went, for a week (functions/backup_restore.php)
+$restore_status = backupRestoreStatus();
+$restore_state = (string) ($restore_status['state'] ?? '');
+if ($restore_state === 'queued' && !backupRestoreRequest()) {
+    $restore_state = 'running';   // cron took the request and is about to say so
+}
+if ($restore_state === 'running' && !backupRestoreInProgress() && strtotime((string) ($restore_status['started'] ?? $restore_status['at'] ?? '')) < strtotime('-6 hours')) {
+    $restore_state = 'lost';
+}
+if (in_array($restore_state, ['done', 'failed', 'cancelled'], true) && strtotime((string) ($restore_status['at'] ?? '')) < strtotime('-7 days')) {
+    $restore_state = '';
+}
+$restore_open = intval($_GET['restore'] ?? 0);
+
+// The page reloads while a backup or a restore is on its way - but never out from under a key shown once
+$reload = ($state === 'working' || in_array($restore_state, ['queued', 'running'], true)) && $master_key_reveal === '';
 
 // A time as "3 hours ago", with the date and time behind it
 $ago = function ($datetime) {
@@ -123,13 +137,7 @@ $ago = function ($datetime) {
 };
 // Who a backup is down to, from its row
 $made_by = function ($backup) {
-    if ($backup['backup_source'] === 'Cron') {
-        return 'Scheduled';
-    }
-    if ($backup['backup_source'] === 'Adopted') {
-        return 'Found on this server';
-    }
-    return (string) $backup['backup_created_by'] !== '' ? 'By ' . $backup['backup_created_by'] : 'By hand';
+    return backupMadeBy($backup);
 };
 $schedule_text = $schedule_on ? "Every night at $schedule_time" : 'Off';
 // A type as it reads in a sentence - "a Full Backup", "a Database Only backup"
@@ -141,7 +149,7 @@ $type_noun = function ($type) {
 $install_root = dirname(__DIR__);
 $file_owner = '';
 if (function_exists('posix_getpwuid')) {
-    $file_owner = (string) (posix_getpwuid((int) @fileowner($install_root . '/scripts/restore_cli.php'))['name'] ?? '');
+    $file_owner = (string) (posix_getpwuid(intval(@fileowner($install_root . '/scripts/restore_cli.php')))['name'] ?? '');
 }
 $shell_word = function ($word) {
     return preg_match('/^[A-Za-z0-9_\/.@%+=:,-]+$/', $word) ? $word : escapeshellarg($word);
@@ -165,10 +173,6 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS backup_id, backup_type,
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $type_looks = [
     BACKUP_TYPE_FULL => ['icon' => 'fa-box-open', 'tone' => 'itflow-asset-tone-server'],
@@ -192,6 +196,38 @@ $status_looks = [
         <div class="input-group">
             <input type="text" class="form-control font-monospace" value="<?= escapeHtml($master_key_reveal) ?>" readonly aria-label="Master key">
             <button class="btn btn-dark clipboardjs" type="button" data-clipboard-text="<?= escapeHtml($master_key_reveal) ?>"><i class="far fa-fw fa-copy me-2"></i>Copy</button>
+        </div>
+    </div>
+<?php } ?>
+
+<?php if ($restore_state !== '') {
+    $restore_tone = ['queued' => 'info', 'running' => 'primary', 'done' => empty($restore_status['warnings']) ? 'success' : 'warning', 'failed' => 'danger', 'lost' => 'danger', 'cancelled' => 'secondary'][$restore_state];
+    $restore_icon = ['queued' => 'fa-hourglass-half', 'running' => 'fa-circle-notch fa-spin', 'done' => 'fa-check-circle', 'failed' => 'fa-exclamation-triangle', 'lost' => 'fa-exclamation-triangle', 'cancelled' => 'fa-ban'][$restore_state];
+    $restore_label = (string) ($restore_status['label'] ?? 'a backup'); ?>
+    <!-- A restore, and how the last one went (functions/backup_restore.php) -->
+    <div class="alert alert-<?= $restore_tone ?> d-flex gap-3 align-items-start" data-backup-restore-state="<?= $restore_state ?>"<?= $reload && in_array($restore_state, ['queued', 'running'], true) ? ' data-itflow-reload-seconds="10"' : '' ?>>
+        <i class="fas fa-fw <?= $restore_icon ?> mt-1" aria-hidden="true"></i>
+        <div class="flex-grow-1 min-w-0">
+            <?php if ($restore_state === 'queued') { ?>
+                <strong>A restore is waiting to start</strong> - the <?= escapeHtml($restore_label) ?>, asked for by <?= escapeHtml((string) ($restore_status['who'] ?? '')) ?> <?= $ago((string) ($restore_status['queued'] ?? $restore_status['at'] ?? '')) ?>.
+                <?= $cron_is_running ? 'Cron starts it within a minute.' : 'Cron isn\'t running, so it starts when cron does - and not at all once ' . BACKUP_RESTORE_WAIT_MINUTES . ' minutes have gone by.' ?>
+                <div class="mt-2">
+                    <a class="btn btn-sm btn-light border confirm-link" href="post.php?cancel_restore=1&amp;csrf_token=<?= $csrf ?>" data-confirm-title="Cancel the restore?" data-confirm-text="Nothing is changed, and nothing is restored." data-confirm-button="Cancel it"><i class="fas fa-fw fa-ban me-1"></i>Cancel the Restore</a>
+                </div>
+            <?php } elseif ($restore_state === 'running') { ?>
+                <strong>Restoring</strong> the <?= escapeHtml($restore_label) ?> - started <?= $ago((string) ($restore_status['started'] ?? $restore_status['at'] ?? '')) ?> by <?= escapeHtml((string) ($restore_status['who'] ?? '')) ?>.
+                ITFlow is backed up as it is first, then replaced. Anyone working meanwhile may see errors, and you may be signed out - sign in again once it's done.
+            <?php } elseif ($restore_state === 'lost') { ?>
+                <strong>The last restore didn't say it finished.</strong> The <?= escapeHtml($restore_label) ?> was started <?= $ago((string) ($restore_status['started'] ?? $restore_status['at'] ?? '')) ?> by <?= escapeHtml((string) ($restore_status['who'] ?? '')) ?> - the Backup job may have been stopped part way.
+                Check that ITFlow works, and <a href="cron.php">Maintenance &gt; Cron</a> and <a href="app_logs.php">App Logs</a> for what happened. The <strong>Before restore</strong> backup, if it's in the list, is ITFlow as it was.
+            <?php } else { ?>
+                <strong><?= ['done' => 'Last restore', 'failed' => "The last restore didn't work", 'cancelled' => 'Last restore cancelled'][$restore_state] ?></strong>
+                <span class="text-body-secondary">(<?= escapeHtml((string) ($restore_status['who'] ?? '')) ?>, <?= $ago((string) ($restore_status['at'] ?? '')) ?>)</span> -
+                <?= escapeHtml((string) ($restore_status['message'] ?? '')) ?>
+                <?php foreach ((array) ($restore_status['warnings'] ?? []) as $restore_warning) { ?>
+                    <div class="mt-1"><i class="fas fa-fw fa-exclamation-triangle me-1"></i><?= escapeHtml((string) $restore_warning) ?></div>
+                <?php } ?>
+            <?php } ?>
         </div>
     </div>
 <?php } ?>
@@ -266,14 +302,14 @@ $status_looks = [
                         <?php if (!in_array($state, ['nokey', 'working'], true)) { ?>
                             <div class="d-flex flex-wrap gap-2 mt-3">
                                 <a class="btn btn-primary" href="post.php?queue_backup=full&amp;csrf_token=<?= $csrf ?>" data-backup-now>
-                                    <i class="fas fa-fw fa-box-open me-2"></i>Back up now
+                                    <i class="fas fa-fw fa-box-open me-2"></i>Back Up Now
                                 </a>
                                 <a class="btn btn-outline-secondary" href="post.php?queue_backup=database&amp;csrf_token=<?= $csrf ?>">
-                                    <i class="fas fa-fw fa-database me-2"></i>Database only
+                                    <i class="fas fa-fw fa-database me-2"></i>Database Only
                                 </a>
                             </div>
                             <p class="mb-0 mt-2 small text-body-secondary">
-                                <strong>Back up now</strong> makes a Full Backup: the database and every uploaded file. <strong>Database only</strong> is smaller and quicker, without attachments or documents.
+                                <strong>Back Up Now</strong> makes a Full Backup: the database and every uploaded file. <strong>Database Only</strong> is smaller and quicker, without attachments or documents.
                             </p>
                         <?php } ?>
                     </div>
@@ -302,10 +338,10 @@ $status_looks = [
                 <table class="table table-hover align-middle mb-0" data-backup-list>
                     <thead class="table-light text-nowrap">
                     <tr>
-                        <th class="ps-3"><?= $sort_link('backup_type', 'Backup') ?></th>
-                        <th class="d-none d-sm-table-cell"><?= $sort_link('backup_created_at', 'Made') ?></th>
-                        <th class="d-none d-sm-table-cell"><?= $sort_link('backup_size', 'Size') ?></th>
-                        <th><?= $sort_link('backup_status', 'Status') ?></th>
+                        <th class="ps-3"><?= sortLink('backup_type', 'Backup') ?></th>
+                        <th class="d-none d-sm-table-cell"><?= sortLink('backup_created_at', 'Made') ?></th>
+                        <th class="d-none d-sm-table-cell"><?= sortLink('backup_size', 'Size') ?></th>
+                        <th><?= sortLink('backup_status', 'Status') ?></th>
                         <th></th>
                     </tr>
                     </thead>
@@ -317,7 +353,7 @@ $status_looks = [
                         $type_as_noun = $type_noun($backup['backup_type']);
                         $type_look = $type_looks[$backup['backup_type']] ?? ['icon' => 'fa-file-archive', 'tone' => 'itflow-asset-tone-other'];
                         $status_look = $status_looks[$status] ?? ['label' => $status, 'tone' => 'secondary'];
-                        $made_at = substr((string) $backup['backup_created_at'], 0, 16);
+                        $made_at = formatDateTime($backup['backup_created_at']);
                         $backup_path = $status === 'Complete' ? backupResolvePath((string) $backup['backup_file_name']) : false;
                         // A finished one is deleted, file and all; one still waiting is taken off the queue; the rest are only rows
                         $remove = [
@@ -334,23 +370,23 @@ $status_looks = [
                                         <div class="fw-semibold text-nowrap"><?= escapeHtml($type_label) ?></div>
                                         <div class="small text-body-secondary text-truncate"><?= escapeHtml($made_by($backup)) ?></div>
                                         <?php // On a phone the Made column goes, and its date sits here ?>
-                                        <div class="small text-body-secondary text-nowrap d-sm-none"><?= escapeHtml($made_at) ?></div>
+                                        <div class="small text-body-secondary text-nowrap d-sm-none"><?= $made_at ?></div>
                                     </div>
                                 </div>
                             </td>
                             <td class="text-nowrap d-none d-sm-table-cell">
-                                <div><?= escapeHtml($made_at) ?></div>
+                                <div><?= $made_at ?></div>
                                 <div class="small text-body-secondary"><?= escapeHtml(timeAgo($backup['backup_created_at'])) ?></div>
                             </td>
-                            <td class="d-none d-sm-table-cell text-nowrap"><?= $backup['backup_size'] > 0 ? escapeHtml(backupFormatBytes($backup['backup_size'])) : '<span class="text-body-secondary">&mdash;</span>' ?></td>
+                            <td class="d-none d-sm-table-cell text-nowrap"><?= $backup['backup_size'] > 0 ? escapeHtml(backupFormatBytes($backup['backup_size'])) : '<span class="text-body-secondary">-</span>' ?></td>
                             <td>
-                                <span class="badge bg-<?= $status_look['tone'] ?>-subtle text-<?= $status_look['tone'] ?>-emphasis"><?php if ($status === 'Running') { ?><i class="fas fa-circle-notch fa-spin me-1"></i><?php } ?><?= escapeHtml($status_look['label']) ?></span>
+                                <span class="badge rounded-pill bg-<?= $status_look['tone'] ?>-subtle text-<?= $status_look['tone'] ?>-emphasis"><?php if ($status === 'Running') { ?><i class="fas fa-circle-notch fa-spin me-1"></i><?php } ?><?= escapeHtml($status_look['label']) ?></span>
                                 <?php if ($status === 'Failed' && (string) $backup['backup_error'] !== '') { ?>
                                     <div class="small text-danger-emphasis mt-1"><?= escapeHtml($backup['backup_error']) ?></div>
                                 <?php } elseif ($status === 'Missing') { ?>
                                     <div class="small text-body-secondary mt-1">Its file is no longer on this server</div>
                                 <?php } elseif ($status === 'Complete' && !empty($backup['backup_downloaded_at'])) { ?>
-                                    <div class="small text-body-secondary mt-1" title="<?= escapeHtml($backup['backup_downloaded_at']) ?>"><i class="fas fa-fw fa-download me-1"></i>Downloaded <?= escapeHtml(timeAgo($backup['backup_downloaded_at'])) ?></div>
+                                    <div class="small text-body-secondary mt-1" title="<?= formatDateTime($backup['backup_downloaded_at']) ?>"><i class="fas fa-fw fa-download me-1"></i>Downloaded <?= escapeHtml(timeAgo($backup['backup_downloaded_at'])) ?></div>
                                 <?php } ?>
                             </td>
                             <td class="text-end text-nowrap pe-3">
@@ -363,10 +399,15 @@ $status_looks = [
                                     <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                     <div class="dropdown-menu">
                                         <?php if ($backup_path !== false) { ?>
-                                            <button type="button" class="dropdown-item clipboardjs" data-clipboard-text="<?= escapeHtml($backup_path) ?>" title="For restoring it from the command line"><i class="fas fa-fw fa-terminal text-secondary me-2"></i>Copy its path on this server</button>
+                                            <button type="button" class="dropdown-item clipboardjs" data-clipboard-text="<?= escapeHtml($backup_path) ?>" title="For restoring it from the command line"><i class="fas fa-fw fa-terminal text-secondary me-2"></i>Copy Its Path on This Server</button>
                                         <?php } ?>
                                         <?php if ($status === 'Complete' && (string) $backup['backup_sha256'] !== '') { ?>
-                                            <button type="button" class="dropdown-item clipboardjs" data-clipboard-text="<?= escapeHtml($backup['backup_sha256']) ?>" title="To check a copy is the same file"><i class="fas fa-fw fa-fingerprint text-secondary me-2"></i>Copy its SHA-256 checksum</button>
+                                            <button type="button" class="dropdown-item clipboardjs" data-clipboard-text="<?= escapeHtml($backup['backup_sha256']) ?>" title="To check a copy is the same file"><i class="fas fa-fw fa-fingerprint text-secondary me-2"></i>Copy Its SHA-256 Checksum</button>
+                                        <?php } ?>
+                                        <?php if ($status === 'Complete' && $backup['backup_type'] !== BACKUP_TYPE_MASTER_KEY) { ?>
+                                            <button type="button" class="dropdown-item ajax-modal" data-modal-url="modals/backup/backup_restore.php?backup_id=<?= $backup_id ?>" data-backup-restore-open="<?= $backup_id ?>">
+                                                <i class="fas fa-fw fa-undo text-secondary me-2"></i>Restore
+                                            </button>
                                         <?php } ?>
                                         <?php if ($status === 'Complete') { ?>
                                             <div class="dropdown-divider"></div>
@@ -409,11 +450,11 @@ $status_looks = [
                         <div class="d-flex gap-2 flex-shrink-0">
                             <?php if (!$schedule_on) { ?>
                                 <a class="btn btn-sm btn-primary" href="post.php?enable_cron_job=<?= $backup_job_id ?>&amp;csrf_token=<?= $csrf ?>" data-backup-schedule-on>
-                                    <i class="fas fa-fw fa-power-off me-1"></i>Turn on
+                                    <i class="fas fa-fw fa-power-off me-1"></i>Turn On
                                 </a>
                             <?php } ?>
                             <button type="button" class="btn btn-sm btn-light border ajax-modal" data-modal-url="modals/cron/cron_edit.php?id=<?= $backup_job_id ?>" data-backup-schedule-edit>
-                                <i class="fas fa-fw fa-clock me-1"></i>Change the time
+                                <i class="fas fa-fw fa-clock me-1"></i>Change the Time
                             </button>
                         </div>
                     <?php } ?>
@@ -533,7 +574,7 @@ $status_looks = [
                     <div class="input-group mb-2">
                         <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                         <input type="password" class="form-control font-monospace" data-toggle="password" value="<?= escapeHtml($backup_key) ?>" readonly autocomplete="off" aria-label="Backup encryption key" data-backup-key>
-                        <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                         <button class="btn btn-light border clipboardjs" type="button" title="Copy the key" data-clipboard-text="<?= escapeHtml($backup_key) ?>"><i class="far fa-fw fa-copy"></i></button>
                     </div>
                 <?php } else { ?>
@@ -547,21 +588,80 @@ $status_looks = [
             </div>
         </div>
 
-        <!-- Restoring - not from here -->
-        <div class="card mb-3">
+        <!-- Development mode, for a test copy - kept in config.php, so a restore can't turn it off (functions/dev_mode.php) -->
+        <?php $dev_on = devModeOn(); $dev_mail_to = devModeMailTo(); ?>
+        <div class="card mb-3<?= $dev_on ? ' border-danger' : '' ?>" id="dev-mode" data-dev-mode-card="<?= $dev_on ? 'on' : 'off' ?>">
+            <div class="card-header py-3">
+                <h3 class="card-title"><i class="fas fa-fw fa-flask me-2"></i>Development mode
+                    <span class="badge rounded-pill <?= $dev_on ? 'text-bg-danger' : 'text-bg-secondary' ?> ms-1"><?= $dev_on ? 'On' : 'Off' ?></span>
+                </h3>
+            </div>
+            <div class="card-body small">
+                <p class="text-body-secondary">
+                    For a test copy of your ITFlow. Turn it on <strong class="text-body">before</strong> you restore production's backup onto it:
+                    every email then goes to the test inbox, and texts, the ticket mailbox, AI Triage, Stripe, log forwarding and check-ins with a manager are off.
+                    It's kept in config.php, so a restore can't turn it off. Never turn it on in production.
+                </p>
+                <?php if ($dev_on && $dev_mail_to === '') { ?>
+                    <p class="text-warning-emphasis"><i class="fas fa-fw fa-exclamation-triangle me-1"></i>There's no test inbox, so no email is sent at all.</p>
+                <?php } ?>
+                <?php if (devModeConfigWritable()) { ?>
+                    <form action="post.php" method="post" autocomplete="off">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" role="switch" id="devMode" name="dev_mode" value="1" <?= $dev_on ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="devMode">Development mode</label>
+                        </div>
+                        <label class="form-label" for="devMailTo">Test inbox</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="devMailTo" name="dev_mail_to" maxlength="200" placeholder="dev@yourcompany.com" value="<?= escapeHtml($dev_mail_to) ?>">
+                        </div>
+                        <div class="form-text">Every email goes here, with who it was for at the front of its subject.</div>
+                        <button type="submit" name="edit_dev_mode" class="btn btn-sm btn-primary mt-3"><i class="fas fa-fw fa-check me-1"></i>Save</button>
+                    </form>
+                <?php } else { ?>
+                    <p class="text-body-secondary mb-1">config.php can't be written from here. To turn it <?= $dev_on ? 'off' : 'on' ?>, set these lines in it on the server:</p>
+                    <pre class="itflow-command bg-body-tertiary border rounded p-2 mb-0"><code>$config_dev_mode = <?= $dev_on ? 'false' : 'true' ?>;
+$config_dev_mail_to = '<?= escapeHtml($dev_mail_to !== '' ? $dev_mail_to : 'dev@yourcompany.com') ?>';</code></pre>
+                <?php } ?>
+            </div>
+        </div>
+
+        <!-- Restoring - a backup in the list, one uploaded, or from the command line (functions/backup_restore.php) -->
+        <div class="card mb-3" id="restoring">
             <div class="card-header py-3">
                 <h3 class="card-title"><i class="fas fa-fw fa-undo me-2"></i>Restoring</h3>
             </div>
             <div class="card-body small">
-                <p class="text-body-secondary">Restoring replaces the database - and, from a Full Backup, everything uploaded - with what's in the backup. It isn't done from this page, on purpose: a running ITFlow shouldn't drop its own tables from a browser.</p>
-                <p class="fw-semibold mb-1">From the command line</p>
-                <div class="position-relative">
-                    <pre class="itflow-command bg-body-tertiary border rounded p-2 pe-5 mb-2"><code><?= escapeHtml($cli_command) ?></code></pre>
-                    <button type="button" class="btn btn-sm btn-link position-absolute top-0 end-0 clipboardjs" title="Copy" data-clipboard-text="<?= escapeHtml($cli_command) ?>"><i class="far fa-copy"></i></button>
-                </div>
-                <p class="text-body-secondary">Works for a backup of any size. Add <code>--inspect</code> to see what's in one without changing anything, and <code>--key=</code> for a backup from another server, which needs that server's key. A backup's menu copies its path.</p>
-                <p class="fw-semibold mb-1">On a new server</p>
-                <p class="text-body-secondary mb-0">The setup wizard at <code>/setup</code> offers to restore a backup before the first user exists - up to <?= escapeHtml(backupFormatBytes(backupMaxUploadBytes())) ?> here, the most PHP takes in one upload.</p>
+                <p class="text-body-secondary">Restoring replaces the database - and, from a Full Backup, everything uploaded - with what's in the backup. Pick <strong class="text-body">Restore</strong> in a backup's menu, or upload one - from another ITFlow, say. ITFlow is backed up as it is first, as <strong class="text-body">Before restore</strong>, so a restore can be undone.</p>
+                <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off" data-backup-upload data-max="<?= BACKUP_RESTORE_MAX_BYTES ?>">
+                    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                    <label class="form-label" for="backupUploadFile">Upload a backup to restore</label>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text"><i class="fas fa-fw fa-file-archive"></i></span>
+                        <input type="file" class="form-control" name="backup_file" id="backupUploadFile" accept=".zip,application/zip" required>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
+                        <input type="password" class="form-control" data-toggle="password" name="restore_key" placeholder="Its key, if from another ITFlow" autocomplete="off" aria-label="Its encryption key">
+                        <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
+                    </div>
+                    <div class="form-text">Up to <?= escapeHtml(backupFormatBytes(BACKUP_RESTORE_MAX_BYTES)) ?>. It joins the list as Uploaded, and its Restore window opens. A restore needs free space of about three times the backup's size.</div>
+                    <button type="submit" name="backup_upload" class="btn btn-sm btn-light border mt-2" data-backup-upload-button><i class="fas fa-fw fa-upload me-1"></i>Upload</button>
+                    <div class="mt-2" data-backup-upload-progress hidden>
+                        <div class="progress" role="progressbar" aria-label="Upload"><div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div></div>
+                        <div class="text-body-secondary mt-1" data-backup-upload-text></div>
+                    </div>
+                </form>
+                <details class="mt-3">
+                    <summary class="text-body-secondary">From the command line</summary>
+                    <div class="position-relative mt-2">
+                        <pre class="itflow-command bg-body-tertiary border rounded p-2 pe-5 mb-2"><code><?= escapeHtml($cli_command) ?></code></pre>
+                        <button type="button" class="btn btn-sm btn-link position-absolute top-0 end-0 clipboardjs" title="Copy" data-clipboard-text="<?= escapeHtml($cli_command) ?>"><i class="far fa-copy"></i></button>
+                    </div>
+                    <p class="text-body-secondary mb-0">For a backup of any size, or when cron isn't running. Add <code>--inspect</code> to see what's in one without changing anything, and <code>--key=</code> for a backup from another server, which needs that server's key. A backup's menu copies its path. On a new server, the setup wizard at <code>/setup</code> offers to restore a backup before the first user exists.</p>
+                </details>
             </div>
         </div>
 
@@ -573,7 +673,7 @@ $status_looks = [
             <div class="card-body small">
                 <p class="text-body-secondary">The master key that opens every saved credential. A restore brings the vault back by itself, as long as one user still knows their password - this is for when none does.</p>
                 <button type="button" class="btn btn-sm btn-light border ajax-modal" data-modal-url="modals/backup/backup_master_key.php" data-backup-master-key-export>
-                    <i class="fas fa-fw fa-key me-2"></i>Export the master key
+                    <i class="fas fa-fw fa-key me-2"></i>Export the Master Key
                 </button>
             </div>
         </div>
@@ -582,7 +682,12 @@ $status_looks = [
 
 </div>
 
+<?php if ($restore_open) { ?>
+    <button type="button" class="d-none ajax-modal" data-modal-url="modals/backup/backup_restore.php?backup_id=<?= $restore_open ?>" data-backup-restore-autoopen></button>
+<?php } ?>
+
 <script src="<?= staticFileUrl('/js/auto_reload.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/backup_restore.js') ?>"></script>
 
 <?php
 require_once "../includes/footer.php";

@@ -8,6 +8,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+// Bookkeeping switched off (Admin > Settings > Modules)
+if (!moduleOn('bookkeeping')) {
+    exit(json_encode(['error' => moduleOffText('bookkeeping')]));
+}
+
 enforceUserPermission('module_financial');
 
 $account_filter = intval($_GET['account'] ?? 0);
@@ -34,7 +39,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Transactions</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <?php exportTabsNav(); ?>
@@ -57,9 +62,9 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Account</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                     <select class="form-select select2" name="account">
-                        <option value="">- Every account -</option>
+                        <option value="">- Any account -</option>
                         <?php foreach (accountsList(null) as $id => $account) { ?>
                             <option value="<?= $id ?>" <?= $account_filter === $id ? 'selected' : '' ?> data-icon="fas <?= $types[$account['type']]['icon'] ?>"><?= escapeHtml($account['account_name']) ?><?= $account['account_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
@@ -70,14 +75,14 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Search</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                     <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Who or what, reference, amount, category, client">
                 </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Showing</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-filter"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-filter"></i></span>
                     <select class="form-select select2" name="show">
                         <?php foreach (accountLedgerShows() as $key => $s) { ?>
                             <option value="<?= escapeHtml($key) ?>" <?= $show_filter === $key ? 'selected' : '' ?>><?= escapeHtml($key === '' ? 'Everything' : $s['label']) ?></option>
@@ -88,7 +93,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Kind</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-shapes"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-shapes"></i></span>
                     <select class="form-select select2" name="kind">
                         <option value="">- Any kind -</option>
                         <?php foreach (accountLedgerKinds() as $key => $info) { ?>
@@ -100,7 +105,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Category</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                     <select class="form-select select2" name="category">
                         <option value="">- Any category -</option>
                         <?php
@@ -117,11 +122,11 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Client</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                     <select class="form-select select2" name="client">
                         <option value="">- Any client -</option>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL OR client_id = $client_filter) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL OR client_id = $client_filter)" . clientNotLeadSql($client_filter) . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $option_id = intval($row['client_id']); ?>
                             <option <?= $client_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
@@ -132,7 +137,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Paid by</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                     <select class="form-select select2" name="method">
                         <option value="">- Any payment method -</option>
                         <?php foreach (paymentMethods('', true) as $method) { ?>
@@ -144,22 +149,22 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Amount</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                    <input type="number" step="0.01" min="0" class="form-control" name="amount_min" value="<?= escapeHtml($amount_min) ?>" placeholder="At least">
-                    <input type="number" step="0.01" min="0" class="form-control" name="amount_max" value="<?= escapeHtml($amount_max) ?>" placeholder="At most">
+                    <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
+                    <input type="text" inputmode="decimal" pattern="[0-9,]*\.?[0-9]{0,2}" class="form-control" name="amount_min" value="<?= escapeHtml($amount_min) ?>" placeholder="At least">
+                    <input type="text" inputmode="decimal" pattern="[0-9,]*\.?[0-9]{0,2}" class="form-control" name="amount_max" value="<?= escapeHtml($amount_max) ?>" placeholder="At most">
                 </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Dated from</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                     <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
                 </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Dated to</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                     <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">
                 </div>
             </div>

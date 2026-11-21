@@ -17,8 +17,8 @@ ob_start();
 
 if (!$template) { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-clipboard-check me-2"></i>Who should have one</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who Should Have One</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That document template no longer exists.</div>
 <?php } else {
@@ -28,8 +28,8 @@ if (!$template) { ?>
     ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-clipboard-check me-2"></i>Who should have one <small class="ms-1 opacity-75"><?= escapeHtml($template['document_template_name']) ?></small></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who Should Have One <small class="ms-1 opacity-75"><?= escapeHtml($template['document_template_name']) ?></small></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -40,7 +40,7 @@ if (!$template) { ?>
         <div class="mb-3">
             <label class="form-label">Every one of these should have a document from it</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
                 <select class="form-select select2" name="required" id="documentTemplateRequired">
                     <option value="<?= DOCUMENT_TEMPLATE_REQUIRED_NONE ?>" <?= $required === DOCUMENT_TEMPLATE_REQUIRED_NONE ? 'selected' : '' ?>>No one in particular</option>
                     <option value="<?= DOCUMENT_TEMPLATE_REQUIRED_EVERY ?>" <?= $required === DOCUMENT_TEMPLATE_REQUIRED_EVERY ? 'selected' : '' ?>>Every client</option>
@@ -53,8 +53,8 @@ if (!$template) { ?>
         <div class="mb-3" id="documentTemplateRequiredTags" <?= $required === DOCUMENT_TEMPLATE_REQUIRED_TAGGED ? '' : 'hidden' ?>>
             <label class="form-label">Client tags</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                <select class="form-select select2" name="tags[]" multiple data-placeholder="- Pick client tags -">
+                <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
+                <select class="form-select select2" name="tags[]" multiple data-placeholder="- Select client tags -">
                     <?php foreach (tagOptionsFor('client', $tag_ids) as $tag) { ?>
                         <?= tagOptionHtml($tag, $tag_ids) ?>
                     <?php } ?>
@@ -66,7 +66,7 @@ if (!$template) { ?>
         <div class="mb-1">
             <label class="form-label">Review the documents made from it</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
                 <select class="form-select select2" name="review_months">
                     <?php foreach (DOCUMENT_TEMPLATE_REVIEW_MONTHS as $months => $label) { ?>
                         <option value="<?= $months ?>" <?= intval($template['document_template_review_months']) === $months ? 'selected' : '' ?>><?= $label ?></option>
@@ -79,8 +79,8 @@ if (!$template) { ?>
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="save_document_template_required" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="save_document_template_required" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

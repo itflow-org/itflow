@@ -77,20 +77,20 @@
         },
         {
             "name": "directorytree/imapengine",
-            "version": "v1.25.6",
+            "version": "v1.25.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/ImapEngine.git",
-                "reference": "20655ae7dbe045a64d6c72237ee5ae322af49f67"
+                "reference": "e052d71dfb463a0aa1b956eb165d17a49ee423e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/ImapEngine/zipball/20655ae7dbe045a64d6c72237ee5ae322af49f67",
-                "reference": "20655ae7dbe045a64d6c72237ee5ae322af49f67",
+                "url": "https://api.github.com/repos/DirectoryTree/ImapEngine/zipball/e052d71dfb463a0aa1b956eb165d17a49ee423e8",
+                "reference": "e052d71dfb463a0aa1b956eb165d17a49ee423e8",
                 "shasum": ""
             },
             "require": {
-                "egulias/email-validator": "^4.0",
+                "egulias/email-validator": "^3.0|^4.0",
                 "illuminate/collections": ">=9.0",
                 "nesbot/carbon": ">=2.0",
                 "php": "^8.1",
@@ -127,7 +127,7 @@
             ],
             "support": {
                 "issues": "https://github.com/DirectoryTree/ImapEngine/issues",
-                "source": "https://github.com/DirectoryTree/ImapEngine/tree/v1.25.6"
+                "source": "https://github.com/DirectoryTree/ImapEngine/tree/v1.25.12"
             },
             "funding": [
                 {
@@ -135,7 +135,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-08-24T15:21:35+00:00"
+            "time": "2026-11-16T22:29:43+00:00"
         },
         {
             "name": "doctrine/lexer",

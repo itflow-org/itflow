@@ -2,8 +2,8 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fa fa-fw fa-archive me-2"></i>Archiving contact: <strong><?= $contact_name ?></strong></h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title"><i class="fas fa-fw fa-archive me-2"></i>Archive Contact <span class="fw-normal text-white-50 ms-1"><?= $contact_name ?></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -14,7 +14,7 @@
                         Client Portal Access will be revoked upon archiving
                     </div>
 
-                    <label>Unassign:</label>
+                    <label class="form-label">Unassign:</label>
 
                     <div class="mb-3">
                         <div class="form-check">
@@ -46,8 +46,8 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" name="archive_contact" class="btn btn-danger text-bold"><i class="fas fa-check me-2"></i>Arhive</button>
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+                    <button type="submit" name="archive_contact" class="btn btn-danger fw-bold"><i class="fas fa-check me-2"></i>Archive</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

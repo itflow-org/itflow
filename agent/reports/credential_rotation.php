@@ -100,14 +100,14 @@ $credential_columns = [
         if (!$row['age']) {
             return '<span class="badge rounded-pill bg-danger-subtle text-danger-emphasis border border-danger-subtle fw-normal">Never recorded</span>';
         }
-        return credentialAgePill($row['age']) . '<div class="small text-body-secondary mt-1">' . escapeHtml($row['age']['date']) . '</div>';
+        return credentialAgePill($row['age']) . '<div class="small text-body-secondary mt-1">' . formatDate($row['age']['date']) . '</div>';
     }],
     'credential_password_changed_at' => ['label' => 'Changed on', 'type' => 'date', 'screen' => false],
     'has_otp' => ['label' => '2FA', 'sort' => false, 'csv' => function ($row) { return $row['has_otp'] ? 'Yes' : 'No'; }, 'html' => function ($row) {
         return $row['has_otp'] ? '<span class="text-success-emphasis small text-nowrap"><i class="fas fa-fw fa-shield-alt me-1"></i>Yes</span>' : '<span class="itflow-report-zero">–</span>';
     }],
     'credential_accessed_at' => ['label' => 'Last opened', 'type' => 'date', 'html' => function ($row) {
-        return $row['credential_accessed_at'] ? '<span class="small text-body-secondary text-nowrap" title="' . escapeHtml($row['credential_accessed_at']) . '">' . escapeHtml(timeAgo($row['credential_accessed_at'])) . '</span>'
+        return $row['credential_accessed_at'] ? '<span class="small text-body-secondary text-nowrap" title="' . formatDateTime($row['credential_accessed_at']) . '">' . escapeHtml(timeAgo($row['credential_accessed_at'])) . '</span>'
             : '<span class="itflow-report-zero">–</span>';
     }],
 ];

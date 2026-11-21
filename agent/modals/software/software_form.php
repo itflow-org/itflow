@@ -55,7 +55,7 @@ if ($client_id) {
     }
 } else {
     $client_options = [];
-    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $client_options[] = $row;
     }
@@ -117,9 +117,9 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
             <div class="col-12">
                 <label class="form-label">Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required>
-                        <option value="">- Select Client -</option>
+                        <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
                             <option value="<?= intval($client_option['client_id']) ?>"<?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                         <?php } ?>
@@ -141,7 +141,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
                         <?php } ?>
                     </select>
                 </div>
-                <div class="form-text">Fills in the name, type, license type, description, seats, vendor, renewal date and notes - change anything after. The license remembers it.</div>
+                <div class="form-text">Fills in the details - change anything after.</div>
             </div>
         <?php } ?>
 
@@ -169,19 +169,19 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="type" required>
-                    <option value="">- Select Type -</option>
+                    <option value="">- Select a type -</option>
                     <?= categoryOptionsHtml('software_type', $software_type_raw) ?>
                 </select>
-                <?= categoryAddButtonHtml('software_type', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('software_type') ?>
             </div>
         </div>
         <?php if ($client_id) { ?>
             <div class="col-md-6">
                 <label class="form-label">Vendor</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                     <select class="form-select select2" name="vendor" data-software-vendor<?= $vendor_can_make ? ' data-vendor-can-make' : '' ?>>
-                        <option value="">- Select Vendor -</option>
+                        <option value="">- Select a vendor -</option>
                         <?php foreach ($vendor_options as $vendor_option) {
                             $vendor_option_id = intval($vendor_option['vendor_id']); ?>
                             <option value="<?= $vendor_option_id ?>" <?= $software_vendor_id === $vendor_option_id ? 'selected' : '' ?><?= selectOptionVendor($vendor_option['vendor_name'], $vendor_option['vendor_description']) ?> data-vendor-template-id="<?= intval($vendor_option['vendor_template_id']) ?>"><?= escapeHtml($vendor_option['vendor_name']) ?><?= $vendor_option['vendor_archived_at'] ? ' (archived)' : '' ?></option>
@@ -193,7 +193,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
         <div class="col-12">
             <label class="form-label">Description</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Email, Office apps and Intune for the whole office" value="<?= $software_description ?>">
             </div>
         </div>
@@ -215,7 +215,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-certificate"></i></span>
                 <select class="form-select select2" name="license_type">
-                    <option value="">- Select License Type -</option>
+                    <option value="">- Select a license type -</option>
                     <?php foreach ($license_type_options as $license_type_option) { ?>
                         <option <?= $license_type_option === $software_license_type_raw ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas ' . softwareLicenseTypeIcon($license_type_option)]) ?>><?= escapeHtml($license_type_option) ?></option>
                     <?php } ?>
@@ -248,7 +248,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
         <div class="col-md-6">
             <label class="form-label">Order / invoice reference</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-receipt"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-receipt"></i></span>
                 <input type="text" class="form-control" name="purchase_reference" placeholder="INV-1045, PO-7782, contract number" maxlength="200" value="<?= $software_purchase_reference ?>">
             </div>
         </div>
@@ -268,7 +268,6 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
                 <button type="button" class="btn btn-outline-secondary" data-renew-term="1y" title="A year after it was bought (or today)">1 yr</button>
                 <button type="button" class="btn btn-outline-secondary" data-renew-term="3y" title="Three years after it was bought (or today)">3 yr</button>
             </div>
-            <div class="form-text">Shows on the client overview's renewals and the dashboard as it gets close.</div>
         </div>
     </div>
 </div>
@@ -286,7 +285,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
                 <label class="form-label">Devices</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
-                    <select class="form-select select2" name="assets[]" multiple data-placeholder="<?= $asset_options ? 'Pick the devices it is installed on' : 'This client has no assets yet' ?>" data-seat-pick>
+                    <select class="form-select select2" name="assets[]" multiple data-placeholder="<?= $asset_options ? '- Select the devices it is installed on -' : 'This client has no assets yet' ?>" data-seat-pick>
                         <?php foreach ($asset_options as $asset_option) {
                             $asset_option_id = intval($asset_option['asset_id']); ?>
                             <option value="<?= $asset_option_id ?>" <?= in_array($asset_option_id, $software_asset_ids, true) ? 'selected' : '' ?><?= selectOptionAsset($asset_option['asset_type'], implode(' · ', array_filter([trim($asset_option['asset_make'] . ' ' . $asset_option['asset_model']), $asset_option['contact_name']]))) ?>><?= escapeHtml($asset_option['asset_name']) ?></option>
@@ -298,7 +297,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
                 <label class="form-label">Users</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
-                    <select class="form-select select2" name="contacts[]" multiple data-placeholder="<?= $contact_options ? 'Pick the people licensed to use it' : 'This client has no contacts yet' ?>" data-seat-pick>
+                    <select class="form-select select2" name="contacts[]" multiple data-placeholder="<?= $contact_options ? '- Select the people licensed to use it -' : 'This client has no contacts yet' ?>" data-seat-pick>
                         <?php foreach ($contact_options as $contact_option) {
                             $contact_option_id = intval($contact_option['contact_id']); ?>
                             <option value="<?= $contact_option_id ?>" <?= in_array($contact_option_id, $software_contact_ids, true) ? 'selected' : '' ?><?= selectOptionContact($contact_option['contact_client_id'], $contact_option['contact_name'], $contact_option['contact_photo'], $contact_option['contact_title'], $contact_option_id) ?>><?= escapeHtml($contact_option['contact_name']) ?></option>

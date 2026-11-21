@@ -17,7 +17,7 @@
         <label class="form-label">Name <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-file-alt"></i></span>
-            <input type="text" class="form-control" name="name" maxlength="200" value="<?= $document_name ?>" placeholder="e.g. Backup and recovery plan" required <?= $document_form_mode === 'add' ? 'autofocus' : '' ?>>
+            <input type="text" class="form-control" name="name" maxlength="200" value="<?= $document_name ?>" placeholder="Backup and recovery plan" required <?= $document_form_mode === 'add' ? 'autofocus' : '' ?>>
         </div>
     </div>
     <div class="col-md-6">

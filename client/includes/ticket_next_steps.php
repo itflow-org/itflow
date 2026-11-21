@@ -1,7 +1,8 @@
 <?php
 /*
  * Client Portal - New ticket's "What happens next" panel, beside each of its
- * forms (client/ticket_add.php). Reads $company - its phone.
+ * forms (client/ticket_add.php). Reads $company - its phone - and $reply_times,
+ * how soon each priority hears back (portalReplyTimes()).
  */
 
 isset($company) || die("Direct file access is not allowed");
@@ -17,6 +18,15 @@ isset($company) || die("Direct file access is not allowed");
             <li class="mb-2">Answer us by replying to the email or on the ticket - whichever is easier.</li>
             <li>When it is done we mark it resolved, and you close it - or reopen it if it is not.</li>
         </ol>
+        <?php if (!empty($reply_times)) { ?>
+            <hr>
+            <p class="small fw-semibold mb-1">How soon we reply</p>
+            <ul class="list-unstyled small mb-0" data-reply-times>
+                <?php foreach (array_reverse($reply_times, true) as $priority => $within) { ?>
+                    <li class="d-flex justify-content-between gap-3"><span><?= escapeHtml($priority) ?></span><span class="text-body-secondary text-end"><?= escapeHtml($within) ?></span></li>
+                <?php } ?>
+            </ul>
+        <?php } ?>
         <?php if (!empty($company['company_phone'])) { ?>
             <hr>
             <p class="small mb-1"><strong>Stopping everyone?</strong> Call us as well:</p>

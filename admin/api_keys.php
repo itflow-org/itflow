@@ -6,7 +6,8 @@
  * they see, whether the key works (it expires, and an agent who is
  * disabled, archived or has no role turns every call away), when it was
  * last used and from where, and its calls over the last 30 days - each
- * opening what it was used for (modals/api/api_key_usage.php). A revoked key
+ * opening what it was used for (modals/api/api_key_usage.php), and a key sent
+ * in a call's address, where the web server's access log keeps it. A revoked key
  * has expired, so it moves to Expired, where it can be deleted. The work is in functions/api_keys.php; the handlers are
  * admin/post/api_keys.php.
  */
@@ -34,7 +35,7 @@ if (!isset($sortable_columns[$sort])) {
 $today = date('Y-m-d');
 $search = "(api_key_name LIKE '%$q%' OR user_name LIKE '%$q%')";
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS api_key_id, api_key_name, api_key_secret, api_key_created_at, api_key_expire, api_key_user_id, api_key_last_used_at,
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS api_key_id, api_key_name, api_key_secret, api_key_created_at, api_key_expire, api_key_user_id, api_key_last_used_at, api_key_address_at,
         user_name, user_avatar, user_type, user_status, user_archived_at, user_role_id
     FROM api_keys
     LEFT JOIN users ON user_id = api_key_user_id
@@ -53,13 +54,14 @@ $access = userClientAccess(array_filter(array_map('intval', array_column($keys, 
 // What each is used for, the last 30 days (functions/api_keys.php)
 $usage = apiKeyUsageSummary(array_keys($keys));
 
+// Keys that still work and came in a call's address lately - what to move to the header (functions/api_keys.php)
+$address_since = date('Y-m-d H:i:s', strtotime('-30 days'));
+$address_keys = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM api_keys WHERE api_key_expire > '$today' AND api_key_address_at > '$address_since'"))[0]);
+$address_taken = apiKeyInAddressAccepted();
+
 $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(api_key_expire > '$today'), 0), COALESCE(SUM(api_key_expire <= '$today'), 0)
     FROM api_keys LEFT JOIN users ON user_id = api_key_user_id WHERE $search"));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $csrf = $_SESSION['csrf_token'];
 
@@ -72,6 +74,22 @@ $csrf = $_SESSION['csrf_token'];
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/api/api_key_add.php"><i class="fas fa-plus me-2"></i>New API Key</button>
         </div>
     </div>
+
+    <?php if ($address_keys) { ?>
+        <div class="alert alert-warning rounded-0 border-0 border-bottom mb-0 d-flex flex-wrap flex-md-nowrap align-items-center gap-2" data-api-keys-address="<?= $address_taken ? 'taken' : 'refused' ?>">
+            <i class="fas fa-fw fa-exclamation-triangle"></i>
+            <div class="flex-grow-1 min-w-0">
+                <strong><?= $address_keys ?> key<?= $address_keys === 1 ? ' was' : 's were' ?> sent in the address</strong> in the last 30 days, as <span class="font-monospace">?api_key=</span>, so your web server's access log has <?= $address_keys === 1 ? 'it' : 'them' ?>.
+                <?php $address_one = $address_keys === 1; ?>
+                <?= $address_taken ? 'Move ' . ($address_one ? 'it' : 'each') . ' to the X-API-Key header and give it a new key, then stop taking keys in the address.'
+                    : ($address_one ? 'It\'s' : 'They\'re') . ' turned away now - move ' . ($address_one ? 'it' : 'each') . ' to the X-API-Key header and give it a new key.' ?>
+            </div>
+            <?php if ($address_taken) { ?>
+                <a class="btn btn-sm btn-warning text-nowrap" href="settings_security.php#api">Security Settings</a>
+            <?php } ?>
+        </div>
+    <?php } ?>
+
     <div class="card-header py-3">
         <form autocomplete="off">
             <?php if ($show_expired) { ?><input type="hidden" name="show" value="expired"><?php } ?>
@@ -79,7 +97,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-md-5">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search API keys..." title="Key name or the agent it acts as">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-md-7">
@@ -89,7 +107,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
-                                <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_api_keys"
+                                <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_api_keys"
                                     data-confirm-title="Delete these keys?" data-confirm-text="Anything using them stops working." data-confirm-button="Delete">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </button>
@@ -116,10 +134,10 @@ $csrf = $_SESSION['csrf_token'];
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" title="Select all on this page">
                         </div>
                     </th>
-                    <th><?= $sort_link('api_key_name', 'Key') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('api_key_expire', 'by expiry') ?></span></th>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('user_name', 'Acts as') ?></th>
+                    <th><?= sortLink('api_key_name', 'Key') ?> <span class="fw-normal text-body-secondary small ms-2"><?= sortLink('api_key_expire', 'by expiry') ?></span></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('user_name', 'Acts as') ?></th>
                     <th class="d-none d-lg-table-cell">Can open</th>
-                    <th class="d-none d-sm-table-cell"><?= $sort_link('api_key_last_used_at', 'Last used') ?></th>
+                    <th class="d-none d-sm-table-cell"><?= sortLink('api_key_last_used_at', 'Last used') ?></th>
                     <th class="d-none d-xl-table-cell text-end">Calls <span class="fw-normal text-body-secondary small">(30 days)</span></th>
                     <th></th>
                 </tr>
@@ -130,10 +148,14 @@ $csrf = $_SESSION['csrf_token'];
                     $role = $roles[intval($row['user_role_id'])] ?? null;
                     $expired = apiKeyExpired($row);
                     $agent_name = trim(str_replace(' (archived)', '', (string) $row['user_name']));
-                    $last_used = $row['api_key_last_used_at'] ? '<span title="' . escapeHtml($row['api_key_last_used_at']) . '">' . escapeHtml(timeAgo($row['api_key_last_used_at'])) . '</span>' : '<span class="text-body-secondary">Never</span>';
+                    $last_used = $row['api_key_last_used_at'] ? '<span title="' . formatDateTime($row['api_key_last_used_at']) . '">' . escapeHtml(timeAgo($row['api_key_last_used_at'])) . '</span>' : '<span class="text-body-secondary">Never</span>';
                     $use = $usage[$api_key_id] ?? null;
                     if ($use && $use['last_ip'] !== '') {
                         $last_used .= '<div class="text-body-secondary font-monospace" title="Where the last call came from">' . escapeHtml($use['last_ip']) . '</div>';
+                    }
+                    if ($row['api_key_address_at'] && $row['api_key_address_at'] > $address_since) {
+                        $last_used .= '<div class="text-warning-emphasis" data-api-key-address title="Sent as ?api_key= - your web server\'s access log has it. Move it to the X-API-Key header and give it a new key.">'
+                            . '<i class="fas fa-exclamation-triangle me-1"></i>In the address ' . escapeHtml(timeAgo($row['api_key_address_at'])) . '</div>';
                     }
                     $usage_url = "modals/api/api_key_usage.php?id=$api_key_id";
                     ob_start(); ?>
@@ -199,7 +221,7 @@ $csrf = $_SESSION['csrf_token'];
                                             <i class="fas fa-fw fa-ban me-2"></i>Revoke
                                         </a>
                                     <?php } else { ?>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_api_key=<?= $api_key_id ?>&csrf_token=<?= $csrf ?>"
+                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_api_key=<?= $api_key_id ?>&csrf_token=<?= $csrf ?>"
                                             data-confirm-title="Delete <?= $name ?>?" data-confirm-text="It has expired, so nothing can be using it." data-confirm-button="Delete">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>

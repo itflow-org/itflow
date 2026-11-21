@@ -18,6 +18,7 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_url = "client_id=$client_id&";
 } else {
+    $agent_banners_later = true; // drawn below, with its client's, once that is known (functions/agent_banner.php)
     require_once "includes/inc_all.php";
     $client_url = '';
 }
@@ -84,6 +85,9 @@ $paper = [
     'csrf' => $csrf,
 ];
 
+// The banners, with the client's when it was opened without the client around it (functions/agent_banner.php)
+echo agentBannersHtml($client_id);
+
 ?>
 
 <ol class="breadcrumb d-print-none">
@@ -110,7 +114,7 @@ $paper = [
                 <?php if ($ticket) { ?>
                     <span><i class="fas fa-fw fa-life-ring me-1"></i>For <a class="text-reset" href="ticket.php?ticket_id=<?= intval($ticket['ticket_id']) ?>"><?= escapeHtml($ticket['ticket_prefix'] . $ticket['ticket_number']) ?></a></span>
                 <?php } ?>
-                <span title="<?= escapeHtml($quote['quote_created_at']) ?>"><i class="far fa-fw fa-clock me-1"></i>Created <?= escapeHtml(timeAgo($quote['quote_created_at'])) ?></span>
+                <span title="<?= formatDateTime($quote['quote_created_at']) ?>"><i class="far fa-fw fa-clock me-1"></i>Created <?= escapeHtml(timeAgo($quote['quote_created_at'])) ?></span>
             </div>
         </div>
 
@@ -155,7 +159,7 @@ $paper = [
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/quote/quote_to_invoice.php?quote_id=<?= $quote_id ?>">
                         <i class="fas fa-file-invoice-dollar me-2"></i><?= $totals['recurring'] ? 'Start Billing' : 'Make Invoice' ?>
                     </button>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item confirm-link" href="post.php?mark_quote_invoiced=<?= $quote_id ?>&csrf_token=<?= $csrf ?>"
                             data-confirm-text="For a quote billed some other way - it is marked invoiced without making an invoice.">
@@ -176,7 +180,7 @@ $paper = [
                     <i class="fas fa-fw fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $csrf ?>" target="_blank">
+                    <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $csrf ?>" target="_blank" rel="noopener">
                         <i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Download PDF
                     </a>
                     <a class="dropdown-item" href="#" onclick="window.print(); return false;">
@@ -197,12 +201,12 @@ $paper = [
                         <?php } ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/quote/quote_copy.php?id=<?= $quote_id ?>">
-                            <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                            <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                         </a>
                     <?php } ?>
                     <?php if ($can_delete) { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?= $quote_id ?>&csrf_token=<?= $csrf ?>"
+                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_quote=<?= $quote_id ?>&csrf_token=<?= $csrf ?>"
                             data-confirm-text="<?= escapeHtml($number) ?> goes for good, with its lines and history.">
                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                         </a>
@@ -216,7 +220,7 @@ $paper = [
 <?php if ($expired && $can_edit) { ?>
     <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2 d-print-none">
         <i class="fas fa-hourglass-end"></i>
-        <span class="me-auto">It ran out on <?= escapeHtml($quote['quote_expire']) ?> without an answer - the client can still see it but can't accept it.</span>
+        <span class="me-auto">It ran out on <?= formatDate($quote['quote_expire']) ?> without an answer - the client can still see it but can't accept it.</span>
         <button type="button" class="btn btn-sm btn-warning ajax-modal" data-modal-url="modals/quote/quote_edit.php?id=<?= $quote_id ?>"><i class="fas fa-calendar-plus me-1"></i>Extend</button>
     </div>
 <?php } ?>
@@ -255,10 +259,10 @@ $paper = [
                 <?php } ?>
                 <dl class="itflow-asset-dl mb-0">
                     <dt>Status</dt><dd><?= quoteStatusBadge($quote) ?></dd>
-                    <dt>Dated</dt><dd><?= escapeHtml($quote['quote_date']) ?></dd>
+                    <dt>Dated</dt><dd><?= formatDate($quote['quote_date']) ?></dd>
                     <dt>Valid until</dt>
                     <dd>
-                        <?= escapeHtml($quote['quote_expire']) ?>
+                        <?= formatDate($quote['quote_expire']) ?>
                         <?php if ($awaiting || $status === 'Draft') { ?><div class="mt-1"><?= quoteExpiryPill($quote) ?></div><?php } ?>
                     </dd>
                     <?php $margin_html = billingMarginHtml('quote', $items, $currency); if ($margin_html) { ?>
@@ -313,7 +317,7 @@ $paper = [
                             <?= fileTypeTile($file['file_ext'], 'sm') ?>
                             <div class="flex-grow-1 min-w-0">
                                 <a class="ajax-modal text-break" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $file_id ?>"><?= escapeHtml($file['file_name']) ?></a>
-                                <div class="small text-body-secondary"><?= formatBytes(intval($file['file_size'])) ?> &middot; <span title="<?= escapeHtml($file['file_created_at']) ?>"><?= escapeHtml(timeAgo($file['file_created_at'])) ?></span></div>
+                                <div class="small text-body-secondary"><?= formatBytes(intval($file['file_size'])) ?> &middot; <span title="<?= formatDateTime($file['file_created_at']) ?>"><?= escapeHtml(timeAgo($file['file_created_at'])) ?></span></div>
                             </div>
                             <a class="btn btn-sm btn-link text-body-secondary" href="file.php?file_id=<?= $file_id ?>" title="Download"><i class="fas fa-fw fa-download"></i></a>
                         </div>

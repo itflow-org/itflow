@@ -17,25 +17,16 @@ $has_avatar = trim((string) $me['user_avatar']) !== '';
     <div class="card-header bg-dark">
         <h3 class="card-title"><i class="fas fa-fw fa-id-badge me-2"></i>Profile</h3>
     </div>
-    <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off" id="profileForm">
+    <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off" id="profileForm" data-autofill>
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
         <div class="card-body">
             <div class="row g-4">
                 <div class="col-lg-3">
                     <div class="d-flex flex-lg-column align-items-center gap-3 text-lg-center">
-                        <span data-profile-avatar-preview><?= userAvatar($session_user_id, $me['user_name'], $me['user_avatar'], 'xl') ?></span>
-                        <div class="w-100 min-w-0">
-                            <label class="form-label small mb-1" for="profileAvatar">Picture</label>
-                            <input type="file" class="form-control form-control-sm" id="profileAvatar" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp" data-profile-avatar-input>
-                            <div class="form-text">JPG, PNG, GIF or WebP, up to 5 MB.</div>
-                            <?php if ($has_avatar) { ?>
-                                <div class="form-check small mt-1 d-inline-block text-start">
-                                    <input class="form-check-input" type="checkbox" name="remove_avatar" value="1" id="profileRemoveAvatar" data-profile-avatar-remove>
-                                    <label class="form-check-label" for="profileRemoveAvatar">Remove it - show my initials</label>
-                                </div>
-                            <?php } ?>
-                        </div>
+                        <?= pictureField('avatar', $has_avatar ? 'remove_avatar' : '', userAvatar($session_user_id, $me['user_name'], $me['user_avatar'], 'xl'), userAvatar($session_user_id, $me['user_name'], '', 'xl'),
+                            ['round' => true, 'title' => 'Your picture', 'class' => 'itflow-contact-avatar itflow-contact-avatar-xl', 'name' => 'name']) ?>
+                        <div class="form-text mt-0">Click your picture to change it.</div>
                     </div>
                 </div>
 
@@ -61,7 +52,7 @@ $has_avatar = trim((string) $me['user_avatar']) !== '';
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                                     <input type="password" class="form-control" data-toggle="password" name="current_password" placeholder="To change the email you sign in with" autocomplete="current-password">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                                 </div>
                                 <div class="form-text">You'll sign in with the new email from now on - your old address gets a notice that it changed.</div>
                             </div>
@@ -99,37 +90,6 @@ $has_avatar = trim((string) $me['user_avatar']) !== '';
 <script>
 (function () {
     var form = document.getElementById('profileForm');
-
-    // The picture - shown as soon as it is picked
-    var input = form.querySelector('[data-profile-avatar-input]');
-    var preview = form.querySelector('[data-profile-avatar-preview]');
-    var original = preview.innerHTML;
-    var remove = form.querySelector('[data-profile-avatar-remove]');
-    input.addEventListener('change', function () {
-        var file = input.files && input.files[0];
-        if (file && /^image\//.test(file.type)) {
-            var img = document.createElement('img');
-            img.className = 'itflow-contact-avatar itflow-contact-avatar-xl';
-            img.alt = '';
-            img.src = URL.createObjectURL(file);
-            preview.replaceChildren(img);
-            preview.classList.remove('opacity-25');
-            if (remove) {
-                remove.checked = false;
-            }
-        } else {
-            preview.innerHTML = original;
-        }
-    });
-    if (remove) {
-        remove.addEventListener('change', function () {
-            if (remove.checked) {
-                input.value = '';
-                preview.innerHTML = original;
-            }
-            preview.classList.toggle('opacity-25', remove.checked);
-        });
-    }
 
     // A new email takes your current password
     var email = form.querySelector('[data-profile-email]');

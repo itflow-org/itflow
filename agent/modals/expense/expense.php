@@ -97,25 +97,25 @@ ob_start();
     <?php if ($receipt_kind) { ?>
         <div class="itflow-file-preview mb-3">
             <?php if ($receipt_kind === 'image') { ?>
-                <a href="<?= $receipt_url ?>&amp;action=view" target="_blank" title="Open full size"><img src="<?= $receipt_url ?>&amp;action=view" alt="Receipt"></a>
+                <a href="<?= $receipt_url ?>&amp;action=view" target="_blank" rel="noopener" title="Open full size"><img src="<?= $receipt_url ?>&amp;action=view" alt="Receipt"></a>
             <?php } else { ?>
                 <iframe src="<?= $receipt_url ?>&amp;action=view#view=FitH" title="Receipt"></iframe>
             <?php } ?>
         </div>
     <?php } elseif (!$is_transfer) { ?>
         <div class="itflow-expense-receipt-empty mb-3">
-            <i class="fas fa-receipt fa-2x opacity-50 mb-2"></i>
-            <div class="mb-2"><?= $receipt_missing ? "The receipt's file is missing from uploads/expenses/." : 'No receipt yet.' ?></div>
             <?php if ($can_edit) { ?>
-                <form action="post.php" method="post" enctype="multipart/form-data" class="d-flex flex-wrap justify-content-center gap-2" autocomplete="off">
+                <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <input type="hidden" name="expense_id" value="<?= $expense_id ?>">
-                    <div class="input-group" style="max-width: 26rem;">
-                        <span class="input-group-text"><i class="fa fa-fw fa-paperclip"></i></span>
-                        <input type="file" class="form-control" name="file" accept="image/*,application/pdf" required>
-                        <button type="submit" name="expense_receipt_save" class="btn btn-primary"><i class="fas fa-upload me-1"></i>Attach</button>
-                    </div>
+                    <input type="hidden" name="expense_receipt_save" value="1">
+                    <?= pictureField('file', '', picturePhotoEmpty('Add a receipt', 'fa-receipt'), picturePhotoEmpty('Add a receipt', 'fa-receipt'),
+                        ['title' => 'Receipt', 'shapes' => 'free', 'box' => 'tall', 'max' => 2400, 'accept' => 'image/*,application/pdf', 'submit' => true]) ?>
                 </form>
+                <div class="small mt-2"><?= $receipt_missing ? "The receipt's file is missing from uploads/expenses/ - click to add it again." : 'No receipt yet - click to add a photo or a PDF.' ?></div>
+            <?php } else { ?>
+                <i class="fas fa-receipt fa-2x opacity-50 mb-2"></i>
+                <div><?= $receipt_missing ? "The receipt's file is missing from uploads/expenses/." : 'No receipt yet.' ?></div>
             <?php } ?>
         </div>
     <?php } ?>
@@ -160,7 +160,7 @@ ob_start();
             <?php } else { ?>
                 <div class="itflow-glance-item" title="Paid from">
                     <i class="fas fa-fw fa-piggy-bank"></i>
-                    <span><?= escapeHtml($row['account_name'] ?: 'No account') ?><?= $row['expense_payment_method'] ? ' <span class="text-body-secondary">&middot; ' . escapeHtml($row['expense_payment_method']) . '</span>' : '' ?></span>
+                    <span><?= moduleOn('bookkeeping') ? escapeHtml($row['account_name'] ?: 'No account') : 'The business' ?><?= $row['expense_payment_method'] ? ' <span class="text-body-secondary">&middot; ' . escapeHtml($row['expense_payment_method']) . '</span>' : '' ?></span>
                 </div>
             <?php } ?>
             <?php if ($row['expense_reference']) { ?>
@@ -181,7 +181,7 @@ ob_start();
             </div>
             <div class="itflow-glance-item" title="Entered">
                 <i class="fas fa-fw fa-clock"></i>
-                <span><span title="<?= escapeHtml($row['expense_created_at']) ?>"><?= timeAgo($row['expense_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?></span>
+                <span><span title="<?= formatDateTime($row['expense_created_at']) ?>"><?= timeAgo($row['expense_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?></span>
             </div>
             <?= reconcileGlanceHtml($cleared) ?>
             <?php if ($row['expense_recurring_expense_id']) { ?>
@@ -235,7 +235,7 @@ ob_start();
                     <span>
                         <span class="text-success-emphasis"><?= escapeHtml(billingMoney($row['refunded_amount'], $currency)) ?> back</span>
                         <span class="text-body-secondary">&middot;
-                            <?php foreach ($refunds as $i => $refund) { ?><?= $i ? ', ' : '' ?><a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($refund['expense_id']) ?>"><?= escapeHtml($refund['expense_date']) ?></a><?php } ?>
+                            <?php foreach ($refunds as $i => $refund) { ?><?= $i ? ', ' : '' ?><a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($refund['expense_id']) ?>"><?= formatDate($refund['expense_date']) ?></a><?php } ?>
                         </span>
                     </span>
                 </div>
@@ -272,9 +272,9 @@ ob_start();
         <a class="btn btn-outline-secondary" href="<?= $receipt_url ?>"><i class="fas fa-download me-2"></i>Receipt</a>
     <?php } ?>
     <?php if ($can_edit && !$is_transfer) { ?>
-        <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_edit.php?id=<?= $expense_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+        <button type="button" class="btn btn-primary fw-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_edit.php?id=<?= $expense_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
         <div class="btn-group">
-            <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_copy.php?id=<?= $expense_id ?>"><i class="fas fa-copy me-2"></i>Copy</button>
+            <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_copy.php?id=<?= $expense_id ?>"><i class="far fa-copy me-2"></i>Copy</button>
             <?php if ($amount > 0) { ?>
                 <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_refund.php?id=<?= $expense_id ?>"><i class="fas fa-undo-alt me-2"></i>Refund</button>
             <?php } ?>
@@ -285,7 +285,7 @@ ob_start();
     <?php } ?>
     <?php if ($can_unbill) { ?>
         <a class="btn btn-outline-secondary confirm-link" href="post.php?expense_unbill=<?= $expense_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
-            data-confirm-text="<?= $row['invoice_status'] === 'Cancelled' ? escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . ' is cancelled, so its line stays on it' : 'Its line comes off ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?> and it waits to be billed again."><i class="fas fa-unlink"></i><span class="d-none d-sm-inline ms-2">Take off Invoice</span></a>
+            data-confirm-text="<?= $row['invoice_status'] === 'Cancelled' ? escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . ' is cancelled, so its line stays on it' : 'Its line comes off ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?> and it waits to be billed again."><i class="fas fa-unlink"></i><span class="d-none d-sm-inline ms-2">Take Off Invoice</span></a>
     <?php } ?>
     <?php if ($can_delete && !$is_transfer && $cleared) { ?>
         <?= reconcileLockedButtonHtml($cleared) ?>
@@ -293,7 +293,7 @@ ob_start();
         <a class="btn btn-outline-danger confirm-link" href="post.php?delete_expense=<?= $expense_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
             data-confirm-text="<?= escapeHtml(expenseLabel($row)) ?> goes for good<?= $row['expense_receipt'] ? ', with its receipt' : '' ?>.<?= $billed_on && $row['invoice_status'] !== null ? ' Its line stays on ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . '.' : '' ?><?= $mileage_trips ? ' Its ' . ($mileage_trips === 1 ? 'trip is' : $mileage_trips . ' trips are') . ' to pay back for again.' : '' ?>"><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

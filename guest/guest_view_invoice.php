@@ -2,8 +2,8 @@
 
 /*
  * An invoice as the client opens it from its link - the invoice on the
- * left, as it prints; on the right what is owed and by when, Pay Now when
- * it can be paid online, the PDF, the payments made, and everything else
+ * left, as it prints; on the right what is owed and by when, that autopay
+ * pays it on its due date when it does, Pay Now when it can be paid online, the PDF, the payments made, and everything else
  * they owe with a link to each. Opening it marks a sent invoice viewed and
  * tells the agents.
  */
@@ -14,7 +14,7 @@ $invoice = billingRow('invoice', intval($_GET['invoice_id'] ?? 0), false);
 $url_key = (string) ($_GET['url_key'] ?? '');
 
 if (!$invoice || (string) $invoice['invoice_url_key'] === '' || !hash_equals((string) $invoice['invoice_url_key'], $url_key)) {
-    echo '<div class="itflow-asset-empty mt-5"><i class="fas fa-file-invoice-dollar fa-3x mb-3 opacity-50"></i><h1 class="h4">This invoice link isn\'t working</h1><p>It may have been mistyped or replaced. Ask whoever sent it for a new link.</p></div>';
+    echo guestDeadEndHtml('fa-file-invoice-dollar', "This invoice link isn't working", "It may have been mistyped or replaced. Ask whoever sent it for a new link.");
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
     exit();
 }
@@ -50,7 +50,12 @@ if ($stripe && invoiceCanPay($invoice, $state) && (floatval($stripe['payment_pro
     $pay_url = ($stripe_customer ? 'guest_pay_invoice_stripe.php' : 'guest_pay_setup_stripe_customer.php') . "?invoice_id=$invoice_id&url_key=$query_key";
 }
 // The card fee on paying by card, when the client pays one (functions/billing_pay.php)
-$card_fee = $pay_url ? billingCardFeeCents((int) round($state['balance'] * 100), billingCardFeeFor($client_id)) / 100 : 0;
+$card_fee = $pay_url ? billingCardFeeCents(intval(round($state['balance'] * 100)), billingCardFeeFor($client_id)) / 100 : 0;
+// Paid by its recurring invoice's autopay on the due date - said, so it isn't paid twice, while that will go through
+$autopay = $state['state'] === 'open' ? invoiceAutopay($invoice) : null;
+if ($autopay && $autopay['problem'] !== '') {
+    $autopay = null;
+}
 
 $paper = [
     'type' => 'invoice',
@@ -80,7 +85,7 @@ $paper = [
                         <span class="itflow-asset-icon bg-success-subtle text-success-emphasis" aria-hidden="true"><i class="fas fa-check"></i></span>
                         <div>
                             <div class="fw-semibold">Paid in full</div>
-                            <div class="small text-body-secondary"><?= $payments ? 'On ' . escapeHtml($payments[0]['payment_date']) . ' - thank you.' : 'Thank you.' ?></div>
+                            <div class="small text-body-secondary"><?= $payments ? 'On ' . formatDate($payments[0]['payment_date']) . ' - thank you.' : 'Thank you.' ?></div>
                         </div>
                     </div>
                 <?php } elseif (in_array($state['state'], ['cancelled', 'nonbillable'], true)) { ?>
@@ -94,7 +99,14 @@ $paper = [
                 <?php } else { ?>
                     <div class="itflow-billing-stat-label">Amount due</div>
                     <div class="itflow-billing-stat-value mb-1 <?= $state['state'] === 'overdue' ? 'text-danger-emphasis' : '' ?>"><?= $money($state['balance']) ?></div>
-                    <div class="mb-3"><?= invoiceDuePill($state) ?: '<span class="small text-body-secondary">Due ' . escapeHtml($invoice['invoice_due']) . '</span>' ?></div>
+                    <div class="mb-3"><?= invoiceDuePill($state) ?: '<span class="small text-body-secondary">Due ' . formatDate($invoice['invoice_due']) . '</span>' ?></div>
+                    <?php if ($autopay) { ?>
+                        <div class="alert alert-success py-2 small d-flex align-items-start gap-2 mb-3">
+                            <i class="<?= escapeHtml($autopay['icon']) ?> fa-fw mt-1"></i>
+                            <span><?= $autopay['card'] ? 'Autopay will charge ' . escapeHtml($autopay['method']) . ($card_fee > 0 ? ' ' . $money($state['balance'] + $card_fee) . ', with a ' . $money($card_fee) . ' card fee,' : '') : 'This is paid automatically by ' . escapeHtml($autopay['method']) ?>
+                                on <?= escapeHtml(date('M j', strtotime($invoice['invoice_due']))) ?> - nothing to do, unless you would rather pay now.</span>
+                        </div>
+                    <?php } ?>
                     <?php if ($pay_url) { ?>
                         <a class="btn btn-success btn-lg w-100 mb-2" href="<?= escapeHtml($pay_url) ?>"><i class="fas fa-credit-card me-2"></i>Pay Now</a>
                         <div class="small text-body-secondary text-center mb-3"><i class="fas fa-lock me-1"></i>Securely, by card<?= $card_fee > 0 ? ' - plus a ' . $money($card_fee) . ' card fee' : '' ?></div>
@@ -117,7 +129,7 @@ $paper = [
                                 <div class="fw-semibold itflow-money"><?= escapeHtml(billingMoney($payment['payment_amount'], $payment['payment_currency_code'])) ?></div>
                                 <div class="small text-body-secondary"><?= escapeHtml(implode(' · ', array_filter([$payment['payment_method'], $payment['payment_reference']]))) ?></div>
                             </div>
-                            <span class="small text-body-secondary"><?= escapeHtml($payment['payment_date']) ?></span>
+                            <span class="small text-body-secondary"><?= formatDate($payment['payment_date']) ?></span>
                         </div>
                     <?php } ?>
                 </div>
@@ -139,7 +151,7 @@ $paper = [
                             href="guest_view_invoice.php?invoice_id=<?= $open_id ?>&url_key=<?= rawurlencode((string) $open['invoice_url_key']) ?>">
                             <div class="flex-grow-1 min-w-0">
                                 <div class="fw-semibold"><?= escapeHtml($open['invoice_prefix'] . $open['invoice_number']) ?></div>
-                                <div class="small text-truncate <?= $open_id === $invoice_id ? '' : 'text-body-secondary' ?>"><?= escapeHtml($open['invoice_scope']) ?: 'Dated ' . escapeHtml($open['invoice_date']) ?></div>
+                                <div class="small text-truncate <?= $open_id === $invoice_id ? '' : 'text-body-secondary' ?>"><?= escapeHtml($open['invoice_scope']) ?: 'Dated ' . formatDate($open['invoice_date']) ?></div>
                             </div>
                             <div class="text-end">
                                 <div class="itflow-money small fw-semibold"><?= escapeHtml(billingMoney($open_state['balance'], $open['invoice_currency_code'])) ?></div>

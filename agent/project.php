@@ -20,6 +20,7 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_url = "client_id=$client_id&";
 } else {
+    $agent_banners_later = true; // drawn below, with its client's, once that is known (functions/agent_banner.php)
     require_once "includes/inc_all.php";
     $client_url = '';
 }
@@ -44,7 +45,7 @@ if ($not_here) { ?>
             <!-- The right project, the wrong client in the address -->
             <a class="btn btn-primary mt-3" href="<?= escapeHtml(projectUrl($project['project_id'], $project['project_client_id'])) ?>"><i class="fas fa-fw fa-project-diagram me-2"></i>Open <?= escapeHtml(projectReference($project)) ?></a>
         <?php } ?>
-        <a class="btn btn-secondary mt-3" href="projects.php<?= $client_url ? "?client_id=$page_client_id" : '' ?>"><i class="fa fa-fw fa-arrow-left me-2"></i>Projects</a>
+        <a class="btn btn-secondary mt-3" href="projects.php<?= $client_url ? "?client_id=$page_client_id" : '' ?>"><i class="fas fa-fw fa-arrow-left me-2"></i>Projects</a>
     </div>
     <?php
     require_once "../includes/footer.php";
@@ -71,6 +72,7 @@ $page_title = $project['project_name'];
 $ticket_scope = clientScopeSql('ticket_client_id');
 $sql = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_priority, ticket_status, ticket_source,
         ticket_assigned_to, ticket_billable, ticket_invoice_id, ticket_created_at, ticket_updated_at, ticket_resolved_at, ticket_closed_at, ticket_client_id,
+        ticket_schedule, " . (ticketScheduleEndReady() ? 'ticket_schedule_end' : 'NULL AS ticket_schedule_end') . ", ticket_onsite,
         ticket_due_at, ticket_sla_id, ticket_first_response_at, ticket_response_due_at, ticket_resolution_due_at,
         ticket_response_sla_alert_stage, ticket_resolution_sla_alert_stage, ticket_response_sla_met, ticket_resolution_sla_met,
         ticket_status_name, ticket_status_color, ticket_status_pauses_sla, client_name, user_name, user_avatar, asset_name,
@@ -113,6 +115,10 @@ if ($ticket_ids) {
     }
 }
 
+// Its booked tickets in time - weeks starting on the agent's calendar's first day
+$first_day = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT user_config_calendar_first_day FROM user_settings WHERE user_id = " . intval($session_user_id)))[0] ?? 0) === 1 ? 1 : 0;
+$timeline = projectTimeline($project, $tickets, $first_day);
+
 $activity = projectActivity($project_id, 25);
 $team = projectTeam($project_id);
 
@@ -125,12 +131,16 @@ $history = auditLogHistory('Project', $project_id);
 $project_tabs = [
     'tickets' => ['label' => 'Tickets', 'icon' => 'fa-life-ring', 'count' => count($tickets), 'badge' => $stats['open']],
     'tasks' => ['label' => 'Tasks', 'icon' => 'fa-tasks', 'count' => $stats['tasks']],
+    'timeline' => ['label' => 'Timeline', 'icon' => 'fa-stream', 'count' => count($timeline['rows'])],
     'activity' => ['label' => 'Activity', 'icon' => 'fa-comments', 'count' => count($activity)],
     'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => $history['count']],
 ];
 
 $new_ticket_url = "modals/ticket/ticket_add.php?" . ($project_client_id ? "client_id=$project_client_id&" : '') . "project_id=$project_id";
 $contact_archived = !empty($project['contact_archived_at']);
+
+// The banners, with the client's when it was opened without the client around it (functions/agent_banner.php)
+echo agentBannersHtml($project_client_id);
 
 ?>
 
@@ -175,14 +185,12 @@ $contact_archived = !empty($project['contact_archived_at']);
                     <i class="fas fa-plus me-2"></i>New Ticket
                 </button>
                 <div class="dropdown">
-                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Add tickets</button>
+                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Add Tickets</button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_link_ticket.php?project_id=<?= $project_id ?>">
-                            <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Tickets already raised
-                        </a>
+                        <?= linkPickerButton('project', $project_id, 'ticket', 'Tickets already raised', 'dropdown-item', 'fas fa-fw fa-life-ring text-secondary me-2') ?>
                         <?php if ($has_templates) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_apply_template.php?project_id=<?= $project_id ?>">
-                                <i class="fas fa-fw fa-cubes text-secondary me-2"></i>From a project template
+                                <i class="fas fa-fw fa-cubes text-secondary me-2"></i>From a Project Template
                             </a>
                         <?php } ?>
                     </div>
@@ -196,11 +204,11 @@ $contact_archived = !empty($project['contact_archived_at']);
             <?php if ($can_edit && $is_open) { ?>
                 <?php if ($stats['open']) { ?>
                     <button type="button" class="btn btn-outline-success" disabled title="<?= $stats['open'] ?> of its tickets <?= $stats['open'] === 1 ? 'is' : 'are' ?> still open - resolve or close them first">
-                        <i class="fas fa-check me-2"></i>Mark complete
+                        <i class="fas fa-check me-2"></i>Mark Complete
                     </button>
                 <?php } else { ?>
                     <a class="btn <?= $stats['tickets'] ? 'btn-success' : 'btn-outline-success' ?> confirm-link" href="post.php?complete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="<?= $reference ?> is marked complete.">
-                        <i class="fas fa-check me-2"></i>Mark complete
+                        <i class="fas fa-check me-2"></i>Mark Complete
                     </a>
                 <?php } ?>
             <?php } elseif ($can_edit && $state === 'completed') { ?>
@@ -215,20 +223,20 @@ $contact_archived = !empty($project['contact_archived_at']);
                     </button>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="tickets.php?<?= $project_client_id ? "client_id=$project_client_id&" : '' ?>project=<?= $project_id ?>&show=all">
-                            <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Its tickets on the ticket list
+                            <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Its Tickets on the Ticket List
                         </a>
                         <div class="dropdown-divider"></div>
                         <?php if ($project['project_archived_at']) { ?>
                             <a class="dropdown-item" href="post.php?restore_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                             </a>
                         <?php } else { ?>
-                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="<?= $reference ?> moves to Archived. Its tickets stay as they are.">
+                            <a class="dropdown-item text-danger" href="post.php?archive_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                 <i class="fas fa-fw fa-archive me-2"></i>Archive
                             </a>
                         <?php } ?>
                         <?php if ($can_delete) { ?>
-                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                            <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                 data-confirm-text="<?= $reference ?> goes for good. Its tickets stay, no longer part of a project.">
                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                             </a>
@@ -248,7 +256,7 @@ $contact_archived = !empty($project['contact_archived_at']);
         <i class="fas fa-fw fa-<?= ['overdue' => 'calendar-times', 'over_budget' => 'hourglass-end', 'ready' => 'flag-checkered', 'stalled' => 'hourglass-half'][$flag['key']] ?? 'info-circle' ?>"></i>
         <span class="flex-grow-1"><?= escapeHtml($flag['text']) ?></span>
         <?php if ($flag['key'] === 'ready' && $can_edit) { ?>
-            <a class="btn btn-sm btn-success confirm-link" href="post.php?complete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="<?= $reference ?> is marked complete.">Mark complete</a>
+            <a class="btn btn-sm btn-success confirm-link" href="post.php?complete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="<?= $reference ?> is marked complete.">Mark Complete</a>
         <?php } ?>
     </div>
 <?php } ?>
@@ -345,7 +353,7 @@ $contact_archived = !empty($project['contact_archived_at']);
                         <li class="nav-item" role="presentation">
                             <button class="nav-link text-nowrap <?= $tab['count'] ? '' : 'is-empty' ?>" id="project-tab-<?= $tab_key ?>" data-bs-toggle="pill" data-bs-target="#project-pane-<?= $tab_key ?>" data-project-tab="<?= $tab_key ?>" type="button" role="tab">
                                 <i class="fas fa-fw <?= $tab['icon'] ?> me-1"></i><?= $tab['label'] ?>
-                                <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                                <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                                 <?php if (!empty($tab['badge'])) { ?>
                                     <span class="badge rounded-pill text-bg-danger" title="Open"><?= intval($tab['badge']) ?> open</span>
                                 <?php } ?>
@@ -375,14 +383,14 @@ $contact_archived = !empty($project['contact_archived_at']);
                                         <i class="fas fa-fw fa-user-check me-2"></i>Assign
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_edit_priority.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-thermometer-half me-2"></i>Set priority
+                                        <i class="fas fa-fw fa-thermometer-half me-2"></i>Set Priority
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_edit_category.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-tag me-2"></i>Set category
+                                        <i class="fas fa-fw fa-tag me-2"></i>Set Category
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_reply.php" data-modal-size="lg" data-bulk="true">
-                                        <i class="fas fa-fw fa-paper-plane me-2"></i>Reply or add a note
+                                        <i class="fas fa-fw fa-paper-plane me-2"></i>Reply or Add a Note
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_resolve.php" data-modal-size="lg" data-bulk="true">
                                         <i class="fas fa-fw fa-check me-2"></i>Resolve
@@ -390,7 +398,7 @@ $contact_archived = !empty($project['contact_archived_at']);
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="remove_tickets_from_project"
                                         data-confirm-text="The tickets stay as they are, just no longer part of this project.">
-                                        <i class="fas fa-fw fa-unlink me-2"></i>Take off the project
+                                        <i class="fas fa-fw fa-unlink me-2"></i>Take Off the Project
                                     </button>
                                 </div>
                             </div>
@@ -493,7 +501,7 @@ $contact_archived = !empty($project['contact_archived_at']);
                                 <div class="d-flex justify-content-center gap-2 mt-3">
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $new_ticket_url ?>"><i class="fas fa-plus me-2"></i>New Ticket</button>
                                     <?php if ($has_templates) { ?>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/project/project_apply_template.php?project_id=<?= $project_id ?>"><i class="fas fa-cubes me-2"></i>From a template</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/project/project_apply_template.php?project_id=<?= $project_id ?>"><i class="fas fa-cubes me-2"></i>From a Template</button>
                                     <?php } ?>
                                 </div>
                             <?php } ?>
@@ -532,7 +540,7 @@ $contact_archived = !empty($project['contact_archived_at']);
                                                 <?php } ?>
                                                 <span class="flex-grow-1 <?= $task_done ? 'text-decoration-line-through' : '' ?>"><?= escapeHtml($task['task_name']) ?></span>
                                                 <?php if ($task_done) { ?>
-                                                    <span class="small text-nowrap" title="<?= escapeHtml($task['task_completed_at']) ?>"><?= escapeHtml(trim(($task['completed_by'] ?? '') . ', ' . timeAgo($task['task_completed_at']), ', ')) ?></span>
+                                                    <span class="small text-nowrap" title="<?= formatDateTime($task['task_completed_at']) ?>"><?= escapeHtml(trim(($task['completed_by'] ?? '') . ', ' . timeAgo($task['task_completed_at']), ', ')) ?></span>
                                                 <?php } ?>
                                             </li>
                                         <?php } ?>
@@ -544,6 +552,91 @@ $contact_archived = !empty($project['contact_archived_at']);
                         <div class="itflow-asset-empty">
                             <i class="fas fa-tasks fa-2x mb-2 opacity-50"></i>
                             <div>No tasks on its tickets. Tasks added to a ticket, or brought in by a template, show up here.</div>
+                        </div>
+                    <?php } ?>
+                </div>
+
+                <!-- Its booked tickets in time (projectTimeline()) -->
+                <div class="tab-pane fade" id="project-pane-timeline" role="tabpanel">
+                    <?php if ($timeline['rows']) { ?>
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">
+                                Its booked tickets, by the <?= $timeline['scale'] ?><?= timezoneShifted() ? ', on your clock' : '' ?>.
+                                <?php if ($timeline['clashes']) { ?>
+                                    <span data-timeline-clashes><i class="fas fa-exclamation-triangle text-danger me-1"></i><?= $timeline['clashes'] ?> booked at the same time as another of the same agent's.</span>
+                                <?php } ?>
+                            </span>
+                        </div>
+                        <div class="itflow-timeline" data-timeline>
+                            <div class="itflow-timeline-lines" aria-hidden="true">
+                                <?php foreach ($timeline['ticks'] as $tick) { ?>
+                                    <span class="itflow-timeline-grid <?= $tick['weekend'] ? 'is-weekend' : '' ?>" style="left: <?= $tick['at'] ?>%; width: <?= $tick['room'] ?>%"></span>
+                                <?php } ?>
+                                <?php foreach ($timeline['markers'] as $marker) { ?>
+                                    <span class="itflow-timeline-marker is-<?= $marker['kind'] ?>" style="left: <?= $marker['at'] ?>%"></span>
+                                <?php } ?>
+                            </div>
+                            <div class="itflow-timeline-row itflow-timeline-scale" aria-hidden="true">
+                                <div class="itflow-timeline-label"></div>
+                                <div class="itflow-timeline-track">
+                                    <?php foreach ($timeline['ticks'] as $tick) {
+                                        if ($tick['minor']) {
+                                            continue;
+                                        } ?>
+                                        <span class="itflow-timeline-tick" style="left: <?= $tick['at'] ?>%; max-width: <?= $tick['label_room'] ?>%"><?= escapeHtml($tick['label']) ?></span>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                            <?php foreach ($timeline['rows'] as $line) {
+                                $row = $line['ticket'];
+                                $when = ticketScheduleShortText($row['ticket_schedule'], $row['ticket_schedule_end'] ?? null);
+                                $state_text = ['done' => ticketIsOpen($row) ? '' : ($row['ticket_status_name'] ?? 'Closed'), 'late' => 'Its booking has passed and it is still open', 'open' => 'Open'][$line['state']]; ?>
+                                <div class="itflow-timeline-row" data-timeline-ticket="<?= intval($row['ticket_id']) ?>">
+                                    <div class="itflow-timeline-label">
+                                        <div class="text-truncate"><?= ticketLink($row) ?></div>
+                                        <div class="small text-body-secondary text-truncate">
+                                            <?php if (!empty($row['ticket_onsite'])) { ?><i class="fas fa-fw fa-car-side me-1" title="Onsite"></i><?php } ?><?= escapeHtml($row['user_name'] ?: 'Not assigned') ?> · <?= escapeHtml($when) ?>
+                                        </div>
+                                        <?php if ($line['clashes']) { ?>
+                                            <div class="small text-body-secondary text-truncate" data-timeline-clash><i class="fas fa-fw fa-exclamation-triangle text-danger me-1"></i>Same time as <?= escapeHtml(implode(', ', $line['clashes'])) ?></div>
+                                        <?php } ?>
+                                    </div>
+                                    <div class="itflow-timeline-track">
+                                        <a class="itflow-timeline-bar is-<?= $line['state'] ?> <?= $line['clashes'] ? 'is-clash' : '' ?>" href="<?= escapeHtml(ticketUrl($row['ticket_id'], $row['ticket_client_id'])) ?>"
+                                            style="left: <?= $line['left'] ?>%; width: <?= $line['width'] ?>%" title="<?= escapeHtml(ticketReference($row) . ' - ' . $when . ($state_text ? " - $state_text" : '')) ?>"
+                                            aria-label="<?= escapeHtml(ticketReference($row) . ', ' . $when) ?>"></a>
+                                    </div>
+                                </div>
+                            <?php } ?>
+                        </div>
+                        <div class="itflow-asset-pane-bar small text-body-secondary justify-content-start column-gap-3 row-gap-1 border-top border-bottom-0 itflow-timeline-key">
+                            <span><span class="itflow-timeline-swatch is-open"></span>Open</span>
+                            <span><span class="itflow-timeline-swatch is-late"></span>Booking passed, still open</span>
+                            <span><span class="itflow-timeline-swatch is-done"></span>Resolved or closed</span>
+                            <?php if ($timeline['clashes']) { ?><span><span class="itflow-timeline-swatch is-open is-clash"></span>Same agent, same time</span><?php } ?>
+                            <span><span class="itflow-timeline-swatch is-today"></span>Now</span>
+                            <?php if (!empty($project['project_start']) || !empty($project['project_due'])) { ?><span><span class="itflow-timeline-swatch is-dates"></span>Its start and due dates</span><?php } ?>
+                        </div>
+                    <?php } else { ?>
+                        <div class="itflow-asset-empty">
+                            <i class="fas fa-stream fa-2x mb-2 opacity-50"></i>
+                            <div>None of its tickets is booked yet. Book one from its Scheduled line, or drag it onto the calendar or Dispatch, and it shows here in time.</div>
+                        </div>
+                    <?php } ?>
+                    <?php if ($timeline['unbooked']) { ?>
+                        <div class="border-top">
+                            <div class="itflow-asset-pane-bar"><span class="small fw-semibold">Open and not booked <span class="badge rounded-pill text-bg-secondary ms-1"><?= count($timeline['unbooked']) ?></span></span></div>
+                            <div class="list-group list-group-flush" data-timeline-unbooked>
+                                <?php foreach ($timeline['unbooked'] as $row) { ?>
+                                    <div class="list-group-item d-flex align-items-center gap-2">
+                                        <div class="flex-grow-1 min-w-0 text-truncate"><?= ticketLink($row) ?></div>
+                                        <span class="small text-body-secondary text-nowrap"><?= escapeHtml($row['user_name'] ?: 'Not assigned') ?></span>
+                                        <?php if ($can_edit) { ?>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary text-nowrap ajax-modal" data-modal-url="modals/ticket/ticket_edit_schedule.php?ticket_id=<?= intval($row['ticket_id']) ?>"><i class="fas fa-calendar-plus me-1"></i>Book</button>
+                                        <?php } ?>
+                                    </div>
+                                <?php } ?>
+                            </div>
                         </div>
                     <?php } ?>
                 </div>
@@ -572,7 +665,7 @@ $contact_archived = !empty($project['contact_archived_at']);
                                             <span class="fw-semibold"><?= escapeHtml($who !== '' ? $who : 'Someone') ?></span>
                                             <span class="text-body-secondary"><?= $type === 'Internal' ? 'noted on' : 'on' ?></span>
                                             <?= ticketLink($reply) ?>
-                                            <span class="ms-auto text-body-secondary text-nowrap" title="<?= escapeHtml($reply['ticket_reply_created_at']) ?>">
+                                            <span class="ms-auto text-body-secondary text-nowrap" title="<?= formatDateTime($reply['ticket_reply_created_at']) ?>">
                                                 <?php if ($time) { ?><span class="me-2" title="Time logged"><i class="far fa-clock me-1"></i><?= escapeHtml(substr($time, 0, 5)) ?></span><?php } ?><?= timeAgo($reply['ticket_reply_created_at']) ?>
                                             </span>
                                         </div>
@@ -635,11 +728,11 @@ $contact_archived = !empty($project['contact_archived_at']);
                     <dt>Manager</dt>
                     <dd><?= $manager ?></dd>
                     <?php if ($project['project_start']) { ?>
-                        <dt>Start</dt><dd><?= escapeHtml(date('D M j, Y', strtotime($project['project_start']))) ?></dd>
+                        <dt>Start</dt><dd><?= escapeHtml(date('D, M j, Y', strtotime($project['project_start']))) ?></dd>
                     <?php } ?>
-                    <dt>Due</dt><dd><?= $project['project_due'] ? escapeHtml(date('D M j, Y', strtotime($project['project_due']))) : '<span class="text-body-secondary">-</span>' ?></dd>
+                    <dt>Due</dt><dd><?= $project['project_due'] ? escapeHtml(date('D, M j, Y', strtotime($project['project_due']))) : '<span class="text-body-secondary">-</span>' ?></dd>
                     <dt>Budget</dt><dd><?= $budget_hours > 0 ? projectHoursText($budget_hours * 3600) : '<span class="text-body-secondary">-</span>' ?></dd>
-                    <dt>Created</dt><dd title="<?= escapeHtml($project['project_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($project['project_created_at']))) ?></dd>
+                    <dt>Created</dt><dd title="<?= formatDateTime($project['project_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($project['project_created_at']))) ?></dd>
                     <?php if ($project['project_completed_at']) { ?>
                         <dt>Completed</dt><dd><?= escapeHtml(date('M j, Y', strtotime($project['project_completed_at']))) ?></dd>
                     <?php } ?>

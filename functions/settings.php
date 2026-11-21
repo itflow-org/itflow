@@ -35,12 +35,12 @@ function settingsGroups() {
  */
 function settingsPages() {
     return [
-        'company' => ['group' => 'company', 'title' => 'Company details', 'icon' => 'fa-briefcase', 'url' => 'settings_company.php',
+        'company' => ['group' => 'company', 'title' => 'Company Details', 'icon' => 'fa-briefcase', 'url' => 'settings_company.php',
             'about' => 'Your company as it shows on invoices, quotes and emails - its name, address, contact details and logo.'],
         'localization' => ['group' => 'company', 'title' => 'Localization', 'icon' => 'fa-globe', 'url' => 'settings_localization.php',
             'about' => 'The language dates and numbers are written in, the currency you bill in, and your timezone.'],
         'theme' => ['group' => 'company', 'title' => 'Theme', 'icon' => 'fa-paint-brush', 'url' => 'settings_theme.php',
-            'about' => 'The colour of the top bar, links, buttons and highlights, and the icon on the browser tab.'],
+            'about' => 'The color of the top bar, links, buttons and highlights, and the icon on the browser tab.'],
         'default' => ['group' => 'work', 'title' => 'Defaults', 'icon' => 'fa-cogs', 'url' => 'settings_default.php',
             'about' => 'Where ITFlow opens, what a client is billed on without a contract, and what new payments, expenses and transfers start with.'],
         'ticket' => ['group' => 'work', 'title' => 'Tickets', 'icon' => 'fa-life-ring', 'url' => 'settings_ticket.php', 'module' => 'ticketing',
@@ -49,20 +49,24 @@ function settingsPages() {
             'about' => 'How projects are numbered.'],
         'quote' => ['group' => 'work', 'title' => 'Quotes', 'icon' => 'fa-comment-dollar', 'url' => 'settings_quote.php', 'module' => 'accounting',
             'about' => 'How quotes are numbered, what goes at the foot of them, and who hears when one is answered.'],
-        'invoice' => ['group' => 'work', 'title' => 'Invoices and billing', 'icon' => 'fa-file-invoice', 'url' => 'settings_invoice.php', 'module' => 'accounting',
+        'invoice' => ['group' => 'work', 'title' => 'Invoices and Billing', 'icon' => 'fa-file-invoice-dollar', 'url' => 'settings_invoice.php', 'module' => 'accounting',
             'about' => 'Invoice numbering, late fees, reminders and statements, and how time, expenses and trips are billed.'],
+        'purchase_order' => ['group' => 'work', 'title' => 'Purchase Orders', 'icon' => 'fa-file-signature', 'url' => 'settings_purchase_order.php', 'module' => 'purchasing',
+            'about' => 'How purchase orders are numbered, and whether one needs approving before it is ordered.'],
+        'kb' => ['group' => 'work', 'title' => 'Knowledge Base', 'icon' => 'fa-book', 'url' => 'settings_kb.php', 'module' => 'kb',
+            'about' => 'Whether the public help center is open - the articles anyone can read, for anyone with the link.'],
         'mail' => ['group' => 'email', 'title' => 'Mail', 'icon' => 'fa-envelope', 'url' => 'settings_mail.php',
             'about' => 'The mailboxes ITFlow sends from and reads tickets from, the names emails come from, and tests.'],
         'notification' => ['group' => 'email', 'title' => 'Notifications', 'icon' => 'fa-bell', 'url' => 'settings_notification.php',
-            'about' => 'Which alerts ITFlow raises, and which emails and texts clients get.'],
+            'about' => 'Which alerts ITFlow raises, what it tells your agents about their tickets, and which emails and texts clients get.'],
         'security' => ['group' => 'access', 'title' => 'Security', 'icon' => 'fa-shield-alt', 'url' => 'settings_security.php',
-            'about' => 'The sign-in page, two-step sign-in, failed sign-ins and shared links.'],
-        'client_portal' => ['group' => 'access', 'title' => 'Client portal', 'icon' => 'fa-user-shield', 'url' => 'settings_client_portal.php', 'module' => 'portal',
+            'about' => 'The sign-in page, two-step sign-in, failed sign-ins, API keys and shared links.'],
+        'client_portal' => ['group' => 'access', 'title' => 'Client Portal', 'icon' => 'fa-user-shield', 'url' => 'settings_client_portal.php', 'module' => 'portal',
             'about' => 'How your clients\' contacts sign in to the portal, and the announcements they see there.'],
-        'identity' => ['group' => 'access', 'title' => 'Single sign-on', 'icon' => 'fa-fingerprint', 'url' => 'identity_providers.php', 'module' => 'portal',
+        'identity' => ['group' => 'access', 'title' => 'Single Sign-on', 'icon' => 'fa-fingerprint', 'url' => 'identity_providers.php', 'module' => 'portal',
             'about' => 'Contacts signing in to the client portal with their Microsoft 365 account.'],
         'module' => ['group' => 'system', 'title' => 'Modules', 'icon' => 'fa-cube', 'url' => 'settings_module.php',
-            'about' => 'The parts of ITFlow in use - IT documentation, ticketing, invoicing and the client portal - and white-labelling.'],
+            'about' => 'The parts of ITFlow in use - IT documentation, ticketing, invoicing, the calendar, the Knowledge Base and the client portal, and the parts that come with them - and white-labelling.'],
         'logs' => ['group' => 'system', 'title' => 'Logs', 'icon' => 'fa-scroll', 'url' => 'settings_logs.php',
             'about' => 'How long the audit log and app logs are kept, and sending them on to a syslog server or SIEM.'],
         'telemetry' => ['group' => 'system', 'title' => 'Telemetry', 'icon' => 'fa-satellite-dish', 'url' => 'settings_telemetry.php',
@@ -72,16 +76,121 @@ function settingsPages() {
 
 /* Whether a page's module is in use - a page for one that is off is hidden from the menu, and shown faded on the overview. */
 function settingsPageAvailable(array $page) {
-    global $config_module_enable_ticketing, $config_module_enable_accounting, $config_client_portal_enable;
-    switch ($page['module'] ?? '') {
-        case 'ticketing':
-            return !empty($config_module_enable_ticketing);
-        case 'accounting':
-            return !empty($config_module_enable_accounting);
+    return empty($page['module']) || moduleOn($page['module']);
+}
+
+/*
+ * Whether a part of ITFlow is in use (Admin > Settings > Modules) - itdoc,
+ * ticketing, accounting, portal, and purchasing, bookkeeping, dispatch, trips,
+ * calendar and kb (the Knowledge Base). Purchasing, bookkeeping and trips come with invoicing and
+ * dispatch with ticketing, so each is off while that is. Before the database
+ * update that adds a switch, what it switches is on, as it was.
+ */
+function moduleOn($module) {
+    $on = function ($column) {
+        return intval($GLOBALS[$column] ?? 1) === 1;
+    };
+    switch ($module) {
         case 'portal':
-            return !empty($config_client_portal_enable);
+            return $on('config_client_portal_enable');
+        case 'dispatch':
+            return $on('config_module_enable_ticketing') && $on('config_module_enable_dispatch');
+        case 'purchasing':
+        case 'bookkeeping':
+        case 'trips':
+            return $on('config_module_enable_accounting') && $on("config_module_enable_$module");
     }
-    return true;
+    return $on("config_module_enable_$module");
+}
+
+/*
+ * What a page, window or API call says when its module is off - or, for one
+ * that comes with another, when that one is off.
+ */
+function moduleOffText($module) {
+    $names = ['dispatch' => 'Dispatch is', 'bookkeeping' => 'Bookkeeping is', 'trips' => 'Trips are', 'calendar' => 'The calendar is', 'purchasing' => 'Purchasing is', 'kb' => 'The Knowledge Base is'];
+    $comes_with = ['dispatch' => 'ticketing', 'bookkeeping' => 'accounting', 'trips' => 'accounting', 'purchasing' => 'accounting'];
+    $parent = $comes_with[$module] ?? '';
+    if ($parent && !moduleOn($parent)) {
+        return preg_replace('/ (is|are)$/', '', $names[$module]) . ' come' . ($module === 'trips' ? '' : 's') . ' with ' . ($parent === 'ticketing' ? 'ticketing' : 'invoicing')
+            . ', which is switched off - an admin switches it on in Admin > Settings > Modules.';
+    }
+    return ($names[$module] ?? 'That is') . ' switched off - an admin switches ' . ($module === 'trips' ? 'them' : 'it') . ' on in Admin > Settings > Modules.';
+}
+
+/*
+ * Admin pages that share one side menu entry, with tabs across their tops
+ * (pageTabsHtml()), by group: the entry's label and icon, and each page there
+ * is - its file, icon, label, the files of its records (they keep the entry
+ * lit) and a count for its badge (count, title, tone).
+ */
+function adminNavGroups() {
+    global $config_module_enable_ticketing, $config_module_enable_accounting, $config_module_enable_itdoc;
+    static $groups = null; // the side menu and the page's tabs both ask
+    if ($groups !== null) {
+        return $groups;
+    }
+    $ticketing = !empty($config_module_enable_ticketing);
+    $accounting = !empty($config_module_enable_accounting);
+    $itdoc = !empty($config_module_enable_itdoc);
+    return $groups = [
+        'logs' => ['label' => 'Logs', 'icon' => 'fa-history', 'pages' => [
+            ['file' => 'audit_logs.php', 'icon' => 'fa-history', 'label' => 'Audit Logs'],
+            ['file' => 'sign_ins.php', 'icon' => 'fa-sign-in-alt', 'label' => 'Sign-ins'],
+            ['file' => 'app_logs.php', 'icon' => 'fa-clipboard-list', 'label' => 'App Logs'],
+        ]],
+        'templates' => ['label' => 'Templates', 'icon' => 'fa-copy', 'pages' => array_values(array_filter([
+            $ticketing ? ['file' => 'ticket_templates.php', 'icon' => 'fa-life-ring', 'label' => 'Tickets', 'also' => ['ticket_template.php']] : null,
+            $ticketing ? ['file' => 'project_templates.php', 'icon' => 'fa-project-diagram', 'label' => 'Projects', 'also' => ['project_template.php']] : null,
+            $ticketing ? ['file' => 'canned_responses.php', 'icon' => 'fa-comment-dots', 'label' => 'Canned Responses'] : null,
+            $accounting ? ['file' => 'contract_templates.php', 'icon' => 'fa-file-contract', 'label' => 'Contracts'] : null,
+            $itdoc ? ['file' => 'vendor_templates.php', 'icon' => 'fa-building', 'label' => 'Vendors', 'also' => ['vendor_template.php']] : null,
+            $itdoc ? ['file' => 'software_templates.php', 'icon' => 'fa-box-open', 'label' => 'Licenses', 'also' => ['software_template.php']] : null,
+            $itdoc ? ['file' => 'document_templates.php', 'icon' => 'fa-file-alt', 'label' => 'Documents', 'also' => ['document_template.php']] : null,
+        ]))],
+        'text' => ['label' => 'Text Messaging', 'icon' => 'fa-sms', 'pages' => array_values(array_filter([
+            ['file' => 'text_messaging.php', 'icon' => 'fa-sms', 'label' => 'Setup'],
+            smsProvider() ? ['file' => 'text_messages.php', 'icon' => 'fa-comment-dots', 'label' => 'Messages', 'count' => smsFailedRecently(), 'title' => 'Failed to send in the last week', 'tone' => 'text-bg-danger'] : null,
+        ]))],
+    ];
+}
+
+/* A group's side menu entry - to its first page, lit on any of them, with its pages' counts as one badge. '' when none of its pages is there. HTML. */
+function adminNavGroupItemHtml($key) {
+    $group = adminNavGroups()[$key] ?? null;
+    if (!$group || !$group['pages']) {
+        return '';
+    }
+    $here = basename($_SERVER['PHP_SELF'] ?? '');
+    $active = false;
+    $count = 0;
+    $titles = [];
+    $tone = 'text-light';
+    foreach ($group['pages'] as $page) {
+        $active = $active || $here === $page['file'] || in_array($here, $page['also'] ?? [], true);
+        if (!empty($page['count'])) {
+            $count += intval($page['count']);
+            $titles[] = $page['title'] ?? '';
+            $tone = $page['tone'] ?? $tone;
+        }
+    }
+    return '<li class="nav-item"><a href="/admin/' . escapeHtml($group['pages'][0]['file']) . '" class="nav-link' . ($active ? ' active' : '') . '">'
+        . '<i class="nav-icon fas ' . escapeHtml($group['icon']) . '"></i><p>' . escapeHtml($group['label'])
+        . ($count ? ' <span class="right badge ' . escapeHtml($tone) . '" title="' . escapeHtml(implode(' - ', array_filter($titles))) . '">' . $count . '</span>' : '')
+        . '</p></a></li>';
+}
+
+/* The tabs atop a group's pages, the one open lit - nothing when the group has just one page. HTML. */
+function adminNavGroupTabsHtml($key) {
+    $group = adminNavGroups()[$key] ?? null;
+    if (!$group || count($group['pages']) < 2) {
+        return '';
+    }
+    $here = basename($_SERVER['PHP_SELF'] ?? '');
+    return pageTabsHtml(array_map(function ($page) use ($here) {
+        return ['url' => $page['file'], 'icon' => $page['icon'], 'label' => $page['label'], 'active' => $here === $page['file'],
+            'count' => $page['count'] ?? 0, 'title' => $page['title'] ?? '', 'tone' => $page['tone'] ?? ''];
+    }, $group['pages']));
 }
 
 /* The theme colours there are - each has its .theme-<name> block in css/itflow_custom.css. */
@@ -117,6 +226,7 @@ function settingsFields() {
         'company_phone' => ['page' => 'company', 'section' => 'Contact', 'label' => 'Phone', 'words' => 'telephone number call'],
         'company_email' => ['page' => 'company', 'section' => 'Contact', 'label' => 'Email', 'words' => 'email address contact'],
         'company_website' => ['page' => 'company', 'section' => 'Contact', 'label' => 'Website', 'words' => 'web site url domain'],
+        'offices' => ['page' => 'company', 'section' => 'Offices', 'label' => 'Offices', 'words' => 'office branch location site other offices second office where agents work'],
         'company_logo' => ['page' => 'company', 'section' => 'Logo', 'label' => 'Logo', 'kind' => 'file', 'words' => 'logo image picture branding invoice'],
         'config_internal_client_id' => ['page' => 'company', 'section' => 'Your own client record', 'label' => 'Your company\'s client record', 'kind' => 'client',
             'words' => 'internal client own company msp internal tickets'],
@@ -129,7 +239,7 @@ function settingsFields() {
         'config_timezone' => ['page' => 'localization', 'section' => 'Timezone', 'label' => 'Timezone', 'words' => 'time zone clock utc'],
 
         // Theme
-        'config_theme' => ['page' => 'theme', 'section' => 'Colour', 'label' => 'Theme colour', 'kind' => 'select', 'options' => 'themes',
+        'config_theme' => ['page' => 'theme', 'section' => 'Color', 'label' => 'Theme color', 'kind' => 'select', 'options' => 'themes',
             'words' => 'theme color colour accent top bar branding'],
         'favicon' => ['page' => 'theme', 'section' => 'Browser tab icon', 'label' => 'Browser tab icon', 'kind' => 'file', 'words' => 'favicon ico icon tab'],
 
@@ -156,9 +266,29 @@ function settingsFields() {
         'config_ticket_sms_parse' => ['page' => 'ticket', 'section' => 'Text to ticket', 'label' => 'Turn texts into tickets', 'words' => 'text sms message mobile phone skyetel to ticket'] + $on_off,
         'config_ticket_sms_unknown_senders' => ['page' => 'ticket', 'section' => 'Text to ticket', 'label' => 'From unknown numbers too', 'words' => 'text sms unknown numbers anyone'] + $on_off,
         'config_ticket_sms_acknowledge' => ['page' => 'ticket', 'section' => 'Text to ticket', 'label' => 'Text back the ticket number', 'words' => 'text sms acknowledge reply confirm number'] + $on_off,
+        'config_quick_ticket_on' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Show the Quick ticket button', 'words' => 'quick ticket top bar plus call walk-up button'] + $on_off,
+        'config_quick_ticket_assign' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Quick ticket goes to', 'kind' => 'select', 'options' => 'quick_ticket_assign',
+            'words' => 'quick ticket assign agent technician'],
+        'config_quick_ticket_status' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Quick ticket starts in', 'kind' => 'select', 'options' => 'quick_ticket_status',
+            'words' => 'quick ticket status'],
+        'config_quick_ticket_priority' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Quick ticket priority', 'words' => 'quick ticket priority'],
+        'config_quick_ticket_category' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Quick ticket category', 'kind' => 'category', 'words' => 'quick ticket category'],
+        'config_quick_ticket_billable' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Quick ticket billing', 'kind' => 'select', 'options' => 'quick_ticket_billable',
+            'words' => 'quick ticket billable bill'],
+        'config_quick_ticket_timer' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Start a quick ticket\'s timer', 'kind' => 'select', 'options' => 'quick_ticket_timer',
+            'words' => 'quick ticket timer time tracking call'],
+        'config_quick_ticket_primary' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Start on the client\'s primary contact', 'words' => 'quick ticket primary contact'] + $on_off,
+        'config_quick_ticket_open_tickets' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Show the contact\'s open tickets', 'words' => 'quick ticket open tickets duplicate'] + $on_off,
+        'config_quick_ticket_email_client' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Email the contact that it was opened', 'words' => 'quick ticket email contact created'] + $on_off,
+        'config_ticket_reply_assigns' => ['page' => 'ticket', 'section' => 'Assigning', 'label' => 'Assign an unassigned ticket to the first agent to reply',
+            'words' => 'assign assigned first reply respond responder take own technician unassigned automatic'] + $on_off,
         'config_ticket_default_billable' => ['page' => 'ticket', 'section' => 'Time and billing', 'label' => 'New tickets are billable', 'words' => 'billable default bill'] + $on_off,
         'config_ticket_timer_autostart' => ['page' => 'ticket', 'section' => 'Time and billing', 'label' => 'Start the timer on opening a ticket', 'words' => 'timer autostart time tracking'] + $on_off,
         'config_ticket_autoclose_hours' => ['page' => 'ticket', 'section' => 'Closing', 'label' => 'Close resolved tickets after', 'words' => 'auto close autoclose resolved hours'],
+        'config_ticket_assigned_message' => ['page' => 'ticket', 'section' => 'Messages to clients', 'label' => '"Ticket assigned" message', 'kind' => 'long',
+            'words' => 'ticket assigned message email first response sla status template'],
+        'config_ticket_no_response_message' => ['page' => 'ticket', 'section' => 'Messages to clients', 'label' => '"Resolve - no response" message', 'kind' => 'long',
+            'words' => 'no response resolve unresponsive client message email template'],
         'config_ticket_new_ticket_notification_email' => ['page' => 'ticket', 'section' => 'New tickets', 'label' => 'Email new tickets to', 'words' => 'new ticket notification email distribution list alert'],
         'config_ticket_ai_triage' => ['page' => 'ticket', 'section' => 'New tickets', 'label' => 'Triage new tickets with AI', 'kind' => 'select', 'options' => 'ai_triage',
             'words' => 'ai artificial intelligence triage category priority automatic sort'],
@@ -168,14 +298,25 @@ function settingsFields() {
         'config_ticket_moving_columns' => ['page' => 'ticket', 'section' => 'The tickets page', 'label' => 'Rearrange the board\'s columns', 'words' => 'kanban columns move'] + $on_off,
 
         // Projects
+        'config_po_prefix' => ['page' => 'purchase_order', 'section' => 'Numbering', 'label' => 'Purchase order prefix', 'words' => 'po number prefix purchasing'],
+        'config_po_next_number' => ['page' => 'purchase_order', 'section' => 'Numbering', 'label' => 'Next purchase order number', 'words' => 'po number counter purchasing'],
+        'config_kb_public_enable' => ['page' => 'kb', 'section' => 'Public help center', 'label' => 'Public help center', 'words' => 'knowledge base kb public help center articles guest anyone'] + $on_off,
+        'config_po_approval' => ['page' => 'purchase_order', 'section' => 'Approval', 'label' => 'Purchase orders need approval', 'words' => 'po approve approver sign off purchasing'] + $on_off,
+        'config_po_approval_over' => ['page' => 'purchase_order', 'section' => 'Approval', 'label' => 'Approve purchase orders over', 'words' => 'po approval amount threshold limit purchasing'],
         'config_project_prefix' => ['page' => 'project', 'section' => 'Numbering', 'label' => 'Project prefix', 'words' => 'project number prj prefix'],
         'config_project_next_number' => ['page' => 'project', 'section' => 'Numbering', 'label' => 'Next project number', 'words' => 'project number counter'],
+        'config_project_tickets_apart' => ['page' => 'project', 'section' => 'Project tickets', 'label' => 'Keep project tickets apart', 'kind' => 'switch', 'words' => 'project tickets sla service desk queue separate apart'],
+        'config_project_ticket_color' => ['page' => 'project', 'section' => 'Project tickets', 'label' => 'Project tickets\' calendar color', 'words' => 'project ticket colour color calendar dispatch'],
 
         // Quotes
         'config_quote_prefix' => ['page' => 'quote', 'section' => 'Numbering', 'label' => 'Quote prefix', 'words' => 'quote number quo prefix estimate'],
         'config_quote_next_number' => ['page' => 'quote', 'section' => 'Numbering', 'label' => 'Next quote number', 'words' => 'quote number counter'],
         'config_quote_footer' => ['page' => 'quote', 'section' => 'Footer', 'label' => 'Quote footer', 'kind' => 'long', 'words' => 'quote footer terms text'],
         'config_quote_notification_email' => ['page' => 'quote', 'section' => 'Answers', 'label' => 'Email quote answers to', 'words' => 'accepted declined notification email'],
+        'config_quote_price_method' => ['page' => 'quote', 'section' => 'Pricing', 'label' => 'Price lines by', 'kind' => 'select', 'words' => 'markup margin cost price profit'],
+        'config_quote_price_percent' => ['page' => 'quote', 'section' => 'Pricing', 'label' => 'Markup or margin %', 'words' => 'markup margin percent percentage cost'],
+        'config_quote_show_images' => ['page' => 'quote', 'section' => 'Pictures', 'label' => 'Show pictures on quotes', 'kind' => 'switch', 'words' => 'image picture photo product quote line'],
+        'config_quote_price_presets' => ['page' => 'quote', 'section' => 'Pricing', 'label' => 'Quick picks', 'words' => 'markup margin presets buttons percent'],
 
         // Invoices and billing
         'config_invoice_prefix' => ['page' => 'invoice', 'section' => 'Numbering', 'label' => 'Invoice prefix', 'words' => 'invoice number inv prefix'],
@@ -247,6 +388,12 @@ function settingsFields() {
 
         // Notifications
         'config_enable_alert_domain_expire' => ['page' => 'notification', 'section' => 'Alerts for your team', 'label' => 'Domains about to expire', 'words' => 'domain expiry expiration alert'] + $on_off,
+        'config_notify_assigned_app' => ['page' => 'notification', 'section' => 'Emails and notices to your team', 'label' => 'Ticket assigned - in the bell', 'words' => 'assigned notification bell agent tech notice'] + $on_off,
+        'config_notify_assigned_email' => ['page' => 'notification', 'section' => 'Emails and notices to your team', 'label' => 'Ticket assigned - by email', 'words' => 'assigned email agent tech notification'] + $on_off,
+        'config_notify_helper_replies' => ['page' => 'notification', 'section' => 'Emails and notices to your team', 'label' => 'Client replies to agents helping', 'words' => 'helper additional agents client reply copy email'] + $on_off,
+        'config_weekly_summary' => ['page' => 'notification', 'section' => 'Weekly summary', 'label' => 'Email a summary of the week', 'words' => 'weekly summary report digest owner email week stats'] + $on_off,
+        'config_weekly_summary_day' => ['page' => 'notification', 'section' => 'Weekly summary', 'label' => 'On', 'kind' => 'select', 'options' => WEEKLY_SUMMARY_DAYS, 'words' => 'weekly summary day'],
+        'config_weekly_summary_to' => ['page' => 'notification', 'section' => 'Weekly summary', 'label' => 'Send it to', 'words' => 'weekly summary recipients owner email'],
         'config_recurring_auto_send_invoice' => ['page' => 'notification', 'section' => 'Emails to clients', 'label' => 'Email the invoices recurring invoices make', 'words' => 'recurring invoice auto send email'] + $on_off,
         'config_ticket_client_general_notifications' => ['page' => 'notification', 'section' => 'Emails to clients', 'label' => 'Email clients about their tickets', 'words' => 'ticket notification client email opened closed'] + $on_off,
         'config_sms_client_tickets' => ['page' => 'notification', 'section' => 'Texts to clients', 'label' => 'Text them about their tickets', 'kind' => 'select',
@@ -262,6 +409,7 @@ function settingsFields() {
         'config_login_key_secret' => ['page' => 'security', 'section' => 'The sign-in page', 'label' => 'Login key', 'quiet' => true, 'words' => 'login key secret url address'],
         'config_login_remember_me_expire' => ['page' => 'security', 'section' => 'Two-step sign-in', 'label' => 'Remember a browser for', 'words' => '2fa mfa remember me days trusted device'],
         'config_login_alert_failures' => ['page' => 'security', 'section' => 'Failed sign-ins', 'label' => 'Tell admins', 'kind' => 'select', 'options' => 'sign_in_alerts', 'words' => 'failed login brute force lockout alert'],
+        'config_api_key_in_address' => ['page' => 'security', 'section' => 'API keys', 'label' => 'Take API keys in the address', 'words' => 'api key address url query string api_key header x-api-key access log'] + $on_off,
         'config_share_max_hours' => ['page' => 'security', 'section' => 'Shared links', 'label' => 'Longest a shared link can last', 'kind' => 'select', 'options' => 'share_max', 'words' => 'share link expiry guest'],
         'config_share_require_protection' => ['page' => 'security', 'section' => 'Shared links', 'label' => 'Shared passwords need a passphrase or code', 'words' => 'share passphrase code protect'] + $on_off,
 
@@ -277,6 +425,12 @@ function settingsFields() {
         'config_module_enable_itdoc' => ['page' => 'module', 'section' => 'Modules', 'label' => 'IT documentation', 'words' => 'module itdoc documentation assets credentials'] + $on_off,
         'config_module_enable_ticketing' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Ticketing', 'words' => 'module tickets support'] + $on_off,
         'config_module_enable_accounting' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Invoicing and accounting', 'words' => 'module accounting invoices billing financial'] + $on_off,
+        'config_module_enable_dispatch' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Dispatch', 'words' => 'module dispatch board schedule technicians'] + $on_off,
+        'config_module_enable_bookkeeping' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Bookkeeping', 'words' => 'module bookkeeping accounts transactions transfers reconcile statements'] + $on_off,
+        'config_module_enable_purchasing' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Purchasing', 'words' => 'module purchasing purchase orders procurement receiving'] + $on_off,
+        'config_module_enable_trips' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Trips', 'words' => 'module trips mileage driving'] + $on_off,
+        'config_module_enable_calendar' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Calendar', 'words' => 'module calendar events feed'] + $on_off,
+        'config_module_enable_kb' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Knowledge Base', 'words' => 'module knowledge base kb articles how-to help'] + $on_off,
         'config_client_portal_enable' => ['page' => 'module', 'section' => 'Modules', 'label' => 'Client portal', 'words' => 'module portal clients'] + $on_off,
         'config_whitelabel_key' => ['page' => 'module', 'section' => 'White-label', 'label' => 'White-label key', 'kind' => 'secret', 'words' => 'whitelabel white label powered by banner'],
         'config_whitelabel_enabled' => ['page' => 'module', 'section' => 'White-label', 'label' => 'White-label', 'search' => false] + $on_off,
@@ -500,7 +654,7 @@ function settingsInput($name, $saved, array $options = []) {
     $invalid = settingsError($name) !== '' ? ' is-invalid' : '';
     $value = settingsValue($name, $saved);
     $control = '<div class="input-group has-validation">'
-        . '<span class="input-group-text"><i class="fa fa-fw ' . escapeHtml($options['icon'] ?? 'fa-pen') . '"></i></span>'
+        . '<span class="input-group-text"><i class="fas fa-fw ' . escapeHtml($options['icon'] ?? 'fa-pen') . '"></i></span>'
         . '<input type="' . escapeHtml($options['type'] ?? 'text') . '" class="form-control' . $invalid . (isset($options['class']) ? ' ' . escapeHtml($options['class']) : '') . '" id="' . escapeHtml($id) . '" name="' . escapeHtml($name) . '" value="' . escapeHtml((string) $value) . '"' . settingsAttributes($options) . '>'
         . (isset($options['suffix']) ? '<span class="input-group-text">' . $options['suffix'] . '</span>' : '')
         . '</div>';
@@ -535,7 +689,7 @@ function settingsSelect($name, $saved, array $choices, array $options = []) {
     }
     $select2 = ($options['search'] ?? count($choices) > 12) ? ' select2' : '';
     $control = '<div class="input-group has-validation">'
-        . '<span class="input-group-text"><i class="fa fa-fw ' . escapeHtml($options['icon'] ?? 'fa-list') . '"></i></span>'
+        . '<span class="input-group-text"><i class="fas fa-fw ' . escapeHtml($options['icon'] ?? 'fa-list') . '"></i></span>'
         . '<select class="form-select' . $select2 . $invalid . '" id="' . escapeHtml($id) . '" name="' . escapeHtml($name) . '"' . settingsAttributes($options) . '>' . $html . '</select>'
         . ($options['append'] ?? '')
         . '</div>';
@@ -603,7 +757,7 @@ function settingsSame($a, $b) {
         return $a === $b || (in_array($a, ['', '0'], true) && in_array($b, ['', '0'], true));
     }
     if (is_numeric($a) && is_numeric($b)) {
-        return (float) $a === (float) $b;
+        return floatval($a) === floatval($b);
     }
     return rtrim(str_replace("\r\n", "\n", (string) $a)) === rtrim(str_replace("\r\n", "\n", (string) $b));
 }
@@ -657,6 +811,14 @@ function settingsLogValue($name, $value) {
             $options = settingsMailEncryption();
         } elseif ($options === 'ai_triage') {
             $options = [0 => 'off', 1 => 'suggest', 2 => 'fill in'];
+        } elseif ($options === 'quick_ticket_assign') {
+            $options = quickTicketAssignChoices();
+        } elseif ($options === 'quick_ticket_status') {
+            $options = quickTicketStatusChoices();
+        } elseif ($options === 'quick_ticket_billable') {
+            $options = QUICK_TICKET_BILLABLE;
+        } elseif ($options === 'quick_ticket_timer') {
+            $options = QUICK_TICKET_TIMER;
         } elseif (is_string($options)) {
             $options = settingsLocalizationArrays()[$options] ?? [];
         }
@@ -795,6 +957,7 @@ function settingsNumbering($kind) {
         'project' => ['prefix' => 'config_project_prefix', 'number' => 'config_project_next_number', 'table' => 'projects', 'column' => 'project', 'what' => 'project'],
         'quote' => ['prefix' => 'config_quote_prefix', 'number' => 'config_quote_next_number', 'table' => 'quotes', 'column' => 'quote', 'what' => 'quote'],
         'invoice' => ['prefix' => 'config_invoice_prefix', 'number' => 'config_invoice_next_number', 'table' => 'invoices', 'column' => 'invoice', 'what' => 'invoice'],
+        'purchase_order' => ['prefix' => 'config_po_prefix', 'number' => 'config_po_next_number', 'table' => 'purchase_orders', 'column' => 'po', 'what' => 'purchase order'],
         'recurring_invoice' => ['prefix' => 'config_recurring_invoice_prefix', 'number' => 'config_recurring_invoice_next_number', 'table' => 'recurring_invoices', 'column' => 'recurring_invoice', 'what' => 'recurring invoice'],
     ];
     return $numbering[$kind];
@@ -947,8 +1110,12 @@ function settingsNumberingFields($kind, $prefix, $number) {
 
 /* The pages ITFlow can open on, as page => name - any other page of /agent/ can be typed. */
 function settingsStartPages() {
-    return ['dashboard.php' => 'Dashboard', 'clients.php' => 'Clients', 'tickets.php' => 'Tickets', 'calendar.php' => 'Calendar', 'projects.php' => 'Projects',
+    $pages = ['dashboard.php' => 'Dashboard', 'clients.php' => 'Clients', 'tickets.php' => 'Tickets', 'calendar.php' => 'Calendar', 'projects.php' => 'Projects',
         'invoices.php' => 'Invoices', 'quotes.php' => 'Quotes', 'assets.php' => 'Assets'];
+    if (!moduleOn('calendar')) {
+        unset($pages['calendar.php']);
+    }
+    return $pages;
 }
 
 /*

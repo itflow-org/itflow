@@ -20,13 +20,50 @@ if (!empty($_SESSION['portal_view_as']) && (isset($_GET['exit_view_as']) || isse
     unset($_SESSION['portal_view_as']);
     redirect($back);
 }
-if (portalViewingAs() && !isset($_GET['export_statement_pdf'])) {
+if (portalViewingAs() && !isset($_GET['export_statement_pdf']) && !isset($_GET['kb_suggest'])) {
     flashAlert("You're viewing the portal as " . escapeHtml($portal_view_as['contact_name']) . " - nothing can be changed", 'error');
     redirect();
 }
 
 // Two-step sign-in required and not set up yet: client/includes/check_login.php has
 // already turned away everything but setting it up, or signing out
+
+/*
+ * The Help articles that might answer a new ticket's subject, as it is typed
+ * on New ticket (js/portal.js) - at most three of the ones shared with their
+ * company, as JSON [{title, summary, url}]. It changes nothing, so it answers
+ * when viewing the portal as a contact too.
+ */
+if (isset($_GET['kb_suggest'])) {
+    header('Content-Type: application/json');
+    $kb_rows = kbOn() ? kbFind((string) $_GET['kb_suggest'], kbClientSql($session_client_id), 3) : [];
+    echo json_encode(array_map(function ($row) {
+        return ['title' => $row['kb_article_title'], 'summary' => kbArticleExcerpt($row, 120), 'url' => 'kb_article.php?id=' . intval($row['kb_article_id'])];
+    }, $kb_rows));
+    exit;
+}
+
+/*
+ * "Was this helpful?" under a Help article (kbFeedbackHtml()) - the answer
+ * (kb_feedback, with helpful), then for a no what was missing
+ * (kb_feedback_comment). Only for an article shared with their company. Back
+ * to the article.
+ */
+if (isset($_POST['kb_feedback']) || isset($_POST['kb_feedback_comment'])) {
+
+    validateCSRFToken();
+
+    $kb_article_id = intval($_POST['kb_feedback'] ?? $_POST['kb_feedback_comment']);
+    if (!kbFeedbackReady() || !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM kb_articles WHERE kb_article_id = $kb_article_id AND " . kbClientSql($session_client_id)))) {
+        redirect('kb.php');
+    }
+    if (isset($_POST['kb_feedback'])) {
+        kbFeedbackSave($kb_article_id, intval($_POST['helpful'] ?? 0) === 1, 'portal', $session_contact_id, $session_client_id);
+    } else {
+        kbFeedbackComment($kb_article_id, $_POST['comment'] ?? '');
+    }
+    redirect("kb_article.php?id=$kb_article_id#kb-feedback");
+}
 
 if (isset($_POST['add_ticket'])) {
 
@@ -181,10 +218,15 @@ if (isset($_POST['add_ticket_comment'])) {
         $original_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_status FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
         $original_ticket_status = intval($original_row['ticket_status'] ?? 0);
 
-        // Back to Open - unless it is in a status of your own set to stay put when the client replies (Scheduled, say)
+        // Back to Open - unless it is in a status of your own set to stay put when the client replies (Scheduled, say).
+        // A resolved ticket is reopened - its resolved time goes and the resolution clock runs again, as by email.
         $new_ticket_status = ticketStatusAfterClientReply($original_ticket_status);
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $new_ticket_status WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id LIMIT 1");
+        $reopen = $original_ticket_status === TICKET_STATUS_RESOLVED;
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $new_ticket_status" . ($reopen ? ", ticket_resolved_at = NULL" : "") . " WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id LIMIT 1");
         syncTicketSlaClock($ticket_id);
+        if ($reopen) {
+            resetTicketResolutionSla($ticket_id);
+        }
 
         // Only record the reopen when the ticket was not already open
         if ($original_ticket_status !== $new_ticket_status) {
@@ -259,7 +301,7 @@ if (isset($_POST['set_contact_phone'])) {
 
     logAudit("Contact", "Edit", "Client contact $session_contact_name updated their phone numbers in the client portal", $session_client_id, $session_contact_id);
 
-    flashAlert("Phone numbers updated");
+    flashAlert("Phone numbers saved");
 
     redirect('profile.php');
 
@@ -306,7 +348,7 @@ if (isset($_POST['set_contact_pin'])) {
     // an audit trail an agent can read would defeat the point of having one
     logAudit("Contact", "Edit", "Client contact $session_contact_name set their phone PIN in the client portal", $session_client_id, $session_contact_id);
 
-    flashAlert("Phone PIN updated");
+    flashAlert("Phone PIN saved");
 
     redirect('profile.php');
 
@@ -323,18 +365,17 @@ if (isset($_GET['approve_ticket_task'])) {
     $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT approval_created_by, approval_required_user_id, approval_scope, approval_type, task_name,
         task_ticket_id FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending' AND approval_scope = 'client'"));
 
+    if (!$approval_row) {
+        flashAlert("That task isn't waiting for your approval", 'error');
+        redirect();
+    }
+
     $task_name = escapeSql($approval_row['task_name']);
     $scope = escapeHtml($approval_row['approval_scope']);
     $type = escapeHtml($approval_row['approval_type']);
     $required_user = intval($approval_row['approval_required_user_id']);
     $created_by = intval($approval_row['approval_created_by']);
     $ticket_id = intval($approval_row['task_ticket_id']);
-
-    if (!$approval_row) {
-        flashAlert("Cannot find/approve that task", 'warning');
-        redirect();
-        exit;
-    }
 
     // Approve
     mysqli_query($mysqli, "UPDATE task_approvals SET approval_status = 'approved', approval_approved_by = $session_user_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending' AND approval_scope = 'client'");
@@ -347,7 +388,7 @@ if (isset($_GET['approve_ticket_task'])) {
     // Logging
     logAudit("Task", "Edit", "Contact $session_contact_email approved task $task_name (approval $approval_id)", $session_client_id, $task_id);
 
-    flashAlert("Task Approved");
+    flashAlert("Task approved - thank you");
     redirect();
 
 }
@@ -399,6 +440,13 @@ if (isset($_GET['resolve_ticket'])) {
 
     // Verify the contact has access to the provided ticket ID
     if (verifyContactTicketAccess($ticket_id, "Open")) {
+
+        // Only a ticket that isn't resolved yet, with its tasks done - as its page offers
+        $resolvable = mysqli_fetch_row(mysqli_query($mysqli, "SELECT ticket_resolved_at FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
+        if (!$resolvable || $resolvable[0] !== null || ticketOpenTaskCount($ticket_id)) {
+            flashAlert("This ticket can't be resolved yet", 'error');
+            redirect("ticket.php?id=" . $ticket_id);
+        }
 
         // Resolve the ticket
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id");
@@ -475,6 +523,13 @@ if (isset($_GET['close_ticket'])) {
 
     // Verify the contact has access to the provided ticket ID
     if (verifyContactTicketAccess($ticket_id, "Open")) {
+
+        // Only a resolved ticket closes - as its page offers
+        $closable = mysqli_fetch_row(mysqli_query($mysqli, "SELECT ticket_resolved_at FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
+        if (!$closable || $closable[0] === null) {
+            flashAlert("Only a resolved ticket can be closed", 'error');
+            redirect("ticket.php?id=" . $ticket_id);
+        }
 
         // Fully close ticket
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id");
@@ -1150,7 +1205,7 @@ if (isset($_POST['create_stripe_customer'])) {
 
     $stripe_provider = mysqli_fetch_assoc($stripe_provider_result);
     if (!$stripe_provider) {
-        flashAlert("Stripe provider is not configured in the system.", 'danger');
+        flashAlert('Card payments are not set up', 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1158,7 +1213,7 @@ if (isset($_POST['create_stripe_customer'])) {
     $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
-        flashAlert("Stripe credentials missing. Please contact support.", 'danger');
+        flashAlert('Card payments are not set up', 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1211,7 +1266,7 @@ if (isset($_POST['create_stripe_customer'])) {
 
             logApp("Stripe", "error", "Failed to create Stripe customer for $session_client_name: $error");
 
-            flashAlert("An error occurred while creating your Stripe customer. Please try again.", 'danger');
+            flashAlert("Card payments could not be set up just now - try again", 'error');
 
         }
 
@@ -1227,7 +1282,7 @@ if (isset($_GET['create_stripe_checkout'])) {
 
     //validateCSRFToken();
 
-    // This page is called by autopay_setup_stripe.js, returns a Checkout Session client_secret
+    // This page is called by js/portal_stripe.js, returns a Checkout Session client_secret
 
     enforceContactCan('accounting');
 
@@ -1295,9 +1350,19 @@ if (isset($_GET['create_stripe_checkout'])) {
         }
         $checkout_session = $stripe->checkout->sessions->create($session_params);
 
+        // Only the session made here can be saved when Stripe sends them back (stripe_save_card)
+        $_SESSION['stripe_checkout_session_id'] = $checkout_session->id;
+
         echo json_encode(['clientSecret' => $checkout_session->client_secret]);
 
     } catch (Exception $e) {
+        // A customer Stripe no longer has - forgotten, and the page reloads to set them up again
+        if ($stripe_customer_id && billingStripeCustomerGone($e)) {
+            billingStripeCustomerForget($session_client_id, $stripe_customer_id);
+            flashAlert("Your card details are no longer with Stripe - add your card again to save it.", 'warning');
+            echo json_encode(['error' => 'Set up again', 'reload' => true]);
+            exit;
+        }
         $error = $e->getMessage();
         error_log("Stripe error creating checkout session: $error");
         logApp("Stripe", "error", "Exception creating checkout session: $error");
@@ -1324,7 +1389,7 @@ if (isset($_GET['stripe_save_card'])) {
 
     $stripe_provider = mysqli_fetch_assoc($stripe_provider_result);
     if (!$stripe_provider) {
-        flashAlert("Stripe provider not configured.", 'danger');
+        flashAlert('Card payments are not set up', 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1332,7 +1397,7 @@ if (isset($_GET['stripe_save_card'])) {
     $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
-        flashAlert("Stripe credentials missing.", 'danger');
+        flashAlert('Card payments are not set up', 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1348,12 +1413,18 @@ if (isset($_GET['stripe_save_card'])) {
     $stripe_customer_id = escapeSql($client_provider['payment_provider_client'] ?? '');
 
     if (empty($stripe_customer_id)) {
-        flashAlert("Stripe customer ID not found for client.", 'danger');
+        flashAlert("Card payments are not set up for you yet - add your card again", 'error');
         redirect("saved_payment_methods.php");
     }
 
-    // Get session ID from URL
-    $checkout_session_id = escapeSql($_GET['session_id']);
+    // The checkout session from the address must be the one this sign-in started
+    $checkout_session_id = (string) ($_GET['session_id'] ?? '');
+    $expected_session_id = (string) ($_SESSION['stripe_checkout_session_id'] ?? '');
+    unset($_SESSION['stripe_checkout_session_id']);
+    if ($checkout_session_id === '' || $expected_session_id === '' || !hash_equals($expected_session_id, $checkout_session_id)) {
+        flashAlert("That card setup ran out - try again", 'error');
+        redirect("saved_payment_methods.php");
+    }
 
     try {
         require_once '../includes/stripe_init.php';
@@ -1361,6 +1432,11 @@ if (isset($_GET['stripe_save_card'])) {
 
         // Retrieve checkout session & setup intent
         $checkout_session = $stripe->checkout->sessions->retrieve($checkout_session_id, []);
+        // ... and set up for this client's own Stripe customer
+        if (!empty($checkout_session->customer) && $checkout_session->customer !== stripslashes($stripe_customer_id)) {
+            flashAlert("That card setup isn't yours", 'error');
+            redirect("saved_payment_methods.php");
+        }
         $setup_intent_id = $checkout_session->setup_intent;
         $setup_intent = $stripe->setupIntents->retrieve($setup_intent_id, []);
         $payment_method_id = escapeSql($setup_intent->payment_method);
@@ -1389,11 +1465,17 @@ if (isset($_GET['stripe_save_card'])) {
         ");
 
     } catch (Exception $e) {
+        // Its customer went from Stripe while the card was being entered
+        if (billingStripeCustomerGone($e)) {
+            billingStripeCustomerForget($session_client_id, $stripe_customer_id);
+            flashAlert("Your card details are no longer with Stripe - add your card again to save it.", 'warning');
+            redirect("saved_payment_methods.php");
+        }
         $error = $e->getMessage();
         error_log("Stripe error while saving payment method: $error");
         logApp("Stripe", "error", "Exception saving payment method: $error");
 
-        flashAlert("An error occurred while saving your payment method.", 'danger');
+        flashAlert("Your payment method could not be saved just now - try again", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1405,7 +1487,7 @@ if (isset($_GET['stripe_save_card'])) {
 
     logAudit("Stripe", "Create", "$session_contact_name saved payment method ($saved_payment_description) (PM: $payment_method_id)", $session_client_id);
 
-    flashAlert("Payment method saved – thank you.");
+    flashAlert("Payment method saved - thank you");
     redirect("saved_payment_methods.php");
 }
 
@@ -1427,7 +1509,7 @@ if (isset($_GET['delete_saved_payment'])) {
     $stripe_provider = mysqli_fetch_assoc($stripe_provider_result);
 
     if (!$stripe_provider) {
-        flashAlert("Stripe provider is not configured.", 'danger');
+        flashAlert('Card payments are not set up', 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1435,7 +1517,7 @@ if (isset($_GET['delete_saved_payment'])) {
     $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
-        flashAlert("Stripe credentials are missing.", 'danger');
+        flashAlert('Card payments are not set up', 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1451,7 +1533,7 @@ if (isset($_GET['delete_saved_payment'])) {
     $saved_payment = mysqli_fetch_assoc($saved_payment_result);
 
     if (!$saved_payment) {
-        flashAlert("Payment method not found or does not belong to you.", 'danger');
+        flashAlert("That payment method isn't here", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1475,7 +1557,7 @@ if (isset($_GET['delete_saved_payment'])) {
 
         logApp("Stripe", "error", "Exception removing payment method $payment_method_id: $error");
 
-        flashAlert("An error occurred while removing your payment method.", 'danger');
+        flashAlert("Your payment method could not be removed just now - try again", 'error');
 
         redirect("saved_payment_methods.php");
 
@@ -1506,7 +1588,7 @@ if (isset($_GET['delete_saved_payment'])) {
 
     logAudit("Stripe", "Delete", "$session_contact_name deleted Stripe payment method $saved_payment_description (PM: $payment_method_id)", $session_client_id);
 
-    flashAlert("Payment method $saved_payment_description removed.");
+    flashAlert("Payment method $saved_payment_description removed");
 
     redirect("saved_payment_methods.php");
 }
@@ -1526,7 +1608,7 @@ if (isset($_POST['set_recurring_payment'])) {
     $row = mysqli_fetch_assoc($sql);
 
     if (!$row) {
-        flashAlert("Recurring invoice not found.", 'danger');
+        flashAlert("That recurring invoice isn't here", 'error');
         redirect("recurring_invoices.php");
     }
 
@@ -1550,7 +1632,7 @@ if (isset($_POST['set_recurring_payment'])) {
         $row = mysqli_fetch_assoc($sql);
 
         if (!$row) {
-            flashAlert("Payment method not found or does not belong to you.", 'danger');
+            flashAlert("That payment method isn't here", 'error');
             redirect("recurring_invoices.php");
         }
 
@@ -1564,16 +1646,16 @@ if (isset($_POST['set_recurring_payment'])) {
         // Get Payment ID for reference
         $recurring_payment_id = mysqli_insert_id($mysqli);
 
-        logAudit("Recurring Invoice", "Auto Payment", "$session_contact_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
+        logAudit("Recurring Invoice", "Auto Payment", "$session_contact_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . billingMoney($recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
 
-        flashAlert("Automatic Payment $saved_payment_description enabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
+        flashAlert("Automatic payment with $saved_payment_description turned on for recurring invoice $recurring_invoice_prefix$recurring_invoice_number");
     } else {
         // Delete
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = $recurring_invoice_id");
 
-        logAudit("Recurring Invoice", "Auto Payment", "$session_contact_name removed Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
+        logAudit("Recurring Invoice", "Auto Payment", "$session_contact_name removed Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . billingMoney($recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
 
-        flashAlert("Automatic Payment Disabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
+        flashAlert("Automatic payment turned off for recurring invoice $recurring_invoice_prefix$recurring_invoice_number");
     }
 
     redirect();
@@ -1657,7 +1739,9 @@ if (isset($_POST['client_upload_document'])) {
     $ext_parts = explode('.', $original);
     $file_name = escapeSql($original);
     $file_extension = escapeSql(strtolower(end($ext_parts)));
-    $file_mime_type = escapeSql($_FILES['document_file']['type']);
+    // The type from the file itself, as agent uploads take it - not what the browser said
+    $detected_mime = function_exists('finfo_open') ? (string) finfo_file(finfo_open(FILEINFO_MIME_TYPE), "$client_dir/$file_reference_name") : '';
+    $file_mime_type = escapeSql($detected_mime !== '' ? $detected_mime : 'application/octet-stream');
     $file_size = intval($_FILES['document_file']['size']);
     $document_name = escapeSql($name);
     $document_description = escapeSql($description);

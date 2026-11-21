@@ -51,8 +51,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-redo-alt me-2"></i>Edit Recurring Ticket <small class="ms-1 opacity-75"><?= escapeHtml($recurring['client_name']) ?></small></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-redo-alt me-2"></i>Edit Recurring Ticket <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($recurring['client_name']) ?></span></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -70,16 +70,16 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-recurring-details"><i class="fa fa-fw fa-life-ring me-2"></i>Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-recurring-details"><i class="fas fa-fw fa-life-ring me-2"></i>Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-recurring-schedule"><i class="fa fa-fw fa-calendar-alt me-2"></i>Schedule</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-recurring-schedule"><i class="fas fa-fw fa-calendar-alt me-2"></i>Schedule</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-recurring-related"><i class="fa fa-fw fa-link me-2"></i>Related</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-recurring-related"><i class="fas fa-fw fa-link me-2"></i>Related</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-recurring-tasks"><i class="fa fa-fw fa-tasks me-2"></i>Tasks</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-recurring-tasks"><i class="fas fa-fw fa-tasks me-2"></i>Tasks</a>
             </li>
         </ul>
 
@@ -88,9 +88,9 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-recurring-details">
 
                 <div class="mb-3">
-                    <label>For</label>
+                    <label class="form-label">For</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                         <select class="form-select select2" name="contact_id">
                             <option value="0">- No contact -</option>
                             <?php
@@ -112,14 +112,14 @@ ob_start();
                 foreach (ticketFillInsStored('recurring_ticket', $recurring['recurring_ticket_id']) as $answer) {
                     $ticket_template_fill_in_values[$answer['name']] = $answer['value'];
                 }
-                $ticket_template_hint = "Picking one fills in the recurring ticket - change anything before it is saved. <span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like are filled in each time it raises a ticket, and what the template asks for is answered once here.";
+                $ticket_template_hint = "<span class=\"font-monospace\">[Client]</span>, <span class=\"font-monospace\">[Month]</span> and the like in it are filled in each time it raises a ticket.";
                 require_once '../../includes/inc_ticket_template_select.php';
                 ?>
 
                 <div class="mb-3">
-                    <label>Subject <strong class="text-danger">*</strong></label>
+                    <label class="form-label">Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                         <input type="text" class="form-control" id="subjectInput" name="subject" data-template-field="subject" placeholder="Subject" maxlength="500" value="<?= escapeHtml($recurring['recurring_ticket_subject']) ?>" required>
                     </div>
                 </div>
@@ -131,9 +131,9 @@ ob_start();
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>Priority <strong class="text-danger">*</strong></label>
+                            <label class="form-label">Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                                 <select class="form-select select2" name="priority" data-template-field="priority" required>
                                     <?php foreach (['Low' => 'var(--bs-info)', 'Medium' => 'var(--bs-warning)', 'High' => 'var(--bs-danger)', 'Urgent' => 'var(--bs-emphasis-color)'] as $priority => $color) { ?>
                                         <option <?= $recurring['recurring_ticket_priority'] === $priority ? 'selected' : '' ?> data-color="<?= $color ?>"><?= $priority ?></option>
@@ -144,28 +144,28 @@ ob_start();
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>Category</label>
+                            <label class="form-label">Category</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                                 <select class="form-select select2" name="category_id" data-template-field="category">
                                     <option value="0">- Not categorized -</option>
                                     <?= categoryOptionsHtml('Ticket', $category_id) ?>
                                 </select>
-                                <?= categoryAddButtonHtml('Ticket', 'btn btn-secondary') ?>
+                                <?= categoryAddButtonHtml('Ticket') ?>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label>Assign to</label>
+                    <label class="form-label">Assign to</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                         <select class="form-select select2" name="assigned_to" data-template-field="assigned">
                             <option value="0">- Unassigned -</option>
                             <?php
                             $sql_agents = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users
-                                WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+                                WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_agents)) {
                                 $user_id = intval($row['user_id']); ?>
                                 <option <?= $assigned_to === $user_id ? 'selected' : '' ?> value="<?= $user_id ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= escapeHtml($row['user_name']) ?><?= $user_id === intval($session_user_id) ? ' (me)' : '' ?></option>
@@ -188,9 +188,9 @@ ob_start();
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>How often <strong class="text-danger">*</strong></label>
+                            <label class="form-label">How often <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-redo-alt"></i></span>
                                 <select class="form-select select2" name="frequency" required>
                                     <?php foreach (RECURRING_TICKET_FREQUENCIES as $option => $step) { ?>
                                         <option <?= $frequency === $option ? 'selected' : '' ?>><?= $option ?></option>
@@ -201,14 +201,18 @@ ob_start();
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>Next run <strong class="text-danger">*</strong></label>
+                            <label class="form-label">Next run <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                                 <input class="form-control" type="date" name="next_date" min="<?= min($next_run, date('Y-m-d')) ?>" max="2999-12-31" value="<?= escapeHtml($next_run) ?>" required>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <?= byDayField('[name=next_date]', '[name=frequency]', ['Monthly', 'Quarterly', 'Biannually', 'Annually'], ['Annually'], $recurring['recurring_ticket_by_day'] ?? '') ?>
+
+                <?php $ahead_row = $recurring; require __DIR__ . '/../../includes/inc_recurring_ticket_ahead.php'; ?>
 
                 <div class="small text-body-secondary">
                     <div class="mb-1"><?= recurringTicketNextRunPill($recurring) ?></div>
@@ -223,9 +227,9 @@ ob_start();
             <div class="tab-pane fade" id="pills-recurring-related">
 
                 <div class="mb-3">
-                    <label>Asset</label>
+                    <label class="form-label">Asset</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="asset_id">
                             <option value="0">- None -</option>
                             <?php
@@ -246,9 +250,9 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Other assets</label>
+                    <label class="form-label">Other assets</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="additional_assets[]" data-placeholder="- Any other assets involved -" multiple>
                             <?php foreach ($assets as $row) {
                                 $asset_id_select = intval($row['asset_id']); ?>
@@ -270,7 +274,7 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_recurring_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save changes</button>
+        <button type="submit" name="edit_recurring_ticket" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

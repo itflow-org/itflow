@@ -93,7 +93,9 @@ function permissionRefusedText($module, $level, $has = 0) {
     } elseif ($level === 2) {
         $why = "$who can only view $label, not change it.";
     } else {
-        $why = "$who can't delete in $label - that takes Full access.";
+        // What Full adds, for a module where it isn't deleting - roleModuleInfo()'s 'full'
+        $full = roleModuleInfo()[$module]['full'] ?? "delete in $label";
+        $why = "$who can't $full - that takes Full access.";
     }
     return "$why An admin can change what your role allows in Admin > Roles.";
 }
@@ -113,7 +115,7 @@ function permissionRefuse($message) {
             ob_end_clean();
         }
         echo json_encode(['content' => '<div class="modal-header bg-dark"><h5 class="modal-title"><i class="fas fa-fw fa-lock me-2"></i>Not for your role</h5>'
-            . '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>'
+            . '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div>'
             . '<div class="modal-body"><p class="mb-0">' . $html . '</p></div>'
             . '<div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button></div>']);
         exit;
@@ -155,6 +157,18 @@ function permissionBackUrl() {
         return $referer;
     }
     return '/agent/dashboard.php';
+}
+
+/**
+ * Leaves leads out of a list of clients to pick from. A lead is a prospect - it
+ * has its own tab on Clients and its own pages, but it shouldn't crowd every
+ * client picker and filter. $keep is the client (or clients) already picked -
+ * the record's own, or the lead whose page you're on - which stays in the list.
+ * For a query on the clients table; returns " AND (...)".
+ */
+function clientNotLeadSql($keep = 0) {
+    $keep = array_values(array_filter(array_map('intval', (array) $keep)));
+    return " AND (clients.client_lead = 0" . ($keep ? " OR clients.client_id IN (" . implode(',', $keep) . ")" : '') . ")";
 }
 
 // Client-scope SQL fragment for a list query, built from the signed-in user's allow / deny lists.
@@ -235,8 +249,8 @@ function enforceClientAccess($client_id = null) {
         return true;
     }
 
-    $client_id = (int) $client_id;
-    $session_user_id = (int) $session_user_id;
+    $client_id = intval($client_id);
+    $session_user_id = intval($session_user_id);
 
     if (empty($client_id) || empty($session_user_id)) {
         flashAlert('Access Denied.', 'error');

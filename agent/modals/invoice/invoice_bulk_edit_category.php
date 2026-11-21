@@ -16,7 +16,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-tag me-2"></i>Set Category <span class="fw-normal text-white-50 ms-1"><?= $count ?> invoice<?= $count === 1 ? '' : 's' ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -25,17 +25,17 @@ ob_start();
     <div class="modal-body">
         <label class="form-label">Category <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
             <select class="form-select select2" name="bulk_category_id" required>
-                <option value="">- Pick a category -</option>
+                <option value="">- Select a category -</option>
                 <?= categoryOptionsHtml('Income') ?>
             </select>
-            <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
+            <?= categoryAddButtonHtml('Income') ?>
         </div>
         <div class="form-text">Reports group income by it.</div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_invoice_category" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Set Category</button>
+        <button type="submit" name="bulk_edit_invoice_category" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set Category</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

@@ -62,7 +62,7 @@ function demoDataOrgVendors() {
         ['Synology Direct', 'NAS hardware and Active Backup for Business licensing', '425-555-0139', 'synologydirect.example', 'Next business day replacement', 'SYN-2280'],
         ['Proxmox Server Solutions', 'Proxmox VE and Proxmox Backup Server subscriptions', '203-555-0101', 'proxmoxsubs.example', 'Enterprise repository access', 'PVE-5512'],
         ['Nextcloud Hosting Partner', 'Managed Nextcloud instances resold to clients', '203-555-0177', 'ncpartner.example', '4 hour response', 'NC-3390'],
-        ['Cascade Cloud Licensing', 'Microsoft and Google licensing through the partner programme', '877-555-0155', 'cascadelicensing.example', 'Partner support portal', 'CCL-6640'],
+        ['Cascade Cloud Licensing', 'Microsoft and Google licensing through the partner program', '877-555-0155', 'cascadelicensing.example', 'Partner support portal', 'CCL-6640'],
         ['Three Rivers Colocation', 'Rack space, power and transit for the management stack', '412-555-0128', 'threeriverscolo.example', '24/7 hands and eyes', 'TRC-1180'],
         ['Steelworks Business Bank', 'Business banking, merchant services and card settlement', '412-555-0100', 'steelworksbank.example', 'Business hours', 'SBB-0042'],
         ['Alcott and Reyes CPA', 'Bookkeeping, payroll filing and year end accounts', '412-555-0192', 'alcottreyes.example', 'Monthly close', 'ARC-2210'],
@@ -161,8 +161,8 @@ function demoDataProducts() {
         ['Open Source Stack Review', 'service', 'FOSS-REV', '850.00', 'Consulting', 'Fixed fee. Review of a self hosted stack with a written report and a costed roadmap.', '', '0.00', '', '', 0],
 
         // Corporate licensing and hardware, resold
-        ['Google Workspace Business Standard', 'service', 'LIC-GWBS', '14.00', 'Managed Services', 'Per user, per month. Licence resold and managed.', 'month:contacts', '11.20', 'Cascade Cloud Licensing', 'GWS-BSTD-FLEX', 0],
-        ['Synology Active Backup Licence', 'product', 'LIC-SYNAB', '0.00', 'Hardware Sales', 'Included with Synology hardware. Listed so it appears on the quote.', '', '0.00', 'Synology Direct', '', 0],
+        ['Google Workspace Business Standard', 'service', 'LIC-GWBS', '14.00', 'Managed Services', 'Per user, per month. License resold and managed.', 'month:contacts', '11.20', 'Cascade Cloud Licensing', 'GWS-BSTD-FLEX', 0],
+        ['Synology Active Backup License', 'product', 'LIC-SYNAB', '0.00', 'Hardware Sales', 'Included with Synology hardware. Listed so it appears on the quote.', '', '0.00', 'Synology Direct', '', 0],
         ['Netgate 6100 MAX Firewall', 'product', 'HW-NG6100', '1245.00', 'Hardware Sales', 'pfSense Plus appliance with three years of support included.', '', '935.00', 'Netgate', '6100-MAX', 0, 'Firewall/Router', 'Netgate', '6100 MAX', 36],
         ['Ubiquiti U6-Pro Access Point', 'product', 'HW-U6PRO', '245.00', 'Hardware Sales', 'Wi-Fi 6 ceiling mounted access point, PoE powered.', '', '179.00', 'Ubiquiti Store', 'U6-Pro', 1, 'Access Point', 'Ubiquiti', 'U6-Pro', 12],
         ['Ubiquiti USW-Pro-24-PoE Switch', 'product', 'HW-USW24', '785.00', 'Hardware Sales', '24 port managed PoE switch with SFP+ uplinks.', '', '599.00', 'Ubiquiti Store', 'USW-Pro-24-PoE', 0, 'Switch', 'Ubiquiti', 'USW-Pro-24-PoE', 12],
@@ -205,6 +205,47 @@ function demoProductExtras($product, $vendors) {
 }
 
 // ------------------------------
+// demoDataRenamed
+// What this library wrote before it took US spelling (26.12), so a load and a
+// removal still find what an earlier load made: catalogue lines by code => the
+// name and description they had, and errand purposes now => the purpose then.
+// ------------------------------
+function demoDataRenamed() {
+    return [
+        'products' => [
+            'LIC-GWBS' => ['Google Workspace Business Standard', 'Per user, per month. Licence resold and managed.'],
+            'LIC-SYNAB' => ['Synology Active Backup Licence', 'Included with Synology hardware. Listed so it appears on the quote.'],
+        ],
+        'errands' => ['Bank - deposit checks and cash' => 'Bank - deposit cheques and cash'],
+    ];
+}
+
+// ------------------------------
+// demoProductId
+// The install's line for one of demoDataProducts() - code, name and description
+// all have to match, as now or as they were (demoDataRenamed()). The Products
+// starter pack ships its own catalogue and an install may well sell the same
+// thing under the same code, so nothing weaker is safe at removal time. Edit
+// the description and we leave our line behind rather than risk taking theirs -
+// the harmless direction to fail in. [product_id or 0, whether it is the old one]
+// ------------------------------
+function demoProductId($mysqli, $product) {
+    $versions = [[$product[0], $product[5]]];
+    $old = demoDataRenamed()['products'][$product[2]] ?? null;
+    if ($old) {
+        $versions[] = $old;
+    }
+    foreach ($versions as $n => $version) {
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT product_id FROM products WHERE product_code = '" . escapeSql($product[2]) . "'
+            AND product_name = '" . escapeSql($version[0]) . "' AND product_description = '" . escapeSql($version[1]) . "' LIMIT 1"));
+        if (!empty($row['product_id'])) {
+            return [intval($row['product_id']), $n > 0];
+        }
+    }
+    return [0, false];
+}
+
+// ------------------------------
 // demoEnsureProducts
 // Matched on the product code, which is what makes a catalogue line ours - a
 // name on its own could easily be something the install already sells.
@@ -214,17 +255,13 @@ function demoEnsureProducts($mysqli, $currency, $vendors = []) {
     $products = [];
 
     foreach (demoDataProducts() as $product) {
-        $code = escapeSql($product[2]);
-        $name = escapeSql($product[0]);
-        $description = escapeSql($product[5]);
-        // Code, name and description all have to match. The Products starter
-        // pack ships its own catalogue and an install may well sell the same
-        // thing under the same code, so nothing weaker is safe at removal time.
-        // Edit the description and we leave our line behind rather than risk
-        // taking theirs - the harmless direction to fail in.
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT product_id FROM products WHERE product_code = '$code' AND product_name = '$name' AND product_description = '$description' LIMIT 1"));
-        if (!empty($row['product_id'])) {
-            $products[$product[0]] = intval($row['product_id']);
+        [$product_id, $was_old] = demoProductId($mysqli, $product);
+        if ($product_id) {
+            // One an earlier load made takes this version's spelling
+            if ($was_old) {
+                mysqli_query($mysqli, "UPDATE products SET product_name = '" . escapeSql($product[0]) . "', product_description = '" . escapeSql($product[5]) . "' WHERE product_id = $product_id");
+            }
+            $products[$product[0]] = $product_id;
             continue;
         }
         $products[$product[0]] = starterInsert($mysqli, 'products', [
@@ -366,7 +403,7 @@ function demoIsFuture($date) {
 // How much history a client gets - their whole life with us, capped at the two
 // year window. Newer clients ramp up rather than appearing fully formed.
 function demoClientMonths($profile) {
-    return max(3, min(24, (int)floor($profile['age_days'] / 30)));
+    return max(3, min(24, intval(floor($profile['age_days'] / 30))));
 }
 
 // ------------------------------
@@ -449,8 +486,17 @@ function demoMacAddress($seed) {
 // ------------------------------
 function demoAttachTags($mysqli, $join_table, $join_column, $tag_column, $row_id, $tag_type, $tag_names) {
     foreach ($tag_names as $tag_name) {
-        $tag_name = escapeSql($tag_name);
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tag_id FROM tags WHERE tag_name = '$tag_name' AND tag_type = $tag_type LIMIT 1"));
+        // A starter tag loaded under the name it had (starterRenamed()) is the same tag
+        $names = [$tag_name];
+        foreach (starterRenamed('tags') as $old => $new) {
+            if (strpos($old, intval($tag_type) . '|') === 0 && mb_strtolower($new) === mb_strtolower($tag_name)) {
+                $names[] = substr($old, strpos($old, '|') + 1);
+            }
+        }
+        $names_sql = implode(', ', array_map(function ($name) {
+            return "'" . escapeSql($name) . "'";
+        }, $names));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tag_id FROM tags WHERE tag_name IN ($names_sql) AND tag_type = $tag_type ORDER BY tag_name = '" . escapeSql($tag_name) . "' DESC LIMIT 1"));
         $tag_id = intval($row['tag_id'] ?? 0);
         if ($tag_id) {
             mysqli_query($mysqli, "INSERT INTO $join_table SET $join_column = $row_id, $tag_column = $tag_id");
@@ -490,8 +536,8 @@ function demoVendorTags($name, $description, $notes = '', $ours = false) {
     if (!$tags) {
         $tags[] = 'Line of Business';
     }
-    if (stripos($notes, 'authorised list') !== false) {
-        $tags[] = 'Authorised Contacts Only';
+    if (stripos($notes, 'authorized list') !== false) {
+        $tags[] = 'Authorized Contacts Only';
     }
     return $tags;
 }
@@ -587,7 +633,7 @@ function demoEnsureOrgVendors($mysqli) {
             'vendor_sla' => $vendor[4],
             'vendor_code' => $vendor[5],
             'vendor_account_number' => $vendor[5],
-            'vendor_notes' => 'Organisation supplier. Purchase orders are raised against this account and reconciled at month end.',
+            'vendor_notes' => 'Organization supplier. Purchase orders are raised against this account and reconciled at month end.',
             'vendor_client_id' => 0,
             'vendor_created_at' => demoMonthDateTime(24, 2, 9, 0),
         ]);
@@ -676,6 +722,7 @@ function demoDataLoad($mysqli) {
         'projects' => 0,
         'billing' => 0,
         'company' => 0,
+        'kb' => 0,
         'skipped_credentials' => 0,
     ];
 
@@ -722,6 +769,8 @@ function demoDataLoad($mysqli) {
     // install from - and both builders are guarded, so a run that only fills in
     // missing clients does not double anything up.
     demoBuildInternalDiary($mysqli, $context, $counts);
+    // The Knowledge Base - after the clients, as who can read each article, its feedback and the tickets linking to it are theirs
+    demoBuildKnowledgeBase($mysqli, $context, $counts);
     demoBuildCompanyFinancials($mysqli, $context, $counts);
     demoReconcileAccounts($mysqli, $context);
 
@@ -744,9 +793,23 @@ function demoDataRemove($mysqli) {
 
     $clients = demoDataClients($mysqli);
     $org_vendors = demoDataOrgVendorIds($mysqli);
+    $kb_articles = demoKbArticleIds($mysqli);
 
-    if (!$clients && !$org_vendors) {
+    if (!$clients && !$org_vendors && !$kb_articles) {
         return 0;
+    }
+
+    // The Knowledge Base articles - matched on title and summary together - with
+    // their versions, tags, readers and feedback, and the searches that found nothing
+    foreach ($kb_articles as $kb_article_id) {
+        kbArticleDelete($kb_article_id);
+    }
+    if ($kb_articles || $clients) {
+        foreach (demoKbSearchMisses() as $miss) {
+            if ($miss[1] === '') {
+                mysqli_query($mysqli, "DELETE FROM kb_search_misses WHERE kb_search_miss_source = 'public' AND kb_search_miss_client_id = 0 AND kb_search_miss_query = '" . escapeSql($miss[0]) . "'");
+            }
+        }
     }
 
     foreach (array_keys($clients) as $client_id) {
@@ -766,6 +829,7 @@ function demoDataRemove($mysqli) {
             mysqli_query($mysqli, "DELETE FROM ticket_assets WHERE ticket_id IN ($ticket_ids)");
             mysqli_query($mysqli, "DELETE FROM ticket_watchers WHERE watcher_ticket_id IN ($ticket_ids)");
             mysqli_query($mysqli, "DELETE FROM ticket_views WHERE view_ticket_id IN ($ticket_ids)");
+            mysqli_query($mysqli, "DELETE FROM ticket_reads WHERE ticket_id IN ($ticket_ids)");
             mysqli_query($mysqli, "DELETE FROM ticket_attachments WHERE ticket_attachment_ticket_id IN ($ticket_ids)");
             mysqli_query($mysqli, "DELETE FROM tasks WHERE task_ticket_id IN ($ticket_ids)");
             mysqli_query($mysqli, "DELETE FROM sla_history WHERE sla_history_ticket_id IN ($ticket_ids)");
@@ -793,6 +857,7 @@ function demoDataRemove($mysqli) {
         $sql = mysqli_query($mysqli, "SELECT quote_id FROM quotes WHERE quote_client_id = $client_id");
         while ($row = mysqli_fetch_assoc($sql)) {
             $quote_id = intval($row['quote_id']);
+            quoteImagesDeleteFor("item_quote_id = $quote_id");
             mysqli_query($mysqli, "DELETE FROM quote_items WHERE item_quote_id = $quote_id");
             mysqli_query($mysqli, "DELETE FROM history WHERE history_quote_id = $quote_id");
         }
@@ -920,6 +985,10 @@ function demoDataRemove($mysqli) {
         mysqli_query($mysqli, "DELETE FROM logs WHERE log_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
+        if (demoKbTablesReady($mysqli)) {
+            mysqli_query($mysqli, "DELETE FROM kb_search_misses WHERE kb_search_miss_client_id = $client_id");
+            mysqli_query($mysqli, "DELETE FROM kb_article_feedback WHERE kb_article_feedback_client_id = $client_id");
+        }
         mysqli_query($mysqli, "DELETE FROM clients WHERE client_id = $client_id");
 
         // Never leave the company's own-client designation pointing at a client that is gone
@@ -1042,11 +1111,7 @@ function demoDataRemove($mysqli) {
     // Catalogue lines and calendars, matched the same conservative way - the
     // product code has to be ours, and a calendar only goes when it is empty
     foreach (demoDataProducts() as $product) {
-        $code = escapeSql($product[2]);
-        $name = escapeSql($product[0]);
-        $description = escapeSql($product[5]);
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT product_id FROM products WHERE product_code = '$code' AND product_name = '$name' AND product_description = '$description' LIMIT 1"));
-        $product_id = intval($row['product_id'] ?? 0);
+        $product_id = demoProductId($mysqli, $product)[0];
         if (!$product_id) {
             continue;
         }
@@ -1085,9 +1150,13 @@ function demoDataRemove($mysqli) {
     // Our own unbilled running around, matched on the exact purposes we wrote.
     // Anything else with no client against it belongs to whoever logged it.
     foreach (demoDataErrands() as $errand) {
-        $purpose = escapeSql($errand[0]);
         $destination = escapeSql($errand[1]);
-        mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = 0 AND trip_source = 'Office' AND trip_purpose = '$purpose' AND trip_destination = '$destination'");
+        // As it is written now, and as an earlier load wrote it (demoDataRenamed())
+        $purposes = array_unique([$errand[0], demoDataRenamed()['errands'][$errand[0]] ?? $errand[0]]);
+        foreach ($purposes as $purpose) {
+            $purpose = escapeSql($purpose);
+            mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = 0 AND trip_source = 'Office' AND trip_purpose = '$purpose' AND trip_destination = '$destination'");
+        }
     }
 
     // The statements reconciled on our accounts go with the demo - their lines
@@ -1402,7 +1471,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         'domain_auto_renew' => $domain_auto_renew,
         'domain_ip' => '203.0.113.' . (10 + $index),
         'domain_name_servers' => 'ns1.' . $profile['dns_host'] . "\nns2." . $profile['dns_host'],
-        'domain_raw_whois' => "Registrar: Harbour Registrar Services\nRegistered: " . demoDate(365 * (6 + $index % 9) + $index * 11) . "\nExpires: " . demoDate(-1 * (60 + ($index * 21))) . "\nStatus: client transfer prohibited\nNameservers: ns1." . $profile['dns_host'] . ', ns2.' . $profile['dns_host'],
+        'domain_raw_whois' => "Registrar: Harbor Registrar Services\nRegistered: " . demoDate(365 * (6 + $index % 9) + $index * 11) . "\nExpires: " . demoDate(-1 * (60 + ($index * 21))) . "\nStatus: client transfer prohibited\nNameservers: ns1." . $profile['dns_host'] . ', ns2.' . $profile['dns_host'],
         'domain_mail_servers' => '0 ' . $profile['mail_servers'],
         'domain_dmarc' => [0 => 'v=DMARC1; p=reject; rua=mailto:dmarc@' . $profile['domain'], 1 => 'v=DMARC1; p=none; rua=mailto:dmarc@' . $profile['domain'], 2 => ''][$index % 3],
         'domain_dkim' => $index % 4 === 3 ? '' : ($domain_m365 ? "selector1\nselector2" : 'google'),
@@ -1435,7 +1504,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
             'domain_name_servers' => 'ns1.' . $profile['dns_host'] . "\nns2." . $profile['dns_host'],
             'domain_txt' => 'v=spf1 -all',
             'domain_dmarc' => 'v=DMARC1; p=reject',
-            'domain_raw_whois' => "Registrar: Harbour Registrar Services\nRegistered: " . demoDate(365 * 3 + $index) . "\nStatus: client transfer prohibited",
+            'domain_raw_whois' => "Registrar: Harbor Registrar Services\nRegistered: " . demoDate(365 * 3 + $index) . "\nStatus: client transfer prohibited",
             'domain_notes' => 'Ask the client whether to keep it before it renews.',
             'domain_registrar' => $primary_vendor_id,
             'domain_dnshost' => intval($primary_vendor_id),
@@ -1931,8 +2000,8 @@ function demoBuildAssets($mysqli, $profile, $index, $client_id, $location_id, $c
             // this properly is what makes the warranty, end of life and refresh
             // reports show anything - a fleet where nothing is ever old is not a
             // fleet anyone recognises.
-            $batch = (int)floor(($number - 1) / 4);
-            $purchase_months = min(70, 3 + ($batch * 12) + (($seed + $index) % 7) + (int)floor($profile['age_days'] / 120));
+            $batch = intval(floor(($number - 1) / 4));
+            $purchase_months = min(70, 3 + ($batch * 12) + (($seed + $index) % 7) + intval(floor($profile['age_days'] / 120)));
             // A few of the oldest Windows machines never made the move to Windows 11
             $os = $model[2];
             if (strpos($os, 'Windows 11') === 0 && $purchase_months >= 50 && ($seed + $index) % 3 === 0) {
@@ -2321,7 +2390,7 @@ function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$cou
         'project_prefix' => $prefix,
         'project_number' => demoNextNumber($mysqli, 'config_project_next_number'),
         'project_name' => 'Onboarding - ' . $profile['name'],
-        'project_description' => 'Take on ' . $profile['name'] . ': document the environment, deploy monitoring and backup, capture credentials, standardise the endpoint build and hand over to the service desk.',
+        'project_description' => 'Take on ' . $profile['name'] . ': document the environment, deploy monitoring and backup, capture credentials, standardize the endpoint build and hand over to the service desk.',
         'project_start' => demoMonthDate($months, 3),
         'project_due' => demoMonthDate(max(0, $months - 1), 28),
         'project_budget_hours' => 16 + ($index % 3) * 8,
@@ -2514,8 +2583,8 @@ function demoSeedTicket($mysqli, $fields, $trail, $context, &$counts) {
         if ($stopped_at) {
             // Business minutes, approximated at eight hours to the day rather
             // than pulling the business hours calculation in here
-            $elapsed = max(1, (int)round((strtotime($stopped_at) - strtotime($fields['ticket_created_at'])) / 60));
-            $days = max(1, (int)ceil($elapsed / 1440));
+            $elapsed = max(1, intval(round((strtotime($stopped_at) - strtotime($fields['ticket_created_at'])) / 60)));
+            $days = max(1, intval(ceil($elapsed / 1440)));
             starterInsert($mysqli, 'sla_history', [
                 'sla_history_started_at' => $fields['ticket_created_at'],
                 'sla_history_ended_at' => $stopped_at,
@@ -2692,7 +2761,7 @@ function demoBuildTickets($mysqli, $profile, $index, $client_id, $contact_ids, $
     }
 
     // ---- Two years of closed work ----
-    $per_month = max(2, (int)floor($profile['seats'] / 10));
+    $per_month = max(2, intval(floor($profile['seats'] / 10)));
     $sequence = 0;
 
     for ($month = $months - 1; $month >= 1; $month--) {
@@ -3447,7 +3516,7 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
         ['Team lunch', 96.00, 'Meals', 1, 17, 'Monongahela Property Group'],
         ['Mobile phones and data for the team', 268.00, 'Telecom and Internet', 1, 8, 'Three Rivers Colocation'],
         ['Professional body dues and subscriptions', 210.00, 'Dues and Subscriptions', 3, 20, 'Alcott and Reyes CPA'],
-        ['Van servicing and tyres', 480.00, 'Vehicle and Fuel', 6, 13, 'Ridgeline Technology Distribution'],
+        ['Van servicing and tires', 480.00, 'Vehicle and Fuel', 6, 13, 'Ridgeline Technology Distribution'],
         ['Replacement bench laptop and monitors', 1650.00, 'Equipment', 12, 16, 'Ridgeline Technology Distribution'],
         ['Subcontract cabling work', 1250.00, 'Contractor', 4, 25, 'Ridgeline Technology Distribution'],
         ['Courier and shipping', 88.00, 'Shipping and Postage', 1, 27, 'Ridgeline Technology Distribution'],
@@ -3614,7 +3683,7 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
                 continue;
             }
             // Last year's plan was set a little lower than this year's
-            $amount = $year < (int)date('Y') ? $budget[1] * 0.94 : $budget[1];
+            $amount = $year < intval(date('Y')) ? $budget[1] * 0.94 : $budget[1];
             for ($month = 1; $month <= 12; $month++) {
                 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT budget_id FROM budget WHERE budget_category_id = $category_id AND budget_month = $month AND budget_year = $year LIMIT 1"));
                 if (!empty($row['budget_id'])) {
@@ -3790,7 +3859,7 @@ function demoDataBudgets() {
 // ------------------------------
 function demoDataErrands() {
     return [
-        ['Bank - deposit cheques and cash', 'Steelworks Business Bank, Pittsburgh, PA', 6.4, 2, 3],
+        ['Bank - deposit checks and cash', 'Steelworks Business Bank, Pittsburgh, PA', 6.4, 2, 3],
         ['Distributor - parts collection', 'Ridgeline Technology Distribution, Pittsburgh, PA', 14.2, 3, 1],
         ['Colocation - hands on at the rack', 'Three Rivers Colocation, Pittsburgh, PA', 11.8, 4, 4],
         ['Post office - warranty returns', 'Post Office, Pittsburgh, PA', 3.1, 2, 5],
@@ -3838,7 +3907,7 @@ function demoBuildInternalDiary($mysqli, $context, &$counts) {
     foreach ($fixtures as $fixture) {
 
         // Monday a quarter back, then the weekday offset
-        $days_ago = (13 * 7) - $fixture[3] + (int)date('N') - 1;
+        $days_ago = (13 * 7) - $fixture[3] + intval(date('N')) - 1;
         $start = demoDateTime($days_ago, $fixture[4], 0);
         $end = date('Y-m-d H:i:s', strtotime($start . ' +' . $fixture[5] . ' hours'));
 
@@ -4073,7 +4142,7 @@ function demoAssetDescription($asset_type) {
         'Firewall/Router' => 'Edge firewall - site to site VPN, DNS filtering and inter VLAN rules',
         'Switch' => 'Access layer switch - PoE for handsets and access points',
         'Access Point' => 'Ceiling mounted wireless access point',
-        'Server' => 'Virtualisation host and file storage',
+        'Server' => 'Virtualization host and file storage',
         'Virtual Machine' => 'Virtual guest',
         'Desktop' => 'Standard staff workstation',
         'Laptop' => 'Mobile staff laptop',
@@ -4257,7 +4326,7 @@ function demoTicketPool() {
             'replies' => [
                 ['Public', '<p>Machine is built to the standard image, mailbox is licensed, and group memberships match the department template. Credentials handed over on their first morning.</p>', '01:30:00'],
             ],
-            'tasks' => ['Build workstation to standard', 'Create mailbox and assign licence', 'Apply department group memberships', 'Handover on day one'],
+            'tasks' => ['Build workstation to standard', 'Create mailbox and assign license', 'Apply department group memberships', 'Handover on day one'],
         ],
         [
             'subject' => 'Suspicious invoice email reported by staff',
@@ -4319,9 +4388,9 @@ function demoTicketPool() {
             'asset_types' => ['Laptop', 'Desktop'],
             'details' => '<p>Leaving at the end of the week. Mailbox needs delegating to their manager and the laptop collecting.</p>',
             'replies' => [
-                ['Public', '<p>Account disabled at close of business, mailbox converted and delegated, licence reclaimed, and the machine wiped and returned to spare stock.</p>', '01:15:00'],
+                ['Public', '<p>Account disabled at close of business, mailbox converted and delegated, license reclaimed, and the machine wiped and returned to spare stock.</p>', '01:15:00'],
             ],
-            'tasks' => ['Disable account', 'Delegate mailbox', 'Reclaim licence', 'Collect and wipe machine'],
+            'tasks' => ['Disable account', 'Delegate mailbox', 'Reclaim license', 'Collect and wipe machine'],
         ],
         [
             'subject' => 'Phones not ringing at the front desk',
@@ -4491,7 +4560,7 @@ function demoOneOffInvoicePool() {
             ['Build and Seed', 10, 145.00, 'Build, seed the first full backup and verify a restore', 0],
         ], 'project'],
         ['Proxmox host build and migration', [
-            ['Virtualisation Host', 1, 4650.00, 'Dual socket host with NVMe storage for Proxmox VE', 1],
+            ['Virtualization Host', 1, 4650.00, 'Dual socket host with NVMe storage for Proxmox VE', 1],
             ['Migration Labor', 16, 145.00, 'Guest migration, cutover and post migration support', 0],
             ['Out of Hours Cutover', 6, 195.00, 'Cutover work outside operating hours', 0],
         ], 'project'],
@@ -4508,6 +4577,476 @@ function demoOneOffInvoicePool() {
 // - fictional contacts must never be deliverable and a fictional domain must
 // never resolve to somebody's real business if a refresh gets clicked.
 // build 0 is a Windows house, build 1 is a Linux house.
+// ------------------------------
+// demoDataKbArticles
+// The Knowledge Base this MSP has grown - its own articles, apart from the
+// starter ones (whose titles none of these share, so the Knowledge Base
+// Articles pack still adds its own beside them). Who can read each: every
+// client, the clients with some client tags, named demo clients, anyone
+// (the public help center), or agents only - and two drafts and an archived
+// one. Each carries how long ago it went out, how often it is reviewed and
+// when it last was, its reads, older versions and what its readers said; and
+// 'tickets', the demo ticket subjects whose replies link to it. Removal
+// matches an article on its title and summary together.
+// name, description, category, tags, content, audience, months ago made,
+// review months, months ago reviewed (null never), views, versions (months
+// ago => [summary, content] it said then), feedback ([helpful, comment] from
+// portal contacts, or public ones with 'public'), tickets, archived months ago
+// ------------------------------
+function demoDataKbArticles() {
+
+    $steps = function (array $items) {
+        return '<ol><li>' . implode('</li><li>', $items) . '</li></ol>';
+    };
+    $list = function (array $items) {
+        return '<ul><li>' . implode('</li><li>', $items) . '</li></ul>';
+    };
+    $a = function ($name, $description, $category, array $tags, $content, $audience, $made, $review, $reviewed, $views, array $versions = [], array $feedback = [], array $tickets = [], $archived = null) {
+        return compact('name', 'description', 'category', 'tags', 'content', 'audience', 'made', 'review', 'reviewed', 'views', 'versions', 'feedback', 'tickets', 'archived');
+    };
+    $yes = [1, ''];
+
+    $support_hours = '<p>Our help desk is staffed 8:00 AM to 6:00 PM, Monday to Friday, apart from public holidays.</p>'
+        . '<h5>How fast we respond</h5>' . $list([
+            '<strong>Critical</strong> - the business can\'t work, or a security incident: within 1 hour, around the clock for managed clients',
+            '<strong>High</strong> - one person can\'t work: within 2 business hours',
+            '<strong>Normal</strong> - something is wrong but there is a way around it: within 4 business hours',
+            '<strong>Low</strong> - requests and questions: within 1 business day',
+        ])
+        . '<h5>Reaching us</h5><p>Open a ticket in the client portal or email us, and for anything critical call as well. Every request gets a ticket number by email straight away - reply to that email to add to it.</p>';
+
+    return [
+
+        // Every client
+        $a('How we handle your support requests', 'Our support hours, how quickly we respond to each priority, and how to reach us.', 'Getting Help', ['How-To'],
+            $support_hours, ['all'], 22, 12, 3, 486,
+            [14 => ['Our support hours and how quickly we respond.', str_replace(['1 hour', '2 business hours'], ['2 hours', '4 business hours'], $support_hours)]],
+            [$yes, $yes, $yes, $yes, $yes, $yes, [0, 'Does the 1 hour include weekends for us? We are not on the managed plan.'], $yes]),
+
+        $a('Reporting a suspicious email to us', 'Use the Report button in Outlook - it reaches us and takes the email out of your inbox.', 'Security', ['Security', 'How-To'],
+            '<p>If an email looks wrong, report it rather than deleting it - we check it, and if it is phishing we pull it out of everyone else\'s mailbox too.</p>'
+            . $steps(['Don\'t click any links or open attachments.', 'In Outlook, select the email and choose <strong>Report</strong> on the toolbar, then <strong>Report phishing</strong>.', 'That\'s it - it goes to us and leaves your inbox.'])
+            . '<p>On a phone, open the email, tap the <strong>...</strong> menu and choose <strong>Report phishing</strong>. If you already clicked something or typed your password, call us straight away.</p>',
+            ['all'], 19, 6, 2, 371,
+            [11 => ['Forward suspicious emails to us as an attachment.', '<p>Forward any suspicious email to us as an attachment, then delete it.</p>']],
+            [$yes, $yes, $yes, $yes, [0, 'There is no Report button in my Outlook on the Mac.'], $yes, $yes],
+            ['Suspicious invoice email reported by staff']),
+
+        $a('Outlook disconnected after a password change', 'What to do when Outlook says Disconnected or keeps asking for your password after you changed it.', 'Email and Calendar', ['Troubleshooting', 'Quick Fix', 'Microsoft 365'],
+            '<p>Outlook remembers your old password until you give it the new one. Usually all it takes is:</p>'
+            . $steps(['Close Outlook completely.', 'Open it again and type your new password when it asks - tick <strong>Remember my credentials</strong>.', 'Approve the sign-in on your phone.'])
+            . '<p>If it doesn\'t ask, or keeps asking: restart the computer and open Outlook again. Your phone may ask for the new password too - type it in there as well.</p>'
+            . '<p>Still showing Disconnected after a restart? Open a ticket and tell us the time you changed the password.</p>',
+            ['all'], 16, 12, 4, 298, [], [$yes, $yes, $yes, $yes, $yes, [0, 'Did all of this and it still says disconnected.'], $yes],
+            ['Outlook stuck on disconnected after password reset']),
+
+        $a('When multi-factor prompts keep coming back on your phone', 'Why your phone keeps asking you to approve sign-ins, and how to make it stop.', 'Accounts and Passwords', ['Troubleshooting', 'Mobile', 'Security'],
+            '<p>A prompt you didn\'t start is a warning - <strong>deny it</strong> and call us, someone may have your password.</p>'
+            . '<p>If the prompts are yours but keep looping, it is usually the phone\'s mail app or Teams using an old sign-in:</p>'
+            . $steps(['Open the Authenticator app and check the time on your phone is set automatically.', 'In the Outlook and Teams apps, sign out and sign in again.', 'If you changed your password recently, update it in each app that asks.', 'Restart the phone.'])
+            . '<p>If it still loops, tell us which apps are open and what the prompt says.</p>',
+            ['all'], 9, 6, null, 167, [], [$yes, $yes, [0, 'Prompts stopped for a day and came back.'], $yes],
+            ['Multi factor prompts looping on mobile']),
+
+        $a('A slow computer - what to try first', 'Quick things that speed up a slow computer, and what to tell us if they don\'t.', 'Devices', ['Quick Fix', 'Self-Service'],
+            $steps(['Restart it - choose Restart, not Shut down.', 'Close browser tabs you don\'t need - each one uses memory.', 'Check for updates waiting to install, and let them finish.', 'Make sure you have space left - Settings &gt; System &gt; Storage.'])
+            . '<p>If it is still slow, open a ticket saying when it started and what is slow - starting up, one program, or everything. We can see what it is doing from here.</p>',
+            ['all'], 14, 12, 5, 242, [], [$yes, $yes, $yes, $yes, $yes],
+            ['Workstation running very slowly since last week']),
+
+        // Clients by client tag
+        $a('What your managed service covers', 'What is included in your managed service agreement, and what is billed as extra work.', 'Policies', ['Policy'],
+            '<h5>Included</h5>' . $list(['Help desk support for your staff, remote and on site', 'Monitoring, patching and antivirus on every managed computer and server', 'Backups of your servers and Microsoft 365, checked daily', 'Moves, adds and changes for existing staff', 'A quarterly review with us'])
+            . '<h5>Billed separately</h5>' . $list(['New hardware and software, and setting it up', 'Projects - office moves, new servers, migrations', 'Work on devices we don\'t manage', 'After-hours work you ask for that isn\'t an emergency'])
+            . '<p>Not sure if something is covered? Ask before we start - we always quote first.</p>',
+            ['tags' => ['Managed']], 20, 12, 7, 133,
+            [12 => ['What is included in your managed service.', '<h5>Included</h5><ul><li>Help desk support</li><li>Monitoring and patching</li><li>Backups</li></ul>']],
+            [$yes, $yes, $yes]),
+
+        $a('Reaching us after hours', 'Who to call outside business hours, and what counts as an emergency.', 'Getting Help', ['How-To'],
+            '<p>Your agreement includes after-hours support for emergencies. Call our main number and choose the on-call option - it rings the engineer on call, who calls you back within 30 minutes.</p>'
+            . '<h5>An emergency is</h5>' . $list(['The whole office, or a site, can\'t work', 'A server or the internet connection is down', 'A suspected security incident - ransomware, a hacked account'])
+            . '<p>Everything else, open a ticket and we pick it up first thing.</p>',
+            ['tags' => ['After Hours Support']], 18, 12, 4, 64, [], [$yes, $yes]),
+
+        $a('Nextcloud - when files stop syncing', 'Fix a Nextcloud desktop client that has stopped syncing on one computer.', 'Files and Sharing', ['Troubleshooting'],
+            '<p>The Nextcloud icon by the clock shows how syncing is going - a red cross or a pause sign means it has stopped.</p>'
+            . $steps(['Click the icon and check it says you are signed in - sign in again if it asks.', 'If it says paused, choose <strong>Resume sync</strong>.', 'Look under <strong>Not synced</strong> for files with problems - a name with characters like : or ? won\'t sync, rename it.', 'Quit Nextcloud and start it again from the Start menu.'])
+            . '<p>Still stuck? Open a ticket with a screenshot of the Nextcloud window.</p>',
+            ['tags' => ['Hosting']], 11, 12, null, 58, [], [$yes, [0, 'Mine said the server was unreachable.']],
+            ['Nextcloud sync stuck on one machine']),
+
+        $a('Sending sensitive information securely', 'How to send records, ID documents and financial details safely, as your compliance requirements expect.', 'Security', ['Security', 'Policy'],
+            '<p>Some information can\'t go out as an ordinary email: patient or client records, ID documents, bank and card details.</p>'
+            . $list(['Type <strong>[secure]</strong> at the start of the subject line - the email is encrypted, and the person reads it after confirming their address', 'For files, share a OneDrive link to specific people, with an expiry date, rather than attaching them', 'Never put card numbers or passwords in an email at all'])
+            . '<p>If you sent something to the wrong person, tell us straight away - we may be able to recall it, and you may need to report it.</p>',
+            ['tags' => ['Compliance']], 13, 6, 5, 104, [], [$yes, $yes, $yes, [0, 'Does [secure] work from the phone app too?']]),
+
+        $a('Working alongside your in-house IT team', 'How we split the work with your own IT staff, and how to raise things with us.', 'Policies', ['Policy'],
+            '<p>On a co-managed agreement your own IT team stays the first point of contact for your staff. We look after the infrastructure, security and backups, and back your team up on anything they pass to us.</p>'
+            . $list(['Your IT team raises tickets with us through the portal, like anyone else', 'We tell them about changes we make, before we make them', 'Anything urgent, they call us directly'])
+            . '<p>Your account manager reviews the split with your IT lead every quarter.</p>',
+            ['tags' => ['Co-Managed']], 15, 12, 6, 37),
+
+        // Named clients
+        $a('Ravenwood - imaging workstation won\'t open X-rays', 'What to check when the imaging software can\'t open patient X-rays in an operatory.', 'Devices', ['Troubleshooting', 'Known Issue'],
+            '<p>The imaging software reads X-rays from the imaging server. When it can\'t reach it, images show as a grey box or the software says the image store is unavailable.</p>'
+            . $steps(['Check the other operatory - if theirs works too, it is this workstation; if not, call us straight away.', 'Close the imaging software and the patient chart, and open them again.', 'Restart the workstation.'])
+            . '<p>Don\'t restart the imaging server yourself, even out of hours - call us. If the sensor itself won\'t take images, Meridian Dental Systems look after that: their number is on the sticker on the sensor\'s box.</p>',
+            ['clients' => ['Ravenwood Dental Group']], 8, 6, 1, 41, [], [[1, ''], [1, '']]),
+
+        $a('Kestrel - connecting a shop floor tablet to the production Wi-Fi', 'Get a shop floor tablet onto the production network so it can reach the machine schedules.', 'Network and Wi-Fi', ['How-To'],
+            '<p>Shop floor tablets use the production Wi-Fi, not the office or guest network - only it reaches the machine schedules and the CNC file share.</p>'
+            . $steps(['On the tablet, open Wi-Fi settings and choose the production network.', 'Sign in with the tablet\'s own account, from the label on its back - not your own.', 'Open the schedule app and check today\'s jobs load.'])
+            . '<p>New tablets have to be added by us first - open a ticket with its serial number before it goes on the floor.</p>',
+            ['clients' => ['Kestrel Precision Manufacturing']], 6, 12, null, 19),
+
+        $a('Harbor Point - signing in with your security key', 'Use your hardware security key to sign in to your computer and the core banking system.', 'Accounts and Passwords', ['How-To', 'Security'],
+            '<p>Every member of staff signs in with a hardware security key as well as their password - your examiners expect it.</p>'
+            . $steps(['Plug the key into a USB port, or hold it to the reader.', 'Type your PIN for the key when asked.', 'Touch the gold disc on the key when it flashes.'])
+            . '<p>Keep the key on your lanyard, never in the computer when you leave it. Lost or forgotten it? Your branch manager has a temporary key and we can register it in a few minutes.</p>',
+            ['clients' => ['Harbor Point Credit Union']], 10, 6, 3, 88, [], [$yes, $yes, $yes]),
+
+        $a('Summit Ridge - showing your screen on the classroom display', 'Cast your laptop to the classroom display, and what to do when it won\'t connect.', 'Phones and Meetings', ['How-To'],
+            $steps(['Make sure your laptop is on the staff Wi-Fi.', 'Press <strong>Windows + K</strong> and choose the room\'s display - its name is on the label under the screen.', 'Enter the code shown on the display if it asks.'])
+            . '<p>If it isn\'t listed, turn the display off and on with its remote, wait a minute and try again. Sound plays from the display once connected - check the display\'s own volume.</p>',
+            ['clients' => ['Summit Ridge Charter School']], 7, 12, null, 156, [], [$yes, $yes, [0, 'Room 14 display never shows up in the list.'], $yes]),
+
+        $a('Blue Mountain - taproom card terminal offline', 'Get a card terminal in the taproom taking payments again.', 'Network and Wi-Fi', ['Troubleshooting', 'Quick Fix'],
+            $steps(['Check the terminal\'s screen - <strong>No connection</strong> means the network, anything else call the payment provider.', 'Turn the terminal off and on with its power button.', 'Check the network cable at the back of its dock is clicked in.', 'Use the spare terminal behind the bar while you wait.'])
+            . '<p>If both terminals are offline, the taproom\'s internet may be down - call us.</p>',
+            ['clients' => ['Blue Mountain Brewing Co']], 5, 12, null, 27),
+
+        // Anyone - every portal, and the public help center when it is on
+        $a('Service status and planned maintenance', 'Where we post outages and planned maintenance, and how much notice we give.', 'Getting Help', ['How-To'],
+            '<p>We post anything affecting more than one client - outages at a provider we rely on, and our own planned maintenance - on our status page and email the contacts at each client affected.</p>'
+            . $list(['Planned maintenance is out of hours, with at least 48 hours notice', 'During an outage we update every 30 minutes until it is fixed', 'Once it is fixed we say what happened and what we are changing'])
+            . '<p>Something not working that isn\'t on the status page? Tell us - we may not know yet.</p>',
+            ['public'], 21, 12, 9, 523, [], [[1, '', 'public'], [1, '', 'public'], [1, '', 'public'], [0, 'Link to the status page please', 'public'], [1, '', 'public']]),
+
+        $a('Is this email really from us?', 'How we contact you, and what we will never ask for - so you can spot someone pretending to be us.', 'Security', ['Security'],
+            '<p>Criminals sometimes pretend to be IT support. We will <strong>never</strong>:</p>'
+            . $list(['Ask for your password, or a code from your phone', 'Ask you to install remote control software we haven\'t mentioned in a ticket', 'Ask you to buy gift cards or make an urgent payment', 'Call out of the blue saying your computer has a virus'])
+            . '<p>Emails about your tickets come from our help desk address and quote the ticket number. If you are not sure, hang up or don\'t reply, and call us on the number you already have.</p>',
+            ['public'], 17, 12, 4, 309, [], [[1, '', 'public'], [1, '', 'public'], [1, '', 'public']]),
+
+        // Agents only
+        $a('Resetting a user\'s MFA methods', 'Clear a user\'s registered sign-in methods so they can set up a new phone.', 'Internal Procedures', ['How-To', 'Microsoft 365'],
+            '<p>Only after confirming who they are - call them back on the number in their contact record, never one they give you.</p>'
+            . $steps(['In the Entra admin center, open <strong>Users</strong> and the user.', 'Choose <strong>Authentication methods</strong>, then <strong>Require re-register multifactor authentication</strong>.', 'Revoke their sessions.', 'Note in the ticket how you confirmed who they were.'])
+            . '<p>Ask them to set up the new phone straight away - see the client article on moving an authenticator to a new phone.</p>',
+            ['agents'], 12, 12, 2, 0),
+
+        $a('Escalating a circuit fault to the provider', 'What to have ready, and how to chase it, when a client\'s internet circuit is down.', 'Internal Procedures', ['How-To'],
+            $steps(['Confirm it is the circuit - the router\'s WAN is down, and the provider\'s equipment shows no sync.', 'Find the circuit ID and the provider\'s support line in the client\'s documentation.', 'Open the fault with the provider and put their reference in the ticket.', 'Set the ticket to Waiting on Vendor and update the client every hour.'])
+            . '<p>If the client has failover, check it took over, and tell them what will be slower until the circuit is back.</p>',
+            ['agents'], 15, 12, 10, 0),
+
+        $a('On call - what counts as urgent', 'Which calls to deal with overnight, and which can wait for the morning.', 'Internal Procedures', ['Policy'],
+            '<p>Pick up and work it now:</p>' . $list(['A whole site down, or a server', 'A suspected security incident', 'Anything a client with after-hours support calls in as critical'])
+            . '<p>Log it and leave it for the morning queue:</p>' . $list(['One user, with a way around it', 'Password resets, unless they can\'t work on a night shift', 'Requests and questions'])
+            . '<p>Hand over anything still open at the morning stand-up.</p>',
+            ['agents'], 13, 6, 3, 0),
+
+        // Drafts
+        $a('Imaging server share drops after Windows updates', 'Written up from a solved ticket - the imaging share went missing after the monthly updates. Check it before publishing.', 'Devices', ['Known Issue', 'Troubleshooting'],
+            '<p>After the monthly Windows updates, the imaging server sometimes comes back without its share, and the operatory workstations can\'t open X-rays.</p>'
+            . $steps(['Check the imaging service has started on the server.', 'Check the share is there and its permissions are unchanged.', 'Restart the imaging service, then check from one operatory.'])
+            . '<p>We now hold the updates on this server for a week and restart it by hand, out of clinic hours.</p>',
+            ['draft'], 1, 0, null, 0),
+
+        $a('Using the new guest Wi-Fi sign-in page', 'How visitors get online now the guest Wi-Fi has a sign-in page.', 'Network and Wi-Fi', ['How-To'],
+            '<p>Visitors join the guest network as before, and their phone or laptop opens a sign-in page. They enter their name and email address and accept the terms, and they are online for the day.</p>'
+            . '<p>If the page doesn\'t appear, open any website and it will.</p>',
+            ['draft'], 0, 12, null, 0),
+
+        // Archived
+        $a('Upgrading to Windows 11 - what to expect', 'What changes when your computer moves to Windows 11, and how long it takes.', 'Devices', ['How-To'],
+            '<p>We are moving every managed computer to Windows 11 over the next few months, a few each evening. Your files, programs and settings stay as they are.</p>'
+            . $list(['It happens overnight - leave the computer on and plugged in', 'The Start button is in the middle of the taskbar now', 'The first sign-in takes a few minutes longer'])
+            . '<p>Anything not working afterwards? Open a ticket and mention the upgrade.</p>',
+            ['all'], 23, 0, null, 612, [], [$yes, $yes, $yes, $yes], [], 4),
+
+    ];
+}
+
+// ------------------------------
+// demoKbCategoryId
+// A Knowledge Base category by name - the Categories pack's own, with its
+// colour, icon and order, when this install doesn't have it yet. Left in
+// place on removal, as demoCategoryId()'s are.
+// ------------------------------
+function demoKbCategoryId($mysqli, $name) {
+    static $cache = [];
+    if (isset($cache[$name])) {
+        return $cache[$name];
+    }
+    $id = starterCategoryId($mysqli, $name, 'kb');
+    if (!$id) {
+        foreach (starterContentCategories() as $category) {
+            if ($category['type'] === 'kb' && $category['name'] === $name) {
+                $id = starterInsert($mysqli, 'categories', [
+                    'category_name' => $category['name'],
+                    'category_type' => 'kb',
+                    'category_color' => $category['color'],
+                    'category_icon' => $category['icon'],
+                    'category_description' => $category['description'],
+                    'category_order' => $category['order'],
+                ]);
+                break;
+            }
+        }
+    }
+    return $cache[$name] = $id;
+}
+
+// ------------------------------
+// demoKbArticleIds
+// The demo's articles here, archived or not - title|summary => id.
+// ------------------------------
+function demoKbArticleIds($mysqli) {
+    $ids = [];
+    if (!mysqli_num_rows(mysqli_query($mysqli, "SHOW TABLES LIKE 'kb_articles'"))) {
+        return $ids;
+    }
+    foreach (demoDataKbArticles() as $article) {
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT kb_article_id FROM kb_articles WHERE kb_article_title = '" . escapeSql($article['name']) . "'
+            AND kb_article_summary = '" . escapeSql($article['description']) . "' LIMIT 1"));
+        if ($row) {
+            $ids[$article['name'] . '|' . $article['description']] = intval($row['kb_article_id']);
+        }
+    }
+    return $ids;
+}
+
+// ------------------------------
+// demoKbSearchMisses
+// What the demo clients' staff, and visitors to the public help center,
+// searched for and didn't find - query, client name ('' for the help
+// center), searches, days ago first and last.
+// ------------------------------
+function demoKbSearchMisses() {
+    return [
+        ['guest wifi password', 'Ravenwood Dental Group', 6, 70, 3],
+        ['scan to email', 'Kestrel Precision Manufacturing', 4, 52, 9],
+        ['out of office', 'Blackburn and Meyer LLP', 3, 40, 12],
+        ['voicemail pin', 'Harbor Point Credit Union', 2, 33, 18],
+        ['vpn', 'Sinclair Property Group', 5, 61, 2],
+        ['new starter form', 'Delaney Construction', 2, 25, 11],
+        ['chromebook', 'Summit Ridge Charter School', 7, 80, 1],
+        ['shared calendar', 'Ironbridge Architects', 2, 20, 6],
+        ['remote support', '', 9, 85, 1],
+        ['pricing', '', 4, 60, 8],
+    ];
+}
+
+// ------------------------------
+// demoBuildKnowledgeBase
+// The demo's Knowledge Base articles (demoDataKbArticles()) that aren't here
+// - each with who can read it, its tags, older versions, reads and feedback,
+// and a reply on the demo tickets it answers linking to it - and the
+// searches that found nothing. Once each: an article already here, and a
+// search already logged, is left alone.
+// ------------------------------
+function demoBuildKnowledgeBase($mysqli, $context, &$counts) {
+
+    if (!mysqli_num_rows(mysqli_query($mysqli, "SHOW TABLES LIKE 'kb_articles'"))) {
+        return;
+    }
+
+    $user_id = $context['user_id'];
+    $clients = array_flip(array_map('mb_strtolower', demoDataClients($mysqli)));
+    $here = demoKbArticleIds($mysqli);
+
+    foreach (demoDataKbArticles() as $index => $article) {
+        if (isset($here[$article['name'] . '|' . $article['description']])) {
+            continue;
+        }
+
+        // Months ago, as days - so nothing lands past today whatever day of the month it is
+        $made = demoDateTime($article['made'] * 30 + 2 + $index % 9, 10, ($index * 7) % 60);
+        $audience = $article['audience'];
+        $kind = isset($audience[0]) ? $audience[0] : (isset($audience['tags']) ? 'tags' : 'clients');
+        $published = $kind !== 'draft';
+        $visibility = ['all' => 'clients', 'tags' => 'clients', 'clients' => 'clients', 'public' => 'public'][$kind] ?? 'agents';
+        $versions = $article['versions'];
+        krsort($versions);
+
+        // What it says now, and when it last changed - the newest of its versions is when it was last edited
+        $updated = $versions ? demoDateTime(max(1, min(array_keys($versions)) * 30 - 20), 14, 30) : null;
+        $category_id = demoKbCategoryId($mysqli, $article['category']);
+        $fields = [
+            'kb_article_title' => $article['name'],
+            'kb_article_summary' => $article['description'],
+            'kb_article_content' => $article['content'],
+            'kb_article_content_raw' => kbArticleContentRaw($article['name'], $article['description'], $article['content']),
+            'kb_article_category_id' => $category_id,
+            'kb_article_visibility' => $visibility,
+            'kb_article_all_clients' => $kind === 'all' ? 1 : 0,
+            'kb_article_review_months' => intval($article['review']),
+            'kb_article_views' => intval($article['views']),
+            'kb_article_created_at' => $made,
+            'kb_article_created_by' => $user_id,
+        ];
+        if ($published) {
+            $fields['kb_article_published_at'] = date('Y-m-d H:i:s', strtotime($made . ' +2 hours'));
+        }
+        if ($updated) {
+            $fields['kb_article_updated_at'] = $updated;
+            $fields['kb_article_updated_by'] = $user_id;
+        }
+        if ($article['reviewed'] !== null) {
+            $fields['kb_article_reviewed_at'] = demoDateTime($article['reviewed'] * 30 + 3, 11, 0);
+            $fields['kb_article_reviewed_by'] = $user_id;
+        }
+        if ($article['archived'] !== null) {
+            $fields['kb_article_archived_at'] = demoDateTime($article['archived'] * 30 + 1, 16, 0);
+        }
+        $kb_article_id = starterInsert($mysqli, 'kb_articles', $fields, ['kb_article_content']);
+        $counts['kb']++;
+
+        // Who it is for
+        if ($kind === 'tags') {
+            demoAttachTags($mysqli, 'kb_article_client_tags', 'kb_article_id', 'tag_id', $kb_article_id, 1, $audience['tags']);
+        }
+        $readers = [];
+        if ($kind === 'clients') {
+            foreach ($audience['clients'] as $client_name) {
+                $client_id = intval($clients[mb_strtolower($client_name)] ?? 0);
+                if ($client_id) {
+                    demoLink($mysqli, 'kb_article_clients', 'kb_article_id', $kb_article_id, 'client_id', $client_id);
+                }
+            }
+        }
+        demoAttachTags($mysqli, 'kb_article_tags', 'kb_article_id', 'tag_id', $kb_article_id, 13, $article['tags']);
+
+        // What it said before, oldest first - each dated when it was written, the first when the article was
+        $first = true;
+        foreach ($versions as $months_ago => $version) {
+            starterInsert($mysqli, 'kb_article_versions', [
+                'kb_article_version_title' => $article['name'],
+                'kb_article_version_summary' => $version[0],
+                'kb_article_version_content' => $version[1],
+                'kb_article_version_created_at' => $first ? $made : demoDateTime($months_ago * 30 + 5, 10, 0),
+                'kb_article_version_created_by' => $user_id,
+                'kb_article_version_kb_article_id' => $kb_article_id,
+            ], ['kb_article_version_content']);
+            $first = false;
+        }
+
+        // What its readers said - portal contacts of clients who can read it, or visitors to the help center
+        if ($published && $article['feedback'] && demoKbTablesReady($mysqli)) {
+            $contacts = [];
+            $sql = mysqli_query($mysqli, "SELECT contact_id, contact_client_id FROM contacts
+                WHERE contact_archived_at IS NULL AND contact_email <> '' AND contact_client_id IN (" . implode(',', array_map('intval', $clients ? array_values($clients) : [0])) . ")
+                ORDER BY contact_id");
+            while ($row = mysqli_fetch_row($sql)) {
+                $contacts[] = [intval($row[0]), intval($row[1])];
+            }
+            $readable = demoKbReadableClients($mysqli, $kb_article_id);
+            $contacts = array_values(array_filter($contacts, function ($contact) use ($readable) {
+                return isset($readable[$contact[1]]);
+            }));
+            foreach ($article['feedback'] as $n => $feedback) {
+                $public = ($feedback[2] ?? '') === 'public';
+                if (!$public && !$contacts) {
+                    continue;
+                }
+                $contact = $public ? [0, 0] : $contacts[($index * 5 + $n * 3) % count($contacts)];
+                $at = demoDateTime(max(1, 3 + (($index * 11 + $n * 17) % 150)), 9 + $n % 8, ($n * 13) % 60);
+                if (strtotime($at) < strtotime($made)) {
+                    $at = date('Y-m-d H:i:s', strtotime($made . " +" . ($n + 1) . " days"));
+                }
+                $row = [
+                    'kb_article_feedback_kb_article_id' => $kb_article_id,
+                    'kb_article_feedback_helpful' => intval($feedback[0]),
+                    'kb_article_feedback_source' => $public ? 'public' : 'portal',
+                    'kb_article_feedback_contact_id' => $contact[0],
+                    'kb_article_feedback_client_id' => $contact[1],
+                    'kb_article_feedback_created_at' => $at,
+                ];
+                if ($public) {
+                    $row['kb_article_feedback_ip'] = '203.0.113.' . (10 + ($index * 7 + $n) % 200);
+                }
+                if ($feedback[1] !== '') {
+                    $row['kb_article_feedback_comment'] = $feedback[1];
+                }
+                // Some of the "no"s have been looked at
+                if (!$feedback[0] && $index % 2 === 0) {
+                    $row['kb_article_feedback_dealt_at'] = date('Y-m-d H:i:s', strtotime($at . ' +1 day'));
+                    $row['kb_article_feedback_dealt_by'] = $user_id;
+                }
+                starterInsert($mysqli, 'kb_article_feedback', $row);
+            }
+        }
+
+        // The demo tickets it answers, after it went out, get a reply linking to it
+        if ($published && $article['tickets'] && $article['archived'] === null) {
+            $readable = $kind === 'public' ? null : demoKbReadableClients($mysqli, $kb_article_id);
+            $url = $kind === 'public' ? kbPublicUrl($kb_article_id, $article['name']) : kbPortalArticleUrl($kb_article_id);
+            $subjects = implode(', ', array_map(function ($subject) {
+                return "'" . escapeSql($subject) . "'";
+            }, $article['tickets']));
+            $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_client_id, ticket_created_at, ticket_resolved_at FROM tickets
+                WHERE ticket_subject IN ($subjects) AND ticket_created_at > '" . $fields['kb_article_published_at'] . "'
+                AND ticket_client_id IN (" . implode(',', array_map('intval', $clients ? array_values($clients) : [0])) . ")");
+            while ($ticket = mysqli_fetch_assoc($sql)) {
+                if ($readable !== null && !isset($readable[intval($ticket['ticket_client_id'])])) {
+                    continue;
+                }
+                $at = strtotime($ticket['ticket_created_at'] . ' +25 minutes');
+                if (!empty($ticket['ticket_resolved_at']) && $at >= strtotime($ticket['ticket_resolved_at'])) {
+                    $at = (strtotime($ticket['ticket_created_at']) + strtotime($ticket['ticket_resolved_at'])) / 2;
+                }
+                starterInsert($mysqli, 'ticket_replies', [
+                    'ticket_reply' => '<p>This walks through it step by step, for next time:</p><p><a href="' . escapeHtml($url) . '">' . escapeHtml($article['name']) . '</a></p>',
+                    'ticket_reply_type' => 'Public',
+                    'ticket_reply_by' => $user_id,
+                    'ticket_reply_ticket_id' => intval($ticket['ticket_id']),
+                    'ticket_reply_created_at' => date('Y-m-d H:i:s', intval($at)),
+                ], ['ticket_reply']);
+            }
+        }
+    }
+
+    // What was searched for and not found
+    if (demoKbTablesReady($mysqli)) {
+        foreach (demoKbSearchMisses() as $miss) {
+            $client_id = $miss[1] === '' ? 0 : intval($clients[mb_strtolower($miss[1])] ?? 0);
+            if ($miss[1] !== '' && !$client_id) {
+                continue;
+            }
+            mysqli_query($mysqli, "INSERT IGNORE INTO kb_search_misses SET kb_search_miss_query = '" . escapeSql($miss[0]) . "',
+                kb_search_miss_source = '" . ($client_id ? 'portal' : 'public') . "', kb_search_miss_client_id = $client_id,
+                kb_search_miss_searches = " . intval($miss[2]) . ", kb_search_miss_first_at = '" . demoDateTime($miss[3], 10, 15) . "',
+                kb_search_miss_last_at = '" . demoDateTime($miss[4], 14, 40) . "'");
+        }
+    }
+}
+
+// The demo clients who can read an article - [client_id => true] (kbClientSql(), whether or not it is published).
+function demoKbReadableClients($mysqli, $kb_article_id) {
+    $out = [];
+    $kb_article_id = intval($kb_article_id);
+    $clients = demoDataClients($mysqli);
+    foreach (array_keys($clients) as $client_id) {
+        $client_id = intval($client_id);
+        $sql = "SELECT 1 FROM kb_articles WHERE kb_article_id = $kb_article_id AND (kb_article_visibility = 'public' OR (kb_article_visibility = 'clients' AND (kb_article_all_clients = 1
+            OR EXISTS (SELECT 1 FROM kb_article_clients kc WHERE kc.kb_article_id = kb_articles.kb_article_id AND kc.client_id = $client_id)
+            OR EXISTS (SELECT 1 FROM kb_article_client_tags kt JOIN client_tags ct ON ct.tag_id = kt.tag_id WHERE kt.kb_article_id = kb_articles.kb_article_id AND ct.client_id = $client_id))))";
+        if (mysqli_num_rows(mysqli_query($mysqli, $sql))) {
+            $out[$client_id] = true;
+        }
+    }
+    return $out;
+}
+
+// Has the database the Knowledge Base's feedback and search tables (database 3.9.7)? Asked of the tables - the demo loads with the module off too.
+function demoKbTablesReady($mysqli) {
+    static $ready = null;
+    return $ready ?? ($ready = mysqli_num_rows(mysqli_query($mysqli, "SHOW TABLES LIKE 'kb_search_misses'")) > 0);
+}
+
 // ------------------------------
 function demoDataSpecs() {
     return [
@@ -4528,7 +5067,7 @@ function demoDataSpecs() {
             'recurring_ticket' => 'Monthly maintenance visit - Ravenwood Dental',
             'project' => ['Imaging server replacement', 'Replace the end of life imaging server and migrate the patient imaging database with no clinic downtime.'],
             'vendors' => [
-                ['Keystone Business Fiber', 'Primary internet circuit and failover', '412-555-0140', 'keystonefiber.example', '4 hour response', 'Circuit ID is recorded in the site runbook. Support will not talk to anyone not on the authorised list.'],
+                ['Keystone Business Fiber', 'Primary internet circuit and failover', '412-555-0140', 'keystonefiber.example', '4 hour response', 'Circuit ID is recorded in the site runbook. Support will not talk to anyone not on the authorized list.'],
                 ['Meridian Dental Systems', 'Patient records and imaging platform', '412-555-0145', 'meridiandental.example', '8x5 support', 'Vendor manages the application, we manage the box it runs on.'],
             ],
             'fleet' => ['Firewall/Router' => 1, 'Switch' => 2, 'Access Point' => 4, 'Server' => 2, 'Desktop' => 14, 'Laptop' => 3, 'Printer' => 3, 'Phone' => 8],
@@ -4556,7 +5095,7 @@ function demoDataSpecs() {
             'recurring_ticket' => 'Monthly maintenance visit - Kestrel Precision',
             'project' => ['Plant Two network rebuild', 'Replace the unmanaged switching in Plant Two, add VLAN separation for shop floor equipment and extend wireless to the yard.'],
             'vendors' => [
-                ['Lakeshore Telecom', 'Fibre circuits for both plants', '814-555-0175', 'lakeshoretelecom.example', 'Next business day', 'Two circuits, one per plant, on separate accounts. Both account numbers are in the runbook.'],
+                ['Lakeshore Telecom', 'Fiber circuits for both plants', '814-555-0175', 'lakeshoretelecom.example', 'Next business day', 'Two circuits, one per plant, on separate accounts. Both account numbers are in the runbook.'],
                 ['Foundry ERP Systems', 'Production and scheduling platform', '814-555-0178', 'foundryerp.example', '8x5 support', 'They push server side updates without warning. Ask for release notes.'],
             ],
             'fleet' => ['Firewall/Router' => 2, 'Switch' => 6, 'Access Point' => 8, 'Server' => 3, 'Virtual Machine' => 4, 'Desktop' => 22, 'Laptop' => 9, 'Printer' => 4, 'Phone' => 14, 'Camera' => 6],
@@ -4606,10 +5145,10 @@ function demoDataSpecs() {
             'tags' => ['Managed', 'Compliance', 'Cyber Insurance', 'After Hours Support', 'Multi Site', 'Key Account'],
             'notes' => 'Regulated environment. Change control paperwork is required before anything touches the core banking network.',
             'account_note' => 'Annual examination in the autumn - documentation and restore evidence must be current before then.',
-            'review_note' => 'Examiners asked for firewall rule documentation last year. Standardisation project is meant to close that off.',
+            'review_note' => 'Examiners asked for firewall rule documentation last year. Standardization project is meant to close that off.',
             'onsite_visit' => 'Branch equipment and compliance check',
             'recurring_ticket' => 'Monthly maintenance visit - Harbor Point CU',
-            'project' => ['Branch firewall standardisation', 'Bring both branches onto the same firewall platform with central logging and documented rule sets for the examination.'],
+            'project' => ['Branch firewall standardization', 'Bring both branches onto the same firewall platform with central logging and documented rule sets for the examination.'],
             'vendors' => [
                 ['Northcoast Data Services', 'Core banking platform hosting', '216-555-0122', 'northcoastdata.example', '24/7 with 1 hour response', 'Change control forms go through them 5 working days ahead.'],
                 ['Cuyahoga Business Fiber', 'Branch circuits and failover', '216-555-0125', 'cuyahogafiber.example', '4 hour response', 'Both branches, separate accounts, both with 4G failover.'],
@@ -4718,7 +5257,7 @@ function demoDataSpecs() {
             'review_note' => 'Nextcloud went in during onboarding to replace a consumer file sync account. Staff have taken to it well.',
             'onsite_visit' => 'Onboarding discovery visit',
             'recurring_ticket' => 'Monthly maintenance visit - Aurora Wellness',
-            'project' => ['Documentation and standardisation', 'Finish discovery, document the environment, standardise endpoint protection and get backups verified.'],
+            'project' => ['Documentation and standardization', 'Finish discovery, document the environment, standardize endpoint protection and get backups verified.'],
             'vendors' => [
                 ['Mountaineer Connect', 'Internet and managed wifi', '304-555-0133', 'mountaineerconnect.example', '4 hour response', 'They installed the original wireless. We have taken over the controller.'],
             ],
@@ -4823,7 +5362,7 @@ function demoDataSpecs() {
             'mail_platform' => 'Microsoft 365', 'cert_issuer' => 'DigiCert',
             'tags' => ['Managed', 'Compliance', 'Cyber Insurance', 'Key Account'],
             'notes' => 'Carrier portals drive everything. Browser and certificate problems are most of the ticket volume.',
-            'account_note' => 'They sell cyber cover themselves, so their own posture gets scrutinised. Keep the evidence current.',
+            'account_note' => 'They sell cyber cover themselves, so their own posture gets scrutinized. Keep the evidence current.',
             'review_note' => 'Passed their own carrier audit last quarter with no findings. Worth repeating the same evidence pack.',
             'onsite_visit' => 'Office equipment and carrier portal check',
             'recurring_ticket' => 'Monthly maintenance visit - Verity Insurance',
@@ -4857,7 +5396,7 @@ function demoDataSpecs() {
             'recurring_ticket' => 'Monthly maintenance visit - Ironbridge Architects',
             'project' => ['Drawing archive storage expansion', 'Expand the storage pool and restructure the drawing archive so the older projects move to slower storage without breaking links.'],
             'vendors' => [
-                ['South Side Fibre', 'Studio internet - symmetric line for large uploads', '412-555-0193', 'southsidefibre.example', '4 hour response', 'Symmetric line chosen for upload speed. Do not let anyone downgrade it.'],
+                ['South Side Fiber', 'Studio internet - symmetric line for large uploads', '412-555-0193', 'southsidefibre.example', '4 hour response', 'Symmetric line chosen for upload speed. Do not let anyone downgrade it.'],
             ],
             'fleet' => ['Firewall/Router' => 1, 'Switch' => 2, 'Access Point' => 3, 'Server' => 2, 'Virtual Machine' => 3, 'Desktop' => 12, 'Laptop' => 5, 'Printer' => 2, 'Phone' => 8],
             'people' => [
@@ -4905,14 +5444,14 @@ function demoDataSpecs() {
             'lead' => 0, 'favorite' => 0, 'tax' => '', 'tax_exempt' => ['75-0031906', '-20 days'],
             'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
             'tags' => ['Co-Managed', 'Managed', 'Non Profit', 'Seasonal', 'Compliance'],
-            'notes' => 'Runs on open source deliberately - budget goes on staff, not licences. Quiet in July, chaotic in late August.',
+            'notes' => 'Runs on open source deliberately - budget goes on staff, not licenses. Quiet in July, chaotic in late August.',
             'account_note' => 'Everything big happens in the summer break. Nothing disruptive during term time, ever.',
             'review_note' => 'Linux desktop rollout finished last summer and cut the refresh budget substantially. Same again for the labs next year.',
             'onsite_visit' => 'Classroom and lab equipment check',
             'recurring_ticket' => 'Monthly maintenance visit - Summit Ridge Charter',
             'project' => ['Computer lab refresh', 'Rebuild both computer labs on the standard Linux image over the summer break, including the imaging server and the lab management tooling.'],
             'vendors' => [
-                ['Monroeville Municipal Fibre', 'School district connection', '412-555-0136', 'monroevillefibre.example', '4 hour response', 'Filtered connection required by policy. Filtering is theirs, not ours.'],
+                ['Monroeville Municipal Fiber', 'School district connection', '412-555-0136', 'monroevillefibre.example', '4 hour response', 'Filtered connection required by policy. Filtering is theirs, not ours.'],
                 ['Cornerstone Student Records', 'Student information system', '412-555-0137', 'cornerstonesis.example', '8x5 support', 'Hosted by the vendor. We hold administrative access only.'],
             ],
             'fleet' => ['Firewall/Router' => 1, 'Switch' => 5, 'Access Point' => 10, 'Server' => 2, 'Virtual Machine' => 4, 'Desktop' => 28, 'Laptop' => 12, 'Printer' => 5, 'Tablet' => 10, 'Camera' => 6],
@@ -4983,7 +5522,7 @@ function demoDataSpecs() {
             'city' => 'New Castle', 'state' => 'PA', 'zip' => '16101', 'area' => '724', 'street' => '900 Industrial Boulevard',
             'second_site' => null,
             'age_days' => 1400, 'seats' => 24, 'servers' => 2, 'build' => 1, 'billing' => 'managed',
-            'balance' => 'past_due', 'hosting' => [['Virtual Server Hosting', 2, 55.00, 'Two hosted guests for the file server and the licence server', 0], ['Offsite Backup Storage - Self Hosted', 1500, 0.09, 'Offsite backup for the machine programs, per GB', 0]],
+            'balance' => 'past_due', 'hosting' => [['Virtual Server Hosting', 2, 55.00, 'Two hosted guests for the file server and the license server', 0], ['Offsite Backup Storage - Self Hosted', 1500, 0.09, 'Offsite backup for the machine programs, per GB', 0]],
             'lead' => 0, 'favorite' => 0, 'tax' => 'PA Sales Tax',
             'mail_platform' => 'Microsoft 365', 'cert_issuer' => 'DigiCert',
             'tags' => ['Managed', 'After Hours Support', 'Past Due', 'At Risk'],
@@ -4994,7 +5533,7 @@ function demoDataSpecs() {
             'recurring_ticket' => 'Monthly maintenance visit - Corbin Machine Works',
             'project' => null,
             'vendors' => [
-                ['Lawrence County Fibre', 'Shop internet', '724-555-0171', 'lawrencefibre.example', 'Next business day', 'Reliable line. Support desk is small but good.'],
+                ['Lawrence County Fiber', 'Shop internet', '724-555-0171', 'lawrencefibre.example', 'Next business day', 'Reliable line. Support desk is small but good.'],
                 ['Precision Controls Group', 'CNC controller support', '724-555-0172', 'precisioncontrols.example', '8x5 support', 'They will not certify anything newer. Isolation is the mitigation.'],
             ],
             'fleet' => ['Firewall/Router' => 1, 'Switch' => 4, 'Access Point' => 4, 'Server' => 2, 'Virtual Machine' => 3, 'Desktop' => 18, 'Laptop' => 4, 'Printer' => 3, 'Phone' => 10, 'Camera' => 4],
@@ -5148,7 +5687,7 @@ function demoExpandProfile($spec) {
         : ['Managed Backup', 'Image level backup of ' . max(1, $servers) . ' servers with offsite copy', 'Backup', 'High', 'Offsite replication', 'Nightly job with a monthly test restore. Evidence is filed against the client documentation.', ['Server', 'Virtual Machine'], 'Backup Console'];
 
     $services = [
-        [$mail, 'Company mail, calendars and identity for ' . $seats . ' users', 'Email', 'High', 'Third party mailbox backup', 'Tenant administered by us. Licence count is reconciled against the monthly invoice.', ['Virtual Machine'], $mail . ' Administrator'],
+        [$mail, 'Company mail, calendars and identity for ' . $seats . ' users', 'Email', 'High', 'Third party mailbox backup', 'Tenant administered by us. License count is reconciled against the monthly invoice.', ['Virtual Machine'], $mail . ' Administrator'],
         $backup_service,
         ['Edge Firewall and Site VPN', 'Perimeter filtering, DNS filtering and the site to site tunnel', 'Network', 'High', 'Nightly config export', 'Config backup is pulled nightly. Rule changes go through a ticket, never verbally.', ['Firewall/Router'], 'Firewall Administrator'],
         ['Endpoint Protection and Monitoring', 'Agent based protection and monitoring across the fleet', 'Security', 'High', 'Vendor cloud console', 'Alerts raise tickets automatically. Patch compliance is reviewed at the maintenance visit.', ['Desktop', 'Laptop', 'Server'], 'Network Controller'],
@@ -5173,7 +5712,7 @@ function demoExpandProfile($spec) {
     // Software - the last two entries say which asset types it is installed on
     // and which credential administers it
     $software = [
-        [$mail === 'Google Workspace' ? 'Google Workspace Business Standard' : 'Microsoft 365 Business Premium', 'Per user licensing resold and managed', 'Current', 'Software as a Service (SaaS)', 'Subscription', $seats, 'Licence count is reviewed monthly against staff numbers.', ['Desktop', 'Laptop'], $mail . ' Administrator'],
+        [$mail === 'Google Workspace' ? 'Google Workspace Business Standard' : 'Microsoft 365 Business Premium', 'Per user licensing resold and managed', 'Current', 'Software as a Service (SaaS)', 'Subscription', $seats, 'License count is reviewed monthly against staff numbers.', ['Desktop', 'Laptop'], $mail . ' Administrator'],
         ['Endpoint Protection', 'Managed endpoint protection agent', 'Current', 'Security Software', 'Subscription', $seats + max(1, $servers), 'Covers workstations, laptops and servers.', ['Desktop', 'Laptop', 'Server'], 'Network Controller'],
     ];
     if ($foss) {
@@ -5181,7 +5720,7 @@ function demoExpandProfile($spec) {
         $software[] = ['Nextcloud', 'Self hosted file sync and share', '30', 'Web Application', 'Open Source', $seats, 'Runs in a container on the hypervisor. Updates are applied at the maintenance visit.', ['Virtual Machine'], 'Hypervisor and Storage Administrator'];
         $software[] = ['Proxmox Backup Server', 'Backup target for the virtual guests', '3.3', 'System Software', 'Subscription', max(1, $servers), 'Community repository on site, enterprise subscription on the management stack.', ['Server'], 'Backup Console'];
     } else {
-        $software[] = ['Synology Active Backup for Business', 'Server, endpoint and mailbox backup', 'Current', 'System Software', 'Perpetual', $seats + max(1, $servers), 'Licence is included with the NAS. Agent is deployed to every endpoint.', ['Server', 'Desktop', 'Laptop'], 'Backup Console'];
+        $software[] = ['Synology Active Backup for Business', 'Server, endpoint and mailbox backup', 'Current', 'System Software', 'Perpetual', $seats + max(1, $servers), 'License is included with the NAS. Agent is deployed to every endpoint.', ['Server', 'Desktop', 'Laptop'], 'Backup Console'];
     }
     $software[] = [$spec['vendors'][count($spec['vendors']) - 1][0] . ' Platform', $spec['vendors'][count($spec['vendors']) - 1][1], 'Vendor managed', 'Web Application', 'Subscription', $seats, 'Vendor supported - we hold the administrative access only.', ['Desktop'], ''];
 
@@ -5219,7 +5758,7 @@ function demoExpandProfile($spec) {
                 . '<h2>Vendors</h2>' . implode('', array_map(function ($vendor) {
                     return '<p><strong>' . $vendor[0] . '</strong> - ' . $vendor[1] . '. Response target: ' . $vendor[4] . '.</p>';
                 }, $spec['vendors']))
-                . '<h2>Client approvals</h2><p>Spend and downtime are approved by the authorised approver on the contact list. Do not take verbal approval from anyone else for work that will be billed.</p>',
+                . '<h2>Client approvals</h2><p>Spend and downtime are approved by the authorized approver on the contact list. Do not take verbal approval from anyone else for work that will be billed.</p>',
             0,
         ],
         [
@@ -5227,7 +5766,7 @@ function demoExpandProfile($spec) {
             'Client facing - how to raise a ticket and what to expect',
             '<h2>Raising a ticket</h2><p>Email the service desk or use the portal. Include what you were doing, what happened, and the name of the machine if you know it.</p>'
                 . '<h2>What happens next</h2><p>You will get an acknowledgement with a ticket number. Urgent issues are picked up first, and anything site wide is treated as urgent by default.</p>'
-                . '<h2>Approvals</h2><p>Work that will be billed outside the agreement is quoted first and needs approval from an authorised approver before we start.</p>',
+                . '<h2>Approvals</h2><p>Work that will be billed outside the agreement is quoted first and needs approval from an authorized approver before we start.</p>',
             1,
         ],
     ];
@@ -5251,7 +5790,7 @@ function demoExpandProfile($spec) {
         }
         $agreement[] = [
             $mail === 'Google Workspace' ? 'Google Workspace Business Standard' : 'Microsoft 365 Business Premium',
-            $seats, 22.00, 'Per user licence, resold and managed', 0,
+            $seats, 22.00, 'Per user license, resold and managed', 0,
         ];
         $agreement[] = ['Cloud Backup', max(1, $servers), 65.00, 'Offsite backup with monthly test restore', 0];
     }
@@ -5263,7 +5802,7 @@ function demoExpandProfile($spec) {
     }
 
     // Quotes in flight
-    $refresh_count = max(2, (int)floor($seats / 5));
+    $refresh_count = max(2, intval(floor($seats / 5)));
     $quotes = [
         ['Workstation refresh - machines past five years old', [
             ['Business Desktop', $refresh_count, 985.00, $foss ? 'Small form factor desktop supplied with Linux Mint and LibreOffice' : 'Small form factor desktop, 16GB memory, 512GB NVMe', 1],
@@ -5322,7 +5861,7 @@ function demoExpandProfile($spec) {
         'mail_platform' => $mail,
         'mail_servers' => $mail === 'Google Workspace' ? 'aspmx.l.google.example' : $domain . '.mail.protection.example',
         'web_host' => $foss ? 'Self hosted - Nextcloud and website on the hypervisor' : 'Vendor hosted',
-        'dns_host' => 'harbourdns.example',
+        'dns_host' => 'harbordns.example',
         'cert_issuer' => $spec['cert_issuer'],
         'credentials' => $credentials,
         'services' => $services,

@@ -161,7 +161,7 @@ function signInAdmins() {
     $admins = [];
     $sql = mysqli_query($mysqli, "SELECT users.user_id, user_name, user_email FROM users
         JOIN user_roles ON role_id = user_role_id AND role_is_admin = 1
-        WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL");
+        WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL");
     while ($row = mysqli_fetch_assoc($sql)) {
         $admins[intval($row['user_id'])] = ['name' => $row['user_name'], 'email' => $row['user_email']];
     }
@@ -194,7 +194,7 @@ function signInMailAlert($name, $email, $title, $text, array $summary, $url) {
             'kind' => 'Security', 'tone' => 'danger', 'preview' => $text,
             'title' => 'Failed sign-ins',
             'intro' => [$text],
-            'summary' => ['When' => date('D j M Y, g:i A')] + $summary,
+            'summary' => ['When' => date('D, M j, Y g:i A')] + $summary,
             'callout' => "$app turns an IP address away after " . SIGN_IN_LOCKOUT . " failed sign-ins in " . SIGN_IN_WINDOW_MINUTES . " minutes. If an account is being guessed at, make sure it has a strong password and multi-factor authentication.",
             'button' => ['label' => 'See the sign-ins', 'url' => "https://$config_base_url$url"],
         ]);

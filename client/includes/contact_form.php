@@ -25,14 +25,14 @@ $mobile_input = $value('contact_mobile') !== '' ? formatPhoneNumber($value('cont
             <div class="col-md-6 mb-3">
                 <label class="form-label" for="contactName">Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <input type="text" class="form-control" id="contactName" name="contact_name" value="<?= escapeHtml($value('contact_name')) ?>" required maxlength="200"<?= $new ? ' autofocus' : '' ?>>
                 </div>
             </div>
             <div class="col-md-6 mb-3">
                 <label class="form-label" for="contactTitle">Job title</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-id-badge"></i></span>
                     <input type="text" class="form-control" id="contactTitle" name="contact_title" value="<?= escapeHtml($value('contact_title')) ?>" maxlength="200">
                 </div>
             </div>
@@ -41,7 +41,7 @@ $mobile_input = $value('contact_mobile') !== '' ? formatPhoneNumber($value('cont
         <div class="mb-3">
             <label class="form-label" for="contactEmail">Email <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                 <input type="email" class="form-control" id="contactEmail" name="contact_email" value="<?= escapeHtml($value('contact_email')) ?>" required maxlength="200">
             </div>
             <?php if (!$new && !empty($contact['user_id'])) { ?><div class="form-text">It is also the address they sign in with.</div><?php } ?>
@@ -51,7 +51,7 @@ $mobile_input = $value('contact_mobile') !== '' ? formatPhoneNumber($value('cont
             <div class="col-sm-8 mb-3">
                 <label class="form-label" for="contactPhone">Phone</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
                     <input type="hidden" name="contact_phone_country_code" value="<?= escapeHtml($value('contact_phone_country_code')) ?>">
                     <input type="tel" class="form-control" id="contactPhone" name="contact_phone" value="<?= escapeHtml($phone_input) ?>" maxlength="200" data-itflow-phone="contact_phone_country_code">
                 </div>
@@ -59,7 +59,7 @@ $mobile_input = $value('contact_mobile') !== '' ? formatPhoneNumber($value('cont
             <div class="col-sm-4 mb-3">
                 <label class="form-label" for="contactExtension">Extension</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                     <input type="text" class="form-control" id="contactExtension" name="contact_extension" inputmode="numeric" maxlength="20" value="<?= escapeHtml($value('contact_extension')) ?>">
                 </div>
             </div>
@@ -69,7 +69,7 @@ $mobile_input = $value('contact_mobile') !== '' ? formatPhoneNumber($value('cont
             <div class="col-sm-8 mb-3">
                 <label class="form-label" for="contactMobile">Mobile</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-mobile-alt"></i></span>
                     <input type="hidden" name="contact_mobile_country_code" value="<?= escapeHtml($value('contact_mobile_country_code')) ?>">
                     <input type="tel" class="form-control" id="contactMobile" name="contact_mobile" value="<?= escapeHtml($mobile_input) ?>" maxlength="200" data-itflow-phone="contact_mobile_country_code">
                 </div>
@@ -77,7 +77,7 @@ $mobile_input = $value('contact_mobile') !== '' ? formatPhoneNumber($value('cont
             <div class="col-sm-4 mb-3">
                 <label class="form-label" for="contactDepartment">Department</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-sitemap"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-sitemap"></i></span>
                     <input type="text" class="form-control" id="contactDepartment" name="contact_department" value="<?= escapeHtml($value('contact_department')) ?>" maxlength="200">
                 </div>
             </div>
@@ -103,7 +103,7 @@ $mobile_input = $value('contact_mobile') !== '' ? formatPhoneNumber($value('cont
                 </div>
                 <?php if (count($methods) > 1) { ?>
                     <div class="input-group mt-2">
-                        <span class="input-group-text"><i class="fa fa-fw fa-sign-in-alt"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-sign-in-alt"></i></span>
                         <select class="form-select" name="method" aria-label="How they sign in">
                             <?php foreach ($methods as $key => $label) { ?>
                                 <option value="<?= $key ?>"<?= ($form['method'] ?? '') === $key ? ' selected' : '' ?>><?= escapeHtml($label) ?></option>

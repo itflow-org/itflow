@@ -14,8 +14,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-list me-2"></i>Set Category for <strong><?= $count ?></strong> Products</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-list me-2"></i>Set Category for <strong><?= $count ?></strong> Products</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -26,18 +26,18 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                <select class="form-select select2" name="bulk_category_id">
+                    <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
+                <select class="form-select select2" name="bulk_category_id" required>
                     <?= categoryOptionsHtml('Income') ?>
                 </select>
-                <?= categoryAddButtonHtml('Income', 'btn btn-secondary') ?>
+                <?= categoryAddButtonHtml('Income') ?>
             </div>
         </div>
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_product_category" class="btn btn-primary text-bold"><i class="fa fa-fw fa-check me-2"></i>Set</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="bulk_edit_product_category" class="btn btn-primary fw-bold"><i class="fas fa-fw fa-check me-2"></i>Set</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -132,9 +132,11 @@ if (isset($_GET['archive_rack']) || isset($_GET['restore_rack'])) {
     enforceClientAccess();
 
     if ($is_archive) {
+        $undo = undoArchiveBefore('rack', $rack_id); // for Undo on the message
         mysqli_query($mysqli, "UPDATE racks SET rack_archived_at = NOW() WHERE rack_id = $rack_id");
         logAudit("Rack", "Archive", "$session_name archived rack $rack_name", $client_id, $rack_id);
         flashAlert("Rack <strong>$rack_name_display</strong> archived", 'error');
+        undoOfferArchive($undo);
     } else {
         mysqli_query($mysqli, "UPDATE racks SET rack_archived_at = NULL WHERE rack_id = $rack_id");
         logAudit("Rack", "Restore", "$session_name restored rack $rack_name", $client_id, $rack_id);
@@ -285,6 +287,74 @@ if (isset($_POST['add_rack_unit']) || isset($_POST['edit_rack_unit'])) {
         logAudit("Rack", "Edit", "$session_name added $item_name_sql at $position ($face) to rack $rack_name", $client_id, $rack_id);
         flashAlert("<strong>$item_name_display</strong> added at $position");
     }
+
+    redirect();
+
+}
+
+// Dragged to another position on the rack page (agent/js/rack_drag.js) - the
+// same item, keeping its height and depth, at a new start and face
+if (isset($_POST['move_rack_unit'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $unit_id = intval($_POST['unit_id'] ?? 0);
+
+    $sql = mysqli_query($mysqli, "SELECT unit_rack_id, unit_start_number, unit_end_number, unit_face, unit_full_depth, unit_device, unit_type,
+            asset_name, rack_name, rack_client_id, rack_units, rack_archived_at
+        FROM rack_units
+        JOIN racks ON rack_id = unit_rack_id
+        LEFT JOIN assets ON asset_id = unit_asset_id
+        WHERE unit_id = $unit_id");
+    $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        flashAlert("That item is no longer in the rack", 'error');
+        redirect();
+    }
+    $client_id = intval($row['rack_client_id']);
+
+    enforceClientAccess();
+
+    if ($row['rack_archived_at']) {
+        flashAlert("That rack is archived - restore it to move what is in it", 'error');
+        redirect();
+    }
+
+    $rack_id = intval($row['unit_rack_id']);
+    $rack_name = escapeSql($row['rack_name']);
+    $rack_units = intval($row['rack_units']);
+    $height = max(1, intval($row['unit_end_number']) - intval($row['unit_start_number']) + 1);
+    $start = intval($_POST['unit_start'] ?? 0);
+    $end = $start + $height - 1;
+    $face = ($_POST['face'] ?? 'front') === 'rear' ? 'rear' : 'front';
+    $full_depth = intval($row['unit_full_depth']) === 1 ? 1 : 0;
+    $item_name = rackUnitName($row['asset_name'], $row['unit_device'], $row['unit_type']);
+    $position = html_entity_decode(rackPositionLabel($start, $end));
+
+    if ($start < 1 || $end > $rack_units) {
+        flashAlert("That doesn't fit - this rack runs from U1 to U$rack_units", 'error');
+        redirect();
+    }
+
+    if ($start === intval($row['unit_start_number']) && $face === $row['unit_face']) {
+        redirect();
+    }
+
+    $conflict = rackUnitConflict($rack_id, $start, $end, $face, $full_depth, $unit_id);
+    if ($conflict) {
+        flashAlert("$position on the $face is taken by <strong>" . strip_tags($conflict['name']) . "</strong> (" . html_entity_decode(rackPositionLabel($conflict['start'], $conflict['end'])) . ")", 'error');
+        redirect();
+    }
+
+    mysqli_query($mysqli, "UPDATE rack_units SET unit_start_number = $start, unit_end_number = $end, unit_face = '$face' WHERE unit_id = $unit_id");
+
+    logAudit("Rack", "Edit", "$session_name moved " . escapeSql($item_name) . " to $position ($face) in rack $rack_name", $client_id, $rack_id);
+
+    flashAlert("<strong>" . strip_tags($item_name) . "</strong> moved to $position" . ($face !== $row['unit_face'] ? " on the $face" : ''));
+    undoOffer("<strong>" . escapeHtml(strip_tags($item_name)) . "</strong> is back at " . rackPositionLabel($row['unit_start_number'], $row['unit_end_number']) . " on the {$row['unit_face']}",
+        [['rack', $unit_id, intval($row['unit_start_number']), intval($row['unit_end_number']), $row['unit_face'], $start, $face]], 'module_support');
 
     redirect();
 

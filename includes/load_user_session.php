@@ -6,8 +6,8 @@ $session_user_id = intval($_SESSION['user_id']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT role_is_admin, role_name, user_archived_at, user_avatar, user_config_force_mfa,
-        user_config_records_per_page, user_config_theme_dark, user_email, user_name, user_role_id,
+    "SELECT role_is_admin, role_name, user_archived_at, user_avatar, user_config_force_mfa," . (serviceAccountsReady() ? ' user_service_account,' : '') . "
+        user_config_records_per_page, user_config_theme_dark," . (compactRowsReady() ? ' user_config_compact_rows,' : '') . " user_email, user_name, user_role_id,
         user_password, user_status, user_token, user_type FROM users
      LEFT JOIN user_settings ON users.user_id = user_settings.user_id
      LEFT JOIN user_roles ON user_role_id = role_id
@@ -34,6 +34,7 @@ $session_is_admin = isset($row['role_is_admin']) && $row['role_is_admin'] == 1;
 $session_user_config_force_mfa = intval($row['user_config_force_mfa']);
 $user_config_records_per_page = max(1, intval($row['user_config_records_per_page']));
 $user_config_theme_dark = intval($row['user_config_theme_dark']);
+$user_config_compact_rows = intval($row['user_config_compact_rows'] ?? 0);
 
 // Check user type is agent aka 1
 if ($session_user_type !== 1) {
@@ -51,6 +52,13 @@ if ($session_user_status !== 1) {
 
 // Check User is archived
 if ($session_user_archived_at !== null) {
+    session_unset();
+    session_destroy();
+    redirect("/login.php");
+}
+
+// An API / service account is only for API keys to act as - it doesn't sign in (functions/service_account.php)
+if (!empty($row['user_service_account'])) {
     session_unset();
     session_destroy();
     redirect("/login.php");
@@ -83,8 +91,8 @@ $client_access_array = []; // allow
 $client_deny_array = [];   // deny
 while ($row = mysqli_fetch_assoc($user_client_access_result)) {
     if ($row['permission_type'] === 'deny') {
-        $client_deny_array[] = (int) $row['client_id'];
+        $client_deny_array[] = intval($row['client_id']);
     } else {
-        $client_access_array[] = (int) $row['client_id'];
+        $client_access_array[] = intval($row['client_id']);
     }
 }

@@ -89,7 +89,7 @@ if (isset($_GET['remove_company_logo'])) {
 
     logAudit("Settings", "Edit", "$session_name took the company logo off");
 
-    flashAlert("The logo is taken off");
+    flashAlert("The logo is taken off", 'error');
 
     redirect();
 

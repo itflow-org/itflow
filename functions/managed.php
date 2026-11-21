@@ -112,6 +112,11 @@ function managedRequestBaseUrl(): string
 /* POST JSON and read JSON back - ['ok', 'code', 'json', 'err'] */
 function managedHttpJson(string $url, array $body, array $headers = []): array
 {
+    // Development mode: a copy doesn't talk to a manager as the ITFlow it was copied from (functions/dev_mode.php)
+    if (devModeOn()) {
+        return ['ok' => false, 'code' => 0, 'json' => [], 'err' => 'Development mode - this server doesn\'t talk to a manager'];
+    }
+
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -130,7 +135,7 @@ function managedHttpJson(string $url, array $body, array $headers = []): array
     ]);
     $raw = curl_exec($ch);
     $err = curl_error($ch);
-    $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $code = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
     curl_close($ch);
 
     $json = is_string($raw) ? json_decode($raw, true) : null;

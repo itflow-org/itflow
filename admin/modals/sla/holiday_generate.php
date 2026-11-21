@@ -32,7 +32,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-magic me-2"></i>Add US Holidays</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -43,20 +43,20 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Year <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar-alt"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar-alt"></i></span>
                 <input type="number" class="form-control" name="holiday_year" min="2000" max="2100" step="1" value="<?= $offer_year ?>" required autofocus>
             </div>
-            <small class="text-secondary">
+            <div class="form-text">
                 <?php foreach ($years as $year => [$in, $total]) { ?>
                     <span class="d-block"><?= $year ?> - <?= $in === $total ? "all $total are in" : ($in ? "$in of $total are in" : 'none are in yet') ?></span>
                 <?php } ?>
-            </small>
+            </div>
         </div>
 
         <div class="small text-secondary"><i class="fas fa-fw fa-stopwatch me-1"></i>A day already on the list is left as it is, name and all. Adding them works the targets out again on every ticket with an SLA that isn't closed yet.</div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="generate_holidays" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Add holidays</button>
+        <button type="submit" name="generate_holidays" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Add Holidays</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

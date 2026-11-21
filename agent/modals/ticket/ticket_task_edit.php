@@ -38,8 +38,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-tasks me-2"></i>Edit task</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-tasks me-2"></i>Edit Task</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -48,18 +48,18 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Task <strong class="text-danger">*</strong></label>
+            <label class="form-label">Task <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="name" placeholder="What needs doing" maxlength="255" value="<?= $task_name ?>" required autofocus>
             </div>
         </div>
 
         <div class="mb-3">
-            <label>Time estimate <span class="text-secondary">(minutes)</span></label>
+            <label class="form-label">Time estimate <span class="text-secondary">(minutes)</span></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                <input type="number" class="form-control" name="completion_estimate" placeholder="e.g. 30" value="<?= $task_completion_estimate ?>">
+                    <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
+                <input type="number" class="form-control" name="completion_estimate" placeholder="30" value="<?= $task_completion_estimate ?>">
             </div>
         </div>
 
@@ -88,9 +88,9 @@ ob_start();
 
                         // In words - the raw scope/type pair ("Internal", "Any") meant nothing on screen
                         if ($approval_scope == 'internal' && $approval_type == 'specific') {
-                            $approval_who = $approval_user_name ?: 'A specific technician';
+                            $approval_who = $approval_user_name ?: 'A specific agent';
                         } elseif ($approval_scope == 'internal') {
-                            $approval_who = 'Any other technician';
+                            $approval_who = 'Any other agent';
                         } elseif ($approval_type == 'technical') {
                             $approval_who = "The client's technical contacts";
                         } elseif ($approval_type == 'billing') {
@@ -104,8 +104,8 @@ ob_start();
                             <td><?= ucfirst($approval_status) ?></td>
                             <td>
                                 <?php if ($approval_status !== 'approved') { ?>
-                                    <a class="text-danger"
-                                       onclick="return confirm('Delete this approval request?');"
+                                    <a class="text-danger confirm-link"
+                                       data-confirm-title="Remove this approval request?" data-confirm-button="Remove"
                                        href="post.php?delete_ticket_task_approver=<?= $approval_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-times"></i>Remove
                                     </a>
@@ -123,8 +123,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="edit_ticket_task" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_ticket_task" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

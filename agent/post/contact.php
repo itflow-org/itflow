@@ -87,6 +87,10 @@ if (isset($_POST['add_contact'])) {
 
     triggerCustomAction('contact_create', $contact_id);
 
+    $contact_label = getFieldById('contacts', $contact_id, 'contact_name');
+    inlineSaveAnswer(['ok' => true, 'value' => (string) $contact_id, 'label' => $contact_label,
+        'message' => "Contact $contact_label created" . ($invited === false ? ' - the portal invite was not sent' : ''), 'warning' => $invited === false]);
+
     flashAlert("Contact <strong>" . stripslashes($name) . "</strong> created" . ($invited ? ' and invited to the client portal' : ($invited === false ? ' - the portal invite was not sent, as ' . (portalMailReady() ? 'their email address is not valid' : 'outgoing mail is not set up') : '')), $invited === false ? 'warning' : 'success');
 
     redirect();
@@ -105,7 +109,7 @@ if (isset($_POST['edit_contact'])) {
     $send_email = intval($_POST['send_email'] ?? 0);
 
     // Get Contact Info
-    $sql = mysqli_query($mysqli,"SELECT contact_photo, contact_user_id, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+    $sql = mysqli_query($mysqli,"SELECT contact_photo, contact_user_id, contact_client_id, contact_email FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
     if (!$row) {
         flashAlert("That contact no longer exists", 'error');
@@ -154,6 +158,11 @@ if (isset($_POST['edit_contact'])) {
     }
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone_country_code = '$phone_country_code', contact_phone = '$phone', contact_extension = '$extension', contact_mobile_country_code = '$mobile_country_code', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_department = '$department', contact_location_id = $location_id, contact_user_id = $contact_user_id WHERE contact_id = $contact_id");
+
+    // A new address hasn't bounced (functions/contact_bounce.php)
+    if (strtolower(trim((string) $row['contact_email'])) !== strtolower(trim((string) stripslashes($email)))) {
+        contactBounceClear($contact_id);
+    }
 
     // Texts - whether they agreed to texts about their work (functions/sms.php)
     smsContactOptInFromForm($contact_id, $_POST, $client_id);
@@ -204,7 +213,7 @@ if (isset($_POST['edit_contact'])) {
 
     triggerCustomAction('contact_update', $contact_id);
 
-    flashAlert("Contact <strong>" . stripslashes($name) . "</strong> updated" . ($invited ? ' and invited to the client portal' : ($invited === false ? ' - the portal invite was not sent, as ' . (portalMailReady() ? 'their email address is not valid' : 'outgoing mail is not set up') : '')), $invited === false ? 'warning' : 'success');
+    flashAlert("Contact <strong>" . stripslashes($name) . "</strong> saved" . ($invited ? ' and invited to the client portal' : ($invited === false ? ' - the portal invite was not sent, as ' . (portalMailReady() ? 'their email address is not valid' : 'outgoing mail is not set up') : '')), $invited === false ? 'warning' : 'success');
 
     redirect();
 
@@ -239,7 +248,7 @@ if (isset($_POST['add_contact_note'])) {
     //Logging
     logAudit("Contact", "Edit", "$session_name created a $type note for contact $contact_name", $client_id, $contact_id);
 
-    $_SESSION['alert_message'] = "Note <strong>$type</strong> created for <strong>$contact_name</strong>";
+    flashAlert("Note <strong>" . escapeHtml(stripslashes($type)) . "</strong> created for <strong>" . escapeHtml($row['contact_name']) . "</strong>");
 
     redirect();
 
@@ -352,12 +361,17 @@ if (isset($_POST['bulk_assign_contact_location'])) {
     // Get Location name for logging and Notification
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
-    $location_name = escapeSql($row['location_name'] ?? '');
-    $client_id = intval($row['location_client_id'] ?? 0);
+    if (!$row) {
+        flashAlert('Pick a location to move them to.', 'error');
+        redirect();
+    }
+    $location_name = escapeSql($row['location_name']);
+    $client_id = intval($row['location_client_id']);
 
     enforceClientAccess();
 
     // Assign Location to Selected Contacts
+    $undo = undoSnapshot('contacts', 'contact_id', $_POST['contact_ids'] ?? [], ['contact_location_id'], 'contact_client_id'); // for Undo on the message
     if (isset($_POST['contact_ids'])) {
 
         // Only the contacts of the location's client are moved
@@ -384,6 +398,7 @@ if (isset($_POST['bulk_assign_contact_location'])) {
         logAudit("Contact", "Bulk Edit", "$session_name assigned $contact_count contacts to location $location_name", $client_id);
 
         flashAlert("<strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's') . " assigned to location <strong>" . stripslashes($location_name) . "</strong>");
+        undoOfferChanges($undo, "Location put back on <strong>{n}</strong> contact{s}", 'module_client');
     }
 
     redirect();
@@ -399,6 +414,7 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
     $phone = preg_replace("/[^0-9]/", '', $_POST['bulk_phone']);
 
     // Assign Location to Selected Contacts
+    $undo = undoSnapshot('contacts', 'contact_id', $_POST['contact_ids'] ?? [], ['contact_phone'], 'contact_client_id'); // for Undo on the message
     if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
@@ -424,6 +440,7 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
         logAudit("Contact", "Bulk Edit", "$session_name set the Phone Number $phone for $contact_count contacts", $client_id);
 
         flashAlert("Phone number set to <strong>" . formatPhoneNumber($phone) . "</strong> on <strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's'));
+        undoOfferChanges($undo, "Phone number put back on <strong>{n}</strong> contact{s}", 'module_client');
     }
 
     redirect();
@@ -439,6 +456,7 @@ if (isset($_POST['bulk_edit_contact_department'])) {
     $department = escapeSql($_POST['bulk_department']);
 
     // Assign Location to Selected Contacts
+    $undo = undoSnapshot('contacts', 'contact_id', $_POST['contact_ids'] ?? [], ['contact_department'], 'contact_client_id'); // for Undo on the message
     if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
@@ -464,6 +482,7 @@ if (isset($_POST['bulk_edit_contact_department'])) {
         logAudit("Contact", "Bulk Edit", "$session_name set the department $department for $contact_count contacts", $client_id);
 
         flashAlert("Department set to <strong>" . stripslashes($department) . "</strong> on <strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's'));
+        undoOfferChanges($undo, "Department put back on <strong>{n}</strong> contact{s}", 'module_client');
     }
 
     redirect();
@@ -481,6 +500,7 @@ if (isset($_POST['bulk_edit_contact_role'])) {
     $contact_technical = intval($_POST['bulk_contact_technical']);
 
     // Assign Location to Selected Contacts
+    $undo = undoSnapshot('contacts', 'contact_id', $_POST['contact_ids'] ?? [], ['contact_important', 'contact_billing', 'contact_technical'], 'contact_client_id'); // for Undo on the message
     if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
@@ -507,7 +527,8 @@ if (isset($_POST['bulk_edit_contact_role'])) {
 
         logAudit("Contact", "Bulk Edit", "$session_name edited the contact role for $contact_count contacts", $client_id);
 
-        flashAlert("Roles updated on <strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's'));
+        flashAlert("Roles set on <strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's'));
+        undoOfferChanges($undo, "Roles put back on <strong>{n}</strong> contact{s}", 'module_client');
     }
 
     redirect();
@@ -518,7 +539,8 @@ if (isset($_POST['send_bulk_mail_now'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_client');
+    // Emailing clients is changing things for them, not looking - Modify, as for clients
+    enforceUserPermission('module_client', 2);
 
     $contact_ids = array_values(array_filter(array_map('intval', (array) ($_POST['contact_ids'] ?? []))));
 
@@ -546,6 +568,7 @@ if (isset($_POST['bulk_archive_contacts'])) {
 
     enforceUserPermission('module_client', 2);
 
+    $undo = undoArchiveBefore('contact', $_POST['contact_ids'] ?? []); // for Undo on the message
     if (isset($_POST['contact_ids'])) {
 
         $count = 0; // Default 0
@@ -565,12 +588,13 @@ if (isset($_POST['bulk_archive_contacts'])) {
 
             enforceClientAccess();
 
-            // Archive Contact User
-            if ($contact_user_id > 0) {
-                mysqli_query($mysqli,"UPDATE users SET user_archived_at = NOW() WHERE user_id = $contact_user_id");
-            }
-
+            // A primary contact is left as it is - its portal login with it
             if($contact_primary == 0) {
+                // Archive Contact User
+                if ($contact_user_id > 0) {
+                    mysqli_query($mysqli,"UPDATE users SET user_archived_at = NOW() WHERE user_id = $contact_user_id");
+                }
+
                 mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_archived_at = NOW() WHERE contact_id = $contact_id");
 
                 // Individual Contact logging
@@ -583,7 +607,8 @@ if (isset($_POST['bulk_archive_contacts'])) {
 
         logAudit("Contact", "Bulk Archive", "$session_name archived $count contacts", $client_id);
 
-        flashAlert("Archived $count contact(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> contact" . ($count === 1 ? '' : 's'), 'error');
+        undoOfferArchive($undo);
 
     }
 
@@ -628,7 +653,7 @@ if (isset($_POST['bulk_restore_contacts'])) {
 
         logAudit("Contact", "Bulk Restore", "$session_name restored $count contacts", $client_id);
 
-        flashAlert("Restored <strong>$count</strong> contact(s)");
+        flashAlert("Restored <strong>$count</strong> contact" . ($count === 1 ? '' : 's'));
 
     }
 
@@ -674,7 +699,7 @@ if (isset($_POST['bulk_delete_contacts'])) {
 
         logAudit("Contact", "Bulk Delete", "$session_name deleted $count contacts", $client_id);
 
-        flashAlert("Deleted <strong>$count</strong> contact(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> contact" . ($count === 1 ? '' : 's'), 'error');
 
     }
 
@@ -699,10 +724,12 @@ if (isset($_GET['anonymize_contact'])) {
     }
 
     $contact_name = escapeSql($row['contact_name']);
-    $contact_first_name = explode(" ", $contact_name)[0];
-    $contact_email = escapeSql($row['contact_email']);
-    $contact_phone = escapeSql($row['contact_phone']);
-    $info_to_redact = array($contact_name, $contact_first_name, $contact_email, $contact_phone);
+    // Redacted as stored, not SQL-escaped - a name with an apostrophe was missed - and never an empty value.
+    // Longest first, so the first name doesn't take a piece out of the email address before it goes
+    $info_to_redact = array_values(array_filter(array_map('strval', [$row['contact_name'], explode(" ", (string) $row['contact_name'])[0], $row['contact_email'], $row['contact_phone']]), 'strlen'));
+    usort($info_to_redact, function ($a, $b) {
+        return strlen($b) - strlen($a);
+    });
 
     $client_id = intval($row['contact_client_id']);
     $contact_user_id = intval($row['contact_user_id']);
@@ -942,6 +969,32 @@ if (isset($_GET['resend_portal_invite']) || isset($_GET['cancel_portal_invite'])
 
 }
 
+// "Email bounced" taken off by hand - the address has been fixed at their end (functions/contact_bounce.php)
+if (isset($_GET['clear_contact_bounce'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 2);
+
+    $contact_id = intval($_GET['clear_contact_bounce']);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id"));
+    if (!$row) {
+        flashAlert('That contact no longer exists.', 'error');
+        redirect();
+    }
+    $client_id = intval($row['contact_client_id']);
+    enforceClientAccess();
+
+    contactBounceClear($contact_id);
+
+    logAudit("Contact", "Edit", "$session_name cleared the bounced email mark on contact " . escapeSql($row['contact_name']), $client_id, $contact_id);
+
+    flashAlert("<strong>" . escapeHtml($row['contact_name']) . "</strong>'s email is no longer marked as bouncing");
+
+    redirect();
+
+}
+
 if (isset($_GET['archive_contact'])) {
 
     validateCSRFToken();
@@ -963,6 +1016,7 @@ if (isset($_GET['archive_contact'])) {
 
     enforceClientAccess();
 
+    $undo = undoArchiveBefore('contact', $contact_id); // for Undo on the message
     // Archive Contact User
     if ($contact_user_id > 0) {
         mysqli_query($mysqli,"UPDATE users SET user_archived_at = NOW() WHERE user_id = $contact_user_id");
@@ -973,6 +1027,7 @@ if (isset($_GET['archive_contact'])) {
     logAudit("Contact", "Archive", "$session_name archived contact $contact_name", $client_id, $contact_id);
 
     flashAlert("Contact <strong>" . stripslashes($contact_name) . "</strong> archived", 'error');
+    undoOfferArchive($undo);
 
     redirect();
 
@@ -1053,46 +1108,6 @@ if (isset($_GET['delete_contact'])) {
 
 }
 
-if (isset($_POST['link_contact_to_asset'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    $asset_id = intval($_POST['asset_id']);
-    $contact_id = intval($_POST['contact_id']);
-
-    // Get Asset Name and Client ID for logging
-    $sql_asset = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_assoc($sql_asset);
-    if (!$row) {
-        flashAlert('Pick an asset to link.', 'error');
-        redirect();
-    }
-    $asset_name = escapeSql($row['asset_name']);
-    $client_id = intval($row['asset_client_id']);
-
-    enforceClientAccess();
-
-    // Only one of the same client's people - another client's contact would show on this client's asset
-    if (!assetClientOwnedId('contact', $contact_id, $client_id)) {
-        flashAlert("That contact isn't one of this client's", 'error');
-        redirect();
-    }
-
-    // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
-
-    mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = $contact_id WHERE asset_id = $asset_id");
-
-    logAudit("Asset", "Link", "$session_name linked asset $asset_name to contact $contact_name", $client_id, $asset_id);
-
-    flashAlert("Contact <strong>" . stripslashes($contact_name) . "</strong> linked with asset <strong>" . stripslashes($asset_name) . "</strong>");
-
-    redirect();
-
-}
-
 if (isset($_GET['unlink_asset_from_contact'])) {
 
     validateCSRFToken();
@@ -1129,48 +1144,6 @@ if (isset($_GET['unlink_asset_from_contact'])) {
 }
 
 // Licenses are linked in post/link.php (link_software_to_contact)
-
-if (isset($_POST['link_contact_to_credential'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-    // It changes the credential, so it takes credential edit rights too
-    enforceUserPermission('module_credential', 2);
-
-    $credential_id = intval($_POST['credential_id']);
-    $contact_id = intval($_POST['contact_id']);
-
-    // Get credential Name and Client ID for logging
-    $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
-    $row = mysqli_fetch_assoc($sql_credential);
-    if (!$row) {
-        flashAlert("That credential no longer exists", 'error');
-        redirect();
-    }
-    $credential_name = escapeSql($row['credential_name']);
-    $client_id = intval($row['credential_client_id']);
-
-    enforceClientAccess();
-
-    // Only to one of the same client's people
-    if (!assetClientOwnedId('contact', $contact_id, $client_id)) {
-        flashAlert("That contact isn't one of this client's", 'error');
-        redirect();
-    }
-
-    // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
-
-    mysqli_query($mysqli,"UPDATE credentials SET credential_contact_id = $contact_id WHERE credential_id = $credential_id");
-
-    logAudit("Credential", "Link", "$session_name linked credential $credential_name to contact $contact_name", $client_id, $credential_id);
-
-    flashAlert("Contact <strong>" . stripslashes($contact_name) . "</strong> linked with credential <strong>" . stripslashes($credential_name) . "</strong>");
-
-    redirect();
-
-}
 
 if (isset($_GET['unlink_credential_from_contact'])) {
 
@@ -1321,148 +1294,6 @@ if (isExportRequest('export_contacts')) {
 
     logAudit("Contact", "Export", "$session_name exported $num_rows contact(s) to a " . strtoupper($format) . " file", $client_id);
 
-    exit;
-
-}
-
-if (isset($_POST["import_contacts_csv"])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    $client_id = intval($_POST['client_id']);
-
-    enforceClientAccess();
-
-    $error = false;
-
-    if (!empty($_FILES["file"]["tmp_name"])) {
-        $file_name = $_FILES["file"]["tmp_name"];
-    } else {
-        flashAlert("Please select a file to upload.", 'error');
-        redirect();
-    }
-
-    //Check file is CSV
-    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
-    $allowed_file_extensions = array('csv');
-    if (in_array($file_extension,$allowed_file_extensions) === false) {
-        $error = true;
-        flashAlert("Bad file extension", 'error');
-    }
-
-    //Check file isn't empty
-    elseif ($_FILES["file"]["size"] < 1) {
-        $error = true;
-        flashAlert("Bad file size (empty?)", 'error');
-    }
-
-    //(Else)Check column count
-    $f = fopen($file_name, "r");
-    $f_columns = fgetcsv($f, 1000, ",");
-    if (!$error & count($f_columns) != 8) {
-        $error = true;
-        flashAlert("Bad column count.", 'error');
-    }
-
-    //Else, parse the file
-    if (!$error) {
-        $file = fopen($file_name, "r");
-        fgetcsv($file, 1000, ","); // Skip first line
-        $row_count = 0;
-        $duplicate_count = 0;
-        while(($column = fgetcsv($file, 1000, ",")) !== false) {
-            $duplicate_detect = 0;
-            if (isset($column[0])) {
-                $name = escapeSql($column[0]);
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT 1 FROM contacts WHERE contact_name = '$name' AND contact_client_id = $client_id")) > 0) {
-                    $duplicate_detect = 1;
-                }
-            }
-            if (isset($column[1])) {
-                $title = escapeSql($column[1]);
-            }
-            if (isset($column[2])) {
-                $department = escapeSql($column[2]);
-            }
-            if (isset($column[3])) {
-                $email = escapeSql($column[3]);
-            }
-            if (isset($column[4])) {
-                $phone = preg_replace("/[^0-9]/", '',$column[4]);
-            }
-            if (isset($column[5])) {
-                $ext = preg_replace("/[^0-9]/", '',$column[5]);
-            }
-            if (isset($column[6])) {
-                $mobile = preg_replace("/[^0-9]/", '',$column[6]);
-            }
-            if (isset($column[7])) {
-                $location = escapeSql($column[7]);
-                $sql_location = mysqli_query($mysqli,"SELECT location_id FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
-                $row = mysqli_fetch_assoc($sql_location);
-                $location_id = intval($row['location_id']);
-            }
-            // Potentially import the rest in the future?
-
-            // Check if duplicate was detected
-            if ($duplicate_detect == 0) {
-                //Add
-                mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_department = '$department', contact_email = '$email', contact_phone = '$phone', contact_extension = '$ext', contact_mobile = '$mobile', contact_location_id = $location_id, contact_client_id = $client_id");
-                $row_count = $row_count + 1;
-            }else{
-                $duplicate_count = $duplicate_count + 1;
-            }
-        }
-        fclose($file);
-
-        logAudit("Contact", "Import", "$session_name imported $row_count contact(s) via CSV file", $client_id);
-
-        flashAlert("$row_count Contact(s) added, $duplicate_count duplicate(s) detected", 'warning');
-
-        redirect();
-
-    }
-    //Check for any errors, if there are notify user and redirect
-    if ($error) {
-        redirect();
-    }
-
-}
-
-if (isset($_GET['download_contacts_csv_template'])) {
-
-    $delimiter = ",";
-    $enclosure = '"';
-    $escape    = '\\';
-    $filename = "Contacts-Template.csv";
-
-    //create a file pointer
-    $f = fopen('php://memory', 'w');
-
-    //set column headers
-    $fields = array(
-        'Full Name           ',
-        'Job Title           ',
-        'Department Name     ',
-        'Email Address       ',
-        'Office Phone        ',
-        'Office Extension    ',
-        'Mobile Phone        ',
-        'Office Location     '
-    );
-    fputcsv($f, $fields, $delimiter, $enclosure, $escape);
-
-    //move back to beginning of file
-    fseek($f, 0);
-
-    //set headers to download file rather than displayed
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-    //output all remaining data on a file pointer
-    fpassthru($f);
     exit;
 
 }

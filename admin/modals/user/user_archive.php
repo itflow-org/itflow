@@ -15,7 +15,7 @@ $is_last_admin = userIsLastAdmin($user);
 // Who can take their work - active agents, not them
 $agents = [];
 $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users
-    WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL AND user_id <> $user_id ORDER BY user_name ASC");
+    WHERE user_type = 1" . serviceAccountsOutSql() . " AND user_status = 1 AND user_archived_at IS NULL AND user_id <> $user_id ORDER BY user_name ASC");
 while ($row = mysqli_fetch_assoc($sql)) {
     $agents[] = $row;
 }
@@ -25,7 +25,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-archive me-2"></i>Archive <?= escapeHtml($user['user_name']) ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -72,7 +72,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <?php if ($user_id !== intval($session_user_id) && !$is_last_admin) { ?>
-            <button type="submit" name="archive_user" class="btn btn-danger text-bold"><i class="fas fa-archive me-2"></i>Archive</button>
+            <button type="submit" name="archive_user" class="btn btn-danger fw-bold"><i class="fas fa-archive me-2"></i>Archive</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>

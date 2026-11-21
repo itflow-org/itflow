@@ -18,8 +18,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-folder-plus me-2"></i>New folder</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-folder-plus me-2"></i>New Folder</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -30,7 +30,7 @@ ob_start();
             <label class="form-label">Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-folder"></i></span>
-                <input type="text" class="form-control" name="folder_name" placeholder="e.g. Contracts" maxlength="200" required autofocus>
+                <input type="text" class="form-control" name="folder_name" placeholder="Contracts" maxlength="200" required autofocus>
             </div>
         </div>
 
@@ -46,8 +46,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="create_folder" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="create_folder" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 
