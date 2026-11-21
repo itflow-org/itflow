@@ -11,10 +11,13 @@ Update from Maintenance > Update — Queue Update hands the job to cron and it a
 ### Bug Fixes
 
 - RMM Providers: unlinking a client left its assets showing as still in the RMM - the dot on the assets list, the card on the asset, Take Control and the RMM filter, all with what the RMM said when it was unlinked - and they went on counting as managed devices on recurring invoices. Now they stay as they are but are no longer in the RMM, and each asset's history says its client was unlinked. A client you unlinked before this update is put right at the next sync. Link it again and its devices are matched back to the same assets.
+- RMM Providers: reinstalling a device's agent in Tactical - which gives it a new id there - brought it in as a second asset, even with the same serial number and name, and marked the first one as no longer in Tactical. Deleting the extra asset and using Bring back made it again. A reinstalled agent is now matched to the asset its old one had. If you already have an extra asset from this, delete it, click Sync Now, then use Bring back on its client's row on the RMM Clients page.
+- RMM Providers: a device moved to another linked client in Tactical stayed with its asset at the first client, and that asset took the new client's location. It is now matched or made at the client it moved to. The first client's asset stays there, no longer kept up, and its history says where the device went. Devices that moved before this update are put right at the next sync.
 
 ### Developer Updates
 
 - `rmmForgetClientDevices($rmm_client_id, $name, $why)` in `functions/rmm.php` deletes an RMM client's `rmm_devices` rows and adds an asset history line for each asset that is still there. Unlinking a client and linking it to another one both use it, and `rmmSync()` runs it for any of the provider's clients with `rmm_client_client_id = 0` that still have rows.
+- `rmmSync()` marks a client's unlisted devices removed before it saves the listed ones, and `rmmAssetMatch()` no longer counts a removed device as holding its asset, so a reinstalled agent (a new `remote_id`) is matched to the asset its old one had, and the old removed row is deleted. `rmmDeviceSave()` treats a device whose asset belongs to another client as new at this one, leaving that asset with a history line.
 
 ## [26.12]
 

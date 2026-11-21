@@ -601,12 +601,13 @@ function rmmAssetCreate(int $client_id, array $values): int
 
 /**
  * An asset already in ITFlow that is this device - same serial number, or the only one with
- * its name - and not another of this provider's devices already. 0 when there is none.
+ * its name - and not another of this provider's devices already. One it no longer has doesn't
+ * keep its asset: an agent reinstalled is a new device there. 0 when there is none.
  */
 function rmmAssetMatch(int $provider_id, int $client_id, array $values): int
 {
     global $mysqli;
-    $taken = "asset_id NOT IN (SELECT rmm_device_asset_id FROM rmm_devices WHERE rmm_device_provider_id = $provider_id AND rmm_device_asset_id > 0)";
+    $taken = "asset_id NOT IN (SELECT rmm_device_asset_id FROM rmm_devices WHERE rmm_device_provider_id = $provider_id AND rmm_device_asset_id > 0 AND rmm_device_removed_at IS NULL)";
     if ($values['serial'] !== '') {
         $serial = escapeSql($values['serial']);
         $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT asset_id FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL
@@ -657,23 +658,36 @@ function rmmDeviceSave(array $provider, array $rmm_client, int $client_id, array
     $synced_before = [];
     $asset_id = 0;
     $is_new_row = $row === null;
+    $find = $is_new_row;
+    $moved = false;
 
     if ($row) {
         $synced_before = json_decode((string) $row['rmm_device_synced'], true) ?: [];
         $asset_id = intval($row['rmm_device_asset_id']);
-        if ($asset_id && !rmmAssetCurrent($asset_id)) {
+        $current = $asset_id ? rmmAssetCurrent($asset_id) : null;
+        if ($asset_id && !$current) {
             // Deleted in ITFlow - not made again until Bring back
             $asset_id = 0;
+        } elseif ($current && $current['_client_id'] !== $client_id) {
+            // Moved to another client in the RMM - its asset stays with the client it was at, and it is matched or made at this one
+            rmmAssetHistory($asset_id, $who, 'no longer keeps it up - it moved to ' . $rmm_client['rmm_client_name'] . ' there');
+            $asset_id = 0;
+            $synced_before = [];
+            $find = true;
+            $moved = true;
         }
     }
 
     $made = false;
     $matched = false;
-    if ($is_new_row) {
+    if ($find) {
         $asset_id = rmmAssetMatch($provider_id, $client_id, $values);
         if ($asset_id) {
             $matched = true;
             $counts['linked']++;
+            // The device it was before - an agent since reinstalled - is gone there; this one has its asset now
+            mysqli_query($mysqli, "DELETE FROM rmm_devices WHERE rmm_device_provider_id = $provider_id AND rmm_device_asset_id = $asset_id
+                AND rmm_device_removed_at IS NOT NULL AND rmm_device_remote_id != '" . escapeSql($remote_id) . "'");
         } else {
             $asset_id = rmmAssetCreate($client_id, $values);
             $made = true;
@@ -697,7 +711,7 @@ function rmmDeviceSave(array $provider, array $rmm_client, int $client_id, array
         $synced = $synced_before;
     }
 
-    if ($row && $row['rmm_device_removed_at'] !== null) {
+    if ($row && $row['rmm_device_removed_at'] !== null && !$moved) {
         $counts['returned']++;
         if ($asset_id) {
             rmmAssetHistory($asset_id, $who, 'has it again');
@@ -798,11 +812,24 @@ function rmmSync(array $provider, int $only = 0, int $max_seconds = 120): array
 
     $clock = microtime(true);
     $errors = [];
-    $complete = [];   // rmm_clients id => the ids of its devices, for each whose list came back whole - the rest of its devices are gone
+    $complete = [];   // rmm_clients id => [] for each client the RMM no longer has - all its devices are gone
     $stopped = false;
 
     $in_list = function (array $ids) {
         return $ids ? "'" . implode("', '", array_map('escapeSql', $ids)) . "'" : "''";
+    };
+
+    // A client's devices the RMM didn't list, when its list came back whole - it no longer has them
+    $remove_unlisted = function (int $rmm_client_id, array $listed) use ($mysqli, $provider_id, $name, $in_list, &$counts) {
+        $sql = mysqli_query($mysqli, "SELECT rmm_device_id, rmm_device_asset_id FROM rmm_devices WHERE rmm_device_provider_id = $provider_id
+            AND rmm_device_rmm_client_id = $rmm_client_id AND rmm_device_removed_at IS NULL AND rmm_device_remote_id NOT IN (" . $in_list($listed) . ")");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            mysqli_query($mysqli, "UPDATE rmm_devices SET rmm_device_removed_at = NOW() WHERE rmm_device_id = " . intval($row['rmm_device_id']));
+            if (intval($row['rmm_device_asset_id']) && rmmAssetCurrent(intval($row['rmm_device_asset_id']))) {
+                rmmAssetHistory(intval($row['rmm_device_asset_id']), $name, 'no longer has it');
+            }
+            $counts['removed']++;
+        }
     };
 
     try {
@@ -852,27 +879,26 @@ function rmmSync(array $provider, int $only = 0, int $max_seconds = 120): array
                 $errors[] = $rmm_client['rmm_client_name'] . ': ' . $devices['error'];
                 continue;
             }
-            $seen = [];
+            // The ones it no longer lists are marked first, so an agent reinstalled there - a new device with the
+            // same serial number - is matched to the asset its old one had
+            $listed = [];
             foreach ($devices['devices'] as $device) {
                 if (is_array($device)) {
-                    $seen[] = rmmDeviceSave($provider, $rmm_client, intval($rmm_client['rmm_client_client_id']), $device, $counts);
+                    $listed[] = (string) ($device['remote_id'] ?? '');
                 }
             }
-            $complete[intval($rmm_client['rmm_client_id'])] = array_values(array_filter($seen, 'strlen'));
+            $remove_unlisted(intval($rmm_client['rmm_client_id']), $listed);
+            foreach ($devices['devices'] as $device) {
+                if (is_array($device)) {
+                    rmmDeviceSave($provider, $rmm_client, intval($rmm_client['rmm_client_client_id']), $device, $counts);
+                }
+            }
             mysqli_query($mysqli, "UPDATE rmm_clients SET rmm_client_synced_at = NOW() WHERE rmm_client_id = " . intval($rmm_client['rmm_client_id']));
         }
 
-        // Devices of the clients brought in whole that the RMM didn't list - it no longer has them
-        foreach ($complete as $rmm_client_id => $seen) {
-            $sql = mysqli_query($mysqli, "SELECT rmm_device_id, rmm_device_asset_id FROM rmm_devices WHERE rmm_device_provider_id = $provider_id
-                AND rmm_device_rmm_client_id = $rmm_client_id AND rmm_device_removed_at IS NULL AND rmm_device_remote_id NOT IN (" . $in_list($seen) . ")");
-            while ($row = mysqli_fetch_assoc($sql)) {
-                mysqli_query($mysqli, "UPDATE rmm_devices SET rmm_device_removed_at = NOW() WHERE rmm_device_id = " . intval($row['rmm_device_id']));
-                if (intval($row['rmm_device_asset_id']) && rmmAssetCurrent(intval($row['rmm_device_asset_id']))) {
-                    rmmAssetHistory(intval($row['rmm_device_asset_id']), $name, 'no longer has it');
-                }
-                $counts['removed']++;
-            }
+        // Devices of the clients it no longer has
+        foreach (array_keys($complete) as $rmm_client_id) {
+            $remove_unlisted($rmm_client_id, []);
         }
 
         $note = number_format($counts['devices']) . ' device' . ($counts['devices'] === 1 ? '' : 's') . ' brought in';
