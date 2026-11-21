@@ -493,7 +493,7 @@ $export_extra = [
                         <div class="col-lg-3 col-md-6">
                             <label class="form-label small text-body-secondary mb-1">Billing</label>
                             <select class="form-select select2" name="billing" onchange="this.form.submit()">
-                                <option value="">Any</option>
+                                <option value="">- Any -</option>
                                 <?php foreach ($billing_filters as $billing_option => [$billing_option_label]) { ?>
                                     <option value="<?= $billing_option ?>" <?= $billing_filter === $billing_option ? 'selected' : '' ?>><?= $billing_option_label ?></option>
                                 <?php } ?>

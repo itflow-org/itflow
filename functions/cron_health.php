@@ -227,6 +227,12 @@ function cronHealthMail($subject, array $email, $to = null) {
     return count(emailQueue($recipients, $subject, $email));
 }
 
+/** "1 problem", "3 problems". */
+function cronHealthProblemsText(array $problems) {
+    $n = count($problems);
+    return $n . ' ' . ($n === 1 ? 'problem' : 'problems');
+}
+
 /*
  * The Cron Watch job: email about problems that are new, still there a day
  * later, or gone. Cron is running when this runs, so "isn't running" never
@@ -270,13 +276,13 @@ function cronHealthWatch() {
     cronHealthSaveState($state);
 
     if (!$new && !$reminders && !$fixed) {
-        return [$problems ? count($problems) . ' problem(s), already emailed' : 'All well'];
+        return [$problems ? cronHealthProblemsText($problems) . ', already emailed' : 'All well'];
     }
     if (intval($settings['config_cron_alert_email'] ?? 1) !== 1) {
-        return ['Email alerts are off - ' . count($problems) . ' problem(s)'];
+        return ['Email alerts are off - ' . cronHealthProblemsText($problems)];
     }
     if (!emailReady()) {
-        return ['No mail server is set up - ' . count($problems) . ' problem(s)'];
+        return ['No mail server is set up - ' . cronHealthProblemsText($problems)];
     }
 
     $count = cronHealthAlert($new, $reminders, count($fixed), count($problems));

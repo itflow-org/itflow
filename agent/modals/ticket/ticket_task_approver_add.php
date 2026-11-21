@@ -63,11 +63,11 @@ ob_start();
 
 
         <div class="mb-3 d-none" id="specific_user_wrapper">
-            <label class="form-label">Technician <strong class="text-danger">*</strong></label>
+            <label class="form-label">Agent <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-user-circle"></i></span>
                 <select class="form-select select2" name="approval_required_user_id" id="specific_user_select">
-                    <option value="">- Select a user -</option>
+                    <option value="">- Select an agent -</option>
                 </select>
             </div>
         </div>
@@ -119,15 +119,15 @@ ob_start();
 
             if (scope === 'internal') {
                 setOptions(typeSelect, [
-                    ['', 'Select...'],
-                    ['any', 'Any other technician'],
-                    ['specific', 'A specific technician']
+                    ['', '- Select one -'],
+                    ['any', 'Any other agent'],
+                    ['specific', 'A specific agent']
                 ]);
             }
 
             if (scope === 'client') {
                 setOptions(typeSelect, [
-                    ['', 'Select...'],
+                    ['', '- Select one -'],
                     ['any', 'Ticket contact'],
                     ['technical', 'Technical contacts'],
                     ['billing', 'Billing contacts']

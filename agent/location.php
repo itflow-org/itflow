@@ -216,7 +216,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                                     <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>Document
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
-                                    <i class="fas fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
+                                    <i class="fas fa-fw fa-upload text-secondary me-2"></i>Upload Files
                                 </a>
                             <?php } ?>
                             <?php if (moduleOn('trips')) { ?>

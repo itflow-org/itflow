@@ -88,9 +88,9 @@ ob_start();
 
                         // In words - the raw scope/type pair ("Internal", "Any") meant nothing on screen
                         if ($approval_scope == 'internal' && $approval_type == 'specific') {
-                            $approval_who = $approval_user_name ?: 'A specific technician';
+                            $approval_who = $approval_user_name ?: 'A specific agent';
                         } elseif ($approval_scope == 'internal') {
-                            $approval_who = 'Any other technician';
+                            $approval_who = 'Any other agent';
                         } elseif ($approval_type == 'technical') {
                             $approval_who = "The client's technical contacts";
                         } elseif ($approval_type == 'billing') {

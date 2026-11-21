@@ -252,7 +252,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                     <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select" data-import-bulk-client aria-label="Client for the ticked lines">
                         <option value="">- Client for the ticked -</option>
-                        <option value="0">Not for a client</option>
+                        <option value="0">- Not for a client -</option>
                         <?= $client_options ?>
                     </select>
                 </div>
@@ -331,7 +331,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                                 </td>
                                 <td class="itflow-import-pick">
                                     <select class="form-select form-select-sm" data-import-client data-value="<?= intval($line['client_id']) ?>" aria-label="Client">
-                                        <option value="0">-</option>
+                                        <option value="0">- Not for a client -</option>
                                         <?= $client_options ?>
                                     </select>
                                     <div class="form-check form-switch small mt-1 mb-0" data-import-billable-box>
