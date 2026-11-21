@@ -43,7 +43,7 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-details">
 
                 <div class="mb-3">
-                    <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Is Lead</span></label>
+                    <label class="form-label">Name <strong class="text-danger">*</strong> / <span class="text-secondary">Is Lead</span></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         <input type="text" class="form-control" name="name" id="client_name" placeholder="Name or Company" maxlength="200" onfocusout="checkClientDuplicate()" required autofocus>
@@ -57,7 +57,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Shortened Name</label>
+                    <label class="form-label">Shortened Name</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                         <input type="text" class="form-control" name="abbreviation" placeholder="Up to 6 characters, such as RDG" maxlength="6" oninput="this.value = this.value.toUpperCase()">
@@ -65,7 +65,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Industry</label>
+                    <label class="form-label">Industry</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-briefcase"></i></span>
                         <input type="text" class="form-control" name="type" placeholder="Healthcare, Legal, Construction" maxlength="200">
@@ -73,7 +73,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Referral</label>
+                    <label class="form-label">Referral</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                         <select class="form-select select2" data-tags="true" name="referral">
@@ -85,7 +85,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Website</label>
+                    <label class="form-label">Website</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         <input type="text" class="form-control" name="website" placeholder="ex. google.com" maxlength="200">
@@ -93,7 +93,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Tags</label>
+                    <label class="form-label">Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                         <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
@@ -107,7 +107,7 @@ ob_start();
             <div class="tab-pane fade" id="pills-location">
 
                 <div class="mb-3">
-                    <label>Address</label>
+                    <label class="form-label">Address</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                         <input type="text" class="form-control" name="address" placeholder="Street Address" maxlength="200">
@@ -115,7 +115,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>City</label>
+                    <label class="form-label">City</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
                         <input type="text" class="form-control" name="city" placeholder="City" maxlength="200">
@@ -123,7 +123,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>State / Province</label>
+                    <label class="form-label">State / Province</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                         <input type="text" class="form-control" name="state" placeholder="State or Province" maxlength="200">
@@ -131,7 +131,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Postal Code</label>
+                    <label class="form-label">Postal Code</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                         <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" maxlength="200">
@@ -139,7 +139,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Country</label>
+                    <label class="form-label">Country</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
                         <select class="form-select select2" name="country">
@@ -152,7 +152,7 @@ ob_start();
                 </div>
 
 
-                <label>Location Phone / <span class="text-secondary">Extension</span></label>
+                <label class="form-label">Location Phone / <span class="text-secondary">Extension</span></label>
                 <div class="row g-2">
                     <div class="col-9">
                         <div class="mb-3">
@@ -165,12 +165,15 @@ ob_start();
                     </div>
                     <div class="col-3">
                         <div class="mb-3">
-                            <input type="text" class="form-control" name="location_extension" placeholder="ext." maxlength="200">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
+                                <input type="text" class="form-control" name="location_extension" placeholder="ext." maxlength="200" aria-label="Extension">
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <label>Location Fax</label>
+                <label class="form-label">Location Fax</label>
                 <div class="row g-2">
                     <div class="col-9">
                         <div class="mb-3">
@@ -188,7 +191,7 @@ ob_start();
             <div class="tab-pane fade" id="pills-contact">
 
                 <div class="mb-3">
-                    <label>Primary Contact <strong class="text-danger">*</strong></label>
+                    <label class="form-label">Primary Contact <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                         <input type="text" class="form-control" id="primaryContact" name="contact" placeholder="Primary Contact Person" maxlength="200" required autofocus>
@@ -196,14 +199,14 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Title</label>
+                    <label class="form-label">Title</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                         <input type="text" class="form-control" name="title" placeholder="Title" maxlength="200">
                     </div>
                 </div>
 
-                <label>Contact Phone / <span class="text-secondary">Extension</span></label>
+                <label class="form-label">Contact Phone / <span class="text-secondary">Extension</span></label>
                 <div class="row g-2">
                     <div class="col-9">
                         <div class="mb-3">
@@ -216,12 +219,15 @@ ob_start();
                     </div>
                     <div class="col-3">
                         <div class="mb-3">
-                            <input type="text" class="form-control" name="contact_extension" placeholder="ext." maxlength="200">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
+                                <input type="text" class="form-control" name="contact_extension" placeholder="ext." maxlength="200" aria-label="Extension">
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <label>Mobile</label>
+                <label class="form-label">Mobile</label>
                 <div class="row g-2">
                     <div class="col-9">
                         <div class="mb-3">
@@ -235,7 +241,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Contact Email</label>
+                    <label class="form-label">Contact Email</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         <input type="email" class="form-control" name="contact_email" placeholder="Contact's Email Address" maxlength="200">
@@ -253,7 +259,7 @@ ob_start();
                     <?php $terms_note_client_id = 0; require __DIR__ . '/client_terms_note.php'; ?>
 
                     <div class="mb-3">
-                        <label>Tax ID</label>
+                        <label class="form-label">Tax ID</label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                             <input type="text" class="form-control" name="tax_id_number" placeholder="Tax ID Number" maxlength="255">
@@ -296,7 +302,7 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_client" class="btn btn-primary text-bold" onclick="promptPrimaryContact()"><i class="fa fa-check me-2"></i>Create Client</button>
+        <button type="submit" name="add_client" class="btn btn-primary text-bold" onclick="promptPrimaryContact()"><i class="fa fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>

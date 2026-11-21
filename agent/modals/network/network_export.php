@@ -47,7 +47,7 @@ ob_start();
         <?php exportTabsFiltersOpen(); ?>
 
         <div class="mb-3">
-            <label>Search</label>
+            <label class="form-label">Search</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, CIDR, gateway, DNS, site">
@@ -56,7 +56,7 @@ ob_start();
 
         <?php if (!$client_id) { ?>
         <div class="mb-3">
-            <label>Client</label>
+            <label class="form-label">Client</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
@@ -78,7 +78,7 @@ ob_start();
 
         <?php if ($client_id) { ?>
         <div class="mb-3">
-            <label>Site</label>
+            <label class="form-label">Site</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                 <select class="form-select select2" name="location">
@@ -99,7 +99,7 @@ ob_start();
         <?php } ?>
 
         <div class="mb-3">
-            <label>Type</label>
+            <label class="form-label">Type</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-shapes"></i></span>
                 <select class="form-select select2" name="type">
@@ -114,7 +114,7 @@ ob_start();
         <?= tagExportFieldHtml('network', $tag_filter) ?>
 
         <div class="mb-3">
-            <label>Archived</label>
+            <label class="form-label">Archived</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
                 <select class="form-select select2" name="archived">

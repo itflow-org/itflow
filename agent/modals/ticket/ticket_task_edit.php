@@ -48,7 +48,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Task <strong class="text-danger">*</strong></label>
+            <label class="form-label">Task <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="name" placeholder="What needs doing" maxlength="255" value="<?= $task_name ?>" required autofocus>
@@ -56,7 +56,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Time estimate <span class="text-secondary">(minutes)</span></label>
+            <label class="form-label">Time estimate <span class="text-secondary">(minutes)</span></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                 <input type="number" class="form-control" name="completion_estimate" placeholder="e.g. 30" value="<?= $task_completion_estimate ?>">

@@ -635,7 +635,7 @@ if (isset($_GET['ticket_id'])) {
 
                                 <?php if ($show_invoice_button && !$ticket_is_open) { ?>
                                     <a href="#" class="btn btn-light border ajax-modal" data-modal-url="modals/ticket/ticket_invoice_add.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
-                                        <i class="fas fa-fw fa-file-invoice me-2"></i>Invoice
+                                        <i class="fas fa-fw fa-file-invoice-dollar me-2"></i>Invoice
                                     </a>
                                 <?php } ?>
 
@@ -702,7 +702,7 @@ if (isset($_GET['ticket_id'])) {
                                                 <?php } ?>
                                                 <?php if ($show_invoice_button) { ?>
                                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_invoice_add.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
-                                                        <i class="fas fa-fw fa-file-invoice me-2"></i>Create invoice
+                                                        <i class="fas fa-fw fa-file-invoice-dollar me-2"></i>Create invoice
                                                     </a>
                                                 <?php } ?>
                                             <?php } ?>
@@ -1430,7 +1430,7 @@ if (isset($_GET['ticket_id'])) {
                                     <dd>
                                         <?php if ($invoice_id) { ?>
                                             <a href="invoice.php?invoice_id=<?= $invoice_id ?>" class="ticket-prop-edit" title="Open the invoice">
-                                                <span><i class="fa fa-fw fa-file-invoice text-secondary me-1"></i>Invoiced on <?= $invoice_reference ?></span>
+                                                <span><i class="fa fa-fw fa-file-invoice-dollar text-secondary me-1"></i>Invoiced on <?= $invoice_reference ?></span>
                                             </a>
                                         <?php } elseif ($quote_id) { ?>
                                             <a href="quote.php?quote_id=<?= $quote_id ?>" class="ticket-prop-edit" title="Open the quote">

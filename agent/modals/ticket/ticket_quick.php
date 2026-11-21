@@ -49,7 +49,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Client <strong class="text-danger">*</strong></label>
+            <label class="form-label">Client <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client_id" id="quickTicketClient" required>
@@ -65,7 +65,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Contact</label>
+            <label class="form-label">Contact</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="contact_id" id="quickTicketContact" data-placeholder="Pick the client first" disabled>
@@ -79,7 +79,7 @@ ob_start();
         <div id="quickTicketOpen"></div>
 
         <div class="mb-3">
-            <label>What is the issue? <strong class="text-danger">*</strong></label>
+            <label class="form-label">What is the issue? <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="subject" id="quickTicketSubject" maxlength="500" placeholder="Outlook keeps asking for a password" required>
@@ -87,14 +87,14 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>More detail</label>
+            <label class="form-label">More detail</label>
             <textarea class="form-control" name="details" rows="3" maxlength="20000" placeholder="What they told you, any error message, what has been tried"></textarea>
         </div>
 
         <div class="row align-items-end">
             <div class="col-sm-5">
                 <div class="mb-3">
-                    <label>Priority</label>
+                    <label class="form-label">Priority</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                         <select class="form-select select2" name="priority">
@@ -122,7 +122,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Make ticket</button>
+        <button type="submit" name="add_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 

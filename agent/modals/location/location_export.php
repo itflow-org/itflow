@@ -43,7 +43,7 @@ ob_start();
         <?php exportTabsFiltersOpen(); ?>
 
         <div class="mb-3">
-            <label>Search</label>
+            <label class="form-label">Search</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, address, city, phone">
@@ -52,7 +52,7 @@ ob_start();
 
         <?php if (!$client_id) { ?>
         <div class="mb-3">
-            <label>Client</label>
+            <label class="form-label">Client</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
@@ -73,7 +73,7 @@ ob_start();
         <?php } ?>
 
         <div class="mb-3">
-            <label>Tags</label>
+            <label class="form-label">Tags</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                 <select class="form-select select2" name="tags[]" data-placeholder="- All Tags -" multiple>
@@ -83,7 +83,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Archived</label>
+            <label class="form-label">Archived</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
                 <select class="form-select select2" name="archived">

@@ -88,7 +88,7 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-recurring-details">
 
                 <div class="mb-3">
-                    <label>For</label>
+                    <label class="form-label">For</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         <select class="form-select select2" name="contact_id">
@@ -117,7 +117,7 @@ ob_start();
                 ?>
 
                 <div class="mb-3">
-                    <label>Subject <strong class="text-danger">*</strong></label>
+                    <label class="form-label">Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         <input type="text" class="form-control" id="subjectInput" name="subject" data-template-field="subject" placeholder="Subject" maxlength="500" value="<?= escapeHtml($recurring['recurring_ticket_subject']) ?>" required>
@@ -131,7 +131,7 @@ ob_start();
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>Priority <strong class="text-danger">*</strong></label>
+                            <label class="form-label">Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                                 <select class="form-select select2" name="priority" data-template-field="priority" required>
@@ -144,7 +144,7 @@ ob_start();
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>Category</label>
+                            <label class="form-label">Category</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                                 <select class="form-select select2" name="category_id" data-template-field="category">
@@ -158,7 +158,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Assign to</label>
+                    <label class="form-label">Assign to</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                         <select class="form-select select2" name="assigned_to" data-template-field="assigned">
@@ -188,7 +188,7 @@ ob_start();
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>How often <strong class="text-danger">*</strong></label>
+                            <label class="form-label">How often <strong class="text-danger">*</strong></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
                                 <select class="form-select select2" name="frequency" required>
@@ -201,7 +201,7 @@ ob_start();
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label>Next run <strong class="text-danger">*</strong></label>
+                            <label class="form-label">Next run <strong class="text-danger">*</strong></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                                 <input class="form-control" type="date" name="next_date" min="<?= min($next_run, date('Y-m-d')) ?>" max="2999-12-31" value="<?= escapeHtml($next_run) ?>" required>
@@ -227,7 +227,7 @@ ob_start();
             <div class="tab-pane fade" id="pills-recurring-related">
 
                 <div class="mb-3">
-                    <label>Asset</label>
+                    <label class="form-label">Asset</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="asset_id">
@@ -250,7 +250,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Other assets</label>
+                    <label class="form-label">Other assets</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="additional_assets[]" data-placeholder="- Any other assets involved -" multiple>
@@ -274,7 +274,7 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_recurring_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save changes</button>
+        <button type="submit" name="edit_recurring_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

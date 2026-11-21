@@ -114,7 +114,7 @@ ob_start();
             <div class="col-12">
                 <label class="form-label">Invoice</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-file-invoice"></i></span>
+                    <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
                     <select class="form-select select2" name="invoice_id" data-ticket-invoice-target>
                         <option value="0">A new draft invoice</option>
                         <?php foreach ($drafts as $draft_id => $draft) { ?>

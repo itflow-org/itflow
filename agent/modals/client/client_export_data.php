@@ -29,14 +29,14 @@ $password_fields = function ($form) use ($password_min) {
     ?>
     <div class="border rounded p-3 mt-2 bg-body-tertiary" data-client-export-password hidden>
         <div class="mb-2">
-            <label for="<?= $form ?>Password">Password for the file</label>
+            <label class="form-label" for="<?= $form ?>Password">Password for the file</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control" id="<?= $form ?>Password" name="password" minlength="<?= $password_min ?>" maxlength="200" autocomplete="new-password" disabled>
             </div>
         </div>
         <div class="mb-2">
-            <label for="<?= $form ?>PasswordConfirm">Confirm password</label>
+            <label class="form-label" for="<?= $form ?>PasswordConfirm">Confirm password</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control" id="<?= $form ?>PasswordConfirm" name="password_confirm" minlength="<?= $password_min ?>" maxlength="200" autocomplete="new-password" disabled>

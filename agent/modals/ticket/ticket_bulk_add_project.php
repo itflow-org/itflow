@@ -24,7 +24,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Project</label>
+            <label class="form-label">Project</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
                 <select class="form-select select2" name="project_id">

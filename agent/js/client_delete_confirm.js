@@ -1,9 +1,6 @@
-// Force the user to correctly type the client name to be deleted before activating the button to delete a client
+// The client's name typed exactly turns on Delete (agent/modals/client/client_delete.php)
 function validateClientNameDelete(client_id) {
-    if (document.getElementById("clientNameProvided" + client_id).value === document.getElementById("clientName" + client_id).value) {
-        document.getElementById("clientDeleteButton" + client_id).className = "btn btn-danger btn-lg px-5";
-    }
-    else{
-        document.getElementById("clientDeleteButton" + client_id).className = "btn btn-danger btn-lg px-5 disabled";
-    }
+    const typed = document.getElementById("clientNameProvided" + client_id).value;
+    const name = document.getElementById("clientName" + client_id).value;
+    document.getElementById("clientDeleteButton" + client_id).classList.toggle("disabled", typed !== name);
 }

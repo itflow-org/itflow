@@ -46,7 +46,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="<?= escapeHtml($kind['icon']) ?> fa-fw me-2" data-rmm-kind-icon></i><?= $row ? '<strong>' . escapeHtml(rmmProviderName($row)) . '</strong>' : 'Add RMM Provider' ?></h5>
+    <h5 class="modal-title"><i class="<?= escapeHtml($kind['icon']) ?> fa-fw me-2" data-rmm-kind-icon></i><?= $row ? '<strong>' . escapeHtml(rmmProviderName($row)) . '</strong>' : 'New RMM Provider' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" novalidate data-rmm-provider-form data-kinds="<?= escapeHtml(json_encode($kinds_js)) ?>">
@@ -153,7 +153,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <button type="submit" name="<?= $row ? 'edit_rmm_provider' : 'add_rmm_provider' ?>" class="btn btn-primary text-bold" data-rmm-provider-save>
-            <i class="fa fa-check me-2"></i><?= $row ? 'Save' : 'Add' ?>
+            <i class="fa fa-check me-2"></i><?= $row ? 'Save' : 'Create' ?>
         </button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>

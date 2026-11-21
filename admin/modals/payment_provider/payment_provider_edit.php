@@ -64,7 +64,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-credit-card me-2"></i><?= $row ? '<strong>' . escapeHtml($name) . '</strong>' : 'Add Payment Provider' ?>
+        <i class="fa fa-fw fa-credit-card me-2"></i><?= $row ? '<strong>' . escapeHtml($name) . '</strong>' : 'New Payment Provider' ?>
         <?php if ($mode !== '') { ?>
             <span class="badge <?= $mode === 'live' ? 'text-bg-success' : 'text-bg-warning' ?> ms-2 align-middle" data-provider-mode><?= $mode === 'live' ? 'Live' : 'Test' ?></span>
         <?php } ?>
@@ -246,7 +246,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <button type="submit" name="<?= $row ? 'edit_payment_provider' : 'add_payment_provider' ?>" class="btn btn-primary text-bold" data-provider-save <?= !$row && !$free_kinds ? 'disabled' : '' ?>>
-            <i class="fa fa-check me-2"></i><?= $row ? 'Save' : 'Add' ?>
+            <i class="fa fa-check me-2"></i><?= $row ? 'Save' : 'Create' ?>
         </button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>

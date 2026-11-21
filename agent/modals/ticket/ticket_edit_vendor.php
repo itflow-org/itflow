@@ -28,7 +28,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Vendor</label>
+            <label class="form-label">Vendor</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                 <select class="form-select select2" name="vendor">
@@ -53,7 +53,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Vendor's ticket number</label>
+            <label class="form-label">Vendor's ticket number</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
                 <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Their reference for this issue" maxlength="255" value="<?= $vendor_ticket_number ?>">

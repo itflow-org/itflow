@@ -24,7 +24,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Category</label>
+            <label class="form-label">Category</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="bulk_category">

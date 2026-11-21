@@ -20,7 +20,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Physical Location</label>
+            <label class="form-label">Physical Location</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                 <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200">

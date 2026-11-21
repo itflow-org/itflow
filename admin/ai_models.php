@@ -78,7 +78,7 @@ $csrf = $_SESSION['csrf_token'];
         <div class="card-tools">
             <a class="btn btn-outline-light me-1" href="ai_usage.php" title="Each request - who, for what, and the tokens it took"><i class="fas fa-fw fa-chart-bar"></i><span class="d-none d-lg-inline ms-2">Usage</span></a>
             <?php if ($any_provider) { ?>
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">Add Model</span></button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Model</span></button>
             <?php } ?>
         </div>
     </div>
@@ -204,7 +204,7 @@ $csrf = $_SESSION['csrf_token'];
         'thing' => 'AI models',
         'icon' => 'fa-brain',
         'text' => $any_provider ? 'The model on each provider that ITFlow uses - one for everything (General), and others for tickets or documents if you like.' : 'Add an AI provider first - then the models on it ITFlow uses.',
-        'actions' => $any_provider ? [['label' => 'Add Model', 'modal' => $add_url]] : [['label' => 'AI Providers', 'href' => 'ai_providers.php', 'icon' => 'fa-robot']],
+        'actions' => $any_provider ? [['label' => 'New Model', 'modal' => $add_url]] : [['label' => 'AI Providers', 'href' => 'ai_providers.php', 'icon' => 'fa-robot']],
     ];
     ?>
     <?php require_once "../includes/filter_footer.php"; ?>

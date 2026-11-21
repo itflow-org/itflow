@@ -23,7 +23,7 @@ $existing_tasks = $existing_tasks ?? [];
 <input type="hidden" name="tasks_submitted" value="1">
 
 <div class="mb-3">
-    <label>Tasks</label>
+    <label class="form-label">Tasks</label>
 
     <div class="row g-2 mb-1 text-muted small">
         <div class="col-7">Task</div>

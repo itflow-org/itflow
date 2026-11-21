@@ -22,7 +22,7 @@ if (recurringAheadReady()) {
     <div class="row">
         <div class="col-md-6">
             <div class="mb-3">
-                <label>Book the work for</label>
+                <label class="form-label">Book the work for</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                     <input type="time" class="form-control" name="schedule_time" step="900" value="<?= escapeHtml($ahead_time) ?>">
@@ -43,7 +43,7 @@ if (recurringAheadReady()) {
         </div>
         <div class="col-md-6">
             <div class="mb-3">
-                <label>Make it ahead</label>
+                <label class="form-label">Make it ahead</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-minus"></i></span>
                     <input type="number" class="form-control" name="lead_days" min="0" max="90" value="<?= $ahead_days ?>" style="max-width: 5.5rem">

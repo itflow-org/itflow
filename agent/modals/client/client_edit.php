@@ -71,7 +71,7 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-client-details<?= $client_id ?>">
 
                 <div class="mb-3">
-                    <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Is Lead</span></label>
+                    <label class="form-label">Name <strong class="text-danger">*</strong> / <span class="text-secondary">Is Lead</span></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                         <input type="text" class="form-control" name="name" placeholder="Name or Company" maxlength="200"
@@ -88,7 +88,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Shortened Name</label>
+                    <label class="form-label">Shortened Name</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                         <input type="text" class="form-control" name="abbreviation" placeholder="Up to 6 characters, such as RDG" value="<?= $client_abbreviation ?>" maxlength="6" oninput="this.value = this.value.toUpperCase()">
@@ -96,7 +96,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Industry</label>
+                    <label class="form-label">Industry</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-briefcase"></i></span>
                         <input type="text" class="form-control" name="type" placeholder="Healthcare, Legal, Construction" maxlength="200"
@@ -105,7 +105,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Referral</label>
+                    <label class="form-label">Referral</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                         <select class="form-select select2" data-tags="true" name="referral">
@@ -117,7 +117,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Website</label>
+                    <label class="form-label">Website</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         <input type="text" class="form-control" name="website" placeholder="ex. google.com" maxlength="200"
@@ -126,7 +126,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Tags</label>
+                    <label class="form-label">Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                         <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
@@ -146,7 +146,7 @@ ob_start();
                     <?php $contract_pick_edit = true; require __DIR__ . '/client_contract_pick.php'; ?>
 
                     <div class="mb-3">
-                        <label>Tax ID</label>
+                        <label class="form-label">Tax ID</label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                             <input type="text" class="form-control" name="tax_id_number" maxlength="255"

@@ -24,7 +24,7 @@ ob_start();
         <p class="text-muted small">Watchers get a copy of every emailed reply on this ticket.</p>
 
         <div class="mb-3">
-            <label>Email</label>
+            <label class="form-label">Email</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                 <select class="form-select select2" data-tags="true" name="watcher_email">

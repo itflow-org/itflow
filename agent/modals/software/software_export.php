@@ -50,7 +50,7 @@ ob_start();
         <?php exportTabsFiltersOpen(); ?>
 
         <div class="mb-3">
-            <label>Search</label>
+            <label class="form-label">Search</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, type, key, vendor">
@@ -59,7 +59,7 @@ ob_start();
 
         <?php if (!$client_id) { ?>
         <div class="mb-3">
-            <label>Client</label>
+            <label class="form-label">Client</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
@@ -80,7 +80,7 @@ ob_start();
         <?php } ?>
 
         <div class="mb-3">
-            <label>Expiring In</label>
+            <label class="form-label">Expiring In</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
                 <select class="form-select select2" name="expire_days">
@@ -94,7 +94,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Showing</label>
+            <label class="form-label">Showing</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-filter"></i></span>
                 <select class="form-select select2" name="status">
@@ -107,7 +107,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Software Type</label>
+            <label class="form-label">Software Type</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="software_type">
@@ -118,7 +118,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>License Type</label>
+            <label class="form-label">License Type</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-certificate"></i></span>
                 <select class="form-select select2" name="license_type">
@@ -133,7 +133,7 @@ ob_start();
         <?= tagExportFieldHtml('license', $tag_filter) ?>
 
         <div class="mb-3">
-            <label>Archived</label>
+            <label class="form-label">Archived</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
                 <select class="form-select select2" name="archived">

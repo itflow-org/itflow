@@ -70,7 +70,7 @@ ob_start();
         <!-- What is billed once -->
         <div data-quote-invoice <?= $one_time && $one_time['items'] || !$recurring ? '' : 'hidden' ?>>
             <h6 class="fw-semibold mb-2">
-                <i class="fas fa-fw fa-file-invoice text-secondary me-1"></i>Invoice
+                <i class="fas fa-fw fa-file-invoice-dollar text-secondary me-1"></i>Invoice
                 <span class="fw-normal text-body-secondary small ms-1">
                     <?= $one_time && $one_time['items'] ? count($one_time['items']) . ' one-time line' . (count($one_time['items']) === 1 ? '' : 's') . ' - ' . $money($one_time['total']) : ($recurring ? 'The first period' : '') ?>
                 </span>

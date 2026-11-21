@@ -123,7 +123,7 @@ $co_ticked = function ($name, $id, $should) use ($settings_kept) {
     <?php } ?>
 
     <?php if ($co_support) { ?>
-        <h2 class="h6 fw-semibold"><i class="fas fa-fw fa-key text-body-secondary me-1"></i>Licenses</h2>
+        <h2 class="h6 fw-semibold"><i class="fas fa-fw fa-cube text-body-secondary me-1"></i>Licenses</h2>
         <?php if ($co_license_templates) {
             $co_listed = array_filter($co_license_templates, function ($t) use ($co_license_should) {
                 return intval($t['has_it']) > 0 || isset($co_license_should[intval($t['software_template_id'])]);

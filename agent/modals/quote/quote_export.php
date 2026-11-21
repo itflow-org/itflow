@@ -41,7 +41,7 @@ ob_start();
         <?php exportTabsFiltersOpen(); ?>
 
         <div class="mb-3">
-            <label>Search</label>
+            <label class="form-label">Search</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Number, scope, client, amount">
@@ -49,7 +49,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Category</label>
+            <label class="form-label">Category</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                 <select class="form-select select2" name="category">
@@ -60,7 +60,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Dated From</label>
+            <label class="form-label">Dated From</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
@@ -68,7 +68,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Dated To</label>
+            <label class="form-label">Dated To</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">

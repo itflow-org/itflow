@@ -19,7 +19,7 @@ ob_start();
     <?php foreach ($contact_ids as $contact_id) { ?><input type="hidden" name="contact_ids[]" value="<?= $contact_id ?>"><?php } ?>
     <div class="modal-body">
 
-        <label>Phone</label>
+        <label class="form-label">Phone</label>
         <div class="mb-3">
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>

@@ -20,7 +20,7 @@ $ct_expires = (string) ($ct['client_tax_exempt_expires'] ?? '');
 <input type="hidden" name="tax_fields" value="1">
 
 <div class="mb-3">
-    <label>Tax Rate</label>
+    <label class="form-label">Tax Rate</label>
     <div class="input-group">
         <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
         <select class="form-select select2" name="default_tax_id">
@@ -48,14 +48,14 @@ $ct_expires = (string) ($ct['client_tax_exempt_expires'] ?? '');
 
 <div class="row">
     <div class="col-md-7 mb-3">
-        <label>Exemption Certificate</label>
+        <label class="form-label">Exemption Certificate</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-file-contract"></i></span>
             <input type="text" class="form-control" name="tax_exempt_number" maxlength="200" placeholder="Certificate number" value="<?= escapeHtml($ct['client_tax_exempt_number'] ?? '') ?>">
         </div>
     </div>
     <div class="col-md-5 mb-3">
-        <label>Expires</label>
+        <label class="form-label">Expires</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
             <input type="date" class="form-control" name="tax_exempt_expires" max="2999-12-31" value="<?= escapeHtml($ct_expires) ?>">

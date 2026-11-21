@@ -32,7 +32,7 @@ if (!$row) { ?>
         </div>
 
         <div class="mb-3">
-            <label>Name <strong class="text-danger">*</strong></label>
+            <label class="form-label">Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-sticky-note"></i></span>
                 <input type="text" class="form-control" name="name" placeholder="What uses it" maxlength="255" value="<?= escapeHtml($row['api_key_name']) ?>" required autofocus>
@@ -40,7 +40,7 @@ if (!$row) { ?>
         </div>
 
         <div class="mb-3">
-            <label>Expires <strong class="text-danger">*</strong></label>
+            <label class="form-label">Expires <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?= escapeHtml($row['api_key_expire']) ?>" required>
@@ -52,7 +52,7 @@ if (!$row) { ?>
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_api_key" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save changes</button>
+        <button type="submit" name="edit_api_key" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

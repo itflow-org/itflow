@@ -57,7 +57,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Ticket number to merge this ticket into <strong class="text-danger">*</strong></label>
+            <label class="form-label">Ticket number to merge this ticket into <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                 <select class="form-select select2" name="merge_into_ticket_id" required>
@@ -80,7 +80,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Reason for merge <strong class="text-danger">*</strong></label>
+            <label class="form-label">Reason for merge <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-sticky-note"></i></span>
                 <input type="text" class="form-control" name="merge_comment" placeholder="Comments">

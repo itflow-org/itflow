@@ -52,7 +52,7 @@ ob_start();
         <?php exportTabsFiltersOpen(); ?>
 
         <div class="mb-3">
-            <label>Search</label>
+            <label class="form-label">Search</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, contact, address, tag">
@@ -60,7 +60,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Showing</label>
+            <label class="form-label">Showing</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-friends"></i></span>
                 <select class="form-select select2" name="leads">
@@ -71,7 +71,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Industry</label>
+            <label class="form-label">Industry</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-industry"></i></span>
                 <select class="form-select select2" name="industry">
@@ -90,7 +90,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Referral</label>
+            <label class="form-label">Referral</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-share-alt"></i></span>
                 <select class="form-select select2" name="referral">
@@ -109,7 +109,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Tags</label>
+            <label class="form-label">Tags</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                 <select class="form-select select2" name="tags[]" data-placeholder="- All Tags -" multiple>
@@ -119,7 +119,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Created From</label>
+            <label class="form-label">Created From</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
@@ -127,7 +127,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Created To</label>
+            <label class="form-label">Created To</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">
@@ -135,7 +135,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Archived</label>
+            <label class="form-label">Archived</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
                 <select class="form-select select2" name="archived">

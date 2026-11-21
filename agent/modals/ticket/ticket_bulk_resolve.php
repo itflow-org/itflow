@@ -28,7 +28,7 @@ ob_start();
 
         <div class="col-3">
             <div class="mb-3">
-                <label>Time worked</label>
+                <label class="form-label">Time worked</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
                     <input class="form-control timepicker" id="time_worked" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="00:01:00" required/>

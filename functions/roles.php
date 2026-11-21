@@ -42,7 +42,7 @@ function roleModuleInfo() {
             'levels' => [1 => 'See and copy them', 2 => 'Add, edit and share them', 3 => 'Delete them'],
         ],
         'module_sales' => [
-            'label' => 'Sales', 'icon' => 'fa-file-invoice', 'about' => 'Quotes, invoices, recurring invoices and products',
+            'label' => 'Sales', 'icon' => 'fa-file-invoice-dollar', 'about' => 'Quotes, invoices, recurring invoices and products',
             'levels' => [1 => 'See them', 2 => 'Create, edit and send them - and record payments, with Financial at Modify too', 3 => 'Delete them, and edit or refund a payment'],
         ],
         'module_financial' => [

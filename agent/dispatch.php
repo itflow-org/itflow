@@ -158,7 +158,7 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
                 <!-- The contact's other open tickets - a duplicate can be merged before it is booked -->
                 <div class="border rounded p-2 mb-3 small overflow-auto" style="max-height: 18rem;" data-dispatch-schedule-others hidden></div>
                 <div class="mb-3">
-                    <label>Agent</label>
+                    <label class="form-label">Agent</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                         <select class="form-select select2" name="agent_id" required>
@@ -170,14 +170,14 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
                 </div>
                 <div class="row g-2 mb-3">
                     <div class="col-sm-7">
-                        <label>Date and time</label>
+                        <label class="form-label">Date and time</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                             <input type="datetime-local" class="form-control" name="start" required>
                         </div>
                     </div>
                     <div class="col-sm-5">
-                        <label>How long</label>
+                        <label class="form-label">How long</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
                             <select class="form-select select2" name="minutes"></select>
@@ -186,7 +186,7 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
                 </div>
                 <?= timezoneFormHint() ?>
                 <div class="mb-3">
-                    <label>Visit</label>
+                    <label class="form-label">Visit</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                         <select class="form-select select2" name="onsite">

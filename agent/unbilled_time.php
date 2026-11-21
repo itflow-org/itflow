@@ -509,7 +509,7 @@ $hours_text = function ($hours) {
                                 <div class="col-12">
                                     <label class="form-label">Invoice</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-file-invoice"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
                                         <select class="form-select" name="invoice_id" data-unbilled-target>
                                             <option value="0">A new draft invoice</option>
                                             <?php foreach ($this_client['drafts'] as $draft_id => $draft) { ?>
@@ -522,7 +522,7 @@ $hours_text = function ($hours) {
                                 <div class="col-12">
                                     <label class="form-label">Invoices</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-file-invoice"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
                                         <select class="form-select" name="target" data-unbilled-target>
                                             <option value="new">A new draft for each client</option>
                                             <option value="draft">Each client's newest draft, or a new one</option>

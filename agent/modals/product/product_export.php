@@ -45,7 +45,7 @@ ob_start();
         <?php exportTabsFiltersOpen(); ?>
 
         <div class="mb-3">
-            <label>Search</label>
+            <label class="form-label">Search</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, code, description">
@@ -53,7 +53,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Type</label>
+            <label class="form-label">Type</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
                 <select class="form-select select2" name="type">
@@ -69,7 +69,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Category</label>
+            <label class="form-label">Category</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                 <select class="form-select select2" name="category">
@@ -80,7 +80,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Vendor</label>
+            <label class="form-label">Vendor</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                 <select class="form-select select2" name="vendor">
@@ -93,7 +93,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Archived</label>
+            <label class="form-label">Archived</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
                 <select class="form-select select2" name="archived">

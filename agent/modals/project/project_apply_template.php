@@ -31,15 +31,18 @@ ob_start();
     <div class="modal-body">
         <div class="mb-3">
             <label class="form-label">Project template <strong class="text-danger">*</strong></label>
-            <select class="form-select select2" name="project_template_id" required>
-                <option value="">Pick a template...</option>
-                <?php while ($row = mysqli_fetch_assoc($sql_templates)) {
-                    $ticket_count = intval($row['ticket_count']);
-                    $task_count = intval($row['task_count']); ?>
-                    <option value="<?= intval($row['project_template_id']) ?>" data-icon="fas fa-cubes"
-                        data-description="<?= escapeHtml(trim("$ticket_count ticket" . ($ticket_count === 1 ? '' : 's') . ($task_count ? ", $task_count task" . ($task_count === 1 ? '' : 's') : '') . ($row['project_template_description'] ? ' - ' . $row['project_template_description'] : ''))) ?>"><?= escapeHtml($row['project_template_name']) ?></option>
-                <?php } ?>
-            </select>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-project-diagram"></i></span>
+                <select class="form-select select2" name="project_template_id" required>
+                    <option value="">Pick a template...</option>
+                    <?php while ($row = mysqli_fetch_assoc($sql_templates)) {
+                        $ticket_count = intval($row['ticket_count']);
+                        $task_count = intval($row['task_count']); ?>
+                        <option value="<?= intval($row['project_template_id']) ?>" data-icon="fas fa-cubes"
+                data-description="<?= escapeHtml(trim("$ticket_count ticket" . ($ticket_count === 1 ? '' : 's') . ($task_count ? ", $task_count task" . ($task_count === 1 ? '' : 's') : '') . ($row['project_template_description'] ? ' - ' . $row['project_template_description'] : ''))) ?>"><?= escapeHtml($row['project_template_name']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
             <div class="form-text">Its tickets are raised on this project in the template's order, each with its tasks<?= intval($project['project_contact_id']) ? ', for ' . escapeHtml($project['contact_name']) : '' ?>. The client isn't emailed.</div>
         </div>
         <?php if (intval($project['project_manager'])) { ?>

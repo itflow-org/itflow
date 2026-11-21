@@ -46,7 +46,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Subject <strong class="text-danger">*</strong></label>
+            <label class="form-label">Subject <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="subject" maxlength="500" required autofocus value="<?= escapeHtml($suggested) ?>">
@@ -56,7 +56,7 @@ ob_start();
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label>Priority</label>
+                    <label class="form-label">Priority</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                         <select class="form-select select2" name="priority">
@@ -69,7 +69,7 @@ ob_start();
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label>Assign to</label>
+                    <label class="form-label">Assign to</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                         <select class="form-select select2" name="assigned_to">

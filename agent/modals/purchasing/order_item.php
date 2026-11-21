@@ -44,7 +44,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-cart-plus me-2"></i><?= $item ? 'Edit Item' : 'Add to To Order' ?></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-cart-plus me-2"></i><?= $item ? 'Edit Item' : 'New Item' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" id="<?= $form_id ?>">
@@ -130,7 +130,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="order_item_save" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i><?= $item ? 'Save' : 'Add' ?></button>
+        <button type="submit" name="order_item_save" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i><?= $item ? 'Save' : 'Create' ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

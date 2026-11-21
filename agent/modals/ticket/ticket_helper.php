@@ -62,7 +62,7 @@ ob_start();
             <div class="alert alert-info mb-0">Every agent who can open this ticket is on it already.</div>
         <?php } else { ?>
             <div class="mb-3">
-                <label>Agent</label>
+                <label class="form-label">Agent</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                     <select class="form-select select2" name="user_id" id="scheduleTech" required>
@@ -97,14 +97,14 @@ ob_start();
             <div data-helper-own <?= $mode === 'own' ? '' : 'hidden' ?>>
                 <div class="row g-2 mb-3">
                     <div class="col-sm-7">
-                        <label>Date and time</label>
+                        <label class="form-label">Date and time</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                             <input type="datetime-local" class="form-control" name="scheduled_date_time" id="scheduleDateTime" value="<?= $own_start ? date('Y-m-d\TH:i', strtotime(timezoneToView($own_start))) : '' ?>">
                         </div>
                     </div>
                     <div class="col-sm-5">
-                        <label>How long</label>
+                        <label class="form-label">How long</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
                             <select class="form-select select2" name="schedule_minutes">

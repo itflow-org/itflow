@@ -5,7 +5,7 @@
  * Each row says what it is and whose, the version it runs and whether an update is waiting,
  * how it's doing (from the report it sends every minute), its agents against the seat limit
  * set here, whether it's active, read-only or suspended, and when it last checked in. Removed
- * instances sit under Removed, where they can be deleted. Add Instance makes one and its
+ * instances sit under Removed, where they can be deleted. New Instance makes one and its
  * connection code; the handlers are admin/post/managed_instances.php.
  */
 
@@ -71,7 +71,7 @@ $csrf = $_SESSION['csrf_token'];
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-network-wired me-2"></i>Managed Instances</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/managed_instance/managed_instance_form.php"><i class="fas fa-plus me-2"></i>Add Instance</button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/managed_instance/managed_instance_form.php"><i class="fas fa-plus me-2"></i>New Instance</button>
         </div>
     </div>
     <div class="card-header py-3">
@@ -217,7 +217,7 @@ $csrf = $_SESSION['csrf_token'];
         'archived_title' => 'No removed instances',
         'views' => ['show'],
         'text' => 'Manage other ITFlow installs from here - a client\'s, a reseller\'s or your own hosted ones. Each checks in every minute with how it\'s doing; from here you set its seat limit, white label and updates, update it, make it read-only or suspend it, and sign in to it as support.',
-        'actions' => [['label' => 'Add Instance', 'modal' => 'modals/managed_instance/managed_instance_form.php']],
+        'actions' => [['label' => 'New Instance', 'modal' => 'modals/managed_instance/managed_instance_form.php']],
     ];
     require_once "../includes/filter_footer.php";
     ?>

@@ -21,7 +21,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Status</label>
+            <label class="form-label">Status</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-circle"></i></span>
                 <select class="form-select select2" name="bulk_status">

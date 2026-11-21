@@ -86,7 +86,7 @@ ob_start();
             <div class="row g-2">
                 <div class="col-sm-4">
                     <div class="mb-3">
-                        <label>Time worked</label>
+                        <label class="form-label">Time worked</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
                             <input class="form-control" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="<?= $ticket_reply_time_worked_formatted ?>" required>
@@ -98,7 +98,7 @@ ob_start();
                     [$work_start, $work_end] = !empty($row['ticket_reply_work_start']) ? [$row['ticket_reply_work_start'], $row['ticket_reply_work_end']] : ticketWorkTimesShown($row); ?>
                     <div class="col-sm-8">
                         <div class="mb-3">
-                            <label>When it was worked</label>
+                            <label class="form-label">When it was worked</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                                 <input type="date" class="form-control" name="work_date" max="2999-12-31" style="min-width: 9.5rem" value="<?= escapeHtml(substr($work_start, 0, 10)) ?>" aria-label="Date worked">

@@ -370,7 +370,7 @@
 
                         <li class="nav-item">
                             <a href="/agent/invoices.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "invoices.php" || basename($_SERVER["PHP_SELF"]) == "invoice.php") { echo "active"; } ?>">
-                                <i class="nav-icon fas fa-file-invoice"></i>
+                                <i class="nav-icon fas fa-file-invoice-dollar"></i>
                                 <p>
                                     Invoices
                                     <?php

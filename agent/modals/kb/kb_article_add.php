@@ -38,7 +38,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_kb_article" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create Article</button>
+        <button type="submit" name="add_kb_article" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

@@ -14,7 +14,7 @@
                         Client Portal Access will be revoked upon archiving
                     </div>
 
-                    <label>Unassign:</label>
+                    <label class="form-label">Unassign:</label>
 
                     <div class="mb-3">
                         <div class="form-check">
@@ -46,7 +46,7 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" name="archive_contact" class="btn btn-danger text-bold"><i class="fas fa-check me-2"></i>Arhive</button>
+                    <button type="submit" name="archive_contact" class="btn btn-danger text-bold"><i class="fas fa-check me-2"></i>Archive</button>
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
                 </div>
             </form>

@@ -37,7 +37,7 @@ ob_start();
         <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
 
         <div class="mb-3">
-            <label>Date and time</label>
+            <label class="form-label">Date and time</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                 <input type="datetime-local" class="form-control" name="scheduled_date_time" id="scheduleDateTime" placeholder="Scheduled Date & Time" min="<?= substr(timezoneNow(), 0, 16) ?>" <?php if ($ticket_scheduled_for) { echo "value='$ticket_scheduled_for'"; } ?>>
@@ -47,7 +47,7 @@ ob_start();
 
         <div class="row g-2 mb-3">
             <div class="col-sm-7">
-                <label>Agent</label>
+                <label class="form-label">Agent</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                     <select class="form-select select2" name="schedule_tech" id="scheduleTech">
@@ -61,7 +61,7 @@ ob_start();
                 </div>
             </div>
             <div class="col-sm-5">
-                <label>How long</label>
+                <label class="form-label">How long</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
                     <select class="form-select select2" name="schedule_minutes" id="scheduleMinutes">
@@ -74,7 +74,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Visit</label>
+            <label class="form-label">Visit</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                 <select class="form-select select2" name="onsite" required>

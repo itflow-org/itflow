@@ -370,7 +370,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                                 <a class="dropdown-item ajax-modal" href="#" <?= $row_open ?>><i class="fas fa-fw fa-eye text-secondary me-2"></i>Open</a>
                                 <?php if ($is_payment) { ?>
                                     <?php if ($can_sales && $row['invoice_number'] !== null) { ?>
-                                        <a class="dropdown-item" href="invoice.php?invoice_id=<?= intval($row['income_invoice_id']) ?>"><i class="fas fa-fw fa-file-invoice text-secondary me-2"></i>Open Invoice</a>
+                                        <a class="dropdown-item" href="invoice.php?invoice_id=<?= intval($row['income_invoice_id']) ?>"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Open Invoice</a>
                                     <?php } ?>
                                     <?php if ($row['invoice_number'] !== null && ($can_edit_payments || $can_delete_payments)) { ?>
                                         <div class="dropdown-divider"></div>

@@ -29,7 +29,7 @@ ob_start();
         ?>
 
         <div class="mb-3">
-            <label>Subject <strong class="text-danger">*</strong></label>
+            <label class="form-label">Subject <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="bulk_subject" data-template-field="subject" placeholder="Enter a subject" maxlength="500" required>
@@ -44,7 +44,7 @@ ob_start();
 
             <div class="col">
                 <div class="mb-3">
-                    <label>Priority <strong class="text-danger">*</strong></label>
+                    <label class="form-label">Priority <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                         <select class="form-select select2" name="bulk_priority" data-template-field="priority" required>
@@ -59,7 +59,7 @@ ob_start();
 
             <div class="col">
                 <div class="mb-3">
-                    <label>Category</label>
+                    <label class="form-label">Category</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                         <select class="form-select select2" name="bulk_category" data-template-field="category">
@@ -77,7 +77,7 @@ ob_start();
             <div class="col">
 
                 <div class="mb-3">
-                    <label>Assign to</label>
+                    <label class="form-label">Assign to</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                         <select class="form-select select2" name="bulk_assigned_to" data-template-field="assigned">
@@ -102,7 +102,7 @@ ob_start();
             <div class="col">
 
                 <div class="mb-3">
-                    <label>Project</label>
+                    <label class="form-label">Project</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
                         <select class="form-select select2" name="bulk_project">

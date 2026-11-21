@@ -43,7 +43,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-robot me-2"></i><?= $row ? '<strong>' . escapeHtml($row['ai_provider_name']) . '</strong>' : 'Add AI Provider' ?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-robot me-2"></i><?= $row ? '<strong>' . escapeHtml($row['ai_provider_name']) . '</strong>' : 'New AI Provider' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" novalidate data-ai-provider-form data-kinds="<?= escapeHtml(json_encode($kinds_js)) ?>" data-has-key="<?= $has_key ? '1' : '0' ?>">
@@ -131,7 +131,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <button type="submit" name="<?= $row ? 'edit_ai_provider' : 'add_ai_provider' ?>" class="btn btn-primary text-bold" data-ai-save>
-            <i class="fa fa-check me-2"></i><?= $row ? 'Save' : 'Add' ?>
+            <i class="fa fa-check me-2"></i><?= $row ? 'Save' : 'Create' ?>
         </button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>

@@ -38,7 +38,7 @@ ob_start();
 
             <div class="tab-pane fade show active" id="pills-api-details">
                 <div class="mb-3">
-                    <label>Name <strong class="text-danger">*</strong></label>
+                    <label class="form-label">Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-sticky-note"></i></span>
                         <input type="text" class="form-control" name="name" placeholder="What uses it - the RMM, a PSA sync" maxlength="255" required autofocus>
@@ -46,7 +46,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Expires <strong class="text-danger">*</strong></label>
+                    <label class="form-label">Expires <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                         <input type="date" class="form-control" name="expire" min="<?= date('Y-m-d', strtotime('+1 day')) ?>" max="2999-12-31" value="<?= date('Y-m-d', strtotime('+1 year')) ?>" required>
@@ -60,7 +60,7 @@ ob_start();
             <div class="tab-pane fade" id="pills-api-keys">
                 <div class="alert alert-warning small py-2"><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Copy both now - they aren't shown again.</div>
                 <div class="mb-3">
-                    <label>API key</label>
+                    <label class="form-label">API key</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         <input type="text" class="form-control font-monospace" value="<?= $key ?>" readonly>
@@ -70,7 +70,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Credential decryption password</label>
+                    <label class="form-label">Credential decryption password</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-unlock-alt"></i></span>
                         <input type="text" class="form-control font-monospace" value="<?= $decryptPW ?>" readonly>

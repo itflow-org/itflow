@@ -60,7 +60,7 @@ if (!managerEnabled()) { ?>
     ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-<?= $is_new ? 'plus' : 'server' ?> me-2"></i><?= $is_new ? 'Add Instance' : $value('managed_instance_name') ?></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-<?= $is_new ? 'plus' : 'server' ?> me-2"></i><?= $is_new ? 'New Instance' : $value('managed_instance_name') ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -213,7 +213,7 @@ if (!managerEnabled()) { ?>
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="<?= $is_new ? 'add_managed_instance' : 'edit_managed_instance' ?>" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i><?= $is_new ? 'Add' : 'Save' ?></button>
+        <button type="submit" name="<?= $is_new ? 'add_managed_instance' : 'edit_managed_instance' ?>" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i><?= $is_new ? 'Create' : 'Save' ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

@@ -35,7 +35,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Client <strong class="text-danger">*</strong></label>
+            <label class="form-label">Client <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                 <select class="form-select select2" name="new_client_id" id="client_select" required>
@@ -54,7 +54,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Contact</label>
+            <label class="form-label">Contact</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="new_contact_id" id="contact_select">

@@ -38,7 +38,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-sms me-2"></i><?= $row ? '<strong>' . escapeHtml($name) . '</strong>' : 'Add Texting Provider' ?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-sms me-2"></i><?= $row ? '<strong>' . escapeHtml($name) . '</strong>' : 'New Texting Provider' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" novalidate data-sms-provider-form>
@@ -131,7 +131,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <button type="submit" name="<?= $row ? 'edit_sms_provider' : 'add_sms_provider' ?>" class="btn btn-primary text-bold" data-sms-provider-save <?= !$row && !$free_kinds ? 'disabled' : '' ?>>
-            <i class="fa fa-check me-2"></i><?= $row ? 'Save' : 'Add' ?>
+            <i class="fa fa-check me-2"></i><?= $row ? 'Save' : 'Create' ?>
         </button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>

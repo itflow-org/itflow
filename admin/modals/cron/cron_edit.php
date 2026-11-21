@@ -48,7 +48,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Schedule</label>
+            <label class="form-label">Schedule</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 <select class="form-select select2" name="schedule" id="cronJobSchedule">
@@ -64,7 +64,7 @@ ob_start();
         </div>
 
         <div class="mb-3" id="cronJobIntervalGroup">
-            <label>Run every</label>
+            <label class="form-label">Run every</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-redo"></i></span>
                 <input type="number" class="form-control" name="interval_minutes" value="<?= $cron_job_interval_minutes ?>" min="1" max="1440">
@@ -74,7 +74,7 @@ ob_start();
         </div>
 
         <div class="mb-3" id="cronJobDailyGroup">
-            <label>Run at</label>
+            <label class="form-label">Run at</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                 <input type="time" class="form-control" name="daily_at" value="<?= $cron_job_daily_at ?>">

@@ -27,7 +27,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Location</label>
+            <label class="form-label">Location</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                 <select class="form-select select2" name="bulk_location_id">

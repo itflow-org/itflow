@@ -70,7 +70,7 @@ $csrf = $_SESSION['csrf_token'];
             </a>
             <a class="btn btn-outline-light me-1" href="text_messages.php"><i class="fas fa-fw fa-list"></i><span class="d-none d-lg-inline ms-2">Text Messages</span></a>
             <?php if ($can_add) { ?>
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">Add Provider</span></button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Provider</span></button>
             <?php } ?>
         </div>
     </div>
@@ -187,7 +187,7 @@ $csrf = $_SESSION['csrf_token'];
         'thing' => 'texting providers',
         'icon' => 'fa-sms',
         'text' => 'Set up Skyetel and your agents can reply to tickets by text, texts from your clients open tickets, and verification codes texted to your number land in Texts.',
-        'actions' => $can_add ? [['label' => 'Add Provider', 'modal' => $add_url]] : [],
+        'actions' => $can_add ? [['label' => 'New Provider', 'modal' => $add_url]] : [],
     ];
     ?>
     <?php require_once "../includes/filter_footer.php"; ?>

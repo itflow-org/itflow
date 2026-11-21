@@ -95,7 +95,7 @@ $drafts = poReady() ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUN
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-cart-plus me-2"></i>To Order</h3>
         <div class="card-tools">
             <?php if ($can_edit) { ?>
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/purchasing/order_item.php"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">Add Item</span></button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/purchasing/order_item.php"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Item</span></button>
             <?php } ?>
         </div>
     </div>
@@ -259,7 +259,7 @@ $drafts = poReady() ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUN
         'icon' => 'fa-cart-plus',
         'filtered' => $q !== '' || $vendor_filter || $client_filter,
         'text' => 'What needs buying - for a client, or for your own stock. Tick items to make a purchase order to their vendor.',
-        'actions' => $can_edit ? [['label' => 'Add Item', 'modal' => 'modals/purchasing/order_item.php']] : [],
+        'actions' => $can_edit ? [['label' => 'New Item', 'modal' => 'modals/purchasing/order_item.php']] : [],
     ];
     require_once "../includes/filter_footer.php";
     ?>

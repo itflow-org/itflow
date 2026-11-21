@@ -30,7 +30,7 @@ if (!$template) { ?>
         <small class="text-secondary d-block mt-3">Contracts already started from it keep their own terms.</small>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_contract_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save changes</button>
+        <button type="submit" name="edit_contract_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>

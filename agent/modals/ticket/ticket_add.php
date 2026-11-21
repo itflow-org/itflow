@@ -153,7 +153,7 @@ ob_start();
                 <div class="row">
                     <div class="col">
                         <div class="mb-3">
-                            <label>Client <strong class="text-danger">*</strong></label>
+                            <label class="form-label">Client <strong class="text-danger">*</strong></label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                 <select class="form-select select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
@@ -176,7 +176,7 @@ ob_start();
                     </div>
                     <div class="col">
                         <div class="mb-3">
-                            <label>Contact </label>
+                            <label class="form-label">Contact </label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                 <select class="form-select select2" name="contact_id" id="contactSelect" data-selected="<?= $contact_id ?>">
@@ -194,7 +194,7 @@ ob_start();
                 <?php require_once '../../includes/inc_ticket_template_select.php'; ?>
 
                 <div class="mb-3">
-                    <label>Subject <strong class="text-danger">*</strong></label>
+                    <label class="form-label">Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" maxlength="500" value="<?= escapeHtml($prefill_subject) ?>" data-template-field="subject" required>
@@ -209,7 +209,7 @@ ob_start();
 
                     <div class="col">
                         <div class="mb-3">
-                            <label>Priority <strong class="text-danger">*</strong></label>
+                            <label class="form-label">Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                                 <select class="form-select select2" name="priority" data-template-field="priority" required>
@@ -224,7 +224,7 @@ ob_start();
 
                     <div class="col">
                         <div class="mb-3">
-                            <label>Category</label>
+                            <label class="form-label">Category</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                                 <select class="form-select select2" name="category_id" data-template-field="category">
@@ -241,7 +241,7 @@ ob_start();
                 <div class="row">
                     <div class="col">
                         <div class="mb-3">
-                            <label>Assign to</label>
+                            <label class="form-label">Assign to</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                                 <select class="form-select select2" name="assigned_to" data-template-field="assigned">
@@ -264,7 +264,7 @@ ob_start();
                     </div>
                     <div class="col">
                         <div class="mb-3">
-                            <label>Due</label>
+                            <label class="form-label">Due</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
                                 <input type="datetime-local" class="form-control" name="due" data-template-field="due">
@@ -298,9 +298,9 @@ ob_start();
 
                 <!-- The work booked, as the ticket's own Schedule window - a row of its own, so the date has room beside how long and where -->
                 <div class="mb-3">
-                    <label>Schedule</label>
+                    <label class="form-label">Schedule</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                         <input type="datetime-local" class="form-control" name="schedule" min="<?= date('Y-m-d\TH:i') ?>" value="<?= escapeHtml($prefill_schedule) ?>" aria-label="Date and time of the work">
                         <select class="form-select select2 flex-grow-0 w-auto" name="schedule_minutes" aria-label="How long">
                             <?php foreach (ticketScheduleLengths($prefill_schedule_minutes) as $minutes => $label) { ?>
@@ -335,7 +335,7 @@ ob_start();
             <div class="tab-pane fade" id="pills-add-relationships">
 
                 <div class="mb-3">
-                    <label>Project</label>
+                    <label class="form-label">Project</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
                         <select class="form-select select2" name="project_id" id="projectSelect" data-selected="<?= $project_id ?>">
@@ -344,7 +344,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Asset</label>
+                    <label class="form-label">Asset</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="asset_id" id="assetSelect" data-selected="<?= $asset_id ?>">
@@ -353,7 +353,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Other assets</label>
+                    <label class="form-label">Other assets</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="additional_assets[]" id="additionalAssetsSelect" data-placeholder="- Select Additional Assets -" multiple>
@@ -362,7 +362,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Site</label>
+                    <label class="form-label">Site</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                         <select class="form-select select2" name="location_id" id="locationSelect" data-selected="<?= $location_id ?>">
@@ -375,7 +375,7 @@ ob_start();
 
                     <div class="col">
                         <div class="mb-3">
-                            <label>Vendor</label>
+                            <label class="form-label">Vendor</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                                 <select class="form-select select2" name="vendor_id" id="vendorSelect" data-selected="<?= $vendor_id ?>">
@@ -387,7 +387,7 @@ ob_start();
 
                     <div class="col">
                         <div class="mb-3">
-                            <label>Their reference</label>
+                            <label class="form-label">Their reference</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
                                 <input type="text" class="form-control" name="vendor_ticket_number" placeholder="The vendor's case number" maxlength="255">
@@ -398,7 +398,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Watchers</label>
+                    <label class="form-label">Watchers</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         <select class="form-select select2" name="watchers[]" id="watchersSelect" data-tags="true" data-placeholder="Enter or select email address" multiple>
@@ -407,7 +407,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label><i class="fa fa-fw fa-paperclip me-1"></i>Attachments</label>
+                    <label class="form-label"><i class="fa fa-fw fa-paperclip me-1"></i>Attachments</label>
                     <input type="file" class="form-control" name="attachments[]" multiple accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
                 </div>
 
@@ -418,7 +418,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create Ticket</button>
+        <button type="submit" name="add_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 

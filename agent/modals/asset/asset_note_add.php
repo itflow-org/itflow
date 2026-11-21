@@ -29,7 +29,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Type</label>
+            <label class="form-label">Type</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
                 <select class="form-select select2" name="type">

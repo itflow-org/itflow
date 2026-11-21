@@ -39,7 +39,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Approval comes from <strong class="text-danger">*</strong></label>
+            <label class="form-label">Approval comes from <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="approval_scope" id="approval_scope" required>
@@ -52,7 +52,7 @@ ob_start();
 
 
         <div class="mb-3 d-none" id="approval_type_wrapper">
-            <label>Who can approve? <strong class="text-danger">*</strong></label>
+            <label class="form-label">Who can approve? <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                 <select class="form-select select2" name="approval_type" id="approval_type" required>
@@ -63,7 +63,7 @@ ob_start();
 
 
         <div class="mb-3 d-none" id="specific_user_wrapper">
-            <label>Technician <strong class="text-danger">*</strong></label>
+            <label class="form-label">Technician <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
                 <select class="form-select select2" name="approval_required_user_id" id="specific_user_select">

@@ -45,7 +45,7 @@ function appLogCategoryIcon($category) {
         'Cron-Email-Parser' => 'fa-inbox', 'Cron-Mail-Queue' => 'fa-paper-plane', 'Cron-Ticket-SLA' => 'fa-stopwatch',
         'Cron-Domain-Refresher' => 'fa-globe', 'Cron-Certificate-Refresher' => 'fa-lock', 'Cron' => 'fa-clock',
         'Stripe' => 'fa-credit-card', 'Mail' => 'fa-envelope', 'API' => 'fa-plug', 'AI' => 'fa-robot', 'Request' => 'fa-exchange-alt',
-        'Quote' => 'fa-comment-dollar', 'Invoice' => 'fa-file-invoice', 'Guest' => 'fa-user', 'Backup' => 'fa-cloud-upload-alt',
+        'Quote' => 'fa-comment-dollar', 'Invoice' => 'fa-file-invoice-dollar', 'Guest' => 'fa-user', 'Backup' => 'fa-cloud-upload-alt',
         'Update' => 'fa-download', LOG_FORWARD_CATEGORY => 'fa-share-square', 'Database' => 'fa-database',
     ];
     $category = (string) $category;

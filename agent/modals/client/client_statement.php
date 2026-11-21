@@ -105,7 +105,7 @@ ob_start();
 
             <div class="row g-2">
                 <div class="col-sm-6 mb-3">
-                    <label>From</label>
+                    <label class="form-label">From</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                         <input type="date" class="form-control" name="dtf" max="2999-12-31" data-statement-option>
@@ -113,7 +113,7 @@ ob_start();
                     <small class="text-muted">Leave blank for all history</small>
                 </div>
                 <div class="col-sm-6 mb-3">
-                    <label>To</label>
+                    <label class="form-label">To</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                         <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?= date("Y-m-d") ?>" data-statement-option>

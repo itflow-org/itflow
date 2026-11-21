@@ -62,7 +62,7 @@ ob_start();
         <?php exportTabsFiltersOpen(); ?>
 
         <div class="mb-3">
-            <label>Search</label>
+            <label class="form-label">Search</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Number, subject, client, contact">
@@ -70,7 +70,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Status</label>
+            <label class="form-label">Status</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
                 <select class="form-select select2" name="status[]" data-placeholder="- Open tickets -" multiple>
@@ -90,7 +90,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Resolution</label>
+            <label class="form-label">Resolution</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-check"></i></span>
                 <select class="form-select select2" name="resolution">
@@ -103,7 +103,7 @@ ob_start();
 
         <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
         <div class="mb-3">
-            <label>Billing</label>
+            <label class="form-label">Billing</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                 <select class="form-select select2" name="billing">
@@ -118,7 +118,7 @@ ob_start();
 
         <?php if (!$client_id) { ?>
         <div class="mb-3">
-            <label>Client</label>
+            <label class="form-label">Client</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
@@ -139,7 +139,7 @@ ob_start();
         <?php } ?>
 
         <div class="mb-3">
-            <label>Category</label>
+            <label class="form-label">Category</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                 <select class="form-select select2" name="category">
@@ -150,7 +150,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Assigned To</label>
+            <label class="form-label">Assigned To</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-tie"></i></span>
                 <select class="form-select select2" name="assigned">
@@ -170,7 +170,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>SLA</label>
+            <label class="form-label">SLA</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
                 <select class="form-select select2" name="sla">
@@ -187,7 +187,7 @@ ob_start();
         <?= tagExportFieldHtml('ticket', $tag_filter) ?>
 
         <div class="mb-3">
-            <label>Opened From</label>
+            <label class="form-label">Opened From</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
@@ -195,7 +195,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Opened To</label>
+            <label class="form-label">Opened To</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">

@@ -55,7 +55,7 @@ ob_start();
         <?php exportTabsFiltersOpen(); ?>
 
         <div class="mb-3">
-            <label>Search</label>
+            <label class="form-label">Search</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, serial, IP, OS">
@@ -63,7 +63,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Type</label>
+            <label class="form-label">Type</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                 <select class="form-select select2" name="type">
@@ -77,7 +77,7 @@ ob_start();
 
         <?php if (!$client_id) { ?>
         <div class="mb-3">
-            <label>Client</label>
+            <label class="form-label">Client</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
@@ -99,7 +99,7 @@ ob_start();
 
         <?php if ($client_id) { ?>
         <div class="mb-3">
-            <label>Location</label>
+            <label class="form-label">Location</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                 <select class="form-select select2" name="location">
@@ -120,7 +120,7 @@ ob_start();
         <?php } ?>
 
         <div class="mb-3">
-            <label>Status</label>
+            <label class="form-label">Status</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-circle"></i></span>
                 <select class="form-select select2" name="status">
@@ -131,7 +131,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Tags</label>
+            <label class="form-label">Tags</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                 <select class="form-select select2" name="tags[]" data-placeholder="- All Tags -" multiple>
@@ -141,7 +141,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Warranty Expiring In</label>
+            <label class="form-label">Warranty Expiring In</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
                 <select class="form-select select2" name="expire_days">
@@ -155,7 +155,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Archived</label>
+            <label class="form-label">Archived</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
                 <select class="form-select select2" name="archived">

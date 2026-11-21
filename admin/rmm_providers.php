@@ -80,7 +80,7 @@ $csrf = $_SESSION['csrf_token'];
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-laptop-medical me-2"></i>RMM Providers</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">Add Provider</span></button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Provider</span></button>
         </div>
     </div>
     <?php if ($any_on && (!$cron_on || !$job_on)) { ?>
@@ -233,7 +233,7 @@ $csrf = $_SESSION['csrf_token'];
         'thing' => 'RMM providers',
         'icon' => 'fa-laptop-medical',
         'text' => 'Add ' . escapeHtml(implode(' or ', array_column($kinds, 'name'))) . ' and link its clients to yours: their devices come in as assets, matched to the ones you have, and each asset shows whether it is online, who is signed in and what needs attention - kept up every 15 minutes.',
-        'actions' => [['label' => 'Add Provider', 'modal' => $add_url]],
+        'actions' => [['label' => 'New Provider', 'modal' => $add_url]],
     ];
     ?>
     <?php require_once "../includes/filter_footer.php"; ?>

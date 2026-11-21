@@ -97,7 +97,7 @@ ob_start();
             <div class="row">
                 <div class="col-sm-6">
                     <div class="mb-3">
-                        <label>Scope</label>
+                        <label class="form-label">Scope</label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
                             <input type="text" class="form-control" name="scope" placeholder="Quick description" maxlength="255">
@@ -107,7 +107,7 @@ ob_start();
 
                 <div class="col-sm-6">
                     <div class="mb-3">
-                        <label>Quote Category <strong class="text-danger">*</strong></label>
+                        <label class="form-label">Quote Category <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
 
@@ -126,7 +126,7 @@ ob_start();
             <div class="row">
                 <div class="col-sm-6">
                     <div class="mb-3">
-                        <label>Quote Date <strong class="text-danger">*</strong></label>
+                        <label class="form-label">Quote Date <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>">
@@ -136,7 +136,7 @@ ob_start();
 
                 <div class="col-sm-6">
                     <div class="mb-3">
-                        <label>Expire <strong class="text-danger">*</strong></label>
+                        <label class="form-label">Expire <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             <input type="date" class="form-control" name="expire" min="<?= date("Y-m-d") ?>" max="2999-12-31" value="<?= date("Y-m-d", strtotime("+30 days")) ?>" required>
@@ -147,7 +147,7 @@ ob_start();
             <!-- End row 2 -->
 
             <div class="mb-3">
-                <label>Item <strong class="text-danger">*</strong></label>
+                <label class="form-label">Item <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
                     <input type="text" class="form-control" name="item_name" placeholder="Item" maxlength="200" required>
@@ -157,7 +157,7 @@ ob_start();
             <?php $description = "Ticket: {$ticket_prefix}{$ticket_number} - $ticket_subject\n"; ?>
 
             <div class="mb-3">
-                <label>Item Description</label>
+                <label class="form-label">Item Description</label>
                 <div class="input-group">
                     <textarea class="form-control" rows="10" name="item_description"><?= trim($description) ?></textarea>
                 </div>
@@ -166,7 +166,7 @@ ob_start();
             <div class="row g-2">
                 <div class="col">
                     <div class="mb-3">
-                        <label>QTY <strong class="text-danger">*</strong></label>
+                        <label class="form-label">QTY <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                             <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" required>
@@ -176,7 +176,7 @@ ob_start();
 
                 <div class="col">
                     <div class="mb-3">
-                        <label>Price <strong class="text-danger">*</strong></label>
+                        <label class="form-label">Price <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                             <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($client_rate, 2, '.', '') ?>" required>
@@ -189,7 +189,7 @@ ob_start();
             </div>
 
             <div class="mb-3">
-                <label>Tax <strong class="text-danger">*</strong></label>
+                <label class="form-label">Tax <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                     <select class="form-select select2" name="tax_id" required>

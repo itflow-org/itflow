@@ -277,7 +277,7 @@ if ($client) {
             '/agent/reports/documentation_coverage.php?gaps=1'];
     }
     if ($money && $money['unbilled']) {
-        $advice[] = ['info', 'fa-file-invoice', '<strong>' . $plural($money['unbilled'], 'billable ticket is', 'billable tickets are') . ' done but not invoiced yet.</strong>', '/agent/reports/tickets_unbilled.php?client_id=' . $client_id];
+        $advice[] = ['info', 'fa-file-invoice-dollar', '<strong>' . $plural($money['unbilled'], 'billable ticket is', 'billable tickets are') . ' done but not invoiced yet.</strong>', '/agent/reports/tickets_unbilled.php?client_id=' . $client_id];
     }
 }
 

@@ -73,7 +73,7 @@ $csrf = $_SESSION['csrf_token'];
         <div class="card-tools">
             <a class="btn btn-outline-light me-1" href="saved_payment_methods.php"><i class="fas fa-fw fa-wallet"></i><span class="d-none d-lg-inline ms-2">Saved Cards</span></a>
             <?php if ($can_add) { ?>
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">Add Provider</span></button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Provider</span></button>
             <?php } ?>
         </div>
     </div>
@@ -224,7 +224,7 @@ $csrf = $_SESSION['csrf_token'];
         'thing' => 'payment providers',
         'icon' => 'fa-credit-card',
         'text' => 'Set up Stripe and clients can pay their invoices by card, save a card, and pay recurring invoices by autopay.',
-        'actions' => $can_add ? [['label' => 'Add Provider', 'modal' => $add_url]] : [],
+        'actions' => $can_add ? [['label' => 'New Provider', 'modal' => $add_url]] : [],
     ];
     ?>
     <?php require_once "../includes/filter_footer.php"; ?>

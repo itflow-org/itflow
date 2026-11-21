@@ -49,7 +49,7 @@ function settingsPages() {
             'about' => 'How projects are numbered.'],
         'quote' => ['group' => 'work', 'title' => 'Quotes', 'icon' => 'fa-comment-dollar', 'url' => 'settings_quote.php', 'module' => 'accounting',
             'about' => 'How quotes are numbered, what goes at the foot of them, and who hears when one is answered.'],
-        'invoice' => ['group' => 'work', 'title' => 'Invoices and billing', 'icon' => 'fa-file-invoice', 'url' => 'settings_invoice.php', 'module' => 'accounting',
+        'invoice' => ['group' => 'work', 'title' => 'Invoices and billing', 'icon' => 'fa-file-invoice-dollar', 'url' => 'settings_invoice.php', 'module' => 'accounting',
             'about' => 'Invoice numbering, late fees, reminders and statements, and how time, expenses and trips are billed.'],
         'purchase_order' => ['group' => 'work', 'title' => 'Purchase orders', 'icon' => 'fa-file-signature', 'url' => 'settings_purchase_order.php', 'module' => 'purchasing',
             'about' => 'How purchase orders are numbered, and whether one needs approving before it is ordered.'],

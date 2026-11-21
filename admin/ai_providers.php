@@ -74,7 +74,7 @@ $csrf = $_SESSION['csrf_token'];
         <div class="card-tools">
             <a class="btn btn-outline-light me-1" href="ai_models.php" title="The models on them, and what each is for"><i class="fas fa-fw fa-brain"></i><span class="d-none d-lg-inline ms-2">Models</span></a>
             <a class="btn btn-outline-light me-1" href="ai_usage.php" title="Each request - who, for what, and the tokens it took"><i class="fas fa-fw fa-chart-bar"></i><span class="d-none d-lg-inline ms-2">Usage</span></a>
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">Add Provider</span></button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Provider</span></button>
         </div>
     </div>
     <div class="card-header py-3">
@@ -212,7 +212,7 @@ $csrf = $_SESSION['csrf_token'];
         'thing' => 'AI providers',
         'icon' => 'fa-robot',
         'text' => 'Connect OpenAI, Claude, Gemini, Azure OpenAI, or a model on your own network like Ollama - then agents can reword replies, summarize tickets and draft documents, with passwords and keys taken out of what is sent.',
-        'actions' => [['label' => 'Add Provider', 'modal' => $add_url]],
+        'actions' => [['label' => 'New Provider', 'modal' => $add_url]],
     ];
     ?>
     <?php require_once "../includes/filter_footer.php"; ?>

@@ -44,7 +44,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Primary asset</label>
+            <label class="form-label">Primary asset</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                 <select class="form-select select2" name="asset">
@@ -67,7 +67,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Other assets</label>
+            <label class="form-label">Other assets</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                 <select class="form-select select2" name="additional_assets[]" data-placeholder="- Any other assets involved -" multiple>
