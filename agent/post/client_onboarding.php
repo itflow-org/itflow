@@ -411,7 +411,7 @@ if (isset($_POST['client_onboarding_it'])) {
                 logAudit("Vendor", "Create", "$session_name created vendor " . escapeSql((string) getFieldById('vendors', $vendor_id, 'vendor_name')) . " from a template for license " . escapeSql($license_name), $client_id, $vendor_id);
                 $made['vendors']++;
             }
-            logAudit("Software", "Create", "$session_name created license " . escapeSql($license_name) . " from its template, onboarding the client", $client_id, $software_id);
+            logAudit("License", "Create", "$session_name created license " . escapeSql($license_name) . " from its template, onboarding the client", $client_id, $software_id);
             $made['licenses']++;
         }
     }

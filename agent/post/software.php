@@ -81,7 +81,7 @@ if (isset($_POST['add_software'])) {
     if ($vendor_made) {
         logAudit("Vendor", "Create", "$session_name created vendor " . escapeSql($vendor_name) . " from a template for license " . escapeSql($name), $client_id, intval($_POST['vendor']));
     }
-    logAudit("Software", "Create", "$session_name created license " . escapeSql($name . softwareSeatChangeText($changes)), $client_id, $software_id);
+    logAudit("License", "Create", "$session_name created license " . escapeSql($name . softwareSeatChangeText($changes)), $client_id, $software_id);
 
     $warning = softwareSeatWarning($software_id);
     flashAlert("License <strong>$name</strong> created" . ($keys_added ? " with $keys_added key" . ($keys_added === 1 ? '' : 's') : '') . ($vendor_made ? ", and vendor <strong>" . escapeHtml($vendor_name) . "</strong> added for the client" : '') . $warning, $warning ? 'warning' : 'success');
@@ -117,7 +117,7 @@ if (isset($_POST['add_software_from_template'])) {
     if ($vendor_made) {
         logAudit("Vendor", "Create", "$session_name created vendor " . escapeSql($vendor_name) . " from a template for license " . escapeSql($template['software_template_name']), $client_id, $vendor_id);
     }
-    logAudit("Software", "Create", "$session_name created license " . escapeSql($template['software_template_name']) . " from template " . escapeSql($template['software_template_name']), $client_id, $software_id);
+    logAudit("License", "Create", "$session_name created license " . escapeSql($template['software_template_name']) . " from template " . escapeSql($template['software_template_name']), $client_id, $software_id);
 
     flashAlert("License <strong>" . escapeHtml($template['software_template_name']) . "</strong> created from template <strong>" . escapeHtml($template['software_template_name']) . "</strong>" . ($vendor_made ? ", with vendor <strong>" . escapeHtml($vendor_name) . "</strong> added for the client" : '') . " - put its devices and users on it");
 
@@ -153,7 +153,7 @@ if (isset($_POST['edit_software'])) {
     }
 
     $name = trim($_POST['name']);
-    logAudit("Software", "Edit", "$session_name edited license " . escapeSql($name . softwareSeatChangeText($changes)), $client_id, $software_id);
+    logAudit("License", "Edit", "$session_name edited license " . escapeSql($name . softwareSeatChangeText($changes)), $client_id, $software_id);
 
     $warning = softwareSeatWarning($software_id);
     flashAlert("License <strong>$name</strong> updated$warning", $warning ? 'warning' : 'success');
@@ -174,7 +174,7 @@ if (isset($_POST['set_software_seats'])) {
     $changes = softwareSyncSeats($software_id, $client_id, $_POST['assets'] ?? [], $_POST['contacts'] ?? []);
 
     if ($changes['added'] || $changes['removed']) {
-        logAudit("Software", "Seats", "$session_name changed seats on license " . escapeSql($row['software_name'] . softwareSeatChangeText($changes)), $client_id, $software_id);
+        logAudit("License", "Seats", "$session_name changed seats on license " . escapeSql($row['software_name'] . softwareSeatChangeText($changes)), $client_id, $software_id);
     }
 
     $warning = softwareSeatWarning($software_id);
@@ -217,7 +217,7 @@ if (isset($_POST['renew_software'])) {
         mysqli_query($mysqli, "UPDATE software SET software_expire = '$until' $reference_sql WHERE software_id = $software_id");
 
         $was = formatDate($row['software_expire']) ?: 'no date';
-        logAudit("Software", "Renew", "$session_name renewed license " . escapeSql($row['software_name']) . " until " . formatDate($until) . " (was $was)" . ($reference !== '' ? ', reference ' . escapeSql($reference) : ''), $client_id, $software_id);
+        logAudit("License", "Renew", "$session_name renewed license " . escapeSql($row['software_name']) . " until " . formatDate($until) . " (was $was)" . ($reference !== '' ? ', reference ' . escapeSql($reference) : ''), $client_id, $software_id);
         $renewed[] = [$row['software_name'], formatDate($until)];
     }
 
@@ -243,7 +243,7 @@ if (isset($_POST['add_software_keys'])) {
     $added = softwareAddKeys($software_id, $_POST['keys'] ?? '');
 
     if ($added) {
-        logAudit("Software", "Keys", "$session_name added $added key" . ($added === 1 ? '' : 's') . " to license " . escapeSql($row['software_name']), $client_id, $software_id);
+        logAudit("License", "Keys", "$session_name added $added key" . ($added === 1 ? '' : 's') . " to license " . escapeSql($row['software_name']), $client_id, $software_id);
         flashAlert("Added <strong>$added</strong> key" . ($added === 1 ? '' : 's') . " to <strong>{$row['software_name']}</strong>");
     } else {
         flashAlert("No new keys to add - blank, or <strong>{$row['software_name']}</strong> already has them.", 'warning');
@@ -292,7 +292,7 @@ if (isset($_POST['edit_software_key'])) {
         $holders[] = getFieldById('contacts', $contact_id, 'contact_name');
     }
 
-    logAudit("Software", "Keys", "$session_name updated a key on license " . escapeSql($row['software_name']) . ($holders ? ', handed to ' . escapeSql(implode(', ', $holders)) : ', not handed to anyone'), $client_id, $software_id);
+    logAudit("License", "Keys", "$session_name updated a key on license " . escapeSql($row['software_name']) . ($holders ? ', handed to ' . escapeSql(implode(', ', $holders)) : ', not handed to anyone'), $client_id, $software_id);
 
     $warning = softwareSeatWarning($software_id);
     flashAlert("Key on <strong>{$row['software_name']}</strong> saved" . ($holders ? ' - handed to <strong>' . implode(', ', $holders) . '</strong>' : '') . $warning, $warning ? 'warning' : 'success');
@@ -317,7 +317,7 @@ if (isset($_GET['delete_software_key'])) {
 
     mysqli_query($mysqli, "DELETE FROM software_keys WHERE software_key_id = $software_key_id");
 
-    logAudit("Software", "Keys", "$session_name deleted a key from license " . escapeSql($row['software_name']), $client_id, intval($row['software_id']));
+    logAudit("License", "Keys", "$session_name deleted a key from license " . escapeSql($row['software_name']), $client_id, intval($row['software_id']));
 
     flashAlert("Key deleted from <strong>{$row['software_name']}</strong>", 'error');
 
@@ -339,7 +339,7 @@ if (isset($_GET['archive_software'])) {
     $undo = undoArchiveBefore('software', $software_id); // for Undo on the message
     mysqli_query($mysqli, "UPDATE software SET software_archived_at = NOW() WHERE software_id = $software_id");
 
-    logAudit("Software", "Archive", "$session_name archived license " . escapeSql($row['software_name']), $client_id, $software_id);
+    logAudit("License", "Archive", "$session_name archived license " . escapeSql($row['software_name']), $client_id, $software_id);
 
     flashAlert("License <strong>{$row['software_name']}</strong> archived", 'error');
     undoOfferArchive($undo);
@@ -359,7 +359,7 @@ if (isset($_GET['restore_software'])) {
 
     mysqli_query($mysqli, "UPDATE software SET software_archived_at = NULL WHERE software_id = $software_id");
 
-    logAudit("Software", "Restore", "$session_name restored license " . escapeSql($row['software_name']), $client_id, $software_id);
+    logAudit("License", "Restore", "$session_name restored license " . escapeSql($row['software_name']), $client_id, $software_id);
 
     flashAlert("License <strong>{$row['software_name']}</strong> restored");
 
@@ -379,7 +379,7 @@ if (isset($_GET['delete_software'])) {
     // Seats, keys and links go with it (foreign keys cascade)
     mysqli_query($mysqli, "DELETE FROM software WHERE software_id = $software_id");
 
-    logAudit("Software", "Delete", "$session_name deleted license " . escapeSql($row['software_name']) . " with its seats and keys", $client_id);
+    logAudit("License", "Delete", "$session_name deleted license " . escapeSql($row['software_name']) . " with its seats and keys", $client_id);
 
     flashAlert("License <strong>{$row['software_name']}</strong> deleted", 'error');
 
@@ -402,7 +402,7 @@ if (isset($_POST['bulk_archive_software'])) {
     foreach ($rows as $software_id => $row) {
         $client_id = intval($row['software_client_id']);
         mysqli_query($mysqli, "UPDATE software SET software_archived_at = NOW() WHERE software_id = $software_id AND software_archived_at IS NULL");
-        logAudit("Software", "Archive", "$session_name archived license " . escapeSql($row['software_name']), $client_id, $software_id);
+        logAudit("License", "Archive", "$session_name archived license " . escapeSql($row['software_name']), $client_id, $software_id);
     }
 
     flashAlert("Archived <strong>" . count($rows) . "</strong> license" . (count($rows) === 1 ? '' : 's'), 'error');
@@ -422,7 +422,7 @@ if (isset($_POST['bulk_restore_software'])) {
     foreach ($rows as $software_id => $row) {
         $client_id = intval($row['software_client_id']);
         mysqli_query($mysqli, "UPDATE software SET software_archived_at = NULL WHERE software_id = $software_id");
-        logAudit("Software", "Restore", "$session_name restored license " . escapeSql($row['software_name']), $client_id, $software_id);
+        logAudit("License", "Restore", "$session_name restored license " . escapeSql($row['software_name']), $client_id, $software_id);
     }
 
     flashAlert("Restored <strong>" . count($rows) . "</strong> license" . (count($rows) === 1 ? '' : 's'));
@@ -441,7 +441,7 @@ if (isset($_POST['bulk_delete_software'])) {
     foreach ($rows as $software_id => $row) {
         $client_id = intval($row['software_client_id']);
         mysqli_query($mysqli, "DELETE FROM software WHERE software_id = $software_id");
-        logAudit("Software", "Delete", "$session_name deleted license " . escapeSql($row['software_name']) . " with its seats and keys", $client_id);
+        logAudit("License", "Delete", "$session_name deleted license " . escapeSql($row['software_name']) . " with its seats and keys", $client_id);
     }
 
     flashAlert("Deleted <strong>" . count($rows) . "</strong> license" . (count($rows) === 1 ? '' : 's'), 'error');
@@ -593,7 +593,7 @@ if (isExportRequest('export_software')) {
         finishExport($export);
     }
 
-    logAudit("Software", "Export", "$session_name exported $num_rows license(s) to a " . strtoupper($format) . " file", $client_id);
+    logAudit("License", "Export", "$session_name exported $num_rows license(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

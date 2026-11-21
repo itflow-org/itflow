@@ -80,7 +80,7 @@ if ($key_row) {
     $return_arr['warning'] = $software_seat_warning($software_id);
 
     $label = escapeSql($software['software_name']);
-    logAudit("Software", "Keys", "Updated a key on license $label via API ($api_key_name)", $client_id, $software_id);
+    logAudit("License", "Keys", "Updated a key on license $label via API ($api_key_name)", $client_id, $software_id);
     logAudit("API", "Success", "Updated a key on license $label via API ($api_key_name)", $client_id);
 }
 

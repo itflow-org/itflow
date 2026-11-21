@@ -34,7 +34,7 @@ if ($before) {
     $update_count = 1;
     $row = incomeRevenueRow($revenue_id, false);
     $label = escapeSql(incomeRevenueLabel($row));
-    logAudit("Revenue", "Edit", "Edited other income $label via API ($api_key_name)", intval($row['revenue_client_id']), $revenue_id);
+    logAudit("Income", "Edit", "Edited other income $label via API ($api_key_name)", intval($row['revenue_client_id']), $revenue_id);
     logAudit("API", "Success", "Edited other income $label via API ($api_key_name)", intval($row['revenue_client_id']));
 }
 

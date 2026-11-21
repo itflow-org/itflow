@@ -41,7 +41,7 @@ if ($software) {
     $return_arr['added'] = $added;
 
     $label = "$added key" . ($added === 1 ? '' : 's') . ' to license ' . escapeSql($software['software_name']);
-    logAudit("Software", "Keys", "Added $label via API ($api_key_name)", $client_id, $software_id);
+    logAudit("License", "Keys", "Added $label via API ($api_key_name)", $client_id, $software_id);
     logAudit("API", "Success", "Added $label via API ($api_key_name)", $client_id);
 }
 

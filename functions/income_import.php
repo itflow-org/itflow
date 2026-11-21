@@ -781,12 +781,12 @@ function incomeImportSave(array $import, array $picks, array $opts, &$error = ''
                 revenue_payment_method = " . ($method === '' ? 'NULL' : "'" . escapeSql($method) . "'") . ", revenue_reference = '" . escapeSql(mb_substr($line['reference'], 0, 200)) . "',
                 revenue_description = '" . escapeSql($line['description']) . "', revenue_created_by = " . intval($session_user_id) . ", revenue_import_key = '$key'");
             $revenue_id = mysqli_insert_id($mysqli);
-            logAudit("Revenue", "Create", "$who added other income " . escapeSql(mb_substr($line['description'], 0, 80) . ' - ' . billingMoney($line['amount'], $currency)) . " from a bank statement", $item['client'], $revenue_id);
+            logAudit("Income", "Create", "$who added other income " . escapeSql(mb_substr($line['description'], 0, 80) . ' - ' . billingMoney($line['amount'], $currency)) . " from a bank statement", $item['client'], $revenue_id);
             $result['income']++;
             $result['income_total'] += $line['amount'];
         } else {
             incomeImportTransfer($item['account'], $account_id, $date, $line['amount'], $currency, $method !== '' ? $method : 'Bank Transfer', $line['description'], $line['key_hash']);
-            logAudit("Account Transfer", "Create", "$who brought in a transfer of " . escapeSql(billingMoney($line['amount'], $currency)) . " from " . escapeSql($accounts[$item['account']]['account_name'])
+            logAudit("Transfer", "Create", "$who brought in a transfer of " . escapeSql(billingMoney($line['amount'], $currency)) . " from " . escapeSql($accounts[$item['account']]['account_name'])
                 . " to " . escapeSql($accounts[$account_id]['account_name']) . " from a bank statement");
             $result['transfers']++;
             $result['transfer_total'] += $line['amount'];

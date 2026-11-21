@@ -38,7 +38,7 @@ if (!$revenue_id) {
 $insert_id = $revenue_id;
 $row = incomeRevenueRow($revenue_id, false);
 $label = escapeSql(incomeRevenueLabel($row));
-logAudit("Revenue", "Create", "Added other income $label via API ($api_key_name)", intval($row['revenue_client_id']), $revenue_id);
+logAudit("Income", "Create", "Added other income $label via API ($api_key_name)", intval($row['revenue_client_id']), $revenue_id);
 logAudit("API", "Success", "Added other income $label via API ($api_key_name)", intval($row['revenue_client_id']));
 
 // Output

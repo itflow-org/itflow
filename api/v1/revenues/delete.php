@@ -29,7 +29,7 @@ if ($before) {
     }
     $delete_count = 1;
     $label = escapeSql(incomeRevenueLabel($row));
-    logAudit("Revenue", "Delete", "Deleted other income $label via API ($api_key_name)", intval($row['revenue_client_id']));
+    logAudit("Income", "Delete", "Deleted other income $label via API ($api_key_name)", intval($row['revenue_client_id']));
     logAudit("API", "Success", "Deleted other income $label via API ($api_key_name)", intval($row['revenue_client_id']));
 }
 

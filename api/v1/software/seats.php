@@ -61,7 +61,7 @@ if ($software && (array_key_exists('asset_ids', $_POST) || array_key_exists('con
 
     if ($changes['added'] || $changes['removed']) {
         $label = escapeSql($software['software_name'] . softwareSeatChangeText($changes));
-        logAudit("Software", "Seats", "Changed seats on license $label via API ($api_key_name)", $client_id, $software_id);
+        logAudit("License", "Seats", "Changed seats on license $label via API ($api_key_name)", $client_id, $software_id);
         logAudit("API", "Success", "Changed seats on license " . escapeSql($software['software_name']) . " via API ($api_key_name)", $client_id);
     }
 }

@@ -847,7 +847,7 @@ if (isset($_POST['software_set_notes'])) {
     $notes = escapeSql($_POST['notes'] ?? '');
     mysqli_query($mysqli, "UPDATE software SET software_notes = '$notes' WHERE software_id = $software_id");
 
-    logAudit("Software", "Edit", "$session_name edited the notes on license " . escapeSql($row['software_name']), $client_id, $software_id);
+    logAudit("License", "Edit", "$session_name edited the notes on license " . escapeSql($row['software_name']), $client_id, $software_id);
 
 }
 

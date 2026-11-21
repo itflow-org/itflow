@@ -34,7 +34,7 @@ function archivedKinds() {
         'network' => ['label' => 'Network', 'icon' => 'fa-network-wired', 'table' => 'networks', 'id' => 'network_id', 'name' => 'network_name', 'client' => 'network_client_id', 'archived' => 'network_archived_at', 'module' => 'module_support', 'log' => 'Network'],
         'rack' => ['label' => 'Rack', 'icon' => 'fa-server', 'table' => 'racks', 'id' => 'rack_id', 'name' => 'rack_name', 'client' => 'rack_client_id', 'archived' => 'rack_archived_at', 'module' => 'module_support', 'log' => 'Rack'],
         'service' => ['label' => 'Service', 'icon' => 'fa-stream', 'table' => 'services', 'id' => 'service_id', 'name' => 'service_name', 'client' => 'service_client_id', 'archived' => 'service_archived_at', 'module' => 'module_support', 'log' => 'Service'],
-        'software' => ['label' => 'License', 'icon' => 'fa-cube', 'table' => 'software', 'id' => 'software_id', 'name' => 'software_name', 'client' => 'software_client_id', 'archived' => 'software_archived_at', 'module' => 'module_support', 'log' => 'Software'],
+        'software' => ['label' => 'License', 'icon' => 'fa-cube', 'table' => 'software', 'id' => 'software_id', 'name' => 'software_name', 'client' => 'software_client_id', 'archived' => 'software_archived_at', 'module' => 'module_support', 'log' => 'License'],
     ];
     if (!empty($config_module_enable_ticketing)) {
         $kinds['project'] = ['label' => 'Project', 'icon' => 'fa-project-diagram', 'table' => 'projects', 'id' => 'project_id', 'name' => 'project_name', 'client' => 'project_client_id', 'archived' => 'project_archived_at', 'module' => 'module_support', 'log' => 'Project'];

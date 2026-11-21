@@ -35,7 +35,7 @@ if (!empty($software_id)) {
             $update_count = 1;
 
             $name = escapeSql(trim($software_post['name']));
-            logAudit("Software", "Edit", "$name via API ($api_key_name)", $client_id, $software_id);
+            logAudit("License", "Edit", "$name via API ($api_key_name)", $client_id, $software_id);
             logAudit("API", "Success", "Edited license $name via API ($api_key_name)", $client_id);
         }
     }

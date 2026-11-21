@@ -192,17 +192,17 @@ function linkCandidates($from, $id, $to, $client_id) {
     return $rows;
 }
 
-/** The audit log entry a link change is filed under - the service, document, file or license side of it. */
+/** The audit log entry a link change is filed under - the service, document, file or license side of it: [its type, its id, whether it is the $from side]. */
 function linkLogSide($from, $id, $to, $other_id) {
     foreach (['service', 'document', 'file', 'software'] as $side) {
         if ($from === $side) {
-            return [ucfirst($side), $id];
+            return [ucfirst(LINK_ENTITIES[$side]['label']), $id, true];
         }
         if ($to === $side) {
-            return [ucfirst($side), $other_id];
+            return [ucfirst(LINK_ENTITIES[$side]['label']), $other_id, false];
         }
     }
-    return [ucfirst($from), $id];
+    return [ucfirst(LINK_ENTITIES[$from]['label']), $id, true];
 }
 
 /**
@@ -233,10 +233,10 @@ function linkAdd($from, $id, $to, $ids) {
             continue;
         }
         $added[] = $other['name'];
-        [$log_type, $log_id] = linkLogSide($from, intval($source['id']), $to, $other_id);
-        $log_from = $log_type === ucfirst($from) ? $source['name'] : $other['name'];
-        $log_other = $log_type === ucfirst($from) ? $other['name'] : $source['name'];
-        $log_other_label = $log_type === ucfirst($from) ? $to_entity['label'] : $from_entity['label'];
+        [$log_type, $log_id, $log_is_from] = linkLogSide($from, intval($source['id']), $to, $other_id);
+        $log_from = $log_is_from ? $source['name'] : $other['name'];
+        $log_other = $log_is_from ? $other['name'] : $source['name'];
+        $log_other_label = $log_is_from ? $to_entity['label'] : $from_entity['label'];
         logAudit($log_type, "Link", "$session_name linked $log_other_label " . escapeSql($log_other) . " to " . strtolower($log_type) . " " . escapeSql($log_from), $client_id, $log_id);
     }
     return $added;
@@ -265,10 +265,10 @@ function linkRemove($from, $id, $to, $other_id) {
             softwareFreeKeys($other['id'], $holder, $source['id']);
         }
     }
-    [$log_type, $log_id] = linkLogSide($from, intval($source['id']), $to, intval($other['id']));
-    $log_from = $log_type === ucfirst($from) ? $source['name'] : $other['name'];
-    $log_other = $log_type === ucfirst($from) ? $other['name'] : $source['name'];
-    $log_other_label = $log_type === ucfirst($from) ? $to_entity['label'] : $from_entity['label'];
+    [$log_type, $log_id, $log_is_from] = linkLogSide($from, intval($source['id']), $to, intval($other['id']));
+    $log_from = $log_is_from ? $source['name'] : $other['name'];
+    $log_other = $log_is_from ? $other['name'] : $source['name'];
+    $log_other_label = $log_is_from ? $to_entity['label'] : $from_entity['label'];
     logAudit($log_type, "Unlink", "$session_name unlinked $log_other_label " . escapeSql($log_other) . " from " . strtolower($log_type) . " " . escapeSql($log_from), intval($source['client_id']), $log_id);
     return $other['name'];
 }

@@ -49,7 +49,7 @@ if ($software) {
 
         $was = $software['software_expire'] ?: 'no date';
         $label = escapeSql($software['software_name']) . " until " . formatDate($until) . " (was " . escapeSql(formatDate($was) ?: $was) . ")" . ($reference !== '' ? ', reference ' . escapeSql($reference) : '');
-        logAudit("Software", "Renew", "Renewed license $label via API ($api_key_name)", $client_id, $software_id);
+        logAudit("License", "Renew", "Renewed license $label via API ($api_key_name)", $client_id, $software_id);
         logAudit("API", "Success", "Renewed license " . escapeSql($software['software_name']) . " via API ($api_key_name)", $client_id);
     }
 }

@@ -396,7 +396,7 @@ function importKinds() {
         ],
 
         'licenses' => [
-            'title' => 'Licenses', 'one' => 'license', 'log' => 'Software', 'icon' => 'fa-cube', 'module' => 'module_support', 'client' => true,
+            'title' => 'Licenses', 'one' => 'license', 'log' => 'License', 'icon' => 'fa-cube', 'module' => 'module_support', 'client' => true,
             'about' => 'Each row is one of the client\'s licenses, found by its name. Assets and Contacts give it their seats, by name.',
             'fields' => [
                 'name' => $f('Name', ['License', 'Software', 'License Name'], ['required' => true, 'example' => 'Microsoft 365 Business Premium']),

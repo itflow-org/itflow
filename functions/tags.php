@@ -78,7 +78,7 @@ function tagEntity($entity) {
             'type' => 8, 'label' => 'license', 'module' => 'module_support',
             'link_table' => 'software_tags', 'link_record' => 'software_id', 'link_tag' => 'tag_id',
             'table' => 'software', 'id' => 'software_id', 'client' => 'software_client_id', 'name' => 'software_name',
-            'log' => 'Software', 'list' => 'software.php'
+            'log' => 'License', 'list' => 'software.php'
         ],
         'service' => [
             'title' => 'Service', 'plural' => 'services', 'icon' => 'fa-stream',

@@ -23,7 +23,7 @@ if (!empty($software_id)) {
             $delete_count = mysqli_affected_rows($mysqli);
 
             $software_name = escapeSql($row['software_name']);
-            logAudit("Software", "Delete", "$software_name with its seats and keys via API ($api_key_name)", $client_id);
+            logAudit("License", "Delete", "$software_name with its seats and keys via API ($api_key_name)", $client_id);
             logAudit("API", "Success", "Deleted license $software_name via API ($api_key_name)", $client_id);
         }
     }

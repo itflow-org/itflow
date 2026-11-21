@@ -75,7 +75,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
     $credentials = $can_credentials ? credentialRows("credential_id IN (SELECT credential_id FROM software_credentials WHERE software_id = $software_id)") : [];
     $documents = linkedRecords('software', $software_id, 'document');
     $files = linkedRecords('software', $software_id, 'file');
-    $history = auditLogHistory('Software', $software_id);
+    $history = auditLogHistory('License', $software_id);
 
     $license_tabs = [
         'seats' => ['label' => 'Seats', 'icon' => 'fa-users', 'count' => $seats['used']],

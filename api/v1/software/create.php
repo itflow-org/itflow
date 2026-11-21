@@ -34,7 +34,7 @@ if (!empty($client_id) && mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM c
         $keys_added = softwareAddKeys($insert_id, is_scalar($_POST['software_keys'] ?? '') ? (string) ($_POST['software_keys'] ?? '') : '');
 
         $name = escapeSql(trim($software_post['name']));
-        logAudit("Software", "Create", "$name" . ($keys_added ? " with $keys_added key" . ($keys_added === 1 ? '' : 's') : '') . " via API ($api_key_name)", $client_id, $insert_id);
+        logAudit("License", "Create", "$name" . ($keys_added ? " with $keys_added key" . ($keys_added === 1 ? '' : 's') : '') . " via API ($api_key_name)", $client_id, $insert_id);
         logAudit("API", "Success", "Created license $name via API ($api_key_name)", $client_id);
     }
 }

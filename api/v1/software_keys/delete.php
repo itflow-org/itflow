@@ -24,7 +24,7 @@ if ($key_row) {
 
     if ($delete_count > 0) {
         $label = escapeSql($software['software_name']);
-        logAudit("Software", "Keys", "Deleted a key from license $label via API ($api_key_name)", $client_id, intval($software['software_id']));
+        logAudit("License", "Keys", "Deleted a key from license $label via API ($api_key_name)", $client_id, intval($software['software_id']));
         logAudit("API", "Success", "Deleted a key from license $label via API ($api_key_name)", $client_id);
     }
 }

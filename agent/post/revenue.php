@@ -37,7 +37,7 @@ if (isset($_POST['add_revenue'])) {
     $row = incomeRevenueRow($revenue_id);
     $label = incomeRevenueLabel($row);
 
-    logAudit("Revenue", "Create", "$session_name added other income " . escapeSql($label), intval($row['revenue_client_id']), $revenue_id);
+    logAudit("Income", "Create", "$session_name added other income " . escapeSql($label), intval($row['revenue_client_id']), $revenue_id);
 
     flashAlert("Income <strong>" . escapeHtml($label) . "</strong> added");
 
@@ -60,9 +60,9 @@ if (isset($_POST['edit_revenue'])) {
     $row = incomeRevenueRow($revenue_id);
     $label = incomeRevenueLabel($row);
 
-    logAudit("Revenue", "Edit", "$session_name edited other income " . escapeSql($label), intval($row['revenue_client_id']), $revenue_id);
+    logAudit("Income", "Edit", "$session_name edited other income " . escapeSql($label), intval($row['revenue_client_id']), $revenue_id);
     if ($before && intval($before['revenue_client_id']) && intval($before['revenue_client_id']) !== intval($row['revenue_client_id'])) {
-        logAudit("Revenue", "Edit", "$session_name moved other income " . escapeSql($label) . " to " . escapeSql($row['client_name'] ?: 'no client'), intval($before['revenue_client_id']), $revenue_id);
+        logAudit("Income", "Edit", "$session_name moved other income " . escapeSql($label) . " to " . escapeSql($row['client_name'] ?: 'no client'), intval($before['revenue_client_id']), $revenue_id);
     }
 
     flashAlert("Income <strong>" . escapeHtml($label) . "</strong> saved");
@@ -84,7 +84,7 @@ if (isset($_GET['delete_revenue'])) {
     }
     $label = incomeRevenueLabel($row);
 
-    logAudit("Revenue", "Delete", "$session_name deleted other income " . escapeSql($label), intval($row['revenue_client_id']));
+    logAudit("Income", "Delete", "$session_name deleted other income " . escapeSql($label), intval($row['revenue_client_id']));
 
     flashAlert("Income <strong>" . escapeHtml($label) . "</strong> deleted", 'error');
 

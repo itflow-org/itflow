@@ -80,7 +80,7 @@ if (isset($_POST['bulk_edit_income'])) {
             transferDepositRelease('revenue', $revenue_id, $value);
         }
         mysqli_query($mysqli, "UPDATE revenues SET $revenue_set WHERE revenue_id = $revenue_id");
-        logAudit("Revenue", "Edit", "$session_name set $label_sql on other income " . escapeSql(incomeRevenueLabel($row)), intval($row['revenue_client_id']), $revenue_id);
+        logAudit("Income", "Edit", "$session_name set $label_sql on other income " . escapeSql(incomeRevenueLabel($row)), intval($row['revenue_client_id']), $revenue_id);
         $count++;
     }
 
@@ -157,7 +157,7 @@ if (isset($_POST['bulk_delete_income'])) {
             $cleared += reconcileLock('revenue', $revenue_id) ? 1 : 0;
             continue;
         }
-        logAudit("Revenue", "Delete", "$session_name deleted other income " . escapeSql(incomeRevenueLabel($row)), intval($row['revenue_client_id']));
+        logAudit("Income", "Delete", "$session_name deleted other income " . escapeSql(incomeRevenueLabel($row)), intval($row['revenue_client_id']));
         $count++;
     }
     logAudit("Income", "Bulk Delete", "$session_name deleted $count other income record" . ($count === 1 ? '' : 's'));
