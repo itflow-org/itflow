@@ -54,8 +54,9 @@ $asset_favorite = 0;
 $device_icon = getAssetIcon($row['asset_type']);
 
 // Its details come along, bar the ones that belong to that one unit - an IMEI, a circuit
-$asset_specs = array_filter(assetSpecs($source_asset_id), function ($key) {
-    return empty(ASSET_SPECS[$key]['unit_only']);
+$asset_spec_defs = assetSpecDefs();
+$asset_specs = array_filter(assetSpecs($source_asset_id), function ($key) use ($asset_spec_defs) {
+    return empty($asset_spec_defs[$key]['unit_only']);
 }, ARRAY_FILTER_USE_KEY);
 
 // Tags come along

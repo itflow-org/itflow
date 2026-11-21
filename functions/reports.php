@@ -1898,7 +1898,7 @@ function reportLifecycleAssets($client_id = 0, $type = '') {
         ORDER BY client_name, asset_name");
     $today = new DateTime('today');
     while ($row = mysqli_fetch_assoc($sql)) {
-        $physical = $row['asset_type'] !== 'Virtual Machine';
+        $physical = !assetTypeIsVirtual($row['asset_type']);
         $row['age_date'] = null;
         $row['age_days'] = null;
         foreach (['asset_purchase_date', 'asset_install_date'] as $column) {
@@ -2003,7 +2003,7 @@ function reportRenewals($client_id, $ahead, array $kinds = []) {
         $gone = "'" . implode("', '", REPORT_ASSET_GONE) . "'";
         $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, asset_warranty_expire, client_id, client_name, client_abbreviation
             FROM assets JOIN clients ON asset_client_id = client_id
-            WHERE asset_archived_at IS NULL AND client_archived_at IS NULL AND asset_type != 'Virtual Machine' AND COALESCE(asset_status, '') NOT IN ($gone)
+            WHERE asset_archived_at IS NULL AND client_archived_at IS NULL AND NOT (" . assetTypeGroupSql('virtual') . ") AND COALESCE(asset_status, '') NOT IN ($gone)
             AND " . $window('asset_warranty_expire') . reportClientSql('asset_client_id', $client_id));
         while ($row = mysqli_fetch_assoc($sql)) {
             $add('warranty', $row['asset_id'], $row['asset_name'], $row['asset_type'] . ' · ' . trim($row['asset_make'] . ' ' . $row['asset_model']),

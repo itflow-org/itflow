@@ -209,10 +209,10 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
             <span class="input-group-text"><i class="fas fa-fw fa-laptop"></i></span>
             <select class="form-select select2" name="asset_type" data-product-asset-type>
                 <option value="">- Not an asset -</option>
-                <?php foreach (productAssetTypes() as $asset_type_option => $asset_type_icon) { ?>
+                <?php foreach (productAssetTypes($form_asset_type) as $asset_type_option => $asset_type_icon) { ?>
                     <option value="<?= escapeHtml($asset_type_option) ?>" <?= $form_asset_type === $asset_type_option ? 'selected' : '' ?><?= selectOptionData(['icon' => "fas $asset_type_icon"]) ?>><?= escapeHtml($asset_type_option) ?></option>
                 <?php } ?>
-                <?php if ($form_asset_type !== '' && !isset(productAssetTypes()[$form_asset_type])) { ?>
+                <?php if ($form_asset_type !== '' && !isset(productAssetTypes($form_asset_type)[$form_asset_type])) { ?>
                     <option value="<?= escapeHtml($form_asset_type) ?>" selected><?= escapeHtml($form_asset_type) ?></option>
                 <?php } ?>
             </select>

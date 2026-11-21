@@ -344,7 +344,7 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                     $row_currency = (string) $row['product_currency_code'];
                     $row_url = "product.php?product_id=$product_id";
                     $row_meta = array_filter([$row['product_code'] ? '<span class="font-monospace">' . escapeHtml($row['product_code']) . '</span>' : '', escapeHtml((string) $row['category_name']),
-                        $row_type === 'product' && $row['product_asset_type'] ? '<span title="Becomes a client asset when it is sold"><i class="fas fa-fw ' . escapeHtml(productAssetTypes()[$row['product_asset_type']] ?? 'fa-tag') . ' me-1"></i>' . escapeHtml($row['product_asset_type']) . '</span>' : '']);
+                        $row_type === 'product' && $row['product_asset_type'] ? '<span title="Becomes a client asset when it is sold"><i class="fas fa-fw ' . escapeHtml(assetTypeInfo($row['product_asset_type'])['icon']) . ' me-1"></i>' . escapeHtml($row['product_asset_type']) . '</span>' : '']);
                     ?>
                     <tr>
                         <?php if ($can_edit) { ?>

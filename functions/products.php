@@ -236,7 +236,7 @@ function productSave(array $in, $product_id = 0, &$error = '', $source = 'edit')
         } else {
             $asset_type = productAssetType($asset_type);
             if ($asset_type === '') {
-                $error = "\"" . trim((string) ($in['asset_type'] ?? '')) . "\" isn't an asset type - use one of " . implode(', ', array_keys(productAssetTypes())) . '.';
+                $error = "\"" . trim((string) ($in['asset_type'] ?? '')) . "\" isn't an asset type - use one of " . implode(', ', array_keys(assetTypePicker())) . '.';
                 return 0;
             }
         }
@@ -605,20 +605,14 @@ function productStockQty($qty) {
  * units are recorded.
  */
 
-/** Asset types => icon class (fa-laptop) - ASSET_TYPES (functions/asset_type.php). */
-function productAssetTypes() {
-    return assetTypeIcons();
+/** The asset types a product can become => icon class (fa-laptop) - the ones switched on, and $keep (a product's own) (functions/asset_type.php). */
+function productAssetTypes($keep = '') {
+    return assetTypePicker($keep);
 }
 
-/** An asset type as the list spells it, matched without case - '' when it isn't one. */
+/** An asset type as the list spells it, matched without case - '' when it isn't one. A switched-off one still is. */
 function productAssetType($value) {
-    $value = trim((string) $value);
-    foreach (array_keys(productAssetTypes()) as $asset_type) {
-        if (strcasecmp($asset_type, $value) === 0) {
-            return $asset_type;
-        }
-    }
-    return '';
+    return assetTypeName($value);
 }
 
 /** An asset type's round icon, as on the assets list - $size '' or sm. */

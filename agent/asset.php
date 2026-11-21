@@ -176,7 +176,7 @@ if (mysqli_num_rows($sql) == 0) {
     interfaceSort($interfaces);
     $interface_count = count($interfaces);
     // A switch, firewall or access point with a few ports is drawn as its ports too
-    $interface_port_map = in_array(html_entity_decode($asset_type, ENT_QUOTES, 'UTF-8'), INTERFACE_PORT_MAP_TYPES, true) && $interface_count >= 4;
+    $interface_port_map = assetTypeHasPortMap(html_entity_decode($asset_type, ENT_QUOTES, 'UTF-8')) && $interface_count >= 4;
 
     // Files
     $sql_related_files = mysqli_query($mysqli, "SELECT file_created_at, file_description, file_ext, files.file_id, file_name FROM asset_files

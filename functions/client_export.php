@@ -1302,7 +1302,7 @@ function clientExportPdf($client_id, $options) {
     $assets = $has('assets') ? $data('assets') : [];
     if ($assets) {
         $chapter('Assets', $count(count($assets), 'asset') . ' in use', 0, true);
-        // By the type's group (ASSET_TYPES, functions/asset_type.php)
+        // By the type's group (assetTypes() - your own types too, functions/asset_type.php)
         $families = [
             'Servers and storage' => assetTypesInGroup('server', 'virtual'),
             'Network equipment' => assetTypesInGroup('network'),

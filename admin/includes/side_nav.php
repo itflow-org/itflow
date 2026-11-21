@@ -67,6 +67,14 @@
                         <p>Categories</p>
                     </a>
                 </li>
+                <?php if ($config_module_enable_itdoc) { ?>
+                    <li class="nav-item">
+                        <a href="/admin/asset_types.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'asset_types.php' ? 'active' : '') ?>">
+                            <i class="nav-icon fas fa-layer-group"></i>
+                            <p>Asset Types</p>
+                        </a>
+                    </li>
+                <?php } ?>
                 <?php if ($config_module_enable_accounting) { ?>
                     <li class="nav-item">
                         <a href="/admin/tax_rates.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'tax_rates.php' ? 'active' : '') ?>">

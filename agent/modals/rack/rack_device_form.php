@@ -38,7 +38,7 @@ $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_mak
         asset_archived_at IS NULL
         AND NOT EXISTS (SELECT 1 FROM rack_units WHERE unit_asset_id = asset_id)
     ))
-    ORDER BY FIELD(asset_type, '" . implode("', '", array_map('escapeSql', ASSET_RACK_TYPES)) . "') = 0, asset_type, asset_name");
+    ORDER BY FIELD(asset_type, '" . implode("', '", array_map('escapeSql', assetRackTypes())) . "') = 0, asset_type, asset_name");
 while ($row = mysqli_fetch_assoc($sql)) {
     $asset_options[] = $row;
 }

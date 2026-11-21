@@ -584,7 +584,7 @@ function portalAssetScopeSql() {
 
 /** The tabs on Devices - each kind with its label, icon and SQL on asset_type; Other is whatever the rest don't take. */
 function portalAssetGroups() {
-    // By the type's group (ASSET_TYPES, functions/asset_type.php)
+    // By the type's group (assetTypes() - your own types too, functions/asset_type.php)
     $kinds = [
         'computers' => ['Computers', 'fa-desktop', assetTypesInGroup('workstation')],
         'servers' => ['Servers', 'fa-server', assetTypesInGroup('server', 'virtual')],

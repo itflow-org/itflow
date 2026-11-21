@@ -10,7 +10,7 @@
  * them - escape anything that came from the database before echoing it.
  */
 
-/** The colour family an asset type is drawn in - a CSS class suffix (itflow-asset-tone-*), from ASSET_TYPES (functions/asset_type.php). */
+/** The colour family an asset type is drawn in - a CSS class suffix (itflow-asset-tone-*), from assetTypes() (functions/asset_type.php). */
 function assetTypeTone($asset_type) {
     return assetTypeInfo($asset_type)['tone'];
 }

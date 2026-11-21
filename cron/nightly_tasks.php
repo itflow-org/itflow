@@ -374,18 +374,37 @@ foreach ($warranty_alert_array as $day) {
 // Logging
 // logAudit("Cron", "Task", "Cron created notifications for asset warranties expiring");
 
-// UPS batteries due for replacing - the same days ahead as warranties (asset_specs, functions/asset_type.php)
-foreach (assetSpecsReady() ? $warranty_alert_array : [] as $day) {
-    $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_spec_value, client_id, client_name FROM asset_specs
-        JOIN assets ON asset_id = asset_spec_asset_id
-        JOIN clients ON asset_client_id = client_id
-        WHERE asset_spec_key = 'battery_replace' AND asset_spec_value = CURDATE() + INTERVAL $day DAY
-        AND asset_type = 'UPS' AND asset_archived_at IS NULL AND client_archived_at IS NULL");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $asset_id = intval($row['asset_id']);
-        $client_id = intval($row['client_id']);
-        appNotify("UPS Battery Due", "The battery in " . escapeSql($row['asset_name']) . " for " . escapeSql($row['client_name']) . " is due for replacing in $day day" . ($day === 1 ? '' : 's') . ", on " . escapeSql($row['asset_spec_value']),
-            "/agent/asset.php?client_id=$client_id&asset_id=$asset_id", $client_id);
+// UPS batteries due for replacing - the same days ahead as warranties (asset_specs, functions/asset_type.php) - and the
+// dates your own types flag as they near, like an inspection: on the types that have them
+$flagged_dates = [];
+foreach (assetSpecsReady() ? assetTypes() : [] as $flag_type => $flag_info) {
+    foreach (assetTypeSpecs($flag_type) as $flag_key => $flag_spec) {
+        if (!empty($flag_spec['flag'])) {
+            $flagged_dates[$flag_key]['types'][] = $flag_type;
+            $flagged_dates[$flag_key]['label'] = $flag_spec['label'];
+        }
+    }
+}
+foreach ($flagged_dates as $flag_key => $flagged) {
+    $flag_types = "'" . implode("', '", array_map('escapeSql', $flagged['types'])) . "'";
+    foreach ($warranty_alert_array as $day) {
+        $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_spec_value, client_id, client_name FROM asset_specs
+            JOIN assets ON asset_id = asset_spec_asset_id
+            JOIN clients ON asset_client_id = client_id
+            WHERE asset_spec_key = '" . escapeSql($flag_key) . "' AND asset_spec_value = CURDATE() + INTERVAL $day DAY
+            AND asset_type IN ($flag_types) AND asset_archived_at IS NULL AND client_archived_at IS NULL");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $asset_id = intval($row['asset_id']);
+            $client_id = intval($row['client_id']);
+            $days = "$day day" . ($day === 1 ? '' : 's');
+            if ($flag_key === 'battery_replace') {
+                appNotify("UPS Battery Due", "The battery in " . escapeSql($row['asset_name']) . " for " . escapeSql($row['client_name']) . " is due for replacing in $days, on " . escapeSql($row['asset_spec_value']),
+                    "/agent/asset.php?client_id=$client_id&asset_id=$asset_id", $client_id);
+            } else {
+                appNotify("Asset Date Due", escapeSql($flagged['label']) . " for " . escapeSql($row['asset_name']) . " at " . escapeSql($row['client_name']) . " is due in $days, on " . escapeSql($row['asset_spec_value']),
+                    "/agent/asset.php?client_id=$client_id&asset_id=$asset_id", $client_id);
+            }
+        }
     }
 }
 

@@ -505,10 +505,10 @@ function getExportColumns($export_type) {
 
     ];
 
-    // An asset's details, a column each - off until picked (ASSET_SPECS, functions/asset_type.php)
-    if ($export_type === 'assets' && defined('ASSET_SPECS')) {
-        foreach (ASSET_SPECS as $spec_key => $spec) {
-            $registry['assets']['spec_' . $spec_key] = ['label' => $spec['label'] . (isset($spec['unit']) ? ' (' . $spec['unit'] . ')' : ''), 'default' => false];
+    // An asset's details, a column each - off until picked; your types' own too, headed with their type (functions/asset_type.php)
+    if ($export_type === 'assets' && function_exists('assetSpecDefs')) {
+        foreach (assetSpecDefs() as $spec_key => $spec) {
+            $registry['assets']['spec_' . $spec_key] = ['label' => assetSpecHeading($spec), 'default' => false];
         }
     }
 

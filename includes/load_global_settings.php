@@ -221,9 +221,6 @@ $records_per_page_array = array ('5','10','15','20','30','50','100');
 
 include_once "settings_localization_array.php";
 
-// Type => icon - the asset types, in order (ASSET_TYPES in functions/asset_type.php)
-$asset_types_array = function_exists('assetTypeIcons') ? assetTypeIcons() : [];
-
 // A managed instance its manager has made read-only or suspended (functions/managed.php). The
 // pages anyone can open - guest links, signing up, joining, password resets - are checked here,
 // as nearly all of them load this file. Client portal pages that load it before functions.php

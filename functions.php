@@ -28,6 +28,7 @@ require_once __DIR__ . '/functions/asset_interface.php';
 require_once __DIR__ . '/functions/rack.php';
 require_once __DIR__ . '/functions/asset.php';
 require_once __DIR__ . '/functions/asset_type.php';
+require_once __DIR__ . '/functions/asset_type_custom.php';
 require_once __DIR__ . '/functions/archived.php';
 require_once __DIR__ . '/functions/undo.php';
 require_once __DIR__ . '/functions/contact.php';

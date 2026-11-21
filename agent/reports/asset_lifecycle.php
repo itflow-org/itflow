@@ -28,7 +28,7 @@ $by_client = [];
 $candidates = [];
 $os_names = [];
 foreach ($assets as &$asset) {
-    $hardware = $asset['asset_type'] !== 'Virtual Machine';
+    $hardware = !assetTypeIsVirtual($asset['asset_type']);
     $asset['old'] = $asset['age_days'] !== null && $asset['age_days'] >= $limit_days;
     $asset['expired'] = $asset['warranty'] && $asset['warranty']['days'] < 0;
     $asset['ending'] = $asset['warranty'] && $asset['warranty']['days'] >= 0 && $asset['warranty']['days'] <= 90;
@@ -196,7 +196,7 @@ $coming = array_sum(array_column($quarters, 'count'));
 
 $warranty_counts = ['Covered' => 0, 'Ends within 90 days' => 0, 'Expired' => 0, 'No date' => 0];
 foreach ($assets as $asset) {
-    if ($asset['asset_type'] === 'Virtual Machine') {
+    if (assetTypeIsVirtual($asset['asset_type'])) {
         continue;
     }
     $warranty_counts[!$asset['warranty'] ? 'No date' : ($asset['expired'] ? 'Expired' : ($asset['ending'] ? 'Ends within 90 days' : 'Covered'))]++;

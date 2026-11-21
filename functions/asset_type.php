@@ -4,7 +4,7 @@
  * Asset types - every kind of asset ITFlow knows, what each is drawn with and
  * what is asked about it.
  *
- * ASSET_TYPES is the list the pickers offer, in their order. Each type has its
+ * ASSET_TYPES is ITFlow's own types, in the pickers' order. Each type has its
  * icon, the colour family it is drawn in (itflow-asset-tone-*), the group the
  * assets list, the client overview and the portal put it in, the standard
  * fields that make sense for it, and its details: the facts only that kind of
@@ -20,6 +20,12 @@
  * Ports: a type with ports or sfp_ports has the interfaces made for it when
  * it is saved with a new count - as many as are missing, never taken away
  * (interfacePortsEnsure() in functions/asset_interface.php).
+ *
+ * Your own types (Admin > Asset Types, asset_types) join ITFlow's: assetTypes()
+ * is every one, in the pickers' order, and assetSpecDefs() every detail - your
+ * types' own are custom_<id>, kept in asset_specs like ITFlow's. Any of them
+ * can be switched off, but Other: the pickers stop offering it, and its
+ * assets keep it. Making and changing yours is functions/asset_type_custom.php.
  */
 
 /** The standard fields a type can show or hide - Name, type, status, description, tags, make, model, location and notes are on every one. */
@@ -155,18 +161,55 @@ const ASSET_TYPE_GROUPS = [
     'other' => ['label' => 'Other', 'icon' => 'fa-tag'],
 ];
 
-/** A type's entry - Other's for a type that isn't one ITFlow knows, with its name. */
-function assetTypeInfo($asset_type) {
-    $asset_type = (string) $asset_type;
-    if (!isset(ASSET_TYPES[$asset_type])) {
-        // Spelt another way - 'switch', as the database matches it too - or not one at all
-        $asset_type = assetTypeName($asset_type) ?: 'Other';
+/** The colours a type can be drawn in (itflow-asset-tone-*), by what they look like - for your own types. */
+const ASSET_TYPE_TONES = [
+    'workstation' => 'Blue', 'wireless' => 'Sky', 'network' => 'Teal', 'storage' => 'Olive', 'phone' => 'Gold', 'power' => 'Orange',
+    'firewall' => 'Red', 'virtual' => 'Purple', 'server' => 'Indigo', 'peripheral' => 'Slate', 'other' => 'Gray',
+];
+
+/** The icons Admin > Asset Types offers your own types - any other Font Awesome icon can be typed. */
+const ASSET_TYPE_ICONS = [
+    'laptop', 'desktop', 'server', 'hdd', 'database', 'cloud', 'microchip', 'memory', 'fire-alt', 'network-wired',
+    'ethernet', 'wifi', 'broadcast-tower', 'satellite-dish', 'satellite', 'rss', 'sitemap', 'project-diagram', 'car-battery', 'battery-full',
+    'plug', 'bolt', 'charging-station', 'solar-panel', 'print', 'fax', 'barcode', 'qrcode', 'phone', 'phone-volume',
+    'voicemail', 'headset', 'mobile-alt', 'tablet-alt', 'sim-card', 'tv', 'video', 'camera', 'photo-video', 'film',
+    'microphone', 'volume-up', 'keyboard', 'mouse', 'gamepad', 'vr-cardboard', 'compact-disc', 'sd-card', 'fingerprint', 'id-card',
+    'id-badge', 'door-closed', 'door-open', 'lock', 'key', 'shield-alt', 'bell', 'clock', 'thermometer-half', 'fan',
+    'snowflake', 'tint', 'water', 'lightbulb', 'cash-register', 'credit-card', 'receipt', 'calculator', 'ticket-alt', 'digital-tachograph',
+    'car', 'truck', 'shuttle-van', 'tractor', 'gas-pump', 'warehouse', 'building', 'industry', 'hard-hat', 'tools',
+    'wrench', 'cogs', 'robot', 'cube', 'cubes', 'box', 'archive', 'chalkboard', 'medkit', 'x-ray',
+    'weight', 'globe', 'map-marker-alt', 'terminal', 'tag',
+];
+
+/** What your own types' details can be - each drawn on the form with its icon. */
+const ASSET_TYPE_DETAIL_INPUTS = [
+    'text' => ['label' => 'Text', 'icon' => 'fa-font'],
+    'number' => ['label' => 'Number', 'icon' => 'fa-hashtag'],
+    'date' => ['label' => 'Date', 'icon' => 'fa-calendar-alt'],
+    'select' => ['label' => 'List', 'icon' => 'fa-list-ul'],
+];
+
+/**
+ * Is the asset_types table there yet (database update 4.1.1)? Until it is,
+ * there are only ITFlow's own types, all switched on.
+ */
+function assetTypesReady() {
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '4.1.1', '>=');
     }
-    return ASSET_TYPES[$asset_type] + ['name' => $asset_type];
+    return $ready;
 }
 
-/** A type as the list spells it, matched without case - '' when it isn't one. */
-function assetTypeName($value) {
+/** One of ITFlow's own types as it spells it, matched without case - '' when it isn't one. */
+function assetTypeBuiltInName($value) {
     $value = trim((string) $value);
     foreach (array_keys(ASSET_TYPES) as $asset_type) {
         if (strcasecmp($asset_type, $value) === 0) {
@@ -176,16 +219,231 @@ function assetTypeName($value) {
     return '';
 }
 
-/** Type => icon class (fa-laptop), in order - what $asset_types_array has always been. */
+/**
+ * Every asset type, in the pickers' order - name => what ASSET_TYPES has for
+ * one, and builtin, active (offered by the pickers), id (its asset_types row,
+ * 0 for one of ITFlow's never switched off), description, rack (goes in a
+ * rack), base (the built-in one of yours was started from) and details (your
+ * type's own - key => as ASSET_SPECS has one). Yours come after the last of
+ * ITFlow's in their group, by name - a Hypervisor after Server and NAS - and
+ * the Other ones before Other. Read once a request; assetTypesReset() after
+ * changing them.
+ */
+function assetTypes() {
+    global $mysqli;
+    if (isset($GLOBALS['itflow_asset_types'])) {
+        return $GLOBALS['itflow_asset_types'];
+    }
+    $types = [];
+    foreach (ASSET_TYPES as $name => $info) {
+        $types[$name] = $info + ['builtin' => true, 'active' => true, 'id' => 0, 'description' => '', 'rack' => in_array($name, ASSET_RACK_TYPES, true), 'base' => '', 'details' => []];
+    }
+    if (!assetTypesReady()) {
+        return $GLOBALS['itflow_asset_types'] = $types;
+    }
+
+    $details = [];
+    $sql = mysqli_query($mysqli, "SELECT asset_type_detail_id, asset_type_detail_asset_type_id, asset_type_detail_label, asset_type_detail_input, asset_type_detail_unit,
+            asset_type_detail_options, asset_type_detail_flag, asset_type_detail_unit_only
+        FROM asset_type_details ORDER BY asset_type_detail_order ASC, asset_type_detail_id ASC");
+    while ($sql && $row = mysqli_fetch_assoc($sql)) {
+        $details[intval($row['asset_type_detail_asset_type_id'])]['custom_' . intval($row['asset_type_detail_id'])] = assetTypeDetailSpec($row);
+    }
+    $custom = [];
+    $sql = mysqli_query($mysqli, "SELECT asset_type_id, asset_type_name, asset_type_builtin, asset_type_active, asset_type_icon, asset_type_tone, asset_type_group,
+            asset_type_base, asset_type_os, asset_type_fields, asset_type_specs, asset_type_rack, asset_type_description
+        FROM asset_types ORDER BY asset_type_name ASC");
+    while ($sql && $row = mysqli_fetch_assoc($sql)) {
+        $builtin = assetTypeBuiltInName($row['asset_type_name']);
+        if (intval($row['asset_type_builtin']) === 1) {
+            // One of ITFlow's, switched off or back on - Other is always on
+            if ($builtin !== '' && $builtin !== 'Other') {
+                $types[$builtin]['active'] = intval($row['asset_type_active']) === 1;
+                $types[$builtin]['id'] = intval($row['asset_type_id']);
+            }
+            continue;
+        }
+        // One of yours that ITFlow has since given a type of its own by that name - ITFlow's wins
+        if ($builtin === '') {
+            $custom[$row['asset_type_name']] = assetTypeCustomInfo($row, $details[intval($row['asset_type_id'])] ?? []);
+        }
+    }
+
+    $last = [];
+    foreach ($types as $name => $info) {
+        if ($name !== 'Other') {
+            $last[$info['group']] = $name;
+        }
+    }
+    $ordered = [];
+    $place = function ($group) use ($custom, &$ordered) {
+        foreach ($custom as $name => $info) {
+            if ($info['group'] === $group) {
+                $ordered[$name] = $info;
+            }
+        }
+    };
+    foreach ($types as $name => $info) {
+        if ($name === 'Other') {
+            $place('other');
+        }
+        $ordered[$name] = $info;
+        if ($name !== 'Other' && ($last[$info['group']] ?? '') === $name) {
+            $place($info['group']);
+        }
+    }
+    return $GLOBALS['itflow_asset_types'] = $ordered + $custom;
+}
+
+/** Read the types again - after one is made, changed, switched or deleted. */
+function assetTypesReset() {
+    unset($GLOBALS['itflow_asset_types'], $GLOBALS['itflow_asset_spec_defs']);
+}
+
+/** One of your types, as assetTypes() has it - from its asset_types row and its details. */
+function assetTypeCustomInfo(array $row, array $details) {
+    $base = assetTypeBuiltInName($row['asset_type_base'] ?? '');
+    $icon = categoryIcon($row['asset_type_icon']);
+    return [
+        'icon' => 'fa-' . ($icon !== '' ? $icon : 'tag'),
+        'tone' => isset(ASSET_TYPE_TONES[$row['asset_type_tone']]) ? $row['asset_type_tone'] : 'other',
+        'group' => isset(ASSET_TYPE_GROUPS[$row['asset_type_group']]) ? $row['asset_type_group'] : 'other',
+        'os' => $row['asset_type_os'] === 'firmware' ? 'firmware' : 'os',
+        'fields' => array_values(array_intersect(ASSET_FIELDS, explode(',', (string) $row['asset_type_fields']))),
+        // ITFlow's details in their order, then its own in theirs
+        'specs' => array_merge(array_values(array_intersect(array_keys(ASSET_SPECS), explode(',', (string) $row['asset_type_specs']))), array_keys($details)),
+        'example' => ASSET_TYPES[$base !== '' ? $base : 'Other']['example'],
+        'builtin' => false,
+        'active' => intval($row['asset_type_active']) === 1,
+        'id' => intval($row['asset_type_id']),
+        'description' => (string) ($row['asset_type_description'] ?? ''),
+        'rack' => intval($row['asset_type_rack']) === 1,
+        'base' => $base,
+        'details' => $details,
+    ];
+}
+
+/** One of your type's own details, as ASSET_SPECS has one - from its asset_type_details row, with custom and id. */
+function assetTypeDetailSpec(array $row) {
+    $input = isset(ASSET_TYPE_DETAIL_INPUTS[$row['asset_type_detail_input']]) ? $row['asset_type_detail_input'] : 'text';
+    $spec = ['label' => (string) $row['asset_type_detail_label'], 'input' => $input, 'icon' => ASSET_TYPE_DETAIL_INPUTS[$input]['icon'], 'custom' => true, 'id' => intval($row['asset_type_detail_id'])];
+    if ($input === 'number') {
+        $spec += ['min' => 0, 'max' => 999999999, 'step' => 'any'];
+        if (trim((string) $row['asset_type_detail_unit']) !== '') {
+            $spec['unit'] = trim((string) $row['asset_type_detail_unit']);
+        }
+    } elseif ($input === 'select') {
+        $spec['options'] = assetTypeDetailOptions($row['asset_type_detail_options']);
+    } elseif ($input === 'date' && intval($row['asset_type_detail_flag']) === 1) {
+        $spec['flag'] = true;
+    }
+    if (intval($row['asset_type_detail_unit_only']) === 1) {
+        $spec['unit_only'] = true;
+    }
+    return $spec;
+}
+
+/** A list detail's choices - one a line, as kept, or as typed with commas. */
+function assetTypeDetailOptions($options) {
+    $list = [];
+    foreach (preg_split('/[\r\n,]+/', (string) $options) as $option) {
+        $option = mb_substr(trim(preg_replace('/[\x00-\x1F\x7F]+/u', ' ', $option)), 0, 100);
+        if ($option !== '' && !in_array(mb_strtolower($option), array_map('mb_strtolower', $list), true)) {
+            $list[] = $option;
+        }
+    }
+    return array_slice($list, 0, 50);
+}
+
+/**
+ * Every detail - ITFlow's (ASSET_SPECS) and your types' own (custom_<id>),
+ * key => as ASSET_SPECS has one. Yours have custom, id and type (its type's
+ * name) too.
+ */
+function assetSpecDefs() {
+    if (isset($GLOBALS['itflow_asset_spec_defs'])) {
+        return $GLOBALS['itflow_asset_spec_defs'];
+    }
+    $defs = ASSET_SPECS;
+    foreach (assetTypes() as $name => $info) {
+        foreach ($info['details'] as $key => $spec) {
+            $defs[$key] = $spec + ['type' => $name];
+        }
+    }
+    return $GLOBALS['itflow_asset_spec_defs'] = $defs;
+}
+
+/** A detail's heading in an export or import - yours with its type, so two types' Doors are told apart: "Badge Reader: Doors (m)". */
+function assetSpecHeading(array $spec) {
+    return (!empty($spec['custom']) ? $spec['type'] . ': ' : '') . $spec['label'] . (isset($spec['unit']) ? ' (' . $spec['unit'] . ')' : '');
+}
+
+/** A type's entry - Other's for a type that isn't one ITFlow knows, with its name. */
+function assetTypeInfo($asset_type) {
+    $types = assetTypes();
+    $asset_type = (string) $asset_type;
+    if (!isset($types[$asset_type])) {
+        // Spelt another way - 'switch', as the database matches it too - or not one at all
+        $asset_type = assetTypeName($asset_type) ?: 'Other';
+    }
+    return $types[$asset_type] + ['name' => $asset_type];
+}
+
+/** A type as the list spells it, matched without case - '' when it isn't one. Switched off ones too. */
+function assetTypeName($value) {
+    $value = trim((string) $value);
+    foreach (array_keys(assetTypes()) as $asset_type) {
+        if (strcasecmp($asset_type, $value) === 0) {
+            return $asset_type;
+        }
+    }
+    return '';
+}
+
+/** Type => icon class (fa-laptop), in order - every type, switched off ones too. */
 function assetTypeIcons() {
     return array_map(function ($type) {
         return $type['icon'];
-    }, ASSET_TYPES);
+    }, assetTypes());
+}
+
+/** What the type pickers offer - name => icon class, in order: the ones switched on, and $keep (an asset's own) even when it is off. */
+function assetTypePicker($keep = '') {
+    $keep = assetTypeName($keep);
+    $picker = [];
+    foreach (assetTypes() as $name => $info) {
+        if ($info['active'] || $name === $keep) {
+            $picker[$name] = $info['icon'];
+        }
+    }
+    return $picker;
+}
+
+/** The types that go in a rack - ASSET_RACK_TYPES, then yours that do. */
+function assetRackTypes() {
+    $types = ASSET_RACK_TYPES;
+    foreach (assetTypes() as $name => $info) {
+        if (!$info['builtin'] && $info['rack']) {
+            $types[] = $name;
+        }
+    }
+    return $types;
+}
+
+/** Does its page draw its ports as a port map - a switch, a firewall... (INTERFACE_PORT_MAP_TYPES), or one of yours with ports? */
+function assetTypeHasPortMap($asset_type) {
+    $info = assetTypeInfo($asset_type);
+    return in_array($info['name'], INTERFACE_PORT_MAP_TYPES, true) || (!$info['builtin'] && array_intersect(['ports', 'sfp_ports'], $info['specs']));
+}
+
+/** Is it virtual - no hardware to age, cover with a warranty or buy again? A virtual machine, or one of yours in Virtual. */
+function assetTypeIsVirtual($asset_type) {
+    return assetTypeInfo($asset_type)['group'] === 'virtual';
 }
 
 /** The types in one or more groups. */
 function assetTypesInGroup(...$groups) {
-    return array_keys(array_filter(ASSET_TYPES, function ($type) use ($groups) {
+    return array_keys(array_filter(assetTypes(), function ($type) use ($groups) {
         return in_array($type['group'], $groups, true);
     }));
 }
@@ -199,7 +457,7 @@ function assetTypeGroupSql($group, $column = 'asset_type') {
         return "'" . implode("', '", array_map('escapeSql', $types)) . "'";
     };
     if ($group === 'other') {
-        $known = array_diff(array_keys(ASSET_TYPES), assetTypesInGroup('other'));
+        $known = array_diff(array_keys(assetTypes()), assetTypesInGroup('other'));
         return "$column NOT IN (" . $in($known) . ")";
     }
     $types = assetTypesInGroup($group);
@@ -242,11 +500,14 @@ function assetTypeOsLabel($asset_type) {
     return assetTypeInfo($asset_type)['os'] === 'firmware' ? 'Firmware' : 'Operating system';
 }
 
-/** A type's details - key => ASSET_SPECS entry, in its order. */
+/** A type's details - key => ASSET_SPECS entry (assetSpecDefs() - its own too), in its order. */
 function assetTypeSpecs($asset_type) {
+    $defs = assetSpecDefs();
     $specs = [];
     foreach (assetTypeInfo($asset_type)['specs'] as $key) {
-        $specs[$key] = ASSET_SPECS[$key];
+        if (isset($defs[$key])) {
+            $specs[$key] = $defs[$key];
+        }
     }
     return $specs;
 }
@@ -376,13 +637,14 @@ function assetSpecsSave($asset_id, $asset_type, array $specs) {
         return [];
     }
     $before = assetSpecs($asset_id);
+    $defs = assetSpecDefs();
     $allowed = array_keys(assetTypeSpecs($asset_type));
     $changes = [];
     foreach ($before as $key => $value) {
         if (!in_array($key, $allowed, true) || !array_key_exists($key, $specs)) {
             mysqli_query($mysqli, "DELETE FROM asset_specs WHERE asset_spec_asset_id = $asset_id AND asset_spec_key = '" . escapeSql($key) . "'");
             if (in_array($key, $allowed, true)) {
-                $changes[] = (ASSET_SPECS[$key]['label'] ?? $key) . ' cleared';
+                $changes[] = ($defs[$key]['label'] ?? $key) . ' cleared';
             }
         }
     }
@@ -392,7 +654,7 @@ function assetSpecsSave($asset_id, $asset_type, array $specs) {
         }
         mysqli_query($mysqli, "INSERT INTO asset_specs SET asset_spec_asset_id = $asset_id, asset_spec_key = '" . escapeSql($key) . "', asset_spec_value = '" . escapeSql($value) . "'
             ON DUPLICATE KEY UPDATE asset_spec_value = VALUES(asset_spec_value)");
-        $changes[] = ASSET_SPECS[$key]['label'] . ' ' . assetSpecText($key, $value, ['link' => false]);
+        $changes[] = $defs[$key]['label'] . ' ' . assetSpecText($key, $value, ['link' => false]);
     }
     return $changes;
 }
@@ -447,7 +709,7 @@ function assetSpecsFromPost($asset_id, $asset_type, $input, $client_id) {
  * false gives plain text, the default HTML is escaped either way). Raw text.
  */
 function assetSpecText($key, $value, array $opts = []) {
-    $spec = ASSET_SPECS[$key] ?? ['input' => 'text'];
+    $spec = assetSpecDefs()[$key] ?? ['input' => 'text'];
     $value = (string) $value;
     if ($value === '') {
         return '';
@@ -567,7 +829,7 @@ function assetSpecsExportAttach(array $rows) {
     }
     foreach ($rows as $i => $row) {
         $type_specs = assetTypeSpecs($row['asset_type'] ?? '');
-        foreach (array_keys(ASSET_SPECS) as $key) {
+        foreach (array_keys(assetSpecDefs()) as $key) {
             $value = isset($type_specs[$key]) ? (string) ($specs[intval($row['asset_id'] ?? 0)][$key] ?? '') : '';
             $rows[$i]['spec_' . $key] = $key === 'vm_host' && $value !== '' ? ($hosts[intval($value)] ?? '') : $value;
         }

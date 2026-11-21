@@ -46,9 +46,11 @@ function rackItemStyle($asset_type, $unit_type, $has_asset) {
             'PDU' => 'power',
         ];
         $asset_type = (string) $asset_type;
+        // One of your types by its group (functions/asset_type.php)
+        $group_tones = ['server' => 'server', 'virtual' => 'server', 'network' => 'network', 'power' => 'power'];
         return [
             'icon' => 'fa-' . getAssetIcon($asset_type),
-            'tone' => $tones[$asset_type] ?? 'device',
+            'tone' => $tones[$asset_type] ?? $group_tones[assetTypeInfo($asset_type)['group']] ?? 'device',
             'label' => $asset_type !== '' ? $asset_type : 'Asset',
         ];
     }

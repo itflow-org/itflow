@@ -75,9 +75,9 @@ if (mysqli_num_rows($sql) == 0) {
         $sql_unracked = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model FROM assets
             WHERE asset_client_id = $client_id
             AND asset_archived_at IS NULL
-            AND asset_type IN ('" . implode("', '", array_map('escapeSql', ASSET_RACK_TYPES)) . "')
+            AND asset_type IN ('" . implode("', '", array_map('escapeSql', assetRackTypes())) . "')
             AND NOT EXISTS (SELECT 1 FROM rack_units WHERE unit_asset_id = asset_id)
-            ORDER BY FIELD(asset_type, '" . implode("', '", array_map('escapeSql', ASSET_RACK_TYPES)) . "'), asset_name
+            ORDER BY FIELD(asset_type, '" . implode("', '", array_map('escapeSql', assetRackTypes())) . "'), asset_name
             LIMIT 25");
         while ($unracked_row = mysqli_fetch_assoc($sql_unracked)) {
             $unracked_assets[] = $unracked_row;

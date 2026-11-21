@@ -108,6 +108,7 @@ function auditLogKinds() {
         'Announcement' => ['icon' => 'fa-bullhorn'],
         'Tag' => ['icon' => 'fa-tag'],
         'Category' => ['icon' => 'fa-list-ul'],
+        'Asset Type' => ['icon' => 'fa-layer-group'],
         'Ticket Status' => ['icon' => 'fa-info-circle'],
         'SLA' => ['icon' => 'fa-stopwatch'],
         'Canned Response' => ['icon' => 'fa-comment-dots'],

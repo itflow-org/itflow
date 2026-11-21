@@ -11,11 +11,12 @@
  * Notes. Every field is always in the form, whatever the asset type: fields
  * that came and went with the type used to drop out of the POST entirely,
  * and the handler then saved them as empty - editing an access point wiped
- * its firmware version. So a field its type doesn't have (ASSET_TYPES in
+ * its firmware version. So a field its type doesn't have (assetTypes() in
  * functions/asset_type.php) is only hidden, and one with a value is shown
  * all the same; a tab left with nothing in it goes too. Details - the type's
- * own, from ASSET_SPECS - are under Hardware, as spec[key]; the caller sets
- * $asset_specs (raw) for an asset that has them.
+ * own, from assetSpecDefs() - are under Hardware, as spec[key]; the caller
+ * sets $asset_specs (raw) for an asset that has them. The type picker offers
+ * the types switched on, and the asset's own even when it is off.
  *
  * Should not be accessed directly.
  */
@@ -76,9 +77,10 @@ $asset_ip_is_dhcp = $asset_ip === 'DHCP';
 $asset_specs = $asset_specs ?? [];
 $asset_type_raw = html_entity_decode($asset_type, ENT_QUOTES, 'UTF-8');
 $asset_type_known = assetTypeName($asset_type_raw);
+$asset_type_picker = assetTypePicker($asset_type_raw);
 // What each type shows, for the script - fields, what the OS field is called, details
 $asset_form_types = [];
-foreach (ASSET_TYPES as $asset_form_type => $asset_form_info) {
+foreach (assetTypes() as $asset_form_type => $asset_form_info) {
     $asset_form_types[$asset_form_type] = ['fields' => $asset_form_info['fields'], 'os' => assetTypeOsLabel($asset_form_type), 'specs' => $asset_form_info['specs'], 'example' => $asset_form_info['example']];
 }
 // Ports it has now, for the counts' hints - copper and SFP cages
@@ -166,8 +168,8 @@ $asset_form_icons = [
                 <span class="input-group-text"><i class="fas fa-layer-group fa-fw"></i></span>
                 <select class="form-select select2" name="type" required>
                     <option value="">- Select a type -</option>
-                    <?php foreach ($asset_types_array as $asset_type_select => $asset_icon_select) { ?>
-                        <option <?php if ($asset_type_select === $asset_type_raw) { echo "selected"; } ?><?= selectOptionData(['icon' => "fas $asset_icon_select"]) ?>><?= $asset_type_select ?></option>
+                    <?php foreach ($asset_type_picker as $asset_type_select => $asset_icon_select) { ?>
+                        <option <?php if ($asset_type_select === $asset_type_known) { echo "selected"; } ?><?= selectOptionData(['icon' => "fas $asset_icon_select"]) ?>><?= escapeHtml($asset_type_select) ?></option>
                     <?php } ?>
                     <?php if ($asset_type_raw !== '' && $asset_type_known === '') { ?>
                         <option selected<?= selectOptionData(['icon' => 'fas fa-tag']) ?>><?= escapeHtml($asset_type_raw) ?></option>
@@ -252,7 +254,7 @@ $asset_form_icons = [
     <?php // Its type's details - each type's are shown by the script below, the rest hidden ?>
     <div class="itflow-form-section mt-4" data-asset-specs-heading>Details</div>
     <div class="row g-3" data-asset-specs>
-        <?php foreach (ASSET_SPECS as $spec_key => $spec) {
+        <?php foreach (assetSpecDefs() as $spec_key => $spec) {
             $spec_value = (string) ($asset_specs[$spec_key] ?? '');
             $spec_id = 'assetFormSpec_' . $spec_key;
             $spec_shown = in_array($spec_key, assetTypeInfo($asset_type_raw)['specs'], true); ?>

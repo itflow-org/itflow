@@ -265,7 +265,7 @@ function importKinds() {
             'fields' => [
                 'asset_name' => $f('Name', ['Asset Name', 'Asset', 'Hostname'], ['required' => true, 'example' => 'FRONT-DESK-PC']),
                 'asset_description' => $f('Description'),
-                'asset_type' => $f('Type', ['Asset Type'], ['about' => implode(', ', array_keys(ASSET_TYPES)), 'example' => 'Desktop']),
+                'asset_type' => $f('Type', ['Asset Type'], ['about' => implode(', ', array_keys(assetTypePicker())), 'example' => 'Desktop']),
                 'asset_status' => $f('Status', [], ['about' => 'A status not yet one is added', 'example' => 'Deployed']),
                 'asset_make' => $f('Make', ['Manufacturer', 'Brand'], ['example' => 'Dell']),
                 'asset_model' => $f('Model', [], ['example' => 'OptiPlex 7010']),
@@ -460,9 +460,9 @@ function importKinds() {
         ],
     ];
 
-    // An asset's details, headed as the asset export heads them (functions/asset_type.php)
-    foreach (ASSET_SPECS as $key => $spec) {
-        $kinds['assets']['fields']["spec_$key"] = $f($spec['label'] . (isset($spec['unit']) ? ' (' . $spec['unit'] . ')' : ''), [$spec['label'], $key], ['detail' => true, 'about' => 'An asset detail']);
+    // An asset's details, headed as the asset export heads them - your types' own with their type, by which alone they are matched (functions/asset_type.php)
+    foreach (assetSpecDefs() as $key => $spec) {
+        $kinds['assets']['fields']["spec_$key"] = $f(assetSpecHeading($spec), !empty($spec['custom']) ? [$spec['type'] . ': ' . $spec['label'], $key] : [$spec['label'], $key], ['detail' => true, 'about' => !empty($spec['custom']) ? 'A detail of ' . $spec['type'] . ' assets' : 'An asset detail']);
     }
     return $kinds;
 }

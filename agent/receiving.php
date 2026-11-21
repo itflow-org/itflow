@@ -142,7 +142,7 @@ $line_count = array_sum(array_map('count', $by_po));
                                                     <span class="input-group-text"><i class="fas fa-fw fa-laptop"></i></span>
                                                     <select class="form-select" name="received[<?= $item_id ?>][asset_type]" aria-label="Add to the client's assets as">
                                                         <option value="">Don't add to assets</option>
-                                                        <?php foreach ($asset_types as $asset_type) { ?>
+                                                        <?php foreach ($type !== '' && !in_array($type, $asset_types, true) ? array_keys(productAssetTypes($type)) : $asset_types as $asset_type) { ?>
                                                             <option value="<?= escapeHtml($asset_type) ?>" <?= $asset_type === $type ? 'selected' : '' ?>>Add to assets as <?= escapeHtml($asset_type) ?></option>
                                                         <?php } ?>
                                                     </select>

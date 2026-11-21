@@ -352,7 +352,7 @@ if (!$product) {
                     <?php if ($asset_type !== '') { ?>
                         <div class="card-body">
                             <dl class="itflow-asset-dl mb-0">
-                                <dt>Becomes</dt><dd><i class="fas fa-fw <?= escapeHtml(productAssetTypes()[$asset_type] ?? 'fa-tag') ?> text-secondary me-1"></i><?= escapeHtml($asset_type) ?></dd>
+                                <dt>Becomes</dt><dd><i class="fas fa-fw <?= escapeHtml(assetTypeInfo($asset_type)['icon']) ?> text-secondary me-1"></i><?= escapeHtml($asset_type) ?></dd>
                                 <dt>Make</dt><dd><?= $product['product_make'] ? escapeHtml($product['product_make']) : '<span class="text-body-secondary">Not set</span>' ?></dd>
                                 <dt>Model</dt><dd><?= $product['product_model'] ? escapeHtml($product['product_model']) : '<span class="text-body-secondary">Not set</span>' ?></dd>
                                 <dt>Warranty</dt><dd><?= $warranty_months ? $warranty_months . ' month' . ($warranty_months === 1 ? '' : 's') . ' <span class="small text-body-secondary">from the invoice date</span>' : '<span class="text-body-secondary">Not set</span>' ?></dd>

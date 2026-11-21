@@ -32,7 +32,7 @@ function notificationTypeModules() {
         'module_financial' => ['Expense', 'Expense Created'],
         'module_support' => [
             'Ticket', 'Ticket SLA', 'Pending Tickets', 'Feedback', 'Recurring Ticket', 'Project', 'Booking Reminder',
-            'Domain Expiring', 'Certificate Expiring', 'Asset Warranty Expiring', 'UPS Battery Due', 'Service Review',
+            'Domain Expiring', 'Certificate Expiring', 'Asset Warranty Expiring', 'UPS Battery Due', 'Asset Date Due', 'Service Review',
             // Shared links - they open Shared Links (agent/shares.php), which is Support's
             'Shared link opened', 'Shared link locked', 'Login sent back', 'Share Viewed',
         ],
@@ -73,6 +73,7 @@ function notificationTypeStyle($type) {
         [['overdue', 'late charge'], 'exclamation-triangle', 'warning'],
         [['expiring'], 'hourglass-half', 'warning'],
         [['battery'], 'car-battery', 'warning'],
+        [['date due'], 'calendar-day', 'warning'],
         [['stock'], 'boxes', 'warning'],
         [['viewed'], 'eye', 'info'],
         [['quote'], 'comment-dollar', 'primary'],

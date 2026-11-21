@@ -456,7 +456,8 @@ function interfaceSeriesNext($asset_id, $asset_type, $sfp = false) {
         if ($sfp) {
             return ['SFP ', 1, 0];
         }
-        $prefix = $asset_type === 'Switch' ? 'Gi1/0/' : (in_array($asset_type, ['Firewall/Router', 'Access Point', 'Modem/ONT', 'NAS', 'NVR/DVR'], true) ? 'Port ' : 'eth');
+        // A switch's Gi1/0/1 on; the rest with a port map (a firewall, one of your types with ports) Port 1 on
+        $prefix = $asset_type === 'Switch' ? 'Gi1/0/' : (assetTypeHasPortMap($asset_type) ? 'Port ' : 'eth');
         return [$prefix, $prefix === 'eth' ? 0 : 1, 0];
     }
     uasort($runs, function ($a, $b) {

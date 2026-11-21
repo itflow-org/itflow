@@ -21,7 +21,7 @@ function staticFileUrl(string $path): string
     return $changed ? "$path?v=$changed" : $path;
 }
 
-/** The icon of an asset type, without its fa- (laptop) - from ASSET_TYPES (functions/asset_type.php); a tag for one it doesn't know. */
+/** The icon of an asset type, without its fa- (laptop) - from assetTypes() (functions/asset_type.php); a tag for one it doesn't know. */
 function getAssetIcon($asset_type) {
     return substr(assetTypeInfo($asset_type)['icon'], 3);
 }

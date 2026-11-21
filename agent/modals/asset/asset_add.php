@@ -16,6 +16,10 @@ $type_param = strtolower((string) ($_GET['type'] ?? ''));
 $asset_form_mode = 'add';
 $asset_id = 0;
 $asset_type = $type_presets[$type_param] ?? '';
+// One switched off in Admin > Asset Types isn't offered - then the first of that tab's that is
+if ($asset_type !== '' && !isset(assetTypePicker()[$asset_type])) {
+    $asset_type = array_values(array_intersect(array_keys(assetTypePicker()), assetTypesInGroup($type_param)))[0] ?? '';
+}
 $asset_name = $asset_description = $asset_make = $asset_model = $asset_serial = $asset_os = '';
 $asset_ip = $asset_ipv6 = $asset_nat_ip = $asset_mac = $asset_uri = $asset_uri_2 = $asset_uri_client = '';
 $asset_status = $asset_purchase_reference = $asset_purchase_date = $asset_install_date = $asset_warranty_expire = '';
