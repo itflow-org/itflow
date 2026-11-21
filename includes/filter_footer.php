@@ -24,7 +24,7 @@ if ($total_found_rows > 5) {
 <div class="card-footer itflow-filter-footer">
 
     <div class="row align-items-center g-2">
-        <div class="col-auto col-sm">
+        <div class="col">
             <form action="post.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?= escapeHtml($_SESSION['csrf_token'] ?? '') ?>">
                 <div class="d-flex align-items-center">
@@ -60,12 +60,14 @@ if ($total_found_rows > 5) {
         // Now output something like "Showing X to Y of Z records"
         ?>
 
-        <div class="col col-sm">
+        <div class="col-auto">
             <p class="text-center mb-0">
               Showing <strong><?= number_format($start) ?></strong> to <strong><?= number_format($end) ?></strong> of <strong><?= number_format(intval($total_found_rows)) ?></strong> records
             </p>
         </div>
-        <div class="col-12 col-xl-auto">
+        <!-- Balances the per page picker while the page numbers are on a row of their own, so the count stays in the middle -->
+        <div class="col d-xl-none"></div>
+        <div class="col-12 col-xl">
             <ul class="pagination justify-content-center justify-content-xl-end mb-0">
 
                 <?php
