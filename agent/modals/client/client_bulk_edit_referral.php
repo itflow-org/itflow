@@ -21,10 +21,10 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label class="form-label">Referral</label>
+            <label class="form-label">Referral <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
-                <select class="form-select select2" name="bulk_referral">
+                <select class="form-select select2" name="bulk_referral" required>
                     <option value="">- Select a referral -</option>
                     <?= categoryOptionsHtml('Referral') ?>
                 </select>

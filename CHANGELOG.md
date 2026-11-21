@@ -232,7 +232,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Screen readers: every window's close button is read out as Close, and the arrow beside a list's New button and the ⋮ menus on record pages as More actions, rather than as a button with no name or just More.
 - Counts: the counts in menus, tabs, list headers and under every list - Showing 1 to 25 of 1,834 records - have a thousands separator, as the dashboard, reports and audit log already did.
 - Confirmations: archiving a credential from an asset, contact, vendor, service or license page no longer asks first, as archiving anywhere else doesn't - the message's Undo puts it back. Taking a related ticket off a ticket, or a ticket off a service's page, asks first, as the ticket page's other × buttons do. Hints under a few fields - a statement's From, a cron job's schedule, a quote's price per hour - look like every other field's.
-- Required fields: every field marked * has to be filled in before the window saves, and every field that has to be filled in is marked * - a few had one without the other, such as a credit's note, the comment when merging several tickets, and the dates when activating, renewing or ending a contract. Hints under fields look the same in every window.
+- Required fields: every field marked * has to be filled in before the window saves, and every field that has to be filled in is marked * - a few had one without the other, such as a credit's note, the comment when merging several tickets, the dates when activating, renewing or ending a contract, and the one choice in the windows that set a location, contact, status or referral on the ticked records. Hints under fields look the same in every window.
 
 ### Bug Fixes
 
@@ -298,6 +298,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Invoice links: asking to pay by card when card payments weren't set up went to a page that doesn't exist. It goes back to the invoice and says card payments are not set up.
 - Assets: Bulk Action > Delete deleted the ticked assets straight away, without asking first as every other list's Delete does.
 - Assets: moving the ticked assets to another client with no client picked moved them to no client at all. It now asks for the client.
+- Contacts: Assign Location with no location picked took the ticked contacts' location away. It now asks for the location, as the same action on assets does.
 
 ### Developer Updates
 

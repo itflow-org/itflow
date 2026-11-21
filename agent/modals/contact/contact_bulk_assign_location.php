@@ -25,10 +25,10 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label class="form-label">Location</label>
+            <label class="form-label">Location <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
-                <select class="form-select select2" name="bulk_location_id">
+                <select class="form-select select2" name="bulk_location_id" required>
                     <option value="">- Select a location -</option>
                     <?php
 

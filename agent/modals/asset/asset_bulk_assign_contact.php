@@ -26,10 +26,10 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label class="form-label">Contact</label>
+            <label class="form-label">Contact <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
-                <select class="form-select select2" name="bulk_contact_id">
+                <select class="form-select select2" name="bulk_contact_id" required>
                     <option value="">- Select a contact -</option>
                     <?php
 

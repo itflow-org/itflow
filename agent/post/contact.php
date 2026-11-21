@@ -361,8 +361,12 @@ if (isset($_POST['bulk_assign_contact_location'])) {
     // Get Location name for logging and Notification
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
-    $location_name = escapeSql($row['location_name'] ?? '');
-    $client_id = intval($row['location_client_id'] ?? 0);
+    if (!$row) {
+        flashAlert('Pick a location to move them to.', 'error');
+        redirect();
+    }
+    $location_name = escapeSql($row['location_name']);
+    $client_id = intval($row['location_client_id']);
 
     enforceClientAccess();
 

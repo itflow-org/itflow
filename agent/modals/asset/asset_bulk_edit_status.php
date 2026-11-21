@@ -21,10 +21,10 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label class="form-label">Status</label>
+            <label class="form-label">Status <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-circle"></i></span>
-                <select class="form-select select2" name="bulk_status">
+                <select class="form-select select2" name="bulk_status" required>
                     <option value="">- Select a status -</option>
                     <?= categoryOptionsHtml('asset_status') ?>
                 </select>
