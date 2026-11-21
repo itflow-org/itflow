@@ -2,6 +2,20 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.12.1]
+
+### Upgrading
+
+Update from Maintenance > Update — Queue Update hands the job to cron and it applies on its own. There is no database change in this release, so nothing else is required.
+
+### Bug Fixes
+
+- RMM Providers: unlinking a client left its assets showing as still in the RMM - the dot on the assets list, the card on the asset, Take Control and the RMM filter, all with what the RMM said when it was unlinked - and they went on counting as managed devices on recurring invoices. Now they stay as they are but are no longer in the RMM, and each asset's history says its client was unlinked. A client you unlinked before this update is put right at the next sync. Link it again and its devices are matched back to the same assets.
+
+### Developer Updates
+
+- `rmmForgetClientDevices($rmm_client_id, $name, $why)` in `functions/rmm.php` deletes an RMM client's `rmm_devices` rows and adds an asset history line for each asset that is still there. Unlinking a client and linking it to another one both use it, and `rmmSync()` runs it for any of the provider's clients with `rmm_client_client_id = 0` that still have rows.
+
 ## [26.12]
 
 ### Upgrading to 26.12

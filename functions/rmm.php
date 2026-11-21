@@ -724,6 +724,26 @@ function rmmDeviceSave(array $provider, array $rmm_client, int $client_id, array
     return $remote_id;
 }
 
+/**
+ * Forget what the sync knew about one of an RMM's clients' devices - it was unlinked, or linked to
+ * another client. Their assets stay as they are, no longer in the RMM, and their history says why;
+ * linked again, its devices come in afresh and are matched to them. Returns how many assets stay.
+ */
+function rmmForgetClientDevices(int $rmm_client_id, string $name, string $why): int
+{
+    global $mysqli;
+    $left = 0;
+    $sql = mysqli_query($mysqli, "SELECT rmm_device_asset_id FROM rmm_devices WHERE rmm_device_rmm_client_id = $rmm_client_id AND rmm_device_asset_id > 0");
+    while ($device = mysqli_fetch_row($sql)) {
+        if (rmmAssetCurrent(intval($device[0]))) {
+            rmmAssetHistory(intval($device[0]), $name, "no longer keeps it up - $why");
+            $left++;
+        }
+    }
+    mysqli_query($mysqli, "DELETE FROM rmm_devices WHERE rmm_device_rmm_client_id = $rmm_client_id");
+    return $left;
+}
+
 /*
  * ------------------------------------------------------------------ Syncing
  */
@@ -809,6 +829,14 @@ function rmmSync(array $provider, int $only = 0, int $max_seconds = 120): array
                 $complete[intval($gone_row[0])] = [];
                 mysqli_query($mysqli, "UPDATE rmm_clients SET rmm_client_removed_at = NOW() WHERE rmm_client_id = " . intval($gone_row[0]));
             }
+        }
+
+        // Devices still kept for a client that was unlinked - before 26.12.1 unlinking left them
+        $unlinked = mysqli_query($mysqli, "SELECT DISTINCT rmm_device_rmm_client_id FROM rmm_devices
+            JOIN rmm_clients ON rmm_clients.rmm_client_id = rmm_device_rmm_client_id AND rmm_client_client_id = 0
+            WHERE rmm_device_provider_id = $provider_id");
+        while ($unlinked_row = mysqli_fetch_row($unlinked)) {
+            rmmForgetClientDevices(intval($unlinked_row[0]), $name, 'its client there was unlinked');
         }
 
         foreach (rmmLinkedClients($provider_id, $only) as $rmm_client) {

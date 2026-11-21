@@ -172,14 +172,7 @@ $rmm_link_client = function (array $rmm_client, int $client_id) use ($mysqli, &$
     $name = rmmProviderName($rmm_client);
     $left = 0;
     if ($before && $before !== $client_id) {
-        $sql = mysqli_query($mysqli, "SELECT rmm_device_asset_id FROM rmm_devices WHERE rmm_device_rmm_client_id = $rmm_client_id AND rmm_device_asset_id > 0");
-        while ($device = mysqli_fetch_row($sql)) {
-            if (rmmAssetCurrent(intval($device[0]))) {
-                rmmAssetHistory(intval($device[0]), $name, 'no longer keeps it up - its client there was linked to another one');
-                $left++;
-            }
-        }
-        mysqli_query($mysqli, "DELETE FROM rmm_devices WHERE rmm_device_rmm_client_id = $rmm_client_id");
+        $left = rmmForgetClientDevices($rmm_client_id, $name, 'its client there was linked to another one');
     }
     mysqli_query($mysqli, "UPDATE rmm_clients SET rmm_client_client_id = $client_id, rmm_client_synced_at = NULL WHERE rmm_client_id = $rmm_client_id");
     $client_name = (string) getFieldById('clients', $client_id, 'client_name');
@@ -248,7 +241,7 @@ if (isset($_GET['link_rmm_suggested'])) {
 
 }
 
-// Unlink - its devices stop coming in; their assets stay
+// Unlink - its devices stop coming in; their assets stay, no longer in the RMM
 if (isset($_GET['unlink_rmm_client'])) {
 
     validateCSRFToken();
@@ -259,6 +252,7 @@ if (isset($_GET['unlink_rmm_client'])) {
         redirect();
     }
     $rmm_client_id = intval($rmm_client['rmm_client_id']);
+    rmmForgetClientDevices($rmm_client_id, rmmProviderName($rmm_client), 'its client there was unlinked');
     mysqli_query($mysqli, "UPDATE rmm_clients SET rmm_client_client_id = 0, rmm_client_synced_at = NULL WHERE rmm_client_id = $rmm_client_id");
     logAudit("RMM Provider", "Unlink", "$session_name unlinked " . escapeSql(rmmProviderName($rmm_client) . " client {$rmm_client['rmm_client_name']} from " . $rmm_client['client_name']), intval($rmm_client['rmm_client_client_id']), intval($rmm_client['rmm_client_provider_id']));
     flashAlert('<strong>' . escapeHtml($rmm_client['rmm_client_name']) . '</strong> unlinked - its devices no longer come in. Their assets stay.', 'error');
