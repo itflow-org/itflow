@@ -189,16 +189,16 @@ $took = function ($seconds) {
         return 'under 0.1 s';
     }
     if ($seconds < 10) {
-        return rtrim(rtrim(number_format($seconds, 1), '0'), '.') . ' s';
+        return rtrim(rtrim(number_format($seconds, 1), '0'), '.') . 's';
     }
     if ($seconds < 60) {
-        return round($seconds) . ' s';
+        return round($seconds) . 's';
     }
     $minutes = intdiv(intval(round($seconds)), 60);
     if ($minutes < 60) {
-        return $minutes . ' min ' . (intval(round($seconds)) % 60) . ' s';
+        return $minutes . 'm ' . (intval(round($seconds)) % 60) . 's';
     }
-    return intdiv($minutes, 60) . ' h ' . ($minutes % 60) . ' min';
+    return intdiv($minutes, 60) . 'h ' . ($minutes % 60) . 'm';
 };
 // Job names in a sentence - "Mail Queue", "Mail Queue and Backup", "Mail Queue, Backup and Nightly Tasks" - each a link to its row
 $job_names = function ($list) {

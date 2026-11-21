@@ -224,6 +224,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Capitals: page and window titles, menu items and buttons are in Title Case - New Ticket, Mark Reviewed, Back Up Now, Turn Off Portal Access - and field labels, section headings, tabs and help are in sentence case - Postal code, Tax rate, Physical location - in the agent pages, Admin and the client portal alike. The settings pages in the menu are now Company Details, Invoices and Billing, Purchase Orders, Client Portal and Single Sign-on.
 - Lists: the first click on a column you aren't sorting by sorts names A-Z and dates, money and counts newest or largest first, and a second click flips it. It used to go the opposite way to the column you were on, so the first click could go either way.
 - Badges and blanks: every badge is a rounded pill, the menu counts included, and an empty value shows as a grey dash everywhere. A request that can't be done - credit over the balance, say - shows in red like every other error, and the client portal's search boxes read Search ... like the agent pages'.
+- Lengths of time: booking lengths, the dispatch board and how long a cron job ran are written 1h 30m like time logged everywhere else - they read 1 hour 30 min and 2 min 5 s - and hours as a number are 12.5 h, project hours included.
 
 ### Bug Fixes
 

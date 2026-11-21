@@ -1232,7 +1232,7 @@ function clientExportPdf($client_id, $options) {
         $chapter('Service levels', 'Targets run in business hours.', 1);
         $minutes = function ($m) {
             $m = intval($m);
-            return $m >= 60 ? round($m / 60, 1) . ' h' : $m . ' min';
+            return $m >= 60 ? round($m / 60, 1) . ' h' : $m . 'm';
         };
         $write(clientExportPdfTable(['Priority' => 20, 'SLA' => 40, 'First reply within' => 20, 'Resolved within' => 20], array_map(function ($s) use ($e, $minutes) {
             return [$e($s['priority']), $e($s['sla']), $e($minutes($s['response_minutes'])), $e($minutes($s['resolution_minutes']))];

@@ -211,13 +211,13 @@ function projectDuePill($row) {
     return '';
 }
 
-/** Hours for people: "45m", "3h", "12.5h". */
+/** Hours for people: "45m", "3 h", "12.5 h". */
 function projectHoursText($seconds) {
     $seconds = max(0, intval($seconds));
     if ($seconds < 3600) {
         return round($seconds / 60) . 'm';
     }
-    return rtrim(rtrim(number_format($seconds / 3600, 1, '.', ''), '0'), '.') . 'h';
+    return rtrim(rtrim(number_format($seconds / 3600, 1, '.', ''), '0'), '.') . ' h';
 }
 
 /** A budget in hours as posted - a positive number up to 999999, or null for none. */

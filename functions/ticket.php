@@ -2477,12 +2477,12 @@ function ticketScheduleLengths($keep = 0) {
     return $lengths;
 }
 
-/** "1 hour 30 min", "45 min". */
+/** "1h 30m", "45m" - how every length of time is written. */
 function ticketScheduleLengthText($minutes) {
     $minutes = intval($minutes);
     $hours = intdiv($minutes, 60);
     $rest = $minutes % 60;
-    return trim(($hours ? $hours . ' hour' . ($hours > 1 ? 's' : '') : '') . ($rest ? " $rest min" : ''));
+    return trim(($hours ? "{$hours}h" : '') . ($rest ? " {$rest}m" : ''));
 }
 
 /** "Tuesday, October 20, 2026, 1:00pm - 3:00pm" - both dates in full when it runs past midnight. */

@@ -82,7 +82,7 @@
     function lengthText(minutes) {
         const h = Math.floor(minutes / 60);
         const m = minutes % 60;
-        return ((h ? h + (h > 1 ? ' hours' : ' hour') : '') + (m ? ' ' + m + ' min' : '')).trim();
+        return ((h ? h + 'h' : '') + (m ? ' ' + m + 'm' : '')).trim();
     }
     function minutesBetween(start, end) {
         const a = parseDateTime(start);
@@ -886,7 +886,7 @@
     function bar(minutes, capacity) {
         const pct = capacity ? Math.min(100, Math.round(minutes / capacity * 100)) : 0;
         const tone = capacity && minutes > capacity ? 'bg-danger' : (pct >= 85 ? 'bg-warning' : 'bg-primary');
-        return '<div class="small text-nowrap">' + esc(lengthText(minutes) || '0 min') + (capacity ? ' <span class="text-body-secondary">of ' + esc(lengthText(capacity)) + '</span>' : '') + '</div>'
+        return '<div class="small text-nowrap">' + esc(lengthText(minutes) || '0m') + (capacity ? ' <span class="text-body-secondary">of ' + esc(lengthText(capacity)) + '</span>' : '') + '</div>'
             + '<div class="progress itflow-dispatch-bar" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar ' + tone + '" style="width: ' + pct + '%"></div></div>';
     }
 
