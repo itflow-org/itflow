@@ -31,7 +31,7 @@ $kb_form_audience = $kb_form_mode === 'edit' ? kbAudienceFields($kb_form) : ['vi
         <label class="form-label">Title <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-book"></i></span>
-            <input type="text" class="form-control" name="title" maxlength="200" value="<?= escapeHtml($kb_form['kb_article_title'] ?? '') ?>" placeholder="e.g. Set up company email on an iPhone" required <?= $kb_form_mode === 'add' ? 'autofocus' : '' ?>>
+            <input type="text" class="form-control" name="title" maxlength="200" value="<?= escapeHtml($kb_form['kb_article_title'] ?? '') ?>" placeholder="Set up company email on an iPhone" required <?= $kb_form_mode === 'add' ? 'autofocus' : '' ?>>
         </div>
     </div>
     <div class="col-md-6">

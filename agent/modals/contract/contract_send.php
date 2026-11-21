@@ -108,7 +108,7 @@ if (!$contract || !contractSignaturesReady() || in_array($contract['contract_sta
         </ul>
     </div>
     <div class="modal-footer">
-        <a class="btn btn-link me-auto" href="contract_document.php?client_id=<?= $client_id ?>&contract_id=<?= intval($contract['contract_id']) ?>" target="_blank"><i class="fas fa-eye me-2"></i>Preview</a>
+        <a class="btn btn-link me-auto" href="contract_document.php?client_id=<?= $client_id ?>&contract_id=<?= intval($contract['contract_id']) ?>" target="_blank" rel="noopener"><i class="fas fa-eye me-2"></i>Preview</a>
         <button type="submit" name="send_contract_signature" class="btn btn-primary fw-bold"><i class="fas fa-paper-plane me-2"></i>Send</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>

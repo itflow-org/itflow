@@ -115,7 +115,7 @@ if (!$po || !poAccessible($po['po_id'])) {
                 <div class="dropdown">
                     <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i><span class="visually-hidden">More</span></button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href="post.php?po_pdf=<?= $po_id ?>&csrf_token=<?= $csrf ?>" target="_blank"><i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>PDF</a>
+                        <a class="dropdown-item" href="post.php?po_pdf=<?= $po_id ?>&csrf_token=<?= $csrf ?>" target="_blank" rel="noopener"><i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>PDF</a>
                         <?php if ($can_edit && $ordered_or_after) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $modal('po_email') ?>"><i class="fas fa-fw fa-envelope text-secondary me-2"></i>Email to Vendor</a>
                         <?php } ?>

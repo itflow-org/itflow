@@ -50,7 +50,7 @@ if (!$ticket_status || ticketStatusIsBuiltIn($ticket_status['ticket_status_id'])
         <?php if ($tickets) { ?>
             <div class="alert alert-<?= $delete ? 'warning' : 'secondary' ?> small py-2">
                 <i class="fas fa-fw fa-life-ring me-1"></i><strong><?= $plural($tickets, 'ticket is', 'tickets are') ?></strong> in it<?= $counts['open'] !== $tickets ? ' - ' . $plural($counts['open'], 'open one', 'open ones') : '' ?>.
-                <a href="/agent/tickets.php?status[]=<?= $ticket_status_id ?>" target="_blank">See them</a>
+                <a href="/agent/tickets.php?status[]=<?= $ticket_status_id ?>" target="_blank" rel="noopener">See them</a>
             </div>
             <div class="mb-3">
                 <label class="form-label">Move <?= $tickets === 1 ? 'it' : 'them' ?> to <?php if ($delete) { ?><strong class="text-danger">*</strong><?php } ?></label>

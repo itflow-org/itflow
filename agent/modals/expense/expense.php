@@ -97,7 +97,7 @@ ob_start();
     <?php if ($receipt_kind) { ?>
         <div class="itflow-file-preview mb-3">
             <?php if ($receipt_kind === 'image') { ?>
-                <a href="<?= $receipt_url ?>&amp;action=view" target="_blank" title="Open full size"><img src="<?= $receipt_url ?>&amp;action=view" alt="Receipt"></a>
+                <a href="<?= $receipt_url ?>&amp;action=view" target="_blank" rel="noopener" title="Open full size"><img src="<?= $receipt_url ?>&amp;action=view" alt="Receipt"></a>
             <?php } else { ?>
                 <iframe src="<?= $receipt_url ?>&amp;action=view#view=FitH" title="Receipt"></iframe>
             <?php } ?>

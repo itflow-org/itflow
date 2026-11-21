@@ -205,7 +205,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
                                     <i class="fas fa-fw fa-desktop text-secondary me-2"></i>Asset
                                 </a>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/network/network_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
                                     <i class="fas fa-fw fa-network-wired text-secondary me-2"></i>Network
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/rack/rack_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
@@ -485,7 +485,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                             <?php if ($can_support_edit && !$location_archived_at) { ?>
                                 <div class="d-flex gap-2">
                                     <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $move_url ?>network"><i class="fas fa-dolly me-2"></i>Move Here</button>
-                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/network/network_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>"><i class="fas fa-plus me-2"></i>New Network</button>
+                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/network/network_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>"><i class="fas fa-plus me-2"></i>New Network</button>
                                 </div>
                             <?php } ?>
                         </div>

@@ -349,8 +349,8 @@ $is_card = $account && $account['type'] === 3;
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
-                            <input type="number" step="0.01" min="0" class="form-control" name="amount_min" value="<?= escapeHtml($amount_min) ?>" placeholder="At least" aria-label="At least" onchange="this.form.submit()">
-                            <input type="number" step="0.01" min="0" class="form-control" name="amount_max" value="<?= escapeHtml($amount_max) ?>" placeholder="At most" aria-label="At most" onchange="this.form.submit()">
+                            <input type="text" inputmode="decimal" pattern="[0-9,]*\.?[0-9]{0,2}" class="form-control" name="amount_min" value="<?= escapeHtml($amount_min) ?>" placeholder="At least" aria-label="At least" onchange="this.form.submit()">
+                            <input type="text" inputmode="decimal" pattern="[0-9,]*\.?[0-9]{0,2}" class="form-control" name="amount_max" value="<?= escapeHtml($amount_max) ?>" placeholder="At most" aria-label="At most" onchange="this.form.submit()">
                         </div>
                     </div>
                 </div>

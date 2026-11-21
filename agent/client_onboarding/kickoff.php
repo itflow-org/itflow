@@ -52,7 +52,7 @@ while ($co_contact = mysqli_fetch_assoc($co_sql)) {
             <li data-co-project="<?= intval($co_project['project_id']) ?>">
                 <span class="itflow-gs-person-initials" aria-hidden="true"><i class="fas fa-project-diagram"></i></span>
                 <div class="min-w-0 flex-grow-1">
-                    <a href="/agent/<?= projectUrl($co_project['project_id'], $client_id) ?>" class="fw-semibold text-truncate d-block" target="_blank"><?= escapeHtml(projectReference($co_project) . ' - ' . $co_project['project_name']) ?></a>
+                    <a href="/agent/<?= projectUrl($co_project['project_id'], $client_id) ?>" class="fw-semibold text-truncate d-block" target="_blank" rel="noopener"><?= escapeHtml(projectReference($co_project) . ' - ' . $co_project['project_name']) ?></a>
                     <div class="small text-body-secondary"><?= intval($co_project['tickets']) ?> ticket<?= intval($co_project['tickets']) === 1 ? '' : 's' ?><?= !empty($co_project['project_due']) ? ' - due ' . escapeHtml(date('M j, Y', strtotime($co_project['project_due']))) : '' ?></div>
                 </div>
                 <?php if (!empty($co_project['project_completed_at'])) { ?><span class="badge rounded-pill bg-success-subtle text-success-emphasis fw-normal">Completed</span><?php } ?>

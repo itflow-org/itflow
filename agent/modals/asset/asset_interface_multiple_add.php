@@ -97,7 +97,7 @@ ob_start();
                 <label class="form-label">VLANs</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
-                    <input type="text" class="form-control" name="vlans" maxlength="200" placeholder="e.g. 10">
+                    <input type="text" class="form-control" name="vlans" maxlength="200" placeholder="10">
                 </div>
             </div>
             <div class="col-12">

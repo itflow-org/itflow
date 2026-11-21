@@ -25,7 +25,7 @@ ob_start();
             <label class="form-label">Industry</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-briefcase"></i></span>
-                <input type="text" class="form-control" name="bulk_industry" placeholder="Enter an Industry" maxlength="200" required>
+                <input type="text" class="form-control" name="bulk_industry" placeholder="Healthcare, Legal, Construction" maxlength="200" required>
             </div>
         </div>
 

@@ -131,7 +131,7 @@ ob_start();
                 </div>
             </div>
 
-            <a class="btn btn-sm btn-outline-secondary mb-1" href="post.php?export_client_statement_pdf=<?= $client_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank" data-statement-pdf>
+            <a class="btn btn-sm btn-outline-secondary mb-1" href="post.php?export_client_statement_pdf=<?= $client_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank" rel="noopener" data-statement-pdf>
                 <i class="fas fa-fw fa-file-pdf me-1"></i>Download PDF
             </a>
 

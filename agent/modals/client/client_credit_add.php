@@ -42,7 +42,7 @@
                         <label class="form-label">Note <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-fw fa-file-alt"></i></span>
-                            <input type="text" class="form-control" name="note" placeholder="Enter a note" maxlength="250">
+                            <input type="text" class="form-control" name="note" placeholder="What the credit is for" maxlength="250">
                         </div>
                     </div>
 

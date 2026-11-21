@@ -174,7 +174,7 @@ $page_title = $row['kb_article_title'];
                             <li class="list-group-item d-flex align-items-center gap-3">
                                 <?= fileTypeTile($ext) ?>
                                 <div class="min-w-0 flex-grow-1">
-                                    <a class="fw-semibold text-break" href="kb_file.php?file_id=<?= $file_id ?>&action=view" target="_blank" title="Open it - or download it, for a kind the browser can't show"><?= escapeHtml($file['kb_article_file_name']) ?></a>
+                                    <a class="fw-semibold text-break" href="kb_file.php?file_id=<?= $file_id ?>&action=view" target="_blank" rel="noopener" title="Open it - or download it, for a kind the browser can't show"><?= escapeHtml($file['kb_article_file_name']) ?></a>
                                     <div class="small text-body-secondary"><?= formatBytes(intval($file['kb_article_file_size'])) ?> &middot; added <?= timeAgo($file['kb_article_file_created_at']) ?><?= $file['user_name'] !== null ? ' by ' . escapeHtml($file['user_name']) : '' ?></div>
                                 </div>
                                 <a class="btn btn-sm btn-light border" href="kb_file.php?file_id=<?= $file_id ?>" title="Download"><i class="fas fa-download"></i></a>

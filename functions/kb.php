@@ -174,7 +174,7 @@ function kbPickerRowsHtml(array $rows, $client_id) {
         $reach = kbReachFor($row, isset($readable[$id]));
         $html .= '<div class="itflow-kb-pick-item" data-kb-pick-item data-kb-id="' . $id . '" data-kb-title="' . escapeHtml($row['kb_article_title']) . '" data-kb-url="' . escapeHtml($reach['url']) . '">'
             . '<div class="itflow-kb-pick-text">'
-            . '<a class="d-block fw-semibold text-truncate text-reset" href="/agent/kb_article.php?kb_article_id=' . $id . '" target="_blank" title="Read it - opens in a new tab">' . escapeHtml($row['kb_article_title']) . '</a>'
+            . '<a class="d-block fw-semibold text-truncate text-reset" href="/agent/kb_article.php?kb_article_id=' . $id . '" target="_blank" rel="noopener" title="Read it - opens in a new tab">' . escapeHtml($row['kb_article_title']) . '</a>'
             . '<span class="d-block small text-body-secondary text-truncate">' . escapeHtml(kbArticleExcerpt($row, 120)) . '</span>'
             . '<span class="d-block small text-body-secondary"><i class="fas fa-fw ' . $reach['icon'] . ' me-1"></i>' . $reach['text'] . '</span>'
             . '</div>'

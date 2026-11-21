@@ -30,7 +30,7 @@ ob_start();
             <label class="form-label">Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-folder"></i></span>
-                <input type="text" class="form-control" name="folder_name" placeholder="e.g. Contracts" maxlength="200" required autofocus>
+                <input type="text" class="form-control" name="folder_name" placeholder="Contracts" maxlength="200" required autofocus>
             </div>
         </div>
 

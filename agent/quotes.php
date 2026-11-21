@@ -275,7 +275,7 @@ $stat_monthly = function ($amount) use ($stat_money) {
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="<?= $row_url ?>"><i class="fas fa-fw fa-eye text-secondary me-2"></i>Open</a>
-                                <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank"><i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Download PDF</a>
+                                <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank" rel="noopener"><i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Download PDF</a>
                                 <?php if ($can_edit) { ?>
                                     <div class="dropdown-divider"></div>
                                     <?php if ($mail_ready && in_array($row_status, ['Draft', 'Sent', 'Viewed'], true)) { ?>

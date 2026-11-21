@@ -68,7 +68,7 @@ if (!empty($canned_picker_groups) || intval($canned_picker_ticket_id) > 0) { ?>
                         <i class="fas fa-fw fa-save text-secondary me-2"></i>Save Your Reply as a Canned Response
                     </a>
                 <?php } ?>
-                <a class="dropdown-item small" href="/agent/user/user_canned_responses.php" target="_blank" title="Opens in a new tab - your reply stays here">
+                <a class="dropdown-item small" href="/agent/user/user_canned_responses.php" target="_blank" rel="noopener" title="Opens in a new tab - your reply stays here">
                     <i class="fas fa-fw fa-user text-secondary me-2"></i>Your Canned Responses
                 </a>
             </div>

@@ -43,7 +43,7 @@ foreach ($co_templates as $co_template_id => $co_template) {
             <li data-co-contract="<?= intval($co_contract['contract_id']) ?>">
                 <span class="itflow-gs-person-initials" aria-hidden="true"><i class="fas fa-file-contract"></i></span>
                 <div class="min-w-0 flex-grow-1">
-                    <a href="/agent/contract.php?contract_id=<?= intval($co_contract['contract_id']) ?>" class="fw-semibold text-truncate d-block" target="_blank"><?= escapeHtml($co_contract['contract_name']) ?></a>
+                    <a href="/agent/contract.php?contract_id=<?= intval($co_contract['contract_id']) ?>" class="fw-semibold text-truncate d-block" target="_blank" rel="noopener"><?= escapeHtml($co_contract['contract_name']) ?></a>
                     <div class="small text-body-secondary text-truncate"><?= escapeHtml(contractTypeLabel($co_contract['contract_type'])) ?>, <?= escapeHtml(strtolower(contractTermLabel($co_contract['contract_term_months']))) ?>
                         <?= !empty($co_contract['contract_start_date']) ? ' - from ' . escapeHtml(date('M j, Y', strtotime($co_contract['contract_start_date']))) : '' ?>
                         <?php if ($co_sign_ready && contractSignaturePendingFor(intval($co_contract['contract_id']))) { ?> - out to sign<?php } ?>

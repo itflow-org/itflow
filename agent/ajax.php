@@ -2282,7 +2282,7 @@ if (isset($_GET['asset_duplicate_check'])) {
         if ($row) {
             $what = $field === 'mac' ? 'This MAC address' : 'This serial number';
             $message = hasClientAccess($row['asset_client_id'])
-                ? "<i class='far fa-fw fa-copy me-2'></i>$what is already on <a href='asset.php?client_id=" . intval($row['asset_client_id']) . "&asset_id=" . intval($row['asset_id']) . "' target='_blank'>" . escapeHtml($row['asset_name']) . "</a>"
+                ? "<i class='far fa-fw fa-copy me-2'></i>$what is already on <a href='asset.php?client_id=" . intval($row['asset_client_id']) . "&asset_id=" . intval($row['asset_id']) . "' target='_blank' rel='noopener'>" . escapeHtml($row['asset_name']) . "</a>"
                     . " at " . escapeHtml($row['client_name']) . ($row['asset_archived_at'] ? ' (archived)' : '')
                 : "<i class='far fa-fw fa-copy me-2'></i>$what is already on an asset of a client you cannot open.";
         }
@@ -2533,7 +2533,7 @@ if (isset($_GET['contact_email_check'])) {
             WHERE contact_email = '$email' AND contact_id != $exclude_contact ORDER BY contact_archived_at IS NOT NULL, contact_id DESC LIMIT 1");
         if ($row = mysqli_fetch_assoc($sql_contacts)) {
             $response['message'] = hasClientAccess($row['contact_client_id'])
-                ? "<i class='far fa-fw fa-copy me-2'></i>Already on file: <a href='contact.php?client_id=" . intval($row['contact_client_id']) . "&contact_id=" . intval($row['contact_id']) . "' target='_blank'>" . escapeHtml($row['contact_name']) . "</a>"
+                ? "<i class='far fa-fw fa-copy me-2'></i>Already on file: <a href='contact.php?client_id=" . intval($row['contact_client_id']) . "&contact_id=" . intval($row['contact_id']) . "' target='_blank' rel='noopener'>" . escapeHtml($row['contact_name']) . "</a>"
                     . " at " . escapeHtml($row['client_name']) . ($row['contact_archived_at'] ? ' (archived)' : '')
                 : "<i class='far fa-fw fa-copy me-2'></i>Already on file for a client you cannot open.";
         }

@@ -59,7 +59,7 @@ ob_start();
             <label class="form-label">Time estimate <span class="text-secondary">(minutes)</span></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
-                <input type="number" class="form-control" name="completion_estimate" placeholder="e.g. 30" value="<?= $task_completion_estimate ?>">
+                <input type="number" class="form-control" name="completion_estimate" placeholder="30" value="<?= $task_completion_estimate ?>">
             </div>
         </div>
 

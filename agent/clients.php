@@ -632,7 +632,7 @@ $total_leads = intval($row['leads']);
                                     <?php } ?>
                                 </div>
                             <?php } elseif (!$location_id && $can_edit) { ?>
-                                <a class="ajax-modal small text-body-secondary" href="#" data-modal-url="modals/location/location_add.php?client_id=<?= $client_id ?>&primary=1">
+                                <a class="ajax-modal small text-body-secondary" href="#" data-modal-size="lg" data-modal-url="modals/location/location_add.php?client_id=<?= $client_id ?>&primary=1">
                                     <i class="fas fa-fw fa-plus me-1" aria-hidden="true"></i>Add primary location
                                 </a>
                             <?php } else { ?>

@@ -23,7 +23,7 @@ ob_start();
         <div class="mb-3">
             <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
-                <input type="text" class="form-control" name="bulk_phone" placeholder="Phone Number" maxlength="200">
+                <input type="tel" class="form-control" name="bulk_phone" placeholder="Phone Number" maxlength="200">
             </div>
         </div>
 

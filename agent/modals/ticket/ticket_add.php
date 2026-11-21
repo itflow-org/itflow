@@ -401,7 +401,7 @@ ob_start();
                     <label class="form-label">Watchers</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
-                        <select class="form-select select2" name="watchers[]" id="watchersSelect" data-tags="true" data-placeholder="Enter or select email address" multiple>
+                        <select class="form-select select2" name="watchers[]" id="watchersSelect" data-tags="true" data-placeholder="Type a name or an email address" multiple>
                         </select>
                     </div>
                 </div>

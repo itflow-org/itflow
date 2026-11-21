@@ -120,7 +120,7 @@ ob_start();
                     <label class="form-label">Website</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fw fa-globe"></i></span>
-                        <input type="text" class="form-control" name="website" placeholder="ex. google.com" maxlength="200"
+                        <input type="text" inputmode="url" class="form-control" name="website" placeholder="example.com" maxlength="200"
                                value="<?= $client_website ?>">
                     </div>
                 </div>
@@ -182,7 +182,7 @@ ob_start();
             <div class="tab-pane fade" id="pills-client-notes<?= $client_id ?>">
 
                 <div class="mb-3">
-                    <textarea class="form-control" rows="10" placeholder="Enter some notes" name="notes"><?= $client_notes ?></textarea>
+                    <textarea class="form-control" rows="10" placeholder="Anything worth knowing about them" name="notes"><?= $client_notes ?></textarea>
                 </div>
 
             </div>

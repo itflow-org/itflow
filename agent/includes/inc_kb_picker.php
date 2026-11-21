@@ -41,7 +41,7 @@ if (kbCan(1)) {
                 <?php } ?>
             </div>
             <div class="border-top py-1">
-                <a class="dropdown-item small" href="/agent/kb.php" target="_blank" title="Opens in a new tab - your reply stays here"><i class="fas fa-fw fa-book text-secondary me-2"></i>Open the Knowledge Base</a>
+                <a class="dropdown-item small" href="/agent/kb.php" target="_blank" rel="noopener" title="Opens in a new tab - your reply stays here"><i class="fas fa-fw fa-book text-secondary me-2"></i>Open the Knowledge Base</a>
             </div>
         </div>
         <div class="small text-body-secondary mt-1" data-kb-pick-said hidden></div>

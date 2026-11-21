@@ -129,7 +129,7 @@ $value = function ($key) use ($form) {
             <label class="form-label">VLAN</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
-                <input type="number" class="form-control" name="vlan" min="1" max="4094" placeholder="e.g. 10" value="<?= $value('network_vlan') ?>">
+                <input type="number" class="form-control" name="vlan" min="1" max="4094" placeholder="10" value="<?= $value('network_vlan') ?>">
             </div>
         </div>
 

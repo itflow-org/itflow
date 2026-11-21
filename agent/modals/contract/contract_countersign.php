@@ -52,7 +52,7 @@ if (!$round || $state['key'] !== 'countersign') { ?>
         </small>
     </div>
     <div class="modal-footer">
-        <a class="btn btn-link me-auto" href="contract_document.php?client_id=<?= $client_id ?>&contract_id=<?= intval($round['contract_id']) ?>&round=<?= intval($round['contract_signature_id']) ?>" target="_blank"><i class="fas fa-eye me-2"></i>Read what they signed</a>
+        <a class="btn btn-link me-auto" href="contract_document.php?client_id=<?= $client_id ?>&contract_id=<?= intval($round['contract_id']) ?>&round=<?= intval($round['contract_signature_id']) ?>" target="_blank" rel="noopener"><i class="fas fa-eye me-2"></i>Read what they signed</a>
         <button type="submit" name="countersign_contract" class="btn btn-success fw-bold"><i class="fas fa-pen-nib me-2"></i>Countersign</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>

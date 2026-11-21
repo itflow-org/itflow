@@ -792,7 +792,7 @@ if (isset($_GET['ticket_id'])) {
                                         <?php if (strtolower(pathinfo($ticket_attachment['ticket_attachment_name'], PATHINFO_EXTENSION)) === 'eml') { ?>
                                             <a class="ms-2 small ajax-modal" href="#" data-modal-url="modals/ticket/ticket_email_source.php?attachment_id=<?= $ticket_attachment_id ?>" data-modal-size="lg">Read</a>
                                         <?php } else { ?>
-                                            <a target="_blank" class="ms-2 small" href="ticket_attachment.php?attachment_id=<?= $ticket_attachment_id ?>&action=view">View</a>
+                                            <a target="_blank" rel="noopener" class="ms-2 small" href="ticket_attachment.php?attachment_id=<?= $ticket_attachment_id ?>&action=view">View</a>
                                         <?php } ?>
                                         <a class="ms-2 small" href="ticket_attachment.php?attachment_id=<?= $ticket_attachment_id ?>">Download</a>
                                         <?php if (lookupUserPermission("module_support") >= 3) { ?>
@@ -1239,7 +1239,7 @@ if (isset($_GET['ticket_id'])) {
                                             <?php if (strtolower(pathinfo($ticket_attachment['ticket_attachment_name'], PATHINFO_EXTENSION)) === 'eml') { ?>
                                                 <a class="ms-2 small ajax-modal" href="#" data-modal-url="modals/ticket/ticket_email_source.php?attachment_id=<?= $ticket_attachment_id ?>" data-modal-size="lg">Read</a>
                                             <?php } else { ?>
-                                                <a target="_blank" class="ms-2 small" href="ticket_attachment.php?attachment_id=<?= $ticket_attachment_id ?>&action=view">View</a>
+                                                <a target="_blank" rel="noopener" class="ms-2 small" href="ticket_attachment.php?attachment_id=<?= $ticket_attachment_id ?>&action=view">View</a>
                                             <?php } ?>
                                             <a class="ms-2 small" href="ticket_attachment.php?attachment_id=<?= $ticket_attachment_id ?>">Download</a>
                                             <?php if (lookupUserPermission("module_support") >= 3) { ?>

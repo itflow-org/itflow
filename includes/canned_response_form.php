@@ -129,7 +129,7 @@ $files = !empty($r['canned_response_id']) ? cannedResponseFiles($r['canned_respo
                 $file_id = intval($file['canned_response_file_id']); ?>
                 <li class="list-group-item d-flex align-items-center gap-2">
                     <i class="far fa-fw fa-<?= getFileIcon(pathinfo($file['canned_response_file_name'], PATHINFO_EXTENSION)) ?> text-secondary"></i>
-                    <a class="text-truncate" href="/agent/canned_response_file.php?file_id=<?= $file_id ?>" target="_blank"><?= escapeHtml($file['canned_response_file_name']) ?></a>
+                    <a class="text-truncate" href="/agent/canned_response_file.php?file_id=<?= $file_id ?>" target="_blank" rel="noopener"><?= escapeHtml($file['canned_response_file_name']) ?></a>
                     <span class="small text-secondary text-nowrap"><?= cannedResponseFileSizeText($file['canned_response_file_size']) ?></span>
                     <div class="form-check ms-auto mb-0">
                         <input class="form-check-input" type="checkbox" name="remove_file_ids[]" value="<?= $file_id ?>" id="cannedResponseRemoveFile<?= $file_id ?>">

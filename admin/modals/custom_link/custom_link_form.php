@@ -49,7 +49,7 @@ $l_description = (string) ($l['custom_link_description'] ?? '');
         <label class="form-label">Goes to <strong class="text-danger">*</strong></label>
         <div class="input-group has-validation">
             <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
-            <input type="text" class="form-control" name="uri" maxlength="500" placeholder="https://..., /agent/page.php, mailto: or tel:" value="<?= escapeHtml($l['custom_link_uri'] ?? '') ?>" required data-custom-link-uri>
+            <input type="text" inputmode="url" class="form-control" name="uri" maxlength="500" placeholder="https://..., /agent/page.php, mailto: or tel:" value="<?= escapeHtml($l['custom_link_uri'] ?? '') ?>" required data-custom-link-uri>
             <div class="invalid-feedback" data-custom-link-uri-problem></div>
         </div>
         <div class="form-check form-switch mt-2">

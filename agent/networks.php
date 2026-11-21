@@ -397,7 +397,7 @@ $csrf = $_SESSION['csrf_token'];
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/network/network.php?id=<?= $network_id ?>">
                                         <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
-                                    <a class="dropdown-item" href="<?= $url ?>" target="_blank">
+                                    <a class="dropdown-item" href="<?= $url ?>" target="_blank" rel="noopener">
                                         <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a New Tab
                                     </a>
                                     <?php if ($can_edit && !$is_archived) { ?>

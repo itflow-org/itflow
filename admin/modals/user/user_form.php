@@ -107,7 +107,7 @@ $value = function ($key) use ($form) {
                     <div class="mt-2" data-user-role-access="<?= $role_id ?>"<?= $form_role_id === $role_id ? '' : ' hidden' ?>><?= roleAccessHtml($form_role_rows[$role_id]) ?></div>
                 <?php }
             } ?>
-            <div class="form-text">What they can see and change. <a href="roles.php" target="_blank">Roles <i class="fas fa-external-link-alt small"></i></a></div>
+            <div class="form-text">What they can see and change. <a href="roles.php" target="_blank" rel="noopener">Roles <i class="fas fa-external-link-alt small"></i></a></div>
         </div>
         <?= officeUserField($form_user_id ? officeIdForUser($form_user_id) : 0) ?>
         <?php if (!$is_new) { ?>

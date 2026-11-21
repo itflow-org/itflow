@@ -132,7 +132,7 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
             <label class="form-label">Opens at</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
-                <input type="text" class="form-control" name="uri" placeholder="https://192.168.1.1, rdp://server" maxlength="500" value="<?= $credential_uri ?>">
+                <input type="text" inputmode="url" class="form-control" name="uri" placeholder="https://192.168.1.1, rdp://server" maxlength="500" value="<?= $credential_uri ?>">
                 <button class="btn btn-outline-secondary clipboardjs" title="Copy URI" type="button" data-clipboard-target="input[name=uri]"><i class="far fa-fw fa-copy"></i></button>
             </div>
         </div>
@@ -140,7 +140,7 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
             <label class="form-label">Also at</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
-                <input type="text" class="form-control" name="uri_2" placeholder="https://server.company.com:5001" maxlength="500" value="<?= $credential_uri_2 ?>">
+                <input type="text" inputmode="url" class="form-control" name="uri_2" placeholder="https://server.company.com:5001" maxlength="500" value="<?= $credential_uri_2 ?>">
                 <button class="btn btn-outline-secondary clipboardjs" title="Copy URI 2" type="button" data-clipboard-target="input[name=uri_2]"><i class="far fa-fw fa-copy"></i></button>
             </div>
         </div>

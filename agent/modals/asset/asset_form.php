@@ -440,21 +440,21 @@ $asset_form_icons = [
                 <label class="form-label">Link</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="<?= $asset_form_icons['uri'] ?> fa-fw" data-asset-form-icon="link"></i></span>
-                    <input type="text" class="form-control" name="uri" placeholder="https://, ssh://, rdp://" maxlength="500" value="<?= $asset_uri ?>">
+                    <input type="text" inputmode="url" class="form-control" name="uri" placeholder="https://, ssh://, rdp://" maxlength="500" value="<?= $asset_uri ?>">
                 </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Second link</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="<?= $asset_form_icons['uri_2'] ?> fa-fw" data-asset-form-icon="link"></i></span>
-                    <input type="text" class="form-control" name="uri_2" placeholder="https://, ssh://, rdp://" maxlength="500" value="<?= $asset_uri_2 ?>">
+                    <input type="text" inputmode="url" class="form-control" name="uri_2" placeholder="https://, ssh://, rdp://" maxlength="500" value="<?= $asset_uri_2 ?>">
                 </div>
             </div>
             <div class="col-12">
                 <label class="form-label">Client link</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-share-square fa-fw"></i></span>
-                    <input type="text" class="form-control" name="uri_client" placeholder="https://" maxlength="500" value="<?= $asset_uri_client ?>">
+                    <input type="text" inputmode="url" class="form-control" name="uri_client" placeholder="https://" maxlength="500" value="<?= $asset_uri_client ?>">
                 </div>
                 <div class="form-text">Shown to the client in their portal.</div>
             </div>

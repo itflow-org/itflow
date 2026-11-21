@@ -212,7 +212,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                         </a>
                     <?php } ?>
                     <?php if ($client_url) { ?>
-                        <a class="dropdown-item" href="post.php?export_client_statement_pdf=<?= $client_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank">
+                        <a class="dropdown-item" href="post.php?export_client_statement_pdf=<?= $client_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank" rel="noopener">
                             <i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Statement PDF
                         </a>
                     <?php } ?>
@@ -421,7 +421,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="<?= $row_url ?>"><i class="fas fa-fw fa-eye text-secondary me-2"></i>Open</a>
-                                    <a class="dropdown-item" href="post.php?export_invoice_pdf=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank"><i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Download PDF</a>
+                                    <a class="dropdown-item" href="post.php?export_invoice_pdf=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank" rel="noopener"><i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Download PDF</a>
                                     <?php if ($row_can_pay) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/payment/payment_add.php?id=<?= $invoice_id ?>">

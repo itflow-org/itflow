@@ -227,13 +227,13 @@ echo agentBannersHtml($client_id);
                     <i class="fas fa-fw fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="post.php?export_invoice_pdf=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>" target="_blank">
+                    <a class="dropdown-item" href="post.php?export_invoice_pdf=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>" target="_blank" rel="noopener">
                         <i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Download PDF
                     </a>
                     <a class="dropdown-item" href="#" onclick="window.print(); return false;">
                         <i class="fas fa-fw fa-print text-secondary me-2"></i>Print
                     </a>
-                    <a class="dropdown-item" href="post.php?export_invoice_packing_slip=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>" target="_blank">
+                    <a class="dropdown-item" href="post.php?export_invoice_packing_slip=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>" target="_blank" rel="noopener">
                         <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Packing Slip
                     </a>
                     <div class="dropdown-divider"></div>

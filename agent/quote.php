@@ -180,7 +180,7 @@ echo agentBannersHtml($client_id);
                     <i class="fas fa-fw fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $csrf ?>" target="_blank">
+                    <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $csrf ?>" target="_blank" rel="noopener">
                         <i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Download PDF
                     </a>
                     <a class="dropdown-item" href="#" onclick="window.print(); return false;">

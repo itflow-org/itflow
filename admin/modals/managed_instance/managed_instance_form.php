@@ -91,7 +91,7 @@ if (!managerEnabled()) { ?>
                     <label class="form-label">Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-fw fa-server"></i></span>
-                        <input type="text" class="form-control" name="name" placeholder="e.g. Ravenwood Dental ITFlow" maxlength="200" value="<?= $value('managed_instance_name') ?>" required <?= $is_new ? 'autofocus' : '' ?>>
+                        <input type="text" class="form-control" name="name" placeholder="Ravenwood Dental ITFlow" maxlength="200" value="<?= $value('managed_instance_name') ?>" required <?= $is_new ? 'autofocus' : '' ?>>
                     </div>
                     <div class="form-text">What it's called here - its own company name shows from its reports.</div>
                 </div>
@@ -101,7 +101,7 @@ if (!managerEnabled()) { ?>
                         <label class="form-label">Address</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fw fa-globe"></i></span>
-                            <input type="text" class="form-control" name="url" placeholder="e.g. itflow.ravenwooddental.com" maxlength="240" value="<?= escapeHtml(preg_replace('#^https?://#', '', (string) $form['managed_instance_url'])) ?>">
+                            <input type="text" inputmode="url" class="form-control" name="url" placeholder="itflow.ravenwooddental.com" maxlength="240" value="<?= escapeHtml(preg_replace('#^https?://#', '', (string) $form['managed_instance_url'])) ?>">
                         </div>
                         <div class="form-text">Where it's reached, without https:// - it goes in the command that sets up a new install for it. Once it connects, it's the address it says it has.</div>
                     </div>
@@ -199,7 +199,7 @@ if (!managerEnabled()) { ?>
                     <label class="form-label">Message</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
-                        <input type="text" class="form-control" name="mode_message" maxlength="500" placeholder="e.g. Your subscription has ended - call us to carry on" value="<?= $value('managed_instance_mode_message') ?>">
+                        <input type="text" class="form-control" name="mode_message" maxlength="500" placeholder="Your subscription has ended - call us to carry on" value="<?= $value('managed_instance_mode_message') ?>">
                     </div>
                     <div class="form-text">What its people see while it's read-only or suspended, with your company's email and phone. Left empty, a plain notice.</div>
                 </div>

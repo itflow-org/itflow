@@ -188,7 +188,7 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
             <label class="form-label">Support site</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-globe"></i></span>
-                <input type="text" class="form-control" name="website" placeholder="support.vendor.com" maxlength="200" value="<?= $vendor_website ?>">
+                <input type="text" inputmode="url" class="form-control" name="website" placeholder="support.vendor.com" maxlength="200" value="<?= $vendor_website ?>">
             </div>
         </div>
         <div class="col-md-6">

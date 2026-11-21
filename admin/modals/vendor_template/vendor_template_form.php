@@ -103,7 +103,7 @@ $contact_phone_value = ($vt['contact_phone'] ?? '') !== '' ? escapeHtml(formatPh
             <label class="form-label">Support site</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-globe"></i></span>
-                <input type="text" class="form-control" name="website" placeholder="support.vendor.com" maxlength="200" value="<?= $value('website') ?>">
+                <input type="text" inputmode="url" class="form-control" name="website" placeholder="support.vendor.com" maxlength="200" value="<?= $value('website') ?>">
             </div>
         </div>
         <div class="col-md-6">

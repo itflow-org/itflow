@@ -120,7 +120,7 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
             <?php if ($form_refund) { ?>
                 <input type="hidden" name="vendor" value="<?= $form_vendor ?>">
             <?php } else { ?>
-                <a class="btn btn-outline-secondary" title="Add a vendor - opens Vendors in a new tab" href="vendors.php" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
+                <a class="btn btn-outline-secondary" title="Add a vendor - opens Vendors in a new tab" href="vendors.php" target="_blank" rel="noopener"><i class="fas fa-fw fa-plus"></i></a>
             <?php } ?>
         </div>
         <div class="form-text" data-expense-filled hidden>Filled in from the last expense with them.</div>
@@ -310,7 +310,7 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
                 ['title' => 'Receipt', 'shapes' => 'free', 'box' => 'tall', 'max' => 2400, 'accept' => 'image/*,application/pdf']) ?>
             <div class="form-text mt-0">
                 <?php if ($form_receipt) { ?>
-                    <a href="<?= escapeHtml($form_receipt_url) ?>" target="_blank"><?= escapeHtml(expenseReceiptName($form_row)) ?></a><br>
+                    <a href="<?= escapeHtml($form_receipt_url) ?>" target="_blank" rel="noopener"><?= escapeHtml(expenseReceiptName($form_row)) ?></a><br>
                 <?php } ?>
                 Click it to <?= $form_receipt ? 'change it, or take it off' : 'add a photo or a PDF' ?> - on a phone, Take a photo opens the camera.
             </div>

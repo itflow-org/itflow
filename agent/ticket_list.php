@@ -289,7 +289,7 @@ $show_due = $sla_in_use || mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM 
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket.php?id=<?= $ticket_id ?>">
                                     <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                 </a>
-                                <a class="dropdown-item" href="<?= $url ?>" target="_blank">
+                                <a class="dropdown-item" href="<?= $url ?>" target="_blank" rel="noopener">
                                     <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a New Tab
                                 </a>
                                 <?php if ($can_edit && !$is_closed) { ?>

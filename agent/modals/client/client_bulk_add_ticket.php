@@ -32,7 +32,7 @@ ob_start();
             <label class="form-label">Subject <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
-                <input type="text" class="form-control" name="bulk_subject" data-template-field="subject" placeholder="Enter a subject" maxlength="500" required>
+                <input type="text" class="form-control" name="bulk_subject" data-template-field="subject" placeholder="Subject" maxlength="500" required>
             </div>
         </div>
 

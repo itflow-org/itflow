@@ -150,8 +150,8 @@ ob_start();
                 <label class="form-label">Amount</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
-                    <input type="number" step="0.01" min="0" class="form-control" name="amount_min" value="<?= escapeHtml($amount_min) ?>" placeholder="At least">
-                    <input type="number" step="0.01" min="0" class="form-control" name="amount_max" value="<?= escapeHtml($amount_max) ?>" placeholder="At most">
+                    <input type="text" inputmode="decimal" pattern="[0-9,]*\.?[0-9]{0,2}" class="form-control" name="amount_min" value="<?= escapeHtml($amount_min) ?>" placeholder="At least">
+                    <input type="text" inputmode="decimal" pattern="[0-9,]*\.?[0-9]{0,2}" class="form-control" name="amount_max" value="<?= escapeHtml($amount_max) ?>" placeholder="At most">
                 </div>
             </div>
             <div class="col-md-6">

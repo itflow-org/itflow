@@ -226,7 +226,7 @@ $csrf = $_SESSION['csrf_token'];
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="purchase_order.php?po_id=<?= $po_id ?>"><i class="fas fa-fw fa-eye text-secondary me-2"></i>Open</a>
-                                <a class="dropdown-item" href="post.php?po_pdf=<?= $po_id ?>&csrf_token=<?= $csrf ?>" target="_blank"><i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>PDF</a>
+                                <a class="dropdown-item" href="post.php?po_pdf=<?= $po_id ?>&csrf_token=<?= $csrf ?>" target="_blank" rel="noopener"><i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>PDF</a>
                                 <?php if ($arriving && $can_edit) { ?>
                                     <a class="dropdown-item" href="receiving.php?po_id=<?= $po_id ?>"><i class="fas fa-fw fa-truck-loading text-secondary me-2"></i>Receive</a>
                                 <?php } ?>

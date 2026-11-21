@@ -23,7 +23,7 @@ ob_start();
 
     <div class="modal-body">
         <div class="mb-3">
-            <textarea class="form-control tinymce" rows="5" name="bulk_details" placeholder="Enter closing remarks"></textarea>
+            <textarea class="form-control tinymce" rows="5" name="bulk_details" placeholder="Closing remarks"></textarea>
         </div>
 
         <div class="col-3">

@@ -76,7 +76,7 @@ ob_start();
     <!-- Preview -->
     <div class="itflow-file-preview mb-3">
         <?php if ($preview_kind === 'image') { ?>
-            <a href="file.php?file_id=<?= $file_id ?>&action=view" target="_blank" title="Open full size"><img src="file.php?file_id=<?= $file_id ?>&thumb=1" alt="<?= $file_name ?>"></a>
+            <a href="file.php?file_id=<?= $file_id ?>&action=view" target="_blank" rel="noopener" title="Open full size"><img src="file.php?file_id=<?= $file_id ?>&thumb=1" alt="<?= $file_name ?>"></a>
         <?php } elseif ($preview_kind === 'pdf') { ?>
             <iframe src="file.php?file_id=<?= $file_id ?>&action=view#view=FitH" title="<?= $file_name ?>"></iframe>
         <?php } elseif ($preview_kind === 'text') { ?>

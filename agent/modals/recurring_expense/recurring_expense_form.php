@@ -83,7 +83,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
                     <option value="<?= $vendor_id ?>" <?= $form_vendor === $vendor_id ? 'selected' : '' ?><?= selectOptionVendor($vendor['vendor_name'], $vendor['vendor_archived_at'] ? 'Archived' : (string) $vendor['vendor_description']) ?>><?= escapeHtml($vendor['vendor_name']) ?></option>
                 <?php } ?>
             </select>
-            <a class="btn btn-outline-secondary" title="Add a vendor - opens Vendors in a new tab" href="vendors.php" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
+            <a class="btn btn-outline-secondary" title="Add a vendor - opens Vendors in a new tab" href="vendors.php" target="_blank" rel="noopener"><i class="fas fa-fw fa-plus"></i></a>
         </div>
         <div class="form-text" data-expense-filled hidden>Filled in from the last expense with them.</div>
     </div>
